@@ -23,12 +23,11 @@ import java.net.URL;
 import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.metadata.Metadata;
 
-
 /**
- * A response interface.  Makes all protocols model HTTP.
+ * A response interface. Makes all protocols model HTTP.
  */
 public interface Response extends HttpHeaders {
-  
+
   /** Returns the URL used to retrieve this response. */
   public URL getUrl();
 
@@ -40,7 +39,7 @@ public interface Response extends HttpHeaders {
 
   /** Returns all the headers. */
   public Metadata getHeaders();
-  
+
   /** Returns the full content of the response. */
   public byte[] getContent();
 

@@ -50,7 +50,7 @@ public class NutchUiServer {
     HelpFormatter formatter = new HelpFormatter();
     try {
       commandLine = parser.parse(options, args);
-    }  catch (Exception e) {
+    } catch (Exception e) {
       formatter.printHelp("NutchUiServer", options, true);
       StringUtils.stringifyException(e);
     }

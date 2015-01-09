@@ -24,8 +24,8 @@ import org.apache.nutch.webui.client.model.NutchStatus;
 public interface NutchService {
   public ConnectionStatus getConnectionStatus(Long instanceId);
 
-  public  Map<String, String> getNutchConfig(Long instanceId);
-  
+  public Map<String, String> getNutchConfig(Long instanceId);
+
   public NutchStatus getNutchStatus(Long instanceId);
 
 }

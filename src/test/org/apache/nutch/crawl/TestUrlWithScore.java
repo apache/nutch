@@ -42,7 +42,7 @@ public class TestUrlWithScore {
     UrlWithScore keyOut = new UrlWithScore("http://example.org/", 1f);
     assertEquals("http://example.org/", keyOut.getUrl().toString());
     assertEquals(1f, keyOut.getScore().get(), 0.001);
-    
+
     // write to out
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     DataOutputStream out = new DataOutputStream(bos);
@@ -59,45 +59,45 @@ public class TestUrlWithScore {
     in.close();
     out.close();
   }
-  
+
   @Test
   public void testPartitioner() throws IOException {
     UrlOnlyPartitioner part = new UrlOnlyPartitioner();
-    
+
     UrlWithScore k1 = new UrlWithScore("http://example.org/1", 1f);
     UrlWithScore k2 = new UrlWithScore("http://example.org/1", 2f);
     UrlWithScore k3 = new UrlWithScore("http://example.org/2", 1f);
     UrlWithScore k4 = new UrlWithScore("http://example.org/2", 2f);
     UrlWithScore k5 = new UrlWithScore("http://example.org/2", 3f);
-    
+
     int numReduces = 7;
-    
+
     // keys 1 and 2 should be partitioned together
     int partForKey1 = part.getPartition(k1, null, numReduces);
     assertEquals(partForKey1, part.getPartition(k2, null, numReduces));
     assertEquals(partForKey1, part.getPartition(k2, null, numReduces));
-    
+
     // keys 3, 4 and 5 should be partitioned together
     int partForKey3 = part.getPartition(k3, null, numReduces);
     assertEquals(partForKey3, part.getPartition(k4, null, numReduces));
     assertEquals(partForKey3, part.getPartition(k5, null, numReduces));
   }
-  
+
   @Test
   public void testUrlOnlySorting() throws IOException {
     UrlOnlyComparator comp = new UrlOnlyComparator();
-    
+
     UrlWithScore k1 = new UrlWithScore("http://example.org/1", 1f);
     UrlWithScore k2 = new UrlWithScore("http://example.org/1", 2f);
     UrlWithScore k3 = new UrlWithScore("http://example.org/2", 1f);
     UrlWithScore k4 = new UrlWithScore("http://example.org/2", 2f);
     UrlWithScore k5 = new UrlWithScore("http://example.org/2", 3f);
-    
+
     // k1 should be equal to k2
     assertEquals(0, compareBothRegularAndRaw(comp, k1, k2));
     // test symmetry
     assertEquals(0, compareBothRegularAndRaw(comp, k2, k1));
-    
+
     // k1 is before k3, k4 and k5
     assertEquals(-1, compareBothRegularAndRaw(comp, k1, k3));
     assertEquals(-1, compareBothRegularAndRaw(comp, k1, k4));
@@ -107,22 +107,22 @@ public class TestUrlWithScore {
     assertEquals(1, compareBothRegularAndRaw(comp, k4, k1));
     assertEquals(1, compareBothRegularAndRaw(comp, k5, k1));
   }
-  
+
   @Test
   public void testUrlScoreSorting() throws IOException {
     UrlScoreComparator comp = new UrlScoreComparator();
-    
+
     UrlWithScore k1 = new UrlWithScore("http://example.org/1", 1f);
     UrlWithScore k2 = new UrlWithScore("http://example.org/1", 2f);
     UrlWithScore k3 = new UrlWithScore("http://example.org/2", 1f);
     UrlWithScore k4 = new UrlWithScore("http://example.org/2", 2f);
     UrlWithScore k5 = new UrlWithScore("http://example.org/2", 3f);
-    
+
     // k1 is after k2, because score is lower
     assertEquals(1, comp.compare(k1, k2));
     // test symmetry
     assertEquals(-1, comp.compare(k2, k1));
-    
+
     // k1 is before k3, k4 and k5, because url is lower
     assertEquals(-1, compareBothRegularAndRaw(comp, k1, k3));
     assertEquals(-1, compareBothRegularAndRaw(comp, k1, k4));
@@ -131,7 +131,7 @@ public class TestUrlWithScore {
     assertEquals(1, compareBothRegularAndRaw(comp, k3, k1));
     assertEquals(1, compareBothRegularAndRaw(comp, k4, k1));
     assertEquals(1, compareBothRegularAndRaw(comp, k5, k1));
-    
+
     // k3 after k4 and k4 after k5 and therefore k3 after k5 (transitivity)
     assertEquals(1, compareBothRegularAndRaw(comp, k3, k4));
     assertEquals(1, compareBothRegularAndRaw(comp, k4, k5));
@@ -150,19 +150,19 @@ public class TestUrlWithScore {
    * @param k1
    * @param k2
    * @return The compare result. (When k1 != k2, assert failure kicks in)
-   * @throws IOException 
+   * @throws IOException
    */
-  private Object compareBothRegularAndRaw(RawComparator<UrlWithScore> comp, 
+  private Object compareBothRegularAndRaw(RawComparator<UrlWithScore> comp,
       UrlWithScore k1, UrlWithScore k2) throws IOException {
     int regular = comp.compare(k1, k2);
-    
+
     byte[] bytes1 = extractBytes(k1);
     byte[] bytes2 = extractBytes(k2);
-    
+
     int raw = comp.compare(bytes1, 0, bytes1.length, bytes2, 0, bytes2.length);
-    
+
     assertEquals("Regular compare should equal raw compare", regular, raw);
-    
+
     return regular;
   }
 
@@ -181,5 +181,5 @@ public class TestUrlWithScore {
     out.close();
     return bytes;
   }
-  
+
 }

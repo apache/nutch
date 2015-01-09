@@ -30,29 +30,29 @@ public class IndexerOutputFormat extends OutputFormat<String, NutchDocument> {
   public RecordWriter<String, NutchDocument> getRecordWriter(
       TaskAttemptContext job) throws IOException, InterruptedException {
 
-    //final IndexWriter[] writers =
-    //  NutchIndexWriterFactory.getNutchIndexWriters(job.getConfiguration());
+    // final IndexWriter[] writers =
+    // NutchIndexWriterFactory.getNutchIndexWriters(job.getConfiguration());
 
     final IndexWriters writers = new IndexWriters(job.getConfiguration());
-    
-//    for (final IndexWriter writer : writers) {
-//      writer.open(job);
-//    }
+
+    // for (final IndexWriter writer : writers) {
+    // writer.open(job);
+    // }
     writers.open(job.getConfiguration());
-    
+
     return new RecordWriter<String, NutchDocument>() {
 
       @Override
       public void write(String key, NutchDocument doc) throws IOException {
-        // TODO: Check Write Status for delete or write.  
+        // TODO: Check Write Status for delete or write.
         writers.write(doc);
       }
 
       @Override
       public void close(TaskAttemptContext context) throws IOException,
-      InterruptedException {
-          writers.close();
-        }
+          InterruptedException {
+        writers.close();
+      }
     };
   }
 
@@ -64,21 +64,26 @@ public class IndexerOutputFormat extends OutputFormat<String, NutchDocument> {
   @Override
   public OutputCommitter getOutputCommitter(TaskAttemptContext arg0)
       throws IOException, InterruptedException {
-    //return an empty outputcommitter
+    // return an empty outputcommitter
     return new OutputCommitter() {
       @Override
       public void setupTask(TaskAttemptContext arg0) throws IOException {
       }
+
       @Override
       public void setupJob(JobContext arg0) throws IOException {
       }
+
       @Override
-      public boolean needsTaskCommit(TaskAttemptContext arg0) throws IOException {
+      public boolean needsTaskCommit(TaskAttemptContext arg0)
+          throws IOException {
         return false;
       }
+
       @Override
       public void commitTask(TaskAttemptContext arg0) throws IOException {
       }
+
       @Override
       public void abortTask(TaskAttemptContext arg0) throws IOException {
       }

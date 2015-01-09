@@ -21,9 +21,8 @@ import org.apache.gora.store.DataStore;
 
 public class WebTableCreator {
   public static void main(String[] args) throws Exception {
-    DataStore<String, WebPage> store =
-      StorageUtils.createWebStore(NutchConfiguration.create(), String.class,
-        WebPage.class);
+    DataStore<String, WebPage> store = StorageUtils.createWebStore(
+        NutchConfiguration.create(), String.class, WebPage.class);
 
     System.out.println(store);
   }

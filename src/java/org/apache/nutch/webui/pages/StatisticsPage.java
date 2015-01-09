@@ -16,6 +16,6 @@
  */
 package org.apache.nutch.webui.pages;
 
-public class StatisticsPage extends AbstractBasePage{
+public class StatisticsPage extends AbstractBasePage {
 
 }

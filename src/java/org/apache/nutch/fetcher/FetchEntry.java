@@ -66,6 +66,5 @@ public class FetchEntry extends Configured implements Writable {
   public String toString() {
     return "FetchEntry [key=" + key + ", page=" + page + "]";
   }
-  
-  
+
 }

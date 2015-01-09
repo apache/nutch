@@ -38,17 +38,17 @@ import java.util.Set;
 
 /**
  * This plugin implements a variant of an Online Page Importance Computation
- * (OPIC) score, described in this paper:
- * <a href="http://www2003.org/cdrom/papers/refereed/p007/p7-abiteboul.html"/>
- * Abiteboul, Serge and Preda, Mihai and Cobena, Gregory (2003),
- * Adaptive On-Line Page Importance Computation
- * </a>.
- *
+ * (OPIC) score, described in this paper: <a
+ * href="http://www2003.org/cdrom/papers/refereed/p007/p7-abiteboul.html"/>
+ * Abiteboul, Serge and Preda, Mihai and Cobena, Gregory (2003), Adaptive
+ * On-Line Page Importance Computation </a>.
+ * 
  * @author Andrzej Bialecki
  */
 public class OPICScoringFilter implements ScoringFilter {
 
-  private final static Logger LOG = LoggerFactory.getLogger(OPICScoringFilter.class);
+  private final static Logger LOG = LoggerFactory
+      .getLogger(OPICScoringFilter.class);
 
   private final static Utf8 CASH_KEY = new Utf8("_csh_");
 
@@ -80,28 +80,33 @@ public class OPICScoringFilter implements ScoringFilter {
 
   @Override
   public void injectedScore(String url, WebPage row)
-  throws ScoringFilterException {
+      throws ScoringFilterException {
     float score = row.getScore();
     row.getMetadata().put(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(score)));
   }
 
-  /** Set to 0.0f (unknown value) - inlink contributions will bring it to
-   * a correct level. Newly discovered pages have at least one inlink. */
+  /**
+   * Set to 0.0f (unknown value) - inlink contributions will bring it to a
+   * correct level. Newly discovered pages have at least one inlink.
+   */
   @Override
-  public void initialScore(String url, WebPage row) throws ScoringFilterException {
+  public void initialScore(String url, WebPage row)
+      throws ScoringFilterException {
     row.setScore(0.0f);
     row.getMetadata().put(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(0.0f)));
   }
 
   /** Use {@link WebPage#getScore()}. */
   @Override
-  public float generatorSortValue(String url, WebPage row, float initSort) throws ScoringFilterException {
+  public float generatorSortValue(String url, WebPage row, float initSort)
+      throws ScoringFilterException {
     return row.getScore() * initSort;
   }
 
   /** Increase the score by a sum of inlinked scores. */
   @Override
-  public void updateScore(String url, WebPage row, List<ScoreDatum> inlinkedScoreData) {
+  public void updateScore(String url, WebPage row,
+      List<ScoreDatum> inlinkedScoreData) {
     float adjust = 0.0f;
     for (ScoreDatum scoreDatum : inlinkedScoreData) {
       adjust += scoreDatum.getScore();
@@ -111,21 +116,23 @@ public class OPICScoringFilter implements ScoringFilter {
     ByteBuffer cashRaw = row.getMetadata().get(CASH_KEY);
     float cash = 0.0f;
     if (cashRaw != null) {
-      cash = Bytes.toFloat(cashRaw.array(), cashRaw.arrayOffset() + cashRaw.position());
+      cash = Bytes.toFloat(cashRaw.array(),
+          cashRaw.arrayOffset() + cashRaw.position());
     }
-    row.getMetadata().put(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(cash + adjust)));
+    row.getMetadata().put(CASH_KEY,
+        ByteBuffer.wrap(Bytes.toBytes(cash + adjust)));
   }
 
   /** Get cash on hand, divide it by the number of outlinks and apply. */
   @Override
-  public void distributeScoreToOutlinks(String fromUrl,
-      WebPage row, Collection<ScoreDatum> scoreData,
-      int allCount) {
+  public void distributeScoreToOutlinks(String fromUrl, WebPage row,
+      Collection<ScoreDatum> scoreData, int allCount) {
     ByteBuffer cashRaw = row.getMetadata().get(CASH_KEY);
     if (cashRaw == null) {
       return;
     }
-    float cash = Bytes.toFloat(cashRaw.array(), cashRaw.arrayOffset() + cashRaw.position());
+    float cash = Bytes.toFloat(cashRaw.array(),
+        cashRaw.arrayOffset() + cashRaw.position());
     if (cash == 0) {
       return;
     }
@@ -138,7 +145,7 @@ public class OPICScoringFilter implements ScoringFilter {
       try {
         String toHost = new URL(scoreDatum.getUrl()).getHost();
         String fromHost = new URL(fromUrl.toString()).getHost();
-        if(toHost.equalsIgnoreCase(fromHost)){
+        if (toHost.equalsIgnoreCase(fromHost)) {
           scoreDatum.setScore(internalScore);
         } else {
           scoreDatum.setScore(externalScore);
@@ -152,9 +159,10 @@ public class OPICScoringFilter implements ScoringFilter {
     row.getMetadata().put(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(0.0f)));
   }
 
-  /** Dampen the boost value by scorePower.*/
-  public float indexerScore(String url, NutchDocument doc, WebPage row, float initScore) {
-    return (float)Math.pow(row.getScore(), scorePower) * initScore;
+  /** Dampen the boost value by scorePower. */
+  public float indexerScore(String url, NutchDocument doc, WebPage row,
+      float initScore) {
+    return (float) Math.pow(row.getScore(), scorePower) * initScore;
   }
 
   @Override

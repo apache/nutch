@@ -42,7 +42,8 @@ import java.util.List;
 
 public class CrawlTestUtil {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CrawlTestUtil.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(CrawlTestUtil.class);
 
   /**
    * For now we need to manually construct our Configuration, because we need to
@@ -93,15 +94,16 @@ public class CrawlTestUtil {
     out.flush();
     out.close();
   }
-  
+
   /**
    * Read entries from a data store
-   *
+   * 
    * @return list of matching {@link URLWebPage} objects
    * @throws Exception
    */
-  public static ArrayList<URLWebPage> readContents(DataStore<String,WebPage> store,
-      Mark requiredMark, String... fields) throws Exception {
+  public static ArrayList<URLWebPage> readContents(
+      DataStore<String, WebPage> store, Mark requiredMark, String... fields)
+      throws Exception {
     ArrayList<URLWebPage> l = new ArrayList<URLWebPage>();
 
     Query<String, WebPage> query = store.newQuery();
@@ -121,14 +123,14 @@ public class CrawlTestUtil {
         if (requiredMark != null && requiredMark.checkMark(page) == null)
           continue;
 
-        l.add(new URLWebPage(TableUtil.unreverseUrl(url), WebPage.newBuilder(page).build()));
+        l.add(new URLWebPage(TableUtil.unreverseUrl(url), WebPage.newBuilder(
+            page).build()));
       } catch (Exception e) {
         e.printStackTrace();
       }
     }
     return l;
   }
-
 
   /**
    * Creates a new JettyServer with one static root context
@@ -145,7 +147,7 @@ public class CrawlTestUtil {
     ResourceHandler handler = new ResourceHandler();
     handler.setResourceBase(staticContent);
     HandlerList handlers = new HandlerList();
-    handlers.setHandlers(new Handler[]{handler, new DefaultHandler()});
+    handlers.setHandlers(new Handler[] { handler, new DefaultHandler() });
     webServer.setHandler(handlers);
     return webServer;
   }

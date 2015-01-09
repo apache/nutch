@@ -35,11 +35,10 @@ import java.util.HashSet;
 /**
  * An {@link org.apache.nutch.indexer.IndexingFilter} that adds a
  * <code>lang</code> (language) field to the document.
- *
- * It tries to find the language of the document by checking
- * if {@link HTMLLanguageParser} has added some language
- * information
- *
+ * 
+ * It tries to find the language of the document by checking if
+ * {@link HTMLLanguageParser} has added some language information
+ * 
  * @author Sami Siren
  * @author Jerome Charron
  */
@@ -56,7 +55,8 @@ public class LanguageIndexingFilter implements IndexingFilter {
   /**
    * Constructs a new Language Indexing Filter.
    */
-  public LanguageIndexingFilter() {}
+  public LanguageIndexingFilter() {
+  }
 
   public NutchDocument filter(NutchDocument doc, String url, WebPage page)
       throws IndexingException {

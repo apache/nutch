@@ -165,7 +165,8 @@ public class NutchServer extends Application {
    * Safety and convenience method to determine whether or not it is safe to
    * shut down the server. We make this assertion by consulting the
    * {@link org.apache.nutch.api.NutchApp#jobManager} for a list of jobs with
-   * {@link org.apache.nutch.api.model.response.JobInfo#state} equal to 'RUNNING'.
+   * {@link org.apache.nutch.api.model.response.JobInfo#state} equal to
+   * 'RUNNING'.
    * 
    * @param force
    *          ignore running tasks

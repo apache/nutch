@@ -38,23 +38,23 @@ public class URLFilterChecker {
   private Configuration conf;
 
   public URLFilterChecker(Configuration conf) {
-      this.conf = conf;
+    this.conf = conf;
   }
 
   private void checkOne(String filterName) throws Exception {
     URLFilter filter = null;
 
-    ExtensionPoint point =
-      PluginRepository.get(conf).getExtensionPoint(URLFilter.X_POINT_ID);
+    ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(
+        URLFilter.X_POINT_ID);
 
     if (point == null)
-      throw new RuntimeException(URLFilter.X_POINT_ID+" not found.");
+      throw new RuntimeException(URLFilter.X_POINT_ID + " not found.");
 
     Extension[] extensions = point.getExtensions();
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
-      filter = (URLFilter)extension.getExtensionInstance();
+      filter = (URLFilter) extension.getExtensionInstance();
       if (filter.getClass().getName().equals(filterName)) {
         break;
       } else {
@@ -63,19 +63,19 @@ public class URLFilterChecker {
     }
 
     if (filter == null)
-      throw new RuntimeException("Filter "+filterName+" not found.");
+      throw new RuntimeException("Filter " + filterName + " not found.");
 
     // jerome : should we keep this behavior?
-    //if (LogFormatter.hasLoggedSevere())
-    //  throw new RuntimeException("Severe error encountered.");
+    // if (LogFormatter.hasLoggedSevere())
+    // throw new RuntimeException("Severe error encountered.");
 
-    System.out.println("Checking URLFilter "+filterName);
+    System.out.println("Checking URLFilter " + filterName);
 
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String line;
-    while((line=in.readLine())!=null) {
-      String out=filter.filter(line);
-      if(out!=null) {
+    while ((line = in.readLine()) != null) {
+      String out = filter.filter(line);
+      if (out != null) {
         System.out.print("+");
         System.out.println(out);
       } else {
@@ -90,10 +90,10 @@ public class URLFilterChecker {
 
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String line;
-    while((line=in.readLine())!=null) {
+    while ((line = in.readLine()) != null) {
       URLFilters filters = new URLFilters(this.conf);
       String out = filters.filter(line);
-      if(out!=null) {
+      if (out != null) {
         System.out.print("+");
         System.out.println(out);
       } else {

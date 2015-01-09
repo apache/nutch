@@ -18,7 +18,7 @@ package org.apache.nutch.webui.pages.menu;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.Navbar;
 
-public class VerticalMenu extends Navbar{
+public class VerticalMenu extends Navbar {
 
   public VerticalMenu(String componentId) {
     super(componentId);

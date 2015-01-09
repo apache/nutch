@@ -15,6 +15,7 @@
  * limitations under the License.
  ******************************************************************************/
 package org.apache.nutch.tools.proxy;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -52,19 +53,32 @@ public class TestbedProxy {
    */
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
-      System.err.println("TestbedProxy [-port <nnn>] [-forward] [-fake [...]] [-delay nnn] [-debug]");
-      System.err.println("-port <nnn>\trun the proxy on port <nnn> (special permissions may be needed for ports < 1024)");
-      System.err.println("-forward\tif specified, requests to all unknown urls will be passed to");
-      System.err.println("\t\toriginal servers. If false (default) unknown urls generate 404 Not Found.");
-      System.err.println("-delay\tdelay every response by nnn seconds. If delay is negative use a random value up to nnn");
-      System.err.println("-fake\tif specified, requests to all unknown urls will succeed with fake content");
-      System.err.println("\nAdditional options for -fake handler (all optional):");
-      System.err.println("\t-hostMode (u | r)\tcreate unique host names, or pick random from a pool");
-      System.err.println("\t-pageMode (u | r)\tcreate unique page names, or pick random from a pool");
-      System.err.println("\t-numHosts N\ttotal number of hosts when using hostMode r");
-      System.err.println("\t-numPages N\ttotal number of pages per host when using pageMode r");
-      System.err.println("\t-intLinks N\tnumber of internal (same host) links per page");
-      System.err.println("\t-extLinks N\tnumber of external (other host) links per page");
+      System.err
+          .println("TestbedProxy [-port <nnn>] [-forward] [-fake [...]] [-delay nnn] [-debug]");
+      System.err
+          .println("-port <nnn>\trun the proxy on port <nnn> (special permissions may be needed for ports < 1024)");
+      System.err
+          .println("-forward\tif specified, requests to all unknown urls will be passed to");
+      System.err
+          .println("\t\toriginal servers. If false (default) unknown urls generate 404 Not Found.");
+      System.err
+          .println("-delay\tdelay every response by nnn seconds. If delay is negative use a random value up to nnn");
+      System.err
+          .println("-fake\tif specified, requests to all unknown urls will succeed with fake content");
+      System.err
+          .println("\nAdditional options for -fake handler (all optional):");
+      System.err
+          .println("\t-hostMode (u | r)\tcreate unique host names, or pick random from a pool");
+      System.err
+          .println("\t-pageMode (u | r)\tcreate unique page names, or pick random from a pool");
+      System.err
+          .println("\t-numHosts N\ttotal number of hosts when using hostMode r");
+      System.err
+          .println("\t-numPages N\ttotal number of pages per host when using pageMode r");
+      System.err
+          .println("\t-intLinks N\tnumber of internal (same host) links per page");
+      System.err
+          .println("\t-extLinks N\tnumber of external (other host) links per page");
       System.err.println("\nDefaults for -fake handler:");
       System.err.println("\t-hostMode r");
       System.err.println("\t-pageMode r");
@@ -74,7 +88,7 @@ public class TestbedProxy {
       System.err.println("\t-extLinks 5");
       System.exit(-1);
     }
-    
+
     Configuration conf = NutchConfiguration.create();
     int port = conf.getInt("batch.proxy.port", 8181);
     boolean forward = false;
@@ -88,7 +102,7 @@ public class TestbedProxy {
     int numPages = 10000;
     int intLinks = 10;
     int extLinks = 5;
-    
+
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-port")) {
         port = Integer.parseInt(args[++i]);
@@ -122,28 +136,30 @@ public class TestbedProxy {
         System.exit(-1);
       }
     }
-    
+
     // Create the server
     Server server = new Server();
     SocketConnector connector = new SocketConnector();
     connector.setPort(port);
     connector.setResolveNames(false);
     server.addConnector(connector);
-    
+
     // create a list of handlers
     HandlerList list = new HandlerList();
     server.addHandler(list);
-    
+
     if (debug) {
       LOG.info("* Added debug handler.");
       list.addHandler(new LogDebugHandler());
     }
- 
+
     if (delay) {
-      LOG.info("* Added delay handler: " + (delayVal < 0 ? "random delay up to " + (-delayVal) : "constant delay of " + delayVal));
+      LOG.info("* Added delay handler: "
+          + (delayVal < 0 ? "random delay up to " + (-delayVal)
+              : "constant delay of " + delayVal));
       list.addHandler(new DelayHandler(delayVal));
     }
-    
+
     // XXX alternatively, we can add the DispatchHandler as the first one,
     // XXX to activate handler plugins and redirect requests to appropriate
     // XXX handlers ... Here we always load these handlers

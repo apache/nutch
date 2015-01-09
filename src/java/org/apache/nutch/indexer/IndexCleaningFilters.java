@@ -32,12 +32,13 @@ import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.ObjectCache;
 
-/** Creates and caches {@link IndexCleaningFilter} implementing plugins.*/
+/** Creates and caches {@link IndexCleaningFilter} implementing plugins. */
 public class IndexCleaningFilters {
 
   public static final String IndexCleaningFilter_ORDER = "IndexCleaningFilterhbase.order";
 
-  public final static Logger LOG = LoggerFactory.getLogger(IndexCleaningFilters.class);
+  public final static Logger LOG = LoggerFactory
+      .getLogger(IndexCleaningFilters.class);
 
   private IndexCleaningFilter[] indexcleaningFilters;
 
@@ -60,10 +61,10 @@ public class IndexCleaningFilters {
         ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(
             IndexCleaningFilter.X_POINT_ID);
         if (point == null)
-          throw new RuntimeException(IndexCleaningFilter.X_POINT_ID + " not found.");
+          throw new RuntimeException(IndexCleaningFilter.X_POINT_ID
+              + " not found.");
         Extension[] extensions = point.getExtensions();
-        HashMap<String, IndexCleaningFilter> filterMap =
-          new HashMap<String, IndexCleaningFilter>();
+        HashMap<String, IndexCleaningFilter> filterMap = new HashMap<String, IndexCleaningFilter>();
         for (int i = 0; i < extensions.length; i++) {
           Extension extension = extensions[i];
           IndexCleaningFilter filter = (IndexCleaningFilter) extension
@@ -78,20 +79,19 @@ public class IndexCleaningFilters {
          * indeterminate order
          */
         if (orderedFilters == null) {
-          objectCache.setObject(IndexCleaningFilter.class.getName(),
-              filterMap.values().toArray(
-                  new IndexCleaningFilter[0]));
+          objectCache.setObject(IndexCleaningFilter.class.getName(), filterMap
+              .values().toArray(new IndexCleaningFilter[0]));
           /* Otherwise run the filters in the required order */
         } else {
           ArrayList<IndexCleaningFilter> filters = new ArrayList<IndexCleaningFilter>();
           for (int i = 0; i < orderedFilters.length; i++) {
-        	  IndexCleaningFilter filter = filterMap.get(orderedFilters[i]);
+            IndexCleaningFilter filter = filterMap.get(orderedFilters[i]);
             if (filter != null) {
               filters.add(filter);
             }
           }
-          objectCache.setObject(IndexCleaningFilter.class.getName(), filters
-              .toArray(new IndexCleaningFilter[filters.size()]));
+          objectCache.setObject(IndexCleaningFilter.class.getName(),
+              filters.toArray(new IndexCleaningFilter[filters.size()]));
         }
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
@@ -100,13 +100,13 @@ public class IndexCleaningFilters {
           .getObject(IndexCleaningFilter.class.getName());
     }
   }
+
   /** Run all defined filters. */
-  public boolean remove(String url, WebPage page)
-  throws IndexingException {
+  public boolean remove(String url, WebPage page) throws IndexingException {
     for (IndexCleaningFilter indexcleaningFilter : indexcleaningFilters) {
-    	if(indexcleaningFilter.remove(url,page)){
-    		return true;
-    	}
+      if (indexcleaningFilter.remove(url, page)) {
+        return true;
+      }
     }
     return false;
   }

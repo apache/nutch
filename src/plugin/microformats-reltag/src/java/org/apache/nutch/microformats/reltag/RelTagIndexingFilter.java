@@ -39,7 +39,7 @@ import org.apache.nutch.util.Bytes;
  * @author J&eacute;r&ocirc;me Charron
  */
 public class RelTagIndexingFilter implements IndexingFilter {
-  
+
   private Configuration conf;
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
@@ -50,10 +50,9 @@ public class RelTagIndexingFilter implements IndexingFilter {
   }
 
   /**
-   * Gets all the fields for a given {@link WebPage}
-   * Many datastores need to setup the mapreduce job by specifying the fields
-   * needed. All extensions that work on WebPage are able to specify what fields
-   * they need.
+   * Gets all the fields for a given {@link WebPage} Many datastores need to
+   * setup the mapreduce job by specifying the fields needed. All extensions
+   * that work on WebPage are able to specify what fields they need.
    */
   @Override
   public Collection<Field> getFields() {
@@ -73,24 +72,28 @@ public class RelTagIndexingFilter implements IndexingFilter {
   public Configuration getConf() {
     return this.conf;
   }
-  
+
   /**
    * The {@link RelTagIndexingFilter} filter object.
-   *  
-   * @param doc The {@link NutchDocument} object
-   * @param url URL to be filtered for rel-tag's
-   * @param page {@link WebPage} object relative to the URL
+   * 
+   * @param doc
+   *          The {@link NutchDocument} object
+   * @param url
+   *          URL to be filtered for rel-tag's
+   * @param page
+   *          {@link WebPage} object relative to the URL
    * @return filtered NutchDocument
    */
   @Override
-  public NutchDocument filter(NutchDocument doc, String url, WebPage page) throws IndexingException {
-  // Check if some Rel-Tags found, possibly put there by RelTagParser
+  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
+      throws IndexingException {
+    // Check if some Rel-Tags found, possibly put there by RelTagParser
     ByteBuffer bb = page.getMetadata().get(new Utf8(RelTagParser.REL_TAG));
-		
+
     if (bb != null) {
       String[] tags = Bytes.toString(bb).split("\t");
       for (int i = 0; i < tags.length; i++) {
-	    doc.add("tag", tags[i]);
+        doc.add("tag", tags[i]);
       }
     }
     return doc;

@@ -44,7 +44,8 @@ public class SeedListsPage extends AbstractBasePage<Void> {
 
   public SeedListsPage() {
 
-    RefreshingView<SeedList> seedLists = new RefreshingView<SeedList>("seedLists") {
+    RefreshingView<SeedList> seedLists = new RefreshingView<SeedList>(
+        "seedLists") {
 
       @Override
       protected Iterator<IModel<SeedList>> getItemModels() {
@@ -56,7 +57,8 @@ public class SeedListsPage extends AbstractBasePage<Void> {
         PageParameters params = new PageParameters();
         params.add("id", item.getModelObject().getId());
 
-        Link<Void> edit = new BookmarkablePageLink<Void>("edit", SeedPage.class, params);
+        Link<Void> edit = new BookmarkablePageLink<Void>("edit",
+            SeedPage.class, params);
         edit.add(new Label("name"));
         item.add(edit);
 

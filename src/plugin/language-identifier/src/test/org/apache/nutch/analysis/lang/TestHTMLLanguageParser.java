@@ -96,8 +96,8 @@ public class TestHTMLLanguageParser {
         { "torp, stuga, uthyres, bed & breakfast", null } };
 
     for (int i = 0; i < 44; i++) {
-      assertEquals(tests[i][1], HTMLLanguageParser.LanguageParser
-          .parseLanguage(tests[i][0]));
+      assertEquals(tests[i][1],
+          HTMLLanguageParser.LanguageParser.parseLanguage(tests[i][0]));
     }
   }
 
@@ -151,8 +151,8 @@ public class TestHTMLLanguageParser {
     page.setBaseUrl(BASE);
     page.setContent(ByteBuffer.wrap(text.getBytes()));
     page.setContentType(new Utf8("text/html"));
-    page
-        .getHeaders().put(EncodingDetector.CONTENT_TYPE_UTF8, new Utf8("text/html"));
+    page.getHeaders().put(EncodingDetector.CONTENT_TYPE_UTF8,
+        new Utf8("text/html"));
     return page;
   }
 }

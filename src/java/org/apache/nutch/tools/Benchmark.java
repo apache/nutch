@@ -50,7 +50,8 @@ public class Benchmark extends Configured implements Tool {
     System.exit(res);
   }
 
-  private void createSeeds(FileSystem fs, Path seedsDir, int count) throws Exception {
+  private void createSeeds(FileSystem fs, Path seedsDir, int count)
+      throws Exception {
     OutputStream os = fs.create(new Path(seedsDir, "seeds"));
     for (int i = 0; i < count; i++) {
       String url = "http://www.test-" + i + ".com/\r\n";
@@ -61,7 +62,7 @@ public class Benchmark extends Configured implements Tool {
   }
 
   public static final class BenchmarkResults {
-    Map<String,Map<String,Long>> timings = new HashMap<String,Map<String,Long>>();
+    Map<String, Map<String, Long>> timings = new HashMap<String, Map<String, Long>>();
     List<String> runs = new ArrayList<String>();
     List<String> stages = new ArrayList<String>();
     int seeds, depth, threads;
@@ -76,9 +77,9 @@ public class Benchmark extends Configured implements Tool {
       if (!stages.contains(stage)) {
         stages.add(stage);
       }
-      Map<String,Long> t = timings.get(stage);
+      Map<String, Long> t = timings.get(stage);
       if (t == null) {
-        t = new HashMap<String,Long>();
+        t = new HashMap<String, Long>();
         timings.put(stage, t);
       }
       t.put(run, timing);
@@ -94,8 +95,9 @@ public class Benchmark extends Configured implements Tool {
       sb.append("* TopN:\t" + topN + "\n");
       sb.append("* TOTAL ELAPSED:\t" + elapsed + "\n");
       for (String stage : stages) {
-        Map<String,Long> timing = timings.get(stage);
-        if (timing == null) continue;
+        Map<String, Long> timing = timings.get(stage);
+        if (timing == null)
+          continue;
         sb.append("- stage: " + stage + "\n");
         for (String r : runs) {
           Long Time = timing.get(r);
@@ -111,6 +113,7 @@ public class Benchmark extends Configured implements Tool {
     public List<String> getStages() {
       return stages;
     }
+
     public List<String> getRuns() {
       return runs;
     }
@@ -121,21 +124,28 @@ public class Benchmark extends Configured implements Tool {
     int seeds = 1;
     int depth = 10;
     int threads = 10;
-    //boolean delete = true;
+    // boolean delete = true;
     long topN = Long.MAX_VALUE;
 
     if (args.length == 0) {
-      System.err.println("Usage: Benchmark [-crawlId <id>] [-seeds NN] [-depth NN] [-threads NN] [-maxPerHost NN] [-plugins <regex>]");
-      System.err.println("\t-crawlId id\t the id to prefix the schemas to operate on, (default: storage.crawl.id)");
-      System.err.println("\t-seeds NN\tcreate NN unique hosts in a seed list (default: 1)");
+      System.err
+          .println("Usage: Benchmark [-crawlId <id>] [-seeds NN] [-depth NN] [-threads NN] [-maxPerHost NN] [-plugins <regex>]");
+      System.err
+          .println("\t-crawlId id\t the id to prefix the schemas to operate on, (default: storage.crawl.id)");
+      System.err
+          .println("\t-seeds NN\tcreate NN unique hosts in a seed list (default: 1)");
       System.err.println("\t-depth NN\tperform NN crawl cycles (default: 10)");
-      System.err.println("\t-threads NN\tuse NN threads per Fetcher task (default: 10)");
+      System.err
+          .println("\t-threads NN\tuse NN threads per Fetcher task (default: 10)");
       // XXX what is the equivalent here? not an additional job...
       // System.err.println("\t-keep\tkeep batchId data (default: delete after updatedb)");
       System.err.println("\t-plugins <regex>\toverride 'plugin.includes'.");
-      System.err.println("\tNOTE: if not specified, this is reset to: " + plugins);
-      System.err.println("\tNOTE: if 'default' is specified then a value set in nutch-default/nutch-site is used.");
-      System.err.println("\t-maxPerHost NN\tmax. # of URLs per host in a fetchlist");
+      System.err.println("\tNOTE: if not specified, this is reset to: "
+          + plugins);
+      System.err
+          .println("\tNOTE: if 'default' is specified then a value set in nutch-default/nutch-site is used.");
+      System.err
+          .println("\t-maxPerHost NN\tmax. # of URLs per host in a fetchlist");
       return -1;
     }
     int maxPerHost = Integer.MAX_VALUE;
@@ -157,13 +167,14 @@ public class Benchmark extends Configured implements Tool {
         return -1;
       }
     }
-    BenchmarkResults res = benchmark(seeds, depth, threads, maxPerHost, topN, plugins);
+    BenchmarkResults res = benchmark(seeds, depth, threads, maxPerHost, topN,
+        plugins);
     System.out.println(res);
     return 0;
   }
 
-  public BenchmarkResults benchmark(int seeds, int depth, int threads, int maxPerHost,
-        long topN, String plugins) throws Exception {
+  public BenchmarkResults benchmark(int seeds, int depth, int threads,
+      int maxPerHost, long topN, String plugins) throws Exception {
     Configuration conf = getConf();
     conf.set("http.proxy.host", "localhost");
     conf.setInt("http.proxy.port", 8181);
@@ -173,11 +184,12 @@ public class Benchmark extends Configured implements Tool {
       conf.set("plugin.includes", plugins);
     }
     conf.setInt(GeneratorJob.GENERATOR_MAX_COUNT, maxPerHost);
-    conf.set(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
+    conf.set(GeneratorJob.GENERATOR_COUNT_MODE,
+        GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
     Job job = new NutchJob(conf);
     FileSystem fs = FileSystem.get(job.getConfiguration());
-    Path dir = new Path(getConf().get("hadoop.tmp.dir"),
-            "bench-" + System.currentTimeMillis());
+    Path dir = new Path(getConf().get("hadoop.tmp.dir"), "bench-"
+        + System.currentTimeMillis());
     fs.mkdirs(dir);
     Path rootUrlDir = new Path(dir, "seed");
     fs.mkdirs(rootUrlDir);
@@ -204,7 +216,7 @@ public class Benchmark extends Configured implements Tool {
     ParserJob parseBatch = new ParserJob(conf);
     DbUpdaterJob crawlDbTool = new DbUpdaterJob(conf);
     // not needed in the new API
-    //LinkDb linkDbTool = new LinkDb(getConf());
+    // LinkDb linkDbTool = new LinkDb(getConf());
 
     long start = System.currentTimeMillis();
     // initialize crawlDb
@@ -212,10 +224,10 @@ public class Benchmark extends Configured implements Tool {
     long delta = System.currentTimeMillis() - start;
     res.addTiming("inject", "0", delta);
     int i;
-    for (i = 0; i < depth; i++) {             // generate new batch
+    for (i = 0; i < depth; i++) { // generate new batch
       start = System.currentTimeMillis();
       String batchId = generator.generate(topN, System.currentTimeMillis(),
-              false, false);
+          false, false);
       delta = System.currentTimeMillis() - start;
       res.addTiming("generate", i + "", delta);
       if (batchId == null) {
@@ -224,12 +236,12 @@ public class Benchmark extends Configured implements Tool {
       }
       boolean isParsing = getConf().getBoolean("fetcher.parse", false);
       start = System.currentTimeMillis();
-      fetcher.fetch(batchId, threads, false, -1);  // fetch it
+      fetcher.fetch(batchId, threads, false, -1); // fetch it
       delta = System.currentTimeMillis() - start;
       res.addTiming("fetch", i + "", delta);
       if (!isParsing) {
         start = System.currentTimeMillis();
-        parseBatch.parse(batchId, false, false);    // parse it, if needed
+        parseBatch.parse(batchId, false, false); // parse it, if needed
         delta = System.currentTimeMillis() - start;
         res.addTiming("parse", i + "", delta);
       }
@@ -241,7 +253,9 @@ public class Benchmark extends Configured implements Tool {
     if (i == 0) {
       LOG.warn("No URLs to fetch - check your seed list and URL filters.");
     }
-    if (LOG.isInfoEnabled()) { LOG.info("crawl finished: " + dir); }
+    if (LOG.isInfoEnabled()) {
+      LOG.info("crawl finished: " + dir);
+    }
     res.elapsed = System.currentTimeMillis() - res.elapsed;
     WebTableReader dbreader = new WebTableReader();
     dbreader.setConf(conf);

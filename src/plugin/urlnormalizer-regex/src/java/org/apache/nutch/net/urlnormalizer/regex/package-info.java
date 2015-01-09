@@ -20,3 +20,4 @@
  * ({@link java.util.regex.Pattern}).
  */
 package org.apache.nutch.net.urlnormalizer.regex;
+

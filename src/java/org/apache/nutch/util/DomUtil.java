@@ -38,7 +38,6 @@ import org.xml.sax.SAXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class DomUtil {
 
   private final static Logger LOG = LoggerFactory.getLogger(DomUtil.class);
@@ -61,16 +60,16 @@ public class DomUtil {
       input.setEncoding("UTF-8");
       parser.parse(input);
       int i = 0;
-      while (! (parser.getDocument().getChildNodes().item(i) instanceof Element)) {
-       i++;
-      } 
-      element = (Element)parser.getDocument().getChildNodes().item(i);
+      while (!(parser.getDocument().getChildNodes().item(i) instanceof Element)) {
+        i++;
+      }
+      element = (Element) parser.getDocument().getChildNodes().item(i);
     } catch (FileNotFoundException e) {
-        LOG.error("Failed to find file: ", e);
+      LOG.error("Failed to find file: ", e);
     } catch (SAXException e) {
-        LOG.error("Failed with the following SAX exception: ", e);
+      LOG.error("Failed with the following SAX exception: ", e);
     } catch (IOException e) {
-        LOG.error("Failed with the following IOException", e);
+      LOG.error("Failed with the following IOException", e);
     }
     return element;
   }
@@ -93,13 +92,14 @@ public class DomUtil {
       transformer.transform(source, result);
       os.flush();
     } catch (UnsupportedEncodingException e1) {
-        LOG.error("Failed with the following UnsupportedEncodingException: ", e1);
+      LOG.error("Failed with the following UnsupportedEncodingException: ", e1);
     } catch (IOException e1) {
-        LOG.error("Failed to with the following IOException: ", e1);
+      LOG.error("Failed to with the following IOException: ", e1);
     } catch (TransformerConfigurationException e2) {
-        LOG.error("Failed with the following TransformerConfigurationException: ", e2);
+      LOG.error(
+          "Failed with the following TransformerConfigurationException: ", e2);
     } catch (TransformerException ex) {
-       LOG.error("Failed with the following TransformerException: ", ex);
+      LOG.error("Failed with the following TransformerException: ", ex);
     }
   }
 }

@@ -29,13 +29,13 @@ import java.util.Set;
 /**
  * This class provides common methods for implementations of
  * {@link FetchSchedule}.
- *
+ * 
  * @author Andrzej Bialecki
  */
-public abstract class AbstractFetchSchedule
-extends Configured
-implements FetchSchedule {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractFetchSchedule.class);
+public abstract class AbstractFetchSchedule extends Configured implements
+    FetchSchedule {
+  private static final Logger LOG = LoggerFactory
+      .getLogger(AbstractFetchSchedule.class);
 
   protected int defaultInterval;
   protected int maxInterval;
@@ -59,20 +59,22 @@ implements FetchSchedule {
   @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
-    if (conf == null) return;
+    if (conf == null)
+      return;
     defaultInterval = conf.getInt("db.fetch.interval.default", 0);
-    maxInterval = conf.getInt("db.fetch.interval.max", 0 );
+    maxInterval = conf.getInt("db.fetch.interval.max", 0);
     LOG.info("defaultInterval=" + defaultInterval);
     LOG.info("maxInterval=" + maxInterval);
   }
-  
+
   /**
-   * Initialize fetch schedule related data. Implementations should at least
-   * set the <code>fetchTime</code> and <code>fetchInterval</code>. The default
-   * implementation sets the <code>fetchTime</code> to now, using the
-   * default <code>fetchInterval</code>.
-   *
-   * @param url URL of the page.
+   * Initialize fetch schedule related data. Implementations should at least set
+   * the <code>fetchTime</code> and <code>fetchInterval</code>. The default
+   * implementation sets the <code>fetchTime</code> to now, using the default
+   * <code>fetchInterval</code>.
+   * 
+   * @param url
+   *          URL of the page.
    * @param page
    */
   @Override
@@ -84,27 +86,31 @@ implements FetchSchedule {
 
   /**
    * Sets the <code>fetchInterval</code> and <code>fetchTime</code> on a
-   * successfully fetched page. NOTE: this implementation resets the
-   * retry counter - extending classes should call super.setFetchSchedule() to
+   * successfully fetched page. NOTE: this implementation resets the retry
+   * counter - extending classes should call super.setFetchSchedule() to
    * preserve this behavior.
    */
   @Override
-  public void setFetchSchedule(String url, WebPage page,
-          long prevFetchTime, long prevModifiedTime,
-          long fetchTime, long modifiedTime, int state) {
+  public void setFetchSchedule(String url, WebPage page, long prevFetchTime,
+      long prevModifiedTime, long fetchTime, long modifiedTime, int state) {
     page.setRetriesSinceFetch(0);
   }
 
   /**
-   * This method specifies how to schedule refetching of pages
-   * marked as GONE. Default implementation increases fetchInterval by 50%
-   * but the value may never exceed <code>maxInterval</code>.
-   * @param url URL of the page
+   * This method specifies how to schedule refetching of pages marked as GONE.
+   * Default implementation increases fetchInterval by 50% but the value may
+   * never exceed <code>maxInterval</code>.
+   * 
+   * @param url
+   *          URL of the page
    * @param page
    * @return adjusted page information, including all original information.
-   * NOTE: this may be a different instance than {@param datum}, but
-   * implementations should make sure that it contains at least all
-   * information from {@param datum}.
+   *         NOTE: this may be a different instance than
+   * @param datum
+   *          , but implementations should make sure that it contains at least
+   *          all information from
+   * @param datum
+   *          .
    */
   @Override
   public void setPageGoneSchedule(String url, WebPage page, long prevFetchTime,
@@ -121,25 +127,30 @@ implements FetchSchedule {
   }
 
   /**
-   * This method adjusts the fetch schedule if fetching needs to be
-   * re-tried due to transient errors. The default implementation
-   * sets the next fetch time 1 day in the future and increases
-   * the retry counter.
-   * @param url URL of the page
+   * This method adjusts the fetch schedule if fetching needs to be re-tried due
+   * to transient errors. The default implementation sets the next fetch time 1
+   * day in the future and increases the retry counter.
+   * 
+   * @param url
+   *          URL of the page
    * @param page
-   * @param prevFetchTime previous fetch time
-   * @param prevModifiedTime previous modified time
-   * @param fetchTime current fetch time
+   * @param prevFetchTime
+   *          previous fetch time
+   * @param prevModifiedTime
+   *          previous modified time
+   * @param fetchTime
+   *          current fetch time
    */
   @Override
   public void setPageRetrySchedule(String url, WebPage page,
-          long prevFetchTime, long prevModifiedTime, long fetchTime) {
+      long prevFetchTime, long prevModifiedTime, long fetchTime) {
     page.setFetchTime(fetchTime + SECONDS_PER_DAY * 1000L);
     page.setRetriesSinceFetch(page.getRetriesSinceFetch() + 1);
   }
 
   /**
    * This method return the last fetch time of the CrawlDatum
+   * 
    * @return the date as a long.
    */
   @Override
@@ -148,20 +159,24 @@ implements FetchSchedule {
   }
 
   /**
-   * This method provides information whether the page is suitable for
-   * selection in the current fetchlist. NOTE: a true return value does not
-   * guarantee that the page will be fetched, it just allows it to be
-   * included in the further selection process based on scores. The default
-   * implementation checks <code>fetchTime</code>, if it is higher than the
-   * {@param curTime} it returns false, and true otherwise. It will also
-   * check that fetchTime is not too remote (more than <code>maxInterval</code),
-   * in which case it lowers the interval and returns true.
-   * @param url URL of the page
+   * This method provides information whether the page is suitable for selection
+   * in the current fetchlist. NOTE: a true return value does not guarantee that
+   * the page will be fetched, it just allows it to be included in the further
+   * selection process based on scores. The default implementation checks
+   * <code>fetchTime</code>, if it is higher than the
+   * 
+   * @param curTime
+   *          it returns false, and true otherwise. It will also check that
+   *          fetchTime is not too remote (more than <code>maxInterval</code),
+   *          in which case it lowers the interval and returns true.
+   * @param url
+   *          URL of the page
    * @param page
-   * @param curTime reference time (usually set to the time when the
-   * fetchlist generation process was started).
+   * @param curTime
+   *          reference time (usually set to the time when the fetchlist
+   *          generation process was started).
    * @return true, if the page should be considered for inclusion in the current
-   * fetchlist, otherwise false.
+   *         fetchlist, otherwise false.
    */
   @Override
   public boolean shouldFetch(String url, WebPage page, long curTime) {
@@ -181,11 +196,14 @@ implements FetchSchedule {
   /**
    * This method resets fetchTime, fetchInterval, modifiedTime,
    * retriesSinceFetch and page signature, so that it forces refetching.
-   * @param url URL of the page
+   * 
+   * @param url
+   *          URL of the page
    * @param page
-   * @param asap if true, force refetch as soon as possible - this sets
-   * the fetchTime to now. If false, force refetch whenever the next fetch
-   * time is set.
+   * @param asap
+   *          if true, force refetch as soon as possible - this sets the
+   *          fetchTime to now. If false, force refetch whenever the next fetch
+   *          time is set.
    */
   @Override
   public void forceRefetch(String url, WebPage page, boolean asap) {
@@ -196,9 +214,9 @@ implements FetchSchedule {
     page.setRetriesSinceFetch(0);
     // TODO: row.setSignature(null) ??
     page.setModifiedTime(0L);
-    if (asap) page.setFetchTime(System.currentTimeMillis());
+    if (asap)
+      page.setFetchTime(System.currentTimeMillis());
   }
-
 
   public Set<WebPage.Field> getFields() {
     return FIELDS;

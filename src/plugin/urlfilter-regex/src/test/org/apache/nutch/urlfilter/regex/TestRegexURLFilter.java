@@ -28,11 +28,11 @@ import static org.junit.Assert.*;
 
 /**
  * JUnit based test of class <code>RegexURLFilter</code>.
- *
+ * 
  * @author J&eacute;r&ocirc;me Charron
  */
 public class TestRegexURLFilter extends RegexURLFilterBaseTest {
-  
+
   protected URLFilter getURLFilter(Reader rules) {
     try {
       return new RegexURLFilter(rules);
@@ -41,7 +41,7 @@ public class TestRegexURLFilter extends RegexURLFilterBaseTest {
       return null;
     }
   }
-  
+
   @Test
   public void test() {
     test("WholeWebCrawling");

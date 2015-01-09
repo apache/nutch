@@ -38,32 +38,29 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Basic fetcher test
- * 1. generate seedlist
- * 2. inject
- * 3. generate
- * 3. fetch
- * 4. Verify contents
- *
+ * Basic fetcher test 1. generate seedlist 2. inject 3. generate 3. fetch 4.
+ * Verify contents
+ * 
  */
 public class TestFetcher extends AbstractNutchTest {
 
-  final static Path testdir=new Path("build/test/fetch-test");
+  final static Path testdir = new Path("build/test/fetch-test");
   Path urlPath;
   Server server;
 
   @Override
   @Before
-  public void setUp() throws Exception{
+  public void setUp() throws Exception {
     super.setUp();
     urlPath = new Path(testdir, "urls");
-    server = CrawlTestUtil.getServer(conf.getInt("content.server.port",50000), "build/test/data/fetch-test-site");
+    server = CrawlTestUtil.getServer(conf.getInt("content.server.port", 50000),
+        "build/test/data/fetch-test-site");
     server.start();
   }
 
   @Override
   @After
-  public void tearDown() throws Exception{
+  public void tearDown() throws Exception {
     server.stop();
     fs.delete(testdir, true);
   }
@@ -72,28 +69,28 @@ public class TestFetcher extends AbstractNutchTest {
   @Ignore("Temporarily diable until NUTCH-1572 is addressed.")
   public void testFetch() throws Exception {
 
-    //generate seedlist
+    // generate seedlist
     ArrayList<String> urls = new ArrayList<String>();
 
-    addUrl(urls,"index.html");
-    addUrl(urls,"pagea.html");
-    addUrl(urls,"pageb.html");
-    addUrl(urls,"dup_of_pagea.html");
-    addUrl(urls,"nested_spider_trap.html");
-    addUrl(urls,"exception.html");
+    addUrl(urls, "index.html");
+    addUrl(urls, "pagea.html");
+    addUrl(urls, "pageb.html");
+    addUrl(urls, "dup_of_pagea.html");
+    addUrl(urls, "nested_spider_trap.html");
+    addUrl(urls, "exception.html");
 
     CrawlTestUtil.generateSeedList(fs, urlPath, urls);
 
-    //inject
+    // inject
     InjectorJob injector = new InjectorJob(conf);
     injector.inject(urlPath);
 
-    //generate
+    // generate
     long time = System.currentTimeMillis();
     GeneratorJob g = new GeneratorJob(conf);
     String batchId = g.generate(Long.MAX_VALUE, time, false, false);
 
-    //fetch
+    // fetch
     time = System.currentTimeMillis();
     conf.setBoolean(FetcherJob.PARSE_KEY, true);
     FetcherJob fetcher = new FetcherJob(conf);
@@ -101,12 +98,13 @@ public class TestFetcher extends AbstractNutchTest {
 
     time = System.currentTimeMillis() - time;
 
-    //verify politeness, time taken should be more than (num_of_pages +1)*delay
-    int minimumTime = (int) ((urls.size() + 1) * 1000 *
-        conf.getFloat("fetcher.server.delay", 5));
+    // verify politeness, time taken should be more than (num_of_pages +1)*delay
+    int minimumTime = (int) ((urls.size() + 1) * 1000 * conf.getFloat(
+        "fetcher.server.delay", 5));
     assertTrue(time > minimumTime);
 
-    List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore, Mark.FETCH_MARK, (String[])null);
+    List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore,
+        Mark.FETCH_MARK, (String[]) null);
     assertEquals(urls.size(), pages.size());
     List<String> handledurls = new ArrayList<String>();
     for (URLWebPage up : pages) {
@@ -115,23 +113,24 @@ public class TestFetcher extends AbstractNutchTest {
         continue;
       }
       String content = Bytes.toString(bb);
-      if (content.indexOf("Nutch fetcher test page")!=-1) {
+      if (content.indexOf("Nutch fetcher test page") != -1) {
         handledurls.add(up.getUrl());
       }
     }
     Collections.sort(urls);
     Collections.sort(handledurls);
 
-    //verify that enough pages were handled
+    // verify that enough pages were handled
     assertEquals(urls.size(), handledurls.size());
 
-    //verify that correct pages were handled
+    // verify that correct pages were handled
     assertTrue(handledurls.containsAll(urls));
     assertTrue(urls.containsAll(handledurls));
   }
 
   private void addUrl(ArrayList<String> urls, String page) {
-    urls.add("http://127.0.0.1:" + server.getConnectors()[0].getPort() + "/" + page);
+    urls.add("http://127.0.0.1:" + server.getConnectors()[0].getPort() + "/"
+        + page);
   }
 
   @Test

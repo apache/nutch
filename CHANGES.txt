@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.3-SNAPSHOT
 
+* NUTCH-1779 Apply formatting to the code (lewismc)
+
 * NUTCH-1907 Incorrect output of Outlinks to Hosts within HostDbUpdateReducer (lewismc)
 
 * NUTCH-1856 Document webpage.avsc and host.avsc (lewismc)

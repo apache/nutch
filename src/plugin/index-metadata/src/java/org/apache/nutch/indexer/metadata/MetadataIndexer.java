@@ -42,7 +42,7 @@ import org.apache.nutch.util.Bytes;
 
 public class MetadataIndexer implements IndexingFilter {
   private Configuration conf;
-  private static Map<Utf8,String> parseFieldnames;
+  private static Map<Utf8, String> parseFieldnames;
   private static final String PARSE_CONF_PROPERTY = "index.metadata";
   private static final String INDEX_PREFIX = "meta_";
   private static final String PARSE_META_PREFIX = "meta_";
@@ -56,7 +56,7 @@ public class MetadataIndexer implements IndexingFilter {
 
     // add the fields from parsemd
     if (parseFieldnames != null) {
-      for (Entry<Utf8,String> metatag : parseFieldnames.entrySet()) {
+      for (Entry<Utf8, String> metatag : parseFieldnames.entrySet()) {
         ByteBuffer bvalues = page.getMetadata().get(metatag.getKey());
         if (bvalues != null) {
           String key = metatag.getValue();
@@ -75,7 +75,7 @@ public class MetadataIndexer implements IndexingFilter {
   public void setConf(Configuration conf) {
     this.conf = conf;
     String[] metatags = conf.getStrings(PARSE_CONF_PROPERTY);
-    parseFieldnames = new TreeMap<Utf8,String>();
+    parseFieldnames = new TreeMap<Utf8, String>();
     for (int i = 0; i < metatags.length; i++) {
       parseFieldnames.put(
           new Utf8(PARSE_META_PREFIX + metatags[i].toLowerCase(Locale.ROOT)),

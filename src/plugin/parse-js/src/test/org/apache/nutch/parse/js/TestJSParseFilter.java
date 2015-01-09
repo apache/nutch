@@ -38,9 +38,9 @@ import java.nio.ByteBuffer;
 import static org.junit.Assert.assertEquals;
 
 /**
- * JUnit test case for {@link JSParseFilter} which tests 
- * 1. That 5 outlinks are extracted from JavaScript snippets embedded in HTML
- * 2. That X outlinks are extracted from a pure JavaScript file (this is temporarily disabled)
+ * JUnit test case for {@link JSParseFilter} which tests 1. That 5 outlinks are
+ * extracted from JavaScript snippets embedded in HTML 2. That X outlinks are
+ * extracted from a pure JavaScript file (this is temporarily disabled)
  * 
  * @author lewismc
  */
@@ -54,47 +54,53 @@ public class TestJSParseFilter {
 
   // Make sure sample files are copied to "test.data" as specified in
   // ./src/plugin/parse-js/build.xml during plugin compilation.
-  private String[] sampleFiles = { "parse_pure_js_test.js", "parse_embedded_js_test.html" };
-	  
+  private String[] sampleFiles = { "parse_pure_js_test.js",
+      "parse_embedded_js_test.html" };
+
   private Configuration conf;
-	  
+
   @Before
   public void setUp() {
     conf = NutchConfiguration.create();
     conf.set("file.content.limit", "-1");
   }
 
-  public Outlink[] getOutlinks(String[] sampleFiles) throws ProtocolException, ParseException, IOException {
+  public Outlink[] getOutlinks(String[] sampleFiles) throws ProtocolException,
+      ParseException, IOException {
     String urlString;
     Parse parse;
-	
+
     urlString = "file:" + sampleDir + fileSeparator + sampleFiles;
     File file = new File(urlString);
     byte[] bytes = new byte[(int) file.length()];
     DataInputStream dip = new DataInputStream(new FileInputStream(file));
     dip.readFully(bytes);
     dip.close();
-    
+
     WebPage page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8(urlString));
     page.setContent(ByteBuffer.wrap(bytes));
     MimeUtil mutil = new MimeUtil(conf);
     String mime = mutil.getMimeType(file);
     page.setContentType(new Utf8(mime));
-	
+
     parse = new ParseUtil(conf).parse(urlString, page);
     return parse.getOutlinks();
   }
-  
+
   @Test
-  public void testOutlinkExtraction() throws ProtocolException, ParseException, IOException {
+  public void testOutlinkExtraction() throws ProtocolException, ParseException,
+      IOException {
     String[] filenames = new File(sampleDir).list();
     for (int i = 0; i < filenames.length; i++) {
       if (filenames[i].endsWith(".js") == true) {
-        assertEquals("number of outlinks in .js test file should be 5", 5, getOutlinks(sampleFiles));
-        // temporarily disabled as a suitable pure JS file could not be be found.
-        //} else {
-        //assertEquals("number of outlinks in .html file should be X", 5, getOutlinks(sampleFiles));
+        assertEquals("number of outlinks in .js test file should be 5", 5,
+            getOutlinks(sampleFiles));
+        // temporarily disabled as a suitable pure JS file could not be be
+        // found.
+        // } else {
+        // assertEquals("number of outlinks in .html file should be X", 5,
+        // getOutlinks(sampleFiles));
       }
     }
   }

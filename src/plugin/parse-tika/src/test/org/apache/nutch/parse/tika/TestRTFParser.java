@@ -44,50 +44,49 @@ import static org.junit.Assert.assertEquals;
  */
 public class TestRTFParser {
 
-    private String fileSeparator = System.getProperty("file.separator");
-    // This system property is defined in ./src/plugin/build-plugin.xml
-    private String sampleDir = System.getProperty("test.data", ".");
-    // Make sure sample files are copied to "test.data" as specified in
-    // ./src/plugin/parse-rtf/build.xml during plugin compilation.
-    // Check ./src/plugin/parse-rtf/sample/README.txt for what they are.
-    private String rtfFile = "test.rtf";
+  private String fileSeparator = System.getProperty("file.separator");
+  // This system property is defined in ./src/plugin/build-plugin.xml
+  private String sampleDir = System.getProperty("test.data", ".");
+  // Make sure sample files are copied to "test.data" as specified in
+  // ./src/plugin/parse-rtf/build.xml during plugin compilation.
+  // Check ./src/plugin/parse-rtf/sample/README.txt for what they are.
+  private String rtfFile = "test.rtf";
 
-    @Test
-    public void testIt() throws ProtocolException, ParseException, IOException {
+  @Test
+  public void testIt() throws ProtocolException, ParseException, IOException {
 
-	String urlString;
-	Parse parse;
-	Configuration conf = NutchConfiguration.create();
-	MimeUtil mimeutil = new MimeUtil(conf);
+    String urlString;
+    Parse parse;
+    Configuration conf = NutchConfiguration.create();
+    MimeUtil mimeutil = new MimeUtil(conf);
 
-	urlString = "file:" + sampleDir + fileSeparator + rtfFile;
+    urlString = "file:" + sampleDir + fileSeparator + rtfFile;
 
-	File file = new File(sampleDir + fileSeparator + rtfFile);
-	byte[] bytes = new byte[(int) file.length()];
-	DataInputStream in = new DataInputStream(new FileInputStream(file));
-	in.readFully(bytes);
-	in.close();
+    File file = new File(sampleDir + fileSeparator + rtfFile);
+    byte[] bytes = new byte[(int) file.length()];
+    DataInputStream in = new DataInputStream(new FileInputStream(file));
+    in.readFully(bytes);
+    in.close();
 
-	WebPage page = WebPage.newBuilder().build();
-	page.setBaseUrl(new Utf8(urlString));
-	page.setContent(ByteBuffer.wrap(bytes));
-	String mtype = mimeutil.getMimeType(file);
-	page.setContentType(new Utf8(mtype));
+    WebPage page = WebPage.newBuilder().build();
+    page.setBaseUrl(new Utf8(urlString));
+    page.setContent(ByteBuffer.wrap(bytes));
+    String mtype = mimeutil.getMimeType(file);
+    page.setContentType(new Utf8(mtype));
 
-	parse = new ParseUtil(conf).parse(urlString, page);
+    parse = new ParseUtil(conf).parse(urlString, page);
 
-	String title = parse.getTitle();
-	String text = parse.getText();
-	assertEquals("test rft document", title);
-	//assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
+    String title = parse.getTitle();
+    String text = parse.getText();
+    assertEquals("test rft document", title);
+    // assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
 
-	
-	// HOW DO WE GET THE PARSE METADATA?
-	// Metadata meta = parse();
+    // HOW DO WE GET THE PARSE METADATA?
+    // Metadata meta = parse();
 
-	// METADATA extraction is not yet supported in Tika
-	// 
-	// assertEquals("tests", meta.get(DublinCore.SUBJECT));
-    }
+    // METADATA extraction is not yet supported in Tika
+    //
+    // assertEquals("tests", meta.get(DublinCore.SUBJECT));
+  }
 
 }

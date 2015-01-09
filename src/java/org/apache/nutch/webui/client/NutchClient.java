@@ -36,7 +36,7 @@ public interface NutchClient {
   public String executeJob(JobConfig jobConfig);
 
   public JobInfo getJobInfo(String jobId);
-  
+
   public Map<String, String> getNutchConfig(String config);
 
   /**

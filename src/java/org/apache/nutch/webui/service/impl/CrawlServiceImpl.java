@@ -67,7 +67,7 @@ public class CrawlServiceImpl implements CrawlService, CrawlingCycleListener {
 
       CrawlingCycle cycle = new CrawlingCycle(this, executor, crawl, commands);
       cycle.executeCrawlCycle();
-      
+
     } catch (Exception e) {
       crawl.setStatus(CrawlStatus.ERROR);
       saveCrawl(crawl);

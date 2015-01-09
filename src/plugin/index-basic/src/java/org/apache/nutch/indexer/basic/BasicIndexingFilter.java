@@ -36,17 +36,17 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
-/** Adds basic searchable fields to a document. The fields are:
- * host - add host as un-stored, indexed and tokenized
- * url - url is both stored and indexed, so it's both searchable and returned. 
- * This is also a required field.
- * content - content is indexed, so that it's searchable, but not stored in index
- * title - title is stored and indexed
- * cache - add cached content/summary display policy, if available
- * tstamp - add timestamp when fetched, for deduplication
+/**
+ * Adds basic searchable fields to a document. The fields are: host - add host
+ * as un-stored, indexed and tokenized url - url is both stored and indexed, so
+ * it's both searchable and returned. This is also a required field. content -
+ * content is indexed, so that it's searchable, but not stored in index title -
+ * title is stored and indexed cache - add cached content/summary display
+ * policy, if available tstamp - add timestamp when fetched, for deduplication
  */
 public class BasicIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory.getLogger(BasicIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(BasicIndexingFilter.class);
 
   private int MAX_TITLE_LENGTH;
   private Configuration conf;
@@ -60,22 +60,25 @@ public class BasicIndexingFilter implements IndexingFilter {
   }
 
   /**
-   * The {@link BasicIndexingFilter} filter object which supports boolean 
-   * configurable value for length of characters permitted within the 
-   * title @see {@code indexer.max.title.length} in nutch-default.xml
-   *  
-   * @param doc The {@link NutchDocument} object
-   * @param url URL to be filtered for anchor text
-   * @param page {@link WebPage} object relative to the URL
+   * The {@link BasicIndexingFilter} filter object which supports boolean
+   * configurable value for length of characters permitted within the title @see
+   * {@code indexer.max.title.length} in nutch-default.xml
+   * 
+   * @param doc
+   *          The {@link NutchDocument} object
+   * @param url
+   *          URL to be filtered for anchor text
+   * @param page
+   *          {@link WebPage} object relative to the URL
    * @return filtered NutchDocument
    */
   public NutchDocument filter(NutchDocument doc, String url, WebPage page)
       throws IndexingException {
 
     String reprUrl = null;
-//    if (page.isReadable(WebPage.Field.REPR_URL.getIndex())) {
-      reprUrl = TableUtil.toString(page.getReprUrl());
-//    }
+    // if (page.isReadable(WebPage.Field.REPR_URL.getIndex())) {
+    reprUrl = TableUtil.toString(page.getReprUrl());
+    // }
 
     String host = null;
     try {
@@ -103,7 +106,10 @@ public class BasicIndexingFilter implements IndexingFilter {
 
     // title
     String title = TableUtil.toString(page.getTitle());
-    if (MAX_TITLE_LENGTH > -1 && title.length() > MAX_TITLE_LENGTH) { // truncate title if needed
+    if (MAX_TITLE_LENGTH > -1 && title.length() > MAX_TITLE_LENGTH) { // truncate
+                                                                      // title
+                                                                      // if
+                                                                      // needed
       title = title.substring(0, MAX_TITLE_LENGTH);
     }
     if (title.length() > 0) {
@@ -111,15 +117,16 @@ public class BasicIndexingFilter implements IndexingFilter {
       doc.add("title", title);
     }
     // add cached content/summary display policy, if available
-    ByteBuffer cachingRaw = page
-        .getMetadata().get(Nutch.CACHING_FORBIDDEN_KEY_UTF8);
+    ByteBuffer cachingRaw = page.getMetadata().get(
+        Nutch.CACHING_FORBIDDEN_KEY_UTF8);
     String caching = Bytes.toString(cachingRaw);
     if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {
       doc.add("cache", caching);
     }
 
     // add timestamp when fetched, for deduplication
-    String tstamp = DateUtil.getThreadLocalDateFormat().format(new Date(page.getFetchTime()));
+    String tstamp = DateUtil.getThreadLocalDateFormat().format(
+        new Date(page.getFetchTime()));
     doc.add("tstamp", tstamp);
 
     return doc;
@@ -134,7 +141,8 @@ public class BasicIndexingFilter implements IndexingFilter {
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.MAX_TITLE_LENGTH = conf.getInt("indexer.max.title.length", 100);
-    LOG.info("Maximum title length for indexing set to: " + this.MAX_TITLE_LENGTH);
+    LOG.info("Maximum title length for indexing set to: "
+        + this.MAX_TITLE_LENGTH);
   }
 
   /**
@@ -145,10 +153,9 @@ public class BasicIndexingFilter implements IndexingFilter {
   }
 
   /**
-   * Gets all the fields for a given {@link WebPage}
-   * Many datastores need to setup the mapreduce job by specifying the fields
-   * needed. All extensions that work on WebPage are able to specify what fields
-   * they need.
+   * Gets all the fields for a given {@link WebPage} Many datastores need to
+   * setup the mapreduce job by specifying the fields needed. All extensions
+   * that work on WebPage are able to specify what fields they need.
    */
   @Override
   public Collection<WebPage.Field> getFields() {

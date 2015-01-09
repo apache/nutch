@@ -22,18 +22,19 @@ import org.apache.nutch.plugin.FieldPluggable;
 import org.apache.nutch.storage.WebPage;
 import org.w3c.dom.DocumentFragment;
 
-
-/** Extension point for DOM-based parsers.  Permits one to add additional
- * metadata to parses provided by the html or tika plugins.  All plugins found which implement this extension
- * point are run sequentially on the parse.
+/**
+ * Extension point for DOM-based parsers. Permits one to add additional metadata
+ * to parses provided by the html or tika plugins. All plugins found which
+ * implement this extension point are run sequentially on the parse.
  */
 public interface ParseFilter extends FieldPluggable, Configurable {
   /** The name of the extension point. */
   final static String X_POINT_ID = ParseFilter.class.getName();
 
-  /** Adds metadata or otherwise modifies a parse, given
-   * the DOM tree of a page. */
-  Parse filter(String url, WebPage page, Parse parse,
-                    HTMLMetaTags metaTags, DocumentFragment doc);
+  /**
+   * Adds metadata or otherwise modifies a parse, given the DOM tree of a page.
+   */
+  Parse filter(String url, WebPage page, Parse parse, HTMLMetaTags metaTags,
+      DocumentFragment doc);
 
 }

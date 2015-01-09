@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
  * Basic injector test: 1. Creates a text file with urls 2. Injects them into
  * crawldb 3. Reads crawldb entries and verifies contents 4. Injects more urls
  * into webdb 5. Reads crawldb entries and verifies contents
- *
+ * 
  */
 public class TestInjector extends AbstractNutchTest {
   Path urlPath;
@@ -101,13 +101,12 @@ public class TestInjector extends AbstractNutchTest {
   }
 
   private static final String[] fields = new String[] {
-    WebPage.Field.MARKERS.getName(),
-    WebPage.Field.METADATA.getName(),
-    WebPage.Field.SCORE.getName()
-  };
+      WebPage.Field.MARKERS.getName(), WebPage.Field.METADATA.getName(),
+      WebPage.Field.SCORE.getName() };
 
   private List<String> readDb() throws Exception {
-    List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore, null, fields);
+    List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore, null,
+        fields);
     ArrayList<String> read = new ArrayList<String>();
     for (URLWebPage up : pages) {
       WebPage page = up.getDatum();

@@ -59,14 +59,15 @@ public class TestMetaTagsParser {
 
   /**
    * 
-   *
+   * 
    * @param fileName
    *          This variable set test file.
    * @param useUtil
    *          If value is True method use ParseUtil
    * @return If successfully document parsed, it return metatags
    */
-  public Map<CharSequence, ByteBuffer> parseMetaTags(String fileName, boolean useUtil) {
+  public Map<CharSequence, ByteBuffer> parseMetaTags(String fileName,
+      boolean useUtil) {
     try {
       Configuration conf = NutchConfiguration.create();
       String urlString = "file:" + sampleDir + fileSeparator + fileName;

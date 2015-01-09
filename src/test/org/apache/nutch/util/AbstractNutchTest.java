@@ -37,7 +37,8 @@ public class AbstractNutchTest {
 
   public void setUp() throws Exception {
     conf = CrawlTestUtil.createConfiguration();
-    conf.set("storage.data.store.class", "org.apache.gora.memory.store.MemStore");
+    conf.set("storage.data.store.class",
+        "org.apache.gora.memory.store.MemStore");
     fs = FileSystem.get(conf);
     webPageStore = StorageUtils.createWebStore(conf, String.class,
         WebPage.class);

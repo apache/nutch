@@ -34,7 +34,7 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
- * Test cases for protocol-http 
+ * Test cases for protocol-http
  */
 public class TestProtocolHttp {
   private static final String RES_DIR = System.getProperty("test.data", ".");
@@ -44,7 +44,7 @@ public class TestProtocolHttp {
   private Context root;
   private Configuration conf;
   private int port;
-  
+
   public void setUp(boolean redirection) throws Exception {
     this.conf = new Configuration();
     this.conf.addResource("nutch-default.xml");
@@ -52,18 +52,18 @@ public class TestProtocolHttp {
 
     this.http = new Http();
     this.http.setConf(conf);
-    
+
     this.server = new Server();
-    
+
     if (redirection) {
       this.root = new Context(server, "/redirection", Context.SESSIONS);
       this.root.setAttribute("newContextURL", "/redirect");
-    } 
-    else {
+    } else {
       this.root = new Context(server, "/", Context.SESSIONS);
     }
 
-    ServletHolder sh = new ServletHolder(org.apache.jasper.servlet.JspServlet.class);
+    ServletHolder sh = new ServletHolder(
+        org.apache.jasper.servlet.JspServlet.class);
     this.root.addServlet(sh, "*.jsp");
     this.root.setResourceBase(RES_DIR);
   }
@@ -89,12 +89,14 @@ public class TestProtocolHttp {
     startServer(47500, true);
     fetchPage("/redirection", 302);
   }
-  
+
   /**
    * Starts the Jetty server at a specified port and redirection parameter.
    * 
-   * @param portno Port number.
-   * @param redirection whether redirection        
+   * @param portno
+   *          Port number.
+   * @param redirection
+   *          whether redirection
    */
   private void startServer(int portno, boolean redirection) throws Exception {
     port = portno;
@@ -123,11 +125,13 @@ public class TestProtocolHttp {
     Response response = http.getResponse(url, p, true);
     ProtocolOutput out = http.getProtocolOutput(url.toString(), p);
     Content content = out.getContent();
-    
-    assertEquals("HTTP Status Code for " + url, expectedCode, response.getCode());
-    if (page.compareTo("/nonexists.html") != 0 
-    		 && page.compareTo("/brokenpage.jsp") != 0
-         && page.compareTo("/redirection") != 0)
-      assertEquals("ContentType " + url, "application/xhtml+xml", content.getContentType());
+
+    assertEquals("HTTP Status Code for " + url, expectedCode,
+        response.getCode());
+    if (page.compareTo("/nonexists.html") != 0
+        && page.compareTo("/brokenpage.jsp") != 0
+        && page.compareTo("/redirection") != 0)
+      assertEquals("ContentType " + url, "application/xhtml+xml",
+          content.getContentType());
   }
 }

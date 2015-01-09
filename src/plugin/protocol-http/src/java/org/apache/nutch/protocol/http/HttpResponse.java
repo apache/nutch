@@ -51,18 +51,17 @@ public class HttpResponse implements Response {
   private final Metadata headers = new SpellCheckedMetadata();
 
   protected enum Scheme {
-    HTTP,
-    HTTPS,
+    HTTP, HTTPS,
   }
 
   public HttpResponse(HttpBase http, URL url, WebPage page)
-  throws ProtocolException, IOException {
+      throws ProtocolException, IOException {
 
     this.http = http;
     this.url = url;
 
     Scheme scheme = null;
- 
+
     if ("http".equals(url.getProtocol())) {
       scheme = Scheme.HTTP;
     } else if ("https".equals(url.getProtocol())) {
@@ -90,50 +89,56 @@ public class HttpResponse implements Response {
       } else {
         port = 443;
       }
-      portString= "";
+      portString = "";
     } else {
-      port= url.getPort();
-      portString= ":" + port;
+      port = url.getPort();
+      portString = ":" + port;
     }
     Socket socket = null;
 
     try {
-      socket = new Socket();                    // create the socket
+      socket = new Socket(); // create the socket
       socket.setSoTimeout(http.getTimeout());
-
 
       // connect
       String sockHost = http.useProxy() ? http.getProxyHost() : host;
       int sockPort = http.useProxy() ? http.getProxyPort() : port;
-      InetSocketAddress sockAddr= new InetSocketAddress(sockHost, sockPort);
+      InetSocketAddress sockAddr = new InetSocketAddress(sockHost, sockPort);
       socket.connect(sockAddr, http.getTimeout());
-      
+
       if (scheme == Scheme.HTTPS) {
-        SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
-        SSLSocket sslsocket = (SSLSocket)factory.createSocket(socket, sockHost, sockPort, true);
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory
+            .getDefault();
+        SSLSocket sslsocket = (SSLSocket) factory.createSocket(socket,
+            sockHost, sockPort, true);
         sslsocket.setUseClientMode(true);
-        
-        // Get the protocols and ciphers supported by this JVM    
-        Set<String> protocols = new HashSet<String>(Arrays.asList(sslsocket.getSupportedProtocols()));
-        Set<String> ciphers = new HashSet<String>(Arrays.asList(sslsocket.getSupportedCipherSuites()));
-        
+
+        // Get the protocols and ciphers supported by this JVM
+        Set<String> protocols = new HashSet<String>(Arrays.asList(sslsocket
+            .getSupportedProtocols()));
+        Set<String> ciphers = new HashSet<String>(Arrays.asList(sslsocket
+            .getSupportedCipherSuites()));
+
         // Intersect with preferred protocols and ciphers
         protocols.retainAll(http.getTlsPreferredProtocols());
         ciphers.retainAll(http.getTlsPreferredCipherSuites());
-        
-        sslsocket.setEnabledProtocols(protocols.toArray(new String[protocols.size()]));
-        sslsocket.setEnabledCipherSuites(ciphers.toArray(new String[ciphers.size()]));
-        
+
+        sslsocket.setEnabledProtocols(protocols.toArray(new String[protocols
+            .size()]));
+        sslsocket.setEnabledCipherSuites(ciphers.toArray(new String[ciphers
+            .size()]));
+
         sslsocket.startHandshake();
         socket = sslsocket;
       }
-      
+
       conf = http.getConf();
       if (sockAddr != null
           && conf.getBoolean("store.ip.address", false) == true) {
-        String ipString = sockAddr.getAddress().getHostAddress(); //get the ip address
+        String ipString = sockAddr.getAddress().getHostAddress(); // get the ip
+                                                                  // address
         page.getMetadata().put(new Utf8("_ip_"),
-          ByteBuffer.wrap(ipString.getBytes()));
+            ByteBuffer.wrap(ipString.getBytes()));
       }
 
       // make request
@@ -141,9 +146,9 @@ public class HttpResponse implements Response {
 
       StringBuffer reqStr = new StringBuffer("GET ");
       if (http.useProxy()) {
-      	reqStr.append(url.getProtocol()+"://"+host+portString+path);
+        reqStr.append(url.getProtocol() + "://" + host + portString + path);
       } else {
-      	reqStr.append(path);
+        reqStr.append(path);
       }
 
       reqStr.append(" HTTP/1.0\r\n");
@@ -161,39 +166,40 @@ public class HttpResponse implements Response {
 
       String userAgent = http.getUserAgent();
       if ((userAgent == null) || (userAgent.length() == 0)) {
-        if (Http.LOG.isErrorEnabled()) { Http.LOG.error("User-agent is not set!"); }
+        if (Http.LOG.isErrorEnabled()) {
+          Http.LOG.error("User-agent is not set!");
+        }
       } else {
         reqStr.append("User-Agent: ");
         reqStr.append(userAgent);
         reqStr.append("\r\n");
       }
 
-//      if (page.isReadable(WebPage.Field.MODIFIED_TIME.getIndex())) {
-        reqStr.append("If-Modified-Since: " +
-                      HttpDateFormat.toString(page.getModifiedTime()));
-        reqStr.append("\r\n");
-//      }
+      // if (page.isReadable(WebPage.Field.MODIFIED_TIME.getIndex())) {
+      reqStr.append("If-Modified-Since: "
+          + HttpDateFormat.toString(page.getModifiedTime()));
+      reqStr.append("\r\n");
+      // }
       reqStr.append("\r\n");
 
-      byte[] reqBytes= reqStr.toString().getBytes();
+      byte[] reqBytes = reqStr.toString().getBytes();
 
       req.write(reqBytes);
       req.flush();
 
-      PushbackInputStream in =                  // process response
-        new PushbackInputStream(
-          new BufferedInputStream(socket.getInputStream(), Http.BUFFER_SIZE),
-          Http.BUFFER_SIZE) ;
+      PushbackInputStream in = // process response
+      new PushbackInputStream(new BufferedInputStream(socket.getInputStream(),
+          Http.BUFFER_SIZE), Http.BUFFER_SIZE);
 
       StringBuffer line = new StringBuffer();
 
-      boolean haveSeenNonContinueStatus= false;
+      boolean haveSeenNonContinueStatus = false;
       while (!haveSeenNonContinueStatus) {
         // parse status code line
         this.code = parseStatusLine(in, line);
         // parse headers
         parseHeaders(in, line);
-        haveSeenNonContinueStatus= code != 100; // 100 is "Continue"
+        haveSeenNonContinueStatus = code != 100; // 100 is "Continue"
       }
 
       String transferEncoding = getHeader(Response.TRANSFER_ENCODING);
@@ -228,10 +234,10 @@ public class HttpResponse implements Response {
 
   }
 
-
-  /* ------------------------- *
-   * <implementation:Response> *
-   * ------------------------- */
+  /*
+   * ------------------------- * <implementation:Response> *
+   * -------------------------
+   */
 
   public URL getUrl() {
     return url;
@@ -253,15 +259,15 @@ public class HttpResponse implements Response {
     return content;
   }
 
-  /* ------------------------- *
-   * <implementation:Response> *
-   * ------------------------- */
+  /*
+   * ------------------------- * <implementation:Response> *
+   * -------------------------
+   */
 
+  private void readPlainContent(InputStream in) throws HttpException,
+      IOException {
 
-  private void readPlainContent(InputStream in)
-    throws HttpException, IOException {
-
-    int contentLength = Integer.MAX_VALUE;    // get content length
+    int contentLength = Integer.MAX_VALUE; // get content length
     String contentLengthString = headers.get(Response.CONTENT_LENGTH);
     if (contentLengthString != null) {
       contentLengthString = contentLengthString.trim();
@@ -269,12 +275,13 @@ public class HttpResponse implements Response {
         if (!contentLengthString.isEmpty())
           contentLength = Integer.parseInt(contentLengthString);
       } catch (NumberFormatException e) {
-        throw new HttpException("bad content length: "+contentLengthString);
+        throw new HttpException("bad content length: " + contentLengthString);
       }
     }
-    if (http.getMaxContent() >= 0
-      && contentLength > http.getMaxContent())   // limit download size
-      contentLength  = http.getMaxContent();
+    if (http.getMaxContent() >= 0 && contentLength > http.getMaxContent()) // limit
+                                                                           // download
+                                                                           // size
+      contentLength = http.getMaxContent();
 
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
     byte[] bytes = new byte[Http.BUFFER_SIZE];
@@ -384,38 +391,37 @@ public class HttpResponse implements Response {
     parseHeaders(in, line);
 
   }
-  
+
   private int parseStatusLine(PushbackInputStream in, StringBuffer line)
-    throws IOException, HttpException {
+      throws IOException, HttpException {
     readLine(in, line, false);
 
     int codeStart = line.indexOf(" ");
-    int codeEnd = line.indexOf(" ", codeStart+1);
+    int codeEnd = line.indexOf(" ", codeStart + 1);
 
     // handle lines with no plaintext result code, ie:
     // "HTTP/1.1 200" vs "HTTP/1.1 200 OK"
     if (codeEnd == -1)
-      codeEnd= line.length();
+      codeEnd = line.length();
 
     int code;
     try {
-      code= Integer.parseInt(line.substring(codeStart+1, codeEnd));
+      code = Integer.parseInt(line.substring(codeStart + 1, codeEnd));
     } catch (NumberFormatException e) {
-      throw new HttpException("bad status line '" + line
-                              + "': " + e.getMessage(), e);
+      throw new HttpException("bad status line '" + line + "': "
+          + e.getMessage(), e);
     }
 
     return code;
   }
 
+  private void processHeaderLine(StringBuffer line) throws IOException,
+      HttpException {
 
-  private void processHeaderLine(StringBuffer line)
-    throws IOException, HttpException {
-
-    int colonIndex = line.indexOf(":");       // key is up to colon
+    int colonIndex = line.indexOf(":"); // key is up to colon
     if (colonIndex == -1) {
       int i;
-      for (i= 0; i < line.length(); i++)
+      for (i = 0; i < line.length(); i++)
         if (!Character.isWhitespace(line.charAt(i)))
           break;
       if (i == line.length())
@@ -424,7 +430,7 @@ public class HttpResponse implements Response {
     }
     String key = line.substring(0, colonIndex);
 
-    int valueStart = colonIndex+1;            // skip whitespace
+    int valueStart = colonIndex + 1; // skip whitespace
     while (valueStart < line.length()) {
       int c = line.charAt(valueStart);
       if (c != ' ' && c != '\t')
@@ -435,28 +441,27 @@ public class HttpResponse implements Response {
     headers.set(key, value);
   }
 
-
   // Adds headers to our headers Metadata
   private void parseHeaders(PushbackInputStream in, StringBuffer line)
-    throws IOException, HttpException {
+      throws IOException, HttpException {
 
     while (readLine(in, line, true) != 0) {
 
       // handle HTTP responses with missing blank line after headers
       int pos;
-      if ( ((pos= line.indexOf("<!DOCTYPE")) != -1)
-           || ((pos= line.indexOf("<HTML")) != -1)
-           || ((pos= line.indexOf("<html")) != -1) ) {
+      if (((pos = line.indexOf("<!DOCTYPE")) != -1)
+          || ((pos = line.indexOf("<HTML")) != -1)
+          || ((pos = line.indexOf("<html")) != -1)) {
 
         in.unread(line.substring(pos).getBytes("UTF-8"));
         line.setLength(pos);
 
         try {
-            //TODO: (CM) We don't know the header names here
-            //since we're just handling them generically. It would
-            //be nice to provide some sort of mapping function here
-            //for the returned header names to the standard metadata
-            //names in the ParseData class
+          // TODO: (CM) We don't know the header names here
+          // since we're just handling them generically. It would
+          // be nice to provide some sort of mapping function here
+          // for the returned header names to the standard metadata
+          // names in the ParseData class
           processHeaderLine(line);
         } catch (Exception e) {
           // fixme:
@@ -470,29 +475,29 @@ public class HttpResponse implements Response {
   }
 
   private static int readLine(PushbackInputStream in, StringBuffer line,
-                      boolean allowContinuedLine)
-    throws IOException {
+      boolean allowContinuedLine) throws IOException {
     line.setLength(0);
     for (int c = in.read(); c != -1; c = in.read()) {
       switch (c) {
-        case '\r':
-          if (peek(in) == '\n') {
-            in.read();
-          }
-        case '\n':
-          if (line.length() > 0) {
-            // at EOL -- check for continued line if the current
-            // (possibly continued) line wasn't blank
-            if (allowContinuedLine)
-              switch (peek(in)) {
-                case ' ' : case '\t':                   // line is continued
-                  in.read();
-                  continue;
-              }
-          }
-          return line.length();      // else complete
-        default :
-          line.append((char)c);
+      case '\r':
+        if (peek(in) == '\n') {
+          in.read();
+        }
+      case '\n':
+        if (line.length() > 0) {
+          // at EOL -- check for continued line if the current
+          // (possibly continued) line wasn't blank
+          if (allowContinuedLine)
+            switch (peek(in)) {
+            case ' ':
+            case '\t': // line is continued
+              in.read();
+              continue;
+            }
+        }
+        return line.length(); // else complete
+      default:
+        line.append((char) c);
       }
     }
     throw new EOFException();

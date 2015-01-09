@@ -16,6 +16,6 @@
  */
 package org.apache.nutch.webui.pages;
 
-public class UserSettingsPage extends AbstractBasePage{
+public class UserSettingsPage extends AbstractBasePage {
 
 }

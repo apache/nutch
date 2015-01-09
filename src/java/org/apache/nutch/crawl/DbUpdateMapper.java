@@ -37,8 +37,8 @@ import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.WebPageWritable;
 import org.apache.gora.mapreduce.GoraMapper;
 
-public class DbUpdateMapper
-extends GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
+public class DbUpdateMapper extends
+    GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
   public static final Logger LOG = DbUpdaterJob.LOG;
 
   private ScoringFilters scoringFilters;
@@ -46,42 +46,45 @@ extends GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
   private final List<ScoreDatum> scoreData = new ArrayList<ScoreDatum>();
 
   private Utf8 batchId;
-  
-  //reuse writables
+
+  // reuse writables
   private UrlWithScore urlWithScore = new UrlWithScore();
   private NutchWritable nutchWritable = new NutchWritable();
   private WebPageWritable pageWritable;
 
   @Override
   public void map(String key, WebPage page, Context context)
-  throws IOException, InterruptedException {
-   if(Mark.GENERATE_MARK.checkMark(page) == null) {
+      throws IOException, InterruptedException {
+    if (Mark.GENERATE_MARK.checkMark(page) == null) {
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; not generated yet");
+        LOG.debug("Skipping " + TableUtil.unreverseUrl(key)
+            + "; not generated yet");
       }
       return;
     }
-  
+
     String url = TableUtil.unreverseUrl(key);
 
     scoreData.clear();
     Map<CharSequence, CharSequence> outlinks = page.getOutlinks();
     if (outlinks != null) {
       for (Entry<CharSequence, CharSequence> e : outlinks.entrySet()) {
-                int depth=Integer.MAX_VALUE;
+        int depth = Integer.MAX_VALUE;
         CharSequence depthUtf8 = page.getMarkers().get(DbUpdaterJob.DISTANCE);
-        if (depthUtf8 != null) depth=Integer.parseInt(depthUtf8.toString());
-        scoreData.add(new ScoreDatum(0.0f, e.getKey().toString(), 
-            e.getValue().toString(), depth));
+        if (depthUtf8 != null)
+          depth = Integer.parseInt(depthUtf8.toString());
+        scoreData.add(new ScoreDatum(0.0f, e.getKey().toString(), e.getValue()
+            .toString(), depth));
       }
     }
 
     // TODO: Outlink filtering (i.e. "only keep the first n outlinks")
     try {
-      scoringFilters.distributeScoreToOutlinks(url, page, scoreData, (outlinks == null ? 0 : outlinks.size()));
+      scoringFilters.distributeScoreToOutlinks(url, page, scoreData,
+          (outlinks == null ? 0 : outlinks.size()));
     } catch (ScoringFilterException e) {
-      LOG.warn("Distributing score failed for URL: " + key +
-          " exception:" + StringUtils.stringifyException(e));
+      LOG.warn("Distributing score failed for URL: " + key + " exception:"
+          + StringUtils.stringifyException(e));
     }
 
     urlWithScore.setUrl(key);
@@ -104,7 +107,8 @@ extends GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
   public void setup(Context context) {
     scoringFilters = new ScoringFilters(context.getConfiguration());
     pageWritable = new WebPageWritable(context.getConfiguration(), null);
-    batchId = new Utf8(context.getConfiguration().get(Nutch.BATCH_NAME_KEY,Nutch.ALL_BATCH_ID_STR));
+    batchId = new Utf8(context.getConfiguration().get(Nutch.BATCH_NAME_KEY,
+        Nutch.ALL_BATCH_ID_STR));
   }
 
 }

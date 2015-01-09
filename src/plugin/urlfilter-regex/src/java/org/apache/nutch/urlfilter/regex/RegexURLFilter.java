@@ -28,13 +28,12 @@ import org.apache.nutch.urlfilter.api.RegexRule;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
 import org.apache.nutch.util.NutchConfiguration;
 
-
 /**
  * Filters URLs based on a file of regular expressions using the
  * {@link java.util.regex Java Regex implementation}.
  */
 public class RegexURLFilter extends RegexURLFilterBase {
-  
+
   public static final String URLFILTER_REGEX_FILE = "urlfilter.regex.file";
   public static final String URLFILTER_REGEX_RULES = "urlfilter.regex.rules";
 
@@ -42,24 +41,23 @@ public class RegexURLFilter extends RegexURLFilterBase {
     super();
   }
 
-  public RegexURLFilter(String filename)
-    throws IOException, PatternSyntaxException {
+  public RegexURLFilter(String filename) throws IOException,
+      PatternSyntaxException {
     super(filename);
   }
 
-  RegexURLFilter(Reader reader)
-    throws IOException, IllegalArgumentException {
+  RegexURLFilter(Reader reader) throws IOException, IllegalArgumentException {
     super(reader);
   }
 
-  
-  /* ----------------------------------- *
-   * <implementation:RegexURLFilterBase> *
-   * ----------------------------------- */
-  
+  /*
+   * ----------------------------------- * <implementation:RegexURLFilterBase> *
+   * -----------------------------------
+   */
+
   /**
-   * Rules specified as a config property will override rules specified
-   * as a config file.
+   * Rules specified as a config property will override rules specified as a
+   * config file.
    */
   protected Reader getRulesReader(Configuration conf) throws IOException {
     String stringRules = conf.get(URLFILTER_REGEX_RULES);
@@ -74,23 +72,22 @@ public class RegexURLFilter extends RegexURLFilterBase {
   protected RegexRule createRule(boolean sign, String regex) {
     return new Rule(sign, regex);
   }
-  
-  /* ------------------------------------ *
-   * </implementation:RegexURLFilterBase> *
-   * ------------------------------------ */
 
-  
+  /*
+   * ------------------------------------ * </implementation:RegexURLFilterBase>
+   * * ------------------------------------
+   */
+
   public static void main(String args[]) throws IOException {
     RegexURLFilter filter = new RegexURLFilter();
     filter.setConf(NutchConfiguration.create());
     main(filter, args);
   }
 
-
   private class Rule extends RegexRule {
-    
+
     private Pattern pattern;
-    
+
     Rule(boolean sign, String regex) {
       super(sign, regex);
       pattern = Pattern.compile(regex);
@@ -100,5 +97,5 @@ public class RegexURLFilter extends RegexURLFilterBase {
       return pattern.matcher(url).find();
     }
   }
-  
+
 }

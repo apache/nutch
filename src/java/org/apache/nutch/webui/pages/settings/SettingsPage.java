@@ -26,12 +26,14 @@ public class SettingsPage extends AbstractBasePage<Void> {
   public SettingsPage() {
     settingsTable = new WebMarkupContainer("settingsTable");
     settingsTable.setOutputMarkupId(true);
-    RefreshingView<NutchConfig> nutchConfig = new RefreshingView<NutchConfig>("settings") {
+    RefreshingView<NutchConfig> nutchConfig = new RefreshingView<NutchConfig>(
+        "settings") {
 
       @Override
       protected Iterator<IModel<NutchConfig>> getItemModels() {
         return new CpmIteratorAdapter<NutchConfig>(
-            convertNutchConfig(nutchService.getNutchConfig(getCurrentInstance().getId())));
+            convertNutchConfig(nutchService.getNutchConfig(getCurrentInstance()
+                .getId())));
       }
 
       @Override

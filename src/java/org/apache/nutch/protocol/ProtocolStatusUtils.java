@@ -100,7 +100,7 @@ public class ProtocolStatusUtils implements ProtocolStatusCodes {
     }
     return TableUtil.toString(args.iterator().next());
   }
-  
+
   public static String toString(ProtocolStatus status) {
     if (status == null) {
       return "(null)";
@@ -113,7 +113,8 @@ public class ProtocolStatusUtils implements ProtocolStatusCodes {
       int i = 0;
       Iterator<CharSequence> it = args.iterator();
       while (it.hasNext()) {
-        if (i > 0) sb.append(',');
+        if (i > 0)
+          sb.append(',');
         sb.append(it.next());
         i++;
       }

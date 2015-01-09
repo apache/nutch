@@ -94,8 +94,10 @@ public class Extension {
    * Adds a attribute and is only used until model creation at plugin system
    * start up.
    * 
-   * @param pKey a key
-   * @param pValue a value
+   * @param pKey
+   *          a key
+   * @param pValue
+   *          a value
    */
   public void addAttribute(String pKey, String pValue) {
     fAttributes.put(pKey, pValue);
@@ -105,7 +107,8 @@ public class Extension {
    * Sets the Class that implement the concret extension and is only used until
    * model creation at system start up.
    * 
-   * @param extensionClazz The extensionClasname to set
+   * @param extensionClazz
+   *          The extensionClasname to set
    */
   public void setClazz(String extensionClazz) {
     fClazz = extensionClazz;
@@ -115,7 +118,8 @@ public class Extension {
    * Sets the unique extension Id and is only used until model creation at
    * system start up.
    * 
-   * @param extensionID The extensionID to set
+   * @param extensionID
+   *          The extensionID to set
    */
   public void setId(String extensionID) {
     fId = extensionID;
@@ -147,10 +151,10 @@ public class Extension {
     // The same is in PluginRepository.getPluginInstance().
     // Suggested by Stefan Groschupf <sg@media-style.com>
     synchronized (getId()) {
-      try {      
+      try {
         PluginRepository pluginRepository = PluginRepository.get(conf);
-        Class extensionClazz = 
-          pluginRepository.getCachedClass(fDescriptor, getClazz());
+        Class extensionClazz = pluginRepository.getCachedClass(fDescriptor,
+            getClazz());
         // lazy loading of Plugin in case there is no instance of the plugin
         // already.
         pluginRepository.getPluginInstance(getDescriptor());

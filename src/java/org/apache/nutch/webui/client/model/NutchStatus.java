@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Set;
 
 public class NutchStatus implements Serializable {
-  
+
   private Date startDate;
   private Set<String> configuration;
   private Collection<JobInfo> jobs;

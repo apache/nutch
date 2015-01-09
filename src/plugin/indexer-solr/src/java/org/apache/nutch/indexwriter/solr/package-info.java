@@ -19,3 +19,4 @@
  * Index writer plugin for <a href="http://lucene.apache.org/solr/">Apache Solr</a>.
  */
 package org.apache.nutch.indexwriter.solr;
+

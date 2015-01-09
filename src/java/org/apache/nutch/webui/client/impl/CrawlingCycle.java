@@ -43,8 +43,8 @@ public class CrawlingCycle {
   private List<RemoteCommand> remoteCommands;
   private List<RemoteCommand> executedCommands = Lists.newArrayList();
 
-  public CrawlingCycle(CrawlingCycleListener listener, RemoteCommandExecutor executor, Crawl crawl,
-      List<RemoteCommand> commands) {
+  public CrawlingCycle(CrawlingCycleListener listener,
+      RemoteCommandExecutor executor, Crawl crawl, List<RemoteCommand> commands) {
     this.listener = listener;
     this.executor = executor;
     this.crawl = crawl;
@@ -64,7 +64,7 @@ public class CrawlingCycle {
         listener.onCrawlError(crawl, jobInfo.getMsg());
         return;
       }
-      
+
       executedCommands.add(command);
       listener.commandExecuted(crawl, command, calculateProgress());
     }
@@ -75,7 +75,8 @@ public class CrawlingCycle {
     if (CollectionUtils.isEmpty(remoteCommands)) {
       return 0;
     }
-    return (int) ((float) executedCommands.size() / (float) remoteCommands.size() * 100);
+    return (int) ((float) executedCommands.size()
+        / (float) remoteCommands.size() * 100);
   }
 
 }

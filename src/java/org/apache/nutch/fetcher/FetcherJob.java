@@ -53,7 +53,7 @@ import org.apache.gora.mapreduce.GoraMapper;
 
 /**
  * Multi-threaded fetcher.
- *
+ * 
  */
 public class FetcherJob extends NutchTool implements Tool {
 
@@ -80,8 +80,8 @@ public class FetcherJob extends NutchTool implements Tool {
    * Mapper class for Fetcher.
    * </p>
    * <p>
-   * This class reads the random integer written by {@link GeneratorJob} as its key
-   * while outputting the actual key and value arguments through a
+   * This class reads the random integer written by {@link GeneratorJob} as its
+   * key while outputting the actual key and value arguments through a
    * {@link FetchEntry} instance.
    * </p>
    * <p>
@@ -92,8 +92,8 @@ public class FetcherJob extends NutchTool implements Tool {
    * from other hosts as well.
    * </p>
    */
-  public static class FetcherMapper
-  extends GoraMapper<String, WebPage, IntWritable, FetchEntry> {
+  public static class FetcherMapper extends
+      GoraMapper<String, WebPage, IntWritable, FetchEntry> {
 
     private boolean shouldContinue;
 
@@ -105,7 +105,8 @@ public class FetcherJob extends NutchTool implements Tool {
     protected void setup(Context context) {
       Configuration conf = context.getConfiguration();
       shouldContinue = conf.getBoolean(RESUME_KEY, false);
-      batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
+      batchId = new Utf8(
+          conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
     }
 
     @Override
@@ -120,12 +121,13 @@ public class FetcherJob extends NutchTool implements Tool {
       }
       if (shouldContinue && Mark.FETCH_MARK.checkMark(page) != null) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; already fetched");
+          LOG.debug("Skipping " + TableUtil.unreverseUrl(key)
+              + "; already fetched");
         }
         return;
       }
-      context.write(new IntWritable(random.nextInt(65536)), new FetchEntry(context
-          .getConfiguration(), key, page));
+      context.write(new IntWritable(random.nextInt(65536)), new FetchEntry(
+          context.getConfiguration(), key, page));
     }
   }
 
@@ -145,20 +147,21 @@ public class FetcherJob extends NutchTool implements Tool {
       ParserJob parserJob = new ParserJob();
       fields.addAll(parserJob.getFields(job));
     }
-    ProtocolFactory protocolFactory = new ProtocolFactory(job.getConfiguration());
+    ProtocolFactory protocolFactory = new ProtocolFactory(
+        job.getConfiguration());
     fields.addAll(protocolFactory.getFields());
 
     return fields;
   }
 
   @Override
-  public Map<String,Object> run(Map<String,Object> args) throws Exception {
+  public Map<String, Object> run(Map<String, Object> args) throws Exception {
     checkConfiguration();
-    String batchId = (String)args.get(Nutch.ARG_BATCH);
-    Integer threads = (Integer)args.get(Nutch.ARG_THREADS);
-    Boolean shouldResume = (Boolean)args.get(Nutch.ARG_RESUME);
-    Integer numTasks = (Integer)args.get(Nutch.ARG_NUMTASKS);
- 
+    String batchId = (String) args.get(Nutch.ARG_BATCH);
+    Integer threads = (Integer) args.get(Nutch.ARG_THREADS);
+    Boolean shouldResume = (Boolean) args.get(Nutch.ARG_RESUME);
+    Integer numTasks = (Integer) args.get(Nutch.ARG_NUMTASKS);
+
     if (threads != null && threads > 0) {
       getConf().setInt(THREADS_KEY, threads);
     }
@@ -169,7 +172,7 @@ public class FetcherJob extends NutchTool implements Tool {
     if (shouldResume != null) {
       getConf().setBoolean(RESUME_KEY, shouldResume);
     }
-    
+
     LOG.info("FetcherJob: threads: " + getConf().getInt(THREADS_KEY, 10));
     LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, false));
     LOG.info("FetcherJob: resuming: " + getConf().getBoolean(RESUME_KEY, false));
@@ -182,13 +185,14 @@ public class FetcherJob extends NutchTool implements Tool {
       timelimit = System.currentTimeMillis() + (timelimit * 60 * 1000);
       getConf().setLong("fetcher.timelimit", timelimit);
     }
-    LOG.info("FetcherJob : timelimit set for : " + getConf().getLong("fetcher.timelimit", -1));
+    LOG.info("FetcherJob : timelimit set for : "
+        + getConf().getLong("fetcher.timelimit", -1));
     numJobs = 1;
     currentJob = new NutchJob(getConf(), "fetch");
-    
+
     // for politeness, don't permit parallel execution of a single task
     currentJob.setReduceSpeculativeExecution(false);
-    
+
     Collection<WebPage.Field> fields = getFields(currentJob);
     MapFieldValueFilter<String, WebPage> batchIdFilter = getBatchIdFilter(batchId);
     StorageUtils.initMapperJob(currentJob, fields, IntWritable.class,
@@ -196,8 +200,8 @@ public class FetcherJob extends NutchTool implements Tool {
         batchIdFilter, false);
     StorageUtils.initReducerJob(currentJob, FetcherReducer.class);
     if (numTasks == null || numTasks < 1) {
-      currentJob.setNumReduceTasks(currentJob.getConfiguration().getInt("mapred.map.tasks",
-          currentJob.getNumReduceTasks()));
+      currentJob.setNumReduceTasks(currentJob.getConfiguration().getInt(
+          "mapred.map.tasks", currentJob.getNumReduceTasks()));
     } else {
       currentJob.setNumReduceTasks(numTasks);
     }
@@ -219,19 +223,24 @@ public class FetcherJob extends NutchTool implements Tool {
     return filter;
   }
 
-    /**
+  /**
    * Run fetcher.
-   * @param batchId batchId (obtained from Generator) or null to fetch all generated fetchlists
-   * @param threads number of threads per map task
+   * 
+   * @param batchId
+   *          batchId (obtained from Generator) or null to fetch all generated
+   *          fetchlists
+   * @param threads
+   *          number of threads per map task
    * @param shouldResume
-   * @param numTasks number of fetching tasks (reducers). If set to < 1 then use the default,
-   * which is mapred.map.tasks.
+   * @param numTasks
+   *          number of fetching tasks (reducers). If set to < 1 then use the
+   *          default, which is mapred.map.tasks.
    * @return 0 on success
    * @throws Exception
    */
-  public int fetch(String batchId, int threads, boolean shouldResume, int numTasks)
-      throws Exception {
-    
+  public int fetch(String batchId, int threads, boolean shouldResume,
+      int numTasks) throws Exception {
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("FetcherJob: starting at " + sdf.format(start));
@@ -242,15 +251,13 @@ public class FetcherJob extends NutchTool implements Tool {
       LOG.info("FetcherJob: batchId: " + batchId);
     }
 
-    run(ToolUtil.toArgMap(
-        Nutch.ARG_BATCH, batchId,
-        Nutch.ARG_THREADS, threads,
-        Nutch.ARG_RESUME, shouldResume,
-        Nutch.ARG_NUMTASKS, numTasks));
-    
+    run(ToolUtil.toArgMap(Nutch.ARG_BATCH, batchId, Nutch.ARG_THREADS, threads,
+        Nutch.ARG_RESUME, shouldResume, Nutch.ARG_NUMTASKS, numTasks));
+
     long finish = System.currentTimeMillis();
-    LOG.info("FetcherJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
-    
+    LOG.info("FetcherJob: finished at " + sdf.format(finish)
+        + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
+
     return 0;
   }
 
@@ -273,13 +280,13 @@ public class FetcherJob extends NutchTool implements Tool {
     boolean shouldResume = false;
     String batchId;
 
-    String usage = "Usage: FetcherJob (<batchId> | -all) [-crawlId <id>] " +
-      "[-threads N] \n \t \t  [-resume] [-numTasks N]\n" +
-      "    <batchId>     - crawl identifier returned by Generator, or -all for all \n \t \t    generated batchId-s\n" +
-      "    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\n" +
-      "    -threads N    - number of fetching threads per task\n" +
-      "    -resume       - resume interrupted job\n" +
-      "    -numTasks N   - if N > 0 then use this many reduce tasks for fetching \n \t \t    (default: mapred.map.tasks)";
+    String usage = "Usage: FetcherJob (<batchId> | -all) [-crawlId <id>] "
+        + "[-threads N] \n \t \t  [-resume] [-numTasks N]\n"
+        + "    <batchId>     - crawl identifier returned by Generator, or -all for all \n \t \t    generated batchId-s\n"
+        + "    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\n"
+        + "    -threads N    - number of fetching threads per task\n"
+        + "    -resume       - resume interrupted job\n"
+        + "    -numTasks N   - if N > 0 then use this many reduce tasks for fetching \n \t \t    (default: mapred.map.tasks)";
 
     if (args.length == 0) {
       System.err.println(usage);
@@ -303,17 +310,19 @@ public class FetcherJob extends NutchTool implements Tool {
       } else if ("-crawlId".equals(args[i])) {
         getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
       } else {
-        throw new IllegalArgumentException("arg " +args[i]+ " not recognized");
+        throw new IllegalArgumentException("arg " + args[i] + " not recognized");
       }
     }
 
-    int fetchcode = fetch(batchId, threads, shouldResume, numTasks); // run the Fetcher
+    int fetchcode = fetch(batchId, threads, shouldResume, numTasks); // run the
+                                                                     // Fetcher
 
     return fetchcode;
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new FetcherJob(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new FetcherJob(),
+        args);
     System.exit(res);
   }
 }

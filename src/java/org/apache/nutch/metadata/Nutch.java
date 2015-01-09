@@ -19,20 +19,17 @@ package org.apache.nutch.metadata;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.io.Text;
 
-
 /**
  * A collection of Nutch internal metadata constants.
- *
+ * 
  * @author Chris Mattmann
  * @author J&eacute;r&ocirc;me Charron
  */
 public interface Nutch {
 
-  public static final String ORIGINAL_CHAR_ENCODING =
-          "OriginalCharEncoding";
+  public static final String ORIGINAL_CHAR_ENCODING = "OriginalCharEncoding";
 
-  public static final String CHAR_ENCODING_FOR_CONVERSION =
-          "CharEncodingForConversion";
+  public static final String CHAR_ENCODING_FOR_CONVERSION = "CharEncodingForConversion";
 
   public static final String SIGNATURE_KEY = "nutch.content.digest";
 
@@ -42,20 +39,26 @@ public interface Nutch {
 
   public static final String GENERATE_TIME_KEY = "_ngt_";
 
-  public static final Text WRITABLE_GENERATE_TIME_KEY = new Text(GENERATE_TIME_KEY);
+  public static final Text WRITABLE_GENERATE_TIME_KEY = new Text(
+      GENERATE_TIME_KEY);
 
   public static final String PROTO_STATUS_KEY = "_pst_";
 
-  public static final Text WRITABLE_PROTO_STATUS_KEY = new Text(PROTO_STATUS_KEY);
+  public static final Text WRITABLE_PROTO_STATUS_KEY = new Text(
+      PROTO_STATUS_KEY);
 
   public static final String FETCH_TIME_KEY = "_ftk_";
 
   public static final String FETCH_STATUS_KEY = "_fst_";
 
-  /** Sites may request that search engines don't provide access to cached documents. */
+  /**
+   * Sites may request that search engines don't provide access to cached
+   * documents.
+   */
   public static final String CACHING_FORBIDDEN_KEY = "caching.forbidden";
 
-  public static final Utf8 CACHING_FORBIDDEN_KEY_UTF8 = new Utf8(CACHING_FORBIDDEN_KEY);
+  public static final Utf8 CACHING_FORBIDDEN_KEY_UTF8 = new Utf8(
+      CACHING_FORBIDDEN_KEY);
 
   /** Show both original forbidden content and summaries (default). */
   public static final String CACHING_FORBIDDEN_NONE = "none";
@@ -75,8 +78,7 @@ public interface Nutch {
   public static final Utf8 ALL_CRAWL_ID = new Utf8(ALL_BATCH_ID_STR);
 
   public static final String CRAWL_ID_KEY = "storage.crawl.id";
-  
-  
+
   // short constants for cmd-line args
   /** Batch id to select. */
   public static final String ARG_BATCH = "batch";
@@ -110,7 +112,7 @@ public interface Nutch {
   public static final String ARG_CLASS = "class";
   /** Depth (number of cycles) of a crawl. */
   public static final String ARG_DEPTH = "depth";
-  
+
   // short constants for status / results fields
   /** Status / result message. */
   public static final String STAT_MESSAGE = "msg";

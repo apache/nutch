@@ -25,20 +25,23 @@ import org.apache.nutch.util.ObjectCache;
 /** Creates and caches a {@link FetchSchedule} implementation. */
 public class FetchScheduleFactory {
 
-  public static final Logger LOG = LoggerFactory.getLogger(FetchScheduleFactory.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(FetchScheduleFactory.class);
 
-  private FetchScheduleFactory() {}                   // no public ctor
+  private FetchScheduleFactory() {
+  } // no public ctor
 
   /** Return the FetchSchedule implementation. */
   public static FetchSchedule getFetchSchedule(Configuration conf) {
-    String clazz = conf.get("db.fetch.schedule.class", DefaultFetchSchedule.class.getName());
+    String clazz = conf.get("db.fetch.schedule.class",
+        DefaultFetchSchedule.class.getName());
     ObjectCache objectCache = ObjectCache.get(conf);
-    FetchSchedule impl = (FetchSchedule)objectCache.getObject(clazz);
+    FetchSchedule impl = (FetchSchedule) objectCache.getObject(clazz);
     if (impl == null) {
       try {
         LOG.info("Using FetchSchedule impl: " + clazz);
         Class<?> implClass = Class.forName(clazz);
-        impl = (FetchSchedule)implClass.newInstance();
+        impl = (FetchSchedule) implClass.newInstance();
         impl.setConf(conf);
         objectCache.setObject(clazz, impl);
       } catch (Exception e) {

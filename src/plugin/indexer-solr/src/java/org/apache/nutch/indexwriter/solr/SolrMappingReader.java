@@ -38,16 +38,17 @@ import org.xml.sax.SAXException;
 
 public class SolrMappingReader {
   public static Logger LOG = LoggerFactory.getLogger(SolrMappingReader.class);
-  
+
   private Configuration conf;
-  
+
   private Map<String, String> keyMap = new HashMap<String, String>();
   private Map<String, String> copyMap = new HashMap<String, String>();
   private String uniqueKey = "id";
-  
+
   public static synchronized SolrMappingReader getInstance(Configuration conf) {
     ObjectCache cache = ObjectCache.get(conf);
-    SolrMappingReader instance = (SolrMappingReader)cache.getObject(SolrMappingReader.class.getName());
+    SolrMappingReader instance = (SolrMappingReader) cache
+        .getObject(SolrMappingReader.class.getName());
     if (instance == null) {
       instance = new SolrMappingReader(conf);
       cache.setObject(SolrMappingReader.class.getName(), instance);
@@ -60,9 +61,10 @@ public class SolrMappingReader {
     parseMapping();
   }
 
-  private void parseMapping() {    
+  private void parseMapping() {
     InputStream ssInputStream = null;
-    ssInputStream = conf.getConfResourceAsInputStream(conf.get(SolrConstants.MAPPING_FILE, "solrindex-mapping.xml"));
+    ssInputStream = conf.getConfResourceAsInputStream(conf.get(
+        SolrConstants.MAPPING_FILE, "solrindex-mapping.xml"));
 
     InputSource inputSource = new InputSource(ssInputStream);
     try {
@@ -74,48 +76,50 @@ public class SolrMappingReader {
       if (fieldList.getLength() > 0) {
         for (int i = 0; i < fieldList.getLength(); i++) {
           Element element = (Element) fieldList.item(i);
-          LOG.info("source: " + element.getAttribute("source") + " dest: " + element.getAttribute("dest"));
-          keyMap.put(element.getAttribute("source"), element.getAttribute("dest"));
+          LOG.info("source: " + element.getAttribute("source") + " dest: "
+              + element.getAttribute("dest"));
+          keyMap.put(element.getAttribute("source"),
+              element.getAttribute("dest"));
         }
       }
       NodeList copyFieldList = rootElement.getElementsByTagName("copyField");
       if (copyFieldList.getLength() > 0) {
         for (int i = 0; i < copyFieldList.getLength(); i++) {
           Element element = (Element) copyFieldList.item(i);
-          LOG.info("source: " + element.getAttribute("source") + " dest: " + element.getAttribute("dest"));
-          copyMap.put(element.getAttribute("source"), element.getAttribute("dest"));
+          LOG.info("source: " + element.getAttribute("source") + " dest: "
+              + element.getAttribute("dest"));
+          copyMap.put(element.getAttribute("source"),
+              element.getAttribute("dest"));
         }
       }
       NodeList uniqueKeyItem = rootElement.getElementsByTagName("uniqueKey");
       if (uniqueKeyItem.getLength() > 1) {
         LOG.warn("More than one unique key definitions found in solr index mapping, using default 'id'");
         uniqueKey = "id";
-      }
-      else if (uniqueKeyItem.getLength() == 0) {
+      } else if (uniqueKeyItem.getLength() == 0) {
         LOG.warn("No unique key definition found in solr index mapping using, default 'id'");
-      }
-      else{
-    	  uniqueKey = uniqueKeyItem.item(0).getFirstChild().getNodeValue();
+      } else {
+        uniqueKey = uniqueKeyItem.item(0).getFirstChild().getNodeValue();
       }
     } catch (MalformedURLException e) {
-        LOG.warn(e.toString());
+      LOG.warn(e.toString());
     } catch (SAXException e) {
-        LOG.warn(e.toString());
+      LOG.warn(e.toString());
     } catch (IOException e) {
-    	LOG.warn(e.toString());
+      LOG.warn(e.toString());
     } catch (ParserConfigurationException e) {
-    	LOG.warn(e.toString());
-    } 
+      LOG.warn(e.toString());
+    }
   }
-	  
+
   public Map<String, String> getKeyMap() {
     return keyMap;
   }
-	  
+
   public Map<String, String> getCopyMap() {
     return copyMap;
   }
-	  
+
   public String getUniqueKey() {
     return uniqueKey;
   }
@@ -128,14 +132,14 @@ public class SolrMappingReader {
   }
 
   public String mapKey(String key) throws IOException {
-    if(keyMap.containsKey(key)) {
+    if (keyMap.containsKey(key)) {
       key = keyMap.get(key);
     }
     return key;
   }
 
   public String mapCopyKey(String key) throws IOException {
-    if(copyMap.containsKey(key)) {
+    if (copyMap.containsKey(key)) {
       key = copyMap.get(key);
     }
     return key;

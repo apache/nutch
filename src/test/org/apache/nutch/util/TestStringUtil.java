@@ -25,37 +25,37 @@ public class TestStringUtil {
 
   @Test
   public void testRightPad() {
-    String s= "my string";
+    String s = "my string";
 
-    String ps= StringUtil.rightPad(s, 0);
+    String ps = StringUtil.rightPad(s, 0);
     assertTrue(s.equals(ps));
 
-    ps= StringUtil.rightPad(s, 9);
+    ps = StringUtil.rightPad(s, 9);
     assertTrue(s.equals(ps));
 
-    ps= StringUtil.rightPad(s, 10);
-    assertTrue( (s+" ").equals(ps) );
+    ps = StringUtil.rightPad(s, 10);
+    assertTrue((s + " ").equals(ps));
 
-    ps= StringUtil.rightPad(s, 15);
-    assertTrue( (s+"      ").equals(ps) );
+    ps = StringUtil.rightPad(s, 15);
+    assertTrue((s + "      ").equals(ps));
 
   }
 
   @Test
   public void testLeftPad() {
-    String s= "my string";
+    String s = "my string";
 
-    String ps= StringUtil.leftPad(s, 0);
+    String ps = StringUtil.leftPad(s, 0);
     assertTrue(s.equals(ps));
 
-    ps= StringUtil.leftPad(s, 9);
+    ps = StringUtil.leftPad(s, 9);
     assertTrue(s.equals(ps));
 
-    ps= StringUtil.leftPad(s, 10);
-    assertTrue( (" "+s).equals(ps) );
+    ps = StringUtil.leftPad(s, 10);
+    assertTrue((" " + s).equals(ps));
 
-    ps= StringUtil.leftPad(s, 15);
-    assertTrue( ("      "+s).equals(ps) );
+    ps = StringUtil.leftPad(s, 15);
+    assertTrue(("      " + s).equals(ps));
 
   }
 

@@ -32,12 +32,13 @@ import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.ObjectCache;
 
-/** Creates and caches {@link IndexingFilter} implementing plugins.*/
+/** Creates and caches {@link IndexingFilter} implementing plugins. */
 public class IndexingFilters {
 
   public static final String INDEXINGFILTER_ORDER = "indexingfilter.order";
 
-  public final static Logger LOG = LoggerFactory.getLogger(IndexingFilters.class);
+  public final static Logger LOG = LoggerFactory
+      .getLogger(IndexingFilters.class);
 
   private IndexingFilter[] indexingFilters;
 
@@ -62,8 +63,7 @@ public class IndexingFilters {
         if (point == null)
           throw new RuntimeException(IndexingFilter.X_POINT_ID + " not found.");
         Extension[] extensions = point.getExtensions();
-        HashMap<String, IndexingFilter> filterMap =
-          new HashMap<String, IndexingFilter>();
+        HashMap<String, IndexingFilter> filterMap = new HashMap<String, IndexingFilter>();
         for (int i = 0; i < extensions.length; i++) {
           Extension extension = extensions[i];
           IndexingFilter filter = (IndexingFilter) extension
@@ -78,9 +78,8 @@ public class IndexingFilters {
          * indeterminate order
          */
         if (orderedFilters == null) {
-          objectCache.setObject(IndexingFilter.class.getName(),
-              filterMap.values().toArray(
-                  new IndexingFilter[0]));
+          objectCache.setObject(IndexingFilter.class.getName(), filterMap
+              .values().toArray(new IndexingFilter[0]));
           /* Otherwise run the filters in the required order */
         } else {
           ArrayList<IndexingFilter> filters = new ArrayList<IndexingFilter>();
@@ -90,8 +89,8 @@ public class IndexingFilters {
               filters.add(filter);
             }
           }
-          objectCache.setObject(IndexingFilter.class.getName(), filters
-              .toArray(new IndexingFilter[filters.size()]));
+          objectCache.setObject(IndexingFilter.class.getName(),
+              filters.toArray(new IndexingFilter[filters.size()]));
         }
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
@@ -100,23 +99,24 @@ public class IndexingFilters {
           .getObject(IndexingFilter.class.getName());
     }
   }
+
   /** Run all defined filters. */
   public NutchDocument filter(NutchDocument doc, String url, WebPage page)
-  throws IndexingException {
+      throws IndexingException {
     for (IndexingFilter indexingFilter : indexingFilters) {
       doc = indexingFilter.filter(doc, url, page);
       // break the loop if an indexing filter discards the doc
-      if (doc == null) return null;
+      if (doc == null)
+        return null;
     }
 
     return doc;
   }
 
   /**
-   * Gets all the fields for a given {@link WebPage}
-   * Many datastores need to setup the mapreduce job by specifying the fields
-   * needed. All extensions that work on WebPage are able to specify what fields
-   * they need.
+   * Gets all the fields for a given {@link WebPage} Many datastores need to
+   * setup the mapreduce job by specifying the fields needed. All extensions
+   * that work on WebPage are able to specify what fields they need.
    */
   public Collection<WebPage.Field> getFields() {
     Collection<WebPage.Field> columns = new HashSet<WebPage.Field>();

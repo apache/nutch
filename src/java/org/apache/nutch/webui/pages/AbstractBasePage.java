@@ -74,16 +74,25 @@ public abstract class AbstractBasePage<T> extends GenericWebPage<T> {
     navbar.setPosition(Position.TOP);
     add(navbar);
 
-    addMenuItem(DashboardPage.class, "navbar.menu.dashboard", FontAwesomeIconType.dashboard);
-    addMenuItem(StatisticsPage.class, "navbar.menu.statistics", FontAwesomeIconType.bar_chart_o);
-    addMenuItem(InstancesPage.class, "navbar.menu.instances", FontAwesomeIconType.gears);
-    addMenuItem(SettingsPage.class, "navbar.menu.settings", FontAwesomeIconType.wrench);
-    addMenuItem(CrawlsPage.class, "navbar.menu.crawls", FontAwesomeIconType.refresh);
-    addMenuItem(SchedulingPage.class, "navbar.menu.scheduling", FontAwesomeIconType.clock_o);
-    addMenuItem(SearchPage.class, "navbar.menu.search", FontAwesomeIconType.search);
-    addMenuItem(SeedListsPage.class, "navbar.menu.seedLists", FontAwesomeIconType.file);
+    addMenuItem(DashboardPage.class, "navbar.menu.dashboard",
+        FontAwesomeIconType.dashboard);
+    addMenuItem(StatisticsPage.class, "navbar.menu.statistics",
+        FontAwesomeIconType.bar_chart_o);
+    addMenuItem(InstancesPage.class, "navbar.menu.instances",
+        FontAwesomeIconType.gears);
+    addMenuItem(SettingsPage.class, "navbar.menu.settings",
+        FontAwesomeIconType.wrench);
+    addMenuItem(CrawlsPage.class, "navbar.menu.crawls",
+        FontAwesomeIconType.refresh);
+    addMenuItem(SchedulingPage.class, "navbar.menu.scheduling",
+        FontAwesomeIconType.clock_o);
+    addMenuItem(SearchPage.class, "navbar.menu.search",
+        FontAwesomeIconType.search);
+    addMenuItem(SeedListsPage.class, "navbar.menu.seedLists",
+        FontAwesomeIconType.file);
 
-    navbar.addComponents(transform(ComponentPosition.RIGHT, addInstancesMenuMenu()));
+    navbar.addComponents(transform(ComponentPosition.RIGHT,
+        addInstancesMenuMenu()));
     navbar.addComponents(transform(ComponentPosition.RIGHT, addUserMenu()));
 
     add(new NotificationPanel("globalNotificationPanel"));
@@ -99,11 +108,13 @@ public abstract class AbstractBasePage<T> extends GenericWebPage<T> {
       @Override
       protected List<AbstractLink> newSubMenuButtons(final String buttonMarkupId) {
         List<AbstractLink> subMenu = Lists.newArrayList();
-        subMenu.add(new MenuBookmarkablePageLink<Void>(UserSettingsPage.class, new ResourceModel(
-            "navbar.userMenu.settings")).setIconType(FontAwesomeIconType.gear));
+        subMenu.add(new MenuBookmarkablePageLink<Void>(UserSettingsPage.class,
+            new ResourceModel("navbar.userMenu.settings"))
+            .setIconType(FontAwesomeIconType.gear));
         subMenu.add(new MenuDivider());
-        subMenu.add(new MenuBookmarkablePageLink<Void>(LogOutPage.class, new ResourceModel(
-            "navbar.userMenu.logout")).setIconType(FontAwesomeIconType.power_off));
+        subMenu.add(new MenuBookmarkablePageLink<Void>(LogOutPage.class,
+            new ResourceModel("navbar.userMenu.logout"))
+            .setIconType(FontAwesomeIconType.power_off));
         return subMenu;
       }
     }.setIconType(FontAwesomeIconType.user);
@@ -119,7 +130,8 @@ public abstract class AbstractBasePage<T> extends GenericWebPage<T> {
         List<NutchInstance> instances = instanceService.getInstances();
         List<AbstractLink> subMenu = Lists.newArrayList();
         for (NutchInstance instance : instances) {
-          subMenu.add(new Link<NutchInstance>(buttonMarkupId, Model.of(instance)) {
+          subMenu.add(new Link<NutchInstance>(buttonMarkupId, Model
+              .of(instance)) {
             @Override
             public void onClick() {
               currentInstance.setObject(getModelObject());
@@ -134,8 +146,10 @@ public abstract class AbstractBasePage<T> extends GenericWebPage<T> {
     return instancesMenu;
   }
 
-  private <P extends Page> void addMenuItem(Class<P> page, String label, IconType icon) {
-    Component button = new NavbarButton<Void>(page, Model.of(getString(label))).setIconType(icon);
+  private <P extends Page> void addMenuItem(Class<P> page, String label,
+      IconType icon) {
+    Component button = new NavbarButton<Void>(page, Model.of(getString(label)))
+        .setIconType(icon);
     navbar.addComponents(NavbarComponents.transform(LEFT, button));
   }
 

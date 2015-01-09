@@ -19,3 +19,4 @@
  * Miscellaneous tools.
  */
 package org.apache.nutch.tools;
+

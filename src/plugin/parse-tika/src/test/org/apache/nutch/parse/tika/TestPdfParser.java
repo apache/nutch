@@ -43,43 +43,43 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestPdfParser {
 
-    private String fileSeparator = System.getProperty("file.separator");
-    // This system property is defined in ./src/plugin/build-plugin.xml
-    private String sampleDir = System.getProperty("test.data", ".");
-    // Make sure sample files are copied to "test.data" as specified in
-    // ./src/plugin/parse-pdf/build.xml during plugin compilation.
-    // Check ./src/plugin/parse-pdf/sample/README.txt for what they are.
-    private String[] sampleFiles = { "pdftest.pdf", "encrypted.pdf" };
+  private String fileSeparator = System.getProperty("file.separator");
+  // This system property is defined in ./src/plugin/build-plugin.xml
+  private String sampleDir = System.getProperty("test.data", ".");
+  // Make sure sample files are copied to "test.data" as specified in
+  // ./src/plugin/parse-pdf/build.xml during plugin compilation.
+  // Check ./src/plugin/parse-pdf/sample/README.txt for what they are.
+  private String[] sampleFiles = { "pdftest.pdf", "encrypted.pdf" };
 
-    private String expectedText = "A VERY SMALL PDF FILE";
+  private String expectedText = "A VERY SMALL PDF FILE";
 
-    @Test
-    public void testIt() throws ProtocolException, ParseException, IOException {
-	String urlString;
-	Parse parse;
-	Configuration conf = NutchConfiguration.create();
-	MimeUtil mimeutil = new MimeUtil(conf);
+  @Test
+  public void testIt() throws ProtocolException, ParseException, IOException {
+    String urlString;
+    Parse parse;
+    Configuration conf = NutchConfiguration.create();
+    MimeUtil mimeutil = new MimeUtil(conf);
 
-	for (int i = 0; i < sampleFiles.length; i++) {
-	    urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
+    for (int i = 0; i < sampleFiles.length; i++) {
+      urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
-	    File file = new File(sampleDir + fileSeparator + sampleFiles[i]);
-	    byte[] bytes = new byte[(int) file.length()];
-	    DataInputStream in = new DataInputStream(new FileInputStream(file));
-	    in.readFully(bytes);
-	    in.close();
+      File file = new File(sampleDir + fileSeparator + sampleFiles[i]);
+      byte[] bytes = new byte[(int) file.length()];
+      DataInputStream in = new DataInputStream(new FileInputStream(file));
+      in.readFully(bytes);
+      in.close();
 
-	    WebPage page = WebPage.newBuilder().build();
-	    page.setBaseUrl(new Utf8(urlString));
-	    page.setContent(ByteBuffer.wrap(bytes));
-	    String mtype = mimeutil.getMimeType(file);
-	    page.setContentType(new Utf8(mtype));
+      WebPage page = WebPage.newBuilder().build();
+      page.setBaseUrl(new Utf8(urlString));
+      page.setContent(ByteBuffer.wrap(bytes));
+      String mtype = mimeutil.getMimeType(file);
+      page.setContentType(new Utf8(mtype));
 
-	    parse = new ParseUtil(conf).parse(urlString, page);
+      parse = new ParseUtil(conf).parse(urlString, page);
 
-	    int index = parse.getText().indexOf(expectedText);
-	    assertTrue(index > 0);
-	}
+      int index = parse.getText().indexOf(expectedText);
+      assertTrue(index > 0);
     }
+  }
 
 }

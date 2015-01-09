@@ -19,3 +19,4 @@
  * Host database to store metadata per host.
  */
 package org.apache.nutch.host;
+

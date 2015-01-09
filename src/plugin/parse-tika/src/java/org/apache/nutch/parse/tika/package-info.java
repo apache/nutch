@@ -20,3 +20,4 @@
  * <a href="http://tika.apache.org/">Apache Tika</a>.
  */
 package org.apache.nutch.parse.tika;
+

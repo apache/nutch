@@ -38,70 +38,70 @@ import org.apache.nutch.util.domain.DomainSuffixes;
  */
 public class TLDScoringFilter implements ScoringFilter {
 
-	private Configuration conf;
-	private DomainSuffixes tldEntries;
+  private Configuration conf;
+  private DomainSuffixes tldEntries;
 
-	private final static Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+  private final static Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
-	public TLDScoringFilter() {
-		tldEntries = DomainSuffixes.getInstance();
-	}
+  public TLDScoringFilter() {
+    tldEntries = DomainSuffixes.getInstance();
+  }
 
-	public Configuration getConf() {
-		return conf;
-	}
+  public Configuration getConf() {
+    return conf;
+  }
 
-	public void setConf(Configuration conf) {
-		this.conf = conf;
-	}
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+  }
 
-	@Override
-	public Collection<WebPage.Field> getFields() {
-		return FIELDS;
-	}
+  @Override
+  public Collection<WebPage.Field> getFields() {
+    return FIELDS;
+  }
 
-	@Override
-	public void injectedScore(String url, WebPage page)
-			throws ScoringFilterException {
-	}
+  @Override
+  public void injectedScore(String url, WebPage page)
+      throws ScoringFilterException {
+  }
 
-	@Override
-	public void initialScore(String url, WebPage page)
-			throws ScoringFilterException {
+  @Override
+  public void initialScore(String url, WebPage page)
+      throws ScoringFilterException {
 
-	}
+  }
 
-	@Override
-	public float generatorSortValue(String url, WebPage page, float initSort)
-			throws ScoringFilterException {
-		return initSort;
-	}
+  @Override
+  public float generatorSortValue(String url, WebPage page, float initSort)
+      throws ScoringFilterException {
+    return initSort;
+  }
 
-	@Override
-	public void distributeScoreToOutlinks(String fromUrl, WebPage page,
-			Collection<ScoreDatum> scoreData, int allCount)
-			throws ScoringFilterException {
-	}
+  @Override
+  public void distributeScoreToOutlinks(String fromUrl, WebPage page,
+      Collection<ScoreDatum> scoreData, int allCount)
+      throws ScoringFilterException {
+  }
 
-	@Override
-	public void updateScore(String url, WebPage page,
-			List<ScoreDatum> inlinkedScoreData) throws ScoringFilterException {
-	}
+  @Override
+  public void updateScore(String url, WebPage page,
+      List<ScoreDatum> inlinkedScoreData) throws ScoringFilterException {
+  }
 
-	@Override
-	public float indexerScore(String url, NutchDocument doc, WebPage page,
-			float initScore) throws ScoringFilterException {
-		List<String> tlds = doc.getFieldValues("tld");
-		float boost = 1.0f;
+  @Override
+  public float indexerScore(String url, NutchDocument doc, WebPage page,
+      float initScore) throws ScoringFilterException {
+    List<String> tlds = doc.getFieldValues("tld");
+    float boost = 1.0f;
 
-		if (tlds != null) {
-			for (String tld : tlds) {
-				DomainSuffix entry = tldEntries.get(tld);
-				if (entry != null)
-					boost *= entry.getBoost();
-			}
-		}
-		return initScore * boost;
-	}
+    if (tlds != null) {
+      for (String tld : tlds) {
+        DomainSuffix entry = tldEntries.get(tld);
+        if (entry != null)
+          boost *= entry.getBoost();
+      }
+    }
+    return initScore * boost;
+  }
 
 }

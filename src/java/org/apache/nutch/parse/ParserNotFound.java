@@ -18,17 +18,17 @@ package org.apache.nutch.parse;
 
 public class ParserNotFound extends ParseException {
 
-  private static final long serialVersionUID=23993993939L;
+  private static final long serialVersionUID = 23993993939L;
   private String url;
   private String contentType;
 
-  public ParserNotFound(String message){
-    super(message);    
+  public ParserNotFound(String message) {
+    super(message);
   }
-  
+
   public ParserNotFound(String url, String contentType) {
-    this(url, contentType,
-         "parser not found for contentType="+contentType+" url="+url);
+    this(url, contentType, "parser not found for contentType=" + contentType
+        + " url=" + url);
   }
 
   public ParserNotFound(String url, String contentType, String message) {
@@ -37,6 +37,11 @@ public class ParserNotFound extends ParseException {
     this.contentType = contentType;
   }
 
-  public String getUrl() { return url; }
-  public String getContentType() { return contentType; }
+  public String getUrl() {
+    return url;
+  }
+
+  public String getContentType() {
+    return contentType;
+  }
 }

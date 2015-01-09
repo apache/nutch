@@ -42,8 +42,9 @@ import com.google.common.collect.Lists;
 public class TestRemoteCommandsBatchFactory {
   private RemoteCommandsBatchFactory factory;
 
-  private List<JobType> executionSequence = Lists.newArrayList(INJECT, GENERATE, FETCH, PARSE,
-      UPDATEDB, INDEX, GENERATE, FETCH, PARSE, UPDATEDB, INDEX);
+  private List<JobType> executionSequence = Lists.newArrayList(INJECT,
+      GENERATE, FETCH, PARSE, UPDATEDB, INDEX, GENERATE, FETCH, PARSE,
+      UPDATEDB, INDEX);
 
   @Before
   public void setUp() {
@@ -61,7 +62,8 @@ public class TestRemoteCommandsBatchFactory {
 
     // then
     for (int i = 0; i < commands.size(); i++) {
-      assertTrue(commands.get(i).getJobConfig().getType() == executionSequence.get(i));
+      assertTrue(commands.get(i).getJobConfig().getType() == executionSequence
+          .get(i));
     }
   }
 
@@ -75,8 +77,10 @@ public class TestRemoteCommandsBatchFactory {
     List<RemoteCommand> commands = factory.createCommands(crawl);
 
     // then
-    String batchId = (String) commands.get(1).getJobConfig().getArgs().get("batch");
-    String secondBatchId = (String) commands.get(7).getJobConfig().getArgs().get("batch");
+    String batchId = (String) commands.get(1).getJobConfig().getArgs()
+        .get("batch");
+    String secondBatchId = (String) commands.get(7).getJobConfig().getArgs()
+        .get("batch");
     assertNotEquals(batchId, secondBatchId);
   }
 }

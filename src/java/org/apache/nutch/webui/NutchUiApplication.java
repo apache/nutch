@@ -34,7 +34,8 @@ import de.agilecoders.wicket.core.settings.Theme;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeCssReference;
 
 @Component
-public class NutchUiApplication extends WebApplication implements ApplicationContextAware {
+public class NutchUiApplication extends WebApplication implements
+    ApplicationContextAware {
   private static final String THEME_NAME = "bootstrap";
   private ApplicationContext context;
 
@@ -56,7 +57,8 @@ public class NutchUiApplication extends WebApplication implements ApplicationCon
     Bootstrap.install(this, settings);
     configureTheme(settings);
 
-    getComponentInstantiationListeners().add(new SpringComponentInjector(this, context));
+    getComponentInstantiationListeners().add(
+        new SpringComponentInjector(this, context));
   }
 
   private void configureTheme(BootstrapSettings settings) {
@@ -66,7 +68,8 @@ public class NutchUiApplication extends WebApplication implements ApplicationCon
   }
 
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+  public void setApplicationContext(ApplicationContext applicationContext)
+      throws BeansException {
     this.context = applicationContext;
   }
 }

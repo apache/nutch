@@ -20,3 +20,4 @@
  * Metadata may come from CrawlDb, parse or content metadata.
  */
 package org.apache.nutch.indexer.metadata;
+

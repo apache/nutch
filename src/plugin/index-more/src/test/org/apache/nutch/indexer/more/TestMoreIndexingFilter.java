@@ -37,7 +37,7 @@ public class TestMoreIndexingFilter {
     assertContentType(conf, "text/html", "text/html");
     assertContentType(conf, "text/html; charset=UTF-8", "text/html");
   }
-  
+
   public void testGetParts() {
     String[] parts = MoreIndexingFilter.getParts("text/html");
     assertParts(parts, 2, "text", "html");
@@ -48,34 +48,35 @@ public class TestMoreIndexingFilter {
    * @since NUTCH-901
    */
   @Test
-  public void testNoParts(){
-     Configuration conf = NutchConfiguration.create();
-     conf.setBoolean("moreIndexingFilter.indexMimeTypeParts", false);
-     MoreIndexingFilter filter = new MoreIndexingFilter();
-     filter.setConf(conf);
-     assertNotNull(filter);
-     NutchDocument doc = new NutchDocument();
-     try{
-       filter.filter(doc, "http://nutch.apache.org/index.html", WebPage.newBuilder().build());
-     }
-     catch(Exception e){
-       e.printStackTrace();
-       fail(e.getMessage());
-     }
-     assertNotNull(doc);
-     assertTrue(doc.getFieldNames().contains("type"));
-     assertEquals(1, doc.getFieldValues("type").size());
-     assertEquals("text/html", doc.getFieldValue("type"));     
+  public void testNoParts() {
+    Configuration conf = NutchConfiguration.create();
+    conf.setBoolean("moreIndexingFilter.indexMimeTypeParts", false);
+    MoreIndexingFilter filter = new MoreIndexingFilter();
+    filter.setConf(conf);
+    assertNotNull(filter);
+    NutchDocument doc = new NutchDocument();
+    try {
+      filter.filter(doc, "http://nutch.apache.org/index.html", WebPage
+          .newBuilder().build());
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+    assertNotNull(doc);
+    assertTrue(doc.getFieldNames().contains("type"));
+    assertEquals(1, doc.getFieldValues("type").size());
+    assertEquals("text/html", doc.getFieldValue("type"));
   }
-  
+
   private void assertParts(String[] parts, int count, String... expected) {
     assertEquals(count, parts.length);
     for (int i = 0; i < expected.length; i++) {
       assertEquals(expected[i], parts[i]);
     }
   }
-  
-  private void assertContentType(Configuration conf, String source, String expected) throws IndexingException {
+
+  private void assertContentType(Configuration conf, String source,
+      String expected) throws IndexingException {
     MoreIndexingFilter filter = new MoreIndexingFilter();
     filter.setConf(conf);
     WebPage page = WebPage.newBuilder().build();

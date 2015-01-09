@@ -26,12 +26,12 @@ public class NutchWritable extends GenericWritableConfigurable {
 
   static {
     CLASSES = (Class<? extends Writable>[]) new Class<?>[] {
-      org.apache.nutch.scoring.ScoreDatum.class,
-      org.apache.nutch.util.WebPageWritable.class
-    };
+        org.apache.nutch.scoring.ScoreDatum.class,
+        org.apache.nutch.util.WebPageWritable.class };
   }
 
-  public NutchWritable() { }
+  public NutchWritable() {
+  }
 
   public NutchWritable(Writable instance) {
     set(instance);

@@ -30,12 +30,11 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * The <code>PluginDescriptor</code> provide access to all meta information of
- * a nutch-plugin, as well to the internationalizable resources and the plugin
- * own classloader. There are meta information about <code>Plugin</code>,
- * <code>ExtensionPoint</code> and <code>Extension</code>. To provide
- * access to the meta data of a plugin via a descriptor allow a lazy loading
- * mechanism.
+ * The <code>PluginDescriptor</code> provide access to all meta information of a
+ * nutch-plugin, as well to the internationalizable resources and the plugin own
+ * classloader. There are meta information about <code>Plugin</code>,
+ * <code>ExtensionPoint</code> and <code>Extension</code>. To provide access to
+ * the meta data of a plugin via a descriptor allow a lazy loading mechanism.
  */
 public class PluginDescriptor {
   private String fPluginPath;
@@ -51,7 +50,8 @@ public class PluginDescriptor {
   private ArrayList<URL> fNotExportedLibs = new ArrayList<URL>();
   private ArrayList<Extension> fExtensions = new ArrayList<Extension>();
   private PluginClassLoader fClassLoader;
-  public static final Logger LOG = LoggerFactory.getLogger(PluginDescriptor.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(PluginDescriptor.class);
   private Configuration fConf;
 
   /**
@@ -204,7 +204,8 @@ public class PluginDescriptor {
   /**
    * Adds a dependency
    * 
-   * @param pId id of the dependent plugin
+   * @param pId
+   *          id of the dependent plugin
    */
   public void addDependency(String pId) {
     fDependencies.add(pId);
@@ -217,7 +218,8 @@ public class PluginDescriptor {
    */
   public void addExportedLibRelative(String pLibPath)
       throws MalformedURLException {
-    URL url = new File(getPluginPath() + File.separator + pLibPath).toURI().toURL();
+    URL url = new File(getPluginPath() + File.separator + pLibPath).toURI()
+        .toURL();
     fExportedLibs.add(url);
   }
 
@@ -246,7 +248,8 @@ public class PluginDescriptor {
    */
   public void addNotExportedLibRelative(String pLibPath)
       throws MalformedURLException {
-    URL url = new File(getPluginPath() + File.separator + pLibPath).toURI().toURL();
+    URL url = new File(getPluginPath() + File.separator + pLibPath).toURI()
+        .toURL();
     fNotExportedLibs.add(url);
   }
 
@@ -283,8 +286,8 @@ public class PluginDescriptor {
       LOG.debug(getPluginId() + " " + e.toString());
     }
     URL[] urls = arrayList.toArray(new URL[arrayList.size()]);
-    fClassLoader = new PluginClassLoader(urls, PluginDescriptor.class
-        .getClassLoader());
+    fClassLoader = new PluginClassLoader(urls,
+        PluginDescriptor.class.getClassLoader());
     return fClassLoader;
   }
 
@@ -306,7 +309,7 @@ public class PluginDescriptor {
     for (String id : pDescriptor.getDependencies()) {
       PluginDescriptor descriptor = PluginRepository.get(fConf)
           .getPluginDescriptor(id);
-      for (URL url: descriptor.getExportedLibUrls()) {
+      for (URL url : descriptor.getExportedLibUrls()) {
         pLibs.add(url);
       }
       collectLibs(pLibs, descriptor);

@@ -62,8 +62,9 @@ public class RemoteCommandsBatchFactory {
   }
 
   private RemoteCommand inject() {
-    RemoteCommandBuilder builder = RemoteCommandBuilder.instance(JobType.INJECT)
-        .withCrawlId(crawl.getCrawlId()).withArgument("seedDir", crawl.getSeedDirectory());
+    RemoteCommandBuilder builder = RemoteCommandBuilder
+        .instance(JobType.INJECT).withCrawlId(crawl.getCrawlId())
+        .withArgument("seedDir", crawl.getSeedDirectory());
     return builder.build();
   }
 
@@ -72,7 +73,8 @@ public class RemoteCommandsBatchFactory {
   }
 
   private RemoteCommand createFetchCommand() {
-    return createBuilder(JobType.FETCH).withTimeout(Duration.standardSeconds(50)).build();
+    return createBuilder(JobType.FETCH).withTimeout(
+        Duration.standardSeconds(50)).build();
   }
 
   private RemoteCommand createParseCommand() {
@@ -88,8 +90,8 @@ public class RemoteCommandsBatchFactory {
   }
 
   private RemoteCommandBuilder createBuilder(JobType jobType) {
-    return RemoteCommandBuilder.instance(jobType).withCrawlId(crawl.getCrawlId())
-        .withArgument("batch", batchId);
+    return RemoteCommandBuilder.instance(jobType)
+        .withCrawlId(crawl.getCrawlId()).withArgument("batch", batchId);
   }
 
 }

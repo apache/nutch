@@ -89,7 +89,7 @@ public class RAMConfManager implements ConfManager {
     if (!canCreate(nutchConfig)) {
       throw new IllegalArgumentException("Config already exists.");
     }
-    
+
     createHadoopConfig(nutchConfig);
     return nutchConfig.getConfigId();
   }

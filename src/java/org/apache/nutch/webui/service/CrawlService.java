@@ -22,7 +22,7 @@ import org.apache.nutch.webui.client.model.Crawl;
 import org.apache.nutch.webui.model.NutchInstance;
 
 public interface CrawlService {
-  
+
   public void saveCrawl(Crawl crawl);
 
   public List<Crawl> getCrawls();

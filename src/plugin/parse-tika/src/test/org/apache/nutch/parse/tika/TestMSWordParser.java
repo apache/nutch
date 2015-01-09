@@ -44,63 +44,63 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestMSWordParser {
 
-    private String fileSeparator = System.getProperty("file.separator");
-    // This system property is defined in ./src/plugin/build-plugin.xml
-    private String sampleDir = System.getProperty("test.data", ".");
-    // Make sure sample files are copied to "test.data" as specified in
-    // ./src/plugin/parse-msword/build.xml during plugin compilation.
-    // Check ./src/plugin/parse-msword/sample/README.txt for what they are.
-    private String[] sampleFiles = { "word97.doc" };
+  private String fileSeparator = System.getProperty("file.separator");
+  // This system property is defined in ./src/plugin/build-plugin.xml
+  private String sampleDir = System.getProperty("test.data", ".");
+  // Make sure sample files are copied to "test.data" as specified in
+  // ./src/plugin/parse-msword/build.xml during plugin compilation.
+  // Check ./src/plugin/parse-msword/sample/README.txt for what they are.
+  private String[] sampleFiles = { "word97.doc" };
 
-    private String expectedText = "This is a sample doc file prepared for nutch.";
+  private String expectedText = "This is a sample doc file prepared for nutch.";
 
-    private Configuration conf;
+  private Configuration conf;
 
-    @Before
-    public void setUp() {
-	conf = NutchConfiguration.create();
-	conf.set("file.content.limit", "-1");
+  @Before
+  public void setUp() {
+    conf = NutchConfiguration.create();
+    conf.set("file.content.limit", "-1");
+  }
+
+  public String getTextContent(String fileName) throws ProtocolException,
+      ParseException, IOException {
+    String urlString = sampleDir + fileSeparator + fileName;
+
+    File file = new File(urlString);
+    byte[] bytes = new byte[(int) file.length()];
+    DataInputStream in = new DataInputStream(new FileInputStream(file));
+    in.readFully(bytes);
+    in.close();
+    Parse parse;
+    WebPage page = WebPage.newBuilder().build();
+    page.setBaseUrl(new Utf8("file:" + urlString));
+    page.setContent(ByteBuffer.wrap(bytes));
+    // set the content type?
+    MimeUtil mimeutil = new MimeUtil(conf);
+    String mtype = mimeutil.getMimeType(file);
+    page.setContentType(new Utf8(mtype));
+
+    parse = new ParseUtil(conf).parse("file:" + urlString, page);
+    return parse.getText();
+  }
+
+  @Test
+  public void testIt() throws ProtocolException, ParseException, IOException {
+    for (int i = 0; i < sampleFiles.length; i++) {
+      String found = getTextContent(sampleFiles[i]);
+      assertTrue("text found : '" + found + "'", found.startsWith(expectedText));
     }
+  }
 
-    public String getTextContent(String fileName) throws ProtocolException,
-	    ParseException, IOException {
-	String urlString = sampleDir + fileSeparator + fileName;
-
-	File file = new File(urlString);
-	byte[] bytes = new byte[(int) file.length()];
-	DataInputStream in = new DataInputStream(new FileInputStream(file));
-	in.readFully(bytes);
-	in.close();
-	Parse parse;
-	WebPage page = WebPage.newBuilder().build();
-	page.setBaseUrl(new Utf8("file:"+urlString));
-	page.setContent(ByteBuffer.wrap(bytes));
-	// set the content type?
-	MimeUtil mimeutil = new MimeUtil(conf);
-	String mtype = mimeutil.getMimeType(file);
-	page.setContentType(new Utf8(mtype));
-		
-	parse = new ParseUtil(conf).parse("file:"+urlString, page);
-	return parse.getText();
+  @Test
+  public void testOpeningDocs() throws ProtocolException, ParseException,
+      IOException {
+    String[] filenames = new File(sampleDir).list();
+    for (int i = 0; i < filenames.length; i++) {
+      if (filenames[i].endsWith(".doc") == false)
+        continue;
+      assertTrue("cann't read content of " + filenames[i],
+          getTextContent(filenames[i]).length() > 0);
     }
-
-    @Test
-    public void testIt() throws ProtocolException, ParseException, IOException {
-	for (int i = 0; i < sampleFiles.length; i++) {
-	    String found = getTextContent(sampleFiles[i]);
-	    assertTrue("text found : '" + found + "'", found
-		    .startsWith(expectedText));
-	}
-    }
-
-    @Test
-    public void testOpeningDocs() throws ProtocolException, ParseException, IOException {
-	String[] filenames = new File(sampleDir).list();
-	for (int i = 0; i < filenames.length; i++) {
-	    if (filenames[i].endsWith(".doc") == false)
-		continue;
-	    assertTrue("cann't read content of " + filenames[i],
-		    getTextContent(filenames[i]).length() > 0);
-	}
-    }
+  }
 }

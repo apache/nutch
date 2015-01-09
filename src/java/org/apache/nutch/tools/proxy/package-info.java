@@ -19,3 +19,4 @@
  * Proxy to {@link org.apache.nutch.tools.Benchmark benchmark} the crawler.
  */
 package org.apache.nutch.tools.proxy;
+

@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 public class TestBasicURLNormalizer {
   private BasicURLNormalizer normalizer;
   private Configuration conf;
-  
+
   @Before
   public void setUp() {
     normalizer = new BasicURLNormalizer();
@@ -59,57 +59,47 @@ public class TestBasicURLNormalizer {
     // check that references are removed
     normalizeTest("http://foo.com/foo.html#ref", "http://foo.com/foo.html");
 
-    //     // check that encoding is normalized
-    //     normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
+    // // check that encoding is normalized
+    // normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
 
     // check that unnecessary "../" are removed
 
-    normalizeTest("http://foo.com/aa/./foo.html",
-                  "http://foo.com/aa/foo.html" );
-    normalizeTest("http://foo.com/aa/../",
-                  "http://foo.com/" );
-    normalizeTest("http://foo.com/aa/bb/../",
-                  "http://foo.com/aa/");
-    normalizeTest("http://foo.com/aa/..",
-                  "http://foo.com/aa/..");
+    normalizeTest("http://foo.com/aa/./foo.html", "http://foo.com/aa/foo.html");
+    normalizeTest("http://foo.com/aa/../", "http://foo.com/");
+    normalizeTest("http://foo.com/aa/bb/../", "http://foo.com/aa/");
+    normalizeTest("http://foo.com/aa/..", "http://foo.com/aa/..");
     normalizeTest("http://foo.com/aa/bb/cc/../../foo.html",
-                  "http://foo.com/aa/foo.html");
+        "http://foo.com/aa/foo.html");
     normalizeTest("http://foo.com/aa/bb/../cc/dd/../ee/foo.html",
-                  "http://foo.com/aa/cc/ee/foo.html");
-    normalizeTest("http://foo.com/../foo.html",
-                  "http://foo.com/foo.html" );
-    normalizeTest("http://foo.com/../../foo.html",
-                  "http://foo.com/foo.html" );
-    normalizeTest("http://foo.com/../aa/../foo.html",
-                  "http://foo.com/foo.html" );
-    normalizeTest("http://foo.com/aa/../../foo.html",
-                  "http://foo.com/foo.html" );
+        "http://foo.com/aa/cc/ee/foo.html");
+    normalizeTest("http://foo.com/../foo.html", "http://foo.com/foo.html");
+    normalizeTest("http://foo.com/../../foo.html", "http://foo.com/foo.html");
+    normalizeTest("http://foo.com/../aa/../foo.html", "http://foo.com/foo.html");
+    normalizeTest("http://foo.com/aa/../../foo.html", "http://foo.com/foo.html");
     normalizeTest("http://foo.com/aa/../bb/../foo.html/../../",
-                  "http://foo.com/" );
-    normalizeTest("http://foo.com/../aa/foo.html",
-                  "http://foo.com/aa/foo.html" );
-    normalizeTest("http://foo.com/../aa/../foo.html",
-                  "http://foo.com/foo.html" );
+        "http://foo.com/");
+    normalizeTest("http://foo.com/../aa/foo.html", "http://foo.com/aa/foo.html");
+    normalizeTest("http://foo.com/../aa/../foo.html", "http://foo.com/foo.html");
     normalizeTest("http://foo.com/a..a/foo.html",
-                  "http://foo.com/a..a/foo.html" );
-    normalizeTest("http://foo.com/a..a/../foo.html",
-                  "http://foo.com/foo.html" );
+        "http://foo.com/a..a/foo.html");
+    normalizeTest("http://foo.com/a..a/../foo.html", "http://foo.com/foo.html");
     normalizeTest("http://foo.com/foo.foo/../foo.html",
-                  "http://foo.com/foo.html" );
+        "http://foo.com/foo.html");
     normalizeTest("http://foo.com//aa/bb/foo.html",
-                  "http://foo.com/aa/bb/foo.html" );
+        "http://foo.com/aa/bb/foo.html");
     normalizeTest("http://foo.com/aa//bb/foo.html",
-                  "http://foo.com/aa/bb/foo.html" );
+        "http://foo.com/aa/bb/foo.html");
     normalizeTest("http://foo.com/aa/bb//foo.html",
-                  "http://foo.com/aa/bb/foo.html" );
+        "http://foo.com/aa/bb/foo.html");
     normalizeTest("http://foo.com//aa//bb//foo.html",
-                  "http://foo.com/aa/bb/foo.html" );
+        "http://foo.com/aa/bb/foo.html");
     normalizeTest("http://foo.com////aa////bb////foo.html",
-                  "http://foo.com/aa/bb/foo.html" );
+        "http://foo.com/aa/bb/foo.html");
   }
 
   private void normalizeTest(String weird, String normal) throws Exception {
-    assertEquals(normal, normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
+    assertEquals(normal,
+        normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
   }
 
 }

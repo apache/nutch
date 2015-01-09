@@ -26,10 +26,10 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * Default implementation of a page signature. It calculates an MD5 hash
- * of the raw binary content of a page. In case there is no content, it
- * calculates a hash from the page's URL.
- *
+ * Default implementation of a page signature. It calculates an MD5 hash of the
+ * raw binary content of a page. In case there is no content, it calculates a
+ * hash from the page's URL.
+ * 
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class MD5Signature extends Signature {
@@ -52,8 +52,7 @@ public class MD5Signature extends Signature {
         data = null;
         of = 0;
         cb = 0;
-      }
-      else {
+      } else {
         data = baseUrl.getBytes();
         of = 0;
         cb = baseUrl.length();

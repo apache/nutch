@@ -43,7 +43,8 @@ import com.google.common.io.Files;
 
 @Path("/seed")
 public class SeedResource extends AbstractResource {
-  private static final Logger log = LoggerFactory.getLogger(AdminResource.class);
+  private static final Logger log = LoggerFactory
+      .getLogger(AdminResource.class);
 
   @POST
   @Path("/create")
@@ -101,8 +102,8 @@ public class SeedResource extends AbstractResource {
 
   private RuntimeException handleException(Exception e) {
     log.error("Cannot create seed file!", e);
-    return new WebApplicationException(status(Status.INTERNAL_SERVER_ERROR).entity(
-        "Cannot create seed file!").build());
+    return new WebApplicationException(status(Status.INTERNAL_SERVER_ERROR)
+        .entity("Cannot create seed file!").build());
   }
 
 }

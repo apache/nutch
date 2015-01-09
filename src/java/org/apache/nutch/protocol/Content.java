@@ -41,7 +41,7 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
-public final class Content implements Writable{
+public final class Content implements Writable {
 
   public static final String DIR_NAME = "content";
 
@@ -85,7 +85,7 @@ public final class Content implements Writable{
     this.mimeTypes = new MimeUtil(conf);
     this.contentType = getContentType(contentType, url, content);
   }
-  
+
   public Content(String url, String base, byte[] content, String contentType,
       Metadata metadata, MimeUtil mimeTypes) {
 
@@ -141,11 +141,11 @@ public final class Content implements Writable{
       metadata.readFields(in); // read meta data
       break;
     default:
-      throw new VersionMismatchException((byte)2, oldVersion);
+      throw new VersionMismatchException((byte) 2, oldVersion);
     }
 
   }
-  
+
   public final void readFields(DataInput in) throws IOException {
     metadata.clear();
     int sizeOrVersion = in.readInt();
@@ -163,14 +163,14 @@ public final class Content implements Writable{
         metadata.readFields(in);
         break;
       default:
-        throw new VersionMismatchException((byte)VERSION, (byte)version);
+        throw new VersionMismatchException((byte) VERSION, (byte) version);
       }
     } else { // size
       byte[] compressed = new byte[sizeOrVersion];
       in.readFully(compressed, 0, compressed.length);
       ByteArrayInputStream deflated = new ByteArrayInputStream(compressed);
-      DataInput inflater =
-        new DataInputStream(new InflaterInputStream(deflated));
+      DataInput inflater = new DataInputStream(
+          new InflaterInputStream(deflated));
       readFieldsCompressed(inflater);
     }
   }
@@ -204,8 +204,9 @@ public final class Content implements Writable{
     return url;
   }
 
-  /** The base url for relative links contained in the content.
-   * Maybe be different from url if the request redirected.
+  /**
+   * The base url for relative links contained in the content. Maybe be
+   * different from url if the request redirected.
    */
   public String getBaseUrl() {
     return base;
@@ -220,7 +221,9 @@ public final class Content implements Writable{
     this.content = content;
   }
 
-  /** The media type of the retrieved content.
+  /**
+   * The media type of the retrieved content.
+   * 
    * @see <a href="http://www.iana.org/assignments/media-types/">
    *      http://www.iana.org/assignments/media-types/</a>
    */
@@ -276,9 +279,9 @@ public final class Content implements Writable{
       System.out.println("usage:" + usage);
       return;
     }
-    
-    GenericOptionsParser optParser =
-      new GenericOptionsParser(NutchConfiguration.create(), args);
+
+    GenericOptionsParser optParser = new GenericOptionsParser(
+        NutchConfiguration.create(), args);
     String[] argv = optParser.getRemainingArgs();
     Configuration conf = optParser.getConfiguration();
 

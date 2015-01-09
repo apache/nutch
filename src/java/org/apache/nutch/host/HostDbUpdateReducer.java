@@ -30,63 +30,68 @@ import java.nio.ByteBuffer;
 import java.util.Set;
 
 /**
- * Combines all WebPages with the same host key to create a Host object, 
- * with some statistics.
+ * Combines all WebPages with the same host key to create a Host object, with
+ * some statistics.
  */
-public class HostDbUpdateReducer extends GoraReducer<Text, WebPage, String, Host> {
-  
+public class HostDbUpdateReducer extends
+    GoraReducer<Text, WebPage, String, Host> {
+
   @Override
   protected void reduce(Text key, Iterable<WebPage> values, Context context)
-    throws IOException, InterruptedException {
-    
+      throws IOException, InterruptedException {
+
     int numPages = 0;
     int numFetched = 0;
     boolean buildLinkDb = true;
-    
+
     Histogram<String> inlinkCount = new Histogram<String>();
     Histogram<String> outlinkCount = new Histogram<String>();
-    
-    for (WebPage page: values) {
+
+    for (WebPage page : values) {
       // count number of pages
-      numPages++;     
+      numPages++;
       // count number of fetched pages
       if (page.getStatus() == CrawlStatus.STATUS_FETCHED) {
         numFetched++;
       }
-      
+
       // build host link db
       // TODO: limit number of links
       if (buildLinkDb) {
         if (page.getInlinks() != null) {
           Set<CharSequence> inlinks = page.getInlinks().keySet();
-          for (CharSequence inlink: inlinks) {
+          for (CharSequence inlink : inlinks) {
             String host = URLUtil.getHost(inlink.toString());
             inlinkCount.add(host);
           }
         }
         if (page.getOutlinks() != null) {
           Set<CharSequence> outlinks = page.getOutlinks().keySet();
-          for (CharSequence outlink: outlinks) {
+          for (CharSequence outlink : outlinks) {
             String host = URLUtil.getHost(outlink.toString());
             outlinkCount.add(host);
           }
         }
       }
     }
-    
+
     // output host data
     Host host = new Host();
-    host.getMetadata().put(new Utf8("p"),ByteBuffer.wrap(Integer.toString(numPages).getBytes()));
+    host.getMetadata().put(new Utf8("p"),
+        ByteBuffer.wrap(Integer.toString(numPages).getBytes()));
     if (numFetched > 0) {
-      host.getMetadata().put(new Utf8("f"),ByteBuffer.wrap(Integer.toString(numFetched).getBytes()));
+      host.getMetadata().put(new Utf8("f"),
+          ByteBuffer.wrap(Integer.toString(numFetched).getBytes()));
     }
-    for (String inlink: inlinkCount.getKeys()) {
-      host.getInlinks().put(new Utf8(inlink), new Utf8(Integer.toString(inlinkCount.getCount(inlink))));
+    for (String inlink : inlinkCount.getKeys()) {
+      host.getInlinks().put(new Utf8(inlink),
+          new Utf8(Integer.toString(inlinkCount.getCount(inlink))));
     }
-    for (String outlink: outlinkCount.getKeys()) {
-      host.getOutlinks().put(new Utf8(outlink), new Utf8(Integer.toString(outlinkCount.getCount(outlink))));
+    for (String outlink : outlinkCount.getKeys()) {
+      host.getOutlinks().put(new Utf8(outlink),
+          new Utf8(Integer.toString(outlinkCount.getCount(outlink))));
     }
-    
+
     context.write(key.toString(), host);
   }
 }

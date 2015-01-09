@@ -27,7 +27,8 @@ import com.j256.ormlite.support.ConnectionSource;
 
 public class CustomDaoFactory {
   private ConnectionSource connectionSource;
-  private List<Dao<?, ?>> registredDaos = Collections.synchronizedList(new ArrayList<Dao<?, ?>>());
+  private List<Dao<?, ?>> registredDaos = Collections
+      .synchronizedList(new ArrayList<Dao<?, ?>>());
 
   public CustomDaoFactory(ConnectionSource connectionSource) {
     this.connectionSource = connectionSource;

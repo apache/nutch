@@ -28,7 +28,8 @@ import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.util.ObjectCache;
 
 import org.apache.hadoop.conf.Configuration;
-/** Creates and caches {@link URLFilter} implementing plugins.*/
+
+/** Creates and caches {@link URLFilter} implementing plugins. */
 public class URLFilters {
 
   public static final String URLFILTER_ORDER = "urlfilter.order";
@@ -37,7 +38,8 @@ public class URLFilters {
   public URLFilters(Configuration conf) {
     String order = conf.get(URLFILTER_ORDER);
     ObjectCache objectCache = ObjectCache.get(conf);
-    this.filters = (URLFilter[]) objectCache.getObject(URLFilter.class.getName());
+    this.filters = (URLFilter[]) objectCache.getObject(URLFilter.class
+        .getName());
 
     if (this.filters == null) {
       String[] orderedFilters = null;
@@ -60,8 +62,8 @@ public class URLFilters {
           }
         }
         if (orderedFilters == null) {
-          objectCache.setObject(URLFilter.class.getName(), filterMap.values().toArray(
-              new URLFilter[0]));
+          objectCache.setObject(URLFilter.class.getName(), filterMap.values()
+              .toArray(new URLFilter[0]));
         } else {
           ArrayList<URLFilter> filters = new ArrayList<URLFilter>();
           for (int i = 0; i < orderedFilters.length; i++) {
@@ -70,13 +72,14 @@ public class URLFilters {
               filters.add(filter);
             }
           }
-          objectCache.setObject(URLFilter.class.getName(), filters
-              .toArray(new URLFilter[filters.size()]));
+          objectCache.setObject(URLFilter.class.getName(),
+              filters.toArray(new URLFilter[filters.size()]));
         }
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
       }
-      this.filters = (URLFilter[]) objectCache.getObject(URLFilter.class.getName());
+      this.filters = (URLFilter[]) objectCache.getObject(URLFilter.class
+          .getName());
     }
   }
 

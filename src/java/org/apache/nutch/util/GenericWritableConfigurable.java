@@ -24,12 +24,15 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.GenericWritable;
 import org.apache.hadoop.io.Writable;
 
-/** A generic Writable wrapper that can inject Configuration to {@link Configurable}s */ 
-public abstract class GenericWritableConfigurable extends GenericWritable 
-                                                  implements Configurable {
+/**
+ * A generic Writable wrapper that can inject Configuration to
+ * {@link Configurable}s
+ */
+public abstract class GenericWritableConfigurable extends GenericWritable
+    implements Configurable {
 
   private Configuration conf;
-  
+
   public Configuration getConf() {
     return conf;
   }
@@ -37,7 +40,7 @@ public abstract class GenericWritableConfigurable extends GenericWritable
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
-  
+
   @Override
   public void readFields(DataInput in) throws IOException {
     byte type = in.readByte();
@@ -50,8 +53,8 @@ public abstract class GenericWritableConfigurable extends GenericWritable
     }
     Writable w = get();
     if (w instanceof Configurable)
-      ((Configurable)w).setConf(conf);
+      ((Configurable) w).setConf(conf);
     w.readFields(in);
   }
-  
+
 }

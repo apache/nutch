@@ -180,7 +180,7 @@ public class IndexingJob extends NutchTool implements Tool {
 
     IndexWriters writers = new IndexWriters(getConf());
     LOG.info(writers.describe());
-    
+
     writers.open(getConf());
     if (getConf().getBoolean(SolrConstants.COMMIT_INDEX, true)) {
       writers.commit();

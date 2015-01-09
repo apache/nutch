@@ -39,9 +39,9 @@ public class TestImageMetadata {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data",".");
+  private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
-  private String[] sampleFiles = {"nutch_logo_tm.gif"};
+  private String[] sampleFiles = { "nutch_logo_tm.gif" };
 
   @Test
   public void testIt() throws ProtocolException, ParseException, IOException {
@@ -50,32 +50,32 @@ public class TestImageMetadata {
     Parse parse;
     Configuration conf = NutchConfiguration.create();
     MimeUtil mimeutil = new MimeUtil(conf);
-    
+
     for (int i = 0; i < sampleFiles.length; i++) {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
-      
+
       File file = new File(sampleDir + fileSeparator + sampleFiles[i]);
       byte[] bytes = new byte[(int) file.length()];
       DataInputStream in = new DataInputStream(new FileInputStream(file));
       in.readFully(bytes);
       in.close();
-      
+
       WebPage page = WebPage.newBuilder().build();
       page.setBaseUrl(new Utf8(urlString));
       page.setContent(ByteBuffer.wrap(bytes));
       String mtype = mimeutil.getMimeType(file);
       page.setContentType(new Utf8(mtype));
-      
+
       parse = new ParseUtil(conf).parse(urlString, page);
-      
-      //assert width
+
+      // assert width
       ByteBuffer bbufW = page.getMetadata().get(new Utf8("width"));
       byte[] byteArrayW = new byte[bbufW.remaining()];
       bbufW.get(byteArrayW);
       String width = new String(byteArrayW);
       assertEquals("121", width);
-      
-      //assert height
+
+      // assert height
       ByteBuffer bbufH = page.getMetadata().get(new Utf8("height"));
       byte[] byteArrayH = new byte[bbufH.remaining()];
       bbufH.get(byteArrayH);

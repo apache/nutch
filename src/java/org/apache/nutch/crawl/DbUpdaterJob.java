@@ -48,9 +48,7 @@ public class DbUpdaterJob extends NutchTool implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(DbUpdaterJob.class);
 
-
-  private static final Collection<WebPage.Field> FIELDS =
-    new HashSet<WebPage.Field>();
+  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
   static {
     FIELDS.add(WebPage.Field.OUTLINKS);
@@ -78,35 +76,35 @@ public class DbUpdaterJob extends NutchTool implements Tool {
   public DbUpdaterJob(Configuration conf) {
     setConf(conf);
   }
-    
-  public Map<String,Object> run(Map<String,Object> args) throws Exception {
-    String crawlId = (String)args.get(Nutch.ARG_CRAWL);
-    String batchId = (String)args.get(Nutch.ARG_BATCH);
+
+  public Map<String, Object> run(Map<String, Object> args) throws Exception {
+    String crawlId = (String) args.get(Nutch.ARG_CRAWL);
+    String batchId = (String) args.get(Nutch.ARG_BATCH);
     numJobs = 1;
     currentJobNum = 0;
-    
+
     if (batchId == null) {
       batchId = Nutch.ALL_BATCH_ID_STR;
     }
     getConf().set(Nutch.BATCH_NAME_KEY, batchId);
-    //job.setBoolean(ALL, updateAll);
+    // job.setBoolean(ALL, updateAll);
     ScoringFilters scoringFilters = new ScoringFilters(getConf());
     HashSet<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
     fields.addAll(scoringFilters.getFields());
-    
+
     currentJob = new NutchJob(getConf(), "update-table");
     if (crawlId != null) {
       currentJob.getConfiguration().set(Nutch.CRAWL_ID_KEY, crawlId);
     }
-    
+
     // Partition by {url}, sort by {url,score} and group by {url}.
     // This ensures that the inlinks are sorted by score when they enter
     // the reducer.
-    
+
     currentJob.setPartitionerClass(UrlOnlyPartitioner.class);
     currentJob.setSortComparatorClass(UrlScoreComparator.class);
     currentJob.setGroupingComparatorClass(UrlOnlyComparator.class);
-    
+
     MapFieldValueFilter<String, WebPage> batchIdFilter = getBatchIdFilter(batchId);
     StorageUtils.initMapperJob(currentJob, fields, UrlWithScore.class,
         NutchWritable.class, DbUpdateMapper.class, batchIdFilter);
@@ -129,22 +127,22 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     return filter;
   }
 
-  private int updateTable(String crawlId,String batchId) throws Exception {
-    
+  private int updateTable(String crawlId, String batchId) throws Exception {
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("DbUpdaterJob: starting at " + sdf.format(start));
-    
+
     if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
       LOG.info("DbUpdaterJob: updatinging all");
     } else {
       LOG.info("DbUpdaterJob: batchId: " + batchId);
     }
-    run(ToolUtil.toArgMap(Nutch.ARG_CRAWL, crawlId,
-            Nutch.ARG_BATCH, batchId));
-    
+    run(ToolUtil.toArgMap(Nutch.ARG_CRAWL, crawlId, Nutch.ARG_BATCH, batchId));
+
     long finish = System.currentTimeMillis();
-    LOG.info("DbUpdaterJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
+    LOG.info("DbUpdaterJob: finished at " + sdf.format(finish)
+        + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
     return 0;
   }
 
@@ -152,9 +150,9 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     String crawlId = null;
     String batchId;
 
-    String usage = "Usage: DbUpdaterJob (<batchId> | -all) [-crawlId <id>] " +
-            "    <batchId>     - crawl identifier returned by Generator, or -all for all \n \t \t    generated batchId-s\n" +
-            "    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\n";
+    String usage = "Usage: DbUpdaterJob (<batchId> | -all) [-crawlId <id>] "
+        + "    <batchId>     - crawl identifier returned by Generator, or -all for all \n \t \t    generated batchId-s\n"
+        + "    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\n";
 
     if (args.length == 0) {
       System.err.println(usage);
@@ -171,14 +169,15 @@ public class DbUpdaterJob extends NutchTool implements Tool {
       if ("-crawlId".equals(args[i])) {
         getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
       } else {
-        throw new IllegalArgumentException("arg " +args[i]+ " not recognized");
+        throw new IllegalArgumentException("arg " + args[i] + " not recognized");
       }
     }
-    return updateTable(crawlId,batchId);
+    return updateTable(crawlId, batchId);
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new DbUpdaterJob(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new DbUpdaterJob(),
+        args);
     System.exit(res);
   }
 

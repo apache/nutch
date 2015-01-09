@@ -35,9 +35,10 @@ public class ScoreDatum implements Writable {
   private String anchor;
   private int distance;
   private Map<String, byte[]> metaData = new HashMap<String, byte[]>();
-  
-  public ScoreDatum() { }
-  
+
+  public ScoreDatum() {
+  }
+
   public ScoreDatum(float score, String url, String anchor, int depth) {
     this.score = score;
     this.url = url;
@@ -52,13 +53,13 @@ public class ScoreDatum implements Writable {
     anchor = Text.readString(in);
     distance = WritableUtils.readVInt(in);
     metaData.clear();
-    
+
     int size = WritableUtils.readVInt(in);
     for (int i = 0; i < size; i++) {
       String key = Text.readString(in);
       byte[] value = Bytes.readByteArray(in);
       metaData.put(key, value);
-    }    
+    }
   }
 
   @Override
@@ -67,30 +68,30 @@ public class ScoreDatum implements Writable {
     Text.writeString(out, url);
     Text.writeString(out, anchor);
     WritableUtils.writeVInt(out, distance);
-    
+
     WritableUtils.writeVInt(out, metaData.size());
     for (Entry<String, byte[]> e : metaData.entrySet()) {
       Text.writeString(out, e.getKey());
       Bytes.writeByteArray(out, e.getValue());
     }
   }
-  
+
   public byte[] getMeta(String key) {
     return metaData.get(key);
   }
-  
+
   public void setMeta(String key, byte[] value) {
     metaData.put(key, value);
   }
-  
+
   public byte[] deleteMeta(String key) {
     return metaData.remove(key);
   }
-  
+
   public float getScore() {
     return score;
   }
-  
+
   public void setScore(float score) {
     this.score = score;
   }
@@ -98,7 +99,7 @@ public class ScoreDatum implements Writable {
   public String getUrl() {
     return url;
   }
-  
+
   public void setUrl(String url) {
     this.url = url;
   }
@@ -106,7 +107,7 @@ public class ScoreDatum implements Writable {
   public String getAnchor() {
     return anchor;
   }
-  
+
   public int getDistance() {
     return distance;
   }
@@ -114,8 +115,7 @@ public class ScoreDatum implements Writable {
   @Override
   public String toString() {
     return "ScoreDatum [score=" + score + ", url=" + url + ", anchor=" + anchor
-        + ", distance="+distance + ", metaData=" + metaData + "]";
+        + ", distance=" + distance + ", metaData=" + metaData + "]";
   }
-  
-  
+
 }

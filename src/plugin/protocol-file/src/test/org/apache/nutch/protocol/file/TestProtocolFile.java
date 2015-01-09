@@ -37,9 +37,10 @@ import static org.junit.Assert.*;
  * @author mattmann
  * @version $Revision$
  * 
- * <p>
- * Unit tests for the {@link File}Protocol.
- * </p>.
+ *          <p>
+ *          Unit tests for the {@link File}Protocol.
+ *          </p>
+ *          .
  */
 public class TestProtocolFile {
 
@@ -47,12 +48,13 @@ public class TestProtocolFile {
   private String sampleDir = System.getProperty("test.data", ".");
 
   private static final String[] testTextFiles = new String[] {
-      "testprotocolfile.txt", "testprotocolfile_(encoded).txt", "testprotocolfile_%28encoded%29.txt" };
+      "testprotocolfile.txt", "testprotocolfile_(encoded).txt",
+      "testprotocolfile_%28encoded%29.txt" };
 
   private static final String expectedMimeType = "text/plain";
-  
+
   private Configuration conf;
-  
+
   @Before
   public void setUp() {
     conf = NutchConfiguration.create();
@@ -64,11 +66,11 @@ public class TestProtocolFile {
       setContentType(testTextFile);
     }
   }
-  
+
   /**
-   * Tests the setting of the <code>Response.CONTENT_TYPE</code> metadata
-   * field.
-   * @throws ProtocolNotFound 
+   * Tests the setting of the <code>Response.CONTENT_TYPE</code> metadata field.
+   * 
+   * @throws ProtocolNotFound
    * 
    * @since NUTCH-384
    * 
@@ -78,19 +80,19 @@ public class TestProtocolFile {
     assertNotNull(urlString);
     WebPage datum = WebPage.newBuilder().build();
     Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
-    ProtocolOutput output = protocol.getProtocolOutput(urlString,datum);
+    ProtocolOutput output = protocol.getProtocolOutput(urlString, datum);
     assertNotNull(output);
 
     assertEquals("Status code: [" + output.getStatus().getCode()
         + "], not equal to: [" + ProtocolStatusCodes.SUCCESS + "]: args: ["
-        + output.getStatus().getArgs() + "]", (Integer) ProtocolStatusCodes.SUCCESS, output
-        .getStatus().getCode());
+        + output.getStatus().getArgs() + "]",
+        (Integer) ProtocolStatusCodes.SUCCESS, output.getStatus().getCode());
     assertNotNull(output.getContent());
     assertNotNull(output.getContent().getContentType());
     assertEquals(expectedMimeType, output.getContent().getContentType());
     assertNotNull(output.getContent().getMetadata());
-    assertEquals(expectedMimeType, output.getContent().getMetadata().get(
-        Response.CONTENT_TYPE));
+    assertEquals(expectedMimeType,
+        output.getContent().getMetadata().get(Response.CONTENT_TYPE));
 
   }
 

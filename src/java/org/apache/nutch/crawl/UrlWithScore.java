@@ -90,7 +90,7 @@ public final class UrlWithScore implements WritableComparable<UrlWithScore> {
   public void setUrl(Text url) {
     this.url = url;
   }
-  
+
   public void setUrl(String url) {
     this.url.set(url);
   }
@@ -102,7 +102,7 @@ public final class UrlWithScore implements WritableComparable<UrlWithScore> {
   public void setScore(FloatWritable score) {
     this.score = score;
   }
-  
+
   public void setScore(float score) {
     this.score.set(score);
   }
@@ -111,12 +111,11 @@ public final class UrlWithScore implements WritableComparable<UrlWithScore> {
   public int compareTo(UrlWithScore other) {
     return comp.compare(this, other);
   }
-  
+
   @Override
   public String toString() {
     return "UrlWithScore [url=" + url + ", score=" + score + "]";
   }
-
 
   /**
    * A partitioner by {url}.
@@ -144,7 +143,7 @@ public final class UrlWithScore implements WritableComparable<UrlWithScore> {
       if (cmp != 0) {
         return cmp;
       }
-      //reverse order
+      // reverse order
       return -o1.getScore().compareTo(o2.getScore());
     }
 
@@ -159,9 +158,9 @@ public final class UrlWithScore implements WritableComparable<UrlWithScore> {
         if (cmp != 0) {
           return cmp;
         }
-        //reverse order
-        return -floatComp.compare(b1, s1 + deptLen1, l1 - deptLen1, 
-                                  b2, s2 + deptLen2, l2 - deptLen2);
+        // reverse order
+        return -floatComp.compare(b1, s1 + deptLen1, l1 - deptLen1, b2, s2
+            + deptLen2, l2 - deptLen2);
       } catch (IOException e) {
         throw new IllegalArgumentException(e);
       }

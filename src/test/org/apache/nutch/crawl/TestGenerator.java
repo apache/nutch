@@ -40,32 +40,30 @@ import static org.junit.Assert.assertEquals;
  * Basic generator test. 1. Insert entries in webtable 2. Generates entries to
  * fetch 3. Verifies that number of generated urls match 4. Verifies that
  * highest scoring urls are generated
- *
+ * 
  */
 public class TestGenerator extends AbstractNutchTest {
 
   public static final Logger LOG = LoggerFactory.getLogger(TestGenerator.class);
 
   private static String[] FIELDS = new String[] {
-    WebPage.Field.MARKERS.getName(),
-    WebPage.Field.SCORE.getName()
-  };
-  
+      WebPage.Field.MARKERS.getName(), WebPage.Field.SCORE.getName() };
+
   @Override
   @Before
-  public void setUp() throws Exception{
+  public void setUp() throws Exception {
     super.setUp();
   }
-  
+
   @Override
   @After
-  public void tearDown()throws Exception {
+  public void tearDown() throws Exception {
     super.tearDown();
   }
 
   /**
    * Test that generator generates fetchlist ordered by score (desc).
-   *
+   * 
    * @throws Exception
    */
   @Test
@@ -87,7 +85,8 @@ public class TestGenerator extends AbstractNutchTest {
 
     generateFetchlist(NUM_RESULTS, conf, false);
 
-    ArrayList<URLWebPage> l = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    ArrayList<URLWebPage> l = CrawlTestUtil.readContents(webPageStore,
+        Mark.GENERATE_MARK, FIELDS);
 
     // sort urls by score desc
     Collections.sort(l, new ScoreComparator());
@@ -125,8 +124,9 @@ public class TestGenerator extends AbstractNutchTest {
   }
 
   /**
-   * Test that generator obeys the property "generate.max.count" and "generate.count.mode".
-   *
+   * Test that generator obeys the property "generate.max.count" and
+   * "generate.count.mode".
+   * 
    * @throws Exception
    */
   @Test
@@ -145,10 +145,12 @@ public class TestGenerator extends AbstractNutchTest {
 
     Configuration myConfiguration = new Configuration(conf);
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 1);
-    myConfiguration.set(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
+    myConfiguration.set(GeneratorJob.GENERATOR_COUNT_MODE,
+        GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore,
+        Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(1, fetchList.size());
@@ -157,25 +159,27 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 2);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK,
+        FIELDS);
 
     // verify we got right amount of records
-    assertEquals(3, fetchList.size()); //3 as 2 + 1 skipped (already generated)
+    assertEquals(3, fetchList.size()); // 3 as 2 + 1 skipped (already generated)
 
     myConfiguration = new Configuration(conf);
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 3);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK,
+        FIELDS);
 
     // verify we got right amount of records
-    assertEquals(3, fetchList.size()); //3 as now all have generate mark 
+    assertEquals(3, fetchList.size()); // 3 as now all have generate mark
   }
 
   /**
    * Test that generator obeys the property "generator.max.count" and
    * "generator.count.value=domain".
-   *
+   * 
    * @throws Exception
    */
   @Test
@@ -197,11 +201,13 @@ public class TestGenerator extends AbstractNutchTest {
 
     Configuration myConfiguration = new Configuration(conf);
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 1);
-    myConfiguration.set(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_DOMAIN);
+    myConfiguration.set(GeneratorJob.GENERATOR_COUNT_MODE,
+        GeneratorJob.GENERATOR_COUNT_VALUE_DOMAIN);
 
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore,
+        Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(1, fetchList.size());
@@ -210,7 +216,8 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 2);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK,
+        FIELDS);
 
     // verify we got right amount of records
     assertEquals(3, fetchList.size()); // 2 + 1 skipped (already generated)
@@ -219,7 +226,8 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 3);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK,
+        FIELDS);
 
     // verify we got right amount of records
     assertEquals(6, fetchList.size()); // 3 + 3 skipped (already generated)
@@ -227,7 +235,7 @@ public class TestGenerator extends AbstractNutchTest {
 
   /**
    * Test generator obeys the filter setting.
-   *
+   * 
    * @throws Exception
    * @throws IOException
    */
@@ -251,13 +259,15 @@ public class TestGenerator extends AbstractNutchTest {
 
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, true);
 
-    ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore,
+        Mark.GENERATE_MARK, FIELDS);
 
     assertEquals(0, fetchList.size());
 
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK,
+        FIELDS);
 
     // verify nothing got filtered
     assertEquals(list.size(), fetchList.size());
@@ -266,7 +276,7 @@ public class TestGenerator extends AbstractNutchTest {
 
   /**
    * Generate Fetchlist.
-   *
+   * 
    * @param numResults
    *          number of results to generate
    * @param config
@@ -279,14 +289,15 @@ public class TestGenerator extends AbstractNutchTest {
     // generate batch
     GeneratorJob g = new GeneratorJob();
     g.setConf(config);
-    String batchId = g.generate(numResults, System.currentTimeMillis(), filter, false);
+    String batchId = g.generate(numResults, System.currentTimeMillis(), filter,
+        false);
     if (batchId == null)
       throw new RuntimeException("Generator failed");
   }
 
   /**
    * Constructs new {@link URLWebPage} from submitted parameters.
-   *
+   * 
    * @param url
    *          url to use
    * @param fetchInterval
@@ -298,7 +309,7 @@ public class TestGenerator extends AbstractNutchTest {
     WebPage page = WebPage.newBuilder().build();
     page.setFetchInterval(fetchInterval);
     page.setScore(score);
-    page.setStatus((int)CrawlStatus.STATUS_UNFETCHED);
+    page.setStatus((int) CrawlStatus.STATUS_UNFETCHED);
     return new URLWebPage(url, page);
   }
 

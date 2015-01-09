@@ -103,7 +103,7 @@ public class DbPageConverter {
     if (CollectionUtils.isEmpty(queryFields)) {
       return Sets.newHashSet(pageFields);
     }
-    
+
     Set<Field> filteredFields = Sets.newLinkedHashSet();
     for (Field field : pageFields) {
       if (queryFields.contains(field.name())) {

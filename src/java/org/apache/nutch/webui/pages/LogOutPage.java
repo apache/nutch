@@ -16,6 +16,6 @@
  */
 package org.apache.nutch.webui.pages;
 
-public class LogOutPage extends AbstractBasePage{
+public class LogOutPage extends AbstractBasePage {
 
 }

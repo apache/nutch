@@ -51,8 +51,8 @@ public class SpringConfiguration implements AsyncConfigurer {
 
   @Bean
   public JdbcConnectionSource getConnectionSource() throws SQLException {
-    JdbcConnectionSource source = new JdbcConnectionSource("jdbc:h2:~/.nutch/config",
-        new H2DatabaseType());
+    JdbcConnectionSource source = new JdbcConnectionSource(
+        "jdbc:h2:~/.nutch/config", new H2DatabaseType());
     source.initialize();
     return source;
   }
@@ -84,7 +84,8 @@ public class SpringConfiguration implements AsyncConfigurer {
 
   @Bean
   public CustomTableCreator createTableCreator() throws SQLException {
-    return new CustomTableCreator(getConnectionSource(), getDaoFactory().getCreatedDaos());
+    return new CustomTableCreator(getConnectionSource(), getDaoFactory()
+        .getCreatedDaos());
   }
 
 }

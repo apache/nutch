@@ -21,12 +21,12 @@ import org.apache.hadoop.io.IntWritable;
 
 public class DummyWritable extends IntWritable {
 
-    public DummyWritable() {
+  public DummyWritable() {
 
-    }
+  }
 
-    public DummyWritable(int i) {
-        super(i);
-    }
+  public DummyWritable(int i) {
+    super(i);
+  }
 
 }

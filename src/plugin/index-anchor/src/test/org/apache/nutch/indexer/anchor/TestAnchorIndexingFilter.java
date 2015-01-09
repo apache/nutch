@@ -25,13 +25,12 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * JUnit test case which tests
- * 1. that anchor text is obtained
- * 2. that anchor deduplication functionality is working
- *
+ * JUnit test case which tests 1. that anchor text is obtained 2. that anchor
+ * deduplication functionality is working
+ * 
  */
 public class TestAnchorIndexingFilter {
-  
+
   @Test
   public void testDeduplicateAnchor() throws Exception {
     Configuration conf = NutchConfiguration.create();
@@ -40,14 +39,19 @@ public class TestAnchorIndexingFilter {
     filter.setConf(conf);
     NutchDocument doc = new NutchDocument();
     WebPage page = WebPage.newBuilder().build();
-    page.getInlinks().put(new Utf8("http://example1.com/"), new Utf8("cool site"));
-    page.getInlinks().put(new Utf8("http://example2.com/"), new Utf8("cool site"));
-    page.getInlinks().put(new Utf8("http://example3.com/"), new Utf8("fun site"));
+    page.getInlinks().put(new Utf8("http://example1.com/"),
+        new Utf8("cool site"));
+    page.getInlinks().put(new Utf8("http://example2.com/"),
+        new Utf8("cool site"));
+    page.getInlinks().put(new Utf8("http://example3.com/"),
+        new Utf8("fun site"));
     filter.filter(doc, "http://myurldoesnotmatter.com/", page);
-    
-    assertTrue("test if there is an anchor at all", doc.getFieldNames().contains("anchor"));
-    
-    assertEquals("test dedup, we expect 2", 2, doc.getFieldValues("anchor").size());
+
+    assertTrue("test if there is an anchor at all", doc.getFieldNames()
+        .contains("anchor"));
+
+    assertEquals("test dedup, we expect 2", 2, doc.getFieldValues("anchor")
+        .size());
   }
 
 }

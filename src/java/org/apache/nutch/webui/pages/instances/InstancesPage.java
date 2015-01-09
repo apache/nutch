@@ -53,11 +53,13 @@ public class InstancesPage extends AbstractBasePage<Void> {
   }
 
   private RefreshingView<NutchInstance> refreshingView() {
-    RefreshingView<NutchInstance> instances = new RefreshingView<NutchInstance>("instances") {
+    RefreshingView<NutchInstance> instances = new RefreshingView<NutchInstance>(
+        "instances") {
 
       @Override
       protected Iterator<IModel<NutchInstance>> getItemModels() {
-        return new CpmIteratorAdapter<NutchInstance>(instanceService.getInstances());
+        return new CpmIteratorAdapter<NutchInstance>(
+            instanceService.getInstances());
       }
 
       @Override
@@ -72,7 +74,8 @@ public class InstancesPage extends AbstractBasePage<Void> {
     return new AjaxLink<NutchInstance>("addInstance") {
       @Override
       public void onClick(AjaxRequestTarget target) {
-        instancePanel.setModel(new CompoundPropertyModel<NutchInstance>(new NutchInstance()));
+        instancePanel.setModel(new CompoundPropertyModel<NutchInstance>(
+            new NutchInstance()));
         target.add(instancePanel);
         instancePanel.appendShowDialogJavaScript(target);
       }

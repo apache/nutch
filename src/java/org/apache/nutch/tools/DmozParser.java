@@ -40,17 +40,16 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
 
-
 /** Utility that converts DMOZ RDF into a flat file of URLs to be injected. */
 public class DmozParser {
   public static final Logger LOG = LoggerFactory.getLogger(DmozParser.class);
-  
-    long pages = 0;
-    private static DataStore<String, WebPage> store = null;
-    
+
+  long pages = 0;
+  private static DataStore<String, WebPage> store = null;
+
   /**
-   * This filter fixes characters that might offend our parser.
-   * This lets us be tolerant of errors that might appear in the input XML.
+   * This filter fixes characters that might offend our parser. This lets us be
+   * tolerant of errors that might appear in the input XML.
    */
   private static class XMLCharFilter extends FilterReader {
     private boolean lastBad = false;
@@ -62,9 +61,9 @@ public class DmozParser {
     public int read() throws IOException {
       int c = in.read();
       int value = c;
-      if (c != -1 && !(XMLChar.isValid(c)))     // fix invalid characters
+      if (c != -1 && !(XMLChar.isValid(c))) // fix invalid characters
         value = 'X';
-      else if (lastBad && c == '<') {           // fix mis-matched brackets
+      else if (lastBad && c == '<') { // fix mis-matched brackets
         in.mark(1);
         if (in.read() != '/')
           value = 'X';
@@ -75,37 +74,35 @@ public class DmozParser {
       return value;
     }
 
-    public int read(char[] cbuf, int off, int len)
-      throws IOException {
+    public int read(char[] cbuf, int off, int len) throws IOException {
       int n = in.read(cbuf, off, len);
       if (n != -1) {
         for (int i = 0; i < n; i++) {
-          char c = cbuf[off+i];
+          char c = cbuf[off + i];
           char value = c;
-          if (!(XMLChar.isValid(c)))            // fix invalid characters
+          if (!(XMLChar.isValid(c))) // fix invalid characters
             value = 'X';
-          else if (lastBad && c == '<') {       // fix mis-matched brackets
-            if (i != n-1 && cbuf[off+i+1] != '/')
+          else if (lastBad && c == '<') { // fix mis-matched brackets
+            if (i != n - 1 && cbuf[off + i + 1] != '/')
               value = 'X';
           }
           lastBad = (c == 65533);
-          cbuf[off+i] = value;
+          cbuf[off + i] = value;
         }
       }
       return n;
     }
   }
 
-
   /**
-   * The RDFProcessor receives tag messages during a parse
-   * of RDF XML data.  We build whatever structures we need
-   * from these messages.
+   * The RDFProcessor receives tag messages during a parse of RDF XML data. We
+   * build whatever structures we need from these messages.
    */
   private class RDFProcessor extends DefaultHandler {
     String curURL = null, curSection = null;
-    boolean titlePending = false, descPending = false, insideAdultSection = false;
-    Pattern topicPattern = null; 
+    boolean titlePending = false, descPending = false,
+        insideAdultSection = false;
+    Pattern topicPattern = null;
     StringBuffer title = new StringBuffer(), desc = new StringBuffer();
     XMLReader reader;
     int subsetDenom;
@@ -115,16 +112,18 @@ public class DmozParser {
     Locator location;
 
     /**
-     * Pass in an XMLReader, plus a flag as to whether we 
-     * should include adult material.
+     * Pass in an XMLReader, plus a flag as to whether we should include adult
+     * material.
      */
-    public RDFProcessor(XMLReader reader, int subsetDenom, boolean includeAdult, int skew, Pattern topicPattern, boolean snippet) throws IOException {
+    public RDFProcessor(XMLReader reader, int subsetDenom,
+        boolean includeAdult, int skew, Pattern topicPattern, boolean snippet)
+        throws IOException {
       this.reader = reader;
       this.subsetDenom = subsetDenom;
       this.includeAdult = includeAdult;
       this.topicPattern = topicPattern;
       this.snippet = snippet;
-      
+
       this.hashSkew = skew != 0 ? skew : new Random().nextInt();
     }
 
@@ -135,20 +134,21 @@ public class DmozParser {
     /**
      * Start of an XML elt
      */
-    public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
+    public void startElement(String namespaceURI, String localName,
+        String qName, Attributes atts) throws SAXException {
       if ("Topic".equals(qName)) {
         curSection = atts.getValue("r:id");
       } else if ("ExternalPage".equals(qName)) {
         // Porn filter
-        if ((! includeAdult) && curSection.startsWith("Top/Adult")) {
+        if ((!includeAdult) && curSection.startsWith("Top/Adult")) {
           return;
         }
-          
+
         if (topicPattern != null && !topicPattern.matcher(curSection).matches()) {
           return;
         }
 
-        // Subset denominator filter.  
+        // Subset denominator filter.
         // Only emit with a chance of 1/denominator.
         String url = atts.getValue("about");
         int hashValue = MD5Hash.digest(url).hashCode();
@@ -181,40 +181,42 @@ public class DmozParser {
      * Termination of XML elt
      */
     public void endElement(String namespaceURI, String localName, String qName)
-      throws SAXException {
+        throws SAXException {
       if (curURL != null) {
         if ("ExternalPage".equals(qName)) {
           //
-          // Inc the number of pages, insert the page, and 
+          // Inc the number of pages, insert the page, and
           // possibly print status.
           //
-          if(snippet){
+          if (snippet) {
             try {
               String reversedUrl = TableUtil.reverseUrl(curURL);
               WebPage row = store.get(reversedUrl);
-              
-              if(row!=null){
+
+              if (row != null) {
                 if (desc.length() > 0) {
-                  row.getMetadata().put(new Utf8("_dmoz_desc_"), ByteBuffer.wrap(desc.toString().getBytes()));
+                  row.getMetadata().put(new Utf8("_dmoz_desc_"),
+                      ByteBuffer.wrap(desc.toString().getBytes()));
                   desc.delete(0, desc.length());
                 }
                 if (title.length() > 0) {
-                  row.getMetadata().put(new Utf8("_dmoz_title_"), ByteBuffer.wrap(title.toString().getBytes()));
+                  row.getMetadata().put(new Utf8("_dmoz_title_"),
+                      ByteBuffer.wrap(title.toString().getBytes()));
                   title.delete(0, title.length());
                 }
                 store.put(reversedUrl, row);
                 store.flush();
               }
-              
-             } catch (IOException e) {
+
+            } catch (IOException e) {
               // TODO Auto-generated catch block
               e.printStackTrace();
-             }
+            }
           } else {
-            System.out.println(curURL); 
-            
+            System.out.println(curURL);
+
             //
-            // Clear out the link text.  This is what
+            // Clear out the link text. This is what
             // you would use for adding to the linkdb.
             //
             if (desc.length() > 0) {
@@ -225,7 +227,7 @@ public class DmozParser {
             }
           }
           pages++;
-          
+
           // Null out the URL.
           curURL = null;
         } else if ("d:Title".equals(qName)) {
@@ -252,14 +254,12 @@ public class DmozParser {
     }
 
     /**
-     * From time to time the Parser will set the "current location"
-     * by calling this function.  It's useful for emitting locations
-     * for error messages.
+     * From time to time the Parser will set the "current location" by calling
+     * this function. It's useful for emitting locations for error messages.
      */
     public void setDocumentLocator(Locator locator) {
       location = locator;
     }
-
 
     //
     // Interface ErrorHandler
@@ -280,11 +280,11 @@ public class DmozParser {
     public void fatalError(SAXParseException spe) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Fatal err: " + spe.toString() + ": " + spe.getMessage());
-        LOG.error("Last known line is " + location.getLineNumber() +
-                  ", column " + location.getColumnNumber());
+        LOG.error("Last known line is " + location.getLineNumber()
+            + ", column " + location.getColumnNumber());
       }
     }
-        
+
     /**
      * Emit exception warning message
      */
@@ -296,35 +296,33 @@ public class DmozParser {
   }
 
   /**
-   * Iterate through all the items in this structured DMOZ file.
-   * Add each URL to the web db.
+   * Iterate through all the items in this structured DMOZ file. Add each URL to
+   * the web db.
    */
   public void parseDmozFile(File dmozFile, int subsetDenom,
-                            boolean includeAdult,
-                            int skew,
-                            Pattern topicPattern,
-                            boolean snippet)
+      boolean includeAdult, int skew, Pattern topicPattern, boolean snippet)
 
-    throws IOException, SAXException, ParserConfigurationException {
+  throws IOException, SAXException, ParserConfigurationException {
 
     SAXParserFactory parserFactory = SAXParserFactory.newInstance();
     SAXParser parser = parserFactory.newSAXParser();
     XMLReader reader = parser.getXMLReader();
 
     // Create our own processor to receive SAX events
-    RDFProcessor rp =
-      new RDFProcessor(reader, subsetDenom, includeAdult,
-                       skew, topicPattern, snippet);
+    RDFProcessor rp = new RDFProcessor(reader, subsetDenom, includeAdult, skew,
+        topicPattern, snippet);
     reader.setContentHandler(rp);
     reader.setErrorHandler(rp);
     LOG.info("skew = " + rp.hashSkew);
 
     //
-    // Open filtered text stream.  The TextFilter makes sure that
+    // Open filtered text stream. The TextFilter makes sure that
     // only appropriate XML-approved Text characters are received.
     // Any non-conforming characters are silently skipped.
     //
-    XMLCharFilter in = new XMLCharFilter(new BufferedReader(new InputStreamReader(new BufferedInputStream(new FileInputStream(dmozFile)), "UTF-8")));
+    XMLCharFilter in = new XMLCharFilter(new BufferedReader(
+        new InputStreamReader(new BufferedInputStream(new FileInputStream(
+            dmozFile)), "UTF-8")));
     try {
       InputSource is = new InputSource(in);
       reader.parse(is);
@@ -338,18 +336,17 @@ public class DmozParser {
     }
   }
 
-  private static void addTopicsFromFile(String topicFile,
-                                        Vector<String> topics)
-  throws IOException {
+  private static void addTopicsFromFile(String topicFile, Vector<String> topics)
+      throws IOException {
     BufferedReader in = null;
     try {
-      in = new BufferedReader(new InputStreamReader(new FileInputStream(topicFile), "UTF-8"));
+      in = new BufferedReader(new InputStreamReader(new FileInputStream(
+          topicFile), "UTF-8"));
       String line = null;
       while ((line = in.readLine()) != null) {
         topics.addElement(new String(line));
       }
-    } 
-    catch (Exception e) {
+    } catch (Exception e) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Failed with the following exception: ", e.toString());
       }
@@ -358,18 +355,19 @@ public class DmozParser {
       in.close();
     }
   }
-    
+
   /**
-   * Command-line access.  User may add URLs via a flat text file
-   * or the structured DMOZ file.  By default, we ignore Adult
-   * material (as categorized by DMOZ).
+   * Command-line access. User may add URLs via a flat text file or the
+   * structured DMOZ file. By default, we ignore Adult material (as categorized
+   * by DMOZ).
    */
   public static void main(String argv[]) throws Exception {
     if (argv.length < 1) {
-      System.err.println("Usage: DmozParser <dmoz_file> [-subset <subsetDenominator>] [-includeAdultMaterial] [-skew skew] [-snippet] [-topicFile <topic list file>] [-topic <topic> [-topic <topic> [...]]]");
+      System.err
+          .println("Usage: DmozParser <dmoz_file> [-subset <subsetDenominator>] [-includeAdultMaterial] [-skew skew] [-snippet] [-topicFile <topic list file>] [-topic <topic> [-topic <topic> [...]]]");
       return;
     }
-    
+
     //
     // Parse the command line, figure out what kind of
     // URL file we need to load
@@ -379,29 +377,29 @@ public class DmozParser {
     String dmozFile = argv[0];
     boolean includeAdult = false;
     boolean snippet = false;
-    Pattern topicPattern = null; 
+    Pattern topicPattern = null;
     Vector<String> topics = new Vector<String>();
-    
+
     Configuration conf = NutchConfiguration.create();
-    store = StorageUtils.createWebStore(conf,String.class, WebPage.class);
+    store = StorageUtils.createWebStore(conf, String.class, WebPage.class);
     FileSystem fs = FileSystem.get(conf);
     try {
       for (int i = 1; i < argv.length; i++) {
         if ("-includeAdultMaterial".equals(argv[i])) {
           includeAdult = true;
         } else if ("-subset".equals(argv[i])) {
-          subsetDenom = Integer.parseInt(argv[i+1]);
+          subsetDenom = Integer.parseInt(argv[i + 1]);
           i++;
         } else if ("-topic".equals(argv[i])) {
-          topics.addElement(argv[i+1]); 
+          topics.addElement(argv[i + 1]);
           i++;
         } else if ("-topicFile".equals(argv[i])) {
-          addTopicsFromFile(argv[i+1], topics);
+          addTopicsFromFile(argv[i + 1], topics);
           i++;
         } else if ("-skew".equals(argv[i])) {
-          skew = Integer.parseInt(argv[i+1]);
+          skew = Integer.parseInt(argv[i + 1]);
           i++;
-        }else if ("-snippet".equals(argv[i])) {
+        } else if ("-snippet".equals(argv[i])) {
           snippet = true;
         }
       }
@@ -409,21 +407,21 @@ public class DmozParser {
       DmozParser parser = new DmozParser();
 
       if (!topics.isEmpty()) {
-        String regExp = new String("^("); 
+        String regExp = new String("^(");
         int j = 0;
-        for ( ; j < topics.size() - 1; ++j) {
+        for (; j < topics.size() - 1; ++j) {
           regExp = regExp.concat(topics.get(j));
           regExp = regExp.concat("|");
         }
         regExp = regExp.concat(topics.get(j));
-        regExp = regExp.concat(").*"); 
+        regExp = regExp.concat(").*");
         LOG.info("Topic selection pattern = " + regExp);
-        topicPattern = Pattern.compile(regExp); 
+        topicPattern = Pattern.compile(regExp);
       }
 
-      parser.parseDmozFile(new File(dmozFile), subsetDenom,
-                           includeAdult, skew, topicPattern, snippet);
-      
+      parser.parseDmozFile(new File(dmozFile), subsetDenom, includeAdult, skew,
+          topicPattern, snippet);
+
     } finally {
       fs.close();
     }

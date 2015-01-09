@@ -49,11 +49,11 @@ public class Http extends HttpBase {
   @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
-//    Level logLevel = Level.WARNING;
-//    if (conf.getBoolean("http.verbose", false)) {
-//      logLevel = Level.FINE;
-//    }
-//    LOG.setLevel(logLevel);
+    // Level logLevel = Level.WARNING;
+    // if (conf.getBoolean("http.verbose", false)) {
+    // logLevel = Level.FINE;
+    // }
+    // LOG.setLevel(logLevel);
   }
 
   public static void main(String[] args) throws Exception {
@@ -64,7 +64,7 @@ public class Http extends HttpBase {
 
   @Override
   protected Response getResponse(URL url, WebPage page, boolean redirect)
-    throws ProtocolException, IOException {
+      throws ProtocolException, IOException {
     return new HttpResponse(this, url, page);
   }
 

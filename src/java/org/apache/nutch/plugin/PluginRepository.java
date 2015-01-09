@@ -50,13 +50,13 @@ public class PluginRepository {
   private HashMap<String, ExtensionPoint> fExtensionPoints;
 
   private HashMap<String, Plugin> fActivatedPlugins;
-  
-  private static final Map<String, Map<PluginClassLoader, Class>> CLASS_CACHE =
-    new HashMap<String, Map<PluginClassLoader,Class>>();
+
+  private static final Map<String, Map<PluginClassLoader, Class>> CLASS_CACHE = new HashMap<String, Map<PluginClassLoader, Class>>();
 
   private Configuration conf;
 
-  public static final Logger LOG = LoggerFactory.getLogger(PluginRepository.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(PluginRepository.class);
 
   /**
    * @throws PluginRuntimeException
@@ -68,7 +68,8 @@ public class PluginRepository {
     this.conf = new Configuration(conf);
     this.auto = conf.getBoolean("plugin.auto-activation", true);
     String[] pluginFolders = conf.getStrings("plugin.folders");
-    PluginManifestParser manifestParser = new PluginManifestParser(this.conf, this);
+    PluginManifestParser manifestParser = new PluginManifestParser(this.conf,
+        this);
     Map<String, PluginDescriptor> allPlugins = manifestParser
         .parsePluginFolder(pluginFolders);
     if (allPlugins.isEmpty()) {
@@ -85,7 +86,7 @@ public class PluginRepository {
     try {
       installExtensions(fRegisteredPlugins);
     } catch (PluginRuntimeException e) {
-        LOG.error(e.toString());
+      LOG.error(e.toString());
       throw new RuntimeException(e.getMessage());
     }
     displayStatus();
@@ -112,8 +113,8 @@ public class PluginRepository {
       return;
     }
 
-    for (PluginDescriptor plugin: plugins) {
-      for(ExtensionPoint point:plugin.getExtenstionPoints()) {
+    for (PluginDescriptor plugin : plugins) {
+      for (ExtensionPoint point : plugin.getExtenstionPoints()) {
         String xpId = point.getId();
         LOG.debug("Adding extension point " + xpId);
         fExtensionPoints.put(xpId, point);
@@ -128,7 +129,7 @@ public class PluginRepository {
       throws PluginRuntimeException {
 
     for (PluginDescriptor descriptor : pRegisteredPlugins) {
-      for(Extension extension:descriptor.getExtensions()) {
+      for (Extension extension : descriptor.getExtensions()) {
         String xpId = extension.getTargetPoint();
         ExtensionPoint point = getExtensionPoint(xpId);
         if (point == null) {
@@ -156,7 +157,7 @@ public class PluginRepository {
     branch.put(plugin.getPluginId(), plugin);
 
     // Otherwise, checks each dependency
-    for(String id:plugin.getDependencies()) {
+    for (String id : plugin.getDependencies()) {
       PluginDescriptor dependency = plugins.get(id);
       if (dependency == null) {
         throw new MissingDependencyException("Missing dependency " + id
@@ -271,7 +272,8 @@ public class PluginRepository {
       // The same is in Extension.getExtensionInstance().
       // Suggested by Stefan Groschupf <sg@media-style.com>
       synchronized (pDescriptor) {
-        Class<?> pluginClass = getCachedClass(pDescriptor, pDescriptor.getPluginClass());
+        Class<?> pluginClass = getCachedClass(pDescriptor,
+            pDescriptor.getPluginClass());
         Constructor<?> constructor = pluginClass.getConstructor(new Class<?>[] {
             PluginDescriptor.class, Configuration.class });
         Plugin plugin = (Plugin) constructor.newInstance(new Object[] {
@@ -312,9 +314,9 @@ public class PluginRepository {
       plugin.shutDown();
     }
   }
-  
+
   public Class getCachedClass(PluginDescriptor pDescriptor, String className)
-  throws ClassNotFoundException {
+      throws ClassNotFoundException {
     Map<PluginClassLoader, Class> descMap = CLASS_CACHE.get(className);
     if (descMap == null) {
       descMap = new HashMap<PluginClassLoader, Class>();

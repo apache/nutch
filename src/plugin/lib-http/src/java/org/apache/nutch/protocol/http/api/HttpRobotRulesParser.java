@@ -30,16 +30,18 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 
 /**
- * This class is used for parsing robots for urls belonging to HTTP protocol.
- * It extends the generic {@link RobotRulesParser} class and contains 
- * Http protocol specific implementation for obtaining the robots file.
+ * This class is used for parsing robots for urls belonging to HTTP protocol. It
+ * extends the generic {@link RobotRulesParser} class and contains Http protocol
+ * specific implementation for obtaining the robots file.
  */
 public class HttpRobotRulesParser extends RobotRulesParser {
-  
-  public static final Logger LOG = LoggerFactory.getLogger(HttpRobotRulesParser.class);
+
+  public static final Logger LOG = LoggerFactory
+      .getLogger(HttpRobotRulesParser.class);
   protected boolean allowForbidden = false;
 
-  HttpRobotRulesParser() { }
+  HttpRobotRulesParser() {
+  }
 
   public HttpRobotRulesParser(Configuration conf) {
     super(conf);
@@ -48,14 +50,17 @@ public class HttpRobotRulesParser extends RobotRulesParser {
 
   /** Compose unique key to store and access robot rules in cache for given URL */
   protected static String getCacheKey(URL url) {
-    String protocol = url.getProtocol().toLowerCase();  // normalize to lower case
-    String host = url.getHost().toLowerCase();          // normalize to lower case
+    String protocol = url.getProtocol().toLowerCase(); // normalize to lower
+                                                       // case
+    String host = url.getHost().toLowerCase(); // normalize to lower case
     int port = url.getPort();
     if (port == -1) {
       port = url.getDefaultPort();
     }
-   /* Robot rules apply only to host, protocol, and port where robots.txt is
-    * hosted (cf. NUTCH-1752). Consequently  */
+    /*
+     * Robot rules apply only to host, protocol, and port where robots.txt is
+     * hosted (cf. NUTCH-1752). Consequently
+     */
     String cacheKey = protocol + ":" + host + ":" + port;
     return cacheKey;
   }
@@ -71,7 +76,7 @@ public class HttpRobotRulesParser extends RobotRulesParser {
    *          The {@link Protocol} object
    * @param url
    *          URL robots.txt applies to
-   *
+   * 
    * @return {@link BaseRobotRules} holding the rules from robots.txt
    */
   public BaseRobotRules getRobotRulesSet(Protocol http, URL url) {
@@ -80,13 +85,15 @@ public class HttpRobotRulesParser extends RobotRulesParser {
     BaseRobotRules robotRules = (SimpleRobotRules) CACHE.get(cacheKey);
 
     boolean cacheRule = true;
-    
-    if (robotRules == null) {                     // cache miss
+
+    if (robotRules == null) { // cache miss
       URL redir = null;
-      if (LOG.isTraceEnabled()) { LOG.trace("cache miss " + url); }
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("cache miss " + url);
+      }
       try {
-        Response response = ((HttpBase)http).getResponse(new URL(url, "/robots.txt"),
-                                             WebPage.newBuilder().build(), true);
+        Response response = ((HttpBase) http).getResponse(new URL(url,
+            "/robots.txt"), WebPage.newBuilder().build(), true);
         // try one level of redirection ?
         if (response.getCode() == 301 || response.getCode() == 302) {
           String redirection = response.getHeader("Location");
@@ -101,23 +108,23 @@ public class HttpRobotRulesParser extends RobotRulesParser {
             } else {
               redir = new URL(redirection);
             }
-            
-            response = ((HttpBase)http).getResponse(redir, WebPage.newBuilder().build(), true);
+
+            response = ((HttpBase) http).getResponse(redir, WebPage
+                .newBuilder().build(), true);
           }
         }
 
-        if (response.getCode() == 200)               // found rules: parse them
-          robotRules =  parseRules(url.toString(), response.getContent(), 
-                                   response.getHeader("Content-Type"), 
-                                   agentNames);
+        if (response.getCode() == 200) // found rules: parse them
+          robotRules = parseRules(url.toString(), response.getContent(),
+              response.getHeader("Content-Type"), agentNames);
 
-        else if ( (response.getCode() == 403) && (!allowForbidden) )
-          robotRules = FORBID_ALL_RULES;            // use forbid all
+        else if ((response.getCode() == 403) && (!allowForbidden))
+          robotRules = FORBID_ALL_RULES; // use forbid all
         else if (response.getCode() >= 500) {
           cacheRule = false;
           robotRules = EMPTY_RULES;
-        }else                                        
-          robotRules = EMPTY_RULES;                 // use default rules
+        } else
+          robotRules = EMPTY_RULES; // use default rules
       } catch (Throwable t) {
         if (LOG.isInfoEnabled()) {
           LOG.info("Couldn't get robots.txt for " + url + ": " + t.toString());
@@ -127,7 +134,7 @@ public class HttpRobotRulesParser extends RobotRulesParser {
       }
 
       if (cacheRule) {
-        CACHE.put(cacheKey, robotRules);  // cache rules for host
+        CACHE.put(cacheKey, robotRules); // cache rules for host
         if (redir != null && !redir.getHost().equalsIgnoreCase(url.getHost())) {
           // cache also for the redirected host
           CACHE.put(getCacheKey(redir), robotRules);

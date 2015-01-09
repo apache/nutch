@@ -28,28 +28,29 @@ import org.apache.nutch.crawl.NutchWritable;
 /**
  * This is a simple decorator that adds metadata to any Writable-s that can be
  * serialized by <tt>NutchWritable</tt>. This is useful when data needs to be
- * temporarily enriched during processing, but this
- * temporary metadata doesn't need to be permanently stored after the job is done.
+ * temporarily enriched during processing, but this temporary metadata doesn't
+ * need to be permanently stored after the job is done.
  * 
  * @author Andrzej Bialecki
  */
 public class MetaWrapper extends NutchWritable {
   private Metadata metadata;
-  
+
   public MetaWrapper() {
     super();
     metadata = new Metadata();
   }
-  
+
   public MetaWrapper(Writable instance, Configuration conf) {
     super(instance);
     metadata = new Metadata();
     setConf(conf);
   }
-  
+
   public MetaWrapper(Metadata metadata, Writable instance, Configuration conf) {
     super(instance);
-    if (metadata == null) metadata = new Metadata();
+    if (metadata == null)
+      metadata = new Metadata();
     this.metadata = metadata;
     setConf(conf);
   }
@@ -60,43 +61,52 @@ public class MetaWrapper extends NutchWritable {
   public Metadata getMetadata() {
     return metadata;
   }
-  
+
   /**
-   * Add metadata. See {@link Metadata#add(String, String)} for more information.
-   * @param name metadata name
-   * @param value metadata value
+   * Add metadata. See {@link Metadata#add(String, String)} for more
+   * information.
+   * 
+   * @param name
+   *          metadata name
+   * @param value
+   *          metadata value
    */
   public void addMeta(String name, String value) {
     metadata.add(name, value);
   }
-  
+
   /**
-   * Set metadata. See {@link Metadata#set(String, String)} for more information.
+   * Set metadata. See {@link Metadata#set(String, String)} for more
+   * information.
+   * 
    * @param name
    * @param value
    */
   public void setMeta(String name, String value) {
     metadata.set(name, value);
   }
-  
+
   /**
    * Get metadata. See {@link Metadata#get(String)} for more information.
+   * 
    * @param name
    * @return metadata value
    */
   public String getMeta(String name) {
     return metadata.get(name);
   }
-  
+
   /**
-   * Get multiple metadata. See {@link Metadata#getValues(String)} for more information.
+   * Get multiple metadata. See {@link Metadata#getValues(String)} for more
+   * information.
+   * 
    * @param name
    * @return multiple values
    */
   public String[] getMetaValues(String name) {
     return metadata.getValues(name);
   }
-  
+
   public void readFields(DataInput in) throws IOException {
     super.readFields(in);
     metadata = new Metadata();

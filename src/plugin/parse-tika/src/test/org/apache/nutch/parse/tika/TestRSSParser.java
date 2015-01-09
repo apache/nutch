@@ -68,7 +68,7 @@ public class TestRSSParser {
    * </ul>
    */
   @Test
-  public void testIt()throws ProtocolException, ParseException, IOException {
+  public void testIt() throws ProtocolException, ParseException, IOException {
     String urlString;
     Parse parse;
 

@@ -44,26 +44,25 @@ import org.apache.nutch.util.ToolUtil;
 public class CleaningJob extends NutchTool implements Tool {
 
   public static final String ARG_COMMIT = "commit";
-  public static final Logger LOG = LoggerFactory
-      .getLogger(CleaningJob.class);
+  public static final Logger LOG = LoggerFactory.getLogger(CleaningJob.class);
   private Configuration conf;
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
-  
+
   static {
     FIELDS.add(WebPage.Field.STATUS);
   }
-  
+
   @Override
   public Configuration getConf() {
     return conf;
   }
-  
+
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
-  
+
   public Collection<WebPage.Field> getFields(Job job) {
     Configuration conf = job.getConfiguration();
     Collection<WebPage.Field> columns = new HashSet<WebPage.Field>(FIELDS);
@@ -96,7 +95,7 @@ public class CleaningJob extends NutchTool implements Tool {
       }
     }
   }
-  
+
   public static class CleanReducer extends
       Reducer<String, WebPage, NullWritable, NullWritable> {
     private int numDeletes = 0;
@@ -128,11 +127,10 @@ public class CleaningJob extends NutchTool implements Tool {
       writers.close();
       if (numDeletes > 0 && commit) {
         writers.commit();
-      }   
+      }
       LOG.info("CleaningJob: deleted a total of " + numDeletes + " documents");
     }
   }
-
 
   @Override
   public Map<String, Object> run(Map<String, Object> args) throws Exception {

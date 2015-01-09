@@ -34,14 +34,15 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.URLUtil;
 
-/** Reduce class for generate
- *
- * The #reduce() method write a random integer to all generated URLs. This random
- * number is then used by {@link FetcherMapper}.
- *
+/**
+ * Reduce class for generate
+ * 
+ * The #reduce() method write a random integer to all generated URLs. This
+ * random number is then used by {@link FetcherMapper}.
+ * 
  */
-public class GeneratorReducer
-extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
+public class GeneratorReducer extends
+    GoraReducer<SelectorEntry, WebPage, String, WebPage> {
 
   private long limit;
   private long maxCount;
@@ -81,7 +82,7 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
       try {
         context.write(TableUtil.reverseUrl(key.url), page);
       } catch (MalformedURLException e) {
-    	context.getCounter("Generator", "MALFORMED_URL").increment(1);
+        context.getCounter("Generator", "MALFORMED_URL").increment(1);
         continue;
       }
       context.getCounter("Generator", "GENERATE_MARK").increment(1);
@@ -90,10 +91,11 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
   }
 
   @Override
-  protected void setup(Context context)
-      throws IOException, InterruptedException {
+  protected void setup(Context context) throws IOException,
+      InterruptedException {
     Configuration conf = context.getConfiguration();
-    long totalLimit = conf.getLong(GeneratorJob.GENERATOR_TOP_N, Long.MAX_VALUE);
+    long totalLimit = conf
+        .getLong(GeneratorJob.GENERATOR_TOP_N, Long.MAX_VALUE);
     if (totalLimit == Long.MAX_VALUE) {
       limit = Long.MAX_VALUE;
     } else {
@@ -101,8 +103,8 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
     }
     maxCount = conf.getLong(GeneratorJob.GENERATOR_MAX_COUNT, -2);
     batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID));
-    String countMode =
-      conf.get(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
+    String countMode = conf.get(GeneratorJob.GENERATOR_COUNT_MODE,
+        GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
     if (countMode.equals(GeneratorJob.GENERATOR_COUNT_VALUE_DOMAIN)) {
       byDomain = true;
     }

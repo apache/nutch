@@ -27,7 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestNutchClientFactory {
-  
+
   @InjectMocks
   private NutchClientFactory factory;
 
@@ -55,7 +55,7 @@ public class TestNutchClientFactory {
     // then
     assertSame(client, client2);
   }
-  
+
   @Test
   public void shouldReturnNewClientForOtherInstance() {
     // given

@@ -15,6 +15,7 @@
  * limitations under the License.
  ******************************************************************************/
 package org.apache.nutch.tools.proxy;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -47,29 +48,33 @@ import org.slf4j.LoggerFactory;
 import org.mortbay.jetty.Request;
 
 public class LogDebugHandler extends AbstractTestbedHandler implements Filter {
-  private static final Logger LOG = LoggerFactory.getLogger(LogDebugHandler.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(LogDebugHandler.class);
 
   @Override
   public void handle(Request req, HttpServletResponse res, String target,
-          int dispatch) throws IOException, ServletException {
-    LOG.info("-- " + req.getMethod() + " " + req.getUri().toString() + "\n" + req.getConnection().getRequestFields());
+      int dispatch) throws IOException, ServletException {
+    LOG.info("-- " + req.getMethod() + " " + req.getUri().toString() + "\n"
+        + req.getConnection().getRequestFields());
   }
 
   @Override
   public void doFilter(ServletRequest req, ServletResponse res,
-          FilterChain chain) throws IOException, ServletException {
-    ((HttpServletResponse)res).addHeader("X-Handled-By", "AsyncProxyHandler");
-    ((HttpServletResponse)res).addHeader("X-TestbedHandlers", "AsyncProxyHandler");
+      FilterChain chain) throws IOException, ServletException {
+    ((HttpServletResponse) res).addHeader("X-Handled-By", "AsyncProxyHandler");
+    ((HttpServletResponse) res).addHeader("X-TestbedHandlers",
+        "AsyncProxyHandler");
     try {
       chain.doFilter(req, res);
     } catch (Throwable e) {
-      ((HttpServletResponse)res).sendError(HttpServletResponse.SC_BAD_REQUEST, e.toString());
+      ((HttpServletResponse) res).sendError(HttpServletResponse.SC_BAD_REQUEST,
+          e.toString());
     }
   }
 
   @Override
   public void init(FilterConfig arg0) throws ServletException {
     // TODO Auto-generated method stub
-    
+
   }
 }

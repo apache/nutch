@@ -44,10 +44,10 @@ public class TestTableUtil {
     assertReverse(urlString1, reversedUrlString1);
     assertReverse(urlString2, reversedUrlString2);
     assertReverse(urlString3, reversedUrlString3);
-    assertReverse(urlString4, reversedUrlString4); 
-    assertReverse(urlString5, reversedUrlString5); 
-    assertReverse(urlString5, reversedUrlString5); 
-    assertReverse(urlString6, reversedUrlString6); 
+    assertReverse(urlString4, reversedUrlString4);
+    assertReverse(urlString5, reversedUrlString5);
+    assertReverse(urlString5, reversedUrlString5);
+    assertReverse(urlString6, reversedUrlString6);
     assertReverse(urlString7, reversedUrlString7);
   }
 
@@ -62,7 +62,8 @@ public class TestTableUtil {
     assertUnreverse(reversedUrlString7, urlString7);
   }
 
-  private static void assertReverse(String url, String expectedReversedUrl) throws Exception {
+  private static void assertReverse(String url, String expectedReversedUrl)
+      throws Exception {
     String reversed = TableUtil.reverseUrl(url);
     assertEquals(expectedReversedUrl, reversed);
   }

@@ -20,3 +20,4 @@
  * {@link org.apache.nutch.storage.Host host metadata}) of data in abstracted storage.
  */
 package org.apache.nutch.storage;
+

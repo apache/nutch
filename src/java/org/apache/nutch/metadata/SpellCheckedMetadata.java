@@ -33,7 +33,7 @@ public class SpellCheckedMetadata extends Metadata {
 
   /**
    * Treshold divider.
-   *
+   * 
    * <code>threshold = searched.length() / TRESHOLD_DIVIDER;</code>
    */
   private static final int TRESHOLD_DIVIDER = 3;
@@ -52,7 +52,7 @@ public class SpellCheckedMetadata extends Metadata {
 
     // Uses following array to fill the metanames index and the
     // metanames list.
-    Class<?>[] spellthese = {HttpHeaders.class};
+    Class<?>[] spellthese = { HttpHeaders.class };
 
     for (Class<?> spellCheckedNames : spellthese) {
       for (Field field : spellCheckedNames.getFields()) {
@@ -73,7 +73,7 @@ public class SpellCheckedMetadata extends Metadata {
 
   /**
    * Normalizes String.
-   *
+   * 
    * @param str
    *          the string to normalize
    * @return normalized String
@@ -102,7 +102,7 @@ public class SpellCheckedMetadata extends Metadata {
    * </ul>
    * If no matching with a well-known metadata name is found, then the original
    * name is returned.
-   *
+   * 
    * @param name
    *          Name to normalize
    * @return normalized name

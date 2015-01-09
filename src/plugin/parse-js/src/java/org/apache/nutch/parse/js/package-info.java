@@ -20,3 +20,4 @@
  * from JavaScript files and embedded JavaScript code snippets.
  */
 package org.apache.nutch.parse.js;
+

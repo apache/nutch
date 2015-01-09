@@ -39,8 +39,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * The <code>PluginManifestParser</code> parser just parse the manifest file
- * in all plugin directories.
+ * The <code>PluginManifestParser</code> parser just parse the manifest file in
+ * all plugin directories.
  * 
  * @author joa23
  */
@@ -93,7 +93,8 @@ public class PluginManifestParser {
             PluginDescriptor p = parseManifestFile(manifestPath);
             map.put(p.getPluginId(), p);
           } catch (Exception e) {
-            LOG.warn("Error while loading plugin `" + manifestPath + "` " + e.toString());
+            LOG.warn("Error while loading plugin `" + manifestPath + "` "
+                + e.toString());
           }
         }
       }
@@ -182,7 +183,7 @@ public class PluginManifestParser {
     PluginDescriptor pluginDescriptor = new PluginDescriptor(id, version, name,
         providerName, pluginClazz, pPath, this.conf);
     LOG.debug("plugin: id=" + id + " name=" + name + " version=" + version
-          + " provider=" + providerName + "class=" + pluginClazz);
+        + " provider=" + providerName + "class=" + pluginClazz);
     parseExtension(rootElement, pluginDescriptor);
     parseExtensionPoints(rootElement, pluginDescriptor);
     parseLibraries(rootElement, pluginDescriptor);
@@ -289,8 +290,8 @@ public class PluginManifestParser {
             if (parameters != null) {
               for (int k = 0; k < parameters.getLength(); k++) {
                 Element param = (Element) parameters.item(k);
-                extension.addAttribute(param.getAttribute(ATTR_NAME), param
-                    .getAttribute("value"));
+                extension.addAttribute(param.getAttribute(ATTR_NAME),
+                    param.getAttribute("value"));
               }
             }
             pPluginDescriptor.addExtension(extension);

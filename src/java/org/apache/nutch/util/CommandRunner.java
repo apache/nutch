@@ -82,11 +82,11 @@ public class CommandRunner {
   }
 
   public void evaluate() throws IOException {
-      this.exec();
+    this.exec();
   }
 
   /**
-   *
+   * 
    * @return process exit value (return code) or -1 if timed out.
    * @throws IOException
    */
@@ -94,13 +94,11 @@ public class CommandRunner {
     Process proc = Runtime.getRuntime().exec(_command);
     _barrier = new CyclicBarrier(3 + ((_stdin != null) ? 1 : 0));
 
-    PullerThread so =
-      new PullerThread("STDOUT", proc.getInputStream(), _stdout);
+    PullerThread so = new PullerThread("STDOUT", proc.getInputStream(), _stdout);
     so.setDaemon(true);
     so.start();
 
-    PullerThread se =
-      new PullerThread("STDERR", proc.getErrorStream(), _stderr);
+    PullerThread se = new PullerThread("STDERR", proc.getErrorStream(), _stderr);
     se.setDaemon(true);
     se.start();
 
@@ -145,11 +143,11 @@ public class CommandRunner {
             Thread.sleep(1000);
             _xit = proc.exitValue();
           } catch (InterruptedException ie) {
-              if (Thread.interrupted()) {
-                  break; // stop waiting on an interrupt for this thread
-              } else {
-                  continue;
-              }
+            if (Thread.interrupted()) {
+              break; // stop waiting on an interrupt for this thread
+            } else {
+              continue;
+            }
           } catch (IllegalThreadStateException iltse) {
             continue;
           }
@@ -181,11 +179,8 @@ public class CommandRunner {
 
     private boolean _closeInput;
 
-    protected PumperThread(
-      String name,
-      InputStream is,
-      OutputStream os,
-      boolean closeInput) {
+    protected PumperThread(String name, InputStream is, OutputStream os,
+        boolean closeInput) {
       super(name);
       _is = is;
       _os = os;
@@ -218,12 +213,12 @@ public class CommandRunner {
         }
       }
       try {
-         _barrier.await();
-       } catch (InterruptedException ie) {
-         /* IGNORE */
-       } catch (BrokenBarrierException bbe) {
-         /* IGNORE */
-       }
+        _barrier.await();
+      } catch (InterruptedException ie) {
+        /* IGNORE */
+      } catch (BrokenBarrierException bbe) {
+        /* IGNORE */
+      }
     }
   }
 
@@ -269,8 +264,9 @@ public class CommandRunner {
 
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-timeout")) {
-        timeout = Integer.parseInt(args[++i]);;
-      } else if (i != args.length-2) {
+        timeout = Integer.parseInt(args[++i]);
+        ;
+      } else if (i != args.length - 2) {
         System.err.println(usage);
         System.exit(-1);
       } else {
@@ -290,6 +286,6 @@ public class CommandRunner {
 
     cr.evaluate();
 
-    System.err.println("output value: "+cr.getExitValue());
+    System.err.println("output value: " + cr.getExitValue());
   }
 }

@@ -20,7 +20,7 @@ package org.apache.nutch.util;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
 
-/** A {@link JobConf} for Nutch jobs.  */
+/** A {@link JobConf} for Nutch jobs. */
 public class NutchJobConf extends JobConf {
 
   public NutchJobConf(Configuration conf) {
@@ -28,4 +28,3 @@ public class NutchJobConf extends JobConf {
   }
 
 }
-

@@ -123,13 +123,14 @@ public class HostInjectorJob implements Tool {
       while (keysIter.hasNext()) {
         String keymd = keysIter.next();
         String valuemd = metadata.get(keymd);
-        host.getMetadata().put(new Utf8(keymd), ByteBuffer.wrap(valuemd.getBytes()));
+        host.getMetadata().put(new Utf8(keymd),
+            ByteBuffer.wrap(valuemd.getBytes()));
       }
       String hostname;
-      if (url.indexOf("://")> -1) {
-        hostname=new URL(url).getHost();
+      if (url.indexOf("://") > -1) {
+        hostname = new URL(url).getHost();
       } else {
-        hostname=new URL("http://"+url).getHost();
+        hostname = new URL("http://" + url).getHost();
       }
       String hostkey = TableUtil.reverseHost(hostname);
       context.write(hostkey, host);
@@ -145,8 +146,8 @@ public class HostInjectorJob implements Tool {
     job.setMapOutputKeyClass(String.class);
     job.setMapOutputValueClass(Host.class);
     job.setOutputFormatClass(GoraOutputFormat.class);
-    GoraOutputFormat.setOutput(job,
-        StorageUtils.createWebStore(job.getConfiguration(), String.class, Host.class), true);
+    GoraOutputFormat.setOutput(job, StorageUtils.createWebStore(
+        job.getConfiguration(), String.class, Host.class), true);
     job.setReducerClass(Reducer.class);
     job.setNumReduceTasks(0);
     return job.waitForCompletion(true);

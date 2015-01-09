@@ -33,7 +33,7 @@ public class TableUtil {
    * <p>
    * E.g. "http://bar.foo.com:8983/to/index.html?a=b" becomes
    * "com.foo.bar:8983:http/to/index.html?a=b".
-   *
+   * 
    * @param url
    *          url to be reversed
    * @return Reversed url
@@ -50,7 +50,7 @@ public class TableUtil {
    * <p>
    * E.g. "http://bar.foo.com:8983/to/index.html?a=b" becomes
    * "com.foo.bar:http:8983/to/index.html?a=b".
-   *
+   * 
    * @param url
    *          url to be reversed
    * @return Reversed url
@@ -93,8 +93,11 @@ public class TableUtil {
       pathBegin = reversedUrl.length();
     String sub = reversedUrl.substring(0, pathBegin);
 
-    String[] splits = StringUtils.splitPreserveAllTokens(sub, ':'); // {<reversed host>, <port>, <protocol>}
-    
+    String[] splits = StringUtils.splitPreserveAllTokens(sub, ':'); // {<reversed
+                                                                    // host>,
+                                                                    // <port>,
+                                                                    // <protocol>}
+
     buf.append(splits[1]); // add protocol
     buf.append("://");
     reverseAppendSplits(splits[0], buf); // splits[0] is reversed
@@ -110,7 +113,7 @@ public class TableUtil {
   /**
    * Given a reversed url, returns the reversed host E.g
    * "com.foo.bar:http:8983/to/index.html?a=b" -> "com.foo.bar"
-   *
+   * 
    * @param reversedUrl
    *          Reversed url
    * @return Reversed host
@@ -120,7 +123,7 @@ public class TableUtil {
   }
 
   private static void reverseAppendSplits(String string, StringBuilder buf) {
-    String[] splits = StringUtils.split(string,'.');
+    String[] splits = StringUtils.split(string, '.');
     if (splits.length > 0) {
       for (int i = splits.length - 1; i > 0; i--) {
         buf.append(splits[i]);
@@ -136,18 +139,18 @@ public class TableUtil {
     StringBuilder buf = new StringBuilder();
     reverseAppendSplits(hostName, buf);
     return buf.toString();
-    
+
   }
+
   public static String unreverseHost(String reversedHostName) {
     return reverseHost(reversedHostName); // Reversible
   }
-  
-  
+
   /**
-   * Convert given Utf8 instance to String and and cleans out 
-   * any offending "�" from the String.
-   *
-   *
+   * Convert given Utf8 instance to String and and cleans out any offending "�"
+   * from the String.
+   * 
+   * 
    * @param utf8
    *          Utf8 object
    * @return string-ifed Utf8 object or null if Utf8 instance is null

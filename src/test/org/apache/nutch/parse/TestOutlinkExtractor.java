@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package org.apache.nutch.parse;
 
 import org.apache.nutch.parse.Outlink;
@@ -35,51 +35,60 @@ import static org.junit.Assert.*;
 public class TestOutlinkExtractor {
 
   private static Configuration conf = NutchConfiguration.create();
+
   public void testGetNoOutlinks() {
-    Outlink[]  outlinks = null;
-            
+    Outlink[] outlinks = null;
+
     outlinks = OutlinkExtractor.getOutlinks(null, conf);
     assertNotNull(outlinks);
     assertEquals(0, outlinks.length);
-    
+
     outlinks = OutlinkExtractor.getOutlinks("", conf);
     assertNotNull(outlinks);
     assertEquals(0, outlinks.length);
   }
-  
+
   @Test
   public void testGetOutlinksHttp() {
-    Outlink[] outlinks = OutlinkExtractor.getOutlinks(
-        "Test with http://www.nutch.org/index.html is it found? " +
-        "What about www.google.com at http://www.google.de " +
-        "A longer URL could be http://www.sybit.com/solutions/portals.html", conf);
-    
+    Outlink[] outlinks = OutlinkExtractor
+        .getOutlinks(
+            "Test with http://www.nutch.org/index.html is it found? "
+                + "What about www.google.com at http://www.google.de "
+                + "A longer URL could be http://www.sybit.com/solutions/portals.html",
+            conf);
+
     assertTrue("Url not found!", outlinks.length == 3);
-    assertEquals("Wrong URL", "http://www.nutch.org/index.html", outlinks[0].getToUrl());
+    assertEquals("Wrong URL", "http://www.nutch.org/index.html",
+        outlinks[0].getToUrl());
     assertEquals("Wrong URL", "http://www.google.de", outlinks[1].getToUrl());
-    assertEquals("Wrong URL", "http://www.sybit.com/solutions/portals.html", outlinks[2].getToUrl());
+    assertEquals("Wrong URL", "http://www.sybit.com/solutions/portals.html",
+        outlinks[2].getToUrl());
   }
-  
+
   @Test
   public void testGetOutlinksHttp2() {
-    Outlink[] outlinks = OutlinkExtractor.getOutlinks(
-        "Test with http://www.nutch.org/index.html is it found? " +
-        "What about www.google.com at http://www.google.de " +
-        "A longer URL could be http://www.sybit.com/solutions/portals.html", "http://www.sybit.de", conf);
-    
+    Outlink[] outlinks = OutlinkExtractor
+        .getOutlinks(
+            "Test with http://www.nutch.org/index.html is it found? "
+                + "What about www.google.com at http://www.google.de "
+                + "A longer URL could be http://www.sybit.com/solutions/portals.html",
+            "http://www.sybit.de", conf);
+
     assertTrue("Url not found!", outlinks.length == 3);
-    assertEquals("Wrong URL", "http://www.nutch.org/index.html", outlinks[0].getToUrl());
+    assertEquals("Wrong URL", "http://www.nutch.org/index.html",
+        outlinks[0].getToUrl());
     assertEquals("Wrong URL", "http://www.google.de", outlinks[1].getToUrl());
-    assertEquals("Wrong URL", "http://www.sybit.com/solutions/portals.html", outlinks[2].getToUrl());
+    assertEquals("Wrong URL", "http://www.sybit.com/solutions/portals.html",
+        outlinks[2].getToUrl());
   }
-  
+
   @Test
   public void testGetOutlinksFtp() {
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(
-        "Test with ftp://www.nutch.org is it found? " +
-        "What about www.google.com at ftp://www.google.de", conf);
-    
-    assertTrue("Url not found!", outlinks.length >1);
+        "Test with ftp://www.nutch.org is it found? "
+            + "What about www.google.com at ftp://www.google.de", conf);
+
+    assertTrue("Url not found!", outlinks.length > 1);
     assertEquals("Wrong URL", "ftp://www.nutch.org", outlinks[0].getToUrl());
     assertEquals("Wrong URL", "ftp://www.google.de", outlinks[1].getToUrl());
   }

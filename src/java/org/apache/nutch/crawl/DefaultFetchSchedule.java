@@ -20,19 +20,18 @@ package org.apache.nutch.crawl;
 import org.apache.nutch.storage.WebPage;
 
 /**
- * This class implements the default re-fetch schedule. That is, no matter
- * if the page was changed or not, the <code>fetchInterval</code> remains
+ * This class implements the default re-fetch schedule. That is, no matter if
+ * the page was changed or not, the <code>fetchInterval</code> remains
  * unchanged, and the updated page fetchTime will always be set to
  * <code>fetchTime + fetchInterval * 1000</code>.
- *
+ * 
  * @author Andrzej Bialecki
  */
 public class DefaultFetchSchedule extends AbstractFetchSchedule {
 
   @Override
-  public void setFetchSchedule(String url, WebPage page,
-          long prevFetchTime, long prevModifiedTime,
-          long fetchTime, long modifiedTime, int state) {
+  public void setFetchSchedule(String url, WebPage page, long prevFetchTime,
+      long prevModifiedTime, long fetchTime, long modifiedTime, int state) {
     super.setFetchSchedule(url, page, prevFetchTime, prevModifiedTime,
         fetchTime, modifiedTime, state);
     page.setFetchTime(fetchTime + page.getFetchInterval() * 1000L);

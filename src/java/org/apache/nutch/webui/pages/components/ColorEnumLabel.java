@@ -63,7 +63,8 @@ public class ColorEnumLabel<E extends Enum<E>> extends EnumLabel<E> {
     }
   }
 
-  public static <E extends Enum<E>> ColorEnumLabelBuilder<E> getBuilder(String id) {
+  public static <E extends Enum<E>> ColorEnumLabelBuilder<E> getBuilder(
+      String id) {
     return new ColorEnumLabelBuilder<E>(id);
   }
 

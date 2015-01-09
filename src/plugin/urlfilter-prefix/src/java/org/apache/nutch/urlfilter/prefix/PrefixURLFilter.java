@@ -41,16 +41,19 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Filters URLs based on a file of URL prefixes. The file is named by
- * (1) property "urlfilter.prefix.file" in ./conf/nutch-default.xml, and
- * (2) attribute "file" in plugin.xml of this plugin
- * Attribute "file" has higher precedence if defined.
- *
- * <p>The format of this file is one URL prefix per line.</p>
+ * Filters URLs based on a file of URL prefixes. The file is named by (1)
+ * property "urlfilter.prefix.file" in ./conf/nutch-default.xml, and (2)
+ * attribute "file" in plugin.xml of this plugin Attribute "file" has higher
+ * precedence if defined.
+ * 
+ * <p>
+ * The format of this file is one URL prefix per line.
+ * </p>
  */
 public class PrefixURLFilter implements URLFilter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PrefixURLFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(PrefixURLFilter.class);
 
   // read in attribute "file" of this plugin.
   private static String attributeFile = null;
@@ -60,7 +63,7 @@ public class PrefixURLFilter implements URLFilter {
   private Configuration conf;
 
   public PrefixURLFilter() throws IOException {
-   
+
   }
 
   public PrefixURLFilter(String stringRules) throws IOException {
@@ -74,43 +77,43 @@ public class PrefixURLFilter implements URLFilter {
       return url;
   }
 
-  private TrieStringMatcher readConfiguration(Reader reader)
-    throws IOException {
-    
-    BufferedReader in=new BufferedReader(reader);
+  private TrieStringMatcher readConfiguration(Reader reader) throws IOException {
+
+    BufferedReader in = new BufferedReader(reader);
     List<String> urlprefixes = new ArrayList<String>();
     String line;
 
-    while((line=in.readLine())!=null) {
+    while ((line = in.readLine()) != null) {
       if (line.length() == 0)
         continue;
 
-      char first=line.charAt(0);
+      char first = line.charAt(0);
       switch (first) {
-      case ' ' : case '\n' : case '#' :           // skip blank & comment lines
+      case ' ':
+      case '\n':
+      case '#': // skip blank & comment lines
         continue;
-      default :
-	urlprefixes.add(line);
+      default:
+        urlprefixes.add(line);
       }
     }
 
     return new PrefixStringMatcher(urlprefixes);
   }
 
-  public static void main(String args[])
-    throws IOException {
-    
+  public static void main(String args[]) throws IOException {
+
     PrefixURLFilter filter;
     if (args.length >= 1)
       filter = new PrefixURLFilter(args[0]);
     else
       filter = new PrefixURLFilter();
-    
-    BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String line;
-    while((line=in.readLine())!=null) {
-      String out=filter.filter(line);
-      if(out!=null) {
+    while ((line = in.readLine()) != null) {
+      String out = filter.filter(line);
+      if (out != null) {
         System.out.println(out);
       }
     }
@@ -120,8 +123,8 @@ public class PrefixURLFilter implements URLFilter {
     this.conf = conf;
 
     String pluginName = "urlfilter-prefix";
-    Extension[] extensions = PluginRepository.get(conf).getExtensionPoint(
-        URLFilter.class.getName()).getExtensions();
+    Extension[] extensions = PluginRepository.get(conf)
+        .getExtensionPoint(URLFilter.class.getName()).getExtensions();
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
       if (extension.getDescriptor().getPluginId().equals(pluginName)) {
@@ -138,8 +141,8 @@ public class PrefixURLFilter implements URLFilter {
       }
     } else {
       // if (LOG.isWarnEnabled()) {
-      //   LOG.warn("Attribute \"file\" is not defined in plugin.xml for
-      //   plugin "+pluginName);
+      // LOG.warn("Attribute \"file\" is not defined in plugin.xml for
+      // plugin "+pluginName);
       // }
     }
 
@@ -161,7 +164,9 @@ public class PrefixURLFilter implements URLFilter {
       try {
         trie = readConfiguration(reader);
       } catch (IOException e) {
-        if (LOG.isErrorEnabled()) { LOG.error(e.getMessage()); }
+        if (LOG.isErrorEnabled()) {
+          LOG.error(e.getMessage());
+        }
         // TODO mb@media-style.com: throw Exception? Because broken api.
         throw new RuntimeException(e.getMessage(), e);
       }
@@ -171,5 +176,5 @@ public class PrefixURLFilter implements URLFilter {
   public Configuration getConf() {
     return this.conf;
   }
-  
+
 }

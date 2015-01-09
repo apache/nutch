@@ -57,7 +57,7 @@ public class SeedUrl implements Serializable {
   public void setUrl(String url) {
     this.url = url;
   }
-  
+
   @JsonIgnore
   public SeedList getSeedList() {
     return seedList;

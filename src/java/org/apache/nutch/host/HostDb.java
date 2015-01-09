@@ -37,21 +37,22 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 
 /**
- * A caching wrapper for the host datastore. 
+ * A caching wrapper for the host datastore.
  */
 public class HostDb implements Closeable {
   public static final Log LOG = LogFactory.getLog(HostDb.class);
-  
+
   private static final class CacheHost {
     private final Host host;
     private final long timestamp;
+
     public CacheHost(Host host, long timestamp) {
       this.host = host;
       this.timestamp = timestamp;
-    }   
+    }
   }
-  private final static CacheHost NULL_HOST = new CacheHost(null,0);
-  
+
+  private final static CacheHost NULL_HOST = new CacheHost(null, 0);
 
   private DataStore<String, Host> hostStore;
 
@@ -61,7 +62,7 @@ public class HostDb implements Closeable {
   public static final int DEFAULT_HOSTDB_CONCURRENCY_LEVEL = 8;
 
   private Cache<String, CacheHost> cache;
-  
+
   private AtomicLong lastFlush;
 
   public HostDb(Configuration conf) throws GoraException {
@@ -73,47 +74,43 @@ public class HostDb implements Closeable {
 
     // Create a cache.
     // We add a removal listener to see if we need to flush the store,
-    // in order to adhere to the put-flush-get semantic 
+    // in order to adhere to the put-flush-get semantic
     // ("read your own write") of DataStore.
-    
+
     long lruSize = conf.getLong(HOSTDB_LRU_SIZE, DEFAULT_LRU_SIZE);
-    int concurrencyLevel = conf.getInt(HOSTDB_CONCURRENCY_LEVEL, 
+    int concurrencyLevel = conf.getInt(HOSTDB_CONCURRENCY_LEVEL,
         DEFAULT_HOSTDB_CONCURRENCY_LEVEL);
-    RemovalListener<String, CacheHost> listener = 
-        new RemovalListener<String, CacheHost>() {
-          @Override
-          public void onRemoval(
-              RemovalNotification<String, CacheHost> notification) {
-            CacheHost removeFromCacheHost = notification.getValue();
-            if (removeFromCacheHost != NULL_HOST) {
-              if (removeFromCacheHost.timestamp < lastFlush.get()) {
-                try {
-                  hostStore.flush();
-                } catch (Exception e) {
-                  throw new RuntimeException(e);
-                }
-                lastFlush.set(System.currentTimeMillis());
-              }
+    RemovalListener<String, CacheHost> listener = new RemovalListener<String, CacheHost>() {
+      @Override
+      public void onRemoval(RemovalNotification<String, CacheHost> notification) {
+        CacheHost removeFromCacheHost = notification.getValue();
+        if (removeFromCacheHost != NULL_HOST) {
+          if (removeFromCacheHost.timestamp < lastFlush.get()) {
+            try {
+              hostStore.flush();
+            } catch (Exception e) {
+              throw new RuntimeException(e);
             }
+            lastFlush.set(System.currentTimeMillis());
           }
+        }
+      }
     };
-    
-    cache=CacheBuilder.newBuilder().maximumSize(lruSize)
-        .removalListener(listener).concurrencyLevel(concurrencyLevel)
-        .build();
+
+    cache = CacheBuilder.newBuilder().maximumSize(lruSize)
+        .removalListener(listener).concurrencyLevel(concurrencyLevel).build();
     lastFlush = new AtomicLong(System.currentTimeMillis());
   }
 
-  
-  
   public Host get(final String key) throws IOException {
     Callable<CacheHost> valueLoader = new Callable<CacheHost>() {
       @Override
       public CacheHost call() throws Exception {
         Host host = hostStore.get(key);
-        if (host == null) return NULL_HOST;
+        if (host == null)
+          return NULL_HOST;
         return new CacheHost(host, System.currentTimeMillis());
-      }  
+      }
     };
     CacheHost cachedHost;
     try {
@@ -127,14 +124,11 @@ public class HostDb implements Closeable {
       return null;
     }
   }
- 
-
 
   public Host getByHostName(String hostName) throws IOException {
-   return get(TableUtil.reverseHost(hostName));
+    return get(TableUtil.reverseHost(hostName));
   }
-  
-  
+
   public void put(String key, Host host) throws IOException {
     cache.put(key, new CacheHost(host, System.currentTimeMillis()));
     hostStore.put(key, host);

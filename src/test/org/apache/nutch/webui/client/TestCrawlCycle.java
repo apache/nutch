@@ -59,13 +59,15 @@ public class TestCrawlCycle {
   public void setUp() {
     JobInfo jobInfo = new JobInfo();
     jobInfo.setState(State.FINISHED);
-    given(executor.executeRemoteJob(any(RemoteCommand.class))).willReturn(jobInfo);
+    given(executor.executeRemoteJob(any(RemoteCommand.class))).willReturn(
+        jobInfo);
   }
 
   @Test
   public void shouldInvokeCrawlStartedAndFinished() {
     // given
-    List<RemoteCommand> commands = newArrayList(RemoteCommandBuilder.instance(INJECT).build());
+    List<RemoteCommand> commands = newArrayList(RemoteCommandBuilder.instance(
+        INJECT).build());
     Crawl crawl = new Crawl();
 
     crawlingCycle = new CrawlingCycle(listener, executor, crawl, commands);
@@ -81,14 +83,16 @@ public class TestCrawlCycle {
   @Test
   public void shouldInvokeOnError() {
     // given
-    List<RemoteCommand> commands = newArrayList(RemoteCommandBuilder.instance(INJECT).build());
+    List<RemoteCommand> commands = newArrayList(RemoteCommandBuilder.instance(
+        INJECT).build());
     Crawl crawl = new Crawl();
     crawlingCycle = new CrawlingCycle(listener, executor, crawl, commands);
     JobInfo jobInfo = new JobInfo();
     jobInfo.setMsg("Some error message");
     jobInfo.setState(State.FAILED);
 
-    given(executor.executeRemoteJob(any(RemoteCommand.class))).willReturn(jobInfo);
+    given(executor.executeRemoteJob(any(RemoteCommand.class))).willReturn(
+        jobInfo);
 
     // when
     crawlingCycle.executeCrawlCycle();
@@ -101,7 +105,8 @@ public class TestCrawlCycle {
   public void shouldCalculateProgress() {
     // given
     RemoteCommand firstCommand = RemoteCommandBuilder.instance(INJECT).build();
-    RemoteCommand secondCommand = RemoteCommandBuilder.instance(GENERATE).build();
+    RemoteCommand secondCommand = RemoteCommandBuilder.instance(GENERATE)
+        .build();
     List<RemoteCommand> commands = newArrayList(firstCommand, secondCommand);
 
     Crawl crawl = new Crawl();

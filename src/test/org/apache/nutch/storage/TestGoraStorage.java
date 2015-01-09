@@ -58,7 +58,7 @@ public class TestGoraStorage extends AbstractNutchTest {
   public void tearDown() throws Exception {
     super.tearDown();
   }
-  
+
   /**
    * Sequentially read and write pages to a store.
    * 
@@ -71,7 +71,7 @@ public class TestGoraStorage extends AbstractNutchTest {
     readWrite(id, webPageStore);
   }
 
-  private static void readWrite(String id, DataStore<String, WebPage> store) 
+  private static void readWrite(String id, DataStore<String, WebPage> store)
       throws IOException, Exception {
     WebPage page = WebPage.newBuilder().build();
     int max = 1000;
@@ -147,9 +147,9 @@ public class TestGoraStorage extends AbstractNutchTest {
       assertEquals(0, (int) result.get());
     }
   }
-  
+
   /**
-   * Tests multiple processes reading and writing to the same store backend, 
+   * Tests multiple processes reading and writing to the same store backend,
    * this is to simulate a multi process Nutch environment (i.e. MapReduce).
    * 
    * @throws Exception
@@ -159,23 +159,23 @@ public class TestGoraStorage extends AbstractNutchTest {
   public void testMultiProcess() throws Exception {
     // create and start a hsql server, a stand-alone (memory backed) db
     // (important: a stand-alone server should be used because simple
-    //  file based access i.e. jdbc:hsqldb:file is NOT process-safe.)
+    // file based access i.e. jdbc:hsqldb:file is NOT process-safe.)
     Server server = new Server();
     server.setDaemon(true);
     server.setSilent(true); // disables LOTS of trace
     final String className = getClass().getName();
     String dbName = "test";
-    server.setDatabasePath(0, "mem:"+dbName);
+    server.setDatabasePath(0, "mem:" + dbName);
     server.setDatabaseName(0, dbName);
     server.start();
-    
-    //create the store so that the tests can start right away
+
+    // create the store so that the tests can start right away
     StorageUtils.createWebStore(conf, String.class, WebPage.class);
-    
+
     // create a fixed thread pool
     int numThreads = 4;
     ExecutorService pool = Executors.newFixedThreadPool(numThreads);
-    
+
     // spawn multiple processes, each thread spawns own process
     Collection<Callable<Integer>> tasks = new ArrayList<Callable<Integer>>();
     for (int i = 0; i < numThreads; i++) {
@@ -190,15 +190,16 @@ public class TestGoraStorage extends AbstractNutchTest {
             classpath = "./src/testprocess" + pathSeparator + classpath;
             String path = System.getProperty("java.home") + separator + "bin"
                 + separator + "java";
-            ProcessBuilder processBuilder = new ProcessBuilder(path, "-cp", 
+            ProcessBuilder processBuilder = new ProcessBuilder(path, "-cp",
                 classpath, className);
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
             InputStream in = process.getInputStream();
             int exit = process.waitFor();
-            //print the output of the process
-            System.out.println("===Process stream for " + Thread.currentThread() 
-                + "\n" + IOUtils.toString(in) + "===End of process stream.");
+            // print the output of the process
+            System.out.println("===Process stream for "
+                + Thread.currentThread() + "\n" + IOUtils.toString(in)
+                + "===End of process stream.");
             in.close();
             // process should exit with zero code
             return exit;
@@ -218,8 +219,8 @@ public class TestGoraStorage extends AbstractNutchTest {
     for (Future<Integer> result : results) {
       assertEquals(0, (int) result.get());
     }
-    
-    //stop db
+
+    // stop db
     server.stop();
   }
 
@@ -228,7 +229,8 @@ public class TestGoraStorage extends AbstractNutchTest {
     System.out.println("Starting!");
 
     Configuration localConf = CrawlTestUtil.createConfiguration();
-    localConf.set("storage.data.store.class", "org.apache.gora.memory.store.MemStore");
+    localConf.set("storage.data.store.class",
+        "org.apache.gora.memory.store.MemStore");
 
     DataStore<String, WebPage> store = StorageUtils.createWebStore(localConf,
         String.class, WebPage.class);

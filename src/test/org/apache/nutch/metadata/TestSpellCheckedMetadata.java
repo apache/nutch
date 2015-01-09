@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 /**
  * JUnit based tests of class
  * {@link org.apache.nutch.metadata.SpellCheckedMetadata}.
- *
+ * 
  * @author Chris Mattmann
  * @author J&eacute;r&ocirc;me Charron
  */
@@ -40,20 +40,20 @@ public class TestSpellCheckedMetadata {
   /** Test for the <code>getNormalizedName(String)</code> method. */
   @Test
   public void testGetNormalizedName() {
-    assertEquals("Content-Type", SpellCheckedMetadata
-        .getNormalizedName("Content-Type"));
-    assertEquals("Content-Type", SpellCheckedMetadata
-        .getNormalizedName("ContentType"));
-    assertEquals("Content-Type", SpellCheckedMetadata
-        .getNormalizedName("Content-type"));
-    assertEquals("Content-Type", SpellCheckedMetadata
-        .getNormalizedName("contenttype"));
-    assertEquals("Content-Type", SpellCheckedMetadata
-        .getNormalizedName("contentype"));
-    assertEquals("Content-Type", SpellCheckedMetadata
-        .getNormalizedName("contntype"));
+    assertEquals("Content-Type",
+        SpellCheckedMetadata.getNormalizedName("Content-Type"));
+    assertEquals("Content-Type",
+        SpellCheckedMetadata.getNormalizedName("ContentType"));
+    assertEquals("Content-Type",
+        SpellCheckedMetadata.getNormalizedName("Content-type"));
+    assertEquals("Content-Type",
+        SpellCheckedMetadata.getNormalizedName("contenttype"));
+    assertEquals("Content-Type",
+        SpellCheckedMetadata.getNormalizedName("contentype"));
+    assertEquals("Content-Type",
+        SpellCheckedMetadata.getNormalizedName("contntype"));
   }
-  
+
   /** Test for the <code>add(String, String)</code> method. */
   @Test
   public void testAdd() {
@@ -253,8 +253,8 @@ public class TestSpellCheckedMetadata {
   }
 
   /**
-   * IO Test method, usable only when you plan to do changes in metadata
-   * to measure relative performance impact.
+   * IO Test method, usable only when you plan to do changes in metadata to
+   * measure relative performance impact.
    */
   @Test
   public final void testHandlingSpeed() {

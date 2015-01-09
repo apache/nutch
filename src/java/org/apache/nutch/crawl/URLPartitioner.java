@@ -40,14 +40,15 @@ import org.apache.nutch.util.URLUtil;
  * parameter 'partition.url.mode' which can be 'byHost', 'byDomain' or 'byIP'
  */
 public class URLPartitioner implements Configurable {
-  private static final Logger LOG = LoggerFactory.getLogger(URLPartitioner.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(URLPartitioner.class);
 
   public static final String PARTITION_MODE_KEY = "partition.url.mode";
 
   public static final String PARTITION_MODE_HOST = "byHost";
   public static final String PARTITION_MODE_DOMAIN = "byDomain";
   public static final String PARTITION_MODE_IP = "byIP";
-  
+
   public static final String PARTITION_URL_SEED = "partition.url.seed";
 
   private Configuration conf;
@@ -77,21 +78,22 @@ public class URLPartitioner implements Configurable {
 
   public int getPartition(String urlString, int numReduceTasks) {
     if (numReduceTasks == 1) {
-      //this check can be removed when we use Hadoop with MAPREDUCE-1287
+      // this check can be removed when we use Hadoop with MAPREDUCE-1287
       return 0;
     }
-    
+
     int hashCode;
     URL url = null;
     try {
-      urlString = normalizers.normalize(urlString, URLNormalizers.SCOPE_PARTITION);
+      urlString = normalizers.normalize(urlString,
+          URLNormalizers.SCOPE_PARTITION);
       hashCode = urlString.hashCode();
       url = new URL(urlString);
     } catch (MalformedURLException e) {
       LOG.warn("Malformed URL: '" + urlString + "'");
       hashCode = urlString.hashCode();
     }
-    
+
     if (url != null) {
       if (mode.equals(PARTITION_MODE_HOST)) {
         hashCode = url.getHost().hashCode();
@@ -106,20 +108,20 @@ public class URLPartitioner implements Configurable {
         }
       }
     }
-    
+
     // make hosts wind up in different partitions on different runs
     hashCode ^= seed;
     return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
   }
-  
-  
-  public static class SelectorEntryPartitioner 
-      extends Partitioner<SelectorEntry, WebPage> implements Configurable {
+
+  public static class SelectorEntryPartitioner extends
+      Partitioner<SelectorEntry, WebPage> implements Configurable {
     private URLPartitioner partitioner = new URLPartitioner();
     private Configuration conf;
-    
+
     @Override
-    public int getPartition(SelectorEntry selectorEntry, WebPage page, int numReduces) {
+    public int getPartition(SelectorEntry selectorEntry, WebPage page,
+        int numReduces) {
       return partitioner.getPartition(selectorEntry.url, numReduces);
     }
 
@@ -130,23 +132,24 @@ public class URLPartitioner implements Configurable {
 
     @Override
     public void setConf(Configuration conf) {
-      this.conf=conf;
+      this.conf = conf;
       partitioner.setConf(conf);
     }
   }
-  
-  public static class FetchEntryPartitioner
-      extends Partitioner<IntWritable, FetchEntry> implements Configurable {
+
+  public static class FetchEntryPartitioner extends
+      Partitioner<IntWritable, FetchEntry> implements Configurable {
     private URLPartitioner partitioner = new URLPartitioner();
     private Configuration conf;
-    
+
     @Override
-    public int getPartition(IntWritable intWritable, FetchEntry fetchEntry, int numReduces) {
+    public int getPartition(IntWritable intWritable, FetchEntry fetchEntry,
+        int numReduces) {
       String key = fetchEntry.getKey();
       String url = TableUtil.unreverseUrl(key);
       return partitioner.getPartition(url, numReduces);
     }
-    
+
     @Override
     public Configuration getConf() {
       return conf;
@@ -154,9 +157,9 @@ public class URLPartitioner implements Configurable {
 
     @Override
     public void setConf(Configuration conf) {
-      this.conf=conf;
+      this.conf = conf;
       partitioner.setConf(conf);
     }
   }
-  
+
 }

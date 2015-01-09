@@ -65,8 +65,9 @@ public class CrawlPanel extends Modal {
     form.add(new TextField<String>("crawlName").setRequired(true));
 
     form.add(new DropDownChoice<Integer>("numberOfRounds", getNumbersOfRounds()));
-    form.add(new DropDownChoice<SeedList>("seedList", seedListService.findAll(),
-        new ChoiceRenderer<SeedList>("name")).setRequired(true));
+    form.add(new DropDownChoice<SeedList>("seedList",
+        seedListService.findAll(), new ChoiceRenderer<SeedList>("name"))
+        .setRequired(true));
 
     addButton(new AjaxSubmitLink("button", form) {
       @Override

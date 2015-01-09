@@ -103,7 +103,7 @@ public class NutchServerPoolExecutor extends ThreadPoolExecutor {
 
   public JobInfo getInfo(String jobId) {
     for (JobInfo jobInfo : getAllJobs()) {
-      if(StringUtils.equals(jobId, jobInfo.getId())){
+      if (StringUtils.equals(jobId, jobInfo.getId())) {
         return jobInfo;
       }
     }

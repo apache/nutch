@@ -80,9 +80,10 @@ public class RAMJobManager implements JobManager {
 
   private NutchTool createTool(JobConfig jobConfig, Configuration conf) {
     if (StringUtils.isNotBlank(jobConfig.getJobClassName())) {
-      return jobFactory.createToolByClassName(jobConfig.getJobClassName(), conf);
+      return jobFactory
+          .createToolByClassName(jobConfig.getJobClassName(), conf);
     }
-    
+
     return jobFactory.createToolByType(jobConfig.getType(), conf);
   }
 

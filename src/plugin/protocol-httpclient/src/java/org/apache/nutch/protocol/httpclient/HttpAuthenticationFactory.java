@@ -34,12 +34,10 @@ import org.apache.hadoop.conf.Configurable;
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
 
-
 /**
- * Provides the Http protocol implementation
- * with the ability to authenticate when prompted.  The goal is to provide 
- * multiple authentication types but for now just the {@link HttpBasicAuthentication} authentication 
- * type is provided.
+ * Provides the Http protocol implementation with the ability to authenticate
+ * when prompted. The goal is to provide multiple authentication types but for
+ * now just the {@link HttpBasicAuthentication} authentication type is provided.
  * 
  * @see HttpBasicAuthentication
  * @see Http
@@ -49,94 +47,96 @@ import org.apache.nutch.metadata.Metadata;
  */
 public class HttpAuthenticationFactory implements Configurable {
 
-    /** 
-     * The HTTP Authentication (WWW-Authenticate) header which is returned 
-     * by a webserver requiring authentication.
-     */
-    public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
-	
-    public static final Logger LOG = LoggerFactory.getLogger(HttpAuthenticationFactory.class);
+  /**
+   * The HTTP Authentication (WWW-Authenticate) header which is returned by a
+   * webserver requiring authentication.
+   */
+  public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
-    private static Map<?, ?> auths = new TreeMap<Object, Object>(); 
+  public static final Logger LOG = LoggerFactory
+      .getLogger(HttpAuthenticationFactory.class);
 
-    private Configuration conf = null;
-    
-    
-    public HttpAuthenticationFactory(Configuration conf) {
-      setConf(conf);
-    }
+  private static Map<?, ?> auths = new TreeMap<Object, Object>();
 
-   
-    /* ---------------------------------- *
-     * <implementation:Configurable> *
-     * ---------------------------------- */
+  private Configuration conf = null;
 
-    public void setConf(Configuration conf) {
-      this.conf = conf;
-      //if (conf.getBoolean("http.auth.verbose", false)) {
-      //  LOG.setLevel(Level.FINE);
-      //} else {
-      //  LOG.setLevel(Level.WARNING);
-      //}
-    }
+  public HttpAuthenticationFactory(Configuration conf) {
+    setConf(conf);
+  }
 
-    public Configuration getConf() {
-      return conf;
-    }
- 
-    /* ---------------------------------- *
-     * <implementation:Configurable> *
-     * ---------------------------------- */
+  /*
+   * ---------------------------------- * <implementation:Configurable> *
+   * ----------------------------------
+   */
 
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    // if (conf.getBoolean("http.auth.verbose", false)) {
+    // LOG.setLevel(Level.FINE);
+    // } else {
+    // LOG.setLevel(Level.WARNING);
+    // }
+  }
 
-    @SuppressWarnings("unchecked")
-    public HttpAuthentication findAuthentication(Metadata header) {
+  public Configuration getConf() {
+    return conf;
+  }
 
-        if (header == null) return null;
-        
-    	try {
-			Collection challenge = null;
-			if (header instanceof Metadata) {
-				Object o = header.get(WWW_AUTHENTICATE);
-				if (o instanceof Collection) {
-					challenge = (Collection<?>) o;
-				} else {
-					challenge = new ArrayList<String>();
-					challenge.add(o.toString());
-				}
-			} else {
-				String challengeString = header.get(WWW_AUTHENTICATE); 
-				if (challengeString != null) {
-					challenge = new ArrayList<Object>();
-					challenge.add(challengeString);
-				}
-			}
-			if (challenge == null) {
-                                if (LOG.isTraceEnabled()) {
-				  LOG.trace("Authentication challenge is null");
-                                }
-				return null;
-			}
-			
-			Iterator<?> i = challenge.iterator();
-			HttpAuthentication auth = null;
-			while (i.hasNext() && auth == null) {
-				String challengeString = (String)i.next();
-				if (challengeString.equals("NTLM")) {
-				   challengeString="Basic realm=techweb";
-		                  }
-		               
-                                if (LOG.isTraceEnabled()) {  
-		                  LOG.trace("Checking challengeString=" + challengeString);
-                                }
-				auth = HttpBasicAuthentication.getAuthentication(challengeString, conf);
-				if (auth != null) return auth;
-				
-				//TODO Add additional Authentication lookups here
-			}
-		} catch (Exception e) {
-			LOG.error("Failed with following exception: ", e);
-		}
+  /*
+   * ---------------------------------- * <implementation:Configurable> *
+   * ----------------------------------
+   */
+
+  @SuppressWarnings("unchecked")
+  public HttpAuthentication findAuthentication(Metadata header) {
+
+    if (header == null)
+      return null;
+
+    try {
+      Collection challenge = null;
+      if (header instanceof Metadata) {
+        Object o = header.get(WWW_AUTHENTICATE);
+        if (o instanceof Collection) {
+          challenge = (Collection<?>) o;
+        } else {
+          challenge = new ArrayList<String>();
+          challenge.add(o.toString());
+        }
+      } else {
+        String challengeString = header.get(WWW_AUTHENTICATE);
+        if (challengeString != null) {
+          challenge = new ArrayList<Object>();
+          challenge.add(challengeString);
+        }
+      }
+      if (challenge == null) {
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("Authentication challenge is null");
+        }
         return null;
+      }
+
+      Iterator<?> i = challenge.iterator();
+      HttpAuthentication auth = null;
+      while (i.hasNext() && auth == null) {
+        String challengeString = (String) i.next();
+        if (challengeString.equals("NTLM")) {
+          challengeString = "Basic realm=techweb";
+        }
+
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("Checking challengeString=" + challengeString);
+        }
+        auth = HttpBasicAuthentication.getAuthentication(challengeString, conf);
+        if (auth != null)
+          return auth;
+
+        // TODO Add additional Authentication lookups here
+      }
+    } catch (Exception e) {
+      LOG.error("Failed with following exception: ", e);
     }
+    return null;
+  }
 }

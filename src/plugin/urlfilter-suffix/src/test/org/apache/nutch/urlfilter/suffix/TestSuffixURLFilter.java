@@ -23,104 +23,47 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-
 /**
  * JUnit test for <code>SuffixURLFilter</code>.
- *
+ * 
  * @author Andrzej Bialecki
  */
 public class TestSuffixURLFilter {
-  private static final String suffixes =
-    "# this is a comment\n" +
-    "\n" +
-    ".gif\n" +
-    ".jpg\n" +
-    ".js\n";
-  
+  private static final String suffixes = "# this is a comment\n" + "\n"
+      + ".gif\n" + ".jpg\n" + ".js\n";
+
   private static final String[] urls = new String[] {
-    "http://www.example.com/test.gif",
-    "http://www.example.com/TEST.GIF",
-    "http://www.example.com/test.jpg",
-    "http://www.example.com/test.JPG",
-    "http://www.example.com/test.html",
-    "http://www.example.com/test.HTML",
-    "http://www.example.com/test.html?q=abc.js",
-    "http://www.example.com/test.js?foo=bar&baz=bar#12333",
-  };
-  
-  private static String[] urlsModeAccept = new String[] {
-    null,
-    urls[1],
-    null,
-    urls[3],
-    urls[4],
-    urls[5],
-    null,
-    urls[7]
-  };
-  
-  private static String[] urlsModeReject = new String[] {
-    urls[0],
-    null,
-    urls[2],
-    null,
-    null,
-    null,
-    urls[6],
-    null
-  };
-  
-  private static String[] urlsModeAcceptIgnoreCase = new String[] {
-    null,
-    null,
-    null,
-    null,
-    urls[4],
-    urls[5],
-    null,
-    urls[7]
-  };
- 
-  private static String[] urlsModeRejectIgnoreCase = new String[] {
-    urls[0],
-    urls[1],
-    urls[2],
-    urls[3],
-    null,
-    null,
-    urls[6],
-    null
-  };
-  
-  private static String[] urlsModeAcceptAndPathFilter = new String[] {
-    null,
-    urls[1],
-    null,
-    urls[3],
-    urls[4],
-    urls[5],
-    urls[6],
-    null
-  };
-  
-  private static String[] urlsModeAcceptAndNonPathFilter = new String[] {
-    null,
-    urls[1],
-    null,
-    urls[3],
-    urls[4],
-    urls[5],
-    null,
-    urls[7]
-  };
-  
+      "http://www.example.com/test.gif", "http://www.example.com/TEST.GIF",
+      "http://www.example.com/test.jpg", "http://www.example.com/test.JPG",
+      "http://www.example.com/test.html", "http://www.example.com/test.HTML",
+      "http://www.example.com/test.html?q=abc.js",
+      "http://www.example.com/test.js?foo=bar&baz=bar#12333", };
+
+  private static String[] urlsModeAccept = new String[] { null, urls[1], null,
+      urls[3], urls[4], urls[5], null, urls[7] };
+
+  private static String[] urlsModeReject = new String[] { urls[0], null,
+      urls[2], null, null, null, urls[6], null };
+
+  private static String[] urlsModeAcceptIgnoreCase = new String[] { null, null,
+      null, null, urls[4], urls[5], null, urls[7] };
+
+  private static String[] urlsModeRejectIgnoreCase = new String[] { urls[0],
+      urls[1], urls[2], urls[3], null, null, urls[6], null };
+
+  private static String[] urlsModeAcceptAndPathFilter = new String[] { null,
+      urls[1], null, urls[3], urls[4], urls[5], urls[6], null };
+
+  private static String[] urlsModeAcceptAndNonPathFilter = new String[] { null,
+      urls[1], null, urls[3], urls[4], urls[5], null, urls[7] };
+
   private SuffixURLFilter filter = null;
-  
+
   @Before
   public void setUp() throws IOException {
     filter = new SuffixURLFilter(new StringReader(suffixes));
   }
-  
+
   @Test
   public void testModeAccept() {
     filter.setIgnoreCase(false);
@@ -156,7 +99,7 @@ public class TestSuffixURLFilter {
       assertTrue(urlsModeRejectIgnoreCase[i] == filter.filter(urls[i]));
     }
   }
-  
+
   @Test
   public void testModeAcceptAndNonPathFilter() {
     filter.setModeAccept(true);
@@ -165,7 +108,7 @@ public class TestSuffixURLFilter {
       assertTrue(urlsModeAcceptAndNonPathFilter[i] == filter.filter(urls[i]));
     }
   }
-  
+
   @Test
   public void testModeAcceptAndPathFilter() {
     filter.setModeAccept(true);

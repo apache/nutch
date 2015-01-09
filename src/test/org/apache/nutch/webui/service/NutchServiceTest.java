@@ -40,7 +40,8 @@ public class NutchServiceTest {
   public void shouldReturnEmptyMapOnException() {
     // given
     given(clientFactory.getClient(any(NutchInstance.class))).willReturn(client);
-    given(client.getNutchConfig("default")).willThrow(new ClientHandlerException("Error!"));
+    given(client.getNutchConfig("default")).willThrow(
+        new ClientHandlerException("Error!"));
 
     // when
     Map<String, String> config = nutchService.getNutchConfig(1L);

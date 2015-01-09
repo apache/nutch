@@ -38,101 +38,101 @@ import java.util.StringTokenizer;
 
 /** Adds basic searchable fields to a document. */
 public class CCIndexingFilter implements IndexingFilter {
-	public static final Logger LOG = LoggerFactory.getLogger(CCIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(CCIndexingFilter.class);
 
-	/** The name of the document field we use. */
-	public static String FIELD = "cc";
+  /** The name of the document field we use. */
+  public static String FIELD = "cc";
 
-	private Configuration conf;
+  private Configuration conf;
 
-	private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
-	static {
-		FIELDS.add(WebPage.Field.BASE_URL);
-		FIELDS.add(WebPage.Field.METADATA);
-	}
+  static {
+    FIELDS.add(WebPage.Field.BASE_URL);
+    FIELDS.add(WebPage.Field.METADATA);
+  }
 
-	/**
-	 * Add the features represented by a license URL. Urls are of the form
-	 * "http://creativecommons.org/licenses/xx-xx/xx/xx", where "xx" names a
-	 * license feature.
-	 */
-	public void addUrlFeatures(NutchDocument doc, String urlString) {
-		try {
-			URL url = new URL(urlString);
+  /**
+   * Add the features represented by a license URL. Urls are of the form
+   * "http://creativecommons.org/licenses/xx-xx/xx/xx", where "xx" names a
+   * license feature.
+   */
+  public void addUrlFeatures(NutchDocument doc, String urlString) {
+    try {
+      URL url = new URL(urlString);
 
-			// tokenize the path of the url, breaking at slashes and dashes
-			StringTokenizer names = new StringTokenizer(url.getPath(), "/-");
+      // tokenize the path of the url, breaking at slashes and dashes
+      StringTokenizer names = new StringTokenizer(url.getPath(), "/-");
 
-			if (names.hasMoreTokens())
-				names.nextToken(); // throw away "licenses"
+      if (names.hasMoreTokens())
+        names.nextToken(); // throw away "licenses"
 
-			// add a feature per component after "licenses"
-			while (names.hasMoreTokens()) {
-				String feature = names.nextToken();
-				addFeature(doc, feature);
-			}
-		} catch (MalformedURLException e) {
-			if (LOG.isWarnEnabled()) {
-				LOG.warn("CC: failed to parse url: " + urlString + " : " + e);
-			}
-		}
-	}
+      // add a feature per component after "licenses"
+      while (names.hasMoreTokens()) {
+        String feature = names.nextToken();
+        addFeature(doc, feature);
+      }
+    } catch (MalformedURLException e) {
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("CC: failed to parse url: " + urlString + " : " + e);
+      }
+    }
+  }
 
-	private void addFeature(NutchDocument doc, String feature) {
-		doc.add(FIELD, feature);
-	}
+  private void addFeature(NutchDocument doc, String feature) {
+    doc.add(FIELD, feature);
+  }
 
-	public void setConf(Configuration conf) {
-		this.conf = conf;
-	}
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+  }
 
-	public Configuration getConf() {
-		return this.conf;
-	}
+  public Configuration getConf() {
+    return this.conf;
+  }
 
-	@Override
-	public Collection<Field> getFields() {
-		return FIELDS;
-	}
+  @Override
+  public Collection<Field> getFields() {
+    return FIELDS;
+  }
 
-	@Override
-	public NutchDocument filter(NutchDocument doc, String url, WebPage page)
-			throws IndexingException {
+  @Override
+  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
+      throws IndexingException {
 
-		ByteBuffer blicense = page.getMetadata().get(new Utf8(
-				CreativeCommons.LICENSE_URL));
-		if (blicense != null) {
-			String licenseUrl = Bytes.toString(blicense);
-			if (LOG.isInfoEnabled()) {
-				LOG.info("CC: indexing " + licenseUrl + " for: "
-						+ url.toString());
-			}
+    ByteBuffer blicense = page.getMetadata().get(
+        new Utf8(CreativeCommons.LICENSE_URL));
+    if (blicense != null) {
+      String licenseUrl = Bytes.toString(blicense);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("CC: indexing " + licenseUrl + " for: " + url.toString());
+      }
 
-			// add the entire license as cc:license=xxx
-			addFeature(doc, "license=" + licenseUrl);
+      // add the entire license as cc:license=xxx
+      addFeature(doc, "license=" + licenseUrl);
 
-			// index license attributes extracted of the license url
-			addUrlFeatures(doc, licenseUrl);
-		}
+      // index license attributes extracted of the license url
+      addUrlFeatures(doc, licenseUrl);
+    }
 
-		// index the license location as cc:meta=xxx
-		ByteBuffer blicenseloc = page.getMetadata().get(new Utf8(
-				CreativeCommons.LICENSE_LOCATION));
-		if (blicenseloc != null) {
-			String licenseLocation = Bytes.toString(blicenseloc);
-			addFeature(doc, "meta=" + licenseLocation);
-		}
+    // index the license location as cc:meta=xxx
+    ByteBuffer blicenseloc = page.getMetadata().get(
+        new Utf8(CreativeCommons.LICENSE_LOCATION));
+    if (blicenseloc != null) {
+      String licenseLocation = Bytes.toString(blicenseloc);
+      addFeature(doc, "meta=" + licenseLocation);
+    }
 
-		// index the work type cc:type=xxx
-		ByteBuffer bworkType = page.getMetadata().get(new Utf8(
-				CreativeCommons.WORK_TYPE));
-		if (bworkType != null) {
-			String workType = Bytes.toString(bworkType);
-			addFeature(doc, workType);
-		}
+    // index the work type cc:type=xxx
+    ByteBuffer bworkType = page.getMetadata().get(
+        new Utf8(CreativeCommons.WORK_TYPE));
+    if (bworkType != null) {
+      String workType = Bytes.toString(bworkType);
+      addFeature(doc, workType);
+    }
 
-		return doc;
-	}
+    return doc;
+  }
 
 }

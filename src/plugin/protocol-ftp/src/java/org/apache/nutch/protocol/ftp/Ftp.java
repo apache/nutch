@@ -33,13 +33,12 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * This class is a protocol plugin used for ftp: scheme.
- * It creates {@link FtpResponse} object and gets the content of the url from it.
+ * This class is a protocol plugin used for ftp: scheme. It creates
+ * {@link FtpResponse} object and gets the content of the url from it.
  * Configurable parameters are {@code ftp.username}, {@code ftp.password},
- *                             {@code ftp.content.limit}, {@code ftp.timeout}, 
- *                             {@code ftp.server.timeout}, {@code ftp.password}, 
- *                             {@code ftp.keep.connection} and {@code ftp.follow.talk}.
- * For details see "FTP properties" section in {@code nutch-default.xml}.
+ * {@code ftp.content.limit}, {@code ftp.timeout}, {@code ftp.server.timeout},
+ * {@code ftp.password}, {@code ftp.keep.connection} and {@code ftp.follow.talk}
+ * . For details see "FTP properties" section in {@code nutch-default.xml}.
  */
 public class Ftp implements Protocol {
 
@@ -82,7 +81,7 @@ public class Ftp implements Protocol {
   private Configuration conf;
 
   private FtpRobotRulesParser robots = null;
-      
+
   // constructor
   public Ftp() {
     robots = new FtpRobotRulesParser();
@@ -108,12 +107,14 @@ public class Ftp implements Protocol {
     this.keepConnection = keepConnection;
   }
 
-  /** 
-   * Creates a {@link FtpResponse} object corresponding to the url and 
-   * returns a {@link ProtocolOutput} object as per the content received
+  /**
+   * Creates a {@link FtpResponse} object corresponding to the url and returns a
+   * {@link ProtocolOutput} object as per the content received
    * 
-   * @param url Text containing the ftp url
-   * @param datum The CrawlDatum object corresponding to the url
+   * @param url
+   *          Text containing the ftp url
+   * @param datum
+   *          The CrawlDatum object corresponding to the url
    * 
    * @return {@link ProtocolOutput} object for the url
    */
@@ -233,8 +234,8 @@ public class Ftp implements Protocol {
     if (maxContentLength != Integer.MIN_VALUE) // set maxContentLength
       ftp.setMaxContentLength(maxContentLength);
 
-    Content content = ftp.getProtocolOutput(urlString, WebPage.newBuilder().build())
-        .getContent();
+    Content content = ftp.getProtocolOutput(urlString,
+        WebPage.newBuilder().build()).getContent();
 
     System.err.println("Content-Type: " + content.getContentType());
     System.err.println("Content-Length: "
@@ -252,7 +253,7 @@ public class Ftp implements Protocol {
     return FIELDS;
   }
 
-  /** 
+  /**
    * Get the robots rules for a given url
    */
   public BaseRobotRules getRobotRules(String url, WebPage page) {

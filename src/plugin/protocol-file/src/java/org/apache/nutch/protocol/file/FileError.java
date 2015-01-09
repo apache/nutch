@@ -17,13 +17,16 @@
 
 package org.apache.nutch.protocol.file;
 
-/** Thrown for File error codes.
+/**
+ * Thrown for File error codes.
  */
 public class FileError extends FileException {
 
   private int code;
-  
-  public int getCode(int code) { return code; }
+
+  public int getCode(int code) {
+    return code;
+  }
 
   public FileError(int code) {
     super("File Error: " + code);

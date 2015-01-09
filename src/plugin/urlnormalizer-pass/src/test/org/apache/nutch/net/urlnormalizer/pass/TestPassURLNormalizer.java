@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.net.urlnormalizer.pass;
 
-
 import java.net.MalformedURLException;
 
 import org.apache.hadoop.conf.Configuration;
@@ -31,7 +30,7 @@ public class TestPassURLNormalizer {
   @Test
   public void testPassURLNormalizer() {
     Configuration conf = NutchConfiguration.create();
-    
+
     PassURLNormalizer normalizer = new PassURLNormalizer();
     normalizer.setConf(conf);
     String url = "http://www.example.com/test/..//";
@@ -41,7 +40,7 @@ public class TestPassURLNormalizer {
     } catch (MalformedURLException mue) {
       fail(mue.toString());
     }
-    
+
     assertEquals(url, result);
   }
 }

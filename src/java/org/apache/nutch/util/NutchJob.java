@@ -35,10 +35,10 @@ public class NutchJob extends Job {
 
   public NutchJob(Configuration conf, String jobName) throws IOException {
     super(conf, jobName);
-    //prefix jobName with crawlId if not empty
+    // prefix jobName with crawlId if not empty
     String crawlId = conf.get("storage.crawl.id");
     if (!StringUtils.isEmpty(crawlId)) {
-      jobName = "["+crawlId+"]"+jobName;
+      jobName = "[" + crawlId + "]" + jobName;
       setJobName(jobName);
     }
     setJarByClass(this.getClass());

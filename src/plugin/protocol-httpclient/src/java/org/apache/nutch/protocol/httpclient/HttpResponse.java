@@ -41,7 +41,7 @@ import org.apache.nutch.storage.WebPage;
 
 /**
  * An HTTP response.
- *
+ * 
  * @author Susam Pal
  */
 public class HttpResponse implements Response {
@@ -53,18 +53,22 @@ public class HttpResponse implements Response {
 
   /**
    * Fetches the given <code>url</code> and prepares HTTP response.
-   *
-   * @param http                An instance of the implementation class
-   *                            of this plugin
-   * @param url                 URL to be fetched
-   * @param page                WebPage
-   * @param followRedirects     Whether to follow redirects; follows
-   *                            redirect if and only if this is true
-   * @return                    HTTP response
-   * @throws IOException        When an error occurs
+   * 
+   * @param http
+   *          An instance of the implementation class of this plugin
+   * @param url
+   *          URL to be fetched
+   * @param page
+   *          WebPage
+   * @param followRedirects
+   *          Whether to follow redirects; follows redirect if and only if this
+   *          is true
+   * @return HTTP response
+   * @throws IOException
+   *           When an error occurs
    */
-  HttpResponse(Http http, URL url, WebPage page,
-      boolean followRedirects) throws IOException {
+  HttpResponse(Http http, URL url, WebPage page, boolean followRedirects)
+      throws IOException {
 
     // Prepare GET method for HTTP request
     this.url = url;
@@ -99,7 +103,7 @@ public class HttpResponse implements Response {
       for (int i = 0; i < heads.length; i++) {
         headers.set(heads[i].getName(), heads[i].getValue());
       }
-      
+
       // Limit download size
       int contentLength = Integer.MAX_VALUE;
       String contentLengthString = headers.get(Response.CONTENT_LENGTH);
@@ -107,12 +111,10 @@ public class HttpResponse implements Response {
         try {
           contentLength = Integer.parseInt(contentLengthString.trim());
         } catch (NumberFormatException ex) {
-          throw new HttpException("bad content length: " +
-              contentLengthString);
+          throw new HttpException("bad content length: " + contentLengthString);
         }
       }
-      if (http.getMaxContent() >= 0 &&
-          contentLength > http.getMaxContent()) {
+      if (http.getMaxContent() >= 0 && contentLength > http.getMaxContent()) {
         contentLength = http.getMaxContent();
       }
 
@@ -132,7 +134,8 @@ public class HttpResponse implements Response {
 
         content = out.toByteArray();
       } catch (Exception e) {
-        if (code == 200) throw new IOException(e.toString());
+        if (code == 200)
+          throw new IOException(e.toString());
         // for codes other than 200 OK, we are fine with empty content
       } finally {
         if (in != null) {
@@ -140,16 +143,15 @@ public class HttpResponse implements Response {
         }
         get.abort();
       }
-      
+
       StringBuilder fetchTrace = null;
       if (Http.LOG.isTraceEnabled()) {
         // Trace message
-        fetchTrace = new StringBuilder("url: " + url +
-            "; status code: " + code +
-            "; bytes received: " + content.length);
+        fetchTrace = new StringBuilder("url: " + url + "; status code: " + code
+            + "; bytes received: " + content.length);
         if (getHeader(Response.CONTENT_LENGTH) != null)
-          fetchTrace.append("; Content-Length: " +
-              getHeader(Response.CONTENT_LENGTH));
+          fetchTrace.append("; Content-Length: "
+              + getHeader(Response.CONTENT_LENGTH));
         if (getHeader(Response.LOCATION) != null)
           fetchTrace.append("; Location: " + getHeader(Response.LOCATION));
       }
@@ -159,8 +161,7 @@ public class HttpResponse implements Response {
         String contentEncoding = headers.get(Response.CONTENT_ENCODING);
         if (contentEncoding != null && Http.LOG.isTraceEnabled())
           fetchTrace.append("; Content-Encoding: " + contentEncoding);
-        if ("gzip".equals(contentEncoding) ||
-            "x-gzip".equals(contentEncoding)) {
+        if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
           content = http.processGzipEncoded(content, url);
           if (Http.LOG.isTraceEnabled())
             fetchTrace.append("; extracted to " + content.length + " bytes");
@@ -170,14 +171,14 @@ public class HttpResponse implements Response {
             fetchTrace.append("; extracted to " + content.length + " bytes");
         }
       }
-      
+
       // add headers in metadata to row
-	  if (page.getHeaders() != null) {
-	    page.getHeaders().clear();
-	  }
-	  for (String key : headers.names()) {
-	    page.getHeaders().put(new Utf8(key), new Utf8(headers.get(key)));
-	  }
+      if (page.getHeaders() != null) {
+        page.getHeaders().clear();
+      }
+      for (String key : headers.names()) {
+        page.getHeaders().put(new Utf8(key), new Utf8(headers.get(key)));
+      }
 
       // Logger trace message
       if (Http.LOG.isTraceEnabled()) {
@@ -188,15 +189,15 @@ public class HttpResponse implements Response {
     }
   }
 
-  
-  /* ------------------------- *
-   * <implementation:Response> *
-   * ------------------------- */
-  
+  /*
+   * ------------------------- * <implementation:Response> *
+   * -------------------------
+   */
+
   public URL getUrl() {
     return url;
   }
-  
+
   public int getCode() {
     return code;
   }
@@ -204,7 +205,7 @@ public class HttpResponse implements Response {
   public String getHeader(String name) {
     return headers.get(name);
   }
-  
+
   public Metadata getHeaders() {
     return headers;
   }
@@ -213,8 +214,8 @@ public class HttpResponse implements Response {
     return content;
   }
 
-  /* -------------------------- *
-   * </implementation:Response> *
-   * -------------------------- */
+  /*
+   * -------------------------- * </implementation:Response> *
+   * --------------------------
+   */
 }
-

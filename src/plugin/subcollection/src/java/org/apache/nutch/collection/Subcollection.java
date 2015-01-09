@@ -31,30 +31,30 @@ import org.w3c.dom.NodeList;
  * SubCollection represents a subset of index, you can define url patterns that
  * will indicate that particular page (url) is part of SubCollection.
  */
-public class Subcollection extends Configured implements URLFilter{
-  
-  public static final String TAG_COLLECTIONS="subcollections";
-  public static final String TAG_COLLECTION="subcollection";
-  public static final String TAG_WHITELIST="whitelist";
-  public static final String TAG_BLACKLIST="blacklist";
-  public static final String TAG_NAME="name";
-  public static final String TAG_ID="id";
+public class Subcollection extends Configured implements URLFilter {
+
+  public static final String TAG_COLLECTIONS = "subcollections";
+  public static final String TAG_COLLECTION = "subcollection";
+  public static final String TAG_WHITELIST = "whitelist";
+  public static final String TAG_BLACKLIST = "blacklist";
+  public static final String TAG_NAME = "name";
+  public static final String TAG_ID = "id";
 
   ArrayList<String> blackList = new ArrayList<String>();
 
   ArrayList<String> whiteList = new ArrayList<String>();
 
-  /** 
+  /**
    * SubCollection identifier
    */
   String id;
 
-  /** 
+  /**
    * SubCollection name
    */
   String name;
 
-  /** 
+  /**
    * SubCollection whitelist as String
    */
   String wlString;
@@ -64,21 +64,24 @@ public class Subcollection extends Configured implements URLFilter{
    */
   String blString;
 
-  /** public Constructor
+  /**
+   * public Constructor
    * 
-   * @param id id of SubCollection
-   * @param name name of SubCollection
+   * @param id
+   *          id of SubCollection
+   * @param name
+   *          name of SubCollection
    */
   public Subcollection(String id, String name, Configuration conf) {
     this(conf);
-    this.id=id;
+    this.id = id;
     this.name = name;
   }
 
-  public Subcollection(Configuration conf){
+  public Subcollection(Configuration conf) {
     super(conf);
   }
-  
+
   /**
    * @return Returns the name
    */
@@ -203,7 +206,8 @@ public class Subcollection extends Configured implements URLFilter{
   /**
    * Set contents of blacklist from String
    * 
-   * @param list the blacklist contents
+   * @param list
+   *          the blacklist contents
    */
   public void setBlackList(String list) {
     this.blString = list;
@@ -213,7 +217,8 @@ public class Subcollection extends Configured implements URLFilter{
   /**
    * Set contents of whitelist from String
    * 
-   * @param list the whitelist contents
+   * @param list
+   *          the whitelist contents
    */
   public void setWhiteList(String list) {
     this.wlString = list;

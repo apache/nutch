@@ -26,9 +26,9 @@ public class TestSignatureFactory {
 
   @Test
   public void testGetSignature() {
-    Configuration conf=NutchConfiguration.create();
-    Signature signature1=SignatureFactory.getSignature(conf);
-    Signature signature2=SignatureFactory.getSignature(conf);
+    Configuration conf = NutchConfiguration.create();
+    Signature signature1 = SignatureFactory.getSignature(conf);
+    Signature signature2 = SignatureFactory.getSignature(conf);
     assertNotNull(signature1);
     assertNotNull(signature2);
     assertEquals(signature1, signature2);

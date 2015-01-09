@@ -19,7 +19,7 @@ package org.apache.nutch.protocol.ftp;
 
 /**
  * Exception indicating bad reply of SYST command.
- *
+ * 
  * @author John Xing
  */
 public class FtpExceptionBadSystResponse extends FtpException {

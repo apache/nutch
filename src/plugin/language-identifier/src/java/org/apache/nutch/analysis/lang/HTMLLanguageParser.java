@@ -47,7 +47,8 @@ import java.util.*;
  */
 public class HTMLLanguageParser implements ParseFilter {
 
-  public static final Logger LOG = LoggerFactory.getLogger(HTMLLanguageParser.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(HTMLLanguageParser.class);
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -113,8 +114,8 @@ public class HTMLLanguageParser implements ParseFilter {
     }
 
     if (lang != null) {
-      page.getMetadata().put(new Utf8(Metadata.LANGUAGE), ByteBuffer.wrap(lang
-              .getBytes()));
+      page.getMetadata().put(new Utf8(Metadata.LANGUAGE),
+          ByteBuffer.wrap(lang.getBytes()));
       return parse;
     }
 
@@ -135,7 +136,8 @@ public class HTMLLanguageParser implements ParseFilter {
       return lang;
     }
 
-    CharSequence ulang = page.getHeaders().get(new Utf8(Response.CONTENT_LANGUAGE));
+    CharSequence ulang = page.getHeaders().get(
+        new Utf8(Response.CONTENT_LANGUAGE));
     if (ulang != null) {
       lang = ulang.toString();
     }
@@ -154,7 +156,7 @@ public class HTMLLanguageParser implements ParseFilter {
 
       String content = parse.getText();
       if (content != null) {
-       text.append(" ").append(content.toString());
+        text.append(" ").append(content.toString());
       }
 
       LanguageIdentifier identifier = new LanguageIdentifier(text.toString());

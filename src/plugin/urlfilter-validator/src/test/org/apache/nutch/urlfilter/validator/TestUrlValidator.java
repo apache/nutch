@@ -113,8 +113,7 @@ public class TestUrlValidator extends TestCase {
   }
 
   /**
-   * Generate Sample of Invalid Tld. 
-   * character
+   * Generate Sample of Invalid Tld. character
    */
   public String generateInvalidTld(int length) {
 

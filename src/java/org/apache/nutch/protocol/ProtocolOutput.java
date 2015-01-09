@@ -17,10 +17,10 @@
 
 package org.apache.nutch.protocol;
 
-
 /**
- * Simple aggregate to pass from protocol plugins both content and
- * protocol status.
+ * Simple aggregate to pass from protocol plugins both content and protocol
+ * status.
+ * 
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class ProtocolOutput {

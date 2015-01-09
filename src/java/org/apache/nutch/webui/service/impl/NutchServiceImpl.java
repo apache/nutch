@@ -36,7 +36,8 @@ import com.sun.jersey.api.client.ClientHandlerException;
 
 @Service
 public class NutchServiceImpl implements NutchService {
-  private static final Logger logger = LoggerFactory.getLogger(NutchServiceImpl.class);
+  private static final Logger logger = LoggerFactory
+      .getLogger(NutchServiceImpl.class);
 
   @Resource
   private NutchClientFactory nutchClientFactory;

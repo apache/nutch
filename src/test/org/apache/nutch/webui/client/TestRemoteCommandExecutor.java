@@ -42,7 +42,8 @@ public class TestRemoteCommandExecutor {
   private NutchClient client;
 
   @InjectMocks
-  private RemoteCommandExecutor remoteExecutor = new RemoteCommandExecutor(client);
+  private RemoteCommandExecutor remoteExecutor = new RemoteCommandExecutor(
+      client);
 
   @Before
   public void setUp() {
@@ -52,7 +53,8 @@ public class TestRemoteCommandExecutor {
   @Test
   public void shouldExecuteCommandRemotely() {
     // given
-    RemoteCommand command = RemoteCommandBuilder.instance(JobType.INJECT).build();
+    RemoteCommand command = RemoteCommandBuilder.instance(JobType.INJECT)
+        .build();
     JobInfo jobInfo = new JobInfo();
     jobInfo.setState(State.FINISHED);
     given(client.getJobInfo(anyString())).willReturn(jobInfo);

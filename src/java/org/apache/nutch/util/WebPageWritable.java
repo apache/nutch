@@ -26,8 +26,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class WebPageWritable extends Configured
-implements Writable {
+public class WebPageWritable extends Configured implements Writable {
 
   private WebPage webPage;
 
@@ -53,7 +52,7 @@ implements Writable {
   public WebPage getWebPage() {
     return webPage;
   }
-  
+
   public void setWebPage(WebPage webPage) {
     this.webPage = webPage;
   }

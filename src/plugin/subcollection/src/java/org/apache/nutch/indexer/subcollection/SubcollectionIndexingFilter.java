@@ -32,48 +32,49 @@ import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.NutchConfiguration;
 
 public class SubcollectionIndexingFilter extends Configured implements
-		IndexingFilter {
+    IndexingFilter {
 
-	public SubcollectionIndexingFilter() {
-		super(NutchConfiguration.create());
-	}
+  public SubcollectionIndexingFilter() {
+    super(NutchConfiguration.create());
+  }
 
-	public SubcollectionIndexingFilter(Configuration conf) {
-		super(conf);
-	}
+  public SubcollectionIndexingFilter(Configuration conf) {
+    super(conf);
+  }
 
-	/**
-	 * Doc field name
-	 */
-	public static final String FIELD_NAME = "subcollection";
+  /**
+   * Doc field name
+   */
+  public static final String FIELD_NAME = "subcollection";
 
-	/**
-	 * Logger
-	 */
-	public static final Logger LOG = LoggerFactory
-			.getLogger(SubcollectionIndexingFilter.class);
+  /**
+   * Logger
+   */
+  public static final Logger LOG = LoggerFactory
+      .getLogger(SubcollectionIndexingFilter.class);
 
-	/**
-	 * "Mark" document to be a part of subcollection
-	 * 
-	 * @param doc
-	 * @param url
-	 */
-	private void addSubCollectionField(NutchDocument doc, String url) {
-		for (String collname: CollectionManager.getCollectionManager(getConf()).getSubCollections(url)) {
-			doc.add(FIELD_NAME, collname);
-		}
-	}
+  /**
+   * "Mark" document to be a part of subcollection
+   * 
+   * @param doc
+   * @param url
+   */
+  private void addSubCollectionField(NutchDocument doc, String url) {
+    for (String collname : CollectionManager.getCollectionManager(getConf())
+        .getSubCollections(url)) {
+      doc.add(FIELD_NAME, collname);
+    }
+  }
 
-	@Override
-	public Collection<Field> getFields() {
-		return new ArrayList<Field>();
-	}
+  @Override
+  public Collection<Field> getFields() {
+    return new ArrayList<Field>();
+  }
 
-	@Override
-	public NutchDocument filter(NutchDocument doc, String url, WebPage page)
-			throws IndexingException {
-		addSubCollectionField(doc, url);
-		return doc;
-	}
+  @Override
+  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
+      throws IndexingException {
+    addSubCollectionField(doc, url);
+    return doc;
+  }
 }

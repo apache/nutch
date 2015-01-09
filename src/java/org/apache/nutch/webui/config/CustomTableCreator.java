@@ -30,7 +30,8 @@ public class CustomTableCreator {
   private ConnectionSource connectionSource;
   private List<Dao<?, ?>> configuredDaos;
 
-  public CustomTableCreator(ConnectionSource connectionSource, List<Dao<?, ?>> configuredDaos) {
+  public CustomTableCreator(ConnectionSource connectionSource,
+      List<Dao<?, ?>> configuredDaos) {
     this.connectionSource = connectionSource;
     this.configuredDaos = configuredDaos;
     initialize();
@@ -38,7 +39,8 @@ public class CustomTableCreator {
 
   private void initialize() {
     if (configuredDaos == null) {
-      throw new IllegalStateException("configuredDaos was not set in " + getClass().getSimpleName());
+      throw new IllegalStateException("configuredDaos was not set in "
+          + getClass().getSimpleName());
     }
 
     for (Dao<?, ?> dao : configuredDaos) {

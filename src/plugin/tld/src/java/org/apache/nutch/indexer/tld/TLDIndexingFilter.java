@@ -38,12 +38,13 @@ import org.apache.nutch.util.domain.DomainSuffix;
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
  */
 public class TLDIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory.getLogger(TLDIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(TLDIndexingFilter.class);
 
   private Configuration conf;
 
   private static final Collection<Field> fields = new ArrayList<Field>();
-  
+
   @Override
   public NutchDocument filter(NutchDocument doc, String url, WebPage page)
       throws IndexingException {
@@ -52,7 +53,7 @@ public class TLDIndexingFilter implements IndexingFilter {
       DomainSuffix d = URLUtil.getDomainSuffix(_url);
       doc.add("tld", d.getDomain());
     } catch (Exception ex) {
-      LOG.warn("Exception in TLDIndexingFilter",ex);
+      LOG.warn("Exception in TLDIndexingFilter", ex);
     }
 
     return doc;

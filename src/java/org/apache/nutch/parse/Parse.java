@@ -16,7 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.parse;
 
-
 public class Parse {
 
   private String text;

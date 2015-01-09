@@ -28,11 +28,10 @@ import org.apache.nutch.storage.WebPage;
 import org.junit.Test;
 
 /**
- * JUnit test case which populates a HashMap
- * with URL's and top level domain qualifiers 
- * as key's and value's respectively.
- * We assert that each value entry in the HashMap equals 
- * the expect field value for the document after being filtered.
+ * JUnit test case which populates a HashMap with URL's and top level domain
+ * qualifiers as key's and value's respectively. We assert that each value entry
+ * in the HashMap equals the expect field value for the document after being
+ * filtered.
  * 
  */
 

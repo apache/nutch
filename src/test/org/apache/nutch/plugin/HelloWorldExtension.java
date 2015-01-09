@@ -24,8 +24,11 @@ package org.apache.nutch.plugin;
  */
 public class HelloWorldExtension implements ITestExtension {
 
-  /* (non-Javadoc)
-   * @see org.apache.nutch.plugin.ITestExtension#testGetExtension(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * org.apache.nutch.plugin.ITestExtension#testGetExtension(java.lang.String)
    */
   public String testGetExtension(String hello) {
     return hello + " World";

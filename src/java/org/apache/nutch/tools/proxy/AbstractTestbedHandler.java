@@ -15,6 +15,7 @@
  * limitations under the License.
  ******************************************************************************/
 package org.apache.nutch.tools.proxy;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -46,16 +47,17 @@ public abstract class AbstractTestbedHandler extends AbstractHandler {
 
   @Override
   public void handle(String target, HttpServletRequest req,
-          HttpServletResponse res, int dispatch) throws IOException,
-          ServletException {
-    Request base_request = (req instanceof Request) ? (Request)req : HttpConnection.getCurrentConnection().getRequest();
+      HttpServletResponse res, int dispatch) throws IOException,
+      ServletException {
+    Request base_request = (req instanceof Request) ? (Request) req
+        : HttpConnection.getCurrentConnection().getRequest();
     res.addHeader("X-TestbedHandlers", this.getClass().getSimpleName());
     handle(base_request, res, target, dispatch);
   }
-  
-  public abstract void handle(Request req, HttpServletResponse res, String target,
-          int dispatch) throws IOException, ServletException;
-  
+
+  public abstract void handle(Request req, HttpServletResponse res,
+      String target, int dispatch) throws IOException, ServletException;
+
   public void addMyHeader(HttpServletResponse res, String name, String value) {
     name = "X-" + this.getClass().getSimpleName() + "-" + name;
     res.addHeader(name, value);

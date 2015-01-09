@@ -30,10 +30,12 @@ import org.slf4j.LoggerFactory;
  * Add (or reset) a few metaData properties as respective fields (if they are
  * available), so that they can be accurately used within the search index.
  * 
- * 'lastModifed' is indexed to support query by date, 'contentLength' obtains content length from the HTTP
- * header, 'type' field is indexed to support query by type and finally the 'title' field is an attempt 
- * to reset the title if a content-disposition hint exists. The logic is that such a presence is indicative 
- * that the content provider wants the filename therein to be used as the title.
+ * 'lastModifed' is indexed to support query by date, 'contentLength' obtains
+ * content length from the HTTP header, 'type' field is indexed to support query
+ * by type and finally the 'title' field is an attempt to reset the title if a
+ * content-disposition hint exists. The logic is that such a presence is
+ * indicative that the content provider wants the filename therein to be used as
+ * the title.
  * 
  * Still need to make content-length searchable!
  * 
@@ -41,7 +43,8 @@ import org.slf4j.LoggerFactory;
  */
 
 public class MoreIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory.getLogger(MoreIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(MoreIndexingFilter.class);
 
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME;
@@ -68,12 +71,13 @@ public class MoreIndexingFilter implements IndexingFilter {
   // last-modified, or, if that's not present, use fetch time.
   private NutchDocument addTime(NutchDocument doc, WebPage page, String url) {
     long time = -1;
-    CharSequence lastModified = page
-        .getHeaders().get(new Utf8(HttpHeaders.LAST_MODIFIED));
+    CharSequence lastModified = page.getHeaders().get(
+        new Utf8(HttpHeaders.LAST_MODIFIED));
     // String lastModified = data.getMeta(Metadata.LAST_MODIFIED);
     if (lastModified != null) { // try parse last-modified
       time = getTime(lastModified.toString(), url); // use as time
-      String formlastModified = DateUtil.getThreadLocalDateFormat().format(new Date(time));
+      String formlastModified = DateUtil.getThreadLocalDateFormat().format(
+          new Date(time));
       // store as string
       doc.add("lastModified", formlastModified);
     }
@@ -82,7 +86,8 @@ public class MoreIndexingFilter implements IndexingFilter {
       time = page.getModifiedTime(); // use Modified time
     }
 
-    String dateString = DateUtil.getThreadLocalDateFormat().format(new Date(time));
+    String dateString = DateUtil.getThreadLocalDateFormat().format(
+        new Date(time));
 
     // un-stored, indexed and un-tokenized
     doc.add("date", dateString);
@@ -97,17 +102,19 @@ public class MoreIndexingFilter implements IndexingFilter {
     } catch (ParseException e) {
       // try to parse it as date in alternative format
       try {
-        Date parsedDate = DateUtils.parseDate(date, new String[] {
-            "EEE MMM dd HH:mm:ss yyyy", "EEE MMM dd HH:mm:ss yyyy zzz",
-            "EEE MMM dd HH:mm:ss zzz yyyy", "EEE, dd MMM yyyy HH:mm:ss zzz",
-            "EEE,dd MMM yyyy HH:mm:ss zzz", "EEE, dd MMM yyyy HH:mm:sszzz",
-            "EEE, dd MMM yyyy HH:mm:ss", "EEE, dd-MMM-yy HH:mm:ss zzz",
-            "yyyy/MM/dd HH:mm:ss.SSS zzz", "yyyy/MM/dd HH:mm:ss.SSS",
-            "yyyy/MM/dd HH:mm:ss zzz", "yyyy/MM/dd", "yyyy.MM.dd HH:mm:ss",
-            "yyyy-MM-dd HH:mm", "MMM dd yyyy HH:mm:ss. zzz",
-            "MMM dd yyyy HH:mm:ss zzz", "dd.MM.yyyy HH:mm:ss zzz",
-            "dd MM yyyy HH:mm:ss zzz", "dd.MM.yyyy; HH:mm:ss",
-            "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy zzz", "yyyy-MM-dd'T'HH:mm:ss'Z'" });
+        Date parsedDate = DateUtils.parseDate(date,
+            new String[] { "EEE MMM dd HH:mm:ss yyyy",
+                "EEE MMM dd HH:mm:ss yyyy zzz", "EEE MMM dd HH:mm:ss zzz yyyy",
+                "EEE, dd MMM yyyy HH:mm:ss zzz",
+                "EEE,dd MMM yyyy HH:mm:ss zzz", "EEE, dd MMM yyyy HH:mm:sszzz",
+                "EEE, dd MMM yyyy HH:mm:ss", "EEE, dd-MMM-yy HH:mm:ss zzz",
+                "yyyy/MM/dd HH:mm:ss.SSS zzz", "yyyy/MM/dd HH:mm:ss.SSS",
+                "yyyy/MM/dd HH:mm:ss zzz", "yyyy/MM/dd", "yyyy.MM.dd HH:mm:ss",
+                "yyyy-MM-dd HH:mm", "MMM dd yyyy HH:mm:ss. zzz",
+                "MMM dd yyyy HH:mm:ss zzz", "dd.MM.yyyy HH:mm:ss zzz",
+                "dd MM yyyy HH:mm:ss zzz", "dd.MM.yyyy; HH:mm:ss",
+                "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy zzz",
+                "yyyy-MM-dd'T'HH:mm:ss'Z'" });
         time = parsedDate.getTime();
         // if (LOG.isWarnEnabled()) {
         // LOG.warn(url + ": parsed date: " + date +" to:"+time);
@@ -123,8 +130,8 @@ public class MoreIndexingFilter implements IndexingFilter {
 
   // Add Content-Length
   private NutchDocument addLength(NutchDocument doc, WebPage page, String url) {
-    CharSequence contentLength = page.getHeaders().get(new Utf8(
-            HttpHeaders.CONTENT_LENGTH));
+    CharSequence contentLength = page.getHeaders().get(
+        new Utf8(HttpHeaders.CONTENT_LENGTH));
     if (contentLength != null) {
       // NUTCH-1010 ContentLength not trimmed
       String trimmed = contentLength.toString().trim();
@@ -188,7 +195,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (conf.getBoolean("moreIndexingFilter.indexMimeTypeParts", true)) {
       String[] parts = getParts(mimeType);
 
-      for(String part: parts) {
+      for (String part : parts) {
         doc.add("type", part);
       }
     }
@@ -233,8 +240,8 @@ public class MoreIndexingFilter implements IndexingFilter {
   }
 
   private NutchDocument resetTitle(NutchDocument doc, WebPage page, String url) {
-    CharSequence contentDisposition = page.getHeaders().get(new Utf8(
-        HttpHeaders.CONTENT_DISPOSITION));
+    CharSequence contentDisposition = page.getHeaders().get(
+        new Utf8(HttpHeaders.CONTENT_DISPOSITION));
     if (contentDisposition == null)
       return doc;
 

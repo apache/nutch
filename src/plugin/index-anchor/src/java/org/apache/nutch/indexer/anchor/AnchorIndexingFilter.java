@@ -32,13 +32,15 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 
 /**
- * Indexing filter that offers an option to either index all inbound anchor text for 
- * a document or deduplicate anchors. Deduplication does have it's con's, 
+ * Indexing filter that offers an option to either index all inbound anchor text
+ * for a document or deduplicate anchors. Deduplication does have it's con's,
+ * 
  * @see {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
  */
 public class AnchorIndexingFilter implements IndexingFilter {
 
-  public static final Logger LOG = LoggerFactory.getLogger(AnchorIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(AnchorIndexingFilter.class);
   private Configuration conf;
   private boolean deduplicate = false;
 
@@ -47,7 +49,7 @@ public class AnchorIndexingFilter implements IndexingFilter {
   static {
     FIELDS.add(WebPage.Field.INLINKS);
   }
-  
+
   /**
    * Set the {@link Configuration} object
    */
@@ -57,40 +59,44 @@ public class AnchorIndexingFilter implements IndexingFilter {
     deduplicate = conf.getBoolean("anchorIndexingFilter.deduplicate", false);
     LOG.info("Anchor deduplication is: " + (deduplicate ? "on" : "off"));
   }
-  
+
   /**
    * Get the {@link Configuration} object
    */
   public Configuration getConf() {
     return this.conf;
   }
-  
+
   public void addIndexBackendOptions(Configuration conf) {
   }
-  
+
   /**
-   * The {@link AnchorIndexingFilter} filter object which supports boolean 
-   * configuration settings for the deduplication of anchors. 
-   * See {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
-   *  
-   * @param doc The {@link NutchDocument} object
-   * @param url URL to be filtered for anchor text
-   * @param page {@link WebPage} object relative to the URL
+   * The {@link AnchorIndexingFilter} filter object which supports boolean
+   * configuration settings for the deduplication of anchors. See
+   * {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
+   * 
+   * @param doc
+   *          The {@link NutchDocument} object
+   * @param url
+   *          URL to be filtered for anchor text
+   * @param page
+   *          {@link WebPage} object relative to the URL
    * @return filtered NutchDocument
    */
   @Override
   public NutchDocument filter(NutchDocument doc, String url, WebPage page)
       throws IndexingException {
     HashSet<String> set = null;
-    
+
     for (Entry<CharSequence, CharSequence> e : page.getInlinks().entrySet()) {
       String anchor = TableUtil.toString(e.getValue());
-      
-      if(anchor.equals(""))
+
+      if (anchor.equals(""))
         continue;
-      
+
       if (deduplicate) {
-        if (set == null) set = new HashSet<String>();
+        if (set == null)
+          set = new HashSet<String>();
         String lcAnchor = anchor.toLowerCase();
 
         // Check if already processed the current anchor
@@ -104,15 +110,14 @@ public class AnchorIndexingFilter implements IndexingFilter {
         doc.add("anchor", anchor);
       }
     }
-    
+
     return doc;
   }
-  
+
   /**
-   * Gets all the fields for a given {@link WebPage}
-   * Many datastores need to setup the mapreduce job by specifying the fields
-   * needed. All extensions that work on WebPage are able to specify what fields
-   * they need.
+   * Gets all the fields for a given {@link WebPage} Many datastores need to
+   * setup the mapreduce job by specifying the fields needed. All extensions
+   * that work on WebPage are able to specify what fields they need.
    */
   @Override
   public Collection<WebPage.Field> getFields() {

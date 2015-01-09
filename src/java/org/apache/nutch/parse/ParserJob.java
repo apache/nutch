@@ -58,9 +58,9 @@ public class ParserJob extends NutchTool implements Tool {
 
   private static final String RESUME_KEY = "parse.job.resume";
   private static final String FORCE_KEY = "parse.job.force";
-  
+
   public static final String SKIP_TRUNCATED = "parser.skip.truncated";
-  
+
   private static final Utf8 REPARSE = new Utf8("-reparse");
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
@@ -79,9 +79,8 @@ public class ParserJob extends NutchTool implements Tool {
     FIELDS.add(WebPage.Field.HEADERS);
   }
 
-
-  public static class ParserMapper 
-      extends GoraMapper<String, WebPage, String, WebPage> {
+  public static class ParserMapper extends
+      GoraMapper<String, WebPage, String, WebPage> {
     private ParseUtil parseUtil;
 
     private boolean shouldResume;
@@ -91,15 +90,16 @@ public class ParserJob extends NutchTool implements Tool {
     private Utf8 batchId;
 
     private boolean skipTruncated;
-    
+
     @Override
     public void setup(Context context) throws IOException {
       Configuration conf = context.getConfiguration();
       parseUtil = new ParseUtil(conf);
       shouldResume = conf.getBoolean(RESUME_KEY, false);
       force = conf.getBoolean(FORCE_KEY, false);
-      batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
-      skipTruncated=conf.getBoolean(SKIP_TRUNCATED, true);
+      batchId = new Utf8(
+          conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
+      skipTruncated = conf.getBoolean(SKIP_TRUNCATED, true);
     }
 
     @Override
@@ -131,7 +131,6 @@ public class ParserJob extends NutchTool implements Tool {
       if (skipTruncated && isTruncated(unreverseKey, page)) {
         return;
       }
-      
 
       parseUtil.process(key, page);
       ParseStatus pstatus = page.getParseStatus();
@@ -141,9 +140,9 @@ public class ParserJob extends NutchTool implements Tool {
       }
 
       context.write(key, page);
-    }    
+    }
   }
-  
+
   public ParserJob() {
 
   }
@@ -151,20 +150,22 @@ public class ParserJob extends NutchTool implements Tool {
   public ParserJob(Configuration conf) {
     setConf(conf);
   }
-  
+
   /**
    * Checks if the page's content is truncated.
-   * @param url 
+   * 
+   * @param url
    * @param page
-   * @return If the page is truncated <code>true</code>. When it is not,
-   * or when it could be determined, <code>false</code>. 
+   * @return If the page is truncated <code>true</code>. When it is not, or when
+   *         it could be determined, <code>false</code>.
    */
   public static boolean isTruncated(String url, WebPage page) {
     ByteBuffer content = page.getContent();
     if (content == null) {
       return false;
     }
-    CharSequence lengthUtf8 = page.getHeaders().get(new Utf8(HttpHeaders.CONTENT_LENGTH));
+    CharSequence lengthUtf8 = page.getHeaders().get(
+        new Utf8(HttpHeaders.CONTENT_LENGTH));
     if (lengthUtf8 == null) {
       return false;
     }
@@ -186,7 +187,8 @@ public class ParserJob extends NutchTool implements Tool {
       return true;
     }
     if (LOG.isDebugEnabled()) {
-      LOG.debug(url + " actualSize=" + actualSize + " inHeaderSize=" + inHeaderSize);
+      LOG.debug(url + " actualSize=" + actualSize + " inHeaderSize="
+          + inHeaderSize);
     }
     return false;
   }
@@ -198,8 +200,8 @@ public class ParserJob extends NutchTool implements Tool {
     ParseFilters parseFilters = new ParseFilters(conf);
 
     Collection<WebPage.Field> parsePluginFields = parserFactory.getFields();
-    Collection<WebPage.Field> signaturePluginFields =
-      SignatureFactory.getFields(conf);
+    Collection<WebPage.Field> signaturePluginFields = SignatureFactory
+        .getFields(conf);
     Collection<WebPage.Field> htmlParsePluginFields = parseFilters.getFields();
 
     if (parsePluginFields != null) {
@@ -226,11 +228,11 @@ public class ParserJob extends NutchTool implements Tool {
   }
 
   @Override
-  public Map<String,Object> run(Map<String,Object> args) throws Exception {
-    String batchId = (String)args.get(Nutch.ARG_BATCH);
-    Boolean shouldResume = (Boolean)args.get(Nutch.ARG_RESUME);
-    Boolean force = (Boolean)args.get(Nutch.ARG_FORCE);
-    
+  public Map<String, Object> run(Map<String, Object> args) throws Exception {
+    String batchId = (String) args.get(Nutch.ARG_BATCH);
+    Boolean shouldResume = (Boolean) args.get(Nutch.ARG_RESUME);
+    Boolean force = (Boolean) args.get(Nutch.ARG_FORCE);
+
     if (batchId != null) {
       getConf().set(GeneratorJob.BATCH_ID, batchId);
     }
@@ -241,17 +243,18 @@ public class ParserJob extends NutchTool implements Tool {
       getConf().setBoolean(FORCE_KEY, force);
     }
     LOG.info("ParserJob: resuming:\t" + getConf().getBoolean(RESUME_KEY, false));
-    LOG.info("ParserJob: forced reparse:\t" + getConf().getBoolean(FORCE_KEY, false));
+    LOG.info("ParserJob: forced reparse:\t"
+        + getConf().getBoolean(FORCE_KEY, false));
     if (batchId == null || batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
       LOG.info("ParserJob: parsing all");
     } else {
       LOG.info("ParserJob: batchId:\t" + batchId);
     }
     currentJob = new NutchJob(getConf(), "parse");
-    
+
     Collection<WebPage.Field> fields = getFields(currentJob);
     MapFieldValueFilter<String, WebPage> batchIdFilter = getBatchIdFilter(batchId);
-	StorageUtils.initMapperJob(currentJob, fields, String.class, WebPage.class,
+    StorageUtils.initMapperJob(currentJob, fields, String.class, WebPage.class,
         ParserMapper.class, batchIdFilter);
     StorageUtils.initReducerJob(currentJob, IdentityPageReducer.class);
     currentJob.setNumReduceTasks(0);
@@ -275,20 +278,20 @@ public class ParserJob extends NutchTool implements Tool {
     return filter;
   }
 
-  public int parse(String batchId, boolean shouldResume, boolean force) throws Exception {
-    
+  public int parse(String batchId, boolean shouldResume, boolean force)
+      throws Exception {
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("ParserJob: starting at " + sdf.format(start));
 
-    run(ToolUtil.toArgMap(
-        Nutch.ARG_BATCH, batchId,
-        Nutch.ARG_RESUME, shouldResume,
-        Nutch.ARG_FORCE, force));
+    run(ToolUtil.toArgMap(Nutch.ARG_BATCH, batchId, Nutch.ARG_RESUME,
+        shouldResume, Nutch.ARG_FORCE, force));
     LOG.info("ParserJob: success");
-    
+
     long finish = System.currentTimeMillis();
-    LOG.info("ParserJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
+    LOG.info("ParserJob: finished at " + sdf.format(finish)
+        + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
     return 0;
   }
 
@@ -298,12 +301,18 @@ public class ParserJob extends NutchTool implements Tool {
     String batchId = null;
 
     if (args.length < 1) {
-      System.err.println("Usage: ParserJob (<batchId> | -all) [-crawlId <id>] [-resume] [-force]");
-      System.err.println("    <batchId>     - symbolic batch ID created by Generator");
-      System.err.println("    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)");
-      System.err.println("    -all          - consider pages from all crawl jobs");
-      System.err.println("    -resume       - resume a previous incomplete job");
-      System.err.println("    -force        - force re-parsing even if a page is already parsed");
+      System.err
+          .println("Usage: ParserJob (<batchId> | -all) [-crawlId <id>] [-resume] [-force]");
+      System.err
+          .println("    <batchId>     - symbolic batch ID created by Generator");
+      System.err
+          .println("    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)");
+      System.err
+          .println("    -all          - consider pages from all crawl jobs");
+      System.err
+          .println("    -resume       - resume a previous incomplete job");
+      System.err
+          .println("    -force        - force re-parsing even if a page is already parsed");
       return -1;
     }
     for (int i = 0; i < args.length; i++) {

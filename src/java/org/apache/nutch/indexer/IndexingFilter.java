@@ -22,9 +22,9 @@ import org.apache.hadoop.conf.Configurable;
 import org.apache.nutch.plugin.FieldPluggable;
 import org.apache.nutch.storage.WebPage;
 
-
-/** Extension point for indexing.  Permits one to add metadata to the indexed
- * fields.  All plugins found which implement this extension point are run
+/**
+ * Extension point for indexing. Permits one to add metadata to the indexed
+ * fields. All plugins found which implement this extension point are run
  * sequentially on the parse.
  */
 public interface IndexingFilter extends FieldPluggable, Configurable {
@@ -33,15 +33,18 @@ public interface IndexingFilter extends FieldPluggable, Configurable {
 
   /**
    * Adds fields or otherwise modifies the document that will be indexed for a
-   * parse. Unwanted documents can be removed from indexing by returning a null value.
-   *
-   * @param doc document instance for collecting fields
-   * @param url page url
+   * parse. Unwanted documents can be removed from indexing by returning a null
+   * value.
+   * 
+   * @param doc
+   *          document instance for collecting fields
+   * @param url
+   *          page url
    * @param page
-   * @return modified (or a new) document instance, or null (meaning the document
-   * should be discarded)
+   * @return modified (or a new) document instance, or null (meaning the
+   *         document should be discarded)
    * @throws IndexingException
    */
   NutchDocument filter(NutchDocument doc, String url, WebPage page)
-  throws IndexingException;
+      throws IndexingException;
 }

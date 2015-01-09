@@ -25,7 +25,7 @@ import org.apache.nutch.storage.WebPage;
 
 import crawlercommons.robots.BaseRobotRules;
 
-/** A retriever of url content.  Implemented by protocol extensions. */
+/** A retriever of url content. Implemented by protocol extensions. */
 public interface Protocol extends FieldPluggable, Configurable {
   /** The name of the extension point. */
   public final static String X_POINT_ID = Protocol.class.getName();
@@ -55,7 +55,9 @@ public interface Protocol extends FieldPluggable, Configurable {
 
   /**
    * Retrieve robot rules applicable for this url.
-   * @param url url to check
+   * 
+   * @param url
+   *          url to check
    * @param page
    * @return robot rules (specific for this url or default), never null
    */

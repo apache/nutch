@@ -116,15 +116,14 @@ public class HostDbUpdateJob implements Tool {
 
   @Override
   public int run(String[] args) throws Exception {
-    boolean linkDb=false;
+    boolean linkDb = false;
     for (int i = 0; i < args.length; i++) {
       if ("-linkDb".equals(args[i])) {
         linkDb = true;
       } else if ("-crawlId".equals(args[i])) {
         getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
-      }
-      else {
-        throw new IllegalArgumentException("unrecognized arg " + args[i] 
+      } else {
+        throw new IllegalArgumentException("unrecognized arg " + args[i]
             + " usage: (-linkDb) (-crawlId <crawlId>)");
       }
     }

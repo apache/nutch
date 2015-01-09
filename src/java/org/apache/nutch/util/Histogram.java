@@ -72,8 +72,8 @@ public class Histogram<E> {
   }
 
   public List<E> sortInverseByValue() {
-    List<Map.Entry<E, HistogramEntry>> list = 
-        new Vector<Map.Entry<E, HistogramEntry>>(map.entrySet());
+    List<Map.Entry<E, HistogramEntry>> list = new Vector<Map.Entry<E, HistogramEntry>>(
+        map.entrySet());
 
     // Sort the list using an annonymous inner class implementing Comparator for
     // the compare method
@@ -93,8 +93,8 @@ public class Histogram<E> {
   }
 
   public List<E> sortByValue() {
-    List<Map.Entry<E, HistogramEntry>> list = 
-        new Vector<Map.Entry<E, HistogramEntry>>(map.entrySet());
+    List<Map.Entry<E, HistogramEntry>> list = new Vector<Map.Entry<E, HistogramEntry>>(
+        map.entrySet());
 
     // Sort the list using an annonymous inner class implementing Comparator for
     // the compare method

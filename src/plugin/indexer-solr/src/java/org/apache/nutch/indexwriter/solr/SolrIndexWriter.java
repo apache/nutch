@@ -144,7 +144,9 @@ public class SolrIndexWriter implements IndexWriter {
   public void commit() throws IOException {
     try {
       solr.commit();
-      LOG.info("Total " + documentCount + (documentCount > 1 ? " documents are " : " document is ") + "added.");
+      LOG.info("Total " + documentCount
+          + (documentCount > 1 ? " documents are " : " document is ")
+          + "added.");
     } catch (SolrServerException e) {
       throw makeIOException(e);
     }

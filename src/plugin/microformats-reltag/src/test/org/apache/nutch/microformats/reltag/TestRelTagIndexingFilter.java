@@ -28,13 +28,13 @@ import java.nio.ByteBuffer;
 import static org.junit.Assert.*;
 
 /**
- *JUnit test case for {@link RelTagIndexingFilter} which 
- *simply asserts that a 'tag' field is obtained by the filter.
- *
- *@author lewismc
+ * JUnit test case for {@link RelTagIndexingFilter} which simply asserts that a
+ * 'tag' field is obtained by the filter.
+ * 
+ * @author lewismc
  */
 
-  public class TestRelTagIndexingFilter {
+public class TestRelTagIndexingFilter {
 
   @Test
   public void testRelTagFields() throws Exception {
@@ -57,4 +57,3 @@ import static org.junit.Assert.*;
     assertTrue("check for 'tag' field", doc.getFieldNames().contains("tag"));
   }
 }
-  

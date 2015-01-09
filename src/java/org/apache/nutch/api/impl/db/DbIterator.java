@@ -100,7 +100,8 @@ public class DbIterator extends UnmodifiableIterator<Map<String, Object>> {
   }
 
   private Map<String, Object> pageAsMap(String url, WebPage page) {
-    Map<String, Object> result = DbPageConverter.convertPage(page, commonFields);
+    Map<String, Object> result = DbPageConverter
+        .convertPage(page, commonFields);
 
     if (CollectionUtils.isEmpty(commonFields) || commonFields.contains("url")) {
       result.put("url", TableUtil.unreverseUrl(url));

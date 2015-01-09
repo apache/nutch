@@ -26,19 +26,20 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.metadata.Nutch;
 
 public abstract class NutchTool extends Configured {
-  
-  protected HashMap<String,Object> results = new HashMap<String,Object>();
-  protected Map<String,Object> status =
-    Collections.synchronizedMap(new HashMap<String,Object>());
+
+  protected HashMap<String, Object> results = new HashMap<String, Object>();
+  protected Map<String, Object> status = Collections
+      .synchronizedMap(new HashMap<String, Object>());
   protected Job currentJob;
   protected int numJobs;
   protected int currentJobNum;
-  
-  /** Runs the tool, using a map of arguments.
-   * May return results, or null.
+
+  /**
+   * Runs the tool, using a map of arguments. May return results, or null.
    */
-  public abstract Map<String,Object> run(Map<String,Object> args) throws Exception;
-  
+  public abstract Map<String, Object> run(Map<String, Object> args)
+      throws Exception;
+
   /** Returns relative progress of the tool, a float in range [0,1]. */
   public float getProgress() {
     float res = 0;
@@ -55,29 +56,31 @@ public abstract class NutchTool extends Configured {
     }
     // take into account multiple jobs
     if (numJobs > 1) {
-      res = (currentJobNum + res) / (float)numJobs;
+      res = (currentJobNum + res) / (float) numJobs;
     }
     status.put(Nutch.STAT_PROGRESS, res);
     return res;
   }
-  
-  
+
   /** Returns current status of the running tool. */
-  public Map<String,Object> getStatus() {
+  public Map<String, Object> getStatus() {
     return status;
   }
-  
-  /** Stop the job with the possibility to resume. Subclasses should
-   * override this, since by default it calls {@link #killJob()}.
+
+  /**
+   * Stop the job with the possibility to resume. Subclasses should override
+   * this, since by default it calls {@link #killJob()}.
+   * 
    * @return true if succeeded, false otherwise
    */
   public boolean stopJob() throws Exception {
     return killJob();
   }
-  
+
   /**
-   * Kill the job immediately. Clients should assume that any results
-   * that the job produced so far are in inconsistent state or missing.
+   * Kill the job immediately. Clients should assume that any results that the
+   * job produced so far are in inconsistent state or missing.
+   * 
    * @return true if succeeded, false otherwise.
    * @throws Exception
    */

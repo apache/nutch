@@ -31,7 +31,7 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.ObjectCache;
 import org.w3c.dom.DocumentFragment;
 
-/** Creates and caches {@link ParseFilter} implementing plugins.*/
+/** Creates and caches {@link ParseFilter} implementing plugins. */
 public class ParseFilters {
 
   private ParseFilter[] parseFilters;
@@ -41,7 +41,8 @@ public class ParseFilters {
   public ParseFilters(Configuration conf) {
     String order = conf.get(HTMLPARSEFILTER_ORDER);
     ObjectCache objectCache = ObjectCache.get(conf);
-    this.parseFilters = (ParseFilter[]) objectCache.getObject(ParseFilter.class.getName());
+    this.parseFilters = (ParseFilter[]) objectCache.getObject(ParseFilter.class
+        .getName());
     if (parseFilters == null) {
       /*
        * If ordered filters are required, prepare array of filters based on
@@ -51,21 +52,23 @@ public class ParseFilters {
       if (order != null && !order.trim().equals("")) {
         orderedFilters = order.split("\\s+");
       }
-      HashMap<String, ParseFilter> filterMap =
-        new HashMap<String, ParseFilter>();
+      HashMap<String, ParseFilter> filterMap = new HashMap<String, ParseFilter>();
       try {
-        ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(ParseFilter.X_POINT_ID);
+        ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(
+            ParseFilter.X_POINT_ID);
         if (point == null)
           throw new RuntimeException(ParseFilter.X_POINT_ID + " not found.");
         Extension[] extensions = point.getExtensions();
         for (int i = 0; i < extensions.length; i++) {
           Extension extension = extensions[i];
-          ParseFilter parseFilter = (ParseFilter) extension.getExtensionInstance();
+          ParseFilter parseFilter = (ParseFilter) extension
+              .getExtensionInstance();
           if (!filterMap.containsKey(parseFilter.getClass().getName())) {
             filterMap.put(parseFilter.getClass().getName(), parseFilter);
           }
         }
-        ParseFilter[] htmlParseFilters = filterMap.values().toArray(new ParseFilter[filterMap.size()]);
+        ParseFilter[] htmlParseFilters = filterMap.values().toArray(
+            new ParseFilter[filterMap.size()]);
         /*
          * If no ordered filters required, just get the filters in an
          * indeterminate order
@@ -77,19 +80,19 @@ public class ParseFilters {
         else {
           ArrayList<ParseFilter> filters = new ArrayList<ParseFilter>();
           for (int i = 0; i < orderedFilters.length; i++) {
-            ParseFilter filter = filterMap
-            .get(orderedFilters[i]);
+            ParseFilter filter = filterMap.get(orderedFilters[i]);
             if (filter != null) {
               filters.add(filter);
             }
           }
-          objectCache.setObject(ParseFilter.class.getName(), filters
-              .toArray(new ParseFilter[filters.size()]));
+          objectCache.setObject(ParseFilter.class.getName(),
+              filters.toArray(new ParseFilter[filters.size()]));
         }
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
       }
-      this.parseFilters = (ParseFilter[]) objectCache.getObject(ParseFilter.class.getName());
+      this.parseFilters = (ParseFilter[]) objectCache
+          .getObject(ParseFilter.class.getName());
     }
   }
 

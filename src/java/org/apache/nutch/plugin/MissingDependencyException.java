@@ -17,8 +17,8 @@
 package org.apache.nutch.plugin;
 
 /**
- * <code>MissingDependencyException</code> will be thrown if a plugin
- * dependency cannot be found.
+ * <code>MissingDependencyException</code> will be thrown if a plugin dependency
+ * cannot be found.
  * 
  * @author J&eacute;r&ocirc;me Charron
  */

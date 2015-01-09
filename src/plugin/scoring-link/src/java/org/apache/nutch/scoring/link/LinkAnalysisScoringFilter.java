@@ -30,65 +30,65 @@ import org.apache.nutch.storage.WebPage;
 
 public class LinkAnalysisScoringFilter implements ScoringFilter {
 
-	private Configuration conf;
-	private float normalizedScore = 1.00f;
+  private Configuration conf;
+  private float normalizedScore = 1.00f;
 
-	private final static Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+  private final static Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
-	static {
-		FIELDS.add(WebPage.Field.METADATA);
-		FIELDS.add(WebPage.Field.SCORE);
-	}
+  static {
+    FIELDS.add(WebPage.Field.METADATA);
+    FIELDS.add(WebPage.Field.SCORE);
+  }
 
-	public LinkAnalysisScoringFilter() {
-	}
+  public LinkAnalysisScoringFilter() {
+  }
 
-	public Configuration getConf() {
-		return conf;
-	}
+  public Configuration getConf() {
+    return conf;
+  }
 
-	public void setConf(Configuration conf) {
-		this.conf = conf;
-		normalizedScore = conf.getFloat("link.analyze.normalize.score", 1.00f);
-	}
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    normalizedScore = conf.getFloat("link.analyze.normalize.score", 1.00f);
+  }
 
-	@Override
-	public Collection<WebPage.Field> getFields() {
-		return FIELDS;
-	}
+  @Override
+  public Collection<WebPage.Field> getFields() {
+    return FIELDS;
+  }
 
-	@Override
-	public void injectedScore(String url, WebPage page)
-			throws ScoringFilterException {
-	}
+  @Override
+  public void injectedScore(String url, WebPage page)
+      throws ScoringFilterException {
+  }
 
-	@Override
-	public void initialScore(String url, WebPage page)
-			throws ScoringFilterException {
-		page.setScore(0.0f);
-	}
+  @Override
+  public void initialScore(String url, WebPage page)
+      throws ScoringFilterException {
+    page.setScore(0.0f);
+  }
 
-	@Override
-	public float generatorSortValue(String url, WebPage page, float initSort)
-			throws ScoringFilterException {
-		return page.getScore() * initSort;
-	}
+  @Override
+  public float generatorSortValue(String url, WebPage page, float initSort)
+      throws ScoringFilterException {
+    return page.getScore() * initSort;
+  }
 
-	@Override
-	public void distributeScoreToOutlinks(String fromUrl, WebPage page,
-			Collection<ScoreDatum> scoreData, int allCount)
-			throws ScoringFilterException {
-	}
+  @Override
+  public void distributeScoreToOutlinks(String fromUrl, WebPage page,
+      Collection<ScoreDatum> scoreData, int allCount)
+      throws ScoringFilterException {
+  }
 
-	@Override
-	public void updateScore(String url, WebPage page,
-			List<ScoreDatum> inlinkedScoreData) throws ScoringFilterException {
-	}
+  @Override
+  public void updateScore(String url, WebPage page,
+      List<ScoreDatum> inlinkedScoreData) throws ScoringFilterException {
+  }
 
-	@Override
-	public float indexerScore(String url, NutchDocument doc, WebPage page,
-			float initScore) throws ScoringFilterException {
-		return (normalizedScore * page.getScore());
-	}
+  @Override
+  public float indexerScore(String url, NutchDocument doc, WebPage page,
+      float initScore) throws ScoringFilterException {
+    return (normalizedScore * page.getScore());
+  }
 
 }

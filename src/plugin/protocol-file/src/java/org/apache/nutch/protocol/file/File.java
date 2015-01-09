@@ -32,10 +32,11 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * This class is a protocol plugin used for file: scheme.
- * It creates {@link FileResponse} object and gets the content of the url from it.
- * Configurable parameters are {@code file.content.limit} and {@code file.crawl.parent} 
- * in nutch-default.xml defined under "file properties" section.
+ * This class is a protocol plugin used for file: scheme. It creates
+ * {@link FileResponse} object and gets the content of the url from it.
+ * Configurable parameters are {@code file.content.limit} and
+ * {@code file.crawl.parent} in nutch-default.xml defined under
+ * "file properties" section.
  */
 public class File implements Protocol {
 
@@ -51,7 +52,7 @@ public class File implements Protocol {
   static final int MAX_REDIRECTS = 5;
 
   int maxContentLength;
-  
+
   boolean crawlParents;
 
   /**
@@ -63,7 +64,8 @@ public class File implements Protocol {
   private Configuration conf;
 
   // constructor
-  public File() { }
+  public File() {
+  }
 
   /**
    * Set the {@link Configuration} object
@@ -75,29 +77,32 @@ public class File implements Protocol {
     this.symlinksAsRedirects = conf.getBoolean(
         "file.crawl.redirect_noncanonical", true);
   }
-  
+
   /**
    * Get the {@link Configuration} object
    */
   public Configuration getConf() {
     return this.conf;
   }
-    
-  /** 
-   * Set the point at which content is truncated. 
+
+  /**
+   * Set the point at which content is truncated.
    */
   public void setMaxContentLength(int maxContentLength) {
     this.maxContentLength = maxContentLength;
   }
-  
-  /** 
-   * Creates a {@link FileResponse} object corresponding to the url and 
-   * return a {@link ProtocolOutput} object as per the content received
+
+  /**
+   * Creates a {@link FileResponse} object corresponding to the url and return a
+   * {@link ProtocolOutput} object as per the content received
    * 
-   * @param url Text containing the url
-   * @param datum The CrawlDatum object corresponding to the url
+   * @param url
+   *          Text containing the url
+   * @param datum
+   *          The CrawlDatum object corresponding to the url
    * 
-   * @return {@link ProtocolOutput} object for the content of the file indicated by url
+   * @return {@link ProtocolOutput} object for the content of the file indicated
+   *         by url
    */
   public ProtocolOutput getProtocolOutput(String url, WebPage page) {
     String urlString = url.toString();
@@ -115,13 +120,16 @@ public class File implements Protocol {
           return new ProtocolOutput(response.toContent()); // return it
 
         } else if (code == 304) { // got not modified
-          return new ProtocolOutput(response.toContent(), ProtocolStatusUtils.STATUS_NOTMODIFIED);
+          return new ProtocolOutput(response.toContent(),
+              ProtocolStatusUtils.STATUS_NOTMODIFIED);
 
         } else if (code == 401) { // access denied / no read permissions
-          return new ProtocolOutput(response.toContent(), ProtocolStatusUtils.makeStatus(ProtocolStatusUtils.ACCESS_DENIED));
+          return new ProtocolOutput(response.toContent(),
+              ProtocolStatusUtils.makeStatus(ProtocolStatusUtils.ACCESS_DENIED));
 
         } else if (code == 404) { // no such file
-          return new ProtocolOutput(response.toContent(), ProtocolStatusUtils.STATUS_NOTFOUND);
+          return new ProtocolOutput(response.toContent(),
+              ProtocolStatusUtils.STATUS_NOTFOUND);
 
         } else if (code >= 300 && code < 400) { // handle redirect
           u = new URL(response.getHeader("Location"));
@@ -156,8 +164,8 @@ public class File implements Protocol {
     return FIELDS;
   }
 
-  /** 
-   * Quick way for running this class. Useful for debugging. 
+  /**
+   * Quick way for running this class. Useful for debugging.
    */
   public static void main(String[] args) throws Exception {
     int maxContentLength = Integer.MIN_VALUE;
@@ -216,11 +224,11 @@ public class File implements Protocol {
     file = null;
   }
 
-  /** 
-   * No robots parsing is done for file protocol. 
-   * So this returns a set of empty rules which will allow every url.
+  /**
+   * No robots parsing is done for file protocol. So this returns a set of empty
+   * rules which will allow every url.
    */
   public BaseRobotRules getRobotRules(String url, WebPage page) {
     return RobotRulesParser.EMPTY_RULES;
-  }   
+  }
 }

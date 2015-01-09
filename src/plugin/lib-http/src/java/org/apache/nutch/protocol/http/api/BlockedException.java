@@ -19,7 +19,7 @@ package org.apache.nutch.protocol.http.api;
 
 @SuppressWarnings("serial")
 public class BlockedException extends HttpException {
-  
+
   public BlockedException(String msg) {
     super(msg);
   }

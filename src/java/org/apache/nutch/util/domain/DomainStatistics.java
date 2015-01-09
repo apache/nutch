@@ -71,7 +71,8 @@ public class DomainStatistics extends Configured implements Tool {
   public int run(String[] args) throws IOException, ClassNotFoundException,
       InterruptedException {
     if (args.length < 2) {
-      System.out.println("usage: DomainStatistics outDir host|domain|suffix [-numReducers n] [-crawlId <id>]");
+      System.out
+          .println("usage: DomainStatistics outDir host|domain|suffix [-numReducers n] [-crawlId <id>]");
       return 1;
     }
     String outputDir = args[0];
@@ -193,9 +194,8 @@ public class DomainStatistics extends Configured implements Tool {
     }
 
     @Override
-    protected void map(
-        String key, WebPage value, Context context) 
-            throws IOException, InterruptedException {
+    protected void map(String key, WebPage value, Context context)
+        throws IOException, InterruptedException {
       if (value.getStatus() == CrawlStatus.STATUS_FETCHED) {
         try {
           URL url = new URL(TableUtil.unreverseUrl(key.toString()));

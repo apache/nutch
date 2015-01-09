@@ -40,10 +40,12 @@ public class RemoteCommandBuilder {
     jobConfig.setConfId(configId);
     return this;
   }
+
   public RemoteCommandBuilder withCrawlId(String crawlId) {
     jobConfig.setCrawlId(crawlId);
     return this;
   }
+
   public RemoteCommandBuilder withArgument(String key, String value) {
     jobConfig.setArgument(key, value);
     return this;

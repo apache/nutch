@@ -34,7 +34,7 @@ public class JobConfig implements Serializable {
   public void setArgument(String key, String value) {
     args.put(key, value);
   }
-  
+
   public String getCrawlId() {
     return crawlId;
   }

@@ -51,19 +51,23 @@ import org.xml.sax.InputSource;
  * Allows users to do regex substitutions on all/any URLs that are encountered,
  * which is useful for stripping session IDs from URLs.
  * 
- * <p>This class uses the <tt>urlnormalizer.regex.file</tt> property.
- * It should be set to the file name of an xml file which should contain the
- * patterns and substitutions to be done on encountered URLs.
+ * <p>
+ * This class uses the <tt>urlnormalizer.regex.file</tt> property. It should be
+ * set to the file name of an xml file which should contain the patterns and
+ * substitutions to be done on encountered URLs.
  * </p>
- * <p>This class also supports different rules depending on the scope. Please see
- * the javadoc in {@link org.apache.nutch.net.URLNormalizers} for more details.</p>
+ * <p>
+ * This class also supports different rules depending on the scope. Please see
+ * the javadoc in {@link org.apache.nutch.net.URLNormalizers} for more details.
+ * </p>
  * 
  * @author Luke Baker
  * @author Andrzej Bialecki
  */
 public class RegexURLNormalizer extends Configured implements URLNormalizer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RegexURLNormalizer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(RegexURLNormalizer.class);
 
   /**
    * Class which holds a compiled pattern and its corresponding substition
@@ -75,19 +79,18 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     public String substitution;
   }
 
-  private ThreadLocal<HashMap<String, List<Rule>>> scopedRulesThreadLocal = 
-      new ThreadLocal<HashMap<String,List<Rule>>>() {
-    protected java.util.HashMap<String,java.util.List<Rule>> initialValue() {
+  private ThreadLocal<HashMap<String, List<Rule>>> scopedRulesThreadLocal = new ThreadLocal<HashMap<String, List<Rule>>>() {
+    protected java.util.HashMap<String, java.util.List<Rule>> initialValue() {
       return new HashMap<String, List<Rule>>();
     };
   };
-  
+
   public HashMap<String, List<Rule>> getScopedRules() {
     return scopedRulesThreadLocal.get();
   }
-  
-  private List<Rule> defaultRules; 
-  
+
+  private List<Rule> defaultRules;
+
   private static final List<Rule> EMPTY_RULES = Collections.emptyList();
 
   /**
@@ -107,7 +110,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
    * configuration files for it.
    */
   public RegexURLNormalizer(Configuration conf, String filename)
-          throws IOException, PatternSyntaxException {
+      throws IOException, PatternSyntaxException {
     super(conf);
     List<Rule> rules = readConfigurationFile(filename);
     if (rules != null) {
@@ -117,7 +120,8 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
 
   public void setConf(Configuration conf) {
     super.setConf(conf);
-    if (conf == null) return;
+    if (conf == null)
+      return;
     // the default constructor was called
 
     String filename = getConf().get("urlnormalizer.regex.file");
@@ -147,9 +151,10 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
   void setConfiguration(Reader reader, String scope) {
     List<Rule> rules = readConfiguration(reader);
     getScopedRules().put(scope, rules);
-    LOG.debug("Set config for scope '" + scope + "': " + rules.size() + " rules.");
+    LOG.debug("Set config for scope '" + scope + "': " + rules.size()
+        + " rules.");
   }
-  
+
   /**
    * This function does the replacements by iterating through all the regex
    * patterns. It accepts a string url as input and returns the altered string.
@@ -190,7 +195,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
   }
 
   public String normalize(String urlString, String scope)
-          throws MalformedURLException {
+      throws MalformedURLException {
     return regexNormalize(urlString, scope);
   }
 
@@ -207,17 +212,17 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       return EMPTY_RULES;
     }
   }
-  
+
   private List<Rule> readConfiguration(Reader reader) {
     List<Rule> rules = new ArrayList<Rule>();
     try {
 
       // borrowed heavily from code in Configuration.java
       Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-              .parse(new InputSource(reader));
+          .parse(new InputSource(reader));
       Element root = doc.getDocumentElement();
       if ((!"regex-normalize".equals(root.getTagName()))
-              && (LOG.isErrorEnabled())) {
+          && (LOG.isErrorEnabled())) {
         LOG.error("bad conf file: top-level element not <regex-normalize>");
       }
       NodeList regexes = root.getChildNodes();
@@ -240,7 +245,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
           if ("pattern".equals(field.getTagName()) && field.hasChildNodes())
             patternValue = ((Text) field.getFirstChild()).getData();
           if ("substitution".equals(field.getTagName())
-                  && field.hasChildNodes())
+              && field.hasChildNodes())
             subValue = ((Text) field.getFirstChild()).getData();
           if (!field.hasChildNodes())
             subValue = "";
@@ -251,7 +256,8 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
             rule.pattern = Pattern.compile(patternValue);
           } catch (PatternSyntaxException e) {
             if (LOG.isErrorEnabled()) {
-              LOG.error("skipped rule: " + patternValue + " -> " + subValue + " : invalid regular expression pattern: " + e);
+              LOG.error("skipped rule: " + patternValue + " -> " + subValue
+                  + " : invalid regular expression pattern: " + e);
             }
             continue;
           }
@@ -265,13 +271,14 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       }
       return EMPTY_RULES;
     }
-    if (rules.size() == 0) return EMPTY_RULES;
+    if (rules.size() == 0)
+      return EMPTY_RULES;
     return rules;
   }
 
   /** Spits out patterns and substitutions that are in the configuration file. */
   public static void main(String args[]) throws PatternSyntaxException,
-          IOException {
+      IOException {
     RegexURLNormalizer normalizer = new RegexURLNormalizer();
     normalizer.setConf(NutchConfiguration.create());
     HashMap<String, List<Rule>> scopedRules = normalizer.getScopedRules();
@@ -290,9 +297,10 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       Iterator<String> it = scopedRules.keySet().iterator();
       while (it.hasNext()) {
         String scope = it.next();
-        if (URLNormalizers.SCOPE_DEFAULT.equals(scope)) continue;
+        if (URLNormalizers.SCOPE_DEFAULT.equals(scope))
+          continue;
         System.out.println("* Rules for '" + scope + "' scope:");
-        i = ((List<Rule>)scopedRules.get(scope)).iterator();
+        i = ((List<Rule>) scopedRules.get(scope)).iterator();
         while (i.hasNext()) {
           Rule r = (Rule) i.next();
           System.out.print("  " + r.pattern.pattern() + " -> ");
@@ -303,10 +311,12 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     if (args.length > 0) {
       System.out.println("\n---------- Normalizer test -----------");
       String scope = URLNormalizers.SCOPE_DEFAULT;
-      if (args.length > 1) scope = args[1];
+      if (args.length > 1)
+        scope = args[1];
       System.out.println("Scope: " + scope);
       System.out.println("Input url:  '" + args[0] + "'");
-      System.out.println("Output url: '" + normalizer.normalize(args[0], scope) + "'");
+      System.out.println("Output url: '" + normalizer.normalize(args[0], scope)
+          + "'");
     }
     System.exit(0);
   }

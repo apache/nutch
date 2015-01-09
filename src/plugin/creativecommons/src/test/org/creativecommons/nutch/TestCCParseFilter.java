@@ -36,52 +36,50 @@ import static org.junit.Assert.assertEquals;
 
 public class TestCCParseFilter {
 
-	private static final File testDir = new File(
-			System.getProperty("test.input"));
+  private static final File testDir = new File(System.getProperty("test.input"));
 
   @Test
-	public void testPages() throws Exception {
-		pageTest(new File(testDir, "anchor.html"), "http://foo.com/",
-				"http://creativecommons.org/licenses/by-nc-sa/1.0", "a", null);
-		// Tika returns <a> whereas parse-html returns <rel>
-		// check later
-		pageTest(new File(testDir, "rel.html"), "http://foo.com/",
-				"http://creativecommons.org/licenses/by-nc/2.0", "rel", null);
-		// Tika returns <a> whereas parse-html returns <rdf>
-		// check later
-		pageTest(new File(testDir, "rdf.html"), "http://foo.com/",
-				"http://creativecommons.org/licenses/by-nc/1.0", "rdf", "text");
-	}
+  public void testPages() throws Exception {
+    pageTest(new File(testDir, "anchor.html"), "http://foo.com/",
+        "http://creativecommons.org/licenses/by-nc-sa/1.0", "a", null);
+    // Tika returns <a> whereas parse-html returns <rel>
+    // check later
+    pageTest(new File(testDir, "rel.html"), "http://foo.com/",
+        "http://creativecommons.org/licenses/by-nc/2.0", "rel", null);
+    // Tika returns <a> whereas parse-html returns <rdf>
+    // check later
+    pageTest(new File(testDir, "rdf.html"), "http://foo.com/",
+        "http://creativecommons.org/licenses/by-nc/1.0", "rdf", "text");
+  }
 
-	public void pageTest(File file, String url, String license,
-			String location, String type) throws Exception {
+  public void pageTest(File file, String url, String license, String location,
+      String type) throws Exception {
 
-		InputStream in = new FileInputStream(file);
-		ByteArrayOutputStream out = new ByteArrayOutputStream(
-				(int) file.length());
-		byte[] buffer = new byte[1024];
-		int i;
-		while ((i = in.read(buffer)) != -1) {
-			out.write(buffer, 0, i);
-		}
-		in.close();
-		byte[] bytes = out.toByteArray();
-		Configuration conf = NutchConfiguration.create();
+    InputStream in = new FileInputStream(file);
+    ByteArrayOutputStream out = new ByteArrayOutputStream((int) file.length());
+    byte[] buffer = new byte[1024];
+    int i;
+    while ((i = in.read(buffer)) != -1) {
+      out.write(buffer, 0, i);
+    }
+    in.close();
+    byte[] bytes = out.toByteArray();
+    Configuration conf = NutchConfiguration.create();
 
-		WebPage page = WebPage.newBuilder().build();
-		page.setBaseUrl(new Utf8(url));
-		page.setContent(ByteBuffer.wrap(bytes));
-		MimeUtil mimeutil = new MimeUtil(conf);
-		String mtype = mimeutil.getMimeType(file);
-		page.setContentType(new Utf8(mtype));
+    WebPage page = WebPage.newBuilder().build();
+    page.setBaseUrl(new Utf8(url));
+    page.setContent(ByteBuffer.wrap(bytes));
+    MimeUtil mimeutil = new MimeUtil(conf);
+    String mtype = mimeutil.getMimeType(file);
+    page.setContentType(new Utf8(mtype));
 
-		new ParseUtil(conf).parse(url, page);
+    new ParseUtil(conf).parse(url, page);
 
-		ByteBuffer bb = page.getMetadata().get(new Utf8("License-Url"));
-		assertEquals(license, Bytes.toString(bb));
-		bb = page.getMetadata().get(new Utf8("License-Location"));
-		assertEquals(location, Bytes.toString(bb));
-		bb = page.getMetadata().get(new Utf8("Work-Type"));
-        assertEquals(type, Bytes.toString(bb));
-	}
+    ByteBuffer bb = page.getMetadata().get(new Utf8("License-Url"));
+    assertEquals(license, Bytes.toString(bb));
+    bb = page.getMetadata().get(new Utf8("License-Location"));
+    assertEquals(location, Bytes.toString(bb));
+    bb = page.getMetadata().get(new Utf8("Work-Type"));
+    assertEquals(type, Bytes.toString(bb));
+  }
 }

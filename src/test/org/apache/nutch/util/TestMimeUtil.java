@@ -36,7 +36,8 @@ public class TestMimeUtil extends TestCase {
   private File sampleDir = new File(System.getProperty("test.build.data", "."),
       "test-mime-util");
 
-  /** test data, every element on "test page":
+  /**
+   * test data, every element on "test page":
    * <ol>
    * <li>MIME type</li>
    * <li>file name (last URL path element)</li>
@@ -67,15 +68,11 @@ public class TestMimeUtil extends TestCase {
           "<?xml version=\"1.0\"?>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">"
               + "<html>\n<head>\n"
               + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"
-              + "</head>\n<body>Hello, World!</body></html>" }
-    };
+              + "</head>\n<body>Hello, World!</body></html>" } };
 
-  public static String[][] binaryFiles = {
-    {
+  public static String[][] binaryFiles = { {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "test.xlsx",
-      "" }
-    };
+      "test.xlsx", "" } };
 
   private String getMimeType(String url, File file, String contentType,
       boolean useMagic) throws IOException {
@@ -121,8 +118,8 @@ public class TestMimeUtil extends TestCase {
   public void testBinaryFiles() throws IOException {
     for (String[] testPage : binaryFiles) {
       File dataFile = new File(sampleDir, testPage[1]);
-      String mimeType = getMimeType(urlPrefix + testPage[1],
-          dataFile, testPage[2], false);
+      String mimeType = getMimeType(urlPrefix + testPage[1], dataFile,
+          testPage[2], false);
       assertEquals("", testPage[0], mimeType);
     }
   }

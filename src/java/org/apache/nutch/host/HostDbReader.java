@@ -39,7 +39,8 @@ import org.apache.nutch.util.TableUtil;
 public class HostDbReader extends Configured implements Tool {
   public static final Log LOG = LogFactory.getLog(HostDbReader.class);
 
-  private void read(String key) throws ClassNotFoundException, IOException, Exception {
+  private void read(String key) throws ClassNotFoundException, IOException,
+      Exception {
 
     DataStore<String, Host> datastore = StorageUtils.createWebStore(getConf(),
         String.class, Host.class);

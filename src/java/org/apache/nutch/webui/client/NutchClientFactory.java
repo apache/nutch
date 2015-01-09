@@ -42,7 +42,8 @@ public class NutchClientFactory {
     }
   }
 
-  private static class NutchClientCacheLoader extends CacheLoader<NutchInstance, NutchClient> {
+  private static class NutchClientCacheLoader extends
+      CacheLoader<NutchInstance, NutchClient> {
     @Override
     public NutchClient load(NutchInstance key) throws Exception {
       return new NutchClientImpl(key);

@@ -46,14 +46,16 @@ public class NutchClientImpl implements NutchClient {
 
   public void createClient() {
     ClientConfig clientConfig = new DefaultClientConfig();
-    clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
+    clientConfig.getFeatures()
+        .put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
     this.client = Client.create(clientConfig);
     this.nutchResource = client.resource(instance.getUrl());
   }
 
   @Override
   public NutchStatus getNutchStatus() {
-    return nutchResource.path("/admin").type(APPLICATION_JSON).get(NutchStatus.class);
+    return nutchResource.path("/admin").type(APPLICATION_JSON)
+        .get(NutchStatus.class);
   }
 
   @Override
@@ -66,12 +68,14 @@ public class NutchClientImpl implements NutchClient {
 
   @Override
   public String executeJob(JobConfig jobConfig) {
-    return nutchResource.path("/job/create").type(APPLICATION_JSON).post(String.class, jobConfig);
+    return nutchResource.path("/job/create").type(APPLICATION_JSON)
+        .post(String.class, jobConfig);
   }
 
   @Override
   public JobInfo getJobInfo(String jobId) {
-    return nutchResource.path("/job/" + jobId).type(APPLICATION_JSON).get(JobInfo.class);
+    return nutchResource.path("/job/" + jobId).type(APPLICATION_JSON)
+        .get(JobInfo.class);
   }
 
   @Override
@@ -82,11 +86,13 @@ public class NutchClientImpl implements NutchClient {
   @SuppressWarnings("unchecked")
   @Override
   public Map<String, String> getNutchConfig(String config) {
-    return nutchResource.path("/config/" + config).type(APPLICATION_JSON).get(Map.class);
+    return nutchResource.path("/config/" + config).type(APPLICATION_JSON)
+        .get(Map.class);
   }
-  
+
   @Override
   public String createSeed(SeedList seedList) {
-    return nutchResource.path("/seed/create").type(APPLICATION_JSON).post(String.class, seedList);
+    return nutchResource.path("/seed/create").type(APPLICATION_JSON)
+        .post(String.class, seedList);
   }
 }

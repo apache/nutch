@@ -22,7 +22,7 @@ public class ProtocolNotFound extends ProtocolException {
   private String url;
 
   public ProtocolNotFound(String url) {
-    this(url, "protocol not found for url="+url);
+    this(url, "protocol not found for url=" + url);
   }
 
   public ProtocolNotFound(String url, String message) {
@@ -30,5 +30,7 @@ public class ProtocolNotFound extends ProtocolException {
     this.url = url;
   }
 
-  public String getUrl() { return url; }
+  public String getUrl() {
+    return url;
+  }
 }

@@ -21,9 +21,11 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 /**
- * This is iterator adapter, which wraps iterable items with CompoundPropertyModel.
+ * This is iterator adapter, which wraps iterable items with
+ * CompoundPropertyModel.
+ * 
  * @author feodor
- *
+ * 
  * @param <T>
  */
 public class CpmIteratorAdapter<T> extends ModelIteratorAdapter<T> {

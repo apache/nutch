@@ -54,18 +54,16 @@ public class NutchStatus {
     this.jobs = jobs;
   }
 
-  public Collection<JobInfo> getRunningJobs()
-  {
+  public Collection<JobInfo> getRunningJobs() {
     return purgeFinishedFailedJobs(runningJobs);
   }
-
 
   public void setRunningJobs(Collection<JobInfo> runningJobs) {
     this.runningJobs = runningJobs;
   }
 
-  private Collection<JobInfo> purgeFinishedFailedJobs(Collection<JobInfo> runningJobColl)
-  {
+  private Collection<JobInfo> purgeFinishedFailedJobs(
+      Collection<JobInfo> runningJobColl) {
     if (CollectionUtils.isNotEmpty(runningJobColl)) {
       Iterator<JobInfo> runningJobsIterator = runningJobColl.iterator();
       while (runningJobsIterator.hasNext()) {
@@ -73,8 +71,7 @@ public class NutchStatus {
 
         if (jobInfo.getState().equals(State.FINISHED)) {
           runningJobsIterator.remove();
-        }
-        else if (jobInfo.getState().equals(State.FAILED)) {
+        } else if (jobInfo.getState().equals(State.FAILED)) {
           runningJobsIterator.remove();
         }
 

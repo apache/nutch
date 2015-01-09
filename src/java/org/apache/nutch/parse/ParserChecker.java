@@ -37,28 +37,30 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Parser checker, useful for testing parser.
- * It also accurately reports possible fetching and 
- * parsing failures and presents protocol status signals to aid 
- * debugging. The tool enables us to retrieve the following data from 
- * any url:
+ * Parser checker, useful for testing parser. It also accurately reports
+ * possible fetching and parsing failures and presents protocol status signals
+ * to aid debugging. The tool enables us to retrieve the following data from any
+ * url:
  * <ol>
- * <li><tt>contentType</tt>: The URL {@link org.apache.nutch.protocol.Content} type.</li>
- * <li><tt>signature</tt>: Digest is used to identify pages (like unique ID) and is used to remove
- * duplicates during the dedup procedure. 
- * It is calculated using {@link org.apache.nutch.crawl.MD5Signature} or
+ * <li><tt>contentType</tt>: The URL {@link org.apache.nutch.protocol.Content}
+ * type.</li>
+ * <li><tt>signature</tt>: Digest is used to identify pages (like unique ID) and
+ * is used to remove duplicates during the dedup procedure. It is calculated
+ * using {@link org.apache.nutch.crawl.MD5Signature} or
  * {@link org.apache.nutch.crawl.TextProfileSignature}.</li>
  * <li><tt>Version</tt>: From {@link org.apache.nutch.parse.ParseData}.</li>
  * <li><tt>Status</tt>: From {@link org.apache.nutch.parse.ParseData}.</li>
  * <li><tt>Title</tt>: of the URL</li>
  * <li><tt>Outlinks</tt>: associated with the URL</li>
  * <li><tt>Content Metadata</tt>: such as <i>X-AspNet-Version</i>, <i>Date</i>,
- * <i>Content-length</i>, <i>servedBy</i>, <i>Content-Type</i>, <i>Cache-Control</>, etc.</li>
+ * <i>Content-length</i>, <i>servedBy</i>, <i>Content-Type</i>,
+ * <i>Cache-Control</>, etc.</li>
  * <li><tt>Parse Metadata</tt>: such as <i>CharEncodingForConversion</i>,
  * <i>OriginalCharEncoding</i>, <i>language</i>, etc.</li>
- * <li><tt>ParseText</tt>: The page parse text which varies in length depdnecing on 
- * <code>content.length</code> configuration.</li>
+ * <li><tt>ParseText</tt>: The page parse text which varies in length depdnecing
+ * on <code>content.length</code> configuration.</li>
  * </ol>
+ * 
  * @author John Xing
  */
 
@@ -107,7 +109,7 @@ public class ParserChecker implements Tool {
 
     ProtocolOutput protocolOutput = protocol.getProtocolOutput(url, page);
 
-    if(!protocolOutput.getStatus().isSuccess()) {
+    if (!protocolOutput.getStatus().isSuccess()) {
       LOG.error("Fetch failed with protocol status: "
           + ProtocolStatusUtils.getName(protocolOutput.getStatus().getCode())
           + ": " + ProtocolStatusUtils.getMessage(protocolOutput.getStatus()));
@@ -155,7 +157,6 @@ public class ParserChecker implements Tool {
       LOG.info("signature: " + StringUtil.toHexString(signature));
     }
 
-
     LOG.info("---------\nUrl\n---------------\n");
     System.out.print(url + "\n");
     LOG.info("---------\nMetadata\n---------\n");
@@ -167,7 +168,7 @@ public class ParserChecker implements Tool {
       while (iterator.hasNext()) {
         Entry<CharSequence, ByteBuffer> entry = iterator.next();
         sb.append(entry.getKey().toString()).append(" : \t")
-        .append(Bytes.toString(entry.getValue())).append("\n");
+            .append(Bytes.toString(entry.getValue())).append("\n");
       }
       System.out.print(sb.toString());
     }
@@ -182,12 +183,12 @@ public class ParserChecker implements Tool {
       Map<CharSequence, CharSequence> headers = page.getHeaders();
       StringBuffer headersb = new StringBuffer();
       if (metadata != null) {
-        Iterator<Entry<CharSequence, CharSequence>> iterator = headers.entrySet()
-            .iterator();
+        Iterator<Entry<CharSequence, CharSequence>> iterator = headers
+            .entrySet().iterator();
         while (iterator.hasNext()) {
           Entry<CharSequence, CharSequence> entry = iterator.next();
           headersb.append(entry.getKey().toString()).append(" : \t")
-          .append(entry.getValue()).append("\n");
+              .append(entry.getValue()).append("\n");
         }
         System.out.print(headersb.toString());
       }

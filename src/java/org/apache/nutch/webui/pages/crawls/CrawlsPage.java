@@ -103,7 +103,7 @@ public class CrawlsPage extends AbstractBasePage<Void> {
       }
     }.add(new Label("crawlName")));
     item.add(new Label("seedList.name"));
-    
+
     item.add(new Label("progress"));
     item.add(createStatusLabel());
     item.add(new Link<Crawl>("start", item.getModel()) {
@@ -132,8 +132,8 @@ public class CrawlsPage extends AbstractBasePage<Void> {
   }
 
   private EnumLabel<CrawlStatus> createStatusLabel() {
-    return new ColorEnumLabelBuilder<CrawlStatus>("status").withEnumColor(NEW, Default)
-        .withEnumColor(ERROR, Danger).withEnumColor(FINISHED, Success)
-        .withEnumColor(CRAWLING, Info).build();
+    return new ColorEnumLabelBuilder<CrawlStatus>("status")
+        .withEnumColor(NEW, Default).withEnumColor(ERROR, Danger)
+        .withEnumColor(FINISHED, Success).withEnumColor(CRAWLING, Info).build();
   }
 }

@@ -17,13 +17,16 @@
 
 package org.apache.nutch.protocol.ftp;
 
-/** Thrown for Ftp error codes.
+/**
+ * Thrown for Ftp error codes.
  */
 public class FtpError extends FtpException {
 
   private int code;
-  
-  public int getCode(int code) { return code; }
+
+  public int getCode(int code) {
+    return code;
+  }
 
   public FtpError(int code) {
     super("Ftp Error: " + code);

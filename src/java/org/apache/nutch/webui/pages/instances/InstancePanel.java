@@ -37,7 +37,8 @@ public class InstancePanel extends Modal {
     form.add(new TextField<String>("host").setRequired(true));
     form.add(new TextField<Integer>("port").setRequired(true));
     form.add(new TextField<String>("username"));
-    form.add(new PasswordTextField("password").setResetPassword(false).setRequired(false));
+    form.add(new PasswordTextField("password").setResetPassword(false)
+        .setRequired(false));
 
     addButton(new AjaxSubmitLink("button", form) {
       @Override

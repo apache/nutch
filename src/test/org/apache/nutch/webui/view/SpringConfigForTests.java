@@ -29,7 +29,8 @@ public class SpringConfigForTests {
 
   @Bean
   public JdbcConnectionSource getConnectionSource() throws SQLException {
-    JdbcConnectionSource source = new JdbcConnectionSource("jdbc:h2:mem:", new H2DatabaseType());
+    JdbcConnectionSource source = new JdbcConnectionSource("jdbc:h2:mem:",
+        new H2DatabaseType());
     source.initialize();
     return source;
   }

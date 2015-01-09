@@ -35,13 +35,14 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Entry point to Gora store/mapreduce functionality.
- * Translates the concept of "crawlid" to the corresponding Gora support.
+ * Entry point to Gora store/mapreduce functionality. Translates the concept of
+ * "crawlid" to the corresponding Gora support.
  */
 public class StorageUtils {
 
-  /** Creates a store for the given persistentClass.
-   * Currently supports Webpage and Host stores.
+  /**
+   * Creates a store for the given persistentClass. Currently supports Webpage
+   * and Host stores.
    * 
    * @param conf
    * @param keyClass
@@ -51,15 +52,16 @@ public class StorageUtils {
    * @throws GoraException
    */
   @SuppressWarnings("unchecked")
-  public static <K, V extends Persistent> DataStore<K, V> createWebStore(Configuration conf,
-      Class<K> keyClass, Class<V> persistentClass) throws ClassNotFoundException, GoraException {
+  public static <K, V extends Persistent> DataStore<K, V> createWebStore(
+      Configuration conf, Class<K> keyClass, Class<V> persistentClass)
+      throws ClassNotFoundException, GoraException {
 
     String crawlId = conf.get(Nutch.CRAWL_ID_KEY, "");
     String schemaPrefix = "";
     if (!crawlId.isEmpty()) {
       schemaPrefix = crawlId + "_";
     }
-      
+
     String schema;
     if (WebPage.class.equals(persistentClass)) {
       schema = conf.get("storage.schema.webpage", "webpage");
@@ -68,52 +70,52 @@ public class StorageUtils {
       schema = conf.get("storage.schema.host", "host");
       conf.set("preferred.schema.name", schemaPrefix + "host");
     } else {
-      throw new UnsupportedOperationException("Unable to create store for class " + persistentClass);
+      throw new UnsupportedOperationException(
+          "Unable to create store for class " + persistentClass);
     }
 
-    Class<? extends DataStore<K, V>> dataStoreClass =
-      (Class<? extends DataStore<K, V>>) getDataStoreClass(conf);
-    return DataStoreFactory.createDataStore(dataStoreClass,
-            keyClass, persistentClass, conf, schema);
+    Class<? extends DataStore<K, V>> dataStoreClass = (Class<? extends DataStore<K, V>>) getDataStoreClass(conf);
+    return DataStoreFactory.createDataStore(dataStoreClass, keyClass,
+        persistentClass, conf, schema);
   }
-  
+
   /**
    * Return the Persistent Gora class used to persist Nutch Web data.
    * 
-   * @param the Nutch configuration 
+   * @param the
+   *          Nutch configuration
    * @return the Gora DataStore persistent class
    * @throws ClassNotFoundException
    */
   @SuppressWarnings("unchecked")
-  public static <K, V extends Persistent> Class<? extends DataStore<K, V>>
-  getDataStoreClass(Configuration conf)  throws ClassNotFoundException {
-    return (Class<? extends DataStore<K, V>>)
-      Class.forName(conf.get("storage.data.store.class",
-          "org.apache.gora.sql.store.SqlStore"));
+  public static <K, V extends Persistent> Class<? extends DataStore<K, V>> getDataStoreClass(
+      Configuration conf) throws ClassNotFoundException {
+    return (Class<? extends DataStore<K, V>>) Class.forName(conf.get(
+        "storage.data.store.class", "org.apache.gora.sql.store.SqlStore"));
   }
 
   public static <K, V> void initMapperJob(Job job,
-      Collection<WebPage.Field> fields,
-      Class<K> outKeyClass, Class<V> outValueClass,
+      Collection<WebPage.Field> fields, Class<K> outKeyClass,
+      Class<V> outValueClass,
       Class<? extends GoraMapper<String, WebPage, K, V>> mapperClass)
-  throws ClassNotFoundException, IOException {
-    initMapperJob(job, fields, outKeyClass, outValueClass,
-        mapperClass, null, true);
+      throws ClassNotFoundException, IOException {
+    initMapperJob(job, fields, outKeyClass, outValueClass, mapperClass, null,
+        true);
   }
 
   public static <K, V> void initMapperJob(Job job,
-      Collection<WebPage.Field> fields,
-      Class<K> outKeyClass, Class<V> outValueClass,
+      Collection<WebPage.Field> fields, Class<K> outKeyClass,
+      Class<V> outValueClass,
       Class<? extends GoraMapper<String, WebPage, K, V>> mapperClass,
       Class<? extends Partitioner<K, V>> partitionerClass)
-  throws ClassNotFoundException, IOException {
-    initMapperJob(job, fields, outKeyClass, outValueClass,
-        mapperClass, partitionerClass, true);
+      throws ClassNotFoundException, IOException {
+    initMapperJob(job, fields, outKeyClass, outValueClass, mapperClass,
+        partitionerClass, true);
   }
 
   public static <K, V> void initMapperJob(Job job,
-      Collection<WebPage.Field> fields,
-      Class<K> outKeyClass, Class<V> outValueClass,
+      Collection<WebPage.Field> fields, Class<K> outKeyClass,
+      Class<V> outValueClass,
       Class<? extends GoraMapper<String, WebPage, K, V>> mapperClass,
       Class<? extends Partitioner<K, V>> partitionerClass, boolean reuseObjects)
       throws ClassNotFoundException, IOException {
@@ -154,10 +156,10 @@ public class StorageUtils {
 
   public static <K, V> void initReducerJob(Job job,
       Class<? extends GoraReducer<K, V, String, WebPage>> reducerClass)
-  throws ClassNotFoundException, GoraException {
+      throws ClassNotFoundException, GoraException {
     Configuration conf = job.getConfiguration();
-    DataStore<String, WebPage> store =
-      StorageUtils.createWebStore(conf, String.class, WebPage.class);
+    DataStore<String, WebPage> store = StorageUtils.createWebStore(conf,
+        String.class, WebPage.class);
     GoraReducer.initReducerJob(job, store, reducerClass);
     GoraOutputFormat.setOutput(job, store, true);
   }

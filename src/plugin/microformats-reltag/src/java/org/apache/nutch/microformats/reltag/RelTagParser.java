@@ -74,26 +74,26 @@ public class RelTagParser implements ParseFilter {
       if (node.getNodeType() == Node.ELEMENT_NODE) {
         // Look for <a> tag
         if ("a".equalsIgnoreCase(node.getNodeName())) {
-	  NamedNodeMap attrs = node.getAttributes();
-	  Node hrefNode = attrs.getNamedItem("href");
-	  // Checks that it contains a href attribute
-	  if (hrefNode != null) {
-	    Node relNode = attrs.getNamedItem("rel");
-	    // Checks that it contains a rel attribute too
-	    if (relNode != null) {
-	      // Finaly checks that rel=tag
-	      if ("tag".equalsIgnoreCase(relNode.getNodeValue())) {
-	        String tag = parseTag(hrefNode.getNodeValue());
-	        if (!StringUtil.isEmpty(tag)) {
-	          if(!tags.contains(tag)){
+          NamedNodeMap attrs = node.getAttributes();
+          Node hrefNode = attrs.getNamedItem("href");
+          // Checks that it contains a href attribute
+          if (hrefNode != null) {
+            Node relNode = attrs.getNamedItem("rel");
+            // Checks that it contains a rel attribute too
+            if (relNode != null) {
+              // Finaly checks that rel=tag
+              if ("tag".equalsIgnoreCase(relNode.getNodeValue())) {
+                String tag = parseTag(hrefNode.getNodeValue());
+                if (!StringUtil.isEmpty(tag)) {
+                  if (!tags.contains(tag)) {
                     tags.add(tag);
-		    LOG.debug("Adding tag: " + tag + " to tag set.");
+                    LOG.debug("Adding tag: " + tag + " to tag set.");
                   }
-	        }
-	      }
-	    }
-	  }
-	}
+                }
+              }
+            }
+          }
+        }
       }
 
       // Recurse
@@ -108,11 +108,13 @@ public class RelTagParser implements ParseFilter {
       try {
         URL u = new URL(url);
         String path = u.getPath();
-        tag = URLDecoder.decode(path.substring(path.lastIndexOf('/') + 1), "UTF-8");
+        tag = URLDecoder.decode(path.substring(path.lastIndexOf('/') + 1),
+            "UTF-8");
       } catch (Exception e) {
         // Malformed tag...
         tag = null;
-      } return tag;
+      }
+      return tag;
     }
   }
 
@@ -136,12 +138,11 @@ public class RelTagParser implements ParseFilter {
     FIELDS.add(WebPage.Field.BASE_URL);
     FIELDS.add(WebPage.Field.METADATA);
   }
-  
+
   /**
-   * Gets all the fields for a given {@link WebPage}
-   * Many datastores need to setup the mapreduce job by specifying the fields
-   * needed. All extensions that work on WebPage are able to specify what fields
-   * they need.
+   * Gets all the fields for a given {@link WebPage} Many datastores need to
+   * setup the mapreduce job by specifying the fields needed. All extensions
+   * that work on WebPage are able to specify what fields they need.
    */
   @Override
   public Collection<Field> getFields() {

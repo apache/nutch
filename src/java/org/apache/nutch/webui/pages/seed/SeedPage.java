@@ -122,7 +122,8 @@ public class SeedPage extends AbstractBasePage<SeedList> {
   }
 
   private void addUrlForm() {
-    urlForm = new Form<SeedUrl>("urlForm", CompoundPropertyModel.of(Model.of(new SeedUrl())));
+    urlForm = new Form<SeedUrl>("urlForm", CompoundPropertyModel.of(Model
+        .of(new SeedUrl())));
     urlForm.setOutputMarkupId(true);
     urlForm.add(new TextField<String>("url"));
     urlForm.add(new AjaxSubmitLink("addUrl", urlForm) {

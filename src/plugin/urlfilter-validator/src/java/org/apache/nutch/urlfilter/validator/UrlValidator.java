@@ -134,8 +134,10 @@ public class UrlValidator implements URLFilter {
 
   private int maxTldLength;
 
-  private static String TOP_LEVEL_DOMAIN_LENGTH = "urlfilter.tld.length"; // maximum length of TLD
-                                                                          
+  private static String TOP_LEVEL_DOMAIN_LENGTH = "urlfilter.tld.length"; // maximum
+                                                                          // length
+                                                                          // of
+                                                                          // TLD
 
   private static final int TOP_LEVEL_DOMAIN_LENGTH_VALUE = 8;
 
@@ -287,8 +289,7 @@ public class UrlValidator implements URLFilter {
         segCount++;
       }
       String topLevel = domainSegment[segCount - 1];
-      if (topLevel.length() < 2
-          || topLevel.length() > maxTldLength) {
+      if (topLevel.length() < 2 || topLevel.length() > maxTldLength) {
         return false;
       }
 

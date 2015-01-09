@@ -163,12 +163,14 @@ public class Sftp implements Protocol {
       bytes = new byte[size];
       iStream.read(bytes);
     } catch (SftpException e) {
-      logger.error("SftpException in getFileProtocolOutput(), file: "
-          + url.getFile(), e);
+      logger
+          .error(
+              "SftpException in getFileProtocolOutput(), file: "
+                  + url.getFile(), e);
       throw e;
     } catch (IOException e) {
-      logger.error("IOException in getFileProtocolOutput(), file: "
-          + url.getFile(), e);
+      logger.error(
+          "IOException in getFileProtocolOutput(), file: " + url.getFile(), e);
       throw e;
     } finally {
       if (iStream != null) {
@@ -213,8 +215,8 @@ public class Sftp implements Protocol {
 
       Metadata metadata = new Metadata();
       metadata.set(Response.CONTENT_TYPE, "text/html");
-      metadata.set(Response.CONTENT_LENGTH, String.valueOf(directoryList
-          .length()));
+      metadata.set(Response.CONTENT_LENGTH,
+          String.valueOf(directoryList.length()));
       metadata.set(Response.LAST_MODIFIED, channelSftp.lstat(url.getFile())
           .getMtimeString());
       metadata.set(Response.LOCATION, url.toExternalForm());
@@ -250,7 +252,7 @@ public class Sftp implements Protocol {
     if (server == null) {
       return;
     }
-    
+
     if (channelSftpByHostMap.containsKey(server)) {
       return;
     }

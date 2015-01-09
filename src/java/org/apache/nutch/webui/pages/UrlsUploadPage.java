@@ -16,6 +16,6 @@
  */
 package org.apache.nutch.webui.pages;
 
-public class UrlsUploadPage extends AbstractBasePage{
+public class UrlsUploadPage extends AbstractBasePage {
 
 }

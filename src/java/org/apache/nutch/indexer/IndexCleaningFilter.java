@@ -22,21 +22,21 @@ import org.apache.hadoop.conf.Configurable;
 import org.apache.nutch.plugin.FieldPluggable;
 import org.apache.nutch.storage.WebPage;
 
-
-/** Extension point for indexing.  Permits one to add metadata to the indexed
- * fields.  All plugins found which implement this extension point are run
+/**
+ * Extension point for indexing. Permits one to add metadata to the indexed
+ * fields. All plugins found which implement this extension point are run
  * sequentially on the parse.
  */
 public interface IndexCleaningFilter extends FieldPluggable, Configurable {
   /** The name of the extension point. */
   final static String X_POINT_ID = IndexCleaningFilter.class.getName();
 
-  /**   
-   * @param url page url
+  /**
+   * @param url
+   *          page url
    * @param page
    * @return true == remove false == keep
    * @throws IndexingException
    */
-  boolean remove(String url, WebPage page)
-  throws IndexingException;
+  boolean remove(String url, WebPage page) throws IndexingException;
 }

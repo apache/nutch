@@ -59,7 +59,8 @@ import java.util.regex.Pattern;
 
 public class WebTableReader extends NutchTool implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(WebTableReader.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(WebTableReader.class);
 
   public static class WebTableStatMapper extends
       GoraMapper<String, WebPage, Text, LongWritable> {
@@ -209,12 +210,12 @@ public class WebTableReader extends NutchTool implements Tool {
     if (LOG.isInfoEnabled()) {
       LOG.info("WebTable statistics start");
     }
-    
+
     run(ToolUtil.toArgMap(Nutch.ARG_SORT, sort));
-    
+
     if (LOG.isInfoEnabled()) {
       LOG.info("Statistics for WebTable: ");
-      for (Entry<String,Object> e : results.entrySet()) {
+      for (Entry<String, Object> e : results.entrySet()) {
         LOG.info(e.getKey() + ":\t" + e.getValue());
       }
       LOG.info("WebTable statistics: done");
@@ -223,9 +224,10 @@ public class WebTableReader extends NutchTool implements Tool {
 
   /** Prints out the entry to the standard out **/
   private void read(String key, boolean dumpContent, boolean dumpHeaders,
-      boolean dumpLinks, boolean dumpText) throws ClassNotFoundException, IOException, Exception {
-    DataStore<String, WebPage> datastore = StorageUtils.createWebStore(getConf(),
-        String.class, WebPage.class);
+      boolean dumpLinks, boolean dumpText) throws ClassNotFoundException,
+      IOException, Exception {
+    DataStore<String, WebPage> datastore = StorageUtils.createWebStore(
+        getConf(), String.class, WebPage.class);
 
     Query<String, WebPage> query = datastore.newQuery();
     String reversedUrl = TableUtil.reverseUrl(key);
@@ -245,7 +247,7 @@ public class WebTableReader extends NutchTool implements Tool {
         String url = TableUtil.unreverseUrl(skey);
         System.out.println(getPageRepresentation(url, page, dumpContent,
             dumpHeaders, dumpLinks, dumpText));
-      }catch (Exception e) {
+      } catch (Exception e) {
         e.printStackTrace();
       }
     }
@@ -280,9 +282,10 @@ public class WebTableReader extends NutchTool implements Tool {
       // checks whether the Key passes the regex
       String url = TableUtil.unreverseUrl(key.toString());
       if (regex.matcher(url).matches()) {
-        context.write(new Text(url),
-            new Text(getPageRepresentation(key, value, dumpContent, dumpHeaders,
-                dumpLinks, dumpText)));
+        context.write(
+            new Text(url),
+            new Text(getPageRepresentation(key, value, dumpContent,
+                dumpHeaders, dumpLinks, dumpText)));
       }
     }
 
@@ -292,8 +295,10 @@ public class WebTableReader extends NutchTool implements Tool {
         throws IOException, InterruptedException {
       regex = Pattern.compile(context.getConfiguration().get(regexParamName,
           ".+"));
-      dumpContent = context.getConfiguration().getBoolean(contentParamName, false);
-      dumpHeaders = context.getConfiguration().getBoolean(headersParamName, false);
+      dumpContent = context.getConfiguration().getBoolean(contentParamName,
+          false);
+      dumpHeaders = context.getConfiguration().getBoolean(headersParamName,
+          false);
       dumpLinks = context.getConfiguration().getBoolean(linksParamName, false);
       dumpText = context.getConfiguration().getBoolean(textParamName, false);
     }
@@ -317,10 +322,10 @@ public class WebTableReader extends NutchTool implements Tool {
     cfg.setBoolean(WebTableRegexMapper.linksParamName, links);
     cfg.setBoolean(WebTableRegexMapper.textParamName, text);
 
-    DataStore<String, WebPage> store = StorageUtils.createWebStore(job
-        .getConfiguration(), String.class, WebPage.class);
+    DataStore<String, WebPage> store = StorageUtils.createWebStore(
+        job.getConfiguration(), String.class, WebPage.class);
     Query<String, WebPage> query = store.newQuery();
-    //remove the __g__dirty field since it is not stored
+    // remove the __g__dirty field since it is not stored
     String[] fields = Arrays.copyOfRange(WebPage._ALL_FIELDS, 1,
         WebPage._ALL_FIELDS.length);
     query.setFields(fields);
@@ -342,30 +347,37 @@ public class WebTableReader extends NutchTool implements Tool {
   }
 
   private static String getPageRepresentation(String key, WebPage page,
-      boolean dumpContent, boolean dumpHeaders, boolean dumpLinks, boolean dumpText) {
+      boolean dumpContent, boolean dumpHeaders, boolean dumpLinks,
+      boolean dumpText) {
     StringBuffer sb = new StringBuffer();
     sb.append("key:\t" + key).append("\n");
     sb.append("baseUrl:\t" + page.getBaseUrl()).append("\n");
-    sb.append("status:\t").append(page.getStatus()).append(" (").append(
-        CrawlStatus.getName(page.getStatus().byteValue())).append(")\n");
+    sb.append("status:\t").append(page.getStatus()).append(" (")
+        .append(CrawlStatus.getName(page.getStatus().byteValue()))
+        .append(")\n");
     sb.append("fetchTime:\t" + page.getFetchTime()).append("\n");
     sb.append("prevFetchTime:\t" + page.getPrevFetchTime()).append("\n");
-    sb.append("fetchInterval:\t" + page.getFetchInterval()).append("\n"); 
-    sb.append("retriesSinceFetch:\t" + page.getRetriesSinceFetch()).append("\n");
+    sb.append("fetchInterval:\t" + page.getFetchInterval()).append("\n");
+    sb.append("retriesSinceFetch:\t" + page.getRetriesSinceFetch())
+        .append("\n");
     sb.append("modifiedTime:\t" + page.getModifiedTime()).append("\n");
     sb.append("prevModifiedTime:\t" + page.getPrevModifiedTime()).append("\n");
-    sb.append("protocolStatus:\t" +
-        ProtocolStatusUtils.toString(page.getProtocolStatus())).append("\n");
+    sb.append(
+        "protocolStatus:\t"
+            + ProtocolStatusUtils.toString(page.getProtocolStatus())).append(
+        "\n");
     ByteBuffer prevSig = page.getPrevSignature();
-        if (prevSig != null) {
-      sb.append("prevSignature:\t" + StringUtil.toHexString(prevSig)).append("\n");
+    if (prevSig != null) {
+      sb.append("prevSignature:\t" + StringUtil.toHexString(prevSig)).append(
+          "\n");
     }
     ByteBuffer sig = page.getSignature();
     if (sig != null) {
       sb.append("signature:\t" + StringUtil.toHexString(sig)).append("\n");
     }
-    sb.append("parseStatus:\t" +
-        ParseStatusUtils.toString(page.getParseStatus())).append("\n");
+    sb.append(
+        "parseStatus:\t" + ParseStatusUtils.toString(page.getParseStatus()))
+        .append("\n");
     sb.append("title:\t" + page.getTitle()).append("\n");
     sb.append("score:\t" + page.getScore()).append("\n");
 
@@ -439,22 +451,29 @@ public class WebTableReader extends NutchTool implements Tool {
     System.exit(res);
   }
 
-  private static enum Op {READ, STAT, DUMP};
+  private static enum Op {
+    READ, STAT, DUMP
+  };
 
   public int run(String[] args) throws Exception {
     if (args.length < 1) {
       System.err
           .println("Usage: WebTableReader (-stats | -url [url] | -dump <out_dir> [-regex regex]) \n \t \t      [-crawlId <id>] [-content] [-headers] [-links] [-text]");
-      System.err.println("    -crawlId <id>  - the id to prefix the schemas to operate on, \n \t \t     (default: storage.crawl.id)");
-      System.err.println("    -stats [-sort] - print overall statistics to System.out");
+      System.err
+          .println("    -crawlId <id>  - the id to prefix the schemas to operate on, \n \t \t     (default: storage.crawl.id)");
+      System.err
+          .println("    -stats [-sort] - print overall statistics to System.out");
       System.err.println("    [-sort]        - list status sorted by host");
-      System.err.println("    -url <url>     - print information on <url> to System.out");
-      System.err.println("    -dump <out_dir> [-regex regex] - dump the webtable to a text file in \n \t \t     <out_dir>");
+      System.err
+          .println("    -url <url>     - print information on <url> to System.out");
+      System.err
+          .println("    -dump <out_dir> [-regex regex] - dump the webtable to a text file in \n \t \t     <out_dir>");
       System.err.println("    -content       - dump also raw content");
       System.err.println("    -headers       - dump protocol headers");
       System.err.println("    -links         - dump links");
       System.err.println("    -text          - dump extracted text");
-      System.err.println("    [-regex]       - filter on the URL of the webtable entry");
+      System.err
+          .println("    [-regex]       - filter on the URL of the webtable entry");
       return -1;
     }
     String param = null;
@@ -470,8 +489,8 @@ public class WebTableReader extends NutchTool implements Tool {
         if (args[i].equals("-url")) {
           param = args[++i];
           op = Op.READ;
-          //read(param);
-          //return 0;
+          // read(param);
+          // return 0;
         } else if (args[i].equals("-stats")) {
           op = Op.STAT;
         } else if (args[i].equals("-sort")) {
@@ -516,30 +535,32 @@ public class WebTableReader extends NutchTool implements Tool {
 
   // for now handles only -stat
   @Override
-  public Map<String,Object> run(Map<String,Object> args) throws Exception {
+  public Map<String, Object> run(Map<String, Object> args) throws Exception {
     Path tmpFolder = new Path(getConf().get("mapred.temp.dir", ".")
         + "stat_tmp" + System.currentTimeMillis());
 
     numJobs = 1;
     currentJob = new NutchJob(getConf(), "db_stats");
 
-    currentJob.getConfiguration().setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
-    
-    Boolean sort = (Boolean)args.get(Nutch.ARG_SORT);
-    if (sort == null) sort = Boolean.FALSE;
+    currentJob.getConfiguration().setBoolean(
+        "mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+
+    Boolean sort = (Boolean) args.get(Nutch.ARG_SORT);
+    if (sort == null)
+      sort = Boolean.FALSE;
     currentJob.getConfiguration().setBoolean("db.reader.stats.sort", sort);
 
-    DataStore<String, WebPage> store = StorageUtils.createWebStore(currentJob
-        .getConfiguration(), String.class, WebPage.class);
+    DataStore<String, WebPage> store = StorageUtils.createWebStore(
+        currentJob.getConfiguration(), String.class, WebPage.class);
     Query<String, WebPage> query = store.newQuery();
 
-    //remove the __g__dirty field since it is not stored
+    // remove the __g__dirty field since it is not stored
     String[] fields = Arrays.copyOfRange(WebPage._ALL_FIELDS, 1,
-            WebPage._ALL_FIELDS.length);
+        WebPage._ALL_FIELDS.length);
     query.setFields(fields);
 
-    GoraMapper.initMapperJob(currentJob, query, store, Text.class, LongWritable.class,
-        WebTableStatMapper.class, null, true);
+    GoraMapper.initMapperJob(currentJob, query, store, Text.class,
+        LongWritable.class, WebTableStatMapper.class, null, true);
 
     currentJob.setCombinerClass(WebTableStatCombiner.class);
     currentJob.setReducerClass(WebTableStatReducer.class);
@@ -596,7 +617,8 @@ public class WebTableReader extends NutchTool implements Tool {
     }
 
     LongWritable totalCnt = stats.get("T");
-    if (totalCnt==null)totalCnt=new LongWritable(0);
+    if (totalCnt == null)
+      totalCnt = new LongWritable(0);
     stats.remove("T");
     results.put("TOTAL urls", totalCnt.get());
     for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
@@ -615,14 +637,15 @@ public class WebTableReader extends NutchTool implements Tool {
         if (st.length > 2)
           results.put(st[2], val.get());
         else
-          results.put(st[0] + " " + code + " ("
-              + CrawlStatus.getName((byte) code) + ")", val.get());
+          results.put(
+              st[0] + " " + code + " (" + CrawlStatus.getName((byte) code)
+                  + ")", val.get());
       } else
         results.put(k, val.get());
     }
     // removing the tmp folder
     fileSystem.delete(tmpFolder, true);
-    
+
     return results;
   }
 }

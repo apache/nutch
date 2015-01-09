@@ -16,6 +16,6 @@
  */
 package org.apache.nutch.webui.pages;
 
-public class SchedulingPage extends AbstractBasePage{
+public class SchedulingPage extends AbstractBasePage {
 
 }

@@ -45,11 +45,11 @@ public class PluginClassLoader extends URLClassLoader {
    */
   public PluginClassLoader(URL[] urls, ClassLoader parent) {
     super(urls, parent);
-    
+
     this.urls = urls;
     this.parent = parent;
   }
-  
+
   @Override
   public int hashCode() {
     final int PRIME = 31;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package org.apache.nutch.indexer;
 
 import java.nio.ByteBuffer;
@@ -43,16 +43,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Reads and parses a URL and run the indexers on it. Displays the fields obtained and the first
- * 100 characters of their value
- *
- * Tested with e.g. ./nutch org.apache.nutch.indexer.IndexingFiltersChecker http://www.lemonde.fr
+ * Reads and parses a URL and run the indexers on it. Displays the fields
+ * obtained and the first 100 characters of their value
+ * 
+ * Tested with e.g. ./nutch org.apache.nutch.indexer.IndexingFiltersChecker
+ * http://www.lemonde.fr
+ * 
  * @author Julien Nioche
  **/
 
 public class IndexingFiltersChecker extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(IndexingFiltersChecker.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(IndexingFiltersChecker.class);
 
   public IndexingFiltersChecker() {
 
@@ -85,7 +88,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     ProtocolOutput protocolOutput = protocol.getProtocolOutput(url, page);
     page.setProtocolStatus(protocolOutput.getStatus());
     if (protocolOutput.getStatus().getCode() == ProtocolStatusCodes.SUCCESS) {
-      page.setStatus((int)CrawlStatus.STATUS_FETCHED);
+      page.setStatus((int) CrawlStatus.STATUS_FETCHED);
       page.setFetchTime(System.currentTimeMillis());
     } else {
       LOG.error("Fetch failed with protocol status: "
@@ -93,7 +96,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
           + ": " + ProtocolStatusUtils.getMessage(protocolOutput.getStatus()));
       return -1;
     }
-    
+
     Content content = protocolOutput.getContent();
     if (content == null) {
       LOG.warn("No content for " + url);
@@ -106,7 +109,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       return -1;
     }
     page.setContentType(new Utf8(contentType));
-    
+
     if (LOG.isInfoEnabled()) {
       LOG.info("parsing: " + url);
       LOG.info("contentType: " + contentType);
@@ -136,7 +139,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       LOG.info("Document discarded by indexing filter");
       return 0;
     }
-    
+
     for (String fname : doc.getFieldNames()) {
       List<String> values = doc.getFieldValues(fname);
       if (values != null) {

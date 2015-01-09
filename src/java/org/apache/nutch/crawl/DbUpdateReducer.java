@@ -37,11 +37,11 @@ import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.WebPageWritable;
 import org.slf4j.Logger;
 
-public class DbUpdateReducer
-extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
+public class DbUpdateReducer extends
+    GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
 
-  public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";	
-	
+  public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
+
   public static final Logger LOG = DbUpdaterJob.LOG;
 
   private int retryMax;
@@ -53,11 +53,12 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
   private int maxLinks;
 
   @Override
-  protected void setup(Context context) throws IOException, InterruptedException {
+  protected void setup(Context context) throws IOException,
+      InterruptedException {
     Configuration conf = context.getConfiguration();
     retryMax = conf.getInt("db.fetch.retry.max", 3);
     additionsAllowed = conf.getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);
-    maxInterval = conf.getInt("db.fetch.interval.max", 0 );
+    maxInterval = conf.getInt("db.fetch.interval.max", 0);
     schedule = FetchScheduleFactory.getFetchSchedule(conf);
     scoringFilters = new ScoringFilters(conf);
     maxLinks = conf.getInt("db.update.max.inlinks", 10000);
@@ -70,7 +71,7 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
 
     WebPage page = null;
     inlinkedScoreData.clear();
-    
+
     for (NutchWritable nutchWritable : values) {
       Writable val = nutchWritable.get();
       if (val instanceof WebPageWritable) {
@@ -108,10 +109,10 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
     } else {
       byte status = page.getStatus().byteValue();
       switch (status) {
-      case CrawlStatus.STATUS_FETCHED:         // succesful fetch
-      case CrawlStatus.STATUS_REDIR_TEMP:      // successful fetch, redirected
+      case CrawlStatus.STATUS_FETCHED: // succesful fetch
+      case CrawlStatus.STATUS_REDIR_TEMP: // successful fetch, redirected
       case CrawlStatus.STATUS_REDIR_PERM:
-      case CrawlStatus.STATUS_NOTMODIFIED:     // successful fetch, notmodified
+      case CrawlStatus.STATUS_NOTMODIFIED: // successful fetch, notmodified
         int modified = FetchSchedule.STATUS_UNKNOWN;
         if (status == CrawlStatus.STATUS_NOTMODIFIED) {
           modified = FetchSchedule.STATUS_NOTMODIFIED;
@@ -129,8 +130,9 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
         long prevFetchTime = page.getPrevFetchTime();
         long modifiedTime = page.getModifiedTime();
         long prevModifiedTime = page.getPrevModifiedTime();
-        CharSequence lastModified = page.getHeaders().get(new Utf8("Last-Modified"));
-        if ( lastModified != null ){
+        CharSequence lastModified = page.getHeaders().get(
+            new Utf8("Last-Modified"));
+        if (lastModified != null) {
           try {
             modifiedTime = HttpDateFormat.toLong(lastModified.toString());
             prevModifiedTime = page.getModifiedTime();
@@ -143,15 +145,17 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
           schedule.forceRefetch(url, page, false);
         break;
       case CrawlStatus.STATUS_RETRY:
-        schedule.setPageRetrySchedule(url, page, 0L, page.getPrevModifiedTime(), page.getFetchTime());
+        schedule.setPageRetrySchedule(url, page, 0L,
+            page.getPrevModifiedTime(), page.getFetchTime());
         if (page.getRetriesSinceFetch() < retryMax) {
-          page.setStatus((int)CrawlStatus.STATUS_UNFETCHED);
+          page.setStatus((int) CrawlStatus.STATUS_UNFETCHED);
         } else {
-          page.setStatus((int)CrawlStatus.STATUS_GONE);
+          page.setStatus((int) CrawlStatus.STATUS_GONE);
         }
         break;
       case CrawlStatus.STATUS_GONE:
-        schedule.setPageGoneSchedule(url, page, 0L, page.getPrevModifiedTime(), page.getFetchTime());
+        schedule.setPageGoneSchedule(url, page, 0L, page.getPrevModifiedTime(),
+            page.getFetchTime());
         break;
       }
     }
@@ -159,35 +163,39 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
     if (page.getInlinks() != null) {
       page.getInlinks().clear();
     }
-    
+
     // Distance calculation.
     // Retrieve smallest distance from all inlinks distances
     // Calculate new distance for current page: smallest inlink distance plus 1.
-    // If the new distance is smaller than old one (or if old did not exist yet),
+    // If the new distance is smaller than old one (or if old did not exist
+    // yet),
     // write it to the page.
-    int smallestDist=Integer.MAX_VALUE;
+    int smallestDist = Integer.MAX_VALUE;
     for (ScoreDatum inlink : inlinkedScoreData) {
       int inlinkDist = inlink.getDistance();
       if (inlinkDist < smallestDist) {
-        smallestDist=inlinkDist;
+        smallestDist = inlinkDist;
       }
-      page.getInlinks().put(new Utf8(inlink.getUrl()), new Utf8(inlink.getAnchor()));
+      page.getInlinks().put(new Utf8(inlink.getUrl()),
+          new Utf8(inlink.getAnchor()));
     }
     if (smallestDist != Integer.MAX_VALUE) {
-      int oldDistance=Integer.MAX_VALUE;
+      int oldDistance = Integer.MAX_VALUE;
       CharSequence oldDistUtf8 = page.getMarkers().get(DbUpdaterJob.DISTANCE);
-      if (oldDistUtf8 != null)oldDistance=Integer.parseInt(oldDistUtf8.toString());
-      int newDistance = smallestDist+1;
+      if (oldDistUtf8 != null)
+        oldDistance = Integer.parseInt(oldDistUtf8.toString());
+      int newDistance = smallestDist + 1;
       if (newDistance < oldDistance) {
-        page.getMarkers().put(DbUpdaterJob.DISTANCE, new Utf8(Integer.toString(newDistance)));
+        page.getMarkers().put(DbUpdaterJob.DISTANCE,
+            new Utf8(Integer.toString(newDistance)));
       }
     }
 
     try {
       scoringFilters.updateScore(url, page, inlinkedScoreData);
     } catch (ScoringFilterException e) {
-      LOG.warn("Scoring filters failed with exception " +
-                StringUtils.stringifyException(e));
+      LOG.warn("Scoring filters failed with exception "
+          + StringUtils.stringifyException(e));
     }
 
     // clear markers

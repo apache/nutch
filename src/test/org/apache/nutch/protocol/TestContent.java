@@ -27,7 +27,6 @@ import org.apache.tika.mime.MimeTypes;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-
 /** Unit tests for Content. */
 
 public class TestContent {
@@ -46,7 +45,7 @@ public class TestContent {
     metaData.add("Content-Type", "text/html");
 
     Content r = new Content(url, url, page.getBytes("UTF8"), "text/html",
-                            metaData, conf);
+        metaData, conf);
 
     WritableTestUtils.testWritable(r);
     assertEquals("text/html", r.getMetadata().get("Content-Type"));
@@ -60,52 +59,36 @@ public class TestContent {
     Content c = null;
     Metadata p = new Metadata();
 
-    c = new Content("http://www.foo.com/",
-                    "http://www.foo.com/",
-                    "".getBytes("UTF8"),
-                    "text/html; charset=UTF-8", p, conf);
+    c = new Content("http://www.foo.com/", "http://www.foo.com/",
+        "".getBytes("UTF8"), "text/html; charset=UTF-8", p, conf);
     assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/foo.html",
-                    "http://www.foo.com/",
-                    "".getBytes("UTF8"),
-                    "", p, conf);
+    c = new Content("http://www.foo.com/foo.html", "http://www.foo.com/",
+        "".getBytes("UTF8"), "", p, conf);
     assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/foo.html",
-                    "http://www.foo.com/",
-                    "".getBytes("UTF8"),
-                    null, p, conf);
+    c = new Content("http://www.foo.com/foo.html", "http://www.foo.com/",
+        "".getBytes("UTF8"), null, p, conf);
     assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/",
-                    "http://www.foo.com/",
-                    "<html></html>".getBytes("UTF8"),
-                    "", p, conf);
+    c = new Content("http://www.foo.com/", "http://www.foo.com/",
+        "<html></html>".getBytes("UTF8"), "", p, conf);
     assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/foo.html",
-                    "http://www.foo.com/",
-                    "<html></html>".getBytes("UTF8"),
-                    "text/plain", p, conf);
+    c = new Content("http://www.foo.com/foo.html", "http://www.foo.com/",
+        "<html></html>".getBytes("UTF8"), "text/plain", p, conf);
     assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/foo.png",
-                    "http://www.foo.com/",
-                    "<html></html>".getBytes("UTF8"),
-                    "text/plain", p, conf);
+    c = new Content("http://www.foo.com/foo.png", "http://www.foo.com/",
+        "<html></html>".getBytes("UTF8"), "text/plain", p, conf);
     assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/",
-                    "http://www.foo.com/",
-                    "".getBytes("UTF8"),
-                    "", p, conf);
+    c = new Content("http://www.foo.com/", "http://www.foo.com/",
+        "".getBytes("UTF8"), "", p, conf);
     assertEquals(MimeTypes.OCTET_STREAM, c.getContentType());
 
-    c = new Content("http://www.foo.com/",
-                    "http://www.foo.com/",
-                    "".getBytes("UTF8"),
-                    null, p, conf);
+    c = new Content("http://www.foo.com/", "http://www.foo.com/",
+        "".getBytes("UTF8"), null, p, conf);
     assertNotNull(c.getContentType());
   }
 

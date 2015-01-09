@@ -33,8 +33,8 @@ public class TestColorEnumLabel extends AbstractWicketTest {
   public void shouldRenderCorrectText() {
     // given
     Model<ConnectionStatus> model = Model.of(ConnectionStatus.CONNECTED);
-    ColorEnumLabel<ConnectionStatus> label = new ColorEnumLabelBuilder<ConnectionStatus>("status")
-        .withModel(model).build();
+    ColorEnumLabel<ConnectionStatus> label = new ColorEnumLabelBuilder<ConnectionStatus>(
+        "status").withModel(model).build();
 
     // when
     tester.startComponentInPage(label);
@@ -47,13 +47,14 @@ public class TestColorEnumLabel extends AbstractWicketTest {
   public void shouldChangeColorOfLabel() {
     // given
     Model<ConnectionStatus> model = Model.of(ConnectionStatus.CONNECTED);
-    ColorEnumLabel<ConnectionStatus> label = new ColorEnumLabelBuilder<ConnectionStatus>("status")
-        .withEnumColor(CONNECTED, Success).withModel(model).build();
+    ColorEnumLabel<ConnectionStatus> label = new ColorEnumLabelBuilder<ConnectionStatus>(
+        "status").withEnumColor(CONNECTED, Success).withModel(model).build();
 
     // when
     tester.startComponentInPage(label);
 
     // then
-    assertTrue(tester.getTagByWicketId("status").getAttributeEndsWith("class", "success"));
+    assertTrue(tester.getTagByWicketId("status").getAttributeEndsWith("class",
+        "success"));
   }
 }

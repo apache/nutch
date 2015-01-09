@@ -35,7 +35,7 @@ import org.apache.nutch.util.ObjectCache;
 
 /**
  * Creates and caches {@link ScoringFilter} implementing plugins.
- *
+ * 
  * @author Andrzej Bialecki
  */
 public class ScoringFilters extends Configured implements ScoringFilter {
@@ -46,7 +46,8 @@ public class ScoringFilters extends Configured implements ScoringFilter {
     super(conf);
     ObjectCache objectCache = ObjectCache.get(conf);
     String order = conf.get("scoring.filter.order");
-    this.filters = (ScoringFilter[]) objectCache.getObject(ScoringFilter.class.getName());
+    this.filters = (ScoringFilter[]) objectCache.getObject(ScoringFilter.class
+        .getName());
 
     if (this.filters == null) {
       String[] orderedFilters = null;
@@ -55,20 +56,23 @@ public class ScoringFilters extends Configured implements ScoringFilter {
       }
 
       try {
-        ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(ScoringFilter.X_POINT_ID);
-        if (point == null) throw new RuntimeException(ScoringFilter.X_POINT_ID + " not found.");
+        ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(
+            ScoringFilter.X_POINT_ID);
+        if (point == null)
+          throw new RuntimeException(ScoringFilter.X_POINT_ID + " not found.");
         Extension[] extensions = point.getExtensions();
-        HashMap<String, ScoringFilter> filterMap =
-          new HashMap<String, ScoringFilter>();
+        HashMap<String, ScoringFilter> filterMap = new HashMap<String, ScoringFilter>();
         for (int i = 0; i < extensions.length; i++) {
           Extension extension = extensions[i];
-          ScoringFilter filter = (ScoringFilter) extension.getExtensionInstance();
+          ScoringFilter filter = (ScoringFilter) extension
+              .getExtensionInstance();
           if (!filterMap.containsKey(filter.getClass().getName())) {
             filterMap.put(filter.getClass().getName(), filter);
           }
         }
         if (orderedFilters == null) {
-          objectCache.setObject(ScoringFilter.class.getName(), filterMap.values().toArray(new ScoringFilter[0]));
+          objectCache.setObject(ScoringFilter.class.getName(), filterMap
+              .values().toArray(new ScoringFilter[0]));
         } else {
           ScoringFilter[] filter = new ScoringFilter[orderedFilters.length];
           for (int i = 0; i < orderedFilters.length; i++) {
@@ -79,14 +83,15 @@ public class ScoringFilters extends Configured implements ScoringFilter {
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
       }
-      this.filters = (ScoringFilter[]) objectCache.getObject(ScoringFilter.class.getName());
+      this.filters = (ScoringFilter[]) objectCache
+          .getObject(ScoringFilter.class.getName());
     }
   }
 
   /** Calculate a sort value for Generate. */
   @Override
   public float generatorSortValue(String url, WebPage row, float initSort)
-  throws ScoringFilterException {
+      throws ScoringFilterException {
     for (ScoringFilter filter : filters) {
       initSort = filter.generatorSortValue(url, row, initSort);
     }
@@ -95,7 +100,8 @@ public class ScoringFilters extends Configured implements ScoringFilter {
 
   /** Calculate a new initial score, used when adding newly discovered pages. */
   @Override
-  public void initialScore(String url, WebPage row) throws ScoringFilterException {
+  public void initialScore(String url, WebPage row)
+      throws ScoringFilterException {
     for (ScoringFilter filter : filters) {
       filter.initialScore(url, row);
     }
@@ -103,7 +109,8 @@ public class ScoringFilters extends Configured implements ScoringFilter {
 
   /** Calculate a new initial score, used when injecting new pages. */
   @Override
-  public void injectedScore(String url, WebPage row) throws ScoringFilterException {
+  public void injectedScore(String url, WebPage row)
+      throws ScoringFilterException {
     for (ScoringFilter filter : filters) {
       filter.injectedScore(url, row);
     }

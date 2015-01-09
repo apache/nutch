@@ -23,39 +23,23 @@ import junit.textui.TestRunner;
 
 import java.io.IOException;
 
-
 /**
  * JUnit test for <code>PrefixURLFilter</code>.
- *
+ * 
  * @author Talat Uyarer
  * @author Cihad Guzel
  */
 public class TestPrefixURLFilter extends TestCase {
-  private static final String prefixes =
-    "# this is a comment\n" +
-    "\n" +
-    "http://\n" +
-    "https://\n" +
-    "file://\n" +
-    "ftp://\n";
+  private static final String prefixes = "# this is a comment\n" + "\n"
+      + "http://\n" + "https://\n" + "file://\n" + "ftp://\n";
 
   private static final String[] urls = new String[] {
-    "http://www.example.com/",
-    "https://www.example.com/",
-    "ftp://www.example.com/",
-    "file://www.example.com/",
-    "abcd://www.example.com/",
-    "www.example.com/",
-  };
+      "http://www.example.com/", "https://www.example.com/",
+      "ftp://www.example.com/", "file://www.example.com/",
+      "abcd://www.example.com/", "www.example.com/", };
 
-  private static String[] urlsModeAccept = new String[] {
-    urls[0],
-    urls[1],
-    urls[2],
-    urls[3],
-    null,
-    null
-  };
+  private static String[] urlsModeAccept = new String[] { urls[0], urls[1],
+      urls[2], urls[3], null, null };
 
   private PrefixURLFilter filter = null;
 

@@ -20,3 +20,4 @@
  * one URL normalizer must be defined in any scope.
  */
 package org.apache.nutch.net.urlnormalizer.pass;
+

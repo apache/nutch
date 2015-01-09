@@ -57,11 +57,11 @@ public class TestOOParser {
     Parse parse;
     Configuration conf = NutchConfiguration.create();
     MimeUtil mimeutil = new MimeUtil(conf);
-	
+
     try {
       // read the test string
       FileInputStream fis = new FileInputStream(sampleDir + fileSeparator
-        + sampleText);
+          + sampleText);
       StringBuffer sb = new StringBuffer();
       int len = 0;
       InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
@@ -83,7 +83,7 @@ public class TestOOParser {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
       if (sampleFiles[i].startsWith("ootest") == false)
-      continue;
+        continue;
 
       File file = new File(sampleDir + fileSeparator + sampleFiles[i]);
       byte[] bytes = new byte[(int) file.length()];

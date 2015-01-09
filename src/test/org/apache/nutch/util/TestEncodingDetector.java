@@ -45,7 +45,7 @@ public class TestEncodingDetector {
     // first disable auto detection
     conf.setInt(EncodingDetector.MIN_CONFIDENCE_KEY, -1);
 
-    //Metadata metadata = new Metadata();
+    // Metadata metadata = new Metadata();
     EncodingDetector detector;
     // Content content;
     String encoding;
@@ -65,8 +65,9 @@ public class TestEncodingDetector {
     page.setBaseUrl(new Utf8("http://www.example.com/"));
     page.setContentType(new Utf8("text/plain"));
     page.setContent(ByteBuffer.wrap(contentInOctets));
-    page.getHeaders().put(EncodingDetector.CONTENT_TYPE_UTF8, new Utf8("text/plain; charset=UTF-16"));
-    
+    page.getHeaders().put(EncodingDetector.CONTENT_TYPE_UTF8,
+        new Utf8("text/plain; charset=UTF-16"));
+
     detector = new EncodingDetector(conf);
     detector.autoDetectClues(page, true);
     encoding = detector.guessEncoding(page, "windows-1252");
@@ -76,7 +77,7 @@ public class TestEncodingDetector {
     page.setBaseUrl(new Utf8("http://www.example.com/"));
     page.setContentType(new Utf8("text/plain"));
     page.setContent(ByteBuffer.wrap(contentInOctets));
-    
+
     detector = new EncodingDetector(conf);
     detector.autoDetectClues(page, true);
     detector.addClue("windows-1254", "sniffed");
@@ -89,8 +90,9 @@ public class TestEncodingDetector {
     page.setBaseUrl(new Utf8("http://www.example.com/"));
     page.setContentType(new Utf8("text/plain"));
     page.setContent(ByteBuffer.wrap(contentInOctets));
-    page.getMetadata().put(new Utf8(Response.CONTENT_TYPE), ByteBuffer.wrap("text/plain; charset=UTF-16".getBytes()));
-    
+    page.getMetadata().put(new Utf8(Response.CONTENT_TYPE),
+        ByteBuffer.wrap("text/plain; charset=UTF-16".getBytes()));
+
     detector = new EncodingDetector(conf);
     detector.autoDetectClues(page, true);
     detector.addClue("utf-32", "sniffed");
