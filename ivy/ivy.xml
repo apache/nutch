@@ -135,6 +135,11 @@
     <!--
     <dependency org="org.apache.gora" name="gora-solr" rev="0.5" conf="*->default" />
     -->
+    <!-- The gora-compiler is used within the 'ant generate-gora-src' target to compile
+    the Gora .avsc files within ./src/gora 
+    -->
+    <dependency org="org.apache.gora" name="gora-compiler-cli" rev="0.5" conf="*->default"/>
+    <dependency org="org.apache.gora" name="gora-compiler" rev="0.5" conf="*->default"/>
 
     <!-- web app dependencies -->
 

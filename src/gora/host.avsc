@@ -1,9 +1,41 @@
-{"name": "Host",
- "type": "record",
- "namespace": "org.apache.nutch.storage",
- "fields": [
-        {"name": "metadata", "type": {"type": "map", "values": "bytes"}, "default":{}},
-        {"name": "outlinks", "type": {"type": "map", "values": "string"}, "default":{}},
-        {"name": "inlinks", "type": {"type": "map", "values": "string"}, "default":{}}
-   ]
+{
+  "name": "Host",
+  "type": "record",
+  "namespace": "org.apache.nutch.storage",
+  "doc": "Host represents a store of webpages or other data which resides on a server or other computer so that it can be accessed over the Internet",
+  "fields": [
+    {
+      "name": "metadata",
+      "type": {
+        "type": "map",
+        "values": ["null","bytes"]
+      },
+      "doc": "A multivalued metadata container used for storing a wide variety of host metadata such as structured web server characterists etc",
+      "default": {
+        
+      }
+    },
+    {
+      "name": "outlinks",
+      "type": {
+        "type": "map",
+        "values": ["null","string"]
+      },
+      "doc": "Hyperlinks which direct outside of the current host domain these can used in a histogram style manner to generate host statistics",
+      "default": {
+        
+      }
+    },
+    {
+      "name": "inlinks",
+      "type": {
+        "type": "map",
+        "values": ["null","string"]
+      },
+      "doc": "Hyperlinks which link to pages within the current host domain these can used in a histogram style manner to generate host statistics",
+      "default": {
+        
+      }
+    }
+  ]
 }

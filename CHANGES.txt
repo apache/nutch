@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.3-SNAPSHOT
 
+* NUTCH-1856 Document webpage.avsc and host.avsc (lewismc)
+
 * NUTCH-1834 GeneratorMapper behavior depends on log level (Gerhard Gossen via snagel)
 
 * NUTCH-1899 upgrade restlet lib to prevent build failure (talat)
