@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.3-SNAPSHOT
 
+* NUTCH-1907 Incorrect output of Outlinks to Hosts within HostDbUpdateReducer (lewismc)
+
 * NUTCH-1856 Document webpage.avsc and host.avsc (lewismc)
 
 * NUTCH-1834 GeneratorMapper behavior depends on log level (Gerhard Gossen via snagel)

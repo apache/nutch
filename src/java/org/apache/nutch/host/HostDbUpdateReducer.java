@@ -84,7 +84,7 @@ public class HostDbUpdateReducer extends GoraReducer<Text, WebPage, String, Host
       host.getInlinks().put(new Utf8(inlink), new Utf8(Integer.toString(inlinkCount.getCount(inlink))));
     }
     for (String outlink: outlinkCount.getKeys()) {
-      host.getInlinks().put(new Utf8(outlink), new Utf8(Integer.toString(outlinkCount.getCount(outlink))));
+      host.getOutlinks().put(new Utf8(outlink), new Utf8(Integer.toString(outlinkCount.getCount(outlink))));
     }
     
     context.write(key.toString(), host);
