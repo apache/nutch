@@ -17,7 +17,6 @@
  
 package org.apache.nutch.indexer;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 

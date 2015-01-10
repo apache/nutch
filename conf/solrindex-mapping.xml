@@ -17,8 +17,8 @@
 -->
 
 <mapping>
-	<!-- Simple mapping of fields created by Nutch IndexingFilters
-	     to fields defined (and expected) in Solr schema.xml.
+  <!-- Simple mapping of fields created by Nutch IndexingFilters
+       to fields defined (and expected) in Solr schema.xml.
 
              Any fields in NutchDocument that match a name defined
              in field/@source will be renamed to the corresponding
@@ -30,14 +30,14 @@
              uniqueKey has the same meaning as in Solr schema.xml
              and defaults to "id" if not defined.
          -->
-	<fields>
-		<field dest="content" source="content"/>
-		<field dest="title" source="title"/>
-		<field dest="host" source="host"/>
-		<field dest="segment" source="segment"/>
-		<field dest="boost" source="boost"/>
-		<field dest="digest" source="digest"/>
-		<field dest="tstamp" source="tstamp"/>
-	</fields>
-	<uniqueKey>id</uniqueKey>
+  <fields>
+    <field dest="content" source="content"/>
+    <field dest="title" source="title"/>
+    <field dest="host" source="host"/>
+    <field dest="segment" source="segment"/>
+    <field dest="boost" source="boost"/>
+    <field dest="digest" source="digest"/>
+    <field dest="tstamp" source="tstamp"/>
+  </fields>
+  <uniqueKey>id</uniqueKey>
 </mapping>

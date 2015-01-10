@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1660 Index filter for Page's latitude and longitude (Yasin Kılınç, lewismc)
+
 * NUTCH-1140 index-more plugin, resetTitle creates multiple values in title field (Joe Liedtke, kaveh minooie via snagel)
 
 * NUTCH-1904 Schema for Solr4 doesn't include _version_ field (mattmann)

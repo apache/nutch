@@ -38,6 +38,7 @@
             omitNorms="true" positionIncrementGap="0"/>
         <fieldType name="date" class="solr.TrieDateField" precisionStep="0"
             omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
 
         <fieldType name="text" class="solr.TextField"
             positionIncrementGap="100">
@@ -64,6 +65,24 @@
                     generateWordParts="1" generateNumberParts="1"/>
             </analyzer>
         </fieldType>
+            <!-- boolean type: "true" or "false" -->
+        <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+
+         <!-- sortMissingLast and sortMissingFirst attributes are optional attributes are
+         currently supported on types that are sorted internally as strings
+         and on numeric types.
+         This includes "string","boolean", and, as of 3.5 (and 4.x),
+         int, float, long, date, double, including the "Trie" variants.
+       - If sortMissingLast="true", then a sort on this field will cause documents
+         without the field to come after documents with the field,
+         regardless of the requested sort order (asc or desc).
+       - If sortMissingFirst="true", then a sort on this field will cause documents
+         without the field to come before documents with the field,
+         regardless of the requested sort order.
+       - If sortMissingLast="false" and sortMissingFirst="false" (the default),
+         then default lucene sorting will be used which places docs without the
+         field first in an ascending sort and last in a descending sort.
+         -->  
     </types>
     <fields>
         <field name="id" type="string" stored="true" indexed="true"
@@ -83,6 +102,43 @@
         <field name="title" type="text" stored="true" indexed="true"/>
         <field name="cache" type="string" stored="true" indexed="false"/>
         <field name="tstamp" type="date" stored="true" indexed="false"/>
+        
+        <!-- fields for index-geoip plugin -->
+        <field name="ip" type="string" stored="true" indexed="true" />
+        <field name="cityName" type="string" stored="true" indexed="true" />
+        <field name="cityConfidence" type="int" stored="true" indexed="true" />
+        <field name="cityGeoNameId" type="int" stored="true" indexed="true" />
+        <field name="continentCode" type="string" stored="true" indexed="true" />
+        <field name="continentGeoNameId" type="int" stored="true" indexed="true" />
+        <field name="contentName" type="string" stored="true" indexed="true" />
+        <field name="countryIsoCode" type="string" stored="true" indexed="true"/>
+        <field name="countryName" type="string" stored="true" indexed="true" />
+        <field name="countryConfidence" type="int" stored="true" indexed="true"/>
+        <field name="countryGeoNameId" type="int" stored="true" indexed="true"/>        
+        <field name="latLon" type="string" stored="true" indexed="true"/>
+        <field name="accRadius" type="int" stored="true" indexed="true"/>
+        <field name="timeZone" type="string" stored="true" indexed="true"/>
+        <field name="metroCode" type="int" stored="true" indexed="true" />
+        <field name="postalCode" type="string" stored="true" indexed="true" />
+        <field name="postalConfidence" type="int" stored="true" indexed="true" />
+        <field name="countryType" type="string" stored="true" indexed="true" />
+        <field name="subDivName" type="string" stored="true" indexed="true" />
+        <field name="subDivIsoCode" type="string" stored="true" indexed="true" />
+        <field name="subDivConfidence" type="int" stored="true" indexed="true" />
+        <field name="subDivGeoNameId" type="int" stored="true" indexed="true" />
+        <field name="autonSystemNum" type="int" stored="true" indexed="true" />
+        <field name="autonSystemOrg" type="string" stored="true" indexed="true" />
+        <field name="domain" type="string" stored="true" indexed="true" />
+        <field name="isp" type="string" stored="true" indexed="true" />
+        <field name="org" type="string" stored="true" indexed="true" />
+        <field name="userType" type="string" stored="true" indexed="true" />
+        <field name="isAnonProxy" type="boolean" stored="true" indexed="true" />
+        <field name="isSatelitteProv" type="boolean" stored="true" indexed="true" />
+        <field name="connType" type="string" stored="true" indexed="true" />
+        
+
+        
+        <dynamicField name="*_coordinate" type="tdouble" indexed="true" stored="false"/>
 
         <!-- fields for index-anchor plugin -->
         <field name="anchor" type="string" stored="true" indexed="true"
@@ -137,5 +193,6 @@
     <copyField source="title" dest="text"/>
     <copyField source="anchor" dest="text"/>
     <copyField source="author" dest="text"/>
+    <copyField source="latLon" dest="location"/>
 
 </schema>
