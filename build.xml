@@ -468,13 +468,13 @@
   <!-- ================================================================== -->
 
   <!-- target: resolve  ================================================= -->
-  <target name="resolve-default" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
+  <target name="resolve-default" depends="clean-default-lib" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="default" log="download-only"/>
     <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
   </target>
 
-  <target name="resolve-test" depends="clean-lib, init" description="--> resolve and retrieve dependencies with ivy">
+  <target name="resolve-test" depends="clean-test-lib, init" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="test" log="download-only"/>
     <ivy:retrieve pattern="${test.build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
@@ -822,8 +822,15 @@
   </target>
 
   <!-- target: clean-lib  =============================================== -->
-  <target name="clean-lib" description="--> clean the project libraries directory (dependencies)">
-    <delete includeemptydirs="true" dir="${build.lib.dir}"/>
+  <target name="clean-lib" depends="clean-default-lib, clean-test-lib"
+          description="--> clean the project libraries directories (dependencies: default + test)">
+  </target>
+  <!-- target: clean-default-lib  =============================================== -->
+  <target name="clean-default-lib" description="--> clean the project libraries directory (dependencies)">
+	 <delete includeemptydirs="true" dir="${build.lib.dir}"/>
+  </target>
+  <!-- target: clean-test-lib  =============================================== -->
+  <target name="clean-test-lib" description="--> clean the project test libraries directory (dependencies)">
     <delete includeemptydirs="true" dir="${test.build.lib.dir}"/>
   </target>
 
