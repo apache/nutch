@@ -113,6 +113,7 @@ public class FileDumper {
    * @throws Exception
    */
   public void dump(File outputDir, File segmentRootDir, String[] mimeTypes) throws Exception {
+    if (mimeTypes == null) LOG.info("Accepting all mimetypes.");
     //total file counts
     Map<String, Integer> typeCounts = new HashMap<String, Integer>();
     //filtered file counts
@@ -128,6 +129,10 @@ public class FileDumper {
             return file.canRead() && file.isDirectory();
           }
         });
+    if (segmentDirs == null) {
+      System.err.println("No segment directories found in [" + segmentRootDir.getAbsolutePath() + "]");
+      return;
+    }
 
     for (File segment : segmentDirs) {
       LOG.info("Processing segment: [" + segment.getAbsolutePath() + "]");
@@ -153,7 +158,7 @@ public class FileDumper {
           String url = key.toString();
           String baseName = FilenameUtils.getBaseName(url);
           String extension = FilenameUtils.getExtension(url);
-          if (extension == null || (extension != null && 
+          if (extension == null || (extension != null &&
               extension.equals(""))){
             extension = "html";
           }
@@ -166,7 +171,7 @@ public class FileDumper {
             String mimeType = new Tika().detect(content.getContent());
             collectStats(typeCounts, mimeType);
             if (mimeType != null) {
-              if (Arrays.asList(mimeTypes).contains(mimeType)) {
+              if (mimeTypes == null || Arrays.asList(mimeTypes).contains(mimeType)) {
                 collectStats(filteredCounts, mimeType);
                 filter = true;
               }
@@ -182,7 +187,6 @@ public class FileDumper {
                 bas.close();
               }
               catch(Exception ignore){}
-              bas = null;
             }
           }
 
@@ -198,7 +202,6 @@ public class FileDumper {
               LOG.info("Skipping writing: ["
                   + outputFullPath + "]: file already exists");
             }
-            content = null;
           }
         }
         reader.close();
@@ -237,7 +240,7 @@ public class FileDumper {
     .create("segment");
     @SuppressWarnings("static-access")
     Option mimeOpt = OptionBuilder.withArgName("mimetype")
-    .hasArgs().withDescription("an optional list of mimetypes to dump, excluding all others")
+    .hasArgs().withDescription("an optional list of mimetypes to dump, excluding all others. Defaults to all.")
     .create("mimetype");
 
     //create the options
@@ -272,6 +275,7 @@ public class FileDumper {
     }
     catch(Exception e) {
       LOG.error("FileDumper: " + StringUtils.stringifyException(e));
+      e.printStackTrace();
       return;
     }
   }
