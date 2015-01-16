@@ -288,6 +288,13 @@ public class HttpResponse implements Response {
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
     byte[] bytes = new byte[Http.BUFFER_SIZE];
     int length = 0;
+    
+    // do not try to read if the contentLength is 0
+    if (contentLength == 0){
+      content = new byte[0];
+      return;
+    }
+    
     // read content
     int i = in.read(bytes);
     while (i != -1) {

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1919 Getting timeout when server returns Content-Length: 0 (jnioche)
+
 * NUTCH-1912 Dump tool -mimetype parameter needs to be optional to prevent NPE (Tyler Palsulich via lewismc)
 
 * NUTCH-1881 ant target resolve-default to keep test libs (snagel)
