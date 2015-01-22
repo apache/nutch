@@ -1,6 +1,11 @@
 Nutch Change Log
 
-Current Development 2.3-SNAPSHOT
+Current Development 2.4-SNAPSHOT
+
+NUTCH-XX
+
+Nutch 2.3 Release 08012015 (ddmmyyyy)
+Release Report - http://s.apache.org/nutch_2.3
 
 * NUTCH-1779 Apply formatting to the code (lewismc)
 
