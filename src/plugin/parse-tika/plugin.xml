@@ -55,7 +55,7 @@
       <library name="poi-ooxml-3.11-beta2.jar"/>
       <library name="poi-ooxml-schemas-3.11-beta2.jar"/>
       <library name="poi-scratchpad-3.11-beta2.jar"/>
-      <library name="rome-1.0.jar"/>
+      <library name="rome-0.9.jar"/>
       <library name="slf4j-api-1.6.1.jar"/>
       <library name="tagsoup-1.2.1.jar"/>
       <library name="tika-parsers-1.6.jar"/>

@@ -2,7 +2,7 @@ Nutch Change Log
 
 Current Development 2.4-SNAPSHOT
 
-NUTCH-XX
+* NUTCH-1893 Parse-tika failes to parse feed files (Mengying Wang via snagel)
 
 Nutch 2.3 Release 08012015 (ddmmyyyy)
 Release Report - http://s.apache.org/nutch_2.3
