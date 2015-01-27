@@ -39,6 +39,7 @@
     <dependency org="org.apache.tika" name="tika-parsers" rev="1.6" conf="*->default">
      <exclude org="org.apache.tika" name="tika-core" />
     </dependency>
+    <override module="rome" rev="0.9"/>
   </dependencies>
   
 </ivy-module>
