@@ -27,28 +27,30 @@ import org.apache.nutch.util.ObjectCache;
 
 /**
  * Factory class, which instantiates a Signature implementation according to the
- * current Configuration configuration. This newly created instance is cached in the
- * Configuration instance, so that it could be later retrieved.
+ * current Configuration configuration. This newly created instance is cached in
+ * the Configuration instance, so that it could be later retrieved.
  * 
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class SignatureFactory {
-  private static final Logger LOG = LoggerFactory.getLogger(SignatureFactory.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(SignatureFactory.class);
 
-  private SignatureFactory() {}                   // no public ctor
+  private SignatureFactory() {
+  } // no public ctor
 
   /** Return the default Signature implementation. */
   public synchronized static Signature getSignature(Configuration conf) {
     String clazz = conf.get("db.signature.class", MD5Signature.class.getName());
     ObjectCache objectCache = ObjectCache.get(conf);
-    Signature impl = (Signature)objectCache.getObject(clazz);
+    Signature impl = (Signature) objectCache.getObject(clazz);
     if (impl == null) {
       try {
         if (LOG.isInfoEnabled()) {
           LOG.info("Using Signature impl: " + clazz);
         }
         Class<?> implClass = Class.forName(clazz);
-        impl = (Signature)implClass.newInstance();
+        impl = (Signature) implClass.newInstance();
         impl.setConf(conf);
         objectCache.setObject(clazz, impl);
       } catch (Exception e) {

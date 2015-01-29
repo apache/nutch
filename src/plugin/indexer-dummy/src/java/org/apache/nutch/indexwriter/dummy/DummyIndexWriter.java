@@ -35,12 +35,13 @@ import org.slf4j.LoggerFactory;
  * and add.
  */
 public class DummyIndexWriter implements IndexWriter {
-  public static final Logger LOG = LoggerFactory.getLogger(DummyIndexWriter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(DummyIndexWriter.class);
   private Configuration config;
   private Writer writer;
   private boolean delete = false;
 
-  public void open(JobConf job, String name) throws IOException {  
+  public void open(JobConf job, String name) throws IOException {
     delete = job.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
   }
 
@@ -82,19 +83,21 @@ public class DummyIndexWriter implements IndexWriter {
     String path = conf.get("dummy.path");
     if (path == null) {
       String message = "Missing path. Should be set via -Ddummy.path";
-      message+="\n"+describe();
+      message += "\n" + describe();
       LOG.error(message);
       throw new RuntimeException(message);
     }
 
     try {
       writer = new BufferedWriter(new FileWriter(conf.get("dummy.path")));
-    } catch (IOException e) {}
+    } catch (IOException e) {
+    }
   }
 
-  public String describe(){
+  public String describe() {
     StringBuffer sb = new StringBuffer("DummyIndexWriter\n");
-    sb.append("\t").append("dummy.path : Path of the file to write to (mandatory)\n");
+    sb.append("\t").append(
+        "dummy.path : Path of the file to write to (mandatory)\n");
     return sb.toString();
   }
 }

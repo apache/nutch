@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 package org.apache.nutch.plugin;
+
 /**
  * <code>PluginRuntimeException</code> will be thrown until a exception in the
  * plugin managemnt occurs.

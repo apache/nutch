@@ -50,14 +50,14 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
   private MapFile.Reader[] readers;
 
   public LinkDbReader() {
-    
+
   }
-  
+
   public LinkDbReader(Configuration conf, Path directory) throws Exception {
     setConf(conf);
     init(directory);
   }
-  
+
   public void init(Path directory) throws Exception {
     this.fs = FileSystem.get(getConf());
     this.directory = directory;
@@ -73,16 +73,16 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
   public Inlinks getInlinks(Text url) throws IOException {
 
     if (readers == null) {
-      synchronized(this) {
-        readers = MapFileOutputFormat.getReaders
-          (fs, new Path(directory, LinkDb.CURRENT_NAME), getConf());
+      synchronized (this) {
+        readers = MapFileOutputFormat.getReaders(fs, new Path(directory,
+            LinkDb.CURRENT_NAME), getConf());
       }
     }
-    
-    return (Inlinks)MapFileOutputFormat.getEntry
-      (readers, PARTITIONER, url, new Inlinks());
+
+    return (Inlinks) MapFileOutputFormat.getEntry(readers, PARTITIONER, url,
+        new Inlinks());
   }
-  
+
   public void close() throws IOException {
     if (readers != null) {
       for (int i = 0; i < readers.length; i++) {
@@ -90,7 +90,7 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
       }
     }
   }
-  
+
   public void processDumpJob(String linkdb, String output) throws IOException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -114,19 +114,24 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
     JobClient.runJob(job);
 
     long end = System.currentTimeMillis();
-    LOG.info("LinkDb dump: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("LinkDb dump: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
-  
+
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new LinkDbReader(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new LinkDbReader(),
+        args);
     System.exit(res);
   }
-  
+
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: LinkDbReader <linkdb> (-dump <out_dir> | -url <url>)");
-      System.err.println("\t-dump <out_dir>\tdump whole link db to a text file in <out_dir>");
-      System.err.println("\t-url <url>\tprint information about <url> to System.out");
+      System.err
+          .println("Usage: LinkDbReader <linkdb> (-dump <out_dir> | -url <url>)");
+      System.err
+          .println("\t-dump <out_dir>\tdump whole link db to a text file in <out_dir>");
+      System.err
+          .println("\t-url <url>\tprint information about <url> to System.out");
       return -1;
     }
     try {

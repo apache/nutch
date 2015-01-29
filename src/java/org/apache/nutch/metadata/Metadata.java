@@ -30,14 +30,13 @@ import org.apache.hadoop.io.Writable;
 /**
  * A multi-valued metadata container.
  */
-public class Metadata implements Writable, CreativeCommons,
-DublinCore, HttpHeaders, Nutch, Feed {
+public class Metadata implements Writable, CreativeCommons, DublinCore,
+    HttpHeaders, Nutch, Feed {
 
   /**
    * A map of all metadata attributes.
    */
   private Map<String, String[]> metadata = null;
-
 
   /**
    * Constructs a new, empty metadata.
@@ -48,9 +47,10 @@ DublinCore, HttpHeaders, Nutch, Feed {
 
   /**
    * Returns true if named value is multivalued.
-   * @param name name of metadata
-   * @return true is named value is multivalued, false if single
-   * value or null
+   * 
+   * @param name
+   *          name of metadata
+   * @return true is named value is multivalued, false if single value or null
    */
   public boolean isMultiValued(final String name) {
     return metadata.get(name) != null && metadata.get(name).length > 1;
@@ -58,6 +58,7 @@ DublinCore, HttpHeaders, Nutch, Feed {
 
   /**
    * Returns an array of the names contained in the metadata.
+   * 
    * @return Metadata names
    */
   public String[] names() {
@@ -65,11 +66,11 @@ DublinCore, HttpHeaders, Nutch, Feed {
   }
 
   /**
-   * Get the value associated to a metadata name.
-   * If many values are assiociated to the specified name, then the first
-   * one is returned.
-   *
-   * @param name of the metadata.
+   * Get the value associated to a metadata name. If many values are assiociated
+   * to the specified name, then the first one is returned.
+   * 
+   * @param name
+   *          of the metadata.
    * @return the value associated to the specified metadata name.
    */
   public String get(final String name) {
@@ -83,13 +84,15 @@ DublinCore, HttpHeaders, Nutch, Feed {
 
   /**
    * Get the values associated to a metadata name.
-   * @param name of the metadata.
+   * 
+   * @param name
+   *          of the metadata.
    * @return the values associated to a metadata name.
    */
   public String[] getValues(final String name) {
     return _getValues(name);
   }
-  
+
   private String[] _getValues(final String name) {
     String[] values = metadata.get(name);
     if (values == null) {
@@ -99,12 +102,13 @@ DublinCore, HttpHeaders, Nutch, Feed {
   }
 
   /**
-   * Add a metadata name/value mapping.
-   * Add the specified value to the list of values associated to the
-   * specified metadata name.
-   *
-   * @param name the metadata name.
-   * @param value the metadata value.
+   * Add a metadata name/value mapping. Add the specified value to the list of
+   * values associated to the specified metadata name.
+   * 
+   * @param name
+   *          the metadata name.
+   * @param value
+   *          the metadata value.
    */
   public void add(final String name, final String value) {
     String[] values = metadata.get(name);
@@ -120,31 +124,37 @@ DublinCore, HttpHeaders, Nutch, Feed {
 
   /**
    * Copy All key-value pairs from properties.
-   * @param properties properties to copy from
+   * 
+   * @param properties
+   *          properties to copy from
    */
   public void setAll(Properties properties) {
     Enumeration<?> names = properties.propertyNames();
     while (names.hasMoreElements()) {
       String name = (String) names.nextElement();
-      metadata.put(name, new String[]{properties.getProperty(name)});
+      metadata.put(name, new String[] { properties.getProperty(name) });
     }
   }
 
   /**
-   * Set metadata name/value.
-   * Associate the specified value to the specified metadata name. If some
-   * previous values were associated to this name, they are removed.
-   *
-   * @param name the metadata name.
-   * @param value the metadata value.
+   * Set metadata name/value. Associate the specified value to the specified
+   * metadata name. If some previous values were associated to this name, they
+   * are removed.
+   * 
+   * @param name
+   *          the metadata name.
+   * @param value
+   *          the metadata value.
    */
   public void set(String name, String value) {
-    metadata.put(name, new String[]{value});
+    metadata.put(name, new String[] { value });
   }
 
   /**
    * Remove a metadata and all its associated values.
-   * @param name metadata name to remove
+   * 
+   * @param name
+   *          metadata name to remove
    */
   public void remove(String name) {
     metadata.remove(name);
@@ -152,12 +162,13 @@ DublinCore, HttpHeaders, Nutch, Feed {
 
   /**
    * Returns the number of metadata names in this metadata.
+   * 
    * @return number of metadata names
    */
   public int size() {
     return metadata.size();
   }
-  
+
   /** Remove all mappings from metadata. */
   public void clear() {
     metadata.clear();
@@ -165,7 +176,9 @@ DublinCore, HttpHeaders, Nutch, Feed {
 
   public boolean equals(Object o) {
 
-    if (o == null) { return false; }
+    if (o == null) {
+      return false;
+    }
 
     Metadata other = null;
     try {
@@ -174,7 +187,9 @@ DublinCore, HttpHeaders, Nutch, Feed {
       return false;
     }
 
-    if (other.size() != size()) { return false; }
+    if (other.size() != size()) {
+      return false;
+    }
 
     String[] names = names();
     for (int i = 0; i < names.length; i++) {
@@ -198,10 +213,7 @@ DublinCore, HttpHeaders, Nutch, Feed {
     for (int i = 0; i < names.length; i++) {
       String[] values = _getValues(names[i]);
       for (int j = 0; j < values.length; j++) {
-        buf.append(names[i])
-           .append("=")
-           .append(values[j])
-           .append(" ");
+        buf.append(names[i]).append("=").append(values[j]).append(" ");
       }
     }
     return buf.toString();

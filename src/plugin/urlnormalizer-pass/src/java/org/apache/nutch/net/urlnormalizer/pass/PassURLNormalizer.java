@@ -24,15 +24,17 @@ import org.apache.nutch.net.URLNormalizer;
 
 /**
  * This URLNormalizer doesn't change urls. It is sometimes useful if for a given
- * scope at least one normalizer must be defined but no transformations are required.
+ * scope at least one normalizer must be defined but no transformations are
+ * required.
  * 
  * @author Andrzej Bialecki
  */
 public class PassURLNormalizer implements URLNormalizer {
 
   private Configuration conf;
-  
-  public String normalize(String urlString, String scope) throws MalformedURLException {
+
+  public String normalize(String urlString, String scope)
+      throws MalformedURLException {
     return urlString;
   }
 
@@ -41,7 +43,7 @@ public class PassURLNormalizer implements URLNormalizer {
   }
 
   public void setConf(Configuration conf) {
-    this.conf = conf;    
+    this.conf = conf;
   }
 
 }

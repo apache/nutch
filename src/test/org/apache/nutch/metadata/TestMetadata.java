@@ -33,7 +33,6 @@ public class TestMetadata {
 
   private static final String CONTENTTYPE = "contenttype";
 
-  
   /**
    * Test to ensure that only non-null values get written when the
    * {@link Metadata} object is written using a Writeable.
@@ -280,4 +279,3 @@ public class TestMetadata {
   }
 
 }
-

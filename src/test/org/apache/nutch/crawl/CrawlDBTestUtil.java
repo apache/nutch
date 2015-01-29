@@ -36,10 +36,10 @@ import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.handler.ResourceHandler;
 
-
 public class CrawlDBTestUtil {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CrawlDBTestUtil.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(CrawlDBTestUtil.class);
 
   /**
    * Creates synthetic crawldb
@@ -52,12 +52,12 @@ public class CrawlDBTestUtil {
    *          urls to be inserted, objects are of type URLCrawlDatum
    * @throws Exception
    */
-  public static void createCrawlDb(Configuration conf, FileSystem fs, Path crawldb, List<URLCrawlDatum> init)
-      throws Exception {
+  public static void createCrawlDb(Configuration conf, FileSystem fs,
+      Path crawldb, List<URLCrawlDatum> init) throws Exception {
     LOG.trace("* creating crawldb: " + crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(conf, fs, new Path(dir, "part-00000")
-        .toString(), Text.class, CrawlDatum.class);
+    MapFile.Writer writer = new MapFile.Writer(conf, fs, new Path(dir,
+        "part-00000").toString(), Text.class, CrawlDatum.class);
     Iterator<URLCrawlDatum> it = init.iterator();
     while (it.hasNext()) {
       URLCrawlDatum row = it.next();
@@ -69,25 +69,25 @@ public class CrawlDBTestUtil {
 
   /**
    * For now we need to manually construct our Configuration, because we need to
-   * override the default one and it is currently not possible to use dynamically
-   * set values.
+   * override the default one and it is currently not possible to use
+   * dynamically set values.
    * 
    * @return
    * @deprecated Use {@link #createConfiguration()} instead
    */
   @Deprecated
-  public static Configuration create(){
+  public static Configuration create() {
     return createConfiguration();
   }
 
   /**
    * For now we need to manually construct our Configuration, because we need to
-   * override the default one and it is currently not possible to use dynamically
-   * set values.
+   * override the default one and it is currently not possible to use
+   * dynamically set values.
    * 
    * @return
    */
-  public static Configuration createConfiguration(){
+  public static Configuration createConfiguration() {
     Configuration conf = new Configuration();
     conf.addResource("nutch-default.xml");
     conf.addResource("crawl-tests.xml");
@@ -108,32 +108,36 @@ public class CrawlDBTestUtil {
 
   /**
    * Generate seedlist
-   * @throws IOException 
+   * 
+   * @throws IOException
    */
-  public static void generateSeedList(FileSystem fs, Path urlPath, List<String> urls) throws IOException{
+  public static void generateSeedList(FileSystem fs, Path urlPath,
+      List<String> urls) throws IOException {
     generateSeedList(fs, urlPath, urls, new ArrayList<String>());
   }
-  
+
   /**
    * Generate seedlist
-   * @throws IOException 
+   * 
+   * @throws IOException
    */
-  public static void generateSeedList(FileSystem fs, Path urlPath, List<String> urls, List<String>metadata) throws IOException{
+  public static void generateSeedList(FileSystem fs, Path urlPath,
+      List<String> urls, List<String> metadata) throws IOException {
     FSDataOutputStream out;
-    Path file=new Path(urlPath,"urls.txt");
+    Path file = new Path(urlPath, "urls.txt");
     fs.mkdirs(urlPath);
-    out=fs.create(file);
-    
-    Iterator<String> urls_i=urls.iterator();
-    Iterator<String> metadata_i=metadata.iterator();
-    
+    out = fs.create(file);
+
+    Iterator<String> urls_i = urls.iterator();
+    Iterator<String> metadata_i = metadata.iterator();
+
     String url;
     String md;
-    while(urls_i.hasNext()){
-      url=urls_i.next();
+    while (urls_i.hasNext()) {
+      url = urls_i.next();
 
       out.writeBytes(url);
-            
+
       if (metadata_i.hasNext()) {
         md = metadata_i.next();
         out.writeBytes(md);
@@ -141,19 +145,22 @@ public class CrawlDBTestUtil {
 
       out.writeBytes("\n");
     }
-    
+
     out.flush();
     out.close();
   }
-  
+
   /**
    * Creates a new JettyServer with one static root context
    * 
-   * @param port port to listen to
-   * @param staticContent folder where static content lives
-   * @throws UnknownHostException 
+   * @param port
+   *          port to listen to
+   * @param staticContent
+   *          folder where static content lives
+   * @throws UnknownHostException
    */
-  public static Server getServer(int port, String staticContent) throws UnknownHostException{
+  public static Server getServer(int port, String staticContent)
+      throws UnknownHostException {
     Server webServer = new org.mortbay.jetty.Server();
     SocketConnector listener = new SocketConnector();
     listener.setPort(port);

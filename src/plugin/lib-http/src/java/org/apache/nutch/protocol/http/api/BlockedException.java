@@ -18,7 +18,7 @@
 package org.apache.nutch.protocol.http.api;
 
 public class BlockedException extends HttpException {
-  
+
   public BlockedException(String msg) {
     super(msg);
   }

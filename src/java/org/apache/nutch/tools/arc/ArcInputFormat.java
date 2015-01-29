@@ -30,21 +30,22 @@ import org.apache.hadoop.mapred.Reporter;
 /**
  * A input format the reads arc files.
  */
-public class ArcInputFormat
-  extends FileInputFormat<Text, BytesWritable> {
+public class ArcInputFormat extends FileInputFormat<Text, BytesWritable> {
 
   /**
    * Returns the <code>RecordReader</code> for reading the arc file.
    * 
-   * @param split The InputSplit of the arc file to process.
-   * @param job The job configuration.
-   * @param reporter The progress reporter.
+   * @param split
+   *          The InputSplit of the arc file to process.
+   * @param job
+   *          The job configuration.
+   * @param reporter
+   *          The progress reporter.
    */
   public RecordReader<Text, BytesWritable> getRecordReader(InputSplit split,
-      JobConf job, Reporter reporter)
-    throws IOException {
+      JobConf job, Reporter reporter) throws IOException {
     reporter.setStatus(split.toString());
-    return new ArcRecordReader(job, (FileSplit)split);
+    return new ArcRecordReader(job, (FileSplit) split);
   }
 
 }

@@ -22,9 +22,9 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.protocol.Content;
 
 /**
- * Implementation of a page signature. It calculates an MD5 hash
- * of the textual content of a page. In case there is no content, it
- * calculates a hash from the page's URL.
+ * Implementation of a page signature. It calculates an MD5 hash of the textual
+ * content of a page. In case there is no content, it calculates a hash from the
+ * page's URL.
  */
 public class TextMD5Signature extends Signature {
 
@@ -36,7 +36,7 @@ public class TextMD5Signature extends Signature {
     if (text == null || text.length() == 0) {
       return fallback.calculate(content, parse);
     }
-    
+
     return MD5Hash.digest(text).getDigest();
   }
 }

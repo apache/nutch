@@ -22,3 +22,4 @@
  * {@link org.apache.nutch.collection}.
  */
 package org.apache.nutch.indexer.subcollection;
+

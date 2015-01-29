@@ -58,52 +58,36 @@ public class TestContent {
     Content c = null;
     Metadata p = new Metadata();
 
-    c = new Content("http://www.foo.com/",
-        "http://www.foo.com/",
-        "".getBytes("UTF8"),
-        "text/html; charset=UTF-8", p, conf);
+    c = new Content("http://www.foo.com/", "http://www.foo.com/",
+        "".getBytes("UTF8"), "text/html; charset=UTF-8", p, conf);
     Assert.assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/foo.html",
-        "http://www.foo.com/",
-        "".getBytes("UTF8"),
-        "", p, conf);
+    c = new Content("http://www.foo.com/foo.html", "http://www.foo.com/",
+        "".getBytes("UTF8"), "", p, conf);
     Assert.assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/foo.html",
-        "http://www.foo.com/",
-        "".getBytes("UTF8"),
-        null, p, conf);
+    c = new Content("http://www.foo.com/foo.html", "http://www.foo.com/",
+        "".getBytes("UTF8"), null, p, conf);
     Assert.assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/",
-        "http://www.foo.com/",
-        "<html></html>".getBytes("UTF8"),
-        "", p, conf);
+    c = new Content("http://www.foo.com/", "http://www.foo.com/",
+        "<html></html>".getBytes("UTF8"), "", p, conf);
     Assert.assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/foo.html",
-        "http://www.foo.com/",
-        "<html></html>".getBytes("UTF8"),
-        "text/plain", p, conf);
+    c = new Content("http://www.foo.com/foo.html", "http://www.foo.com/",
+        "<html></html>".getBytes("UTF8"), "text/plain", p, conf);
     Assert.assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/foo.png",
-        "http://www.foo.com/",
-        "<html></html>".getBytes("UTF8"),
-        "text/plain", p, conf);
+    c = new Content("http://www.foo.com/foo.png", "http://www.foo.com/",
+        "<html></html>".getBytes("UTF8"), "text/plain", p, conf);
     Assert.assertEquals("text/html", c.getContentType());
 
-    c = new Content("http://www.foo.com/",
-        "http://www.foo.com/",
-        "".getBytes("UTF8"),
-        "", p, conf);
+    c = new Content("http://www.foo.com/", "http://www.foo.com/",
+        "".getBytes("UTF8"), "", p, conf);
     Assert.assertEquals(MimeTypes.OCTET_STREAM, c.getContentType());
 
-    c = new Content("http://www.foo.com/",
-        "http://www.foo.com/",
-        "".getBytes("UTF8"),
-        null, p, conf);
+    c = new Content("http://www.foo.com/", "http://www.foo.com/",
+        "".getBytes("UTF8"), null, p, conf);
     Assert.assertNotNull(c.getContentType());
   }
 

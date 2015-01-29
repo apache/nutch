@@ -54,19 +54,20 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 
 /**
- * This tool generates fetchlists (segments to be fetched) from plain text
- * files containing one URL per line. It's useful when arbitrary URL-s need to
- * be fetched without adding them first to the CrawlDb, or during testing.
+ * This tool generates fetchlists (segments to be fetched) from plain text files
+ * containing one URL per line. It's useful when arbitrary URL-s need to be
+ * fetched without adding them first to the CrawlDb, or during testing.
  */
 public class FreeGenerator extends Configured implements Tool {
-  private static final Logger LOG = LoggerFactory.getLogger(FreeGenerator.class);
-  
+  private static final Logger LOG = LoggerFactory
+      .getLogger(FreeGenerator.class);
+
   private static final String FILTER_KEY = "free.generator.filter";
   private static final String NORMALIZE_KEY = "free.generator.normalize";
 
-  public static class FG extends MapReduceBase
-  implements Mapper<WritableComparable<?>, Text, Text, Generator.SelectorEntry>,
-  Reducer<Text, Generator.SelectorEntry, Text, CrawlDatum> {
+  public static class FG extends MapReduceBase implements
+      Mapper<WritableComparable<?>, Text, Text, Generator.SelectorEntry>,
+      Reducer<Text, Generator.SelectorEntry, Text, CrawlDatum> {
     private URLNormalizers normalizers = null;
     private URLFilters filters = null;
     private ScoringFilters scfilters;
@@ -89,13 +90,15 @@ public class FreeGenerator extends Configured implements Tool {
 
     Generator.SelectorEntry entry = new Generator.SelectorEntry();
 
-    public void map(WritableComparable<?> key, Text value, OutputCollector<Text,
-        Generator.SelectorEntry> output, Reporter reporter) throws IOException {
+    public void map(WritableComparable<?> key, Text value,
+        OutputCollector<Text, Generator.SelectorEntry> output, Reporter reporter)
+        throws IOException {
       // value is a line of text
       String urlString = value.toString();
       try {
         if (normalizers != null) {
-          urlString = normalizers.normalize(urlString, URLNormalizers.SCOPE_INJECT);
+          urlString = normalizers.normalize(urlString,
+              URLNormalizers.SCOPE_INJECT);
         }
         if (urlString != null && filters != null) {
           urlString = filters.filter(urlString);
@@ -105,7 +108,8 @@ public class FreeGenerator extends Configured implements Tool {
           scfilters.injectedScore(url, datum);
         }
       } catch (Exception e) {
-        LOG.warn("Error adding url '" + value.toString() + "', skipping: " + StringUtils.stringifyException(e));
+        LOG.warn("Error adding url '" + value.toString() + "', skipping: "
+            + StringUtils.stringifyException(e));
         return;
       }
       if (urlString == null) {
@@ -122,8 +126,10 @@ public class FreeGenerator extends Configured implements Tool {
     }
 
     public void reduce(Text key, Iterator<Generator.SelectorEntry> values,
-        OutputCollector<Text, CrawlDatum> output, Reporter reporter) throws IOException {
-      // pick unique urls from values - discard the reduce key due to hash collisions
+        OutputCollector<Text, CrawlDatum> output, Reporter reporter)
+        throws IOException {
+      // pick unique urls from values - discard the reduce key due to hash
+      // collisions
       HashMap<Text, CrawlDatum> unique = new HashMap<Text, CrawlDatum>();
       while (values.hasNext()) {
         Generator.SelectorEntry entry = values.next();
@@ -138,12 +144,17 @@ public class FreeGenerator extends Configured implements Tool {
 
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: FreeGenerator <inputDir> <segmentsDir> [-filter] [-normalize]");
-      System.err.println("\tinputDir\tinput directory containing one or more input files.");
-      System.err.println("\t\tEach text file contains a list of URLs, one URL per line");
-      System.err.println("\tsegmentsDir\toutput directory, where new segment will be created");
+      System.err
+          .println("Usage: FreeGenerator <inputDir> <segmentsDir> [-filter] [-normalize]");
+      System.err
+          .println("\tinputDir\tinput directory containing one or more input files.");
+      System.err
+          .println("\t\tEach text file contains a list of URLs, one URL per line");
+      System.err
+          .println("\tsegmentsDir\toutput directory, where new segment will be created");
       System.err.println("\t-filter\trun current URLFilters on input URLs");
-      System.err.println("\t-normalize\trun current URLNormalizers on input URLs");
+      System.err
+          .println("\t-normalize\trun current URLNormalizers on input URLs");
       return -1;
     }
     boolean filter = false;
@@ -181,8 +192,8 @@ public class FreeGenerator extends Configured implements Tool {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
     job.setOutputKeyComparatorClass(Generator.HashComparator.class);
-    FileOutputFormat.setOutputPath(job, new Path(args[1],
-        new Path(segName, CrawlDatum.GENERATE_DIR_NAME)));
+    FileOutputFormat.setOutputPath(job, new Path(args[1], new Path(segName,
+        CrawlDatum.GENERATE_DIR_NAME)));
     try {
       JobClient.runJob(job);
     } catch (Exception e) {
@@ -190,12 +201,14 @@ public class FreeGenerator extends Configured implements Tool {
       return -1;
     }
     long end = System.currentTimeMillis();
-    LOG.info("FreeGenerator: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("FreeGenerator: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
     return 0;
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new FreeGenerator(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new FreeGenerator(),
+        args);
     System.exit(res);
   }
 }

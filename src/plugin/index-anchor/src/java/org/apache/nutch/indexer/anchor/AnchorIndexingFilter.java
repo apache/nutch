@@ -30,13 +30,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Indexing filter that offers an option to either index all inbound anchor text for 
- * a document or deduplicate anchors. Deduplication does have it's con's, 
+ * Indexing filter that offers an option to either index all inbound anchor text
+ * for a document or deduplicate anchors. Deduplication does have it's con's,
+ * 
  * @see {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
  */
 public class AnchorIndexingFilter implements IndexingFilter {
 
-  public static final Logger LOG = LoggerFactory.getLogger(AnchorIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(AnchorIndexingFilter.class);
   private Configuration conf;
   private boolean deduplicate = false;
 
@@ -49,6 +51,7 @@ public class AnchorIndexingFilter implements IndexingFilter {
     deduplicate = conf.getBoolean("anchorIndexingFilter.deduplicate", false);
     LOG.info("Anchor deduplication is: " + (deduplicate ? "on" : "off"));
   }
+
   /**
    * Get the {@link Configuration} object
    */
@@ -57,28 +60,33 @@ public class AnchorIndexingFilter implements IndexingFilter {
   }
 
   /**
-   * The {@link AnchorIndexingFilter} filter object which supports boolean 
-   * configuration settings for the deduplication of anchors. 
-   * See {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
-   *  
-   * @param doc The {@link NutchDocument} object
-   * @param parse The relevant {@link Parse} object passing through the filter 
-   * @param url URL to be filtered for anchor text
-   * @param datum The {@link CrawlDatum} entry
-   * @param inlinks The {@link Inlinks} containing anchor text
+   * The {@link AnchorIndexingFilter} filter object which supports boolean
+   * configuration settings for the deduplication of anchors. See
+   * {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
+   * 
+   * @param doc
+   *          The {@link NutchDocument} object
+   * @param parse
+   *          The relevant {@link Parse} object passing through the filter
+   * @param url
+   *          URL to be filtered for anchor text
+   * @param datum
+   *          The {@link CrawlDatum} entry
+   * @param inlinks
+   *          The {@link Inlinks} containing anchor text
    * @return filtered NutchDocument
    */
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum,
-    Inlinks inlinks) throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
-    String[] anchors = (inlinks != null ? inlinks.getAnchors()
-      : new String[0]);
+    String[] anchors = (inlinks != null ? inlinks.getAnchors() : new String[0]);
 
     HashSet<String> set = null;
 
     for (int i = 0; i < anchors.length; i++) {
       if (deduplicate) {
-        if (set == null) set = new HashSet<String>();
+        if (set == null)
+          set = new HashSet<String>();
         String lcAnchor = anchors[i].toLowerCase();
 
         // Check if already processed the current anchor

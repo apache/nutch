@@ -34,20 +34,20 @@ import org.junit.Test;
 import java.util.Date;
 
 /**
- * JUnit test case which tests 
- * 1. that basic searchable fields are added to a document
- * 2. that domain is added as per {@code indexer.add.domain} in nutch-default.xml.
- * 3. that title is truncated as per {@code indexer.max.title.length} in nutch-default.xml.
- * 4. that content is truncated as per {@code indexer.max.content.length} in nutch-default.xml.
+ * JUnit test case which tests 1. that basic searchable fields are added to a
+ * document 2. that domain is added as per {@code indexer.add.domain} in
+ * nutch-default.xml. 3. that title is truncated as per
+ * {@code indexer.max.title.length} in nutch-default.xml. 4. that content is
+ * truncated as per {@code indexer.max.content.length} in nutch-default.xml.
  * 
  * @author tejasp
- *
+ * 
  */
 
 public class TestBasicIndexingFilter {
 
   @Test
-  public void testBasicIndexingFilter() throws Exception { 
+  public void testBasicIndexingFilter() throws Exception {
     Configuration conf = NutchConfiguration.create();
     conf.setInt("indexer.max.title.length", 10);
     conf.setBoolean("indexer.add.domain", true);
@@ -63,8 +63,10 @@ public class TestBasicIndexingFilter {
     Outlink[] outlinks = new Outlink[] { new Outlink("http://foo.com/", "Foo") };
     Metadata metaData = new Metadata();
     metaData.add("Language", "en/us");
-    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
-    ParseImpl parse = new ParseImpl("this is a sample foo bar page. hope you enjoy it.", parseData);
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title,
+        outlinks, metaData);
+    ParseImpl parse = new ParseImpl(
+        "this is a sample foo bar page. hope you enjoy it.", parseData);
 
     CrawlDatum crawlDatum = new CrawlDatum();
     crawlDatum.setFetchTime(100L);
@@ -72,18 +74,26 @@ public class TestBasicIndexingFilter {
     Inlinks inlinks = new Inlinks();
 
     try {
-      filter.filter(doc, parse, new Text("http://nutch.apache.org/index.html"), crawlDatum, inlinks);
-    } catch(Exception e){
+      filter.filter(doc, parse, new Text("http://nutch.apache.org/index.html"),
+          crawlDatum, inlinks);
+    } catch (Exception e) {
       e.printStackTrace();
       Assert.fail(e.getMessage());
     }
     Assert.assertNotNull(doc);
-    Assert.assertEquals("test title, expect \"The Foo Pa\"", "The Foo Pa", doc.getField("title").getValues().get(0));
-    Assert.assertEquals("test domain, expect \"apache.org\"", "apache.org", doc.getField("domain").getValues().get(0));
-    Assert.assertEquals("test host, expect \"nutch.apache.org\"", "nutch.apache.org", doc.getField("host").getValues().get(0));
-    Assert.assertEquals("test url, expect \"http://nutch.apache.org/index.html\"", "http://nutch.apache.org/index.html", 
-      doc.getField("url").getValues().get(0));
-    Assert.assertEquals("test content", "this is a sample foo", doc.getField("content").getValues().get(0));
-    Assert.assertEquals("test fetch time", new Date(100L), (Date)doc.getField("tstamp").getValues().get(0));
+    Assert.assertEquals("test title, expect \"The Foo Pa\"", "The Foo Pa", doc
+        .getField("title").getValues().get(0));
+    Assert.assertEquals("test domain, expect \"apache.org\"", "apache.org", doc
+        .getField("domain").getValues().get(0));
+    Assert.assertEquals("test host, expect \"nutch.apache.org\"",
+        "nutch.apache.org", doc.getField("host").getValues().get(0));
+    Assert.assertEquals(
+        "test url, expect \"http://nutch.apache.org/index.html\"",
+        "http://nutch.apache.org/index.html", doc.getField("url").getValues()
+            .get(0));
+    Assert.assertEquals("test content", "this is a sample foo",
+        doc.getField("content").getValues().get(0));
+    Assert.assertEquals("test fetch time", new Date(100L),
+        (Date) doc.getField("tstamp").getValues().get(0));
   }
 }

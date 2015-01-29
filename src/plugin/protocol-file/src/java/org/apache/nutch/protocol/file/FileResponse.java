@@ -95,6 +95,7 @@ public class FileResponse {
 
   /**
    * Default public constructor
+   * 
    * @param url
    * @param datum
    * @param file
@@ -103,13 +104,13 @@ public class FileResponse {
    * @throws IOException
    */
   public FileResponse(URL url, CrawlDatum datum, File file, Configuration conf)
-    throws FileException, IOException {
+      throws FileException, IOException {
 
     this.orig = url.toString();
     this.base = url.toString();
     this.file = file;
     this.conf = conf;
-    
+
     MIME = new MimeUtil(conf);
     tika = new Tika();
 
@@ -139,16 +140,16 @@ public class FileResponse {
       this.content = null;
 
       // url.toURI() is only in j2se 1.5.0
-      //java.io.File f = new java.io.File(url.toURI());
+      // java.io.File f = new java.io.File(url.toURI());
       java.io.File f = new java.io.File(path);
 
       if (!f.exists()) {
-        this.code = 404;  // http Not Found
+        this.code = 404; // http Not Found
         return;
       }
 
       if (!f.canRead()) {
-        this.code = 401;  // http Unauthorized
+        this.code = 401; // http Unauthorized
         return;
       }
 
@@ -157,20 +158,23 @@ public class FileResponse {
       // where case is insensitive
       if (!f.equals(f.getCanonicalFile())) {
         // set headers
-        //hdrs.put("Location", f.getCanonicalFile().toURI());
+        // hdrs.put("Location", f.getCanonicalFile().toURI());
         //
-        // we want to automatically escape characters that are illegal in URLs. 
-        // It is recommended that new code convert an abstract pathname into a URL 
-        // by first converting it into a URI, via the toURI method, and then 
+        // we want to automatically escape characters that are illegal in URLs.
+        // It is recommended that new code convert an abstract pathname into a
+        // URL
+        // by first converting it into a URI, via the toURI method, and then
         // converting the URI into a URL via the URI.toURL method.
-        headers.set(Response.LOCATION, f.getCanonicalFile().toURI().toURL().toString());
+        headers.set(Response.LOCATION, f.getCanonicalFile().toURI().toURL()
+            .toString());
 
-        this.code = 300;  // http redirect
+        this.code = 300; // http redirect
         return;
       }
       if (f.lastModified() <= datum.getModifiedTime()) {
         this.code = 304;
-        this.headers.set("Last-Modified", HttpDateFormat.toString(f.lastModified()));
+        this.headers.set("Last-Modified",
+            HttpDateFormat.toString(f.lastModified()));
         return;
       }
 
@@ -240,6 +244,7 @@ public class FileResponse {
 
   /**
    * get dir list as http response
+   * 
    * @param f
    * @throws IOException
    */
@@ -265,6 +270,7 @@ public class FileResponse {
 
   /**
    * generate html page from dir list
+   * 
    * @param list
    * @param path
    * @param includeDotDot

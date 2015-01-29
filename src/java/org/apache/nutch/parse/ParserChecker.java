@@ -40,28 +40,30 @@ import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.util.StringUtil;
 
 /**
- * Parser checker, useful for testing parser.
- * It also accurately reports possible fetching and 
- * parsing failures and presents protocol status signals to aid 
- * debugging. The tool enables us to retrieve the following data from 
- * any url:
+ * Parser checker, useful for testing parser. It also accurately reports
+ * possible fetching and parsing failures and presents protocol status signals
+ * to aid debugging. The tool enables us to retrieve the following data from any
+ * url:
  * <ol>
- * <li><tt>contentType</tt>: The URL {@link org.apache.nutch.protocol.Content} type.</li>
- * <li><tt>signature</tt>: Digest is used to identify pages (like unique ID) and is used to remove
- * duplicates during the dedup procedure. 
- * It is calculated using {@link org.apache.nutch.crawl.MD5Signature} or
+ * <li><tt>contentType</tt>: The URL {@link org.apache.nutch.protocol.Content}
+ * type.</li>
+ * <li><tt>signature</tt>: Digest is used to identify pages (like unique ID) and
+ * is used to remove duplicates during the dedup procedure. It is calculated
+ * using {@link org.apache.nutch.crawl.MD5Signature} or
  * {@link org.apache.nutch.crawl.TextProfileSignature}.</li>
  * <li><tt>Version</tt>: From {@link org.apache.nutch.parse.ParseData}.</li>
  * <li><tt>Status</tt>: From {@link org.apache.nutch.parse.ParseData}.</li>
  * <li><tt>Title</tt>: of the URL</li>
  * <li><tt>Outlinks</tt>: associated with the URL</li>
  * <li><tt>Content Metadata</tt>: such as <i>X-AspNet-Version</i>, <i>Date</i>,
- * <i>Content-length</i>, <i>servedBy</i>, <i>Content-Type</i>, <i>Cache-Control</>, etc.</li>
+ * <i>Content-length</i>, <i>servedBy</i>, <i>Content-Type</i>,
+ * <i>Cache-Control</>, etc.</li>
  * <li><tt>Parse Metadata</tt>: such as <i>CharEncodingForConversion</i>,
  * <i>OriginalCharEncoding</i>, <i>language</i>, etc.</li>
- * <li><tt>ParseText</tt>: The page parse text which varies in length depdnecing on 
- * <code>content.length</code> configuration.</li>
+ * <li><tt>ParseText</tt>: The page parse text which varies in length depdnecing
+ * on <code>content.length</code> configuration.</li>
  * </ol>
+ * 
  * @author John Xing
  */
 
@@ -132,12 +134,13 @@ public class ParserChecker implements Tool {
     Protocol protocol = factory.getProtocol(url);
     Text turl = new Text(url);
     ProtocolOutput output = protocol.getProtocolOutput(turl, cd);
-    
+
     if (!output.getStatus().isSuccess()) {
-      System.err.println("Fetch failed with protocol status: " + output.getStatus());
+      System.err.println("Fetch failed with protocol status: "
+          + output.getStatus());
       return (-1);
     }
-    
+
     Content content = output.getContent();
 
     if (content == null) {
@@ -166,11 +169,12 @@ public class ParserChecker implements Tool {
       scfilters.passScoreBeforeParsing(turl, cd, content);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't pass score before parsing, url " + turl + " (" + e + ")");
+        LOG.warn("Couldn't pass score before parsing, url " + turl + " (" + e
+            + ")");
         LOG.warn(StringUtils.stringifyException(e));
       }
-    }    
-    
+    }
+
     ParseResult parseResult = new ParseUtil(conf).parse(content);
 
     if (parseResult == null) {
@@ -179,8 +183,9 @@ public class ParserChecker implements Tool {
     }
 
     // Calculate the signature
-    byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parseResult.get(new Text(url)));
-    
+    byte[] signature = SignatureFactory.getSignature(getConf()).calculate(
+        content, parseResult.get(new Text(url)));
+
     if (LOG.isInfoEnabled()) {
       LOG.info("parsing: " + url);
       LOG.info("contentType: " + contentType);
@@ -204,7 +209,8 @@ public class ParserChecker implements Tool {
       scfilters.passScoreAfterParsing(turl, content, parse);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't pass score after parsing, url " + turl + " (" + e + ")");
+        LOG.warn("Couldn't pass score after parsing, url " + turl + " (" + e
+            + ")");
         LOG.warn(StringUtils.stringifyException(e));
       }
     }

@@ -39,42 +39,48 @@ import java.util.Date;
 
 import org.apache.hadoop.conf.Configuration;
 
-/** 
- * Adds basic searchable fields to a document. 
- * The fields added are : domain, host, url, content, title, cache, tstamp
- * domain is included depending on {@code indexer.add.domain} in nutch-default.xml.
- * title is truncated as per {@code indexer.max.title.length} in nutch-default.xml. 
- *       (As per NUTCH-1004, a zero-length title is not added)
- * content is truncated as per {@code indexer.max.content.length} in nutch-default.xml.
+/**
+ * Adds basic searchable fields to a document. The fields added are : domain,
+ * host, url, content, title, cache, tstamp domain is included depending on
+ * {@code indexer.add.domain} in nutch-default.xml. title is truncated as per
+ * {@code indexer.max.title.length} in nutch-default.xml. (As per NUTCH-1004, a
+ * zero-length title is not added) content is truncated as per
+ * {@code indexer.max.content.length} in nutch-default.xml.
  */
 public class BasicIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory.getLogger(BasicIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(BasicIndexingFilter.class);
 
   private int MAX_TITLE_LENGTH;
   private int MAX_CONTENT_LENGTH;
   private boolean addDomain = false;
   private Configuration conf;
 
- /**
-  * The {@link BasicIndexingFilter} filter object which supports few 
-  * configuration settings for adding basic searchable fields. 
-  * See {@code indexer.add.domain}, {@code indexer.max.title.length}, 
-  * {@code indexer.max.content.length} in nutch-default.xml.
-  *  
-  * @param doc The {@link NutchDocument} object
-  * @param parse The relevant {@link Parse} object passing through the filter 
-  * @param url URL to be filtered for anchor text
-  * @param datum The {@link CrawlDatum} entry
-  * @param inlinks The {@link Inlinks} containing anchor text
-  * @return filtered NutchDocument
-  */
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
-    throws IndexingException {
+  /**
+   * The {@link BasicIndexingFilter} filter object which supports few
+   * configuration settings for adding basic searchable fields. See
+   * {@code indexer.add.domain}, {@code indexer.max.title.length},
+   * {@code indexer.max.content.length} in nutch-default.xml.
+   * 
+   * @param doc
+   *          The {@link NutchDocument} object
+   * @param parse
+   *          The relevant {@link Parse} object passing through the filter
+   * @param url
+   *          URL to be filtered for anchor text
+   * @param datum
+   *          The {@link CrawlDatum} entry
+   * @param inlinks
+   *          The {@link Inlinks} containing anchor text
+   * @return filtered NutchDocument
+   */
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
     Text reprUrl = (Text) datum.getMetaData().get(Nutch.WRITABLE_REPR_URL_KEY);
     String reprUrlString = reprUrl != null ? reprUrl.toString() : null;
     String urlString = url.toString();
-    
+
     String host = null;
     try {
       URL u;
@@ -83,11 +89,11 @@ public class BasicIndexingFilter implements IndexingFilter {
       } else {
         u = new URL(urlString);
       }
-      
+
       if (addDomain) {
         doc.add("domain", URLUtil.getDomainName(u));
       }
-      
+
       host = u.getHost();
     } catch (MalformedURLException e) {
       throw new IndexingException(e);
@@ -108,7 +114,10 @@ public class BasicIndexingFilter implements IndexingFilter {
 
     // title
     String title = parse.getData().getTitle();
-    if (MAX_TITLE_LENGTH > -1 && title.length() > MAX_TITLE_LENGTH) {      // truncate title if needed
+    if (MAX_TITLE_LENGTH > -1 && title.length() > MAX_TITLE_LENGTH) { // truncate
+                                                                      // title
+                                                                      // if
+                                                                      // needed
       title = title.substring(0, MAX_TITLE_LENGTH);
     }
 

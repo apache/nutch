@@ -54,19 +54,18 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 /**
- * This class is a protocol plugin that configures an HTTP client for
- * Basic, Digest and NTLM authentication schemes for web server as well
- * as proxy server. It takes care of HTTPS protocol as well as cookies
- * in a single fetch session.
- *
+ * This class is a protocol plugin that configures an HTTP client for Basic,
+ * Digest and NTLM authentication schemes for web server as well as proxy
+ * server. It takes care of HTTPS protocol as well as cookies in a single fetch
+ * session.
+ * 
  * @author Susam Pal
  */
 public class Http extends HttpBase {
 
   public static final Logger LOG = LoggerFactory.getLogger(Http.class);
 
-  private static MultiThreadedHttpConnectionManager connectionManager =
-          new MultiThreadedHttpConnectionManager();
+  private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
 
   // Since the Configuration has not yet been set,
   // then an unconfigured client is returned.
@@ -86,10 +85,9 @@ public class Http extends HttpBase {
   private String proxyPassword;
   private String proxyRealm;
 
-
   /**
    * Returns the configured HTTP client.
-   *
+   * 
    * @return HTTP client
    */
   static synchronized HttpClient getClient() {
@@ -104,10 +102,11 @@ public class Http extends HttpBase {
   }
 
   /**
-   * Reads the configuration from the Nutch configuration files and sets
-   * the configuration.
-   *
-   * @param conf Configuration
+   * Reads the configuration from the Nutch configuration files and sets the
+   * configuration.
+   * 
+   * @param conf
+   *          Configuration
    */
   public void setConf(Configuration conf) {
     super.setConf(conf);
@@ -130,8 +129,9 @@ public class Http extends HttpBase {
 
   /**
    * Main method.
-   *
-   * @param args Command line arguments
+   * 
+   * @param args
+   *          Command line arguments
    */
   public static void main(String[] args) throws Exception {
     Http http = new Http();
@@ -140,16 +140,19 @@ public class Http extends HttpBase {
   }
 
   /**
-   * Fetches the <code>url</code> with a configured HTTP client and
-   * gets the response.
-   *
-   * @param url       URL to be fetched
-   * @param datum     Crawl data
-   * @param redirect  Follow redirects if and only if true
-   * @return          HTTP response
+   * Fetches the <code>url</code> with a configured HTTP client and gets the
+   * response.
+   * 
+   * @param url
+   *          URL to be fetched
+   * @param datum
+   *          Crawl data
+   * @param redirect
+   *          Follow redirects if and only if true
+   * @return HTTP response
    */
   protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
-    throws ProtocolException, IOException {
+      throws ProtocolException, IOException {
     resolveCredentials(url);
     return new HttpResponse(this, url, datum, redirect);
   }
@@ -170,12 +173,14 @@ public class Http extends HttpBase {
     params.setSendBufferSize(BUFFER_SIZE);
     params.setReceiveBufferSize(BUFFER_SIZE);
     params.setMaxTotalConnections(maxThreadsTotal);
-    
-    //Also set max connections per host to maxThreadsTotal since all threads
-    //might be used to fetch from the same host - otherwise timeout errors can occur
+
+    // Also set max connections per host to maxThreadsTotal since all threads
+    // might be used to fetch from the same host - otherwise timeout errors can
+    // occur
     params.setDefaultMaxConnectionsPerHost(maxThreadsTotal);
 
-    // executeMethod(HttpMethod) seems to ignore the connection timeout on the connection manager.
+    // executeMethod(HttpMethod) seems to ignore the connection timeout on the
+    // connection manager.
     // set it explicitly on the HttpClient.
     client.getParams().setConnectionManagerTimeout(timeout);
 
@@ -188,7 +193,9 @@ public class Http extends HttpBase {
     // prefer UTF-8
     headers.add(new Header("Accept-Charset", "utf-8,ISO-8859-1;q=0.7,*;q=0.7"));
     // prefer understandable formats
-    headers.add(new Header("Accept",
+    headers
+        .add(new Header(
+            "Accept",
             "text/html,application/xml;q=0.9,application/xhtml+xml,text/xml;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"));
     // accept gzipped content
     headers.add(new Header("Accept-Encoding", "x-gzip, gzip, deflate"));
@@ -200,43 +207,42 @@ public class Http extends HttpBase {
 
       if (proxyUsername.length() > 0) {
 
-        AuthScope proxyAuthScope = getAuthScope(
-            this.proxyHost, this.proxyPort, this.proxyRealm);
+        AuthScope proxyAuthScope = getAuthScope(this.proxyHost, this.proxyPort,
+            this.proxyRealm);
 
-        NTCredentials proxyCredentials = new NTCredentials(
-            this.proxyUsername, this.proxyPassword,
-            Http.agentHost, this.proxyRealm);
+        NTCredentials proxyCredentials = new NTCredentials(this.proxyUsername,
+            this.proxyPassword, Http.agentHost, this.proxyRealm);
 
-        client.getState().setProxyCredentials(
-            proxyAuthScope, proxyCredentials);
+        client.getState().setProxyCredentials(proxyAuthScope, proxyCredentials);
       }
     }
 
   }
 
   /**
-   * Reads authentication configuration file (defined as
-   * 'http.auth.file' in Nutch configuration file) and sets the
-   * credentials for the configured authentication scopes in the HTTP
-   * client object.
-   *
-   * @throws ParserConfigurationException  If a document builder can not
-   *                                       be created.
-   * @throws SAXException                  If any parsing error occurs.
-   * @throws IOException                   If any I/O error occurs.
+   * Reads authentication configuration file (defined as 'http.auth.file' in
+   * Nutch configuration file) and sets the credentials for the configured
+   * authentication scopes in the HTTP client object.
+   * 
+   * @throws ParserConfigurationException
+   *           If a document builder can not be created.
+   * @throws SAXException
+   *           If any parsing error occurs.
+   * @throws IOException
+   *           If any I/O error occurs.
    */
-  private static synchronized void setCredentials() throws 
-      ParserConfigurationException, SAXException, IOException {
+  private static synchronized void setCredentials()
+      throws ParserConfigurationException, SAXException, IOException {
 
     if (authRulesRead)
       return;
 
     authRulesRead = true; // Avoid re-attempting to read
 
-    InputStream is = conf.getConfResourceAsInputStream(authFile);    
+    InputStream is = conf.getConfResourceAsInputStream(authFile);
     if (is != null) {
-      Document doc = DocumentBuilderFactory.newInstance()
-                     .newDocumentBuilder().parse(is);
+      Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+          .parse(is);
 
       Element rootElement = doc.getDocumentElement();
       if (!"auth-configuration".equals(rootElement.getTagName())) {
@@ -251,14 +257,14 @@ public class Http extends HttpBase {
       for (int i = 0; i < credList.getLength(); i++) {
         Node credNode = credList.item(i);
         if (!(credNode instanceof Element))
-          continue;    
+          continue;
 
         Element credElement = (Element) credNode;
         if (!"credentials".equals(credElement.getTagName())) {
           if (LOG.isWarnEnabled())
-            LOG.warn("Bad auth conf file: Element <"
-            + credElement.getTagName() + "> not recognized in "
-            + authFile + " - expected <credentials>");
+            LOG.warn("Bad auth conf file: Element <" + credElement.getTagName()
+                + "> not recognized in " + authFile
+                + " - expected <credentials>");
           continue;
         }
 
@@ -271,7 +277,7 @@ public class Http extends HttpBase {
           Node scopeNode = scopeList.item(j);
           if (!(scopeNode instanceof Element))
             continue;
-          
+
           Element scopeElement = (Element) scopeNode;
 
           if ("default".equals(scopeElement.getTagName())) {
@@ -287,9 +293,9 @@ public class Http extends HttpBase {
             defaultScheme = scheme;
 
             if (LOG.isTraceEnabled()) {
-              LOG.trace("Credentials - username: " + username 
-                  + "; set as default"
-                  + " for realm: " + realm + "; scheme: " + scheme);
+              LOG.trace("Credentials - username: " + username
+                  + "; set as default" + " for realm: " + realm + "; scheme: "
+                  + scheme);
             }
 
           } else if ("authscope".equals(scopeElement.getTagName())) {
@@ -298,8 +304,7 @@ public class Http extends HttpBase {
             String host = scopeElement.getAttribute("host");
             int port = -1; // For setting port to AuthScope.ANY_PORT
             try {
-              port = Integer.parseInt(
-                  scopeElement.getAttribute("port"));
+              port = Integer.parseInt(scopeElement.getAttribute("port"));
             } catch (Exception ex) {
               // do nothing, port is already set to any port
             }
@@ -308,16 +313,15 @@ public class Http extends HttpBase {
 
             // Set credentials for the determined scope
             AuthScope authScope = getAuthScope(host, port, realm, scheme);
-            NTCredentials credentials = new NTCredentials(
-                username, password, agentHost, realm);
+            NTCredentials credentials = new NTCredentials(username, password,
+                agentHost, realm);
 
             client.getState().setCredentials(authScope, credentials);
 
             if (LOG.isTraceEnabled()) {
               LOG.trace("Credentials - username: " + username
-                  + "; set for AuthScope - " + "host: " + host
-                  + "; port: " + port + "; realm: " + realm
-                  + "; scheme: " + scheme);
+                  + "; set for AuthScope - " + "host: " + host + "; port: "
+                  + port + "; realm: " + realm + "; scheme: " + scheme);
             }
 
           } else {
@@ -333,14 +337,14 @@ public class Http extends HttpBase {
   }
 
   /**
-   * If credentials for the authentication scope determined from the
-   * specified <code>url</code> is not already set in the HTTP client,
-   * then this method sets the default credentials to fetch the
-   * specified <code>url</code>. If credentials are found for the
-   * authentication scope, the method returns without altering the
-   * client.
-   *
-   * @param url URL to be fetched
+   * If credentials for the authentication scope determined from the specified
+   * <code>url</code> is not already set in the HTTP client, then this method
+   * sets the default credentials to fetch the specified <code>url</code>. If
+   * credentials are found for the authentication scope, the method returns
+   * without altering the client.
+   * 
+   * @param url
+   *          URL to be fetched
    */
   private void resolveCredentials(URL url) {
 
@@ -359,43 +363,42 @@ public class Http extends HttpBase {
       if (client.getState().getCredentials(scope) != null) {
         if (LOG.isTraceEnabled())
           LOG.trace("Pre-configured credentials with scope - host: "
-              + url.getHost() + "; port: " + port
-              + "; found for url: " + url);
+              + url.getHost() + "; port: " + port + "; found for url: " + url);
 
         // Credentials are already configured, so do nothing and return
         return;
       }
 
       if (LOG.isTraceEnabled())
-          LOG.trace("Pre-configured credentials with scope -  host: "
-              + url.getHost() + "; port: " + port
-              + "; not found for url: " + url);
+        LOG.trace("Pre-configured credentials with scope -  host: "
+            + url.getHost() + "; port: " + port + "; not found for url: " + url);
 
-      AuthScope serverAuthScope = getAuthScope(
-          url.getHost(), port, defaultRealm, defaultScheme);
+      AuthScope serverAuthScope = getAuthScope(url.getHost(), port,
+          defaultRealm, defaultScheme);
 
-      NTCredentials serverCredentials = new NTCredentials(
-          defaultUsername, defaultPassword,
-          agentHost, defaultRealm);
+      NTCredentials serverCredentials = new NTCredentials(defaultUsername,
+          defaultPassword, agentHost, defaultRealm);
 
-      client.getState().setCredentials(
-          serverAuthScope, serverCredentials);
+      client.getState().setCredentials(serverAuthScope, serverCredentials);
     }
   }
 
   /**
-   * Returns an authentication scope for the specified
-   * <code>host</code>, <code>port</code>, <code>realm</code> and
-   * <code>scheme</code>.
-   *
-   * @param host    Host name or address.
-   * @param port    Port number.
-   * @param realm   Authentication realm.
-   * @param scheme  Authentication scheme.
+   * Returns an authentication scope for the specified <code>host</code>,
+   * <code>port</code>, <code>realm</code> and <code>scheme</code>.
+   * 
+   * @param host
+   *          Host name or address.
+   * @param port
+   *          Port number.
+   * @param realm
+   *          Authentication realm.
+   * @param scheme
+   *          Authentication scheme.
    */
-  private static AuthScope getAuthScope(String host, int port,
-      String realm, String scheme) {
-    
+  private static AuthScope getAuthScope(String host, int port, String realm,
+      String scheme) {
+
     if (host.length() == 0)
       host = null;
 
@@ -412,17 +415,18 @@ public class Http extends HttpBase {
   }
 
   /**
-   * Returns an authentication scope for the specified
-   * <code>host</code>, <code>port</code> and <code>realm</code>.
-   *
-   * @param host    Host name or address.
-   * @param port    Port number.
-   * @param realm   Authentication realm.
+   * Returns an authentication scope for the specified <code>host</code>,
+   * <code>port</code> and <code>realm</code>.
+   * 
+   * @param host
+   *          Host name or address.
+   * @param port
+   *          Port number.
+   * @param realm
+   *          Authentication realm.
    */
-  private static AuthScope getAuthScope(String host, int port,
-      String realm) {
+  private static AuthScope getAuthScope(String host, int port, String realm) {
 
-      return getAuthScope(host, port, realm, "");
+    return getAuthScope(host, port, realm, "");
   }
 }
-

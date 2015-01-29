@@ -46,19 +46,19 @@ public class ParseSegment extends Configured implements Tool,
     Reducer<Text, Writable, Text, Writable> {
 
   public static final Logger LOG = LoggerFactory.getLogger(ParseSegment.class);
-  
+
   public static final String SKIP_TRUNCATED = "parser.skip.truncated";
-  
+
   private ScoringFilters scfilters;
-  
+
   private ParseUtil parseUtil;
-  
+
   private boolean skipTruncated;
-  
+
   public ParseSegment() {
     this(null);
   }
-  
+
   public ParseSegment(Configuration conf) {
     super(conf);
   }
@@ -66,41 +66,43 @@ public class ParseSegment extends Configured implements Tool,
   public void configure(JobConf job) {
     setConf(job);
     this.scfilters = new ScoringFilters(job);
-    skipTruncated=job.getBoolean(SKIP_TRUNCATED, true);
+    skipTruncated = job.getBoolean(SKIP_TRUNCATED, true);
   }
 
-  public void close() {}
-  
+  public void close() {
+  }
+
   private Text newKey = new Text();
 
   public void map(WritableComparable<?> key, Content content,
-                  OutputCollector<Text, ParseImpl> output, Reporter reporter)
-    throws IOException {
+      OutputCollector<Text, ParseImpl> output, Reporter reporter)
+      throws IOException {
     // convert on the fly from old UTF8 keys
     if (key instanceof Text) {
       newKey.set(key.toString());
       key = newKey;
     }
-    
-    int status =
-      Integer.parseInt(content.getMetadata().get(Nutch.FETCH_STATUS_KEY));
+
+    int status = Integer.parseInt(content.getMetadata().get(
+        Nutch.FETCH_STATUS_KEY));
     if (status != CrawlDatum.STATUS_FETCH_SUCCESS) {
       // content not fetched successfully, skip document
       LOG.debug("Skipping " + key + " as content is not fetched successfully");
       return;
     }
-    
+
     if (skipTruncated && isTruncated(content)) {
       return;
     }
 
     ParseResult parseResult = null;
     try {
-      if (parseUtil == null) 
+      if (parseUtil == null)
         parseUtil = new ParseUtil(getConf());
       parseResult = parseUtil.parse(content);
     } catch (Exception e) {
-      LOG.warn("Error parsing: " + key + ": " + StringUtils.stringifyException(e));
+      LOG.warn("Error parsing: " + key + ": "
+          + StringUtils.stringifyException(e));
       return;
     }
 
@@ -111,7 +113,8 @@ public class ParseSegment extends Configured implements Tool,
 
       long start = System.currentTimeMillis();
 
-      reporter.incrCounter("ParserStatus", ParseStatus.majorCodes[parseStatus.getMajorCode()], 1);
+      reporter.incrCounter("ParserStatus",
+          ParseStatus.majorCodes[parseStatus.getMajorCode()], 1);
 
       if (!parseStatus.isSuccess()) {
         LOG.warn("Error parsing: " + key + ": " + parseStatus);
@@ -119,45 +122,51 @@ public class ParseSegment extends Configured implements Tool,
       }
 
       // pass segment name to parse data
-      parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, 
-                                           getConf().get(Nutch.SEGMENT_NAME_KEY));
+      parse.getData().getContentMeta()
+          .set(Nutch.SEGMENT_NAME_KEY, getConf().get(Nutch.SEGMENT_NAME_KEY));
 
       // compute the new signature
-      byte[] signature = 
-        SignatureFactory.getSignature(getConf()).calculate(content, parse); 
-      parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, 
-          StringUtil.toHexString(signature));
-      
+      byte[] signature = SignatureFactory.getSignature(getConf()).calculate(
+          content, parse);
+      parse.getData().getContentMeta()
+          .set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
+
       try {
         scfilters.passScoreAfterParsing(url, content, parse);
       } catch (ScoringFilterException e) {
         if (LOG.isWarnEnabled()) {
-          LOG.warn("Error passing score: "+ url +": "+e.getMessage());
+          LOG.warn("Error passing score: " + url + ": " + e.getMessage());
         }
       }
 
       long end = System.currentTimeMillis();
       LOG.info("Parsed (" + Long.toString(end - start) + "ms):" + url);
 
-      output.collect(url, new ParseImpl(new ParseText(parse.getText()), 
-                                        parse.getData(), parse.isCanonical()));
+      output.collect(
+          url,
+          new ParseImpl(new ParseText(parse.getText()), parse.getData(), parse
+              .isCanonical()));
     }
   }
-  
+
   /**
    * Checks if the page's content is truncated.
+   * 
    * @param content
-   * @return If the page is truncated <code>true</code>. When it is not,
-   * or when it could be determined, <code>false</code>. 
+   * @return If the page is truncated <code>true</code>. When it is not, or when
+   *         it could be determined, <code>false</code>.
    */
   public static boolean isTruncated(Content content) {
     byte[] contentBytes = content.getContent();
-    if (contentBytes == null) return false;
+    if (contentBytes == null)
+      return false;
     Metadata metadata = content.getMetadata();
-    if (metadata == null) return false;
-    
+    if (metadata == null)
+      return false;
+
     String lengthStr = metadata.get(Response.CONTENT_LENGTH);
-    if (lengthStr != null) lengthStr=lengthStr.trim();
+    if (lengthStr != null)
+      lengthStr = lengthStr.trim();
     if (StringUtil.isEmpty(lengthStr)) {
       return false;
     }
@@ -176,14 +185,15 @@ public class ParseSegment extends Configured implements Tool,
       return true;
     }
     if (LOG.isDebugEnabled()) {
-      LOG.debug(url + " actualSize=" + actualSize + " inHeaderSize=" + inHeaderSize);
+      LOG.debug(url + " actualSize=" + actualSize + " inHeaderSize="
+          + inHeaderSize);
     }
     return false;
   }
 
   public void reduce(Text key, Iterator<Writable> values,
-                     OutputCollector<Text, Writable> output, Reporter reporter)
-    throws IOException {
+      OutputCollector<Text, Writable> output, Reporter reporter)
+      throws IOException {
     output.collect(key, values.next()); // collect first value
   }
 
@@ -204,7 +214,7 @@ public class ParseSegment extends Configured implements Tool,
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setMapperClass(ParseSegment.class);
     job.setReducerClass(ParseSegment.class);
-    
+
     FileOutputFormat.setOutputPath(job, segment);
     job.setOutputFormat(ParseOutputFormat.class);
     job.setOutputKeyClass(Text.class);
@@ -212,15 +222,16 @@ public class ParseSegment extends Configured implements Tool,
 
     JobClient.runJob(job);
     long end = System.currentTimeMillis();
-    LOG.info("ParseSegment: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("ParseSegment: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
-
 
   public static void main(String[] args) throws Exception {
-	int res = ToolRunner.run(NutchConfiguration.create(), new ParseSegment(), args);
-	System.exit(res);
+    int res = ToolRunner.run(NutchConfiguration.create(), new ParseSegment(),
+        args);
+    System.exit(res);
   }
-	  
+
   public int run(String[] args) throws Exception {
     Path segment;
 
@@ -231,11 +242,11 @@ public class ParseSegment extends Configured implements Tool,
       System.exit(-1);
     }
 
-    if(args.length > 1) {
-      for(int i = 1; i < args.length; i++) {
+    if (args.length > 1) {
+      for (int i = 1; i < args.length; i++) {
         String param = args[i];
 
-        if("-nofilter".equalsIgnoreCase(param)) {
+        if ("-nofilter".equalsIgnoreCase(param)) {
           getConf().setBoolean("parse.filter.urls", false);
         } else if ("-nonormalize".equalsIgnoreCase(param)) {
           getConf().setBoolean("parse.normalize.urls", false);

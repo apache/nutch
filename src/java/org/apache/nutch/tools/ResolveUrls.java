@@ -59,8 +59,7 @@ public class ResolveUrls {
   /**
    * A Thread which gets the ip address of a single host by name.
    */
-  private static class ResolverThread
-    extends Thread {
+  private static class ResolverThread extends Thread {
 
     private String url = null;
 
@@ -74,14 +73,13 @@ public class ResolveUrls {
       String host = URLUtil.getHost(url);
       long start = System.currentTimeMillis();
       try {
-        
-        // get the address by name and if no error is thrown then it 
+
+        // get the address by name and if no error is thrown then it
         // is resolved successfully
         InetAddress.getByName(host);
         LOG.info("Resolved: " + host);
         numResolved.incrementAndGet();
-      }
-      catch (Exception uhe) {
+      } catch (Exception uhe) {
         LOG.info("Error Resolving: " + host);
         numErrored.incrementAndGet();
       }
@@ -93,8 +91,8 @@ public class ResolveUrls {
   }
 
   /**
-   * Creates a thread pool for resolving urls.  Reads in the url file on the
-   * local filesystem.  For each url it attempts to resolve it keeping a total
+   * Creates a thread pool for resolving urls. Reads in the url file on the
+   * local filesystem. For each url it attempts to resolve it keeping a total
    * account of the number resolved, errored, and the amount of time.
    */
   public void resolveUrls() {
@@ -103,13 +101,13 @@ public class ResolveUrls {
 
       // create a thread pool with a fixed number of threads
       pool = Executors.newFixedThreadPool(numThreads);
-      
+
       // read in the urls file and loop through each line, one url per line
       BufferedReader buffRead = new BufferedReader(new FileReader(new File(
-        urlsFile)));
+          urlsFile)));
       String urlStr = null;
       while ((urlStr = buffRead.readLine()) != null) {
-        
+
         // spin up a resolver thread per url
         LOG.info("Starting: " + urlStr);
         pool.execute(new ResolverThread(urlStr));
@@ -119,9 +117,8 @@ public class ResolveUrls {
       // the thread pool to give urls time to finish resolving
       buffRead.close();
       pool.awaitTermination(60, TimeUnit.SECONDS);
-    }
-    catch (Exception e) {
-      
+    } catch (Exception e) {
+
       // on error shutdown the thread pool immediately
       pool.shutdownNow();
       LOG.info(StringUtils.stringifyException(e));
@@ -129,15 +126,16 @@ public class ResolveUrls {
 
     // shutdown the thread pool and log totals
     pool.shutdown();
-    LOG.info("Total: " + numTotal.get() + ", Resovled: "
-      + numResolved.get() + ", Errored: " + numErrored.get()
-      + ", Average Time: " + totalTime.get() / numTotal.get());
+    LOG.info("Total: " + numTotal.get() + ", Resovled: " + numResolved.get()
+        + ", Errored: " + numErrored.get() + ", Average Time: "
+        + totalTime.get() / numTotal.get());
   }
 
   /**
    * Create a new ResolveUrls with a file from the local file system.
-   *
-   * @param urlsFile The local urls file, one url per line.
+   * 
+   * @param urlsFile
+   *          The local urls file, one url per line.
    */
   public ResolveUrls(String urlsFile) {
     this(urlsFile, 100);
@@ -145,10 +143,12 @@ public class ResolveUrls {
 
   /**
    * Create a new ResolveUrls with a urls file and a number of threads for the
-   * Thread pool.  Number of threads is 100 by default.
+   * Thread pool. Number of threads is 100 by default.
    * 
-   * @param urlsFile The local urls file, one url per line.
-   * @param numThreads The number of threads used to resolve urls in parallel.
+   * @param urlsFile
+   *          The local urls file, one url per line.
+   * @param numThreads
+   *          The number of threads used to resolve urls in parallel.
    */
   public ResolveUrls(String urlsFile, int numThreads) {
     this.urlsFile = urlsFile;
@@ -165,13 +165,13 @@ public class ResolveUrls {
     OptionBuilder.withDescription("show this help message");
     Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
-    
+
     OptionBuilder.withArgName("urls");
     OptionBuilder.hasArg();
     OptionBuilder.withDescription("the urls file to check");
     Option urlOpts = OptionBuilder.create("urls");
     options.addOption(urlOpts);
-    
+
     OptionBuilder.withArgName("numThreads");
     OptionBuilder.hasArgs();
     OptionBuilder.withDescription("the number of threads to use");
@@ -197,8 +197,7 @@ public class ResolveUrls {
       }
       ResolveUrls resolve = new ResolveUrls(urls, numThreads);
       resolve.resolveUrls();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       LOG.error("ResolveUrls: " + StringUtils.stringifyException(e));
     }
   }

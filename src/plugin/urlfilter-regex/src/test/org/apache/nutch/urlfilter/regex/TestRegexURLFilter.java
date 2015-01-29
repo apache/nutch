@@ -26,14 +26,12 @@ import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 /**
  * JUnit based test of class <code>RegexURLFilter</code>.
- *
+ * 
  * @author J&eacute;r&ocirc;me Charron
  */
 public class TestRegexURLFilter extends RegexURLFilterBaseTest {
-
 
   protected URLFilter getURLFilter(Reader rules) {
     try {
@@ -43,7 +41,7 @@ public class TestRegexURLFilter extends RegexURLFilterBaseTest {
       return null;
     }
   }
-  
+
   @Test
   public void test() {
     test("WholeWebCrawling");

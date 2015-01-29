@@ -21,46 +21,47 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * A class for efficiently matching <code>String</code>s against a set
- * of prefixes.
+ * A class for efficiently matching <code>String</code>s against a set of
+ * prefixes.
  */
 public class PrefixStringMatcher extends TrieStringMatcher {
 
   /**
    * Creates a new <code>PrefixStringMatcher</code> which will match
-   * <code>String</code>s with any prefix in the supplied array.
-   * Zero-length <code>Strings</code> are ignored.
+   * <code>String</code>s with any prefix in the supplied array. Zero-length
+   * <code>Strings</code> are ignored.
    */
   public PrefixStringMatcher(String[] prefixes) {
     super();
-    for (int i= 0; i < prefixes.length; i++)
+    for (int i = 0; i < prefixes.length; i++)
       addPatternForward(prefixes[i]);
   }
 
   /**
    * Creates a new <code>PrefixStringMatcher</code> which will match
-   * <code>String</code>s with any prefix in the supplied    
+   * <code>String</code>s with any prefix in the supplied
    * <code>Collection</code>.
-   *
-   * @throws ClassCastException if any <code>Object</code>s in the
-   * collection are not <code>String</code>s
+   * 
+   * @throws ClassCastException
+   *           if any <code>Object</code>s in the collection are not
+   *           <code>String</code>s
    */
   public PrefixStringMatcher(Collection<String> prefixes) {
     super();
-    Iterator<String> iter= prefixes.iterator();
+    Iterator<String> iter = prefixes.iterator();
     while (iter.hasNext())
       addPatternForward(iter.next());
   }
 
   /**
-   * Returns true if the given <code>String</code> is matched by a
-   * prefix in the trie
+   * Returns true if the given <code>String</code> is matched by a prefix in the
+   * trie
    */
   public boolean matches(String input) {
-    TrieNode node= root;
-    for (int i= 0; i < input.length(); i++) {
-      node= node.getChild(input.charAt(i));
-      if (node == null) 
+    TrieNode node = root;
+    for (int i = 0; i < input.length(); i++) {
+      node = node.getChild(input.charAt(i));
+      if (node == null)
         return false;
       if (node.isTerminal())
         return true;
@@ -73,13 +74,13 @@ public class PrefixStringMatcher extends TrieStringMatcher {
    * or <code>null<code> if no match exists.
    */
   public String shortestMatch(String input) {
-    TrieNode node= root;
-    for (int i= 0; i < input.length(); i++) {
-      node= node.getChild(input.charAt(i));
-      if (node == null) 
+    TrieNode node = root;
+    for (int i = 0; i < input.length(); i++) {
+      node = node.getChild(input.charAt(i));
+      if (node == null)
         return null;
       if (node.isTerminal())
-        return input.substring(0, i+1);
+        return input.substring(0, i + 1);
     }
     return null;
   }
@@ -89,29 +90,26 @@ public class PrefixStringMatcher extends TrieStringMatcher {
    * or <code>null<code> if no match exists.
    */
   public String longestMatch(String input) {
-    TrieNode node= root;
-    String result= null;
-    for (int i= 0; i < input.length(); i++) {
-      node= node.getChild(input.charAt(i));
-      if (node == null) 
+    TrieNode node = root;
+    String result = null;
+    for (int i = 0; i < input.length(); i++) {
+      node = node.getChild(input.charAt(i));
+      if (node == null)
         break;
       if (node.isTerminal())
-        result= input.substring(0, i+1);
+        result = input.substring(0, i + 1);
     }
     return result;
   }
 
   public static final void main(String[] argv) {
-    PrefixStringMatcher matcher= 
-      new PrefixStringMatcher( 
-        new String[] 
-        {"abcd", "abc", "aac", "baz", "foo", "foobar"} );
+    PrefixStringMatcher matcher = new PrefixStringMatcher(new String[] {
+        "abcd", "abc", "aac", "baz", "foo", "foobar" });
 
-    String[] tests= {"a", "ab", "abc", "abcdefg", "apple", "aa", "aac",
-                     "aaccca", "abaz", "baz", "bazooka", "fo", "foobar",
-                     "kite", };
+    String[] tests = { "a", "ab", "abc", "abcdefg", "apple", "aa", "aac",
+        "aaccca", "abaz", "baz", "bazooka", "fo", "foobar", "kite", };
 
-    for (int i= 0; i < tests.length; i++) {
+    for (int i = 0; i < tests.length; i++) {
       System.out.println("testing: " + tests[i]);
       System.out.println("   matches: " + matcher.matches(tests[i]));
       System.out.println("  shortest: " + matcher.shortestMatch(tests[i]));

@@ -41,16 +41,17 @@ import java.net.MalformedURLException;
 
 /** Adds basic searchable fields to a document. */
 public class CCIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory.getLogger(CCIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(CCIndexingFilter.class);
 
   /** The name of the document field we use. */
   public static String FIELD = "cc";
 
   private Configuration conf;
 
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
-    throws IndexingException {
-    
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
+
     Metadata metadata = parse.getData().getParseMeta();
     // index the license
     String licenseUrl = metadata.get(CreativeCommons.LICENSE_URL);
@@ -81,9 +82,11 @@ public class CCIndexingFilter implements IndexingFilter {
     return doc;
   }
 
-  /** Add the features represented by a license URL.  Urls are of the form
+  /**
+   * Add the features represented by a license URL. Urls are of the form
    * "http://creativecommons.org/licenses/xx-xx/xx/xx", where "xx" names a
-   * license feature. */
+   * license feature.
+   */
   public void addUrlFeatures(NutchDocument doc, String urlString) {
     try {
       URL url = new URL(urlString);
@@ -92,7 +95,7 @@ public class CCIndexingFilter implements IndexingFilter {
       StringTokenizer names = new StringTokenizer(url.getPath(), "/-");
 
       if (names.hasMoreTokens())
-        names.nextToken();                        // throw away "licenses"
+        names.nextToken(); // throw away "licenses"
 
       // add a feature per component after "licenses"
       while (names.hasMoreTokens()) {
@@ -105,7 +108,7 @@ public class CCIndexingFilter implements IndexingFilter {
       }
     }
   }
-  
+
   private void addFeature(NutchDocument doc, String feature) {
     doc.add(FIELD, feature);
   }

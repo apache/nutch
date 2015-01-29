@@ -24,7 +24,7 @@ import org.apache.hadoop.conf.Configurable;
 
 public abstract class Signature implements Configurable {
   protected Configuration conf;
-  
+
   public abstract byte[] calculate(Content content, Parse parse);
 
   public Configuration getConf() {

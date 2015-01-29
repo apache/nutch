@@ -18,8 +18,9 @@
 package org.apache.nutch.protocol;
 
 /**
- * Simple aggregate to pass from protocol plugins both content and
- * protocol status.
+ * Simple aggregate to pass from protocol plugins both content and protocol
+ * status.
+ * 
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class ProtocolOutput {
@@ -30,12 +31,12 @@ public class ProtocolOutput {
     this.content = content;
     this.status = status;
   }
-  
+
   public ProtocolOutput(Content content) {
     this.content = content;
     this.status = ProtocolStatus.STATUS_SUCCESS;
   }
-  
+
   public Content getContent() {
     return content;
   }

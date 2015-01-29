@@ -33,8 +33,8 @@ import org.apache.hadoop.conf.Configuration;
  * The <code>Plugin</code> will be startuped and shutdown by the nutch plugin
  * management system.
  * 
- * A possible usecase of the <code>Plugin</code> implementation is to create
- * or close a database connection.
+ * A possible usecase of the <code>Plugin</code> implementation is to create or
+ * close a database connection.
  * 
  * @author joa23
  */
@@ -81,7 +81,8 @@ public class Plugin {
   }
 
   /**
-   * @param descriptor The descriptor to set
+   * @param descriptor
+   *          The descriptor to set
    */
   private void setDescriptor(PluginDescriptor descriptor) {
     fDescriptor = descriptor;

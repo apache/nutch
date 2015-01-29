@@ -38,15 +38,16 @@ public class HeadingsParseFilter implements HtmlParseFilter {
    * Pattern used to strip surpluss whitespace
    */
   protected static Pattern whitespacePattern = Pattern.compile("\\s+");
-    
+
   private Configuration conf;
   private String[] headings;
   private boolean multiValued = false;
 
-  public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
+  public ParseResult filter(Content content, ParseResult parseResult,
+      HTMLMetaTags metaTags, DocumentFragment doc) {
     Parse parse = parseResult.get(content.getUrl());
 
-    for (int i = 0 ; headings != null && i < headings.length ; i++ ) {
+    for (int i = 0; headings != null && i < headings.length; i++) {
       List<String> discoveredHeadings = getElement(doc, headings[i]);
 
       if (discoveredHeadings.size() > 0) {
@@ -89,7 +90,7 @@ public class HeadingsParseFilter implements HtmlParseFilter {
       if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
         if (element.equalsIgnoreCase(currentNode.getNodeName())) {
           headings.add(getNodeValue(currentNode));
-          
+
           // Check for multiValued here, if disabled we don't need
           // to discover more headings.
           if (!multiValued) {

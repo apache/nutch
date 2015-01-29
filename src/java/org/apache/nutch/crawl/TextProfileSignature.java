@@ -35,41 +35,50 @@ import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 /**
- * <p>An implementation of a page signature. It calculates an MD5 hash
- * of a plain text "profile" of a page. In case there is no text, it
- * calculates a hash using the {@link MD5Signature}.</p>
- * <p>The algorithm to calculate a page "profile" takes the plain text version of
- * a page and performs the following steps:
+ * <p>
+ * An implementation of a page signature. It calculates an MD5 hash of a plain
+ * text "profile" of a page. In case there is no text, it calculates a hash
+ * using the {@link MD5Signature}.
+ * </p>
+ * <p>
+ * The algorithm to calculate a page "profile" takes the plain text version of a
+ * page and performs the following steps:
  * <ul>
  * <li>remove all characters except letters and digits, and bring all characters
  * to lower case,</li>
  * <li>split the text into tokens (all consecutive non-whitespace characters),</li>
- * <li>discard tokens equal or shorter than MIN_TOKEN_LEN (default 2 characters),</li>
+ * <li>discard tokens equal or shorter than MIN_TOKEN_LEN (default 2
+ * characters),</li>
  * <li>sort the list of tokens by decreasing frequency,</li>
- * <li>round down the counts of tokens to the nearest multiple of QUANT
- * (<code>QUANT = QUANT_RATE * maxFreq</code>, where <code>QUANT_RATE</code> is 0.01f
- * by default, and <code>maxFreq</code> is the maximum token frequency). If
- * <code>maxFreq</code> is higher than 1, then QUANT is always higher than 2 (which
- * means that tokens with frequency 1 are always discarded).</li>
- * <li>tokens, which frequency after quantization falls below QUANT, are discarded.</li>
- * <li>create a list of tokens and their quantized frequency, separated by spaces,
- * in the order of decreasing frequency.</li>
+ * <li>round down the counts of tokens to the nearest multiple of QUANT (
+ * <code>QUANT = QUANT_RATE * maxFreq</code>, where <code>QUANT_RATE</code> is
+ * 0.01f by default, and <code>maxFreq</code> is the maximum token frequency).
+ * If <code>maxFreq</code> is higher than 1, then QUANT is always higher than 2
+ * (which means that tokens with frequency 1 are always discarded).</li>
+ * <li>tokens, which frequency after quantization falls below QUANT, are
+ * discarded.</li>
+ * <li>create a list of tokens and their quantized frequency, separated by
+ * spaces, in the order of decreasing frequency.</li>
  * </ul>
  * This list is then submitted to an MD5 hash calculation.
  * 
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class TextProfileSignature extends Signature {
-  
+
   Signature fallback = new MD5Signature();
 
   public byte[] calculate(Content content, Parse parse) {
-    int MIN_TOKEN_LEN = getConf().getInt("db.signature.text_profile.min_token_len", 2);
-    float QUANT_RATE = getConf().getFloat("db.signature.text_profile.quant_rate", 0.01f);
+    int MIN_TOKEN_LEN = getConf().getInt(
+        "db.signature.text_profile.min_token_len", 2);
+    float QUANT_RATE = getConf().getFloat(
+        "db.signature.text_profile.quant_rate", 0.01f);
     HashMap<String, Token> tokens = new HashMap<String, Token>();
     String text = null;
-    if (parse != null) text = parse.getText();
-    if (text == null || text.length() == 0) return fallback.calculate(content, parse);
+    if (parse != null)
+      text = parse.getText();
+    if (text == null || text.length() == 0)
+      return fallback.calculate(content, parse);
     StringBuffer curToken = new StringBuffer();
     int maxFreq = 0;
     for (int i = 0; i < text.length(); i++) {
@@ -87,7 +96,8 @@ public class TextProfileSignature extends Signature {
               tokens.put(s, tok);
             }
             tok.cnt++;
-            if (tok.cnt > maxFreq) maxFreq = tok.cnt;
+            if (tok.cnt > maxFreq)
+              maxFreq = tok.cnt;
           }
           curToken.setLength(0);
         }
@@ -103,17 +113,20 @@ public class TextProfileSignature extends Signature {
         tokens.put(s, tok);
       }
       tok.cnt++;
-      if (tok.cnt > maxFreq) maxFreq = tok.cnt;
+      if (tok.cnt > maxFreq)
+        maxFreq = tok.cnt;
     }
     Iterator<Token> it = tokens.values().iterator();
     ArrayList<Token> profile = new ArrayList<Token>();
     // calculate the QUANT value
     int QUANT = Math.round(maxFreq * QUANT_RATE);
     if (QUANT < 2) {
-      if (maxFreq > 1) QUANT = 2;
-      else QUANT = 1;
+      if (maxFreq > 1)
+        QUANT = 2;
+      else
+        QUANT = 1;
     }
-    while(it.hasNext()) {
+    while (it.hasNext()) {
       Token t = it.next();
       // round down to the nearest QUANT
       t.cnt = (t.cnt / QUANT) * QUANT;
@@ -128,32 +141,33 @@ public class TextProfileSignature extends Signature {
     it = profile.iterator();
     while (it.hasNext()) {
       Token t = it.next();
-      if (newText.length() > 0) newText.append("\n");
+      if (newText.length() > 0)
+        newText.append("\n");
       newText.append(t.toString());
     }
     return MD5Hash.digest(newText.toString()).getDigest();
   }
-  
+
   private static class Token {
     public int cnt;
     public String val;
-    
+
     public Token(int cnt, String val) {
       this.cnt = cnt;
       this.val = val;
     }
-    
+
     public String toString() {
       return val + " " + cnt;
     }
   }
-  
+
   private static class TokenComparator implements Comparator<Token> {
     public int compare(Token t1, Token t2) {
       return t2.cnt - t1.cnt;
     }
   }
-  
+
   public static void main(String[] args) throws Exception {
     TextProfileSignature sig = new TextProfileSignature();
     sig.setConf(NutchConfiguration.create());
@@ -161,15 +175,18 @@ public class TextProfileSignature extends Signature {
     File[] files = new File(args[0]).listFiles();
     for (int i = 0; i < files.length; i++) {
       FileInputStream fis = new FileInputStream(files[i]);
-      BufferedReader br = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
+      BufferedReader br = new BufferedReader(
+          new InputStreamReader(fis, "UTF-8"));
       StringBuffer text = new StringBuffer();
       String line = null;
       while ((line = br.readLine()) != null) {
-        if (text.length() > 0) text.append("\n");
+        if (text.length() > 0)
+          text.append("\n");
         text.append(line);
       }
       br.close();
-      byte[] signature = sig.calculate(null, new ParseImpl(text.toString(), null));
+      byte[] signature = sig.calculate(null, new ParseImpl(text.toString(),
+          null));
       res.put(files[i].toString(), signature);
     }
     Iterator<String> it = res.keySet().iterator();

@@ -73,40 +73,47 @@ import org.apache.nutch.util.NutchJob;
  * <p>
  * Also, it's possible to slice the resulting segment into chunks of fixed size.
  * </p>
- * <h3>Important Notes</h3>
- * <h4>Which parts are merged?</h4>
- * <p>It doesn't make sense to merge data from segments, which are at different stages
- * of processing (e.g. one unfetched segment, one fetched but not parsed, and
- * one fetched and parsed). Therefore, prior to merging, the tool will determine
- * the lowest common set of input data, and only this data will be merged.
- * This may have some unintended consequences:
- * e.g. if majority of input segments are fetched and parsed, but one of them is unfetched,
- * the tool will fall back to just merging fetchlists, and it will skip all other data
- * from all segments.</p>
+ * <h3>Important Notes</h3> <h4>Which parts are merged?</h4>
+ * <p>
+ * It doesn't make sense to merge data from segments, which are at different
+ * stages of processing (e.g. one unfetched segment, one fetched but not parsed,
+ * and one fetched and parsed). Therefore, prior to merging, the tool will
+ * determine the lowest common set of input data, and only this data will be
+ * merged. This may have some unintended consequences: e.g. if majority of input
+ * segments are fetched and parsed, but one of them is unfetched, the tool will
+ * fall back to just merging fetchlists, and it will skip all other data from
+ * all segments.
+ * </p>
  * <h4>Merging fetchlists</h4>
- * <p>Merging segments, which contain just fetchlists (i.e. prior to fetching)
- * is not recommended, because this tool (unlike the {@link org.apache.nutch.crawl.Generator}
- * doesn't ensure that fetchlist parts for each map task are disjoint.</p>
+ * <p>
+ * Merging segments, which contain just fetchlists (i.e. prior to fetching) is
+ * not recommended, because this tool (unlike the
+ * {@link org.apache.nutch.crawl.Generator} doesn't ensure that fetchlist parts
+ * for each map task are disjoint.
+ * </p>
  * <p>
  * <h4>Duplicate content</h4>
- * Merging segments removes older content whenever possible (see below). However,
- * this is NOT the same as de-duplication, which in addition removes identical
- * content found at different URL-s. In other words, running DeleteDuplicates is
- * still necessary.
+ * Merging segments removes older content whenever possible (see below).
+ * However, this is NOT the same as de-duplication, which in addition removes
+ * identical content found at different URL-s. In other words, running
+ * DeleteDuplicates is still necessary.
  * </p>
- * <p>For some types of data (especially ParseText) it's not possible to determine
- * which version is really older. Therefore the tool always uses segment names as
- * timestamps, for all types of input data. Segment names are compared in forward lexicographic
- * order (0-9a-zA-Z), and data from segments with "higher" names will prevail.
- * It follows then that it is extremely important that segments be named in an
- * increasing lexicographic order as their creation time increases.</p>
+ * <p>
+ * For some types of data (especially ParseText) it's not possible to determine
+ * which version is really older. Therefore the tool always uses segment names
+ * as timestamps, for all types of input data. Segment names are compared in
+ * forward lexicographic order (0-9a-zA-Z), and data from segments with "higher"
+ * names will prevail. It follows then that it is extremely important that
+ * segments be named in an increasing lexicographic order as their creation time
+ * increases.
+ * </p>
  * <p>
  * <h4>Merging and indexes</h4>
  * Merged segment gets a different name. Since Indexer embeds segment names in
- * indexes, any indexes originally created for the input segments will NOT work with the
- * merged segment. Newly created merged segment(s) need to be indexed afresh.
- * This tool doesn't use existing indexes in any way, so if
- * you plan to merge segments you don't have to index them prior to merging.
+ * indexes, any indexes originally created for the input segments will NOT work
+ * with the merged segment. Newly created merged segment(s) need to be indexed
+ * afresh. This tool doesn't use existing indexes in any way, so if you plan to
+ * merge segments you don't have to index them prior to merging.
  * 
  * 
  * @author Andrzej Bialecki
@@ -114,7 +121,8 @@ import org.apache.nutch.util.NutchJob;
 public class SegmentMerger extends Configured implements
     Mapper<Text, MetaWrapper, Text, MetaWrapper>,
     Reducer<Text, MetaWrapper, Text, MetaWrapper> {
-  private static final Logger LOG = LoggerFactory.getLogger(SegmentMerger.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(SegmentMerger.class);
 
   private static final String SEGMENT_PART_KEY = "part";
   private static final String SEGMENT_SLICE_KEY = "slice";
@@ -124,20 +132,21 @@ public class SegmentMerger extends Configured implements
   private SegmentMergeFilters mergeFilters = null;
   private long sliceSize = -1;
   private long curCount = 0;
-  
+
   /**
-   * Wraps inputs in an {@link MetaWrapper}, to permit merging different
-   * types in reduce and use additional metadata.
+   * Wraps inputs in an {@link MetaWrapper}, to permit merging different types
+   * in reduce and use additional metadata.
    */
   public static class ObjectInputFormat extends
-    SequenceFileInputFormat<Text, MetaWrapper> {
-    
+      SequenceFileInputFormat<Text, MetaWrapper> {
+
     @Override
-    public RecordReader<Text, MetaWrapper> getRecordReader(final InputSplit split,
-        final JobConf job, Reporter reporter) throws IOException {
+    public RecordReader<Text, MetaWrapper> getRecordReader(
+        final InputSplit split, final JobConf job, Reporter reporter)
+        throws IOException {
 
       reporter.setStatus(split.toString());
-      
+
       // find part name
       SegmentPart segmentPart;
       final String spString;
@@ -148,10 +157,10 @@ public class SegmentMerger extends Configured implements
       } catch (IOException e) {
         throw new RuntimeException("Cannot identify segment:", e);
       }
-      
-      SequenceFile.Reader reader =
-        new SequenceFile.Reader(FileSystem.get(job), fSplit.getPath(), job);
-      
+
+      SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(job),
+          fSplit.getPath(), job);
+
       final Writable w;
       try {
         w = (Writable) reader.getValueClass().newInstance();
@@ -164,13 +173,14 @@ public class SegmentMerger extends Configured implements
           // ignore
         }
       }
-      final SequenceFileRecordReader<Text,Writable> splitReader =
-        new SequenceFileRecordReader<Text,Writable>(job, (FileSplit)split);
+      final SequenceFileRecordReader<Text, Writable> splitReader = new SequenceFileRecordReader<Text, Writable>(
+          job, (FileSplit) split);
 
       try {
         return new SequenceFileRecordReader<Text, MetaWrapper>(job, fSplit) {
-          
-          public synchronized boolean next(Text key, MetaWrapper wrapper) throws IOException {
+
+          public synchronized boolean next(Text key, MetaWrapper wrapper)
+              throws IOException {
             LOG.debug("Running OIF.next()");
 
             boolean res = splitReader.next(key, w);
@@ -178,17 +188,17 @@ public class SegmentMerger extends Configured implements
             wrapper.setMeta(SEGMENT_PART_KEY, spString);
             return res;
           }
-          
+
           @Override
           public synchronized void close() throws IOException {
             splitReader.close();
           }
-          
+
           @Override
           public MetaWrapper createValue() {
             return new MetaWrapper();
           }
-          
+
         };
       } catch (IOException e) {
         throw new RuntimeException("Cannot create RecordReader: ", e);
@@ -196,11 +206,14 @@ public class SegmentMerger extends Configured implements
     }
   }
 
-  public static class SegmentOutputFormat extends FileOutputFormat<Text, MetaWrapper> {
+  public static class SegmentOutputFormat extends
+      FileOutputFormat<Text, MetaWrapper> {
     private static final String DEFAULT_SLICE = "default";
-    
+
     @Override
-    public RecordWriter<Text, MetaWrapper> getRecordWriter(final FileSystem fs, final JobConf job, final String name, final Progressable progress) throws IOException {
+    public RecordWriter<Text, MetaWrapper> getRecordWriter(final FileSystem fs,
+        final JobConf job, final String name, final Progressable progress)
+        throws IOException {
       return new RecordWriter<Text, MetaWrapper>() {
         MapFile.Writer c_out = null;
         MapFile.Writer f_out = null;
@@ -210,7 +223,7 @@ public class SegmentMerger extends Configured implements
         SequenceFile.Writer p_out = null;
         HashMap<String, Closeable> sliceWriters = new HashMap<String, Closeable>();
         String segmentName = job.get("segment.merger.segmentName");
-        
+
         public void write(Text key, MetaWrapper wrapper) throws IOException {
           // unwrap
           SegmentPart sp = SegmentPart.parse(wrapper.getMeta(SEGMENT_PART_KEY));
@@ -221,13 +234,15 @@ public class SegmentMerger extends Configured implements
               g_out = ensureSequenceFile(slice, CrawlDatum.GENERATE_DIR_NAME);
               g_out.append(key, o);
             } else if (sp.partName.equals(CrawlDatum.FETCH_DIR_NAME)) {
-              f_out = ensureMapFile(slice, CrawlDatum.FETCH_DIR_NAME, CrawlDatum.class);
+              f_out = ensureMapFile(slice, CrawlDatum.FETCH_DIR_NAME,
+                  CrawlDatum.class);
               f_out.append(key, o);
             } else if (sp.partName.equals(CrawlDatum.PARSE_DIR_NAME)) {
               p_out = ensureSequenceFile(slice, CrawlDatum.PARSE_DIR_NAME);
               p_out.append(key, o);
             } else {
-              throw new IOException("Cannot determine segment part: " + sp.partName);
+              throw new IOException("Cannot determine segment part: "
+                  + sp.partName);
             }
           } else if (o instanceof Content) {
             c_out = ensureMapFile(slice, Content.DIR_NAME, Content.class);
@@ -235,9 +250,11 @@ public class SegmentMerger extends Configured implements
           } else if (o instanceof ParseData) {
             // update the segment name inside contentMeta - required by Indexer
             if (slice == null) {
-              ((ParseData)o).getContentMeta().set(Nutch.SEGMENT_NAME_KEY, segmentName);
+              ((ParseData) o).getContentMeta().set(Nutch.SEGMENT_NAME_KEY,
+                  segmentName);
             } else {
-              ((ParseData)o).getContentMeta().set(Nutch.SEGMENT_NAME_KEY, segmentName + "-" + slice);
+              ((ParseData) o).getContentMeta().set(Nutch.SEGMENT_NAME_KEY,
+                  segmentName + "-" + slice);
             }
             pd_out = ensureMapFile(slice, ParseData.DIR_NAME, ParseData.class);
             pd_out.append(key, o);
@@ -246,20 +263,26 @@ public class SegmentMerger extends Configured implements
             pt_out.append(key, o);
           }
         }
-        
+
         // lazily create SequenceFile-s.
-        private SequenceFile.Writer ensureSequenceFile(String slice, String dirName) throws IOException {
-          if (slice == null) slice = DEFAULT_SLICE;
-          SequenceFile.Writer res = (SequenceFile.Writer)sliceWriters.get(slice + dirName);
-          if (res != null) return res;
+        private SequenceFile.Writer ensureSequenceFile(String slice,
+            String dirName) throws IOException {
+          if (slice == null)
+            slice = DEFAULT_SLICE;
+          SequenceFile.Writer res = (SequenceFile.Writer) sliceWriters
+              .get(slice + dirName);
+          if (res != null)
+            return res;
           Path wname;
           Path out = FileOutputFormat.getOutputPath(job);
           if (slice == DEFAULT_SLICE) {
-            wname = new Path(new Path(new Path(out, segmentName), dirName), name);
+            wname = new Path(new Path(new Path(out, segmentName), dirName),
+                name);
           } else {
-            wname = new Path(new Path(new Path(out, segmentName + "-" + slice), dirName), name);
+            wname = new Path(new Path(new Path(out, segmentName + "-" + slice),
+                dirName), name);
           }
-          res = SequenceFile.createWriter(fs, job, wname, Text.class, 
+          res = SequenceFile.createWriter(fs, job, wname, Text.class,
               CrawlDatum.class,
               SequenceFileOutputFormat.getOutputCompressionType(job), progress);
           sliceWriters.put(slice + dirName, res);
@@ -267,23 +290,30 @@ public class SegmentMerger extends Configured implements
         }
 
         // lazily create MapFile-s.
-        private MapFile.Writer ensureMapFile(String slice, String dirName, Class<? extends Writable> clazz) throws IOException {
-          if (slice == null) slice = DEFAULT_SLICE;
-          MapFile.Writer res = (MapFile.Writer)sliceWriters.get(slice + dirName);
-          if (res != null) return res;
+        private MapFile.Writer ensureMapFile(String slice, String dirName,
+            Class<? extends Writable> clazz) throws IOException {
+          if (slice == null)
+            slice = DEFAULT_SLICE;
+          MapFile.Writer res = (MapFile.Writer) sliceWriters.get(slice
+              + dirName);
+          if (res != null)
+            return res;
           Path wname;
           Path out = FileOutputFormat.getOutputPath(job);
           if (slice == DEFAULT_SLICE) {
-            wname = new Path(new Path(new Path(out, segmentName), dirName), name);
+            wname = new Path(new Path(new Path(out, segmentName), dirName),
+                name);
           } else {
-            wname = new Path(new Path(new Path(out, segmentName + "-" + slice), dirName), name);
+            wname = new Path(new Path(new Path(out, segmentName + "-" + slice),
+                dirName), name);
           }
-          CompressionType compType = 
-              SequenceFileOutputFormat.getOutputCompressionType(job);
+          CompressionType compType = SequenceFileOutputFormat
+              .getOutputCompressionType(job);
           if (clazz.isAssignableFrom(ParseText.class)) {
             compType = CompressionType.RECORD;
           }
-          res = new MapFile.Writer(job, fs, wname.toString(), Text.class, clazz, compType, progress);
+          res = new MapFile.Writer(job, fs, wname.toString(), Text.class,
+              clazz, compType, progress);
           sliceWriters.put(slice + dirName, res);
           return res;
         }
@@ -293,9 +323,9 @@ public class SegmentMerger extends Configured implements
           while (it.hasNext()) {
             Object o = it.next();
             if (o instanceof SequenceFile.Writer) {
-              ((SequenceFile.Writer)o).close();
+              ((SequenceFile.Writer) o).close();
             } else {
-              ((MapFile.Writer)o).close();
+              ((MapFile.Writer) o).close();
             }
           }
         }
@@ -306,14 +336,15 @@ public class SegmentMerger extends Configured implements
   public SegmentMerger() {
     super(null);
   }
-  
+
   public SegmentMerger(Configuration conf) {
     super(conf);
   }
-  
+
   public void setConf(Configuration conf) {
     super.setConf(conf);
-    if (conf == null) return;
+    if (conf == null)
+      return;
     if (conf.getBoolean("segment.merger.filter", false)) {
       filters = new URLFilters(conf);
       mergeFilters = new SegmentMergeFilters(conf);
@@ -335,15 +366,18 @@ public class SegmentMerger extends Configured implements
       sliceSize = sliceSize / conf.getNumReduceTasks();
     }
   }
-  
+
   private Text newKey = new Text();
-  
+
   public void map(Text key, MetaWrapper value,
-      OutputCollector<Text, MetaWrapper> output, Reporter reporter) throws IOException {
+      OutputCollector<Text, MetaWrapper> output, Reporter reporter)
+      throws IOException {
     String url = key.toString();
     if (normalizers != null) {
       try {
-        url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT); // normalize the url
+        url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT); // normalize
+                                                                        // the
+                                                                        // url
       } catch (Exception e) {
         LOG.warn("Skipping " + url + ":" + e.getMessage());
         url = null;
@@ -357,7 +391,7 @@ public class SegmentMerger extends Configured implements
         url = null;
       }
     }
-    if(url != null) {
+    if (url != null) {
       newKey.set(url);
       output.collect(newKey, value);
     }
@@ -365,12 +399,13 @@ public class SegmentMerger extends Configured implements
 
   /**
    * NOTE: in selecting the latest version we rely exclusively on the segment
-   * name (not all segment data contain time information). Therefore it is extremely
-   * important that segments be named in an increasing lexicographic order as
-   * their creation time increases.
+   * name (not all segment data contain time information). Therefore it is
+   * extremely important that segments be named in an increasing lexicographic
+   * order as their creation time increases.
    */
   public void reduce(Text key, Iterator<MetaWrapper> values,
-      OutputCollector<Text, MetaWrapper> output, Reporter reporter) throws IOException {
+      OutputCollector<Text, MetaWrapper> output, Reporter reporter)
+      throws IOException {
     CrawlDatum lastG = null;
     CrawlDatum lastF = null;
     CrawlDatum lastSig = null;
@@ -383,18 +418,17 @@ public class SegmentMerger extends Configured implements
     String lastCname = null;
     String lastPDname = null;
     String lastPTname = null;
-    TreeMap<String, ArrayList<CrawlDatum>> linked =
-      new TreeMap<String, ArrayList<CrawlDatum>>();
+    TreeMap<String, ArrayList<CrawlDatum>> linked = new TreeMap<String, ArrayList<CrawlDatum>>();
     while (values.hasNext()) {
       MetaWrapper wrapper = values.next();
       Object o = wrapper.get();
       String spString = wrapper.getMeta(SEGMENT_PART_KEY);
       if (spString == null) {
-        throw new IOException("Null segment part, key=" + key);        
+        throw new IOException("Null segment part, key=" + key);
       }
       SegmentPart sp = SegmentPart.parse(spString);
       if (o instanceof CrawlDatum) {
-        CrawlDatum val = (CrawlDatum)o;
+        CrawlDatum val = (CrawlDatum) o;
         // check which output dir it belongs to
         if (sp.partName.equals(CrawlDatum.GENERATE_DIR_NAME)) {
           if (lastG == null) {
@@ -411,9 +445,9 @@ public class SegmentMerger extends Configured implements
           // only consider fetch status and ignore fetch retry status
           // https://issues.apache.org/jira/browse/NUTCH-1520
           // https://issues.apache.org/jira/browse/NUTCH-1113
-          if (CrawlDatum.hasFetchStatus(val) &&
-            val.getStatus() != CrawlDatum.STATUS_FETCH_RETRY &&
-            val.getStatus() != CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
+          if (CrawlDatum.hasFetchStatus(val)
+              && val.getStatus() != CrawlDatum.STATUS_FETCH_RETRY
+              && val.getStatus() != CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
             if (lastF == null) {
               lastF = val;
               lastFname = sp.segmentName;
@@ -450,40 +484,40 @@ public class SegmentMerger extends Configured implements
         }
       } else if (o instanceof Content) {
         if (lastC == null) {
-          lastC = (Content)o;
+          lastC = (Content) o;
           lastCname = sp.segmentName;
         } else {
           if (lastCname.compareTo(sp.segmentName) < 0) {
-            lastC = (Content)o;
+            lastC = (Content) o;
             lastCname = sp.segmentName;
           }
         }
       } else if (o instanceof ParseData) {
         if (lastPD == null) {
-          lastPD = (ParseData)o;
+          lastPD = (ParseData) o;
           lastPDname = sp.segmentName;
         } else {
           if (lastPDname.compareTo(sp.segmentName) < 0) {
-            lastPD = (ParseData)o;
+            lastPD = (ParseData) o;
             lastPDname = sp.segmentName;
           }
         }
       } else if (o instanceof ParseText) {
         if (lastPT == null) {
-          lastPT = (ParseText)o;
+          lastPT = (ParseText) o;
           lastPTname = sp.segmentName;
         } else {
           if (lastPTname.compareTo(sp.segmentName) < 0) {
-            lastPT = (ParseText)o;
+            lastPT = (ParseText) o;
             lastPTname = sp.segmentName;
           }
         }
       }
     }
-	// perform filtering based on full merge record
-    if (mergeFilters != null && 
-    	 !mergeFilters.filter(key, lastG, lastF, lastSig, lastC, lastPD, lastPT, 
-    			 			   linked.isEmpty() ? null : linked.lastEntry().getValue())){
+    // perform filtering based on full merge record
+    if (mergeFilters != null
+        && !mergeFilters.filter(key, lastG, lastF, lastSig, lastC, lastPD,
+            lastPT, linked.isEmpty() ? null : linked.lastEntry().getValue())) {
       return;
     }
 
@@ -552,10 +586,12 @@ public class SegmentMerger extends Configured implements
     }
   }
 
-  public void merge(Path out, Path[] segs, boolean filter, boolean normalize, long slice) throws Exception {
+  public void merge(Path out, Path[] segs, boolean filter, boolean normalize,
+      long slice) throws Exception {
     String segmentName = Generator.generateSegmentName();
     if (LOG.isInfoEnabled()) {
-      LOG.info("Merging " + segs.length + " segments to " + out + "/" + segmentName);
+      LOG.info("Merging " + segs.length + " segments to " + out + "/"
+          + segmentName);
     }
     JobConf job = new NutchJob(getConf());
     job.setJobName("mergesegs " + out + "/" + segmentName);
@@ -596,17 +632,24 @@ public class SegmentMerger extends Configured implements
       pt = pt && fs.exists(ptDir);
     }
     StringBuffer sb = new StringBuffer();
-    if (c) sb.append(" " + Content.DIR_NAME);
-    if (g) sb.append(" " + CrawlDatum.GENERATE_DIR_NAME);
-    if (f) sb.append(" " + CrawlDatum.FETCH_DIR_NAME);
-    if (p) sb.append(" " + CrawlDatum.PARSE_DIR_NAME);
-    if (pd) sb.append(" " + ParseData.DIR_NAME);
-    if (pt) sb.append(" " + ParseText.DIR_NAME);
+    if (c)
+      sb.append(" " + Content.DIR_NAME);
+    if (g)
+      sb.append(" " + CrawlDatum.GENERATE_DIR_NAME);
+    if (f)
+      sb.append(" " + CrawlDatum.FETCH_DIR_NAME);
+    if (p)
+      sb.append(" " + CrawlDatum.PARSE_DIR_NAME);
+    if (pd)
+      sb.append(" " + ParseData.DIR_NAME);
+    if (pt)
+      sb.append(" " + ParseText.DIR_NAME);
     if (LOG.isInfoEnabled()) {
       LOG.info("SegmentMerger: using segment data from:" + sb.toString());
     }
     for (int i = 0; i < segs.length; i++) {
-      if (segs[i] == null) continue;
+      if (segs[i] == null)
+        continue;
       if (g) {
         Path gDir = new Path(segs[i], CrawlDatum.GENERATE_DIR_NAME);
         FileInputFormat.addInputPath(job, gDir);
@@ -639,9 +682,9 @@ public class SegmentMerger extends Configured implements
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(MetaWrapper.class);
     job.setOutputFormat(SegmentOutputFormat.class);
-    
+
     setConf(job);
-    
+
     JobClient.runJob(job);
   }
 
@@ -650,13 +693,19 @@ public class SegmentMerger extends Configured implements
    */
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("SegmentMerger output_dir (-dir segments | seg1 seg2 ...) [-filter] [-slice NNNN]");
-      System.err.println("\toutput_dir\tname of the parent dir for output segment slice(s)");
-      System.err.println("\t-dir segments\tparent dir containing several segments");
+      System.err
+          .println("SegmentMerger output_dir (-dir segments | seg1 seg2 ...) [-filter] [-slice NNNN]");
+      System.err
+          .println("\toutput_dir\tname of the parent dir for output segment slice(s)");
+      System.err
+          .println("\t-dir segments\tparent dir containing several segments");
       System.err.println("\tseg1 seg2 ...\tlist of segment dirs");
-      System.err.println("\t-filter\t\tfilter out URL-s prohibited by current URLFilters");
-      System.err.println("\t-normalize\t\tnormalize URL via current URLNormalizers");
-      System.err.println("\t-slice NNNN\tcreate many output segments, each containing NNNN URLs");
+      System.err
+          .println("\t-filter\t\tfilter out URL-s prohibited by current URLFilters");
+      System.err
+          .println("\t-normalize\t\tnormalize URL via current URLNormalizers");
+      System.err
+          .println("\t-slice NNNN\tcreate many output segments, each containing NNNN URLs");
       return;
     }
     Configuration conf = NutchConfiguration.create();
@@ -688,7 +737,8 @@ public class SegmentMerger extends Configured implements
       return;
     }
     SegmentMerger merger = new SegmentMerger(conf);
-    merger.merge(out, segs.toArray(new Path[segs.size()]), filter, normalize, sliceSize);
+    merger.merge(out, segs.toArray(new Path[segs.size()]), filter, normalize,
+        sliceSize);
   }
 
 }

@@ -36,23 +36,23 @@ public class URLNormalizerChecker {
   private Configuration conf;
 
   public URLNormalizerChecker(Configuration conf) {
-      this.conf = conf;
+    this.conf = conf;
   }
 
   private void checkOne(String normalizerName, String scope) throws Exception {
     URLNormalizer normalizer = null;
 
-    ExtensionPoint point =
-      PluginRepository.get(conf).getExtensionPoint(URLNormalizer.X_POINT_ID);
+    ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(
+        URLNormalizer.X_POINT_ID);
 
     if (point == null)
-      throw new RuntimeException(URLNormalizer.X_POINT_ID+" not found.");
+      throw new RuntimeException(URLNormalizer.X_POINT_ID + " not found.");
 
     Extension[] extensions = point.getExtensions();
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
-      normalizer = (URLNormalizer)extension.getExtensionInstance();
+      normalizer = (URLNormalizer) extension.getExtensionInstance();
       if (normalizer.getClass().getName().equals(normalizerName)) {
         break;
       } else {
@@ -61,7 +61,8 @@ public class URLNormalizerChecker {
     }
 
     if (normalizer == null)
-      throw new RuntimeException("URLNormalizer "+normalizerName+" not found.");
+      throw new RuntimeException("URLNormalizer " + normalizerName
+          + " not found.");
 
     System.out.println("Checking URLNormalizer " + normalizerName);
 
@@ -79,7 +80,7 @@ public class URLNormalizerChecker {
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String line;
     URLNormalizers normalizers = new URLNormalizers(conf, scope);
-    while((line = in.readLine()) != null) {
+    while ((line = in.readLine()) != null) {
       String out = normalizers.normalize(line, scope);
       System.out.println(out);
     }
@@ -88,7 +89,7 @@ public class URLNormalizerChecker {
   public static void main(String[] args) throws Exception {
 
     String usage = "Usage: URLNormalizerChecker [-normalizer <normalizerName>] [-scope <scope>]"
-      + "\n\tscope can be one of: default,partition,generate_host_count,fetcher,crawldb,linkdb,inject,outlink";
+        + "\n\tscope can be one of: default,partition,generate_host_count,fetcher,crawldb,linkdb,inject,outlink";
 
     String normalizerName = null;
     String scope = URLNormalizers.SCOPE_DEFAULT;
@@ -103,7 +104,8 @@ public class URLNormalizerChecker {
       }
     }
 
-    URLNormalizerChecker checker = new URLNormalizerChecker(NutchConfiguration.create());
+    URLNormalizerChecker checker = new URLNormalizerChecker(
+        NutchConfiguration.create());
     if (normalizerName != null) {
       checker.checkOne(normalizerName, scope);
     } else {

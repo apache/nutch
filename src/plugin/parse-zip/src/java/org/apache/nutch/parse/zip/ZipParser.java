@@ -55,9 +55,12 @@ public class ZipParser implements Parser {
     List<Outlink> outLinksList = new ArrayList<Outlink>();
 
     try {
-      final String contentLen = content.getMetadata().get(Response.CONTENT_LENGTH);
+      final String contentLen = content.getMetadata().get(
+          Response.CONTENT_LENGTH);
       final int len = Integer.parseInt(contentLen);
-      if (LOG.isDebugEnabled()) { LOG.debug("ziplen: " + len); }
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("ziplen: " + len);
+      }
       final byte[] contentInBytes = content.getContent();
 
       if (contentLen != null && contentInBytes.length != len) {
@@ -76,7 +79,8 @@ public class ZipParser implements Parser {
 
     } catch (Exception e) {
       return new ParseStatus(ParseStatus.FAILED,
-          "Can't be handled as Zip document. " + e).getEmptyParseResult(content.getUrl(), getConf());
+          "Can't be handled as Zip document. " + e).getEmptyParseResult(
+          content.getUrl(), getConf());
     }
 
     if (resultText == null) {
@@ -89,11 +93,13 @@ public class ZipParser implements Parser {
 
     outlinks = (Outlink[]) outLinksList.toArray(new Outlink[0]);
     final ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
-                                              resultTitle, outlinks,
-                                              content.getMetadata());
+        resultTitle, outlinks, content.getMetadata());
 
-    if (LOG.isTraceEnabled()) { LOG.trace("Zip file parsed sucessfully !!"); }
-    return ParseResult.createParseResult(content.getUrl(), new ParseImpl(resultText, parseData));
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("Zip file parsed sucessfully !!");
+    }
+    return ParseResult.createParseResult(content.getUrl(), new ParseImpl(
+        resultText, parseData));
   }
 
   public void setConf(Configuration conf) {

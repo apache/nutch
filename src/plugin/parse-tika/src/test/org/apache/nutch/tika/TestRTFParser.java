@@ -63,12 +63,13 @@ public class TestRTFParser {
     Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + rtfFile;
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
-    content = protocol.getProtocolOutput(new Text(urlString),
-        new CrawlDatum()).getContent();
-    parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
-        .get(content.getUrl());
+    content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum())
+        .getContent();
+    parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(
+        content.getUrl());
     String text = parse.getText();
-    Assert.assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
+    Assert.assertEquals("The quick brown fox jumps over the lazy dog",
+        text.trim());
 
     String title = parse.getData().getTitle();
     Metadata meta = parse.getData().getParseMeta();

@@ -22,7 +22,7 @@ import org.junit.Test;
 
 /** Unit tests for ParseText. */
 
-public class TestParseText  {
+public class TestParseText {
 
   @Test
   public void testParseText() throws Exception {

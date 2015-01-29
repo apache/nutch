@@ -19,3 +19,4 @@
  * Miscellaneous utility classes.
  */
 package org.apache.nutch.util;
+

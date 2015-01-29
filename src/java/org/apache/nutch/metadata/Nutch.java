@@ -18,20 +18,17 @@ package org.apache.nutch.metadata;
 
 import org.apache.hadoop.io.Text;
 
-
 /**
  * A collection of Nutch internal metadata constants.
- *
+ * 
  * @author Chris Mattmann
  * @author J&eacute;r&ocirc;me Charron
  */
 public interface Nutch {
-  
-  public static final String ORIGINAL_CHAR_ENCODING =
-          "OriginalCharEncoding";
-  
-  public static final String CHAR_ENCODING_FOR_CONVERSION =
-          "CharEncodingForConversion";
+
+  public static final String ORIGINAL_CHAR_ENCODING = "OriginalCharEncoding";
+
+  public static final String CHAR_ENCODING_FOR_CONVERSION = "CharEncodingForConversion";
 
   public static final String SIGNATURE_KEY = "nutch.content.digest";
 
@@ -41,17 +38,22 @@ public interface Nutch {
 
   public static final String GENERATE_TIME_KEY = "_ngt_";
 
-  public static final Text WRITABLE_GENERATE_TIME_KEY = new Text(GENERATE_TIME_KEY);
+  public static final Text WRITABLE_GENERATE_TIME_KEY = new Text(
+      GENERATE_TIME_KEY);
 
   public static final String PROTO_STATUS_KEY = "_pst_";
 
-  public static final Text WRITABLE_PROTO_STATUS_KEY = new Text(PROTO_STATUS_KEY);
-  
+  public static final Text WRITABLE_PROTO_STATUS_KEY = new Text(
+      PROTO_STATUS_KEY);
+
   public static final String FETCH_TIME_KEY = "_ftk_";
-  
+
   public static final String FETCH_STATUS_KEY = "_fst_";
 
-  /** Sites may request that search engines don't provide access to cached documents. */
+  /**
+   * Sites may request that search engines don't provide access to cached
+   * documents.
+   */
   public static final String CACHING_FORBIDDEN_KEY = "caching.forbidden";
 
   /** Show both original forbidden content and summaries (default). */
@@ -70,5 +72,6 @@ public interface Nutch {
   /** Used by AdaptiveFetchSchedule to maintain custom fetch interval */
   public static final String FIXED_INTERVAL_KEY = "fixedInterval";
 
-  public static final Text WRITABLE_FIXED_INTERVAL_KEY = new Text(FIXED_INTERVAL_KEY);
+  public static final Text WRITABLE_FIXED_INTERVAL_KEY = new Text(
+      FIXED_INTERVAL_KEY);
 }

@@ -43,7 +43,7 @@ import org.apache.nutch.util.NutchConfiguration;
  * 
  * @author mattmann
  * 
- * Test Suite for the {@link FeedParser}.
+ *         Test Suite for the {@link FeedParser}.
  * 
  */
 public class TestFeedParser {
@@ -96,18 +96,17 @@ public class TestFeedParser {
 
       Assert.assertEquals(3, parseResult.size());
 
-      boolean hasLink1 = false, hasLink2 = false, hasLink3=false;
+      boolean hasLink1 = false, hasLink2 = false, hasLink3 = false;
 
       for (Iterator<Map.Entry<Text, Parse>> j = parseResult.iterator(); j
           .hasNext();) {
         Map.Entry<Text, Parse> entry = j.next();
-        if (entry.getKey().toString().equals(
-            "http://www-scf.usc.edu/~mattmann/")) {
+        if (entry.getKey().toString()
+            .equals("http://www-scf.usc.edu/~mattmann/")) {
           hasLink1 = true;
         } else if (entry.getKey().toString().equals("http://www.nutch.org/")) {
           hasLink2 = true;
-        }
-        else if(entry.getKey().toString().equals(urlString)){
+        } else if (entry.getKey().toString().equals(urlString)) {
           hasLink3 = true;
         }
 

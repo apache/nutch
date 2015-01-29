@@ -34,17 +34,19 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** 
+/**
  * Unit tests for SWFParser.
  */
 public class TestSWFParser {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data",".");
+  private String sampleDir = System.getProperty("test.data", ".");
 
-  private String[] sampleFiles = new String[]{"test1.swf", "test2.swf", "test3.swf"};
-  private String[] sampleTexts = new String[]{"test1.txt", "test2.txt", "test3.txt"};
+  private String[] sampleFiles = new String[] { "test1.swf", "test2.swf",
+      "test3.swf" };
+  private String[] sampleTexts = new String[] { "test1.txt", "test2.txt",
+      "test3.txt" };
 
   @Test
   public void testIt() throws ProtocolException, ParseException {
@@ -58,7 +60,8 @@ public class TestSWFParser {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
-      content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
+      content = protocol.getProtocolOutput(new Text(urlString),
+          new CrawlDatum()).getContent();
 
       parse = new ParseUtil(conf).parse(content).get(content.getUrl());
 
@@ -67,11 +70,12 @@ public class TestSWFParser {
     }
   }
 
-  public TestSWFParser() { 
+  public TestSWFParser() {
     for (int i = 0; i < sampleFiles.length; i++) {
       try {
         // read the test string
-        FileInputStream fis = new FileInputStream(sampleDir + fileSeparator + sampleTexts[i]);
+        FileInputStream fis = new FileInputStream(sampleDir + fileSeparator
+            + sampleTexts[i]);
         StringBuffer sb = new StringBuffer();
         int len = 0;
         InputStreamReader isr = new InputStreamReader(fis, "UTF-8");

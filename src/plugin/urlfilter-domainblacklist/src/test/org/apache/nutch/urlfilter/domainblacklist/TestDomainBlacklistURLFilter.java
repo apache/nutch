@@ -27,12 +27,12 @@ public class TestDomainBlacklistURLFilter {
   private final static String SAMPLES = System.getProperty("test.data", ".");
 
   @Test
-  public void testFilter()
-    throws Exception {
+  public void testFilter() throws Exception {
 
     String domainBlacklistFile = SAMPLES + SEPARATOR + "hosts.txt";
     Configuration conf = NutchConfiguration.create();
-    DomainBlacklistURLFilter domainBlacklistFilter = new DomainBlacklistURLFilter(domainBlacklistFile);
+    DomainBlacklistURLFilter domainBlacklistFilter = new DomainBlacklistURLFilter(
+        domainBlacklistFile);
     domainBlacklistFilter.setConf(conf);
     Assert.assertNull(domainBlacklistFilter.filter("http://lucene.apache.org"));
     Assert.assertNull(domainBlacklistFilter.filter("http://hadoop.apache.org"));

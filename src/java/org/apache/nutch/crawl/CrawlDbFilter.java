@@ -30,12 +30,13 @@ import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 
 /**
- * This class provides a way to separate the URL normalization
- * and filtering steps from the rest of CrawlDb manipulation code.
+ * This class provides a way to separate the URL normalization and filtering
+ * steps from the rest of CrawlDb manipulation code.
  * 
  * @author Andrzej Bialecki
  */
-public class CrawlDbFilter implements Mapper<Text, CrawlDatum, Text, CrawlDatum> {
+public class CrawlDbFilter implements
+    Mapper<Text, CrawlDatum, Text, CrawlDatum> {
   public static final String URL_FILTERING = "crawldb.url.filters";
 
   public static final String URL_NORMALIZING = "crawldb.url.normalizers";
@@ -51,7 +52,7 @@ public class CrawlDbFilter implements Mapper<Text, CrawlDatum, Text, CrawlDatum>
   private URLFilters filters;
 
   private URLNormalizers normalizers;
-  
+
   private String scope;
 
   public static final Logger LOG = LoggerFactory.getLogger(CrawlDbFilter.class);
@@ -70,17 +71,19 @@ public class CrawlDbFilter implements Mapper<Text, CrawlDatum, Text, CrawlDatum>
     }
   }
 
-  public void close() {}
-  
+  public void close() {
+  }
+
   private Text newKey = new Text();
 
   public void map(Text key, CrawlDatum value,
-      OutputCollector<Text, CrawlDatum> output,
-      Reporter reporter) throws IOException {
+      OutputCollector<Text, CrawlDatum> output, Reporter reporter)
+      throws IOException {
 
     String url = key.toString();
 
-    // https://issues.apache.org/jira/browse/NUTCH-1101 check status first, cheaper than normalizing or filtering
+    // https://issues.apache.org/jira/browse/NUTCH-1101 check status first,
+    // cheaper than normalizing or filtering
     if (url404Purging && CrawlDatum.STATUS_DB_GONE == value.getStatus()) {
       url = null;
     }

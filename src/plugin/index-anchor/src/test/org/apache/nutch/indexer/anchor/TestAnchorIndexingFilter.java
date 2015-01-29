@@ -29,12 +29,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * JUnit test case which tests
- * 1. that anchor text is obtained
- * 2. that anchor deduplication functionality is working
+ * JUnit test case which tests 1. that anchor text is obtained 2. that anchor
+ * deduplication functionality is working
  * 
  * @author lewismc
- *
+ * 
  */
 public class TestAnchorIndexingFilter {
 
@@ -52,14 +51,17 @@ public class TestAnchorIndexingFilter {
     inlinks.add(new Inlink("http://test2.com/", "text2"));
     inlinks.add(new Inlink("http://test3.com/", "text2"));
     try {
-      filter.filter(doc, parse, new Text("http://nutch.apache.org/index.html"), new CrawlDatum(), inlinks);
-    } catch(Exception e){
+      filter.filter(doc, parse, new Text("http://nutch.apache.org/index.html"),
+          new CrawlDatum(), inlinks);
+    } catch (Exception e) {
       e.printStackTrace();
       Assert.fail(e.getMessage());
     }
     Assert.assertNotNull(doc);
-    Assert.assertTrue("test if there is an anchor at all", doc.getFieldNames().contains("anchor"));
-    Assert.assertEquals("test dedup, we expect 2", 2, doc.getField("anchor").getValues().size());
+    Assert.assertTrue("test if there is an anchor at all", doc.getFieldNames()
+        .contains("anchor"));
+    Assert.assertEquals("test dedup, we expect 2", 2, doc.getField("anchor")
+        .getValues().size());
   }
 
 }

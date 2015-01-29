@@ -76,9 +76,7 @@ import org.apache.nutch.util.TimingUtil;
  * rather small. Because of this the Loops job is optional and if it doesn't
  * exist then it won't be factored into the LinkRank program.
  */
-public class Loops
-  extends Configured
-  implements Tool {
+public class Loops extends Configured implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(Loops.class);
   public static final String LOOPS_DIR = "loops";
@@ -87,8 +85,7 @@ public class Loops
   /**
    * A link path or route looking to identify a link cycle.
    */
-  public static class Route
-    implements Writable {
+  public static class Route implements Writable {
 
     private String outlinkUrl = null;
     private String lookingFor = null;
@@ -122,16 +119,14 @@ public class Loops
       this.found = found;
     }
 
-    public void readFields(DataInput in)
-      throws IOException {
+    public void readFields(DataInput in) throws IOException {
 
       outlinkUrl = Text.readString(in);
       lookingFor = Text.readString(in);
       found = in.readBoolean();
     }
 
-    public void write(DataOutput out)
-      throws IOException {
+    public void write(DataOutput out) throws IOException {
       Text.writeString(out, outlinkUrl);
       Text.writeString(out, lookingFor);
       out.writeBoolean(found);
@@ -141,8 +136,7 @@ public class Loops
   /**
    * A set of loops.
    */
-  public static class LoopSet
-    implements Writable {
+  public static class LoopSet implements Writable {
 
     private Set<String> loopSet = new HashSet<String>();
 
@@ -158,8 +152,7 @@ public class Loops
       this.loopSet = loopSet;
     }
 
-    public void readFields(DataInput in)
-      throws IOException {
+    public void readFields(DataInput in) throws IOException {
 
       int numNodes = in.readInt();
       loopSet = new HashSet<String>();
@@ -169,8 +162,7 @@ public class Loops
       }
     }
 
-    public void write(DataOutput out)
-      throws IOException {
+    public void write(DataOutput out) throws IOException {
 
       int numNodes = (loopSet != null ? loopSet.size() : 0);
       out.writeInt(numNodes);
@@ -191,10 +183,9 @@ public class Loops
   /**
    * Initializes the Loop routes.
    */
-  public static class Initializer
-    extends Configured
-    implements Mapper<Text, Writable, Text, ObjectWritable>,
-    Reducer<Text, ObjectWritable, Text, Route> {
+  public static class Initializer extends Configured implements
+      Mapper<Text, Writable, Text, ObjectWritable>,
+      Reducer<Text, ObjectWritable, Text, Route> {
 
     private JobConf conf;
 
@@ -222,8 +213,8 @@ public class Loops
      * Wraps values in ObjectWritable.
      */
     public void map(Text key, Writable value,
-      OutputCollector<Text, ObjectWritable> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, ObjectWritable> output, Reporter reporter)
+        throws IOException {
 
       ObjectWritable objWrite = new ObjectWritable();
       objWrite.set(value);
@@ -236,8 +227,8 @@ public class Loops
      * the Looper job.
      */
     public void reduce(Text key, Iterator<ObjectWritable> values,
-      OutputCollector<Text, Route> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, Route> output, Reporter reporter)
+        throws IOException {
 
       String url = key.toString();
       Node node = null;
@@ -248,10 +239,9 @@ public class Loops
         ObjectWritable objWrite = values.next();
         Object obj = objWrite.get();
         if (obj instanceof LinkDatum) {
-          outlinkList.add((LinkDatum)obj);
-        }
-        else if (obj instanceof Node) {
-          node = (Node)obj;
+          outlinkList.add((LinkDatum) obj);
+        } else if (obj instanceof Node) {
+          node = (Node) obj;
         }
       }
 
@@ -282,10 +272,9 @@ public class Loops
    * Follows a route path looking for the start url of the route. If the start
    * url is found then the route is a cyclical path.
    */
-  public static class Looper
-    extends Configured
-    implements Mapper<Text, Writable, Text, ObjectWritable>,
-    Reducer<Text, ObjectWritable, Text, Route> {
+  public static class Looper extends Configured implements
+      Mapper<Text, Writable, Text, ObjectWritable>,
+      Reducer<Text, ObjectWritable, Text, Route> {
 
     private JobConf conf;
     private boolean last = false;
@@ -315,15 +304,14 @@ public class Loops
      * Wrap values in ObjectWritable.
      */
     public void map(Text key, Writable value,
-      OutputCollector<Text, ObjectWritable> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, ObjectWritable> output, Reporter reporter)
+        throws IOException {
 
       ObjectWritable objWrite = new ObjectWritable();
       Writable cloned = null;
       if (value instanceof LinkDatum) {
-        cloned = new Text(((LinkDatum)value).getUrl());
-      }
-      else {
+        cloned = new Text(((LinkDatum) value).getUrl());
+      } else {
         cloned = WritableUtils.clone(value, conf);
       }
       objWrite.set(cloned);
@@ -336,8 +324,8 @@ public class Loops
      * passes.
      */
     public void reduce(Text key, Iterator<ObjectWritable> values,
-      OutputCollector<Text, Route> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, Route> output, Reporter reporter)
+        throws IOException {
 
       List<Route> routeList = new ArrayList<Route>();
       Set<String> outlinkUrls = new LinkedHashSet<String>();
@@ -348,10 +336,9 @@ public class Loops
         ObjectWritable next = values.next();
         Object value = next.get();
         if (value instanceof Route) {
-          routeList.add(WritableUtils.clone((Route)value, conf));
-        }
-        else if (value instanceof Text) {
-          String outlinkUrl = ((Text)value).toString();
+          routeList.add(WritableUtils.clone((Route) value, conf));
+        } else if (value instanceof Text) {
+          String outlinkUrl = ((Text) value).toString();
           if (!outlinkUrls.contains(outlinkUrl)) {
             outlinkUrls.add(outlinkUrl);
           }
@@ -375,16 +362,14 @@ public class Loops
         routeIt.remove();
         if (route.isFound()) {
           output.collect(key, route);
-        }
-        else {
+        } else {
 
           // if the route start url is found, set route to found and collect
           String lookingFor = route.getLookingFor();
           if (outlinkUrls.contains(lookingFor)) {
             route.setFound(true);
             output.collect(key, route);
-          }
-          else if (!last) {
+          } else if (!last) {
 
             // setup for next pass through the loop
             for (String outlink : outlinkUrls) {
@@ -402,10 +387,8 @@ public class Loops
   /**
    * Finishes the Loops job by aggregating and collecting and found routes.
    */
-  public static class Finalizer
-    extends Configured
-    implements Mapper<Text, Route, Text, Route>,
-    Reducer<Text, Route, Text, LoopSet> {
+  public static class Finalizer extends Configured implements
+      Mapper<Text, Route, Text, Route>, Reducer<Text, Route, Text, LoopSet> {
 
     private JobConf conf;
 
@@ -433,8 +416,7 @@ public class Loops
      * Maps out and found routes, those will be the link cycles.
      */
     public void map(Text key, Route value, OutputCollector<Text, Route> output,
-      Reporter reporter)
-      throws IOException {
+        Reporter reporter) throws IOException {
 
       if (value.isFound()) {
         String lookingFor = value.getLookingFor();
@@ -443,12 +425,12 @@ public class Loops
     }
 
     /**
-     * Aggregates all found routes for a given start url into a loopset and 
+     * Aggregates all found routes for a given start url into a loopset and
      * collects the loopset.
      */
     public void reduce(Text key, Iterator<Route> values,
-      OutputCollector<Text, LoopSet> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, LoopSet> output, Reporter reporter)
+        throws IOException {
 
       LoopSet loops = new LoopSet();
       while (values.hasNext()) {
@@ -465,8 +447,7 @@ public class Loops
   /**
    * Runs the various loop jobs.
    */
-  public void findLoops(Path webGraphDb)
-    throws IOException {
+  public void findLoops(Path webGraphDb) throws IOException {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -481,7 +462,7 @@ public class Loops
     Path nodeDb = new Path(webGraphDb, WebGraph.NODE_DIR);
     Path routes = new Path(webGraphDb, ROUTES_DIR);
     Path tempRoute = new Path(webGraphDb, ROUTES_DIR + "-"
-      + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     // run the initializer
     JobConf init = new NutchJob(conf);
@@ -504,8 +485,7 @@ public class Loops
       LOG.info("Loops: installing initializer " + routes);
       FSUtils.replace(fs, routes, tempRoute, true);
       LOG.info("Loops: finished initializer");
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
@@ -536,8 +516,7 @@ public class Loops
         LOG.info("Loops: installing looper " + routes);
         FSUtils.replace(fs, routes, tempRoute, true);
         LOG.info("Loops: finished looper");
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         LOG.error(StringUtils.stringifyException(e));
         throw e;
       }
@@ -561,17 +540,16 @@ public class Loops
       LOG.info("Loops: starting finalizer");
       JobClient.runJob(finalizer);
       LOG.info("Loops: finished finalizer");
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
     long end = System.currentTimeMillis();
-    LOG.info("Loops: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("Loops: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
 
-  public static void main(String[] args)
-    throws Exception {
+  public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(NutchConfiguration.create(), new Loops(), args);
     System.exit(res);
   }
@@ -579,15 +557,14 @@ public class Loops
   /**
    * Runs the Loops tool.
    */
-  public int run(String[] args)
-    throws Exception {
+  public int run(String[] args) throws Exception {
 
     Options options = new Options();
     OptionBuilder.withArgName("help");
     OptionBuilder.withDescription("show this help message");
     Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
-    
+
     OptionBuilder.withArgName("webgraphdb");
     OptionBuilder.hasArg();
     OptionBuilder.withDescription("the web graph database to use");
@@ -607,8 +584,7 @@ public class Loops
       String webGraphDb = line.getOptionValue("webgraphdb");
       findLoops(new Path(webGraphDb));
       return 0;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       LOG.error("Loops: " + StringUtils.stringifyException(e));
       return -2;
     }

@@ -42,15 +42,15 @@ public class TestPluginSystem {
   private int fPluginCount;
 
   private LinkedList<File> fFolders = new LinkedList<File>();
-  private Configuration conf ;
+  private Configuration conf;
   private PluginRepository repository;
 
   @Before
   public void setUp() throws Exception {
     this.conf = NutchConfiguration.create();
     conf.set("plugin.includes", ".*");
-    //        String string = this.conf.get("plugin.includes", "");
-    //        conf.set("plugin.includes", string + "|Dummy*");
+    // String string = this.conf.get("plugin.includes", "");
+    // conf.set("plugin.includes", string + "|Dummy*");
     fPluginCount = 5;
     createDummyPlugins(fPluginCount);
     this.repository = PluginRepository.get(conf);
@@ -86,8 +86,7 @@ public class TestPluginSystem {
    */
   @Test
   public void testLoadPlugins() {
-    PluginDescriptor[] descriptors = repository
-        .getPluginDescriptors();
+    PluginDescriptor[] descriptors = repository.getPluginDescriptors();
     int k = descriptors.length;
     Assert.assertTrue(fPluginCount <= k);
     for (int i = 0; i < descriptors.length; i++) {
@@ -123,11 +122,10 @@ public class TestPluginSystem {
   @Test
   public void testGetExtensionAndAttributes() {
     String xpId = " sdsdsd";
-    ExtensionPoint extensionPoint =repository
-        .getExtensionPoint(xpId);
+    ExtensionPoint extensionPoint = repository.getExtensionPoint(xpId);
     Assert.assertEquals(extensionPoint, null);
-    Extension[] extension1 = repository
-        .getExtensionPoint(getGetExtensionId()).getExtensions();
+    Extension[] extension1 = repository.getExtensionPoint(getGetExtensionId())
+        .getExtensions();
     Assert.assertEquals(extension1.length, fPluginCount);
     for (int i = 0; i < extension1.length; i++) {
       Extension extension2 = extension1[i];
@@ -141,8 +139,8 @@ public class TestPluginSystem {
    */
   @Test
   public void testGetExtensionInstances() throws PluginRuntimeException {
-    Extension[] extensions = repository
-        .getExtensionPoint(getGetExtensionId()).getExtensions();
+    Extension[] extensions = repository.getExtensionPoint(getGetExtensionId())
+        .getExtensions();
     Assert.assertEquals(extensions.length, fPluginCount);
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
@@ -161,8 +159,7 @@ public class TestPluginSystem {
    */
   @Test
   public void testGetClassLoader() {
-    PluginDescriptor[] descriptors = repository
-        .getPluginDescriptors();
+    PluginDescriptor[] descriptors = repository.getPluginDescriptors();
     for (int i = 0; i < descriptors.length; i++) {
       PluginDescriptor descriptor = descriptors[i];
       Assert.assertNotNull(descriptor.getClassLoader());
@@ -174,8 +171,7 @@ public class TestPluginSystem {
    */
   @Test
   public void testGetResources() throws IOException {
-    PluginDescriptor[] descriptors = repository
-        .getPluginDescriptors();
+    PluginDescriptor[] descriptors = repository.getPluginDescriptors();
     for (int i = 0; i < descriptors.length; i++) {
       PluginDescriptor descriptor = descriptors[i];
       if (!descriptor.getPluginId().startsWith("getPluginFolder()")) {
@@ -183,8 +179,7 @@ public class TestPluginSystem {
       }
       String value = descriptor.getResourceString("key", Locale.UK);
       Assert.assertEquals("value", value);
-      value = descriptor.getResourceString("key",
-          Locale.TRADITIONAL_CHINESE);
+      value = descriptor.getResourceString("key", Locale.TRADITIONAL_CHINESE);
       Assert.assertEquals("value", value);
 
     }
@@ -199,7 +194,8 @@ public class TestPluginSystem {
       Assert.fail("no plugin directory setuped..");
 
     String name = strings[0];
-    return new PluginManifestParser(conf, this.repository).getPluginFolder(name).toString();
+    return new PluginManifestParser(conf, this.repository)
+        .getPluginFolder(name).toString();
   }
 
   /**
@@ -213,8 +209,7 @@ public class TestPluginSystem {
       File folder = new File(string);
       folder.mkdir();
       for (int i = 0; i < pCount; i++) {
-        String pluginFolder = string + File.separator + "DummyPlugin"
-            + i;
+        String pluginFolder = string + File.separator + "DummyPlugin" + i;
         File file = new File(pluginFolder);
         file.mkdir();
         fFolders.add(file);
@@ -265,9 +260,8 @@ public class TestPluginSystem {
    */
   private void createPluginManifest(int i, String pFolderPath)
       throws IOException {
-    FileWriter out = new FileWriter(pFolderPath + File.separator
-        + "plugin.xml");
-    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" 
+    FileWriter out = new FileWriter(pFolderPath + File.separator + "plugin.xml");
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
         + "<!--this is just a simple plugin for testing issues.-->"
         + "<plugin id=\"org.apache.nutch.plugin."
         + i

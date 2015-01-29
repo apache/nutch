@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.microformats.reltag;
 
-
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -29,29 +28,27 @@ import org.apache.nutch.parse.Parse;
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
-
 /**
- * An {@link org.apache.nutch.indexer.IndexingFilter} that 
- * add <code>tag</code> field(s) to the document.
- *
+ * An {@link org.apache.nutch.indexer.IndexingFilter} that add <code>tag</code>
+ * field(s) to the document.
+ * 
  * @see <a href="http://www.microformats.org/wiki/rel-tag">
  *      http://www.microformats.org/wiki/rel-tag</a>
  * @author J&eacute;r&ocirc;me Charron
  */
 public class RelTagIndexingFilter implements IndexingFilter {
-  
 
   private Configuration conf;
 
-
   // Inherited JavaDoc
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
-    throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
     // Check if some Rel-Tags found, possibly put there by RelTagParser
-    String[] tags = parse.getData().getParseMeta().getValues(RelTagParser.REL_TAG);
+    String[] tags = parse.getData().getParseMeta()
+        .getValues(RelTagParser.REL_TAG);
     if (tags != null) {
-      for (int i=0; i<tags.length; i++) {
+      for (int i = 0; i < tags.length; i++) {
         doc.add("tag", tags[i]);
       }
     }
@@ -59,10 +56,11 @@ public class RelTagIndexingFilter implements IndexingFilter {
     return doc;
   }
 
-  /* ----------------------------- *
-   * <implementation:Configurable> *
-   * ----------------------------- */
-  
+  /*
+   * ----------------------------- * <implementation:Configurable> *
+   * -----------------------------
+   */
+
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
@@ -70,9 +68,10 @@ public class RelTagIndexingFilter implements IndexingFilter {
   public Configuration getConf() {
     return this.conf;
   }
-  
-  /* ------------------------------ *
-   * </implementation:Configurable> *
-   * ------------------------------ */
-  
+
+  /*
+   * ------------------------------ * </implementation:Configurable> *
+   * ------------------------------
+   */
+
 }

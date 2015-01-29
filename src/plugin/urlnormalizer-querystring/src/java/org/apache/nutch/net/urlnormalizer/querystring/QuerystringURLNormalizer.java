@@ -33,18 +33,20 @@ import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.util.URLUtil;
 
 /**
- * URL normalizer plugin for normalizing query strings but sorting
- * query string parameters. Not sorting query strings can lead to large
- * amounts of duplicate URL's such as ?a=x&b=y vs b=y&a=x.
- *
+ * URL normalizer plugin for normalizing query strings but sorting query string
+ * parameters. Not sorting query strings can lead to large amounts of duplicate
+ * URL's such as ?a=x&b=y vs b=y&a=x.
+ * 
  */
 public class QuerystringURLNormalizer implements URLNormalizer {
 
   private Configuration conf;
 
-  private static final Logger LOG = LoggerFactory.getLogger(QuerystringURLNormalizer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(QuerystringURLNormalizer.class);
 
-  public QuerystringURLNormalizer() {}
+  public QuerystringURLNormalizer() {
+  }
 
   public Configuration getConf() {
     return conf;
@@ -54,20 +56,21 @@ public class QuerystringURLNormalizer implements URLNormalizer {
     this.conf = conf;
   }
 
-  public String normalize(String urlString, String scope) throws MalformedURLException {
+  public String normalize(String urlString, String scope)
+      throws MalformedURLException {
     URL url = new URL(urlString);
-    
+
     String queryString = url.getQuery();
-    
+
     if (queryString == null) {
       return urlString;
     }
-    
+
     List<String> queryStringParts = Arrays.asList(queryString.split("&"));
     Collections.sort(queryStringParts);
-    
+
     StringBuilder sb = new StringBuilder();
-    
+
     sb.append(url.getProtocol());
     sb.append("://");
     sb.append(url.getHost());
@@ -82,7 +85,7 @@ public class QuerystringURLNormalizer implements URLNormalizer {
       sb.append("#");
       sb.append(url.getRef());
     }
-    
+
     return sb.toString();
   }
 }

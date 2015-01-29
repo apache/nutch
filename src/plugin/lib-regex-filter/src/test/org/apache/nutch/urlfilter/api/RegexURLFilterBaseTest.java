@@ -31,26 +31,25 @@ import org.slf4j.LoggerFactory;
 // Nutch imports
 import org.apache.nutch.net.URLFilter;
 
-
 /**
  * JUnit based test of class <code>RegexURLFilterBase</code>.
- *
+ * 
  * @author J&eacute;r&ocirc;me Charron
  */
 public abstract class RegexURLFilterBaseTest {
 
   /** My logger */
-  protected static final Logger LOG = LoggerFactory.getLogger(RegexURLFilterBaseTest.class);  
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(RegexURLFilterBaseTest.class);
 
-  private final static String SEPARATOR = System.getProperty("file.separator");  
+  private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");
 
   protected abstract URLFilter getURLFilter(Reader rules);
 
   protected void bench(int loops, String file) {
     try {
-      bench(loops,
-          new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
+      bench(loops, new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
           new FileReader(SAMPLES + SEPARATOR + file + ".urls"));
     } catch (Exception e) {
       Assert.fail(e.toString());
@@ -62,14 +61,14 @@ public abstract class RegexURLFilterBaseTest {
     try {
       URLFilter filter = getURLFilter(rules);
       FilteredURL[] expected = readURLFile(urls);
-      for (int i=0; i<loops; i++) {
+      for (int i = 0; i < loops; i++) {
         test(filter, expected);
       }
     } catch (Exception e) {
       Assert.fail(e.toString());
     }
-    LOG.info("bench time (" + loops + ") " +
-        (System.currentTimeMillis()-start) + "ms");
+    LOG.info("bench time (" + loops + ") "
+        + (System.currentTimeMillis() - start) + "ms");
   }
 
   protected void test(String file) {
@@ -90,7 +89,7 @@ public abstract class RegexURLFilterBaseTest {
   }
 
   protected void test(URLFilter filter, FilteredURL[] expected) {
-    for (int i=0; i<expected.length; i++) {
+    for (int i = 0; i < expected.length; i++) {
       String result = filter.filter(expected[i].url);
       if (result != null) {
         Assert.assertTrue(expected[i].url, expected[i].sign);
@@ -104,7 +103,7 @@ public abstract class RegexURLFilterBaseTest {
     BufferedReader in = new BufferedReader(reader);
     List<FilteredURL> list = new ArrayList<FilteredURL>();
     String line;
-    while((line=in.readLine()) != null) {
+    while ((line = in.readLine()) != null) {
       if (line.length() != 0) {
         list.add(new FilteredURL(line));
       }
@@ -119,13 +118,13 @@ public abstract class RegexURLFilterBaseTest {
 
     FilteredURL(String line) {
       switch (line.charAt(0)) {
-      case '+' : 
+      case '+':
         sign = true;
         break;
-      case '-' :
+      case '-':
         sign = false;
         break;
-      default :
+      default:
         // Simply ignore...
       }
       url = line.substring(1);

@@ -40,7 +40,7 @@ public class TestMoreIndexingFilter {
     assertContentType(conf, "text/html", "text/html");
     assertContentType(conf, "text/html; charset=UTF-8", "text/html");
   }
-  
+
   @Test
   public void testGetParts() {
     String[] parts = MoreIndexingFilter.getParts("text/html");
@@ -51,7 +51,7 @@ public class TestMoreIndexingFilter {
    * @since NUTCH-901
    */
   @Test
-  public void testNoParts(){
+  public void testNoParts() {
     Configuration conf = NutchConfiguration.create();
     conf.setBoolean("moreIndexingFilter.indexMimeTypeParts", false);
     MoreIndexingFilter filter = new MoreIndexingFilter();
@@ -59,18 +59,18 @@ public class TestMoreIndexingFilter {
     Assert.assertNotNull(filter);
     NutchDocument doc = new NutchDocument();
     ParseImpl parse = new ParseImpl("foo bar", new ParseData());
-    
-    try{
-        filter.filter(doc, parse, new Text("http://nutch.apache.org/index.html"), new CrawlDatum(), new Inlinks());
-    }
-    catch(Exception e){
-        e.printStackTrace();
-        Assert.fail(e.getMessage());
+
+    try {
+      filter.filter(doc, parse, new Text("http://nutch.apache.org/index.html"),
+          new CrawlDatum(), new Inlinks());
+    } catch (Exception e) {
+      e.printStackTrace();
+      Assert.fail(e.getMessage());
     }
     Assert.assertNotNull(doc);
     Assert.assertTrue(doc.getFieldNames().contains("type"));
     Assert.assertEquals(1, doc.getField("type").getValues().size());
-    Assert.assertEquals("text/html", doc.getFieldValue("type"));    
+    Assert.assertEquals("text/html", doc.getFieldValue("type"));
   }
 
   @Test
@@ -89,8 +89,9 @@ public class TestMoreIndexingFilter {
     NutchDocument doc = new NutchDocument();
     doc = filter.filter(doc, parseImpl, url, new CrawlDatum(), new Inlinks());
 
-    Assert.assertEquals("content-disposition not detected", "filename.ext", doc.getFieldValue("title"));
-    
+    Assert.assertEquals("content-disposition not detected", "filename.ext",
+        doc.getFieldValue("title"));
+
     /* NUTCH-1140: do not add second title to avoid a multi-valued title field */
     doc = new NutchDocument();
     doc.add("title", "title");
@@ -105,15 +106,18 @@ public class TestMoreIndexingFilter {
       Assert.assertEquals(expected[i], parts[i]);
     }
   }
-  
-  private void assertContentType(Configuration conf, String source, String expected) throws IndexingException {
+
+  private void assertContentType(Configuration conf, String source,
+      String expected) throws IndexingException {
     Metadata metadata = new Metadata();
     metadata.add(Response.CONTENT_TYPE, source);
     MoreIndexingFilter filter = new MoreIndexingFilter();
     filter.setConf(conf);
-    NutchDocument doc = filter.filter(new NutchDocument(), new ParseImpl("text", new ParseData(
-        new ParseStatus(), "title", new Outlink[0], metadata)), new Text(
-        "http://www.example.com/"), new CrawlDatum(), new Inlinks());
-    Assert.assertEquals("mime type not detected", expected, doc.getFieldValue("type"));
+    NutchDocument doc = filter.filter(new NutchDocument(), new ParseImpl(
+        "text", new ParseData(new ParseStatus(), "title", new Outlink[0],
+            metadata)), new Text("http://www.example.com/"), new CrawlDatum(),
+        new Inlinks());
+    Assert.assertEquals("mime type not detected", expected,
+        doc.getFieldValue("type"));
   }
 }

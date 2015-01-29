@@ -13,11 +13,12 @@ import org.slf4j.LoggerFactory;
 
 public class TODOTestCrawlDbStates extends TestCrawlDbStates {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TODOTestCrawlDbStates.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(TODOTestCrawlDbStates.class);
 
   /**
-   * NUTCH-578: a fetch_retry should result in a db_gone if db.fetch.retry.max is reached.
-   * Retry counter has to be reset appropriately.
+   * NUTCH-578: a fetch_retry should result in a db_gone if db.fetch.retry.max
+   * is reached. Retry counter has to be reset appropriately.
    */
   @Test
   public void testCrawlDbReducerPageRetrySchedule() {
@@ -86,8 +87,7 @@ public class TODOTestCrawlDbStates extends TestCrawlDbStates {
    * <p>
    * Problem: documents not modified for a longer time are fetched in every
    * cycle because of an error in the SYNC_DELTA calculation of
-   * {@link AdaptiveFetchSchedule}.
-   * <br>
+   * {@link AdaptiveFetchSchedule}. <br>
    * The next fetch time should always be in the future, never in the past.
    * </p>
    */
@@ -95,15 +95,15 @@ public class TODOTestCrawlDbStates extends TestCrawlDbStates {
   public void testAdaptiveFetchScheduleSyncDelta() {
     LOG.info("NUTCH-1564 test SYNC_DELTA calculation of AdaptiveFetchSchedule");
     Configuration conf = CrawlDBTestUtil.createConfiguration();
-    conf.setLong("db.fetch.interval.default",               172800); // 2 days
-    conf.setLong("db.fetch.schedule.adaptive.min_interval",  86400); // 1 day
+    conf.setLong("db.fetch.interval.default", 172800); // 2 days
+    conf.setLong("db.fetch.schedule.adaptive.min_interval", 86400); // 1 day
     conf.setLong("db.fetch.schedule.adaptive.max_interval", 604800); // 7 days
-    conf.setLong("db.fetch.interval.max",                   604800); // 7 days
+    conf.setLong("db.fetch.interval.max", 604800); // 7 days
     conf.set("db.fetch.schedule.class",
         "org.apache.nutch.crawl.AdaptiveFetchSchedule");
     ContinuousCrawlTestUtil crawlUtil = new CrawlTestFetchScheduleNotModifiedFetchTime(
         conf);
-    crawlUtil.setInterval(FetchSchedule.SECONDS_PER_DAY/3);
+    crawlUtil.setInterval(FetchSchedule.SECONDS_PER_DAY / 3);
     if (!crawlUtil.run(100)) {
       fail("failed: sync_delta calculation with AdaptiveFetchSchedule");
     }
@@ -150,10 +150,10 @@ public class TODOTestCrawlDbStates extends TestCrawlDbStates {
           // next fetch time is in less than one minute
           // (critical: Nutch can hardly be so fast)
           LOG.error("Less then one minute until next fetch: " + result);
-       }
+        }
         // Next fetch time should be within min. and max. (tolerance: 60 sec.)
-        if (secondsUntilNextFetch+60 < minInterval
-            || secondsUntilNextFetch-60 > maxInterval) {
+        if (secondsUntilNextFetch + 60 < minInterval
+            || secondsUntilNextFetch - 60 > maxInterval) {
           LOG.error("Interval until next fetch time ("
               + TimingUtil.elapsedTime(fetchTime, result.getFetchTime())
               + ") is not within min. and max. interval: " + result);

@@ -27,31 +27,31 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.Progressable;
 
 public class IndexerOutputFormat extends
-        FileOutputFormat<Text, NutchIndexAction> {
+    FileOutputFormat<Text, NutchIndexAction> {
 
-    @Override
-    public RecordWriter<Text, NutchIndexAction> getRecordWriter(
-            FileSystem ignored, JobConf job, String name, Progressable progress)
-            throws IOException {
+  @Override
+  public RecordWriter<Text, NutchIndexAction> getRecordWriter(
+      FileSystem ignored, JobConf job, String name, Progressable progress)
+      throws IOException {
 
-        final IndexWriters writers = new IndexWriters(job);
+    final IndexWriters writers = new IndexWriters(job);
 
-        writers.open(job, name);
+    writers.open(job, name);
 
-        return new RecordWriter<Text, NutchIndexAction>() {
+    return new RecordWriter<Text, NutchIndexAction>() {
 
-            public void close(Reporter reporter) throws IOException {
-                writers.close();
-            }
+      public void close(Reporter reporter) throws IOException {
+        writers.close();
+      }
 
-            public void write(Text key, NutchIndexAction indexAction)
-                    throws IOException {
-                if (indexAction.action == NutchIndexAction.ADD) {
-                    writers.write(indexAction.doc);
-                } else if (indexAction.action == NutchIndexAction.DELETE) {
-                    writers.delete(key.toString());
-                }
-            }
-        };
-    }
+      public void write(Text key, NutchIndexAction indexAction)
+          throws IOException {
+        if (indexAction.action == NutchIndexAction.ADD) {
+          writers.write(indexAction.doc);
+        } else if (indexAction.action == NutchIndexAction.DELETE) {
+          writers.delete(key.toString());
+        }
+      }
+    };
+  }
 }

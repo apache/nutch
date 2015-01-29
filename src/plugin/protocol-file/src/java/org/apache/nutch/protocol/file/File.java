@@ -37,11 +37,12 @@ import org.apache.nutch.util.NutchConfiguration;
 import crawlercommons.robots.BaseRobotRules;
 
 /**
- * This class is a protocol plugin used for file: scheme.
- * It creates {@link FileResponse} object and gets the content of the url from it.
- * Configurable parameters are {@code file.content.limit} and {@code file.crawl.parent} 
- * in nutch-default.xml defined under "file properties" section.
- *
+ * This class is a protocol plugin used for file: scheme. It creates
+ * {@link FileResponse} object and gets the content of the url from it.
+ * Configurable parameters are {@code file.content.limit} and
+ * {@code file.crawl.parent} in nutch-default.xml defined under
+ * "file properties" section.
+ * 
  * @author John Xing
  */
 public class File implements Protocol {
@@ -61,7 +62,8 @@ public class File implements Protocol {
 
   private Configuration conf;
 
-  public File() {}
+  public File() {
+  }
 
   /**
    * Set the {@link Configuration} object
@@ -80,52 +82,59 @@ public class File implements Protocol {
   public Configuration getConf() {
     return this.conf;
   }
-  
-  /** 
-   * Set the length after at which content is truncated. 
+
+  /**
+   * Set the length after at which content is truncated.
    */
   public void setMaxContentLength(int maxContentLength) {
     this.maxContentLength = maxContentLength;
   }
 
-  /** 
-   * Creates a {@link FileResponse} object corresponding to the url and 
-   * return a {@link ProtocolOutput} object as per the content received
+  /**
+   * Creates a {@link FileResponse} object corresponding to the url and return a
+   * {@link ProtocolOutput} object as per the content received
    * 
-   * @param url Text containing the url
-   * @param datum The CrawlDatum object corresponding to the url
+   * @param url
+   *          Text containing the url
+   * @param datum
+   *          The CrawlDatum object corresponding to the url
    * 
-   * @return {@link ProtocolOutput} object for the content of the file indicated by url
+   * @return {@link ProtocolOutput} object for the content of the file indicated
+   *         by url
    */
   public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
     String urlString = url.toString();
     try {
       URL u = new URL(urlString);
-  
+
       int redirects = 0;
-  
+
       while (true) {
         FileResponse response;
-        response = new FileResponse(u, datum, this, getConf());   // make a request
-  
+        response = new FileResponse(u, datum, this, getConf()); // make a
+                                                                // request
+
         int code = response.getCode();
-  
-        if (code == 200) {                          // got a good response
-          return new ProtocolOutput(response.toContent());              // return it
-  
-        } else if (code == 304) {                   // got not modified
-          return new ProtocolOutput(response.toContent(), ProtocolStatus.STATUS_NOTMODIFIED);
 
-        } else if (code == 401) {                   // access denied / no read permissions
-          return new ProtocolOutput(response.toContent(), new ProtocolStatus(ProtocolStatus.ACCESS_DENIED));
+        if (code == 200) { // got a good response
+          return new ProtocolOutput(response.toContent()); // return it
 
-        } else if (code == 404) {                   // no such file
-          return new ProtocolOutput(response.toContent(), ProtocolStatus.STATUS_NOTFOUND);
+        } else if (code == 304) { // got not modified
+          return new ProtocolOutput(response.toContent(),
+              ProtocolStatus.STATUS_NOTMODIFIED);
 
-        } else if (code >= 300 && code < 400) {     // handle redirect
+        } else if (code == 401) { // access denied / no read permissions
+          return new ProtocolOutput(response.toContent(), new ProtocolStatus(
+              ProtocolStatus.ACCESS_DENIED));
+
+        } else if (code == 404) { // no such file
+          return new ProtocolOutput(response.toContent(),
+              ProtocolStatus.STATUS_NOTFOUND);
+
+        } else if (code >= 300 && code < 400) { // handle redirect
           u = new URL(response.getHeader("Location"));
           if (LOG.isTraceEnabled()) {
-            LOG.trace("redirect to " + u); 
+            LOG.trace("redirect to " + u);
           }
           if (symlinksAsRedirects) {
             return new ProtocolOutput(response.toContent(), new ProtocolStatus(
@@ -136,18 +145,18 @@ public class File implements Protocol {
                 ProtocolStatus.REDIR_EXCEEDED, u));
           }
           redirects++;
-  
-        } else {                                    // convert to exception
+
+        } else { // convert to exception
           throw new FileError(code);
         }
-      } 
+      }
     } catch (Exception e) {
       e.printStackTrace();
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
 
-  /** 
+  /**
    * Quick way for running this class. Useful for debugging.
    */
   public static void main(String[] args) throws Exception {
@@ -162,7 +171,7 @@ public class File implements Protocol {
       System.err.println(usage);
       System.exit(-1);
     }
-      
+
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-logLevel")) {
         logLevel = args[++i];
@@ -170,7 +179,7 @@ public class File implements Protocol {
         maxContentLength = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-dumpContent")) {
         dumpContent = true;
-      } else if (i != args.length-1) {
+      } else if (i != args.length - 1) {
         System.err.println(usage);
         System.exit(-1);
       } else
@@ -184,18 +193,19 @@ public class File implements Protocol {
       file.setMaxContentLength(maxContentLength);
 
     // set log level
-    //LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
+    // LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
-    ProtocolOutput output = file.getProtocolOutput(new Text(urlString), new CrawlDatum());
+    ProtocolOutput output = file.getProtocolOutput(new Text(urlString),
+        new CrawlDatum());
     Content content = output.getContent();
 
     System.err.println("URL: " + content.getUrl());
     System.err.println("Status: " + output.getStatus());
     System.err.println("Content-Type: " + content.getContentType());
-    System.err.println("Content-Length: " +
-                       content.getMetadata().get(Response.CONTENT_LENGTH));
-    System.err.println("Last-Modified: " +
-                       content.getMetadata().get(Response.LAST_MODIFIED));
+    System.err.println("Content-Length: "
+        + content.getMetadata().get(Response.CONTENT_LENGTH));
+    System.err.println("Last-Modified: "
+        + content.getMetadata().get(Response.LAST_MODIFIED));
     String redirectLocation = content.getMetadata().get("Location");
     if (redirectLocation != null) {
       System.err.println("Location: " + redirectLocation);
@@ -208,12 +218,11 @@ public class File implements Protocol {
     file = null;
   }
 
-  /** 
-   * No robots parsing is done for file protocol. 
-   * So this returns a set of empty rules which will allow every url.
+  /**
+   * No robots parsing is done for file protocol. So this returns a set of empty
+   * rules which will allow every url.
    */
   public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
     return RobotRulesParser.EMPTY_RULES;
   }
 }
-

@@ -44,11 +44,13 @@ import com.anotherbigidea.io.InStream;
  * distribution.
  */
 public class SWFParser implements Parser {
-  public static final Logger LOG = LoggerFactory.getLogger("org.apache.nutch.parse.swf");
+  public static final Logger LOG = LoggerFactory
+      .getLogger("org.apache.nutch.parse.swf");
 
   private Configuration conf = null;
 
-  public SWFParser() {}
+  public SWFParser() {
+  }
 
   public void setConf(Configuration conf) {
     this.conf = conf;
@@ -68,10 +70,12 @@ public class SWFParser implements Parser {
       byte[] raw = content.getContent();
 
       String contentLength = content.getMetadata().get(Response.CONTENT_LENGTH);
-      if (contentLength != null && raw.length != Integer.parseInt(contentLength)) {
-        return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
-                               "Content truncated at " + raw.length +
-                               " bytes. Parser can't handle incomplete files.").getEmptyParseResult(content.getUrl(), getConf());
+      if (contentLength != null
+          && raw.length != Integer.parseInt(contentLength)) {
+        return new ParseStatus(ParseStatus.FAILED,
+            ParseStatus.FAILED_TRUNCATED, "Content truncated at " + raw.length
+                + " bytes. Parser can't handle incomplete files.")
+            .getEmptyParseResult(content.getUrl(), getConf());
       }
       ExtractText extractor = new ExtractText();
 
@@ -87,7 +91,8 @@ public class SWFParser implements Parser {
       reader.readFile();
       text = extractor.getText();
       String atext = extractor.getActionText();
-      if (atext != null && atext.length() > 0) text += "\n--------\n" + atext;
+      if (atext != null && atext.length() > 0)
+        text += "\n--------\n" + atext;
       // harvest potential outlinks
       String[] links = extractor.getUrls();
       for (int i = 0; i < links.length; i++) {
@@ -95,19 +100,25 @@ public class SWFParser implements Parser {
         outlinks.add(out);
       }
       Outlink[] olinks = OutlinkExtractor.getOutlinks(text, conf);
-      if (olinks != null) for (int i = 0; i < olinks.length; i++) {
-        outlinks.add(olinks[i]);
-      }
+      if (olinks != null)
+        for (int i = 0; i < olinks.length; i++) {
+          outlinks.add(olinks[i]);
+        }
     } catch (Exception e) { // run time exception
       LOG.error("Error, runtime exception: ", e);
-      return new ParseStatus(ParseStatus.FAILED, "Can't be handled as SWF document. " + e).getEmptyParseResult(content.getUrl(), getConf());
-    } 
-    if (text == null) text = "";
+      return new ParseStatus(ParseStatus.FAILED,
+          "Can't be handled as SWF document. " + e).getEmptyParseResult(
+          content.getUrl(), getConf());
+    }
+    if (text == null)
+      text = "";
 
-    Outlink[] links = (Outlink[]) outlinks.toArray(new Outlink[outlinks.size()]);
+    Outlink[] links = (Outlink[]) outlinks
+        .toArray(new Outlink[outlinks.size()]);
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", links,
-                                        content.getMetadata());
-    return ParseResult.createParseResult(content.getUrl(), new ParseImpl(text, parseData));
+        content.getMetadata());
+    return ParseResult.createParseResult(content.getUrl(), new ParseImpl(text,
+        parseData));
   }
 
   /**
@@ -120,10 +131,9 @@ public class SWFParser implements Parser {
     in.read(buf);
     in.close();
     SWFParser parser = new SWFParser();
-    ParseResult parseResult = parser.getParse(new Content("file:" + args[0], "file:" + args[0],
-                                          buf, "application/x-shockwave-flash",
-                                          new Metadata(),
-                                          NutchConfiguration.create()));
+    ParseResult parseResult = parser.getParse(new Content("file:" + args[0],
+        "file:" + args[0], buf, "application/x-shockwave-flash",
+        new Metadata(), NutchConfiguration.create()));
     Parse p = parseResult.get("file:" + args[0]);
     System.out.println("Parse Text:");
     System.out.println(p.getText());
@@ -168,7 +178,8 @@ class ExtractText extends SWFTagTypesImpl {
     StringBuffer res = new StringBuffer();
     Iterator<String> it = strings.iterator();
     while (it.hasNext()) {
-      if (res.length() > 0) res.append(' ');
+      if (res.length() > 0)
+        res.append(' ');
       res.append(it.next());
     }
     return res.toString();
@@ -176,10 +187,12 @@ class ExtractText extends SWFTagTypesImpl {
 
   public String getActionText() {
     StringBuffer res = new StringBuffer();
-    String[] strings = (String[])actionStrings.toArray(new String[actionStrings.size()]);
+    String[] strings = (String[]) actionStrings
+        .toArray(new String[actionStrings.size()]);
     Arrays.sort(strings);
     for (int i = 0; i < strings.length; i++) {
-      if (i > 0) res.append('\n');
+      if (i > 0)
+        res.append('\n');
       res.append(strings[i]);
     }
     return res.toString();
@@ -196,14 +209,16 @@ class ExtractText extends SWFTagTypesImpl {
     return res;
   }
 
-  public void tagDefineFontInfo2(int arg0, String arg1, int arg2, int[] arg3, int arg4) throws IOException {
+  public void tagDefineFontInfo2(int arg0, String arg1, int arg2, int[] arg3,
+      int arg4) throws IOException {
     tagDefineFontInfo(arg0, arg1, arg2, arg3);
   }
 
   /**
    * SWFTagTypes interface Save the Text Font character code info
    */
-  public void tagDefineFontInfo(int fontId, String fontName, int flags, int[] codes) throws IOException {
+  public void tagDefineFontInfo(int fontId, String fontName, int flags,
+      int[] codes) throws IOException {
     // System.out.println("-defineFontInfo id=" + fontId + ", name=" +
     // fontName);
     fontCodes.put(new Integer(fontId), codes);
@@ -213,16 +228,16 @@ class ExtractText extends SWFTagTypesImpl {
   // XXX codes anyway, so we just give up.
   /*
    * public SWFVectors tagDefineFont(int arg0, int arg1) throws IOException {
-   *    return null;
-   * }
+   * return null; }
    */
 
   /**
    * SWFTagTypes interface. Save the character code info.
    */
-  public SWFVectors tagDefineFont2(int id, int flags, String name, int numGlyphs, int ascent, int descent, int leading,
-          int[] codes, int[] advances, Rect[] bounds, int[] kernCodes1, int[] kernCodes2, int[] kernAdjustments)
-          throws IOException {
+  public SWFVectors tagDefineFont2(int id, int flags, String name,
+      int numGlyphs, int ascent, int descent, int leading, int[] codes,
+      int[] advances, Rect[] bounds, int[] kernCodes1, int[] kernCodes2,
+      int[] kernAdjustments) throws IOException {
     // System.out.println("-defineFontInfo id=" + id + ", name=" + name);
     fontCodes.put(new Integer(id), (codes != null) ? codes : new int[0]);
 
@@ -232,9 +247,10 @@ class ExtractText extends SWFTagTypesImpl {
   /**
    * SWFTagTypes interface. Dump any initial text in the field.
    */
-  public void tagDefineTextField(int fieldId, String fieldName, String initialText, Rect boundary, int flags,
-          AlphaColor textColor, int alignment, int fontId, int fontSize, int charLimit, int leftMargin,
-          int rightMargin, int indentation, int lineSpacing) throws IOException {
+  public void tagDefineTextField(int fieldId, String fieldName,
+      String initialText, Rect boundary, int flags, AlphaColor textColor,
+      int alignment, int fontId, int fontSize, int charLimit, int leftMargin,
+      int rightMargin, int indentation, int lineSpacing) throws IOException {
     if (initialText != null) {
       strings.add(initialText);
     }
@@ -243,7 +259,8 @@ class ExtractText extends SWFTagTypesImpl {
   /**
    * SWFTagTypes interface
    */
-  public SWFText tagDefineText(int id, Rect bounds, Matrix matrix) throws IOException {
+  public SWFText tagDefineText(int id, Rect bounds, Matrix matrix)
+      throws IOException {
     lastBounds = curBounds;
     curBounds = bounds;
     return new TextDumper();
@@ -255,7 +272,8 @@ class ExtractText extends SWFTagTypesImpl {
   /**
    * SWFTagTypes interface
    */
-  public SWFText tagDefineText2(int id, Rect bounds, Matrix matrix) throws IOException {
+  public SWFText tagDefineText2(int id, Rect bounds, Matrix matrix)
+      throws IOException {
     lastBounds = curBounds;
     curBounds = bounds;
     return new TextDumper();
@@ -273,15 +291,16 @@ class ExtractText extends SWFTagTypesImpl {
     public void setY(int y) {
       if (firstY)
         firstY = false;
-      else strings.add("\n"); // Change in Y - dump a new line
+      else
+        strings.add("\n"); // Change in Y - dump a new line
     }
 
     /*
      * There are some issues with this method: sometimes SWF files define their
-     * own font, so short of OCR we cannot guess what is the glyph code -> character
-     * mapping. Additionally, some files don't use literal space character, instead
-     * they adjust glyphAdvances. We don't handle it at all - in such cases the text
-     * will be all glued together.
+     * own font, so short of OCR we cannot guess what is the glyph code ->
+     * character mapping. Additionally, some files don't use literal space
+     * character, instead they adjust glyphAdvances. We don't handle it at all -
+     * in such cases the text will be all glued together.
      */
     public void text(int[] glyphIndices, int[] glyphAdvances) {
       // System.out.println("-text id=" + fontId);
@@ -310,9 +329,11 @@ class ExtractText extends SWFTagTypesImpl {
       strings.add(new String(chars));
     }
 
-    public void color(Color color) {}
+    public void color(Color color) {
+    }
 
-    public void setX(int x) {}
+    public void setX(int x) {
+    }
 
     public void done() {
       strings.add("\n");
@@ -367,7 +388,8 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
 
   public void lookupTable(String[] values) throws IOException {
     for (int i = 0; i < values.length; i++) {
-      if (!strings.contains(values[i])) strings.add(values[i]);
+      if (!strings.contains(values[i]))
+        strings.add(values[i]);
     }
     super.lookupTable(values);
     dict = values;
@@ -379,7 +401,7 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
   }
 
   public void getURL(int vars, int mode) {
-  // System.out.println("-getURL: vars=" + vars + ", mode=" + mode);
+    // System.out.println("-getURL: vars=" + vars + ", mode=" + mode);
   }
 
   public void getURL(String url, String target) throws IOException {
@@ -444,7 +466,8 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
     super.setTarget(var);
   }
 
-  public SWFActionBlock startFunction(String var, String[] params) throws IOException {
+  public SWFActionBlock startFunction(String var, String[] params)
+      throws IOException {
     stack.push(var);
     strings.remove(var);
     if (params != null) {
@@ -455,7 +478,8 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
     return this;
   }
 
-  public SWFActionBlock startFunction2(String var, int arg1, int arg2, String[] params, int[] arg3) throws IOException {
+  public SWFActionBlock startFunction2(String var, int arg1, int arg2,
+      String[] params, int[] arg3) throws IOException {
     stack.push(var);
     strings.remove(var);
     if (params != null) {
@@ -655,6 +679,7 @@ class SmallStack extends Stack<Object> {
     // tolerate underruns
     if (this.size() == 0)
       return null;
-    else return super.pop();
+    else
+      return super.pop();
   }
 }

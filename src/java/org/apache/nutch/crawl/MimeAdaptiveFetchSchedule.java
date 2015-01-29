@@ -34,29 +34,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Extension of @see AdaptiveFetchSchedule that allows for more flexible configuration
- * of DEC and INC factors for various MIME-types.
- *
- * This class can be typically used in cases where a recrawl consists of many different
- * MIME-types. It's not very common for MIME-types other than text/html to change frequently.
- * Using this class you can configure different factors per MIME-type so to prefer frequently
- * changing MIME-types over others.
+ * Extension of @see AdaptiveFetchSchedule that allows for more flexible
+ * configuration of DEC and INC factors for various MIME-types.
  * 
- * For it to work this class relies on the Content-Type MetaData key being present in the CrawlDB.
- * This can either be done when injecting new URL's or by adding "Content-Type" to the
- * db.parsemeta.to.crawldb configuration setting to force MIME-types of newly discovered URL's to
- * be added to the CrawlDB.
- *
+ * This class can be typically used in cases where a recrawl consists of many
+ * different MIME-types. It's not very common for MIME-types other than
+ * text/html to change frequently. Using this class you can configure different
+ * factors per MIME-type so to prefer frequently changing MIME-types over
+ * others.
+ * 
+ * For it to work this class relies on the Content-Type MetaData key being
+ * present in the CrawlDB. This can either be done when injecting new URL's or
+ * by adding "Content-Type" to the db.parsemeta.to.crawldb configuration setting
+ * to force MIME-types of newly discovered URL's to be added to the CrawlDB.
+ * 
  * @author markus
  */
 public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
   // Loggg
-  public static final Logger LOG = LoggerFactory.getLogger(MimeAdaptiveFetchSchedule.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(MimeAdaptiveFetchSchedule.class);
 
   // Conf directives
   public static final String SCHEDULE_INC_RATE = "db.fetch.schedule.adaptive.inc_rate";
   public static final String SCHEDULE_DEC_RATE = "db.fetch.schedule.adaptive.dec_rate";
-  public static final String SCHEDULE_MIME_FILE= "db.fetch.schedule.mime.file";
+  public static final String SCHEDULE_MIME_FILE = "db.fetch.schedule.mime.file";
 
   // Default values for DEC and INC rate
   private float defaultIncRate;
@@ -74,18 +76,21 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
   }
 
   // Here we store the mime's and their delta's
-  private HashMap<String,AdaptiveRate> mimeMap;
+  private HashMap<String, AdaptiveRate> mimeMap;
 
   public void setConf(Configuration conf) {
     super.setConf(conf);
-    if (conf == null) return;
+    if (conf == null)
+      return;
 
-    // Read and set the default INC and DEC rates in case we cannot set values based on MIME-type
+    // Read and set the default INC and DEC rates in case we cannot set values
+    // based on MIME-type
     defaultIncRate = conf.getFloat(SCHEDULE_INC_RATE, 0.2f);
     defaultDecRate = conf.getFloat(SCHEDULE_DEC_RATE, 0.2f);
 
     // Where's the mime/factor file?
-    Reader mimeFile = conf.getConfResourceAsReader(conf.get(SCHEDULE_MIME_FILE, "adaptive-mimetypes.txt"));
+    Reader mimeFile = conf.getConfResourceAsReader(conf.get(SCHEDULE_MIME_FILE,
+        "adaptive-mimetypes.txt"));
 
     try {
       readMimeFile(mimeFile);
@@ -96,8 +101,8 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
 
   @Override
   public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
-          long prevFetchTime, long prevModifiedTime,
-          long fetchTime, long modifiedTime, int state) {
+      long prevFetchTime, long prevModifiedTime, long fetchTime,
+      long modifiedTime, int state) {
 
     // Set defaults
     INC_RATE = defaultIncRate;
@@ -106,7 +111,8 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
     // Check if the Content-Type field is available in the CrawlDatum
     if (datum.getMetaData().containsKey(HttpHeaders.WRITABLE_CONTENT_TYPE)) {
       // Get the MIME-type of the current URL
-      String currentMime = datum.getMetaData().get(HttpHeaders.WRITABLE_CONTENT_TYPE).toString();
+      String currentMime = datum.getMetaData()
+          .get(HttpHeaders.WRITABLE_CONTENT_TYPE).toString();
 
       // Get rid of charset
       currentMime = currentMime.substring(0, currentMime.indexOf(';'));
@@ -120,18 +126,19 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
     }
 
     return super.setFetchSchedule(url, datum, prevFetchTime, prevModifiedTime,
-      fetchTime, modifiedTime, state);
+        fetchTime, modifiedTime, state);
   }
 
   /**
    * Reads the mime types and their associated INC/DEC factors in a HashMap
-   *
-   * @param mimeFile Reader
+   * 
+   * @param mimeFile
+   *          Reader
    * @return void
    */
   private void readMimeFile(Reader mimeFile) throws IOException {
     // Instance of our mime/factor map
-    mimeMap = new HashMap<String,AdaptiveRate>();
+    mimeMap = new HashMap<String, AdaptiveRate>();
 
     // Open a reader
     BufferedReader reader = new BufferedReader(mimeFile);
@@ -149,7 +156,8 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
         // Sanity check, we need two or three items
         if (splits.length == 3) {
           // Add a lower cased MIME-type and the factor to the map
-          mimeMap.put(StringUtils.lowerCase(splits[0]), new AdaptiveRate(new Float(splits[1]), new Float(splits[2])));
+          mimeMap.put(StringUtils.lowerCase(splits[0]), new AdaptiveRate(
+              new Float(splits[1]), new Float(splits[2])));
         } else {
           LOG.warn("Invalid configuration line in: " + line);
         }
@@ -178,7 +186,8 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
 
     // Set a default MIME-type to test with
     org.apache.hadoop.io.MapWritable x = new org.apache.hadoop.io.MapWritable();
-    x.put(HttpHeaders.WRITABLE_CONTENT_TYPE, new Text("text/html; charset=utf-8"));
+    x.put(HttpHeaders.WRITABLE_CONTENT_TYPE, new Text(
+        "text/html; charset=utf-8"));
     p.setMetaData(x);
 
     p.setFetchTime(0);
@@ -187,37 +196,45 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
     // let's move the timeline a couple of deltas
     for (int i = 0; i < 10000; i++) {
       if (lastModified + update < curTime) {
-        //System.out.println("i=" + i + ", lastModified=" + lastModified + ", update=" + update + ", curTime=" + curTime);
+        // System.out.println("i=" + i + ", lastModified=" + lastModified +
+        // ", update=" + update + ", curTime=" + curTime);
         changed = true;
         changeCnt++;
         lastModified = curTime;
       }
 
-      LOG.info(i + ". " + changed + "\twill fetch at " + (p.getFetchTime() / delta) + "\tinterval "
-              + (p.getFetchInterval() / SECONDS_PER_DAY ) + " days" + "\t missed " + miss);
+      LOG.info(i + ". " + changed + "\twill fetch at "
+          + (p.getFetchTime() / delta) + "\tinterval "
+          + (p.getFetchInterval() / SECONDS_PER_DAY) + " days" + "\t missed "
+          + miss);
 
       if (p.getFetchTime() <= curTime) {
         fetchCnt++;
-        fs.setFetchSchedule(new Text("http://www.example.com"), p,
-                p.getFetchTime(), p.getModifiedTime(), curTime, lastModified,
-                changed ? FetchSchedule.STATUS_MODIFIED : FetchSchedule.STATUS_NOTMODIFIED);
+        fs.setFetchSchedule(new Text("http://www.example.com"), p, p
+            .getFetchTime(), p.getModifiedTime(), curTime, lastModified,
+            changed ? FetchSchedule.STATUS_MODIFIED
+                : FetchSchedule.STATUS_NOTMODIFIED);
 
-        LOG.info("\tfetched & adjusted: " + "\twill fetch at " + (p.getFetchTime() / delta) + "\tinterval "
-                + (p.getFetchInterval() / SECONDS_PER_DAY ) + " days");
+        LOG.info("\tfetched & adjusted: " + "\twill fetch at "
+            + (p.getFetchTime() / delta) + "\tinterval "
+            + (p.getFetchInterval() / SECONDS_PER_DAY) + " days");
 
-        if (!changed) miss++;
-        if (miss > maxMiss) maxMiss = miss;
+        if (!changed)
+          miss++;
+        if (miss > maxMiss)
+          maxMiss = miss;
         changed = false;
         totalMiss += miss;
         miss = 0;
       }
 
-      if (changed) miss++;
+      if (changed)
+        miss++;
       curTime += delta;
     }
     LOG.info("Total missed: " + totalMiss + ", max miss: " + maxMiss);
-    LOG.info("Page changed " + changeCnt + " times, fetched " + fetchCnt + " times.");
+    LOG.info("Page changed " + changeCnt + " times, fetched " + fetchCnt
+        + " times.");
   }
-
 
 }

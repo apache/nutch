@@ -34,23 +34,22 @@ public class WritableTestUtils {
     Assert.assertEquals(before, writeRead(before, conf));
   }
 
-  
   /** Utility method for testing writables. */
   public static Writable writeRead(Writable before, Configuration conf)
-    throws Exception {
-    
+      throws Exception {
+
     DataOutputBuffer dob = new DataOutputBuffer();
     before.write(dob);
-    
+
     DataInputBuffer dib = new DataInputBuffer();
     dib.reset(dob.getData(), dob.getLength());
-    
-    Writable after = (Writable)before.getClass().newInstance();
+
+    Writable after = (Writable) before.getClass().newInstance();
     if (conf != null) {
-      ((Configurable)after).setConf(conf);
+      ((Configurable) after).setConf(conf);
     }
     after.readFields(dib);
     return after;
   }
-  
+
 }

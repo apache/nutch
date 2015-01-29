@@ -39,13 +39,12 @@ import java.net.URL;
 import java.io.IOException;
 
 /**
- * This class is a protocol plugin used for ftp: scheme.
- * It creates {@link FtpResponse} object and gets the content of the url from it.
+ * This class is a protocol plugin used for ftp: scheme. It creates
+ * {@link FtpResponse} object and gets the content of the url from it.
  * Configurable parameters are {@code ftp.username}, {@code ftp.password},
- *                             {@code ftp.content.limit}, {@code ftp.timeout}, 
- *                             {@code ftp.server.timeout}, {@code ftp.password}, 
- *                             {@code ftp.keep.connection} and {@code ftp.follow.talk}.
- * For details see "FTP properties" section in {@code nutch-default.xml}.
+ * {@code ftp.content.limit}, {@code ftp.timeout}, {@code ftp.server.timeout},
+ * {@code ftp.password}, {@code ftp.keep.connection} and {@code ftp.follow.talk}
+ * . For details see "FTP properties" section in {@code nutch-default.xml}.
  */
 public class Ftp implements Protocol {
 
@@ -60,7 +59,7 @@ public class Ftp implements Protocol {
   int maxContentLength;
 
   String userName;
-  String passWord; 
+  String passWord;
 
   // typical/default server timeout is 120*1000 millisec.
   // better be conservative here
@@ -107,12 +106,14 @@ public class Ftp implements Protocol {
     this.keepConnection = keepConnection;
   }
 
-  /** 
-   * Creates a {@link FtpResponse} object corresponding to the url and 
-   * returns a {@link ProtocolOutput} object as per the content received
+  /**
+   * Creates a {@link FtpResponse} object corresponding to the url and returns a
+   * {@link ProtocolOutput} object as per the content received
    * 
-   * @param url Text containing the ftp url
-   * @param datum The CrawlDatum object corresponding to the url
+   * @param url
+   *          Text containing the ftp url
+   * @param datum
+   *          The CrawlDatum object corresponding to the url
    * 
    * @return {@link ProtocolOutput} object for the url
    */
@@ -120,36 +121,36 @@ public class Ftp implements Protocol {
     String urlString = url.toString();
     try {
       URL u = new URL(urlString);
-  
+
       int redirects = 0;
-  
+
       while (true) {
         FtpResponse response;
-        response = new FtpResponse(u, datum, this, getConf());   // make a request
-  
+        response = new FtpResponse(u, datum, this, getConf()); // make a request
+
         int code = response.getCode();
-  
-        if (code == 200) {                          // got a good response
-          return new ProtocolOutput(response.toContent());              // return it
-  
-        } else if (code >= 300 && code < 400) {     // handle redirect
+
+        if (code == 200) { // got a good response
+          return new ProtocolOutput(response.toContent()); // return it
+
+        } else if (code >= 300 && code < 400) { // handle redirect
           if (redirects == MAX_REDIRECTS)
             throw new FtpException("Too many redirects: " + url);
           u = new URL(response.getHeader("Location"));
-          redirects++;                
+          redirects++;
           if (LOG.isTraceEnabled()) {
-            LOG.trace("redirect to " + u); 
+            LOG.trace("redirect to " + u);
           }
-        } else {                                    // convert to exception
+        } else { // convert to exception
           throw new FtpError(code);
         }
-      } 
+      }
     } catch (Exception e) {
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
 
-  protected void finalize () {
+  protected void finalize() {
     try {
       if (this.client != null && this.client.isConnected()) {
         this.client.logout();
@@ -176,7 +177,7 @@ public class Ftp implements Protocol {
       System.err.println(usage);
       System.exit(-1);
     }
-      
+
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-logLevel")) {
         logLevel = args[++i];
@@ -190,7 +191,7 @@ public class Ftp implements Protocol {
         maxContentLength = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-dumpContent")) {
         dumpContent = true;
-      } else if (i != args.length-1) {
+      } else if (i != args.length - 1) {
         System.err.println(usage);
         System.exit(-1);
       } else {
@@ -210,15 +211,16 @@ public class Ftp implements Protocol {
       ftp.setMaxContentLength(maxContentLength);
 
     // set log level
-    //LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
+    // LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
-    Content content = ftp.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
+    Content content = ftp.getProtocolOutput(new Text(urlString),
+        new CrawlDatum()).getContent();
 
     System.err.println("Content-Type: " + content.getContentType());
-    System.err.println("Content-Length: " +
-                       content.getMetadata().get(Response.CONTENT_LENGTH));
-    System.err.println("Last-Modified: " +
-                      content.getMetadata().get(Response.LAST_MODIFIED));
+    System.err.println("Content-Length: "
+        + content.getMetadata().get(Response.CONTENT_LENGTH));
+    System.err.println("Last-Modified: "
+        + content.getMetadata().get(Response.LAST_MODIFIED));
     if (dumpContent) {
       System.out.print(new String(content.getContent()));
     }
@@ -248,7 +250,7 @@ public class Ftp implements Protocol {
     return this.conf;
   }
 
-  /** 
+  /**
    * Get the robots rules for a given url
    */
   public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
@@ -259,4 +261,3 @@ public class Ftp implements Protocol {
     return BUFFER_SIZE;
   }
 }
-

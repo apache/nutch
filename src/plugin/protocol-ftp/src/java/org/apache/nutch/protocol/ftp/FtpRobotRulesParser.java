@@ -33,55 +33,62 @@ import crawlercommons.robots.BaseRobotRules;
 import crawlercommons.robots.SimpleRobotRules;
 
 /**
- * This class is used for parsing robots for urls belonging to FTP protocol.
- * It extends the generic {@link RobotRulesParser} class and contains 
- * Ftp protocol specific implementation for obtaining the robots file.
+ * This class is used for parsing robots for urls belonging to FTP protocol. It
+ * extends the generic {@link RobotRulesParser} class and contains Ftp protocol
+ * specific implementation for obtaining the robots file.
  */
 public class FtpRobotRulesParser extends RobotRulesParser {
 
   private static final String CONTENT_TYPE = "text/plain";
-  public static final Logger LOG = LoggerFactory.getLogger(FtpRobotRulesParser.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(FtpRobotRulesParser.class);
 
-  FtpRobotRulesParser() { }
+  FtpRobotRulesParser() {
+  }
 
   public FtpRobotRulesParser(Configuration conf) {
     super(conf);
   }
 
   /**
-   * The hosts for which the caching of robots rules is yet to be done,
-   * it sends a Ftp request to the host corresponding to the {@link URL} 
-   * passed, gets robots file, parses the rules and caches the rules object
-   * to avoid re-work in future.
+   * The hosts for which the caching of robots rules is yet to be done, it sends
+   * a Ftp request to the host corresponding to the {@link URL} passed, gets
+   * robots file, parses the rules and caches the rules object to avoid re-work
+   * in future.
    * 
-   *  @param ftp The {@link Protocol} object
-   *  @param url URL 
-   *  
-   *  @return robotRules A {@link BaseRobotRules} object for the rules
+   * @param ftp
+   *          The {@link Protocol} object
+   * @param url
+   *          URL
+   * 
+   * @return robotRules A {@link BaseRobotRules} object for the rules
    */
   public BaseRobotRules getRobotRulesSet(Protocol ftp, URL url) {
 
-    String protocol = url.getProtocol().toLowerCase();  // normalize to lower case
-    String host = url.getHost().toLowerCase();          // normalize to lower case
+    String protocol = url.getProtocol().toLowerCase(); // normalize to lower
+                                                       // case
+    String host = url.getHost().toLowerCase(); // normalize to lower case
 
-    BaseRobotRules robotRules = (SimpleRobotRules) CACHE.get(protocol + ":" + host);
+    BaseRobotRules robotRules = (SimpleRobotRules) CACHE.get(protocol + ":"
+        + host);
 
     boolean cacheRule = true;
 
-    if (robotRules == null) {                     // cache miss
+    if (robotRules == null) { // cache miss
       if (LOG.isTraceEnabled())
         LOG.trace("cache miss " + url);
 
       try {
         Text robotsUrl = new Text(new URL(url, "/robots.txt").toString());
-        ProtocolOutput output = ((Ftp)ftp).getProtocolOutput(robotsUrl, new CrawlDatum());
+        ProtocolOutput output = ((Ftp) ftp).getProtocolOutput(robotsUrl,
+            new CrawlDatum());
         ProtocolStatus status = output.getStatus();
 
         if (status.getCode() == ProtocolStatus.SUCCESS) {
-          robotRules =  parseRules(url.toString(), output.getContent().getContent(), 
-                                  CONTENT_TYPE, agentNames);
-        } else {                                       
-          robotRules = EMPTY_RULES;                 // use default rules
+          robotRules = parseRules(url.toString(), output.getContent()
+              .getContent(), CONTENT_TYPE, agentNames);
+        } else {
+          robotRules = EMPTY_RULES; // use default rules
         }
       } catch (Throwable t) {
         if (LOG.isInfoEnabled()) {
@@ -92,7 +99,7 @@ public class FtpRobotRulesParser extends RobotRulesParser {
       }
 
       if (cacheRule)
-        CACHE.put(protocol + ":" + host, robotRules);  // cache rules for host
+        CACHE.put(protocol + ":" + host, robotRules); // cache rules for host
     }
     return robotRules;
   }

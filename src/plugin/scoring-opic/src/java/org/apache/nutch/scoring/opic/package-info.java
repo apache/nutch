@@ -20,3 +20,4 @@
  * (OPIC) algorithm.
  */
 package org.apache.nutch.scoring.opic;
+

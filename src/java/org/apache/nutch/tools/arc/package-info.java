@@ -20,3 +20,4 @@
  * <a href="http://archive.org/web/researcher/ArcFileFormat.php">Arc file format</a>.
  */
 package org.apache.nutch.tools.arc;
+

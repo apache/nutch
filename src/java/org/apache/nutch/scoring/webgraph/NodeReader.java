@@ -37,7 +37,7 @@ import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 
 /**
- * Reads and prints to system out information for a single node from the NodeDb 
+ * Reads and prints to system out information for a single node from the NodeDb
  * in the WebGraph.
  */
 public class NodeReader extends Configured {
@@ -46,33 +46,35 @@ public class NodeReader extends Configured {
   private MapFile.Reader[] nodeReaders;
 
   public NodeReader() {
-    
+
   }
-  
+
   public NodeReader(Configuration conf) {
     super(conf);
   }
-  
+
   /**
    * Prints the content of the Node represented by the url to system out.
    * 
-   * @param webGraphDb The webgraph from which to get the node.
-   * @param url The url of the node.
+   * @param webGraphDb
+   *          The webgraph from which to get the node.
+   * @param url
+   *          The url of the node.
    * 
-   * @throws IOException If an error occurs while getting the node.
+   * @throws IOException
+   *           If an error occurs while getting the node.
    */
-  public void dumpUrl(Path webGraphDb, String url)
-    throws IOException {
+  public void dumpUrl(Path webGraphDb, String url) throws IOException {
 
     fs = FileSystem.get(getConf());
     nodeReaders = MapFileOutputFormat.getReaders(fs, new Path(webGraphDb,
-      WebGraph.NODE_DIR), getConf());
+        WebGraph.NODE_DIR), getConf());
 
     // open the readers, get the node, print out the info, and close the readers
     Text key = new Text(url);
     Node node = new Node();
     MapFileOutputFormat.getEntry(nodeReaders,
-      new HashPartitioner<Text, Node>(), key, node);
+        new HashPartitioner<Text, Node>(), key, node);
     System.out.println(url + ":");
     System.out.println("  inlink score: " + node.getInlinkScore());
     System.out.println("  outlink score: " + node.getOutlinkScore());
@@ -82,25 +84,24 @@ public class NodeReader extends Configured {
   }
 
   /**
-   * Runs the NodeReader tool.  The command line arguments must contain a 
-   * webgraphdb path and a url.  The url must match the normalized url that is
+   * Runs the NodeReader tool. The command line arguments must contain a
+   * webgraphdb path and a url. The url must match the normalized url that is
    * contained in the NodeDb of the WebGraph.
    */
-  public static void main(String[] args)
-    throws Exception {
+  public static void main(String[] args) throws Exception {
 
     Options options = new Options();
     OptionBuilder.withArgName("help");
     OptionBuilder.withDescription("show this help message");
     Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
-    
+
     OptionBuilder.withArgName("webgraphdb");
     OptionBuilder.hasArg();
     OptionBuilder.withDescription("the webgraphdb to use");
     Option webGraphOpts = OptionBuilder.create("webgraphdb");
     options.addOption(webGraphOpts);
-    
+
     OptionBuilder.withArgName("url");
     OptionBuilder.hasOptionalArg();
     OptionBuilder.withDescription("the url to dump");
@@ -113,7 +114,7 @@ public class NodeReader extends Configured {
       // command line must take a webgraphdb and a url
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")
-        || !line.hasOption("url")) {
+          || !line.hasOption("url")) {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("WebGraphReader", options);
         return;
@@ -124,10 +125,9 @@ public class NodeReader extends Configured {
       String url = line.getOptionValue("url");
       NodeReader reader = new NodeReader(NutchConfiguration.create());
       reader.dumpUrl(new Path(webGraphDb), url);
-      
+
       return;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       return;
     }

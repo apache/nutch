@@ -31,23 +31,20 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** 
+/**
  * Unit tests for PdfParser.
- *
+ * 
  * @author John Xing
  */
 public class TestPdfParser {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data",".");
+  private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
   // ./src/plugin/parse-pdf/build.xml during plugin compilation.
   // Check ./src/plugin/parse-pdf/sample/README.txt for what they are.
-  private String[] sampleFiles = {
-      "pdftest.pdf",
-      "encrypted.pdf"
-  };
+  private String[] sampleFiles = { "pdftest.pdf", "encrypted.pdf" };
 
   private String expectedText = "A VERY SMALL PDF FILE";
 
@@ -63,8 +60,10 @@ public class TestPdfParser {
 
       Configuration conf = NutchConfiguration.create();
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
-      content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(content.getUrl());
+      content = protocol.getProtocolOutput(new Text(urlString),
+          new CrawlDatum()).getContent();
+      parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
+          .get(content.getUrl());
 
       int index = parse.getText().indexOf(expectedText);
       Assert.assertTrue(index > 0);

@@ -33,10 +33,12 @@ public final class ParseText implements Writable {
 
   private final static byte VERSION = 2;
 
-  public ParseText() {}
+  public ParseText() {
+  }
+
   private String text;
-    
-  public ParseText(String text){
+
+  public ParseText(String text) {
     this.text = text;
   }
 
@@ -68,12 +70,14 @@ public final class ParseText implements Writable {
   //
   // Accessor methods
   //
-  public String getText()  { return text; }
+  public String getText() {
+    return text;
+  }
 
   public boolean equals(Object o) {
     if (!(o instanceof ParseText))
       return false;
-    ParseText other = (ParseText)o;
+    ParseText other = (ParseText) o;
     return this.text.equals(other.text);
   }
 
@@ -90,12 +94,11 @@ public final class ParseText implements Writable {
     }
     Options opts = new Options();
     Configuration conf = NutchConfiguration.create();
-    
-    GenericOptionsParser parser =
-      new GenericOptionsParser(conf, opts, argv);
-    
+
+    GenericOptionsParser parser = new GenericOptionsParser(conf, opts, argv);
+
     String[] remainingArgs = parser.getRemainingArgs();
-    
+
     FileSystem fs = FileSystem.get(conf);
     try {
       int recno = Integer.parseInt(remainingArgs[0]);

@@ -63,26 +63,20 @@ import org.apache.nutch.util.URLUtil;
  * have been run. For link analysis score a program such as LinkRank will need
  * to have been run which updates the NodeDb of the WebGraph.
  */
-public class NodeDumper
-  extends Configured
-  implements Tool {
+public class NodeDumper extends Configured implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(NodeDumper.class);
 
   private static enum DumpType {
-    INLINKS,
-    OUTLINKS,
-    SCORES
+    INLINKS, OUTLINKS, SCORES
   }
 
   private static enum AggrType {
-    SUM,
-    MAX
+    SUM, MAX
   }
 
   private static enum NameType {
-    HOST,
-    DOMAIN
+    HOST, DOMAIN
   }
 
   /**
@@ -90,10 +84,9 @@ public class NodeDumper
    * on the command line, the top urls could be for number of inlinks, for
    * number of outlinks, or for link analysis score.
    */
-  public static class Sorter
-    extends Configured
-    implements Mapper<Text, Node, FloatWritable, Text>,
-    Reducer<FloatWritable, Text, Text, FloatWritable> {
+  public static class Sorter extends Configured implements
+      Mapper<Text, Node, FloatWritable, Text>,
+      Reducer<FloatWritable, Text, Text, FloatWritable> {
 
     private JobConf conf;
     private boolean inlinks = false;
@@ -121,17 +114,15 @@ public class NodeDumper
      * score.
      */
     public void map(Text key, Node node,
-      OutputCollector<FloatWritable, Text> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<FloatWritable, Text> output, Reporter reporter)
+        throws IOException {
 
       float number = 0;
       if (inlinks) {
         number = node.getNumInlinks();
-      }
-      else if (outlinks) {
+      } else if (outlinks) {
         number = node.getNumOutlinks();
-      }
-      else {
+      } else {
         number = node.getInlinkScore();
       }
 
@@ -143,8 +134,8 @@ public class NodeDumper
      * Flips and collects the url and numeric sort value.
      */
     public void reduce(FloatWritable key, Iterator<Text> values,
-      OutputCollector<Text, FloatWritable> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, FloatWritable> output, Reporter reporter)
+        throws IOException {
 
       // take the negative of the negative to get original value, sometimes 0
       // value are a little weird
@@ -162,14 +153,13 @@ public class NodeDumper
   }
 
   /**
-   * Outputs the hosts or domains with an associated value. This value consists of either
-   * the number of inlinks, the number of outlinks or the score. The computed value is then
-   * either the sum of all parts or the top value.
+   * Outputs the hosts or domains with an associated value. This value consists
+   * of either the number of inlinks, the number of outlinks or the score. The
+   * computed value is then either the sum of all parts or the top value.
    */
-  public static class Dumper
-    extends Configured
-    implements Mapper<Text, Node, Text, FloatWritable>,
-    Reducer<Text, FloatWritable, Text, FloatWritable> {
+  public static class Dumper extends Configured implements
+      Mapper<Text, Node, Text, FloatWritable>,
+      Reducer<Text, FloatWritable, Text, FloatWritable> {
 
     private JobConf conf;
     private boolean inlinks = false;
@@ -197,21 +187,19 @@ public class NodeDumper
     }
 
     /**
-     * Outputs the host or domain as key for this record and numInlinks, numOutlinks
-     * or score as the value.
+     * Outputs the host or domain as key for this record and numInlinks,
+     * numOutlinks or score as the value.
      */
     public void map(Text key, Node node,
-      OutputCollector<Text, FloatWritable> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, FloatWritable> output, Reporter reporter)
+        throws IOException {
 
       float number = 0;
       if (inlinks) {
         number = node.getNumInlinks();
-      }
-      else if (outlinks) {
+      } else if (outlinks) {
         number = node.getNumOutlinks();
-      }
-      else {
+      } else {
         number = node.getInlinkScore();
       }
 
@@ -228,8 +216,8 @@ public class NodeDumper
      * Outputs either the sum or the top value for this record.
      */
     public void reduce(Text key, Iterator<FloatWritable> values,
-      OutputCollector<Text, FloatWritable> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, FloatWritable> output, Reporter reporter)
+        throws IOException {
 
       long numCollected = 0;
       float sumOrMax = 0;
@@ -256,16 +244,19 @@ public class NodeDumper
 
   /**
    * Runs the process to dump the top urls out to a text file.
-   *
-   * @param webGraphDb The WebGraph from which to pull values.
-   *
+   * 
+   * @param webGraphDb
+   *          The WebGraph from which to pull values.
+   * 
    * @param topN
    * @param output
-   *
-   * @throws IOException If an error occurs while dumping the top values.
+   * 
+   * @throws IOException
+   *           If an error occurs while dumping the top values.
    */
-  public void dumpNodes(Path webGraphDb, DumpType type, long topN, Path output, boolean asEff, NameType nameType, AggrType aggrType, boolean asSequenceFile)
-    throws Exception {
+  public void dumpNodes(Path webGraphDb, DumpType type, long topN, Path output,
+      boolean asEff, NameType nameType, AggrType aggrType,
+      boolean asSequenceFile) throws Exception {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -320,77 +311,76 @@ public class NodeDumper
     try {
       LOG.info("NodeDumper: running");
       JobClient.runJob(dumper);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
     long end = System.currentTimeMillis();
-    LOG.info("NodeDumper: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("NodeDumper: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
 
-  public static void main(String[] args)
-    throws Exception {
+  public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(NutchConfiguration.create(), new NodeDumper(),
-      args);
+        args);
     System.exit(res);
   }
 
   /**
    * Runs the node dumper tool.
    */
-  public int run(String[] args)
-    throws Exception {
+  public int run(String[] args) throws Exception {
 
     Options options = new Options();
     OptionBuilder.withArgName("help");
     OptionBuilder.withDescription("show this help message");
     Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
-    
+
     OptionBuilder.withArgName("webgraphdb");
     OptionBuilder.hasArg();
     OptionBuilder.withDescription("the web graph database to use");
     Option webGraphDbOpts = OptionBuilder.create("webgraphdb");
     options.addOption(webGraphDbOpts);
-    
+
     OptionBuilder.withArgName("inlinks");
     OptionBuilder.withDescription("show highest inlinks");
     Option inlinkOpts = OptionBuilder.create("inlinks");
     options.addOption(inlinkOpts);
-    
+
     OptionBuilder.withArgName("outlinks");
     OptionBuilder.withDescription("show highest outlinks");
     Option outlinkOpts = OptionBuilder.create("outlinks");
     options.addOption(outlinkOpts);
-    
+
     OptionBuilder.withArgName("scores");
     OptionBuilder.withDescription("show highest scores");
     Option scoreOpts = OptionBuilder.create("scores");
     options.addOption(scoreOpts);
-    
+
     OptionBuilder.withArgName("topn");
     OptionBuilder.hasOptionalArg();
     OptionBuilder.withDescription("show topN scores");
     Option topNOpts = OptionBuilder.create("topn");
     options.addOption(topNOpts);
-    
+
     OptionBuilder.withArgName("output");
     OptionBuilder.hasArg();
     OptionBuilder.withDescription("the output directory to use");
     Option outputOpts = OptionBuilder.create("output");
     options.addOption(outputOpts);
-    
+
     OptionBuilder.withArgName("asEff");
-    OptionBuilder.withDescription("Solr ExternalFileField compatible output format");
+    OptionBuilder
+        .withDescription("Solr ExternalFileField compatible output format");
     Option effOpts = OptionBuilder.create("asEff");
     options.addOption(effOpts);
-    
+
     OptionBuilder.hasArgs(2);
     OptionBuilder.withDescription("group <host|domain> <sum|max>");
     Option groupOpts = OptionBuilder.create("group");
     options.addOption(groupOpts);
-    
+
     OptionBuilder.withArgName("asSequenceFile");
     OptionBuilder.withDescription("whether to output as a sequencefile");
     Option sequenceFileOpts = OptionBuilder.create("asSequenceFile");
@@ -410,32 +400,32 @@ public class NodeDumper
       boolean inlinks = line.hasOption("inlinks");
       boolean outlinks = line.hasOption("outlinks");
 
-      long topN = (line.hasOption("topn")
-        ? Long.parseLong(line.getOptionValue("topn")) : Long.MAX_VALUE);
+      long topN = (line.hasOption("topn") ? Long.parseLong(line
+          .getOptionValue("topn")) : Long.MAX_VALUE);
 
       // get the correct dump type
       String output = line.getOptionValue("output");
-      DumpType type = (inlinks ? DumpType.INLINKS : outlinks
-        ? DumpType.OUTLINKS : DumpType.SCORES);
+      DumpType type = (inlinks ? DumpType.INLINKS
+          : outlinks ? DumpType.OUTLINKS : DumpType.SCORES);
 
       NameType nameType = null;
       AggrType aggrType = null;
       String[] group = line.getOptionValues("group");
       if (group != null && group.length == 2) {
-        nameType = (group[0].equals("host") ? NameType.HOST : group[0].equals("domain")
-          ? NameType.DOMAIN : null);
-        aggrType = (group[1].equals("sum") ? AggrType.SUM : group[1].equals("sum")
-          ? AggrType.MAX : null);
+        nameType = (group[0].equals("host") ? NameType.HOST : group[0]
+            .equals("domain") ? NameType.DOMAIN : null);
+        aggrType = (group[1].equals("sum") ? AggrType.SUM : group[1]
+            .equals("sum") ? AggrType.MAX : null);
       }
 
       // Use ExternalFileField?
       boolean asEff = line.hasOption("asEff");
       boolean asSequenceFile = line.hasOption("asSequenceFile");
 
-      dumpNodes(new Path(webGraphDb), type, topN, new Path(output), asEff, nameType, aggrType, asSequenceFile);
+      dumpNodes(new Path(webGraphDb), type, topN, new Path(output), asEff,
+          nameType, aggrType, asSequenceFile);
       return 0;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       LOG.error("NodeDumper: " + StringUtils.stringifyException(e));
       return -2;
     }

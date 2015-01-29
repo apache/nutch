@@ -40,12 +40,13 @@ public class TestSegmentMerger {
   Path seg2;
   Path out;
   int countSeg1, countSeg2;
-  
+
   @Before
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
-    testDir = new Path(conf.get("hadoop.tmp.dir"), "merge-" + System.currentTimeMillis());
+    testDir = new Path(conf.get("hadoop.tmp.dir"), "merge-"
+        + System.currentTimeMillis());
     seg1 = new Path(testDir, "seg1");
     seg2 = new Path(testDir, "seg2");
     out = new Path(testDir, "out");
@@ -55,12 +56,13 @@ public class TestSegmentMerger {
     DecimalFormat df = new DecimalFormat("0000000");
     Text k = new Text();
     Path ptPath = new Path(new Path(seg1, ParseText.DIR_NAME), "part-00000");
-    MapFile.Writer w = new MapFile.Writer(conf, fs, ptPath.toString(), Text.class, ParseText.class);
+    MapFile.Writer w = new MapFile.Writer(conf, fs, ptPath.toString(),
+        Text.class, ParseText.class);
     long curSize = 0;
     countSeg1 = 0;
     FileStatus fileStatus = fs.getFileStatus(ptPath);
     long blkSize = fileStatus.getBlockSize();
-    
+
     while (curSize < blkSize * 2) {
       k.set("seg1-" + df.format(countSeg1));
       w.append(k, new ParseText("seg1 text " + countSeg1));
@@ -71,7 +73,8 @@ public class TestSegmentMerger {
     System.err.println(" - done: " + countSeg1 + " records.");
     System.err.println("Creating large segment 2...");
     ptPath = new Path(new Path(seg2, ParseText.DIR_NAME), "part-00000");
-    w = new MapFile.Writer(conf, fs, ptPath.toString(), Text.class, ParseText.class);
+    w = new MapFile.Writer(conf, fs, ptPath.toString(), Text.class,
+        ParseText.class);
     curSize = 0;
     countSeg2 = 0;
     while (curSize < blkSize * 2) {
@@ -83,16 +86,16 @@ public class TestSegmentMerger {
     w.close();
     System.err.println(" - done: " + countSeg2 + " records.");
   }
-  
+
   @After
   public void tearDown() throws Exception {
     fs.delete(testDir, true);
   }
-  
+
   @Test
   public void testLargeMerge() throws Exception {
     SegmentMerger merger = new SegmentMerger(conf);
-    merger.merge(out, new Path[]{seg1, seg2}, false, false, -1);
+    merger.merge(out, new Path[] { seg1, seg2 }, false, false, -1);
     // verify output
     FileStatus[] stats = fs.listStatus(out);
     // there should be just one path
@@ -100,7 +103,8 @@ public class TestSegmentMerger {
     Path outSeg = stats[0].getPath();
     Text k = new Text();
     ParseText v = new ParseText();
-    MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new Path(outSeg, ParseText.DIR_NAME), conf);
+    MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new Path(
+        outSeg, ParseText.DIR_NAME), conf);
     int cnt1 = 0, cnt2 = 0;
     for (MapFile.Reader r : readers) {
       while (r.next(k, v)) {

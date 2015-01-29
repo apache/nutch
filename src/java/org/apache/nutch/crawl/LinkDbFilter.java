@@ -31,8 +31,8 @@ import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 
 /**
- * This class provides a way to separate the URL normalization
- * and filtering steps from the rest of LinkDb manipulation code.
+ * This class provides a way to separate the URL normalization and filtering
+ * steps from the rest of LinkDb manipulation code.
  * 
  * @author Andrzej Bialecki
  */
@@ -50,13 +50,13 @@ public class LinkDbFilter implements Mapper<Text, Inlinks, Text, Inlinks> {
   private URLFilters filters;
 
   private URLNormalizers normalizers;
-  
+
   private String scope;
-  
+
   public static final Logger LOG = LoggerFactory.getLogger(LinkDbFilter.class);
 
   private Text newKey = new Text();
-  
+
   public void configure(JobConf job) {
     filter = job.getBoolean(URL_FILTERING, false);
     normalize = job.getBoolean(URL_NORMALIZING, false);
@@ -69,10 +69,12 @@ public class LinkDbFilter implements Mapper<Text, Inlinks, Text, Inlinks> {
     }
   }
 
-  public void close() {}
+  public void close() {
+  }
 
   public void map(Text key, Inlinks value,
-      OutputCollector<Text, Inlinks> output, Reporter reporter) throws IOException {
+      OutputCollector<Text, Inlinks> output, Reporter reporter)
+      throws IOException {
     String url = key.toString();
     Inlinks result = new Inlinks();
     if (normalize) {
@@ -91,7 +93,8 @@ public class LinkDbFilter implements Mapper<Text, Inlinks, Text, Inlinks> {
         url = null;
       }
     }
-    if (url == null) return; // didn't pass the filters
+    if (url == null)
+      return; // didn't pass the filters
     Iterator<Inlink> it = value.iterator();
     String fromUrl = null;
     while (it.hasNext()) {
@@ -113,7 +116,7 @@ public class LinkDbFilter implements Mapper<Text, Inlinks, Text, Inlinks> {
           fromUrl = null;
         }
       }
-      if (fromUrl != null) { 
+      if (fromUrl != null) {
         result.add(new Inlink(fromUrl, inlink.getAnchor()));
       }
     }

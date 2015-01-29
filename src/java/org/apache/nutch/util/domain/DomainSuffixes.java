@@ -25,57 +25,62 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.util.StringUtils;
 
 /**
- * Storage class for <code>DomainSuffix</code> objects 
- * Note: this class is singleton
+ * Storage class for <code>DomainSuffix</code> objects Note: this class is
+ * singleton
+ * 
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
  */
 public class DomainSuffixes {
-  private static final Logger LOG = LoggerFactory.getLogger(DomainSuffixes.class);
-  
-  private HashMap<String, DomainSuffix> domains = new HashMap<String, DomainSuffix>(); 
-  
+  private static final Logger LOG = LoggerFactory
+      .getLogger(DomainSuffixes.class);
+
+  private HashMap<String, DomainSuffix> domains = new HashMap<String, DomainSuffix>();
+
   private static DomainSuffixes instance;
-  
+
   /** private ctor */
   private DomainSuffixes() {
     String file = "domain-suffixes.xml";
-    InputStream input = this.getClass().getClassLoader().getResourceAsStream(file);
+    InputStream input = this.getClass().getClassLoader()
+        .getResourceAsStream(file);
     try {
       new DomainSuffixesReader().read(this, input);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       LOG.warn(StringUtils.stringifyException(ex));
     }
   }
-  
+
   /**
    * Singleton instance, lazy instantination
-   * @return returns the domain suffix instance 
+   * 
+   * @return returns the domain suffix instance
    */
   public static DomainSuffixes getInstance() {
-    if(instance == null) {
+    if (instance == null) {
       instance = new DomainSuffixes();
     }
     return instance;
   }
-  
+
   void addDomainSuffix(DomainSuffix tld) {
     domains.put(tld.getDomain(), tld);
   }
 
   /** return whether the extension is a registered domain entry */
   public boolean isDomainSuffix(String extension) {
-    return domains.containsKey(extension); 
+    return domains.containsKey(extension);
   }
-    
+
   /**
-   * Return the {@link DomainSuffix} object for the extension, if 
-   * extension is a top level domain returned object will be an 
-   * instance of {@link TopLevelDomain}
-   * @param extension of the domain
+   * Return the {@link DomainSuffix} object for the extension, if extension is a
+   * top level domain returned object will be an instance of
+   * {@link TopLevelDomain}
+   * 
+   * @param extension
+   *          of the domain
    */
   public DomainSuffix get(String extension) {
     return domains.get(extension);
   }
-  
+
 }

@@ -27,8 +27,7 @@ import org.apache.hadoop.io.Writable;
  * A class for holding link information including the url, anchor text, a score,
  * the timestamp of the link and a link type.
  */
-public class LinkDatum
-  implements Writable {
+public class LinkDatum implements Writable {
 
   public final static byte INLINK = 1;
   public final static byte OUTLINK = 2;
@@ -49,7 +48,8 @@ public class LinkDatum
   /**
    * Creates a LinkDatum with a given url. Timestamp is set to current time.
    * 
-   * @param url The link url.
+   * @param url
+   *          The link url.
    */
   public LinkDatum(String url) {
     this(url, "", System.currentTimeMillis());
@@ -59,8 +59,10 @@ public class LinkDatum
    * Creates a LinkDatum with a url and an anchor text. Timestamp is set to
    * current time.
    * 
-   * @param url The link url.
-   * @param anchor The link anchor text.
+   * @param url
+   *          The link url.
+   * @param anchor
+   *          The link anchor text.
    */
   public LinkDatum(String url, String anchor) {
     this(url, anchor, System.currentTimeMillis());
@@ -112,8 +114,7 @@ public class LinkDatum
     this.linkType = linkType;
   }
 
-  public void readFields(DataInput in)
-    throws IOException {
+  public void readFields(DataInput in) throws IOException {
     url = Text.readString(in);
     anchor = Text.readString(in);
     score = in.readFloat();
@@ -121,8 +122,7 @@ public class LinkDatum
     linkType = in.readByte();
   }
 
-  public void write(DataOutput out)
-    throws IOException {
+  public void write(DataOutput out) throws IOException {
     Text.writeString(out, url);
     Text.writeString(out, anchor != null ? anchor : "");
     out.writeFloat(score);
@@ -132,9 +132,9 @@ public class LinkDatum
 
   public String toString() {
 
-    String type = (linkType == INLINK ? "inlink" : (linkType == OUTLINK)
-      ? "outlink" : "unknown");
+    String type = (linkType == INLINK ? "inlink"
+        : (linkType == OUTLINK) ? "outlink" : "unknown");
     return "url: " + url + ", anchor: " + anchor + ", score: " + score
-      + ", timestamp: " + timestamp + ", link type: " + type;
+        + ", timestamp: " + timestamp + ", link type: " + type;
   }
 }

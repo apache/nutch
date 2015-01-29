@@ -19,3 +19,4 @@
  * Parse filter to extract headings (h1, h2, etc.) from DOM parse tree.
  */
 package org.apache.nutch.parse.headings;
+

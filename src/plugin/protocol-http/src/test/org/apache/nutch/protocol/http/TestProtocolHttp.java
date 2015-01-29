@@ -93,7 +93,7 @@ public class TestProtocolHttp {
 
   /**
    * Starts the Jetty server at a specified port and redirection parameter.
-   *
+   * 
    * @param portno
    *          Port number.
    * @param redirection
@@ -114,7 +114,7 @@ public class TestProtocolHttp {
    * Fetches the specified <code>page</code> from the local Jetty server and
    * checks whether the HTTP response status code matches with the expected
    * code. Also use jsp pages for redirection.
-   *
+   * 
    * @param page
    *          Page to be fetched.
    * @param expectedCode
@@ -138,4 +138,3 @@ public class TestProtocolHttp {
     }
   }
 }
-

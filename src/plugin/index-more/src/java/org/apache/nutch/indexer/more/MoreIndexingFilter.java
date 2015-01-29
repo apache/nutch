@@ -55,25 +55,28 @@ import org.apache.commons.lang.time.DateUtils;
  * Add (or reset) a few metaData properties as respective fields (if they are
  * available), so that they can be accurately used within the search index.
  * 
- * 'lastModifed' is indexed to support query by date, 'contentLength' obtains content length from the HTTP
- * header, 'type' field is indexed to support query by type and finally the 'title' field is an attempt 
- * to reset the title if a content-disposition hint exists. The logic is that such a presence is indicative 
- * that the content provider wants the filename therein to be used as the title.
- *
+ * 'lastModifed' is indexed to support query by date, 'contentLength' obtains
+ * content length from the HTTP header, 'type' field is indexed to support query
+ * by type and finally the 'title' field is an attempt to reset the title if a
+ * content-disposition hint exists. The logic is that such a presence is
+ * indicative that the content provider wants the filename therein to be used as
+ * the title.
+ * 
  * Still need to make content-length searchable!
- *
+ * 
  * @author John Xing
  */
 
 public class MoreIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory.getLogger(MoreIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(MoreIndexingFilter.class);
 
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME;
   private Tika tika = new Tika();
 
   /** Map for mime-type substitution */
-  private HashMap<String,String> mimeMap = null;
+  private HashMap<String, String> mimeMap = null;
   private boolean mapMimes = false;
 
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
@@ -89,23 +92,24 @@ public class MoreIndexingFilter implements IndexingFilter {
     return doc;
   }
 
-  // Add time related meta info.  Add last-modified if present.  Index date as
+  // Add time related meta info. Add last-modified if present. Index date as
   // last-modified, or, if that's not present, use fetch time.
-  private NutchDocument addTime(NutchDocument doc, ParseData data,
-                           String url, CrawlDatum datum) {
+  private NutchDocument addTime(NutchDocument doc, ParseData data, String url,
+      CrawlDatum datum) {
     long time = -1;
 
     String lastModified = data.getMeta(Metadata.LAST_MODIFIED);
-    if (lastModified != null) {                   // try parse last-modified
-      time = getTime(lastModified,url);           // use as time
-                                                  // store as string
+    if (lastModified != null) { // try parse last-modified
+      time = getTime(lastModified, url); // use as time
+                                         // store as string
       doc.add("lastModified", new Date(time));
     }
 
-    if (time == -1) {                             // if no last-modified specified in HTTP header
-      time = datum.getModifiedTime();             // use value in CrawlDatum
-      if (time <= 0) {                            // if also unset
-        time = datum.getFetchTime();              // use time the fetch took place (fetchTime of fetchDatum)
+    if (time == -1) { // if no last-modified specified in HTTP header
+      time = datum.getModifiedTime(); // use value in CrawlDatum
+      if (time <= 0) { // if also unset
+        time = datum.getFetchTime(); // use time the fetch took place (fetchTime
+                                     // of fetchDatum)
       }
     }
 
@@ -119,43 +123,29 @@ public class MoreIndexingFilter implements IndexingFilter {
     try {
       time = HttpDateFormat.toLong(date);
     } catch (ParseException e) {
-  // try to parse it as date in alternative format
-  try {
-      Date parsedDate = DateUtils.parseDate(date,
-      new String [] {
-          "EEE MMM dd HH:mm:ss yyyy",
-          "EEE MMM dd HH:mm:ss yyyy zzz",
-          "EEE MMM dd HH:mm:ss zzz yyyy",
-          "EEE, MMM dd HH:mm:ss yyyy zzz",
-          "EEE, dd MMM yyyy HH:mm:ss zzz",
-          "EEE,dd MMM yyyy HH:mm:ss zzz",
-          "EEE, dd MMM yyyy HH:mm:sszzz",
-          "EEE, dd MMM yyyy HH:mm:ss",
-          "EEE, dd-MMM-yy HH:mm:ss zzz",
-          "yyyy/MM/dd HH:mm:ss.SSS zzz",
-          "yyyy/MM/dd HH:mm:ss.SSS",
-          "yyyy/MM/dd HH:mm:ss zzz",
-          "yyyy/MM/dd",
-          "yyyy.MM.dd HH:mm:ss",
-          "yyyy-MM-dd HH:mm",
-          "MMM dd yyyy HH:mm:ss. zzz",
-          "MMM dd yyyy HH:mm:ss zzz",
-          "dd.MM.yyyy HH:mm:ss zzz",
-          "dd MM yyyy HH:mm:ss zzz",
-          "dd.MM.yyyy; HH:mm:ss",
-          "dd.MM.yyyy HH:mm:ss",
-          "dd.MM.yyyy zzz",
-          "yyyy-MM-dd'T'HH:mm:ss'Z'"
-      });
-      time = parsedDate.getTime();
-            // if (LOG.isWarnEnabled()) {
-      //   LOG.warn(url + ": parsed date: " + date +" to:"+time);
-            // }
-  } catch (Exception e2) {
-            if (LOG.isWarnEnabled()) {
-        LOG.warn(url + ": can't parse erroneous date: " + date);
-            }
-  }
+      // try to parse it as date in alternative format
+      try {
+        Date parsedDate = DateUtils.parseDate(date, new String[] {
+            "EEE MMM dd HH:mm:ss yyyy", "EEE MMM dd HH:mm:ss yyyy zzz",
+            "EEE MMM dd HH:mm:ss zzz yyyy", "EEE, MMM dd HH:mm:ss yyyy zzz",
+            "EEE, dd MMM yyyy HH:mm:ss zzz", "EEE,dd MMM yyyy HH:mm:ss zzz",
+            "EEE, dd MMM yyyy HH:mm:sszzz", "EEE, dd MMM yyyy HH:mm:ss",
+            "EEE, dd-MMM-yy HH:mm:ss zzz", "yyyy/MM/dd HH:mm:ss.SSS zzz",
+            "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm:ss zzz", "yyyy/MM/dd",
+            "yyyy.MM.dd HH:mm:ss", "yyyy-MM-dd HH:mm",
+            "MMM dd yyyy HH:mm:ss. zzz", "MMM dd yyyy HH:mm:ss zzz",
+            "dd.MM.yyyy HH:mm:ss zzz", "dd MM yyyy HH:mm:ss zzz",
+            "dd.MM.yyyy; HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy zzz",
+            "yyyy-MM-dd'T'HH:mm:ss'Z'" });
+        time = parsedDate.getTime();
+        // if (LOG.isWarnEnabled()) {
+        // LOG.warn(url + ": parsed date: " + date +" to:"+time);
+        // }
+      } catch (Exception e2) {
+        if (LOG.isWarnEnabled()) {
+          LOG.warn(url + ": can't parse erroneous date: " + date);
+        }
+      }
     }
     return time;
   }
@@ -187,7 +177,7 @@ public class MoreIndexingFilter implements IndexingFilter {
    * all case insensitive. The query filter is implemented in
    * {@link TypeQueryFilter}.
    * </p>
-   *
+   * 
    * @param doc
    * @param data
    * @param url
@@ -212,9 +202,9 @@ public class MoreIndexingFilter implements IndexingFilter {
       // (using MimeTypes.getMimeType(byte[], String), but I don't know
       // which field it is?
       // if (MAGIC) {
-      //   contentType = MIME.getMimeType(url, content);
+      // contentType = MIME.getMimeType(url, content);
       // } else {
-      //   contentType = MIME.getMimeType(url);
+      // contentType = MIME.getMimeType(url);
       // }
 
       mimeType = tika.detect(url);
@@ -243,20 +233,20 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (conf.getBoolean("moreIndexingFilter.indexMimeTypeParts", true)) {
       String[] parts = getParts(contentType);
 
-      for(String part: parts) {
+      for (String part : parts) {
         doc.add("type", part);
       }
     }
 
     // leave this for future improvement
-    //MimeTypeParameterList parameterList = mimeType.getParameters()
+    // MimeTypeParameterList parameterList = mimeType.getParameters()
 
     return doc;
   }
 
-
   /**
    * Utility method for splitting mime type into type and subtype.
+   * 
    * @param mimeType
    * @return
    */
@@ -273,15 +263,13 @@ public class MoreIndexingFilter implements IndexingFilter {
   // Content-Disposition: inline; filename="foo.ppt"
   private Configuration conf;
 
-  static Pattern patterns[] = {null, null};
+  static Pattern patterns[] = { null, null };
 
   static {
     try {
       // order here is important
-      patterns[0] =
-        Pattern.compile("\\bfilename=['\"](.+)['\"]");
-      patterns[1] =
-        Pattern.compile("\\bfilename=(\\S+)\\b");
+      patterns[0] = Pattern.compile("\\bfilename=['\"](.+)['\"]");
+      patterns[1] = Pattern.compile("\\bfilename=(\\S+)\\b");
     } catch (PatternSyntaxException e) {
       // just ignore
     }
@@ -292,7 +280,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (contentDisposition == null || doc.getFieldValue("title") != null)
       return doc;
 
-    for (int i=0; i<patterns.length; i++) {
+    for (int i = 0; i < patterns.length; i++) {
       Matcher matcher = patterns[i].matcher(contentDisposition);
       if (matcher.find()) {
         doc.add("title", matcher.group(1));
@@ -324,11 +312,12 @@ public class MoreIndexingFilter implements IndexingFilter {
   }
 
   private void readConfiguration() throws IOException {
-    BufferedReader reader = new BufferedReader(conf.getConfResourceAsReader("contenttype-mapping.txt"));
+    BufferedReader reader = new BufferedReader(
+        conf.getConfResourceAsReader("contenttype-mapping.txt"));
     String line;
     String parts[];
 
-    mimeMap = new HashMap<String,String>();
+    mimeMap = new HashMap<String, String>();
 
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {

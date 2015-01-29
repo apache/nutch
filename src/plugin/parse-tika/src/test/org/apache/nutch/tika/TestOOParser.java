@@ -31,22 +31,22 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** 
+/**
  * Unit tests for OOParser.
- *
+ * 
  * @author Andrzej Bialecki
  */
 public class TestOOParser {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data",".");
+  private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
   // ./src/plugin/parse-oo/build.xml during plugin compilation.
-  private String[] sampleFiles = {"ootest.odt", "ootest.sxw"};
+  private String[] sampleFiles = { "ootest.odt", "ootest.sxw" };
 
   private String expectedText;
-  
+
   private String sampleText = "ootest.txt";
 
   @Test
@@ -58,31 +58,36 @@ public class TestOOParser {
     Protocol protocol;
     ProtocolFactory factory = new ProtocolFactory(conf);
 
-    System.out.println("Expected : "+expectedText);
+    System.out.println("Expected : " + expectedText);
 
-    for (int i=0; i<sampleFiles.length; i++) {
+    for (int i = 0; i < sampleFiles.length; i++) {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
-      if (sampleFiles[i].startsWith("ootest")==false) continue;
+      if (sampleFiles[i].startsWith("ootest") == false)
+        continue;
 
       protocol = factory.getProtocol(urlString);
-      content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(content.getUrl());
+      content = protocol.getProtocolOutput(new Text(urlString),
+          new CrawlDatum()).getContent();
+      parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
+          .get(content.getUrl());
 
       String text = parse.getText().replaceAll("[ \t\r\n]+", " ").trim();
 
-      // simply test for the presence of a text - the ordering of the elements may differ from what was expected
+      // simply test for the presence of a text - the ordering of the elements
+      // may differ from what was expected
       // in the previous tests
-      Assert.assertTrue(text!=null && text.length() > 0);
+      Assert.assertTrue(text != null && text.length() > 0);
 
-      System.out.println("Found "+sampleFiles[i]+": "+text);
+      System.out.println("Found " + sampleFiles[i] + ": " + text);
     }
   }
 
-  public TestOOParser() { 
+  public TestOOParser() {
     try {
       // read the test string
-      FileInputStream fis = new FileInputStream(sampleDir + fileSeparator + sampleText);
+      FileInputStream fis = new FileInputStream(sampleDir + fileSeparator
+          + sampleText);
       StringBuffer sb = new StringBuffer();
       int len = 0;
       InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
@@ -98,6 +103,5 @@ public class TestOOParser {
       e.printStackTrace();
     }
   }
-
 
 }

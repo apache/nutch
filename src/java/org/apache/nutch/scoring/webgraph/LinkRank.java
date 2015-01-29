@@ -68,9 +68,7 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
-public class LinkRank
-  extends Configured
-  implements Tool {
+public class LinkRank extends Configured implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(LinkRank.class);
   private static final String NUM_NODES = "_num_nodes_";
@@ -79,14 +77,16 @@ public class LinkRank
    * Runs the counter job. The counter job determines the number of links in the
    * webgraph. This is used during analysis.
    * 
-   * @param fs The job file system.
-   * @param webGraphDb The web graph database to use.
+   * @param fs
+   *          The job file system.
+   * @param webGraphDb
+   *          The web graph database to use.
    * 
    * @return The number of nodes in the web graph.
-   * @throws IOException If an error occurs while running the counter job.
+   * @throws IOException
+   *           If an error occurs while running the counter job.
    */
-  private int runCounter(FileSystem fs, Path webGraphDb)
-    throws IOException {
+  private int runCounter(FileSystem fs, Path webGraphDb) throws IOException {
 
     // configure the counter job
     Path numLinksPath = new Path(webGraphDb, NUM_NODES);
@@ -105,14 +105,14 @@ public class LinkRank
     counter.setOutputValueClass(LongWritable.class);
     counter.setNumReduceTasks(1);
     counter.setOutputFormat(TextOutputFormat.class);
-    counter.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    counter.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        false);
 
     // run the counter job, outputs to a single reduce task and file
     LOG.info("Starting link counter job");
     try {
       JobClient.runJob(counter);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
@@ -125,13 +125,13 @@ public class LinkRank
     BufferedReader buffer = new BufferedReader(new InputStreamReader(readLinks));
     String numLinksLine = buffer.readLine();
     readLinks.close();
-    
+
     // check if there are links to process, if none, webgraph might be empty
     if (numLinksLine == null || numLinksLine.length() == 0) {
       fs.delete(numLinksPath, true);
       throw new IOException("No links to process, is the webgraph empty?");
     }
-    
+
     // delete temp file and convert and return the number of links as an int
     LOG.info("Deleting numlinks temp file");
     fs.delete(numLinksPath, true);
@@ -143,13 +143,15 @@ public class LinkRank
    * Runs the initializer job. The initializer job sets up the nodes with a
    * default starting score for link analysis.
    * 
-   * @param nodeDb The node database to use.
-   * @param output The job output directory.
+   * @param nodeDb
+   *          The node database to use.
+   * @param output
+   *          The job output directory.
    * 
-   * @throws IOException If an error occurs while running the initializer job.
+   * @throws IOException
+   *           If an error occurs while running the initializer job.
    */
-  private void runInitializer(Path nodeDb, Path output)
-    throws IOException {
+  private void runInitializer(Path nodeDb, Path output) throws IOException {
 
     // configure the initializer
     JobConf initializer = new NutchJob(getConf());
@@ -163,14 +165,14 @@ public class LinkRank
     initializer.setOutputKeyClass(Text.class);
     initializer.setOutputValueClass(Node.class);
     initializer.setOutputFormat(MapFileOutputFormat.class);
-    initializer.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    initializer.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        false);
 
     // run the initializer
     LOG.info("Starting initialization job");
     try {
       JobClient.runJob(initializer);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
@@ -186,15 +188,20 @@ public class LinkRank
    * space requirements but it can be very useful is weeding out and eliminating
    * link farms and other spam pages.
    * 
-   * @param nodeDb The node database to use.
-   * @param outlinkDb The outlink database to use.
-   * @param loopDb The loop database to use if it exists.
-   * @param output The output directory.
+   * @param nodeDb
+   *          The node database to use.
+   * @param outlinkDb
+   *          The outlink database to use.
+   * @param loopDb
+   *          The loop database to use if it exists.
+   * @param output
+   *          The output directory.
    * 
-   * @throws IOException If an error occurs while running the inverter job.
+   * @throws IOException
+   *           If an error occurs while running the inverter job.
    */
   private void runInverter(Path nodeDb, Path outlinkDb, Path loopDb, Path output)
-    throws IOException {
+      throws IOException {
 
     // configure the inverter
     JobConf inverter = new NutchJob(getConf());
@@ -215,14 +222,14 @@ public class LinkRank
     inverter.setOutputKeyClass(Text.class);
     inverter.setOutputValueClass(LinkDatum.class);
     inverter.setOutputFormat(SequenceFileOutputFormat.class);
-    inverter.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    inverter.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        false);
 
     // run the inverter job
     LOG.info("Starting inverter job");
     try {
       JobClient.runJob(inverter);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
@@ -236,23 +243,28 @@ public class LinkRank
    * Typically the link analysis job is run a number of times to allow the link
    * rank scores to converge.
    * 
-   * @param nodeDb The node database from which we are getting previous link
-   * rank scores.
-   * @param inverted The inverted inlinks
-   * @param output The link analysis output.
-   * @param iteration The current iteration number.
-   * @param numIterations The total number of link analysis iterations
+   * @param nodeDb
+   *          The node database from which we are getting previous link rank
+   *          scores.
+   * @param inverted
+   *          The inverted inlinks
+   * @param output
+   *          The link analysis output.
+   * @param iteration
+   *          The current iteration number.
+   * @param numIterations
+   *          The total number of link analysis iterations
    * 
-   * @throws IOException If an error occurs during link analysis.
+   * @throws IOException
+   *           If an error occurs during link analysis.
    */
   private void runAnalysis(Path nodeDb, Path inverted, Path output,
-    int iteration, int numIterations, float rankOne)
-    throws IOException {
+      int iteration, int numIterations, float rankOne) throws IOException {
 
     JobConf analyzer = new NutchJob(getConf());
     analyzer.set("link.analyze.iteration", String.valueOf(iteration + 1));
     analyzer.setJobName("LinkAnalysis Analyzer, iteration " + (iteration + 1)
-      + " of " + numIterations);
+        + " of " + numIterations);
     FileInputFormat.addInputPath(analyzer, nodeDb);
     FileInputFormat.addInputPath(analyzer, inverted);
     FileOutputFormat.setOutputPath(analyzer, output);
@@ -265,13 +277,13 @@ public class LinkRank
     analyzer.setOutputKeyClass(Text.class);
     analyzer.setOutputValueClass(Node.class);
     analyzer.setOutputFormat(MapFileOutputFormat.class);
-    analyzer.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    analyzer.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        false);
 
     LOG.info("Starting analysis job");
     try {
       JobClient.runJob(analyzer);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
@@ -283,9 +295,9 @@ public class LinkRank
    * This is used to determine a rank one score for pages with zero inlinks but
    * that contain outlinks.
    */
-  private static class Counter
-    implements Mapper<Text, Node, Text, LongWritable>,
-    Reducer<Text, LongWritable, Text, LongWritable> {
+  private static class Counter implements
+      Mapper<Text, Node, Text, LongWritable>,
+      Reducer<Text, LongWritable, Text, LongWritable> {
 
     private static Text numNodes = new Text(NUM_NODES);
     private static LongWritable one = new LongWritable(1L);
@@ -297,8 +309,8 @@ public class LinkRank
      * Outputs one for every node.
      */
     public void map(Text key, Node value,
-      OutputCollector<Text, LongWritable> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, LongWritable> output, Reporter reporter)
+        throws IOException {
       output.collect(numNodes, one);
     }
 
@@ -306,8 +318,8 @@ public class LinkRank
      * Totals the node number and outputs a single total value.
      */
     public void reduce(Text key, Iterator<LongWritable> values,
-      OutputCollector<Text, LongWritable> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, LongWritable> output, Reporter reporter)
+        throws IOException {
 
       long total = 0;
       while (values.hasNext()) {
@@ -320,8 +332,7 @@ public class LinkRank
     }
   }
 
-  private static class Initializer
-    implements Mapper<Text, Node, Text, Node> {
+  private static class Initializer implements Mapper<Text, Node, Text, Node> {
 
     private JobConf conf;
     private float initialScore = 1.0f;
@@ -332,8 +343,7 @@ public class LinkRank
     }
 
     public void map(Text key, Node node, OutputCollector<Text, Node> output,
-      Reporter reporter)
-      throws IOException {
+        Reporter reporter) throws IOException {
 
       String url = key.toString();
       Node outNode = WritableUtils.clone(node, conf);
@@ -351,9 +361,9 @@ public class LinkRank
    * WebGraph. The link analysis process consists of inverting, analyzing and
    * scoring, in a loop for a given number of iterations.
    */
-  private static class Inverter
-    implements Mapper<Text, Writable, Text, ObjectWritable>,
-    Reducer<Text, ObjectWritable, Text, LinkDatum> {
+  private static class Inverter implements
+      Mapper<Text, Writable, Text, ObjectWritable>,
+      Reducer<Text, ObjectWritable, Text, LinkDatum> {
 
     private JobConf conf;
 
@@ -365,8 +375,8 @@ public class LinkRank
      * Convert values to ObjectWritable
      */
     public void map(Text key, Writable value,
-      OutputCollector<Text, ObjectWritable> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, ObjectWritable> output, Reporter reporter)
+        throws IOException {
 
       ObjectWritable objWrite = new ObjectWritable();
       objWrite.set(value);
@@ -379,8 +389,8 @@ public class LinkRank
      * within the loopset.
      */
     public void reduce(Text key, Iterator<ObjectWritable> values,
-      OutputCollector<Text, LinkDatum> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, LinkDatum> output, Reporter reporter)
+        throws IOException {
 
       String fromUrl = key.toString();
       List<LinkDatum> outlinks = new ArrayList<LinkDatum>();
@@ -392,23 +402,25 @@ public class LinkRank
         ObjectWritable write = values.next();
         Object obj = write.get();
         if (obj instanceof Node) {
-          node = (Node)obj;
-        }
-        else if (obj instanceof LinkDatum) {
-          outlinks.add(WritableUtils.clone((LinkDatum)obj, conf));
-        }
-        else if (obj instanceof LoopSet) {
-          loops = (LoopSet)obj;
+          node = (Node) obj;
+        } else if (obj instanceof LinkDatum) {
+          outlinks.add(WritableUtils.clone((LinkDatum) obj, conf));
+        } else if (obj instanceof LoopSet) {
+          loops = (LoopSet) obj;
         }
       }
 
-      // Check for the possibility of a LoopSet object without Node and LinkDatum objects. This can happen
-      // with webgraphs that receive deletes (e.g. link.delete.gone and/or URL filters or normalizers) but
+      // Check for the possibility of a LoopSet object without Node and
+      // LinkDatum objects. This can happen
+      // with webgraphs that receive deletes (e.g. link.delete.gone and/or URL
+      // filters or normalizers) but
       // without an updated Loops database.
       // See: https://issues.apache.org/jira/browse/NUTCH-1299
       if (node == null && loops != null) {
         // Nothing to do
-        LOG.warn("LoopSet without Node object received for " + key.toString() + " . You should either not use Loops as input of the LinkRank program or rerun the Loops program over the WebGraph.");
+        LOG.warn("LoopSet without Node object received for "
+            + key.toString()
+            + " . You should either not use Loops as input of the LinkRank program or rerun the Loops program over the WebGraph.");
         return;
       }
 
@@ -430,7 +442,7 @@ public class LinkRank
           // remove any url that is contained in the loopset
           if (loopSet != null && loopSet.contains(toUrl)) {
             LOG.debug(fromUrl + ": Skipping inverting inlink from loop "
-              + toUrl);
+                + toUrl);
             continue;
           }
           outlink.setUrl(fromUrl);
@@ -439,8 +451,8 @@ public class LinkRank
           // collect the inverted outlink
           output.collect(new Text(toUrl), outlink);
           LOG.debug(toUrl + ": inverting inlink from " + fromUrl
-            + " origscore: " + inlinkScore + " numOutlinks: " + numOutlinks
-            + " inlinkscore: " + outlinkScore);
+              + " origscore: " + inlinkScore + " numOutlinks: " + numOutlinks
+              + " inlinkscore: " + outlinkScore);
         }
       }
     }
@@ -452,9 +464,9 @@ public class LinkRank
   /**
    * Runs a single link analysis iteration.
    */
-  private static class Analyzer
-    implements Mapper<Text, Writable, Text, ObjectWritable>,
-    Reducer<Text, ObjectWritable, Text, Node> {
+  private static class Analyzer implements
+      Mapper<Text, Writable, Text, ObjectWritable>,
+      Reducer<Text, ObjectWritable, Text, Node> {
 
     private JobConf conf;
     private float dampingFactor = 0.85f;
@@ -471,13 +483,13 @@ public class LinkRank
 
       try {
         this.conf = conf;
-        this.dampingFactor = conf.getFloat("link.analyze.damping.factor", 0.85f);
+        this.dampingFactor = conf
+            .getFloat("link.analyze.damping.factor", 0.85f);
         this.rankOne = conf.getFloat("link.analyze.rank.one", 0.0f);
         this.itNum = conf.getInt("link.analyze.iteration", 0);
         limitPages = conf.getBoolean("link.ignore.limit.page", true);
         limitDomains = conf.getBoolean("link.ignore.limit.domain", true);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         LOG.error(StringUtils.stringifyException(e));
         throw new IllegalArgumentException(e);
       }
@@ -487,8 +499,8 @@ public class LinkRank
      * Convert values to ObjectWritable
      */
     public void map(Text key, Writable value,
-      OutputCollector<Text, ObjectWritable> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, ObjectWritable> output, Reporter reporter)
+        throws IOException {
 
       ObjectWritable objWrite = new ObjectWritable();
       objWrite.set(WritableUtils.clone(value, conf));
@@ -500,8 +512,8 @@ public class LinkRank
      * stored in a temporary NodeDb which replaces the NodeDb of the WebGraph.
      */
     public void reduce(Text key, Iterator<ObjectWritable> values,
-      OutputCollector<Text, Node> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, Node> output, Reporter reporter)
+        throws IOException {
 
       String url = key.toString();
       Set<String> domains = new HashSet<String>();
@@ -517,11 +529,10 @@ public class LinkRank
         ObjectWritable next = values.next();
         Object value = next.get();
         if (value instanceof Node) {
-          node = (Node)value;
-        }
-        else if (value instanceof LinkDatum) {
+          node = (Node) value;
+        } else if (value instanceof LinkDatum) {
 
-          LinkDatum linkDatum = (LinkDatum)value;
+          LinkDatum linkDatum = (LinkDatum) value;
           float scoreFromInlink = linkDatum.getScore();
           String inlinkUrl = linkDatum.getUrl();
           String inLinkDomain = URLUtil.getDomainName(inlinkUrl);
@@ -529,9 +540,9 @@ public class LinkRank
 
           // limit counting duplicate inlinks by pages or domains
           if ((limitPages && pages.contains(inLinkPage))
-            || (limitDomains && domains.contains(inLinkDomain))) {
+              || (limitDomains && domains.contains(inLinkDomain))) {
             LOG.debug(url + ": ignoring " + scoreFromInlink + " from "
-              + inlinkUrl + ", duplicate page or domain");
+                + inlinkUrl + ", duplicate page or domain");
             continue;
           }
 
@@ -541,16 +552,16 @@ public class LinkRank
           domains.add(inLinkDomain);
           pages.add(inLinkPage);
           LOG.debug(url + ": adding " + scoreFromInlink + " from " + inlinkUrl
-            + ", total: " + totalInlinkScore);
+              + ", total: " + totalInlinkScore);
         }
       }
 
       // calculate linkRank score formula
       float linkRankScore = (1 - this.dampingFactor)
-        + (this.dampingFactor * totalInlinkScore);
+          + (this.dampingFactor * totalInlinkScore);
 
       LOG.debug(url + ": score: " + linkRankScore + " num inlinks: "
-        + numInlinks + " iteration: " + itNum);
+          + numInlinks + " iteration: " + itNum);
 
       // store the score in a temporary NodeDb
       Node outNode = WritableUtils.clone(node, conf);
@@ -558,8 +569,7 @@ public class LinkRank
       output.collect(key, outNode);
     }
 
-    public void close()
-      throws IOException {
+    public void close() throws IOException {
     }
   }
 
@@ -586,12 +596,13 @@ public class LinkRank
    * by default 10. And finally replaces the NodeDb in the WebGraph with the
    * link rank output.
    * 
-   * @param webGraphDb The WebGraph to run link analysis on.
+   * @param webGraphDb
+   *          The WebGraph to run link analysis on.
    * 
-   * @throws IOException If an error occurs during link analysis.
+   * @throws IOException
+   *           If an error occurs during link analysis.
    */
-  public void analyze(Path webGraphDb)
-    throws IOException {
+  public void analyze(Path webGraphDb) throws IOException {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -621,7 +632,7 @@ public class LinkRank
     // initialze all urls with a default score
     int numLinks = runCounter(fs, webGraphDb);
     runInitializer(wgNodeDb, nodeDb);
-    float rankOneScore = (1f / (float)numLinks);
+    float rankOneScore = (1f / (float) numLinks);
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Analysis: Number of links: " + numLinks);
@@ -634,9 +645,10 @@ public class LinkRank
     for (int i = 0; i < numIterations; i++) {
 
       // the input to inverting is always the previous output from analysis
-      LOG.info("Analysis: Starting iteration " + (i + 1) + " of " + numIterations);
+      LOG.info("Analysis: Starting iteration " + (i + 1) + " of "
+          + numIterations);
       Path tempRank = new Path(linkRank + "-"
-        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+          + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
       fs.mkdirs(tempRank);
       Path tempInverted = new Path(tempRank, "inverted");
       Path tempNodeDb = new Path(tempRank, WebGraph.NODE_DIR);
@@ -644,13 +656,13 @@ public class LinkRank
       // run invert and analysis
       runInverter(nodeDb, wgOutlinkDb, loopDb, tempInverted);
       runAnalysis(nodeDb, tempInverted, tempNodeDb, i, numIterations,
-        rankOneScore);
+          rankOneScore);
 
       // replace the temporary NodeDb with the output from analysis
       LOG.info("Analysis: Installing new link scores");
       FSUtils.replace(fs, linkRank, tempRank, true);
       LOG.info("Analysis: finished iteration " + (i + 1) + " of "
-        + numIterations);
+          + numIterations);
     }
 
     // replace the NodeDb in the WebGraph with the final output of analysis
@@ -660,11 +672,11 @@ public class LinkRank
     // remove the temporary link rank folder
     fs.delete(linkRank, true);
     long end = System.currentTimeMillis();
-    LOG.info("Analysis: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("Analysis: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
 
-  public static void main(String[] args)
-    throws Exception {
+  public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(NutchConfiguration.create(), new LinkRank(), args);
     System.exit(res);
   }
@@ -672,15 +684,14 @@ public class LinkRank
   /**
    * Runs the LinkRank tool.
    */
-  public int run(String[] args)
-    throws Exception {
+  public int run(String[] args) throws Exception {
 
     Options options = new Options();
     OptionBuilder.withArgName("help");
     OptionBuilder.withDescription("show this help message");
     Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
-    
+
     OptionBuilder.withArgName("webgraphdb");
     OptionBuilder.hasArg();
     OptionBuilder.withDescription("the web graph db to use");
@@ -701,8 +712,7 @@ public class LinkRank
 
       analyze(new Path(webGraphDb));
       return 0;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       LOG.error("LinkAnalysis: " + StringUtils.stringifyException(e));
       return -2;
     }

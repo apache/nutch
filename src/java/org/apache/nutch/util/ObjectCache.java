@@ -24,35 +24,33 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 
 public class ObjectCache {
-  
+
   private static final Logger LOG = LoggerFactory.getLogger(ObjectCache.class);
-  
-  private static final WeakHashMap<Configuration, ObjectCache> CACHE = 
-    new WeakHashMap<Configuration, ObjectCache>();
+
+  private static final WeakHashMap<Configuration, ObjectCache> CACHE = new WeakHashMap<Configuration, ObjectCache>();
 
   private final HashMap<String, Object> objectMap;
-  
+
   private ObjectCache() {
     objectMap = new HashMap<String, Object>();
   }
-  
+
   public synchronized static ObjectCache get(Configuration conf) {
     ObjectCache objectCache = CACHE.get(conf);
     if (objectCache == null) {
-      LOG.debug("No object cache found for conf=" + conf 
-                  + ", instantiating a new object cache");
+      LOG.debug("No object cache found for conf=" + conf
+          + ", instantiating a new object cache");
       objectCache = new ObjectCache();
       CACHE.put(conf, objectCache);
     }
     return objectCache;
   }
-  
+
   public synchronized Object getObject(String key) {
     return objectMap.get(key);
   }
-  
+
   public synchronized void setObject(String key, Object value) {
     objectMap.put(key, value);
   }
 }
-

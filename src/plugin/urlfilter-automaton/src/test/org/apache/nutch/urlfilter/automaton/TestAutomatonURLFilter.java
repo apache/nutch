@@ -26,10 +26,9 @@ import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 /**
  * JUnit based test of class <code>AutomatonURLFilter</code>.
- *
+ * 
  * @author J&eacute;r&ocirc;me Charron
  */
 public class TestAutomatonURLFilter extends RegexURLFilterBaseTest {
@@ -42,7 +41,7 @@ public class TestAutomatonURLFilter extends RegexURLFilterBaseTest {
       return null;
     }
   }
-  
+
   @Test
   public void test() {
     test("WholeWebCrawling");

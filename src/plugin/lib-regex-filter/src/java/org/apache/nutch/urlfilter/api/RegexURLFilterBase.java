@@ -37,28 +37,32 @@ import org.apache.hadoop.conf.Configuration;
 // Nutch imports
 import org.apache.nutch.net.*;
 
-
 /**
- * Generic {@link org.apache.nutch.net.URLFilter URL filter} based on
- * regular expressions.
- *
- * <p>The regular expressions rules are expressed in a file. The file of rules
- * is determined for each implementation using the
- * {@link #getRulesReader(Configuration conf)} method.</p>
+ * Generic {@link org.apache.nutch.net.URLFilter URL filter} based on regular
+ * expressions.
  * 
- * <p>The format of this file is made of many rules (one per line):<br/>
+ * <p>
+ * The regular expressions rules are expressed in a file. The file of rules is
+ * determined for each implementation using the
+ * {@link #getRulesReader(Configuration conf)} method.
+ * </p>
+ * 
+ * <p>
+ * The format of this file is made of many rules (one per line):<br/>
  * <code>
  * [+-]&lt;regex&gt;
  * </code><br/>
- * where plus (<code>+</code>)means go ahead and index it and minus 
- * (<code>-</code>)means no.</p>
- *
+ * where plus (<code>+</code>)means go ahead and index it and minus (
+ * <code>-</code>)means no.
+ * </p>
+ * 
  * @author J&eacute;r&ocirc;me Charron
  */
 public abstract class RegexURLFilterBase implements URLFilter {
 
   /** My logger */
-  private final static Logger LOG = LoggerFactory.getLogger(RegexURLFilterBase.class);
+  private final static Logger LOG = LoggerFactory
+      .getLogger(RegexURLFilterBase.class);
 
   /** An array of applicable rules */
   private List<RegexRule> rules;
@@ -66,24 +70,28 @@ public abstract class RegexURLFilterBase implements URLFilter {
   /** The current configuration */
   private Configuration conf;
 
-
   /**
    * Constructs a new empty RegexURLFilterBase
    */
-  public RegexURLFilterBase() { }
+  public RegexURLFilterBase() {
+  }
 
   /**
    * Constructs a new RegexURLFilter and init it with a file of rules.
-   * @param filename is the name of rules file.
+   * 
+   * @param filename
+   *          is the name of rules file.
    */
-  public RegexURLFilterBase(File filename)
-    throws IOException, IllegalArgumentException {
+  public RegexURLFilterBase(File filename) throws IOException,
+      IllegalArgumentException {
     this(new FileReader(filename));
   }
-  
+
   /**
    * Constructs a new RegexURLFilter and inits it with a list of rules.
-   * @param rules string with a list of rules, one rule per line
+   * 
+   * @param rules
+   *          string with a list of rules, one rule per line
    * @throws IOException
    * @throws IllegalArgumentException
    */
@@ -94,68 +102,82 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
   /**
    * Constructs a new RegexURLFilter and init it with a Reader of rules.
-   * @param reader is a reader of rules.
+   * 
+   * @param reader
+   *          is a reader of rules.
    */
-  protected RegexURLFilterBase(Reader reader)
-    throws IOException, IllegalArgumentException {
+  protected RegexURLFilterBase(Reader reader) throws IOException,
+      IllegalArgumentException {
     rules = readRules(reader);
   }
-  
+
   /**
    * Creates a new {@link RegexRule}.
-   * @param sign of the regular expression.
-   *        A <code>true</code> value means that any URL matching this rule
-   *        must be included, whereas a <code>false</code>
-   *        value means that any URL matching this rule must be excluded.
-   * @param regex is the regular expression associated to this rule.
+   * 
+   * @param sign
+   *          of the regular expression. A <code>true</code> value means that
+   *          any URL matching this rule must be included, whereas a
+   *          <code>false</code> value means that any URL matching this rule
+   *          must be excluded.
+   * @param regex
+   *          is the regular expression associated to this rule.
    */
   protected abstract RegexRule createRule(boolean sign, String regex);
-  
+
   /**
-   * Returns the name of the file of rules to use for
-   * a particular implementation.
-   * @param conf is the current configuration.
+   * Returns the name of the file of rules to use for a particular
+   * implementation.
+   * 
+   * @param conf
+   *          is the current configuration.
    * @return the name of the resource containing the rules to use.
    */
-  protected abstract Reader getRulesReader(Configuration conf) throws IOException;
-  
-  
-  /* -------------------------- *
-   * <implementation:URLFilter> *
-   * -------------------------- */
-  
+  protected abstract Reader getRulesReader(Configuration conf)
+      throws IOException;
+
+  /*
+   * -------------------------- * <implementation:URLFilter> *
+   * --------------------------
+   */
+
   // Inherited Javadoc
   public String filter(String url) {
     for (RegexRule rule : rules) {
       if (rule.match(url)) {
         return rule.accept() ? url : null;
       }
-    };
+    }
+    ;
     return null;
   }
 
-  /* --------------------------- *
-   * </implementation:URLFilter> *
-   * --------------------------- */
-  
-  
-  /* ----------------------------- *
-   * <implementation:Configurable> *
-   * ----------------------------- */
-  
+  /*
+   * --------------------------- * </implementation:URLFilter> *
+   * ---------------------------
+   */
+
+  /*
+   * ----------------------------- * <implementation:Configurable> *
+   * -----------------------------
+   */
+
   public void setConf(Configuration conf) {
     this.conf = conf;
     Reader reader = null;
     try {
       reader = getRulesReader(conf);
     } catch (Exception e) {
-      if (LOG.isErrorEnabled()) { LOG.error(e.getMessage()); }
-      throw new RuntimeException(e.getMessage(), e);      
+      if (LOG.isErrorEnabled()) {
+        LOG.error(e.getMessage());
+      }
+      throw new RuntimeException(e.getMessage(), e);
     }
     try {
       rules = readRules(reader);
     } catch (IOException e) {
-      if (LOG.isErrorEnabled()) { LOG.error(e.getMessage()); }
+      if (LOG.isErrorEnabled()) {
+        LOG.error(e.getMessage());
+      }
       throw new RuntimeException(e.getMessage(), e);
     }
   }
@@ -163,45 +185,51 @@ public abstract class RegexURLFilterBase implements URLFilter {
   public Configuration getConf() {
     return this.conf;
   }
-  
-  /* ------------------------------ *
-   * </implementation:Configurable> *
-   * ------------------------------ */
-  
+
+  /*
+   * ------------------------------ * </implementation:Configurable> *
+   * ------------------------------
+   */
 
   /**
    * Read the specified file of rules.
-   * @param reader is a reader of regular expressions rules.
+   * 
+   * @param reader
+   *          is a reader of regular expressions rules.
    * @return the corresponding {@RegexRule rules}.
    */
-  private List<RegexRule> readRules(Reader reader)
-    throws IOException, IllegalArgumentException {
+  private List<RegexRule> readRules(Reader reader) throws IOException,
+      IllegalArgumentException {
 
     BufferedReader in = new BufferedReader(reader);
     List<RegexRule> rules = new ArrayList<RegexRule>();
     String line;
-       
-    while((line=in.readLine())!=null) {
+
+    while ((line = in.readLine()) != null) {
       if (line.length() == 0) {
         continue;
       }
-      char first=line.charAt(0);
-      boolean sign=false;
+      char first = line.charAt(0);
+      boolean sign = false;
       switch (first) {
-      case '+' : 
-        sign=true;
+      case '+':
+        sign = true;
         break;
-      case '-' :
-        sign=false;
+      case '-':
+        sign = false;
         break;
-      case ' ' : case '\n' : case '#' :           // skip blank & comment lines
+      case ' ':
+      case '\n':
+      case '#': // skip blank & comment lines
         continue;
-      default :
-        throw new IOException("Invalid first character: "+line);
+      default:
+        throw new IOException("Invalid first character: " + line);
       }
 
       String regex = line.substring(1);
-      if (LOG.isTraceEnabled()) { LOG.trace("Adding rule [" + regex + "]"); }
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("Adding rule [" + regex + "]");
+      }
       RegexRule rule = createRule(sign, regex);
       rules.add(rule);
     }
@@ -210,18 +238,20 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
   /**
    * Filter the standard input using a RegexURLFilterBase.
-   * @param filter is the RegexURLFilterBase to use for filtering the
-   *        standard input.
-   * @param args some optional parameters (not used).
+   * 
+   * @param filter
+   *          is the RegexURLFilterBase to use for filtering the standard input.
+   * @param args
+   *          some optional parameters (not used).
    */
   public static void main(RegexURLFilterBase filter, String args[])
-    throws IOException, IllegalArgumentException {
+      throws IOException, IllegalArgumentException {
 
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String line;
-    while((line=in.readLine())!=null) {
+    while ((line = in.readLine()) != null) {
       String out = filter.filter(line);
-      if (out!=null) {
+      if (out != null) {
         System.out.print("+");
         System.out.println(out);
       } else {

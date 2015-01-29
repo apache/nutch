@@ -19,8 +19,6 @@ package org.apache.nutch.analysis.lang;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-
-
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
@@ -30,7 +28,6 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.tika.language.LanguageIdentifier;
 import org.junit.Assert;
 import org.junit.Test;
-
 
 public class TestHTMLLanguageParser {
 
@@ -47,7 +44,7 @@ public class TestHTMLLanguageParser {
   String metalanguages[] = { "fi", "en", "en" };
 
   /**
-   * Test parsing of language identifiers from html 
+   * Test parsing of language identifiers from html
    **/
   @Test
   public void testMetaHTMLParsing() {
@@ -58,7 +55,8 @@ public class TestHTMLLanguageParser {
       for (int t = 0; t < docs.length; t++) {
         Content content = getContent(docs[t]);
         Parse parse = parser.parse(content).get(content.getUrl());
-        Assert.assertEquals(metalanguages[t], (String) parse.getData().getParseMeta().get(Metadata.LANGUAGE));
+        Assert.assertEquals(metalanguages[t], (String) parse.getData()
+            .getParseMeta().get(Metadata.LANGUAGE));
       }
     } catch (Exception e) {
       e.printStackTrace(System.out);
@@ -70,65 +68,38 @@ public class TestHTMLLanguageParser {
   /** Test of <code>LanguageParser.parseLanguage(String)</code> method. */
   @Test
   public void testParseLanguage() {
-    String tests[][] = {
-      { "(SCHEME=ISO.639-1) sv", "sv" },
-      { "(SCHEME=RFC1766) sv-FI", "sv" },
-      { "(SCHEME=Z39.53) SWE", "sv" },
-      { "EN_US, SV, EN, EN_UK", "en" },
-      { "English Swedish", "en" },
-      { "English, swedish", "en" },
-      { "English,Swedish", "en" },
-      { "Other (Svenska)", "sv" },
-      { "SE", "se" },
-      { "SV", "sv" },
-      { "SV charset=iso-8859-1", "sv" },
-      { "SV-FI", "sv" },
-      { "SV; charset=iso-8859-1", "sv" },
-      { "SVE", "sv" },
-      { "SW", "sw" },
-      { "SWE", "sv" },
-      { "SWEDISH", "sv" },
-      { "Sv", "sv" },
-      { "Sve", "sv" },
-      { "Svenska", "sv" },
-      { "Swedish", "sv" },
-      { "Swedish, svenska", "sv" },
-      { "en, sv", "en" },
-      { "sv", "sv" },
-      { "sv, be, dk, de, fr, no, pt, ch, fi, en", "sv" },
-      { "sv,en", "sv" },
-      { "sv-FI", "sv" },
-      { "sv-SE", "sv" },
-      { "sv-en", "sv" },
-      { "sv-fi", "sv" },
-      { "sv-se", "sv" },
-      { "sv; Content-Language: sv", "sv" },
-      { "sv_SE", "sv" },
-      { "sve", "sv" },
-      { "svenska, swedish, engelska, english", "sv" },
-      { "sw", "sw" },
-      { "swe", "sv" },
-      { "swe.SPR.", "sv" },
-      { "sweden", "sv" },
-      { "swedish", "sv" },
-      { "swedish,", "sv" },
-      { "text/html; charset=sv-SE", "sv" },
-      { "text/html; sv", "sv" },
-      { "torp, stuga, uthyres, bed & breakfast", null }
-    };
-    
-    for (int i=0; i<44; i++) {
-      Assert.assertEquals(tests[i][1], HTMLLanguageParser.LanguageParser.parseLanguage(tests[i][0]));
+    String tests[][] = { { "(SCHEME=ISO.639-1) sv", "sv" },
+        { "(SCHEME=RFC1766) sv-FI", "sv" }, { "(SCHEME=Z39.53) SWE", "sv" },
+        { "EN_US, SV, EN, EN_UK", "en" }, { "English Swedish", "en" },
+        { "English, swedish", "en" }, { "English,Swedish", "en" },
+        { "Other (Svenska)", "sv" }, { "SE", "se" }, { "SV", "sv" },
+        { "SV charset=iso-8859-1", "sv" }, { "SV-FI", "sv" },
+        { "SV; charset=iso-8859-1", "sv" }, { "SVE", "sv" }, { "SW", "sw" },
+        { "SWE", "sv" }, { "SWEDISH", "sv" }, { "Sv", "sv" }, { "Sve", "sv" },
+        { "Svenska", "sv" }, { "Swedish", "sv" }, { "Swedish, svenska", "sv" },
+        { "en, sv", "en" }, { "sv", "sv" },
+        { "sv, be, dk, de, fr, no, pt, ch, fi, en", "sv" }, { "sv,en", "sv" },
+        { "sv-FI", "sv" }, { "sv-SE", "sv" }, { "sv-en", "sv" },
+        { "sv-fi", "sv" }, { "sv-se", "sv" },
+        { "sv; Content-Language: sv", "sv" }, { "sv_SE", "sv" },
+        { "sve", "sv" }, { "svenska, swedish, engelska, english", "sv" },
+        { "sw", "sw" }, { "swe", "sv" }, { "swe.SPR.", "sv" },
+        { "sweden", "sv" }, { "swedish", "sv" }, { "swedish,", "sv" },
+        { "text/html; charset=sv-SE", "sv" }, { "text/html; sv", "sv" },
+        { "torp, stuga, uthyres, bed & breakfast", null } };
+
+    for (int i = 0; i < 44; i++) {
+      Assert.assertEquals(tests[i][1],
+          HTMLLanguageParser.LanguageParser.parseLanguage(tests[i][0]));
     }
   }
-  
-  
+
   private Content getContent(String text) {
     Metadata meta = new Metadata();
     meta.add("Content-Type", "text/html");
-    return new Content(URL, BASE, text.getBytes(), "text/html", meta, NutchConfiguration.create());
+    return new Content(URL, BASE, text.getBytes(), "text/html", meta,
+        NutchConfiguration.create());
   }
-  
 
   @Test
   public void testLanguageIndentifier() {

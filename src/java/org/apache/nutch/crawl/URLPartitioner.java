@@ -33,8 +33,9 @@ import org.apache.nutch.util.URLUtil;
  * Partition urls by host, domain name or IP depending on the value of the
  * parameter 'partition.url.mode' which can be 'byHost', 'byDomain' or 'byIP'
  */
-public class URLPartitioner implements Partitioner<Text,Writable> {
-  private static final Logger LOG = LoggerFactory.getLogger(URLPartitioner.class);
+public class URLPartitioner implements Partitioner<Text, Writable> {
+  private static final Logger LOG = LoggerFactory
+      .getLogger(URLPartitioner.class);
 
   public static final String PARTITION_MODE_KEY = "partition.url.mode";
 
@@ -58,7 +59,8 @@ public class URLPartitioner implements Partitioner<Text,Writable> {
     normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_PARTITION);
   }
 
-  public void close() {}
+  public void close() {
+  }
 
   /** Hash by domain name. */
   public int getPartition(Text key, Writable value, int numReduceTasks) {
@@ -66,15 +68,16 @@ public class URLPartitioner implements Partitioner<Text,Writable> {
     URL url = null;
     int hashCode = urlString.hashCode();
     try {
-      urlString = normalizers.normalize(urlString, URLNormalizers.SCOPE_PARTITION);
+      urlString = normalizers.normalize(urlString,
+          URLNormalizers.SCOPE_PARTITION);
       url = new URL(urlString);
       hashCode = url.getHost().hashCode();
     } catch (MalformedURLException e) {
       LOG.warn("Malformed URL: '" + urlString + "'");
     }
 
-    if (mode.equals(PARTITION_MODE_DOMAIN) && url != null) hashCode = URLUtil
-        .getDomainName(url).hashCode();
+    if (mode.equals(PARTITION_MODE_DOMAIN) && url != null)
+      hashCode = URLUtil.getDomainName(url).hashCode();
     else if (mode.equals(PARTITION_MODE_IP)) {
       try {
         InetAddress address = InetAddress.getByName(url.getHost());

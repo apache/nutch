@@ -44,12 +44,13 @@ import org.apache.nutch.protocol.Content;
 import org.apache.tika.Tika;
 
 /**
- *
+ * 
  * @author Rohit Kulkarni & Ashish Vaidya
  */
 public class ZipTextExtractor {
-  
-  public static final Logger LOG = LoggerFactory.getLogger(ZipTextExtractor.class);
+
+  public static final Logger LOG = LoggerFactory
+      .getLogger(ZipTextExtractor.class);
 
   private Configuration conf;
 
@@ -57,21 +58,22 @@ public class ZipTextExtractor {
   public ZipTextExtractor(Configuration conf) {
     this.conf = conf;
   }
-  
-  public String extractText(InputStream input, String url, List<Outlink> outLinksList) throws IOException {
+
+  public String extractText(InputStream input, String url,
+      List<Outlink> outLinksList) throws IOException {
     String resultText = "";
     ZipInputStream zin = new ZipInputStream(input);
     ZipEntry entry;
-    
+
     while ((entry = zin.getNextEntry()) != null) {
-      
+
       if (!entry.isDirectory()) {
         int size = (int) entry.getSize();
         byte[] b = new byte[size];
-        for(int x = 0; x < size; x++) {
+        for (int x = 0; x < size; x++) {
           int err = zin.read();
-          if(err != -1) {
-            b[x] = (byte)err;
+          if (err != -1) {
+            b[x] = (byte) err;
           }
         }
         String newurl = url + "/";
@@ -86,29 +88,33 @@ public class ZipTextExtractor {
           String contentType = tika.detect(fname);
           try {
             Metadata metadata = new Metadata();
-            metadata.set(Response.CONTENT_LENGTH, Long.toString(entry.getSize()));
+            metadata.set(Response.CONTENT_LENGTH,
+                Long.toString(entry.getSize()));
             metadata.set(Response.CONTENT_TYPE, contentType);
-            Content content = new Content(newurl, base, b, contentType, metadata, this.conf);
-            Parse parse = new ParseUtil(this.conf).parse(content).get(content.getUrl());
+            Content content = new Content(newurl, base, b, contentType,
+                metadata, this.conf);
+            Parse parse = new ParseUtil(this.conf).parse(content).get(
+                content.getUrl());
             ParseData theParseData = parse.getData();
             Outlink[] theOutlinks = theParseData.getOutlinks();
-            
-            for(int count = 0; count < theOutlinks.length; count++) {
-              outLinksList.add(new Outlink(theOutlinks[count].getToUrl(), theOutlinks[count].getAnchor()));
+
+            for (int count = 0; count < theOutlinks.length; count++) {
+              outLinksList.add(new Outlink(theOutlinks[count].getToUrl(),
+                  theOutlinks[count].getAnchor()));
             }
-            
+
             resultText += entry.getName() + " " + parse.getText() + " ";
           } catch (ParseException e) {
-            if (LOG.isInfoEnabled()) { 
-              LOG.info("fetch okay, but can't parse " + fname + ", reason: " + e.getMessage());
+            if (LOG.isInfoEnabled()) {
+              LOG.info("fetch okay, but can't parse " + fname + ", reason: "
+                  + e.getMessage());
             }
           }
         }
       }
     }
-    
+
     return resultText;
   }
-  
-}
 
+}

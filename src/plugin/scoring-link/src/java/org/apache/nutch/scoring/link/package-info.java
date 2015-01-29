@@ -20,3 +20,4 @@
  * {@link org.apache.nutch.scoring.webgraph.WebGraph}.
  */
 package org.apache.nutch.scoring.link;
+

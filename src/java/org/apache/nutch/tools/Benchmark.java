@@ -52,13 +52,14 @@ public class Benchmark extends Configured implements Tool {
     int res = ToolRunner.run(conf, new Benchmark(), args);
     System.exit(res);
   }
-  
+
   private static String getDate() {
-    return new SimpleDateFormat("yyyyMMddHHmmss").format
-      (new Date(System.currentTimeMillis()));
+    return new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(System
+        .currentTimeMillis()));
   }
- 
-  private void createSeeds(FileSystem fs, Path seedsDir, int count) throws Exception {
+
+  private void createSeeds(FileSystem fs, Path seedsDir, int count)
+      throws Exception {
     OutputStream os = fs.create(new Path(seedsDir, "seeds"));
     for (int i = 0; i < count; i++) {
       String url = "http://www.test-" + i + ".com/\r\n";
@@ -67,9 +68,9 @@ public class Benchmark extends Configured implements Tool {
     os.flush();
     os.close();
   }
-  
+
   public static final class BenchmarkResults {
-    Map<String,Map<String,Long>> timings = new HashMap<String,Map<String,Long>>();
+    Map<String, Map<String, Long>> timings = new HashMap<String, Map<String, Long>>();
     List<String> runs = new ArrayList<String>();
     List<String> stages = new ArrayList<String>();
     int seeds, depth, threads;
@@ -77,7 +78,7 @@ public class Benchmark extends Configured implements Tool {
     long topN;
     long elapsed;
     String plugins;
-    
+
     public void addTiming(String stage, String run, long timing) {
       if (!runs.contains(run)) {
         runs.add(run);
@@ -85,14 +86,14 @@ public class Benchmark extends Configured implements Tool {
       if (!stages.contains(stage)) {
         stages.add(stage);
       }
-      Map<String,Long> t = timings.get(stage);
+      Map<String, Long> t = timings.get(stage);
       if (t == null) {
-        t = new HashMap<String,Long>();
+        t = new HashMap<String, Long>();
         timings.put(stage, t);
       }
       t.put(run, timing);
     }
-    
+
     public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append("* Plugins:\t" + plugins + "\n");
@@ -103,8 +104,9 @@ public class Benchmark extends Configured implements Tool {
       sb.append("* Delete:\t" + delete + "\n");
       sb.append("* TOTAL ELAPSED:\t" + elapsed + "\n");
       for (String stage : stages) {
-        Map<String,Long> timing = timings.get(stage);
-        if (timing == null) continue;
+        Map<String, Long> timing = timings.get(stage);
+        if (timing == null)
+          continue;
         sb.append("- stage: " + stage + "\n");
         for (String r : runs) {
           Long Time = timing.get(r);
@@ -116,15 +118,16 @@ public class Benchmark extends Configured implements Tool {
       }
       return sb.toString();
     }
-    
+
     public List<String> getStages() {
       return stages;
     }
+
     public List<String> getRuns() {
       return runs;
     }
   }
-  
+
   public int run(String[] args) throws Exception {
     String plugins = "protocol-http|parse-tika|scoring-opic|urlfilter-regex|urlnormalizer-pass";
     int seeds = 1;
@@ -132,17 +135,24 @@ public class Benchmark extends Configured implements Tool {
     int threads = 10;
     boolean delete = true;
     long topN = Long.MAX_VALUE;
-    
+
     if (args.length == 0) {
-      System.err.println("Usage: Benchmark [-seeds NN] [-depth NN] [-threads NN] [-keep] [-maxPerHost NN] [-plugins <regex>]");
-      System.err.println("\t-seeds NN\tcreate NN unique hosts in a seed list (default: 1)");
+      System.err
+          .println("Usage: Benchmark [-seeds NN] [-depth NN] [-threads NN] [-keep] [-maxPerHost NN] [-plugins <regex>]");
+      System.err
+          .println("\t-seeds NN\tcreate NN unique hosts in a seed list (default: 1)");
       System.err.println("\t-depth NN\tperform NN crawl cycles (default: 10)");
-      System.err.println("\t-threads NN\tuse NN threads per Fetcher task (default: 10)");
-      System.err.println("\t-keep\tkeep segment data (default: delete after updatedb)");
+      System.err
+          .println("\t-threads NN\tuse NN threads per Fetcher task (default: 10)");
+      System.err
+          .println("\t-keep\tkeep segment data (default: delete after updatedb)");
       System.err.println("\t-plugins <regex>\toverride 'plugin.includes'.");
-      System.err.println("\tNOTE: if not specified, this is reset to: " + plugins);
-      System.err.println("\tNOTE: if 'default' is specified then a value set in nutch-default/nutch-site is used.");
-      System.err.println("\t-maxPerHost NN\tmax. # of URLs per host in a fetchlist");
+      System.err.println("\tNOTE: if not specified, this is reset to: "
+          + plugins);
+      System.err
+          .println("\tNOTE: if 'default' is specified then a value set in nutch-default/nutch-site is used.");
+      System.err
+          .println("\t-maxPerHost NN\tmax. # of URLs per host in a fetchlist");
       return -1;
     }
     int maxPerHost = Integer.MAX_VALUE;
@@ -164,13 +174,15 @@ public class Benchmark extends Configured implements Tool {
         return -1;
       }
     }
-    BenchmarkResults res = benchmark(seeds, depth, threads, maxPerHost, topN, delete, plugins);
+    BenchmarkResults res = benchmark(seeds, depth, threads, maxPerHost, topN,
+        delete, plugins);
     System.out.println(res);
     return 0;
   }
-  
-  public BenchmarkResults benchmark(int seeds, int depth, int threads, int maxPerHost,
-        long topN, boolean delete, String plugins) throws Exception {
+
+  public BenchmarkResults benchmark(int seeds, int depth, int threads,
+      int maxPerHost, long topN, boolean delete, String plugins)
+      throws Exception {
     Configuration conf = getConf();
     conf.set("http.proxy.host", "localhost");
     conf.setInt("http.proxy.port", 8181);
@@ -180,11 +192,12 @@ public class Benchmark extends Configured implements Tool {
       conf.set("plugin.includes", plugins);
     }
     conf.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
-    conf.set(Generator.GENERATOR_COUNT_MODE, Generator.GENERATOR_COUNT_VALUE_HOST);
-    JobConf job = new NutchJob(getConf());    
+    conf.set(Generator.GENERATOR_COUNT_MODE,
+        Generator.GENERATOR_COUNT_VALUE_HOST);
+    JobConf job = new NutchJob(getConf());
     FileSystem fs = FileSystem.get(job);
-    Path dir = new Path(getConf().get("hadoop.tmp.dir"),
-            "bench-" + System.currentTimeMillis());
+    Path dir = new Path(getConf().get("hadoop.tmp.dir"), "bench-"
+        + System.currentTimeMillis());
     fs.mkdirs(dir);
     Path rootUrlDir = new Path(dir, "seed");
     fs.mkdirs(rootUrlDir);
@@ -194,7 +207,7 @@ public class Benchmark extends Configured implements Tool {
       LOG.info("crawl started in: " + dir);
       LOG.info("rootUrlDir = " + rootUrlDir);
       LOG.info("threads = " + threads);
-      LOG.info("depth = " + depth);      
+      LOG.info("depth = " + depth);
     }
     BenchmarkResults res = new BenchmarkResults();
     res.delete = delete;
@@ -213,17 +226,17 @@ public class Benchmark extends Configured implements Tool {
     ParseSegment parseSegment = new ParseSegment(getConf());
     CrawlDb crawlDbTool = new CrawlDb(getConf());
     LinkDb linkDbTool = new LinkDb(getConf());
-      
+
     // initialize crawlDb
     long start = System.currentTimeMillis();
     injector.inject(crawlDb, rootUrlDir);
     long delta = System.currentTimeMillis() - start;
     res.addTiming("inject", "0", delta);
     int i;
-    for (i = 0; i < depth; i++) {             // generate new segment
+    for (i = 0; i < depth; i++) { // generate new segment
       start = System.currentTimeMillis();
-      Path[] segs = generator.generate(crawlDb, segments, -1, topN, System
-          .currentTimeMillis());
+      Path[] segs = generator.generate(crawlDb, segments, -1, topN,
+          System.currentTimeMillis());
       delta = System.currentTimeMillis() - start;
       res.addTiming("generate", i + "", delta);
       if (segs == null) {
@@ -231,12 +244,12 @@ public class Benchmark extends Configured implements Tool {
         break;
       }
       start = System.currentTimeMillis();
-      fetcher.fetch(segs[0], threads);  // fetch it
+      fetcher.fetch(segs[0], threads); // fetch it
       delta = System.currentTimeMillis() - start;
       res.addTiming("fetch", i + "", delta);
       if (!Fetcher.isParsing(job)) {
         start = System.currentTimeMillis();
-        parseSegment.parse(segs[0]);    // parse it, if needed
+        parseSegment.parse(segs[0]); // parse it, if needed
         delta = System.currentTimeMillis() - start;
         res.addTiming("parse", i + "", delta);
       }
@@ -258,7 +271,9 @@ public class Benchmark extends Configured implements Tool {
     if (i == 0) {
       LOG.warn("No URLs to fetch - check your seed list and URL filters.");
     }
-    if (LOG.isInfoEnabled()) { LOG.info("crawl finished: " + dir); }
+    if (LOG.isInfoEnabled()) {
+      LOG.info("crawl finished: " + dir);
+    }
     res.elapsed = System.currentTimeMillis() - res.elapsed;
     CrawlDbReader dbreader = new CrawlDbReader();
     dbreader.processStatJob(crawlDb.toString(), conf, false);

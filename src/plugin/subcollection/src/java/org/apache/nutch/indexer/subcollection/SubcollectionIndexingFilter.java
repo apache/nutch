@@ -35,21 +35,22 @@ import org.apache.nutch.collection.Subcollection;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 
-
-public class SubcollectionIndexingFilter extends Configured implements IndexingFilter {
+public class SubcollectionIndexingFilter extends Configured implements
+    IndexingFilter {
 
   private Configuration conf;
 
-  public SubcollectionIndexingFilter(){
+  public SubcollectionIndexingFilter() {
     super(NutchConfiguration.create());
   }
-  
+
   public SubcollectionIndexingFilter(Configuration conf) {
     super(conf);
   }
-  
+
   /**
-   * @param Configuration conf
+   * @param Configuration
+   *          conf
    */
   public void setConf(Configuration conf) {
     this.conf = conf;
@@ -63,7 +64,6 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
     return this.conf;
   }
 
-  
   /**
    * Doc field name
    */
@@ -72,7 +72,8 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
   /**
    * Logger
    */
-  public static final Logger LOG = LoggerFactory.getLogger(SubcollectionIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(SubcollectionIndexingFilter.class);
 
   /**
    * "Mark" document to be a part of subcollection
@@ -81,7 +82,8 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
    * @param url
    */
   private void addSubCollectionField(NutchDocument doc, String url) {
-    for (Subcollection coll : CollectionManager.getCollectionManager(getConf()).getSubCollections(url)) {
+    for (Subcollection coll : CollectionManager.getCollectionManager(getConf())
+        .getSubCollections(url)) {
       if (coll.getKey() == null) {
         doc.add(fieldName, coll.getName());
       } else {
@@ -90,7 +92,8 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
     }
   }
 
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
     String sUrl = url.toString();
     addSubCollectionField(doc, sUrl);
     return doc;

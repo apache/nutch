@@ -31,20 +31,20 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** 
+/**
  * Based on Unit tests for MSWordParser by John Xing
- *
+ * 
  * @author Rohit Kulkarni & Ashish Vaidya
  */
 public class TestZipParser {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data",".");
-  
+  private String sampleDir = System.getProperty("test.data", ".");
+
   // Make sure sample files are copied to "test.data"
-  
-  private String[] sampleFiles = {"test.zip"};
+
+  private String[] sampleFiles = { "test.zip" };
 
   private String expectedText = "textfile.txt This is text file number 1 ";
 
@@ -60,8 +60,10 @@ public class TestZipParser {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
-      content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByExtensionId("parse-zip",content).get(content.getUrl());
+      content = protocol.getProtocolOutput(new Text(urlString),
+          new CrawlDatum()).getContent();
+      parse = new ParseUtil(conf).parseByExtensionId("parse-zip", content).get(
+          content.getUrl());
       Assert.assertTrue(parse.getText().equals(expectedText));
     }
   }

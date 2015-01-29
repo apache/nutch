@@ -37,7 +37,8 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class ProtocolFactory {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ProtocolFactory.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(ProtocolFactory.class);
 
   private ExtensionPoint extensionPoint;
 

@@ -45,24 +45,24 @@ import org.apache.hadoop.conf.Configuration;
 
 /**
  * Adds microformat rel-tags of document if found.
- *
+ * 
  * @see <a href="http://www.microformats.org/wiki/rel-tag">
  *      http://www.microformats.org/wiki/rel-tag</a>
  */
 public class RelTagParser implements HtmlParseFilter {
-  
+
   public final static Logger LOG = LoggerFactory.getLogger(RelTagParser.class);
 
   public final static String REL_TAG = "Rel-Tag";
-  
+
   private Configuration conf = null;
-  
+
   /**
    * Scan the HTML document looking at possible rel-tags
    */
   public ParseResult filter(Content content, ParseResult parseResult,
-    HTMLMetaTags metaTags, DocumentFragment doc) {
-    
+      HTMLMetaTags metaTags, DocumentFragment doc) {
+
     // get parse obj
     Parse parse = parseResult.get(content.getUrl());
     // Trying to find the document's rel-tags
@@ -79,16 +79,16 @@ public class RelTagParser implements HtmlParseFilter {
   private static class Parser {
 
     Set<String> tags = null;
-    
+
     Parser(Node node) {
       tags = new TreeSet<String>();
       parse(node);
     }
-  
+
     Set<String> getRelTags() {
       return tags;
     }
-    
+
     void parse(Node node) {
 
       if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -105,7 +105,7 @@ public class RelTagParser implements HtmlParseFilter {
               if ("tag".equalsIgnoreCase(relNode.getNodeValue())) {
                 String tag = parseTag(hrefNode.getNodeValue());
                 if (!StringUtil.isEmpty(tag)) {
-                  if(!tags.contains(tag)){
+                  if (!tags.contains(tag)) {
                     tags.add(tag);
                     LOG.debug("Adding tag: " + tag + " to tag set.");
                   }
@@ -115,26 +115,27 @@ public class RelTagParser implements HtmlParseFilter {
           }
         }
       }
-      
+
       // Recurse
       NodeList children = node.getChildNodes();
-      for (int i=0; children != null && i<children.getLength(); i++)
+      for (int i = 0; children != null && i < children.getLength(); i++)
         parse(children.item(i));
     }
-    
+
     private final static String parseTag(String url) {
       String tag = null;
       try {
         URL u = new URL(url);
         String path = u.getPath();
-        tag = URLDecoder.decode(path.substring(path.lastIndexOf('/') + 1), "UTF-8");
+        tag = URLDecoder.decode(path.substring(path.lastIndexOf('/') + 1),
+            "UTF-8");
       } catch (Exception e) {
         // Malformed tag...
         tag = null;
       }
       return tag;
     }
-    
+
   }
 
   public void setConf(Configuration conf) {

@@ -35,9 +35,9 @@ import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.util.domain.DomainSuffix;
 import org.apache.nutch.util.domain.DomainSuffixes;
 
-
 /**
  * Scoring filter to boost tlds.
+ * 
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
  */
 public class TLDScoringFilter implements ScoringFilter {
@@ -56,10 +56,10 @@ public class TLDScoringFilter implements ScoringFilter {
     NutchField tlds = doc.getField("tld");
     float boost = 1.0f;
 
-    if(tlds != null) {
-      for(Object tld : tlds.getValues()) {
+    if (tlds != null) {
+      for (Object tld : tlds.getValues()) {
         DomainSuffix entry = tldEntries.get(tld.toString());
-        if(entry != null)
+        if (entry != null)
           boost *= entry.getBoost();
       }
     }
@@ -93,9 +93,8 @@ public class TLDScoringFilter implements ScoringFilter {
       throws ScoringFilterException {
   }
 
-  public void updateDbScore(Text url, CrawlDatum old,
-                            CrawlDatum datum, List<CrawlDatum> inlinked)
-  throws ScoringFilterException {
+  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
+      List<CrawlDatum> inlinked) throws ScoringFilterException {
   }
 
   public Configuration getConf() {
@@ -105,9 +104,10 @@ public class TLDScoringFilter implements ScoringFilter {
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
-  public CrawlDatum distributeScoreToOutlinks(Text fromUrl, ParseData parseData, 
-          Collection<Entry<Text, CrawlDatum>> targets, CrawlDatum adjust,
-          int allCount) throws ScoringFilterException {
+
+  public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
+      ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
+      CrawlDatum adjust, int allCount) throws ScoringFilterException {
     return adjust;
   }
 

@@ -43,28 +43,28 @@ import org.apache.nutch.parse.*;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.*;
 
-
 /** The fetcher. Most of the work is done by plugins. */
-public class OldFetcher extends Configured implements Tool, MapRunnable<WritableComparable<?>, Writable, Text, NutchWritable> { 
+public class OldFetcher extends Configured implements Tool,
+    MapRunnable<WritableComparable<?>, Writable, Text, NutchWritable> {
 
   public static final Logger LOG = LoggerFactory.getLogger(OldFetcher.class);
-  
+
   public static final int PERM_REFRESH_TIME = 5;
 
   public static final String CONTENT_REDIR = "content";
 
   public static final String PROTOCOL_REDIR = "protocol";
 
-  public static class InputFormat extends SequenceFileInputFormat<WritableComparable<?>, Writable> {
+  public static class InputFormat extends
+      SequenceFileInputFormat<WritableComparable<?>, Writable> {
     /** Don't split inputs, to keep things polite. */
-    public InputSplit[] getSplits(JobConf job, int nSplits)
-      throws IOException {
+    public InputSplit[] getSplits(JobConf job, int nSplits) throws IOException {
       FileStatus[] files = listStatus(job);
       InputSplit[] splits = new InputSplit[files.length];
       for (int i = 0; i < files.length; i++) {
         FileStatus cur = files[i];
-        splits[i] = new FileSplit(cur.getPath(), 0,
-            cur.getLen(), (String[])null);
+        splits[i] = new FileSplit(cur.getPath(), 0, cur.getLen(),
+            (String[]) null);
       }
       return splits;
     }
@@ -81,9 +81,9 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
   private long start = System.currentTimeMillis(); // start time of fetcher run
   private long lastRequestStart = start;
 
-  private long bytes;                             // total bytes fetched
-  private int pages;                              // total pages fetched
-  private int errors;                             // total pages errored
+  private long bytes; // total bytes fetched
+  private int pages; // total pages fetched
+  private int errors; // total pages errored
 
   private boolean storingContent;
   private boolean parsing;
@@ -100,8 +100,8 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
     private String reprUrl;
 
     public FetcherThread(Configuration conf) {
-      this.setDaemon(true);                       // don't hang JVM on exit
-      this.setName("FetcherThread");              // use an informative name
+      this.setDaemon(true); // don't hang JVM on exit
+      this.setName("FetcherThread"); // use an informative name
       this.conf = conf;
       this.urlFilters = new URLFilters(conf);
       this.scfilters = new ScoringFilters(conf);
@@ -112,26 +112,28 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
 
     @SuppressWarnings("fallthrough")
     public void run() {
-      synchronized (OldFetcher.this) {activeThreads++;} // count threads
-      
+      synchronized (OldFetcher.this) {
+        activeThreads++;
+      } // count threads
+
       try {
         Text key = new Text();
         CrawlDatum datum = new CrawlDatum();
-        
+
         while (true) {
           // TODO : NUTCH-258 ...
           // If something bad happened, then exit
           // if (conf.getBoolean("fetcher.exit", false)) {
-          //   break;
+          // break;
           // ]
-          
-          try {                                   // get next entry from input
+
+          try { // get next entry from input
             if (!input.next(key, datum)) {
-              break;                              // at eof, exit
+              break; // at eof, exit
             }
           } catch (IOException e) {
             if (LOG.isErrorEnabled()) {
-              LOG.error("fetcher caught:"+e.toString());
+              LOG.error("fetcher caught:" + e.toString());
             }
             break;
           }
@@ -143,8 +145,8 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
           // url may be changed through redirects.
           Text url = new Text(key);
 
-          Text reprUrlWritable =
-            (Text) datum.getMetaData().get(Nutch.WRITABLE_REPR_URL_KEY);
+          Text reprUrlWritable = (Text) datum.getMetaData().get(
+              Nutch.WRITABLE_REPR_URL_KEY);
           if (reprUrlWritable == null) {
             reprUrl = key.toString();
           } else {
@@ -152,7 +154,9 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
           }
 
           try {
-            if (LOG.isInfoEnabled()) { LOG.info("fetching " + url); }
+            if (LOG.isInfoEnabled()) {
+              LOG.info("fetching " + url);
+            }
 
             // fetch the page
             redirectCount = 0;
@@ -161,7 +165,8 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
                 LOG.debug("redirectCount=" + redirectCount);
               }
               redirecting = false;
-              Protocol protocol = this.protocolFactory.getProtocol(url.toString());
+              Protocol protocol = this.protocolFactory.getProtocol(url
+                  .toString());
               ProtocolOutput output = protocol.getProtocolOutput(url, datum);
               ProtocolStatus status = output.getStatus();
               Content content = output.getContent();
@@ -173,22 +178,22 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
                     new Text(reprUrl));
               }
 
-              switch(status.getCode()) {
+              switch (status.getCode()) {
 
-              case ProtocolStatus.SUCCESS:        // got a page
-                pstatus = output(url, datum, content, status, CrawlDatum.STATUS_FETCH_SUCCESS);
+              case ProtocolStatus.SUCCESS: // got a page
+                pstatus = output(url, datum, content, status,
+                    CrawlDatum.STATUS_FETCH_SUCCESS);
                 updateStatus(content.getContent().length);
-                if (pstatus != null && pstatus.isSuccess() &&
-                        pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
+                if (pstatus != null && pstatus.isSuccess()
+                    && pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
                   String newUrl = pstatus.getMessage();
                   int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
                   url = handleRedirect(url, datum, urlString, newUrl,
-                                       refreshTime < PERM_REFRESH_TIME,
-                                       CONTENT_REDIR);
+                      refreshTime < PERM_REFRESH_TIME, CONTENT_REDIR);
                 }
                 break;
 
-              case ProtocolStatus.MOVED:         // redirect
+              case ProtocolStatus.MOVED: // redirect
               case ProtocolStatus.TEMP_MOVED:
                 int code;
                 boolean temp;
@@ -201,22 +206,22 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
                 }
                 output(url, datum, content, status, code);
                 String newUrl = status.getMessage();
-                url = handleRedirect(url, datum, urlString, newUrl,
-                                     temp, PROTOCOL_REDIR);
+                url = handleRedirect(url, datum, urlString, newUrl, temp,
+                    PROTOCOL_REDIR);
                 break;
 
               // failures - increase the retry counter
               case ProtocolStatus.EXCEPTION:
                 logError(url, status.getMessage());
-              /* FALLTHROUGH */
-              case ProtocolStatus.RETRY:          // retry
+                /* FALLTHROUGH */
+              case ProtocolStatus.RETRY: // retry
               case ProtocolStatus.WOULDBLOCK:
               case ProtocolStatus.BLOCKED:
                 output(url, datum, null, status, CrawlDatum.STATUS_FETCH_RETRY);
                 break;
-                
+
               // permanent failures
-              case ProtocolStatus.GONE:           // gone
+              case ProtocolStatus.GONE: // gone
               case ProtocolStatus.NOTFOUND:
               case ProtocolStatus.ACCESS_DENIED:
               case ProtocolStatus.ROBOTS_DENIED:
@@ -224,9 +229,10 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
                 break;
 
               case ProtocolStatus.NOTMODIFIED:
-                output(url, datum, null, status, CrawlDatum.STATUS_FETCH_NOTMODIFIED);
+                output(url, datum, null, status,
+                    CrawlDatum.STATUS_FETCH_NOTMODIFIED);
                 break;
-                
+
               default:
                 if (LOG.isWarnEnabled()) {
                   LOG.warn("Unknown ProtocolStatus: " + status.getCode());
@@ -243,27 +249,27 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
 
             } while (redirecting && (redirectCount < maxRedirect));
 
-            
-          } catch (Throwable t) {                 // unexpected exception
+          } catch (Throwable t) { // unexpected exception
             logError(url, t.toString());
             output(url, datum, null, null, CrawlDatum.STATUS_FETCH_RETRY);
-            
+
           }
         }
 
       } catch (Throwable e) {
         if (LOG.isErrorEnabled()) {
-          LOG.error("fetcher caught:"+e.toString());
+          LOG.error("fetcher caught:" + e.toString());
         }
       } finally {
-        synchronized (OldFetcher.this) {activeThreads--;} // count threads
+        synchronized (OldFetcher.this) {
+          activeThreads--;
+        } // count threads
       }
     }
 
-    private Text handleRedirect(Text url, CrawlDatum datum,
-                                String urlString, String newUrl,
-                                boolean temp, String redirType)
-    throws MalformedURLException, URLFilterException {
+    private Text handleRedirect(Text url, CrawlDatum datum, String urlString,
+        String newUrl, boolean temp, String redirType)
+        throws MalformedURLException, URLFilterException {
       newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
       newUrl = urlFilters.filter(newUrl);
       if (newUrl != null && !newUrl.equals(urlString)) {
@@ -273,8 +279,8 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
           redirecting = true;
           redirectCount++;
           if (LOG.isDebugEnabled()) {
-            LOG.debug(" - " + redirType + " redirect to " +
-                      url + " (fetching now)");
+            LOG.debug(" - " + redirType + " redirect to " + url
+                + " (fetching now)");
           }
           return url;
         } else {
@@ -285,15 +291,15 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
           }
           output(url, newDatum, null, null, CrawlDatum.STATUS_LINKED);
           if (LOG.isDebugEnabled()) {
-            LOG.debug(" - " + redirType + " redirect to " +
-                      url + " (fetching later)");
+            LOG.debug(" - " + redirType + " redirect to " + url
+                + " (fetching later)");
           }
           return null;
         }
       } else {
         if (LOG.isDebugEnabled()) {
-          LOG.debug(" - " + redirType + " redirect skipped: " +
-              (newUrl != null ? "to same url" : "filtered"));
+          LOG.debug(" - " + redirType + " redirect skipped: "
+              + (newUrl != null ? "to same url" : "filtered"));
         }
         return null;
       }
@@ -303,17 +309,18 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
       if (LOG.isInfoEnabled()) {
         LOG.info("fetch of " + url + " failed with: " + message);
       }
-      synchronized (OldFetcher.this) {               // record failure
+      synchronized (OldFetcher.this) { // record failure
         errors++;
       }
     }
 
-    private ParseStatus output(Text key, CrawlDatum datum,
-                        Content content, ProtocolStatus pstatus, int status) {
+    private ParseStatus output(Text key, CrawlDatum datum, Content content,
+        ProtocolStatus pstatus, int status) {
 
       datum.setStatus(status);
       datum.setFetchTime(System.currentTimeMillis());
-      if (pstatus != null) datum.getMetaData().put(Nutch.WRITABLE_PROTO_STATUS_KEY, pstatus);
+      if (pstatus != null)
+        datum.getMetaData().put(Nutch.WRITABLE_PROTO_STATUS_KEY, pstatus);
 
       ParseResult parseResult = null;
       if (content != null) {
@@ -328,27 +335,31 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
             LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
           }
         }
-        /* Note: Fetcher will only follow meta-redirects coming from the
-         * original URL. */ 
+        /*
+         * Note: Fetcher will only follow meta-redirects coming from the
+         * original URL.
+         */
         if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
           try {
             parseResult = this.parseUtil.parse(content);
           } catch (Exception e) {
-            LOG.warn("Error parsing: " + key + ": " + StringUtils.stringifyException(e));
+            LOG.warn("Error parsing: " + key + ": "
+                + StringUtils.stringifyException(e));
           }
 
           if (parseResult == null) {
-            byte[] signature = 
-              SignatureFactory.getSignature(getConf()).calculate(content, 
-                  new ParseStatus().getEmptyParse(conf));
+            byte[] signature = SignatureFactory.getSignature(getConf())
+                .calculate(content, new ParseStatus().getEmptyParse(conf));
             datum.setSignature(signature);
           }
         }
-        
-        /* Store status code in content So we can read this value during 
-         * parsing (as a separate job) and decide to parse or not.
+
+        /*
+         * Store status code in content So we can read this value during parsing
+         * (as a separate job) and decide to parse or not.
          */
-        content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(status));
+        content.getMetadata().add(Nutch.FETCH_STATUS_KEY,
+            Integer.toString(status));
       }
 
       try {
@@ -360,7 +371,7 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
             Text url = entry.getKey();
             Parse parse = entry.getValue();
             ParseStatus parseStatus = parse.getData().getStatus();
-            
+
             if (!parseStatus.isSuccess()) {
               LOG.warn("Error parsing: " + key + ": " + parseStatus);
               parse = parseStatus.getEmptyParse(getConf());
@@ -368,16 +379,16 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
 
             // Calculate page signature. For non-parsing fetchers this will
             // be done in ParseSegment
-            byte[] signature = 
-              SignatureFactory.getSignature(getConf()).calculate(content, parse);
+            byte[] signature = SignatureFactory.getSignature(getConf())
+                .calculate(content, parse);
             // Ensure segment name and score are in parseData metadata
-            parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, 
-                segmentName);
-            parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, 
-                StringUtil.toHexString(signature));
+            parse.getData().getContentMeta()
+                .set(Nutch.SEGMENT_NAME_KEY, segmentName);
+            parse.getData().getContentMeta()
+                .set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
             // Pass fetch time to content meta
-            parse.getData().getContentMeta().set(Nutch.FETCH_TIME_KEY,
-                Long.toString(datum.getFetchTime()));
+            parse.getData().getContentMeta()
+                .set(Nutch.FETCH_TIME_KEY, Long.toString(datum.getFetchTime()));
             if (url.equals(key))
               datum.setSignature(signature);
             try {
@@ -387,14 +398,13 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
                 LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
               }
             }
-            output.collect(url, new NutchWritable(
-                    new ParseImpl(new ParseText(parse.getText()), 
-                                  parse.getData(), parse.isCanonical())));
+            output.collect(url, new NutchWritable(new ParseImpl(new ParseText(
+                parse.getText()), parse.getData(), parse.isCanonical())));
           }
         }
       } catch (IOException e) {
         if (LOG.isErrorEnabled()) {
-          LOG.error("fetcher caught:"+e.toString());
+          LOG.error("fetcher caught:" + e.toString());
         }
       }
 
@@ -404,10 +414,10 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
         if (p != null) {
           return p.getData().getStatus();
         }
-      } 
+      }
       return null;
     }
-    
+
   }
 
   private synchronized void updateStatus(int bytesInPage) throws IOException {
@@ -418,23 +428,22 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
   private void reportStatus() throws IOException {
     String status;
     synchronized (this) {
-      long elapsed = (System.currentTimeMillis() - start)/1000;
-      status = 
-        pages+" pages, "+errors+" errors, "
-        + Math.round(((float)pages*10)/elapsed)/10.0+" pages/s, "
-        + Math.round(((((float)bytes)*8)/1024)/elapsed)+" kb/s, ";
+      long elapsed = (System.currentTimeMillis() - start) / 1000;
+      status = pages + " pages, " + errors + " errors, "
+          + Math.round(((float) pages * 10) / elapsed) / 10.0 + " pages/s, "
+          + Math.round(((((float) bytes) * 8) / 1024) / elapsed) + " kb/s, ";
     }
     reporter.setStatus(status);
   }
 
   public OldFetcher() {
-    
+
   }
-  
+
   public OldFetcher(Configuration conf) {
     setConf(conf);
   }
-  
+
   public void configure(JobConf job) {
     setConf(job);
 
@@ -442,12 +451,13 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
     this.storingContent = isStoringContent(job);
     this.parsing = isParsing(job);
 
-//    if (job.getBoolean("fetcher.verbose", false)) {
-//      LOG.setLevel(Level.FINE);
-//    }
+    // if (job.getBoolean("fetcher.verbose", false)) {
+    // LOG.setLevel(Level.FINE);
+    // }
   }
 
-  public void close() {}
+  public void close() {
+  }
 
   public static boolean isParsing(Configuration conf) {
     return conf.getBoolean("fetcher.parse", true);
@@ -457,29 +467,33 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
     return conf.getBoolean("fetcher.store.content", true);
   }
 
-  public void run(RecordReader<WritableComparable<?>, Writable> input, OutputCollector<Text, NutchWritable> output,
-                  Reporter reporter) throws IOException {
+  public void run(RecordReader<WritableComparable<?>, Writable> input,
+      OutputCollector<Text, NutchWritable> output, Reporter reporter)
+      throws IOException {
 
     this.input = input;
     this.output = output;
     this.reporter = reporter;
 
     this.maxRedirect = getConf().getInt("http.redirect.max", 3);
-    
-    int threadCount = getConf().getInt("fetcher.threads.fetch", 10);
-    if (LOG.isInfoEnabled()) { LOG.info("OldFetcher: threads: " + threadCount); }
 
-    for (int i = 0; i < threadCount; i++) {       // spawn threads
+    int threadCount = getConf().getInt("fetcher.threads.fetch", 10);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("OldFetcher: threads: " + threadCount);
+    }
+
+    for (int i = 0; i < threadCount; i++) { // spawn threads
       new FetcherThread(getConf()).start();
     }
 
     // select a timeout that avoids a task timeout
-    long timeout = getConf().getInt("mapred.task.timeout", 10*60*1000)/2;
+    long timeout = getConf().getInt("mapred.task.timeout", 10 * 60 * 1000) / 2;
 
-    do {                                          // wait for threads to exit
+    do { // wait for threads to exit
       try {
         Thread.sleep(1000);
-      } catch (InterruptedException e) {}
+      } catch (InterruptedException e) {
+      }
 
       reportStatus();
 
@@ -487,18 +501,17 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
       synchronized (this) {
         if ((System.currentTimeMillis() - lastRequestStart) > timeout) {
           if (LOG.isWarnEnabled()) {
-            LOG.warn("Aborting with "+activeThreads+" hung threads.");
+            LOG.warn("Aborting with " + activeThreads + " hung threads.");
           }
           return;
         }
       }
 
     } while (activeThreads > 0);
-    
+
   }
 
-  public void fetch(Path segment, int threads)
-    throws IOException {
+  public void fetch(Path segment, int threads) throws IOException {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -516,7 +529,8 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
     // for politeness, don't permit parallel execution of a single task
     job.setSpeculativeExecution(false);
 
-    FileInputFormat.addInputPath(job, new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
+    FileInputFormat.addInputPath(job, new Path(segment,
+        CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(InputFormat.class);
 
     job.setMapRunnerClass(OldFetcher.class);
@@ -528,16 +542,17 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
 
     JobClient.runJob(job);
     long end = System.currentTimeMillis();
-    LOG.info("OldFetcher: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("OldFetcher: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
-
 
   /** Run the fetcher. */
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new OldFetcher(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new OldFetcher(),
+        args);
     System.exit(res);
   }
-  
+
   public int run(String[] args) throws Exception {
 
     String usage = "Usage: OldFetcher <segment> [-threads n] [-noParsing]";
@@ -546,15 +561,16 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
       System.err.println(usage);
       return -1;
     }
-      
+
     Path segment = new Path(args[0]);
     int threads = getConf().getInt("fetcher.threads.fetch", 10);
     boolean parsing = true;
 
-    for (int i = 1; i < args.length; i++) {       // parse command line
-      if (args[i].equals("-threads")) {           // found -threads option
-        threads =  Integer.parseInt(args[++i]);
-      } else if (args[i].equals("-noParsing")) parsing = false;
+    for (int i = 1; i < args.length; i++) { // parse command line
+      if (args[i].equals("-threads")) { // found -threads option
+        threads = Integer.parseInt(args[++i]);
+      } else if (args[i].equals("-noParsing"))
+        parsing = false;
     }
 
     getConf().setInt("fetcher.threads.fetch", threads);
@@ -562,7 +578,7 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
       getConf().setBoolean("fetcher.parse", parsing);
     }
     try {
-      fetch(segment, threads);              // run the Fetcher
+      fetch(segment, threads); // run the Fetcher
       return 0;
     } catch (Exception e) {
       LOG.error("OldFetcher: " + StringUtils.stringifyException(e));

@@ -1,4 +1,5 @@
 package org.apache.nutch.tools.proxy;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -27,13 +28,13 @@ public class NotFoundHandler extends AbstractTestbedHandler {
 
   @Override
   public void handle(Request req, HttpServletResponse res, String target,
-          int dispatch) throws IOException, ServletException {
+      int dispatch) throws IOException, ServletException {
     // don't pass it down the chain
     req.setHandled(true);
     res.addHeader("X-Handled-By", getClass().getSimpleName());
     addMyHeader(res, "URI", req.getUri().toString());
-    res.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found: " +
-            req.getUri().toString());
+    res.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found: "
+        + req.getUri().toString());
   }
 
 }

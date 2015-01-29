@@ -43,7 +43,8 @@ import org.apache.nutch.scoring.ScoringFilterException;
  */
 public class URLMetaScoringFilter extends Configured implements ScoringFilter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(URLMetaScoringFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(URLMetaScoringFilter.class);
   private static final String CONF_PROPERTY = "urlmeta.tags";
   private static String[] urlMetaTags;
   private Configuration conf;
@@ -73,8 +74,8 @@ public class URLMetaScoringFilter extends Configured implements ScoringFilter {
         if (metaFromParse == null)
           continue;
 
-        nextTarget.getValue().getMetaData().put(new Text(metatag),
-            new Text(metaFromParse));
+        nextTarget.getValue().getMetaData()
+            .put(new Text(metatag), new Text(metaFromParse));
       }
     }
     return adjust;

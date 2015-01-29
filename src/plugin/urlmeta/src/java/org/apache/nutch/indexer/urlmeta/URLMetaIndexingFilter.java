@@ -67,52 +67,52 @@ import org.apache.nutch.parse.Parse;
  */
 public class URLMetaIndexingFilter implements IndexingFilter {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(URLMetaIndexingFilter.class);
-	private static final String CONF_PROPERTY = "urlmeta.tags";
-	private static String[] urlMetaTags;
-	private Configuration conf;
+  private static final Logger LOG = LoggerFactory
+      .getLogger(URLMetaIndexingFilter.class);
+  private static final String CONF_PROPERTY = "urlmeta.tags";
+  private static String[] urlMetaTags;
+  private Configuration conf;
 
-	/**
-	 * This will take the metatags that you have listed in your "urlmeta.tags"
-	 * property, and looks for them inside the CrawlDatum object. If they exist,
-	 * this will add it as an attribute inside the NutchDocument.
-	 * 
-	 * @see IndexingFilter#filter
-	 */
-	public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
-			CrawlDatum datum, Inlinks inlinks) throws IndexingException {
-		if (conf != null)
-			this.setConf(conf);
+  /**
+   * This will take the metatags that you have listed in your "urlmeta.tags"
+   * property, and looks for them inside the CrawlDatum object. If they exist,
+   * this will add it as an attribute inside the NutchDocument.
+   * 
+   * @see IndexingFilter#filter
+   */
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
+    if (conf != null)
+      this.setConf(conf);
 
-		if (urlMetaTags == null || doc == null)
-			return doc;
+    if (urlMetaTags == null || doc == null)
+      return doc;
 
-		for (String metatag : urlMetaTags) {
-			Text metadata = (Text) datum.getMetaData().get(new Text(metatag));
+    for (String metatag : urlMetaTags) {
+      Text metadata = (Text) datum.getMetaData().get(new Text(metatag));
 
-			if (metadata != null)
-				doc.add(metatag, metadata.toString());
-		}
+      if (metadata != null)
+        doc.add(metatag, metadata.toString());
+    }
 
-		return doc;
-	}
+    return doc;
+  }
 
-	/** Boilerplate */
-	public Configuration getConf() {
-		return conf;
-	}
+  /** Boilerplate */
+  public Configuration getConf() {
+    return conf;
+  }
 
-	/**
-	 * handles conf assignment and pulls the value assignment from the
-	 * "urlmeta.tags" property
-	 */
-	public void setConf(Configuration conf) {
-		this.conf = conf;
+  /**
+   * handles conf assignment and pulls the value assignment from the
+   * "urlmeta.tags" property
+   */
+  public void setConf(Configuration conf) {
+    this.conf = conf;
 
-		if (conf == null)
-			return;
+    if (conf == null)
+      return;
 
-		urlMetaTags = conf.getStrings(CONF_PROPERTY);
-	}
+    urlMetaTags = conf.getStrings(CONF_PROPERTY);
+  }
 }

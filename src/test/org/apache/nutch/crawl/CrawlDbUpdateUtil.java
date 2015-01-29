@@ -45,7 +45,8 @@ import org.slf4j.LoggerFactory;
  */
 public class CrawlDbUpdateUtil<T extends Reducer<Text, CrawlDatum, Text, CrawlDatum>> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CrawlDbUpdateUtil.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(CrawlDbUpdateUtil.class);
 
   private T reducer;
 
@@ -74,9 +75,8 @@ public class CrawlDbUpdateUtil<T extends Reducer<Text, CrawlDatum, Text, CrawlDa
   }
 
   /**
-   * Dummy reporter which does nothing and does not return null for
-   * getCounter()
-   *
+   * Dummy reporter which does nothing and does not return null for getCounter()
+   * 
    * @see {@link Reporter#NULL}
    */
   private class DummyReporter implements Reporter {
@@ -117,8 +117,10 @@ public class CrawlDbUpdateUtil<T extends Reducer<Text, CrawlDatum, Text, CrawlDa
    * run
    * {@link CrawlDbReducer#reduce(Text, Iterator, OutputCollector, Reporter)}
    * and return the CrawlDatum(s) which would have been written into CrawlDb
-   * @param values  list of input CrawlDatums
-   * @return  list of resulting CrawlDatum(s) in CrawlDb
+   * 
+   * @param values
+   *          list of input CrawlDatums
+   * @return list of resulting CrawlDatum(s) in CrawlDb
    */
   public List<CrawlDatum> update(List<CrawlDatum> values) {
     if (values == null || values.size() == 0) {
@@ -138,12 +140,14 @@ public class CrawlDbUpdateUtil<T extends Reducer<Text, CrawlDatum, Text, CrawlDa
    * run
    * {@link CrawlDbReducer#reduce(Text, Iterator, OutputCollector, Reporter)}
    * and return the CrawlDatum(s) which would have been written into CrawlDb
-   * @param dbDatum  previous CrawlDatum in CrawlDb
-   * @param fetchDatum  CrawlDatum resulting from fetching
-   * @return  list of resulting CrawlDatum(s) in CrawlDb
+   * 
+   * @param dbDatum
+   *          previous CrawlDatum in CrawlDb
+   * @param fetchDatum
+   *          CrawlDatum resulting from fetching
+   * @return list of resulting CrawlDatum(s) in CrawlDb
    */
-  public List<CrawlDatum> update(CrawlDatum dbDatum,
-      CrawlDatum fetchDatum) {
+  public List<CrawlDatum> update(CrawlDatum dbDatum, CrawlDatum fetchDatum) {
     List<CrawlDatum> values = new ArrayList<CrawlDatum>();
     if (dbDatum != null)
       values.add(dbDatum);

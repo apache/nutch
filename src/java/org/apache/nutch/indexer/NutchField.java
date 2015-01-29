@@ -28,32 +28,33 @@ import java.util.List;
 import org.apache.hadoop.io.*;
 
 /**
- * This class represents a multi-valued field with a weight. 
- * Values are arbitrary objects.
+ * This class represents a multi-valued field with a weight. Values are
+ * arbitrary objects.
  */
 public class NutchField implements Writable {
   private float weight;
   private List<Object> values = new ArrayList<Object>();
-  
-  public NutchField() { }
-  
+
+  public NutchField() {
+  }
+
   public NutchField(Object value) {
     this(value, 1.0f);
   }
-  
+
   public NutchField(Object value, float weight) {
     this.weight = weight;
     if (value instanceof Collection) {
-      values.addAll((Collection<?>)value);
+      values.addAll((Collection<?>) value);
     } else {
       values.add(value);
     }
   }
-  
+
   public void add(Object value) {
     values.add(value);
   }
-  
+
   public float getWeight() {
     return weight;
   }
@@ -65,7 +66,7 @@ public class NutchField implements Writable {
   public List<Object> getValues() {
     return values;
   }
-  
+
   public void reset() {
     weight = 1.0f;
     values.clear();
@@ -73,13 +74,13 @@ public class NutchField implements Writable {
 
   @Override
   public Object clone() throws CloneNotSupportedException {
-    NutchField result = (NutchField)super.clone();
+    NutchField result = (NutchField) super.clone();
     result.weight = weight;
     result.values = values;
 
     return result;
   }
-  
+
   @Override
   public void readFields(DataInput in) throws IOException {
     weight = in.readFloat();
@@ -87,7 +88,7 @@ public class NutchField implements Writable {
     values = new ArrayList<Object>();
     for (int i = 0; i < count; i++) {
       String type = Text.readString(in);
-      
+
       if (type.equals("java.lang.String")) {
         values.add(Text.readString(in));
       } else if (type.equals("java.lang.Boolean")) {
@@ -109,26 +110,26 @@ public class NutchField implements Writable {
     out.writeFloat(weight);
     out.writeInt(values.size());
     for (Object value : values) {
-    
+
       Text.writeString(out, value.getClass().getName());
-        
+
       if (value instanceof Boolean) {
-        out.writeBoolean((Boolean)value);
+        out.writeBoolean((Boolean) value);
       } else if (value instanceof Integer) {
-        out.writeInt((Integer)value);
+        out.writeInt((Integer) value);
       } else if (value instanceof Long) {
-        out.writeLong((Long)value);
+        out.writeLong((Long) value);
       } else if (value instanceof Float) {
-        out.writeFloat((Float)value);
+        out.writeFloat((Float) value);
       } else if (value instanceof String) {
-        Text.writeString(out, (String)value);
+        Text.writeString(out, (String) value);
       } else if (value instanceof Date) {
-        Date date = (Date)value;
+        Date date = (Date) value;
         out.writeLong(date.getTime());
       }
     }
   }
-  
+
   public String toString() {
     return values.toString();
   }

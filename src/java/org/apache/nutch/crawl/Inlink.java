@@ -26,7 +26,8 @@ public class Inlink implements Writable {
   private String fromUrl;
   private String anchor;
 
-  public Inlink() {}
+  public Inlink() {
+  }
 
   public Inlink(String fromUrl, String anchor) {
     this.fromUrl = fromUrl;
@@ -40,8 +41,8 @@ public class Inlink implements Writable {
 
   /** Skips over one Inlink in the input. */
   public static void skip(DataInput in) throws IOException {
-    Text.skip(in);                                // skip fromUrl
-    Text.skip(in);                                // skip anchor
+    Text.skip(in); // skip fromUrl
+    Text.skip(in); // skip anchor
   }
 
   public void write(DataOutput out) throws IOException {
@@ -55,16 +56,20 @@ public class Inlink implements Writable {
     return inlink;
   }
 
-  public String getFromUrl() { return fromUrl; }
-  public String getAnchor() { return anchor; }
+  public String getFromUrl() {
+    return fromUrl;
+  }
+
+  public String getAnchor() {
+    return anchor;
+  }
 
   public boolean equals(Object o) {
     if (!(o instanceof Inlink))
       return false;
-    Inlink other = (Inlink)o;
-    return
-      this.fromUrl.equals(other.fromUrl) &&
-      this.anchor.equals(other.anchor);
+    Inlink other = (Inlink) o;
+    return this.fromUrl.equals(other.fromUrl)
+        && this.anchor.equals(other.anchor);
   }
 
   public int hashCode() {

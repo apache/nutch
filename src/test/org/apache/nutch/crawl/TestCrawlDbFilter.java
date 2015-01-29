@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
@@ -34,9 +34,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * CrawlDbFiltering test which tests for correct, error free url 
- * normalization when the CrawlDB includes urls with <code>DB GONE</code> status 
- * and <code>CRAWLDB_PURGE_404</code> is set to true.
+ * CrawlDbFiltering test which tests for correct, error free url normalization
+ * when the CrawlDB includes urls with <code>DB GONE</code> status and
+ * <code>CRAWLDB_PURGE_404</code> is set to true.
  * 
  * @author lufeng
  */
@@ -68,27 +68,27 @@ public class TestCrawlDbFilter {
 
   /**
    * Test url404Purging
-   *
+   * 
    * @throws Exception
    */
   @Test
   public void testUrl404Purging() throws Exception {
     // create a CrawlDatum with DB GONE status
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
-    list.add(new URLCrawlDatum(new Text("http://www.example.com"), new CrawlDatum(
-      CrawlDatum.STATUS_DB_GONE, 0, 0.0f)));
-    list.add(new URLCrawlDatum(new Text("http://www.example1.com"), new CrawlDatum(
-      CrawlDatum.STATUS_DB_FETCHED, 0, 0.0f)));
-    list.add(new URLCrawlDatum(new Text("http://www.example2.com"), new CrawlDatum(
-      CrawlDatum.STATUS_DB_UNFETCHED, 0, 0.0f)));
+    list.add(new URLCrawlDatum(new Text("http://www.example.com"),
+        new CrawlDatum(CrawlDatum.STATUS_DB_GONE, 0, 0.0f)));
+    list.add(new URLCrawlDatum(new Text("http://www.example1.com"),
+        new CrawlDatum(CrawlDatum.STATUS_DB_FETCHED, 0, 0.0f)));
+    list.add(new URLCrawlDatum(new Text("http://www.example2.com"),
+        new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED, 0, 0.0f)));
     dbDir = new Path(testdir, "crawldb");
-    newCrawlDb = new Path(testdir,"newcrawldb");
+    newCrawlDb = new Path(testdir, "newcrawldb");
     // create crawldb
     CrawlDBTestUtil.createCrawlDb(conf, fs, dbDir, list);
     // set CRAWLDB_PURGE_404 to true
-    conf.setBoolean(CrawlDb.CRAWLDB_PURGE_404,true);
-    conf.setBoolean(CrawlDbFilter.URL_NORMALIZING,true);
-    conf.setBoolean(CrawlDbFilter.URL_FILTERING,false);
+    conf.setBoolean(CrawlDb.CRAWLDB_PURGE_404, true);
+    conf.setBoolean(CrawlDbFilter.URL_NORMALIZING, true);
+    conf.setBoolean(CrawlDbFilter.URL_FILTERING, false);
     conf.setInt("urlnormalizer.loop.count", 2);
     JobConf job = new NutchJob(conf);
     job.setJobName("Test CrawlDbFilter");
@@ -105,8 +105,7 @@ public class TestCrawlDbFilter {
     job.setOutputValueClass(CrawlDatum.class);
     JobClient.runJob(job);
 
-    Path fetchlist = new Path(new Path(newCrawlDb,
-      "part-00000"), "data");
+    Path fetchlist = new Path(new Path(newCrawlDb, "part-00000"), "data");
 
     ArrayList<URLCrawlDatum> l = readContents(fetchlist);
 
@@ -116,11 +115,14 @@ public class TestCrawlDbFilter {
 
   /**
    * Read contents of fetchlist.
-   * @param fetchlist  path to Generated fetchlist
+   * 
+   * @param fetchlist
+   *          path to Generated fetchlist
    * @return Generated {@link URLCrawlDatum} objects
    * @throws IOException
    */
-  private ArrayList<URLCrawlDatum> readContents(Path fetchlist) throws IOException {
+  private ArrayList<URLCrawlDatum> readContents(Path fetchlist)
+      throws IOException {
     // verify results
     SequenceFile.Reader reader = new SequenceFile.Reader(fs, fetchlist, conf);
 

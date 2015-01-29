@@ -31,18 +31,16 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** 
+/**
  * Test extraction of image metadata
  */
 public class TestImageMetadata {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data",".");
+  private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
-  private String[] sampleFiles = {
-      "nutch_logo_tm.gif",
-  };
+  private String[] sampleFiles = { "nutch_logo_tm.gif", };
 
   @Test
   public void testIt() throws ProtocolException, ParseException {
@@ -56,8 +54,10 @@ public class TestImageMetadata {
 
       Configuration conf = NutchConfiguration.create();
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
-      content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(content.getUrl());
+      content = protocol.getProtocolOutput(new Text(urlString),
+          new CrawlDatum()).getContent();
+      parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
+          .get(content.getUrl());
 
       Assert.assertEquals("121", parse.getData().getMeta("width"));
       Assert.assertEquals("48", parse.getData().getMeta("height"));

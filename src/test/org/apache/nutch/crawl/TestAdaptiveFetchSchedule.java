@@ -61,19 +61,19 @@ public class TestAdaptiveFetchSchedule extends TestCase {
     Text url = new Text("http://www.example.com");
 
     changed = FetchSchedule.STATUS_UNKNOWN;
-    fs.setFetchSchedule(url, p, p.getFetchTime(),
-        p.getModifiedTime(), curTime, lastModified, changed);
+    fs.setFetchSchedule(url, p, p.getFetchTime(), p.getModifiedTime(), curTime,
+        lastModified, changed);
     validateFetchInterval(changed, p.getFetchInterval());
 
     changed = FetchSchedule.STATUS_MODIFIED;
-    fs.setFetchSchedule(url, p, p.getFetchTime(),
-        p.getModifiedTime(), curTime, lastModified, changed);
+    fs.setFetchSchedule(url, p, p.getFetchTime(), p.getModifiedTime(), curTime,
+        lastModified, changed);
     validateFetchInterval(changed, p.getFetchInterval());
     p.setFetchInterval(interval);
 
     changed = FetchSchedule.STATUS_NOTMODIFIED;
-    fs.setFetchSchedule(url, p, p.getFetchTime(),
-        p.getModifiedTime(), curTime, lastModified, changed);
+    fs.setFetchSchedule(url, p, p.getFetchTime(), p.getModifiedTime(), curTime,
+        lastModified, changed);
     validateFetchInterval(changed, p.getFetchInterval());
 
   }

@@ -52,22 +52,24 @@ public class CollectionManager extends Configured {
   transient Map<String, Subcollection> collectionMap = new HashMap<String, Subcollection>();
 
   transient URL configfile;
-  
+
   public CollectionManager(Configuration conf) {
     super(conf);
     init();
   }
-  
-  /** 
+
+  /**
    * Used for testing
    */
-  protected CollectionManager(){
+  protected CollectionManager() {
     super(NutchConfiguration.create());
   }
 
-  protected void init(){
+  protected void init() {
     try {
-      if (LOG.isInfoEnabled()) { LOG.info("initializing CollectionManager"); }
+      if (LOG.isInfoEnabled()) {
+        LOG.info("initializing CollectionManager");
+      }
       // initialize known subcollections
       configfile = getConf().getResource(
           getConf().get("subcollections.config", DEFAULT_FILE_NAME));
@@ -92,7 +94,7 @@ public class CollectionManager extends Configured {
       if (LOG.isInfoEnabled()) {
         LOG.info("file has " + nodeList.getLength() + " elements");
       }
-      
+
       for (int i = 0; i < nodeList.getLength(); i++) {
         Element scElem = (Element) nodeList.item(i);
         Subcollection subCol = new Subcollection(getConf());
@@ -103,18 +105,18 @@ public class CollectionManager extends Configured {
       LOG.info("Cannot find collections");
     }
   }
-  
+
   public static CollectionManager getCollectionManager(Configuration conf) {
     String key = "collectionmanager";
     ObjectCache objectCache = ObjectCache.get(conf);
-    CollectionManager impl = (CollectionManager)objectCache.getObject(key);
+    CollectionManager impl = (CollectionManager) objectCache.getObject(key);
     if (impl == null) {
       try {
         if (LOG.isInfoEnabled()) {
           LOG.info("Instantiating CollectionManager");
         }
-        impl=new CollectionManager(conf);
-        objectCache.setObject(key,impl);
+        impl = new CollectionManager(conf);
+        objectCache.setObject(key, impl);
       } catch (Exception e) {
         throw new RuntimeException("Couldn't create CollectionManager", e);
       }
@@ -165,7 +167,7 @@ public class CollectionManager extends Configured {
 
   /**
    * Return names of collections url is part of
-   *
+   * 
    * @param url
    *          The url to test against Collections
    * @return Subcollections
@@ -203,8 +205,8 @@ public class CollectionManager extends Configured {
    */
   public void save() throws IOException {
     try {
-      final FileOutputStream fos = new FileOutputStream(new File(configfile
-          .getFile()));
+      final FileOutputStream fos = new FileOutputStream(new File(
+          configfile.getFile()));
       final Document doc = new DocumentImpl();
       final Element collections = doc
           .createElement(Subcollection.TAG_COLLECTIONS);

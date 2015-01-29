@@ -39,7 +39,8 @@ import org.apache.nutch.protocol.Content;
  * 
  */
 public class SegmentMergeFilters {
-  private static final Logger LOG = LoggerFactory.getLogger(SegmentMergeFilters.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(SegmentMergeFilters.class);
   private SegmentMergeFilter[] filters;
 
   public SegmentMergeFilters(Configuration conf) {

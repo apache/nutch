@@ -1,4 +1,5 @@
 package org.apache.nutch.tools.proxy;
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -44,17 +45,25 @@ public class ProxyTestbed {
    */
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
-      System.err.println("TestbedProxy [-seg <segment_name> | -segdir <segments>] [-port <nnn>] [-forward] [-fake] [-delay nnn] [-debug]");
-      System.err.println("-seg <segment_name>\tpath to a single segment (can be specified multiple times)");
-      System.err.println("-segdir <segments>\tpath to a parent directory of multiple segments (as above)");
-      System.err.println("-port <nnn>\trun the proxy on port <nnn> (special permissions may be needed for ports < 1024)");
-      System.err.println("-forward\tif specified, requests to all unknown urls will be passed to");
-      System.err.println("\t\toriginal servers. If false (default) unknown urls generate 404 Not Found.");
-      System.err.println("-delay\tdelay every response by nnn seconds. If delay is negative use a random value up to nnn");
-      System.err.println("-fake\tif specified, requests to all unknown urls will succeed with fake content");
+      System.err
+          .println("TestbedProxy [-seg <segment_name> | -segdir <segments>] [-port <nnn>] [-forward] [-fake] [-delay nnn] [-debug]");
+      System.err
+          .println("-seg <segment_name>\tpath to a single segment (can be specified multiple times)");
+      System.err
+          .println("-segdir <segments>\tpath to a parent directory of multiple segments (as above)");
+      System.err
+          .println("-port <nnn>\trun the proxy on port <nnn> (special permissions may be needed for ports < 1024)");
+      System.err
+          .println("-forward\tif specified, requests to all unknown urls will be passed to");
+      System.err
+          .println("\t\toriginal servers. If false (default) unknown urls generate 404 Not Found.");
+      System.err
+          .println("-delay\tdelay every response by nnn seconds. If delay is negative use a random value up to nnn");
+      System.err
+          .println("-fake\tif specified, requests to all unknown urls will succeed with fake content");
       System.exit(-1);
     }
-    
+
     Configuration conf = NutchConfiguration.create();
     int port = conf.getInt("segment.proxy.port", 8181);
     boolean forward = false;
@@ -62,7 +71,7 @@ public class ProxyTestbed {
     boolean delay = false;
     boolean debug = false;
     int delayVal = 0;
-    
+
     HashSet<Path> segs = new HashSet<Path>();
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-segdir")) {
@@ -88,28 +97,30 @@ public class ProxyTestbed {
         System.exit(-1);
       }
     }
-    
+
     // Create the server
     Server server = new Server();
     SocketConnector connector = new SocketConnector();
     connector.setPort(port);
     connector.setResolveNames(false);
     server.addConnector(connector);
-    
+
     // create a list of handlers
     HandlerList list = new HandlerList();
     server.addHandler(list);
-    
+
     if (debug) {
       LOG.info("* Added debug handler.");
       list.addHandler(new LogDebugHandler());
     }
- 
+
     if (delay) {
-      LOG.info("* Added delay handler: " + (delayVal < 0 ? "random delay up to " + (-delayVal) : "constant delay of " + delayVal));
+      LOG.info("* Added delay handler: "
+          + (delayVal < 0 ? "random delay up to " + (-delayVal)
+              : "constant delay of " + delayVal));
       list.addHandler(new DelayHandler(delayVal));
     }
-    
+
     // XXX alternatively, we can add the DispatchHandler as the first one,
     // XXX to activate handler plugins and redirect requests to appropriate
     // XXX handlers ... Here we always load these handlers
@@ -122,7 +133,8 @@ public class ProxyTestbed {
         list.addHandler(segment);
         LOG.info("* Added segment handler for: " + p);
       } catch (Exception e) {
-        LOG.warn("Skipping segment '" + p + "': " + StringUtils.stringifyException(e));
+        LOG.warn("Skipping segment '" + p + "': "
+            + StringUtils.stringifyException(e));
       }
     }
     if (forward) {

@@ -34,20 +34,20 @@ import org.junit.Test;
 
 import java.io.File;
 
-/** 
+/**
  * Unit tests for MSWordParser.
- *
+ * 
  * @author John Xing
  */
 public class TestMSWordParser {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data",".");
+  private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
   // ./src/plugin/parse-msword/build.xml during plugin compilation.
   // Check ./src/plugin/parse-msword/sample/README.txt for what they are.
-  private String[] sampleFiles = {"word97.doc"};
+  private String[] sampleFiles = { "word97.doc" };
 
   private String expectedText = "This is a sample doc file prepared for nutch.";
 
@@ -59,19 +59,23 @@ public class TestMSWordParser {
     conf.set("file.content.limit", "-1");
   }
 
-  public String getTextContent(String fileName) throws ProtocolException, ParseException {
+  public String getTextContent(String fileName) throws ProtocolException,
+      ParseException {
     String urlString = "file:" + sampleDir + fileSeparator + fileName;
     Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
-    Content content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
-    Parse parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(content.getUrl());
+    Content content = protocol.getProtocolOutput(new Text(urlString),
+        new CrawlDatum()).getContent();
+    Parse parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
+        .get(content.getUrl());
     return parse.getText();
   }
 
   @Test
   public void testIt() throws ProtocolException, ParseException {
-    for (int i=0; i<sampleFiles.length; i++) {
+    for (int i = 0; i < sampleFiles.length; i++) {
       String found = getTextContent(sampleFiles[i]);
-      Assert.assertTrue("text found : '"+found+"'",found.startsWith(expectedText));
+      Assert.assertTrue("text found : '" + found + "'",
+          found.startsWith(expectedText));
     }
   }
 
@@ -79,8 +83,10 @@ public class TestMSWordParser {
   public void testOpeningDocs() throws ProtocolException, ParseException {
     String[] filenames = new File(sampleDir).list();
     for (int i = 0; i < filenames.length; i++) {
-      if (filenames[i].endsWith(".doc")==false) continue;
-      Assert.assertTrue("cann't read content of " + filenames[i], getTextContent(filenames[i]).length() > 0);
-    }      
+      if (filenames[i].endsWith(".doc") == false)
+        continue;
+      Assert.assertTrue("cann't read content of " + filenames[i],
+          getTextContent(filenames[i]).length() > 0);
+    }
   }
 }

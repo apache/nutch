@@ -47,20 +47,20 @@ import org.apache.hadoop.io.Text;
 import crawlercommons.robots.BaseRobotRules;
 
 public abstract class HttpBase implements Protocol {
-  
+
   public static final Text RESPONSE_TIME = new Text("_rs_");
 
   public static final int BUFFER_SIZE = 8 * 1024;
-  
+
   private static final byte[] EMPTY_CONTENT = new byte[0];
 
   private HttpRobotRulesParser robots = null;
- 
-  /** The proxy hostname. */ 
+
+  /** The proxy hostname. */
   protected String proxyHost = null;
 
   /** The proxy port. */
-  protected int proxyPort = 8080; 
+  protected int proxyPort = 8080;
 
   /** Indicates if a proxy is used */
   protected boolean useProxy = false;
@@ -69,29 +69,27 @@ public abstract class HttpBase implements Protocol {
   protected int timeout = 10000;
 
   /** The length limit for downloaded content, in bytes. */
-  protected int maxContent = 64 * 1024; 
+  protected int maxContent = 64 * 1024;
 
   /** The Nutch 'User-Agent' request header */
-  protected String userAgent = getAgentString(
-                        "NutchCVS", null, "Nutch",
-                        "http://nutch.apache.org/bot.html",
-                        "agent@nutch.apache.org");
+  protected String userAgent = getAgentString("NutchCVS", null, "Nutch",
+      "http://nutch.apache.org/bot.html", "agent@nutch.apache.org");
 
   /** The "Accept-Language" request header value. */
   protected String acceptLanguage = "en-us,en-gb,en;q=0.7,*;q=0.3";
 
   /** The "Accept" request header value. */
   protected String accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-  
+
   /** The default logger */
   private final static Logger LOGGER = LoggerFactory.getLogger(HttpBase.class);
 
   /** The specified logger */
   private Logger logger = LOGGER;
- 
+
   /** The nutch configuration */
   private Configuration conf = null;
-  
+
   /** Do we use HTTP/1.1? */
   protected boolean useHttp11 = false;
 
@@ -99,14 +97,14 @@ public abstract class HttpBase implements Protocol {
    * Record response time in CrawlDatum's meta data, see property
    * http.store.responsetime.
    */
-  protected boolean responseTime = true;    
-  
+  protected boolean responseTime = true;
+
   /** Skip page if Crawl-Delay longer than this value. */
   protected long maxCrawlDelay = -1L;
-  
+
   /** Which TLS/SSL protocols to support */
   protected Set<String> tlsPreferredProtocols;
-  
+
   /** Which TLS/SSL cipher suites to support */
   protected Set<String> tlsPreferredCipherSuites;
 
@@ -114,7 +112,7 @@ public abstract class HttpBase implements Protocol {
   public HttpBase() {
     this(null);
   }
-  
+
   /** Creates a new instance of HttpBase */
   public HttpBase(Logger logger) {
     if (logger != null) {
@@ -122,134 +120,168 @@ public abstract class HttpBase implements Protocol {
     }
     robots = new HttpRobotRulesParser();
   }
-  
+
   // Inherited Javadoc
   public void setConf(Configuration conf) {
-      this.conf = conf;
-      this.proxyHost = conf.get("http.proxy.host");
-      this.proxyPort = conf.getInt("http.proxy.port", 8080);
-      this.useProxy = (proxyHost != null && proxyHost.length() > 0);
-      this.timeout = conf.getInt("http.timeout", 10000);
-      this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
-      this.userAgent = getAgentString(conf.get("http.agent.name"), conf.get("http.agent.version"), conf
-              .get("http.agent.description"), conf.get("http.agent.url"), conf.get("http.agent.email"));
-      this.acceptLanguage = conf.get("http.accept.language", acceptLanguage);
-      this.accept = conf.get("http.accept", accept);
-      // backward-compatible default setting
-      this.useHttp11 = conf.getBoolean("http.useHttp11", false);
-      this.responseTime = conf.getBoolean("http.store.responsetime", true);
-      this.robots.setConf(conf);
-      
-      String[] protocols = conf.getStrings("http.tls.supported.protocols", "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3");
-      String[] ciphers = conf.getStrings("http.tls.supported.cipher.suites", 
-          "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384","TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-          "TLS_RSA_WITH_AES_256_CBC_SHA256","TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384","TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
-          "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256","TLS_DHE_DSS_WITH_AES_256_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-          "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA","TLS_RSA_WITH_AES_256_CBC_SHA","TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
-          "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA","TLS_DHE_RSA_WITH_AES_256_CBC_SHA","TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
-          "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256","TLS_RSA_WITH_AES_128_CBC_SHA256",
-          "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256","TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256","TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
-          "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-          "TLS_RSA_WITH_AES_128_CBC_SHA","TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA","TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
-          "TLS_DHE_RSA_WITH_AES_128_CBC_SHA","TLS_DHE_DSS_WITH_AES_128_CBC_SHA","TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
-          "TLS_ECDHE_RSA_WITH_RC4_128_SHA","SSL_RSA_WITH_RC4_128_SHA","TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
-          "TLS_ECDH_RSA_WITH_RC4_128_SHA","TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA","TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
-          "SSL_RSA_WITH_3DES_EDE_CBC_SHA","TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA","TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
-          "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA","SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA","SSL_RSA_WITH_RC4_128_MD5",
-          "TLS_EMPTY_RENEGOTIATION_INFO_SCSV","TLS_RSA_WITH_NULL_SHA256","TLS_ECDHE_ECDSA_WITH_NULL_SHA",
-          "TLS_ECDHE_RSA_WITH_NULL_SHA","SSL_RSA_WITH_NULL_SHA","TLS_ECDH_ECDSA_WITH_NULL_SHA","TLS_ECDH_RSA_WITH_NULL_SHA",
-          "SSL_RSA_WITH_NULL_MD5","SSL_RSA_WITH_DES_CBC_SHA","SSL_DHE_RSA_WITH_DES_CBC_SHA","SSL_DHE_DSS_WITH_DES_CBC_SHA",
-          "TLS_KRB5_WITH_RC4_128_SHA","TLS_KRB5_WITH_RC4_128_MD5","TLS_KRB5_WITH_3DES_EDE_CBC_SHA","TLS_KRB5_WITH_3DES_EDE_CBC_MD5",
-          "TLS_KRB5_WITH_DES_CBC_SHA","TLS_KRB5_WITH_DES_CBC_MD5");
+    this.conf = conf;
+    this.proxyHost = conf.get("http.proxy.host");
+    this.proxyPort = conf.getInt("http.proxy.port", 8080);
+    this.useProxy = (proxyHost != null && proxyHost.length() > 0);
+    this.timeout = conf.getInt("http.timeout", 10000);
+    this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
+    this.userAgent = getAgentString(conf.get("http.agent.name"),
+        conf.get("http.agent.version"), conf.get("http.agent.description"),
+        conf.get("http.agent.url"), conf.get("http.agent.email"));
+    this.acceptLanguage = conf.get("http.accept.language", acceptLanguage);
+    this.accept = conf.get("http.accept", accept);
+    // backward-compatible default setting
+    this.useHttp11 = conf.getBoolean("http.useHttp11", false);
+    this.responseTime = conf.getBoolean("http.store.responsetime", true);
+    this.robots.setConf(conf);
 
-      tlsPreferredProtocols = new HashSet<String>(Arrays.asList(protocols));
-      tlsPreferredCipherSuites = new HashSet<String>(Arrays.asList(ciphers));
+    String[] protocols = conf.getStrings("http.tls.supported.protocols",
+        "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3");
+    String[] ciphers = conf.getStrings("http.tls.supported.cipher.suites",
+        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+        "TLS_RSA_WITH_AES_256_CBC_SHA256",
+        "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
+        "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
+        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
+        "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+        "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+        "TLS_RSA_WITH_AES_128_CBC_SHA256",
+        "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
+        "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256",
+        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+        "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
+        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+        "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+        "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+        "SSL_RSA_WITH_RC4_128_SHA", "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
+        "TLS_ECDH_RSA_WITH_RC4_128_SHA",
+        "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+        "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+        "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+        "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+        "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
+        "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_RC4_128_MD5",
+        "TLS_EMPTY_RENEGOTIATION_INFO_SCSV", "TLS_RSA_WITH_NULL_SHA256",
+        "TLS_ECDHE_ECDSA_WITH_NULL_SHA", "TLS_ECDHE_RSA_WITH_NULL_SHA",
+        "SSL_RSA_WITH_NULL_SHA", "TLS_ECDH_ECDSA_WITH_NULL_SHA",
+        "TLS_ECDH_RSA_WITH_NULL_SHA", "SSL_RSA_WITH_NULL_MD5",
+        "SSL_RSA_WITH_DES_CBC_SHA", "SSL_DHE_RSA_WITH_DES_CBC_SHA",
+        "SSL_DHE_DSS_WITH_DES_CBC_SHA", "TLS_KRB5_WITH_RC4_128_SHA",
+        "TLS_KRB5_WITH_RC4_128_MD5", "TLS_KRB5_WITH_3DES_EDE_CBC_SHA",
+        "TLS_KRB5_WITH_3DES_EDE_CBC_MD5", "TLS_KRB5_WITH_DES_CBC_SHA",
+        "TLS_KRB5_WITH_DES_CBC_MD5");
 
-      logConf();
+    tlsPreferredProtocols = new HashSet<String>(Arrays.asList(protocols));
+    tlsPreferredCipherSuites = new HashSet<String>(Arrays.asList(ciphers));
+
+    logConf();
   }
 
   // Inherited Javadoc
   public Configuration getConf() {
     return this.conf;
   }
-  
+
   public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
-    
+
     String urlString = url.toString();
     try {
       URL u = new URL(urlString);
-      
+
       long startTime = System.currentTimeMillis();
       Response response = getResponse(u, datum, false); // make a request
-      
-      if(this.responseTime) {
+
+      if (this.responseTime) {
         int elapsedTime = (int) (System.currentTimeMillis() - startTime);
         datum.getMetaData().put(RESPONSE_TIME, new IntWritable(elapsedTime));
       }
-      
+
       int code = response.getCode();
       byte[] content = response.getContent();
       Content c = new Content(u.toString(), u.toString(),
-                              (content == null ? EMPTY_CONTENT : content),
-                              response.getHeader("Content-Type"),
-                              response.getHeaders(), this.conf);
-      
+          (content == null ? EMPTY_CONTENT : content),
+          response.getHeader("Content-Type"), response.getHeaders(), this.conf);
+
       if (code == 200) { // got a good response
         return new ProtocolOutput(c); // return it
-        
+
       } else if (code >= 300 && code < 400) { // handle redirect
         String location = response.getHeader("Location");
         // some broken servers, such as MS IIS, use lowercase header name...
-        if (location == null) location = response.getHeader("location");
-        if (location == null) location = "";
+        if (location == null)
+          location = response.getHeader("location");
+        if (location == null)
+          location = "";
         u = new URL(u, location);
         int protocolStatusCode;
         switch (code) {
-          case 300:   // multiple choices, preferred value in Location
-            protocolStatusCode = ProtocolStatus.MOVED;
-            break;
-          case 301:   // moved permanently
-          case 305:   // use proxy (Location is URL of proxy)
-            protocolStatusCode = ProtocolStatus.MOVED;
-            break;
-          case 302:   // found (temporarily moved)
-          case 303:   // see other (redirect after POST)
-          case 307:   // temporary redirect
-            protocolStatusCode = ProtocolStatus.TEMP_MOVED;
-            break;
-          case 304:   // not modified
-            protocolStatusCode = ProtocolStatus.NOTMODIFIED;
-            break;
-          default:
-            protocolStatusCode = ProtocolStatus.MOVED;
+        case 300: // multiple choices, preferred value in Location
+          protocolStatusCode = ProtocolStatus.MOVED;
+          break;
+        case 301: // moved permanently
+        case 305: // use proxy (Location is URL of proxy)
+          protocolStatusCode = ProtocolStatus.MOVED;
+          break;
+        case 302: // found (temporarily moved)
+        case 303: // see other (redirect after POST)
+        case 307: // temporary redirect
+          protocolStatusCode = ProtocolStatus.TEMP_MOVED;
+          break;
+        case 304: // not modified
+          protocolStatusCode = ProtocolStatus.NOTMODIFIED;
+          break;
+        default:
+          protocolStatusCode = ProtocolStatus.MOVED;
         }
         // handle this in the higher layer.
         return new ProtocolOutput(c, new ProtocolStatus(protocolStatusCode, u));
       } else if (code == 400) { // bad request, mark as GONE
-        if (logger.isTraceEnabled()) { logger.trace("400 Bad request: " + u); }
+        if (logger.isTraceEnabled()) {
+          logger.trace("400 Bad request: " + u);
+        }
         return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, u));
-      } else if (code == 401) { // requires authorization, but no valid auth provided.
-        if (logger.isTraceEnabled()) { logger.trace("401 Authentication Required"); }
-        return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.ACCESS_DENIED, "Authentication required: "
+      } else if (code == 401) { // requires authorization, but no valid auth
+                                // provided.
+        if (logger.isTraceEnabled()) {
+          logger.trace("401 Authentication Required");
+        }
+        return new ProtocolOutput(c, new ProtocolStatus(
+            ProtocolStatus.ACCESS_DENIED, "Authentication required: "
                 + urlString));
       } else if (code == 404) {
-        return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.NOTFOUND, u));
+        return new ProtocolOutput(c, new ProtocolStatus(
+            ProtocolStatus.NOTFOUND, u));
       } else if (code == 410) { // permanently GONE
-        return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, "Http: " + code + " url=" + u));
+        return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE,
+            "Http: " + code + " url=" + u));
       } else {
-        return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.EXCEPTION, "Http code=" + code + ", url="
-                + u));
+        return new ProtocolOutput(c, new ProtocolStatus(
+            ProtocolStatus.EXCEPTION, "Http code=" + code + ", url=" + u));
       }
     } catch (Throwable e) {
       logger.error("Failed to get protocol output", e);
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
-  
-  /* -------------------------- *
-   * </implementation:Protocol> *
-   * -------------------------- */
 
+  /*
+   * -------------------------- * </implementation:Protocol> *
+   * --------------------------
+   */
 
   public String getProxyHost() {
     return proxyHost;
@@ -274,70 +306,69 @@ public abstract class HttpBase implements Protocol {
   public String getUserAgent() {
     return userAgent;
   }
-  
-  /** Value of "Accept-Language" request header sent by Nutch.
+
+  /**
+   * Value of "Accept-Language" request header sent by Nutch.
+   * 
    * @return The value of the header "Accept-Language" header.
    */
   public String getAcceptLanguage() {
-         return acceptLanguage;
+    return acceptLanguage;
   }
 
   public String getAccept() {
-         return accept;
+    return accept;
   }
 
   public boolean getUseHttp11() {
     return useHttp11;
   }
-  
+
   public Set<String> getTlsPreferredCipherSuites() {
     return tlsPreferredCipherSuites;
   }
-  
+
   public Set<String> getTlsPreferredProtocols() {
     return tlsPreferredProtocols;
   }
 
-  private static String getAgentString(String agentName,
-                                       String agentVersion,
-                                       String agentDesc,
-                                       String agentURL,
-                                       String agentEmail) {
-    
-    if ( (agentName == null) || (agentName.trim().length() == 0) ) {
+  private static String getAgentString(String agentName, String agentVersion,
+      String agentDesc, String agentURL, String agentEmail) {
+
+    if ((agentName == null) || (agentName.trim().length() == 0)) {
       // TODO : NUTCH-258
       if (LOGGER.isErrorEnabled()) {
         LOGGER.error("No User-Agent string set (http.agent.name)!");
       }
     }
-    
-    StringBuffer buf= new StringBuffer();
-    
+
+    StringBuffer buf = new StringBuffer();
+
     buf.append(agentName);
     if (agentVersion != null) {
       buf.append("/");
       buf.append(agentVersion);
     }
-    if ( ((agentDesc != null) && (agentDesc.length() != 0))
-    || ((agentEmail != null) && (agentEmail.length() != 0))
-    || ((agentURL != null) && (agentURL.length() != 0)) ) {
+    if (((agentDesc != null) && (agentDesc.length() != 0))
+        || ((agentEmail != null) && (agentEmail.length() != 0))
+        || ((agentURL != null) && (agentURL.length() != 0))) {
       buf.append(" (");
-      
+
       if ((agentDesc != null) && (agentDesc.length() != 0)) {
         buf.append(agentDesc);
-        if ( (agentURL != null) || (agentEmail != null) )
+        if ((agentURL != null) || (agentEmail != null))
           buf.append("; ");
       }
-      
+
       if ((agentURL != null) && (agentURL.length() != 0)) {
         buf.append(agentURL);
         if (agentEmail != null)
           buf.append("; ");
       }
-      
+
       if ((agentEmail != null) && (agentEmail.length() != 0))
         buf.append(agentEmail);
-      
+
       buf.append(")");
     }
     return buf.toString();
@@ -354,52 +385,59 @@ public abstract class HttpBase implements Protocol {
       logger.info("http.accept = " + accept);
     }
   }
-  
-  public byte[] processGzipEncoded(byte[] compressed, URL url) throws IOException {
 
-    if (LOGGER.isTraceEnabled()) { LOGGER.trace("uncompressing...."); }
+  public byte[] processGzipEncoded(byte[] compressed, URL url)
+      throws IOException {
+
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("uncompressing....");
+    }
 
     // content can be empty (i.e. redirection) in which case
     // there is nothing to unzip
     if (compressed.length == 0)
       return compressed;
-    
+
     byte[] content;
     if (getMaxContent() >= 0) {
-        content = GZIPUtils.unzipBestEffort(compressed, getMaxContent());
+      content = GZIPUtils.unzipBestEffort(compressed, getMaxContent());
     } else {
-        content = GZIPUtils.unzipBestEffort(compressed);
-    } 
+      content = GZIPUtils.unzipBestEffort(compressed);
+    }
 
     if (content == null)
       throw new IOException("unzipBestEffort returned null");
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("fetched " + compressed.length
-                 + " bytes of compressed content (expanded to "
-                 + content.length + " bytes) from " + url);
+          + " bytes of compressed content (expanded to " + content.length
+          + " bytes) from " + url);
     }
     return content;
   }
 
-  public byte[] processDeflateEncoded(byte[] compressed, URL url) throws IOException {
+  public byte[] processDeflateEncoded(byte[] compressed, URL url)
+      throws IOException {
 
     // content can be empty (i.e. redirection) in which case
     // there is nothing to deflate
     if (compressed.length == 0)
       return compressed;
-    
-    if (LOGGER.isTraceEnabled()) { LOGGER.trace("inflating...."); }
 
-    byte[] content = DeflateUtils.inflateBestEffort(compressed, getMaxContent());
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("inflating....");
+    }
+
+    byte[] content = DeflateUtils
+        .inflateBestEffort(compressed, getMaxContent());
 
     if (content == null)
       throw new IOException("inflateBestEffort returned null");
 
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("fetched " + compressed.length
-                 + " bytes of compressed content (expanded to "
-                 + content.length + " bytes) from " + url);
+          + " bytes of compressed content (expanded to " + content.length
+          + " bytes) from " + url);
     }
     return content;
   }
@@ -407,14 +445,14 @@ public abstract class HttpBase implements Protocol {
   protected static void main(HttpBase http, String[] args) throws Exception {
     boolean verbose = false;
     String url = null;
-    
+
     String usage = "Usage: Http [-verbose] [-timeout N] url";
-    
+
     if (args.length == 0) {
       System.err.println(usage);
       System.exit(-1);
     }
-    
+
     for (int i = 0; i < args.length; i++) { // parse command line
       if (args[i].equals("-timeout")) { // found -timeout option
         http.timeout = Integer.parseInt(args[++i]) * 1000;
@@ -423,35 +461,34 @@ public abstract class HttpBase implements Protocol {
       } else if (i != args.length - 1) {
         System.err.println(usage);
         System.exit(-1);
-      } else // root is required parameter
+      } else
+        // root is required parameter
         url = args[i];
     }
-    
-//    if (verbose) {
-//      LOGGER.setLevel(Level.FINE);
-//    }
-    
-    ProtocolOutput out = http.getProtocolOutput(new Text(url), new CrawlDatum());
+
+    // if (verbose) {
+    // LOGGER.setLevel(Level.FINE);
+    // }
+
+    ProtocolOutput out = http
+        .getProtocolOutput(new Text(url), new CrawlDatum());
     Content content = out.getContent();
-    
+
     System.out.println("Status: " + out.getStatus());
     if (content != null) {
       System.out.println("Content Type: " + content.getContentType());
-      System.out.println("Content Length: " +
-                         content.getMetadata().get(Response.CONTENT_LENGTH));
+      System.out.println("Content Length: "
+          + content.getMetadata().get(Response.CONTENT_LENGTH));
       System.out.println("Content:");
       String text = new String(content.getContent());
       System.out.println(text);
-    }  
+    }
   }
-  
-  protected abstract Response getResponse(URL url,
-                                          CrawlDatum datum,
-                                          boolean followRedirects)
-    throws ProtocolException, IOException;
+
+  protected abstract Response getResponse(URL url, CrawlDatum datum,
+      boolean followRedirects) throws ProtocolException, IOException;
 
   public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
     return robots.getRobotRulesSet(this, url);
   }
 }
-

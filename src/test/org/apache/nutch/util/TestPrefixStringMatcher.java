@@ -23,99 +23,93 @@ import org.junit.Test;
 /** Unit tests for PrefixStringMatcher. */
 public class TestPrefixStringMatcher {
 
+  private final static int NUM_TEST_ROUNDS = 20;
+  private final static int MAX_TEST_PREFIXES = 100;
+  private final static int MAX_PREFIX_LEN = 10;
+  private final static int NUM_TEST_INPUTS_PER_ROUND = 100;
+  private final static int MAX_INPUT_LEN = 20;
 
-  private final static int NUM_TEST_ROUNDS= 20;
-  private final static int MAX_TEST_PREFIXES= 100;
-  private final static int MAX_PREFIX_LEN= 10;
-  private final static int NUM_TEST_INPUTS_PER_ROUND= 100;
-  private final static int MAX_INPUT_LEN= 20;
-
-  private final static char[] alphabet= 
-    new char[] {
-      'a', 'b', 'c', 'd',
-//      'e', 'f', 'g', 'h', 'i', 'j',
-//      'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-//      'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4',
-//      '5', '6', '7', '8', '9', '0'
-    };
+  private final static char[] alphabet = new char[] { 'a', 'b', 'c', 'd',
+  // 'e', 'f', 'g', 'h', 'i', 'j',
+  // 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+  // 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3', '4',
+  // '5', '6', '7', '8', '9', '0'
+  };
 
   private String makeRandString(int minLen, int maxLen) {
-    int len= minLen + (int) (Math.random() * (maxLen - minLen));
-    char[] chars= new char[len];
-    
-    for (int pos= 0; pos < len; pos++) {
-      chars[pos]= alphabet[(int) (Math.random() * alphabet.length)];
+    int len = minLen + (int) (Math.random() * (maxLen - minLen));
+    char[] chars = new char[len];
+
+    for (int pos = 0; pos < len; pos++) {
+      chars[pos] = alphabet[(int) (Math.random() * alphabet.length)];
     }
-    
+
     return new String(chars);
   }
-  
+
   @Test
   public void testPrefixMatcher() {
-    int numMatches= 0;
-    int numInputsTested= 0;
+    int numMatches = 0;
+    int numInputsTested = 0;
 
-    for (int round= 0; round < NUM_TEST_ROUNDS; round++) {
+    for (int round = 0; round < NUM_TEST_ROUNDS; round++) {
 
       // build list of prefixes
-      int numPrefixes= (int) (Math.random() * MAX_TEST_PREFIXES);
-      String[] prefixes= new String[numPrefixes];
-      for (int i= 0; i < numPrefixes; i++) {
-        prefixes[i]= makeRandString(0, MAX_PREFIX_LEN);
+      int numPrefixes = (int) (Math.random() * MAX_TEST_PREFIXES);
+      String[] prefixes = new String[numPrefixes];
+      for (int i = 0; i < numPrefixes; i++) {
+        prefixes[i] = makeRandString(0, MAX_PREFIX_LEN);
       }
 
-      PrefixStringMatcher prematcher= new PrefixStringMatcher(prefixes);
+      PrefixStringMatcher prematcher = new PrefixStringMatcher(prefixes);
 
       // test random strings for prefix matches
-      for (int i= 0; i < NUM_TEST_INPUTS_PER_ROUND; i++) {
-        String input= makeRandString(0, MAX_INPUT_LEN);
-        boolean matches= false;
-        int longestMatch= -1;
-        int shortestMatch= -1;
+      for (int i = 0; i < NUM_TEST_INPUTS_PER_ROUND; i++) {
+        String input = makeRandString(0, MAX_INPUT_LEN);
+        boolean matches = false;
+        int longestMatch = -1;
+        int shortestMatch = -1;
 
-        for (int j= 0; j < prefixes.length; j++) {
+        for (int j = 0; j < prefixes.length; j++) {
 
-          if ((prefixes[j].length() > 0) 
-              && input.startsWith(prefixes[j])) {
+          if ((prefixes[j].length() > 0) && input.startsWith(prefixes[j])) {
 
-            matches= true;
-            int matchSize= prefixes[j].length();
+            matches = true;
+            int matchSize = prefixes[j].length();
 
-            if (matchSize > longestMatch) 
-              longestMatch= matchSize;
+            if (matchSize > longestMatch)
+              longestMatch = matchSize;
 
-            if ( (matchSize < shortestMatch)
-                 || (shortestMatch == -1) )
-              shortestMatch= matchSize;
+            if ((matchSize < shortestMatch) || (shortestMatch == -1))
+              shortestMatch = matchSize;
           }
 
         }
 
-        if (matches) 
+        if (matches)
           numMatches++;
 
         numInputsTested++;
 
-        Assert.assertTrue( "'" + input + "' should " + (matches ? "" : "not ") 
-                    + "match!",
-                    matches == prematcher.matches(input) );
+        Assert.assertTrue("'" + input + "' should " + (matches ? "" : "not ")
+            + "match!", matches == prematcher.matches(input));
         if (matches) {
-          Assert.assertTrue( shortestMatch 
-                      == prematcher.shortestMatch(input).length());
-          Assert.assertTrue( input.substring(0, shortestMatch).equals(
-                        prematcher.shortestMatch(input)) );
+          Assert.assertTrue(shortestMatch == prematcher.shortestMatch(input)
+              .length());
+          Assert.assertTrue(input.substring(0, shortestMatch).equals(
+              prematcher.shortestMatch(input)));
 
-          Assert.assertTrue( longestMatch 
-                      == prematcher.longestMatch(input).length());
-          Assert.assertTrue( input.substring(0, longestMatch).equals(
-                        prematcher.longestMatch(input)) );
+          Assert.assertTrue(longestMatch == prematcher.longestMatch(input)
+              .length());
+          Assert.assertTrue(input.substring(0, longestMatch).equals(
+              prematcher.longestMatch(input)));
 
         }
       }
     }
 
-    System.out.println("got " + numMatches + " matches out of " 
-                       + numInputsTested + " tests");
+    System.out.println("got " + numMatches + " matches out of "
+        + numInputsTested + " tests");
   }
 
 }

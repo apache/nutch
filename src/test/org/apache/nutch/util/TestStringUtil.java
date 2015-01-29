@@ -24,37 +24,37 @@ import org.junit.Test;
 public class TestStringUtil {
 
   public void testRightPad() {
-    String s= "my string";
+    String s = "my string";
 
-    String ps= StringUtil.rightPad(s, 0);
+    String ps = StringUtil.rightPad(s, 0);
     Assert.assertTrue(s.equals(ps));
 
-    ps= StringUtil.rightPad(s, 9);
+    ps = StringUtil.rightPad(s, 9);
     Assert.assertTrue(s.equals(ps));
 
-    ps= StringUtil.rightPad(s, 10);
-    Assert.assertTrue( (s+" ").equals(ps) );
+    ps = StringUtil.rightPad(s, 10);
+    Assert.assertTrue((s + " ").equals(ps));
 
-    ps= StringUtil.rightPad(s, 15);
-    Assert.assertTrue( (s+"      ").equals(ps) );
+    ps = StringUtil.rightPad(s, 15);
+    Assert.assertTrue((s + "      ").equals(ps));
 
   }
 
   @Test
   public void testLeftPad() {
-    String s= "my string";
+    String s = "my string";
 
-    String ps= StringUtil.leftPad(s, 0);
+    String ps = StringUtil.leftPad(s, 0);
     Assert.assertTrue(s.equals(ps));
 
-    ps= StringUtil.leftPad(s, 9);
+    ps = StringUtil.leftPad(s, 9);
     Assert.assertTrue(s.equals(ps));
 
-    ps= StringUtil.leftPad(s, 10);
-    Assert.assertTrue( (" "+s).equals(ps) );
+    ps = StringUtil.leftPad(s, 10);
+    Assert.assertTrue((" " + s).equals(ps));
 
-    ps= StringUtil.leftPad(s, 15);
-    Assert.assertTrue( ("      "+s).equals(ps) );
+    ps = StringUtil.leftPad(s, 15);
+    Assert.assertTrue(("      " + s).equals(ps));
 
   }
 

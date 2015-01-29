@@ -30,8 +30,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.NutchConfiguration;
 
-
-/** Data extracted from a page's content.
+/**
+ * Data extracted from a page's content.
+ * 
  * @see Parse#getData()
  */
 public final class ParseData extends VersionedWritable {
@@ -45,19 +46,19 @@ public final class ParseData extends VersionedWritable {
   private Metadata parseMeta;
   private ParseStatus status;
   private byte version = VERSION;
-  
+
   public ParseData() {
     contentMeta = new Metadata();
     parseMeta = new Metadata();
   }
 
   public ParseData(ParseStatus status, String title, Outlink[] outlinks,
-                   Metadata contentMeta) {
+      Metadata contentMeta) {
     this(status, title, outlinks, contentMeta, new Metadata());
   }
-  
+
   public ParseData(ParseStatus status, String title, Outlink[] outlinks,
-                   Metadata contentMeta, Metadata parseMeta) {
+      Metadata contentMeta, Metadata parseMeta) {
     this.status = status;
     this.title = title;
     this.outlinks = outlinks;
@@ -70,25 +71,34 @@ public final class ParseData extends VersionedWritable {
   //
 
   /** The status of parsing the page. */
-  public ParseStatus getStatus() { return status; }
-  
+  public ParseStatus getStatus() {
+    return status;
+  }
+
   /** The title of the page. */
-  public String getTitle() { return title; }
+  public String getTitle() {
+    return title;
+  }
 
   /** The outlinks of the page. */
-  public Outlink[] getOutlinks() { return outlinks; }
+  public Outlink[] getOutlinks() {
+    return outlinks;
+  }
 
   /** The original Metadata retrieved from content */
-  public Metadata getContentMeta() { return contentMeta; }
+  public Metadata getContentMeta() {
+    return contentMeta;
+  }
 
   /**
-   * Other content properties.
-   * This is the place to find format-specific properties.
-   * Different parser implementations for different content types will populate
-   * this differently.
+   * Other content properties. This is the place to find format-specific
+   * properties. Different parser implementations for different content types
+   * will populate this differently.
    */
-  public Metadata getParseMeta() { return parseMeta; }
-  
+  public Metadata getParseMeta() {
+    return parseMeta;
+  }
+
   public void setParseMeta(Metadata parseMeta) {
     this.parseMeta = parseMeta;
   }
@@ -96,11 +106,12 @@ public final class ParseData extends VersionedWritable {
   public void setOutlinks(Outlink[] outlinks) {
     this.outlinks = outlinks;
   }
-  
+
   /**
-   * Get a metadata single value.
-   * This method first looks for the metadata value in the parse metadata. If no
-   * value is found it the looks for the metadata in the content metadata.
+   * Get a metadata single value. This method first looks for the metadata value
+   * in the parse metadata. If no value is found it the looks for the metadata
+   * in the content metadata.
+   * 
    * @see #getContentMeta()
    * @see #getParseMeta()
    */
@@ -111,12 +122,14 @@ public final class ParseData extends VersionedWritable {
     }
     return value;
   }
-  
+
   //
   // Writable methods
   //
 
-  public byte getVersion() { return version; }
+  public byte getVersion() {
+    return version;
+  }
 
   public final void readFields(DataInput in) throws IOException {
 
@@ -125,16 +138,16 @@ public final class ParseData extends VersionedWritable {
     if (version != VERSION)
       throw new VersionMismatchException(VERSION, version);
     status = ParseStatus.read(in);
-    title = Text.readString(in);                   // read title
+    title = Text.readString(in); // read title
 
-    int numOutlinks = in.readInt();    
+    int numOutlinks = in.readInt();
     outlinks = new Outlink[numOutlinks];
     for (int i = 0; i < numOutlinks; i++) {
       outlinks[i] = Outlink.read(in);
     }
-    
+
     if (version < 3) {
-      int propertyCount = in.readInt();             // read metadata
+      int propertyCount = in.readInt(); // read metadata
       contentMeta.clear();
       for (int i = 0; i < propertyCount; i++) {
         contentMeta.add(Text.readString(in), Text.readString(in));
@@ -150,15 +163,15 @@ public final class ParseData extends VersionedWritable {
   }
 
   public final void write(DataOutput out) throws IOException {
-    out.writeByte(VERSION);                       // write version
-    status.write(out);                            // write status
-    Text.writeString(out, title);                 // write title
+    out.writeByte(VERSION); // write version
+    status.write(out); // write status
+    Text.writeString(out, title); // write title
 
-    out.writeInt(outlinks.length);                // write outlinks
+    out.writeInt(outlinks.length); // write outlinks
     for (int i = 0; i < outlinks.length; i++) {
       outlinks[i].write(out);
     }
-    contentMeta.write(out);                      // write content metadata
+    contentMeta.write(out); // write content metadata
     parseMeta.write(out);
   }
 
@@ -175,38 +188,36 @@ public final class ParseData extends VersionedWritable {
   public boolean equals(Object o) {
     if (!(o instanceof ParseData))
       return false;
-    ParseData other = (ParseData)o;
-    return
-      this.status.equals(other.status) &&
-      this.title.equals(other.title) &&
-      Arrays.equals(this.outlinks, other.outlinks) &&
-      this.contentMeta.equals(other.contentMeta) &&
-      this.parseMeta.equals(other.parseMeta);
+    ParseData other = (ParseData) o;
+    return this.status.equals(other.status) && this.title.equals(other.title)
+        && Arrays.equals(this.outlinks, other.outlinks)
+        && this.contentMeta.equals(other.contentMeta)
+        && this.parseMeta.equals(other.parseMeta);
   }
 
   public String toString() {
     StringBuffer buffer = new StringBuffer();
 
-    buffer.append("Version: " + version + "\n" );
-    buffer.append("Status: " + status + "\n" );
-    buffer.append("Title: " + title + "\n" );
+    buffer.append("Version: " + version + "\n");
+    buffer.append("Status: " + status + "\n");
+    buffer.append("Title: " + title + "\n");
 
     if (outlinks != null) {
-      buffer.append("Outlinks: " + outlinks.length + "\n" );
+      buffer.append("Outlinks: " + outlinks.length + "\n");
       for (int i = 0; i < outlinks.length; i++) {
         buffer.append("  outlink: " + outlinks[i] + "\n");
       }
     }
 
-    buffer.append("Content Metadata: " + contentMeta + "\n" );
-    buffer.append("Parse Metadata: " + parseMeta + "\n" );
+    buffer.append("Content Metadata: " + contentMeta + "\n");
+    buffer.append("Parse Metadata: " + parseMeta + "\n");
 
     return buffer.toString();
   }
 
   public static void main(String argv[]) throws Exception {
     String usage = "ParseData (-local | -dfs <namenode:port>) recno segment";
-    
+
     if (argv.length < 3) {
       System.out.println("usage:" + usage);
       return;
@@ -214,13 +225,12 @@ public final class ParseData extends VersionedWritable {
 
     Options opts = new Options();
     Configuration conf = NutchConfiguration.create();
-    
-    GenericOptionsParser parser =
-      new GenericOptionsParser(conf, opts, argv);
-    
+
+    GenericOptionsParser parser = new GenericOptionsParser(conf, opts, argv);
+
     String[] remainingArgs = parser.getRemainingArgs();
     FileSystem fs = FileSystem.get(conf);
-    
+
     try {
       int recno = Integer.parseInt(remainingArgs[0]);
       String segment = remainingArgs[1];

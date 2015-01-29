@@ -49,7 +49,8 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate a sort value for Generate. */
-  public float generatorSortValue(Text url, CrawlDatum datum, float initSort) throws ScoringFilterException {
+  public float generatorSortValue(Text url, CrawlDatum datum, float initSort)
+      throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       initSort = this.filters[i].generatorSortValue(url, datum, initSort);
     }
@@ -57,48 +58,59 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate a new initial score, used when adding newly discovered pages. */
-  public void initialScore(Text url, CrawlDatum datum) throws ScoringFilterException {
+  public void initialScore(Text url, CrawlDatum datum)
+      throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].initialScore(url, datum);
     }
   }
 
   /** Calculate a new initial score, used when injecting new pages. */
-  public void injectedScore(Text url, CrawlDatum datum) throws ScoringFilterException {
+  public void injectedScore(Text url, CrawlDatum datum)
+      throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].injectedScore(url, datum);
     }
   }
 
   /** Calculate updated page score during CrawlDb.update(). */
-  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List<CrawlDatum> inlinked) throws ScoringFilterException {
+  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
+      List<CrawlDatum> inlinked) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].updateDbScore(url, old, datum, inlinked);
     }
   }
 
-  public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content) throws ScoringFilterException {
+  public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content)
+      throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].passScoreBeforeParsing(url, datum, content);
     }
   }
-  
-  public void passScoreAfterParsing(Text url, Content content, Parse parse) throws ScoringFilterException {
+
+  public void passScoreAfterParsing(Text url, Content content, Parse parse)
+      throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].passScoreAfterParsing(url, content, parse);
     }
   }
-  
-  public CrawlDatum distributeScoreToOutlinks(Text fromUrl, ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets, CrawlDatum adjust, int allCount) throws ScoringFilterException {
+
+  public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
+      ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
+      CrawlDatum adjust, int allCount) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
-      adjust = this.filters[i].distributeScoreToOutlinks(fromUrl, parseData, targets, adjust, allCount);
+      adjust = this.filters[i].distributeScoreToOutlinks(fromUrl, parseData,
+          targets, adjust, allCount);
     }
     return adjust;
   }
 
-  public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum, CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore) throws ScoringFilterException {
+  public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
+      CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
+      throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
-      initScore = this.filters[i].indexerScore(url, doc, dbDatum, fetchDatum, parse, inlinks, initScore);
+      initScore = this.filters[i].indexerScore(url, doc, dbDatum, fetchDatum,
+          parse, inlinks, initScore);
     }
     return initScore;
   }

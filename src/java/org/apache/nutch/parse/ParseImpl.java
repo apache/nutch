@@ -20,8 +20,9 @@ package org.apache.nutch.parse;
 import java.io.*;
 import org.apache.hadoop.io.*;
 
-
-/** The result of parsing a page's raw content.
+/**
+ * The result of parsing a page's raw content.
+ * 
  * @see Parser#getParse(Content)
  */
 public class ParseImpl implements Parse, Writable {
@@ -29,7 +30,8 @@ public class ParseImpl implements Parse, Writable {
   private ParseData data;
   private boolean isCanonical;
 
-  public ParseImpl() {}
+  public ParseImpl() {
+  }
 
   public ParseImpl(Parse parse) {
     this(new ParseText(parse.getText()), parse.getData(), true);
@@ -38,7 +40,7 @@ public class ParseImpl implements Parse, Writable {
   public ParseImpl(String text, ParseData data) {
     this(new ParseText(text), data, true);
   }
-  
+
   public ParseImpl(ParseText text, ParseData data) {
     this(text, data, true);
   }
@@ -49,12 +51,18 @@ public class ParseImpl implements Parse, Writable {
     this.isCanonical = isCanonical;
   }
 
-  public String getText() { return text.getText(); }
+  public String getText() {
+    return text.getText();
+  }
 
-  public ParseData getData() { return data; }
+  public ParseData getData() {
+    return data;
+  }
 
-  public boolean isCanonical() { return isCanonical; }
-  
+  public boolean isCanonical() {
+    return isCanonical;
+  }
+
   public final void write(DataOutput out) throws IOException {
     out.writeBoolean(isCanonical);
     text.write(out);

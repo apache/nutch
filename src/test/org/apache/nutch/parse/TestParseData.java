@@ -31,30 +31,27 @@ public class TestParseData {
 
     String title = "The Foo Page";
 
-    Outlink[] outlinks = new Outlink[] {
-      new Outlink("http://foo.com/", "Foo"),
-      new Outlink("http://bar.com/", "Bar")
-    };
+    Outlink[] outlinks = new Outlink[] { new Outlink("http://foo.com/", "Foo"),
+        new Outlink("http://bar.com/", "Bar") };
 
     Metadata metaData = new Metadata();
     metaData.add("Language", "en/us");
     metaData.add("Charset", "UTF-8");
 
-    ParseData r = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
-                        
+    ParseData r = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks,
+        metaData);
+
     WritableTestUtils.testWritable(r, null);
   }
 
   @Test
   public void testMaxOutlinks() throws Exception {
     Outlink[] outlinks = new Outlink[128];
-    for (int i=0; i<outlinks.length; i++) {
+    for (int i = 0; i < outlinks.length; i++) {
       outlinks[i] = new Outlink("http://outlink.com/" + i, "Outlink" + i);
     }
     ParseData original = new ParseData(ParseStatus.STATUS_SUCCESS,
-                                       "Max Outlinks Title",
-                                       outlinks,
-                                       new Metadata());
+        "Max Outlinks Title", outlinks, new Metadata());
     ParseData data = (ParseData) WritableTestUtils.writeRead(original, null);
     Assert.assertEquals(outlinks.length, data.getOutlinks().length);
   }

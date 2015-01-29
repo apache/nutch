@@ -34,23 +34,25 @@ import org.apache.nutch.util.domain.DomainSuffix;
 
 /**
  * Adds the Top level domain extensions to the index
+ * 
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
  */
 public class TLDIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory.getLogger(TLDIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(TLDIndexingFilter.class);
 
   private Configuration conf;
 
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text urlText, CrawlDatum datum, Inlinks inlinks)
-  throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text urlText,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
     try {
       URL url = new URL(urlText.toString());
       DomainSuffix d = URLUtil.getDomainSuffix(url);
-      
+
       doc.add("tld", d.getDomain());
-      
-    }catch (Exception ex) {
+
+    } catch (Exception ex) {
       LOG.warn(ex.toString());
     }
 

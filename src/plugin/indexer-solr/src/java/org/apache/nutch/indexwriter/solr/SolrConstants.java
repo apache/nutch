@@ -30,10 +30,10 @@ public interface SolrConstants {
   public static final String USERNAME = SOLR_PREFIX + "auth.username";
 
   public static final String PASSWORD = SOLR_PREFIX + "auth.password";
-  
+
   @Deprecated
   public static final String COMMIT_INDEX = SOLR_PREFIX + "commit.index";
-  
+
   @Deprecated
   public static final String PARAMS = SOLR_PREFIX + "params";
 

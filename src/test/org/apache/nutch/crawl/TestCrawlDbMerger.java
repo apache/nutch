@@ -34,18 +34,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestCrawlDbMerger {
-  private static final Logger LOG = Logger.getLogger(CrawlDbMerger.class.getName());
-  
+  private static final Logger LOG = Logger.getLogger(CrawlDbMerger.class
+      .getName());
+
   String url10 = "http://example.com/";
   String url11 = "http://example.com/foo";
   String url20 = "http://example.com/";
   String url21 = "http://example.com/bar";
-  String[] urls_expected = new String[] {
-          url10,
-          url11,
-          url21
-  };
-  
+  String[] urls_expected = new String[] { url10, url11, url21 };
+
   TreeSet<String> init1 = new TreeSet<String>();
   TreeSet<String> init2 = new TreeSet<String>();
   HashMap<String, CrawlDatum> expected = new HashMap<String, CrawlDatum>();
@@ -54,7 +51,7 @@ public class TestCrawlDbMerger {
   FileSystem fs;
   Path testDir;
   CrawlDbReader reader;
-  
+
   @Before
   public void setUp() throws Exception {
     init1.add(url10);
@@ -81,20 +78,21 @@ public class TestCrawlDbMerger {
     expected.put(url21, cd2);
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
-    testDir = new Path("test-crawldb-" +
-            new java.util.Random().nextInt());
+    testDir = new Path("test-crawldb-" + new java.util.Random().nextInt());
     fs.mkdirs(testDir);
   }
-  
+
   @After
   public void tearDown() {
     try {
       if (fs.exists(testDir))
         fs.delete(testDir, true);
-    } catch (Exception e) { }
+    } catch (Exception e) {
+    }
     try {
       reader.close();
-    } catch (Exception e) { }
+    } catch (Exception e) {
+    }
   }
 
   @Test
@@ -106,7 +104,7 @@ public class TestCrawlDbMerger {
     createCrawlDb(conf, fs, crawldb2, init2, cd2);
     CrawlDbMerger merger = new CrawlDbMerger(conf);
     LOG.fine("* merging crawldbs to " + output);
-    merger.merge(output, new Path[]{crawldb1, crawldb2}, false, false);
+    merger.merge(output, new Path[] { crawldb1, crawldb2 }, false, false);
     LOG.fine("* reading crawldb: " + output);
     reader = new CrawlDbReader();
     String crawlDb = output.toString();
@@ -127,11 +125,13 @@ public class TestCrawlDbMerger {
     reader.close();
     fs.delete(testDir, true);
   }
-  
-  private void createCrawlDb(Configuration config, FileSystem fs, Path crawldb, TreeSet<String> init, CrawlDatum cd) throws Exception {
+
+  private void createCrawlDb(Configuration config, FileSystem fs, Path crawldb,
+      TreeSet<String> init, CrawlDatum cd) throws Exception {
     LOG.fine("* creating crawldb: " + crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(config, fs, new Path(dir, "part-00000").toString(), Text.class, CrawlDatum.class);
+    MapFile.Writer writer = new MapFile.Writer(config, fs, new Path(dir,
+        "part-00000").toString(), Text.class, CrawlDatum.class);
     Iterator<String> it = init.iterator();
     while (it.hasNext()) {
       String key = it.next();

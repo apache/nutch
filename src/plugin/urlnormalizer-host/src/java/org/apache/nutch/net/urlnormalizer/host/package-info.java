@@ -20,3 +20,4 @@
  * configuration file.
  */
 package org.apache.nutch.net.urlnormalizer.host;
+

@@ -38,78 +38,77 @@ import org.apache.nutch.parse.ParseData;
  * @author mattmann
  * @since NUTCH-444
  * 
- * An {@link IndexingFilter} implementation to pull out the
- * relevant extracted {@link Metadata} fields from the RSS feeds
- * and into the index.
- *
+ *        An {@link IndexingFilter} implementation to pull out the relevant
+ *        extracted {@link Metadata} fields from the RSS feeds and into the
+ *        index.
+ * 
  */
 public class FeedIndexingFilter implements IndexingFilter {
-  
+
   public static final String dateFormatStr = "yyyyMMddHHmm";
-  
+
   private Configuration conf;
-  
+
   private final static String PUBLISHED_DATE = "publishedDate";
-  
+
   private final static String UPDATED_DATE = "updatedDate";
-  
+
   /**
    * Extracts out the relevant fields:
    * 
    * <ul>
-   *  <li>FEED_AUTHOR</li>
-   *  <li>FEED_TAGS</li>
-   *  <li>FEED_PUBLISHED</li>
-   *  <li>FEED_UPDATED</li>
-   *  <li>FEED</li>
+   * <li>FEED_AUTHOR</li>
+   * <li>FEED_TAGS</li>
+   * <li>FEED_PUBLISHED</li>
+   * <li>FEED_UPDATED</li>
+   * <li>FEED</li>
    * </ul>
    * 
-   * And sends them to the {@link Indexer} for indexing within the Nutch
-   * index.
-   *  
+   * And sends them to the {@link Indexer} for indexing within the Nutch index.
+   * 
    */
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum,
-                         Inlinks inlinks) throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
     ParseData parseData = parse.getData();
     Metadata parseMeta = parseData.getParseMeta();
-    
+
     String[] authors = parseMeta.getValues(Feed.FEED_AUTHOR);
     String[] tags = parseMeta.getValues(Feed.FEED_TAGS);
     String published = parseMeta.get(Feed.FEED_PUBLISHED);
     String updated = parseMeta.get(Feed.FEED_UPDATED);
     String feed = parseMeta.get(Feed.FEED);
-    
+
     if (authors != null) {
       for (String author : authors) {
         doc.add(Feed.FEED_AUTHOR, author);
       }
     }
-    
+
     if (tags != null) {
       for (String tag : tags) {
         doc.add(Feed.FEED_TAGS, tag);
       }
     }
-    
+
     if (feed != null)
       doc.add(Feed.FEED, feed);
-    
+
     if (published != null) {
       Date date = new Date(Long.parseLong(published));
       doc.add(PUBLISHED_DATE, date);
     }
-    
+
     if (updated != null) {
       Date date = new Date(Long.parseLong(updated));
       doc.add(UPDATED_DATE, date);
     }
-        
+
     return doc;
   }
 
   /**
-   * @return the {@link Configuration} object used to configure
-   * this {@link IndexingFilter}.
+   * @return the {@link Configuration} object used to configure this
+   *         {@link IndexingFilter}.
    */
   public Configuration getConf() {
     return conf;
@@ -119,8 +118,9 @@ public class FeedIndexingFilter implements IndexingFilter {
    * Sets the {@link Configuration} object used to configure this
    * {@link IndexingFilter}.
    * 
-   * @param conf The {@link Configuration} object used to configure
-   * this {@link IndexingFilter}.
+   * @param conf
+   *          The {@link Configuration} object used to configure this
+   *          {@link IndexingFilter}.
    */
   public void setConf(Configuration conf) {
     this.conf = conf;

@@ -34,138 +34,143 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Basic injector test:
- * 1. Creates a text file with urls
- * 2. Injects them into crawldb
- * 3. Reads crawldb entries and verifies contents
- * 4. Injects more urls into webdb
- * 5. Reads crawldb entries and verifies contents
+ * Basic injector test: 1. Creates a text file with urls 2. Injects them into
+ * crawldb 3. Reads crawldb entries and verifies contents 4. Injects more urls
+ * into webdb 5. Reads crawldb entries and verifies contents
  * 
  */
 public class TestInjector {
 
   private Configuration conf;
   private FileSystem fs;
-  final static Path testdir=new Path("build/test/inject-test");
+  final static Path testdir = new Path("build/test/inject-test");
   Path crawldbPath;
   Path urlPath;
-  
+
   @Before
   public void setUp() throws Exception {
     conf = CrawlDBTestUtil.createConfiguration();
-    urlPath=new Path(testdir,"urls");
-    crawldbPath=new Path(testdir,"crawldb");
-    fs=FileSystem.get(conf);
-    if (fs.exists(urlPath)) fs.delete(urlPath, false);
-    if (fs.exists(crawldbPath)) fs.delete(crawldbPath, true);
+    urlPath = new Path(testdir, "urls");
+    crawldbPath = new Path(testdir, "crawldb");
+    fs = FileSystem.get(conf);
+    if (fs.exists(urlPath))
+      fs.delete(urlPath, false);
+    if (fs.exists(crawldbPath))
+      fs.delete(crawldbPath, true);
   }
-  
+
   @After
-  public void tearDown() throws IOException{
+  public void tearDown() throws IOException {
     fs.delete(testdir, true);
   }
 
   @Test
   public void testInject() throws IOException {
-    ArrayList<String> urls=new ArrayList<String>();
-    // We'll use a separate list for MD so we can still compare url with containsAll
-    ArrayList<String> metadata=new ArrayList<String>();
-    for(int i=0;i<100;i++) {
+    ArrayList<String> urls = new ArrayList<String>();
+    // We'll use a separate list for MD so we can still compare url with
+    // containsAll
+    ArrayList<String> metadata = new ArrayList<String>();
+    for (int i = 0; i < 100; i++) {
       urls.add("http://zzz.com/" + i + ".html");
-      metadata.add("\tnutch.score=2." + i + "\tnutch.fetchInterval=171717\tkey=value");
+      metadata.add("\tnutch.score=2." + i
+          + "\tnutch.fetchInterval=171717\tkey=value");
     }
     CrawlDBTestUtil.generateSeedList(fs, urlPath, urls, metadata);
-    
-    Injector injector=new Injector(conf);
+
+    Injector injector = new Injector(conf);
     injector.inject(crawldbPath, urlPath);
-    
+
     // verify results
-    List<String>read=readCrawldb();
-    
+    List<String> read = readCrawldb();
+
     Collections.sort(read);
     Collections.sort(urls);
 
     Assert.assertEquals(urls.size(), read.size());
-    
+
     Assert.assertTrue(read.containsAll(urls));
     Assert.assertTrue(urls.containsAll(read));
-    
-    //inject more urls
-    ArrayList<String> urls2=new ArrayList<String>();
-    for(int i=0;i<100;i++) {
+
+    // inject more urls
+    ArrayList<String> urls2 = new ArrayList<String>();
+    for (int i = 0; i < 100; i++) {
       urls2.add("http://xxx.com/" + i + ".html");
-      // We'll overwrite previously injected records but preserve their original MD
+      // We'll overwrite previously injected records but preserve their original
+      // MD
       urls2.add("http://zzz.com/" + i + ".html");
     }
     CrawlDBTestUtil.generateSeedList(fs, urlPath, urls2);
-    injector=new Injector(conf);
+    injector = new Injector(conf);
     conf.setBoolean("db.injector.update", true);
     injector.inject(crawldbPath, urlPath);
     urls.addAll(urls2);
-    
+
     // verify results
-    read=readCrawldb();
+    read = readCrawldb();
 
     Collections.sort(read);
     Collections.sort(urls);
 
     // We should have 100 less records because we've overwritten
     Assert.assertEquals(urls.size() - 100, read.size());
-    
+
     Assert.assertTrue(read.containsAll(urls));
     Assert.assertTrue(urls.containsAll(read));
-    
+
     // Check if we correctly preserved MD
     Map<String, CrawlDatum> records = readCrawldbRecords();
-    
+
     // Iterate over the urls, we're looking for http://zzz.com/ prefixed URLs
     // so we can check for MD and score and interval
     Text writableKey = new Text("key");
     Text writableValue = new Text("value");
     for (String url : urls) {
-      if (url.indexOf("http://zzz") == 0) {       
+      if (url.indexOf("http://zzz") == 0) {
         // Check for fetch interval
         Assert.assertTrue(records.get(url).getFetchInterval() == 171717);
         // Check for default score
         Assert.assertTrue(records.get(url).getScore() != 1.0);
         // Check for MD key=value
-        Assert.assertEquals(writableValue, records.get(url).getMetaData().get(writableKey));
+        Assert.assertEquals(writableValue,
+            records.get(url).getMetaData().get(writableKey));
       }
     }
   }
-  
-  private List<String> readCrawldb() throws IOException{
-    Path dbfile=new Path(crawldbPath,CrawlDb.CURRENT_NAME + "/part-00000/data");
+
+  private List<String> readCrawldb() throws IOException {
+    Path dbfile = new Path(crawldbPath, CrawlDb.CURRENT_NAME
+        + "/part-00000/data");
     System.out.println("reading:" + dbfile);
     @SuppressWarnings("resource")
-    SequenceFile.Reader reader=new SequenceFile.Reader(fs, dbfile, conf);
-    ArrayList<String> read=new ArrayList<String>();
-    
-    READ:
-      do {
-      Text key=new Text();
-      CrawlDatum value=new CrawlDatum();
-      if(!reader.next(key, value)) break READ;
+    SequenceFile.Reader reader = new SequenceFile.Reader(fs, dbfile, conf);
+    ArrayList<String> read = new ArrayList<String>();
+
+    READ: do {
+      Text key = new Text();
+      CrawlDatum value = new CrawlDatum();
+      if (!reader.next(key, value))
+        break READ;
       read.add(key.toString());
-    } while(true);
+    } while (true);
 
     return read;
   }
-  
-  private HashMap<String,CrawlDatum> readCrawldbRecords() throws IOException{
-    Path dbfile=new Path(crawldbPath,CrawlDb.CURRENT_NAME + "/part-00000/data");
+
+  private HashMap<String, CrawlDatum> readCrawldbRecords() throws IOException {
+    Path dbfile = new Path(crawldbPath, CrawlDb.CURRENT_NAME
+        + "/part-00000/data");
     System.out.println("reading:" + dbfile);
     @SuppressWarnings("resource")
-    SequenceFile.Reader reader=new SequenceFile.Reader(fs, dbfile, conf);
-    HashMap<String,CrawlDatum> read=new HashMap<String,CrawlDatum>();
-    
-    READ:
-      do {
-      Text key=new Text();
-      CrawlDatum value=new CrawlDatum();
-      if(!reader.next(key, value)) break READ;
+    SequenceFile.Reader reader = new SequenceFile.Reader(fs, dbfile, conf);
+    HashMap<String, CrawlDatum> read = new HashMap<String, CrawlDatum>();
+
+    READ: do {
+      Text key = new Text();
+      CrawlDatum value = new CrawlDatum();
+      if (!reader.next(key, value))
+        break READ;
       read.put(key.toString(), value);
-    } while(true);
+    } while (true);
 
     return read;
   }

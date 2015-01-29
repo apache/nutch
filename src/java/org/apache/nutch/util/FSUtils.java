@@ -33,16 +33,20 @@ public class FSUtils {
    * path. If removeOld is set to false then the old path will be set to the
    * name current.old.
    * 
-   * @param fs The FileSystem.
-   * @param current The end path, the one being replaced.
-   * @param replacement The path to replace with.
-   * @param removeOld True if we are removing the current path.
+   * @param fs
+   *          The FileSystem.
+   * @param current
+   *          The end path, the one being replaced.
+   * @param replacement
+   *          The path to replace with.
+   * @param removeOld
+   *          True if we are removing the current path.
    * 
-   * @throws IOException If an error occurs during replacement.
+   * @throws IOException
+   *           If an error occurs during replacement.
    */
   public static void replace(FileSystem fs, Path current, Path replacement,
-    boolean removeOld)
-    throws IOException {
+      boolean removeOld) throws IOException {
 
     // rename any current path to old
     Path old = new Path(current + ".old");
@@ -60,12 +64,14 @@ public class FSUtils {
   /**
    * Closes a group of SequenceFile readers.
    * 
-   * @param readers The SequenceFile readers to close.
-   * @throws IOException If an error occurs while closing a reader.
+   * @param readers
+   *          The SequenceFile readers to close.
+   * @throws IOException
+   *           If an error occurs while closing a reader.
    */
   public static void closeReaders(SequenceFile.Reader[] readers)
-    throws IOException {
-    
+      throws IOException {
+
     // loop through the readers, closing one by one
     if (readers != null) {
       for (int i = 0; i < readers.length; i++) {
@@ -80,12 +86,13 @@ public class FSUtils {
   /**
    * Closes a group of MapFile readers.
    * 
-   * @param readers The MapFile readers to close.
-   * @throws IOException If an error occurs while closing a reader.
+   * @param readers
+   *          The MapFile readers to close.
+   * @throws IOException
+   *           If an error occurs while closing a reader.
    */
-  public static void closeReaders(MapFile.Reader[] readers)
-    throws IOException {
-    
+  public static void closeReaders(MapFile.Reader[] readers) throws IOException {
+
     // loop through the readers closing one by one
     if (readers != null) {
       for (int i = 0; i < readers.length; i++) {

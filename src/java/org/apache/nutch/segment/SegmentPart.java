@@ -30,16 +30,16 @@ public class SegmentPart {
   public String segmentName;
   /** Name of the segment part (ie. one of subdirectories inside a segment). */
   public String partName;
-  
+
   public SegmentPart() {
-    
+
   }
-  
+
   public SegmentPart(String segmentName, String partName) {
     this.segmentName = segmentName;
     this.partName = partName;
   }
-  
+
   /**
    * Return a String representation of this class, in the form
    * "segmentName/partName".
@@ -47,23 +47,27 @@ public class SegmentPart {
   public String toString() {
     return segmentName + "/" + partName;
   }
-  
+
   /**
    * Create SegmentPart from a FileSplit.
+   * 
    * @param split
-   * @return A {@link SegmentPart} resultant from a 
-   * {@link FileSplit}.
+   * @return A {@link SegmentPart} resultant from a {@link FileSplit}.
    * @throws Exception
    */
   public static SegmentPart get(FileSplit split) throws IOException {
     return get(split.getPath().toString());
   }
-  
+
   /**
    * Create SegmentPart from a full path of a location inside any segment part.
-   * @param path full path into a segment part (may include "part-xxxxx" components)
+   * 
+   * @param path
+   *          full path into a segment part (may include "part-xxxxx"
+   *          components)
    * @return SegmentPart instance describing this part.
-   * @throws IOException if any required path components are missing.
+   * @throws IOException
+   *           if any required path components are missing.
    */
   public static SegmentPart get(String path) throws IOException {
     // find part name
@@ -87,12 +91,15 @@ public class SegmentPart {
     String segment = dir.substring(idx + 1);
     return new SegmentPart(segment, part);
   }
-  
+
   /**
    * Create SegmentPart from a String in format "segmentName/partName".
-   * @param string input String
+   * 
+   * @param string
+   *          input String
    * @return parsed instance of SegmentPart
-   * @throws IOException if "/" is missing.
+   * @throws IOException
+   *           if "/" is missing.
    */
   public static SegmentPart parse(String string) throws IOException {
     int idx = string.indexOf('/');

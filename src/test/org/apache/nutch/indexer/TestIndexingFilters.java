@@ -33,13 +33,14 @@ public class TestIndexingFilters {
 
   /**
    * Test behaviour when defined filter does not exist.
+   * 
    * @throws IndexingException
    */
   @Test
   public void testNonExistingIndexingFilter() throws IndexingException {
     Configuration conf = NutchConfiguration.create();
-      conf.addResource("nutch-default.xml");
-      conf.addResource("crawl-tests.xml");
+    conf.addResource("nutch-default.xml");
+    conf.addResource("crawl-tests.xml");
 
     String class1 = "NonExistingFilter";
     String class2 = "org.apache.nutch.indexer.basic.BasicIndexingFilter";
@@ -47,34 +48,35 @@ public class TestIndexingFilters {
 
     IndexingFilters filters = new IndexingFilters(conf);
     filters.filter(new NutchDocument(), new ParseImpl("text", new ParseData(
-      new ParseStatus(), "title", new Outlink[0], new Metadata())), new Text(
-      "http://www.example.com/"), new CrawlDatum(), new Inlinks());
+        new ParseStatus(), "title", new Outlink[0], new Metadata())), new Text(
+        "http://www.example.com/"), new CrawlDatum(), new Inlinks());
   }
 
   /**
    * Test behaviour when NutchDOcument is null
    */
   @Test
-  public void testNutchDocumentNullIndexingFilter() throws IndexingException{
+  public void testNutchDocumentNullIndexingFilter() throws IndexingException {
     Configuration conf = NutchConfiguration.create();
     conf.addResource("nutch-default.xml");
     conf.addResource("crawl-tests.xml");
 
     IndexingFilters filters = new IndexingFilters(conf);
-    NutchDocument doc = filters.filter(null, new ParseImpl("text", new ParseData(
-      new ParseStatus(), "title", new Outlink[0], new Metadata())), new Text(
-      "http://www.example.com/"), new CrawlDatum(), new Inlinks());
-     
+    NutchDocument doc = filters.filter(null, new ParseImpl("text",
+        new ParseData(new ParseStatus(), "title", new Outlink[0],
+            new Metadata())), new Text("http://www.example.com/"),
+        new CrawlDatum(), new Inlinks());
+
     Assert.assertNull(doc);
   }
 
   /**
    * Test behaviour when reset the index filter order will not take effect
-   *
+   * 
    * @throws IndexingException
    */
   @Test
-  public void testFilterCacheIndexingFilter() throws IndexingException{
+  public void testFilterCacheIndexingFilter() throws IndexingException {
     Configuration conf = NutchConfiguration.create();
     conf.addResource("nutch-default.xml");
     conf.addResource("crawl-tests.xml");
@@ -83,24 +85,26 @@ public class TestIndexingFilters {
     conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1);
 
     IndexingFilters filters1 = new IndexingFilters(conf);
-    NutchDocument fdoc1 = filters1.filter(new NutchDocument(),new ParseImpl("text",new ParseData(
-      new ParseStatus(),"title",new Outlink[0],new Metadata())),new Text("http://www.example.com/"),
-      new CrawlDatum(),new Inlinks());
+    NutchDocument fdoc1 = filters1.filter(new NutchDocument(), new ParseImpl(
+        "text", new ParseData(new ParseStatus(), "title", new Outlink[0],
+            new Metadata())), new Text("http://www.example.com/"),
+        new CrawlDatum(), new Inlinks());
 
     // add another index filter
     String class2 = "org.apache.nutch.indexer.metadata.MetadataIndexer";
     // set content metadata
     Metadata md = new Metadata();
-    md.add("example","data");
+    md.add("example", "data");
     // set content metadata property defined in MetadataIndexer
-    conf.set("index.content.md","example");
+    conf.set("index.content.md", "example");
     // add MetadataIndxer filter
     conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1 + " " + class2);
     IndexingFilters filters2 = new IndexingFilters(conf);
-    NutchDocument fdoc2 = filters2.filter(new NutchDocument(),new ParseImpl("text",new ParseData(
-      new ParseStatus(),"title",new Outlink[0],md)),new Text("http://www.example.com/"),
-      new CrawlDatum(),new Inlinks());
-    Assert.assertEquals(fdoc1.getFieldNames().size(),fdoc2.getFieldNames().size());
+    NutchDocument fdoc2 = filters2.filter(new NutchDocument(), new ParseImpl(
+        "text", new ParseData(new ParseStatus(), "title", new Outlink[0], md)),
+        new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
+    Assert.assertEquals(fdoc1.getFieldNames().size(), fdoc2.getFieldNames()
+        .size());
   }
 
 }

@@ -30,41 +30,40 @@ import org.xml.sax.InputSource;
 public class TestNodeWalker {
 
   /* a snapshot of the nutch webpage */
-  private final static String WEBPAGE= 
-  "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\"><head><title>Nutch</title></head>"
-  + "<body>"
-  + "<ul>"
-  + "<li>crawl several billion pages per month</li>"
-  + "<li>maintain an index of these pages</li>"
-  + "<li>search that index up to 1000 times per second</li>"
-  + "<li>provide very high quality search results</li>"
-  + "<li>operate at minimal cost</li>"
-  + "</ul>"
-  + "</body>"
-  + "</html>";
+  private final static String WEBPAGE = "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\"><head><title>Nutch</title></head>"
+      + "<body>"
+      + "<ul>"
+      + "<li>crawl several billion pages per month</li>"
+      + "<li>maintain an index of these pages</li>"
+      + "<li>search that index up to 1000 times per second</li>"
+      + "<li>provide very high quality search results</li>"
+      + "<li>operate at minimal cost</li>" + "</ul>" + "</body>" + "</html>";
 
   private final static String[] ULCONTENT = new String[4];
-  
+
   @Before
-  public void setUp() throws Exception{
-    ULCONTENT[0]="crawl several billion pages per month" ;
-    ULCONTENT[1]="maintain an index of these pages" ;
-    ULCONTENT[2]="search that index up to 1000 times per second"  ;
-    ULCONTENT[3]="operate at minimal cost" ;
+  public void setUp() throws Exception {
+    ULCONTENT[0] = "crawl several billion pages per month";
+    ULCONTENT[1] = "maintain an index of these pages";
+    ULCONTENT[2] = "search that index up to 1000 times per second";
+    ULCONTENT[3] = "operate at minimal cost";
   }
 
   @Test
   public void testSkipChildren() {
-    DOMParser parser= new DOMParser();
-    
+    DOMParser parser = new DOMParser();
+
     try {
       parser.setFeature("http://xml.org/sax/features/validation", false);
-      parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-      parser.parse(new InputSource(new ByteArrayInputStream(WEBPAGE.getBytes())));
+      parser.setFeature(
+          "http://apache.org/xml/features/nonvalidating/load-external-dtd",
+          false);
+      parser
+          .parse(new InputSource(new ByteArrayInputStream(WEBPAGE.getBytes())));
     } catch (Exception e) {
       e.printStackTrace();
     }
-     
+
     StringBuffer sb = new StringBuffer();
     NodeWalker walker = new NodeWalker(parser.getDocument());
     while (walker.hasNext()) {
@@ -76,30 +75,33 @@ public class TestNodeWalker {
         sb.append(text);
       }
     }
-    Assert.assertTrue("UL Content can NOT be found in the node", findSomeUlContent(sb.toString()));
-     
-   StringBuffer sbSkip = new StringBuffer();
-   NodeWalker walkerSkip = new NodeWalker(parser.getDocument());
-   while (walkerSkip.hasNext()) {
-     Node currentNode = walkerSkip.nextNode();
-     String nodeName = currentNode.getNodeName();
-     short nodeType = currentNode.getNodeType();
-     if ("ul".equalsIgnoreCase(nodeName)) {
-       walkerSkip.skipChildren();
-     }
-     if (nodeType == Node.TEXT_NODE) {
-       String text = currentNode.getNodeValue();
-       text = text.replaceAll("\\s+", " ");
-       sbSkip.append(text);
-     }
-   }
-   Assert.assertFalse("UL Content can be found in the node", findSomeUlContent(sbSkip.toString()));
+    Assert.assertTrue("UL Content can NOT be found in the node",
+        findSomeUlContent(sb.toString()));
+
+    StringBuffer sbSkip = new StringBuffer();
+    NodeWalker walkerSkip = new NodeWalker(parser.getDocument());
+    while (walkerSkip.hasNext()) {
+      Node currentNode = walkerSkip.nextNode();
+      String nodeName = currentNode.getNodeName();
+      short nodeType = currentNode.getNodeType();
+      if ("ul".equalsIgnoreCase(nodeName)) {
+        walkerSkip.skipChildren();
+      }
+      if (nodeType == Node.TEXT_NODE) {
+        String text = currentNode.getNodeValue();
+        text = text.replaceAll("\\s+", " ");
+        sbSkip.append(text);
+      }
+    }
+    Assert.assertFalse("UL Content can be found in the node",
+        findSomeUlContent(sbSkip.toString()));
   }
-  
+
   public boolean findSomeUlContent(String str) {
-    for(int i=0; i<ULCONTENT.length ; i++){
-      if(str.contains(ULCONTENT[i])) return true;
-    }    
+    for (int i = 0; i < ULCONTENT.length; i++) {
+      if (str.contains(ULCONTENT[i]))
+        return true;
+    }
     return false;
   }
 }

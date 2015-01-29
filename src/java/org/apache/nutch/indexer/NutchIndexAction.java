@@ -25,8 +25,8 @@ import org.apache.hadoop.io.Writable;
 import org.apache.nutch.indexer.NutchDocument;
 
 /**
- * A {@link NutchIndexAction} is the new unit of indexing holding the
- * document and action information.
+ * A {@link NutchIndexAction} is the new unit of indexing holding the document
+ * and action information.
  */
 public class NutchIndexAction implements Writable {
 

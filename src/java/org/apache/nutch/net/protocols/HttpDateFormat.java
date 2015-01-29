@@ -26,15 +26,15 @@ import java.text.ParseException;
 
 /**
  * class to handle HTTP dates.
- *
+ * 
  * Modified from FastHttpDateFormat.java in jakarta-tomcat.
- *
+ * 
  * @author John Xing
  */
 public class HttpDateFormat {
 
-  protected static SimpleDateFormat format = 
-    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+  protected static SimpleDateFormat format = new SimpleDateFormat(
+      "EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
   /**
    * HTTP date uses TimeZone GMT
@@ -43,29 +43,29 @@ public class HttpDateFormat {
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
   }
 
-  //HttpDate (long t) {
-  //}
+  // HttpDate (long t) {
+  // }
 
-  //HttpDate (String s) {
-  //}
+  // HttpDate (String s) {
+  // }
 
-//  /**
-//   * Get the current date in HTTP format.
-//   */
-//  public static String getCurrentDate() {
-//
-//    long now = System.currentTimeMillis();
-//    if ((now - currentDateGenerated) > 1000) {
-//        synchronized (format) {
-//            if ((now - currentDateGenerated) > 1000) {
-//                currentDateGenerated = now;
-//                currentDate = format.format(new Date(now));
-//            }
-//        }
-//    }
-//    return currentDate;
-//
-//  }
+  // /**
+  // * Get the current date in HTTP format.
+  // */
+  // public static String getCurrentDate() {
+  //
+  // long now = System.currentTimeMillis();
+  // if ((now - currentDateGenerated) > 1000) {
+  // synchronized (format) {
+  // if ((now - currentDateGenerated) > 1000) {
+  // currentDateGenerated = now;
+  // currentDate = format.format(new Date(now));
+  // }
+  // }
+  // }
+  // return currentDate;
+  //
+  // }
 
   /**
    * Get the HTTP format of the specified date.

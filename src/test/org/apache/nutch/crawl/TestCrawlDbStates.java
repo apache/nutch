@@ -55,26 +55,26 @@ import org.slf4j.LoggerFactory;
  * <li>configuration properties</li>
  * <li>(additional) CrawlDatums of status linked (stemming from inlinks)</li>
  * </ul>
- * </li>
- * </ul>
+ * </li> </ul>
  */
 public class TestCrawlDbStates {
 
-	private static final Logger LOG = LoggerFactory.getLogger(TestCrawlDbStates.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(TestCrawlDbStates.class);
 
   protected static final byte[][] fetchDbStatusPairs = {
-      { -1,                       STATUS_DB_UNFETCHED },
-      { STATUS_FETCH_SUCCESS,     STATUS_DB_FETCHED },
-      { STATUS_FETCH_GONE,        STATUS_DB_GONE },
-      { STATUS_FETCH_REDIR_TEMP,  STATUS_DB_REDIR_TEMP },
-      { STATUS_FETCH_REDIR_PERM,  STATUS_DB_REDIR_PERM },
+      { -1, STATUS_DB_UNFETCHED }, { STATUS_FETCH_SUCCESS, STATUS_DB_FETCHED },
+      { STATUS_FETCH_GONE, STATUS_DB_GONE },
+      { STATUS_FETCH_REDIR_TEMP, STATUS_DB_REDIR_TEMP },
+      { STATUS_FETCH_REDIR_PERM, STATUS_DB_REDIR_PERM },
       { STATUS_FETCH_NOTMODIFIED, STATUS_DB_NOTMODIFIED },
-      { STATUS_FETCH_RETRY,       -1 },  // fetch_retry does not have a CrawlDb counter-part
-      { -1,                       STATUS_DB_DUPLICATE },
-    };
+      { STATUS_FETCH_RETRY, -1 }, // fetch_retry does not have a CrawlDb
+                                  // counter-part
+      { -1, STATUS_DB_DUPLICATE }, };
 
   /** tested {@link FetchSchedule} implementations */
-  protected String[] schedules = {"DefaultFetchSchedule", "AdaptiveFetchSchedule"};
+  protected String[] schedules = { "DefaultFetchSchedule",
+      "AdaptiveFetchSchedule" };
 
   /** CrawlDatum as result of a link */
   protected final CrawlDatum linked = new CrawlDatum(STATUS_LINKED,
@@ -101,7 +101,7 @@ public class TestCrawlDbStates {
     int retryMax = conf.getInt("db.fetch.retry.max", 3);
     for (String sched : schedules) {
       LOG.info("Testing state transitions with " + sched);
-      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl."+sched);
+      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
       FetchSchedule schedule = FetchScheduleFactory
           .getFetchSchedule(new JobConf(conf));
       for (int i = 0; i < fetchDbStatusPairs.length; i++) {
@@ -138,8 +138,8 @@ public class TestCrawlDbStates {
           }
           String fromDbStatusName = (fromDbStatus == -1 ? "<not in CrawlDb>"
               : getStatusName(fromDbStatus));
-          String fetchStatusName = (fetchStatus == -1 ? "<only inlinks>" : CrawlDatum
-              .getStatusName(fetchStatus));
+          String fetchStatusName = (fetchStatus == -1 ? "<only inlinks>"
+              : CrawlDatum.getStatusName(fetchStatus));
           LOG.info(fromDbStatusName + " + " + fetchStatusName + " => "
               + getStatusName(toDbStatus));
           List<CrawlDatum> values = new ArrayList<CrawlDatum>();
@@ -147,7 +147,8 @@ public class TestCrawlDbStates {
             CrawlDatum fetch = null;
             if (fetchStatus == -1) {
               // nothing fetched, need at least one in-link
-              if (l == 0) continue;
+              if (l == 0)
+                continue;
             } else {
               fetch = new CrawlDatum();
               if (fromDb != null) {
@@ -183,7 +184,7 @@ public class TestCrawlDbStates {
         }
       }
     }
-	}
+  }
 
   /**
    * Test states after inject: inject must not modify the status of CrawlDatums
@@ -199,7 +200,7 @@ public class TestCrawlDbStates {
     ScoringFilters scfilters = new ScoringFilters(conf);
     for (String sched : schedules) {
       LOG.info("Testing inject with " + sched);
-      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl."+sched);
+      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
       FetchSchedule schedule = FetchScheduleFactory
           .getFetchSchedule(new JobConf(conf));
       List<CrawlDatum> values = new ArrayList<CrawlDatum>();
@@ -219,8 +220,8 @@ public class TestCrawlDbStates {
                 .getStatusName(fromDbStatus)) + " + "
             + getStatusName(STATUS_INJECTED) + " => "
             + getStatusName(toDbStatus));
-        CrawlDatum injected = new CrawlDatum(STATUS_INJECTED,
-            conf.getInt("db.fetch.interval.default", 2592000), 0.1f);
+        CrawlDatum injected = new CrawlDatum(STATUS_INJECTED, conf.getInt(
+            "db.fetch.interval.default", 2592000), 0.1f);
         schedule.initializeSchedule(CrawlDbUpdateUtil.dummyURL, injected);
         try {
           scfilters.injectedScore(CrawlDbUpdateUtil.dummyURL, injected);
@@ -236,10 +237,10 @@ public class TestCrawlDbStates {
         byte status = res.get(0).getStatus();
         if (status != toDbStatus) {
           fail("Inject for "
-              + (fromDbStatus == -1 ? "" : getStatusName(fromDbStatus) + " and ")
-              + getStatusName(STATUS_INJECTED)
-              + " results in " + getStatusName(status)
-              + " (expected: " + getStatusName(toDbStatus) + ")");
+              + (fromDbStatus == -1 ? "" : getStatusName(fromDbStatus)
+                  + " and ") + getStatusName(STATUS_INJECTED) + " results in "
+              + getStatusName(status) + " (expected: "
+              + getStatusName(toDbStatus) + ")");
         }
         values.clear();
       }
@@ -258,8 +259,7 @@ public class TestCrawlDbStates {
    * <li>modified time is set</li>
    * <li>re-fetch is triggered after a certain time to force the fetched content
    * to be in a recent segment (old segments are deleted, see comments in
-   * {@link CrawlDbReducer#reduce(Text, Iterator, OutputCollector, Reporter)}
-   * </li>
+   * {@link CrawlDbReducer#reduce(Text, Iterator, OutputCollector, Reporter)}</li>
    * </ul>
    */
   @Test
@@ -270,7 +270,7 @@ public class TestCrawlDbStates {
     for (String sched : schedules) {
       String desc = "test notmodified by signature comparison + " + sched;
       LOG.info(desc);
-      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl."+sched);
+      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
       ContinuousCrawlTestUtil crawlUtil = new CrawlTestFetchNotModified(conf);
       if (!crawlUtil.run(20)) {
         fail("failed: " + desc);
@@ -280,8 +280,9 @@ public class TestCrawlDbStates {
     for (String sched : schedules) {
       String desc = "test notmodified by HTTP 304 + " + sched;
       LOG.info(desc);
-      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl."+sched);
-      ContinuousCrawlTestUtil crawlUtil = new CrawlTestFetchNotModifiedHttp304(conf);
+      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
+      ContinuousCrawlTestUtil crawlUtil = new CrawlTestFetchNotModifiedHttp304(
+          conf);
       if (!crawlUtil.run(20)) {
         fail("failed: " + desc);
       }
@@ -294,7 +295,9 @@ public class TestCrawlDbStates {
     protected long currFetchTime;
     /** time the last fetch took place */
     protected long lastFetchTime;
-    /** time the document was fetched first (at all or after it has been changed) */
+    /**
+     * time the document was fetched first (at all or after it has been changed)
+     */
     protected long firstFetchTime;
     /** state in CrawlDb before the last fetch */
     protected byte previousDbState;
@@ -304,18 +307,21 @@ public class TestCrawlDbStates {
     private long maxFetchInterval;
     private FetchSchedule schedule;
 
-
     CrawlTestFetchNotModified(Configuration conf) {
       super(conf);
-      maxFetchInterval = conf.getLong("db.fetch.interval.max", 7776000); // default = 90 days
-      maxFetchInterval += (24*60*60);                                    // but take one day more to avoid false alarms
-      maxFetchInterval *= 1000;                                          // in milli-seconds
+      maxFetchInterval = conf.getLong("db.fetch.interval.max", 7776000); // default
+                                                                         // = 90
+                                                                         // days
+      maxFetchInterval += (24 * 60 * 60); // but take one day more to avoid
+                                          // false alarms
+      maxFetchInterval *= 1000; // in milli-seconds
       schedule = FetchScheduleFactory.getFetchSchedule(new JobConf(conf));
     }
 
     @Override
     protected boolean check(CrawlDatum result) {
-      if (lastFetchTime > 0 && (currFetchTime - lastFetchTime) > maxFetchInterval) {
+      if (lastFetchTime > 0
+          && (currFetchTime - lastFetchTime) > maxFetchInterval) {
         LOG.error("last effective fetch (HTTP 200, not HTTP 304), at "
             + new Date(lastFetchTime)
             + ", took place more than db.fetch.interval.max time, "
@@ -377,7 +383,6 @@ public class TestCrawlDbStates {
       return false;
     }
 
-
     // test modified time
     private boolean checkModifiedTime(CrawlDatum result, long modifiedTime) {
       if (result.getModifiedTime() == 0) {
@@ -402,7 +407,7 @@ public class TestCrawlDbStates {
       datum = super.fetch(datum, currentTime);
       if (firstFetchTime == 0) {
         firstFetchTime = currFetchTime;
-      } else if ((currFetchTime - firstFetchTime) > (duration/2)) {
+      } else if ((currFetchTime - firstFetchTime) > (duration / 2)) {
         // simulate a modification after "one year"
         changeContent();
         firstFetchTime = currFetchTime;
@@ -411,7 +416,8 @@ public class TestCrawlDbStates {
     }
   }
 
-  protected class CrawlTestFetchNotModifiedHttp304 extends CrawlTestFetchNotModified {
+  protected class CrawlTestFetchNotModifiedHttp304 extends
+      CrawlTestFetchNotModified {
 
     CrawlTestFetchNotModifiedHttp304(Configuration conf) {
       super(conf);
@@ -424,13 +430,13 @@ public class TestCrawlDbStates {
       previousDbState = datum.getStatus();
       lastSignature = datum.getSignature();
       int httpCode;
-      /* document is "really" fetched (no HTTP 304)
-       *  - if last-modified time or signature are unset
-       *    (page has not been fetched before or fetch is forced)
-       *  - for test purposes, we simulate a modified after "one year"
+      /*
+       * document is "really" fetched (no HTTP 304) - if last-modified time or
+       * signature are unset (page has not been fetched before or fetch is
+       * forced) - for test purposes, we simulate a modified after "one year"
        */
       if (datum.getModifiedTime() == 0 && datum.getSignature() == null
-          || (currFetchTime - firstFetchTime) > (duration/2)) {
+          || (currFetchTime - firstFetchTime) > (duration / 2)) {
         firstFetchTime = currFetchTime;
         httpCode = 200;
         datum.setStatus(STATUS_FETCH_SUCCESS);
@@ -450,8 +456,8 @@ public class TestCrawlDbStates {
   /**
    * NUTCH-1245: a fetch_gone should always result in a db_gone.
    * <p>
-   * Even in a long-running continuous crawl, when a gone page is
-   * re-fetched several times over time.
+   * Even in a long-running continuous crawl, when a gone page is re-fetched
+   * several times over time.
    * </p>
    */
   @Test
@@ -476,8 +482,7 @@ public class TestCrawlDbStates {
     LOG.info("NUTCH-1245 (misconfiguration): test with db.fetch.interval.default > (1.5 * db.fetch.interval.max)");
     Configuration conf = CrawlDBTestUtil.createConfiguration();
     int fetchIntervalMax = conf.getInt("db.fetch.interval.max", 0);
-    conf.setInt("db.fetch.interval.default",
-        3 + (int) (fetchIntervalMax * 1.5));
+    conf.setInt("db.fetch.interval.default", 3 + (int) (fetchIntervalMax * 1.5));
     ContinuousCrawlTestUtil crawlUtil = new ContinuousCrawlTestUtil(conf,
         STATUS_FETCH_GONE, STATUS_DB_GONE);
     if (!crawlUtil.run(0)) {
@@ -485,14 +490,12 @@ public class TestCrawlDbStates {
     }
   }
 
-
   /**
-   * Test whether signatures are reset for "content-less" states
-   * (gone, redirect, etc.): otherwise, if this state is temporary
-   * and the document appears again with the old content, it may
-   * get marked as not_modified in CrawlDb just after the redirect
-   * state. In this case we cannot expect content in segments.
-   * Cf. NUTCH-1422: reset signature for redirects.
+   * Test whether signatures are reset for "content-less" states (gone,
+   * redirect, etc.): otherwise, if this state is temporary and the document
+   * appears again with the old content, it may get marked as not_modified in
+   * CrawlDb just after the redirect state. In this case we cannot expect
+   * content in segments. Cf. NUTCH-1422: reset signature for redirects.
    */
   // TODO: can only test if solution is done in CrawlDbReducer
   @Test
@@ -501,7 +504,7 @@ public class TestCrawlDbStates {
     Configuration conf = CrawlDBTestUtil.createConfiguration();
     for (String sched : schedules) {
       LOG.info("Testing reset signature with " + sched);
-      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl."+sched);
+      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
       ContinuousCrawlTestUtil crawlUtil = new CrawlTestSignatureReset(conf);
       if (!crawlUtil.run(20)) {
         fail("failed: signature not reset");
@@ -511,8 +514,7 @@ public class TestCrawlDbStates {
 
   private class CrawlTestSignatureReset extends ContinuousCrawlTestUtil {
 
-    byte[][] noContentStates = {
-        { STATUS_FETCH_GONE,       STATUS_DB_GONE },
+    byte[][] noContentStates = { { STATUS_FETCH_GONE, STATUS_DB_GONE },
         { STATUS_FETCH_REDIR_TEMP, STATUS_DB_REDIR_TEMP },
         { STATUS_FETCH_REDIR_PERM, STATUS_DB_REDIR_PERM } };
 
@@ -528,15 +530,15 @@ public class TestCrawlDbStates {
       datum = super.fetch(datum, currentTime);
       counter++;
       // flip-flopping between successful fetch and one of content-less states
-      if (counter%2 == 1) {
+      if (counter % 2 == 1) {
         fetchState = STATUS_FETCH_SUCCESS;
       } else {
-        fetchState = noContentStates[(counter%6)/2][0];
+        fetchState = noContentStates[(counter % 6) / 2][0];
       }
       LOG.info("Step " + counter + ": fetched with "
           + getStatusName(fetchState));
       datum.setStatus(fetchState);
-     return datum;
+      return datum;
     }
 
     @Override
@@ -560,6 +562,4 @@ public class TestCrawlDbStates {
 
   }
 
-  
 }
-

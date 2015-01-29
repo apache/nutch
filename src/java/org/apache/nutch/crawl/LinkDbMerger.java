@@ -46,37 +46,44 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 
 /**
- * This tool merges several LinkDb-s into one, optionally filtering
- * URLs through the current URLFilters, to skip prohibited URLs and
- * links.
+ * This tool merges several LinkDb-s into one, optionally filtering URLs through
+ * the current URLFilters, to skip prohibited URLs and links.
  * 
- * <p>It's possible to use this tool just for filtering - in that case
- * only one LinkDb should be specified in arguments.</p>
- * <p>If more than one LinkDb contains information about the same URL,
- * all inlinks are accumulated, but only at most <code>db.max.inlinks</code>
- * inlinks will ever be added.</p>
- * <p>If activated, URLFilters will be applied to both the target URLs and
- * to any incoming link URL. If a target URL is prohibited, all
- * inlinks to that target will be removed, including the target URL. If
- * some of incoming links are prohibited, only they will be removed, and they
- * won't count when checking the above-mentioned maximum limit.
+ * <p>
+ * It's possible to use this tool just for filtering - in that case only one
+ * LinkDb should be specified in arguments.
+ * </p>
+ * <p>
+ * If more than one LinkDb contains information about the same URL, all inlinks
+ * are accumulated, but only at most <code>db.max.inlinks</code> inlinks will
+ * ever be added.
+ * </p>
+ * <p>
+ * If activated, URLFilters will be applied to both the target URLs and to any
+ * incoming link URL. If a target URL is prohibited, all inlinks to that target
+ * will be removed, including the target URL. If some of incoming links are
+ * prohibited, only they will be removed, and they won't count when checking the
+ * above-mentioned maximum limit.
  * 
  * @author Andrzej Bialecki
  */
-public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inlinks, Text, Inlinks> {
+public class LinkDbMerger extends Configured implements Tool,
+    Reducer<Text, Inlinks, Text, Inlinks> {
   private static final Logger LOG = LoggerFactory.getLogger(LinkDbMerger.class);
-  
+
   private int maxInlinks;
-  
+
   public LinkDbMerger() {
-    
+
   }
-  
+
   public LinkDbMerger(Configuration conf) {
     setConf(conf);
   }
 
-  public void reduce(Text key, Iterator<Inlinks> values, OutputCollector<Text, Inlinks> output, Reporter reporter) throws IOException {
+  public void reduce(Text key, Iterator<Inlinks> values,
+      OutputCollector<Text, Inlinks> output, Reporter reporter)
+      throws IOException {
 
     Inlinks result = new Inlinks();
 
@@ -86,43 +93,48 @@ public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inli
       int end = Math.min(maxInlinks - result.size(), inlinks.size());
       Iterator<Inlink> it = inlinks.iterator();
       int i = 0;
-      while(it.hasNext() && i++ < end) {
+      while (it.hasNext() && i++ < end) {
         result.add(it.next());
       }
     }
-    if (result.size() == 0) return;
+    if (result.size() == 0)
+      return;
     output.collect(key, result);
-    
+
   }
 
   public void configure(JobConf job) {
     maxInlinks = job.getInt("db.max.inlinks", 10000);
   }
 
-  public void close() throws IOException { }
+  public void close() throws IOException {
+  }
 
-  public void merge(Path output, Path[] dbs, boolean normalize, boolean filter) throws Exception {
+  public void merge(Path output, Path[] dbs, boolean normalize, boolean filter)
+      throws Exception {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("LinkDb merge: starting at " + sdf.format(start));
 
     JobConf job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
-      FileInputFormat.addInputPath(job, new Path(dbs[i], LinkDb.CURRENT_NAME));      
+      FileInputFormat.addInputPath(job, new Path(dbs[i], LinkDb.CURRENT_NAME));
     }
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(getConf());
     fs.mkdirs(output);
-    fs.rename(FileOutputFormat.getOutputPath(job), new Path(output, LinkDb.CURRENT_NAME));
+    fs.rename(FileOutputFormat.getOutputPath(job), new Path(output,
+        LinkDb.CURRENT_NAME));
 
     long end = System.currentTimeMillis();
-    LOG.info("LinkDb merge: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("LinkDb merge: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
 
-  public static JobConf createMergeJob(Configuration config, Path linkDb, boolean normalize, boolean filter) {
-    Path newLinkDb =
-      new Path("linkdb-merge-" + 
-               Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+  public static JobConf createMergeJob(Configuration config, Path linkDb,
+      boolean normalize, boolean filter) {
+    Path newLinkDb = new Path("linkdb-merge-"
+        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
     job.setJobName("linkdb merge " + linkDb);
@@ -145,22 +157,27 @@ public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inli
 
     return job;
   }
-  
+
   /**
    * @param args
    */
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new LinkDbMerger(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new LinkDbMerger(),
+        args);
     System.exit(res);
   }
-  
+
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: LinkDbMerger <output_linkdb> <linkdb1> [<linkdb2> <linkdb3> ...] [-normalize] [-filter]");
+      System.err
+          .println("Usage: LinkDbMerger <output_linkdb> <linkdb1> [<linkdb2> <linkdb3> ...] [-normalize] [-filter]");
       System.err.println("\toutput_linkdb\toutput LinkDb");
-      System.err.println("\tlinkdb1 ...\tinput LinkDb-s (single input LinkDb is ok)");
-      System.err.println("\t-normalize\tuse URLNormalizer on both fromUrls and toUrls in linkdb(s) (usually not needed)");
-      System.err.println("\t-filter\tuse URLFilters on both fromUrls and toUrls in linkdb(s)");
+      System.err
+          .println("\tlinkdb1 ...\tinput LinkDb-s (single input LinkDb is ok)");
+      System.err
+          .println("\t-normalize\tuse URLNormalizer on both fromUrls and toUrls in linkdb(s) (usually not needed)");
+      System.err
+          .println("\t-filter\tuse URLFilters on both fromUrls and toUrls in linkdb(s)");
       return -1;
     }
     Path output = new Path(args[0]);
@@ -172,7 +189,8 @@ public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inli
         filter = true;
       } else if (args[i].equals("-normalize")) {
         normalize = true;
-      } else dbs.add(new Path(args[i]));
+      } else
+        dbs.add(new Path(args[i]));
     }
     try {
       merge(output, dbs.toArray(new Path[dbs.size()]), normalize, filter);

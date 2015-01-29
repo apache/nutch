@@ -30,103 +30,102 @@ import org.apache.hadoop.io.Writable;
 /* An outgoing link from a page. */
 public class Outlink implements Writable {
 
-    private String toUrl;
-    private String anchor;
-    private MapWritable md;
+  private String toUrl;
+  private String anchor;
+  private MapWritable md;
 
-    public Outlink() {
-    }
+  public Outlink() {
+  }
 
-    public Outlink(String toUrl, String anchor) throws MalformedURLException {
-        this.toUrl = toUrl;
-        if (anchor == null)
-            anchor = "";
-        this.anchor = anchor;
-        md = null;
-    }
+  public Outlink(String toUrl, String anchor) throws MalformedURLException {
+    this.toUrl = toUrl;
+    if (anchor == null)
+      anchor = "";
+    this.anchor = anchor;
+    md = null;
+  }
 
-    public void readFields(DataInput in) throws IOException {
-        toUrl = Text.readString(in);
-        anchor = Text.readString(in);
-        boolean hasMD = in.readBoolean();
-        if (hasMD) {
-            md = new org.apache.hadoop.io.MapWritable();
-            md.readFields(in);
-        } else
-            md = null;
-    }
+  public void readFields(DataInput in) throws IOException {
+    toUrl = Text.readString(in);
+    anchor = Text.readString(in);
+    boolean hasMD = in.readBoolean();
+    if (hasMD) {
+      md = new org.apache.hadoop.io.MapWritable();
+      md.readFields(in);
+    } else
+      md = null;
+  }
 
-    /** Skips over one Outlink in the input. */
-    public static void skip(DataInput in) throws IOException {
-        Text.skip(in); // skip toUrl
-        Text.skip(in); // skip anchor
-        boolean hasMD = in.readBoolean();
-        if (hasMD) {
-            MapWritable metadata = new org.apache.hadoop.io.MapWritable();
-            metadata.readFields(in);
-            ;
-        }
+  /** Skips over one Outlink in the input. */
+  public static void skip(DataInput in) throws IOException {
+    Text.skip(in); // skip toUrl
+    Text.skip(in); // skip anchor
+    boolean hasMD = in.readBoolean();
+    if (hasMD) {
+      MapWritable metadata = new org.apache.hadoop.io.MapWritable();
+      metadata.readFields(in);
+      ;
     }
+  }
 
-    public void write(DataOutput out) throws IOException {
-        Text.writeString(out, toUrl);
-        Text.writeString(out, anchor);
-        if (md != null && md.size() > 0) {
-            out.writeBoolean(true);
-            md.write(out);
-        } else {
-            out.writeBoolean(false);
-        }
+  public void write(DataOutput out) throws IOException {
+    Text.writeString(out, toUrl);
+    Text.writeString(out, anchor);
+    if (md != null && md.size() > 0) {
+      out.writeBoolean(true);
+      md.write(out);
+    } else {
+      out.writeBoolean(false);
     }
+  }
 
-    public static Outlink read(DataInput in) throws IOException {
-        Outlink outlink = new Outlink();
-        outlink.readFields(in);
-        return outlink;
-    }
+  public static Outlink read(DataInput in) throws IOException {
+    Outlink outlink = new Outlink();
+    outlink.readFields(in);
+    return outlink;
+  }
 
-    public String getToUrl() {
-        return toUrl;
-    }
+  public String getToUrl() {
+    return toUrl;
+  }
 
-    public void setUrl(String toUrl) {
-        this.toUrl = toUrl;
-    }
+  public void setUrl(String toUrl) {
+    this.toUrl = toUrl;
+  }
 
-    public String getAnchor() {
-        return anchor;
-    }
+  public String getAnchor() {
+    return anchor;
+  }
 
-    public MapWritable getMetadata() {
-        return md;
-    }
+  public MapWritable getMetadata() {
+    return md;
+  }
 
-    public void setMetadata(MapWritable md) {
-        this.md = md;
-    }
+  public void setMetadata(MapWritable md) {
+    this.md = md;
+  }
 
-    public boolean equals(Object o) {
-        if (!(o instanceof Outlink))
-            return false;
-        Outlink other = (Outlink) o;
-        return this.toUrl.equals(other.toUrl)
-                && this.anchor.equals(other.anchor);
-    }
+  public boolean equals(Object o) {
+    if (!(o instanceof Outlink))
+      return false;
+    Outlink other = (Outlink) o;
+    return this.toUrl.equals(other.toUrl) && this.anchor.equals(other.anchor);
+  }
 
-    public String toString() {
-        StringBuffer repr = new StringBuffer("toUrl: ");
-        repr.append(toUrl);
-        repr.append(" anchor: ");
-        repr.append(anchor);
-        if (md != null && !md.isEmpty()) {
-            for (Entry<Writable, Writable> e : md.entrySet()) {
-                repr.append(" ");
-                repr.append(e.getKey());
-                repr.append(": ");
-                repr.append(e.getValue());
-            }
-        }
-        return repr.toString();
+  public String toString() {
+    StringBuffer repr = new StringBuffer("toUrl: ");
+    repr.append(toUrl);
+    repr.append(" anchor: ");
+    repr.append(anchor);
+    if (md != null && !md.isEmpty()) {
+      for (Entry<Writable, Writable> e : md.entrySet()) {
+        repr.append(" ");
+        repr.append(e.getKey());
+        repr.append(": ");
+        repr.append(e.getValue());
+      }
     }
+    return repr.toString();
+  }
 
 }

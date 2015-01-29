@@ -34,35 +34,35 @@ import org.w3c.dom.NodeList;
 /**
  * A collection of methods for extracting content from DOM trees.
  * 
- * This class holds a few utility methods for pulling content out of 
- * DOM nodes, such as getOutlinks, getText, etc.
- *
+ * This class holds a few utility methods for pulling content out of DOM nodes,
+ * such as getOutlinks, getText, etc.
+ * 
  */
 public class DOMContentUtils {
 
   private static class LinkParams {
-	private String elName;
-	private String attrName;
-	private int childLen;
-      
-	private LinkParams(String elName, String attrName, int childLen) {
-          this.elName = elName;
-          this.attrName = attrName;
-          this.childLen = childLen;
-      }
-      
-	public String toString() {
-          return "LP[el=" + elName + ",attr=" + attrName + ",len=" + childLen + "]";
-      }
+    private String elName;
+    private String attrName;
+    private int childLen;
+
+    private LinkParams(String elName, String attrName, int childLen) {
+      this.elName = elName;
+      this.attrName = attrName;
+      this.childLen = childLen;
+    }
+
+    public String toString() {
+      return "LP[el=" + elName + ",attr=" + attrName + ",len=" + childLen + "]";
+    }
   }
-  
-  private HashMap<String,LinkParams> linkParams = new HashMap<String,LinkParams>();
+
+  private HashMap<String, LinkParams> linkParams = new HashMap<String, LinkParams>();
   private Configuration conf;
-  
+
   public DOMContentUtils(Configuration conf) {
     setConf(conf);
   }
-  
+
   public void setConf(Configuration conf) {
     // forceTags is used to override configurable tag ignoring, later on
     Collection<String> forceTags = new ArrayList<String>(1);
@@ -84,59 +84,57 @@ public class DOMContentUtils {
 
     // remove unwanted link tags from the linkParams map
     String[] ignoreTags = conf.getStrings("parser.html.outlinks.ignore_tags");
-    for ( int i = 0 ; ignoreTags != null && i < ignoreTags.length ; i++ ) {
-      if ( ! forceTags.contains(ignoreTags[i]) )
+    for (int i = 0; ignoreTags != null && i < ignoreTags.length; i++) {
+      if (!forceTags.contains(ignoreTags[i]))
         linkParams.remove(ignoreTags[i]);
     }
   }
-  
+
   /**
-   * This method takes a {@link StringBuffer} and a DOM {@link Node},
-   * and will append all the content text found beneath the DOM node to 
-   * the <code>StringBuffer</code>.
-   *
-   * <p>
-   *
-   * If <code>abortOnNestedAnchors</code> is true, DOM traversal will
-   * be aborted and the <code>StringBuffer</code> will not contain
-   * any text encountered after a nested anchor is found.
+   * This method takes a {@link StringBuffer} and a DOM {@link Node}, and will
+   * append all the content text found beneath the DOM node to the
+   * <code>StringBuffer</code>.
    * 
    * <p>
-   *
+   * 
+   * If <code>abortOnNestedAnchors</code> is true, DOM traversal will be aborted
+   * and the <code>StringBuffer</code> will not contain any text encountered
+   * after a nested anchor is found.
+   * 
+   * <p>
+   * 
    * @return true if nested anchors were found
    */
-  private boolean getText(StringBuffer sb, Node node, 
-                                      boolean abortOnNestedAnchors) {
+  private boolean getText(StringBuffer sb, Node node,
+      boolean abortOnNestedAnchors) {
     if (getTextHelper(sb, node, abortOnNestedAnchors, 0)) {
       return true;
-    } 
+    }
     return false;
   }
 
-
   /**
-   * This is a convinience method, equivalent to {@link
-   * #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
+   * This is a convinience method, equivalent to
+   * {@link #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
    * 
    */
   public void getText(StringBuffer sb, Node node) {
     getText(sb, node, false);
   }
 
-  // returns true if abortOnNestedAnchors is true and we find nested 
+  // returns true if abortOnNestedAnchors is true and we find nested
   // anchors
-  private boolean getTextHelper(StringBuffer sb, Node node, 
-                                             boolean abortOnNestedAnchors,
-                                             int anchorDepth) {
+  private boolean getTextHelper(StringBuffer sb, Node node,
+      boolean abortOnNestedAnchors, int anchorDepth) {
     boolean abort = false;
     NodeWalker walker = new NodeWalker(node);
-    
+
     while (walker.hasNext()) {
-    
+
       Node currentNode = walker.nextNode();
       String nodeName = currentNode.getNodeName();
       short nodeType = currentNode.getNodeType();
-      
+
       if ("script".equalsIgnoreCase(nodeName)) {
         walker.skipChildren();
       }
@@ -148,7 +146,7 @@ public class DOMContentUtils {
         if (anchorDepth > 1) {
           abort = true;
           break;
-        }        
+        }
       }
       if (nodeType == Node.COMMENT_NODE) {
         walker.skipChildren();
@@ -159,44 +157,45 @@ public class DOMContentUtils {
         text = text.replaceAll("\\s+", " ");
         text = text.trim();
         if (text.length() > 0) {
-          if (sb.length() > 0) sb.append(' ');
-        	sb.append(text);
+          if (sb.length() > 0)
+            sb.append(' ');
+          sb.append(text);
         }
       }
     }
-    
+
     return abort;
   }
 
   /**
-   * This method takes a {@link StringBuffer} and a DOM {@link Node},
-   * and will append the content text found beneath the first
-   * <code>title</code> node to the <code>StringBuffer</code>.
-   *
+   * This method takes a {@link StringBuffer} and a DOM {@link Node}, and will
+   * append the content text found beneath the first <code>title</code> node to
+   * the <code>StringBuffer</code>.
+   * 
    * @return true if a title node was found, false otherwise
    */
   public boolean getTitle(StringBuffer sb, Node node) {
-    
+
     NodeWalker walker = new NodeWalker(node);
-    
+
     while (walker.hasNext()) {
-  
+
       Node currentNode = walker.nextNode();
       String nodeName = currentNode.getNodeName();
       short nodeType = currentNode.getNodeType();
-      
+
       if ("body".equalsIgnoreCase(nodeName)) { // stop after HEAD
         return false;
       }
-  
+
       if (nodeType == Node.ELEMENT_NODE) {
         if ("title".equalsIgnoreCase(nodeName)) {
           getText(sb, currentNode);
           return true;
         }
       }
-    }      
-    
+    }
+
     return false;
   }
 
@@ -204,28 +203,29 @@ public class DOMContentUtils {
   URL getBase(Node node) {
 
     NodeWalker walker = new NodeWalker(node);
-    
+
     while (walker.hasNext()) {
-  
+
       Node currentNode = walker.nextNode();
       String nodeName = currentNode.getNodeName();
       short nodeType = currentNode.getNodeType();
-      
+
       // is this node a BASE tag?
       if (nodeType == Node.ELEMENT_NODE) {
-  
+
         if ("body".equalsIgnoreCase(nodeName)) { // stop after HEAD
           return null;
         }
-  
+
         if ("base".equalsIgnoreCase(nodeName)) {
           NamedNodeMap attrs = currentNode.getAttributes();
-          for (int i= 0; i < attrs.getLength(); i++ ) {
+          for (int i = 0; i < attrs.getLength(); i++) {
             Node attr = attrs.item(i);
             if ("href".equalsIgnoreCase(attr.getNodeName())) {
               try {
                 return new URL(attr.getNodeValue());
-              } catch (MalformedURLException e) {}
+              } catch (MalformedURLException e) {
+              }
             }
           }
         }
@@ -236,10 +236,9 @@ public class DOMContentUtils {
     return null;
   }
 
-
   private boolean hasOnlyWhiteSpace(Node node) {
-    String val= node.getNodeValue();
-    for (int i= 0; i < val.length(); i++) {
+    String val = node.getNodeValue();
+    for (int i = 0; i < val.length(); i++) {
       if (!Character.isWhitespace(val.charAt(i)))
         return false;
     }
@@ -248,50 +247,49 @@ public class DOMContentUtils {
 
   // this only covers a few cases of empty links that are symptomatic
   // of nekohtml's DOM-fixup process...
-  private boolean shouldThrowAwayLink(Node node, NodeList children, 
-                                              int childLen, LinkParams params) {
+  private boolean shouldThrowAwayLink(Node node, NodeList children,
+      int childLen, LinkParams params) {
     if (childLen == 0) {
-      // this has no inner structure 
-      if (params.childLen == 0) return false;
-      else return true;
-    } else if ((childLen == 1) 
-               && (children.item(0).getNodeType() == Node.ELEMENT_NODE)
-               && (params.elName.equalsIgnoreCase(children.item(0).getNodeName()))) { 
+      // this has no inner structure
+      if (params.childLen == 0)
+        return false;
+      else
+        return true;
+    } else if ((childLen == 1)
+        && (children.item(0).getNodeType() == Node.ELEMENT_NODE)
+        && (params.elName.equalsIgnoreCase(children.item(0).getNodeName()))) {
       // single nested link
       return true;
 
     } else if (childLen == 2) {
 
-      Node c0= children.item(0);
-      Node c1= children.item(1);
+      Node c0 = children.item(0);
+      Node c1 = children.item(1);
 
       if ((c0.getNodeType() == Node.ELEMENT_NODE)
           && (params.elName.equalsIgnoreCase(c0.getNodeName()))
-          && (c1.getNodeType() == Node.TEXT_NODE) 
-          && hasOnlyWhiteSpace(c1) ) {
+          && (c1.getNodeType() == Node.TEXT_NODE) && hasOnlyWhiteSpace(c1)) {
         // single link followed by whitespace node
         return true;
       }
 
       if ((c1.getNodeType() == Node.ELEMENT_NODE)
           && (params.elName.equalsIgnoreCase(c1.getNodeName()))
-          && (c0.getNodeType() == Node.TEXT_NODE) 
-          && hasOnlyWhiteSpace(c0) ) {
+          && (c0.getNodeType() == Node.TEXT_NODE) && hasOnlyWhiteSpace(c0)) {
         // whitespace node followed by single link
         return true;
       }
 
     } else if (childLen == 3) {
-      Node c0= children.item(0);
-      Node c1= children.item(1);
-      Node c2= children.item(2);
-      
+      Node c0 = children.item(0);
+      Node c1 = children.item(1);
+      Node c2 = children.item(2);
+
       if ((c1.getNodeType() == Node.ELEMENT_NODE)
           && (params.elName.equalsIgnoreCase(c1.getNodeName()))
-          && (c0.getNodeType() == Node.TEXT_NODE) 
-          && (c2.getNodeType() == Node.TEXT_NODE) 
-          && hasOnlyWhiteSpace(c0)
-          && hasOnlyWhiteSpace(c2) ) {
+          && (c0.getNodeType() == Node.TEXT_NODE)
+          && (c2.getNodeType() == Node.TEXT_NODE) && hasOnlyWhiteSpace(c0)
+          && hasOnlyWhiteSpace(c2)) {
         // single link surrounded by whitespace nodes
         return true;
       }
@@ -299,76 +297,73 @@ public class DOMContentUtils {
 
     return false;
   }
-  
+
   /**
-   * This method finds all anchors below the supplied DOM
-   * <code>node</code>, and creates appropriate {@link Outlink}
-   * records for each (relative to the supplied <code>base</code>
-   * URL), and adds them to the <code>outlinks</code> {@link
-   * ArrayList}.
-   *
+   * This method finds all anchors below the supplied DOM <code>node</code>, and
+   * creates appropriate {@link Outlink} records for each (relative to the
+   * supplied <code>base</code> URL), and adds them to the <code>outlinks</code>
+   * {@link ArrayList}.
+   * 
    * <p>
-   *
-   * Links without inner structure (tags, text, etc) are discarded, as
-   * are links which contain only single nested links and empty text
-   * nodes (this is a common DOM-fixup artifact, at least with
-   * nekohtml).
+   * 
+   * Links without inner structure (tags, text, etc) are discarded, as are links
+   * which contain only single nested links and empty text nodes (this is a
+   * common DOM-fixup artifact, at least with nekohtml).
    */
-  public void getOutlinks(URL base, ArrayList<Outlink> outlinks, 
-                                       Node node) {
-    
+  public void getOutlinks(URL base, ArrayList<Outlink> outlinks, Node node) {
+
     NodeWalker walker = new NodeWalker(node);
     while (walker.hasNext()) {
-      
+
       Node currentNode = walker.nextNode();
       String nodeName = currentNode.getNodeName();
-      short nodeType = currentNode.getNodeType();      
+      short nodeType = currentNode.getNodeType();
       NodeList children = currentNode.getChildNodes();
-      int childLen = (children != null) ? children.getLength() : 0; 
-      
+      int childLen = (children != null) ? children.getLength() : 0;
+
       if (nodeType == Node.ELEMENT_NODE) {
-        
+
         nodeName = nodeName.toLowerCase();
-        LinkParams params = (LinkParams)linkParams.get(nodeName);
+        LinkParams params = (LinkParams) linkParams.get(nodeName);
         if (params != null) {
           if (!shouldThrowAwayLink(currentNode, children, childLen, params)) {
-  
+
             StringBuffer linkText = new StringBuffer();
             getText(linkText, currentNode, true);
-  
+
             NamedNodeMap attrs = currentNode.getAttributes();
             String target = null;
             boolean noFollow = false;
             boolean post = false;
-            for (int i= 0; i < attrs.getLength(); i++ ) {
+            for (int i = 0; i < attrs.getLength(); i++) {
               Node attr = attrs.item(i);
               String attrName = attr.getNodeName();
               if (params.attrName.equalsIgnoreCase(attrName)) {
                 target = attr.getNodeValue();
-              } else if ("rel".equalsIgnoreCase(attrName) &&
-                         "nofollow".equalsIgnoreCase(attr.getNodeValue())) {
+              } else if ("rel".equalsIgnoreCase(attrName)
+                  && "nofollow".equalsIgnoreCase(attr.getNodeValue())) {
                 noFollow = true;
-              } else if ("method".equalsIgnoreCase(attrName) &&
-                         "post".equalsIgnoreCase(attr.getNodeValue())) {
+              } else if ("method".equalsIgnoreCase(attrName)
+                  && "post".equalsIgnoreCase(attr.getNodeValue())) {
                 post = true;
               }
             }
             if (target != null && !noFollow && !post)
               try {
-                
+
                 URL url = URLUtil.resolveURL(base, target);
-                outlinks.add(new Outlink(url.toString(),
-                                         linkText.toString().trim()));
+                outlinks.add(new Outlink(url.toString(), linkText.toString()
+                    .trim()));
               } catch (MalformedURLException e) {
                 // don't care
               }
           }
           // this should not have any children, skip them
-          if (params.childLen == 0) continue;
+          if (params.childLen == 0)
+            continue;
         }
       }
     }
   }
 
 }
-

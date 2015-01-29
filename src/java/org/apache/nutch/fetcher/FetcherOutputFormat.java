@@ -48,74 +48,68 @@ public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
   public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
     Path out = FileOutputFormat.getOutputPath(job);
     if ((out == null) && (job.getNumReduceTasks() != 0)) {
-    	throw new InvalidJobConfException(
-    			"Output directory not set in JobConf.");
+      throw new InvalidJobConfException("Output directory not set in JobConf.");
     }
     if (fs == null) {
-    	fs = out.getFileSystem(job);
+      fs = out.getFileSystem(job);
     }
     if (fs.exists(new Path(out, CrawlDatum.FETCH_DIR_NAME)))
-    	throw new IOException("Segment already fetched!");
+      throw new IOException("Segment already fetched!");
   }
 
   public RecordWriter<Text, NutchWritable> getRecordWriter(final FileSystem fs,
-                                      final JobConf job,
-                                      final String name,
-                                      final Progressable progress) throws IOException {
+      final JobConf job, final String name, final Progressable progress)
+      throws IOException {
 
     Path out = FileOutputFormat.getOutputPath(job);
-    final Path fetch =
-      new Path(new Path(out, CrawlDatum.FETCH_DIR_NAME), name);
-    final Path content =
-      new Path(new Path(out, Content.DIR_NAME), name);
-    
-    final CompressionType compType = SequenceFileOutputFormat.getOutputCompressionType(job);
+    final Path fetch = new Path(new Path(out, CrawlDatum.FETCH_DIR_NAME), name);
+    final Path content = new Path(new Path(out, Content.DIR_NAME), name);
 
-    final MapFile.Writer fetchOut =
-      new MapFile.Writer(job, fs, fetch.toString(), Text.class, CrawlDatum.class,
-          compType, progress);
-    
+    final CompressionType compType = SequenceFileOutputFormat
+        .getOutputCompressionType(job);
+
+    final MapFile.Writer fetchOut = new MapFile.Writer(job, fs,
+        fetch.toString(), Text.class, CrawlDatum.class, compType, progress);
+
     return new RecordWriter<Text, NutchWritable>() {
-        private MapFile.Writer contentOut;
-        private RecordWriter<Text, Parse> parseOut;
+      private MapFile.Writer contentOut;
+      private RecordWriter<Text, Parse> parseOut;
 
-        {
-          if (Fetcher.isStoringContent(job)) {
-            contentOut = new MapFile.Writer(job, fs, content.toString(),
-                                            Text.class, Content.class,
-                                            compType, progress);
-          }
-
-          if (Fetcher.isParsing(job)) {
-            parseOut = new ParseOutputFormat().getRecordWriter(fs, job, name, progress);
-          }
+      {
+        if (Fetcher.isStoringContent(job)) {
+          contentOut = new MapFile.Writer(job, fs, content.toString(),
+              Text.class, Content.class, compType, progress);
         }
 
-        public void write(Text key, NutchWritable value)
-          throws IOException {
-
-          Writable w = value.get();
-          
-          if (w instanceof CrawlDatum)
-            fetchOut.append(key, w);
-          else if (w instanceof Content && contentOut != null)
-            contentOut.append(key, w);
-          else if (w instanceof Parse && parseOut != null)
-            parseOut.write(key, (Parse)w);
+        if (Fetcher.isParsing(job)) {
+          parseOut = new ParseOutputFormat().getRecordWriter(fs, job, name,
+              progress);
         }
+      }
 
-        public void close(Reporter reporter) throws IOException {
-          fetchOut.close();
-          if (contentOut != null) {
-            contentOut.close();
-          }
-          if (parseOut != null) {
-            parseOut.close(reporter);
-          }
+      public void write(Text key, NutchWritable value) throws IOException {
+
+        Writable w = value.get();
+
+        if (w instanceof CrawlDatum)
+          fetchOut.append(key, w);
+        else if (w instanceof Content && contentOut != null)
+          contentOut.append(key, w);
+        else if (w instanceof Parse && parseOut != null)
+          parseOut.write(key, (Parse) w);
+      }
+
+      public void close(Reporter reporter) throws IOException {
+        fetchOut.close();
+        if (contentOut != null) {
+          contentOut.close();
         }
+        if (parseOut != null) {
+          parseOut.close(reporter);
+        }
+      }
 
-      };
+    };
 
-  }      
+  }
 }
-

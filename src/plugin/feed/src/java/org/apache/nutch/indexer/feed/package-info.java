@@ -19,3 +19,4 @@
  * Indexing filter to index meta data from RSS feeds.
  */
 package org.apache.nutch.indexer.feed;
+

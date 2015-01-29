@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.plugin;
 
-
 /**
  * <code>CircularDependencyException</code> will be thrown if a circular
  * dependency is detected.

@@ -32,12 +32,11 @@ import org.apache.nutch.net.*;
 import org.apache.nutch.urlfilter.api.RegexRule;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
 
-
 /**
- * RegexURLFilterBase implementation based on the
- * <a href="http://www.brics.dk/automaton/">dk.brics.automaton</a>
- * Finite-State Automata for Java<sup>TM</sup>.
- *
+ * RegexURLFilterBase implementation based on the <a
+ * href="http://www.brics.dk/automaton/">dk.brics.automaton</a> Finite-State
+ * Automata for Java<sup>TM</sup>.
+ * 
  * @author J&eacute;r&ocirc;me Charron
  * @see <a href="http://www.brics.dk/automaton/">dk.brics.automaton</a>
  */
@@ -49,24 +48,24 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
     super();
   }
 
-  public AutomatonURLFilter(String filename)
-    throws IOException, PatternSyntaxException {
+  public AutomatonURLFilter(String filename) throws IOException,
+      PatternSyntaxException {
     super(filename);
   }
 
-  AutomatonURLFilter(Reader reader)
-    throws IOException, IllegalArgumentException {
+  AutomatonURLFilter(Reader reader) throws IOException,
+      IllegalArgumentException {
     super(reader);
   }
 
-  
-  /* ----------------------------------- *
-   * <implementation:RegexURLFilterBase> *
-   * ----------------------------------- */
-  
+  /*
+   * ----------------------------------- * <implementation:RegexURLFilterBase> *
+   * -----------------------------------
+   */
+
   /**
-   * Rules specified as a config property will override rules specified
-   * as a config file.
+   * Rules specified as a config property will override rules specified as a
+   * config file.
    */
   protected Reader getRulesReader(Configuration conf) throws IOException {
     String stringRules = conf.get(URLFILTER_AUTOMATON_RULES);
@@ -81,21 +80,20 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
   protected RegexRule createRule(boolean sign, String regex) {
     return new Rule(sign, regex);
   }
-  
-  /* ------------------------------------ *
-   * </implementation:RegexURLFilterBase> *
-   * ------------------------------------ */
 
-  
+  /*
+   * ------------------------------------ * </implementation:RegexURLFilterBase>
+   * * ------------------------------------
+   */
+
   public static void main(String args[]) throws IOException {
     main(new AutomatonURLFilter(), args);
   }
 
-
   private class Rule extends RegexRule {
-    
+
     private RunAutomaton automaton;
-    
+
     Rule(boolean sign, String regex) {
       super(sign, regex);
       automaton = new RunAutomaton(new RegExp(regex, RegExp.ALL).toAutomaton());
@@ -105,5 +103,5 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
       return automaton.run(url);
     }
   }
-  
+
 }

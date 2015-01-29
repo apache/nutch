@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package org.apache.nutch.plugin;
+
 import java.util.ArrayList;
 
 /**
@@ -76,7 +77,8 @@ public class ExtensionPoint {
   /**
    * Sets the extensionPointId.
    * 
-   * @param pId extension point id
+   * @param pId
+   *          extension point id
    */
   private void setId(String pId) {
     ftId = pId;

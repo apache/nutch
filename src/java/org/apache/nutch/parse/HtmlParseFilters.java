@@ -23,11 +23,11 @@ import org.apache.hadoop.conf.Configuration;
 
 import org.w3c.dom.DocumentFragment;
 
-/** Creates and caches {@link HtmlParseFilter} implementing plugins.*/
+/** Creates and caches {@link HtmlParseFilter} implementing plugins. */
 public class HtmlParseFilters {
 
   private HtmlParseFilter[] htmlParseFilters;
-  
+
   public static final String HTMLPARSEFILTER_ORDER = "htmlparsefilter.order";
 
   public HtmlParseFilters(Configuration conf) {
@@ -37,13 +37,14 @@ public class HtmlParseFilters {
   }
 
   /** Run all defined filters. */
-  public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
+  public ParseResult filter(Content content, ParseResult parseResult,
+      HTMLMetaTags metaTags, DocumentFragment doc) {
 
     // loop on each filter
-    for (int i = 0 ; i < this.htmlParseFilters.length; i++) {
+    for (int i = 0; i < this.htmlParseFilters.length; i++) {
       // call filter interface
-      parseResult =
-        htmlParseFilters[i].filter(content, parseResult, metaTags, doc);
+      parseResult = htmlParseFilters[i].filter(content, parseResult, metaTags,
+          doc);
 
       // any failure on parse obj, return
       if (!parseResult.isSuccess()) {

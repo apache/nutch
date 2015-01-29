@@ -21,12 +21,12 @@ import java.io.Serializable;
 
 /**
  * Base exception for all protocol handlers
+ * 
  * @deprecated Use {@link org.apache.nutch.protocol.ProtocolException} instead.
  */
 @Deprecated
 @SuppressWarnings("serial")
 public class ProtocolException extends Exception implements Serializable {
-
 
   public ProtocolException() {
     super();

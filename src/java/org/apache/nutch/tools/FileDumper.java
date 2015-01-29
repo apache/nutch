@@ -54,20 +54,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>The file dumper tool enables one to reverse generate the raw content
- * from Nutch segment data directories. </p>
+ * <p>
+ * The file dumper tool enables one to reverse generate the raw content from
+ * Nutch segment data directories.
+ * </p>
  * <p>
  * The tool has a number of immediate uses:
  * <ol>
  * <li>one can see what a page looked like at the time it was crawled</li>
  * <li>one can see different media types acquired as part of the crawl</li>
- * <li>it enables us to see webpages before we augment them with additional metadata,
- * this can be handy for providing a provenance trail for your crawl data.</li>
+ * <li>it enables us to see webpages before we augment them with additional
+ * metadata, this can be handy for providing a provenance trail for your crawl
+ * data.</li>
  * </ol>
  * </p>
- * <p>Upon successful completion the tool displays a very convenient JSON snippet 
- * detailing the mimetype classifications and the counts of documents which 
- * fall into those classifications. An example is as follows:</p>
+ * <p>
+ * Upon successful completion the tool displays a very convenient JSON snippet
+ * detailing the mimetype classifications and the counts of documents which fall
+ * into those classifications. An example is as follows:
+ * </p>
+ * 
  * <pre>
  * {@code
  * INFO: File Types: 
@@ -92,45 +98,53 @@ import org.slf4j.LoggerFactory;
  *   }
  * }
  * </pre>
- * <p>In the case above the tool would have been run with the <b>-mimeType 
- * image/png image/jpeg image/vnd.microsoft.icon video/quicktime image/gif</b> 
+ * <p>
+ * In the case above the tool would have been run with the <b>-mimeType
+ * image/png image/jpeg image/vnd.microsoft.icon video/quicktime image/gif</b>
  * flag and corresponding values activated.
- *
+ * 
  */
 public class FileDumper {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileDumper.class
       .getName());
 
-
   /**
-   * Dumps the reverse engineered raw content from the provided segment directories
-   * if a parent directory contains more than one segment, otherwise a single segment
-   * can be passed as an argument. 
-   * @param outputDir the directory you wish to dump the raw content to. This directory will be created.
-   * @param segmentRootDir a directory containing one or more segments.
-   * @param mimeTypes an array of mime types we have to dump, all others will be filtered out.
+   * Dumps the reverse engineered raw content from the provided segment
+   * directories if a parent directory contains more than one segment, otherwise
+   * a single segment can be passed as an argument.
+   * 
+   * @param outputDir
+   *          the directory you wish to dump the raw content to. This directory
+   *          will be created.
+   * @param segmentRootDir
+   *          a directory containing one or more segments.
+   * @param mimeTypes
+   *          an array of mime types we have to dump, all others will be
+   *          filtered out.
    * @throws Exception
    */
-  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes) throws Exception {
-    if (mimeTypes == null) LOG.info("Accepting all mimetypes.");
-    //total file counts
+  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes)
+      throws Exception {
+    if (mimeTypes == null)
+      LOG.info("Accepting all mimetypes.");
+    // total file counts
     Map<String, Integer> typeCounts = new HashMap<String, Integer>();
-    //filtered file counts
+    // filtered file counts
     Map<String, Integer> filteredCounts = new HashMap<String, Integer>();
     Configuration conf = NutchConfiguration.create();
     FileSystem fs = FileSystem.get(conf);
     int fileCount = 0;
-    File[] segmentDirs = segmentRootDir
-        .listFiles(new FileFilter() {
+    File[] segmentDirs = segmentRootDir.listFiles(new FileFilter() {
 
-          @Override
-          public boolean accept(File file) {
-            return file.canRead() && file.isDirectory();
-          }
-        });
+      @Override
+      public boolean accept(File file) {
+        return file.canRead() && file.isDirectory();
+      }
+    });
     if (segmentDirs == null) {
-      System.err.println("No segment directories found in [" + segmentRootDir.getAbsolutePath() + "]");
+      System.err.println("No segment directories found in ["
+          + segmentRootDir.getAbsolutePath() + "]");
       return;
     }
 
@@ -138,18 +152,17 @@ public class FileDumper {
       LOG.info("Processing segment: [" + segment.getAbsolutePath() + "]");
       DataOutputStream doutputStream = null;
       try {
-        String segmentPath = segment.getAbsolutePath()
-            + "/" + Content.DIR_NAME + "/part-00000/data";
+        String segmentPath = segment.getAbsolutePath() + "/" + Content.DIR_NAME
+            + "/part-00000/data";
         Path file = new Path(segmentPath);
         if (!new File(file.toString()).exists()) {
           LOG.warn("Skipping segment: [" + segmentPath
               + "]: no data directory present");
           continue;
         }
-        SequenceFile.Reader reader = new SequenceFile.Reader(fs, file,
-            conf);
+        SequenceFile.Reader reader = new SequenceFile.Reader(fs, file, conf);
 
-        Writable key = (Writable)reader.getKeyClass().newInstance();
+        Writable key = (Writable) reader.getKeyClass().newInstance();
         Content content = null;
 
         while (reader.next(key)) {
@@ -158,35 +171,33 @@ public class FileDumper {
           String url = key.toString();
           String baseName = FilenameUtils.getBaseName(url);
           String extension = FilenameUtils.getExtension(url);
-          if (extension == null || (extension != null &&
-              extension.equals(""))){
+          if (extension == null || (extension != null && extension.equals(""))) {
             extension = "html";
           }
 
           String filename = baseName + "." + extension;
           ByteArrayInputStream bas = null;
           Boolean filter = false;
-          try{
+          try {
             bas = new ByteArrayInputStream(content.getContent());
             String mimeType = new Tika().detect(content.getContent());
             collectStats(typeCounts, mimeType);
             if (mimeType != null) {
-              if (mimeTypes == null || Arrays.asList(mimeTypes).contains(mimeType)) {
+              if (mimeTypes == null
+                  || Arrays.asList(mimeTypes).contains(mimeType)) {
                 collectStats(filteredCounts, mimeType);
                 filter = true;
               }
             }
-          }
-          catch(Exception e){
+          } catch (Exception e) {
             e.printStackTrace();
-            LOG.warn("Tika is unable to detect type for: ["+url+"]");
-          }
-          finally{
-            if(bas != null){
-              try{
+            LOG.warn("Tika is unable to detect type for: [" + url + "]");
+          } finally {
+            if (bas != null) {
+              try {
                 bas.close();
+              } catch (Exception ignore) {
               }
-              catch(Exception ignore){}
             }
           }
 
@@ -199,51 +210,58 @@ public class FileDumper {
               IOUtils.write(content.getContent(), output);
               fileCount++;
             } else {
-              LOG.info("Skipping writing: ["
-                  + outputFullPath + "]: file already exists");
+              LOG.info("Skipping writing: [" + outputFullPath
+                  + "]: file already exists");
             }
           }
         }
         reader.close();
-      }
-      finally {
+      } finally {
         fs.close();
-        if (doutputStream != null){
-          try{
+        if (doutputStream != null) {
+          try {
             doutputStream.close();
+          } catch (Exception ignore) {
           }
-          catch (Exception ignore){}
         }
       }
     }
-    LOG.info("Dumper File Stats: " + displayFileTypes(typeCounts, filteredCounts));
+    LOG.info("Dumper File Stats: "
+        + displayFileTypes(typeCounts, filteredCounts));
 
   }
 
   /**
    * Main method for invoking this tool
-   * @param args 1) output directory (which will be created) to host the
-   * raw data and 2) a directory containing one or more segments.
+   * 
+   * @param args
+   *          1) output directory (which will be created) to host the raw data
+   *          and 2) a directory containing one or more segments.
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    //boolean options
+    // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
-    //argument options
+    // argument options
     @SuppressWarnings("static-access")
-    Option outputOpt = OptionBuilder.withArgName("outputDir")
-    .hasArg().withDescription("output directory (which will be created) to host the raw data")
-    .create("outputDir");
+    Option outputOpt = OptionBuilder
+        .withArgName("outputDir")
+        .hasArg()
+        .withDescription(
+            "output directory (which will be created) to host the raw data")
+        .create("outputDir");
     @SuppressWarnings("static-access")
-    Option segOpt = OptionBuilder.withArgName("segment")
-    .hasArgs().withDescription("the segment(s) to use")
-    .create("segment");
+    Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
+        .withDescription("the segment(s) to use").create("segment");
     @SuppressWarnings("static-access")
-    Option mimeOpt = OptionBuilder.withArgName("mimetype")
-    .hasArgs().withDescription("an optional list of mimetypes to dump, excluding all others. Defaults to all.")
-    .create("mimetype");
+    Option mimeOpt = OptionBuilder
+        .withArgName("mimetype")
+        .hasArgs()
+        .withDescription(
+            "an optional list of mimetypes to dump, excluding all others. Defaults to all.")
+        .create("mimetype");
 
-    //create the options
+    // create the options
     Options options = new Options();
     options.addOption(helpOpt);
     options.addOption(outputOpt);
@@ -267,13 +285,14 @@ public class FileDumper {
       if (!outputDir.exists()) {
         LOG.warn("Output directory: [" + outputDir.getAbsolutePath()
             + "]: does not exist, creating it.");
-        if(!outputDir.mkdirs()) throw new Exception("Unable to create: ["+outputDir.getAbsolutePath()+"]");
+        if (!outputDir.mkdirs())
+          throw new Exception("Unable to create: ["
+              + outputDir.getAbsolutePath() + "]");
       }
 
       FileDumper dumper = new FileDumper();
       dumper.dump(outputDir, segmentRootDir, mimeTypes);
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       LOG.error("FileDumper: " + StringUtils.stringifyException(e));
       e.printStackTrace();
       return;
@@ -282,13 +301,13 @@ public class FileDumper {
 
   private void collectStats(Map<String, Integer> typeCounts, String mimeType) {
     typeCounts.put(mimeType,
-        typeCounts.containsKey(mimeType) ? typeCounts.get(mimeType) + 1
-            : 1);
+        typeCounts.containsKey(mimeType) ? typeCounts.get(mimeType) + 1 : 1);
   }
 
-  private String displayFileTypes(Map<String, Integer> typeCounts, Map<String, Integer> filteredCounts) {
-    StringBuilder  builder = new StringBuilder();
-    //print total stats
+  private String displayFileTypes(Map<String, Integer> typeCounts,
+      Map<String, Integer> filteredCounts) {
+    StringBuilder builder = new StringBuilder();
+    // print total stats
     builder.append("\n  TOTAL Stats:\n");
     builder.append("                {\n");
     for (String mimeType : typeCounts.keySet()) {

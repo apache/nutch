@@ -26,8 +26,7 @@ import org.junit.Test;
 public class TestURLUtil {
 
   @Test
-  public void testGetDomainName()
-    throws Exception {
+  public void testGetDomainName() throws Exception {
 
     URL url = null;
 
@@ -76,8 +75,7 @@ public class TestURLUtil {
   }
 
   @Test
-  public void testGetDomainSuffix()
-    throws Exception {
+  public void testGetDomainSuffix() throws Exception {
     URL url = null;
 
     url = new URL("http://lucene.apache.org/nutch");
@@ -128,8 +126,7 @@ public class TestURLUtil {
   }
 
   @Test
-  public void testGetHostSegments()
-    throws Exception {
+  public void testGetHostSegments() throws Exception {
     URL url;
     String[] segments;
 
@@ -161,9 +158,8 @@ public class TestURLUtil {
   }
 
   @Test
-  public void testChooseRepr()
-    throws Exception {
-    
+  public void testChooseRepr() throws Exception {
+
     String aDotCom = "http://www.a.com";
     String bDotCom = "http://www.b.com";
     String aSubDotCom = "http://www.news.a.com";
@@ -171,40 +167,41 @@ public class TestURLUtil {
     String aPath = "http://www.a.com/xyz/index.html";
     String aPath2 = "http://www.a.com/abc/page.html";
     String aPath3 = "http://www.news.a.com/abc/page.html";
-    
+
     // 1) different domain them keep dest, temp or perm
     // a.com -> b.com*
     Assert.assertEquals(bDotCom, URLUtil.chooseRepr(aDotCom, bDotCom, true));
     Assert.assertEquals(bDotCom, URLUtil.chooseRepr(aDotCom, bDotCom, false));
-    
+
     // 2) permanent and root, keep src
     // *a.com -> a.com?y=1 || *a.com -> a.com/xyz/index.html
     Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aQStr, false));
     Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aPath, false));
-    
-    //3) permanent and not root and dest root, keep dest
-    //a.com/xyz/index.html -> a.com*
+
+    // 3) permanent and not root and dest root, keep dest
+    // a.com/xyz/index.html -> a.com*
     Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aPath, aDotCom, false));
-    
-    //4) permanent and neither root keep dest
+
+    // 4) permanent and neither root keep dest
     // a.com/xyz/index.html -> a.com/abc/page.html*
     Assert.assertEquals(aPath2, URLUtil.chooseRepr(aPath, aPath2, false));
-    
-    //5) temp and root and dest not root keep src
-    //*a.com -> a.com/xyz/index.html
+
+    // 5) temp and root and dest not root keep src
+    // *a.com -> a.com/xyz/index.html
     Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aPath, true));
-    
-    //6) temp and not root and dest root keep dest
+
+    // 6) temp and not root and dest root keep dest
     // a.com/xyz/index.html -> a.com*
     Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aPath, aDotCom, true));
 
-    //7) temp and neither root, keep shortest, if hosts equal by path else by hosts
-    //  a.com/xyz/index.html -> a.com/abc/page.html*
+    // 7) temp and neither root, keep shortest, if hosts equal by path else by
+    // hosts
+    // a.com/xyz/index.html -> a.com/abc/page.html*
     // *www.a.com/xyz/index.html -> www.news.a.com/xyz/index.html
     Assert.assertEquals(aPath2, URLUtil.chooseRepr(aPath, aPath2, true));
     Assert.assertEquals(aPath, URLUtil.chooseRepr(aPath, aPath3, true));
 
-    //8) temp and both root keep shortest sub domain
+    // 8) temp and both root keep shortest sub domain
     // *www.a.com -> www.news.a.com
     Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aSubDotCom, true));
   }
@@ -212,30 +209,18 @@ public class TestURLUtil {
   // from RFC3986 section 5.4.1
   private static String baseString = "http://a/b/c/d;p?q";
   private static String[][] targets = new String[][] {
-    // unknown protocol {"g:h"           ,  "g:h"},
-    {"g"             ,  "http://a/b/c/g"},
-    { "./g"           ,  "http://a/b/c/g"},
-    { "g/"            ,  "http://a/b/c/g/"},
-    { "/g"            ,  "http://a/g"},
-    { "//g"           ,  "http://g"},
-    { "?y"            ,  "http://a/b/c/d;p?y"},
-    { "g?y"           ,  "http://a/b/c/g?y"},
-    { "#s"            ,  "http://a/b/c/d;p?q#s"},
-    { "g#s"           ,  "http://a/b/c/g#s"},
-    { "g?y#s"         ,  "http://a/b/c/g?y#s"},
-    { ";x"            ,  "http://a/b/c/;x"},
-    { "g;x"           ,  "http://a/b/c/g;x"},
-    { "g;x?y#s"       ,  "http://a/b/c/g;x?y#s"},
-    { ""              ,  "http://a/b/c/d;p?q"},
-    { "."             ,  "http://a/b/c/"},
-    { "./"            ,  "http://a/b/c/"},
-    { ".."            ,  "http://a/b/"},
-    { "../"           ,  "http://a/b/"},
-    { "../g"          ,  "http://a/b/g"},
-    { "../.."         ,  "http://a/"},
-    { "../../"        ,  "http://a/"},
-    { "../../g"       ,  "http://a/g"}
-  };
+      // unknown protocol {"g:h" , "g:h"},
+      { "g", "http://a/b/c/g" }, { "./g", "http://a/b/c/g" },
+      { "g/", "http://a/b/c/g/" }, { "/g", "http://a/g" },
+      { "//g", "http://g" }, { "?y", "http://a/b/c/d;p?y" },
+      { "g?y", "http://a/b/c/g?y" }, { "#s", "http://a/b/c/d;p?q#s" },
+      { "g#s", "http://a/b/c/g#s" }, { "g?y#s", "http://a/b/c/g?y#s" },
+      { ";x", "http://a/b/c/;x" }, { "g;x", "http://a/b/c/g;x" },
+      { "g;x?y#s", "http://a/b/c/g;x?y#s" }, { "", "http://a/b/c/d;p?q" },
+      { ".", "http://a/b/c/" }, { "./", "http://a/b/c/" },
+      { "..", "http://a/b/" }, { "../", "http://a/b/" },
+      { "../g", "http://a/b/g" }, { "../..", "http://a/" },
+      { "../../", "http://a/" }, { "../../g", "http://a/g" } };
 
   @Test
   public void testResolveURL() throws Exception {
@@ -247,7 +232,8 @@ public class TestURLUtil {
     // test NUTCH-566
     URL u566 = new URL("http://www.fleurie.org/entreprise.asp");
     abs = URLUtil.resolveURL(u566, "?id_entrep=111");
-    Assert.assertEquals("http://www.fleurie.org/entreprise.asp?id_entrep=111", abs.toString());
+    Assert.assertEquals("http://www.fleurie.org/entreprise.asp?id_entrep=111",
+        abs.toString());
     URL base = new URL(baseString);
     Assert.assertEquals("base url parsing", baseString, base.toString());
     for (int i = 0; i < targets.length; i++) {
@@ -255,31 +241,41 @@ public class TestURLUtil {
       Assert.assertEquals(targets[i][1], targets[i][1], u.toString());
     }
   }
-  
+
   @Test
   public void testToUNICODE() throws Exception {
-    Assert.assertEquals("http://www.çevir.com", URLUtil.toUNICODE("http://www.xn--evir-zoa.com"));
-    Assert.assertEquals("http://uni-tübingen.de/", URLUtil.toUNICODE("http://xn--uni-tbingen-xhb.de/"));
-    Assert.assertEquals(
-        "http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1",
-        URLUtil.toUNICODE("http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1"));
-    
+    Assert.assertEquals("http://www.çevir.com",
+        URLUtil.toUNICODE("http://www.xn--evir-zoa.com"));
+    Assert.assertEquals("http://uni-tübingen.de/",
+        URLUtil.toUNICODE("http://xn--uni-tbingen-xhb.de/"));
+    Assert
+        .assertEquals(
+            "http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1",
+            URLUtil
+                .toUNICODE("http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1"));
+
   }
-  
+
   @Test
   public void testToASCII() throws Exception {
-    Assert.assertEquals("http://www.xn--evir-zoa.com", URLUtil.toASCII("http://www.çevir.com"));
-    Assert.assertEquals("http://xn--uni-tbingen-xhb.de/", URLUtil.toASCII("http://uni-tübingen.de/"));
-    Assert.assertEquals(
-        "http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1",
-        URLUtil.toASCII("http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1")); 
+    Assert.assertEquals("http://www.xn--evir-zoa.com",
+        URLUtil.toASCII("http://www.çevir.com"));
+    Assert.assertEquals("http://xn--uni-tbingen-xhb.de/",
+        URLUtil.toASCII("http://uni-tübingen.de/"));
+    Assert
+        .assertEquals(
+            "http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1",
+            URLUtil
+                .toASCII("http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1"));
   }
 
   @Test
   public void testFileProtocol() throws Exception {
     // keep one single slash NUTCH-XXX
-    Assert.assertEquals("file:/path/file.html", URLUtil.toASCII("file:/path/file.html"));
-    Assert.assertEquals("file:/path/file.html", URLUtil.toUNICODE("file:/path/file.html"));
+    Assert.assertEquals("file:/path/file.html",
+        URLUtil.toASCII("file:/path/file.html"));
+    Assert.assertEquals("file:/path/file.html",
+        URLUtil.toUNICODE("file:/path/file.html"));
   }
 
 }

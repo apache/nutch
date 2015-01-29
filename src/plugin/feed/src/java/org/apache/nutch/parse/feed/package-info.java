@@ -19,3 +19,4 @@
  * Parse RSS feeds.
  */
 package org.apache.nutch.parse.feed;
+

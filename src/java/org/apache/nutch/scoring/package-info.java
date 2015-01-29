@@ -19,3 +19,4 @@
  * The {@link org.apache.nutch.scoring.ScoringFilter ScoringFilter} interface.
  */
 package org.apache.nutch.scoring;
+

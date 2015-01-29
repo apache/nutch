@@ -47,19 +47,19 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.protocol.ProtocolStatus;
 
 /**
- * A writable map, with a similar behavior as <code>java.util.HashMap</code>.
- * In addition to the size of key and value writable tuple two additional bytes
- * are stored to identify the Writable classes. This means that a maximum of
- * 255 different class types can be used for key and value objects.
- * A binary-id to class mapping is defined in a static block of this class.
- * However it is possible to use custom implementations of Writable.
- * For these custom Writables we write the byte id - utf class name tuple
- * into the header of each MapWritable that uses these types.
- *
+ * A writable map, with a similar behavior as <code>java.util.HashMap</code>. In
+ * addition to the size of key and value writable tuple two additional bytes are
+ * stored to identify the Writable classes. This means that a maximum of 255
+ * different class types can be used for key and value objects. A binary-id to
+ * class mapping is defined in a static block of this class. However it is
+ * possible to use custom implementations of Writable. For these custom
+ * Writables we write the byte id - utf class name tuple into the header of each
+ * MapWritable that uses these types.
+ * 
  * @author Stefan Groschupf
  * @deprecated Use org.apache.hadoop.io.MapWritable instead.
  */
- 
+
 @Deprecated
 public class MapWritable implements Writable {
 
@@ -105,14 +105,16 @@ public class MapWritable implements Writable {
     CLASS_ID_MAP.put(clazz, byteId);
     ID_CLASS_MAP.put(byteId, clazz);
   }
-  
-  public MapWritable() { }
-  
+
+  public MapWritable() {
+  }
+
   /**
    * Copy constructor. This constructor makes a deep copy, using serialization /
    * deserialization to break any possible references to contained objects.
    * 
-   * @param map map to copy from
+   * @param map
+   *          map to copy from
    */
   public MapWritable(MapWritable map) {
     if (map != null) {
@@ -123,8 +125,8 @@ public class MapWritable implements Writable {
         dib.reset(dob.getData(), dob.getLength());
         readFields(dib);
       } catch (IOException e) {
-        throw new IllegalArgumentException("this map cannot be copied: " +
-                StringUtils.stringifyException(e));
+        throw new IllegalArgumentException("this map cannot be copied: "
+            + StringUtils.stringifyException(e));
       }
     }
   }
@@ -177,7 +179,8 @@ public class MapWritable implements Writable {
 
   public Set<Writable> keySet() {
     HashSet<Writable> set = new HashSet<Writable>();
-    if (isEmpty()) return set;
+    if (isEmpty())
+      return set;
     set.add(fFirst.fKey);
     KeyValueEntry entry = fFirst;
     while ((entry = entry.fNextEntry) != null) {
@@ -257,7 +260,8 @@ public class MapWritable implements Writable {
   public boolean equals(Object obj) {
     if (obj instanceof MapWritable) {
       MapWritable map = (MapWritable) obj;
-      if (fSize != map.fSize) return false;
+      if (fSize != map.fSize)
+        return false;
       HashSet<KeyValueEntry> set1 = new HashSet<KeyValueEntry>();
       KeyValueEntry e1 = fFirst;
       while (e1 != null) {
@@ -345,7 +349,7 @@ public class MapWritable implements Writable {
           clazz = Class.forName(Text.readString(in));
           addIdEntry(id, clazz);
         } catch (Exception e) {
-          if (LOG.isWarnEnabled()) { 
+          if (LOG.isWarnEnabled()) {
             LOG.warn("Unable to load internal map entry" + e.toString());
           }
           fIdCount--;
@@ -364,8 +368,8 @@ public class MapWritable implements Writable {
           }
         } catch (IOException e) {
           if (LOG.isWarnEnabled()) {
-            LOG.warn("Unable to load meta data entry, ignoring.. : "  +
-                     e.toString());
+            LOG.warn("Unable to load meta data entry, ignoring.. : "
+                + e.toString());
           }
           fSize--;
         }

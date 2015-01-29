@@ -35,41 +35,28 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestLinkDbMerger {
-  private static final Logger LOG = Logger.getLogger(TestLinkDbMerger.class.getName());
-  
+  private static final Logger LOG = Logger.getLogger(TestLinkDbMerger.class
+      .getName());
+
   String url10 = "http://example.com/foo";
-  String[] urls10 = new String[] {
-          "http://example.com/100",
-          "http://example.com/101"
-        };
+  String[] urls10 = new String[] { "http://example.com/100",
+      "http://example.com/101" };
 
   String url11 = "http://example.com/";
-  String[] urls11 = new String[] {
-          "http://example.com/110",
-          "http://example.com/111"
-        };
-  
+  String[] urls11 = new String[] { "http://example.com/110",
+      "http://example.com/111" };
+
   String url20 = "http://example.com/";
-  String[] urls20 = new String[] {
-          "http://foo.com/200",
-          "http://foo.com/201"
-        };
+  String[] urls20 = new String[] { "http://foo.com/200", "http://foo.com/201" };
   String url21 = "http://example.com/bar";
-  String[] urls21 = new String[] {
-          "http://foo.com/210",
-          "http://foo.com/211"
-        };
-  
+  String[] urls21 = new String[] { "http://foo.com/210", "http://foo.com/211" };
+
   String[] urls10_expected = urls10;
-  String[] urls11_expected = new String[] {
-          urls11[0],
-          urls11[1],
-          urls20[0],
-          urls20[1]
-  };
+  String[] urls11_expected = new String[] { urls11[0], urls11[1], urls20[0],
+      urls20[1] };
   String[] urls20_expected = urls11_expected;
   String[] urls21_expected = urls21;
-  
+
   TreeMap<String, String[]> init1 = new TreeMap<String, String[]>();
   TreeMap<String, String[]> init2 = new TreeMap<String, String[]>();
   HashMap<String, String[]> expected = new HashMap<String, String[]>();
@@ -77,7 +64,7 @@ public class TestLinkDbMerger {
   Path testDir;
   FileSystem fs;
   LinkDbReader reader;
-  
+
   @Before
   public void setUp() throws Exception {
     init1.put(url10, urls10);
@@ -90,20 +77,22 @@ public class TestLinkDbMerger {
     expected.put(url21, urls21_expected);
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
-    testDir = new Path("build/test/test-linkdb-" +
-            new java.util.Random().nextInt());
+    testDir = new Path("build/test/test-linkdb-"
+        + new java.util.Random().nextInt());
     fs.mkdirs(testDir);
   }
-  
+
   @After
   public void tearDown() {
     try {
       if (fs.exists(testDir))
         fs.delete(testDir, true);
-    } catch (Exception e) { }
+    } catch (Exception e) {
+    }
     try {
       reader.close();
-    } catch (Exception e) { }
+    } catch (Exception e) {
+    }
   }
 
   @Test
@@ -118,7 +107,7 @@ public class TestLinkDbMerger {
     createLinkDb(conf, fs, linkdb2, init2);
     LinkDbMerger merger = new LinkDbMerger(conf);
     LOG.fine("* merging linkdbs to " + output);
-    merger.merge(output, new Path[]{linkdb1, linkdb2}, false, false);
+    merger.merge(output, new Path[] { linkdb1, linkdb2 }, false, false);
     LOG.fine("* reading linkdb: " + output);
     reader = new LinkDbReader(conf, output);
     Iterator<String> it = expected.keySet().iterator();
@@ -132,7 +121,7 @@ public class TestLinkDbMerger {
       ArrayList<String> links = new ArrayList<String>();
       Iterator<?> it2 = inlinks.iterator();
       while (it2.hasNext()) {
-        Inlink in = (Inlink)it2.next();
+        Inlink in = (Inlink) it2.next();
         links.add(in.getFromUrl());
       }
       for (int i = 0; i < vals.length; i++) {
@@ -143,11 +132,13 @@ public class TestLinkDbMerger {
     reader.close();
     fs.delete(testDir, true);
   }
-  
-  private void createLinkDb(Configuration config, FileSystem fs, Path linkdb, TreeMap<String, String[]> init) throws Exception {
+
+  private void createLinkDb(Configuration config, FileSystem fs, Path linkdb,
+      TreeMap<String, String[]> init) throws Exception {
     LOG.fine("* creating linkdb: " + linkdb);
     Path dir = new Path(linkdb, LinkDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(config, fs, new Path(dir, "part-00000").toString(), Text.class, Inlinks.class);
+    MapFile.Writer writer = new MapFile.Writer(config, fs, new Path(dir,
+        "part-00000").toString(), Text.class, Inlinks.class);
     Iterator<String> it = init.keySet().iterator();
     while (it.hasNext()) {
       String key = it.next();

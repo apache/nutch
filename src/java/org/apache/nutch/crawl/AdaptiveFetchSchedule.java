@@ -37,11 +37,12 @@ import org.slf4j.LoggerFactory;
  * If SYNC_DELTA property is true, then:
  * <ul>
  * <li>calculate a <code>delta = fetchTime - modifiedTime</code></li>
- * <li>try to synchronize with the time of change, by shifting the next fetchTime
- * by a fraction of the difference between the last modification time and the last
- * fetch time. I.e. the next fetch time will be set to
+ * <li>try to synchronize with the time of change, by shifting the next
+ * fetchTime by a fraction of the difference between the last modification time
+ * and the last fetch time. I.e. the next fetch time will be set to
  * <code>fetchTime + fetchInterval - delta * SYNC_DELTA_RATE</code></li>
- * <li>if the adjusted fetch interval is bigger than the delta, then <code>fetchInterval = delta</code>.</li>
+ * <li>if the adjusted fetch interval is bigger than the delta, then
+ * <code>fetchInterval = delta</code>.</li>
  * </ul>
  * </li>
  * <li>the minimum value of fetchInterval may not be smaller than MIN_INTERVAL
@@ -49,17 +50,21 @@ import org.slf4j.LoggerFactory;
  * <li>the maximum value of fetchInterval may not be bigger than MAX_INTERVAL
  * (default is 365 days).</li>
  * </ul>
- * <p>NOTE: values of DEC_FACTOR and INC_FACTOR higher than 0.4f may destabilize the algorithm,
- * so that the fetch interval either increases or decreases infinitely, with little
- * relevance to the page changes. Please use {@link #main(String[])} method to
- * test the values before applying them in a production system.</p>
+ * <p>
+ * NOTE: values of DEC_FACTOR and INC_FACTOR higher than 0.4f may destabilize
+ * the algorithm, so that the fetch interval either increases or decreases
+ * infinitely, with little relevance to the page changes. Please use
+ * {@link #main(String[])} method to test the values before applying them in a
+ * production system.
+ * </p>
  * 
  * @author Andrzej Bialecki
  */
 public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
   // Loggg
-  public static final Logger LOG = LoggerFactory.getLogger(AbstractFetchSchedule.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(AbstractFetchSchedule.class);
 
   protected float INC_RATE;
 
@@ -68,26 +73,29 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
   private int MAX_INTERVAL;
 
   private int MIN_INTERVAL;
-  
+
   private boolean SYNC_DELTA;
 
   private double SYNC_DELTA_RATE;
-  
+
   public void setConf(Configuration conf) {
     super.setConf(conf);
-    if (conf == null) return;
+    if (conf == null)
+      return;
     INC_RATE = conf.getFloat("db.fetch.schedule.adaptive.inc_rate", 0.2f);
     DEC_RATE = conf.getFloat("db.fetch.schedule.adaptive.dec_rate", 0.2f);
     MIN_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.min_interval", 60);
-    MAX_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.max_interval", SECONDS_PER_DAY * 365 ); // 1 year
+    MAX_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.max_interval",
+        SECONDS_PER_DAY * 365); // 1 year
     SYNC_DELTA = conf.getBoolean("db.fetch.schedule.adaptive.sync_delta", true);
-    SYNC_DELTA_RATE = conf.getFloat("db.fetch.schedule.adaptive.sync_delta_rate", 0.2f);
+    SYNC_DELTA_RATE = conf.getFloat(
+        "db.fetch.schedule.adaptive.sync_delta_rate", 0.2f);
   }
 
   @Override
   public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
-          long prevFetchTime, long prevModifiedTime,
-          long fetchTime, long modifiedTime, int state) {
+      long prevFetchTime, long prevModifiedTime, long fetchTime,
+      long modifiedTime, int state) {
     super.setFetchSchedule(url, datum, prevFetchTime, prevModifiedTime,
         fetchTime, modifiedTime, state);
 
@@ -99,24 +107,27 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
     if (datum.getMetaData().containsKey(Nutch.WRITABLE_FIXED_INTERVAL_KEY)) {
       // Is fetch interval preset in CrawlDatum MD? Then use preset interval
-      FloatWritable customIntervalWritable= (FloatWritable)(datum.getMetaData().get(Nutch.WRITABLE_FIXED_INTERVAL_KEY));
+      FloatWritable customIntervalWritable = (FloatWritable) (datum
+          .getMetaData().get(Nutch.WRITABLE_FIXED_INTERVAL_KEY));
       interval = customIntervalWritable.get();
     } else {
-      if (modifiedTime <= 0) modifiedTime = fetchTime;
+      if (modifiedTime <= 0)
+        modifiedTime = fetchTime;
       switch (state) {
-        case FetchSchedule.STATUS_MODIFIED:
-          interval *= (1.0f - DEC_RATE);
-          break;
-        case FetchSchedule.STATUS_NOTMODIFIED:
-          interval *= (1.0f + INC_RATE);
-          break;
-        case FetchSchedule.STATUS_UNKNOWN:
-          break;
+      case FetchSchedule.STATUS_MODIFIED:
+        interval *= (1.0f - DEC_RATE);
+        break;
+      case FetchSchedule.STATUS_NOTMODIFIED:
+        interval *= (1.0f + INC_RATE);
+        break;
+      case FetchSchedule.STATUS_UNKNOWN:
+        break;
       }
       if (SYNC_DELTA) {
         // try to synchronize with the time of change
         long delta = (fetchTime - modifiedTime) / 1000L;
-        if (delta > interval) interval = delta;
+        if (delta > interval)
+          interval = delta;
         refTime = fetchTime - Math.round(delta * SYNC_DELTA_RATE * 1000);
       }
       if (interval < MIN_INTERVAL) {
@@ -154,30 +165,39 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     // let's move the timeline a couple of deltas
     for (int i = 0; i < 10000; i++) {
       if (lastModified + update < curTime) {
-        //System.out.println("i=" + i + ", lastModified=" + lastModified + ", update=" + update + ", curTime=" + curTime);
+        // System.out.println("i=" + i + ", lastModified=" + lastModified +
+        // ", update=" + update + ", curTime=" + curTime);
         changed = true;
         changeCnt++;
         lastModified = curTime;
       }
-      LOG.info(i + ". " + changed + "\twill fetch at " + (p.getFetchTime() / delta) + "\tinterval "
-              + (p.getFetchInterval() / SECONDS_PER_DAY ) + " days" + "\t missed " + miss);
+      LOG.info(i + ". " + changed + "\twill fetch at "
+          + (p.getFetchTime() / delta) + "\tinterval "
+          + (p.getFetchInterval() / SECONDS_PER_DAY) + " days" + "\t missed "
+          + miss);
       if (p.getFetchTime() <= curTime) {
         fetchCnt++;
-        fs.setFetchSchedule(new Text("http://www.example.com"), p,
-                p.getFetchTime(), p.getModifiedTime(), curTime, lastModified,
-                changed ? FetchSchedule.STATUS_MODIFIED : FetchSchedule.STATUS_NOTMODIFIED);
-        LOG.info("\tfetched & adjusted: " + "\twill fetch at " + (p.getFetchTime() / delta) + "\tinterval "
-                + (p.getFetchInterval() / SECONDS_PER_DAY ) + " days");
-        if (!changed) miss++;
-        if (miss > maxMiss) maxMiss = miss;
+        fs.setFetchSchedule(new Text("http://www.example.com"), p, p
+            .getFetchTime(), p.getModifiedTime(), curTime, lastModified,
+            changed ? FetchSchedule.STATUS_MODIFIED
+                : FetchSchedule.STATUS_NOTMODIFIED);
+        LOG.info("\tfetched & adjusted: " + "\twill fetch at "
+            + (p.getFetchTime() / delta) + "\tinterval "
+            + (p.getFetchInterval() / SECONDS_PER_DAY) + " days");
+        if (!changed)
+          miss++;
+        if (miss > maxMiss)
+          maxMiss = miss;
         changed = false;
         totalMiss += miss;
         miss = 0;
       }
-      if (changed) miss++;
+      if (changed)
+        miss++;
       curTime += delta;
     }
     LOG.info("Total missed: " + totalMiss + ", max miss: " + maxMiss);
-    LOG.info("Page changed " + changeCnt + " times, fetched " + fetchCnt + " times.");
+    LOG.info("Page changed " + changeCnt + " times, fetched " + fetchCnt
+        + " times.");
   }
 }

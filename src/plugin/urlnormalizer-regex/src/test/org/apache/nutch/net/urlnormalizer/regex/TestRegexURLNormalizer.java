@@ -36,24 +36,27 @@ import org.apache.nutch.util.NutchConfiguration;
 
 /** Unit tests for RegexUrlNormalizer. */
 public class TestRegexURLNormalizer {
-  private static final Logger LOG = LoggerFactory.getLogger(TestRegexURLNormalizer.class);
-  
+  private static final Logger LOG = LoggerFactory
+      .getLogger(TestRegexURLNormalizer.class);
+
   private RegexURLNormalizer normalizer;
   private Configuration conf;
   private Map<String, NormalizedURL[]> testData = new HashMap<String, NormalizedURL[]>();
-  
+
   // This system property is defined in ./src/plugin/build-plugin.xml
   private String sampleDir = System.getProperty("test.data", ".");
+
   // Make sure sample files are copied to "test.data" as specified in
   // ./src/plugin/urlnormalizer-regex/build.xml during plugin compilation.
-  
+
   public TestRegexURLNormalizer() throws IOException {
     normalizer = new RegexURLNormalizer();
     conf = NutchConfiguration.create();
     normalizer.setConf(conf);
     File[] configs = new File(sampleDir).listFiles(new FileFilter() {
       public boolean accept(File f) {
-        if (f.getName().endsWith(".xml") && f.getName().startsWith("regex-normalize-"))
+        if (f.getName().endsWith(".xml")
+            && f.getName().startsWith("regex-normalize-"))
           return true;
         return false;
       }
@@ -74,8 +77,8 @@ public class TestRegexURLNormalizer {
 
   @Test
   public void testNormalizerDefault() throws Exception {
-    normalizeTest((NormalizedURL[])testData.get(URLNormalizers.SCOPE_DEFAULT),
-            URLNormalizers.SCOPE_DEFAULT);
+    normalizeTest((NormalizedURL[]) testData.get(URLNormalizers.SCOPE_DEFAULT),
+        URLNormalizers.SCOPE_DEFAULT);
   }
 
   @Test
@@ -83,33 +86,36 @@ public class TestRegexURLNormalizer {
     Iterator<String> it = testData.keySet().iterator();
     while (it.hasNext()) {
       String scope = it.next();
-      normalizeTest((NormalizedURL[])testData.get(scope), scope);
+      normalizeTest((NormalizedURL[]) testData.get(scope), scope);
     }
   }
 
-  private void normalizeTest(NormalizedURL[] urls, String scope) throws Exception {
+  private void normalizeTest(NormalizedURL[] urls, String scope)
+      throws Exception {
     for (int i = 0; i < urls.length; i++) {
       String url = urls[i].url;
       String normalized = normalizer.normalize(urls[i].url, scope);
       String expected = urls[i].expectedURL;
-      LOG.info("scope: " + scope + " url: " + url + " | normalized: " + normalized + " | expected: " + expected);
+      LOG.info("scope: " + scope + " url: " + url + " | normalized: "
+          + normalized + " | expected: " + expected);
       Assert.assertEquals(urls[i].expectedURL, normalized);
     }
   }
-	
+
   private void bench(int loops, String scope) {
     long start = System.currentTimeMillis();
     try {
-      NormalizedURL[] expected = (NormalizedURL[])testData.get(scope);
-      if (expected == null) return;
+      NormalizedURL[] expected = (NormalizedURL[]) testData.get(scope);
+      if (expected == null)
+        return;
       for (int i = 0; i < loops; i++) {
         normalizeTest(expected, scope);
       }
     } catch (Exception e) {
       Assert.fail(e.toString());
     }
-    LOG.info("bench time (" + loops + ") " +
-             (System.currentTimeMillis() - start) + "ms");
+    LOG.info("bench time (" + loops + ") "
+        + (System.currentTimeMillis() - start) + "ms");
   }
 
   private static class NormalizedURL {
@@ -126,17 +132,18 @@ public class TestRegexURLNormalizer {
   private NormalizedURL[] readTestFile(String scope) throws IOException {
     File f = new File(sampleDir, "regex-normalize-" + scope + ".test");
     @SuppressWarnings("resource")
-    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
+    BufferedReader in = new BufferedReader(new InputStreamReader(
+        new FileInputStream(f), "UTF-8"));
     List<NormalizedURL> list = new ArrayList<NormalizedURL>();
     String line;
-    while((line = in.readLine()) != null) {
-      if (  line.trim().length() == 0 ||
-            line.startsWith("#") ||
-            line.startsWith(" ")) continue;
+    while ((line = in.readLine()) != null) {
+      if (line.trim().length() == 0 || line.startsWith("#")
+          || line.startsWith(" "))
+        continue;
       list.add(new NormalizedURL(line));
     }
     return (NormalizedURL[]) list.toArray(new NormalizedURL[list.size()]);
-  }  
+  }
 
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
@@ -150,7 +157,8 @@ public class TestRegexURLNormalizer {
       if (args[i].equals("-bench")) {
         bench = true;
         iter = Integer.parseInt(args[++i]);
-      } else scope = args[i];
+      } else
+        scope = args[i];
     }
     if (scope == null) {
       System.err.println("Missing required scope name.");
@@ -161,11 +169,12 @@ public class TestRegexURLNormalizer {
       System.exit(-1);
     }
     TestRegexURLNormalizer test = new TestRegexURLNormalizer();
-    NormalizedURL[] urls = (NormalizedURL[])test.testData.get(scope);
+    NormalizedURL[] urls = (NormalizedURL[]) test.testData.get(scope);
     if (urls == null) {
-      LOG.warn("Missing test data for scope '" + scope + "', using default scope.");
+      LOG.warn("Missing test data for scope '" + scope
+          + "', using default scope.");
       scope = URLNormalizers.SCOPE_DEFAULT;
-      urls = (NormalizedURL[])test.testData.get(scope);
+      urls = (NormalizedURL[]) test.testData.get(scope);
     }
     if (bench) {
       test.bench(iter, scope);
@@ -173,7 +182,5 @@ public class TestRegexURLNormalizer {
       test.normalizeTest(urls, scope);
     }
   }
-
-
 
 }

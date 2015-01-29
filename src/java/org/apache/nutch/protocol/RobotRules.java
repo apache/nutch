@@ -35,9 +35,8 @@ public interface RobotRules {
   public long getCrawlDelay();
 
   /**
-   * Returns <code>false</code> if the <code>robots.txt</code> file
-   * prohibits us from accessing the given <code>url</code>, or
-   * <code>true</code> otherwise.
+   * Returns <code>false</code> if the <code>robots.txt</code> file prohibits us
+   * from accessing the given <code>url</code>, or <code>true</code> otherwise.
    */
   public boolean isAllowed(URL url);
 

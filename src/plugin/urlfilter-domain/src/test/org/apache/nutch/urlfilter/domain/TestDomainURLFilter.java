@@ -23,13 +23,11 @@ import org.junit.Test;
 
 public class TestDomainURLFilter {
 
-
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");
 
   @Test
-  public void testFilter()
-    throws Exception {
+  public void testFilter() throws Exception {
 
     String domainFile = SAMPLES + SEPARATOR + "hosts.txt";
     Configuration conf = NutchConfiguration.create();

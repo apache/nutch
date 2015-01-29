@@ -61,18 +61,22 @@ import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TimingUtil;
 
 /**
- * <p>The <code>ArcSegmentCreator</code> is a replacement for fetcher that will
- * take arc files as input and produce a nutch segment as output.</p>
+ * <p>
+ * The <code>ArcSegmentCreator</code> is a replacement for fetcher that will
+ * take arc files as input and produce a nutch segment as output.
+ * </p>
  * 
- * <p>Arc files are tars of compressed gzips which are produced by both the
- * internet archive project and the grub distributed crawler project.</p>
+ * <p>
+ * Arc files are tars of compressed gzips which are produced by both the
+ * internet archive project and the grub distributed crawler project.
+ * </p>
  * 
  */
-public class ArcSegmentCreator
-  extends Configured
-  implements Tool, Mapper<Text, BytesWritable, Text, NutchWritable> {
+public class ArcSegmentCreator extends Configured implements Tool,
+    Mapper<Text, BytesWritable, Text, NutchWritable> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ArcSegmentCreator.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(ArcSegmentCreator.class);
   public static final String URL_VERSION = "arc.url.version";
   private JobConf jobConf;
   private URLFilters urlFilters;
@@ -88,7 +92,9 @@ public class ArcSegmentCreator
   }
 
   /**
-   * <p>Constructor that sets the job configuration.</p>
+   * <p>
+   * Constructor that sets the job configuration.
+   * </p>
    * 
    * @param conf
    */
@@ -104,17 +110,19 @@ public class ArcSegmentCreator
   public static synchronized String generateSegmentName() {
     try {
       Thread.sleep(1000);
-    }
-    catch (Throwable t) {
+    } catch (Throwable t) {
     }
     return sdf.format(new Date(System.currentTimeMillis()));
   }
 
   /**
-   * <p>Configures the job.  Sets the url filters, scoring filters, url normalizers
-   * and other relevant data.</p>
+   * <p>
+   * Configures the job. Sets the url filters, scoring filters, url normalizers
+   * and other relevant data.
+   * </p>
    * 
-   * @param job The job configuration.
+   * @param job
+   *          The job configuration.
    */
   public void configure(JobConf job) {
 
@@ -132,23 +140,31 @@ public class ArcSegmentCreator
   }
 
   /**
-   * <p>Parses the raw content of a single record to create output.  This method
-   * is almost the same as the {@link org.apache.nutch.Fetcher#output} method in
-   * terms of processing and output.  
+   * <p>
+   * Parses the raw content of a single record to create output. This method is
+   * almost the same as the {@link org.apache.nutch.Fetcher#output} method in
+   * terms of processing and output.
    * 
-   * @param output  The job output collector.
-   * @param segmentName The name of the segment to create.
-   * @param key The url of the record.
-   * @param datum The CrawlDatum of the record.
-   * @param content The raw content of the record
-   * @param pstatus The protocol status
-   * @param status The fetch status.
+   * @param output
+   *          The job output collector.
+   * @param segmentName
+   *          The name of the segment to create.
+   * @param key
+   *          The url of the record.
+   * @param datum
+   *          The CrawlDatum of the record.
+   * @param content
+   *          The raw content of the record
+   * @param pstatus
+   *          The protocol status
+   * @param status
+   *          The fetch status.
    * 
    * @return The result of the parse in a ParseStatus object.
    */
-  private ParseStatus output(OutputCollector<Text, NutchWritable> output, String segmentName,
-    Text key, CrawlDatum datum, Content content, ProtocolStatus pstatus,
-    int status) {
+  private ParseStatus output(OutputCollector<Text, NutchWritable> output,
+      String segmentName, Text key, CrawlDatum datum, Content content,
+      ProtocolStatus pstatus, int status) {
 
     // set the fetch status and the fetch time
     datum.setStatus(status);
@@ -164,8 +180,7 @@ public class ArcSegmentCreator
       // add score to content metadata so that ParseSegment can pick it up.
       try {
         scfilters.passScoreBeforeParsing(key, datum, content);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         if (LOG.isWarnEnabled()) {
           LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
         }
@@ -175,16 +190,15 @@ public class ArcSegmentCreator
 
         // parse the content
         parseResult = this.parseUtil.parse(content);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         LOG.warn("Error parsing: " + key + ": "
-          + StringUtils.stringifyException(e));
+            + StringUtils.stringifyException(e));
       }
 
       // set the content signature
       if (parseResult == null) {
         byte[] signature = SignatureFactory.getSignature(getConf()).calculate(
-          content, new ParseStatus().getEmptyParse(getConf()));
+            content, new ParseStatus().getEmptyParse(getConf()));
         datum.setSignature(signature);
       }
 
@@ -193,7 +207,7 @@ public class ArcSegmentCreator
         output.collect(key, new NutchWritable(content));
 
         if (parseResult != null) {
-          for (Entry <Text, Parse> entry : parseResult) {
+          for (Entry<Text, Parse> entry : parseResult) {
             Text url = entry.getKey();
             Parse parse = entry.getValue();
             ParseStatus parseStatus = parse.getData().getStatus();
@@ -203,35 +217,34 @@ public class ArcSegmentCreator
               parse = parseStatus.getEmptyParse(getConf());
             }
 
-            // Calculate page signature. 
-            byte[] signature = SignatureFactory.getSignature(getConf()).calculate(
-              content, parse);
+            // Calculate page signature.
+            byte[] signature = SignatureFactory.getSignature(getConf())
+                .calculate(content, parse);
             // Ensure segment name and score are in parseData metadata
-            parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY,
-              segmentName);
-            parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY,
-              StringUtil.toHexString(signature));
+            parse.getData().getContentMeta()
+                .set(Nutch.SEGMENT_NAME_KEY, segmentName);
+            parse.getData().getContentMeta()
+                .set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
             // Pass fetch time to content meta
-            parse.getData().getContentMeta().set(Nutch.FETCH_TIME_KEY,
-              Long.toString(datum.getFetchTime()));
+            parse.getData().getContentMeta()
+                .set(Nutch.FETCH_TIME_KEY, Long.toString(datum.getFetchTime()));
             if (url.equals(key))
               datum.setSignature(signature);
             try {
               scfilters.passScoreAfterParsing(url, content, parse);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
               if (LOG.isWarnEnabled()) {
                 LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
               }
             }
             output.collect(url, new NutchWritable(new ParseImpl(new ParseText(
-              parse.getText()), parse.getData(), parse.isCanonical())));
+                parse.getText()), parse.getData(), parse.isCanonical())));
           }
         }
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         if (LOG.isErrorEnabled()) {
-          LOG.error("ArcSegmentCreator caught:" + StringUtils.stringifyException(e));
+          LOG.error("ArcSegmentCreator caught:"
+              + StringUtils.stringifyException(e));
         }
       }
 
@@ -243,42 +256,51 @@ public class ArcSegmentCreator
         }
       }
     }
-    
+
     return null;
   }
 
   /**
-   * <p>Logs any error that occurs during conversion.</p>
+   * <p>
+   * Logs any error that occurs during conversion.
+   * </p>
    * 
-   * @param url The url we are parsing.
-   * @param t The error that occured.
+   * @param url
+   *          The url we are parsing.
+   * @param t
+   *          The error that occured.
    */
   private void logError(Text url, Throwable t) {
     if (LOG.isInfoEnabled()) {
-      LOG.info("Conversion of " + url + " failed with: " + 
-          StringUtils.stringifyException(t));
+      LOG.info("Conversion of " + url + " failed with: "
+          + StringUtils.stringifyException(t));
     }
   }
 
   /**
-   * <p>Runs the Map job to translate an arc record into output for Nutch 
-   * segments.</p>
+   * <p>
+   * Runs the Map job to translate an arc record into output for Nutch segments.
+   * </p>
    * 
-   * @param key The arc record header.
-   * @param bytes The arc record raw content bytes.
-   * @param output The output collecter.
-   * @param reporter The progress reporter.
+   * @param key
+   *          The arc record header.
+   * @param bytes
+   *          The arc record raw content bytes.
+   * @param output
+   *          The output collecter.
+   * @param reporter
+   *          The progress reporter.
    */
   public void map(Text key, BytesWritable bytes,
-    OutputCollector<Text, NutchWritable> output, Reporter reporter)
-    throws IOException {
+      OutputCollector<Text, NutchWritable> output, Reporter reporter)
+      throws IOException {
 
     String[] headers = key.toString().split("\\s+");
     String urlStr = headers[0];
     String version = headers[2];
     String contentType = headers[3];
-    
-    // arcs start with a file description.  for now we ignore this as it is not
+
+    // arcs start with a file description. for now we ignore this as it is not
     // a content record
     if (urlStr.startsWith("filedesc://")) {
       LOG.info("Ignoring file header: " + urlStr);
@@ -286,18 +308,17 @@ public class ArcSegmentCreator
     }
     LOG.info("Processing: " + urlStr);
 
-    // get the raw  bytes from the arc file, create a new crawldatum
+    // get the raw bytes from the arc file, create a new crawldatum
     Text url = new Text();
     CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_DB_FETCHED, interval,
-      1.0f);
+        1.0f);
     String segmentName = getConf().get(Nutch.SEGMENT_NAME_KEY);
 
     // normalize and filter the urls
     try {
       urlStr = normalizers.normalize(urlStr, URLNormalizers.SCOPE_FETCHER);
       urlStr = urlFilters.filter(urlStr); // filter the url
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Skipping " + url + ":" + e);
       }
@@ -312,37 +333,41 @@ public class ArcSegmentCreator
 
         // set the protocol status to success and the crawl status to success
         // create the content from the normalized url and the raw bytes from
-        // the arc file,  TODO: currently this doesn't handle text of errors
+        // the arc file, TODO: currently this doesn't handle text of errors
         // pages (i.e. 404, etc.). We assume we won't get those.
         ProtocolStatus status = ProtocolStatus.STATUS_SUCCESS;
-        Content content = new Content(urlStr, urlStr, bytes.getBytes(), contentType,
-          new Metadata(), getConf());
-        
+        Content content = new Content(urlStr, urlStr, bytes.getBytes(),
+            contentType, new Metadata(), getConf());
+
         // set the url version into the metadata
         content.getMetadata().set(URL_VERSION, version);
         ParseStatus pstatus = null;
         pstatus = output(output, segmentName, url, datum, content, status,
-          CrawlDatum.STATUS_FETCH_SUCCESS);
+            CrawlDatum.STATUS_FETCH_SUCCESS);
         reporter.progress();
-      }
-      catch (Throwable t) { // unexpected exception
+      } catch (Throwable t) { // unexpected exception
         logError(url, t);
         output(output, segmentName, url, datum, null, null,
-          CrawlDatum.STATUS_FETCH_RETRY);
+            CrawlDatum.STATUS_FETCH_RETRY);
       }
     }
   }
 
   /**
-   * <p>Creates the arc files to segments job.</p>
+   * <p>
+   * Creates the arc files to segments job.
+   * </p>
    * 
-   * @param arcFiles The path to the directory holding the arc files
-   * @param segmentsOutDir The output directory for writing the segments
+   * @param arcFiles
+   *          The path to the directory holding the arc files
+   * @param segmentsOutDir
+   *          The output directory for writing the segments
    * 
-   * @throws IOException If an IO error occurs while running the job.
+   * @throws IOException
+   *           If an IO error occurs while running the job.
    */
   public void createSegments(Path arcFiles, Path segmentsOutDir)
-    throws IOException {
+      throws IOException {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -366,17 +391,17 @@ public class ArcSegmentCreator
     JobClient.runJob(job);
 
     long end = System.currentTimeMillis();
-    LOG.info("ArcSegmentCreator: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("ArcSegmentCreator: finished at " + sdf.format(end)
+        + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
-  public static void main(String args[])
-    throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new ArcSegmentCreator(), args);
+  public static void main(String args[]) throws Exception {
+    int res = ToolRunner.run(NutchConfiguration.create(),
+        new ArcSegmentCreator(), args);
     System.exit(res);
   }
 
-  public int run(String[] args)
-    throws Exception {
+  public int run(String[] args) throws Exception {
 
     String usage = "Usage: ArcSegmentCreator <arcFiles> <segmentsOutDir>";
 
@@ -393,8 +418,7 @@ public class ArcSegmentCreator
       // create the segments from the arc files
       createSegments(arcFiles, segmentsOutDir);
       return 0;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       LOG.error("ArcSegmentCreator: " + StringUtils.stringifyException(e));
       return -1;
     }

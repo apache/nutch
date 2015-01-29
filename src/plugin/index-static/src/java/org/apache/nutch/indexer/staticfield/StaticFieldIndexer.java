@@ -45,11 +45,16 @@ public class StaticFieldIndexer implements IndexingFilter {
    * The {@link StaticFieldIndexer} filter object which adds fields as per
    * configuration setting. See {@code index.static} in nutch-default.xml.
    * 
-   * @param doc The {@link NutchDocument} object
-   * @param parse  The relevant {@link Parse} object passing through the filter
-   * @param url URL to be filtered for anchor text
-   * @param datum The {@link CrawlDatum} entry
-   * @param inlinks The {@link Inlinks} containing anchor text
+   * @param doc
+   *          The {@link NutchDocument} object
+   * @param parse
+   *          The relevant {@link Parse} object passing through the filter
+   * @param url
+   *          URL to be filtered for anchor text
+   * @param datum
+   *          The {@link CrawlDatum} entry
+   * @param inlinks
+   *          The {@link Inlinks} containing anchor text
    * @return filtered NutchDocument
    */
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
@@ -66,17 +71,19 @@ public class StaticFieldIndexer implements IndexingFilter {
   }
 
   /**
-   * Populate a HashMap from a list of fieldname:fieldcontent.
-   * See {@index.static} in nutch-default.xml.
+   * Populate a HashMap from a list of fieldname:fieldcontent. See
+   * {@index.static} in nutch-default.xml.
    * 
-   * @param fieldsString string containing field:value pairs
+   * @param fieldsString
+   *          string containing field:value pairs
    * @return HashMap of fields and their corresponding values
    */
   private HashMap<String, String[]> parseFields(String fieldsString) {
     HashMap<String, String[]> fields = new HashMap<String, String[]>();
 
-    /* The format is very easy, it's a comma-separated list of fields in the
-       form <name>:<value>
+    /*
+     * The format is very easy, it's a comma-separated list of fields in the
+     * form <name>:<value>
      */
     for (String field : fieldsString.split(",")) {
       String[] entry = field.split(":");

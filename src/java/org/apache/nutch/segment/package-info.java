@@ -20,3 +20,4 @@
  * fetch list, protocol status, raw content, parsed content, and extracted outgoing links.
  */
 package org.apache.nutch.segment;
+

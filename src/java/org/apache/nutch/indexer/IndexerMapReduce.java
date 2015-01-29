@@ -50,11 +50,12 @@ import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 
-public class IndexerMapReduce extends Configured
-implements Mapper<Text, Writable, Text, NutchWritable>,
-          Reducer<Text, NutchWritable, Text, NutchIndexAction> {
+public class IndexerMapReduce extends Configured implements
+    Mapper<Text, Writable, Text, NutchWritable>,
+    Reducer<Text, NutchWritable, Text, NutchIndexAction> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(IndexerMapReduce.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(IndexerMapReduce.class);
 
   public static final String INDEXER_PARAMS = "indexer.additional.params";
   public static final String INDEXER_DELETE = "indexer.delete";
@@ -82,14 +83,16 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     this.filters = new IndexingFilters(getConf());
     this.scfilters = new ScoringFilters(getConf());
     this.delete = job.getBoolean(INDEXER_DELETE, false);
-    this.deleteRobotsNoIndex = job.getBoolean(INDEXER_DELETE_ROBOTS_NOINDEX, false);
+    this.deleteRobotsNoIndex = job.getBoolean(INDEXER_DELETE_ROBOTS_NOINDEX,
+        false);
     this.skip = job.getBoolean(INDEXER_SKIP_NOTMODIFIED, false);
 
     normalize = job.getBoolean(URL_NORMALIZING, false);
     filter = job.getBoolean(URL_FILTERING, false);
 
     if (normalize) {
-      urlNormalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_INDEXER);
+      urlNormalizers = new URLNormalizers(getConf(),
+          URLNormalizers.SCOPE_INDEXER);
     }
 
     if (filter) {
@@ -99,9 +102,10 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
 
   /**
    * Normalizes and trims extra whitespace from the given url.
-   *
-   * @param url The url to normalize.
-   *
+   * 
+   * @param url
+   *          The url to normalize.
+   * 
    * @return The normalized url.
    */
   private String normalizeUrl(String url) {
@@ -114,11 +118,10 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
       try {
 
         // normalize and trim the url
-        normalized = urlNormalizers.normalize(url,
-          URLNormalizers.SCOPE_INDEXER);
+        normalized = urlNormalizers
+            .normalize(url, URLNormalizers.SCOPE_INDEXER);
         normalized = normalized.trim();
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         LOG.warn("Skipping " + url + ":" + e);
         normalized = null;
       }
@@ -129,9 +132,10 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
 
   /**
    * Filters the given url.
-   *
-   * @param url The url to filter.
-   *
+   * 
+   * @param url
+   *          The url to filter.
+   * 
    * @return The filtered url or null.
    */
   private String filterUrl(String url) {
@@ -149,7 +153,8 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
   }
 
   public void map(Text key, Writable value,
-      OutputCollector<Text, NutchWritable> output, Reporter reporter) throws IOException {
+      OutputCollector<Text, NutchWritable> output, Reporter reporter)
+      throws IOException {
 
     String urlString = filterUrl(normalizeUrl(key.toString()));
     if (urlString == null) {
@@ -162,8 +167,8 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
   }
 
   public void reduce(Text key, Iterator<NutchWritable> values,
-                     OutputCollector<Text, NutchIndexAction> output, Reporter reporter)
-    throws IOException {
+      OutputCollector<Text, NutchIndexAction> output, Reporter reporter)
+      throws IOException {
     Inlinks inlinks = null;
     CrawlDatum dbDatum = null;
     CrawlDatum fetchDatum = null;
@@ -173,26 +178,25 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     while (values.hasNext()) {
       final Writable value = values.next().get(); // unwrap
       if (value instanceof Inlinks) {
-        inlinks = (Inlinks)value;
+        inlinks = (Inlinks) value;
       } else if (value instanceof CrawlDatum) {
-        final CrawlDatum datum = (CrawlDatum)value;
+        final CrawlDatum datum = (CrawlDatum) value;
         if (CrawlDatum.hasDbStatus(datum)) {
           dbDatum = datum;
-        }
-        else if (CrawlDatum.hasFetchStatus(datum)) {
+        } else if (CrawlDatum.hasFetchStatus(datum)) {
           // don't index unmodified (empty) pages
           if (datum.getStatus() != CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
             fetchDatum = datum;
           }
-        } else if (CrawlDatum.STATUS_LINKED == datum.getStatus() ||
-                   CrawlDatum.STATUS_SIGNATURE == datum.getStatus() ||
-                   CrawlDatum.STATUS_PARSE_META == datum.getStatus()) {
+        } else if (CrawlDatum.STATUS_LINKED == datum.getStatus()
+            || CrawlDatum.STATUS_SIGNATURE == datum.getStatus()
+            || CrawlDatum.STATUS_PARSE_META == datum.getStatus()) {
           continue;
         } else {
-          throw new RuntimeException("Unexpected status: "+datum.getStatus());
+          throw new RuntimeException("Unexpected status: " + datum.getStatus());
         }
       } else if (value instanceof ParseData) {
-        parseData = (ParseData)value;
+        parseData = (ParseData) value;
 
         // Handle robots meta? https://issues.apache.org/jira/browse/NUTCH-1434
         if (deleteRobotsNoIndex) {
@@ -200,64 +204,70 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
           String robotsMeta = parseData.getMeta("robots");
 
           // Has it a noindex for this url?
-          if (robotsMeta != null && robotsMeta.toLowerCase().indexOf("noindex") != -1) {
+          if (robotsMeta != null
+              && robotsMeta.toLowerCase().indexOf("noindex") != -1) {
             // Delete it!
-            NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+            NutchIndexAction action = new NutchIndexAction(null,
+                NutchIndexAction.DELETE);
             output.collect(key, action);
             return;
           }
         }
       } else if (value instanceof ParseText) {
-        parseText = (ParseText)value;
+        parseText = (ParseText) value;
       } else if (LOG.isWarnEnabled()) {
-        LOG.warn("Unrecognized type: "+value.getClass());
+        LOG.warn("Unrecognized type: " + value.getClass());
       }
     }
-    
+
     // Whether to delete GONE or REDIRECTS
-    if (delete && fetchDatum != null && dbDatum != null) {    
-      if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE || dbDatum.getStatus() == CrawlDatum.STATUS_DB_GONE) {
+    if (delete && fetchDatum != null && dbDatum != null) {
+      if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE
+          || dbDatum.getStatus() == CrawlDatum.STATUS_DB_GONE) {
         reporter.incrCounter("IndexerStatus", "Documents deleted", 1);
 
-        NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+        NutchIndexAction action = new NutchIndexAction(null,
+            NutchIndexAction.DELETE);
         output.collect(key, action);
         return;
       }
-      
-      if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM ||
-          fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP ||
-          dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM ||
-          dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
+
+      if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM
+          || fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP
+          || dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM
+          || dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
         reporter.incrCounter("IndexerStatus", "Deleted redirects", 1);
         reporter.incrCounter("IndexerStatus", "Perm redirects deleted", 1);
 
-        NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+        NutchIndexAction action = new NutchIndexAction(null,
+            NutchIndexAction.DELETE);
         output.collect(key, action);
         return;
       }
     }
 
-    if (fetchDatum == null || dbDatum == null
-        || parseText == null || parseData == null) {
-      return;                                     // only have inlinks
+    if (fetchDatum == null || dbDatum == null || parseText == null
+        || parseData == null) {
+      return; // only have inlinks
     }
 
     // Whether to delete pages marked as duplicates
     if (delete && dbDatum.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
       reporter.incrCounter("IndexerStatus", "Duplicates deleted", 1);
-      NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+      NutchIndexAction action = new NutchIndexAction(null,
+          NutchIndexAction.DELETE);
       output.collect(key, action);
       return;
     }
-    
+
     // Whether to skip DB_NOTMODIFIED pages
     if (skip && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
       reporter.incrCounter("IndexerStatus", "Skipped", 1);
       return;
     }
 
-    if (!parseData.getStatus().isSuccess() ||
-        fetchDatum.getStatus() != CrawlDatum.STATUS_FETCH_SUCCESS) {
+    if (!parseData.getStatus().isSuccess()
+        || fetchDatum.getStatus() != CrawlDatum.STATUS_FETCH_SUCCESS) {
       return;
     }
 
@@ -276,11 +286,13 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     try {
       // extract information from dbDatum and pass it to
       // fetchDatum so that indexing filters can use it
-      final Text url = (Text) dbDatum.getMetaData().get(Nutch.WRITABLE_REPR_URL_KEY);
+      final Text url = (Text) dbDatum.getMetaData().get(
+          Nutch.WRITABLE_REPR_URL_KEY);
       if (url != null) {
         // Representation URL also needs normalization and filtering.
         // If repr URL is excluded by filters we still accept this document
-        // but represented by its primary URL ("key") which has passed URL filters.
+        // but represented by its primary URL ("key") which has passed URL
+        // filters.
         String urlString = filterUrl(normalizeUrl(url.toString()));
         if (urlString != null) {
           url.set(urlString);
@@ -290,7 +302,9 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
       // run indexing filters
       doc = this.filters.filter(doc, parse, key, fetchDatum, inlinks);
     } catch (final IndexingException e) {
-      if (LOG.isWarnEnabled()) { LOG.warn("Error indexing "+key+": "+e); }
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Error indexing " + key + ": " + e);
+      }
       reporter.incrCounter("IndexerStatus", "Errors", 1);
       return;
     }
@@ -304,8 +318,8 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     float boost = 1.0f;
     // run scoring filters
     try {
-      boost = this.scfilters.indexerScore(key, doc, dbDatum,
-              fetchDatum, parse, inlinks, boost);
+      boost = this.scfilters.indexerScore(key, doc, dbDatum, fetchDatum, parse,
+          inlinks, boost);
     } catch (final ScoringFilterException e) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Error calculating score " + key + ": " + e);
@@ -323,30 +337,32 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     output.collect(key, action);
   }
 
-  public void close() throws IOException { }
+  public void close() throws IOException {
+  }
 
   public static void initMRJob(Path crawlDb, Path linkDb,
-                           Collection<Path> segments,
-                           JobConf job) {
+      Collection<Path> segments, JobConf job) {
 
     LOG.info("IndexerMapReduce: crawldb: " + crawlDb);
-    
-    if (linkDb!=null)
+
+    if (linkDb != null)
       LOG.info("IndexerMapReduce: linkdb: " + linkDb);
 
     for (final Path segment : segments) {
       LOG.info("IndexerMapReduces: adding segment: " + segment);
-      FileInputFormat.addInputPath(job, new Path(segment, CrawlDatum.FETCH_DIR_NAME));
-      FileInputFormat.addInputPath(job, new Path(segment, CrawlDatum.PARSE_DIR_NAME));
+      FileInputFormat.addInputPath(job, new Path(segment,
+          CrawlDatum.FETCH_DIR_NAME));
+      FileInputFormat.addInputPath(job, new Path(segment,
+          CrawlDatum.PARSE_DIR_NAME));
       FileInputFormat.addInputPath(job, new Path(segment, ParseData.DIR_NAME));
       FileInputFormat.addInputPath(job, new Path(segment, ParseText.DIR_NAME));
     }
 
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
-    
-    if (linkDb!=null)
-	  FileInputFormat.addInputPath(job, new Path(linkDb, LinkDb.CURRENT_NAME));
-    
+
+    if (linkDb != null)
+      FileInputFormat.addInputPath(job, new Path(linkDb, LinkDb.CURRENT_NAME));
+
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(IndexerMapReduce.class);

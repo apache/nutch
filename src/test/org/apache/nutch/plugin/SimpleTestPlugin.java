@@ -28,8 +28,8 @@ import org.apache.hadoop.conf.Configuration;
 public class SimpleTestPlugin extends Plugin {
 
   /**
-   * @param pDescriptor 
-   * @param conf 
+   * @param pDescriptor
+   * @param conf
    */
   public SimpleTestPlugin(PluginDescriptor pDescriptor, Configuration conf) {
 
@@ -55,4 +55,3 @@ public class SimpleTestPlugin extends Plugin {
   }
 
 }
-

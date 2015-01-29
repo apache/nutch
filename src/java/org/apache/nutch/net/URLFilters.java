@@ -20,16 +20,15 @@ package org.apache.nutch.net;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.plugin.PluginRepository;
 
-/** Creates and caches {@link URLFilter} implementing plugins.*/
+/** Creates and caches {@link URLFilter} implementing plugins. */
 public class URLFilters {
 
   public static final String URLFILTER_ORDER = "urlfilter.order";
   private URLFilter[] filters;
 
   public URLFilters(Configuration conf) {
-    this.filters = (URLFilter[]) PluginRepository.get(conf)
-        .getOrderedPlugins(URLFilter.class, URLFilter.X_POINT_ID,
-            URLFILTER_ORDER);
+    this.filters = (URLFilter[]) PluginRepository.get(conf).getOrderedPlugins(
+        URLFilter.class, URLFilter.X_POINT_ID, URLFILTER_ORDER);
   }
 
   /** Run all defined filters. Assume logical AND. */

@@ -31,28 +31,27 @@ import org.apache.hadoop.conf.Configurable;
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
 
-
 /**
- * Provides the Http protocol implementation
- * with the ability to authenticate when prompted.  The goal is to provide 
- * multiple authentication types but for now just the {@link HttpBasicAuthentication} authentication 
- * type is provided.
- *
+ * Provides the Http protocol implementation with the ability to authenticate
+ * when prompted. The goal is to provide multiple authentication types but for
+ * now just the {@link HttpBasicAuthentication} authentication type is provided.
+ * 
  * @see HttpBasicAuthentication
  * @see Http
  * @see HttpResponse
- *
+ * 
  * @author Matt Tencati
  */
 public class HttpAuthenticationFactory implements Configurable {
 
   /**
-   * The HTTP Authentication (WWW-Authenticate) header which is returned
-   * by a webserver requiring authentication.
+   * The HTTP Authentication (WWW-Authenticate) header which is returned by a
+   * webserver requiring authentication.
    */
   public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
-  public static final Logger LOG = LoggerFactory.getLogger(HttpAuthenticationFactory.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(HttpAuthenticationFactory.class);
 
   private Configuration conf = null;
 
@@ -63,29 +62,33 @@ public class HttpAuthenticationFactory implements Configurable {
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
+
   public Configuration getConf() {
     return conf;
   }
 
   public HttpAuthentication findAuthentication(Metadata header) {
 
-    if (header == null) return null;
+    if (header == null)
+      return null;
 
     try {
       Collection<String> challenge = new ArrayList<String>();
       challenge.add(header.get(WWW_AUTHENTICATE));
 
-      for(String challengeString: challenge) {
+      for (String challengeString : challenge) {
         if (challengeString.equals("NTLM"))
-          challengeString="Basic realm=techweb";
+          challengeString = "Basic realm=techweb";
 
         if (LOG.isTraceEnabled())
           LOG.trace("Checking challengeString=" + challengeString);
 
-        HttpAuthentication auth = HttpBasicAuthentication.getAuthentication(challengeString, conf);
-        if (auth != null) return auth;
+        HttpAuthentication auth = HttpBasicAuthentication.getAuthentication(
+            challengeString, conf);
+        if (auth != null)
+          return auth;
 
-        //TODO Add additional Authentication lookups here
+        // TODO Add additional Authentication lookups here
       }
     } catch (Exception e) {
       LOG.error("Error: ", e);

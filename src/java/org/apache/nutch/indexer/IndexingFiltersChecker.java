@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package org.apache.nutch.indexer;
 
 import java.util.List;
@@ -46,16 +46,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Reads and parses a URL and run the indexers on it. Displays the fields obtained and the first
- * 100 characters of their value
- *
- * Tested with e.g. ./nutch org.apache.nutch.indexer.IndexingFiltersChecker http://www.lemonde.fr
+ * Reads and parses a URL and run the indexers on it. Displays the fields
+ * obtained and the first 100 characters of their value
+ * 
+ * Tested with e.g. ./nutch org.apache.nutch.indexer.IndexingFiltersChecker
+ * http://www.lemonde.fr
+ * 
  * @author Julien Nioche
  **/
 
 public class IndexingFiltersChecker extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(IndexingFiltersChecker.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(IndexingFiltersChecker.class);
 
   public IndexingFiltersChecker() {
 
@@ -95,12 +98,13 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     CrawlDatum datum = new CrawlDatum();
 
     ProtocolOutput output = protocol.getProtocolOutput(new Text(url), datum);
-    
+
     if (!output.getStatus().isSuccess()) {
-      System.out.println("Fetch failed with protocol status: " + output.getStatus());
+      System.out.println("Fetch failed with protocol status: "
+          + output.getStatus());
       return 0;
     }
-         
+
     Content content = output.getContent();
 
     if (content == null) {
@@ -115,7 +119,8 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     }
 
     // store the guessed content type in the crawldatum
-    datum.getMetaData().put(new Text(Metadata.CONTENT_TYPE), new Text(contentType));
+    datum.getMetaData().put(new Text(Metadata.CONTENT_TYPE),
+        new Text(contentType));
 
     if (ParseSegment.isTruncated(content)) {
       LOG.warn("Content is truncated, parse may fail!");
@@ -162,7 +167,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       System.out.println("Document discarded by indexing filter");
       return 0;
     }
-    
+
     for (String fname : doc.getFieldNames()) {
       List<Object> values = doc.getField(fname).getValues();
       if (values != null) {
@@ -173,14 +178,14 @@ public class IndexingFiltersChecker extends Configured implements Tool {
         }
       }
     }
-    
-    if (conf.getBoolean("doIndex", false) && doc!=null){
+
+    if (conf.getBoolean("doIndex", false) && doc != null) {
       IndexWriters writers = new IndexWriters(getConf());
       writers.open(new JobConf(getConf()), "IndexingFilterChecker");
       writers.write(doc);
       writers.close();
     }
-    
+
     return 0;
   }
 

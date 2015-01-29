@@ -38,7 +38,6 @@ import org.xml.sax.SAXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class DomUtil {
 
   private final static Logger LOG = LoggerFactory.getLogger(DomUtil.class);
@@ -61,10 +60,10 @@ public class DomUtil {
       input.setEncoding("UTF-8");
       parser.parse(input);
       int i = 0;
-      while (! (parser.getDocument().getChildNodes().item(i) instanceof Element)) {
-       i++;
-      } 
-      element = (Element)parser.getDocument().getChildNodes().item(i);
+      while (!(parser.getDocument().getChildNodes().item(i) instanceof Element)) {
+        i++;
+      }
+      element = (Element) parser.getDocument().getChildNodes().item(i);
     } catch (FileNotFoundException e) {
       LOG.error("Error: ", e);
     } catch (SAXException e) {

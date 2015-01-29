@@ -67,27 +67,24 @@ import org.apache.nutch.util.TimingUtil;
 
 /**
  * The LinkDumper tool creates a database of node to inlink information that can
- * be read using the nested Reader class.  This allows the inlink and scoring 
- * state of a single url to be reviewed quickly to determine why a given url is 
- * ranking a certain way.  This tool is to be used with the LinkRank analysis.
+ * be read using the nested Reader class. This allows the inlink and scoring
+ * state of a single url to be reviewed quickly to determine why a given url is
+ * ranking a certain way. This tool is to be used with the LinkRank analysis.
  */
-public class LinkDumper
-  extends Configured
-  implements Tool {
+public class LinkDumper extends Configured implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(LinkDumper.class);
   public static final String DUMP_DIR = "linkdump";
 
   /**
-   * Reader class which will print out the url and all of its inlinks to system 
-   * out.  Each inlinkwill be displayed with its node information including 
-   * score and number of in and outlinks.
+   * Reader class which will print out the url and all of its inlinks to system
+   * out. Each inlinkwill be displayed with its node information including score
+   * and number of in and outlinks.
    */
   public static class Reader {
 
-    public static void main(String[] args)
-      throws Exception {
-      
+    public static void main(String[] args) throws Exception {
+
       if (args == null || args.length < 2) {
         System.out.println("LinkDumper$Reader usage: <webgraphdb> <url>");
         return;
@@ -99,20 +96,20 @@ public class LinkDumper
       Path webGraphDb = new Path(args[0]);
       String url = args[1];
       MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new Path(
-        webGraphDb, DUMP_DIR), conf);
+          webGraphDb, DUMP_DIR), conf);
 
       // get the link nodes for the url
       Text key = new Text(url);
       LinkNodes nodes = new LinkNodes();
       MapFileOutputFormat.getEntry(readers,
-        new HashPartitioner<Text, LinkNodes>(), key, nodes);
+          new HashPartitioner<Text, LinkNodes>(), key, nodes);
 
       // print out the link nodes
       LinkNode[] linkNodesAr = nodes.getLinks();
       System.out.println(url + ":");
       for (LinkNode node : linkNodesAr) {
         System.out.println("  " + node.getUrl() + " - "
-          + node.getNode().toString());
+            + node.getNode().toString());
       }
 
       // close the readers
@@ -123,8 +120,7 @@ public class LinkDumper
   /**
    * Bean class which holds url to node information.
    */
-  public static class LinkNode
-    implements Writable {
+  public static class LinkNode implements Writable {
 
     private String url = null;
     private Node node = null;
@@ -154,15 +150,13 @@ public class LinkDumper
       this.node = node;
     }
 
-    public void readFields(DataInput in)
-      throws IOException {
+    public void readFields(DataInput in) throws IOException {
       url = in.readUTF();
       node = new Node();
       node.readFields(in);
     }
 
-    public void write(DataOutput out)
-      throws IOException {
+    public void write(DataOutput out) throws IOException {
       out.writeUTF(url);
       node.write(out);
     }
@@ -172,8 +166,7 @@ public class LinkDumper
   /**
    * Writable class which holds an array of LinkNode objects.
    */
-  public static class LinkNodes
-    implements Writable {
+  public static class LinkNodes implements Writable {
 
     private LinkNode[] links;
 
@@ -193,8 +186,7 @@ public class LinkDumper
       this.links = links;
     }
 
-    public void readFields(DataInput in)
-      throws IOException {
+    public void readFields(DataInput in) throws IOException {
       int numLinks = in.readInt();
       if (numLinks > 0) {
         links = new LinkNode[numLinks];
@@ -206,8 +198,7 @@ public class LinkDumper
       }
     }
 
-    public void write(DataOutput out)
-      throws IOException {
+    public void write(DataOutput out) throws IOException {
       if (links != null && links.length > 0) {
         int numLinks = links.length;
         out.writeInt(numLinks);
@@ -222,9 +213,9 @@ public class LinkDumper
    * Inverts outlinks from the WebGraph to inlinks and attaches node
    * information.
    */
-  public static class Inverter
-    implements Mapper<Text, Writable, Text, ObjectWritable>,
-    Reducer<Text, ObjectWritable, Text, LinkNode> {
+  public static class Inverter implements
+      Mapper<Text, Writable, Text, ObjectWritable>,
+      Reducer<Text, ObjectWritable, Text, LinkNode> {
 
     private JobConf conf;
 
@@ -236,8 +227,8 @@ public class LinkDumper
      * Wraps all values in ObjectWritables.
      */
     public void map(Text key, Writable value,
-      OutputCollector<Text, ObjectWritable> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, ObjectWritable> output, Reporter reporter)
+        throws IOException {
 
       ObjectWritable objWrite = new ObjectWritable();
       objWrite.set(value);
@@ -245,12 +236,12 @@ public class LinkDumper
     }
 
     /**
-     * Inverts outlinks to inlinks while attaching node information to the 
+     * Inverts outlinks to inlinks while attaching node information to the
      * outlink.
      */
     public void reduce(Text key, Iterator<ObjectWritable> values,
-      OutputCollector<Text, LinkNode> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, LinkNode> output, Reporter reporter)
+        throws IOException {
 
       String fromUrl = key.toString();
       List<LinkDatum> outlinks = new ArrayList<LinkDatum>();
@@ -262,13 +253,11 @@ public class LinkDumper
         ObjectWritable write = values.next();
         Object obj = write.get();
         if (obj instanceof Node) {
-          node = (Node)obj;
-        }
-        else if (obj instanceof LinkDatum) {
-          outlinks.add(WritableUtils.clone((LinkDatum)obj, conf));
-        }
-        else if (obj instanceof LoopSet) {
-          loops = (LoopSet)obj;
+          node = (Node) obj;
+        } else if (obj instanceof LinkDatum) {
+          outlinks.add(WritableUtils.clone((LinkDatum) obj, conf));
+        } else if (obj instanceof LoopSet) {
+          loops = (LoopSet) obj;
         }
       }
 
@@ -280,13 +269,13 @@ public class LinkDumper
         for (int i = 0; i < outlinks.size(); i++) {
           LinkDatum outlink = outlinks.get(i);
           String toUrl = outlink.getUrl();
-          
+
           // remove any url that is in the loopset, same as LinkRank
           if (loopSet != null && loopSet.contains(toUrl)) {
             continue;
           }
-          
-          // collect the outlink as an inlink with the node 
+
+          // collect the outlink as an inlink with the node
           output.collect(new Text(toUrl), new LinkNode(fromUrl, node));
         }
       }
@@ -297,11 +286,11 @@ public class LinkDumper
   }
 
   /**
-   * Merges LinkNode objects into a single array value per url.  This allows 
-   * all values to be quickly retrieved and printed via the Reader tool.
+   * Merges LinkNode objects into a single array value per url. This allows all
+   * values to be quickly retrieved and printed via the Reader tool.
    */
-  public static class Merger
-    implements Reducer<Text, LinkNode, Text, LinkNodes> {
+  public static class Merger implements
+      Reducer<Text, LinkNode, Text, LinkNodes> {
 
     private JobConf conf;
     private int maxInlinks = 50000;
@@ -314,8 +303,8 @@ public class LinkDumper
      * Aggregate all LinkNode objects for a given url.
      */
     public void reduce(Text key, Iterator<LinkNode> values,
-      OutputCollector<Text, LinkNodes> output, Reporter reporter)
-      throws IOException {
+        OutputCollector<Text, LinkNodes> output, Reporter reporter)
+        throws IOException {
 
       List<LinkNode> nodeList = new ArrayList<LinkNode>();
       int numNodes = 0;
@@ -325,8 +314,7 @@ public class LinkDumper
         if (numNodes < maxInlinks) {
           nodeList.add(WritableUtils.clone(cur, conf));
           numNodes++;
-        }
-        else {
+        } else {
           break;
         }
       }
@@ -342,11 +330,10 @@ public class LinkDumper
   }
 
   /**
-   * Runs the inverter and merger jobs of the LinkDumper tool to create the 
-   * url to inlink node database.
+   * Runs the inverter and merger jobs of the LinkDumper tool to create the url
+   * to inlink node database.
    */
-  public void dumpLinks(Path webGraphDb)
-    throws IOException {
+  public void dumpLinks(Path webGraphDb) throws IOException {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -362,7 +349,7 @@ public class LinkDumper
 
     // run the inverter job
     Path tempInverted = new Path(webGraphDb, "inverted-"
-      + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
     JobConf inverter = new NutchJob(conf);
     inverter.setJobName("LinkDumper: inverter");
     FileInputFormat.addInputPath(inverter, nodeDb);
@@ -384,8 +371,7 @@ public class LinkDumper
       LOG.info("LinkDumper: running inverter");
       JobClient.runJob(inverter);
       LOG.info("LinkDumper: finished inverter");
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
@@ -407,43 +393,41 @@ public class LinkDumper
       LOG.info("LinkDumper: running merger");
       JobClient.runJob(merger);
       LOG.info("LinkDumper: finished merger");
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
 
     fs.delete(tempInverted, true);
     long end = System.currentTimeMillis();
-    LOG.info("LinkDumper: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("LinkDumper: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
 
-  public static void main(String[] args)
-    throws Exception {
+  public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(NutchConfiguration.create(), new LinkDumper(),
-      args);
+        args);
     System.exit(res);
   }
 
   /**
-   * Runs the LinkDumper tool.  This simply creates the database, to read the
+   * Runs the LinkDumper tool. This simply creates the database, to read the
    * values the nested Reader tool must be used.
    */
-  public int run(String[] args)
-    throws Exception {
+  public int run(String[] args) throws Exception {
 
     Options options = new Options();
     OptionBuilder.withArgName("help");
     OptionBuilder.withDescription("show this help message");
     Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
-    
+
     OptionBuilder.withArgName("webgraphdb");
     OptionBuilder.hasArg();
     OptionBuilder.withDescription("the web graph database to use");
     Option webGraphDbOpts = OptionBuilder.create("webgraphdb");
     options.addOption(webGraphDbOpts);
-    
+
     CommandLineParser parser = new GnuParser();
     try {
 
@@ -457,8 +441,7 @@ public class LinkDumper
       String webGraphDb = line.getOptionValue("webgraphdb");
       dumpLinks(new Path(webGraphDb));
       return 0;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       LOG.error("LinkDumper: " + StringUtils.stringifyException(e));
       return -2;
     }

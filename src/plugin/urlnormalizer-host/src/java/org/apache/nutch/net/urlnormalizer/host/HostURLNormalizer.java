@@ -35,34 +35,36 @@ import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.util.URLUtil;
 
 /**
- * URL normalizer for mapping hosts to their desired form. It takes
- * a simple text file as source in the format:
- *
+ * URL normalizer for mapping hosts to their desired form. It takes a simple
+ * text file as source in the format:
+ * 
  * example.org www.example.org
- *
- * mapping all URL's of example.org the the www sub-domain. It also
- * allows for wildcards to be used to map all sub-domains to another
- * host:
- *
+ * 
+ * mapping all URL's of example.org the the www sub-domain. It also allows for
+ * wildcards to be used to map all sub-domains to another host:
+ * 
  * *.example.org www.example.org
  */
 public class HostURLNormalizer implements URLNormalizer {
 
   private Configuration conf;
 
-  private static final Logger LOG = LoggerFactory.getLogger(HostURLNormalizer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(HostURLNormalizer.class);
 
   private static String attributeFile = null;
   private String hostsFile = null;
-  private static final HashMap<String,String> hostsMap = new HashMap<String,String>();
+  private static final HashMap<String, String> hostsMap = new HashMap<String, String>();
 
-  public HostURLNormalizer() {}
+  public HostURLNormalizer() {
+  }
 
   public HostURLNormalizer(String hostsFile) {
     this.hostsFile = hostsFile;
   }
 
-  private synchronized void readConfiguration(Reader configReader) throws IOException {
+  private synchronized void readConfiguration(Reader configReader)
+      throws IOException {
     if (hostsMap.size() > 0) {
       return;
     }
@@ -92,8 +94,8 @@ public class HostURLNormalizer implements URLNormalizer {
 
     // get the extensions for domain urlfilter
     String pluginName = "urlnormalizer-host";
-    Extension[] extensions = PluginRepository.get(conf).getExtensionPoint(
-      URLNormalizer.class.getName()).getExtensions();
+    Extension[] extensions = PluginRepository.get(conf)
+        .getExtensionPoint(URLNormalizer.class.getName()).getExtensions();
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
       if (extension.getDescriptor().getPluginId().equals(pluginName)) {
@@ -110,13 +112,12 @@ public class HostURLNormalizer implements URLNormalizer {
     if (attributeFile != null) {
       if (LOG.isInfoEnabled()) {
         LOG.info("Attribute \"file\" is defined for plugin " + pluginName
-          + " as " + attributeFile);
+            + " as " + attributeFile);
       }
-    }
-    else {
+    } else {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Attribute \"file\" is not defined in plugin.xml for plugin "
-          + pluginName);
+            + pluginName);
       }
     }
 
@@ -125,8 +126,7 @@ public class HostURLNormalizer implements URLNormalizer {
     String stringRules = conf.get("urlnormalizer.hosts.rules");
     if (hostsFile != null) {
       file = hostsFile;
-    }
-    else if (attributeFile != null) {
+    } else if (attributeFile != null) {
       file = attributeFile;
     }
     Reader reader = null;
@@ -140,13 +140,13 @@ public class HostURLNormalizer implements URLNormalizer {
         reader = new FileReader(file);
       }
       readConfiguration(reader);
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
     }
   }
 
-  public String normalize(String urlString, String scope) throws MalformedURLException {
+  public String normalize(String urlString, String scope)
+      throws MalformedURLException {
     String host = new URL(urlString).getHost();
 
     // Test static hosts
@@ -164,7 +164,7 @@ public class HostURLNormalizer implements URLNormalizer {
     String wildCardHost = new String();
 
     // Add the tld to the buffer
-    hostBuffer.append(hostParts[hostParts.length -1]);
+    hostBuffer.append(hostParts[hostParts.length - 1]);
 
     for (int i = hostParts.length - 2; i > 0; i--) {
       // Prepend another sub domain

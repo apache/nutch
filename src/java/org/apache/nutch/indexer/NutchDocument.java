@@ -31,12 +31,12 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.nutch.metadata.Metadata;
 
-/** A {@link NutchDocument} is the unit of indexing.*/
-public class NutchDocument
-implements Writable, Iterable<Entry<String, NutchField>> {
+/** A {@link NutchDocument} is the unit of indexing. */
+public class NutchDocument implements Writable,
+    Iterable<Entry<String, NutchField>> {
 
   public static final byte VERSION = 2;
-  
+
   private Map<String, NutchField> fields;
 
   private Metadata documentMeta;
@@ -127,8 +127,8 @@ implements Writable, Iterable<Entry<String, NutchField>> {
     out.writeFloat(weight);
     documentMeta.write(out);
   }
-  
-  public String toString() { 
+
+  public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("doc {\n");
     for (Map.Entry<String, NutchField> entry : fields.entrySet()) {

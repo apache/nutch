@@ -25,12 +25,11 @@ import org.apache.nutch.metadata.Metadata;
 
 /**
  * A class which holds the number of inlinks and outlinks for a given url along
- * with an inlink score from a link analysis program and any metadata.  
+ * with an inlink score from a link analysis program and any metadata.
  * 
  * The Node is the core unit of the NodeDb in the WebGraph.
  */
-public class Node
-  implements Writable {
+public class Node implements Writable {
 
   private int numInlinks = 0;
   private int numOutlinks = 0;
@@ -77,8 +76,7 @@ public class Node
     this.metadata = metadata;
   }
 
-  public void readFields(DataInput in)
-    throws IOException {
+  public void readFields(DataInput in) throws IOException {
 
     numInlinks = in.readInt();
     numOutlinks = in.readInt();
@@ -87,8 +85,7 @@ public class Node
     metadata.readFields(in);
   }
 
-  public void write(DataOutput out)
-    throws IOException {
+  public void write(DataOutput out) throws IOException {
 
     out.writeInt(numInlinks);
     out.writeInt(numOutlinks);
@@ -98,8 +95,8 @@ public class Node
 
   public String toString() {
     return "num inlinks: " + numInlinks + ", num outlinks: " + numOutlinks
-      + ", inlink score: " + inlinkScore + ", outlink score: "
-      + getOutlinkScore() + ", metadata: " + metadata.toString();
+        + ", inlink score: " + inlinkScore + ", outlink score: "
+        + getOutlinkScore() + ", metadata: " + metadata.toString();
   }
 
 }

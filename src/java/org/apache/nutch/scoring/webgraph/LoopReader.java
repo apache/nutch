@@ -44,35 +44,38 @@ public class LoopReader extends Configured {
 
   private FileSystem fs;
   private MapFile.Reader[] loopReaders;
-  
-  public LoopReader() { }
-  
+
+  public LoopReader() {
+  }
+
   public LoopReader(Configuration conf) {
     super(conf);
   }
 
   /**
-   * Prints loopset for a single url.  The loopset information will show any
+   * Prints loopset for a single url. The loopset information will show any
    * outlink url the eventually forms a link cycle.
    * 
-   * @param webGraphDb The WebGraph to check for loops
-   * @param url The url to check.
+   * @param webGraphDb
+   *          The WebGraph to check for loops
+   * @param url
+   *          The url to check.
    * 
-   * @throws IOException If an error occurs while printing loopset information.
+   * @throws IOException
+   *           If an error occurs while printing loopset information.
    */
-  public void dumpUrl(Path webGraphDb, String url)
-    throws IOException {
+  public void dumpUrl(Path webGraphDb, String url) throws IOException {
 
     // open the readers
     fs = FileSystem.get(getConf());
     loopReaders = MapFileOutputFormat.getReaders(fs, new Path(webGraphDb,
-      Loops.LOOPS_DIR), getConf());
+        Loops.LOOPS_DIR), getConf());
 
     // get the loopset for a given url, if any
     Text key = new Text(url);
     LoopSet loop = new LoopSet();
     MapFileOutputFormat.getEntry(loopReaders,
-      new HashPartitioner<Text, LoopSet>(), key, loop);
+        new HashPartitioner<Text, LoopSet>(), key, loop);
 
     // print out each loop url in the set
     System.out.println(url + ":");
@@ -85,24 +88,23 @@ public class LoopReader extends Configured {
   }
 
   /**
-   * Runs the LoopReader tool.  For this tool to work the loops job must have
+   * Runs the LoopReader tool. For this tool to work the loops job must have
    * already been run on the corresponding WebGraph.
    */
-  public static void main(String[] args)
-    throws Exception {
+  public static void main(String[] args) throws Exception {
 
     Options options = new Options();
     OptionBuilder.withArgName("help");
     OptionBuilder.withDescription("show this help message");
     Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
-    
+
     OptionBuilder.withArgName("webgraphdb");
     OptionBuilder.hasArg();
     OptionBuilder.withDescription("the webgraphdb to use");
     Option webGraphOpts = OptionBuilder.create("webgraphdb");
     options.addOption(webGraphOpts);
-    
+
     OptionBuilder.withArgName("url");
     OptionBuilder.hasOptionalArg();
     OptionBuilder.withDescription("the url to dump");
@@ -114,7 +116,7 @@ public class LoopReader extends Configured {
 
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")
-        || !line.hasOption("url")) {
+          || !line.hasOption("url")) {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("WebGraphReader", options);
         return;
@@ -125,8 +127,7 @@ public class LoopReader extends Configured {
       LoopReader reader = new LoopReader(NutchConfiguration.create());
       reader.dumpUrl(new Path(webGraphDb), url);
       return;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
       return;
     }

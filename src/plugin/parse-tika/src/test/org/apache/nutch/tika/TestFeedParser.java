@@ -80,8 +80,8 @@ public class TestFeedParser {
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
       content = protocol.getProtocolOutput(new Text(urlString),
           new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByExtensionId("parse-tika",
-          content).get(content.getUrl());
+      parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
+          .get(content.getUrl());
 
       // check that there are 2 outlinks:
       // unlike the original parse-rss

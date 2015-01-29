@@ -43,7 +43,8 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
-public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, Text, Inlinks> {
+public class LinkDb extends Configured implements Tool,
+    Mapper<Text, ParseData, Text, Inlinks> {
 
   public static final Logger LOG = LoggerFactory.getLogger(LinkDb.class);
 
@@ -56,13 +57,14 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
   private boolean ignoreInternalLinks;
   private URLFilters urlFilters;
   private URLNormalizers urlNormalizers;
-  
-  public LinkDb() {}
-  
+
+  public LinkDb() {
+  }
+
   public LinkDb(Configuration conf) {
     setConf(conf);
   }
-  
+
   public void configure(JobConf job) {
     maxAnchorLength = job.getInt("db.max.anchor.length", 100);
     ignoreInternalLinks = job.getBoolean(IGNORE_INTERNAL_LINKS, true);
@@ -74,16 +76,19 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
     }
   }
 
-  public void close() {}
+  public void close() {
+  }
 
   public void map(Text key, ParseData parseData,
-                  OutputCollector<Text, Inlinks> output, Reporter reporter)
-    throws IOException {
+      OutputCollector<Text, Inlinks> output, Reporter reporter)
+      throws IOException {
     String fromUrl = key.toString();
     String fromHost = getHost(fromUrl);
     if (urlNormalizers != null) {
       try {
-        fromUrl = urlNormalizers.normalize(fromUrl, URLNormalizers.SCOPE_LINKDB); // normalize the url
+        fromUrl = urlNormalizers
+            .normalize(fromUrl, URLNormalizers.SCOPE_LINKDB); // normalize the
+                                                              // url
       } catch (Exception e) {
         LOG.warn("Skipping " + fromUrl + ":" + e);
         fromUrl = null;
@@ -97,7 +102,8 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
         fromUrl = null;
       }
     }
-    if (fromUrl == null) return; // discard all outlinks
+    if (fromUrl == null)
+      return; // discard all outlinks
     Outlink[] outlinks = parseData.getOutlinks();
     Inlinks inlinks = new Inlinks();
     for (int i = 0; i < outlinks.length; i++) {
@@ -107,12 +113,14 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
       if (ignoreInternalLinks) {
         String toHost = getHost(toUrl);
         if (toHost == null || toHost.equals(fromHost)) { // internal link
-          continue;                               // skip it
+          continue; // skip it
         }
       }
       if (urlNormalizers != null) {
         try {
-          toUrl = urlNormalizers.normalize(toUrl, URLNormalizers.SCOPE_LINKDB); // normalize the url
+          toUrl = urlNormalizers.normalize(toUrl, URLNormalizers.SCOPE_LINKDB); // normalize
+                                                                                // the
+                                                                                // url
         } catch (Exception e) {
           LOG.warn("Skipping " + toUrl + ":" + e);
           toUrl = null;
@@ -126,13 +134,14 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
           toUrl = null;
         }
       }
-      if (toUrl == null) continue;
+      if (toUrl == null)
+        continue;
       inlinks.clear();
-      String anchor = outlink.getAnchor();        // truncate long anchors
+      String anchor = outlink.getAnchor(); // truncate long anchors
       if (anchor.length() > maxAnchorLength) {
         anchor = anchor.substring(0, maxAnchorLength);
       }
-      inlinks.add(new Inlink(fromUrl, anchor));   // collect inverted link
+      inlinks.add(new Inlink(fromUrl, anchor)); // collect inverted link
       output.collect(new Text(toUrl), inlinks);
     }
   }
@@ -145,13 +154,16 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
     }
   }
 
-  public void invert(Path linkDb, final Path segmentsDir, boolean normalize, boolean filter, boolean force) throws IOException {
+  public void invert(Path linkDb, final Path segmentsDir, boolean normalize,
+      boolean filter, boolean force) throws IOException {
     final FileSystem fs = FileSystem.get(getConf());
-    FileStatus[] files = fs.listStatus(segmentsDir, HadoopFSUtil.getPassDirectoriesFilter(fs));
+    FileStatus[] files = fs.listStatus(segmentsDir,
+        HadoopFSUtil.getPassDirectoriesFilter(fs));
     invert(linkDb, HadoopFSUtil.getPaths(files), normalize, filter, force);
   }
 
-  public void invert(Path linkDb, Path[] segments, boolean normalize, boolean filter, boolean force) throws IOException {
+  public void invert(Path linkDb, Path[] segments, boolean normalize,
+      boolean filter, boolean force) throws IOException {
     JobConf job = LinkDb.createJob(getConf(), linkDb, normalize, filter);
     Path lock = new Path(linkDb, LOCK_NAME);
     FileSystem fs = FileSystem.get(getConf());
@@ -174,7 +186,8 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
       if (LOG.isInfoEnabled()) {
         LOG.info("LinkDb: adding segment: " + segments[i]);
       }
-      FileInputFormat.addInputPath(job, new Path(segments[i], ParseData.DIR_NAME));
+      FileInputFormat.addInputPath(job, new Path(segments[i],
+          ParseData.DIR_NAME));
     }
     try {
       JobClient.runJob(job);
@@ -203,13 +216,14 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
     LinkDb.install(job, linkDb);
 
     long end = System.currentTimeMillis();
-    LOG.info("LinkDb: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("LinkDb: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
 
-  private static JobConf createJob(Configuration config, Path linkDb, boolean normalize, boolean filter) {
-    Path newLinkDb =
-      new Path("linkdb-" +
-               Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+  private static JobConf createJob(Configuration config, Path linkDb,
+      boolean normalize, boolean filter) {
+    Path newLinkDb = new Path("linkdb-"
+        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
     job.setJobName("linkdb " + linkDb);
@@ -247,12 +261,14 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
     Path old = new Path(linkDb, "old");
     Path current = new Path(linkDb, CURRENT_NAME);
     if (fs.exists(current)) {
-      if (fs.exists(old)) fs.delete(old, true);
+      if (fs.exists(old))
+        fs.delete(old, true);
       fs.rename(current, old);
     }
     fs.mkdirs(linkDb);
     fs.rename(newLinkDb, current);
-    if (fs.exists(old)) fs.delete(old, true);
+    if (fs.exists(old))
+      fs.delete(old, true);
     LockUtil.removeLockFile(fs, new Path(linkDb, LOCK_NAME));
   }
 
@@ -263,11 +279,14 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
 
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: LinkDb <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-force] [-noNormalize] [-noFilter]");
+      System.err
+          .println("Usage: LinkDb <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-force] [-noNormalize] [-noFilter]");
       System.err.println("\tlinkdb\toutput LinkDb to create or update");
-      System.err.println("\t-dir segmentsDir\tparent directory of several segments, OR");
+      System.err
+          .println("\t-dir segmentsDir\tparent directory of several segments, OR");
       System.err.println("\tseg1 seg2 ...\t list of segment directories");
-      System.err.println("\t-force\tforce update even if LinkDb appears to be locked (CAUTION advised)");
+      System.err
+          .println("\t-force\tforce update even if LinkDb appears to be locked (CAUTION advised)");
       System.err.println("\t-noNormalize\tdon't normalize link URLs");
       System.err.println("\t-noFilter\tdon't apply URLFilters to link URLs");
       return -1;
@@ -281,7 +300,8 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
     boolean force = false;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
-        FileStatus[] paths = fs.listStatus(new Path(args[++i]), HadoopFSUtil.getPassDirectoriesFilter(fs));
+        FileStatus[] paths = fs.listStatus(new Path(args[++i]),
+            HadoopFSUtil.getPassDirectoriesFilter(fs));
         segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
       } else if (args[i].equalsIgnoreCase("-noNormalize")) {
         normalize = false;
@@ -289,7 +309,8 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
         filter = false;
       } else if (args[i].equalsIgnoreCase("-force")) {
         force = true;
-      } else segs.add(new Path(args[i]));
+      } else
+        segs.add(new Path(args[i]));
     }
     try {
       invert(db, segs.toArray(new Path[segs.size()]), normalize, filter, force);

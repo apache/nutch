@@ -1,19 +1,19 @@
 /*
-* Licensed to the Apache Software Foundation (ASF) under one or more
-* contributor license agreements.  See the NOTICE file distributed with
-* this work for additional information regarding copyright ownership.
-* The ASF licenses this file to You under the Apache License, Version 2.0
-* (the "License"); you may not use this file except in compliance with
-* the License.  You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.nutch.parse.js;
 
 import java.io.BufferedReader;
@@ -56,9 +56,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This class is a heuristic link extractor for JavaScript files and
- * code snippets. The general idea of a two-pass regex matching comes from
- * Heritrix. Parts of the code come from OutlinkExtractor.java
+ * This class is a heuristic link extractor for JavaScript files and code
+ * snippets. The general idea of a two-pass regex matching comes from Heritrix.
+ * Parts of the code come from OutlinkExtractor.java
  */
 public class JSParseFilter implements HtmlParseFilter, Parser {
   public static final Logger LOG = LoggerFactory.getLogger(JSParseFilter.class);
@@ -66,9 +66,9 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
   private static final int MAX_TITLE_LEN = 80;
 
   private Configuration conf;
-  
+
   public ParseResult filter(Content content, ParseResult parseResult,
-    HTMLMetaTags metaTags, DocumentFragment doc) {
+      HTMLMetaTags metaTags, DocumentFragment doc) {
 
     Parse parse = parseResult.get(content.getUrl());
 
@@ -82,37 +82,42 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       outlinks.addAll(list);
       ParseStatus status = parse.getData().getStatus();
       String text = parse.getText();
-      Outlink[] newlinks = (Outlink[])outlinks.toArray(new Outlink[outlinks.size()]);
-      ParseData parseData = new ParseData(status, title, newlinks,
-                                          parse.getData().getContentMeta(),
-                                          parse.getData().getParseMeta());
+      Outlink[] newlinks = (Outlink[]) outlinks.toArray(new Outlink[outlinks
+          .size()]);
+      ParseData parseData = new ParseData(status, title, newlinks, parse
+          .getData().getContentMeta(), parse.getData().getParseMeta());
 
       // replace original parse obj with new one
       parseResult.put(content.getUrl(), new ParseText(text), parseData);
     }
     return parseResult;
   }
-  
-  private void walk(Node n, Parse parse, HTMLMetaTags metaTags, String base, List<Outlink> outlinks) {
+
+  private void walk(Node n, Parse parse, HTMLMetaTags metaTags, String base,
+      List<Outlink> outlinks) {
     if (n instanceof Element) {
       String name = n.getNodeName();
       if (name.equalsIgnoreCase("script")) {
- /*       String lang = null;
-        Node lNode = n.getAttributes().getNamedItem("language");
-        if (lNode == null) lang = "javascript";
-        else lang = lNode.getNodeValue(); */
+        /*
+         * String lang = null; Node lNode =
+         * n.getAttributes().getNamedItem("language"); if (lNode == null) lang =
+         * "javascript"; else lang = lNode.getNodeValue();
+         */
         StringBuffer script = new StringBuffer();
         NodeList nn = n.getChildNodes();
         if (nn.getLength() > 0) {
           for (int i = 0; i < nn.getLength(); i++) {
-            if (i > 0) script.append('\n');
+            if (i > 0)
+              script.append('\n');
             script.append(nn.item(i).getNodeValue());
           }
           // if (LOG.isInfoEnabled()) {
-          //   LOG.info("script: language=" + lang + ", text: " + script.toString());
+          // LOG.info("script: language=" + lang + ", text: " +
+          // script.toString());
           // }
           Outlink[] links = getJSLinks(script.toString(), "", base);
-          if (links != null && links.length > 0) outlinks.addAll(Arrays.asList(links));
+          if (links != null && links.length > 0)
+            outlinks.addAll(Arrays.asList(links));
           // no other children of interest here, go one level up.
           return;
         }
@@ -124,7 +129,8 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
           // Window: onload,onunload
           // Form: onchange,onsubmit,onreset,onselect,onblur,onfocus
           // Keyboard: onkeydown,onkeypress,onkeyup
-          // Mouse: onclick,ondbclick,onmousedown,onmouseout,onmousover,onmouseup
+          // Mouse:
+          // onclick,ondbclick,onmousedown,onmouseout,onmousover,onmouseup
           Node anode = attrs.item(i);
           Outlink[] links = null;
           if (anode.getNodeName().startsWith("on")) {
@@ -135,7 +141,8 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
               links = getJSLinks(val, "", base);
             }
           }
-          if (links != null && links.length > 0) outlinks.addAll(Arrays.asList(links));
+          if (links != null && links.length > 0)
+            outlinks.addAll(Arrays.asList(links));
         }
       }
     }
@@ -144,48 +151,56 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       walk(nl.item(i), parse, metaTags, base, outlinks);
     }
   }
-  
+
   public ParseResult getParse(Content c) {
     String type = c.getContentType();
-    if (type != null && !type.trim().equals("") && !type.toLowerCase().startsWith("application/x-javascript"))
+    if (type != null && !type.trim().equals("")
+        && !type.toLowerCase().startsWith("application/x-javascript"))
       return new ParseStatus(ParseStatus.FAILED_INVALID_FORMAT,
-              "Content not JavaScript: '" + type + "'").getEmptyParseResult(c.getUrl(), getConf());
+          "Content not JavaScript: '" + type + "'").getEmptyParseResult(
+          c.getUrl(), getConf());
     String script = new String(c.getContent());
     Outlink[] outlinks = getJSLinks(script, "", c.getUrl());
-    if (outlinks == null) outlinks = new Outlink[0];
+    if (outlinks == null)
+      outlinks = new Outlink[0];
     // Title? use the first line of the script...
     String title;
     int idx = script.indexOf('\n');
     if (idx != -1) {
-      if (idx > MAX_TITLE_LEN) idx = MAX_TITLE_LEN;
+      if (idx > MAX_TITLE_LEN)
+        idx = MAX_TITLE_LEN;
       title = script.substring(0, idx);
     } else {
       idx = Math.min(MAX_TITLE_LEN, script.length());
       title = script.substring(0, idx);
     }
     ParseData pd = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks,
-                                 c.getMetadata());
+        c.getMetadata());
     return ParseResult.createParseResult(c.getUrl(), new ParseImpl(script, pd));
   }
-  
+
   private static final String STRING_PATTERN = "(\\\\*(?:\"|\'))([^\\s\"\']+?)(?:\\1)";
   // A simple pattern. This allows also invalid URL characters.
   private static final String URI_PATTERN = "(^|\\s*?)/?\\S+?[/\\.]\\S+($|\\s*)";
+
   // Alternative pattern, which limits valid url characters.
-  //private static final String URI_PATTERN = "(^|\\s*?)[A-Za-z0-9/](([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2})+[/.](([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2})+(#([a-zA-Z0-9][a-zA-Z0-9$_.+!*,;/?:@&~=%-]*))?($|\\s*)";
-  
+  // private static final String URI_PATTERN =
+  // "(^|\\s*?)[A-Za-z0-9/](([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2})+[/.](([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2})+(#([a-zA-Z0-9][a-zA-Z0-9$_.+!*,;/?:@&~=%-]*))?($|\\s*)";
+
   /**
-   *  This method extracts URLs from literals embedded in JavaScript.
+   * This method extracts URLs from literals embedded in JavaScript.
    */
   private Outlink[] getJSLinks(String plainText, String anchor, String base) {
 
     final List<Outlink> outlinks = new ArrayList<Outlink>();
     URL baseURL = null;
-    
+
     try {
       baseURL = new URL(base);
     } catch (Exception e) {
-      if (LOG.isErrorEnabled()) { LOG.error("getJSLinks", e); }
+      if (LOG.isErrorEnabled()) {
+        LOG.error("getJSLinks", e);
+      }
     }
 
     try {
@@ -194,8 +209,8 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
           Perl5Compiler.CASE_INSENSITIVE_MASK | Perl5Compiler.READ_ONLY_MASK
               | Perl5Compiler.MULTILINE_MASK);
       final Pattern pattern1 = cp.compile(URI_PATTERN,
-              Perl5Compiler.CASE_INSENSITIVE_MASK | Perl5Compiler.READ_ONLY_MASK
-                  | Perl5Compiler.MULTILINE_MASK);
+          Perl5Compiler.CASE_INSENSITIVE_MASK | Perl5Compiler.READ_ONLY_MASK
+              | Perl5Compiler.MULTILINE_MASK);
       final PatternMatcher matcher = new Perl5Matcher();
 
       final PatternMatcher matcher1 = new Perl5Matcher();
@@ -204,26 +219,27 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       MatchResult result;
       String url;
 
-      //loop the matches
+      // loop the matches
       while (matcher.contains(input, pattern)) {
         result = matcher.getMatch();
         url = result.group(2);
         PatternMatcherInput input1 = new PatternMatcherInput(url);
         if (!matcher1.matches(input1, pattern1)) {
-          //if (LOG.isTraceEnabled()) { LOG.trace(" - invalid '" + url + "'"); }
+          // if (LOG.isTraceEnabled()) { LOG.trace(" - invalid '" + url + "'");
+          // }
           continue;
         }
         if (url.startsWith("www.")) {
-            url = "http://" + url;
+          url = "http://" + url;
         } else {
-          // See if candidate URL is parseable.  If not, pass and move on to
+          // See if candidate URL is parseable. If not, pass and move on to
           // the next match.
           try {
             url = new URL(baseURL, url).toString();
           } catch (MalformedURLException ex) {
             if (LOG.isTraceEnabled()) {
-              LOG.trace(" - failed URL parse '" + url + "' and baseURL '" +
-                  baseURL + "'", ex);
+              LOG.trace(" - failed URL parse '" + url + "' and baseURL '"
+                  + baseURL + "'", ex);
             }
             continue;
           }
@@ -237,12 +253,14 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     } catch (Exception ex) {
       // if it is a malformed URL we just throw it away and continue with
       // extraction.
-      if (LOG.isErrorEnabled()) { LOG.error("getJSLinks", ex); }
+      if (LOG.isErrorEnabled()) {
+        LOG.error("getJSLinks", ex);
+      }
     }
 
     final Outlink[] retval;
 
-    //create array of the Outlinks
+    // create array of the Outlinks
     if (outlinks != null && outlinks.size() > 0) {
       retval = (Outlink[]) outlinks.toArray(new Outlink[0]);
     } else {
@@ -251,7 +269,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
     return retval;
   }
-  
+
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println(JSParseFilter.class.getName() + " file.js baseURL");
@@ -261,10 +279,10 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
     StringBuffer sb = new StringBuffer();
     String line = null;
-    while ((line = br.readLine()) != null) 
+    while ((line = br.readLine()) != null)
       sb.append(line + "\n");
     br.close();
-    
+
     JSParseFilter parseFilter = new JSParseFilter();
     parseFilter.setConf(NutchConfiguration.create());
     Outlink[] links = parseFilter.getJSLinks(sb.toString(), "", args[1]);

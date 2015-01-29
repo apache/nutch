@@ -24,8 +24,8 @@ import java.util.Properties;
 import org.apache.nutch.metadata.Metadata;
 
 /**
- * This class holds the information about HTML "meta" tags extracted from 
- * a page. Some special tags have convenience methods for easy checking.
+ * This class holds the information about HTML "meta" tags extracted from a
+ * page. Some special tags have convenience methods for easy checking.
  */
 public class HTMLMetaTags {
   private boolean noIndex = false;
@@ -45,7 +45,7 @@ public class HTMLMetaTags {
   private Metadata generalTags = new Metadata();
 
   private Properties httpEquivTags = new Properties();
-  
+
   /**
    * Sets all boolean values to <code>false</code>. Clears all other tags.
    */
@@ -156,8 +156,8 @@ public class HTMLMetaTags {
   }
 
   /**
-   * A convenience method. Returns the current value of <code>refreshTime</code>.
-   * The value may be invalid if {@link #getRefresh()}returns
+   * A convenience method. Returns the current value of <code>refreshTime</code>
+   * . The value may be invalid if {@link #getRefresh()}returns
    * <code>false</code>.
    */
   public int getRefreshTime() {
@@ -179,16 +179,12 @@ public class HTMLMetaTags {
   public Properties getHttpEquivTags() {
     return httpEquivTags;
   }
-  
+
   public String toString() {
     StringBuffer sb = new StringBuffer();
-    sb.append("base=" + baseHref
-            + ", noCache=" + noCache
-            + ", noFollow=" + noFollow
-            + ", noIndex=" + noIndex
-            + ", refresh=" + refresh
-            + ", refreshHref=" + refreshHref + "\n"
-            );
+    sb.append("base=" + baseHref + ", noCache=" + noCache + ", noFollow="
+        + noFollow + ", noIndex=" + noIndex + ", refresh=" + refresh
+        + ", refreshHref=" + refreshHref + "\n");
     sb.append(" * general tags:\n");
     String[] names = generalTags.names();
     for (String name : names) {
@@ -199,7 +195,7 @@ public class HTMLMetaTags {
     Iterator<Object> it = httpEquivTags.keySet().iterator();
     it = httpEquivTags.keySet().iterator();
     while (it.hasNext()) {
-      String key = (String)it.next();
+      String key = (String) it.next();
       sb.append("   - " + key + "\t=\t" + httpEquivTags.get(key) + "\n");
     }
     return sb.toString();

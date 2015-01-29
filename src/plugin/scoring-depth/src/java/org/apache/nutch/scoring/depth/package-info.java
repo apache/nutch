@@ -20,3 +20,4 @@
  * (number of "hops" from seed URLs).
  */
 package org.apache.nutch.scoring.depth;
+

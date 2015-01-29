@@ -107,8 +107,9 @@ public class WebGraph extends Configured implements Tool {
    * by domain and host can be ignored. The number of Outlinks out to a given
    * page or domain can also be limited.
    */
-  public static class OutlinkDb extends Configured implements 
-      Mapper<Text, Writable, Text, NutchWritable>, Reducer<Text, NutchWritable, Text, LinkDatum> {
+  public static class OutlinkDb extends Configured implements
+      Mapper<Text, Writable, Text, NutchWritable>,
+      Reducer<Text, NutchWritable, Text, LinkDatum> {
 
     public static final String URL_NORMALIZING = "webgraph.url.normalizers";
     public static final String URL_FILTERING = "webgraph.url.filters";
@@ -133,7 +134,8 @@ public class WebGraph extends Configured implements Tool {
     /**
      * Normalizes and trims extra whitespace from the given url.
      * 
-     * @param url The url to normalize.
+     * @param url
+     *          The url to normalize.
      * 
      * @return The normalized url.
      */
@@ -151,8 +153,7 @@ public class WebGraph extends Configured implements Tool {
           normalized = urlNormalizers.normalize(url,
               URLNormalizers.SCOPE_DEFAULT);
           normalized = normalized.trim();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
           LOG.warn("Skipping " + url + ":" + e);
           normalized = null;
         }
@@ -162,9 +163,10 @@ public class WebGraph extends Configured implements Tool {
 
     /**
      * Filters the given url.
-     *
-     * @param url The url to filter.
-     *
+     * 
+     * @param url
+     *          The url to filter.
+     * 
      * @return The filtered url or null.
      */
     private String filterUrl(String url) {
@@ -186,7 +188,8 @@ public class WebGraph extends Configured implements Tool {
      * Returns the fetch time from the parse data or the current system time if
      * the fetch time doesn't exist.
      * 
-     * @param data The parse data.
+     * @param data
+     *          The parse data.
      * 
      * @return The fetch time as a long.
      */
@@ -198,8 +201,7 @@ public class WebGraph extends Configured implements Tool {
       try {
         // get the fetch time from the parse data
         fetchTime = Long.parseLong(fetchTimeStr);
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         fetchTime = System.currentTimeMillis();
       }
       return fetchTime;
@@ -244,8 +246,9 @@ public class WebGraph extends Configured implements Tool {
      * Passes through existing LinkDatum objects from an existing OutlinkDb and
      * maps out new LinkDatum objects from new crawls ParseData.
      */
-    public void map(Text key, Writable value, OutputCollector<Text, NutchWritable> 
-        output, Reporter reporter) throws IOException {
+    public void map(Text key, Writable value,
+        OutputCollector<Text, NutchWritable> output, Reporter reporter)
+        throws IOException {
 
       // normalize url, stop processing if null
       String url = normalizeUrl(key.toString());
@@ -262,20 +265,19 @@ public class WebGraph extends Configured implements Tool {
       key.set(url);
 
       if (value instanceof CrawlDatum) {
-        CrawlDatum datum = (CrawlDatum)value;
+        CrawlDatum datum = (CrawlDatum) value;
 
-        if (datum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP ||
-            datum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM ||
-            datum.getStatus() == CrawlDatum.STATUS_FETCH_GONE) {
+        if (datum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP
+            || datum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM
+            || datum.getStatus() == CrawlDatum.STATUS_FETCH_GONE) {
 
           // Tell the reducer to get rid of all instances of this key
           output.collect(key, new NutchWritable(new BooleanWritable(true)));
         }
-      }
-      else if (value instanceof ParseData) {
+      } else if (value instanceof ParseData) {
         // get the parse data and the outlinks from the parse data, along with
         // the fetch time for those links
-        ParseData data = (ParseData)value;
+        ParseData data = (ParseData) value;
         long fetchTime = getFetchTime(data);
         Outlink[] outlinkAr = data.getOutlinks();
         Map<String, String> outlinkMap = new LinkedHashMap<String, String>();
@@ -307,9 +309,8 @@ public class WebGraph extends Configured implements Tool {
           LinkDatum datum = new LinkDatum(outlinkUrl, anchor, fetchTime);
           output.collect(key, new NutchWritable(datum));
         }
-      }
-      else if (value instanceof LinkDatum) {
-        LinkDatum datum = (LinkDatum)value;
+      } else if (value instanceof LinkDatum) {
+        LinkDatum datum = (LinkDatum) value;
         String linkDatumUrl = normalizeUrl(datum.getUrl());
 
         if (filterUrl(linkDatumUrl) != null) {
@@ -323,7 +324,7 @@ public class WebGraph extends Configured implements Tool {
 
     public void reduce(Text key, Iterator<NutchWritable> values,
         OutputCollector<Text, LinkDatum> output, Reporter reporter)
-            throws IOException {
+        throws IOException {
 
       // aggregate all outlinks, get the most recent timestamp for a fetch
       // which should be the timestamp for all of the most recent outlinks
@@ -334,17 +335,17 @@ public class WebGraph extends Configured implements Tool {
 
         if (value instanceof LinkDatum) {
           // loop through, change out most recent timestamp if needed
-          LinkDatum next = (LinkDatum)value;
+          LinkDatum next = (LinkDatum) value;
           long timestamp = next.getTimestamp();
           if (mostRecent == 0L || mostRecent < timestamp) {
             mostRecent = timestamp;
           }
           outlinkList.add(WritableUtils.clone(next, conf));
           reporter.incrCounter("WebGraph.outlinks", "added links", 1);
-        }
-        else if (value instanceof BooleanWritable) {
-          BooleanWritable delete = (BooleanWritable)value;
-          // Actually, delete is always true, otherwise we don't emit it in the mapper in the first place
+        } else if (value instanceof BooleanWritable) {
+          BooleanWritable delete = (BooleanWritable) value;
+          // Actually, delete is always true, otherwise we don't emit it in the
+          // mapper in the first place
           if (delete.get() == true) {
             // This page is gone, do not emit it's outlinks
             reporter.incrCounter("WebGraph.outlinks", "removed links", 1);
@@ -378,7 +379,8 @@ public class WebGraph extends Configured implements Tool {
             && (!limitPages || (limitPages && !pages.contains(toPage)))
             && (!limitDomains || (limitDomains && !domains.contains(toDomain)))
             && (!ignoreHost || (ignoreHost && !toHost.equalsIgnoreCase(host)))
-            && (!ignoreDomain || (ignoreDomain && !toDomain.equalsIgnoreCase(domain)))) {
+            && (!ignoreDomain || (ignoreDomain && !toDomain
+                .equalsIgnoreCase(domain)))) {
           output.collect(key, datum);
           pages.add(toPage);
           domains.add(toDomain);
@@ -395,7 +397,8 @@ public class WebGraph extends Configured implements Tool {
    * OutlinkDb LinkDatum objects and are regenerated each time the WebGraph is
    * updated.
    */
-  private static class InlinkDb extends Configured implements Mapper<Text, LinkDatum, Text, LinkDatum> {
+  private static class InlinkDb extends Configured implements
+      Mapper<Text, LinkDatum, Text, LinkDatum> {
 
     private long timestamp;
 
@@ -414,8 +417,9 @@ public class WebGraph extends Configured implements Tool {
      * Inverts the Outlink LinkDatum objects into new LinkDatum objects with a
      * new system timestamp, type and to and from url switched.
      */
-    public void map(Text key, LinkDatum datum, OutputCollector<Text, LinkDatum> 
-        output, Reporter reporter) throws IOException {
+    public void map(Text key, LinkDatum datum,
+        OutputCollector<Text, LinkDatum> output, Reporter reporter)
+        throws IOException {
 
       // get the to and from url and the anchor
       String fromUrl = key.toString();
@@ -433,21 +437,25 @@ public class WebGraph extends Configured implements Tool {
    * Creates the Node database which consists of the number of in and outlinks
    * for each url and a score slot for analysis programs such as LinkRank.
    */
-  private static class NodeDb extends Configured implements Reducer<Text, LinkDatum, Text, Node> {
+  private static class NodeDb extends Configured implements
+      Reducer<Text, LinkDatum, Text, Node> {
 
     /**
      * Configures job.
      */
-    public void configure(JobConf conf) { }
+    public void configure(JobConf conf) {
+    }
 
-    public void close() { }
+    public void close() {
+    }
 
     /**
      * Counts the number of inlinks and outlinks for each url and sets a default
      * score of 0.0 for each url (node) in the webgraph.
      */
-    public void reduce(Text key, Iterator<LinkDatum> values, OutputCollector<Text, Node> 
-        output, Reporter reporter) throws IOException {
+    public void reduce(Text key, Iterator<LinkDatum> values,
+        OutputCollector<Text, Node> output, Reporter reporter)
+        throws IOException {
 
       Node node = new Node();
       int numInlinks = 0;
@@ -458,8 +466,7 @@ public class WebGraph extends Configured implements Tool {
         LinkDatum next = values.next();
         if (next.getLinkType() == LinkDatum.INLINK) {
           numInlinks++;
-        }
-        else if (next.getLinkType() == LinkDatum.OUTLINK) {
+        } else if (next.getLinkType() == LinkDatum.OUTLINK) {
           numOutlinks++;
         }
       }
@@ -477,16 +484,21 @@ public class WebGraph extends Configured implements Tool {
    * Node. If a current WebGraph exists then it is updated, if it doesn't exist
    * then a new WebGraph database is created.
    * 
-   * @param webGraphDb The WebGraph to create or update.
-   * @param segments The array of segments used to update the WebGraph. Newer
-   * segments and fetch times will overwrite older segments.
-   * @param normalize whether to use URLNormalizers on URL's in the segment
-   * @param filter whether to use URLFilters on URL's in the segment
+   * @param webGraphDb
+   *          The WebGraph to create or update.
+   * @param segments
+   *          The array of segments used to update the WebGraph. Newer segments
+   *          and fetch times will overwrite older segments.
+   * @param normalize
+   *          whether to use URLNormalizers on URL's in the segment
+   * @param filter
+   *          whether to use URLFilters on URL's in the segment
    * 
-   * @throws IOException If an error occurs while processing the WebGraph.
+   * @throws IOException
+   *           If an error occurs while processing the WebGraph.
    */
-  public void createWebGraph(Path webGraphDb, Path[] segments, boolean normalize, boolean filter)
-      throws IOException {
+  public void createWebGraph(Path webGraphDb, Path[] segments,
+      boolean normalize, boolean filter) throws IOException {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -563,7 +575,8 @@ public class WebGraph extends Configured implements Tool {
     outlinkJob.setOutputValueClass(LinkDatum.class);
     FileOutputFormat.setOutputPath(outlinkJob, tempOutlinkDb);
     outlinkJob.setOutputFormat(MapFileOutputFormat.class);
-    outlinkJob.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    outlinkJob.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        false);
 
     // run the outlinkdb job and replace any old outlinkdb with the new one
     try {
@@ -572,10 +585,10 @@ public class WebGraph extends Configured implements Tool {
       LOG.info("OutlinkDb: installing " + outlinkDb);
       FSUtils.replace(fs, oldOutlinkDb, outlinkDb, true);
       FSUtils.replace(fs, outlinkDb, tempOutlinkDb, true);
-      if (!preserveBackup && fs.exists(oldOutlinkDb)) fs.delete(oldOutlinkDb, true);
+      if (!preserveBackup && fs.exists(oldOutlinkDb))
+        fs.delete(oldOutlinkDb, true);
       LOG.info("OutlinkDb: finished");
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
 
       // remove lock file and and temporary directory if an error occurs
       LockUtil.removeLockFile(fs, lock);
@@ -603,7 +616,8 @@ public class WebGraph extends Configured implements Tool {
     inlinkJob.setOutputValueClass(LinkDatum.class);
     FileOutputFormat.setOutputPath(inlinkJob, tempInlinkDb);
     inlinkJob.setOutputFormat(MapFileOutputFormat.class);
-    inlinkJob.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    inlinkJob.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        false);
 
     try {
 
@@ -613,14 +627,13 @@ public class WebGraph extends Configured implements Tool {
       LOG.info("InlinkDb: installing " + inlinkDb);
       FSUtils.replace(fs, inlinkDb, tempInlinkDb, true);
       LOG.info("InlinkDb: finished");
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
 
       // remove lock file and and temporary directory if an error occurs
       LockUtil.removeLockFile(fs, lock);
       if (fs.exists(tempInlinkDb)) {
         fs.delete(tempInlinkDb, true);
-      }      
+      }
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
@@ -644,7 +657,8 @@ public class WebGraph extends Configured implements Tool {
     nodeJob.setOutputValueClass(Node.class);
     FileOutputFormat.setOutputPath(nodeJob, tempNodeDb);
     nodeJob.setOutputFormat(MapFileOutputFormat.class);
-    nodeJob.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    nodeJob.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
+        false);
 
     try {
 
@@ -654,14 +668,13 @@ public class WebGraph extends Configured implements Tool {
       LOG.info("NodeDb: installing " + nodeDb);
       FSUtils.replace(fs, nodeDb, tempNodeDb, true);
       LOG.info("NodeDb: finished");
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
 
       // remove lock file and and temporary directory if an error occurs
       LockUtil.removeLockFile(fs, lock);
       if (fs.exists(tempNodeDb)) {
         fs.delete(tempNodeDb, true);
-      }      
+      }
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
@@ -670,7 +683,8 @@ public class WebGraph extends Configured implements Tool {
     LockUtil.removeLockFile(fs, lock);
 
     long end = System.currentTimeMillis();
-    LOG.info("WebGraphDb: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("WebGraphDb: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args) throws Exception {
@@ -683,26 +697,29 @@ public class WebGraph extends Configured implements Tool {
    */
   public int run(String[] args) throws Exception {
 
-    //boolean options
+    // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
-    Option normOpt = new Option("n", "normalize", false, "whether to use URLNormalizers on the URL's in the segment");
-    Option filtOpt = new Option("f", "filter", false, "whether to use URLFilters on the URL's in the segment");
+    Option normOpt = new Option("n", "normalize", false,
+        "whether to use URLNormalizers on the URL's in the segment");
+    Option filtOpt = new Option("f", "filter", false,
+        "whether to use URLFilters on the URL's in the segment");
 
-    //argument options
+    // argument options
     @SuppressWarnings("static-access")
-    Option graphOpt = OptionBuilder.withArgName("webgraphdb")
-        .hasArg().withDescription("the web graph database to create (if none exists) or use if one does")
+    Option graphOpt = OptionBuilder
+        .withArgName("webgraphdb")
+        .hasArg()
+        .withDescription(
+            "the web graph database to create (if none exists) or use if one does")
         .create("webgraphdb");
     @SuppressWarnings("static-access")
-    Option segOpt = OptionBuilder.withArgName("segment")
-        .hasArgs().withDescription("the segment(s) to use")
-        .create("segment");
+    Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
+        .withDescription("the segment(s) to use").create("segment");
     @SuppressWarnings("static-access")
-    Option segDirOpt = OptionBuilder.withArgName("segmentDir")
-        .hasArgs().withDescription("the segment directory to use")
-        .create("segmentDir");
-    
-    //create the options
+    Option segDirOpt = OptionBuilder.withArgName("segmentDir").hasArgs()
+        .withDescription("the segment directory to use").create("segmentDir");
+
+    // create the options
     Options options = new Options();
     options.addOption(helpOpt);
     options.addOption(normOpt);
@@ -738,7 +755,8 @@ public class WebGraph extends Configured implements Tool {
       if (line.hasOption("segmentDir")) {
         Path dir = new Path(line.getOptionValue("segmentDir"));
         FileSystem fs = dir.getFileSystem(getConf());
-        FileStatus[] fstats = fs.listStatus(dir, HadoopFSUtil.getPassDirectoriesFilter(fs));
+        FileStatus[] fstats = fs.listStatus(dir,
+            HadoopFSUtil.getPassDirectoriesFilter(fs));
         segPaths = HadoopFSUtil.getPaths(fstats);
       }
 
@@ -756,8 +774,7 @@ public class WebGraph extends Configured implements Tool {
 
       createWebGraph(new Path(webGraphDb), segPaths, normalize, filter);
       return 0;
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       LOG.error("WebGraph: " + StringUtils.stringifyException(e));
       return -2;
     }

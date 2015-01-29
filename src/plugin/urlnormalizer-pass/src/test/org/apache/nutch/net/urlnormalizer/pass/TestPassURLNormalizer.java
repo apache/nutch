@@ -29,7 +29,7 @@ public class TestPassURLNormalizer {
   @Test
   public void testPassURLNormalizer() {
     Configuration conf = NutchConfiguration.create();
-    
+
     PassURLNormalizer normalizer = new PassURLNormalizer();
     normalizer.setConf(conf);
     String url = "http://www.example.com/test/..//";
@@ -39,7 +39,7 @@ public class TestPassURLNormalizer {
     } catch (MalformedURLException mue) {
       Assert.fail(mue.toString());
     }
-    
+
     Assert.assertEquals(url, result);
   }
 }

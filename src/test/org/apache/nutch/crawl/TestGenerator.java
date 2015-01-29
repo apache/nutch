@@ -36,7 +36,7 @@ import org.junit.Test;
  * Basic generator test. 1. Insert entries in crawldb 2. Generates entries to
  * fetch 3. Verifies that number of generated urls match 4. Verifies that
  * highest scoring urls are generated
- *
+ * 
  */
 public class TestGenerator {
 
@@ -71,7 +71,7 @@ public class TestGenerator {
 
   /**
    * Test that generator generates fetchlish ordered by score (desc).
-   *
+   * 
    * @throws Exception
    */
   @Test
@@ -82,8 +82,7 @@ public class TestGenerator {
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
 
     for (int i = 0; i <= 100; i++) {
-      list.add(createURLCrawlDatum("http://aaa/" + pad(i),
-          1, i));
+      list.add(createURLCrawlDatum("http://aaa/" + pad(i), 1, i));
     }
 
     createCrawlDB(list);
@@ -94,7 +93,7 @@ public class TestGenerator {
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
 
     ArrayList<URLCrawlDatum> l = readContents(fetchlist);
-    
+
     // sort urls by score desc
     Collections.sort(l, new ScoreComparator());
 
@@ -132,18 +131,16 @@ public class TestGenerator {
 
   /**
    * Test that generator obeys the property "generate.max.per.host".
-   * @throws Exception 
+   * 
+   * @throws Exception
    */
   @Test
-  public void testGenerateHostLimit() throws Exception{
+  public void testGenerateHostLimit() throws Exception {
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
 
-    list.add(createURLCrawlDatum("http://www.example.com/index1.html",
-        1, 1));
-    list.add(createURLCrawlDatum("http://www.example.com/index2.html",
-        1, 1));
-    list.add(createURLCrawlDatum("http://www.example.com/index3.html",
-        1, 1));
+    list.add(createURLCrawlDatum("http://www.example.com/index1.html", 1, 1));
+    list.add(createURLCrawlDatum("http://www.example.com/index2.html", 1, 1));
+    list.add(createURLCrawlDatum("http://www.example.com/index3.html", 1, 1));
 
     createCrawlDB(list);
 
@@ -190,10 +187,11 @@ public class TestGenerator {
   /**
    * Test that generator obeys the property "generator.max.count" and
    * "generator.count.per.domain".
-   * @throws Exception 
+   * 
+   * @throws Exception
    */
   @Test
-  public void testGenerateDomainLimit() throws Exception{
+  public void testGenerateDomainLimit() throws Exception {
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
 
     list.add(createURLCrawlDatum("http://a.example.com/index.html", 1, 1));
@@ -204,7 +202,8 @@ public class TestGenerator {
 
     Configuration myConfiguration = new Configuration(conf);
     myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 2);
-    myConfiguration.set(Generator.GENERATOR_COUNT_MODE, Generator.GENERATOR_COUNT_VALUE_DOMAIN);
+    myConfiguration.set(Generator.GENERATOR_COUNT_MODE,
+        Generator.GENERATOR_COUNT_VALUE_DOMAIN);
 
     Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
         myConfiguration, false);
@@ -219,7 +218,8 @@ public class TestGenerator {
 
     myConfiguration = new Configuration(myConfiguration);
     myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 3);
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
+    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
+        false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
@@ -245,11 +245,12 @@ public class TestGenerator {
 
   /**
    * Test generator obeys the filter setting.
-   * @throws Exception 
-   * @throws IOException 
+   * 
+   * @throws Exception
+   * @throws IOException
    */
   @Test
-  public void testFilter() throws IOException, Exception{
+  public void testFilter() throws IOException, Exception {
 
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
 
@@ -267,7 +268,8 @@ public class TestGenerator {
 
     Assert.assertNull("should be null (0 entries)", generatedSegment);
 
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
+    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
+        false);
 
     Path fetchlistPath = new Path(new Path(generatedSegment,
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
@@ -279,14 +281,16 @@ public class TestGenerator {
 
   }
 
-
   /**
    * Read contents of fetchlist.
-   * @param fetchlist  path to Generated fetchlist
+   * 
+   * @param fetchlist
+   *          path to Generated fetchlist
    * @return Generated {@link URLCrawlDatum} objects
    * @throws IOException
    */
-  private ArrayList<URLCrawlDatum> readContents(Path fetchlist) throws IOException {
+  private ArrayList<URLCrawlDatum> readContents(Path fetchlist)
+      throws IOException {
     // verify results
     SequenceFile.Reader reader = new SequenceFile.Reader(fs, fetchlist, conf);
 
@@ -307,8 +311,11 @@ public class TestGenerator {
 
   /**
    * Generate Fetchlist.
-   * @param numResults number of results to generate
-   * @param config Configuration to use
+   * 
+   * @param numResults
+   *          number of results to generate
+   * @param config
+   *          Configuration to use
    * @return path to generated segment
    * @throws IOException
    */
@@ -318,14 +325,16 @@ public class TestGenerator {
     Generator g = new Generator(config);
     Path[] generatedSegment = g.generate(dbDir, segmentsDir, -1, numResults,
         Long.MAX_VALUE, filter, false);
-    if (generatedSegment==null) return null;
+    if (generatedSegment == null)
+      return null;
     return generatedSegment[0];
   }
 
   /**
    * Creates CrawlDB.
-   *
-   * @param list database contents
+   * 
+   * @param list
+   *          database contents
    * @throws IOException
    * @throws Exception
    */
@@ -342,9 +351,13 @@ public class TestGenerator {
 
   /**
    * Constructs new {@link URLCrawlDatum} from submitted parameters.
-   * @param url url to use
-   * @param fetchInterval {@link CrawlDatum#setFetchInterval(float)}
-   * @param score {@link CrawlDatum#setScore(float)}
+   * 
+   * @param url
+   *          url to use
+   * @param fetchInterval
+   *          {@link CrawlDatum#setFetchInterval(float)}
+   * @param score
+   *          {@link CrawlDatum#setScore(float)}
    * @return Constructed object
    */
   private URLCrawlDatum createURLCrawlDatum(final String url,

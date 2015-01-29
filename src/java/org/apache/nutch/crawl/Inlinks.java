@@ -27,17 +27,25 @@ import org.apache.hadoop.io.*;
 public class Inlinks implements Writable {
   private HashSet<Inlink> inlinks = new HashSet<Inlink>(1);
 
-  public void add(Inlink inlink) { inlinks.add(inlink); }
+  public void add(Inlink inlink) {
+    inlinks.add(inlink);
+  }
 
-  public void add(Inlinks inlinks) { this.inlinks.addAll(inlinks.inlinks); }
+  public void add(Inlinks inlinks) {
+    this.inlinks.addAll(inlinks.inlinks);
+  }
 
   public Iterator<Inlink> iterator() {
     return this.inlinks.iterator();
   }
-  
-  public int size() { return inlinks.size(); }
 
-  public void clear() { inlinks.clear(); }
+  public int size() {
+    return inlinks.size();
+  }
+
+  public void clear() {
+    inlinks.clear();
+  }
 
   public void readFields(DataInput in) throws IOException {
     int length = in.readInt();
@@ -67,30 +75,32 @@ public class Inlinks implements Writable {
     return buffer.toString();
   }
 
-  /** Return the set of anchor texts.  Only a single anchor with a given text
-   * is permitted from a given domain. */
+  /**
+   * Return the set of anchor texts. Only a single anchor with a given text is
+   * permitted from a given domain.
+   */
   public String[] getAnchors() {
-    HashMap<String, Set<String>> domainToAnchors =
-      new HashMap<String, Set<String>>();
+    HashMap<String, Set<String>> domainToAnchors = new HashMap<String, Set<String>>();
     ArrayList<String> results = new ArrayList<String>();
     Iterator<Inlink> it = inlinks.iterator();
     while (it.hasNext()) {
       Inlink inlink = it.next();
       String anchor = inlink.getAnchor();
 
-      if (anchor.length() == 0)                   // skip empty anchors
+      if (anchor.length() == 0) // skip empty anchors
         continue;
-      String domain = null;                       // extract domain name
+      String domain = null; // extract domain name
       try {
         domain = new URL(inlink.getFromUrl()).getHost();
-      } catch (MalformedURLException e) {}
+      } catch (MalformedURLException e) {
+      }
       Set<String> domainAnchors = domainToAnchors.get(domain);
       if (domainAnchors == null) {
         domainAnchors = new HashSet<String>();
         domainToAnchors.put(domain, domainAnchors);
       }
-      if (domainAnchors.add(anchor)) {            // new anchor from domain
-        results.add(anchor);                      // collect it
+      if (domainAnchors.add(anchor)) { // new anchor from domain
+        results.add(anchor); // collect it
       }
     }
 

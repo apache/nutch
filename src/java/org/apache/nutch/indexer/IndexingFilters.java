@@ -28,12 +28,13 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.hadoop.io.Text;
 
-/** Creates and caches {@link IndexingFilter} implementing plugins.*/
+/** Creates and caches {@link IndexingFilter} implementing plugins. */
 public class IndexingFilters {
 
   public static final String INDEXINGFILTER_ORDER = "indexingfilter.order";
 
-  public final static Logger LOG = LoggerFactory.getLogger(IndexingFilters.class);
+  public final static Logger LOG = LoggerFactory
+      .getLogger(IndexingFilters.class);
 
   private IndexingFilter[] indexingFilters;
 
@@ -44,12 +45,13 @@ public class IndexingFilters {
   }
 
   /** Run all defined filters. */
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum,
-      Inlinks inlinks) throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
     for (int i = 0; i < this.indexingFilters.length; i++) {
       doc = this.indexingFilters[i].filter(doc, parse, url, datum, inlinks);
       // break the loop if an indexing filter discards the doc
-      if (doc == null) return null;
+      if (doc == null)
+        return null;
     }
 
     return doc;

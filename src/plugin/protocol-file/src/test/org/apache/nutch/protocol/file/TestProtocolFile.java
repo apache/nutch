@@ -49,7 +49,8 @@ public class TestProtocolFile {
   private String sampleDir = System.getProperty("test.data", ".");
 
   private static final String[] testTextFiles = new String[] {
-    "testprotocolfile.txt", "testprotocolfile_(encoded).txt", "testprotocolfile_%28encoded%29.txt" };
+      "testprotocolfile.txt", "testprotocolfile_(encoded).txt",
+      "testprotocolfile_%28encoded%29.txt" };
 
   private static final CrawlDatum datum = new CrawlDatum();
 
@@ -90,8 +91,8 @@ public class TestProtocolFile {
     Assert.assertNotNull(output.getContent().getContentType());
     Assert.assertEquals(expectedMimeType, output.getContent().getContentType());
     Assert.assertNotNull(output.getContent().getMetadata());
-    Assert.assertEquals(expectedMimeType,
-        output.getContent().getMetadata().get(Response.CONTENT_TYPE));
+    Assert.assertEquals(expectedMimeType, output.getContent().getMetadata()
+        .get(Response.CONTENT_TYPE));
 
   }
 

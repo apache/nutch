@@ -66,10 +66,10 @@ import com.sun.syndication.io.SyndFeedInput;
  * @author mattmann
  * @since NUTCH-444
  * 
- * <p>
- * A new RSS/ATOM Feed{@link Parser} that rapidly parses all referenced links
- * and content present in the feed.
- * </p>
+ *        <p>
+ *        A new RSS/ATOM Feed{@link Parser} that rapidly parses all referenced
+ *        links and content present in the feed.
+ *        </p>
  * 
  */
 public class FeedParser implements Parser {
@@ -99,8 +99,8 @@ public class FeedParser implements Parser {
    *          A {@link Content} object representing the feed that is being
    *          parsed by this {@link Parser}.
    * 
-   * @return A {@link ParseResult} containing all {@link Parse}d feeds that
-   *         were present in the feed file that this {@link Parser} dealt with.
+   * @return A {@link ParseResult} containing all {@link Parse}d feeds that were
+   *         present in the feed file that this {@link Parser} dealt with.
    * 
    */
   public ParseResult getParse(Content content) {
@@ -111,8 +111,8 @@ public class FeedParser implements Parser {
     detector.autoDetectClues(content, true);
     String encoding = detector.guessEncoding(content, defaultEncoding);
     try {
-      InputSource input = new InputSource(new ByteArrayInputStream(content
-          .getContent()));
+      InputSource input = new InputSource(new ByteArrayInputStream(
+          content.getContent()));
       input.setEncoding(encoding);
       SyndFeedInput feedInput = new SyndFeedInput();
       feed = feedInput.build(input);
@@ -134,8 +134,8 @@ public class FeedParser implements Parser {
     }
 
     List<?> entries = feed.getEntries();
-    for(Object entry: entries) {
-      addToMap(parseResult, feed, feedLink, (SyndEntry)entry, content);
+    for (Object entry : entries) {
+      addToMap(parseResult, feed, feedLink, (SyndEntry) entry, content);
     }
 
     String feedDesc = stripTags(feed.getDescriptionEx());
@@ -170,8 +170,8 @@ public class FeedParser implements Parser {
     this.parserFactory = new ParserFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_OUTLINK);
     this.filters = new URLFilters(conf);
-    this.defaultEncoding =
-      conf.get("parser.character.encoding.default", "windows-1252");
+    this.defaultEncoding = conf.get("parser.character.encoding.default",
+        "windows-1252");
   }
 
   /**
@@ -255,8 +255,8 @@ public class FeedParser implements Parser {
     if (text == null) {
       List<?> contents = entry.getContents();
       StringBuilder buf = new StringBuilder();
-      for (Object syndContent: contents) {
-        buf.append(((SyndContent)syndContent).getValue());
+      for (Object syndContent : contents) {
+        buf.append(((SyndContent) syndContent).getValue());
       }
       text = buf.toString();
     }
@@ -273,9 +273,9 @@ public class FeedParser implements Parser {
       ParseData data = parse.getData();
       data.getContentMeta().remove(Response.CONTENT_TYPE);
       mergeMetadata(data.getParseMeta(), parseMeta);
-      parseResult.put(link, new ParseText(parse.getText()), new ParseData(
-          ParseStatus.STATUS_SUCCESS, title, data.getOutlinks(), data
-              .getContentMeta(), data.getParseMeta()));
+      parseResult.put(link, new ParseText(parse.getText()),
+          new ParseData(ParseStatus.STATUS_SUCCESS, title, data.getOutlinks(),
+              data.getContentMeta(), data.getParseMeta()));
     } else {
       contentMeta.remove(Response.CONTENT_TYPE);
       parseResult.put(link, new ParseText(text), new ParseData(
@@ -323,7 +323,7 @@ public class FeedParser implements Parser {
       }
     }
 
-    for (Object i: categories) {
+    for (Object i : categories) {
       parseMeta.add(Feed.FEED_TAGS, ((SyndCategory) i).getName());
     }
 

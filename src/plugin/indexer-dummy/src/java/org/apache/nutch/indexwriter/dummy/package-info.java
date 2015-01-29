@@ -20,3 +20,4 @@
  * text file, action is one of "add", "update", or "delete".
  */
 package org.apache.nutch.indexwriter.dummy;
+

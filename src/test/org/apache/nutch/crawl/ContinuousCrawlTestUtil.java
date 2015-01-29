@@ -35,19 +35,26 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Emulate a continuous crawl for one URL.
- *
+ * 
  */
 public class ContinuousCrawlTestUtil extends TestCase {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ContinuousCrawlTestUtil.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(ContinuousCrawlTestUtil.class);
 
   protected static Text dummyURL = new Text("http://nutch.apache.org/");
 
   protected static Configuration defaultConfig = CrawlDBTestUtil
       .createConfiguration();
 
-  protected long interval = FetchSchedule.SECONDS_PER_DAY*1000; // (default) launch crawler every day
-  protected long duration = 2*365L*FetchSchedule.SECONDS_PER_DAY*1000L; // run for two years
+  protected long interval = FetchSchedule.SECONDS_PER_DAY * 1000; // (default)
+                                                                  // launch
+                                                                  // crawler
+                                                                  // every day
+  protected long duration = 2 * 365L * FetchSchedule.SECONDS_PER_DAY * 1000L; // run
+                                                                              // for
+                                                                              // two
+                                                                              // years
 
   protected Configuration configuration;
   private FetchSchedule schedule;
@@ -62,7 +69,7 @@ public class ContinuousCrawlTestUtil extends TestCase {
   protected Content content = new Content();
 
   {
-    byte[] data = {'n', 'u', 't', 'c', 'h'};
+    byte[] data = { 'n', 'u', 't', 'c', 'h' };
     content.setContent(data);
   }
 
@@ -89,17 +96,17 @@ public class ContinuousCrawlTestUtil extends TestCase {
 
   /** set the interval the crawl is relaunched (default: every day) */
   protected void setInterval(int seconds) {
-    interval = seconds*1000L;
+    interval = seconds * 1000L;
   }
 
   /** set the duration of the continuous crawl (default = 2 years) */
   protected void setDuraction(int seconds) {
-    duration = seconds*1000L;
+    duration = seconds * 1000L;
   }
 
   /**
    * default fetch action: set status and time
-   *
+   * 
    * @param datum
    *          CrawlDatum to fetch
    * @param currentTime
@@ -124,19 +131,20 @@ public class ContinuousCrawlTestUtil extends TestCase {
    * change content to force a changed signature
    */
   protected void changeContent() {
-    byte [] data = Arrays.copyOf(content.getContent(), content.getContent().length+1);
+    byte[] data = Arrays.copyOf(content.getContent(),
+        content.getContent().length + 1);
     data[content.getContent().length] = '2'; // append one byte
     content.setContent(data);
     LOG.info("document content changed");
   }
 
-
   /**
    * default parse action: add signature if successfully fetched
-   *
+   * 
    * @param fetchDatum
    *          fetch datum
-   * @return list of all datums resulting from parse (status: signature, linked, parse_metadata)
+   * @return list of all datums resulting from parse (status: signature, linked,
+   *         parse_metadata)
    */
   protected List<CrawlDatum> parse(CrawlDatum fetchDatum) {
     List<CrawlDatum> parseDatums = new ArrayList<CrawlDatum>(0);
@@ -150,7 +158,7 @@ public class ContinuousCrawlTestUtil extends TestCase {
 
   /**
    * default implementation to check the result state
-   *
+   * 
    * @param datum
    *          the CrawlDatum to be checked
    * @return true if the check succeeds
@@ -166,7 +174,7 @@ public class ContinuousCrawlTestUtil extends TestCase {
    * <p>
    * A loop emulates a continuous crawl launched in regular intervals (see
    * {@link #setInterval(int)} over a longer period ({@link #setDuraction(int)}.
-   *
+   * 
    * <ul>
    * <li>every "round" emulates
    * <ul>
@@ -177,11 +185,11 @@ public class ContinuousCrawlTestUtil extends TestCase {
    * <li>and is checked whether it is correct (see {@link #check(CrawlDatum)})
    * </ul>
    * </p>
-   *
+   * 
    * @param maxErrors
    *          (if > 0) continue crawl even if the checked CrawlDatum is not
    *          correct, but stop after max. number of errors
-   *
+   * 
    * @return false if a check of CrawlDatum failed, true otherwise
    */
   protected boolean run(int maxErrors) {
@@ -205,9 +213,11 @@ public class ContinuousCrawlTestUtil extends TestCase {
     long lastFetchTime = -1;
     boolean ok = true; // record failure but keep going
     CrawlDatum fetchDatum = new CrawlDatum();
-    /* Keep copies because CrawlDbReducer.reduce()
-     * and FetchSchedule.shouldFetch() may alter the references.
-     * Copies are used for verbose logging in case of an error. */
+    /*
+     * Keep copies because CrawlDbReducer.reduce() and
+     * FetchSchedule.shouldFetch() may alter the references. Copies are used for
+     * verbose logging in case of an error.
+     */
     CrawlDatum copyDbDatum = new CrawlDatum();
     CrawlDatum copyFetchDatum = new CrawlDatum();
     CrawlDatum afterShouldFetch = new CrawlDatum();

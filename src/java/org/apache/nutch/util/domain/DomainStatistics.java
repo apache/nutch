@@ -48,12 +48,15 @@ import org.apache.nutch.util.URLUtil;
  */
 public class DomainStatistics extends Configured implements Tool {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DomainStatistics.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(DomainStatistics.class);
 
   private static final Text FETCHED_TEXT = new Text("FETCHED");
   private static final Text NOT_FETCHED_TEXT = new Text("NOT_FETCHED");
 
-  public static enum MyCounter {FETCHED, NOT_FETCHED, EMPTY_RESULT};
+  public static enum MyCounter {
+    FETCHED, NOT_FETCHED, EMPTY_RESULT
+  };
 
   private static final int MODE_HOST = 1;
   private static final int MODE_DOMAIN = 2;
@@ -64,7 +67,8 @@ public class DomainStatistics extends Configured implements Tool {
 
   public int run(String[] args) throws Exception {
     if (args.length < 3) {
-      System.out.println("usage: DomainStatistics inputDirs outDir host|domain|suffix|tld [numOfReducer]");
+      System.out
+          .println("usage: DomainStatistics inputDirs outDir host|domain|suffix|tld [numOfReducer]");
       return 1;
     }
     String inputDir = args[0];
@@ -81,16 +85,16 @@ public class DomainStatistics extends Configured implements Tool {
 
     int mode = 0;
     String jobName = "DomainStatistics";
-    if(args[2].equals("host")) {
+    if (args[2].equals("host")) {
       jobName = "Host statistics";
       mode = MODE_HOST;
-    } else if(args[2].equals("domain")) {
-      jobName  = "Domain statistics";
+    } else if (args[2].equals("domain")) {
+      jobName = "Domain statistics";
       mode = MODE_DOMAIN;
-    } else if(args[2].equals("suffix")) {
+    } else if (args[2].equals("suffix")) {
       jobName = "Suffix statistics";
       mode = MODE_SUFFIX;
-    } else if(args[2].equals("tld")) {
+    } else if (args[2].equals("tld")) {
       jobName = "TLD statistics";
       mode = MODE_TLD;
     }
@@ -128,59 +132,65 @@ public class DomainStatistics extends Configured implements Tool {
     }
 
     long end = System.currentTimeMillis();
-    LOG.info("DomainStatistics: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("DomainStatistics: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
     return 0;
   }
 
-  static class DomainStatisticsMapper extends Mapper<Text, CrawlDatum, Text, LongWritable> {
+  static class DomainStatisticsMapper extends
+      Mapper<Text, CrawlDatum, Text, LongWritable> {
     int mode = 0;
 
     public void setup(Context context) {
-      mode = context.getConfiguration().getInt("domain.statistics.mode", MODE_DOMAIN);
+      mode = context.getConfiguration().getInt("domain.statistics.mode",
+          MODE_DOMAIN);
     }
 
-    public void map(Text urlText, CrawlDatum datum, Context context) throws IOException, InterruptedException {
+    public void map(Text urlText, CrawlDatum datum, Context context)
+        throws IOException, InterruptedException {
 
-      if(datum.getStatus() == CrawlDatum.STATUS_DB_FETCHED
+      if (datum.getStatus() == CrawlDatum.STATUS_DB_FETCHED
           || datum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
 
         try {
           URL url = new URL(urlText.toString());
           String out = null;
           switch (mode) {
-            case MODE_HOST:
-              out = url.getHost();
-              break;
-            case MODE_DOMAIN:
-              out = URLUtil.getDomainName(url);
-              break;
-            case MODE_SUFFIX:
-              out = URLUtil.getDomainSuffix(url).getDomain();
-              break;
-            case MODE_TLD:
-              out = URLUtil.getTopLevelDomainName(url);
-              break;
+          case MODE_HOST:
+            out = url.getHost();
+            break;
+          case MODE_DOMAIN:
+            out = URLUtil.getDomainName(url);
+            break;
+          case MODE_SUFFIX:
+            out = URLUtil.getDomainSuffix(url).getDomain();
+            break;
+          case MODE_TLD:
+            out = URLUtil.getTopLevelDomainName(url);
+            break;
           }
-          if(out.trim().equals("")) {
+          if (out.trim().equals("")) {
             LOG.info("url : " + url);
             context.getCounter(MyCounter.EMPTY_RESULT).increment(1);
           }
 
           context.write(new Text(out), new LongWritable(1));
-        } catch (Exception ex) { }
+        } catch (Exception ex) {
+        }
 
         context.getCounter(MyCounter.FETCHED).increment(1);
         context.write(FETCHED_TEXT, new LongWritable(1));
-      }
-      else {
+      } else {
         context.getCounter(MyCounter.NOT_FETCHED).increment(1);
         context.write(NOT_FETCHED_TEXT, new LongWritable(1));
       }
     }
   }
 
-  static class DomainStatisticsReducer extends Reducer <Text, LongWritable, LongWritable, Text> {
-    public void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
+  static class DomainStatisticsReducer extends
+      Reducer<Text, LongWritable, LongWritable, Text> {
+    public void reduce(Text key, Iterable<LongWritable> values, Context context)
+        throws IOException, InterruptedException {
       long total = 0;
 
       for (LongWritable val : values) {
@@ -191,8 +201,10 @@ public class DomainStatistics extends Configured implements Tool {
     }
   }
 
-  public static class DomainStatisticsCombiner extends Reducer <Text, LongWritable, Text, LongWritable> {
-    public void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
+  public static class DomainStatisticsCombiner extends
+      Reducer<Text, LongWritable, Text, LongWritable> {
+    public void reduce(Text key, Iterable<LongWritable> values, Context context)
+        throws IOException, InterruptedException {
       long total = 0;
 
       for (LongWritable val : values) {

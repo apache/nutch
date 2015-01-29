@@ -36,16 +36,17 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * For parsing xml files containing domain suffix definitions.
- * Parsed xml files should validate against 
- * <code>domain-suffixes.xsd</code>  
+ * For parsing xml files containing domain suffix definitions. Parsed xml files
+ * should validate against <code>domain-suffixes.xsd</code>
+ * 
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
  */
 class DomainSuffixesReader {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DomainSuffixesReader.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(DomainSuffixesReader.class);
 
-  void read(DomainSuffixes tldEntries, InputStream input) throws IOException{
+  void read(DomainSuffixes tldEntries, InputStream input) throws IOException {
     try {
 
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -54,28 +55,29 @@ class DomainSuffixesReader {
       Document document = builder.parse(new InputSource(input));
 
       Element root = document.getDocumentElement();
-      
-      if(root != null && root.getTagName().equals("domains")) {
-        
-        Element tlds = (Element)root.getElementsByTagName("tlds").item(0);
-        Element suffixes = (Element)root.getElementsByTagName("suffixes").item(0);
-        
-        //read tlds
-        readITLDs(tldEntries, (Element)tlds.getElementsByTagName("itlds").item(0));
-        readGTLDs(tldEntries, (Element)tlds.getElementsByTagName("gtlds").item(0));
-        readCCTLDs(tldEntries, (Element)tlds.getElementsByTagName("cctlds").item(0));
-        
+
+      if (root != null && root.getTagName().equals("domains")) {
+
+        Element tlds = (Element) root.getElementsByTagName("tlds").item(0);
+        Element suffixes = (Element) root.getElementsByTagName("suffixes")
+            .item(0);
+
+        // read tlds
+        readITLDs(tldEntries, (Element) tlds.getElementsByTagName("itlds")
+            .item(0));
+        readGTLDs(tldEntries, (Element) tlds.getElementsByTagName("gtlds")
+            .item(0));
+        readCCTLDs(tldEntries, (Element) tlds.getElementsByTagName("cctlds")
+            .item(0));
+
         readSuffixes(tldEntries, suffixes);
-      }
-      else {
+      } else {
         throw new IOException("xml file is not valid");
       }
-    }
-    catch (ParserConfigurationException ex) {
+    } catch (ParserConfigurationException ex) {
       LOG.warn(StringUtils.stringifyException(ex));
       throw new IOException(ex.getMessage());
-    }
-    catch (SAXException ex) {
+    } catch (SAXException ex) {
       LOG.warn(StringUtils.stringifyException(ex));
       throw new IOException(ex.getMessage());
     }
@@ -83,22 +85,24 @@ class DomainSuffixesReader {
 
   void readITLDs(DomainSuffixes tldEntries, Element el) {
     NodeList children = el.getElementsByTagName("tld");
-    for(int i=0;i<children.getLength();i++) {
-      tldEntries.addDomainSuffix(readGTLD((Element)children.item(i), Type.INFRASTRUCTURE));
+    for (int i = 0; i < children.getLength(); i++) {
+      tldEntries.addDomainSuffix(readGTLD((Element) children.item(i),
+          Type.INFRASTRUCTURE));
     }
   }
-    
+
   void readGTLDs(DomainSuffixes tldEntries, Element el) {
     NodeList children = el.getElementsByTagName("tld");
-    for(int i=0;i<children.getLength();i++) {
-      tldEntries.addDomainSuffix(readGTLD((Element)children.item(i), Type.GENERIC));
+    for (int i = 0; i < children.getLength(); i++) {
+      tldEntries.addDomainSuffix(readGTLD((Element) children.item(i),
+          Type.GENERIC));
     }
   }
 
   void readCCTLDs(DomainSuffixes tldEntries, Element el) throws IOException {
     NodeList children = el.getElementsByTagName("tld");
-    for(int i=0;i<children.getLength();i++) {
-      tldEntries.addDomainSuffix(readCCTLD((Element)children.item(i)));
+    for (int i = 0; i < children.getLength(); i++) {
+      tldEntries.addDomainSuffix(readCCTLD((Element) children.item(i)));
     }
   }
 
@@ -113,39 +117,40 @@ class DomainSuffixesReader {
     String domain = el.getAttribute("domain");
     Status status = readStatus(el);
     float boost = readBoost(el);
-    String countryName = readCountryName(el); 
-    return new TopLevelDomain(domain, status, boost, countryName);  
+    String countryName = readCountryName(el);
+    return new TopLevelDomain(domain, status, boost, countryName);
   }
-  
+
   /** read optional field status */
   Status readStatus(Element el) {
     NodeList list = el.getElementsByTagName("status");
-    if(list == null || list.getLength() == 0)
+    if (list == null || list.getLength() == 0)
       return DomainSuffix.DEFAULT_STATUS;
     return Status.valueOf(list.item(0).getFirstChild().getNodeValue());
   }
-  
+
   /** read optional field boost */
   float readBoost(Element el) {
     NodeList list = el.getElementsByTagName("boost");
-    if(list == null || list.getLength() == 0)
+    if (list == null || list.getLength() == 0)
       return DomainSuffix.DEFAULT_BOOST;
     return Float.parseFloat(list.item(0).getFirstChild().getNodeValue());
   }
-  
-  /** read field countryname 
-    */
+
+  /**
+   * read field countryname
+   */
   String readCountryName(Element el) throws IOException {
     NodeList list = el.getElementsByTagName("country");
-    if(list == null || list.getLength() == 0)
+    if (list == null || list.getLength() == 0)
       throw new IOException("Country name should be given");
     return list.item(0).getNodeValue();
   }
-  
+
   void readSuffixes(DomainSuffixes tldEntries, Element el) {
     NodeList children = el.getElementsByTagName("suffix");
-    for(int i=0;i<children.getLength();i++) {
-      tldEntries.addDomainSuffix(readSuffix((Element)children.item(i)));
+    for (int i = 0; i < children.getLength(); i++) {
+      tldEntries.addDomainSuffix(readSuffix((Element) children.item(i)));
     }
   }
 
@@ -155,5 +160,5 @@ class DomainSuffixesReader {
     float boost = readBoost(el);
     return new DomainSuffix(domain, status, boost);
   }
-  
+
 }

@@ -28,9 +28,9 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.plugin.Pluggable;
 
-
-/** Extension point for indexing.  Permits one to add metadata to the indexed
- * fields.  All plugins found which implement this extension point are run
+/**
+ * Extension point for indexing. Permits one to add metadata to the indexed
+ * fields. All plugins found which implement this extension point are run
  * sequentially on the parse.
  */
 public interface IndexingFilter extends Pluggable, Configurable {
@@ -57,6 +57,6 @@ public interface IndexingFilter extends Pluggable, Configurable {
    *         document should be discarded)
    * @throws IndexingException
    */
-  NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
-    throws IndexingException;
+  NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException;
 }

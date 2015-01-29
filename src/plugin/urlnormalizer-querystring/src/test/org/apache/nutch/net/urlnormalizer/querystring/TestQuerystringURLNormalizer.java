@@ -31,12 +31,19 @@ public class TestQuerystringURLNormalizer extends TestCase {
 
     QuerystringURLNormalizer normalizer = new QuerystringURLNormalizer();
     normalizer.setConf(conf);
-    
-    assertEquals("http://example.com/?a=b&c=d", normalizer.normalize("http://example.com/?c=d&a=b", URLNormalizers.SCOPE_DEFAULT));
-    assertEquals("http://example.com/a/b/c", normalizer.normalize("http://example.com/a/b/c", URLNormalizers.SCOPE_DEFAULT));
-    assertEquals("http://example.com:1234/a/b/c", normalizer.normalize("http://example.com:1234/a/b/c", URLNormalizers.SCOPE_DEFAULT));
-    assertEquals("http://example.com:1234/a/b/c#ref", normalizer.normalize("http://example.com:1234/a/b/c#ref", URLNormalizers.SCOPE_DEFAULT));
-    assertEquals("http://example.com:1234/a/b/c?a=b&c=d#ref", normalizer.normalize("http://example.com:1234/a/b/c?c=d&a=b#ref", URLNormalizers.SCOPE_DEFAULT));
-    assertEquals("http://example.com/?a=b&a=c&c=d", normalizer.normalize("http://example.com/?c=d&a=b&a=c", URLNormalizers.SCOPE_DEFAULT));
+
+    assertEquals("http://example.com/?a=b&c=d", normalizer.normalize(
+        "http://example.com/?c=d&a=b", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.com/a/b/c", normalizer.normalize(
+        "http://example.com/a/b/c", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.com:1234/a/b/c", normalizer.normalize(
+        "http://example.com:1234/a/b/c", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.com:1234/a/b/c#ref", normalizer.normalize(
+        "http://example.com:1234/a/b/c#ref", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.com:1234/a/b/c?a=b&c=d#ref",
+        normalizer.normalize("http://example.com:1234/a/b/c?c=d&a=b#ref",
+            URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.com/?a=b&a=c&c=d", normalizer.normalize(
+        "http://example.com/?c=d&a=b&a=c", URLNormalizers.SCOPE_DEFAULT));
   }
 }

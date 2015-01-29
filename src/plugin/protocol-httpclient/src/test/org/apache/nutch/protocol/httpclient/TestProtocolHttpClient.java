@@ -60,7 +60,7 @@ public class TestProtocolHttpClient {
     conf = new Configuration();
     conf.addResource("nutch-default.xml");
     conf.addResource("nutch-site-test.xml");
-    
+
     http = new Http();
     http.setConf(conf);
   }
@@ -72,8 +72,9 @@ public class TestProtocolHttpClient {
 
   /**
    * Tests whether the client can remember cookies.
-   *
-   * @throws Exception If an error occurs or the test case fails.
+   * 
+   * @throws Exception
+   *           If an error occurs or the test case fails.
    */
   @Test
   public void testCookies() throws Exception {
@@ -83,10 +84,10 @@ public class TestProtocolHttpClient {
   }
 
   /**
-   * Tests that no pre-emptive authorization headers are sent by the
-   * client.
-   *
-   * @throws Exception If an error occurs or the test case fails.
+   * Tests that no pre-emptive authorization headers are sent by the client.
+   * 
+   * @throws Exception
+   *           If an error occurs or the test case fails.
    */
   @Test
   public void testNoPreemptiveAuth() throws Exception {
@@ -96,8 +97,9 @@ public class TestProtocolHttpClient {
 
   /**
    * Tests default credentials.
-   *
-   * @throws Exception If an error occurs or the test case fails.
+   * 
+   * @throws Exception
+   *           If an error occurs or the test case fails.
    */
   @Test
   public void testDefaultCredentials() throws Exception {
@@ -108,7 +110,8 @@ public class TestProtocolHttpClient {
   /**
    * Tests basic authentication scheme for various realms.
    * 
-   * @throws Exception If an error occurs or the test case fails.
+   * @throws Exception
+   *           If an error occurs or the test case fails.
    */
   @Test
   public void testBasicAuth() throws Exception {
@@ -120,11 +123,12 @@ public class TestProtocolHttpClient {
   }
 
   /**
-   * Tests that authentication happens for a defined realm and not for
-   * other realms for a host:port when an extra <code>authscope</code>
-   * tag is not defined to match all other realms.
-   *
-   * @throws Exception If an error occurs or the test case fails.
+   * Tests that authentication happens for a defined realm and not for other
+   * realms for a host:port when an extra <code>authscope</code> tag is not
+   * defined to match all other realms.
+   * 
+   * @throws Exception
+   *           If an error occurs or the test case fails.
    */
   @Test
   public void testOtherRealmsNoAuth() throws Exception {
@@ -136,8 +140,9 @@ public class TestProtocolHttpClient {
 
   /**
    * Tests Digest authentication scheme.
-   *
-   * @throws Exception If an error occurs or the test case fails.
+   * 
+   * @throws Exception
+   *           If an error occurs or the test case fails.
    */
   @Test
   public void testDigestAuth() throws Exception {
@@ -147,8 +152,9 @@ public class TestProtocolHttpClient {
 
   /**
    * Tests NTLM authentication scheme.
-   *
-   * @throws Exception If an error occurs or the test case fails.
+   * 
+   * @throws Exception
+   *           If an error occurs or the test case fails.
    */
   @Test
   public void testNtlmAuth() throws Exception {
@@ -158,9 +164,11 @@ public class TestProtocolHttpClient {
 
   /**
    * Starts the Jetty server at a specified port.
-   *
-   * @param  portno     Port number.
-   * @throws Exception  When an error occurs.
+   * 
+   * @param portno
+   *          Port number.
+   * @throws Exception
+   *           When an error occurs.
    */
   private void startServer(int portno) throws Exception {
     port = portno;
@@ -172,17 +180,18 @@ public class TestProtocolHttpClient {
   }
 
   /**
-   * Fetches the specified <code>page</code> from the local Jetty server
-   * and checks whether the HTTP response status code matches with the
-   * expected code.
-   *
-   * @param page          Page to be fetched.
-   * @param expectedCode  HTTP response status code expected while
-   *                      fetching the page.
-   * @throws Exception    When an error occurs or test case fails.
+   * Fetches the specified <code>page</code> from the local Jetty server and
+   * checks whether the HTTP response status code matches with the expected
+   * code.
+   * 
+   * @param page
+   *          Page to be fetched.
+   * @param expectedCode
+   *          HTTP response status code expected while fetching the page.
+   * @throws Exception
+   *           When an error occurs or test case fails.
    */
-  private void fetchPage(String page, int expectedCode)
-      throws Exception {
+  private void fetchPage(String page, int expectedCode) throws Exception {
     URL url = new URL("http", "127.0.0.1", port, page);
     Response response = null;
     response = http.getResponse(url, new CrawlDatum(), true);

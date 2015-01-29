@@ -20,3 +20,4 @@
  * and dot segments in path.
  */
 package org.apache.nutch.net.urlnormalizer.basic;
+

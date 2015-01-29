@@ -20,3 +20,4 @@
  * and {@link org.apache.nutch.net.URLNormalizer normalizers}.
  */
 package org.apache.nutch.net;
+

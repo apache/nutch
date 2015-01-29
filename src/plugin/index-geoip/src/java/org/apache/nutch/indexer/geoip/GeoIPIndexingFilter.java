@@ -34,16 +34,22 @@ import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.WebServiceClient;
 
 /**
- * <p>This plugin implements an indexing filter which takes 
- * advantage of the 
- * <a href="https://github.com/maxmind/GeoIP2-java">GeoIP2-java API</a>.</p>
- * <p>The third party library distribution provides an API for the GeoIP2 
- * <a href="http://dev.maxmind.com/geoip/geoip2/web-services">Precision web services</a> 
- * and <a href="http://dev.maxmind.com/geoip/geoip2/downloadable">databases</a>. 
- * The API also works with the free 
- * <a href="http://dev.maxmind.com/geoip/geoip2/geolite2/">GeoLite2 databases</a>.</p>
- * <p>Depending on the service level agreement, you have with the GeoIP service provider,
- * the plugin can add a number of the following fields to the index data model:
+ * <p>
+ * This plugin implements an indexing filter which takes advantage of the <a
+ * href="https://github.com/maxmind/GeoIP2-java">GeoIP2-java API</a>.
+ * </p>
+ * <p>
+ * The third party library distribution provides an API for the GeoIP2 <a
+ * href="http://dev.maxmind.com/geoip/geoip2/web-services">Precision web
+ * services</a> and <a
+ * href="http://dev.maxmind.com/geoip/geoip2/downloadable">databases</a>. The
+ * API also works with the free <a
+ * href="http://dev.maxmind.com/geoip/geoip2/geolite2/">GeoLite2 databases</a>.
+ * </p>
+ * <p>
+ * Depending on the service level agreement, you have with the GeoIP service
+ * provider, the plugin can add a number of the following fields to the index
+ * data model:
  * <ol>
  * <li>Continent</li>
  * <li>Country</li>
@@ -56,51 +62,59 @@ import com.maxmind.geoip2.WebServiceClient;
  * <li>Confidence Factors</li>
  * <li>Radius</li>
  * <li>User Type</li>
- * </ol></p>
+ * </ol>
+ * </p>
  * 
- * <p>Some of the services are documented at the 
- * <a href="https://www.maxmind.com/en/geoip2-precision-services">GeoIP2 Precision Services</a>
- * webpage where more information can be obtained.</p>
+ * <p>
+ * Some of the services are documented at the <a
+ * href="https://www.maxmind.com/en/geoip2-precision-services">GeoIP2 Precision
+ * Services</a> webpage where more information can be obtained.
+ * </p>
  * 
- * <p>You should also consult the following three properties in <code>nutch-site.xml</code></p>
+ * <p>
+ * You should also consult the following three properties in
+ * <code>nutch-site.xml</code>
+ * </p>
+ * 
  * <pre>
- * {@code
- *<!-- index-geoip plugin properties -->
-<property>
-  <name>index.geoip.usage</name>
-  <value>insightsService</value>
-  <description>
-  A string representing the information source to be used for GeoIP information
-  association. Either enter 'cityDatabase', 'connectionTypeDatabase', 
-  'domainDatabase', 'ispDatabase' or 'insightsService'. If you wish to use any one of the 
-  Database options, you should make one of GeoIP2-City.mmdb, GeoIP2-Connection-Type.mmdb, 
-  GeoIP2-Domain.mmdb or GeoIP2-ISP.mmdb files respectively available on the Hadoop classpath 
-  and available at runtime. This can be achieved by adding it to $NUTCH_HOME/conf
-  </description>
-</property>
-
-<property>
-  <name>index.geoip.userid</name>
-  <value></value>
-  <description>
-  The userId associated with the GeoIP2 Precision Services account.
-  </description>
-</property>
-
-<property>
-  <name>index.geoip.licensekey</name>
-  <value></value>
-  <description>
-  The license key associated with the GeoIP2 Precision Services account.
-  </description>
-</property>
-}
+ *  {@code
+ * <!-- index-geoip plugin properties -->
+ * <property>
+ *   <name>index.geoip.usage</name>
+ *   <value>insightsService</value>
+ *   <description>
+ *   A string representing the information source to be used for GeoIP information
+ *   association. Either enter 'cityDatabase', 'connectionTypeDatabase', 
+ *   'domainDatabase', 'ispDatabase' or 'insightsService'. If you wish to use any one of the 
+ *   Database options, you should make one of GeoIP2-City.mmdb, GeoIP2-Connection-Type.mmdb, 
+ *   GeoIP2-Domain.mmdb or GeoIP2-ISP.mmdb files respectively available on the Hadoop classpath 
+ *   and available at runtime. This can be achieved by adding it to $NUTCH_HOME/conf
+ *   </description>
+ * </property>
+ * 
+ * <property>
+ *   <name>index.geoip.userid</name>
+ *   <value></value>
+ *   <description>
+ *   The userId associated with the GeoIP2 Precision Services account.
+ *   </description>
+ * </property>
+ * 
+ * <property>
+ *   <name>index.geoip.licensekey</name>
+ *   <value></value>
+ *   <description>
+ *   The license key associated with the GeoIP2 Precision Services account.
+ *   </description>
+ * </property>
+ * }
  * </pre>
  * 
  */
 public class GeoIPIndexingFilter implements IndexingFilter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(GeoIPIndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(GeoIPIndexingFilter.class);
 
   private Configuration conf;
 
@@ -112,7 +126,7 @@ public class GeoIPIndexingFilter implements IndexingFilter {
 
   DatabaseReader reader = null;
 
-  //private AbstractResponse response = null;
+  // private AbstractResponse response = null;
 
   /**
    * Default constructor for this plugin
@@ -145,7 +159,8 @@ public class GeoIPIndexingFilter implements IndexingFilter {
       }
     } else if (use.equalsIgnoreCase("connectionTypeDatabase")) {
       try {
-        geoDb = new File(conf.getResource("GeoIP2-Connection-Type.mmdb").getFile());
+        geoDb = new File(conf.getResource("GeoIP2-Connection-Type.mmdb")
+            .getFile());
         buildDb();
       } catch (Exception e) {
         LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
@@ -165,8 +180,8 @@ public class GeoIPIndexingFilter implements IndexingFilter {
         LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
       }
     } else if (use.equalsIgnoreCase("insightsService")) {
-      client = new WebServiceClient.Builder(
-          conf.getInt("index.geoip.userid", 12345), conf.get("index.geoip.licensekey")).build();
+      client = new WebServiceClient.Builder(conf.getInt("index.geoip.userid",
+          12345), conf.get("index.geoip.licensekey")).build();
     }
     usage = use;
   }
@@ -181,7 +196,9 @@ public class GeoIPIndexingFilter implements IndexingFilter {
 
   /**
    * 
-   * @see org.apache.nutch.indexer.IndexingFilter#filter(org.apache.nutch.indexer.NutchDocument, org.apache.nutch.parse.Parse, org.apache.hadoop.io.Text, org.apache.nutch.crawl.CrawlDatum, org.apache.nutch.crawl.Inlinks)
+   * @see org.apache.nutch.indexer.IndexingFilter#filter(org.apache.nutch.indexer.NutchDocument,
+   *      org.apache.nutch.parse.Parse, org.apache.hadoop.io.Text,
+   *      org.apache.nutch.crawl.CrawlDatum, org.apache.nutch.crawl.Inlinks)
    */
   @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
@@ -189,22 +206,28 @@ public class GeoIPIndexingFilter implements IndexingFilter {
     return addServerGeo(doc, parse.getData(), url.toString());
   }
 
-  private NutchDocument addServerGeo(NutchDocument doc, ParseData data, String url) {
+  private NutchDocument addServerGeo(NutchDocument doc, ParseData data,
+      String url) {
 
     if (conf.getBoolean("store.ip.address", false) == true) {
       try {
         String serverIp = data.getContentMeta().get("_ip_");
         if (serverIp != null) {
           if (usage.equalsIgnoreCase("cityDatabase")) {
-            doc = GeoIPDocumentCreator.createDocFromCityDb(serverIp, doc, reader);
+            doc = GeoIPDocumentCreator.createDocFromCityDb(serverIp, doc,
+                reader);
           } else if (usage.equalsIgnoreCase("connectionTypeDatabase")) {
-            doc = GeoIPDocumentCreator.createDocFromConnectionDb(serverIp, doc, reader);
+            doc = GeoIPDocumentCreator.createDocFromConnectionDb(serverIp, doc,
+                reader);
           } else if (usage.equalsIgnoreCase("domainDatabase")) {
-            doc = GeoIPDocumentCreator.createDocFromDomainDb(serverIp, doc, reader);
+            doc = GeoIPDocumentCreator.createDocFromDomainDb(serverIp, doc,
+                reader);
           } else if (usage.equalsIgnoreCase("ispDatabase")) {
-            doc = GeoIPDocumentCreator.createDocFromIspDb(serverIp, doc, reader);
+            doc = GeoIPDocumentCreator
+                .createDocFromIspDb(serverIp, doc, reader);
           } else if (usage.equalsIgnoreCase("insightsService")) {
-            doc = GeoIPDocumentCreator.createDocFromInsightsService(serverIp, doc, client);
+            doc = GeoIPDocumentCreator.createDocFromInsightsService(serverIp,
+                doc, client);
           }
         }
       } catch (Exception e) {

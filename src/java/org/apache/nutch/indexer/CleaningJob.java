@@ -45,169 +45,166 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The class scans CrawlDB looking for entries with status DB_GONE (404) or 
- * DB_DUPLICATE and
- * sends delete requests to indexers for those documents.
+ * The class scans CrawlDB looking for entries with status DB_GONE (404) or
+ * DB_DUPLICATE and sends delete requests to indexers for those documents.
  */
 
 public class CleaningJob implements Tool {
-    public static final Logger LOG = LoggerFactory.getLogger(CleaningJob.class);
-    private Configuration conf;
+  public static final Logger LOG = LoggerFactory.getLogger(CleaningJob.class);
+  private Configuration conf;
+
+  @Override
+  public Configuration getConf() {
+    return conf;
+  }
+
+  @Override
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+  }
+
+  public static class DBFilter implements
+      Mapper<Text, CrawlDatum, ByteWritable, Text> {
+    private ByteWritable OUT = new ByteWritable(CrawlDatum.STATUS_DB_GONE);
 
     @Override
-    public Configuration getConf() {
-        return conf;
+    public void configure(JobConf arg0) {
     }
 
     @Override
-    public void setConf(Configuration conf) {
-        this.conf = conf;
+    public void close() throws IOException {
     }
 
-    public static class DBFilter implements
-            Mapper<Text, CrawlDatum, ByteWritable, Text> {
-        private ByteWritable OUT = new ByteWritable(CrawlDatum.STATUS_DB_GONE);
+    @Override
+    public void map(Text key, CrawlDatum value,
+        OutputCollector<ByteWritable, Text> output, Reporter reporter)
+        throws IOException {
 
-        @Override
-        public void configure(JobConf arg0) {
-        }
+      if (value.getStatus() == CrawlDatum.STATUS_DB_GONE
+          || value.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
+        output.collect(OUT, key);
+      }
+    }
+  }
 
-        @Override
-        public void close() throws IOException {
-        }
+  public static class DeleterReducer implements
+      Reducer<ByteWritable, Text, Text, ByteWritable> {
+    private static final int NUM_MAX_DELETE_REQUEST = 1000;
+    private int numDeletes = 0;
+    private int totalDeleted = 0;
 
-        @Override
-        public void map(Text key, CrawlDatum value,
-                OutputCollector<ByteWritable, Text> output, Reporter reporter)
-                throws IOException {
+    private boolean noCommit = false;
 
-            if (value.getStatus() == CrawlDatum.STATUS_DB_GONE || value.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
-                output.collect(OUT, key);
-            }
-        }
+    IndexWriters writers = null;
+
+    @Override
+    public void configure(JobConf job) {
+      writers = new IndexWriters(job);
+      try {
+        writers.open(job, "Deletion");
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      noCommit = job.getBoolean("noCommit", false);
     }
 
-    public static class DeleterReducer implements
-            Reducer<ByteWritable, Text, Text, ByteWritable> {
-        private static final int NUM_MAX_DELETE_REQUEST = 1000;
-        private int numDeletes = 0;
-        private int totalDeleted = 0;
+    @Override
+    public void close() throws IOException {
+      // BUFFERING OF CALLS TO INDEXER SHOULD BE HANDLED AT INDEXER LEVEL
+      // if (numDeletes > 0) {
+      // LOG.info("CleaningJob: deleting " + numDeletes + " documents");
+      // // TODO updateRequest.process(solr);
+      // totalDeleted += numDeletes;
+      // }
 
-        private boolean noCommit = false;
+      writers.close();
 
-        IndexWriters writers = null;
+      if (totalDeleted > 0 && !noCommit) {
+        writers.commit();
+      }
 
-        @Override
-        public void configure(JobConf job) {
-            writers = new IndexWriters(job);
-            try {
-                writers.open(job, "Deletion");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            noCommit = job.getBoolean("noCommit", false);
-        }
-
-        @Override
-        public void close() throws IOException {
-            // BUFFERING OF CALLS TO INDEXER SHOULD BE HANDLED AT INDEXER LEVEL
-            // if (numDeletes > 0) {
-            // LOG.info("CleaningJob: deleting " + numDeletes + " documents");
-            // // TODO updateRequest.process(solr);
-            // totalDeleted += numDeletes;
-            // }
-
-            writers.close();
-
-            if (totalDeleted > 0 && !noCommit) {
-                writers.commit();
-            }
-
-            LOG.info("CleaningJob: deleted a total of " + totalDeleted
-                    + " documents");
-        }
-
-        @Override
-        public void reduce(ByteWritable key, Iterator<Text> values,
-                OutputCollector<Text, ByteWritable> output, Reporter reporter)
-                throws IOException {
-            while (values.hasNext()) {
-                Text document = values.next();
-                writers.delete(document.toString());
-                totalDeleted++;
-                reporter.incrCounter("CleaningJobStatus", "Deleted documents",
-                        1);
-                // if (numDeletes >= NUM_MAX_DELETE_REQUEST) {
-                // LOG.info("CleaningJob: deleting " + numDeletes
-                // + " documents");
-                // // TODO updateRequest.process(solr);
-                // // TODO updateRequest = new UpdateRequest();
-                // writers.delete(key.toString());
-                // totalDeleted += numDeletes;
-                // numDeletes = 0;
-                // }
-            }
-        }
+      LOG.info("CleaningJob: deleted a total of " + totalDeleted + " documents");
     }
 
-    public void delete(String crawldb, boolean noCommit) throws IOException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        long start = System.currentTimeMillis();
-        LOG.info("CleaningJob: starting at " + sdf.format(start));
+    @Override
+    public void reduce(ByteWritable key, Iterator<Text> values,
+        OutputCollector<Text, ByteWritable> output, Reporter reporter)
+        throws IOException {
+      while (values.hasNext()) {
+        Text document = values.next();
+        writers.delete(document.toString());
+        totalDeleted++;
+        reporter.incrCounter("CleaningJobStatus", "Deleted documents", 1);
+        // if (numDeletes >= NUM_MAX_DELETE_REQUEST) {
+        // LOG.info("CleaningJob: deleting " + numDeletes
+        // + " documents");
+        // // TODO updateRequest.process(solr);
+        // // TODO updateRequest = new UpdateRequest();
+        // writers.delete(key.toString());
+        // totalDeleted += numDeletes;
+        // numDeletes = 0;
+        // }
+      }
+    }
+  }
 
-        JobConf job = new NutchJob(getConf());
+  public void delete(String crawldb, boolean noCommit) throws IOException {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("CleaningJob: starting at " + sdf.format(start));
 
-        FileInputFormat.addInputPath(job, new Path(crawldb,
-                CrawlDb.CURRENT_NAME));
-        job.setBoolean("noCommit", noCommit);
-        job.setInputFormat(SequenceFileInputFormat.class);
-        job.setOutputFormat(NullOutputFormat.class);
-        job.setMapOutputKeyClass(ByteWritable.class);
-        job.setMapOutputValueClass(Text.class);
-        job.setMapperClass(DBFilter.class);
-        job.setReducerClass(DeleterReducer.class);
-        
-        job.setJobName("CleaningJob");
+    JobConf job = new NutchJob(getConf());
 
-        // need to expicitely allow deletions
-        job.setBoolean(IndexerMapReduce.INDEXER_DELETE, true);
+    FileInputFormat.addInputPath(job, new Path(crawldb, CrawlDb.CURRENT_NAME));
+    job.setBoolean("noCommit", noCommit);
+    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setOutputFormat(NullOutputFormat.class);
+    job.setMapOutputKeyClass(ByteWritable.class);
+    job.setMapOutputValueClass(Text.class);
+    job.setMapperClass(DBFilter.class);
+    job.setReducerClass(DeleterReducer.class);
 
-        JobClient.runJob(job);
+    job.setJobName("CleaningJob");
 
-        long end = System.currentTimeMillis();
-        LOG.info("CleaningJob: finished at " + sdf.format(end) + ", elapsed: "
-                + TimingUtil.elapsedTime(start, end));
+    // need to expicitely allow deletions
+    job.setBoolean(IndexerMapReduce.INDEXER_DELETE, true);
+
+    JobClient.runJob(job);
+
+    long end = System.currentTimeMillis();
+    LOG.info("CleaningJob: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
+  }
+
+  public int run(String[] args) throws IOException {
+    if (args.length < 1) {
+      String usage = "Usage: CleaningJob <crawldb> [-noCommit]";
+      LOG.error("Missing crawldb. " + usage);
+      System.err.println(usage);
+      IndexWriters writers = new IndexWriters(getConf());
+      System.err.println(writers.describe());
+      return 1;
     }
 
-    public int run(String[] args) throws IOException {
-        if (args.length < 1) {
-            String usage = "Usage: CleaningJob <crawldb> [-noCommit]";
-            LOG.error("Missing crawldb. "+usage);
-            System.err.println(usage);
-            IndexWriters writers = new IndexWriters(getConf());
-            System.err.println(writers.describe());
-            return 1;
-        }
-
-        boolean noCommit = false;
-        if (args.length == 2 && args[1].equals("-noCommit")) {
-            noCommit = true;
-        }
-
-        try {
-            delete(args[0], noCommit);
-        } catch (final Exception e) {
-            LOG.error("CleaningJob: " + StringUtils.stringifyException(e));
-            System.err.println("ERROR CleaningJob: "
-                    + StringUtils.stringifyException(e));
-            return -1;
-        }
-        return 0;
+    boolean noCommit = false;
+    if (args.length == 2 && args[1].equals("-noCommit")) {
+      noCommit = true;
     }
 
-    public static void main(String[] args) throws Exception {
-        int result = ToolRunner.run(NutchConfiguration.create(),
-                new CleaningJob(), args);
-        System.exit(result);
+    try {
+      delete(args[0], noCommit);
+    } catch (final Exception e) {
+      LOG.error("CleaningJob: " + StringUtils.stringifyException(e));
+      System.err.println("ERROR CleaningJob: "
+          + StringUtils.stringifyException(e));
+      return -1;
     }
+    return 0;
+  }
+
+  public static void main(String[] args) throws Exception {
+    int result = ToolRunner.run(NutchConfiguration.create(), new CleaningJob(),
+        args);
+    System.exit(result);
+  }
 }

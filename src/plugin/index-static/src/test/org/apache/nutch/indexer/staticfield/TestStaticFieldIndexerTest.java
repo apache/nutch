@@ -28,11 +28,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * JUnit test case which tests 
- * 1. that static data fields are added to a document
- * 2. that empty {@code index.static} does not add anything to the document
- * 3. that valid field:value pairs are added to the document
- * 4. that fields and values added to the document are trimmed 
+ * JUnit test case which tests 1. that static data fields are added to a
+ * document 2. that empty {@code index.static} does not add anything to the
+ * document 3. that valid field:value pairs are added to the document 4. that
+ * fields and values added to the document are trimmed
  * 
  * @author tejasp
  */
@@ -59,7 +58,8 @@ public class TestStaticFieldIndexerTest {
 
   /**
    * Test that empty {@code index.static} does not add anything to the document
-   * @throws Exception 
+   * 
+   * @throws Exception
    */
   @Test
   public void testEmptyIndexStatic() throws Exception {
@@ -77,12 +77,14 @@ public class TestStaticFieldIndexerTest {
     }
 
     Assert.assertNotNull(doc);
-    Assert.assertTrue("tests if no field is set for empty index.static", doc.getFieldNames().isEmpty());
+    Assert.assertTrue("tests if no field is set for empty index.static", doc
+        .getFieldNames().isEmpty());
   }
 
   /**
    * Test that valid field:value pairs are added to the document
-   * @throws Exception 
+   * 
+   * @throws Exception
    */
   @Test
   public void testNormalScenario() throws Exception {
@@ -102,13 +104,15 @@ public class TestStaticFieldIndexerTest {
     }
 
     Assert.assertNotNull(doc);
-    Assert.assertFalse("test if doc is not empty", doc.getFieldNames().isEmpty());
-    Assert.assertEquals("test if doc has 3 fields", 3, doc.getFieldNames().size());
-    Assert.assertTrue("test if doc has field1", doc.getField("field1").getValues()
-        .contains("val1"));
-    Assert.assertTrue("test if doc has field2", doc.getField("field2").getValues()
-        .contains("val2"));
-    Assert.assertTrue("test if doc has field4", doc.getField("field4").getValues()
-        .contains("val4"));
+    Assert.assertFalse("test if doc is not empty", doc.getFieldNames()
+        .isEmpty());
+    Assert.assertEquals("test if doc has 3 fields", 3, doc.getFieldNames()
+        .size());
+    Assert.assertTrue("test if doc has field1", doc.getField("field1")
+        .getValues().contains("val1"));
+    Assert.assertTrue("test if doc has field2", doc.getField("field2")
+        .getValues().contains("val2"));
+    Assert.assertTrue("test if doc has field4", doc.getField("field4")
+        .getValues().contains("val4"));
   }
 }

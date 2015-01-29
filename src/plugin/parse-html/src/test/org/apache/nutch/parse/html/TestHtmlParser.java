@@ -33,69 +33,54 @@ import org.slf4j.LoggerFactory;
 
 public class TestHtmlParser {
 
-  public static final Logger LOG = LoggerFactory.getLogger(TestHtmlParser.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(TestHtmlParser.class);
 
-  private static final String encodingTestKeywords = 
-      "français, español, русский язык, čeština, ελληνικά";
-  private static final String encodingTestBody =
-      "<ul>\n  <li>français\n  <li>español\n  <li>русский язык\n  <li>čeština\n  <li>ελληνικά\n</ul>";
-  private static final String encodingTestContent =
-      "<title>" + encodingTestKeywords + "</title>\n"
-          + "<meta name=\"keywords\" content=\"" + encodingTestKeywords + "</meta>\n"
-          + "</head>\n<body>" + encodingTestBody + "</body>\n</html>";
+  private static final String encodingTestKeywords = "français, español, русский язык, čeština, ελληνικά";
+  private static final String encodingTestBody = "<ul>\n  <li>français\n  <li>español\n  <li>русский язык\n  <li>čeština\n  <li>ελληνικά\n</ul>";
+  private static final String encodingTestContent = "<title>"
+      + encodingTestKeywords + "</title>\n"
+      + "<meta name=\"keywords\" content=\"" + encodingTestKeywords
+      + "</meta>\n" + "</head>\n<body>" + encodingTestBody + "</body>\n</html>";
 
-  private static String[][] encodingTestPages= {
-    { 
-      "HTML4, utf-8, meta http-equiv, no quotes",
-      "utf-8",
-      "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" "
-          + "\"http://www.w3.org/TR/html4/loose.dtd\">\n"
-          + "<html>\n<head>\n"
-          + "<meta http-equiv=Content-Type content=\"text/html; charset=utf-8\" />"
-          + encodingTestContent
-    },
-    { 
-      "HTML4, utf-8, meta http-equiv, single quotes",
-      "utf-8",
-      "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" "
-          + "\"http://www.w3.org/TR/html4/loose.dtd\">\n"
-          + "<html>\n<head>\n"
-          + "<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />"
-          + encodingTestContent
-    },
-    { 
-      "XHTML, utf-8, meta http-equiv, double quotes",
-      "utf-8",
-      "<?xml version=\"1.0\"?>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">"
-          + "<html>\n<head>\n"
-          + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"
-          + encodingTestContent
-    },
-    { 
-      "HTML5, utf-8, meta charset",
-      "utf-8",
-      "<!DOCTYPE html>\n<html>\n<head>\n"
-          + "<meta charset=\"utf-8\">"
-          + encodingTestContent
-    },
-    { 
-      "HTML5, utf-8, BOM",
-      "utf-8",
-      "\ufeff<!DOCTYPE html>\n<html>\n<head>\n"
-          + encodingTestContent
-    },
-    { 
-      "HTML5, utf-16, BOM",
-      "utf-16",
-      "\ufeff<!DOCTYPE html>\n<html>\n<head>\n"
-          + encodingTestContent
-    }
-  };
+  private static String[][] encodingTestPages = {
+      {
+          "HTML4, utf-8, meta http-equiv, no quotes",
+          "utf-8",
+          "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" "
+              + "\"http://www.w3.org/TR/html4/loose.dtd\">\n"
+              + "<html>\n<head>\n"
+              + "<meta http-equiv=Content-Type content=\"text/html; charset=utf-8\" />"
+              + encodingTestContent },
+      {
+          "HTML4, utf-8, meta http-equiv, single quotes",
+          "utf-8",
+          "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" "
+              + "\"http://www.w3.org/TR/html4/loose.dtd\">\n"
+              + "<html>\n<head>\n"
+              + "<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />"
+              + encodingTestContent },
+      {
+          "XHTML, utf-8, meta http-equiv, double quotes",
+          "utf-8",
+          "<?xml version=\"1.0\"?>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">"
+              + "<html>\n<head>\n"
+              + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"
+              + encodingTestContent },
+      {
+          "HTML5, utf-8, meta charset",
+          "utf-8",
+          "<!DOCTYPE html>\n<html>\n<head>\n" + "<meta charset=\"utf-8\">"
+              + encodingTestContent },
+      { "HTML5, utf-8, BOM", "utf-8",
+          "\ufeff<!DOCTYPE html>\n<html>\n<head>\n" + encodingTestContent },
+      { "HTML5, utf-16, BOM", "utf-16",
+          "\ufeff<!DOCTYPE html>\n<html>\n<head>\n" + encodingTestContent } };
 
   private Configuration conf;
   private Parser parser;
 
-  public TestHtmlParser() { 
+  public TestHtmlParser() {
     conf = NutchConfiguration.create();
     parser = new HtmlParser();
     parser.setConf(conf);
@@ -104,8 +89,8 @@ public class TestHtmlParser {
   protected Parse parse(byte[] contentBytes) {
     String dummyUrl = "http://dummy.url/";
     return parser.getParse(
-        new Content(dummyUrl, dummyUrl, contentBytes, "text/html", new Metadata(),
-            conf)).get(dummyUrl);
+        new Content(dummyUrl, dummyUrl, contentBytes, "text/html",
+            new Metadata(), conf)).get(dummyUrl);
   }
 
   @Test
