@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1918 TikaParser specifies a default namespace when generating DOM (jnioche)
+
 * NUTCH-1889 Store all values from Tika metadata in Nutch metadata (jnioche)
 
 * NUTCH-865 Format source code in unique style (lewismc)

@@ -42,6 +42,7 @@ import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.html.HtmlMapper;
+import org.apache.tika.sax.XHTMLContentHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
@@ -96,6 +97,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     DocumentFragment root = doc.createDocumentFragment();
     DOMBuilder domhandler = new DOMBuilder(doc, root);
     domhandler.setUpperCaseElementNames(upperCaseElementNames);
+    domhandler.setDefaultNamespaceURI(XHTMLContentHandler.XHTML);
+
     ParseContext context = new ParseContext();
     if (HTMLMapper != null)
       context.set(HtmlMapper.class, HTMLMapper);

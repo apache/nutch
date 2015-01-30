@@ -60,6 +60,12 @@ class DOMBuilder implements ContentHandler, LexicalHandler {
   protected Stack<Element> m_elemStack = new Stack<Element>();
 
   /**
+  * Element recorded with this namespace will be converted to Node without a
+  * namespace
+  */
+  private String defaultNamespaceURI = null;
+
+  /**
    * DOMBuilder instance constructor... it will add the DOM nodes to the
    * document fragment.
    * 
@@ -269,7 +275,7 @@ class DOMBuilder implements ContentHandler, LexicalHandler {
 
     // Note that the namespace-aware call must be used to correctly
     // construct a Level 2 DOM, even for non-namespaced nodes.
-    if ((null == ns) || (ns.length() == 0))
+    if ((null == ns) || (ns.length() == 0) || ns.equals(defaultNamespaceURI))
       elem = m_doc.createElementNS(null, name);
     else
       elem = m_doc.createElementNS(ns, name);
@@ -774,5 +780,13 @@ class DOMBuilder implements ContentHandler, LexicalHandler {
 
   public void setUpperCaseElementNames(boolean upperCaseElementNames) {
     this.upperCaseElementNames = upperCaseElementNames;
+  }
+ 
+  public String getDefaultNamespaceURI() {
+    return defaultNamespaceURI;
+  }
+
+  public void setDefaultNamespaceURI(String defaultNamespaceURI) {
+    this.defaultNamespaceURI = defaultNamespaceURI;
   }
 }
