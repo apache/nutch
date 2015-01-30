@@ -157,8 +157,9 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     for (String tikaMDName : TikaMDNames) {
       if (tikaMDName.equalsIgnoreCase(Metadata.TITLE))
         continue;
-      // TODO what if multivalued?
-      nutchMetadata.add(tikaMDName, tikamd.get(tikaMDName));
+      String[] values = tikamd.getValues(tikaMDName);
+      for (String v : values)
+        nutchMetadata.add(tikaMDName, v);
     }
 
     // no outlinks? try OutlinkExtractor e.g works for mime types where no
