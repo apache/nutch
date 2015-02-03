@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.4-SNAPSHOT
 
+* NUTCH-1924 Nutch + HBase Docker (Radosław Stankiewicz via lewismc)
+
 * NUTCH-1920 Upgrade Nutch to use Java 1.7 (lewismc)
 
 * NUTCH-1893 Parse-tika failes to parse feed files (Mengying Wang via snagel)
