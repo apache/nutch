@@ -12,6 +12,27 @@ To get started using Nutch read Tutorial:
 
    http://wiki.apache.org/nutch/NutchTutorial
    
+Contributing
+============
+To contribute a patch, follow these instructions (note that installing
+[Hub](http://hub.github.com) is not strictly required, but is recommended).
+
+```
+0. Download and install hub.github.com
+1. File JIRA issue for your fix at https://issues.apache.org/jira/browse/NUTCH
+- you will get issue id NUTCH-xxx where xxx is the issue ID.
+2. git clone http://github.com/apache/nutch.git 
+3. cd oodt
+4. git checkout -b NUTCH-xxx
+5. edit files
+6. git status (make sure it shows what files you expected to edit)
+7. git add <files>
+8. git commit -m “fix for NUTCH-xxx contributed by <your username>”
+9. git fork
+10. git push -u <your git username> NUTCH-xxx
+11. git pull-request
+```
+   
 Export Control
 
 This distribution includes cryptographic software.  The country in which you 
