@@ -69,6 +69,7 @@
      <ant dir="urlfilter-suffix" target="deploy"/>
      <ant dir="urlfilter-validator" target="deploy"/>
      <ant dir="urlmeta" target="deploy"/>
+     <ant dir="urlnormalizer-ajax" target="deploy"/>
      <ant dir="urlnormalizer-basic" target="deploy"/>
      <ant dir="urlnormalizer-host" target="deploy"/>
      <ant dir="urlnormalizer-pass" target="deploy"/>
@@ -107,6 +108,7 @@
      <ant dir="urlfilter-regex" target="test"/>
      <ant dir="urlfilter-suffix" target="test"/>
      <ant dir="urlfilter-validator" target="test"/>
+     <ant dir="urlnormalizer-ajax" target="test"/>
      <ant dir="urlnormalizer-basic" target="test"/>
      <ant dir="urlnormalizer-host" target="test"/>
      <ant dir="urlnormalizer-pass" target="test"/>
@@ -164,8 +166,9 @@
     <ant dir="urlfilter-suffix" target="clean"/>
     <ant dir="urlfilter-validator" target="clean"/>
     <ant dir="urlmeta" target="clean"/>
-    <ant dir="urlnormalizer-host" target="clean"/>
+    <ant dir="urlnormalizer-ajax" target="clean"/>
     <ant dir="urlnormalizer-basic" target="clean"/>
+    <ant dir="urlnormalizer-host" target="clean"/>
     <ant dir="urlnormalizer-pass" target="clean"/>
     <ant dir="urlnormalizer-querystring" target="clean"/>
     <ant dir="urlnormalizer-regex" target="clean"/>
