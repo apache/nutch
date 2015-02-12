@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1939 Fetcher fails to follow redirects (Leo Ye via snagel)
+
 * NUTCH-1913 LinkDB to implement db.ignore.external.links (markus, snagel)
 
 * NUTCH-1925 Upgrade to Apache Tika 1.7 (Tyler Palsulich via markus)
