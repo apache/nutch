@@ -49,12 +49,14 @@ public class LinkDb extends Configured implements Tool,
   public static final Logger LOG = LoggerFactory.getLogger(LinkDb.class);
 
   public static final String IGNORE_INTERNAL_LINKS = "db.ignore.internal.links";
+  public static final String IGNORE_EXTERNAL_LINKS = "db.ignore.external.links";
 
   public static final String CURRENT_NAME = "current";
   public static final String LOCK_NAME = ".locked";
 
   private int maxAnchorLength;
   private boolean ignoreInternalLinks;
+  private boolean ignoreExternalLinks;
   private URLFilters urlFilters;
   private URLNormalizers urlNormalizers;
 
@@ -68,6 +70,8 @@ public class LinkDb extends Configured implements Tool,
   public void configure(JobConf job) {
     maxAnchorLength = job.getInt("db.max.anchor.length", 100);
     ignoreInternalLinks = job.getBoolean(IGNORE_INTERNAL_LINKS, true);
+    ignoreExternalLinks = job.getBoolean(IGNORE_EXTERNAL_LINKS, false);
+
     if (job.getBoolean(LinkDbFilter.URL_FILTERING, false)) {
       urlFilters = new URLFilters(job);
     }
@@ -114,6 +118,11 @@ public class LinkDb extends Configured implements Tool,
         String toHost = getHost(toUrl);
         if (toHost == null || toHost.equals(fromHost)) { // internal link
           continue; // skip it
+        }
+      } else if (ignoreExternalLinks) {
+        String toHost = getHost(toUrl);
+        if (toHost == null || !toHost.equals(fromHost)) { // external link
+          continue;                               // skip it
         }
       }
       if (urlNormalizers != null) {
@@ -180,6 +189,15 @@ public class LinkDb extends Configured implements Tool,
       if (job.getBoolean(IGNORE_INTERNAL_LINKS, true)) {
         LOG.info("LinkDb: internal links will be ignored.");
       }
+      if (job.getBoolean(IGNORE_EXTERNAL_LINKS, false)) {
+        LOG.info("LinkDb: external links will be ignored.");
+      }
+    }
+    if (job.getBoolean(IGNORE_INTERNAL_LINKS, true)
+        && job.getBoolean(IGNORE_EXTERNAL_LINKS, false)) {
+      LOG.warn("LinkDb: internal and external links are ignored! "
+          + "Nothing to do, actually. Exiting.");
+      return;
     }
 
     for (int i = 0; i < segments.length; i++) {
@@ -291,7 +309,6 @@ public class LinkDb extends Configured implements Tool,
       System.err.println("\t-noFilter\tdon't apply URLFilters to link URLs");
       return -1;
     }
-    Path segDir = null;
     final FileSystem fs = FileSystem.get(getConf());
     Path db = new Path(args[0]);
     ArrayList<Path> segs = new ArrayList<Path>();
