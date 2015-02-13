@@ -55,7 +55,7 @@
     </dependency>
 
     <dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
-    <dependency org="org.apache.tika" name="tika-core" rev="1.6" />
+    <dependency org="org.apache.tika" name="tika-core" rev="1.7" />
     <dependency org="com.googlecode.juniversalchardet" name="juniversalchardet" rev="1.0.3"/>
 
     <dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />

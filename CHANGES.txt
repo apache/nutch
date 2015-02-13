@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.4-SNAPSHOT
 
+* NUTCH-1925 Upgrade to Apache Tika 1.7 (Tyler Palsulich via markus)
+
 * NUTCH-1924 Nutch + HBase Docker (Radosław Stankiewicz via lewismc)
 
 * NUTCH-1920 Upgrade Nutch to use Java 1.7 (lewismc)
