@@ -19,6 +19,9 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +46,7 @@ import java.io.Closeable;
 public class LinkDbReader extends Configured implements Tool, Closeable {
   public static final Logger LOG = LoggerFactory.getLogger(LinkDbReader.class);
 
-  private static final Partitioner<WritableComparable<?>, Writable> PARTITIONER = new HashPartitioner<WritableComparable<?>, Writable>();
+  private static final Partitioner<WritableComparable, Writable> PARTITIONER = new HashPartitioner<WritableComparable, Writable>();
 
   private FileSystem fs;
   private Path directory;
@@ -90,8 +93,33 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
       }
     }
   }
+  
+  public static class LinkDBDumpMapper implements Mapper<Text, Inlinks, Text, Inlinks> {
+    Pattern pattern = null;
+    Matcher matcher = null;
+    
+    public void configure(JobConf job) {
+      if (job.get("linkdb.regex", null) != null) {
+        pattern = Pattern.compile(job.get("linkdb.regex"));
+      }
+    }
 
-  public void processDumpJob(String linkdb, String output) throws IOException {
+    public void close() {}
+    public void map(Text key, Inlinks value, OutputCollector<Text, Inlinks> output, Reporter reporter)
+            throws IOException {
+
+      if (pattern != null) {
+        matcher = pattern.matcher(key.toString());
+        if (!matcher.matches()) {
+          return;
+        }
+      }
+
+      output.collect(key, value);
+    }
+  }
+
+  public void processDumpJob(String linkdb, String output, String regex) throws IOException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
@@ -102,6 +130,11 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
 
     JobConf job = new NutchJob(getConf());
     job.setJobName("read " + linkdb);
+    
+    if (regex != null) {
+      job.set("linkdb.regex", regex);
+      job.setMapperClass(LinkDBDumpMapper.class);
+    }
 
     FileInputFormat.addInputPath(job, new Path(linkdb, LinkDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
@@ -127,16 +160,24 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err
-          .println("Usage: LinkDbReader <linkdb> (-dump <out_dir> | -url <url>)");
+          .println("Usage: LinkDbReader <linkdb> (-dump <out_dir> [-regex <regex>]) | -url <url>");
       System.err
           .println("\t-dump <out_dir>\tdump whole link db to a text file in <out_dir>");
+      System.err
+          .println("\t\t-regex <regex>\trestrict to url's matching expression");
       System.err
           .println("\t-url <url>\tprint information about <url> to System.out");
       return -1;
     }
     try {
       if (args[1].equals("-dump")) {
-        processDumpJob(args[0], args[2]);
+        String regex = null;
+        for (int i = 2; i < args.length; i++) {
+          if (args[i].equals("-regex")) {
+            regex = args[++i];
+          }
+        }
+        processDumpJob(args[0], args[2], regex);
         return 0;
       } else if (args[1].equals("-url")) {
         init(new Path(args[0]));
