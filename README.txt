@@ -22,7 +22,7 @@ To contribute a patch, follow these instructions (note that installing
 1. File JIRA issue for your fix at https://issues.apache.org/jira/browse/NUTCH
 - you will get issue id NUTCH-xxx where xxx is the issue ID.
 2. git clone http://github.com/apache/nutch.git 
-3. cd oodt
+3. cd nutch
 4. git checkout -b NUTCH-xxx
 5. edit files
 6. git status (make sure it shows what files you expected to edit)
