@@ -21,8 +21,14 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.xml.sax.SAXException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -43,8 +49,10 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
+// NUTCH-1929 Consider implementing dependency injection for crawl HTTPS sites that use self signed certificates
+//import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
 
+import org.apache.commons.lang.StringUtils;
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
@@ -54,10 +62,15 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 /**
- * This class is a protocol plugin that configures an HTTP client for Basic,
+ * <p>This class is a protocol plugin that configures an HTTP client for Basic,
  * Digest and NTLM authentication schemes for web server as well as proxy
  * server. It takes care of HTTPS protocol as well as cookies in a single fetch
- * session.
+ * session.</p>
+ * <p>Documentation can be found on the Nutch <a href="https://wiki.apache.org/nutch/HttpAuthenticationSchemes">HttpAuthenticationSchemes</a>
+ * wiki page.</p>
+ * <p>The original description of the motivation to support <a href="https://wiki.apache.org/nutch/HttpPostAuthentication">HttpPostAuthentication</a>
+ * is also included on the Nutch wiki. Additionally HttpPostAuthentication development is documented
+ * at the <a href="https://issues.apache.org/jira/browse/NUTCH-827">NUTCH-827</a> Jira issue.
  * 
  * @author Susam Pal
  */
@@ -84,6 +97,8 @@ public class Http extends HttpBase {
   private String proxyUsername;
   private String proxyPassword;
   private String proxyRealm;
+
+  private static HttpFormAuthConfigurer formConfigurer;
 
   /**
    * Returns the configured HTTP client.
@@ -163,7 +178,8 @@ public class Http extends HttpBase {
   private void configureClient() {
 
     // Set up an HTTPS socket factory that accepts self-signed certs.
-    ProtocolSocketFactory factory = new SSLProtocolSocketFactory();
+    //ProtocolSocketFactory factory = new SSLProtocolSocketFactory();
+    ProtocolSocketFactory factory = new DummySSLProtocolSocketFactory();
     Protocol https = new Protocol("https", factory, 443);
     Protocol.registerProtocol("https", https);
 
@@ -194,9 +210,9 @@ public class Http extends HttpBase {
     headers.add(new Header("Accept-Charset", "utf-8,ISO-8859-1;q=0.7,*;q=0.7"));
     // prefer understandable formats
     headers
-        .add(new Header(
-            "Accept",
-            "text/html,application/xml;q=0.9,application/xhtml+xml,text/xml;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"));
+    .add(new Header(
+        "Accept",
+        "text/html,application/xml;q=0.9,application/xhtml+xml,text/xml;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"));
     // accept gzipped content
     headers.add(new Header("Accept-Encoding", "x-gzip, gzip, deflate"));
     hostConf.getParams().setParameter("http.default-headers", headers);
@@ -265,6 +281,14 @@ public class Http extends HttpBase {
             LOG.warn("Bad auth conf file: Element <" + credElement.getTagName()
                 + "> not recognized in " + authFile
                 + " - expected <credentials>");
+          continue;
+        }
+
+        String authMethod = credElement.getAttribute("authMethod");
+        // read http form post auth info
+        if (StringUtils.isNotBlank(authMethod)) {
+          formConfigurer = readFormAuthConfigurer(credElement,
+              authMethod);
           continue;
         }
 
@@ -337,6 +361,95 @@ public class Http extends HttpBase {
   }
 
   /**
+   * <auth-configuration> <credentials authMethod="formAuth"
+   * loginUrl="loginUrl" loginFormId="loginFormId" loginRedirect="true">
+   * <loginPostData> <field name="username" value="user1"/> </loginPostData>
+   * <additionalPostHeaders> <field name="header1" value="vaule1"/>
+   * </additionalPostHeaders> <removedFormFields> <field name="header1"/>
+   * </removedFormFields> </credentials> </auth-configuration>
+   */
+  private static HttpFormAuthConfigurer readFormAuthConfigurer(
+      Element credElement, String authMethod) {
+    if ("formAuth".equals(authMethod)) {
+      HttpFormAuthConfigurer formConfigurer = new HttpFormAuthConfigurer();
+
+      String str = credElement.getAttribute("loginUrl");
+      if (StringUtils.isNotBlank(str)) {
+        formConfigurer.setLoginUrl(str.trim());
+      } else {
+        throw new IllegalArgumentException("Must set loginUrl.");
+      }
+      str = credElement.getAttribute("loginFormId");
+      if (StringUtils.isNotBlank(str)) {
+        formConfigurer.setLoginFormId(str.trim());
+      } else {
+        throw new IllegalArgumentException("Must set loginFormId.");
+      }
+      str = credElement.getAttribute("loginRedirect");
+      if (StringUtils.isNotBlank(str)) {
+        formConfigurer.setLoginRedirect(Boolean.parseBoolean(str));
+      }
+
+      NodeList nodeList = credElement.getChildNodes();
+      for (int j = 0; j < nodeList.getLength(); j++) {
+        Node node = nodeList.item(j);
+        if (!(node instanceof Element))
+          continue;
+
+        Element element = (Element) node;
+        if ("loginPostData".equals(element.getTagName())) {
+          Map<String, String> loginPostData = new HashMap<String, String>();
+          NodeList childNodes = element.getChildNodes();
+          for (int k = 0; k < childNodes.getLength(); k++) {
+            Node fieldNode = childNodes.item(k);
+            if (!(fieldNode instanceof Element))
+              continue;
+
+            Element fieldElement = (Element) fieldNode;
+            String name = fieldElement.getAttribute("name");
+            String value = fieldElement.getAttribute("value");
+            loginPostData.put(name, value);
+          }
+          formConfigurer.setLoginPostData(loginPostData);
+        } else if ("additionalPostHeaders".equals(element.getTagName())) {
+          Map<String, String> additionalPostHeaders = new HashMap<String, String>();
+          NodeList childNodes = element.getChildNodes();
+          for (int k = 0; k < childNodes.getLength(); k++) {
+            Node fieldNode = childNodes.item(k);
+            if (!(fieldNode instanceof Element))
+              continue;
+
+            Element fieldElement = (Element) fieldNode;
+            String name = fieldElement.getAttribute("name");
+            String value = fieldElement.getAttribute("value");
+            additionalPostHeaders.put(name, value);
+          }
+          formConfigurer
+          .setAdditionalPostHeaders(additionalPostHeaders);
+        } else if ("removedFormFields".equals(element.getTagName())) {
+          Set<String> removedFormFields = new HashSet<String>();
+          NodeList childNodes = element.getChildNodes();
+          for (int k = 0; k < childNodes.getLength(); k++) {
+            Node fieldNode = childNodes.item(k);
+            if (!(fieldNode instanceof Element))
+              continue;
+
+            Element fieldElement = (Element) fieldNode;
+            String name = fieldElement.getAttribute("name");
+            removedFormFields.add(name);
+          }
+          formConfigurer.setRemovedFormFields(removedFormFields);
+        }
+      }
+
+      return formConfigurer;
+    } else {
+      throw new IllegalArgumentException("Unsupported authMethod: "
+          + authMethod);
+    }
+  }
+
+  /**
    * If credentials for the authentication scope determined from the specified
    * <code>url</code> is not already set in the HTTP client, then this method
    * sets the default credentials to fetch the specified <code>url</code>. If
@@ -347,6 +460,18 @@ public class Http extends HttpBase {
    *          URL to be fetched
    */
   private void resolveCredentials(URL url) {
+
+    if (formConfigurer != null) {
+      HttpFormAuthentication formAuther = new HttpFormAuthentication(
+          formConfigurer, client, this);
+      try {
+        formAuther.login();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+
+      return;
+    }
 
     if (defaultUsername != null && defaultUsername.length() > 0) {
 
