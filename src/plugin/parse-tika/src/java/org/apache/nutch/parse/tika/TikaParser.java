@@ -29,8 +29,11 @@ import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
+import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.parser.CompositeParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.html.HtmlMapper;
@@ -87,7 +90,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 
     // get the right parser using the mime type as a clue
     String mimeType = page.getContentType().toString();
-    Parser parser = tikaConfig.getParser(mimeType);
+    CompositeParser compositeParser = (CompositeParser) tikaConfig.getParser();
+    Parser parser = compositeParser.getParsers().get(MediaType.parse(mimeType));
     ByteBuffer raw = page.getContent();
 
     if (parser == null) {

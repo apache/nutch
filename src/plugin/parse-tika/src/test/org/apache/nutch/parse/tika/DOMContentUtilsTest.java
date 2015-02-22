@@ -17,6 +17,8 @@
 
 package org.apache.nutch.parse.tika;
 
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.parser.CompositeParser;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -195,7 +197,8 @@ public class DOMContentUtilsTest {
     utils = new DOMContentUtils(conf);
     TikaParser tikaParser = new TikaParser();
     tikaParser.setConf(conf);
-    Parser parser = tikaParser.getTikaConfig().getParser("text/html");
+    CompositeParser compositeParser = (CompositeParser) tikaParser.getTikaConfig().getParser();
+    Parser parser = compositeParser.getParsers().get(MediaType.parse("text/html"));
     for (int i = 0; i < testPages.length; i++) {
       Metadata tikamd = new Metadata();
 
