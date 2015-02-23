@@ -1602,4 +1602,15 @@
   <description>Whether to support multivalued headings.</description>
 </property>
 
+<!-- mimetype-filter plugin properties -->
+
+<property>
+  <name>mimetype.filter.file</name>
+  <value>mimetype-filter.txt</value>
+  <description>
+    The configuration file for the mimetype-filter plugin. This file contains
+    the rules used to allow or deny the indexing of certain documents.
+  </description>
+</property>
+
 </configuration>

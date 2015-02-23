@@ -35,6 +35,7 @@
      <ant dir="index-more" target="deploy"/>
      <ant dir="index-static" target="deploy"/>
      <ant dir="index-metadata" target="deploy"/>
+     <ant dir="mimetype-filter" target="deploy"/>
      <ant dir="indexer-dummy" target="deploy"/>
      <ant dir="indexer-elastic" target="deploy"/>
      <ant dir="indexer-solr" target="deploy"/>
@@ -88,6 +89,7 @@
      <ant dir="index-geoip" target="test"/>
      <ant dir="index-more" target="test"/>
      <ant dir="index-static" target="test"/>
+     <ant dir="mimetype-filter" target="test"/>
      <ant dir="language-identifier" target="test"/>
      <ant dir="lib-http" target="test"/>
      <ant dir="protocol-file" target="test"/>
@@ -126,10 +128,11 @@
     <ant dir="headings" target="clean"/>
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
-     <ant dir="index-geoip" target="clean"/>
+    <ant dir="index-geoip" target="clean"/>
     <ant dir="index-more" target="clean"/>
     <ant dir="index-static" target="clean"/>
     <ant dir="index-metadata" target="clean"/>
+    <ant dir="mimetype-filter" target="clean"/>
     <ant dir="indexer-dummy" target="clean"/>
     <ant dir="indexer-elastic" target="clean"/>
     <ant dir="indexer-solr" target="clean"/>
