@@ -206,9 +206,22 @@ public class FileDumper {
             File outputFile = new File(outputFullPath);
             if (!outputFile.exists()) {
               LOG.info("Writing: [" + outputFullPath + "]");
-              FileOutputStream output = new FileOutputStream(outputFile);
-              IOUtils.write(content.getContent(), output);
-              fileCount++;
+              try {
+                FileOutputStream output = new FileOutputStream(outputFile);
+                IOUtils.write(content.getContent(), output);
+                fileCount++;
+                  
+              } catch (Exception e) {
+                outputFullPath = outputDir + "/" + System.currentTimeMillis();
+                File newOutPutFile = new File(outputFullPath);
+                FileOutputStream output = new FileOutputStream(newOutPutFile);
+                IOUtils.write(content.getContent(), output);
+                fileCount++;
+                LOG.info("File name is too long. Renamed to system time.");
+                
+                //e.printStackTrace();
+              }
+              
             } else {
               LOG.info("Skipping writing: [" + outputFullPath
                   + "]: file already exists");
