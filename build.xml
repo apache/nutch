@@ -184,6 +184,7 @@
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
+      <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
       <packageset dir="${plugins.dir}/parse-ext/src/java"/>
@@ -197,6 +198,7 @@
       <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
       <packageset dir="${plugins.dir}/scoring-depth/src/java"/>
       <packageset dir="${plugins.dir}/scoring-link/src/java"/>
       <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
@@ -591,6 +593,7 @@
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
+      <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
       <packageset dir="${plugins.dir}/parse-ext/src/java"/>
@@ -604,6 +607,7 @@
       <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
       <packageset dir="${plugins.dir}/scoring-depth/src/java"/>
       <packageset dir="${plugins.dir}/scoring-link/src/java"/>
       <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
@@ -985,6 +989,8 @@
         <source path="${plugins.dir}/language-identifier/src/test/" />
         <source path="${plugins.dir}/lib-http/src/java/" />
         <source path="${plugins.dir}/lib-http/src/test/" />
+        <source path="${plugins.dir}/lib-selenium/src/java/" />
+        <source path="${plugins.dir}/lib-selenium/src/test/" />
         <source path="${plugins.dir}/lib-regex-filter/src/java/" />
         <source path="${plugins.dir}/lib-regex-filter/src/test/" />
         <source path="${plugins.dir}/microformats-reltag/src/java/" />
@@ -1008,6 +1014,8 @@
         <source path="${plugins.dir}/protocol-httpclient/src/test/" />
         <source path="${plugins.dir}/protocol-http/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/test/" />
+        <source path="${plugins.dir}/protocol-selenium/src/java"/>
+        <source path="${plugins.dir}/protocol-selenium/src/test"/>
         <source path="${plugins.dir}/scoring-depth/src/java/" />
         <source path="${plugins.dir}/scoring-link/src/java/" />
         <source path="${plugins.dir}/scoring-opic/src/java/" />

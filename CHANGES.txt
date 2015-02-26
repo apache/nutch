@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1933 nutch-selenium plugin (Mo Omer, Mohammad Al-Moshin, lewismc)
+
 * NUTCH-827 HTTP POST Authentication (Jasper van Veghel, yuanyun.cn, snagel, lewismc)
 
 * NUTCH-1724 LinkDBReader to support regex output filtering (markus)

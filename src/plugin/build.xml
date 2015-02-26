@@ -50,6 +50,8 @@
      <ant dir="protocol-ftp" target="deploy"/>
      <ant dir="protocol-http" target="deploy"/>
      <ant dir="protocol-httpclient" target="deploy"/>
+     <ant dir="lib-selenium" target="deploy"/>
+     <ant dir="protocol-selenium" target="deploy" />
      <ant dir="parse-ext" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
@@ -149,6 +151,8 @@
     <ant dir="protocol-ftp" target="clean"/>
     <ant dir="protocol-http" target="clean"/>
     <ant dir="protocol-httpclient" target="clean"/>
+    <ant dir="lib-selenium" target="clean"/>
+    <ant dir="protocol-selenium" target="clean" />
     <ant dir="parse-ext" target="clean"/>
     <ant dir="parse-js" target="clean"/>
     <ant dir="parse-html" target="clean"/>
