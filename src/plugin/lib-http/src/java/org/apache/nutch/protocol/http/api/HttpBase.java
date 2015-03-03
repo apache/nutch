@@ -107,6 +107,9 @@ public abstract class HttpBase implements Protocol {
 
   /** Which TLS/SSL cipher suites to support */
   protected Set<String> tlsPreferredCipherSuites;
+  
+  /** Configuration directive for If-Modified-Since HTTP header */
+  public boolean enableIfModifiedsinceHeader = true;
 
   /** Creates a new instance of HttpBase */
   public HttpBase() {
@@ -137,6 +140,7 @@ public abstract class HttpBase implements Protocol {
     // backward-compatible default setting
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);
     this.responseTime = conf.getBoolean("http.store.responsetime", true);
+    this.enableIfModifiedsinceHeader = conf.getBoolean("http.enable.if.modified.since.header", true);
     this.robots.setConf(conf);
 
     String[] protocols = conf.getStrings("http.tls.supported.protocols",
@@ -297,6 +301,10 @@ public abstract class HttpBase implements Protocol {
 
   public int getTimeout() {
     return timeout;
+  }
+  
+  public boolean isIfModifiedSinceEnabled() {
+    return enableIfModifiedsinceHeader;
   }
 
   public int getMaxContent() {

@@ -192,7 +192,7 @@ public class HttpResponse implements Response {
       reqStr.append(this.http.getAccept());
       reqStr.append("\r\n");
 
-      if (datum.getModifiedTime() > 0) {
+      if (http.isIfModifiedSinceEnabled() && datum.getModifiedTime() > 0) {
         reqStr.append("If-Modified-Since: "
             + HttpDateFormat.toString(datum.getModifiedTime()));
         reqStr.append("\r\n");

@@ -297,6 +297,17 @@
   </description>
 </property>
 
+<property>
+  <name>http.enable.if.modified.since.header</name>
+  <value>true</value>
+  <description>Whether Nutch sends an HTTP If-Modified-Since header. It reduces
+  bandwidth when enabled by not downloading pages that respond with an HTTP
+  Not-Modified header. URL's that are not downloaded are not passed through
+  parse or indexing filters. If you regularly modify filters, you should force
+  Nutch to also download unmodified pages by disabling this feature.
+  </description>
+</property>
+
 <!-- FTP properties -->
 
 <property>
