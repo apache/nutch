@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.security.MessageDigest;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -206,9 +207,32 @@ public class FileDumper {
             File outputFile = new File(outputFullPath);
             if (!outputFile.exists()) {
               LOG.info("Writing: [" + outputFullPath + "]");
-              FileOutputStream output = new FileOutputStream(outputFile);
-              IOUtils.write(content.getContent(), output);
-              fileCount++;
+              try {
+                FileOutputStream output = new FileOutputStream(outputFile);
+                IOUtils.write(content.getContent(), output);
+                fileCount++;
+                  
+              } catch (Exception e) {
+                // if the file name is too long, we get the first 32 chars of the original name and append its MD5
+                // after the first 32 chars as the new file name
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                md.update(outputFullPath.getBytes());
+                byte[] digest = md.digest();
+                StringBuffer sb = new StringBuffer();
+                for (byte b : digest) {
+                  sb.append(String.format("%02x", b & 0xff));
+                }
+                outputFullPath = outputFullPath.substring(0, 32) + "_" + sb.toString();
+
+                File newOutPutFile = new File(outputFullPath);
+                FileOutputStream output = new FileOutputStream(newOutPutFile);
+                IOUtils.write(content.getContent(), output);
+                fileCount++;
+                LOG.info("File name is too long. Truncated and MD5 appended.");
+                
+                //e.printStackTrace();
+              }
+              
             } else {
               LOG.info("Skipping writing: [" + outputFullPath
                   + "]: file already exists");

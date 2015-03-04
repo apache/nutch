@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1950 File name too long (Jiaheng Zhang, Chong Li via mattmann)
+
 * NUTCH-1921 Optionally disable HTTP if-modified-since header (markus)
 
 * NUTCH-1933 nutch-selenium plugin (Mo Omer, Mohammad Al-Moshin, lewismc)
