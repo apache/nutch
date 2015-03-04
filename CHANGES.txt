@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1949 Dump out the Nutch data into the Common Crawl format (Giuseppe Totaro via lewismc)
+
 * NUTCH-1950 File name too long (Jiaheng Zhang, Chong Li via mattmann)
 
 * NUTCH-1921 Optionally disable HTTP if-modified-since header (markus)

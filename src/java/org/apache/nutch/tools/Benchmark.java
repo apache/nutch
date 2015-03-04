@@ -53,6 +53,7 @@ public class Benchmark extends Configured implements Tool {
     System.exit(res);
   }
 
+  @SuppressWarnings("unused")
   private static String getDate() {
     return new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(System
         .currentTimeMillis()));

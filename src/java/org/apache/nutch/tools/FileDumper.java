@@ -100,7 +100,7 @@ import org.slf4j.LoggerFactory;
  * }
  * </pre>
  * <p>
- * In the case above the tool would have been run with the <b>-mimeType
+ * In the case above, the tool would have been run with the <b>-mimeType
  * image/png image/jpeg image/vnd.microsoft.icon video/quicktime image/gif</b>
  * flag and corresponding values activated.
  * 
