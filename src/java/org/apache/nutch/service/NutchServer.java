@@ -3,6 +3,13 @@ package org.apache.nutch.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.CommandLine;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
@@ -68,8 +75,24 @@ public class NutchServer {
 		  return resources;
 	  }
 	  
-	  public static void main(String[] args) {
-		  
+	  public static void main(String[] args) throws ParseException {
+		CommandLineParser parser = new PosixParser();
+	    Options options = createOptions();
+	    CommandLine commandLine = parser.parse(options, args);
+	    if (commandLine.hasOption(CMD_PORT)) {
+	        port = Integer.parseInt(commandLine.getOptionValue(CMD_PORT));
+	    }
 		startServer();
-	}
+	  }
+	  
+	  private static Options createOptions() {
+		  Options options = new Options();
+		  OptionBuilder.withArgName("port");
+		  OptionBuilder.hasOptionalArg();
+		  OptionBuilder.withDescription("The port to run the Nutch Server. Default port 8081");
+		  options.addOption(OptionBuilder.create(CMD_PORT));
+		  				
+		  return options;
+	  }
+	  
 }
