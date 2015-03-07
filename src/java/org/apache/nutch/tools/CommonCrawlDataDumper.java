@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.security.MessageDigest;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -369,7 +370,22 @@ public class CommonCrawlDataDumper {
 							}
 							else {
 								LOG.info("Writing: [" + outputFullPath + "]");
-								IOUtils.copy(new ByteArrayInputStream(byteData), new FileOutputStream(outputFile));
+								try{
+								    IOUtils.copy(new ByteArrayInputStream(byteData), new FileOutputStream(outputFile));
+								}
+								catch (Exception e){
+								    MessageDigest md = MessageDigest.getInstance("MD5");
+								    md.update(outputFullPath.getBytes());
+								    byte[] digest = md.digest();
+								    StringBuffer sb = new StringBuffer();
+								    for (byte b : digest) {
+									   sb.append(String.format("%02x", b & 0xff));
+								    }
+								    outputFullPath = outputFullPath.substring(0, 32) + "_" + sb.toString();
+								    File newOutPutFile = new File(outputFullPath);
+								    IOUtils.copy(new ByteArrayInputStream(byteData), new FileOutputStream(newOutPutFile));
+								    LOG.info("File name is too long. Truncated and MD5 appended.");
+								}
 							}
 						}
 						else {
