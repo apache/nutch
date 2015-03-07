@@ -1,5 +1,5 @@
 Nutch Change Log
-
+ 
 Nutch Current Development 1.10-SNAPSHOT
  
 * NUTCH-1954 FilenameTooLong error appears in CommonCrawlDumper (mattmann)
