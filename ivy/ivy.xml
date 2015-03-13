@@ -74,7 +74,7 @@
                
                 <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.1" /> 
                 <dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.5.1" />
-
+		<dependency org="org.apache.cxf" name="cxf" rev="3.0.4" />
 		<!--Configuration: test -->
 
 		<!--artifacts needed for testing -->
