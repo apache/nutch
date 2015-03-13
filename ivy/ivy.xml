@@ -75,6 +75,7 @@
         <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.0.4"/>
         <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.0.4"/>
         <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.0.4"/>
+        <dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.0.4"/>
                 <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.1" /> 
                 <dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.5.1" />
 		
