@@ -1,0 +1,20 @@
+# config file for mimetype-filter plugin
+
+# This plugin can be configured to work in one of two modes (similar to
+# suffix-urlfilter)
+
+# default to reject ('-'): in this mode, all documents will be rejected except
+# for those specified in this configuration file.
+
+# default to accept ('+'): in this mode, all documents will be accepted except
+# for those specified in this configuration file.
+
+# The format of this config file is one mimetype per line, with no preceding
+# whitespace. Order, in which suffixes are specified, doesn't matter. Blank
+# lines and comments (#) are allowed.
+
+# block everything
+-
+
+# allow only documents with a text/html mimetype
+text/html
