@@ -1,6 +1,8 @@
 Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
+
+* NUTCH-1956 Members to be public in URLCrawlDatum (markus)
  
 * NUTCH-1954 FilenameTooLong error appears in CommonCrawlDumper (mattmann)
 
