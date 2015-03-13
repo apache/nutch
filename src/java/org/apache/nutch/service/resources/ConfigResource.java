@@ -27,14 +27,12 @@ public class ConfigResource extends AbstractResource{
 	@GET
 	@Path("/")
 	public Set<String> getConfigs() {
-		System.out.println("In get config " + configManager.list().toString());
 		return configManager.list();
 	}
 	
 	@GET
 	@Path("/{configId}")
 	public Map<String, String> getConfig(@PathParam("configId") String configId) {
-		System.out.println("In get config " + configManager.getAsMap(configId).toString());
 		return configManager.getAsMap(configId);
 	}
 	
