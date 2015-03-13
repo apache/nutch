@@ -3,7 +3,7 @@ package org.apache.nutch.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.ext.Provider;
+
 
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.OptionBuilder;
@@ -17,9 +17,7 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.nutch.service.impl.ConfManagerImpl;
-import org.apache.nutch.service.providers.TreeMapProvider;
 import org.apache.nutch.service.resources.ConfigResource;
-import org.apache.nutch.service.resources.HashMapProvider;
 import org.apache.nutch.service.resources.JobResource;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.slf4j.Logger;
