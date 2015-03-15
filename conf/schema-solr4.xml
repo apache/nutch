@@ -79,7 +79,9 @@
          Note: For faster range queries, consider the tdate type
       -->
     <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
-
+    
+    <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
+    
     <!-- A Trie based date field for faster date range queries and date faceting. -->
     <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
 
@@ -298,19 +300,33 @@
          any data added to them will be ignored outright.  --> 
     <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
 
+        <!-- boolean type: "true" or "false" -->
+        <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+
+         <!-- sortMissingLast and sortMissingFirst attributes are optional attributes are
+         currently supported on types that are sorted internally as strings
+         and on numeric types.
+         This includes "string","boolean", and, as of 3.5 (and 4.x),
+         int, float, long, date, double, including the "Trie" variants.
+       - If sortMissingLast="true", then a sort on this field will cause documents
+         without the field to come after documents with the field,
+         regardless of the requested sort order (asc or desc).
+       - If sortMissingFirst="true", then a sort on this field will cause documents
+         without the field to come before documents with the field,
+         regardless of the requested sort order.
+       - If sortMissingLast="false" and sortMissingFirst="false" (the default),
+         then default lucene sorting will be used which places docs without the
+         field first in an ascending sort and last in a descending sort.
+         -->
+
  </types>
 
  <fields>
-    <!-- This field is used internally by Solr, for example by features 
-    like partial update functionality and update log. It is NOT required
-    if updateLog is turned off in your updateHandler, however it is advised
-    to include it as performance improvements are minimal. -->
-    <field name="_version_" type="long" indexed="true" stored="true"/>
-    
     <field name="id" type="string" stored="true" indexed="true" required="true"/>
+    <field name="_version_" type="long" indexed="true" stored="true"/>
 
     <!-- core fields -->
-    <field name="batchId" type="string" stored="true" indexed="false"/>
+    <field name="segment" type="string" stored="true" indexed="false"/>
     <field name="digest" type="string" stored="true" indexed="false"/>
     <field name="boost" type="float" stored="true" indexed="false"/>
 
@@ -319,9 +335,44 @@
     <field name="url" type="url" stored="true" indexed="true"/>
     <!-- stored=true for highlighting, use term vectors  and positions for fast highlighting -->
     <field name="content" type="text_general" stored="true" indexed="true"/>
-    <field name="title" type="text_general" stored="true" indexed="true" multiValued="true"/>
+    <field name="title" type="text_general" stored="true" indexed="true"/>
     <field name="cache" type="string" stored="true" indexed="false"/>
     <field name="tstamp" type="date" stored="true" indexed="false"/>
+
+    <!-- fields for index-geoip plugin -->
+    <field name="ip" type="string" stored="true" indexed="true" />
+    <field name="cityName" type="string" stored="true" indexed="true" />
+    <field name="cityConfidence" type="int" stored="true" indexed="true" />
+    <field name="cityGeoNameId" type="int" stored="true" indexed="true" />
+    <field name="continentCode" type="string" stored="true" indexed="true" />
+    <field name="continentGeoNameId" type="int" stored="true" indexed="true" />
+    <field name="contentName" type="string" stored="true" indexed="true" />
+    <field name="countryIsoCode" type="string" stored="true" indexed="true"/>
+    <field name="countryName" type="string" stored="true" indexed="true" />
+    <field name="countryConfidence" type="int" stored="true" indexed="true"/>
+    <field name="countryGeoNameId" type="int" stored="true" indexed="true"/>
+    <field name="latLon" type="string" stored="true" indexed="true"/>
+    <field name="accRadius" type="int" stored="true" indexed="true"/>
+    <field name="timeZone" type="string" stored="true" indexed="true"/>
+    <field name="metroCode" type="int" stored="true" indexed="true" />
+    <field name="postalCode" type="string" stored="true" indexed="true" />
+    <field name="postalConfidence" type="int" stored="true" indexed="true" />
+    <field name="countryType" type="string" stored="true" indexed="true" />
+    <field name="subDivName" type="string" stored="true" indexed="true" />
+    <field name="subDivIsoCode" type="string" stored="true" indexed="true" />
+    <field name="subDivConfidence" type="int" stored="true" indexed="true" />
+    <field name="subDivGeoNameId" type="int" stored="true" indexed="true" /> 
+    <field name="autonSystemNum" type="int" stored="true" indexed="true" />
+    <field name="autonSystemOrg" type="string" stored="true" indexed="true" />
+    <field name="domain" type="string" stored="true" indexed="true" />
+    <field name="isp" type="string" stored="true" indexed="true" />
+    <field name="org" type="string" stored="true" indexed="true" />
+    <field name="userType" type="string" stored="true" indexed="true" />
+    <field name="isAnonProxy" type="boolean" stored="true" indexed="true" />
+    <field name="isSatelitteProv" type="boolean" stored="true" indexed="true" />
+    <field name="connType" type="string" stored="true" indexed="true" />
+
+    <dynamicField name="*_coordinate" type="tdouble" indexed="true" stored="false"/>
 
     <!-- catch-all field -->
     <field name="text" type="text_general" stored="false" indexed="true" multiValued="true"/>
@@ -335,9 +386,6 @@
     <field name="contentLength" type="string" stored="true" indexed="false"/>
     <field name="lastModified" type="date" stored="true" indexed="false"/>
     <field name="date" type="tdate" stored="true" indexed="true"/>
-    
-    <!-- fields for index-metadata plugin -->  
-    <dynamicField name="meta_*" type="string" stored="true" indexed="true"/>
 
     <!-- fields for languageidentifier plugin -->
     <field name="lang" type="string" stored="true" indexed="true"/>
@@ -372,5 +420,5 @@
  <copyField source="title" dest="text"/>
  <copyField source="anchor" dest="text"/>
  <copyField source="author" dest="text"/>
-
+ <copyField source="latLon" dest="location"/>
 </schema>
