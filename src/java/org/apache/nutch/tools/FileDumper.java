@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.security.MessageDigest;
 
+import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -47,6 +48,7 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 //Tika imports
@@ -203,40 +205,24 @@ public class FileDumper {
           }
 
           if (filter) {
-            String outputFullPath = outputDir + "/" + filename;
-            File outputFile = new File(outputFullPath);
-            if (!outputFile.exists()) {
-              LOG.info("Writing: [" + outputFullPath + "]");
-              try {
+            String md5Ofurl = DumpFileUtil.getUrlMD5(url);
+            String fullDir = DumpFileUtil.createTwoLevelsDirectory(outputDir.getAbsolutePath(), md5Ofurl);
+
+            if (!Strings.isNullOrEmpty(fullDir)) {
+              String outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
+              File outputFile = new File(outputFullPath);
+
+              if (!outputFile.exists()) {
+                LOG.info("Writing: [" + outputFullPath + "]");
                 FileOutputStream output = new FileOutputStream(outputFile);
                 IOUtils.write(content.getContent(), output);
                 fileCount++;
-                  
-              } catch (Exception e) {
-                // if the file name is too long, we get the first 32 chars of the original name and append its MD5
-                // after the first 32 chars as the new file name
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                md.update(outputFullPath.getBytes());
-                byte[] digest = md.digest();
-                StringBuffer sb = new StringBuffer();
-                for (byte b : digest) {
-                  sb.append(String.format("%02x", b & 0xff));
-                }
-                outputFullPath = outputFullPath.substring(0, 32) + "_" + sb.toString();
-
-                File newOutPutFile = new File(outputFullPath);
-                FileOutputStream output = new FileOutputStream(newOutPutFile);
-                IOUtils.write(content.getContent(), output);
-                fileCount++;
-                LOG.info("File name is too long. Truncated and MD5 appended.");
-                
-                //e.printStackTrace();
+              } else {
+                LOG.info("Skipping writing: [" + outputFullPath
+                        + "]: file already exists");
               }
-              
-            } else {
-              LOG.info("Skipping writing: [" + outputFullPath
-                  + "]: file already exists");
             }
+
           }
         }
         reader.close();
