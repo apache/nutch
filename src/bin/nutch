@@ -271,7 +271,7 @@ elif [ "$COMMAND" = "plugin" ] ; then
 elif [ "$COMMAND" = "junit" ] ; then
   CLASSPATH="$CLASSPATH:$NUTCH_HOME/test/classes/"
   CLASS=org.junit.runner.JUnitCore
-elif [ "$COMMAND" = "server" ] ; then
+elif [ "$COMMAND" = "startserver" ] ; then
   CLASS=org.apache.nutch.service.NutchServer
 else
   CLASS=$COMMAND
