@@ -17,8 +17,10 @@
  
 package org.apache.nutch.service;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 
@@ -72,8 +74,6 @@ public class NutchServer {
 		configManager = new ConfManagerImpl();
 
 		sf = new JAXRSServerFactoryBean();
-		String address = "http://" + LOCALHOST + ":" + port;
-		sf.setAddress(address);
 		BindingFactoryManager manager = sf.getBus().getExtension(BindingFactoryManager.class);
 		JAXRSBindingFactory factory = new JAXRSBindingFactory();
 		factory.setBus(sf.getBus());
@@ -92,10 +92,12 @@ public class NutchServer {
 	private static void startServer() {
 		server.start();
 	}
-
+	
 	private void start() {
 		LOG.info("Starting NutchServer on port: {}  ...",port);
 		try{
+			String address = "http://" + LOCALHOST + ":" + port;
+			sf.setAddress(address);
 			sf.create();
 		}catch(Exception e){
 			throw new IllegalStateException("Server could not be started", e);
@@ -104,6 +106,7 @@ public class NutchServer {
 		started = System.currentTimeMillis();
 		running = true;
 		LOG.info("Started Nutch Server on port {} at {}", port, started);
+		System.out.println("Started Nutch Server on port " + port + " at " + started);
 	}
 
 	public List<Class<?>> getClasses() {
