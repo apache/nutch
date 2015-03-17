@@ -14,17 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package org.apache.nutch.service;
 
-import java.text.DateFormat;
+
 import java.util.ArrayList;
 import java.util.List;
 
-
-
-
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -47,17 +45,13 @@ public class NutchServer {
 	private static final Logger LOG = LoggerFactory.getLogger(NutchServer.class);
 
 	private static final String LOCALHOST = "localhost";
-	private static final String DEFAULT_LOG_LEVEL = "INFO";
 	private static final Integer DEFAULT_PORT = 8081;
 	private static final int JOB_CAPACITY = 100;
 
-	private static String logLevel = DEFAULT_LOG_LEVEL;
 	private static Integer port = DEFAULT_PORT;
 
 	private static final String CMD_HELP = "help";
-	private static final String CMD_STOP = "stop";
 	private static final String CMD_PORT = "port";
-	private static final String CMD_LOG_LEVEL = "log";
 
 	private long started;
 	private boolean running;
@@ -65,11 +59,11 @@ public class NutchServer {
 	private JAXRSServerFactoryBean sf; 
 
 	private static NutchServer server;
-	
+
 	static {
 		server = new NutchServer();
 	}
-	
+
 	private NutchServer() {
 		configManager = new ConfManagerImpl();
 
@@ -81,18 +75,18 @@ public class NutchServer {
 		sf.setResourceClasses(getClasses());
 		sf.setResourceProviders(getResourceProviders());
 		sf.setProvider(new JacksonJaxbJsonProvider());
-		
-		
+
+
 	}
 
 	public static NutchServer getInstance() {
 		return server;
 	}
-	
+
 	private static void startServer() {
 		server.start();
 	}
-	
+
 	private void start() {
 		LOG.info("Starting NutchServer on port: {}  ...",port);
 		try{
@@ -115,22 +109,28 @@ public class NutchServer {
 		resources.add(ConfigResource.class);
 		return resources;
 	}
-	
+
 	public List<ResourceProvider> getResourceProviders() {
 		List<ResourceProvider> resourceProviders = new ArrayList<ResourceProvider>();
 		resourceProviders.add(new SingletonResourceProvider(getConfManager()));
-		
+
 		return resourceProviders;
 	}
-	
+
 	public ConfManager getConfManager() {
 		return configManager;
 	}
-	
+
 	public static void main(String[] args) throws ParseException {
 		CommandLineParser parser = new PosixParser();
 		Options options = createOptions();
 		CommandLine commandLine = parser.parse(options, args);
+		if (commandLine.hasOption(CMD_HELP)) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("NutchServer", options, true);
+			return;
+		}
+
 		if (commandLine.hasOption(CMD_PORT)) {
 			port = Integer.parseInt(commandLine.getOptionValue(CMD_PORT));
 		}
@@ -139,6 +139,10 @@ public class NutchServer {
 
 	private static Options createOptions() {
 		Options options = new Options();
+
+		OptionBuilder.withDescription("Show this help");
+		options.addOption(OptionBuilder.create(CMD_HELP));
+
 		OptionBuilder.withArgName("port");
 		OptionBuilder.hasOptionalArg();
 		OptionBuilder.withDescription("The port to run the Nutch Server. Default port 8081");
