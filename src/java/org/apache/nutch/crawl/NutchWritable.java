@@ -29,6 +29,7 @@ public class NutchWritable extends GenericWritableConfigurable {
         org.apache.hadoop.io.NullWritable.class,
         org.apache.hadoop.io.BooleanWritable.class,
         org.apache.hadoop.io.LongWritable.class,
+        org.apache.hadoop.io.ByteWritable.class,
         org.apache.hadoop.io.BytesWritable.class,
         org.apache.hadoop.io.FloatWritable.class,
         org.apache.hadoop.io.IntWritable.class,

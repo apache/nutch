@@ -1,0 +1,35 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# config file for mimetype-filter plugin
+
+# This plugin can be configured to work in one of two modes (similar to
+# suffix-urlfilter)
+
+# default to reject ('-'): in this mode, all documents will be rejected except
+# for those specified in this configuration file.
+
+# default to accept ('+'): in this mode, all documents will be accepted except
+# for those specified in this configuration file.
+
+# The format of this config file is one mimetype per line, with no preceding
+# whitespace. Order, in which suffixes are specified, doesn't matter. Blank
+# lines and comments (#) are allowed.
+
+# block everything
+-
+
+# allow only documents with a text/html mimetype
+text/html

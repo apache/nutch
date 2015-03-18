@@ -96,9 +96,9 @@ public class CrawlDBTestUtil {
 
   public static class URLCrawlDatum {
 
-    Text url;
+    public Text url;
 
-    CrawlDatum datum;
+    public CrawlDatum datum;
 
     public URLCrawlDatum(Text url, CrawlDatum datum) {
       this.url = url;
