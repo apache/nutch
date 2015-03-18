@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1967 Possible SIooBE in MimeAdaptiveFetchSchedule (markus)
+
 * NUTCH-1957 FileDumper output file name collisions (Renxia Wang via mattmann)
 
 * NUTCH-1955 ByteWritable missing in NutchWritable (markus)

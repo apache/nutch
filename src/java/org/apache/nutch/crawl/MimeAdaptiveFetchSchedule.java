@@ -29,6 +29,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.*;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.HttpHeaders;
+import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,11 +112,8 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
     // Check if the Content-Type field is available in the CrawlDatum
     if (datum.getMetaData().containsKey(HttpHeaders.WRITABLE_CONTENT_TYPE)) {
       // Get the MIME-type of the current URL
-      String currentMime = datum.getMetaData()
-          .get(HttpHeaders.WRITABLE_CONTENT_TYPE).toString();
-
-      // Get rid of charset
-      currentMime = currentMime.substring(0, currentMime.indexOf(';'));
+      String currentMime = MimeUtil.cleanMimeType(datum.getMetaData()
+          .get(HttpHeaders.WRITABLE_CONTENT_TYPE).toString());
 
       // Check if this MIME-type exists in our map
       if (mimeMap.containsKey(currentMime)) {
