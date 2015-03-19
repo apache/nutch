@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1968 File Name too long issue of DumpFileUtil.java file (Xin Zhang, Renxia Wang via mattmann)
+
 * NUTCH-1966 Configuration endpoint for 1x REST API (Sujen Shah via mattmann)
 
 * NUTCH-1967 Possible SIooBE in MimeAdaptiveFetchSchedule (markus)

@@ -33,7 +33,8 @@ public class DumpFileUtil {
     private final static String DIR_PATTERN = "%s/%s/%s";
     private final static String FILENAME_PATTERN = "%s_%s.%s";
     private final static Integer MAX_LENGTH_OF_FILENAME = 32;
-
+    private final static Integer MAX_LENGTH_OF_EXTENSION = 5; 
+   
     public static String getUrlMD5(String url) {
         byte[] digest = MD5Hash.digest(url).getDigest();
 
@@ -64,9 +65,14 @@ public class DumpFileUtil {
     public static String createFileName(String md5, String fileBaseName, String fileExtension) {
         if (fileBaseName.length() > MAX_LENGTH_OF_FILENAME) {
             LOG.info("File name is too long. Truncated to {} characters.", MAX_LENGTH_OF_FILENAME);
-            return String.format(FILENAME_PATTERN, md5, StringUtils.substring(fileBaseName, 0, MAX_LENGTH_OF_FILENAME), fileExtension);
-        } else {
-            return String.format(FILENAME_PATTERN, md5, fileBaseName, fileExtension);
+            fileBaseName = StringUtils.substring(fileBaseName, 0, MAX_LENGTH_OF_FILENAME);
+        } 
+        
+        if (fileExtension.length() > MAX_LENGTH_OF_EXTENSION) {
+            LOG.info("File extension is too long. Truncated to {} characters.", MAX_LENGTH_OF_EXTENSION);
+            fileExtension = StringUtils.substring(fileExtension, 0, MAX_LENGTH_OF_EXTENSION);
         }
+
+        return String.format(FILENAME_PATTERN, md5, fileBaseName, fileExtension);
     }
 }
