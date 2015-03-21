@@ -34,6 +34,8 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.nutch.service.impl.ConfManagerImpl;
+import org.apache.nutch.service.impl.JobFactory;
+import org.apache.nutch.service.impl.JobManagerImpl;
 import org.apache.nutch.service.resources.ConfigResource;
 import org.apache.nutch.service.resources.JobResource;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
@@ -56,6 +58,7 @@ public class NutchServer {
 	private long started;
 	private boolean running;
 	private ConfManager configManager;
+	private JobManager jobManager;
 	private JAXRSServerFactoryBean sf; 
 
 	private static NutchServer server;
@@ -66,6 +69,7 @@ public class NutchServer {
 
 	private NutchServer() {
 		configManager = new ConfManagerImpl();
+		jobManager = new JobManagerImpl(new JobFactory(), configManager);
 
 		sf = new JAXRSServerFactoryBean();
 		BindingFactoryManager manager = sf.getBus().getExtension(BindingFactoryManager.class);
@@ -119,6 +123,10 @@ public class NutchServer {
 
 	public ConfManager getConfManager() {
 		return configManager;
+	}
+	
+	public JobManager getJobManager() {
+		return jobManager;
 	}
 
 	public static void main(String[] args) throws ParseException {

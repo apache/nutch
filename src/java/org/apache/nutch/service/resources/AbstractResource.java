@@ -34,6 +34,7 @@ public abstract class AbstractResource {
 	
 	public AbstractResource() {
 		configManager = NutchServer.getInstance().getConfManager();
+		jobManager = NutchServer.getInstance().getJobManager();
 	}
 	
 	protected void throwBadRequestException(String message) {
