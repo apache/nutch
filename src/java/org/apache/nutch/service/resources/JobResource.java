@@ -26,7 +26,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.nutch.service.model.response.JobConfig;
+import org.apache.nutch.service.model.request.JobConfig;
 import org.apache.nutch.service.model.response.JobInfo;
 import org.apache.nutch.service.model.response.JobInfo.State;
 
@@ -66,7 +66,7 @@ public class JobResource extends AbstractResource {
   public String create(JobConfig config) {
     if (config == null) {
       throwBadRequestException("Job configuration is required!");
-    }
+    }    
     return jobManager.create(config);
   }
 }

@@ -19,6 +19,8 @@ package org.apache.nutch.service.model.response;
 import java.util.Map;
 
 import org.apache.nutch.service.JobManager.JobType;
+import org.apache.nutch.service.model.request.JobConfig;
+import org.apache.nutch.service.model.response.JobInfo.State;
 
 /**
  * This is the response object containing Job information
@@ -34,12 +36,22 @@ public class JobInfo {
 	private String id;
 	private JobType type;
 	private String confId;
-	private Map<String, Object> args;
-	private Map<String, Object> result;
+	private Map<String, String> args;
+	private int result;
 	private State state;
 	private String msg;
 	private String crawlId;
 	
+	public JobInfo(String generateId, JobConfig jobConfig, State state,
+			String msg) {
+		this.id = generateId;
+		this.type = jobConfig.getType();
+		this.confId = jobConfig.getConfId();
+		this.crawlId = jobConfig.getCrawlId();
+		this.args = jobConfig.getArgs();
+		this.msg = msg;
+		this.state = state;
+	}
 	public String getId() {
 		return id;
 	}
@@ -58,17 +70,17 @@ public class JobInfo {
 	public void setConfId(String confId) {
 		this.confId = confId;
 	}
-	public Map<String, Object> getArgs() {
+	public Map<String, String> getArgs() {
 		return args;
 	}
-	public void setArgs(Map<String, Object> args) {
+	public void setArgs(Map<String, String> args) {
 		this.args = args;
 	}
-	public Map<String, Object> getResult() {
+	public int getResult() {
 		return result;
 	}
-	public void setResult(Map<String, Object> result) {
-		this.result = result;
+	public void setResult(int i) {
+		this.result = i;
 	}
 	public State getState() {
 		return state;
