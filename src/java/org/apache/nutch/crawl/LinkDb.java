@@ -25,14 +25,12 @@ import java.net.*;
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
-
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.*;
@@ -40,10 +38,11 @@ import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
-public class LinkDb extends Configured implements Tool,
+public class LinkDb extends NutchTool implements Tool,
     Mapper<Text, ParseData, Text, Inlinks> {
 
   public static final Logger LOG = LoggerFactory.getLogger(LinkDb.class);
@@ -336,6 +335,49 @@ public class LinkDb extends Configured implements Tool,
       LOG.error("LinkDb: " + StringUtils.stringifyException(e));
       return -1;
     }
+  }
+
+  /*
+   * Used for Nutch REST service
+   */
+  @Override
+  public int run(Map<String, String> args) throws Exception {
+	  if (args.size() < 2) {
+		  throw new IllegalArgumentException("Required arguments <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-force] [-noNormalize] [-noFilter]");
+	  }
+	  final FileSystem fs = FileSystem.get(getConf());
+	  Path db = new Path(args.get("linkdb"));
+	  ArrayList<Path> segs = new ArrayList<Path>();
+	  boolean filter = true;
+	  boolean normalize = true;
+	  boolean force = false;
+	  if (args.containsKey("dir")) {
+		  String[] segments = args.get("dir").split(" ");
+		  if(segments.length>0){
+			  FileStatus[] paths = fs.listStatus(new Path(segments[0]),
+					  HadoopFSUtil.getPassDirectoriesFilter(fs));
+			  segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
+			  for(int i=1;i<segments.length;i++){
+				  segs.add(new Path(segments[i]));
+			  }
+		  }
+	  } 
+	  if (args.containsKey("noNormalize")) {
+		  normalize = false;
+	  } 
+	  if (args.containsKey("noFilter")) {
+		  filter = false;
+	  } 
+	  if (args.containsKey("force")) {
+		  force = true;
+	  }
+	  try {
+		  invert(db, segs.toArray(new Path[segs.size()]), normalize, filter, force);
+		  return 0;
+	  } catch (Exception e) {
+		  LOG.error("LinkDb: " + StringUtils.stringifyException(e));
+		  return -1;
+	  }
   }
 
 }

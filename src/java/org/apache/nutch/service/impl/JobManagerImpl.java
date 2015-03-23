@@ -30,24 +30,13 @@ import org.apache.nutch.util.NutchTool;
 public class JobManagerImpl implements JobManager {
 
 	private JobFactory jobFactory;
-	//	private NutchServerPoolExecutor executor;
+	private NutchServerPoolExecutor executor;
 	private ConfManager configManager;
 
-	public JobManagerImpl(JobFactory jobFactory, ConfManager configManager) {
+	public JobManagerImpl(JobFactory jobFactory, ConfManager configManager, NutchServerPoolExecutor executor) {
 		this.jobFactory = jobFactory;
 		this.configManager = configManager;		
-	}
-
-	@Override
-	public Collection<JobInfo> list(String crawlId, State state) {
-		
-		return null;
-	}
-
-	@Override
-	public JobInfo get(String crawlId, String id) {
-		// TODO Auto-generated method stub
-		return null;
+		this.executor = executor;
 	}
 
 	/**
@@ -58,16 +47,14 @@ public class JobManagerImpl implements JobManager {
 		if (jobConfig.getArgs() == null) {
 			throw new IllegalArgumentException("Arguments cannot be null!");
 		}
-		if(jobConfig.getArgs().size()<2){
-			throw new IllegalArgumentException("Required arguments - crawldb, url_dir");
-		}
 		Configuration conf = cloneConfiguration(jobConfig.getConfId());
 		NutchTool tool = createTool(jobConfig, conf);
-	    JobWorker worker = new JobWorker(jobConfig, conf, tool);
-	    worker.run();		
+		JobWorker worker = new JobWorker(jobConfig, conf, tool);
+		executor.execute(worker);
+		executor.purge();		
 		return worker.getInfo().getId();
 	}
-	
+
 	private Configuration cloneConfiguration(String confId) {
 		Configuration conf = configManager.get(confId);
 		if (conf == null) {
@@ -77,17 +64,31 @@ public class JobManagerImpl implements JobManager {
 	}
 
 	@Override
+	public Collection<JobInfo> list(String crawlId, State state) {
+		if (state == null || state == State.ANY) {
+			return executor.getAllJobs();
+		}
+		if (state == State.RUNNING || state == State.IDLE) {
+			return executor.getJobRunning();
+		}
+		return executor.getJobHistory();
+	}
+
+	@Override
+	public JobInfo get(String crawlId, String jobId) {
+		return executor.getInfo(jobId);
+	}
+
+	@Override
 	public boolean abort(String crawlId, String id) {
-		// TODO Auto-generated method stub
-		return false;
+		return executor.findWorker(id).killJob();
 	}
 
 	@Override
 	public boolean stop(String crawlId, String id) {
-		// TODO Auto-generated method stub
-		return false;
+		return executor.findWorker(id).stopJob();
 	}
-	
+
 	private NutchTool createTool(JobConfig jobConfig, Configuration conf){
 		if(StringUtils.isNotBlank(jobConfig.getJobClassName())){
 			return jobFactory.createToolByClassName(jobConfig.getJobClassName(), conf);

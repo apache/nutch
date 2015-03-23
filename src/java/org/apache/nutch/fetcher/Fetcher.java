@@ -27,10 +27,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+
+
 // Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
@@ -38,7 +39,6 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
@@ -91,7 +91,7 @@ import crawlercommons.robots.BaseRobotRules;
  * 
  * @author Andrzej Bialecki
  */
-public class Fetcher extends Configured implements Tool,
+public class Fetcher extends NutchTool implements Tool,
     MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
 
   public static final int PERM_REFRESH_TIME = 5;
@@ -1191,11 +1191,11 @@ public class Fetcher extends Configured implements Tool,
   }
 
   public Fetcher() {
-    super(null);
+	  this(null);
   }
 
   public Fetcher(Configuration conf) {
-    super(conf);
+    setConf(conf);
   }
 
   private void updateStatus(int bytesInPage) throws IOException {
@@ -1616,6 +1616,31 @@ public class Fetcher extends Configured implements Tool,
       }
       throw new IllegalArgumentException(message);
     }
+  }
+
+  @Override
+  public int run(Map<String, String> args) throws Exception {
+	  if(args.size()<1){
+		  throw new IllegalArgumentException("Required arguments <segment> [threads n]");
+	  }
+	  Path segment = new Path(args.get("segment"));
+
+	  int threads = getConf().getInt("fetcher.threads.fetch", 10);
+	  boolean parsing = false;
+
+	  // parse command line
+	  if (args.containsKey("threads")) { // found -threads option
+		  threads = Integer.parseInt(args.get("threads"));
+	  }
+	  getConf().setInt("fetcher.threads.fetch", threads);
+
+	  try {
+		  fetch(segment, threads);
+		  return 0;
+	  } catch (Exception e) {
+		  LOG.error("Fetcher: " + StringUtils.stringifyException(e));
+		  return -1;
+	  }
   }
 
 }

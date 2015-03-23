@@ -389,6 +389,9 @@ public class Injector extends NutchTool implements Tool {
 	 * Used by the Nutch REST service
 	 */
 	public int run(Map<String, String> args) throws Exception {
+		if(args.size()<2){
+			throw new IllegalArgumentException("Required arguments <crawldb> <url_dir>");
+		}
 		String crawldb = args.get("crawldb");
 		String url_dir = args.get("url_dir");
 		try{

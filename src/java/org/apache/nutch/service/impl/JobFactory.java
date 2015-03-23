@@ -22,11 +22,13 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.nutch.service.JobManager.JobType;
+import org.apache.nutch.crawl.CrawlDb;
+import org.apache.nutch.crawl.DeduplicationJob;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.Injector;
+import org.apache.nutch.crawl.LinkDb;
 import org.apache.nutch.fetcher.Fetcher;
-import org.apache.nutch.indexer.IndexingJob;
-import org.apache.nutch.parse.Parser;
+import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.util.NutchTool;
 
 import com.google.common.collect.Maps;
@@ -36,11 +38,13 @@ public class JobFactory {
 
 	static {
 		typeToClass = Maps.newHashMap();
-		//    typeToClass.put(JobType.FETCH, Fetcher.class);
-		//    typeToClass.put(JobType.GENERATE, Generator.class);
-		//    typeToClass.put(JobType.INDEX, IndexingJob.class);
 		typeToClass.put(JobType.INJECT, Injector.class);
-		//    typeToClass.put(JobType.PARSE, Parser.class);
+		typeToClass.put(JobType.GENERATE, Generator.class);
+		typeToClass.put(JobType.FETCH, Fetcher.class);
+		typeToClass.put(JobType.PARSE, ParseSegment.class);
+		typeToClass.put(JobType.UPDATEDB, CrawlDb.class);
+		typeToClass.put(JobType.INVERTLINKS, LinkDb.class);
+		typeToClass.put(JobType.DEDUP, DeduplicationJob.class);		
 	}
 
 	public NutchTool createToolByType(JobType type, Configuration conf) {

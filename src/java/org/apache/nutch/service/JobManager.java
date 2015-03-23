@@ -26,7 +26,7 @@ import org.apache.nutch.service.model.response.JobInfo.State;
 public interface JobManager {
 	
 	public static enum JobType{
-		INJECT, GENERATE, FETCH, PARSE, UPDATEDB, INDEX, READDB, CLASS
+		INJECT, GENERATE, FETCH, PARSE, UPDATEDB, INDEX, READDB, CLASS, INVERTLINKS, DEDUP
 	};
 	public Collection<JobInfo> list(String crawlId, State state);
 

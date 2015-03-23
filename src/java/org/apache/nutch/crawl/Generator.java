@@ -25,7 +25,6 @@ import java.text.*;
 // rLogging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
@@ -34,7 +33,6 @@ import org.apache.hadoop.util.*;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
@@ -44,6 +42,7 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
@@ -55,7 +54,7 @@ import org.apache.nutch.util.URLUtil;
  * a segment. We can chose separately how to count the URLS i.e. by domain or
  * host to limit the entries.
  **/
-public class Generator extends Configured implements Tool {
+public class Generator extends NutchTool implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(Generator.class);
 
@@ -750,5 +749,57 @@ public class Generator extends Configured implements Tool {
       return -1;
     }
     return 0;
+  }
+
+  @Override
+  public int run(Map<String, String> args) throws Exception {
+	  if(args.size()<2){
+		  throw new  IllegalArgumentException("Required arguments <crawldb> <segments_dir> [-force] [-topN N] [-numFetchers numFetchers] [-adddays numDays] [-noFilter] [-noNorm][-maxNumSegments num]");
+	  }
+
+	  Path dbDir = new Path(args.get("crawldb"));
+	  Path segmentsDir = new Path(args.get("segments_dir"));
+	  long curTime = System.currentTimeMillis();
+	  long topN = Long.MAX_VALUE;
+	  int numFetchers = -1;
+	  boolean filter = true;
+	  boolean norm = true;
+	  boolean force = false;
+	  int maxNumSegments = 1;
+
+	 
+	  if (args.containsKey("topN")) {
+		  topN = Long.parseLong(args.get("topN"));
+	  }
+	  if (args.containsKey("numFetchers")) {
+		  numFetchers = Integer.parseInt(args.get("numFetchers"));
+	  }
+	  if (args.containsKey("adddays")) {
+		  long numDays = Integer.parseInt(args.get("adddays"));
+		  curTime += numDays * 1000L * 60 * 60 * 24;
+	  }
+	  if (args.containsKey("noFilter")) {
+		  filter = false;
+	  } 
+	  if (args.containsKey("noNorm")) {
+		  norm = false;
+	  } 
+	  if (args.containsKey("force")) {
+		  force = true;
+	  } 
+	  if (args.containsKey("maxNumSegments")) {
+		  maxNumSegments = Integer.parseInt(args.get("maxNumSegments"));
+	  }
+	  
+	  try {
+		  Path[] segs = generate(dbDir, segmentsDir, numFetchers, topN, curTime,
+				  filter, norm, force, maxNumSegments);
+		  if (segs == null)
+			  return 1;
+	  } catch (Exception e) {
+		  LOG.error("Generator: " + StringUtils.stringifyException(e));
+		  return -1;
+	  }
+	  return 0;
   }
 }

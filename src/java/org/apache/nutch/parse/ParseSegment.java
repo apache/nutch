@@ -19,7 +19,6 @@ package org.apache.nutch.parse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.hadoop.io.*;
@@ -41,7 +40,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /* Parse content in a segment. */
-public class ParseSegment extends Configured implements Tool,
+public class ParseSegment extends NutchTool implements Tool,
     Mapper<WritableComparable<?>, Content, Text, ParseImpl>,
     Reducer<Text, Writable, Text, Writable> {
 
@@ -60,7 +59,7 @@ public class ParseSegment extends Configured implements Tool,
   }
 
   public ParseSegment(Configuration conf) {
-    super(conf);
+    setConf(conf);
   }
 
   public void configure(JobConf job) {
@@ -257,5 +256,24 @@ public class ParseSegment extends Configured implements Tool,
     segment = new Path(args[0]);
     parse(segment);
     return 0;
+  }
+
+  /*
+   * Used for Nutch REST service
+   */
+  public int run(Map<String, String> args) throws Exception {
+	  if (args.size() == 0) {
+		  throw new IllegalArgumentException("Required arguments <segment> [-noFilter] [-noNormalize]");
+	  }
+	  if (args.containsKey("nofilter")) {
+		  getConf().setBoolean("parse.filter.urls", false);
+	  }
+	  if (args.containsKey("nonormalize")) {
+		  getConf().setBoolean("parse.normalize.urls", false);
+	  }
+
+	  Path segment = new Path(args.get("segment"));
+	  parse(segment);
+	  return 0;
   }
 }

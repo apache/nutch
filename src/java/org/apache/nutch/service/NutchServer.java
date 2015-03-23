@@ -20,6 +20,8 @@ package org.apache.nutch.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -36,11 +38,14 @@ import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.nutch.service.impl.ConfManagerImpl;
 import org.apache.nutch.service.impl.JobFactory;
 import org.apache.nutch.service.impl.JobManagerImpl;
+import org.apache.nutch.service.impl.NutchServerPoolExecutor;
 import org.apache.nutch.service.resources.ConfigResource;
 import org.apache.nutch.service.resources.JobResource;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Queues;
 
 public class NutchServer {
 
@@ -69,7 +74,9 @@ public class NutchServer {
 
 	private NutchServer() {
 		configManager = new ConfManagerImpl();
-		jobManager = new JobManagerImpl(new JobFactory(), configManager);
+		BlockingQueue<Runnable> runnables = Queues.newArrayBlockingQueue(JOB_CAPACITY);
+		NutchServerPoolExecutor executor = new NutchServerPoolExecutor(10, JOB_CAPACITY, 1, TimeUnit.HOURS, runnables);
+		jobManager = new JobManagerImpl(new JobFactory(), configManager, executor);
 
 		sf = new JAXRSServerFactoryBean();
 		BindingFactoryManager manager = sf.getBus().getExtension(BindingFactoryManager.class);
@@ -107,14 +114,14 @@ public class NutchServer {
 		System.out.println("Started Nutch Server on port " + port + " at " + started);
 	}
 
-	public List<Class<?>> getClasses() {
+	private List<Class<?>> getClasses() {
 		List<Class<?>> resources = new ArrayList<Class<?>>();
 		resources.add(JobResource.class);
 		resources.add(ConfigResource.class);
 		return resources;
 	}
 
-	public List<ResourceProvider> getResourceProviders() {
+	private List<ResourceProvider> getResourceProviders() {
 		List<ResourceProvider> resourceProviders = new ArrayList<ResourceProvider>();
 		resourceProviders.add(new SingletonResourceProvider(getConfManager()));
 
@@ -128,7 +135,15 @@ public class NutchServer {
 	public JobManager getJobManager() {
 		return jobManager;
 	}
-
+	
+	public boolean isRunning(){
+		return running;
+	}
+	
+	public long getStarted(){
+		return started;
+	}
+	
 	public static void main(String[] args) throws ParseException {
 		CommandLineParser parser = new PosixParser();
 		Options options = createOptions();
