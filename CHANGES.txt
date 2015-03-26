@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1959 Improving CommonCrawlFormat implementations (Giuseppe Totaro via mattmann)
+
 * NUTCH-1974 keyPrefix option for CommonCrawlDataDumper tool (Giuseppe Totaro via mattmann)
 
 * NUTCH-1968 File Name too long issue of DumpFileUtil.java file (Xin Zhang, Renxia Wang via mattmann)
