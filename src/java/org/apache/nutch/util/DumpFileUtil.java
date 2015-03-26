@@ -46,20 +46,26 @@ public class DumpFileUtil {
         return sb.toString();
     }
 
-    public static String createTwoLevelsDirectory(String basePath, String md5) {
+    public static String createTwoLevelsDirectory(String basePath, String md5, boolean makeDir) {
         String firstLevelDirName = new StringBuilder().append(md5.charAt(0)).append(md5.charAt(8)).toString();
         String secondLevelDirName = new StringBuilder().append(md5.charAt(16)).append(md5.charAt(24)).toString();
 
         String fullDirPath = String.format(DIR_PATTERN, basePath, firstLevelDirName, secondLevelDirName);
 
-        try {
-            FileUtils.forceMkdir(new File(fullDirPath));
-        } catch (IOException e) {
-            LOG.error("Failed to create dir: {}", fullDirPath);
-            fullDirPath = null;
+        if (makeDir) {
+	        try {
+	            FileUtils.forceMkdir(new File(fullDirPath));
+	        } catch (IOException e) {
+	            LOG.error("Failed to create dir: {}", fullDirPath);
+	            fullDirPath = null;
+	        }
         }
 
         return fullDirPath;
+    }
+    
+    public static String createTwoLevelsDirectory(String basePath, String md5) {
+        return createTwoLevelsDirectory(basePath, md5, true);
     }
 
     public static String createFileName(String md5, String fileBaseName, String fileExtension) {

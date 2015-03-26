@@ -17,6 +17,8 @@
 
 package org.apache.nutch.tools;
 
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 
@@ -34,21 +36,22 @@ public class CommonCrawlFormatFactory {
 	 * @param metadata the metadata.
 	 * @param conf the configuration.
 	 * @return the new {@see CommonCrawlFormat} object.
+	 * @throws IOException If any I/O error occurs.
 	 */
 	public static CommonCrawlFormat getCommonCrawlFormat(String formatType, String url, byte[] content,
-			Metadata metadata, Configuration conf) {
+			Metadata metadata, Configuration conf, String keyPrefix) throws IOException {
 		if (formatType == null) {
 			return null;
 		}
 		
 		if (formatType.equalsIgnoreCase("jackson")) {
-			return new CommonCrawlFormatJackson(url, content, metadata, conf);
+			return new CommonCrawlFormatJackson(url, content, metadata, conf, keyPrefix);
 		}
 		else if (formatType.equalsIgnoreCase("jettinson")) {
-			return new CommonCrawlFormatJettinson(url, content, metadata, conf);
+			return new CommonCrawlFormatJettinson(url, content, metadata, conf, keyPrefix);
 		}
 		else if (formatType.equalsIgnoreCase("simple")) {
-			return new CommonCrawlFormatSimple(url, content, metadata, conf);
+			return new CommonCrawlFormatSimple(url, content, metadata, conf, keyPrefix);
 		}
 		
 		return null;

@@ -33,5 +33,6 @@ public interface CommonCrawlFormat {
 	 * @param mapAll If {@code true} maps all metdata on the JSON structure.
 	 * @return the JSON data
 	 */
-	public String getJsonData(boolean mapAll) throws IOException;
+	//public String getJsonData(boolean mapAll) throws IOException;
+	public String getJsonData() throws IOException;
 }

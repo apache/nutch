@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.security.MessageDigest;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -54,12 +53,15 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 //Tika imports
 import org.apache.tika.Tika;
+
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,6 +164,13 @@ import com.ibm.icu.text.SimpleDateFormat;
 public class CommonCrawlDataDumper {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CommonCrawlDataDumper.class.getName());
+	
+	// Gzip initialization
+	private FileOutputStream fileOutput = null;
+	private BufferedOutputStream bufOutput = null;
+	private GzipCompressorOutputStream gzipOutput = null;
+	private TarArchiveOutputStream tarOutput = null;
+	private ArrayList<String> fileList = null;
 
 	/**
 	 * Main method for invoking this tool
@@ -177,17 +186,20 @@ public class CommonCrawlDataDumper {
 	@SuppressWarnings("static-access")
 	public static void main(String[] args) throws Exception {
 		Option helpOpt = new Option("h", "help", false,
-				"show this help message");
+				"show this help message.");
 		// argument options
 		Option outputOpt = OptionBuilder
 				.withArgName("outputDir")
 				.hasArg()
 				.withDescription(
-						"output directory (which will be created) to host the CBOR data")
+						"output directory (which will be created) to host the CBOR data.")
 				.create("outputDir");
-		Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
-				.withDescription("the segment(s) to use").create("segment");
-		// GIUSEPPE: create mimetype and gzip options
+		Option segOpt = OptionBuilder
+				.withArgName("segment")
+				.hasArgs()
+				.withDescription("the segment(s) to use")
+				.create("segment");
+		// create mimetype and gzip options
 		Option mimeOpt = OptionBuilder
 				.isRequired(false)
 				.withArgName("mimetype")
@@ -196,11 +208,16 @@ public class CommonCrawlDataDumper {
 						"an optional list of mimetypes to dump, excluding all others. Defaults to all.")
 				.create("mimetype");
 		Option gzipOpt = OptionBuilder
-				.isRequired(false)
+				.withArgName("gzip")
 				.hasArg(false)
 				.withDescription(
-						"an optional flag indicating whether to additionally gzip the data")
+						"an optional flag indicating whether to additionally gzip the data.")
 				.create("gzip");
+		Option keyPrefixOpt = OptionBuilder
+				.withArgName("keyPrefix")
+				.hasArg(true)
+				.withDescription("an optional prefix for key in the output format.")
+				.create("keyPrefix");
 
 		// create the options
 		Options options = new Options();
@@ -210,6 +227,8 @@ public class CommonCrawlDataDumper {
 		// create mimetypes and gzip options
 		options.addOption(mimeOpt);
 		options.addOption(gzipOpt);
+		// create keyPrefix option
+		options.addOption(keyPrefixOpt);
 
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -224,6 +243,7 @@ public class CommonCrawlDataDumper {
 			File segmentRootDir = new File(line.getOptionValue("segment"));
 			String[] mimeTypes = line.getOptionValues("mimetype");
 			boolean gzip = line.hasOption("gzip");
+			String keyPrefix = line.getOptionValue("keyPrefix", "");
 
 			if (!outputDir.exists()) {
 				LOG.warn("Output directory: [" + outputDir.getAbsolutePath() + "]: does not exist, creating it.");
@@ -233,7 +253,7 @@ public class CommonCrawlDataDumper {
 
 			CommonCrawlDataDumper dumper = new CommonCrawlDataDumper();
 			
-			dumper.dump(outputDir, segmentRootDir, gzip, mimeTypes);
+			dumper.dump(outputDir, segmentRootDir, gzip, mimeTypes, keyPrefix);
 			
 		} catch (Exception e) {
 			LOG.error(CommonCrawlDataDumper.class.getName() + ": " + StringUtils.stringifyException(e));
@@ -261,7 +281,7 @@ public class CommonCrawlDataDumper {
      *            filtered out.
 	 * @throws Exception
 	 */
-	public void dump(File outputDir, File segmentRootDir, boolean gzip,	String[] mimeTypes) throws Exception {
+	public void dump(File outputDir, File segmentRootDir, boolean gzip,	String[] mimeTypes, String keyPrefix) throws Exception {
 		if (!gzip) {
 			LOG.info("Gzipping CBOR data has been skipped");
 		}
@@ -284,22 +304,9 @@ public class CommonCrawlDataDumper {
 			System.exit(1);
 		}
 		
-		// Gzip initialization
-		FileOutputStream fileOutput = null;
-	    BufferedOutputStream bufOutput = null;
-	    GzipCompressorOutputStream gzipOutput = null;
-	    TarArchiveOutputStream tarOutput = null;
-	    
-	    ArrayList<String> fileList = null;
-	    
 		if (gzip) {
-			String archiveName = new SimpleDateFormat("yyyyMMddhhmm'.tar.gz'").format(new Date());
-		    fileOutput = new FileOutputStream(new File(outputDir + File.separator + archiveName));
-		    bufOutput = new BufferedOutputStream(fileOutput);
-		    gzipOutput = new GzipCompressorOutputStream(bufOutput);
-		    tarOutput = new TarArchiveOutputStream(gzipOutput);
-		    
-		    fileList = new ArrayList<String>();
+			fileList = new ArrayList<String>();
+		    constructNewStream(outputDir);
 		}
 
 		for (File segment : segmentDirs) {
@@ -334,7 +341,14 @@ public class CommonCrawlDataDumper {
 						extension = "html";
 					}
 
-					String filename = baseName + "." + extension;
+					String md5Ofurl = DumpFileUtil.getUrlMD5(url);
+					String fullDir = DumpFileUtil.createTwoLevelsDirectory(outputDir.getAbsolutePath(), md5Ofurl, !gzip);
+					String filename = DumpFileUtil.createFileName(md5Ofurl, baseName, extension);
+					String outputFullPath = String.format("%s/%s", fullDir, filename);
+
+					String [] fullPathLevels = fullDir.split(File.separator);
+					String firstLevelDirName = fullPathLevels[fullPathLevels.length-2]; 
+					String secondLevelDirName = fullPathLevels[fullPathLevels.length-1];
 					
 					// Encode all filetypes if no mimetypes have been given
 					Boolean filter = (mimeTypes == null);
@@ -343,8 +357,8 @@ public class CommonCrawlDataDumper {
 					try {
 						String mimeType = new Tika().detect(content.getContent());
 						// Maps file to JSON-based structure
-						CommonCrawlFormat format = CommonCrawlFormatFactory.getCommonCrawlFormat("JACKSON", url, content.getContent(), content.getMetadata(), conf);
-						jsonData = format.getJsonData(false);
+						CommonCrawlFormat format = CommonCrawlFormatFactory.getCommonCrawlFormat("JACKSON", url, content.getContent(), content.getMetadata(), conf, keyPrefix);
+						jsonData = format.getJsonData();
 
 						collectStats(typeCounts, mimeType);
 						// collects statistics for the given mimetypes
@@ -352,53 +366,36 @@ public class CommonCrawlDataDumper {
 							collectStats(filteredCounts, mimeType);
 							filter = true;
 						}
-					} catch (Exception e) {
-						e.printStackTrace();
-						LOG.warn("Tika is unable to detect type for: [" + url
-								+ "]");
+					} catch (IOException ioe) { 
+						LOG.error("Fatal error in creating JSON data: " + ioe.getMessage());
+						return;
 					}
 
 					if (filter) {
-						
 						byte[] byteData = serializeCBORData(jsonData);
 						
 						if (!gzip) {
-							String outputFullPath = outputDir + File.separator + filename;
+							//String outputFullPath = outputDir + File.separator + filename;
 							File outputFile = new File(outputFullPath);
 							if (outputFile.exists()) {
 								LOG.info("Skipping writing: [" + outputFullPath	+ "]: file already exists");
 							}
 							else {
 								LOG.info("Writing: [" + outputFullPath + "]");
-								try{
-								    IOUtils.copy(new ByteArrayInputStream(byteData), new FileOutputStream(outputFile));
-								}
-								catch (Exception e){
-								    MessageDigest md = MessageDigest.getInstance("MD5");
-								    md.update(outputFullPath.getBytes());
-								    byte[] digest = md.digest();
-								    StringBuffer sb = new StringBuffer();
-								    for (byte b : digest) {
-									   sb.append(String.format("%02x", b & 0xff));
-								    }
-								    outputFullPath = outputFullPath.substring(0, 32) + "_" + sb.toString();
-								    File newOutPutFile = new File(outputFullPath);
-								    IOUtils.copy(new ByteArrayInputStream(byteData), new FileOutputStream(newOutPutFile));
-								    LOG.info("File name is too long. Truncated and MD5 appended.");
-								}
+								IOUtils.copy(new ByteArrayInputStream(byteData), new FileOutputStream(outputFile));
 							}
 						}
 						else {
-							if (fileList.contains(filename)) {
-								LOG.info("Skipping compressing: [" + filename	+ "]: file already exists");
+							if (fileList.contains(outputFullPath)) {
+								LOG.info("Skipping compressing: [" + outputFullPath + "]: file already exists");
 							}
 							else {
-								fileList.add(filename);
-								LOG.info("Compressing: [" + filename + "]");
-								TarArchiveEntry tarEntry = new TarArchiveEntry(filename);
+								fileList.add(outputFullPath);
+								LOG.info("Compressing: [" + outputFullPath + "]");
+								TarArchiveEntry tarEntry = new TarArchiveEntry(firstLevelDirName + File.separator + secondLevelDirName + File.separator + filename);
 								tarEntry.setSize(byteData.length);
 								tarOutput.putArchiveEntry(tarEntry);
-								IOUtils.copy(new ByteArrayInputStream(byteData), tarOutput);
+								tarOutput.write(byteData);
 								tarOutput.closeArchiveEntry();
 							}
 						}
@@ -411,15 +408,35 @@ public class CommonCrawlDataDumper {
 		}
 		
 		if (gzip) {
+	        closeStream();
+		}
+		
+		if (!typeCounts.isEmpty()) {
+			LOG.info("CommonsCrawlDataDumper File Stats: " + displayFileTypes(typeCounts, filteredCounts));
+		}
+	}
+	
+	private void closeStream() {
+		try {
 			tarOutput.finish();
-			 
+			
 	        tarOutput.close();
 	        gzipOutput.close();
 	        bufOutput.close();
 	        fileOutput.close();
+		} catch (IOException ioe) {
+			LOG.warn("Error in closing stream: " + ioe.getMessage());
 		}
-		
-		LOG.info("CommonsCrawlDataDumper File Stats: " + displayFileTypes(typeCounts, filteredCounts));
+	}
+	
+	private void constructNewStream(File outputDir) throws IOException {	
+		String archiveName = new SimpleDateFormat("yyyyMMddhhmm'.tar.gz'").format(new Date());
+		LOG.info("Creating a new gzip archive: " + archiveName);
+	    fileOutput = new FileOutputStream(new File(outputDir + File.separator + archiveName));
+	    bufOutput = new BufferedOutputStream(fileOutput);
+	    gzipOutput = new GzipCompressorOutputStream(bufOutput);
+	    tarOutput = new TarArchiveOutputStream(gzipOutput);
+	    tarOutput.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
 	}
 	
 	private byte[] serializeCBORData(String jsonData) {
@@ -458,8 +475,8 @@ public class CommonCrawlDataDumper {
 	private String displayFileTypes(Map<String, Integer> typeCounts, Map<String, Integer> filteredCounts) {
 		StringBuilder builder = new StringBuilder();
 		// print total stats
-		builder.append("\n  TOTAL Stats:\n");
-		builder.append("                {\n");
+		builder.append("\nTOTAL Stats:\n");
+		builder.append("{\n");
 		for (String mimeType : typeCounts.keySet()) {
 			builder.append("    {\"mimeType\":\"");
 			builder.append(mimeType);
@@ -470,8 +487,8 @@ public class CommonCrawlDataDumper {
 		builder.append("}\n");
 		// filtered types stats
 		if (!filteredCounts.isEmpty()) {
-			builder.append("\n  FILTERED Stats:\n");
-			builder.append("                {\n");
+			builder.append("\nFILTERED Stats:\n");
+			builder.append("{\n");
 			for (String mimeType : filteredCounts.keySet()) {
 				builder.append("    {\"mimeType\":\"");
 				builder.append(mimeType);
