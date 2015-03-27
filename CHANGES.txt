@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1941 Optional rolling http.agent.name's (Asitang Mishra, lewismc via snagel)
+
 * NUTCH-1959 Improving CommonCrawlFormat implementations (Giuseppe Totaro via mattmann)
 
 * NUTCH-1974 keyPrefix option for CommonCrawlDataDumper tool (Giuseppe Totaro via mattmann)

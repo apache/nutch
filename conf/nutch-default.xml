@@ -161,6 +161,26 @@
 </property>
 
 <property>
+  <name>http.agent.rotate</name>
+  <value>false</value>
+  <description>
+    If true, instead of http.agent.name, alternating agent names are
+    chosen from a list provided via http.agent.rotate.file.
+  </description>
+</property>
+
+<property>
+  <name>http.agent.rotate.file</name>
+  <value>agents.txt</value>
+  <description>
+    File containing alternative user agent names to be used instead of
+    http.agent.name on a rotating basis if http.agent.rotate is true.
+    Each line of the file should contain exactly one agent
+    specification including name, version, description, URL, etc.
+  </description>
+</property>
+
+<property>
   <name>http.agent.host</name>
   <value></value>
   <description>Name or IP address of the host on which the Nutch crawler
