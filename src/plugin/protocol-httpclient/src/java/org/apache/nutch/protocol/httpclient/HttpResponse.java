@@ -30,6 +30,8 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpClient;
+
 
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
@@ -96,7 +98,9 @@ public class HttpResponse implements Response {
     // XXX little danger in retrying...
     // params.setParameter(HttpMethodParams.RETRY_HANDLER, null);
     try {
-      code = Http.getClient().executeMethod(get);
+      HttpClient client = Http.getClient();
+      client.getParams().setParameter("http.useragent", http.getUserAgent()); // NUTCH-1941
+      code = client.executeMethod(get);
 
       Header[] heads = get.getResponseHeaders();
 

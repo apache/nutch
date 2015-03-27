@@ -203,7 +203,7 @@ public class Http extends HttpBase {
     HostConfiguration hostConf = client.getHostConfiguration();
     ArrayList<Header> headers = new ArrayList<Header>();
     // Set the User Agent in the header
-    headers.add(new Header("User-Agent", userAgent));
+    //headers.add(new Header("User-Agent", userAgent)); //NUTCH-1941
     // prefer English
     headers.add(new Header("Accept-Language", "en-us,en-gb,en;q=0.7,*;q=0.3"));
     // prefer UTF-8

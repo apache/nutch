@@ -17,16 +17,22 @@
 package org.apache.nutch.protocol.http.api;
 
 // JDK imports
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
@@ -52,6 +58,8 @@ public abstract class HttpBase implements Protocol {
   private static final byte[] EMPTY_CONTENT = new byte[0];
 
   private HttpRobotRulesParser robots = null;
+
+  private ArrayList<String> userAgentNames = null;
 
   /** The proxy hostname. */
   protected String proxyHost = null;
@@ -131,6 +139,45 @@ public abstract class HttpBase implements Protocol {
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);
     this.responseTime = conf.getBoolean("http.store.responsetime", true);
     this.robots.setConf(conf);
+
+    // NUTCH-1941: read list of alternating agent names
+    if (conf.getBoolean("http.agent.rotate", false)) {
+      String agentsFile = conf.get("http.agent.rotate.file", "agents.txt");
+      BufferedReader br = null;
+      try {
+        Reader reader = conf.getConfResourceAsReader(agentsFile);
+        br = new BufferedReader(reader);
+        userAgentNames = new ArrayList<String>();
+        String word = "";
+        while ((word = br.readLine()) != null) {
+          if (!word.trim().isEmpty())
+            userAgentNames.add(word.trim());
+        }
+
+        if (userAgentNames.size() == 0) {
+          logger.warn("Empty list of user agents in http.agent.rotate.file {}",
+              agentsFile);
+          userAgentNames = null;
+        }
+
+      } catch (Exception e) {
+        logger.warn("Failed to read http.agent.rotate.file {}: {}", agentsFile,
+            StringUtils.stringifyException(e));
+        userAgentNames = null;
+      } finally {
+        if (br != null) {
+          try {
+            br.close();
+          } catch (IOException e) {
+            // ignore
+          }
+        }
+      }
+      if (userAgentNames == null) {
+        logger
+            .warn("Falling back to fixed user agent set via property http.agent.name");
+      }
+    }
 
     String[] protocols = conf.getStrings("http.tls.supported.protocols",
         "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3");
@@ -298,6 +345,9 @@ public abstract class HttpBase implements Protocol {
   }
 
   public String getUserAgent() {
+    if (userAgentNames!=null) {
+      return userAgentNames.get(ThreadLocalRandom.current().nextInt(userAgentNames.size()-1));
+    }
     return userAgent;
   }
 
