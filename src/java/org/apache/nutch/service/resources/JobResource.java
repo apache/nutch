@@ -26,6 +26,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
 import org.apache.nutch.service.model.response.JobConfig;
 import org.apache.nutch.service.model.response.JobInfo;
 import org.apache.nutch.service.model.response.JobInfo.State;
@@ -35,12 +37,14 @@ public class JobResource extends AbstractResource {
 
   @GET
   @Path(value = "/")
+  @JacksonFeatures(serializationEnable =  { SerializationFeature.INDENT_OUTPUT })
   public Collection<JobInfo> getJobs(@QueryParam("crawlId") String crawlId) {
     return jobManager.list(crawlId, State.ANY);
   }
 
   @GET
   @Path(value = "/{id}")
+  @JacksonFeatures(serializationEnable =  { SerializationFeature.INDENT_OUTPUT })
   public JobInfo getInfo(@PathParam("id") String id,
       @QueryParam("crawlId") String crawlId) {
     return jobManager.get(crawlId, id);
