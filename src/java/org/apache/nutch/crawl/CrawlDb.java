@@ -264,14 +264,16 @@ public class CrawlDb extends NutchTool implements Tool {
 		  additionsAllowed = false;
 	  }
 	  if (args.containsKey("dir")) {
-		  String[] segments = args.get("dir").split(" ");
-		  if(segments.length>0){
-			  FileStatus[] paths = fs.listStatus(new Path(segments[0]),
-					  HadoopFSUtil.getPassDirectoriesFilter(fs));
-			  dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
-			  for(int i=1;i<segments.length;i++){
-				  dirs.add(new Path(segments[i]));
-			  }
+		  String segment = args.get("dir");
+
+		  FileStatus[] paths = fs.listStatus(new Path(segment),
+				  HadoopFSUtil.getPassDirectoriesFilter(fs));
+		  dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
+	  }
+	  if(args.containsKey("segments")){
+		  String[] segments = args.get("segments").split(" ");
+		  for(String seg : segments){
+			  dirs.add(new Path(seg));
 		  }
 	  }
 	  try {
