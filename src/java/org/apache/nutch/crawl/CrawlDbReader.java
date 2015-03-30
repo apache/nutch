@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.Closeable;
 import java.net.URL;
@@ -30,6 +31,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.TreeMap;
+
 
 
 
@@ -773,14 +775,15 @@ public class CrawlDbReader implements Closeable {
    * Used for the Nutch REST service
    */
   @SuppressWarnings("unchecked")
-  public Map<String, Object> query(Map<String, String> args, Configuration conf) throws Exception {
+  public Object query(Map<String, String> args, Configuration conf, String type) throws Exception {
 	  if(args.size()<2){
 		  throw new IllegalArgumentException("Required arguments <crawldb> (-stats | -dump <out_dir> | -topN <nnnn> <out_dir> [<min>] | -url <url>)");
 	  }
 	  
 	  Map<String, Object> results = new HashMap<String, Object>();
 	  String crawlDb = args.get("crawldb");
-	  if(args.containsKey("stats")){
+	  
+	  if(type.equalsIgnoreCase("stats")){
 		  boolean sort = false;
 		  if(args.containsKey("sort")){
 			  if(args.get("sort").equalsIgnoreCase("true"))
@@ -796,6 +799,7 @@ public class CrawlDbReader implements Closeable {
 			  String k = entry.getKey();
 			  LongWritable val = entry.getValue();
 			  if (k.equals("scn")) {
+				  
 				  results.put("minScore", String.valueOf((val.get() / 1000.0f)));
 			  } else if (k.equals("scx")) {
 				  results.put("maxScore", String.valueOf((val.get() / 1000.0f)));
@@ -828,6 +832,62 @@ public class CrawlDbReader implements Closeable {
 				  results.put(k, String.valueOf(val));			  
 		  }
 		  results.put("status", statusMap);
+		  return results;
+	  }
+	  if(type.equalsIgnoreCase("dump")){
+//		  processDumpJob(crawlDb, output, config, format, regex, status, retry);
+		  String output = args.get("out_dir");
+		  String format = "normal";
+		  String regex = null;
+		  Integer retry = null;
+		  String status = null;
+		  if (args.containsKey("format")) {
+			  format = args.get("format");
+		  }
+		  if (args.containsKey("regex")) {
+			  regex = args.get("regex");
+		  }
+		  if (args.containsKey("retry")) {
+			  retry = Integer.parseInt(args.get("retry"));
+		  }
+		  if (args.containsKey("status")) {
+			  status = args.get("status");
+		  }
+		  processDumpJob(crawlDb, output, conf, format, regex, status, retry);
+		  File dumpFile = new File(output+"/part-00000");
+		  return dumpFile;		  
+	  }
+	  if (type.equalsIgnoreCase("topN")) {
+		  String output = args.get("out_dir");
+		  long topN = Long.parseLong(args.get("nnn"));
+		  float min = 0.0f;
+		  if(args.containsKey("min")){
+			  min = Float.parseFloat(args.get("min"));
+		  }
+		  processTopNJob(crawlDb, topN, min, output, conf);
+		  File dumpFile = new File(output+"/part-00000");
+		  return dumpFile;
+	  }
+	  
+	  if(type.equalsIgnoreCase("url")){
+		  String url = args.get("url");
+		  CrawlDatum res = get(crawlDb, url, conf);
+		  results.put("status", res.getStatus());
+		  results.put("fetchTime", new Date(res.getFetchTime()));
+		  results.put("modifiedTime", new Date(res.getModifiedTime()));
+		  results.put("retriesSinceFetch", res.getRetriesSinceFetch());
+		  results.put("retryInterval", res.getFetchInterval());
+		  results.put("score", res.getScore());
+		  results.put("signature", StringUtil.toHexString(res.getSignature()));
+		  Map<String, String> metadata = new HashMap<String, String>();
+		  if(res.getMetaData()!=null){
+			  for (Entry<Writable, Writable> e : res.getMetaData().entrySet()) {
+				  metadata.put(String.valueOf(e.getKey()), String.valueOf(e.getValue()));
+			  }
+		  }
+		  results.put("metadata", metadata);
+		  
+		  return results;
 	  }
 	  return results;
   }
