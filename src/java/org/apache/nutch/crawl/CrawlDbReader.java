@@ -424,64 +424,6 @@ public class CrawlDbReader implements Closeable {
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb statistics start: " + crawlDb);
     }
-
-//    Path tmpFolder = new Path(crawlDb, "stat_tmp" + System.currentTimeMillis());
-//
-//    JobConf job = new NutchJob(config);
-//    job.setJobName("stats " + crawlDb);
-//    job.setBoolean("db.reader.stats.sort", sort);
-//
-//    FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
-//    job.setInputFormat(SequenceFileInputFormat.class);
-//
-//    job.setMapperClass(CrawlDbStatMapper.class);
-//    job.setCombinerClass(CrawlDbStatCombiner.class);
-//    job.setReducerClass(CrawlDbStatReducer.class);
-//
-//    FileOutputFormat.setOutputPath(job, tmpFolder);
-//    job.setOutputFormat(SequenceFileOutputFormat.class);
-//    job.setOutputKeyClass(Text.class);
-//    job.setOutputValueClass(LongWritable.class);
-//
-//    // https://issues.apache.org/jira/browse/NUTCH-1029
-//    job.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
-//
-//    JobClient.runJob(job);
-//
-//    // reading the result
-//    FileSystem fileSystem = FileSystem.get(config);
-//    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(config,
-//        tmpFolder);
-//
-//    Text key = new Text();
-//    LongWritable value = new LongWritable();
-//
-//    TreeMap<String, LongWritable> stats = new TreeMap<String, LongWritable>();
-//    for (int i = 0; i < readers.length; i++) {
-//      SequenceFile.Reader reader = readers[i];
-//      while (reader.next(key, value)) {
-//        String k = key.toString();
-//        LongWritable val = stats.get(k);
-//        if (val == null) {
-//          val = new LongWritable();
-//          if (k.equals("scx"))
-//            val.set(Long.MIN_VALUE);
-//          if (k.equals("scn"))
-//            val.set(Long.MAX_VALUE);
-//          stats.put(k, val);
-//        }
-//        if (k.equals("scx")) {
-//          if (val.get() < value.get())
-//            val.set(value.get());
-//        } else if (k.equals("scn")) {
-//          if (val.get() > value.get())
-//            val.set(value.get());
-//        } else {
-//          val.set(val.get() + value.get());
-//        }
-//      }
-//      reader.close();
-//    }
     TreeMap<String, LongWritable> stats = processStatJobHelper(crawlDb, config, sort);
 
     if (LOG.isInfoEnabled()) {
@@ -511,8 +453,6 @@ public class CrawlDbReader implements Closeable {
           LOG.info(k + ":\t" + val);
       }
     }
-    // removing the tmp folder
-//    fileSystem.delete(tmpFolder, true);
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb statistics: done");
     }

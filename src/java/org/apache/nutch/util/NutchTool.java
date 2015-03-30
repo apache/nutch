@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.metadata.Nutch;
@@ -24,6 +25,14 @@ public abstract class NutchTool extends Configured {
 	public abstract Map<String, Object> run(Map<String, String> args)
 			throws Exception;
 
+	public NutchTool(Configuration conf){
+		super(conf);
+	}
+	
+	public NutchTool(){
+		super(null);
+	}
+	
 	/** Returns relative progress of the tool, a float in range [0,1]. */
 	public float getProgress() {
 		float res = 0;

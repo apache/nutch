@@ -1195,11 +1195,11 @@ public class Fetcher extends NutchTool implements Tool,
   }
 
   public Fetcher() {
-	  this(null);
+	  super(null);
   }
 
   public Fetcher(Configuration conf) {
-    setConf(conf);
+    super(conf);
   }
 
   private void updateStatus(int bytesInPage) throws IOException {

@@ -55,11 +55,11 @@ public class ParseSegment extends NutchTool implements Tool,
   private boolean skipTruncated;
 
   public ParseSegment() {
-    this(null);
+    super(null);
   }
 
   public ParseSegment(Configuration conf) {
-    setConf(conf);
+    super(conf);
   }
 
   public void configure(JobConf job) {
