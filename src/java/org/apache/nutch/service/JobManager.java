@@ -18,6 +18,7 @@
 package org.apache.nutch.service;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.nutch.service.model.request.JobConfig;
 import org.apache.nutch.service.model.response.JobInfo;
@@ -31,8 +32,13 @@ public interface JobManager {
 	public Collection<JobInfo> list(String crawlId, State state);
 
 	public JobInfo get(String crawlId, String id);
-
-	public String create(JobConfig jobConfig);
+	
+	/**
+	 * Creates specified job
+	 * @param jobConfig
+	 * @return JobInfo
+	 */
+	public JobInfo create(JobConfig jobConfig);
 	
 	public boolean abort(String crawlId, String id);
 

@@ -21,7 +21,7 @@ public abstract class NutchTool extends Configured {
 	/**
 	 * Runs the tool, using a map of arguments. May return results, or null.
 	 */
-	public abstract int run(Map<String, String> args)
+	public abstract Map<String, Object> run(Map<String, String> args)
 			throws Exception;
 
 	/** Returns relative progress of the tool, a float in range [0,1]. */

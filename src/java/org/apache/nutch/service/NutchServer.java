@@ -40,6 +40,7 @@ import org.apache.nutch.service.impl.JobFactory;
 import org.apache.nutch.service.impl.JobManagerImpl;
 import org.apache.nutch.service.impl.NutchServerPoolExecutor;
 import org.apache.nutch.service.resources.ConfigResource;
+import org.apache.nutch.service.resources.DbResource;
 import org.apache.nutch.service.resources.JobResource;
 import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.slf4j.Logger;
@@ -118,13 +119,13 @@ public class NutchServer {
 		List<Class<?>> resources = new ArrayList<Class<?>>();
 		resources.add(JobResource.class);
 		resources.add(ConfigResource.class);
+		resources.add(DbResource.class);
 		return resources;
 	}
 
 	private List<ResourceProvider> getResourceProviders() {
 		List<ResourceProvider> resourceProviders = new ArrayList<ResourceProvider>();
 		resourceProviders.add(new SingletonResourceProvider(getConfManager()));
-
 		return resourceProviders;
 	}
 
