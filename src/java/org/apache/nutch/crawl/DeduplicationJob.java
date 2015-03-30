@@ -18,6 +18,7 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -298,14 +299,16 @@ public class DeduplicationJob extends NutchTool implements Tool {
   }
 
   @Override
-  public int run(Map<String, String> args) throws Exception {
+  public Map<String, Object> run(Map<String, String> args) throws Exception {
 	  if(args.size()<1){
 		  throw new IllegalArgumentException("Required argument <crawldb>");
 	  }
-	  
+	  Map<String, Object> results = new HashMap<String, Object>();
+	  String RESULT = "result";
 	  String[] arg = new String[1];
 	  arg[0] = args.get("crawldb");
-	  
-	  return run(arg);
+	  int res = run(arg);
+	  results.put(RESULT, Integer.toString(res));
+	  return results;
   }
 }

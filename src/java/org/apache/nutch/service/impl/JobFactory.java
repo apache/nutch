@@ -44,7 +44,7 @@ public class JobFactory {
 		typeToClass.put(JobType.PARSE, ParseSegment.class);
 		typeToClass.put(JobType.UPDATEDB, CrawlDb.class);
 		typeToClass.put(JobType.INVERTLINKS, LinkDb.class);
-		typeToClass.put(JobType.DEDUP, DeduplicationJob.class);		
+		typeToClass.put(JobType.DEDUP, DeduplicationJob.class);
 	}
 
 	public NutchTool createToolByType(JobType type, Configuration conf) {

@@ -63,10 +63,10 @@ public class JobResource extends AbstractResource {
   @POST
   @Path(value = "/create")
   @Consumes(MediaType.APPLICATION_JSON)
-  public String create(JobConfig config) {
+  public JobInfo create(JobConfig config) {
     if (config == null) {
       throwBadRequestException("Job configuration is required!");
-    }    
-    return jobManager.create(config);
+    }   
+    return jobManager.create(config);   
   }
 }

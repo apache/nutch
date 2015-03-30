@@ -29,6 +29,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 
 
+
+
+
+
 // Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1619,10 +1623,12 @@ public class Fetcher extends NutchTool implements Tool,
   }
 
   @Override
-  public int run(Map<String, String> args) throws Exception {
+  public Map<String, Object> run(Map<String, String> args) throws Exception {
 	  if(args.size()<1){
 		  throw new IllegalArgumentException("Required arguments <segment> [threads n]");
 	  }
+	  Map<String, Object> results = new HashMap<String, Object>();
+	  String RESULT = "result";
 	  Path segment = new Path(args.get("segment"));
 
 	  int threads = getConf().getInt("fetcher.threads.fetch", 10);
@@ -1636,10 +1642,12 @@ public class Fetcher extends NutchTool implements Tool,
 
 	  try {
 		  fetch(segment, threads);
-		  return 0;
+		  results.put(RESULT, Integer.toString(0));
+		  return results;
 	  } catch (Exception e) {
 		  LOG.error("Fetcher: " + StringUtils.stringifyException(e));
-		  return -1;
+		  results.put(RESULT, Integer.toString(-1));
+		  return results;
 	  }
   }
 

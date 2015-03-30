@@ -236,10 +236,12 @@ public class CrawlDb extends NutchTool implements Tool {
    * Used for Nutch REST service
    */
   @Override
-  public int run(Map<String, String> args) throws Exception {
+  public Map<String, Object> run(Map<String, String> args) throws Exception {
 	  if (args.size() == 0) {
 		  throw new IllegalArgumentException("Required arguments <crawldb> (-dir <segments> | <seg1> <seg2> ...) [-force] [-normalize] [-filter] [-noAdditions]");
 	  }
+	  Map<String, Object> results = new HashMap<String, Object>();
+	  String RESULT = "result";
 	  boolean normalize = getConf().getBoolean(CrawlDbFilter.URL_NORMALIZING,
 			  false);
 	  boolean filter = getConf().getBoolean(CrawlDbFilter.URL_FILTERING, false);
@@ -275,10 +277,12 @@ public class CrawlDb extends NutchTool implements Tool {
 	  try {
 		  update(new Path(args.get("crawldb")), dirs.toArray(new Path[dirs.size()]), normalize,
 				  filter, additionsAllowed, force);
-		  return 0;
+		  results.put(RESULT, Integer.toString(0));
+		  return results;
 	  } catch (Exception e) {
 		  LOG.error("CrawlDb update: " + StringUtils.stringifyException(e));
-		  return -1;
+		  results.put(RESULT, Integer.toString(-1));
+		  return results;
 	  }
   }
 }

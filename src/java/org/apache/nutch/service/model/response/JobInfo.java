@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.apache.nutch.service.JobManager.JobType;
 import org.apache.nutch.service.model.request.JobConfig;
-import org.apache.nutch.service.model.response.JobInfo.State;
 
 /**
  * This is the response object containing Job information
@@ -37,7 +36,7 @@ public class JobInfo {
 	private JobType type;
 	private String confId;
 	private Map<String, String> args;
-	private int result;
+	private Map<String, Object> result;
 	private State state;
 	private String msg;
 	private String crawlId;
@@ -76,12 +75,12 @@ public class JobInfo {
 	public void setArgs(Map<String, String> args) {
 		this.args = args;
 	}
-	public int getResult() {
+	public Map<String, Object> getResult() {
 		return result;
 	}
-	public void setResult(int i) {
-		this.result = i;
-	}
+	public void setResult(Map<String, Object> result) {
+		this.result = result;
+	}	
 	public State getState() {
 		return state;
 	}

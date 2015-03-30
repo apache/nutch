@@ -341,10 +341,12 @@ public class LinkDb extends NutchTool implements Tool,
    * Used for Nutch REST service
    */
   @Override
-  public int run(Map<String, String> args) throws Exception {
+  public Map<String, Object> run(Map<String, String> args) throws Exception {
 	  if (args.size() < 2) {
 		  throw new IllegalArgumentException("Required arguments <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-force] [-noNormalize] [-noFilter]");
 	  }
+	  Map<String, Object> results = new HashMap<String, Object>();
+	  String RESULT = "result";
 	  final FileSystem fs = FileSystem.get(getConf());
 	  Path db = new Path(args.get("linkdb"));
 	  ArrayList<Path> segs = new ArrayList<Path>();
@@ -373,10 +375,12 @@ public class LinkDb extends NutchTool implements Tool,
 	  }
 	  try {
 		  invert(db, segs.toArray(new Path[segs.size()]), normalize, filter, force);
-		  return 0;
+		  results.put(RESULT, Integer.toString(0));
+		  return results;
 	  } catch (Exception e) {
 		  LOG.error("LinkDb: " + StringUtils.stringifyException(e));
-		  return -1;
+		  results.put(RESULT, Integer.toString(-1));
+		  return results;
 	  }
   }
 

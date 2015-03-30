@@ -39,11 +39,8 @@ public class JobManagerImpl implements JobManager {
 		this.executor = executor;
 	}
 
-	/**
-	 * This creates the Job and adds to the ThreadPoolExector
-	 */
 	@Override
-	public String create(JobConfig jobConfig) {
+	public JobInfo create(JobConfig jobConfig) {
 		if (jobConfig.getArgs() == null) {
 			throw new IllegalArgumentException("Arguments cannot be null!");
 		}
@@ -52,7 +49,7 @@ public class JobManagerImpl implements JobManager {
 		JobWorker worker = new JobWorker(jobConfig, conf, tool);
 		executor.execute(worker);
 		executor.purge();		
-		return worker.getInfo().getId();
+		return worker.getInfo();
 	}
 
 	private Configuration cloneConfiguration(String confId) {

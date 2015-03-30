@@ -752,11 +752,13 @@ public class Generator extends NutchTool implements Tool {
   }
 
   @Override
-  public int run(Map<String, String> args) throws Exception {
+  public Map<String, Object> run(Map<String, String> args) throws Exception {
 	  if(args.size()<2){
 		  throw new  IllegalArgumentException("Required arguments <crawldb> <segments_dir> [-force] [-topN N] [-numFetchers numFetchers] [-adddays numDays] [-noFilter] [-noNorm][-maxNumSegments num]");
 	  }
 
+	  Map<String, Object> results = new HashMap<String, Object>();
+	  String RESULT = "result";
 	  Path dbDir = new Path(args.get("crawldb"));
 	  Path segmentsDir = new Path(args.get("segments_dir"));
 	  long curTime = System.currentTimeMillis();
@@ -767,7 +769,7 @@ public class Generator extends NutchTool implements Tool {
 	  boolean force = false;
 	  int maxNumSegments = 1;
 
-	 
+
 	  if (args.containsKey("topN")) {
 		  topN = Long.parseLong(args.get("topN"));
 	  }
@@ -790,16 +792,21 @@ public class Generator extends NutchTool implements Tool {
 	  if (args.containsKey("maxNumSegments")) {
 		  maxNumSegments = Integer.parseInt(args.get("maxNumSegments"));
 	  }
-	  
+
 	  try {
 		  Path[] segs = generate(dbDir, segmentsDir, numFetchers, topN, curTime,
 				  filter, norm, force, maxNumSegments);
-		  if (segs == null)
-			  return 1;
+		  if (segs == null){
+			  results.put(RESULT, Integer.toString(1));
+			  return results;
+		  }
+
 	  } catch (Exception e) {
 		  LOG.error("Generator: " + StringUtils.stringifyException(e));
-		  return -1;
+		  results.put(RESULT, Integer.toString(-1));
+		  return results;
 	  }
-	  return 0;
+	  results.put(RESULT, Integer.toString(0));
+	  return results;
   }
 }
