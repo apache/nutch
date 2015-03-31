@@ -716,8 +716,8 @@ public class CrawlDbReader implements Closeable {
    */
   @SuppressWarnings("unchecked")
   public Object query(Map<String, String> args, Configuration conf, String type) throws Exception {
-	  if(args.size()<2){
-		  throw new IllegalArgumentException("Required arguments <crawldb> (-stats | -dump <out_dir> | -topN <nnnn> <out_dir> [<min>] | -url <url>)");
+	  if(args.size()<1){
+		  throw new IllegalArgumentException("Required arguments <crawldb>");
 	  }
 	  
 	  Map<String, Object> results = new HashMap<String, Object>();
@@ -775,7 +775,6 @@ public class CrawlDbReader implements Closeable {
 		  return results;
 	  }
 	  if(type.equalsIgnoreCase("dump")){
-//		  processDumpJob(crawlDb, output, config, format, regex, status, retry);
 		  String output = args.get("out_dir");
 		  String format = "normal";
 		  String regex = null;
