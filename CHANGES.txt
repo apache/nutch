@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1979 CrawlDbReader to implement Tool (markus)
+
 * NUTCH-1970 Pretty print JSON output in config resource (Tyler Pasulich, mattmann)
 
 * NUTCH-1976 Allow Users to Set Hostname for Server (Tyler Palsulich via mattmann)
