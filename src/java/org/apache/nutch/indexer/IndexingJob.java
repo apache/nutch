@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.parse.ParseText;
+import org.apache.nutch.parse.ParseData;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
@@ -153,7 +156,29 @@ public class IndexingJob extends Configured implements Tool {
             HadoopFSUtil.getPassDirectoriesFilter(fs));
         Path[] files = HadoopFSUtil.getPaths(fstats);
         for (Path p : files) {
-          segments.add(p);
+          FileStatus[] fstats_segment = fs.listStatus(p, HadoopFSUtil.getPassDirectoriesFilter(fs));
+          Path[] segment_files = HadoopFSUtil.getPaths(fstats_segment);
+          //check if segment is missing sub directories
+          boolean isCrawlFetchExisted = false;
+          boolean isCrawlParseExisted = false;
+          boolean isParseDataExisted = false;
+          boolean isParseTextExisted = false;
+
+          for(Path path : segment_files){
+            String pathName = path.getName();
+
+            isCrawlFetchExisted |= pathName.equals(CrawlDatum.FETCH_DIR_NAME);
+            isCrawlParseExisted |= pathName.equals(CrawlDatum.PARSE_DIR_NAME);
+            isParseDataExisted |= pathName.equals(ParseData.DIR_NAME);
+            isParseTextExisted |= pathName.equals(ParseText.DIR_NAME);
+          }
+
+          if (isParseTextExisted && isCrawlParseExisted && isCrawlFetchExisted && isParseDataExisted) {
+            segments.add(p);
+          } else {
+            LOG.info("Skipping segment: " + p.toString() + ". Missing sub directories.");
+          }
+
         }
       } else if (args[i].equals("-noCommit")) {
         noCommit = true;
