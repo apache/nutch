@@ -176,7 +176,21 @@ public class IndexingJob extends Configured implements Tool {
           if (isParseTextExisted && isCrawlParseExisted && isCrawlFetchExisted && isParseDataExisted) {
             segments.add(p);
           } else {
-            LOG.info("Skipping segment: " + p.toString() + ". Missing sub directories.");
+            StringBuilder missingDir = new StringBuilder("");
+            if (isParseDataExisted == false) {
+              missingDir.append(ParseData.DIR_NAME + ", ");
+            }
+            if (isParseTextExisted == false) {
+              missingDir.append(ParseText.DIR_NAME + ", ");
+            }
+            if (isCrawlParseExisted == false) {
+              missingDir.append(CrawlDatum.PARSE_DIR_NAME + ", " );
+            }
+            if (isCrawlFetchExisted == false) {
+              missingDir.append(CrawlDatum.FETCH_DIR_NAME + ", ");
+            }
+            String missingDirString = missingDir.toString();
+            LOG.info("Skipping segment: " + p.toString() + ". Missing sub directories: " + missingDirString.substring(0,missingDirString.length()-2));
           }
 
         }
