@@ -23,49 +23,49 @@ import org.apache.nutch.service.JobManager.JobType;
 
 
 public class JobConfig {
-	private String crawlId;
-	private JobType type;
-	private String confId;
-	private String jobClassName;
-	private Map<String, String> args;
+  private String crawlId;
+  private JobType type;
+  private String confId;
+  private String jobClassName;
+  private Map<String, String> args;
 
-	public String getCrawlId() {
-		return crawlId;
-	}
+  public String getCrawlId() {
+    return crawlId;
+  }
 
-	public void setCrawlId(String crawlId) {
-		this.crawlId = crawlId;
-	}
+  public void setCrawlId(String crawlId) {
+    this.crawlId = crawlId;
+  }
 
-	public JobType getType() {
-		return type;
-	}
+  public JobType getType() {
+    return type;
+  }
 
-	public void setType(JobType type) {
-		this.type = type;
-	}
+  public void setType(JobType type) {
+    this.type = type;
+  }
 
-	public String getConfId() {
-		return confId;
-	}
+  public String getConfId() {
+    return confId;
+  }
 
-	public void setConfId(String confId) {
-		this.confId = confId;
-	}
+  public void setConfId(String confId) {
+    this.confId = confId;
+  }
 
-	public Map<String, String> getArgs() {
-		return args;
-	}
+  public Map<String, String> getArgs() {
+    return args;
+  }
 
-	public void setArgs(Map<String, String> args) {
-		this.args = args;
-	}
+  public void setArgs(Map<String, String> args) {
+    this.args = args;
+  }
 
-	public String getJobClassName() {
-		return jobClassName;
-	}
+  public String getJobClassName() {
+    return jobClassName;
+  }
 
-	public void setJobClassName(String jobClass) {
-		this.jobClassName = jobClass;
-	}
+  public void setJobClassName(String jobClass) {
+    this.jobClassName = jobClass;
+  }
 }

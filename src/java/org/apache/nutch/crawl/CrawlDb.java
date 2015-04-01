@@ -237,54 +237,54 @@ public class CrawlDb extends NutchTool implements Tool {
    */
   @Override
   public Map<String, Object> run(Map<String, String> args) throws Exception {
-	  if (args.size() == 0) {
-		  throw new IllegalArgumentException("Required arguments <crawldb> (-dir <segments> | <seg1> <seg2> ...) [-force] [-normalize] [-filter] [-noAdditions]");
-	  }
-	  Map<String, Object> results = new HashMap<String, Object>();
-	  String RESULT = "result";
-	  boolean normalize = getConf().getBoolean(CrawlDbFilter.URL_NORMALIZING,
-			  false);
-	  boolean filter = getConf().getBoolean(CrawlDbFilter.URL_FILTERING, false);
-	  boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED,
-			  true);
-	  boolean force = false;
-	  final FileSystem fs = FileSystem.get(getConf());
-	  HashSet<Path> dirs = new HashSet<Path>();
+    if (args.size() == 0) {
+      throw new IllegalArgumentException("Required arguments <crawldb> (-dir <segments> | <seg1> <seg2> ...) [-force] [-normalize] [-filter] [-noAdditions]");
+    }
+    Map<String, Object> results = new HashMap<String, Object>();
+    String RESULT = "result";
+    boolean normalize = getConf().getBoolean(CrawlDbFilter.URL_NORMALIZING,
+        false);
+    boolean filter = getConf().getBoolean(CrawlDbFilter.URL_FILTERING, false);
+    boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED,
+        true);
+    boolean force = false;
+    final FileSystem fs = FileSystem.get(getConf());
+    HashSet<Path> dirs = new HashSet<Path>();
 
-	  if (args.containsKey("normalize")) {
-		  normalize = true;
-	  } 
-	  if (args.containsKey("filter")) {
-		  filter = true;
-	  } 
-	  if (args.containsKey("force")) {
-		  force = true;
-	  } 
-	  if (args.containsKey("noAdditions")) {
-		  additionsAllowed = false;
-	  }
-	  if (args.containsKey("dir")) {
-		  String segment = args.get("dir");
+    if (args.containsKey("normalize")) {
+      normalize = true;
+    } 
+    if (args.containsKey("filter")) {
+      filter = true;
+    } 
+    if (args.containsKey("force")) {
+      force = true;
+    } 
+    if (args.containsKey("noAdditions")) {
+      additionsAllowed = false;
+    }
+    if (args.containsKey("dir")) {
+      String segment = args.get("dir");
 
-		  FileStatus[] paths = fs.listStatus(new Path(segment),
-				  HadoopFSUtil.getPassDirectoriesFilter(fs));
-		  dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
-	  }
-	  if(args.containsKey("segments")){
-		  String[] segments = args.get("segments").split(" ");
-		  for(String seg : segments){
-			  dirs.add(new Path(seg));
-		  }
-	  }
-	  try {
-		  update(new Path(args.get("crawldb")), dirs.toArray(new Path[dirs.size()]), normalize,
-				  filter, additionsAllowed, force);
-		  results.put(RESULT, Integer.toString(0));
-		  return results;
-	  } catch (Exception e) {
-		  LOG.error("CrawlDb update: " + StringUtils.stringifyException(e));
-		  results.put(RESULT, Integer.toString(-1));
-		  return results;
-	  }
+      FileStatus[] paths = fs.listStatus(new Path(segment),
+          HadoopFSUtil.getPassDirectoriesFilter(fs));
+      dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
+    }
+    if(args.containsKey("segments")){
+      String[] segments = args.get("segments").split(" ");
+      for(String seg : segments){
+        dirs.add(new Path(seg));
+      }
+    }
+    try {
+      update(new Path(args.get("crawldb")), dirs.toArray(new Path[dirs.size()]), normalize,
+          filter, additionsAllowed, force);
+      results.put(RESULT, Integer.toString(0));
+      return results;
+    } catch (Exception e) {
+      LOG.error("CrawlDb update: " + StringUtils.stringifyException(e));
+      results.put(RESULT, Integer.toString(-1));
+      return results;
+    }
   }
 }

@@ -29,67 +29,67 @@ import org.apache.nutch.util.NutchTool;
 
 public class JobManagerImpl implements JobManager {
 
-	private JobFactory jobFactory;
-	private NutchServerPoolExecutor executor;
-	private ConfManager configManager;
+  private JobFactory jobFactory;
+  private NutchServerPoolExecutor executor;
+  private ConfManager configManager;
 
-	public JobManagerImpl(JobFactory jobFactory, ConfManager configManager, NutchServerPoolExecutor executor) {
-		this.jobFactory = jobFactory;
-		this.configManager = configManager;		
-		this.executor = executor;
-	}
+  public JobManagerImpl(JobFactory jobFactory, ConfManager configManager, NutchServerPoolExecutor executor) {
+    this.jobFactory = jobFactory;
+    this.configManager = configManager;		
+    this.executor = executor;
+  }
 
-	@Override
-	public JobInfo create(JobConfig jobConfig) {
-		if (jobConfig.getArgs() == null) {
-			throw new IllegalArgumentException("Arguments cannot be null!");
-		}
-		Configuration conf = cloneConfiguration(jobConfig.getConfId());
-		NutchTool tool = createTool(jobConfig, conf);
-		JobWorker worker = new JobWorker(jobConfig, conf, tool);
-		executor.execute(worker);
-		executor.purge();		
-		return worker.getInfo();
-	}
+  @Override
+  public JobInfo create(JobConfig jobConfig) {
+    if (jobConfig.getArgs() == null) {
+      throw new IllegalArgumentException("Arguments cannot be null!");
+    }
+    Configuration conf = cloneConfiguration(jobConfig.getConfId());
+    NutchTool tool = createTool(jobConfig, conf);
+    JobWorker worker = new JobWorker(jobConfig, conf, tool);
+    executor.execute(worker);
+    executor.purge();		
+    return worker.getInfo();
+  }
 
-	private Configuration cloneConfiguration(String confId) {
-		Configuration conf = configManager.get(confId);
-		if (conf == null) {
-			throw new IllegalArgumentException("Unknown confId " + confId);
-		}
-		return new Configuration(conf);
-	}
+  private Configuration cloneConfiguration(String confId) {
+    Configuration conf = configManager.get(confId);
+    if (conf == null) {
+      throw new IllegalArgumentException("Unknown confId " + confId);
+    }
+    return new Configuration(conf);
+  }
 
-	@Override
-	public Collection<JobInfo> list(String crawlId, State state) {
-		if (state == null || state == State.ANY) {
-			return executor.getAllJobs();
-		}
-		if (state == State.RUNNING || state == State.IDLE) {
-			return executor.getJobRunning();
-		}
-		return executor.getJobHistory();
-	}
+  @Override
+  public Collection<JobInfo> list(String crawlId, State state) {
+    if (state == null || state == State.ANY) {
+      return executor.getAllJobs();
+    }
+    if (state == State.RUNNING || state == State.IDLE) {
+      return executor.getJobRunning();
+    }
+    return executor.getJobHistory();
+  }
 
-	@Override
-	public JobInfo get(String crawlId, String jobId) {
-		return executor.getInfo(jobId);
-	}
+  @Override
+  public JobInfo get(String crawlId, String jobId) {
+    return executor.getInfo(jobId);
+  }
 
-	@Override
-	public boolean abort(String crawlId, String id) {
-		return executor.findWorker(id).killJob();
-	}
+  @Override
+  public boolean abort(String crawlId, String id) {
+    return executor.findWorker(id).killJob();
+  }
 
-	@Override
-	public boolean stop(String crawlId, String id) {
-		return executor.findWorker(id).stopJob();
-	}
+  @Override
+  public boolean stop(String crawlId, String id) {
+    return executor.findWorker(id).stopJob();
+  }
 
-	private NutchTool createTool(JobConfig jobConfig, Configuration conf){
-		if(StringUtils.isNotBlank(jobConfig.getJobClassName())){
-			return jobFactory.createToolByClassName(jobConfig.getJobClassName(), conf);
-		}
-		return jobFactory.createToolByType(jobConfig.getType(), conf);
-	}
+  private NutchTool createTool(JobConfig jobConfig, Configuration conf){
+    if(StringUtils.isNotBlank(jobConfig.getJobClassName())){
+      return jobFactory.createToolByClassName(jobConfig.getJobClassName(), conf);
+    }
+    return jobFactory.createToolByType(jobConfig.getType(), conf);
+  }
 }

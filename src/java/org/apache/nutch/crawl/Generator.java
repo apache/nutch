@@ -753,60 +753,60 @@ public class Generator extends NutchTool implements Tool {
 
   @Override
   public Map<String, Object> run(Map<String, String> args) throws Exception {
-	  if(args.size()<2){
-		  throw new  IllegalArgumentException("Required arguments <crawldb> <segments_dir> [-force] [-topN N] [-numFetchers numFetchers] [-adddays numDays] [-noFilter] [-noNorm][-maxNumSegments num]");
-	  }
+    if(args.size()<2){
+      throw new  IllegalArgumentException("Required arguments <crawldb> <segments_dir> [-force] [-topN N] [-numFetchers numFetchers] [-adddays numDays] [-noFilter] [-noNorm][-maxNumSegments num]");
+    }
 
-	  Map<String, Object> results = new HashMap<String, Object>();
-	  String RESULT = "result";
-	  Path dbDir = new Path(args.get("crawldb"));
-	  Path segmentsDir = new Path(args.get("segments_dir"));
-	  long curTime = System.currentTimeMillis();
-	  long topN = Long.MAX_VALUE;
-	  int numFetchers = -1;
-	  boolean filter = true;
-	  boolean norm = true;
-	  boolean force = false;
-	  int maxNumSegments = 1;
+    Map<String, Object> results = new HashMap<String, Object>();
+    String RESULT = "result";
+    Path dbDir = new Path(args.get("crawldb"));
+    Path segmentsDir = new Path(args.get("segments_dir"));
+    long curTime = System.currentTimeMillis();
+    long topN = Long.MAX_VALUE;
+    int numFetchers = -1;
+    boolean filter = true;
+    boolean norm = true;
+    boolean force = false;
+    int maxNumSegments = 1;
 
 
-	  if (args.containsKey("topN")) {
-		  topN = Long.parseLong(args.get("topN"));
-	  }
-	  if (args.containsKey("numFetchers")) {
-		  numFetchers = Integer.parseInt(args.get("numFetchers"));
-	  }
-	  if (args.containsKey("adddays")) {
-		  long numDays = Integer.parseInt(args.get("adddays"));
-		  curTime += numDays * 1000L * 60 * 60 * 24;
-	  }
-	  if (args.containsKey("noFilter")) {
-		  filter = false;
-	  } 
-	  if (args.containsKey("noNorm")) {
-		  norm = false;
-	  } 
-	  if (args.containsKey("force")) {
-		  force = true;
-	  } 
-	  if (args.containsKey("maxNumSegments")) {
-		  maxNumSegments = Integer.parseInt(args.get("maxNumSegments"));
-	  }
+    if (args.containsKey("topN")) {
+      topN = Long.parseLong(args.get("topN"));
+    }
+    if (args.containsKey("numFetchers")) {
+      numFetchers = Integer.parseInt(args.get("numFetchers"));
+    }
+    if (args.containsKey("adddays")) {
+      long numDays = Integer.parseInt(args.get("adddays"));
+      curTime += numDays * 1000L * 60 * 60 * 24;
+    }
+    if (args.containsKey("noFilter")) {
+      filter = false;
+    } 
+    if (args.containsKey("noNorm")) {
+      norm = false;
+    } 
+    if (args.containsKey("force")) {
+      force = true;
+    } 
+    if (args.containsKey("maxNumSegments")) {
+      maxNumSegments = Integer.parseInt(args.get("maxNumSegments"));
+    }
 
-	  try {
-		  Path[] segs = generate(dbDir, segmentsDir, numFetchers, topN, curTime,
-				  filter, norm, force, maxNumSegments);
-		  if (segs == null){
-			  results.put(RESULT, Integer.toString(1));
-			  return results;
-		  }
+    try {
+      Path[] segs = generate(dbDir, segmentsDir, numFetchers, topN, curTime,
+          filter, norm, force, maxNumSegments);
+      if (segs == null){
+        results.put(RESULT, Integer.toString(1));
+        return results;
+      }
 
-	  } catch (Exception e) {
-		  LOG.error("Generator: " + StringUtils.stringifyException(e));
-		  results.put(RESULT, Integer.toString(-1));
-		  return results;
-	  }
-	  results.put(RESULT, Integer.toString(0));
-	  return results;
+    } catch (Exception e) {
+      LOG.error("Generator: " + StringUtils.stringifyException(e));
+      results.put(RESULT, Integer.toString(-1));
+      return results;
+    }
+    results.put(RESULT, Integer.toString(0));
+    return results;
   }
 }

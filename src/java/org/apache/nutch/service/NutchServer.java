@@ -50,128 +50,128 @@ import com.google.common.collect.Queues;
 
 public class NutchServer {
 
-	private static final Logger LOG = LoggerFactory.getLogger(NutchServer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NutchServer.class);
 
-	private static final String LOCALHOST = "localhost";
-	private static final Integer DEFAULT_PORT = 8081;
-	private static final int JOB_CAPACITY = 100;
+  private static final String LOCALHOST = "localhost";
+  private static final Integer DEFAULT_PORT = 8081;
+  private static final int JOB_CAPACITY = 100;
 
-	private static Integer port = DEFAULT_PORT;
+  private static Integer port = DEFAULT_PORT;
 
-	private static final String CMD_HELP = "help";
-	private static final String CMD_PORT = "port";
+  private static final String CMD_HELP = "help";
+  private static final String CMD_PORT = "port";
 
-	private long started;
-	private boolean running;
-	private ConfManager configManager;
-	private JobManager jobManager;
-	private JAXRSServerFactoryBean sf; 
+  private long started;
+  private boolean running;
+  private ConfManager configManager;
+  private JobManager jobManager;
+  private JAXRSServerFactoryBean sf; 
 
-	private static NutchServer server;
+  private static NutchServer server;
 
-	static {
-		server = new NutchServer();
-	}
+  static {
+    server = new NutchServer();
+  }
 
-	private NutchServer() {
-		configManager = new ConfManagerImpl();
-		BlockingQueue<Runnable> runnables = Queues.newArrayBlockingQueue(JOB_CAPACITY);
-		NutchServerPoolExecutor executor = new NutchServerPoolExecutor(10, JOB_CAPACITY, 1, TimeUnit.HOURS, runnables);
-		jobManager = new JobManagerImpl(new JobFactory(), configManager, executor);
+  private NutchServer() {
+    configManager = new ConfManagerImpl();
+    BlockingQueue<Runnable> runnables = Queues.newArrayBlockingQueue(JOB_CAPACITY);
+    NutchServerPoolExecutor executor = new NutchServerPoolExecutor(10, JOB_CAPACITY, 1, TimeUnit.HOURS, runnables);
+    jobManager = new JobManagerImpl(new JobFactory(), configManager, executor);
 
-		sf = new JAXRSServerFactoryBean();
-		BindingFactoryManager manager = sf.getBus().getExtension(BindingFactoryManager.class);
-		JAXRSBindingFactory factory = new JAXRSBindingFactory();
-		factory.setBus(sf.getBus());
-		manager.registerBindingFactory(JAXRSBindingFactory.JAXRS_BINDING_ID, factory);
-		sf.setResourceClasses(getClasses());
-		sf.setResourceProviders(getResourceProviders());
-		sf.setProvider(new JacksonJaxbJsonProvider());
+    sf = new JAXRSServerFactoryBean();
+    BindingFactoryManager manager = sf.getBus().getExtension(BindingFactoryManager.class);
+    JAXRSBindingFactory factory = new JAXRSBindingFactory();
+    factory.setBus(sf.getBus());
+    manager.registerBindingFactory(JAXRSBindingFactory.JAXRS_BINDING_ID, factory);
+    sf.setResourceClasses(getClasses());
+    sf.setResourceProviders(getResourceProviders());
+    sf.setProvider(new JacksonJaxbJsonProvider());
 
 
-	}
+  }
 
-	public static NutchServer getInstance() {
-		return server;
-	}
+  public static NutchServer getInstance() {
+    return server;
+  }
 
-	private static void startServer() {
-		server.start();
-	}
+  private static void startServer() {
+    server.start();
+  }
 
-	private void start() {
-		LOG.info("Starting NutchServer on port: {}  ...",port);
-		try{
-			String address = "http://" + LOCALHOST + ":" + port;
-			sf.setAddress(address);
-			sf.create();
-		}catch(Exception e){
-			throw new IllegalStateException("Server could not be started", e);
-		}
+  private void start() {
+    LOG.info("Starting NutchServer on port: {}  ...",port);
+    try{
+      String address = "http://" + LOCALHOST + ":" + port;
+      sf.setAddress(address);
+      sf.create();
+    }catch(Exception e){
+      throw new IllegalStateException("Server could not be started", e);
+    }
 
-		started = System.currentTimeMillis();
-		running = true;
-		LOG.info("Started Nutch Server on port {} at {}", port, started);
-		System.out.println("Started Nutch Server on port " + port + " at " + started);
-	}
+    started = System.currentTimeMillis();
+    running = true;
+    LOG.info("Started Nutch Server on port {} at {}", port, started);
+    System.out.println("Started Nutch Server on port " + port + " at " + started);
+  }
 
-	private List<Class<?>> getClasses() {
-		List<Class<?>> resources = new ArrayList<Class<?>>();
-		resources.add(JobResource.class);
-		resources.add(ConfigResource.class);
-		resources.add(DbResource.class);
-		return resources;
-	}
+  private List<Class<?>> getClasses() {
+    List<Class<?>> resources = new ArrayList<Class<?>>();
+    resources.add(JobResource.class);
+    resources.add(ConfigResource.class);
+    resources.add(DbResource.class);
+    return resources;
+  }
 
-	private List<ResourceProvider> getResourceProviders() {
-		List<ResourceProvider> resourceProviders = new ArrayList<ResourceProvider>();
-		resourceProviders.add(new SingletonResourceProvider(getConfManager()));
-		return resourceProviders;
-	}
+  private List<ResourceProvider> getResourceProviders() {
+    List<ResourceProvider> resourceProviders = new ArrayList<ResourceProvider>();
+    resourceProviders.add(new SingletonResourceProvider(getConfManager()));
+    return resourceProviders;
+  }
 
-	public ConfManager getConfManager() {
-		return configManager;
-	}
-	
-	public JobManager getJobManager() {
-		return jobManager;
-	}
-	
-	public boolean isRunning(){
-		return running;
-	}
-	
-	public long getStarted(){
-		return started;
-	}
-	
-	public static void main(String[] args) throws ParseException {
-		CommandLineParser parser = new PosixParser();
-		Options options = createOptions();
-		CommandLine commandLine = parser.parse(options, args);
-		if (commandLine.hasOption(CMD_HELP)) {
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("NutchServer", options, true);
-			return;
-		}
+  public ConfManager getConfManager() {
+    return configManager;
+  }
 
-		if (commandLine.hasOption(CMD_PORT)) {
-			port = Integer.parseInt(commandLine.getOptionValue(CMD_PORT));
-		}
-		startServer();
-	}
+  public JobManager getJobManager() {
+    return jobManager;
+  }
 
-	private static Options createOptions() {
-		Options options = new Options();
+  public boolean isRunning(){
+    return running;
+  }
 
-		OptionBuilder.withDescription("Show this help");
-		options.addOption(OptionBuilder.create(CMD_HELP));
+  public long getStarted(){
+    return started;
+  }
 
-		OptionBuilder.withArgName("port");
-		OptionBuilder.hasOptionalArg();
-		OptionBuilder.withDescription("The port to run the Nutch Server. Default port 8081");
-		options.addOption(OptionBuilder.create(CMD_PORT));
-		return options;
-	}
+  public static void main(String[] args) throws ParseException {
+    CommandLineParser parser = new PosixParser();
+    Options options = createOptions();
+    CommandLine commandLine = parser.parse(options, args);
+    if (commandLine.hasOption(CMD_HELP)) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp("NutchServer", options, true);
+      return;
+    }
+
+    if (commandLine.hasOption(CMD_PORT)) {
+      port = Integer.parseInt(commandLine.getOptionValue(CMD_PORT));
+    }
+    startServer();
+  }
+
+  private static Options createOptions() {
+    Options options = new Options();
+
+    OptionBuilder.withDescription("Show this help");
+    options.addOption(OptionBuilder.create(CMD_HELP));
+
+    OptionBuilder.withArgName("port");
+    OptionBuilder.hasOptionalArg();
+    OptionBuilder.withDescription("The port to run the Nutch Server. Default port 8081");
+    options.addOption(OptionBuilder.create(CMD_PORT));
+    return options;
+  }
 
 }

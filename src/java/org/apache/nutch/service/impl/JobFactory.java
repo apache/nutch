@@ -34,40 +34,40 @@ import org.apache.nutch.util.NutchTool;
 import com.google.common.collect.Maps;
 
 public class JobFactory {
-	private static Map<JobType, Class<? extends NutchTool>> typeToClass;
+  private static Map<JobType, Class<? extends NutchTool>> typeToClass;
 
-	static {
-		typeToClass = Maps.newHashMap();
-		typeToClass.put(JobType.INJECT, Injector.class);
-		typeToClass.put(JobType.GENERATE, Generator.class);
-		typeToClass.put(JobType.FETCH, Fetcher.class);
-		typeToClass.put(JobType.PARSE, ParseSegment.class);
-		typeToClass.put(JobType.UPDATEDB, CrawlDb.class);
-		typeToClass.put(JobType.INVERTLINKS, LinkDb.class);
-		typeToClass.put(JobType.DEDUP, DeduplicationJob.class);
-	}
+  static {
+    typeToClass = Maps.newHashMap();
+    typeToClass.put(JobType.INJECT, Injector.class);
+    typeToClass.put(JobType.GENERATE, Generator.class);
+    typeToClass.put(JobType.FETCH, Fetcher.class);
+    typeToClass.put(JobType.PARSE, ParseSegment.class);
+    typeToClass.put(JobType.UPDATEDB, CrawlDb.class);
+    typeToClass.put(JobType.INVERTLINKS, LinkDb.class);
+    typeToClass.put(JobType.DEDUP, DeduplicationJob.class);
+  }
 
-	public NutchTool createToolByType(JobType type, Configuration conf) {
-		if (!typeToClass.containsKey(type)) {
-			return null;
-		}
-		Class<? extends NutchTool> clz = typeToClass.get(type);
-		return createTool(clz, conf);
-	}
+  public NutchTool createToolByType(JobType type, Configuration conf) {
+    if (!typeToClass.containsKey(type)) {
+      return null;
+    }
+    Class<? extends NutchTool> clz = typeToClass.get(type);
+    return createTool(clz, conf);
+  }
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public NutchTool createToolByClassName(String className, Configuration conf) {
-		try {
-			Class clz = Class.forName(className);
-			return createTool(clz, conf);
-		} catch (ClassNotFoundException e) {
-			throw new IllegalStateException(e);
-		}
-	}
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public NutchTool createToolByClassName(String className, Configuration conf) {
+    try {
+      Class clz = Class.forName(className);
+      return createTool(clz, conf);
+    } catch (ClassNotFoundException e) {
+      throw new IllegalStateException(e);
+    }
+  }
 
-	private NutchTool createTool(Class<? extends NutchTool> clz,
-			Configuration conf) {
-		return ReflectionUtils.newInstance(clz, conf);
-	}
+  private NutchTool createTool(Class<? extends NutchTool> clz,
+      Configuration conf) {
+    return ReflectionUtils.newInstance(clz, conf);
+  }
 
 }

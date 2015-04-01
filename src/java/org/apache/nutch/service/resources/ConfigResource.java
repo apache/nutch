@@ -38,42 +38,42 @@ import org.codehaus.jettison.json.JSONObject;
 
 @Path("/config")
 public class ConfigResource extends AbstractResource{
-	
-	public static final String DEFAULT = "default";
 
-	@GET
-	@Path("/")
-	public Set<String> getConfigs() {
-		return configManager.list();
-	}
-	
-	@GET
-	@Path("/{configId}")
-	public Map<String, String> getConfig(@PathParam("configId") String configId) {
-		return configManager.getAsMap(configId);
-	}
-	
-	@GET
-	@Path("/{configId}/{propertyId}")
-	public String getProperty(@PathParam("configId") String configId,
-			@PathParam("propertyId") String propertyId) {
-		return configManager.getAsMap(configId).get(propertyId);
-	}
+  public static final String DEFAULT = "default";
 
-	@DELETE
-	@Path("/{configId}")
-	public void deleteConfig(@PathParam("configId") String configId) {
-		configManager.delete(configId);
-	}
+  @GET
+  @Path("/")
+  public Set<String> getConfigs() {
+    return configManager.list();
+  }
 
-	@POST
-	@Path("/{configId}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public String createConfig(NutchConfig newConfig) {
-		if (newConfig == null) {
-			throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
-					.entity("Nutch configuration cannot be empty!").build());
-		}
-		return configManager.create(newConfig);
-	}
+  @GET
+  @Path("/{configId}")
+  public Map<String, String> getConfig(@PathParam("configId") String configId) {
+    return configManager.getAsMap(configId);
+  }
+
+  @GET
+  @Path("/{configId}/{propertyId}")
+  public String getProperty(@PathParam("configId") String configId,
+      @PathParam("propertyId") String propertyId) {
+    return configManager.getAsMap(configId).get(propertyId);
+  }
+
+  @DELETE
+  @Path("/{configId}")
+  public void deleteConfig(@PathParam("configId") String configId) {
+    configManager.delete(configId);
+  }
+
+  @POST
+  @Path("/{configId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public String createConfig(NutchConfig newConfig) {
+    if (newConfig == null) {
+      throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
+          .entity("Nutch configuration cannot be empty!").build());
+    }
+    return configManager.create(newConfig);
+  }
 }

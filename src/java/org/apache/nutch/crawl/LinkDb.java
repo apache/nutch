@@ -342,46 +342,46 @@ public class LinkDb extends NutchTool implements Tool,
    */
   @Override
   public Map<String, Object> run(Map<String, String> args) throws Exception {
-	  if (args.size() < 2) {
-		  throw new IllegalArgumentException("Required arguments <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-force] [-noNormalize] [-noFilter]");
-	  }
-	  Map<String, Object> results = new HashMap<String, Object>();
-	  String RESULT = "result";
-	  final FileSystem fs = FileSystem.get(getConf());
-	  Path db = new Path(args.get("linkdb"));
-	  ArrayList<Path> segs = new ArrayList<Path>();
-	  boolean filter = true;
-	  boolean normalize = true;
-	  boolean force = false;
-	  if (args.containsKey("dir")) {
-		  String segment = args.get("dir");
-		  FileStatus[] paths = fs.listStatus(new Path(segment),
-				  HadoopFSUtil.getPassDirectoriesFilter(fs));
-		  segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
-	  }
-	  if(args.containsKey("segments")){
-		  String[] segments = args.get("segments").split(" ");
-		  for(String seg : segments){
-			  segs.add(new Path(seg));
-		  }
-	  }
-	  if (args.containsKey("noNormalize")) {
-		  normalize = false;
-	  } 
-	  if (args.containsKey("noFilter")) {
-		  filter = false;
-	  } 
-	  if (args.containsKey("force")) {
-		  force = true;
-	  }
-	  try {
-		  invert(db, segs.toArray(new Path[segs.size()]), normalize, filter, force);
-		  results.put(RESULT, Integer.toString(0));
-		  return results;
-	  } catch (Exception e) {
-		  LOG.error("LinkDb: " + StringUtils.stringifyException(e));
-		  results.put(RESULT, Integer.toString(-1));
-		  return results;
-	  }
+    if (args.size() < 2) {
+      throw new IllegalArgumentException("Required arguments <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-force] [-noNormalize] [-noFilter]");
+    }
+    Map<String, Object> results = new HashMap<String, Object>();
+    String RESULT = "result";
+    final FileSystem fs = FileSystem.get(getConf());
+    Path db = new Path(args.get("linkdb"));
+    ArrayList<Path> segs = new ArrayList<Path>();
+    boolean filter = true;
+    boolean normalize = true;
+    boolean force = false;
+    if (args.containsKey("dir")) {
+      String segment = args.get("dir");
+      FileStatus[] paths = fs.listStatus(new Path(segment),
+          HadoopFSUtil.getPassDirectoriesFilter(fs));
+      segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
+    }
+    if(args.containsKey("segments")){
+      String[] segments = args.get("segments").split(" ");
+      for(String seg : segments){
+        segs.add(new Path(seg));
+      }
+    }
+    if (args.containsKey("noNormalize")) {
+      normalize = false;
+    } 
+    if (args.containsKey("noFilter")) {
+      filter = false;
+    } 
+    if (args.containsKey("force")) {
+      force = true;
+    }
+    try {
+      invert(db, segs.toArray(new Path[segs.size()]), normalize, filter, force);
+      results.put(RESULT, Integer.toString(0));
+      return results;
+    } catch (Exception e) {
+      LOG.error("LinkDb: " + StringUtils.stringifyException(e));
+      results.put(RESULT, Integer.toString(-1));
+      return results;
+    }
   }
 }

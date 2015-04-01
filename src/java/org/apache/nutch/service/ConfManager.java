@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package org.apache.nutch.service;
 
 import java.util.Map;
@@ -30,10 +30,10 @@ public interface ConfManager {
   public Map<String, String> getAsMap(String confId);
 
   public void setProperty(String confId, String propName, String propValue);
-  
+
   public Set<String> list();
 
   public String create(NutchConfig nutchConfig);
-  
+
   public void delete(String confId);
 }

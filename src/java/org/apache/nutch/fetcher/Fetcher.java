@@ -1624,31 +1624,31 @@ public class Fetcher extends NutchTool implements Tool,
 
   @Override
   public Map<String, Object> run(Map<String, String> args) throws Exception {
-	  if(args.size()<1){
-		  throw new IllegalArgumentException("Required arguments <segment> [threads n]");
-	  }
-	  Map<String, Object> results = new HashMap<String, Object>();
-	  String RESULT = "result";
-	  Path segment = new Path(args.get("segment"));
+    if(args.size()<1){
+      throw new IllegalArgumentException("Required arguments <segment> [threads n]");
+    }
+    Map<String, Object> results = new HashMap<String, Object>();
+    String RESULT = "result";
+    Path segment = new Path(args.get("segment"));
 
-	  int threads = getConf().getInt("fetcher.threads.fetch", 10);
-	  boolean parsing = false;
+    int threads = getConf().getInt("fetcher.threads.fetch", 10);
+    boolean parsing = false;
 
-	  // parse command line
-	  if (args.containsKey("threads")) { // found -threads option
-		  threads = Integer.parseInt(args.get("threads"));
-	  }
-	  getConf().setInt("fetcher.threads.fetch", threads);
+    // parse command line
+    if (args.containsKey("threads")) { // found -threads option
+      threads = Integer.parseInt(args.get("threads"));
+    }
+    getConf().setInt("fetcher.threads.fetch", threads);
 
-	  try {
-		  fetch(segment, threads);
-		  results.put(RESULT, Integer.toString(0));
-		  return results;
-	  } catch (Exception e) {
-		  LOG.error("Fetcher: " + StringUtils.stringifyException(e));
-		  results.put(RESULT, Integer.toString(-1));
-		  return results;
-	  }
+    try {
+      fetch(segment, threads);
+      results.put(RESULT, Integer.toString(0));
+      return results;
+    } catch (Exception e) {
+      LOG.error("Fetcher: " + StringUtils.stringifyException(e));
+      results.put(RESULT, Integer.toString(-1));
+      return results;
+    }
   }
 
 }

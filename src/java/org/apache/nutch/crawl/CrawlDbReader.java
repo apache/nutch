@@ -716,118 +716,118 @@ public class CrawlDbReader implements Closeable {
    */
   @SuppressWarnings("unchecked")
   public Object query(Map<String, String> args, Configuration conf, String type) throws Exception {
-	  if(args.size()<1){
-		  throw new IllegalArgumentException("Required arguments <crawldb>");
-	  }
-	  
-	  Map<String, Object> results = new HashMap<String, Object>();
-	  String crawlDb = args.get("crawldb");
-	  
-	  if(type.equalsIgnoreCase("stats")){
-		  boolean sort = false;
-		  if(args.containsKey("sort")){
-			  if(args.get("sort").equalsIgnoreCase("true"))
-				  sort = true;
-		  }
-		  TreeMap<String , LongWritable> stats = processStatJobHelper(crawlDb, NutchConfiguration.create(), sort);
-		  LongWritable totalCnt = stats.get("T");
-		  stats.remove("T");
-		  results.put("totalUrls", String.valueOf(totalCnt.get()));
-		  Map<String, Object> statusMap = new HashMap<String, Object>();      
+    if(args.size()<1){
+      throw new IllegalArgumentException("Required arguments <crawldb>");
+    }
 
-		  for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
-			  String k = entry.getKey();
-			  LongWritable val = entry.getValue();
-			  if (k.equals("scn")) {
-				  
-				  results.put("minScore", String.valueOf((val.get() / 1000.0f)));
-			  } else if (k.equals("scx")) {
-				  results.put("maxScore", String.valueOf((val.get() / 1000.0f)));
-			  } else if (k.equals("sct")) {
-				  results.put("avgScore", String.valueOf((float) ((((double) val.get()) / totalCnt.get()) / 1000.0)));
-			  } else if (k.startsWith("status")) {
-				  String[] st = k.split(" ");
-				  int code = Integer.parseInt(st[1]);
-				  if (st.length > 2){
-					  Map<String, Object> individualStatusInfo = (Map<String, Object>) statusMap.get(String.valueOf(code));
-					  Map<String, String> hostValues;
-					  if(individualStatusInfo.containsKey("hostValues")){
-						  hostValues= (Map<String, String>) individualStatusInfo.get("hostValues");
-					  }
-					  else{
-						  hostValues = new HashMap<String, String>();
-						  individualStatusInfo.put("hostValues", hostValues);
-					  }
-					  hostValues.put(st[2], String.valueOf(val));
-				  }
-				  else{
-					  Map<String, Object> individualStatusInfo = new HashMap<String, Object>();
-					  
-					  individualStatusInfo.put("statusValue", CrawlDatum.getStatusName((byte) code));
-					  individualStatusInfo.put("count", String.valueOf(val));
-					  
-					  statusMap.put(String.valueOf(code), individualStatusInfo);
-				  }
-			  } else
-				  results.put(k, String.valueOf(val));			  
-		  }
-		  results.put("status", statusMap);
-		  return results;
-	  }
-	  if(type.equalsIgnoreCase("dump")){
-		  String output = args.get("out_dir");
-		  String format = "normal";
-		  String regex = null;
-		  Integer retry = null;
-		  String status = null;
-		  if (args.containsKey("format")) {
-			  format = args.get("format");
-		  }
-		  if (args.containsKey("regex")) {
-			  regex = args.get("regex");
-		  }
-		  if (args.containsKey("retry")) {
-			  retry = Integer.parseInt(args.get("retry"));
-		  }
-		  if (args.containsKey("status")) {
-			  status = args.get("status");
-		  }
-		  processDumpJob(crawlDb, output, conf, format, regex, status, retry);
-		  File dumpFile = new File(output+"/part-00000");
-		  return dumpFile;		  
-	  }
-	  if (type.equalsIgnoreCase("topN")) {
-		  String output = args.get("out_dir");
-		  long topN = Long.parseLong(args.get("nnn"));
-		  float min = 0.0f;
-		  if(args.containsKey("min")){
-			  min = Float.parseFloat(args.get("min"));
-		  }
-		  processTopNJob(crawlDb, topN, min, output, conf);
-		  File dumpFile = new File(output+"/part-00000");
-		  return dumpFile;
-	  }
-	  
-	  if(type.equalsIgnoreCase("url")){
-		  String url = args.get("url");
-		  CrawlDatum res = get(crawlDb, url, conf);
-		  results.put("status", res.getStatus());
-		  results.put("fetchTime", new Date(res.getFetchTime()));
-		  results.put("modifiedTime", new Date(res.getModifiedTime()));
-		  results.put("retriesSinceFetch", res.getRetriesSinceFetch());
-		  results.put("retryInterval", res.getFetchInterval());
-		  results.put("score", res.getScore());
-		  results.put("signature", StringUtil.toHexString(res.getSignature()));
-		  Map<String, String> metadata = new HashMap<String, String>();
-		  if(res.getMetaData()!=null){
-			  for (Entry<Writable, Writable> e : res.getMetaData().entrySet()) {
-				  metadata.put(String.valueOf(e.getKey()), String.valueOf(e.getValue()));
-			  }
-		  }
-		  results.put("metadata", metadata);
-		  
-		  return results;
-	  }
-	  return results;
+    Map<String, Object> results = new HashMap<String, Object>();
+    String crawlDb = args.get("crawldb");
+
+    if(type.equalsIgnoreCase("stats")){
+      boolean sort = false;
+      if(args.containsKey("sort")){
+        if(args.get("sort").equalsIgnoreCase("true"))
+          sort = true;
+      }
+      TreeMap<String , LongWritable> stats = processStatJobHelper(crawlDb, NutchConfiguration.create(), sort);
+      LongWritable totalCnt = stats.get("T");
+      stats.remove("T");
+      results.put("totalUrls", String.valueOf(totalCnt.get()));
+      Map<String, Object> statusMap = new HashMap<String, Object>();      
+
+      for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
+        String k = entry.getKey();
+        LongWritable val = entry.getValue();
+        if (k.equals("scn")) {
+
+          results.put("minScore", String.valueOf((val.get() / 1000.0f)));
+        } else if (k.equals("scx")) {
+          results.put("maxScore", String.valueOf((val.get() / 1000.0f)));
+        } else if (k.equals("sct")) {
+          results.put("avgScore", String.valueOf((float) ((((double) val.get()) / totalCnt.get()) / 1000.0)));
+        } else if (k.startsWith("status")) {
+          String[] st = k.split(" ");
+          int code = Integer.parseInt(st[1]);
+          if (st.length > 2){
+            Map<String, Object> individualStatusInfo = (Map<String, Object>) statusMap.get(String.valueOf(code));
+            Map<String, String> hostValues;
+            if(individualStatusInfo.containsKey("hostValues")){
+              hostValues= (Map<String, String>) individualStatusInfo.get("hostValues");
+            }
+            else{
+              hostValues = new HashMap<String, String>();
+              individualStatusInfo.put("hostValues", hostValues);
+            }
+            hostValues.put(st[2], String.valueOf(val));
+          }
+          else{
+            Map<String, Object> individualStatusInfo = new HashMap<String, Object>();
+
+            individualStatusInfo.put("statusValue", CrawlDatum.getStatusName((byte) code));
+            individualStatusInfo.put("count", String.valueOf(val));
+
+            statusMap.put(String.valueOf(code), individualStatusInfo);
+          }
+        } else
+          results.put(k, String.valueOf(val));			  
+      }
+      results.put("status", statusMap);
+      return results;
+    }
+    if(type.equalsIgnoreCase("dump")){
+      String output = args.get("out_dir");
+      String format = "normal";
+      String regex = null;
+      Integer retry = null;
+      String status = null;
+      if (args.containsKey("format")) {
+        format = args.get("format");
+      }
+      if (args.containsKey("regex")) {
+        regex = args.get("regex");
+      }
+      if (args.containsKey("retry")) {
+        retry = Integer.parseInt(args.get("retry"));
+      }
+      if (args.containsKey("status")) {
+        status = args.get("status");
+      }
+      processDumpJob(crawlDb, output, conf, format, regex, status, retry);
+      File dumpFile = new File(output+"/part-00000");
+      return dumpFile;		  
+    }
+    if (type.equalsIgnoreCase("topN")) {
+      String output = args.get("out_dir");
+      long topN = Long.parseLong(args.get("nnn"));
+      float min = 0.0f;
+      if(args.containsKey("min")){
+        min = Float.parseFloat(args.get("min"));
+      }
+      processTopNJob(crawlDb, topN, min, output, conf);
+      File dumpFile = new File(output+"/part-00000");
+      return dumpFile;
+    }
+
+    if(type.equalsIgnoreCase("url")){
+      String url = args.get("url");
+      CrawlDatum res = get(crawlDb, url, conf);
+      results.put("status", res.getStatus());
+      results.put("fetchTime", new Date(res.getFetchTime()));
+      results.put("modifiedTime", new Date(res.getModifiedTime()));
+      results.put("retriesSinceFetch", res.getRetriesSinceFetch());
+      results.put("retryInterval", res.getFetchInterval());
+      results.put("score", res.getScore());
+      results.put("signature", StringUtil.toHexString(res.getSignature()));
+      Map<String, String> metadata = new HashMap<String, String>();
+      if(res.getMetaData()!=null){
+        for (Entry<Writable, Writable> e : res.getMetaData().entrySet()) {
+          metadata.put(String.valueOf(e.getKey()), String.valueOf(e.getValue()));
+        }
+      }
+      results.put("metadata", metadata);
+
+      return results;
+    }
+    return results;
   }
 }
