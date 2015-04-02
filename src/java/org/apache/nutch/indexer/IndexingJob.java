@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.nutch.segment.SegmentChecker;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.parse.ParseData;
@@ -156,43 +157,10 @@ public class IndexingJob extends Configured implements Tool {
             HadoopFSUtil.getPassDirectoriesFilter(fs));
         Path[] files = HadoopFSUtil.getPaths(fstats);
         for (Path p : files) {
-          FileStatus[] fstats_segment = fs.listStatus(p, HadoopFSUtil.getPassDirectoriesFilter(fs));
-          Path[] segment_files = HadoopFSUtil.getPaths(fstats_segment);
-          //check if segment is missing sub directories
-          boolean isCrawlFetchExisted = false;
-          boolean isCrawlParseExisted = false;
-          boolean isParseDataExisted = false;
-          boolean isParseTextExisted = false;
-
-          for(Path path : segment_files){
-            String pathName = path.getName();
-
-            isCrawlFetchExisted |= pathName.equals(CrawlDatum.FETCH_DIR_NAME);
-            isCrawlParseExisted |= pathName.equals(CrawlDatum.PARSE_DIR_NAME);
-            isParseDataExisted |= pathName.equals(ParseData.DIR_NAME);
-            isParseTextExisted |= pathName.equals(ParseText.DIR_NAME);
-          }
-
-          if (isParseTextExisted && isCrawlParseExisted && isCrawlFetchExisted && isParseDataExisted) {
+          SegmentChecker segmentChecker = new SegmentChecker();
+          if (segmentChecker.isSegmentValid(p,fs)) {
             segments.add(p);
-          } else {
-            StringBuilder missingDir = new StringBuilder("");
-            if (isParseDataExisted == false) {
-              missingDir.append(ParseData.DIR_NAME + ", ");
-            }
-            if (isParseTextExisted == false) {
-              missingDir.append(ParseText.DIR_NAME + ", ");
-            }
-            if (isCrawlParseExisted == false) {
-              missingDir.append(CrawlDatum.PARSE_DIR_NAME + ", " );
-            }
-            if (isCrawlFetchExisted == false) {
-              missingDir.append(CrawlDatum.FETCH_DIR_NAME + ", ");
-            }
-            String missingDirString = missingDir.toString();
-            LOG.info("Skipping segment: " + p.toString() + ". Missing sub directories: " + missingDirString.substring(0,missingDirString.length()-2));
           }
-
         }
       } else if (args[i].equals("-noCommit")) {
         noCommit = true;
