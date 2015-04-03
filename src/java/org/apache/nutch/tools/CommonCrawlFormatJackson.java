@@ -32,15 +32,13 @@ import com.fasterxml.jackson.core.JsonGenerator;
  */
 public class CommonCrawlFormatJackson extends AbstractCommonCrawlFormat {
 	
-	//private static final Logger LOG = LoggerFactory.getLogger(CommonCrawlFormatJackson.class.getName());
-	
 	private ByteArrayOutputStream out;
 	
 	private JsonGenerator generator;
 
-	public CommonCrawlFormatJackson(String url, byte[] content,
-			Metadata metadata, Configuration conf, String keyPrefix) throws IOException {
-		super(url, content, metadata, conf, keyPrefix);
+	
+	public CommonCrawlFormatJackson(String url, byte[] content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+		super(url, content, metadata, nutchConf, config);
 		
 		JsonFactory factory = new JsonFactory();
 		this.out = new ByteArrayOutputStream();
@@ -58,7 +56,25 @@ public class CommonCrawlFormatJackson extends AbstractCommonCrawlFormat {
 	@Override
 	protected void writeKeyNull(String key) throws IOException {
 		generator.writeFieldName(key);
-		generator.writeNull();;
+		generator.writeNull();
+	}
+	
+	@Override
+	protected void startArray(String key, boolean nested, boolean newline) throws IOException {
+		if (key != null) {
+			generator.writeFieldName(key);
+		}
+		generator.writeStartArray();
+	}
+	
+	@Override
+	protected void closeArray(String key, boolean nested, boolean newline) throws IOException {
+		generator.writeEndArray();
+	}
+	
+	@Override
+	protected void writeArrayValue(String value) throws IOException {
+		generator.writeString(value);
 	}
 	
 	@Override

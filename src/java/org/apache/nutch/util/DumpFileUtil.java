@@ -17,6 +17,7 @@
 
 package org.apache.nutch.util;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.MD5Hash;
@@ -80,5 +81,27 @@ public class DumpFileUtil {
         }
 
         return String.format(FILENAME_PATTERN, md5, fileBaseName, fileExtension);
+    }
+    
+    public static String createFileNameFromUrl(String basePath, String reverseKey, String urlString, String epochScrapeTime, String fileExtension, boolean makeDir) {
+		String fullDirPath = basePath + File.separator + reverseKey + File.separator + DigestUtils.shaHex(urlString);
+		
+		if (makeDir) {
+	        try {
+	            FileUtils.forceMkdir(new File(fullDirPath));
+	        } catch (IOException e) {
+	            LOG.error("Failed to create dir: {}", fullDirPath);
+	            fullDirPath = null;
+	        }
+        }
+		
+		if (fileExtension.length() > MAX_LENGTH_OF_EXTENSION) {
+			LOG.info("File extension is too long. Truncated to {} characters.", MAX_LENGTH_OF_EXTENSION);
+			fileExtension = StringUtils.substring(fileExtension, 0, MAX_LENGTH_OF_EXTENSION);
+	    }
+		
+		String outputFullPath = fullDirPath + File.separator + epochScrapeTime + "." + fileExtension;
+		
+		return outputFullPath;
     }
 }

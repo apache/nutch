@@ -32,20 +32,51 @@ public class CommonCrawlFormatSimple extends AbstractCommonCrawlFormat {
 	
 	private int tabCount;
 	
-	public CommonCrawlFormatSimple(String url, byte[] content, Metadata metadata,
-			Configuration conf, String keyPrefix) throws IOException {
-		super(url, content, metadata, conf, keyPrefix);
+	public CommonCrawlFormatSimple(String url, byte[] content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+		super(url, content, metadata, nutchConf, config);
 		
 		this.sb = new StringBuilder();
 		this.tabCount = 0;
 	}
 	
+	@Override
 	protected void writeKeyValue(String key, String value) throws IOException {
 		sb.append(printTabs() + "\"" + key + "\": " + quote(value) + ",\n");
 	}
 	
+	@Override
 	protected void writeKeyNull(String key) throws IOException {
 		sb.append(printTabs() + "\"" + key + "\": null,\n");
+	}
+	
+	@Override
+	protected void startArray(String key, boolean nested, boolean newline) throws IOException {
+		String name = (key != null) ? "\"" + key + "\": " : "";
+		String nl = (newline) ? "\n" : "";
+		sb.append(printTabs() + name + "[" + nl);
+		if (newline) {
+			this.tabCount++;
+		}
+	}
+	
+	@Override
+	protected void closeArray(String key, boolean nested, boolean newline) throws IOException {
+		if (sb.charAt(sb.length()-1) == ',') {
+			sb.deleteCharAt(sb.length()-1); // delete comma
+		}
+		else if (sb.charAt(sb.length()-2) == ',') {
+			sb.deleteCharAt(sb.length()-2); // delete comma
+		}
+		String nl = (newline) ? printTabs() : "";
+		if (newline) {
+			this.tabCount++;
+		}
+		sb.append(nl + "],\n");
+	}
+	
+	@Override
+	protected void writeArrayValue(String value) {
+		sb.append("\"" + value + "\",");
 	}
 	
 	protected void startObject(String key) throws IOException {
@@ -58,7 +89,9 @@ public class CommonCrawlFormatSimple extends AbstractCommonCrawlFormat {
 	}
 	
 	protected void closeObject(String key) throws IOException {
-		sb.deleteCharAt(sb.length()-2); // delete comma
+		if (sb.charAt(sb.length()-2) == ',') {
+			sb.deleteCharAt(sb.length()-2); // delete comma
+		}
 		this.tabCount--;
 		sb.append(printTabs() + "},\n");
 	}

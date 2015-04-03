@@ -20,12 +20,15 @@ package org.apache.nutch.tools;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.ParseException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.ibm.icu.text.SimpleDateFormat;
 
 /**
  * Abstract class that implements {@see CommonCrawlFormat} interface. 
@@ -44,14 +47,27 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 	
 	protected String keyPrefix;
 	
-	public AbstractCommonCrawlFormat(String url, byte[] content, Metadata metadata, Configuration conf, String keyPrefix) throws IOException {
+	protected boolean simpleDateFormat;
+	
+	protected boolean jsonArray;
+	
+	protected boolean reverseKey;
+	
+	protected String reverseKeyValue;
+
+	public AbstractCommonCrawlFormat(String url, byte[] content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
 		this.url = url;
 		this.content = content;
 		this.metadata = metadata;
-		this.conf = conf;
-		this.keyPrefix = keyPrefix;
+		this.conf = nutchConf;
+		
+		this.keyPrefix = config.getKeyPrefix();
+		this.simpleDateFormat = config.getSimpleDateFormat();
+		this.jsonArray = config.getJsonArray();
+		this.reverseKey = config.getReverseKey();
+		this.reverseKeyValue = config.getReverseKeyValue();
 	}
-	
+
 	@Override
 	public String getJsonData() throws IOException {
 		try {
@@ -76,12 +92,14 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 			writeKeyValue("email", getRequestContactEmail());
 			closeObject("contact");
 			closeObject("client");
-			startObject("headers");
-			writeKeyValue("Accept", getRequestAccept());
-			writeKeyValue("Accept-Encoding", getRequestAcceptEncoding());
-			writeKeyValue("Accept-Language", getRequestAcceptLanguage());
-			writeKeyValue("User-Agent", getRequestUserAgent());
-			closeObject("headers");
+			// start request headers
+			startHeaders("headers", false, true);
+			writeKeyValueWrapper("Accept", getRequestAccept());
+			writeKeyValueWrapper("Accept-Encoding", getRequestAcceptEncoding());
+			writeKeyValueWrapper("Accept-Language", getRequestAcceptLanguage());
+			writeKeyValueWrapper("User-Agent", getRequestUserAgent());
+			//closeObject("headers");
+			closeHeaders("headers", false, true);
 			writeKeyNull("body");
 			closeObject("request");
 			
@@ -92,18 +110,19 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 			writeKeyValue("hostname", getResponseHostName());
 			writeKeyValue("address", getResponseAddress());
 			closeObject("server");
-			startObject("headers");
-			writeKeyValue("Content-Encoding", getResponseContentEncoding());
-			writeKeyValue("Content-Type", getResponseContentType());
-			writeKeyValue("Date", getResponseDate());
-			writeKeyValue("Server", getResponseServer());
+			// start response headers
+			startHeaders("headers", false, true);
+			writeKeyValueWrapper("Content-Encoding", getResponseContentEncoding());
+			writeKeyValueWrapper("Content-Type", getResponseContentType());
+			writeKeyValueWrapper("Date", getResponseDate());
+			writeKeyValueWrapper("Server", getResponseServer());
 			for (String name : metadata.names()) {
 				if (name.equalsIgnoreCase("Content-Encoding") || name.equalsIgnoreCase("Content-Type") || name.equalsIgnoreCase("Date") || name.equalsIgnoreCase("Server")) {
 					continue;
 				}
-				writeKeyValue(name, metadata.get(name));
+				writeKeyValueWrapper(name, metadata.get(name));
 			}
-			closeObject("headers");
+			closeHeaders("headers", false, true);
 			writeKeyValue("body", getResponseContent());
 			closeObject("response");
 			
@@ -132,6 +151,12 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 	
 	protected abstract void writeKeyNull(String key) throws IOException;
 	
+	protected abstract void startArray(String key, boolean nested, boolean newline) throws IOException;
+	
+	protected abstract void closeArray(String key, boolean nested, boolean newline) throws IOException;
+	
+	protected abstract void writeArrayValue(String value) throws IOException;
+	
 	protected abstract void startObject(String key) throws IOException;
 	
 	protected abstract void closeObject(String key) throws IOException;
@@ -145,7 +170,18 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 	}
 	
 	protected String getTimestamp() {
-		return metadata.get(ifNullString(Metadata.LAST_MODIFIED));
+		if (this.simpleDateFormat) {
+			String timestamp = null;
+			try {
+				long epoch = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z").parse(ifNullString(metadata.get(Metadata.LAST_MODIFIED))).getTime();
+				timestamp = String.valueOf(epoch);
+			} catch (ParseException pe) {
+				LOG.warn(pe.getMessage());
+			}
+			return timestamp;
+		} else {
+			return ifNullString(metadata.get(Metadata.LAST_MODIFIED));
+		}
 	}
 	
 	protected String getMethod() {
@@ -225,7 +261,18 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 	}
 	
 	protected String getResponseDate() {
-		return ifNullString(metadata.get("Date"));
+		if (this.simpleDateFormat) {
+			String timestamp = null;
+			try {
+				long epoch = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z").parse(ifNullString(metadata.get("Date"))).getTime();
+				timestamp = String.valueOf(epoch);
+			} catch (ParseException pe) {
+				LOG.warn(pe.getMessage());
+			}
+			return timestamp;
+		} else {
+			return ifNullString(metadata.get("Date"));
+		}
 	}
 	
 	protected String getResponseServer() {
@@ -237,14 +284,60 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 	}
 	
 	protected String getKey() {
-		return url;
+		if (this.reverseKey) {
+			return this.reverseKeyValue;
+		}
+		else {
+			return url;
+		}
 	}
 	
 	protected String getImported() {
-		return new String(""); // TODO
+		if (this.simpleDateFormat) {
+			String timestamp = null;
+			try {
+				long epoch = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z").parse(ifNullString(metadata.get("Date"))).getTime();
+				timestamp = String.valueOf(epoch);
+			} catch (ParseException pe) {
+				LOG.warn(pe.getMessage());
+			}
+			return timestamp;
+		} else {
+			return ifNullString(metadata.get("Date"));
+		}
 	}
 	
 	private static String ifNullString(String value) {
 		return (value != null) ? value : "";
+	}
+	
+	private void startHeaders(String key, boolean nested, boolean newline) throws IOException {
+		if (this.jsonArray) {
+			startArray(key, nested, newline);
+		}
+		else {
+			startObject(key);
+		}
+	}
+	
+	private void closeHeaders(String key, boolean nested, boolean newline) throws IOException {
+		if (this.jsonArray) {
+			closeArray(key, nested, newline);
+		}
+		else {
+			closeObject(key);
+		}
+	}
+	
+	private void writeKeyValueWrapper(String key, String value) throws IOException {
+		if (this.jsonArray) {
+			startArray(null, true, false);
+			writeArrayValue(key);
+			writeArrayValue(value);
+			closeArray(null, true, false);
+		}
+		else {
+			writeKeyValue(key, value);
+		}
 	}
 }

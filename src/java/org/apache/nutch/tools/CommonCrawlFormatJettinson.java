@@ -23,6 +23,7 @@ import java.util.Deque;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -32,19 +33,21 @@ import org.codehaus.jettison.json.JSONObject;
  */
 public class CommonCrawlFormatJettinson extends AbstractCommonCrawlFormat {
 	
-	private Deque<JSONObject> stack;
+	private Deque<JSONObject> stackObjects;
+	
+	private Deque<JSONArray> stackArrays;
 
-	public CommonCrawlFormatJettinson(String url, byte[] content,
-			Metadata metadata, Configuration conf, String keyPrefix) throws IOException {
-		super(url, content, metadata, conf, keyPrefix);
+	public CommonCrawlFormatJettinson(String url, byte[] content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+		super(url, content, metadata, nutchConf, config);
 		
-		stack = new ArrayDeque<JSONObject>();
+		stackObjects = new ArrayDeque<JSONObject>();
+		stackArrays = new ArrayDeque<JSONArray>();
 	}
 	
 	@Override
 	protected void writeKeyValue(String key, String value) throws IOException {
 		try {
-			stack.getFirst().put(key, value);
+			stackObjects.getFirst().put(key, value);
 		} catch (JSONException jsone) {
 			throw new IOException(jsone.getMessage());
 		}
@@ -53,24 +56,54 @@ public class CommonCrawlFormatJettinson extends AbstractCommonCrawlFormat {
 	@Override
 	protected void writeKeyNull(String key) throws IOException {
 		try {
-			stack.getFirst().put(key, JSONObject.NULL);
+			stackObjects.getFirst().put(key, JSONObject.NULL);
 		} catch (JSONException jsone) {
 			throw new IOException(jsone.getMessage());
 		}
 	}
 	
 	@Override
+	protected void startArray(String key, boolean nested, boolean newline) throws IOException {
+		JSONArray array = new JSONArray();
+		stackArrays.push(array);
+	}
+	
+	@Override
+	protected void closeArray(String key, boolean nested, boolean newline) throws IOException {
+		try {
+			if (stackArrays.size() > 1) {
+				JSONArray array = stackArrays.pop();
+				if (nested) {
+					stackArrays.getFirst().put(array);
+				}
+				else {
+					stackObjects.getFirst().put(key, array);
+				}
+			}
+		} catch (JSONException jsone) {
+			throw new IOException(jsone.getMessage());
+		}
+	}
+	
+	@Override
+	protected void writeArrayValue(String value) throws IOException {
+		if (stackArrays.size() > 1) {
+			stackArrays.getFirst().put(value);
+		}
+	}
+	
+	@Override
 	protected void startObject(String key) throws IOException {
 		JSONObject object = new JSONObject();
-		stack.push(object);
+		stackObjects.push(object);
 	}
 	
 	@Override
 	protected void closeObject(String key) throws IOException {
 		try {
-			if (stack.size() > 1) {
-				JSONObject object = stack.pop();
-				stack.getFirst().put(key, object);
+			if (stackObjects.size() > 1) {
+				JSONObject object = stackObjects.pop();
+				stackObjects.getFirst().put(key, object);
 			}
 		} catch (JSONException jsone) {
 			throw new IOException(jsone.getMessage());
@@ -80,7 +113,7 @@ public class CommonCrawlFormatJettinson extends AbstractCommonCrawlFormat {
 	@Override
 	protected String generateJson() throws IOException {
 		try {
-			return stack.getFirst().toString(2);
+			return stackObjects.getFirst().toString(2);
 		} catch (JSONException jsone) {
 			throw new IOException(jsone.getMessage());
 		}
