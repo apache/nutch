@@ -36,24 +36,11 @@ public class SegmentChecker {
 
   public static final Logger LOG = LoggerFactory.getLogger(SegmentChecker.class);
 
-  /*
-  public Path getSegmentPath() {
-    return this.segmentPath;
-  }
-
-  public FileSystem getFileSystem() {
-    return this.fs;
-  }
-  */
-
   public SegmentChecker() {
     this.segmentPath = null;
     this.fs = null;
   }
 
-  /*
-   * force the user to pass segment's Path and FileSystem.
-   */
   public SegmentChecker(Path segmentPath, FileSystem fs) {
     this.segmentPath = segmentPath;
     this.fs = fs;
@@ -65,11 +52,6 @@ public class SegmentChecker {
   }
 
   public static boolean isIndexable(SegmentChecker segmentChecker) throws IOException {
-
-    // if (segmentChecker.getSegmentPath() == null || segmentChecker.getFileSystem() == null){
-    //   LOG.info("No segment path and filesystem setted.");
-    //   return false;
-    // }
 
     if (segmentChecker.segmentPath == null || segmentChecker.fs == null){
       LOG.info("No segment path or filesystem setted.");
@@ -94,9 +76,6 @@ public class SegmentChecker {
 
     Path segmentPath = segmentChecker.segmentPath;
     FileSystem fs = segmentChecker.fs;
-
-    //Path segmentPath = segmentChecker.getSegmentPath();
-    //FileSystem fs = segmentChecker.getFileSystem();
 
     FileStatus[] fstats_segment = fs.listStatus(segmentPath, HadoopFSUtil.getPassDirectoriesFilter(fs));
     Path[] segment_files = HadoopFSUtil.getPaths(fstats_segment);
