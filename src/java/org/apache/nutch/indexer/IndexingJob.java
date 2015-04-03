@@ -156,9 +156,12 @@ public class IndexingJob extends Configured implements Tool {
         FileStatus[] fstats = fs.listStatus(dir,
             HadoopFSUtil.getPassDirectoriesFilter(fs));
         Path[] files = HadoopFSUtil.getPaths(fstats);
+
+        SegmentChecker segmentChecker = new SegmentChecker();
         for (Path p : files) {
-          SegmentChecker segmentChecker = new SegmentChecker();
-          if (segmentChecker.isSegmentValid(p,fs)) {
+          segmentChecker.set(p,fs);
+
+          if (SegmentChecker.isIndexable(segmentChecker)) {
             segments.add(p);
           }
         }

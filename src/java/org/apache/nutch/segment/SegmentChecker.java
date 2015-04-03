@@ -31,31 +31,80 @@ import org.slf4j.LoggerFactory;
 /** Check if the segment is valid */
 public class SegmentChecker {
 
-  private boolean isCrawlFetchExisted = false;
-  private boolean isCrawlParseExisted = false;
-  private boolean isParseDataExisted = false;
-  private boolean isParseTextExisted = false;
+  private Path segmentPath;
+  private FileSystem fs;
 
-  public static Logger LOG = LoggerFactory.getLogger(SegmentChecker.class);
+  public static final Logger LOG = LoggerFactory.getLogger(SegmentChecker.class);
 
-  public SegmentChecker() {
+  /*
+  public Path getSegmentPath() {
+    return this.segmentPath;
   }
 
-  private void setFlags() {
-    isCrawlFetchExisted = false;
-    isCrawlParseExisted = false;
-    isParseDataExisted = false;
-    isParseTextExisted = false;
+  public FileSystem getFileSystem() {
+    return this.fs;
+  }
+  */
+
+  public SegmentChecker() {
+    this.segmentPath = null;
+    this.fs = null;
+  }
+
+  /*
+   * force the user to pass segment's Path and FileSystem.
+   */
+  public SegmentChecker(Path segmentPath, FileSystem fs) {
+    this.segmentPath = segmentPath;
+    this.fs = fs;
+  }
+
+  public void set(Path segmentPath, FileSystem fs) {
+    this.segmentPath = segmentPath;
+    this.fs = fs;
+  }
+
+  public static boolean isIndexable(SegmentChecker segmentChecker) throws IOException {
+
+    // if (segmentChecker.getSegmentPath() == null || segmentChecker.getFileSystem() == null){
+    //   LOG.info("No segment path and filesystem setted.");
+    //   return false;
+    // }
+
+    if (segmentChecker.segmentPath == null || segmentChecker.fs == null){
+      LOG.info("No segment path or filesystem setted.");
+      return false;
+    }
+
+    boolean checkResult = true;
+    checkResult &= checkSegmentDir(segmentChecker);
+    //Add new check methods here
+
+    if (checkResult) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /*
    * Check the segment to see if it is valid based on the sub directories. 
    */
-  public boolean isSegmentValid(Path p, FileSystem fs) throws IOException {
-    setFlags();
+  public static boolean checkSegmentDir(SegmentChecker segmentChecker) throws IOException {
 
-    FileStatus[] fstats_segment = fs.listStatus(p,HadoopFSUtil.getPassDirectoriesFilter(fs));
+    Path segmentPath = segmentChecker.segmentPath;
+    FileSystem fs = segmentChecker.fs;
+
+    //Path segmentPath = segmentChecker.getSegmentPath();
+    //FileSystem fs = segmentChecker.getFileSystem();
+
+    FileStatus[] fstats_segment = fs.listStatus(segmentPath, HadoopFSUtil.getPassDirectoriesFilter(fs));
     Path[] segment_files = HadoopFSUtil.getPaths(fstats_segment);
+
+    boolean isCrawlFetchExisted = false;
+    boolean isCrawlParseExisted = false;
+    boolean isParseDataExisted  = false;
+    boolean isParseTextExisted  = false;
 
     for (Path path : segment_files) {
       String pathName = path.getName();
@@ -67,33 +116,32 @@ public class SegmentChecker {
 
     if (isParseTextExisted && isCrawlParseExisted && isCrawlFetchExisted
         && isParseDataExisted) {
+
+      LOG.info("Segment dir is complete: " + segmentPath.toString() + ".");
       return true;
     } else {
-      logMissingDir(p);
+
+      //log the missing dir
+      StringBuilder missingDir = new StringBuilder("");
+      if (isParseDataExisted == false) {
+        missingDir.append(ParseData.DIR_NAME + ", ");
+      }
+      if (isParseTextExisted == false) {
+        missingDir.append(ParseText.DIR_NAME + ", ");
+      }
+      if (isCrawlParseExisted == false) {
+        missingDir.append(CrawlDatum.PARSE_DIR_NAME + ", ");
+      }
+      if (isCrawlFetchExisted == false) {
+        missingDir.append(CrawlDatum.FETCH_DIR_NAME + ", ");
+      }
+
+      String missingDirString = missingDir.toString();
+      LOG.warn("Skipping segment: " + segmentPath.toString()+ ". Missing sub directories: "
+          + missingDirString.substring(0, missingDirString.length() - 2));
+
       return false;
     }
-  }
-
-  public void logMissingDir(Path p) {
-
-    StringBuilder missingDir = new StringBuilder("");
-    if (isParseDataExisted == false) {
-      missingDir.append(ParseData.DIR_NAME + ", ");
-    }
-    if (isParseTextExisted == false) {
-      missingDir.append(ParseText.DIR_NAME + ", ");
-    }
-    if (isCrawlParseExisted == false) {
-      missingDir.append(CrawlDatum.PARSE_DIR_NAME + ", ");
-    }
-    if (isCrawlFetchExisted == false) {
-      missingDir.append(CrawlDatum.FETCH_DIR_NAME + ", ");
-    }
-
-    String missingDirString = missingDir.toString();
-    LOG.warn("Skipping segment: " + p.toString()+ ". Missing sub directories: "
-        + missingDirString.substring(0, missingDirString.length() - 2));
-
   }
 
 }
