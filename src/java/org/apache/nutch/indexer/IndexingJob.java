@@ -22,6 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.nutch.segment.SegmentChecker;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.parse.ParseText;
+import org.apache.nutch.parse.ParseData;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
@@ -152,8 +156,14 @@ public class IndexingJob extends Configured implements Tool {
         FileStatus[] fstats = fs.listStatus(dir,
             HadoopFSUtil.getPassDirectoriesFilter(fs));
         Path[] files = HadoopFSUtil.getPaths(fstats);
+
+        SegmentChecker segmentChecker = new SegmentChecker();
         for (Path p : files) {
-          segments.add(p);
+          segmentChecker.set(p,fs);
+
+          if (SegmentChecker.isIndexable(segmentChecker)) {
+            segments.add(p);
+          }
         }
       } else if (args[i].equals("-noCommit")) {
         noCommit = true;
