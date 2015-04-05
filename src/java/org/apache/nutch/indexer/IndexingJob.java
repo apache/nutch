@@ -157,14 +157,12 @@ public class IndexingJob extends Configured implements Tool {
             HadoopFSUtil.getPassDirectoriesFilter(fs));
         Path[] files = HadoopFSUtil.getPaths(fstats);
 
-        SegmentChecker segmentChecker = new SegmentChecker();
         for (Path p : files) {
-          segmentChecker.set(p,fs);
-
-          if (SegmentChecker.isIndexable(segmentChecker)) {
+          if (SegmentChecker.isIndexable(p,fs)) {
             segments.add(p);
           }
         }
+        
       } else if (args[i].equals("-noCommit")) {
         noCommit = true;
       } else if (args[i].equals("-deleteGone")) {

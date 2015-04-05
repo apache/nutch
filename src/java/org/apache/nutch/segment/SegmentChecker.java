@@ -31,35 +31,19 @@ import org.slf4j.LoggerFactory;
 /** Check if the segment is valid */
 public class SegmentChecker {
 
-  private Path segmentPath;
-  private FileSystem fs;
-
   public static final Logger LOG = LoggerFactory.getLogger(SegmentChecker.class);
 
-  public SegmentChecker() {
-    this.segmentPath = null;
-    this.fs = null;
-  }
-
-  public SegmentChecker(Path segmentPath, FileSystem fs) {
-    this.segmentPath = segmentPath;
-    this.fs = fs;
-  }
-
-  public void set(Path segmentPath, FileSystem fs) {
-    this.segmentPath = segmentPath;
-    this.fs = fs;
-  }
-
-  public static boolean isIndexable(SegmentChecker segmentChecker) throws IOException {
-
-    if (segmentChecker.segmentPath == null || segmentChecker.fs == null){
+  /*
+   * Check if the segment is indexable. May add new check methods here.
+   */
+  public static boolean isIndexable(Path segmentPath, FileSystem fs) throws IOException {
+    if (segmentPath == null || fs == null) {
       LOG.info("No segment path or filesystem setted.");
       return false;
     }
 
     boolean checkResult = true;
-    checkResult &= checkSegmentDir(segmentChecker);
+    checkResult &= checkSegmentDir(segmentPath, fs);
     //Add new check methods here
 
     if (checkResult) {
@@ -72,10 +56,7 @@ public class SegmentChecker {
   /*
    * Check the segment to see if it is valid based on the sub directories. 
    */
-  public static boolean checkSegmentDir(SegmentChecker segmentChecker) throws IOException {
-
-    Path segmentPath = segmentChecker.segmentPath;
-    FileSystem fs = segmentChecker.fs;
+  public static boolean checkSegmentDir(Path segmentPath, FileSystem fs) throws IOException {
 
     FileStatus[] fstats_segment = fs.listStatus(segmentPath, HadoopFSUtil.getPassDirectoriesFilter(fs));
     Path[] segment_files = HadoopFSUtil.getPaths(fstats_segment);
@@ -96,7 +77,9 @@ public class SegmentChecker {
     if (isParseTextExisted && isCrawlParseExisted && isCrawlFetchExisted
         && isParseDataExisted) {
 
+      //No segment dir missing
       LOG.info("Segment dir is complete: " + segmentPath.toString() + ".");
+
       return true;
     } else {
 
