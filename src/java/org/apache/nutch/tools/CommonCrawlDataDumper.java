@@ -488,7 +488,7 @@ public class CommonCrawlDataDumper {
 		}
 		
 		if (!typeCounts.isEmpty()) {
-			LOG.info("CommonsCrawlDataDumper File Stats: " + displayFileTypes(typeCounts, filteredCounts));
+			LOG.info("CommonsCrawlDataDumper File Stats: " + DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));
 		}
 	}
 	
@@ -546,35 +546,6 @@ public class CommonCrawlDataDumper {
 
 	private void collectStats(Map<String, Integer> typeCounts, String mimeType) {
 		typeCounts.put(mimeType, typeCounts.containsKey(mimeType) ? typeCounts.get(mimeType) + 1 : 1);
-	}
-
-	private String displayFileTypes(Map<String, Integer> typeCounts, Map<String, Integer> filteredCounts) {
-		StringBuilder builder = new StringBuilder();
-		// print total stats
-		builder.append("\nTOTAL Stats:\n");
-		builder.append("{\n");
-		for (String mimeType : typeCounts.keySet()) {
-			builder.append("    {\"mimeType\":\"");
-			builder.append(mimeType);
-			builder.append("\",\"count\":");
-			builder.append(typeCounts.get(mimeType));
-			builder.append("\"}\n");
-		}
-		builder.append("}\n");
-		// filtered types stats
-		if (!filteredCounts.isEmpty()) {
-			builder.append("\nFILTERED Stats:\n");
-			builder.append("{\n");
-			for (String mimeType : filteredCounts.keySet()) {
-				builder.append("    {\"mimeType\":\"");
-				builder.append(mimeType);
-				builder.append("\",\"count\":");
-				builder.append(filteredCounts.get(mimeType));
-				builder.append("\"}\n");
-			}
-			builder.append("}\n");
-		}
-		return builder.toString();
 	}
 	
 	/**

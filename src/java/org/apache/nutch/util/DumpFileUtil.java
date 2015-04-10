@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 public class DumpFileUtil {
     private static final Logger LOG = LoggerFactory.getLogger(DumpFileUtil.class
@@ -104,4 +105,33 @@ public class DumpFileUtil {
 		
 		return outputFullPath;
     }
+    
+	public static String displayFileTypes(Map<String, Integer> typeCounts, Map<String, Integer> filteredCounts) {
+		StringBuilder builder = new StringBuilder();
+		// print total stats
+		builder.append("\nTOTAL Stats:\n");
+		builder.append("[\n");
+		for (String mimeType : typeCounts.keySet()) {
+			builder.append("    {\"mimeType\":\"");
+			builder.append(mimeType);
+			builder.append("\",\"count\":\"");
+			builder.append(typeCounts.get(mimeType));
+			builder.append("\"}\n");
+		}
+		builder.append("]\n");
+		// filtered types stats
+		if (!filteredCounts.isEmpty()) {
+			builder.append("\nFILTERED Stats:\n");
+			builder.append("[\n");
+			for (String mimeType : filteredCounts.keySet()) {
+				builder.append("    {\"mimeType\":\"");
+				builder.append(mimeType);
+				builder.append("\",\"count\":\"");
+				builder.append(filteredCounts.get(mimeType));
+				builder.append("\"}\n");
+			}
+			builder.append("]\n");
+		}
+		return builder.toString();
+	}  
 }

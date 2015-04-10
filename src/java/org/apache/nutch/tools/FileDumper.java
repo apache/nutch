@@ -80,26 +80,29 @@ import org.slf4j.LoggerFactory;
  * <pre>
  * {@code
  * INFO: File Types: 
- *   TOTAL Stats:    {
- *     {"mimeType":"application/xml","count":19"}
- *     {"mimeType":"image/png","count":47"}
- *     {"mimeType":"image/jpeg","count":141"}
- *     {"mimeType":"image/vnd.microsoft.icon","count":4"}
- *     {"mimeType":"text/plain","count":89"}
- *     {"mimeType":"video/quicktime","count":2"}
- *     {"mimeType":"image/gif","count":63"}
- *     {"mimeType":"application/xhtml+xml","count":1670"}
- *     {"mimeType":"application/octet-stream","count":40"}
- *     {"mimeType":"text/html","count":1863"}
- *   }
- *   FILTER Stats:    {
- *     {"mimeType":"image/png","count":47"}
- *     {"mimeType":"image/jpeg","count":141"}
- *     {"mimeType":"image/vnd.microsoft.icon","count":4"}
- *     {"mimeType":"video/quicktime","count":2"}
- *     {"mimeType":"image/gif","count":63"}
- *   }
- * }
+ *   TOTAL Stats:    
+ *    [
+ *     {"mimeType":"application/xml","count":"19"}
+ *     {"mimeType":"image/png","count":"47"}
+ *     {"mimeType":"image/jpeg","count":"141"}
+ *     {"mimeType":"image/vnd.microsoft.icon","count":"4"}
+ *     {"mimeType":"text/plain","count":"89"}
+ *     {"mimeType":"video/quicktime","count":"2"}
+ *     {"mimeType":"image/gif","count":"63"}
+ *     {"mimeType":"application/xhtml+xml","count":"1670"}
+ *     {"mimeType":"application/octet-stream","count":"40"}
+ *     {"mimeType":"text/html","count":"1863"}
+ *   ]
+ *   
+ *   FILTER Stats: 
+ *   [
+ *     {"mimeType":"image/png","count":"47"}
+ *     {"mimeType":"image/jpeg","count":"141"}
+ *     {"mimeType":"image/vnd.microsoft.icon","count":"4"}
+ *     {"mimeType":"video/quicktime","count":"2"}
+ *     {"mimeType":"image/gif","count":"63"}
+ *   ]
+ *  
  * </pre>
  * <p>
  * In the case above, the tool would have been run with the <b>-mimeType
@@ -237,7 +240,7 @@ public class FileDumper {
       }
     }
     LOG.info("Dumper File Stats: "
-        + displayFileTypes(typeCounts, filteredCounts));
+        + DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));
 
   }
 
@@ -312,36 +315,6 @@ public class FileDumper {
   private void collectStats(Map<String, Integer> typeCounts, String mimeType) {
     typeCounts.put(mimeType,
         typeCounts.containsKey(mimeType) ? typeCounts.get(mimeType) + 1 : 1);
-  }
-
-  private String displayFileTypes(Map<String, Integer> typeCounts,
-      Map<String, Integer> filteredCounts) {
-    StringBuilder builder = new StringBuilder();
-    // print total stats
-    builder.append("\n  TOTAL Stats:\n");
-    builder.append("                {\n");
-    for (String mimeType : typeCounts.keySet()) {
-      builder.append("    {\"mimeType\":\"");
-      builder.append(mimeType);
-      builder.append("\",\"count\":");
-      builder.append(typeCounts.get(mimeType));
-      builder.append("\"}\n");
-    }
-    builder.append("}\n");
-    if (!filteredCounts.isEmpty()) {
-      // print dumper stats
-      builder.append("\n  FILTERED Stats:\n");
-      builder.append("                {\n");
-      for (String mimeType : filteredCounts.keySet()) {
-        builder.append("    {\"mimeType\":\"");
-        builder.append(mimeType);
-        builder.append("\",\"count\":");
-        builder.append(filteredCounts.get(mimeType));
-        builder.append("\"}\n");
-      }
-      builder.append("}\n");
-    }
-    return builder.toString();
   }
 
 }
