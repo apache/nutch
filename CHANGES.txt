@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1972 Dockerfile for Nutch 1.x (Michael Joyce via mattmann)
+
 * NUTCH-1771 Indexer fails if a segment is corrupted or incomplete (Diaa, Chong Li via snagel)
 
 * NUTCH-1975 New configuration for CommonCrawlDataDumper tool (Giuseppe Totaro via mattmann)
