@@ -367,6 +367,7 @@
         or to add multiple fields to the same field for easier/faster searching.  -->
 
  <copyField source="content" dest="text"/>
+ <copyField source="rawcontent" dest="text"/>
  <copyField source="url" dest="text"/>
  <copyField source="title" dest="text"/>
  <copyField source="anchor" dest="text"/>
