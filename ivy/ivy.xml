@@ -54,7 +54,7 @@
       <exclude org="org.mortbay.jetty" name="jsp-*" />
     </dependency>
 
-    <dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
+    <dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
     <dependency org="org.apache.tika" name="tika-core" rev="1.7" />
     <dependency org="com.googlecode.juniversalchardet" name="juniversalchardet" rev="1.0.3"/>
 

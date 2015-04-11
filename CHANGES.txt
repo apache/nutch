@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.4-SNAPSHOT
 
+* NUTCH-1981 Upgrade to icu4j 55.1 (Marko Asplund via snagel)
+
 * NUTCH-1944 Index HTML raw content (meabed via mattmann)
 
 * NUTCH-1941 Optional rolling http.agent.name's (Asitang Mishra, lewismc via snagel)
