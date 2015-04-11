@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1960 JUnit test for dump method of CommonCrawlDataDumper (Giuseppe Totaro via mattmann)
+
 * NUTCH-1983 CommonCrawlDumper and FileDumper don't dump correct JSON (mattmann)
 
 * NUTCH-1972 Dockerfile for Nutch 1.x (Michael Joyce via mattmann)
