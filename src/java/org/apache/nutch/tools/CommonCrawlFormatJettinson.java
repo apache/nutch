@@ -18,15 +18,14 @@
 package org.apache.nutch.tools;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.util.URLUtil;
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.mortbay.log.Log;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class provides methods to map crawled data on JSON using Jettinson APIs. 
@@ -34,135 +33,89 @@ import org.slf4j.LoggerFactory;
  */
 public class CommonCrawlFormatJettinson extends AbstractCommonCrawlFormat {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(CommonCrawlFormatJettinson.class.getName());
+	private Deque<JSONObject> stackObjects;
+	
+	private Deque<JSONArray> stackArrays;
 
-	public CommonCrawlFormatJettinson(String url, byte[] content,
-			Metadata metadata, Configuration conf) {
-		super(url, content, metadata, conf);
+	public CommonCrawlFormatJettinson(String url, byte[] content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+		super(url, content, metadata, nutchConf, config);
+		
+		stackObjects = new ArrayDeque<JSONObject>();
+		stackArrays = new ArrayDeque<JSONArray>();
 	}
 	
 	@Override
-	protected String getJsonDataAll() throws IOException {
-		JSONObject object = new JSONObject();
-
+	protected void writeKeyValue(String key, String value) throws IOException {
 		try {
-			// url
-			object.put("url", url);
-
-			// timestamp
-			object.put("timestamp", metadata.get(Metadata.LAST_MODIFIED));
-
-			// request
-			JSONObject requestObject = new JSONObject();
-			requestObject.put("method", "GET"); 
-			JSONObject clientObject = new JSONObject();
-			clientObject.put("hostname", getHostName());
-			clientObject.put("address", getHostAddress());
-			clientObject.put("software", conf.get("http.agent.version", ""));
-			clientObject.put("robots", "CLASSIC");
-			JSONObject contactObject = new JSONObject();
-			contactObject.put("name", conf.get("http.agent.name", ""));
-			contactObject.put("email", conf.get("http.agent.email", ""));
-			clientObject.put("contact", contactObject);
-			requestObject.put("client", clientObject);
-			JSONObject reqHeadersObject = new JSONObject();
-			reqHeadersObject.put("Accept", conf.get("http.accept", ""));
-			reqHeadersObject.put("Accept-Encoding", ""); // TODO
-			reqHeadersObject.put("Accept-Language",	conf.get("http.accept.language", ""));
-			reqHeadersObject.put("User-Agent", conf.get("http.robots.agents", ""));
-			requestObject.put("headers", reqHeadersObject);
-			requestObject.put("body", JSONObject.NULL);
-			object.put("request", requestObject);
-
-			// response
-			JSONObject responseObject = new JSONObject();
-			responseObject.put("status", ifNullString(metadata.get("status")));
-			JSONObject serverObject = new JSONObject();
-			serverObject.put("hostname", URLUtil.getHost(url));
-			serverObject.put("address", ifNullString(metadata.get("_ip_")));
-			responseObject.put("client", serverObject);
-			JSONObject respHeadersObject = new JSONObject();
-			for (String name : metadata.names()) {
-				respHeadersObject.put(name, ifNullString(metadata.get(name)));
-			}
-			responseObject.put("headers", respHeadersObject);
-			responseObject.put("body", new String(content));
-			object.put("response", responseObject);
-
-			// key
-			object.put("key", url); 
-
-			// imported
-			object.put("imported", ""); // TODO
-
-			return object.toString(2); // INDENTED OUTPUT
-
+			stackObjects.getFirst().put(key, value);
 		} catch (JSONException jsone) {
-			LOG.warn("Error in processing file " + url + ": " + jsone.getMessage());
-			throw new IOException("Error in generating JSON using Jettinson:" + jsone.getMessage()); 
+			throw new IOException(jsone.getMessage());
 		}
 	}
-
+	
 	@Override
-	protected String getJsonDataSet() throws IOException {
-		JSONObject object = new JSONObject();
-
+	protected void writeKeyNull(String key) throws IOException {
 		try {
-			// url
-			object.put("url", url);
-
-			// timestamp
-			object.put("timestamp", metadata.get(Metadata.LAST_MODIFIED));
-
-			// request
-			JSONObject requestObject = new JSONObject();
-			requestObject.put("method", "GET"); 
-			JSONObject clientObject = new JSONObject();
-			clientObject.put("hostname", getHostName());
-			clientObject.put("address", getHostAddress());
-			clientObject.put("software", conf.get("http.agent.version", ""));
-			clientObject.put("robots", "CLASSIC"); 
-			JSONObject contactObject = new JSONObject();
-			contactObject.put("name", conf.get("http.agent.name", ""));
-			contactObject.put("email", conf.get("http.agent.email", ""));
-			clientObject.put("contact", contactObject);
-			requestObject.put("client", clientObject);
-			JSONObject reqHeadersObject = new JSONObject();
-			reqHeadersObject.put("Accept", conf.get("http.accept", ""));
-			reqHeadersObject.put("Accept-Encoding", ""); // TODO
-			reqHeadersObject.put("Accept-Language",	conf.get("http.accept.language", ""));
-			reqHeadersObject.put("User-Agent", conf.get("http.robots.agents", "")); 
-			requestObject.put("headers", reqHeadersObject);
-			requestObject.put("body", JSONObject.NULL);
-			object.put("request", requestObject);
-
-			// response
-			JSONObject responseObject = new JSONObject();
-			responseObject.put("status", ifNullString(metadata.get("status")));
-			JSONObject serverObject = new JSONObject();
-			serverObject.put("hostname", URLUtil.getHost(url)); 
-			serverObject.put("address", ifNullString(metadata.get("_ip_")));
-			responseObject.put("client", serverObject);
-			JSONObject respHeadersObject = new JSONObject();
-			respHeadersObject.put("Content-Encoding", ifNullString(metadata.get("Content-Encoding")));
-			respHeadersObject.put("Content-Type", ifNullString(metadata.get("Content-Type")));
-			respHeadersObject.put("Date", ifNullString(metadata.get("Date")));
-			respHeadersObject.put("Server", ifNullString(metadata.get("Server")));
-			responseObject.put("headers", respHeadersObject);
-			responseObject.put("body", new String(content)); 
-			object.put("response", responseObject);
-
-			// key
-			object.put("key", url);
-
-			// imported
-			object.put("imported", ""); // TODO
-
-			return object.toString(2); // INDENTED OUTPUT
-
+			stackObjects.getFirst().put(key, JSONObject.NULL);
 		} catch (JSONException jsone) {
-			LOG.warn("Error in processing file " + url + ": " + jsone.getMessage());
-			throw new IOException("Error in generating JSON using Jettinson:" + jsone.getMessage()); 
+			throw new IOException(jsone.getMessage());
+		}
+	}
+	
+	@Override
+	protected void startArray(String key, boolean nested, boolean newline) throws IOException {
+		JSONArray array = new JSONArray();
+		stackArrays.push(array);
+	}
+	
+	@Override
+	protected void closeArray(String key, boolean nested, boolean newline) throws IOException {
+		try {
+			if (stackArrays.size() > 1) {
+				JSONArray array = stackArrays.pop();
+				if (nested) {
+					stackArrays.getFirst().put(array);
+				}
+				else {
+					stackObjects.getFirst().put(key, array);
+				}
+			}
+		} catch (JSONException jsone) {
+			throw new IOException(jsone.getMessage());
+		}
+	}
+	
+	@Override
+	protected void writeArrayValue(String value) throws IOException {
+		if (stackArrays.size() > 1) {
+			stackArrays.getFirst().put(value);
+		}
+	}
+	
+	@Override
+	protected void startObject(String key) throws IOException {
+		JSONObject object = new JSONObject();
+		stackObjects.push(object);
+	}
+	
+	@Override
+	protected void closeObject(String key) throws IOException {
+		try {
+			if (stackObjects.size() > 1) {
+				JSONObject object = stackObjects.pop();
+				stackObjects.getFirst().put(key, object);
+			}
+		} catch (JSONException jsone) {
+			throw new IOException(jsone.getMessage());
+		}
+	}
+	
+	@Override
+	protected String generateJson() throws IOException {
+		try {
+			return stackObjects.getFirst().toString(2);
+		} catch (JSONException jsone) {
+			throw new IOException(jsone.getMessage());
 		}
 	}
 }

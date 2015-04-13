@@ -277,7 +277,7 @@ public class Benchmark extends Configured implements Tool {
     }
     res.elapsed = System.currentTimeMillis() - res.elapsed;
     CrawlDbReader dbreader = new CrawlDbReader();
-    dbreader.processStatJob(crawlDb.toString(), conf, false);
+    dbreader.processStatJob(crawlDb.toString(), job, false);
     return res;
   }
 

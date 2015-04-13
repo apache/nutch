@@ -25,12 +25,14 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.security.MessageDigest;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -39,6 +41,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
@@ -53,16 +56,20 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
-
 //Tika imports
 import org.apache.tika.Tika;
+
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.fasterxml.jackson.dataformat.cbor.CBORGenerator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.SimpleDateFormat;
 
 /**
@@ -162,6 +169,15 @@ import com.ibm.icu.text.SimpleDateFormat;
 public class CommonCrawlDataDumper {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CommonCrawlDataDumper.class.getName());
+	
+	private CommonCrawlConfig config = null;
+	
+	// Gzip initialization
+	private FileOutputStream fileOutput = null;
+	private BufferedOutputStream bufOutput = null;
+	private GzipCompressorOutputStream gzipOutput = null;
+	private TarArchiveOutputStream tarOutput = null;
+	private ArrayList<String> fileList = null;
 
 	/**
 	 * Main method for invoking this tool
@@ -177,17 +193,20 @@ public class CommonCrawlDataDumper {
 	@SuppressWarnings("static-access")
 	public static void main(String[] args) throws Exception {
 		Option helpOpt = new Option("h", "help", false,
-				"show this help message");
+				"show this help message.");
 		// argument options
 		Option outputOpt = OptionBuilder
 				.withArgName("outputDir")
 				.hasArg()
 				.withDescription(
-						"output directory (which will be created) to host the CBOR data")
+						"output directory (which will be created) to host the CBOR data.")
 				.create("outputDir");
-		Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
-				.withDescription("the segment(s) to use").create("segment");
-		// GIUSEPPE: create mimetype and gzip options
+		Option segOpt = OptionBuilder
+				.withArgName("segment")
+				.hasArgs()
+				.withDescription("the segment(s) to use")
+				.create("segment");
+		// create mimetype and gzip options
 		Option mimeOpt = OptionBuilder
 				.isRequired(false)
 				.withArgName("mimetype")
@@ -196,11 +215,36 @@ public class CommonCrawlDataDumper {
 						"an optional list of mimetypes to dump, excluding all others. Defaults to all.")
 				.create("mimetype");
 		Option gzipOpt = OptionBuilder
-				.isRequired(false)
+				.withArgName("gzip")
 				.hasArg(false)
 				.withDescription(
-						"an optional flag indicating whether to additionally gzip the data")
+						"an optional flag indicating whether to additionally gzip the data.")
 				.create("gzip");
+		Option keyPrefixOpt = OptionBuilder
+				.withArgName("keyPrefix")
+				.hasArg(true)
+				.withDescription("an optional prefix for key in the output format.")
+				.create("keyPrefix");
+		Option simpleDateFormatOpt = OptionBuilder
+				.withArgName("SimpleDateFormat")
+				.hasArg(false)
+				.withDescription("an optional format for timestamp in GMT epoch milliseconds.")
+				.create("SimpleDateFormat");
+		Option epochFilenameOpt = OptionBuilder
+				.withArgName("epochFilename")
+				.hasArg(false)
+				.withDescription("an optional format for output filename.")
+				.create("epochFilename");
+		Option jsonArrayOpt = OptionBuilder
+				.withArgName("jsonArray")
+				.hasArg(false)
+				.withDescription("an optional format for JSON output.")
+				.create("jsonArray");
+		Option reverseKeyOpt = OptionBuilder
+				.withArgName("reverseKey")
+				.hasArg(false)
+				.withDescription("an optional format for key value in JSON output.")
+				.create("reverseKey");
 
 		// create the options
 		Options options = new Options();
@@ -210,6 +254,13 @@ public class CommonCrawlDataDumper {
 		// create mimetypes and gzip options
 		options.addOption(mimeOpt);
 		options.addOption(gzipOpt);
+		// create keyPrefix option
+		options.addOption(keyPrefixOpt);
+		// create simpleDataFormat option
+		options.addOption(simpleDateFormatOpt);
+		options.addOption(epochFilenameOpt);
+		options.addOption(jsonArrayOpt);
+		options.addOption(reverseKeyOpt);
 
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -224,6 +275,18 @@ public class CommonCrawlDataDumper {
 			File segmentRootDir = new File(line.getOptionValue("segment"));
 			String[] mimeTypes = line.getOptionValues("mimetype");
 			boolean gzip = line.hasOption("gzip");
+			boolean epochFilename = line.hasOption("epochFilename");
+			
+			String keyPrefix = line.getOptionValue("keyPrefix", "");
+			boolean simpleDateFormat = line.hasOption("SimpleDateFormat");
+			boolean jsonArray = line.hasOption("jsonArray");
+			boolean reverseKey = line.hasOption("reverseKey");
+			
+			CommonCrawlConfig config = new CommonCrawlConfig();
+			config.setKeyPrefix(keyPrefix);
+			config.setSimpleDateFormat(simpleDateFormat);
+			config.setJsonArray(jsonArray);
+			config.setReverseKey(reverseKey);
 
 			if (!outputDir.exists()) {
 				LOG.warn("Output directory: [" + outputDir.getAbsolutePath() + "]: does not exist, creating it.");
@@ -231,15 +294,22 @@ public class CommonCrawlDataDumper {
 					throw new Exception("Unable to create: [" + outputDir.getAbsolutePath() + "]");
 			}
 
-			CommonCrawlDataDumper dumper = new CommonCrawlDataDumper();
+			CommonCrawlDataDumper dumper = new CommonCrawlDataDumper(config);
 			
-			dumper.dump(outputDir, segmentRootDir, gzip, mimeTypes);
+			dumper.dump(outputDir, segmentRootDir, gzip, mimeTypes, epochFilename);
 			
 		} catch (Exception e) {
 			LOG.error(CommonCrawlDataDumper.class.getName() + ": " + StringUtils.stringifyException(e));
 			e.printStackTrace();
 			return;
 		}
+	}
+	
+	/**
+	 * Constructor
+	 */
+	public CommonCrawlDataDumper(CommonCrawlConfig config) {
+		this.config = config;
 	}
 	
 	/**
@@ -261,8 +331,8 @@ public class CommonCrawlDataDumper {
      *            filtered out.
 	 * @throws Exception
 	 */
-	public void dump(File outputDir, File segmentRootDir, boolean gzip,	String[] mimeTypes) throws Exception {
-		if (!gzip) {
+	public void dump(File outputDir, File segmentRootDir, boolean gzip,	String[] mimeTypes, boolean epochFilename) throws Exception {
+		if (gzip) {
 			LOG.info("Gzipping CBOR data has been skipped");
 		}
 		// total file counts
@@ -270,8 +340,8 @@ public class CommonCrawlDataDumper {
 		// filtered file counters
 		Map<String, Integer> filteredCounts = new HashMap<String, Integer>();
 		
-		Configuration conf = NutchConfiguration.create();
-		FileSystem fs = FileSystem.get(conf);
+		Configuration nutchConfig = NutchConfiguration.create();
+		FileSystem fs = FileSystem.get(nutchConfig);
 		File[] segmentDirs = segmentRootDir.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File file) {
@@ -284,28 +354,13 @@ public class CommonCrawlDataDumper {
 			System.exit(1);
 		}
 		
-		// Gzip initialization
-		FileOutputStream fileOutput = null;
-	    BufferedOutputStream bufOutput = null;
-	    GzipCompressorOutputStream gzipOutput = null;
-	    TarArchiveOutputStream tarOutput = null;
-	    
-	    ArrayList<String> fileList = null;
-	    
 		if (gzip) {
-			String archiveName = new SimpleDateFormat("yyyyMMddhhmm'.tar.gz'").format(new Date());
-		    fileOutput = new FileOutputStream(new File(outputDir + File.separator + archiveName));
-		    bufOutput = new BufferedOutputStream(fileOutput);
-		    gzipOutput = new GzipCompressorOutputStream(bufOutput);
-		    tarOutput = new TarArchiveOutputStream(gzipOutput);
-		    
-		    fileList = new ArrayList<String>();
+			fileList = new ArrayList<String>();
+		    constructNewStream(outputDir);
 		}
 
 		for (File segment : segmentDirs) {
 			LOG.info("Processing segment: [" + segment.getAbsolutePath() + "]");
-			// GIUSEPPE: Never used (also in FileDumper.java)!
-			//DataOutputStream doutputStream = null;
 			try {
 				String segmentContentPath = segment.getAbsolutePath() + File.separator + Content.DIR_NAME + "/part-00000/data";
 				Path file = new Path(segmentContentPath);
@@ -314,7 +369,7 @@ public class CommonCrawlDataDumper {
 					LOG.warn("Skipping segment: [" + segmentContentPath	+ "]: no data directory present");
 					continue;
 				}
-				SequenceFile.Reader reader = new SequenceFile.Reader(fs, file, conf);
+				SequenceFile.Reader reader = new SequenceFile.Reader(fs, file, nutchConfig);
 
 				if (!new File(file.toString()).exists()) {
 					LOG.warn("Skipping segment: [" + segmentContentPath	+ "]: no data directory present");
@@ -327,14 +382,49 @@ public class CommonCrawlDataDumper {
 				while (reader.next(key)) {
 					content = new Content();
 					reader.getCurrentValue(content);
+					Metadata metadata = content.getMetadata();
 					String url = key.toString();
 					String baseName = FilenameUtils.getBaseName(url);
 					String extension = FilenameUtils.getExtension(url);
-					if (extension == null || extension.equals("")) {
+					
+					if ((extension == null) || extension.isEmpty()) {
 						extension = "html";
 					}
-
-					String filename = baseName + "." + extension;
+					
+					String outputFullPath = null;
+					String outputRelativePath = null;
+					String filename = null;
+					String timestamp = null;
+					String reverseKey = null;
+					
+					if (epochFilename || config.getReverseKey()) {	
+						try {
+							long epoch = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z").parse(getDate(metadata.get("Date"))).getTime();
+							timestamp = String.valueOf(epoch);
+						} catch (ParseException pe) {
+							LOG.warn(pe.getMessage());
+						}
+						
+						reverseKey = reverseUrl(url);
+						config.setReverseKeyValue(reverseKey.replace("/", "_") + "_" + DigestUtils.shaHex(url) + "_" + timestamp);
+					}	
+					
+					if (epochFilename) {
+						outputFullPath = DumpFileUtil.createFileNameFromUrl(outputDir.getAbsolutePath(), reverseKey, url, timestamp, extension, !gzip);
+						outputRelativePath = outputFullPath.substring(0, outputFullPath.lastIndexOf(File.separator)-1);
+						filename = content.getMetadata().get(Metadata.DATE) + "." + extension;
+					}
+					else {
+						String md5Ofurl = DumpFileUtil.getUrlMD5(url);
+						String fullDir = DumpFileUtil.createTwoLevelsDirectory(outputDir.getAbsolutePath(), md5Ofurl, !gzip);
+						filename = DumpFileUtil.createFileName(md5Ofurl, baseName, extension);
+						outputFullPath = String.format("%s/%s", fullDir, filename);
+	
+						String [] fullPathLevels = fullDir.split(File.separator);
+						String firstLevelDirName = fullPathLevels[fullPathLevels.length-2]; 
+						String secondLevelDirName = fullPathLevels[fullPathLevels.length-1];
+						outputRelativePath = firstLevelDirName + secondLevelDirName;
+					}
 					
 					// Encode all filetypes if no mimetypes have been given
 					Boolean filter = (mimeTypes == null);
@@ -343,8 +433,8 @@ public class CommonCrawlDataDumper {
 					try {
 						String mimeType = new Tika().detect(content.getContent());
 						// Maps file to JSON-based structure
-						CommonCrawlFormat format = CommonCrawlFormatFactory.getCommonCrawlFormat("JACKSON", url, content.getContent(), content.getMetadata(), conf);
-						jsonData = format.getJsonData(false);
+						CommonCrawlFormat format = CommonCrawlFormatFactory.getCommonCrawlFormat("JACKSON", url, content.getContent(), metadata, nutchConfig, config);
+						jsonData = format.getJsonData();
 
 						collectStats(typeCounts, mimeType);
 						// collects statistics for the given mimetypes
@@ -352,53 +442,36 @@ public class CommonCrawlDataDumper {
 							collectStats(filteredCounts, mimeType);
 							filter = true;
 						}
-					} catch (Exception e) {
-						e.printStackTrace();
-						LOG.warn("Tika is unable to detect type for: [" + url
-								+ "]");
+					} catch (IOException ioe) { 
+						LOG.error("Fatal error in creating JSON data: " + ioe.getMessage());
+						return;
 					}
 
 					if (filter) {
-						
 						byte[] byteData = serializeCBORData(jsonData);
 						
 						if (!gzip) {
-							String outputFullPath = outputDir + File.separator + filename;
 							File outputFile = new File(outputFullPath);
 							if (outputFile.exists()) {
 								LOG.info("Skipping writing: [" + outputFullPath	+ "]: file already exists");
 							}
 							else {
 								LOG.info("Writing: [" + outputFullPath + "]");
-								try{
-								    IOUtils.copy(new ByteArrayInputStream(byteData), new FileOutputStream(outputFile));
-								}
-								catch (Exception e){
-								    MessageDigest md = MessageDigest.getInstance("MD5");
-								    md.update(outputFullPath.getBytes());
-								    byte[] digest = md.digest();
-								    StringBuffer sb = new StringBuffer();
-								    for (byte b : digest) {
-									   sb.append(String.format("%02x", b & 0xff));
-								    }
-								    outputFullPath = outputFullPath.substring(0, 32) + "_" + sb.toString();
-								    File newOutPutFile = new File(outputFullPath);
-								    IOUtils.copy(new ByteArrayInputStream(byteData), new FileOutputStream(newOutPutFile));
-								    LOG.info("File name is too long. Truncated and MD5 appended.");
-								}
+								IOUtils.copy(new ByteArrayInputStream(byteData), new FileOutputStream(outputFile));
 							}
 						}
 						else {
-							if (fileList.contains(filename)) {
-								LOG.info("Skipping compressing: [" + filename	+ "]: file already exists");
+							if (fileList.contains(outputFullPath)) {
+								LOG.info("Skipping compressing: [" + outputFullPath + "]: file already exists");
 							}
 							else {
-								fileList.add(filename);
-								LOG.info("Compressing: [" + filename + "]");
-								TarArchiveEntry tarEntry = new TarArchiveEntry(filename);
+								fileList.add(outputFullPath);
+								LOG.info("Compressing: [" + outputFullPath + "]");
+								//TarArchiveEntry tarEntry = new TarArchiveEntry(firstLevelDirName + File.separator + secondLevelDirName + File.separator + filename);
+								TarArchiveEntry tarEntry = new TarArchiveEntry(outputRelativePath + File.separator + filename);
 								tarEntry.setSize(byteData.length);
 								tarOutput.putArchiveEntry(tarEntry);
-								IOUtils.copy(new ByteArrayInputStream(byteData), tarOutput);
+								tarOutput.write(byteData);
 								tarOutput.closeArchiveEntry();
 							}
 						}
@@ -411,15 +484,35 @@ public class CommonCrawlDataDumper {
 		}
 		
 		if (gzip) {
+	        closeStream();
+		}
+		
+		if (!typeCounts.isEmpty()) {
+			LOG.info("CommonsCrawlDataDumper File Stats: " + DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));
+		}
+	}
+	
+	private void closeStream() {
+		try {
 			tarOutput.finish();
-			 
+			
 	        tarOutput.close();
 	        gzipOutput.close();
 	        bufOutput.close();
 	        fileOutput.close();
+		} catch (IOException ioe) {
+			LOG.warn("Error in closing stream: " + ioe.getMessage());
 		}
-		
-		LOG.info("CommonsCrawlDataDumper File Stats: " + displayFileTypes(typeCounts, filteredCounts));
+	}
+	
+	private void constructNewStream(File outputDir) throws IOException {	
+		String archiveName = new SimpleDateFormat("yyyyMMddhhmm'.tar.gz'").format(new Date());
+		LOG.info("Creating a new gzip archive: " + archiveName);
+	    fileOutput = new FileOutputStream(new File(outputDir + File.separator + archiveName));
+	    bufOutput = new BufferedOutputStream(fileOutput);
+	    gzipOutput = new GzipCompressorOutputStream(bufOutput);
+	    tarOutput = new TarArchiveOutputStream(gzipOutput);
+	    tarOutput.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
 	}
 	
 	private byte[] serializeCBORData(String jsonData) {
@@ -454,33 +547,41 @@ public class CommonCrawlDataDumper {
 	private void collectStats(Map<String, Integer> typeCounts, String mimeType) {
 		typeCounts.put(mimeType, typeCounts.containsKey(mimeType) ? typeCounts.get(mimeType) + 1 : 1);
 	}
-
-	private String displayFileTypes(Map<String, Integer> typeCounts, Map<String, Integer> filteredCounts) {
-		StringBuilder builder = new StringBuilder();
-		// print total stats
-		builder.append("\n  TOTAL Stats:\n");
-		builder.append("                {\n");
-		for (String mimeType : typeCounts.keySet()) {
-			builder.append("    {\"mimeType\":\"");
-			builder.append(mimeType);
-			builder.append("\",\"count\":");
-			builder.append(typeCounts.get(mimeType));
-			builder.append("\"}\n");
+	
+	/**
+	 * Gets the current date if the given timestamp is empty or null.
+	 * @param timestamp the timestamp
+	 * @return the current timestamp if the given one is null.
+	 */
+	private String getDate(String timestamp) {
+		if (timestamp == null || timestamp.isEmpty()) {
+			DateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
+			timestamp = dateFormat.format(new Date());
 		}
-		builder.append("}\n");
-		// filtered types stats
-		if (!filteredCounts.isEmpty()) {
-			builder.append("\n  FILTERED Stats:\n");
-			builder.append("                {\n");
-			for (String mimeType : filteredCounts.keySet()) {
-				builder.append("    {\"mimeType\":\"");
-				builder.append(mimeType);
-				builder.append("\",\"count\":");
-				builder.append(filteredCounts.get(mimeType));
-				builder.append("\"}\n");
-			}
-			builder.append("}\n");
-		}
-		return builder.toString();
+		return timestamp;
+			
 	}
+	
+	public static String reverseUrl(String urlString) {
+    	URL url = null;
+		String reverseKey = null;
+		try {
+			url = new URL(urlString);
+			
+			String[] hostPart = url.getHost().replace('.', '/').split("/");
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append(hostPart[hostPart.length-1]);
+			for (int i = hostPart.length-2; i >= 0; i--) {
+				sb.append("/" + hostPart[i]);
+			}
+			
+			reverseKey = sb.toString();
+
+		} catch (MalformedURLException e) {
+			LOG.error("Failed to parse URL: {}", urlString);
+		}
+		
+		return reverseKey;
+    }
 }

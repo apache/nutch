@@ -2,6 +2,32 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1981 Upgrade to icu4j 55.1 (Marko Asplund via snagel)
+
+* NUTCH-1960 JUnit test for dump method of CommonCrawlDataDumper (Giuseppe Totaro via mattmann)
+
+* NUTCH-1983 CommonCrawlDumper and FileDumper don't dump correct JSON (mattmann)
+
+* NUTCH-1972 Dockerfile for Nutch 1.x (Michael Joyce via mattmann)
+
+* NUTCH-1771 Indexer fails if a segment is corrupted or incomplete (Diaa, Chong Li via snagel) 
+
+* NUTCH-1975 New configuration for CommonCrawlDataDumper tool (Giuseppe Totaro via mattmann)
+
+* NUTCH-1979 CrawlDbReader to implement Tool (markus)
+
+* NUTCH-1970 Pretty print JSON output in config resource (Tyler Pasulich, mattmann)
+
+* NUTCH-1976 Allow Users to Set Hostname for Server (Tyler Palsulich via mattmann)
+
+* NUTCH-1941 Optional rolling http.agent.name's (Asitang Mishra, lewismc via snagel)
+
+* NUTCH-1959 Improving CommonCrawlFormat implementations (Giuseppe Totaro via mattmann)
+
+* NUTCH-1974 keyPrefix option for CommonCrawlDataDumper tool (Giuseppe Totaro via mattmann)
+
+* NUTCH-1968 File Name too long issue of DumpFileUtil.java file (Xin Zhang, Renxia Wang via mattmann)
+
 * NUTCH-1966 Configuration endpoint for 1x REST API (Sujen Shah via mattmann)
 
 * NUTCH-1967 Possible SIooBE in MimeAdaptiveFetchSchedule (markus)

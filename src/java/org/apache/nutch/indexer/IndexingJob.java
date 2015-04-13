@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
@@ -153,7 +154,9 @@ public class IndexingJob extends Configured implements Tool {
             HadoopFSUtil.getPassDirectoriesFilter(fs));
         Path[] files = HadoopFSUtil.getPaths(fstats);
         for (Path p : files) {
-          segments.add(p);
+          if (SegmentChecker.isIndexable(p,fs)) {
+            segments.add(p);
+          }
         }
       } else if (args[i].equals("-noCommit")) {
         noCommit = true;

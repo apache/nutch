@@ -17,9 +17,10 @@
 
 package org.apache.nutch.tools;
 
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.util.URLUtil;
 
 /**
  * This class provides methods to map crawled data on JSON using a {@see StringBuilder} object. 
@@ -27,126 +28,146 @@ import org.apache.nutch.util.URLUtil;
  */
 public class CommonCrawlFormatSimple extends AbstractCommonCrawlFormat {
 	
-	public CommonCrawlFormatSimple(String url, byte[] content, Metadata metadata,
-			Configuration conf) {
-		super(url, content, metadata, conf);
+	private StringBuilder sb;
+	
+	private int tabCount;
+	
+	public CommonCrawlFormatSimple(String url, byte[] content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+		super(url, content, metadata, nutchConf, config);
+		
+		this.sb = new StringBuilder();
+		this.tabCount = 0;
 	}
 	
 	@Override
-	protected String getJsonDataAll() {
-		// TODO character escaping
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\n");
-
-		// url
-		sb.append("\t\"url\": \"" + url + "\",\n");
-		
-		// timstamp
-		sb.append("\t\"timstamp\": \"" + metadata.get(Metadata.LAST_MODIFIED) + "\",\n");
-				
-		// request
-		sb.append("\t\"request\": {\n");
-		sb.append("\t\t\"method\": \"GET\",\n");
-		sb.append("\t\t\"client\": {\n");
-		sb.append("\t\t\t\"hostname\": \"" + getHostName() + "\",\n");
-		sb.append("\t\t\t\"address\": \"" + getHostAddress() + "\",\n");
-		sb.append("\t\t\t\"software\": \"" + conf.get("http.agent.version", "") + "\",\n");
-		sb.append("\t\t\t\"robots\": \"CLASSIC\",\n");
-		sb.append("\t\t\t\"contact\": {\n");
-		sb.append("\t\t\t\t\"name\": \"" + conf.get("http.agent.name", "") + "\",\n");
-		sb.append("\t\t\t\t\"email\": \"" + conf.get("http.agent.email", "") + "\",\n");
-		sb.append("\t\t\t}\n");
-		sb.append("\t\t},\n");
-		sb.append("\t\t\"headers\": {\n");
-		sb.append("\t\t\t\"Accept\": \"" + conf.get("http.accept", "") + "\",\n");
-		sb.append("\t\t\t\"Accept-Encoding\": \"\",\n"); //TODO
-		sb.append("\t\t\t\"Accept-Language\": \"" + conf.get("http.accept.language", "") + "\",\n");
-		sb.append("\t\t\t\"User-Agent\": \"" + conf.get("http.robots.agents", "") + "\",\n");  
-		sb.append("\t},\n");
-
-		// response
-		sb.append("\t\"response\": {\n");
-		sb.append("\t\t\"status\": \"" + ifNullString(metadata.get("status")) + "\",\n");
-		sb.append("\t\t\"server\": {\n");
-		sb.append("\t\t\t\"hostname\": \"" + URLUtil.getHost(url) + "\"\n"); 
-		sb.append("\t\t\t\"address\": \"" + metadata.get("_ip_") + "\"\n");
-		sb.append("\t\t},\n");
-		sb.append("\t\t\"headers\": {\n");	
-		for (String name : metadata.names()) {
-			sb.append("\t\t\t\"" + name + "\": \"" + metadata.get(name)	+ "\"\n");
+	protected void writeKeyValue(String key, String value) throws IOException {
+		sb.append(printTabs() + "\"" + key + "\": " + quote(value) + ",\n");
+	}
+	
+	@Override
+	protected void writeKeyNull(String key) throws IOException {
+		sb.append(printTabs() + "\"" + key + "\": null,\n");
+	}
+	
+	@Override
+	protected void startArray(String key, boolean nested, boolean newline) throws IOException {
+		String name = (key != null) ? "\"" + key + "\": " : "";
+		String nl = (newline) ? "\n" : "";
+		sb.append(printTabs() + name + "[" + nl);
+		if (newline) {
+			this.tabCount++;
 		}
-		sb.append("\t\t},\n");
-		sb.append("\t\t\"body\": " + new String(content) + "\",\n");
-		sb.append("\t},\n");
-		
-		// key
-		sb.append("\t\"key\": \"" + url + "\",\n");
-		
-		// imported
-		sb.append("\t\"imported\": \"\"\n"); //TODO
-		
-		sb.append("}");
-
-		return sb.toString();
 	}
 	
 	@Override
-	protected String getJsonDataSet() {
-		// TODO character escaping
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\n");
-		
-		// url
-		sb.append("\t\"url\": \"" + url + "\",\n");
-		
-		// timstamp
-		sb.append("\t\"timestamp\": \"" + metadata.get(Metadata.LAST_MODIFIED) + "\",\n");
-		
-		// request
-		sb.append("\t\"request\": {\n");
-		sb.append("\t\t\"method\": \"GET\",\n");
-		sb.append("\t\t\"client\": {\n");
-		sb.append("\t\t\t\"hostname\": \"" + getHostName() + "\",\n");
-		sb.append("\t\t\t\"address\": \"" + getHostAddress() + "\",\n");
-		sb.append("\t\t\t\"software\": \"" + conf.get("http.agent.version", "") + "\",\n");
-		sb.append("\t\t\t\"robots\": \"CLASSIC\",\n");
-		sb.append("\t\t\t\"contact\": {\n");
-		sb.append("\t\t\t\t\"name\": \"" + conf.get("http.agent.name", "") + "\",\n");
-		sb.append("\t\t\t\t\"email\": \"" + conf.get("http.agent.email", "") + "\",\n");
-		sb.append("\t\t\t}\n");
-		sb.append("\t\t},\n");
-		sb.append("\t\t\"headers\": {\n");
-		sb.append("\t\t\t\"Accept\": \"" + conf.get("http.accept", "") + "\",\n");
-		sb.append("\t\t\t\"Accept-Encoding\": \"\",\n"); // TODO
-		sb.append("\t\t\t\"Accept-Language\": \"" + conf.get("http.accept.language", "") + "\",\n");
-    sb.append("\t\t\t\"User-Agent\": \"" + conf.get("http.robots.agents", "") + "\",\n");  
-		sb.append("\t},\n");
-		
-		// response
-		sb.append("\t\"response\": {\n");
-		sb.append("\t\t\"status\": \"" + ifNullString(metadata.get("status")) + "\",\n");
-		sb.append("\t\t\"server\": {\n");
-    sb.append("\t\t\t\"hostname\": \"" + URLUtil.getHost(url) + "\"\n"); 
-		sb.append("\t\t\t\"address\": \"" + metadata.get("_ip_") + "\"\n");
-		sb.append("\t\t},\n");
-		sb.append("\t\t\"headers\": {\n");
-		sb.append("\t\t\t\"Content-Encoding\": " + ifNullString(metadata.get("Content-Encoding")));
-		sb.append("\t\t\t\"Content-Type\": " + ifNullString(metadata.get("Content-Type")));
-		sb.append("\t\t\t\"Date\": " + ifNullString(metadata.get("Date")));
-		sb.append("\t\t\t\"Server\": " + ifNullString(metadata.get("Server")));
-		sb.append("\t\t},\n");
-		sb.append("\t\t\"body\": " + new String(content) + "\",\n");
-		sb.append("\t},\n");
-		
-		// key
-		sb.append("\t\"key\": \"" + url + "\",\n"); 
-		
-		// imported
-		sb.append("\t\"imported\": \"\"\n"); // TODO
-		
-		sb.append("}");
-
+	protected void closeArray(String key, boolean nested, boolean newline) throws IOException {
+		if (sb.charAt(sb.length()-1) == ',') {
+			sb.deleteCharAt(sb.length()-1); // delete comma
+		}
+		else if (sb.charAt(sb.length()-2) == ',') {
+			sb.deleteCharAt(sb.length()-2); // delete comma
+		}
+		String nl = (newline) ? printTabs() : "";
+		if (newline) {
+			this.tabCount++;
+		}
+		sb.append(nl + "],\n");
+	}
+	
+	@Override
+	protected void writeArrayValue(String value) {
+		sb.append("\"" + value + "\",");
+	}
+	
+	protected void startObject(String key) throws IOException {
+		String name = "";
+		if (key != null) {
+			name = "\"" + key + "\": ";
+		}
+		sb.append(printTabs() + name + "{\n");
+		this.tabCount++;
+	}
+	
+	protected void closeObject(String key) throws IOException {
+		if (sb.charAt(sb.length()-2) == ',') {
+			sb.deleteCharAt(sb.length()-2); // delete comma
+		}
+		this.tabCount--;
+		sb.append(printTabs() + "},\n");
+	}
+	
+	protected String generateJson() throws IOException {
+		sb.deleteCharAt(sb.length()-1); // delete new line
+		sb.deleteCharAt(sb.length()-1); // delete comma
 		return sb.toString();
 	}
+	
+	private String printTabs() {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i < this.tabCount ;i++) {
+			sb.append("\t");
+		}
+		return sb.toString();
+	}
+	
+    private static String quote(String string) throws IOException {
+    	StringBuilder sb = new StringBuilder();
+    	
+        if (string == null || string.length() == 0) {
+            sb.append("\"\"");
+            return sb.toString();
+        }
 
+        char b;
+        char c = 0;
+        String hhhh;
+        int i;
+        int len = string.length();
+
+        sb.append('"');
+        for (i = 0; i < len; i += 1) {
+            b = c;
+            c = string.charAt(i);
+            switch (c) {
+            case '\\':
+            case '"':
+                sb.append('\\');
+                sb.append(c);
+                break;
+            case '/':
+                if (b == '<') {
+                	sb.append('\\');
+                }
+                sb.append(c);
+                break;
+            case '\b':
+            	sb.append("\\b");
+                break;
+            case '\t':
+            	sb.append("\\t");
+                break;
+            case '\n':
+            	sb.append("\\n");
+                break;
+            case '\f':
+            	sb.append("\\f");
+                break;
+            case '\r':
+            	sb.append("\\r");
+                break;
+            default:
+                if (c < ' ' || (c >= '\u0080' && c < '\u00a0')
+                        || (c >= '\u2000' && c < '\u2100')) {
+                	sb.append("\\u");
+                    hhhh = Integer.toHexString(c);
+                    sb.append("0000", 0, 4 - hhhh.length());
+                    sb.append(hhhh);
+                } else {
+                	sb.append(c);
+                }
+            }
+        }
+        sb.append('"');
+        return sb.toString();
+    }
 }

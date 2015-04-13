@@ -44,7 +44,7 @@ import java.util.TreeMap;
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
@@ -70,6 +70,8 @@ import org.apache.hadoop.mapred.lib.HashPartitioner;
 import org.apache.hadoop.mapred.lib.IdentityMapper;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
 import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
@@ -81,13 +83,13 @@ import org.apache.nutch.util.StringUtil;
  * @author Andrzej Bialecki
  * 
  */
-public class CrawlDbReader implements Closeable {
+public class CrawlDbReader extends Configured implements Closeable, Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(CrawlDbReader.class);
 
   private MapFile.Reader[] readers = null;
 
-  private void openReaders(String crawlDb, Configuration config)
+  private void openReaders(String crawlDb, JobConf config)
       throws IOException {
     if (readers != null)
       return;
@@ -459,7 +461,7 @@ public class CrawlDbReader implements Closeable {
 
   }
 
-  public CrawlDatum get(String crawlDb, String url, Configuration config)
+  public CrawlDatum get(String crawlDb, String url, JobConf config)
       throws IOException {
     Text key = new Text(url);
     CrawlDatum val = new CrawlDatum();
@@ -469,7 +471,7 @@ public class CrawlDbReader implements Closeable {
     return res;
   }
 
-  public void readUrl(String crawlDb, String url, Configuration config)
+  public void readUrl(String crawlDb, String url, JobConf config)
       throws IOException {
     CrawlDatum res = get(crawlDb, url, config);
     System.out.println("URL: " + url);
@@ -481,7 +483,7 @@ public class CrawlDbReader implements Closeable {
   }
 
   public void processDumpJob(String crawlDb, String output,
-      Configuration config, String format, String regex, String status,
+      JobConf config, String format, String regex, String status,
       Integer retry) throws IOException {
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb dump: starting");
@@ -570,7 +572,7 @@ public class CrawlDbReader implements Closeable {
   }
 
   public void processTopNJob(String crawlDb, long topN, float min,
-      String output, Configuration config) throws IOException {
+      String output, JobConf config) throws IOException {
 
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb topN: starting (topN=" + topN + ", min=" + min + ")");
@@ -625,7 +627,7 @@ public class CrawlDbReader implements Closeable {
 
   }
 
-  public static void main(String[] args) throws IOException {
+  public int run(String[] args) throws IOException {
     @SuppressWarnings("resource")
     CrawlDbReader dbr = new CrawlDbReader();
 
@@ -654,11 +656,11 @@ public class CrawlDbReader implements Closeable {
       System.err
           .println("\t\t[<min>]\tskip records with scores below this value.");
       System.err.println("\t\t\tThis can significantly improve performance.");
-      return;
+      return -1;
     }
     String param = null;
     String crawlDb = args[0];
-    Configuration conf = NutchConfiguration.create();
+    JobConf job = new NutchJob(getConf());
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-stats")) {
         boolean toSort = false;
@@ -666,7 +668,7 @@ public class CrawlDbReader implements Closeable {
           toSort = true;
           i++;
         }
-        dbr.processStatJob(crawlDb, conf, toSort);
+        dbr.processStatJob(crawlDb, job, toSort);
       } else if (args[i].equals("-dump")) {
         param = args[++i];
         String format = "normal";
@@ -691,10 +693,10 @@ public class CrawlDbReader implements Closeable {
             i = i + 2;
           }
         }
-        dbr.processDumpJob(crawlDb, param, conf, format, regex, status, retry);
+        dbr.processDumpJob(crawlDb, param, job, format, regex, status, retry);
       } else if (args[i].equals("-url")) {
         param = args[++i];
-        dbr.readUrl(crawlDb, param, conf);
+        dbr.readUrl(crawlDb, param, job);
       } else if (args[i].equals("-topN")) {
         param = args[++i];
         long topN = Long.parseLong(param);
@@ -703,18 +705,20 @@ public class CrawlDbReader implements Closeable {
         if (i < args.length - 1) {
           min = Float.parseFloat(args[++i]);
         }
-        dbr.processTopNJob(crawlDb, topN, min, param, conf);
+        dbr.processTopNJob(crawlDb, topN, min, param, job);
       } else {
         System.err.println("\nError: wrong argument " + args[i]);
+        return -1;
       }
     }
-    return;
+    return 0;
   }
-
-  /*
-   * Used for the Nutch REST service
-   */
-  @SuppressWarnings("unchecked")
+  
+    public static void main(String[] args) throws Exception {
+        int result = ToolRunner.run(NutchConfiguration.create(),
+                new CrawlDbReader(), args);
+        System.exit(result);
+        }
   public Object query(Map<String, String> args, Configuration conf, String type) throws Exception {
     if(args.size()<1){
       throw new IllegalArgumentException("Required arguments <crawldb>");
@@ -829,5 +833,5 @@ public class CrawlDbReader implements Closeable {
       return results;
     }
     return results;
-  }
+    }
 }

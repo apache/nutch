@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
@@ -57,9 +58,11 @@ public class NutchServer {
   private static final int JOB_CAPACITY = 100;
 
   private static Integer port = DEFAULT_PORT;
+	private static String host  = LOCALHOST;
 
   private static final String CMD_HELP = "help";
   private static final String CMD_PORT = "port";
+	private static final String CMD_HOST = "host";
 
   private long started;
   private boolean running;
@@ -100,9 +103,9 @@ public class NutchServer {
   }
 
   private void start() {
-    LOG.info("Starting NutchServer on port: {}  ...",port);
+		LOG.info("Starting NutchServer on {}:{}  ...", host, port);
     try{
-      String address = "http://" + LOCALHOST + ":" + port;
+			String address = "http://" + host + ":" + port;
       sf.setAddress(address);
       sf.create();
     }catch(Exception e){
@@ -111,8 +114,8 @@ public class NutchServer {
 
     started = System.currentTimeMillis();
     running = true;
-    LOG.info("Started Nutch Server on port {} at {}", port, started);
-    System.out.println("Started Nutch Server on port " + port + " at " + started);
+		LOG.info("Started Nutch Server on {}:{} at {}", host, port, started);
+		System.out.println("Started Nutch Server on " + host + ":" + port + " at " + started);
   }
 
   private List<Class<?>> getClasses() {
@@ -158,6 +161,11 @@ public class NutchServer {
     if (commandLine.hasOption(CMD_PORT)) {
       port = Integer.parseInt(commandLine.getOptionValue(CMD_PORT));
     }
+
+		if (commandLine.hasOption(CMD_HOST)) {
+			host = commandLine.getOptionValue(CMD_HOST);
+		}
+
     startServer();
   }
 
@@ -171,6 +179,12 @@ public class NutchServer {
     OptionBuilder.hasOptionalArg();
     OptionBuilder.withDescription("The port to run the Nutch Server. Default port 8081");
     options.addOption(OptionBuilder.create(CMD_PORT));
+
+		OptionBuilder.withArgName("host");
+		OptionBuilder.hasOptionalArg();
+		OptionBuilder.withDescription("The host to bind the Nutch Server to. Default is localhost.");
+		options.addOption(OptionBuilder.create(CMD_PORT));
+
     return options;
   }
 

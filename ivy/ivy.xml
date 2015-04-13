@@ -62,7 +62,7 @@
 		</dependency>
 
 		<dependency org="org.apache.tika" name="tika-core" rev="1.7" />
-		<dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
+		<dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
 
 		<dependency org="xerces" name="xercesImpl" rev="2.9.1" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
@@ -71,14 +71,15 @@
 		<dependency org="com.google.guava" name="guava" rev="11.0.2" />
 		<dependency org="com.google.code.crawler-commons" name="crawler-commons"
 			rev="0.5" />
-        <dependency org="org.apache.cxf" name="cxf" rev="3.0.4"/>
-        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.0.4"/>
-        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.0.4"/>
-        <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.0.4"/>
-        <dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.0.4"/>
+                <dependency org="org.apache.cxf" name="cxf" rev="3.0.4"/>
+                <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.0.4"/>
+                <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.0.4"/>
+                <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.0.4"/>
+                <dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.0.4"/>
                 <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.1" /> 
                 <dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.5.1" />
-		
+                <dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.5.1" />	
+
 		<!--Configuration: test -->
 
 		<!--artifacts needed for testing -->

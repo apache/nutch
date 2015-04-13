@@ -59,5 +59,10 @@ public class DumpFileUtilTest {
         String fullDir2 = DumpFileUtil.createFileName(DumpFileUtil.getUrlMD5(testUrl), tooLongBaseName, extension);
 
         assertEquals("991e599262e04ea2ec76b6c5aed499a7_testtesttesttesttesttesttesttest.html", fullDir2);
+
+        String tooLongExtension = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
+        String fullDir3 = DumpFileUtil.createFileName(DumpFileUtil.getUrlMD5(testUrl), baseName, tooLongExtension);
+
+        assertEquals("991e599262e04ea2ec76b6c5aed499a7_test.testt", fullDir3);
     }
 }
