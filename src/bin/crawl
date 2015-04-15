@@ -15,43 +15,49 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # 
-# The Crawl command script : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>
+# Usage: crawl [-i|--index] [-D "key=value"] <Seed Dir> <Crawl Dir> <Num Rounds>
+#    -i|--index      Indexes crawl results into a configured indexer
+#    -D              A Java property to pass to Nutch calls
+#    Seed Dir        Directory in which to look for a seeds file
+#    Crawl Dir       Directory where the crawl/link/segments dirs are saved
+#    Num Rounds      The number of rounds to run this crawl for
 #
 # 
 # UNLIKE THE NUTCH ALL-IN-ONE-CRAWL COMMAND THIS SCRIPT DOES THE LINK INVERSION AND 
 # INDEXING FOR EACH SEGMENT
 
+INDEXFLAG=false
+JAVA_PROPERTIES=""
+while [[ $# > 0 ]]
+do
+    case $1 in
+        -i|--index)
+            INDEXFLAG=true
+            shift
+            ;;
+        -D)
+            JAVA_PROPERTIES="-D${2} ${JAVA_PROPERTIES}"
+            shift 2
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if [[ $# != 3 ]]; then
+    echo "Usage: crawl [-i|--index] [-D \"key=value\"] <Seed Dir> <Crawl Dir> <Num Rounds>"
+    echo -e "\t-i|--index\tIndexes crawl results into a configured indexer"
+    echo -e "\t-D\t\tA Java property to pass to Nutch calls"
+    echo -e "\tSeed Dir\tDirectory in which to look for a seeds file"
+    echo -e "\tCrawl Dir\tDirectory where the crawl/link/segments dirs are saved"
+    echo -e "\tNum Rounds\tThe number of rounds to run this crawl for"
+    exit 1
+fi
+
 SEEDDIR="$1"
 CRAWL_PATH="$2"
-if [ "$#" -eq 3 ]; then
-    LIMIT="$3"
-elif [ "$#" -eq 4 ]; then
-     SOLRURL="$3"
-     LIMIT="$4"
-else
-    echo "Unknown # of arguments $#"
-    echo "Usage: crawl <seedDir> <crawlDir> [<solrUrl>] <numberOfRounds>"
-    exit -1;
-fi
-
-if [ "$SEEDDIR" = "" ]; then
-    echo "Missing seedDir : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>"
-    exit -1;
-fi
-
-if [ "$CRAWL_PATH" = "" ]; then
-    echo "Missing crawlDir : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>"
-    exit -1;
-fi
-
-if [ "$SOLRURL" = "" ]; then
-    echo "No SOLRURL specified. Skipping indexing."
-fi
-
-if [ "$LIMIT" = "" ]; then
-    echo "Missing numberOfRounds : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>"
-    exit -1;
-fi
+LIMIT="$3"
 
 #############################################
 # MODIFY THE PARAMETERS BELOW TO YOUR NEEDS #
@@ -185,14 +191,14 @@ do
   echo "Dedup on crawldb"
   __bin_nutch dedup "$CRAWL_PATH"/crawldb
 
-  if [ -n "$SOLRURL" ]; then
-      echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
-      __bin_nutch index -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
+  if $INDEXFLAG; then
+      echo "Indexing $SEGMENT to index"
+      __bin_nutch index $JAVA_PROPERTIES "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
   
-      echo "Cleanup on SOLR index -> $SOLRURL"
-      __bin_nutch clean -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb
+      echo "Cleaning up index if possible"
+      __bin_nutch clean $JAVA_PROPERTIES "$CRAWL_PATH"/crawldb
   else
-      echo "Skipping indexing: no SOLR url provided."
+      echo "Skipping indexing ..."
   fi
   
   #######################################################

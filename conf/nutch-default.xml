@@ -1540,6 +1540,14 @@
 </property>
 
 <!-- solr index properties -->
+<property>
+  <name>solr.server.url</name>
+  <value>http://127.0.0.1:8983/solr/</value>
+  <description>
+      Defines the Solr URL into which data should be indexed using the
+      indexer-solr plugin.
+  </description>
+</property>
 
 <property>
   <name>solr.mapping.file</name>
