@@ -45,6 +45,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
@@ -796,7 +797,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       if (args.containsKey("status")) {
         status = args.get("status");
       }
-      processDumpJob(crawlDb, output, conf, format, regex, status, retry);
+      processDumpJob(crawlDb, output, new NutchJob(conf), format, regex, status, retry);
       File dumpFile = new File(output+"/part-00000");
       return dumpFile;		  
     }
@@ -807,14 +808,14 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       if(args.containsKey("min")){
         min = Float.parseFloat(args.get("min"));
       }
-      processTopNJob(crawlDb, topN, min, output, conf);
+      processTopNJob(crawlDb, topN, min, output, new NutchJob(conf));
       File dumpFile = new File(output+"/part-00000");
       return dumpFile;
     }
 
     if(type.equalsIgnoreCase("url")){
       String url = args.get("url");
-      CrawlDatum res = get(crawlDb, url, conf);
+      CrawlDatum res = get(crawlDb, url, new NutchJob(conf));
       results.put("status", res.getStatus());
       results.put("fetchTime", new Date(res.getFetchTime()));
       results.put("modifiedTime", new Date(res.getModifiedTime()));
