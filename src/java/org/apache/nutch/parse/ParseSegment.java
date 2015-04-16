@@ -261,10 +261,8 @@ public class ParseSegment extends NutchTool implements Tool,
   /*
    * Used for Nutch REST service
    */
-  public Map<String, Object> run(Map<String, String> args) throws Exception {
-    if (args.size() == 0) {
-      throw new IllegalArgumentException("Required arguments <segment> [-noFilter] [-noNormalize]");
-    }
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+
     Map<String, Object> results = new HashMap<String, Object>();
     String RESULT = "result";
     if (args.containsKey("nofilter")) {
@@ -274,7 +272,20 @@ public class ParseSegment extends NutchTool implements Tool,
       getConf().setBoolean("parse.normalize.urls", false);
     }
 
-    Path segment = new Path(args.get("segment"));
+    String segment_dir = crawlId+"/segments";
+    File segmentsDir = new File(segment_dir);
+    File[] segmentsList = segmentsDir.listFiles();  
+    Arrays.sort(segmentsList, new Comparator<File>(){
+      @Override
+      public int compare(File f1, File f2) {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
+      }      
+    });
+    
+    Path segment = new Path(segmentsList[0].getPath());
     parse(segment);
     results.put(RESULT, Integer.toString(0));
     return results;

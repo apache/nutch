@@ -720,13 +720,11 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
                 new CrawlDbReader(), args);
         System.exit(result);
         }
-  public Object query(Map<String, String> args, Configuration conf, String type) throws Exception {
-    if(args.size()<1){
-      throw new IllegalArgumentException("Required arguments <crawldb>");
-    }
+  public Object query(Map<String, String> args, Configuration conf, String type, String crawlId) throws Exception {
+ 
 
     Map<String, Object> results = new HashMap<String, Object>();
-    String crawlDb = args.get("crawldb");
+    String crawlDb = crawlId + "/crawldb";
 
     if(type.equalsIgnoreCase("stats")){
       boolean sort = false;

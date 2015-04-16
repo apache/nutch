@@ -41,26 +41,26 @@ public class DbResource extends AbstractResource {
     String type = dbQuery.getType();
 
     if(type.equalsIgnoreCase("stats")){
-      return crawlDbStats(conf, dbQuery.getArgs());
+      return crawlDbStats(conf, dbQuery.getArgs(), dbQuery.getCrawlId());
     }
     if(type.equalsIgnoreCase("dump")){
-      return crawlDbDump(conf, dbQuery.getArgs());
+      return crawlDbDump(conf, dbQuery.getArgs(), dbQuery.getCrawlId());
     }
     if(type.equalsIgnoreCase("topN")){
-      return crawlDbTopN(conf, dbQuery.getArgs());
+      return crawlDbTopN(conf, dbQuery.getArgs(), dbQuery.getCrawlId());
     }
     if(type.equalsIgnoreCase("url")){
-      return crawlDbUrl(conf, dbQuery.getArgs());
+      return crawlDbUrl(conf, dbQuery.getArgs(), dbQuery.getCrawlId());
     }
     return null;
 
   }	
 
   @SuppressWarnings("resource")
-  private Response crawlDbStats(Configuration conf, Map<String, String> args){
+  private Response crawlDbStats(Configuration conf, Map<String, String> args, String crawlId){
     CrawlDbReader dbr = new CrawlDbReader();
     try{
-      return Response.ok(dbr.query(args, conf, "stats")).build();
+      return Response.ok(dbr.query(args, conf, "stats", crawlId)).build();
     }catch(Exception e){
       e.printStackTrace();
       return Response.serverError().entity(e.getMessage()).build();
@@ -68,10 +68,10 @@ public class DbResource extends AbstractResource {
   }
 
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
-  private Response crawlDbDump(Configuration conf, Map<String, String> args){
+  private Response crawlDbDump(Configuration conf, Map<String, String> args, String crawlId){
     CrawlDbReader dbr = new CrawlDbReader();
     try{
-      return Response.ok(dbr.query(args, conf, "dump"), MediaType.APPLICATION_OCTET_STREAM).build();
+      return Response.ok(dbr.query(args, conf, "dump", crawlId), MediaType.APPLICATION_OCTET_STREAM).build();
     }catch(Exception e){
       e.printStackTrace();
       return Response.serverError().entity(e.getMessage()).build();
@@ -79,20 +79,20 @@ public class DbResource extends AbstractResource {
   }
 
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
-  private Response crawlDbTopN(Configuration conf, Map<String, String> args) {
+  private Response crawlDbTopN(Configuration conf, Map<String, String> args, String crawlId) {
     CrawlDbReader dbr = new CrawlDbReader();
     try{
-      return Response.ok(dbr.query(args, conf, "topN"), MediaType.APPLICATION_OCTET_STREAM).build();
+      return Response.ok(dbr.query(args, conf, "topN", crawlId), MediaType.APPLICATION_OCTET_STREAM).build();
     }catch(Exception e){
       e.printStackTrace();
       return Response.serverError().entity(e.getMessage()).build();
     }		
   }
 
-  private Response crawlDbUrl(Configuration conf, Map<String, String> args){
+  private Response crawlDbUrl(Configuration conf, Map<String, String> args, String crawlId){
     CrawlDbReader dbr = new CrawlDbReader();
     try{
-      return Response.ok(dbr.query(args, conf, "url")).build();
+      return Response.ok(dbr.query(args, conf, "url", crawlId)).build();
     }catch(Exception e){
       e.printStackTrace();
       return Response.serverError().entity(e.getMessage()).build();

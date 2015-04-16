@@ -68,7 +68,7 @@ public class JobWorker implements Runnable{
     try {
       getInfo().setState(State.RUNNING);
       getInfo().setMsg("OK");
-      getInfo().setResult(tool.run(getInfo().getArgs()));
+      getInfo().setResult(tool.run(getInfo().getArgs(), getInfo().getCrawlId()));
       getInfo().setState(State.FINISHED);
     } catch (Exception e) {
       LOG.error("Cannot run job worker!", e);

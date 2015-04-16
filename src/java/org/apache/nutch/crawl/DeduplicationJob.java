@@ -299,14 +299,15 @@ public class DeduplicationJob extends NutchTool implements Tool {
   }
 
   @Override
-  public Map<String, Object> run(Map<String, String> args) throws Exception {
-    if(args.size()<1){
-      throw new IllegalArgumentException("Required argument <crawldb>");
-    }
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+//    if(args.size()<1){
+//      throw new IllegalArgumentException("Required argument <crawldb>");
+//    }
     Map<String, Object> results = new HashMap<String, Object>();
     String RESULT = "result";
     String[] arg = new String[1];
-    arg[0] = args.get("crawldb");
+    String crawldb = crawlId+"/crawldb";
+    arg[0] = crawldb;
     int res = run(arg);
     results.put(RESULT, Integer.toString(res));
     return results;

@@ -39,7 +39,7 @@ public abstract class NutchTool extends Configured {
   /**
    * Runs the tool, using a map of arguments. May return results, or null.
    */
-  public abstract Map<String, Object> run(Map<String, String> args)
+  public abstract Map<String, Object> run(Map<String, String> args, String crawlId)
       throws Exception;
 
   public NutchTool(Configuration conf){

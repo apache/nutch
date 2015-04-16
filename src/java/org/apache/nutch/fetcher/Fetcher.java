@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.fetcher;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -26,6 +27,9 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+
+
 
 
 
@@ -1623,13 +1627,24 @@ public class Fetcher extends NutchTool implements Tool,
   }
 
   @Override
-  public Map<String, Object> run(Map<String, String> args) throws Exception {
-    if(args.size()<1){
-      throw new IllegalArgumentException("Required arguments <segment> [threads n]");
-    }
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+
     Map<String, Object> results = new HashMap<String, Object>();
     String RESULT = "result";
-    Path segment = new Path(args.get("segment"));
+    String segment_dir = crawlId+"/segments";
+    File segmentsDir = new File(segment_dir);
+    File[] segmentsList = segmentsDir.listFiles();  
+    Arrays.sort(segmentsList, new Comparator<File>(){
+      @Override
+      public int compare(File f1, File f2) {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
+      }      
+    });
+    
+    Path segment = new Path(segmentsList[0].getPath());
 
     int threads = getConf().getInt("fetcher.threads.fetch", 10);
     boolean parsing = false;

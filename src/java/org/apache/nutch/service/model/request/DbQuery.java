@@ -23,6 +23,7 @@ public class DbQuery {
   private String confId;
   private String type;
   private Map<String, String> args;
+  private String crawlId;
 
   public String getConfId() {
     return confId;
@@ -41,6 +42,12 @@ public class DbQuery {
   }
   public void setType(String type) {
     this.type = type;
+  }
+  public String getCrawlId() {
+    return crawlId;
+  }
+  public void setCrawlId(String crawlId) {
+    this.crawlId = crawlId;
   }
 
 

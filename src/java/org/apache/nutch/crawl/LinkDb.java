@@ -341,30 +341,19 @@ public class LinkDb extends NutchTool implements Tool,
    * Used for Nutch REST service
    */
   @Override
-  public Map<String, Object> run(Map<String, String> args) throws Exception {
-    if (args.size() < 2) {
-      throw new IllegalArgumentException("Required arguments <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-force] [-noNormalize] [-noFilter]");
-    }
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+//    if (args.size() < 2) {
+//      throw new IllegalArgumentException("Required arguments <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-force] [-noNormalize] [-noFilter]");
+//    }
+    
     Map<String, Object> results = new HashMap<String, Object>();
     String RESULT = "result";
-    final FileSystem fs = FileSystem.get(getConf());
-    Path db = new Path(args.get("linkdb"));
+    String linkdb = crawlId + "/linkdb";
+    Path db = new Path(linkdb);
     ArrayList<Path> segs = new ArrayList<Path>();
     boolean filter = true;
     boolean normalize = true;
     boolean force = false;
-    if (args.containsKey("dir")) {
-      String segment = args.get("dir");
-      FileStatus[] paths = fs.listStatus(new Path(segment),
-          HadoopFSUtil.getPassDirectoriesFilter(fs));
-      segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
-    }
-    if(args.containsKey("segments")){
-      String[] segments = args.get("segments").split(" ");
-      for(String seg : segments){
-        segs.add(new Path(seg));
-      }
-    }
     if (args.containsKey("noNormalize")) {
       normalize = false;
     } 
@@ -374,6 +363,19 @@ public class LinkDb extends NutchTool implements Tool,
     if (args.containsKey("force")) {
       force = true;
     }
+    String segment_dir = crawlId+"/segments";
+    File segmentsDir = new File(segment_dir);
+    File[] segmentsList = segmentsDir.listFiles();  
+    Arrays.sort(segmentsList, new Comparator<File>(){
+      @Override
+      public int compare(File f1, File f2) {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
+      }      
+    });
+    segs.add(new Path(segmentsList[0].getPath()));
     try {
       invert(db, segs.toArray(new Path[segs.size()]), normalize, filter, force);
       results.put(RESULT, Integer.toString(0));

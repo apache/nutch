@@ -752,15 +752,15 @@ public class Generator extends NutchTool implements Tool {
   }
 
   @Override
-  public Map<String, Object> run(Map<String, String> args) throws Exception {
-    if(args.size()<2){
-      throw new  IllegalArgumentException("Required arguments <crawldb> <segments_dir> [-force] [-topN N] [-numFetchers numFetchers] [-adddays numDays] [-noFilter] [-noNorm][-maxNumSegments num]");
-    }
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+
 
     Map<String, Object> results = new HashMap<String, Object>();
     String RESULT = "result";
-    Path dbDir = new Path(args.get("crawldb"));
-    Path segmentsDir = new Path(args.get("segments_dir"));
+    String crawldb = crawlId+"/crawldb";
+    Path dbDir = new Path(crawldb);
+    String segments_dir = crawlId+"/segments";
+    Path segmentsDir = new Path(segments_dir);
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;
     int numFetchers = -1;

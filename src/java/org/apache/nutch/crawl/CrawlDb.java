@@ -236,10 +236,8 @@ public class CrawlDb extends NutchTool implements Tool {
    * Used for Nutch REST service
    */
   @Override
-  public Map<String, Object> run(Map<String, String> args) throws Exception {
-    if (args.size() == 0) {
-      throw new IllegalArgumentException("Required arguments <crawldb> (-dir <segments> | <seg1> <seg2> ...) [-force] [-normalize] [-filter] [-noAdditions]");
-    }
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+
     Map<String, Object> results = new HashMap<String, Object>();
     String RESULT = "result";
     boolean normalize = getConf().getBoolean(CrawlDbFilter.URL_NORMALIZING,
@@ -248,7 +246,6 @@ public class CrawlDb extends NutchTool implements Tool {
     boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED,
         true);
     boolean force = false;
-    final FileSystem fs = FileSystem.get(getConf());
     HashSet<Path> dirs = new HashSet<Path>();
 
     if (args.containsKey("normalize")) {
@@ -263,21 +260,25 @@ public class CrawlDb extends NutchTool implements Tool {
     if (args.containsKey("noAdditions")) {
       additionsAllowed = false;
     }
-    if (args.containsKey("dir")) {
-      String segment = args.get("dir");
-
-      FileStatus[] paths = fs.listStatus(new Path(segment),
-          HadoopFSUtil.getPassDirectoriesFilter(fs));
-      dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
-    }
-    if(args.containsKey("segments")){
-      String[] segments = args.get("segments").split(" ");
-      for(String seg : segments){
-        dirs.add(new Path(seg));
-      }
-    }
+    
+    String crawldb = crawlId+"/crawldb";
+    String segment_dir = crawlId+"/segments";
+    File segmentsDir = new File(segment_dir);
+    File[] segmentsList = segmentsDir.listFiles();  
+    Arrays.sort(segmentsList, new Comparator<File>(){
+      @Override
+      public int compare(File f1, File f2) {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
+      }      
+    });
+    
+    dirs.add(new Path(segmentsList[0].getPath()));
+    
     try {
-      update(new Path(args.get("crawldb")), dirs.toArray(new Path[dirs.size()]), normalize,
+      update(new Path(crawldb), dirs.toArray(new Path[dirs.size()]), normalize,
           filter, additionsAllowed, force);
       results.put(RESULT, Integer.toString(0));
       return results;
