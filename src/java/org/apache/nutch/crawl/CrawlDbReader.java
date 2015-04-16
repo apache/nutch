@@ -622,7 +622,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           .println("\t<crawldb>\tdirectory name where crawldb is located");
       System.err
           .println("\t-stats [-sort] \tprint overall statistics to System.out");
-      System.err.println("\t\t[-sort]\tlist status sorted by host");
+      System.err.println("\t\t\tand optionally sort by host");
       System.err
           .println("\t-dump <out_dir> [-format normal|csv|crawldb]\tdump the whole db to a text file in <out_dir>");
       System.err.println("\t\t[-format csv]\tdump in Csv format");
