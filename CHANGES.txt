@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1911 Imeprove DomainStatistics tool command line parsing (Michael Joyce via mattmann)
+
 * NUTCH-1981 Upgrade to icu4j 55.1 (Marko Asplund via snagel)
 
 * NUTCH-1960 JUnit test for dump method of CommonCrawlDataDumper (Giuseppe Totaro via mattmann)
