@@ -1573,22 +1573,32 @@
 
 <property>
   <name>elastic.host</name>
-  <value></value>
-  <description>The hostname to send documents to using TransportClient. Either host
-  and port must be defined or cluster.</description>
+  <value>localhost</value>
+  <description>
+  The hostname to send documents to using TransportClient. Either host
+  and port must be defined or cluster to connect.
+  </description>
 </property>
 
 <property> 
   <name>elastic.port</name>
-  <value>9300</value>The port to connect to using TransportClient.<description>
+  <value>9300</value>
+  <description>
+  The port to connect to using TransportClient. Note, the default port
+  for HTTP is 9200. The TransportClient port is NOT the same. By default
+  it should be 9300.
   </description>
 </property>
 
 <property> 
   <name>elastic.cluster</name>
-  <value></value>
-  <description>The cluster name to discover. Either host and potr must be defined
-  or cluster.</description>
+  <value>elasticsearch</value>
+  <description>
+  The cluster name to discover. Either host and port must be defined
+  or cluster. The default Elasticsearch cluster name is 'elasticsearch'. If
+  yours is different be sure to update this value even if you specified a host
+  and port for connection otherwise you may encounter issues.
+  </description>
 </property>
 
 <property> 

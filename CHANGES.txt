@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1986 Clarify Elastic Search Indexer Plugin Settings (Michael Joyce via mattmann)
+
 * NUTCH-1906 Typo in CrawlDbReader command line help (Michael Joyce via mattmann)
 
 * NUTCH-1911 Imeprove DomainStatistics tool command line parsing (Michael Joyce via mattmann)
