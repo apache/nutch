@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1988 Make nested output directory dump optional (Michael Joyce via mattmann)
+
 * NUTCH-1927 Create a whitelist of IPs/hostnames to allow skipping of RobotRules parsing (mattmann, snagel)
 
 * NUTCH-1986 Clarify Elastic Search Indexer Plugin Settings (Michael Joyce via mattmann)
