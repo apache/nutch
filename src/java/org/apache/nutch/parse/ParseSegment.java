@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
+import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
@@ -32,6 +33,7 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.nutch.util.*;
 import org.apache.hadoop.fs.Path;
 
@@ -198,6 +200,11 @@ public class ParseSegment extends Configured implements Tool,
   }
 
   public void parse(Path segment) throws IOException {
+	if (SegmentChecker.isParsed(segment, FileSystem.get(getConf()))) {
+	  LOG.warn("Segment: " + segment
+			  + " already parsed!! Skipped parsing this segment!!"); // NUTCH-1854
+	  return;
+	}
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
