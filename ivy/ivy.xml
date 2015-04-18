@@ -43,6 +43,8 @@
 		
 		<dependency org="commons-lang" name="commons-lang" rev="2.6"
 			conf="*->default" />
+		<dependency org="commons-validator" name="commons-validator" rev="1.4.1"
+			conf="*->default" />
 		<dependency org="commons-collections" name="commons-collections"
 			rev="3.1" conf="*->default" />
 		<dependency org="commons-httpclient" name="commons-httpclient"

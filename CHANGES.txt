@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1989 Handling invalid URLs in CommonCrawlDataDumper (Giuseppe Totaro via mattmann)
+
 * NUTCH-1988 Make nested output directory dump optional (Michael Joyce via mattmann)
 
 * NUTCH-1927 Create a whitelist of IPs/hostnames to allow skipping of RobotRules parsing (mattmann, snagel)
