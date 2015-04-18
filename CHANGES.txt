@@ -1,7 +1,7 @@
 Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
-
+ 
 * NUTCH-1854 bin/crawl fails with a parsing fetcher (Asitang Mishra via snagel)
 
 * NUTCH-1989 Handling invalid URLs in CommonCrawlDataDumper (Giuseppe Totaro via mattmann)
