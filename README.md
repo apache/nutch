@@ -1,6 +1,8 @@
 Apache Nutch README
 ===================
 
+<img src="http://nutch.apache.org/assets/img/nutch_logo_tm.png" align="right" width="300" />
+
 For the latest information about Nutch, please visit our website at:
 
    http://nutch.apache.org
@@ -25,13 +27,14 @@ To contribute a patch, follow these instructions (note that installing
 2. git clone http://github.com/apache/nutch.git 
 3. cd nutch
 4. git checkout -b NUTCH-xxx
-5. edit files
+5. edit files (please try and include a test case if possible)
 6. git status (make sure it shows what files you expected to edit)
-7. git add <files>
-8. git commit -m “fix for NUTCH-xxx contributed by <your username>”
-9. git fork
-10. git push -u <your git username> NUTCH-xxx
-11. git pull-request
+7. Make sure that your code complies with the [Nutch codeformatting template](http://svn.apache.org/repos/asf/nutch/branches/2.x/eclipse-codeformat.xml), which is basially two space indents
+8. git add <files>
+9. git commit -m “fix for NUTCH-xxx contributed by <your username>”
+10. git fork
+11. git push -u <your git username> NUTCH-xxx
+12. git pull-request
 ```
    
 Export Control
