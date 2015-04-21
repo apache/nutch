@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1697 SegmentMerger to implement Tool (markus, snagel)
+
 * NUTCH-1987 - Make bin/crawl indexer agnostic (Michael Joyce, snagel via mattmann)
  
 * NUTCH-1854 bin/crawl fails with a parsing fetcher (Asitang Mishra via snagel)

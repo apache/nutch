@@ -51,6 +51,8 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.SequenceFileRecordReader;
 import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.metadata.MetaWrapper;
@@ -118,7 +120,7 @@ import org.apache.nutch.util.NutchJob;
  * 
  * @author Andrzej Bialecki
  */
-public class SegmentMerger extends Configured implements
+public class SegmentMerger extends Configured implements Tool,
     Mapper<Text, MetaWrapper, Text, MetaWrapper>,
     Reducer<Text, MetaWrapper, Text, MetaWrapper> {
   private static final Logger LOG = LoggerFactory
@@ -691,7 +693,7 @@ public class SegmentMerger extends Configured implements
   /**
    * @param args
    */
-  public static void main(String[] args) throws Exception {
+  public int run(String[] args)  throws Exception {
     if (args.length < 2) {
       System.err
           .println("SegmentMerger output_dir (-dir segments | seg1 seg2 ...) [-filter] [-slice NNNN]");
@@ -706,7 +708,7 @@ public class SegmentMerger extends Configured implements
           .println("\t-normalize\t\tnormalize URL via current URLNormalizers");
       System.err
           .println("\t-slice NNNN\tcreate many output segments, each containing NNNN URLs");
-      return;
+      return -1;
     }
     Configuration conf = NutchConfiguration.create();
     final FileSystem fs = FileSystem.get(conf);
@@ -734,11 +736,18 @@ public class SegmentMerger extends Configured implements
     }
     if (segs.size() == 0) {
       System.err.println("ERROR: No input segments.");
-      return;
+      return -1;
     }
-    SegmentMerger merger = new SegmentMerger(conf);
-    merger.merge(out, segs.toArray(new Path[segs.size()]), filter, normalize,
+
+    merge(out, segs.toArray(new Path[segs.size()]), filter, normalize,
         sliceSize);
+    return 0;
+  }
+
+  public static void main(String[] args) throws Exception {
+    int result = ToolRunner.run(NutchConfiguration.create(),
+        new SegmentMerger(), args);
+    System.exit(result);
   }
 
 }
