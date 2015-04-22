@@ -28,7 +28,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
-import org.apache.nutch.service.model.response.JobConfig;
+import org.apache.nutch.service.model.request.JobConfig;
 import org.apache.nutch.service.model.response.JobInfo;
 import org.apache.nutch.service.model.response.JobInfo.State;
 
@@ -67,10 +67,10 @@ public class JobResource extends AbstractResource {
   @POST
   @Path(value = "/create")
   @Consumes(MediaType.APPLICATION_JSON)
-  public String create(JobConfig config) {
+  public JobInfo create(JobConfig config) {
     if (config == null) {
       throwBadRequestException("Job configuration is required!");
-    }
-    return jobManager.create(config);
+    }   
+    return jobManager.create(config);   
   }
 }

@@ -18,10 +18,12 @@
 package org.apache.nutch.crawl;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.Closeable;
 import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,10 +32,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.TreeMap;
 
+
+
+
+
+
+
+
+
+
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
@@ -63,6 +75,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.StringUtil;
 
 /**
@@ -345,70 +358,76 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     closeReaders();
   }
 
-  public void processStatJob(String crawlDb, JobConf config, boolean sort)
+  private TreeMap<String, LongWritable> processStatJobHelper(String crawlDb, Configuration config, boolean sort) throws IOException{
+	  Path tmpFolder = new Path(crawlDb, "stat_tmp" + System.currentTimeMillis());
+
+	  JobConf job = new NutchJob(config);
+	  job.setJobName("stats " + crawlDb);
+	  job.setBoolean("db.reader.stats.sort", sort);
+
+	  FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
+	  job.setInputFormat(SequenceFileInputFormat.class);
+
+	  job.setMapperClass(CrawlDbStatMapper.class);
+	  job.setCombinerClass(CrawlDbStatCombiner.class);
+	  job.setReducerClass(CrawlDbStatReducer.class);
+
+	  FileOutputFormat.setOutputPath(job, tmpFolder);
+	  job.setOutputFormat(SequenceFileOutputFormat.class);
+	  job.setOutputKeyClass(Text.class);
+	  job.setOutputValueClass(LongWritable.class);
+
+	  // https://issues.apache.org/jira/browse/NUTCH-1029
+	  job.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+
+	  JobClient.runJob(job);
+
+	  // reading the result
+	  FileSystem fileSystem = FileSystem.get(config);
+	  SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(config,
+			  tmpFolder);
+
+	  Text key = new Text();
+	  LongWritable value = new LongWritable();
+
+	  TreeMap<String, LongWritable> stats = new TreeMap<String, LongWritable>();
+	  for (int i = 0; i < readers.length; i++) {
+		  SequenceFile.Reader reader = readers[i];
+		  while (reader.next(key, value)) {
+			  String k = key.toString();
+			  LongWritable val = stats.get(k);
+			  if (val == null) {
+				  val = new LongWritable();
+				  if (k.equals("scx"))
+					  val.set(Long.MIN_VALUE);
+				  if (k.equals("scn"))
+					  val.set(Long.MAX_VALUE);
+				  stats.put(k, val);
+			  }
+			  if (k.equals("scx")) {
+				  if (val.get() < value.get())
+					  val.set(value.get());
+			  } else if (k.equals("scn")) {
+				  if (val.get() > value.get())
+					  val.set(value.get());
+			  } else {
+				  val.set(val.get() + value.get());
+			  }
+		  }
+		  reader.close();
+	  }
+	  // removing the tmp folder
+	  fileSystem.delete(tmpFolder, true);
+	  return stats;
+  }
+  
+  public void processStatJob(String crawlDb, Configuration config, boolean sort)
       throws IOException {
 
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb statistics start: " + crawlDb);
     }
-
-    Path tmpFolder = new Path(crawlDb, "stat_tmp" + System.currentTimeMillis());
-
-    JobConf job = new NutchJob(config);
-    job.setJobName("stats " + crawlDb);
-    job.setBoolean("db.reader.stats.sort", sort);
-
-    FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
-    job.setInputFormat(SequenceFileInputFormat.class);
-
-    job.setMapperClass(CrawlDbStatMapper.class);
-    job.setCombinerClass(CrawlDbStatCombiner.class);
-    job.setReducerClass(CrawlDbStatReducer.class);
-
-    FileOutputFormat.setOutputPath(job, tmpFolder);
-    job.setOutputFormat(SequenceFileOutputFormat.class);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(LongWritable.class);
-
-    // https://issues.apache.org/jira/browse/NUTCH-1029
-    job.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
-
-    JobClient.runJob(job);
-
-    // reading the result
-    FileSystem fileSystem = FileSystem.get(config);
-    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(config,
-        tmpFolder);
-
-    Text key = new Text();
-    LongWritable value = new LongWritable();
-
-    TreeMap<String, LongWritable> stats = new TreeMap<String, LongWritable>();
-    for (int i = 0; i < readers.length; i++) {
-      SequenceFile.Reader reader = readers[i];
-      while (reader.next(key, value)) {
-        String k = key.toString();
-        LongWritable val = stats.get(k);
-        if (val == null) {
-          val = new LongWritable();
-          if (k.equals("scx"))
-            val.set(Long.MIN_VALUE);
-          if (k.equals("scn"))
-            val.set(Long.MAX_VALUE);
-          stats.put(k, val);
-        }
-        if (k.equals("scx")) {
-          if (val.get() < value.get())
-            val.set(value.get());
-        } else if (k.equals("scn")) {
-          if (val.get() > value.get())
-            val.set(value.get());
-        } else {
-          val.set(val.get() + value.get());
-        }
-      }
-      reader.close();
-    }
+    TreeMap<String, LongWritable> stats = processStatJobHelper(crawlDb, config, sort);
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Statistics for CrawlDb: " + crawlDb);
@@ -437,8 +456,6 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           LOG.info(k + ":\t" + val);
       }
     }
-    // removing the tmp folder
-    fileSystem.delete(tmpFolder, true);
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb statistics: done");
     }
@@ -622,7 +639,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           .println("\t<crawldb>\tdirectory name where crawldb is located");
       System.err
           .println("\t-stats [-sort] \tprint overall statistics to System.out");
-      System.err.println("\t\t\tand optionally sort by host");
+      System.err.println("\t\t[-sort]\tlist status sorted by host");
       System.err
           .println("\t-dump <out_dir> [-format normal|csv|crawldb]\tdump the whole db to a text file in <out_dir>");
       System.err.println("\t\t[-format csv]\tdump in Csv format");
@@ -702,5 +719,118 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         int result = ToolRunner.run(NutchConfiguration.create(),
                 new CrawlDbReader(), args);
         System.exit(result);
+        }
+  public Object query(Map<String, String> args, Configuration conf, String type, String crawlId) throws Exception {
+ 
+
+    Map<String, Object> results = new HashMap<String, Object>();
+    String crawlDb = crawlId + "/crawldb";
+
+    if(type.equalsIgnoreCase("stats")){
+      boolean sort = false;
+      if(args.containsKey("sort")){
+        if(args.get("sort").equalsIgnoreCase("true"))
+          sort = true;
+      }
+      TreeMap<String , LongWritable> stats = processStatJobHelper(crawlDb, NutchConfiguration.create(), sort);
+      LongWritable totalCnt = stats.get("T");
+      stats.remove("T");
+      results.put("totalUrls", String.valueOf(totalCnt.get()));
+      Map<String, Object> statusMap = new HashMap<String, Object>();      
+
+      for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
+        String k = entry.getKey();
+        LongWritable val = entry.getValue();
+        if (k.equals("scn")) {
+
+          results.put("minScore", String.valueOf((val.get() / 1000.0f)));
+        } else if (k.equals("scx")) {
+          results.put("maxScore", String.valueOf((val.get() / 1000.0f)));
+        } else if (k.equals("sct")) {
+          results.put("avgScore", String.valueOf((float) ((((double) val.get()) / totalCnt.get()) / 1000.0)));
+        } else if (k.startsWith("status")) {
+          String[] st = k.split(" ");
+          int code = Integer.parseInt(st[1]);
+          if (st.length > 2){
+            Map<String, Object> individualStatusInfo = (Map<String, Object>) statusMap.get(String.valueOf(code));
+            Map<String, String> hostValues;
+            if(individualStatusInfo.containsKey("hostValues")){
+              hostValues= (Map<String, String>) individualStatusInfo.get("hostValues");
+            }
+            else{
+              hostValues = new HashMap<String, String>();
+              individualStatusInfo.put("hostValues", hostValues);
+            }
+            hostValues.put(st[2], String.valueOf(val));
+          }
+          else{
+            Map<String, Object> individualStatusInfo = new HashMap<String, Object>();
+
+            individualStatusInfo.put("statusValue", CrawlDatum.getStatusName((byte) code));
+            individualStatusInfo.put("count", String.valueOf(val));
+
+            statusMap.put(String.valueOf(code), individualStatusInfo);
+          }
+        } else
+          results.put(k, String.valueOf(val));			  
+      }
+      results.put("status", statusMap);
+      return results;
+    }
+    if(type.equalsIgnoreCase("dump")){
+      String output = args.get("out_dir");
+      String format = "normal";
+      String regex = null;
+      Integer retry = null;
+      String status = null;
+      if (args.containsKey("format")) {
+        format = args.get("format");
+      }
+      if (args.containsKey("regex")) {
+        regex = args.get("regex");
+      }
+      if (args.containsKey("retry")) {
+        retry = Integer.parseInt(args.get("retry"));
+      }
+      if (args.containsKey("status")) {
+        status = args.get("status");
+      }
+      processDumpJob(crawlDb, output, new NutchJob(conf), format, regex, status, retry);
+      File dumpFile = new File(output+"/part-00000");
+      return dumpFile;		  
+    }
+    if (type.equalsIgnoreCase("topN")) {
+      String output = args.get("out_dir");
+      long topN = Long.parseLong(args.get("nnn"));
+      float min = 0.0f;
+      if(args.containsKey("min")){
+        min = Float.parseFloat(args.get("min"));
+      }
+      processTopNJob(crawlDb, topN, min, output, new NutchJob(conf));
+      File dumpFile = new File(output+"/part-00000");
+      return dumpFile;
+    }
+
+    if(type.equalsIgnoreCase("url")){
+      String url = args.get("url");
+      CrawlDatum res = get(crawlDb, url, new NutchJob(conf));
+      results.put("status", res.getStatus());
+      results.put("fetchTime", new Date(res.getFetchTime()));
+      results.put("modifiedTime", new Date(res.getModifiedTime()));
+      results.put("retriesSinceFetch", res.getRetriesSinceFetch());
+      results.put("retryInterval", res.getFetchInterval());
+      results.put("score", res.getScore());
+      results.put("signature", StringUtil.toHexString(res.getSignature()));
+      Map<String, String> metadata = new HashMap<String, String>();
+      if(res.getMetaData()!=null){
+        for (Entry<Writable, Writable> e : res.getMetaData().entrySet()) {
+          metadata.put(String.valueOf(e.getKey()), String.valueOf(e.getValue()));
+        }
+      }
+      results.put("metadata", metadata);
+
+      return results;
+    }
+    return results;
     }
 }

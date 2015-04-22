@@ -14,27 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package org.apache.nutch.service;
 
 import java.util.Collection;
+import java.util.Map;
 
-import org.apache.nutch.service.model.response.JobConfig;
+import org.apache.nutch.service.model.request.JobConfig;
 import org.apache.nutch.service.model.response.JobInfo;
 import org.apache.nutch.service.model.response.JobInfo.State;
 
 public interface JobManager {
-	
-	public static enum JobType{
-		INJECT, GENERATE, FETCH, PARSE, UPDATEDB, INDEX, READDB, CLASS
-	};
-	public Collection<JobInfo> list(String crawlId, State state);
 
-	public JobInfo get(String crawlId, String id);
+  public static enum JobType{
+    INJECT, GENERATE, FETCH, PARSE, UPDATEDB, INDEX, READDB, CLASS, INVERTLINKS, DEDUP
+  };
+  public Collection<JobInfo> list(String crawlId, State state);
 
-	public String create(JobConfig jobConfig);
-	
-	public boolean abort(String crawlId, String id);
+  public JobInfo get(String crawlId, String id);
 
-	public boolean stop(String crawlId, String id);
+  /**
+   * Creates specified job
+   * @param jobConfig
+   * @return JobInfo
+   */
+  public JobInfo create(JobConfig jobConfig);
+
+  public boolean abort(String crawlId, String id);
+
+  public boolean stop(String crawlId, String id);
 }

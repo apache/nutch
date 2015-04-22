@@ -24,19 +24,18 @@ import java.util.*;
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
-
 import org.apache.nutch.net.*;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
 
 /**
@@ -53,7 +52,7 @@ import org.apache.nutch.util.TimingUtil;
  * e.g. http://www.nutch.org/ \t nutch.score=10 \t nutch.fetchInterval=2592000
  * \t userType=open_source
  **/
-public class Injector extends Configured implements Tool {
+public class Injector extends NutchTool implements Tool {
   public static final Logger LOG = LoggerFactory.getLogger(Injector.class);
 
   /** metadata key reserved for setting a custom score for a specific URL */
@@ -383,6 +382,25 @@ public class Injector extends Configured implements Tool {
       LOG.error("Injector: " + StringUtils.stringifyException(e));
       return -1;
     }
+  }
+
+  @Override
+  /**
+   * Used by the Nutch REST service
+   */
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+    if(args.size()<1){
+      throw new IllegalArgumentException("Required arguments <url_dir>");
+    }
+    Map<String, Object> results = new HashMap<String, Object>();
+    String RESULT = "result";
+    String crawldb = crawlId+"/crawldb";
+    String url_dir = args.get("url_dir");
+
+    inject(new Path(crawldb), new Path(url_dir));
+    results.put(RESULT, Integer.toString(0));
+    return results;
+
   }
 
 }

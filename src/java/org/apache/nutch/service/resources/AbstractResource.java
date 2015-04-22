@@ -28,15 +28,16 @@ import org.apache.nutch.service.NutchServer;
 
 @Produces(MediaType.APPLICATION_JSON)
 public abstract class AbstractResource {
-	
-	protected JobManager jobManager;
-	protected ConfManager configManager;
-	
-	public AbstractResource() {
-		configManager = NutchServer.getInstance().getConfManager();
-	}
-	
-	protected void throwBadRequestException(String message) {
-		throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(message).build());
-	}
+
+  protected JobManager jobManager;
+  protected ConfManager configManager;
+
+  public AbstractResource() {
+    configManager = NutchServer.getInstance().getConfManager();
+    jobManager = NutchServer.getInstance().getJobManager();
+  }
+
+  protected void throwBadRequestException(String message) {
+    throw new WebApplicationException(Response.status(Status.BAD_REQUEST).entity(message).build());
+  }
 }

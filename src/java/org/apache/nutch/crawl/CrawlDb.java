@@ -24,24 +24,23 @@ import java.util.*;
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
-
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
 
 /**
  * This class takes the output of the fetcher and updates the crawldb
  * accordingly.
  */
-public class CrawlDb extends Configured implements Tool {
+public class CrawlDb extends NutchTool implements Tool {
   public static final Logger LOG = LoggerFactory.getLogger(CrawlDb.class);
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
@@ -230,6 +229,63 @@ public class CrawlDb extends Configured implements Tool {
     } catch (Exception e) {
       LOG.error("CrawlDb update: " + StringUtils.stringifyException(e));
       return -1;
+    }
+  }
+
+  /*
+   * Used for Nutch REST service
+   */
+  @Override
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+
+    Map<String, Object> results = new HashMap<String, Object>();
+    String RESULT = "result";
+    boolean normalize = getConf().getBoolean(CrawlDbFilter.URL_NORMALIZING,
+        false);
+    boolean filter = getConf().getBoolean(CrawlDbFilter.URL_FILTERING, false);
+    boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED,
+        true);
+    boolean force = false;
+    HashSet<Path> dirs = new HashSet<Path>();
+
+    if (args.containsKey("normalize")) {
+      normalize = true;
+    } 
+    if (args.containsKey("filter")) {
+      filter = true;
+    } 
+    if (args.containsKey("force")) {
+      force = true;
+    } 
+    if (args.containsKey("noAdditions")) {
+      additionsAllowed = false;
+    }
+    
+    String crawldb = crawlId+"/crawldb";
+    String segment_dir = crawlId+"/segments";
+    File segmentsDir = new File(segment_dir);
+    File[] segmentsList = segmentsDir.listFiles();  
+    Arrays.sort(segmentsList, new Comparator<File>(){
+      @Override
+      public int compare(File f1, File f2) {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
+      }      
+    });
+    
+    dirs.add(new Path(segmentsList[0].getPath()));
+    
+    try {
+      update(new Path(crawldb), dirs.toArray(new Path[dirs.size()]), normalize,
+          filter, additionsAllowed, force);
+      results.put(RESULT, Integer.toString(0));
+      return results;
+    } catch (Exception e) {
+      LOG.error("CrawlDb update: " + StringUtils.stringifyException(e));
+      results.put(RESULT, Integer.toString(-1));
+      return results;
     }
   }
 }

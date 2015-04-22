@@ -67,20 +67,8 @@ public class DomainStatistics extends Configured implements Tool {
 
   public int run(String[] args) throws Exception {
     if (args.length < 3) {
-      System.err.println("Usage: DomainStatistics inputDirs outDir mode [numOfReducer]");
-
-      System.err.println("\tinputDirs\tComma separated list of crawldb input directories");
-      System.err.println("\t\t\tE.g.: crawl/crawldb/current/");
-
-      System.err.println("\toutDir\t\tOutput directory where results should be dumped");
-
-      System.err.println("\tmode\t\tSet statistics gathering mode");
-      System.err.println("\t\t\t\thost\tGather statistics by host");
-      System.err.println("\t\t\t\tdomain\tGather statistics by domain");
-      System.err.println("\t\t\t\tsuffix\tGather statistics by suffix");
-      System.err.println("\t\t\t\ttld\tGather statistics by top level directory");
-
-      System.err.println("\t[numOfReducers]\tOptional number of reduce jobs to use. Defaults to 1.");
+      System.out
+          .println("usage: DomainStatistics inputDirs outDir host|domain|suffix|tld [numOfReducer]");
       return 1;
     }
     String inputDir = args[0];

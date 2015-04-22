@@ -18,7 +18,9 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.hadoop.conf.Configured;
@@ -45,6 +47,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * then the one with the shortest URL is kept. The documents marked as duplicate
  * can then be deleted with the command CleaningJob.
  ***/
-public class DeduplicationJob extends Configured implements Tool {
+public class DeduplicationJob extends NutchTool implements Tool {
 
   public static final Logger LOG = LoggerFactory
       .getLogger(DeduplicationJob.class);
@@ -293,5 +296,20 @@ public class DeduplicationJob extends Configured implements Tool {
     int result = ToolRunner.run(NutchConfiguration.create(),
         new DeduplicationJob(), args);
     System.exit(result);
+  }
+
+  @Override
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+//    if(args.size()<1){
+//      throw new IllegalArgumentException("Required argument <crawldb>");
+//    }
+    Map<String, Object> results = new HashMap<String, Object>();
+    String RESULT = "result";
+    String[] arg = new String[1];
+    String crawldb = crawlId+"/crawldb";
+    arg[0] = crawldb;
+    int res = run(arg);
+    results.put(RESULT, Integer.toString(res));
+    return results;
   }
 }

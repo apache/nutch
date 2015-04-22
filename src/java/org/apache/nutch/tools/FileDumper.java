@@ -128,13 +128,9 @@ public class FileDumper {
    * @param mimeTypes
    *          an array of mime types we have to dump, all others will be
    *          filtered out.
-   * @param flatDir
-   *          a boolean flag specifying whether the output directory should contain
-   *          only files instead of using nested directories to prevent naming
-   *          conflicts.
    * @throws Exception
    */
-  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean flatDir)
+  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes)
       throws Exception {
     if (mimeTypes == null)
       LOG.info("Accepting all mimetypes.");
@@ -213,11 +209,7 @@ public class FileDumper {
 
           if (filter) {
             String md5Ofurl = DumpFileUtil.getUrlMD5(url);
-
-            String fullDir = outputDir.getAbsolutePath();
-            if (!flatDir) {
-                fullDir = DumpFileUtil.createTwoLevelsDirectory(fullDir, md5Ofurl);
-            }
+            String fullDir = DumpFileUtil.createTwoLevelsDirectory(outputDir.getAbsolutePath(), md5Ofurl);
 
             if (!Strings.isNullOrEmpty(fullDir)) {
               String outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
@@ -281,12 +273,6 @@ public class FileDumper {
         .withDescription(
             "an optional list of mimetypes to dump, excluding all others. Defaults to all.")
         .create("mimetype");
-    @SuppressWarnings("static-access")
-    Option dirStructureOpt = OptionBuilder
-        .withArgName("flatdir")
-        .withDescription(
-            "optionally specify that the output directory should only contain files.")
-        .create("flatdir");
 
     // create the options
     Options options = new Options();
@@ -294,7 +280,6 @@ public class FileDumper {
     options.addOption(outputOpt);
     options.addOption(segOpt);
     options.addOption(mimeOpt);
-    options.addOption(dirStructureOpt);
 
     CommandLineParser parser = new GnuParser();
     try {
@@ -309,7 +294,6 @@ public class FileDumper {
       File outputDir = new File(line.getOptionValue("outputDir"));
       File segmentRootDir = new File(line.getOptionValue("segment"));
       String[] mimeTypes = line.getOptionValues("mimetype");
-      boolean flatDir = line.hasOption("flatdir");
 
       if (!outputDir.exists()) {
         LOG.warn("Output directory: [" + outputDir.getAbsolutePath()
@@ -320,7 +304,7 @@ public class FileDumper {
       }
 
       FileDumper dumper = new FileDumper();
-      dumper.dump(outputDir, segmentRootDir, mimeTypes, flatDir);
+      dumper.dump(outputDir, segmentRootDir, mimeTypes);
     } catch (Exception e) {
       LOG.error("FileDumper: " + StringUtils.stringifyException(e));
       e.printStackTrace();

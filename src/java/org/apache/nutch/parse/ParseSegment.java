@@ -19,10 +19,8 @@ package org.apache.nutch.parse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
-import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
@@ -33,7 +31,6 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.nutch.util.*;
 import org.apache.hadoop.fs.Path;
 
@@ -43,7 +40,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /* Parse content in a segment. */
-public class ParseSegment extends Configured implements Tool,
+public class ParseSegment extends NutchTool implements Tool,
     Mapper<WritableComparable<?>, Content, Text, ParseImpl>,
     Reducer<Text, Writable, Text, Writable> {
 
@@ -200,11 +197,6 @@ public class ParseSegment extends Configured implements Tool,
   }
 
   public void parse(Path segment) throws IOException {
-	if (SegmentChecker.isParsed(segment, FileSystem.get(getConf()))) {
-	  LOG.warn("Segment: " + segment
-			  + " already parsed!! Skipped parsing this segment!!"); // NUTCH-1854
-	  return;
-	}
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -264,5 +256,38 @@ public class ParseSegment extends Configured implements Tool,
     segment = new Path(args[0]);
     parse(segment);
     return 0;
+  }
+
+  /*
+   * Used for Nutch REST service
+   */
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+
+    Map<String, Object> results = new HashMap<String, Object>();
+    String RESULT = "result";
+    if (args.containsKey("nofilter")) {
+      getConf().setBoolean("parse.filter.urls", false);
+    }
+    if (args.containsKey("nonormalize")) {
+      getConf().setBoolean("parse.normalize.urls", false);
+    }
+
+    String segment_dir = crawlId+"/segments";
+    File segmentsDir = new File(segment_dir);
+    File[] segmentsList = segmentsDir.listFiles();  
+    Arrays.sort(segmentsList, new Comparator<File>(){
+      @Override
+      public int compare(File f1, File f2) {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
+      }      
+    });
+    
+    Path segment = new Path(segmentsList[0].getPath());
+    parse(segment);
+    results.put(RESULT, Integer.toString(0));
+    return results;
   }
 }

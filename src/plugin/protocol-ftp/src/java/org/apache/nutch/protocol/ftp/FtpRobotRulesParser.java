@@ -69,28 +69,15 @@ public class FtpRobotRulesParser extends RobotRulesParser {
                                                        // case
     String host = url.getHost().toLowerCase(); // normalize to lower case
 
-    if (LOG.isTraceEnabled() && isWhiteListed(url)) {
-      LOG.trace("Ignoring robots.txt (host is whitelisted) for URL: {}", url);
-    }
-
-    BaseRobotRules robotRules = CACHE.get(protocol + ":" + host);
-
-    if (robotRules != null) {
-      return robotRules; // cached rule
-    } else if (LOG.isTraceEnabled()) {
-      LOG.trace("cache miss " + url);
-    }
+    BaseRobotRules robotRules = (SimpleRobotRules) CACHE.get(protocol + ":"
+        + host);
 
     boolean cacheRule = true;
 
-    if (isWhiteListed(url)) {
-      // check in advance whether a host is whitelisted
-      // (we do not need to fetch robots.txt)
-      robotRules = EMPTY_RULES;
-      LOG.info("Whitelisted host found for: {}", url);
-      LOG.info("Ignoring robots.txt for all URLs from whitelisted host: {}", host);
+    if (robotRules == null) { // cache miss
+      if (LOG.isTraceEnabled())
+        LOG.trace("cache miss " + url);
 
-    } else {
       try {
         Text robotsUrl = new Text(new URL(url, "/robots.txt").toString());
         ProtocolOutput output = ((Ftp) ftp).getProtocolOutput(robotsUrl,
@@ -107,15 +94,13 @@ public class FtpRobotRulesParser extends RobotRulesParser {
         if (LOG.isInfoEnabled()) {
           LOG.info("Couldn't get robots.txt for " + url + ": " + t.toString());
         }
-        cacheRule = false; // try again later to fetch robots.txt
+        cacheRule = false;
         robotRules = EMPTY_RULES;
       }
 
+      if (cacheRule)
+        CACHE.put(protocol + ":" + host, robotRules); // cache rules for host
     }
-
-    if (cacheRule)
-      CACHE.put(protocol + ":" + host, robotRules); // cache rules for host
-
     return robotRules;
   }
 }

@@ -49,7 +49,6 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import org.apache.commons.validator.routines.UrlValidator;
 //Hadoop
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -385,12 +384,6 @@ public class CommonCrawlDataDumper {
 					reader.getCurrentValue(content);
 					Metadata metadata = content.getMetadata();
 					String url = key.toString();
-					
-					UrlValidator urlValidator = new UrlValidator();
-					if (!urlValidator.isValid(url)) {
-						LOG.warn("Not valid URL detected: " + url);
-					}
-					
 					String baseName = FilenameUtils.getBaseName(url);
 					String extension = FilenameUtils.getExtension(url);
 					

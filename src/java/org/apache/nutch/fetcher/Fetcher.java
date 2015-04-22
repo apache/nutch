@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.fetcher;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -27,10 +28,18 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+
+
+
+
+
+
+
+
+
 // Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
@@ -38,7 +47,6 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
@@ -91,7 +99,7 @@ import crawlercommons.robots.BaseRobotRules;
  * 
  * @author Andrzej Bialecki
  */
-public class Fetcher extends Configured implements Tool,
+public class Fetcher extends NutchTool implements Tool,
     MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
 
   public static final int PERM_REFRESH_TIME = 5;
@@ -1191,7 +1199,7 @@ public class Fetcher extends Configured implements Tool,
   }
 
   public Fetcher() {
-    super(null);
+	  super(null);
   }
 
   public Fetcher(Configuration conf) {
@@ -1615,6 +1623,46 @@ public class Fetcher extends Configured implements Tool,
         LOG.error(message);
       }
       throw new IllegalArgumentException(message);
+    }
+  }
+
+  @Override
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+
+    Map<String, Object> results = new HashMap<String, Object>();
+    String RESULT = "result";
+    String segment_dir = crawlId+"/segments";
+    File segmentsDir = new File(segment_dir);
+    File[] segmentsList = segmentsDir.listFiles();  
+    Arrays.sort(segmentsList, new Comparator<File>(){
+      @Override
+      public int compare(File f1, File f2) {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
+      }      
+    });
+    
+    Path segment = new Path(segmentsList[0].getPath());
+
+    int threads = getConf().getInt("fetcher.threads.fetch", 10);
+    boolean parsing = false;
+
+    // parse command line
+    if (args.containsKey("threads")) { // found -threads option
+      threads = Integer.parseInt(args.get("threads"));
+    }
+    getConf().setInt("fetcher.threads.fetch", threads);
+
+    try {
+      fetch(segment, threads);
+      results.put(RESULT, Integer.toString(0));
+      return results;
+    } catch (Exception e) {
+      LOG.error("Fetcher: " + StringUtils.stringifyException(e));
+      results.put(RESULT, Integer.toString(-1));
+      return results;
     }
   }
 
