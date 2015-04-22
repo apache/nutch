@@ -65,7 +65,7 @@ public class TestBasicURLNormalizer {
     normalizeTest("http://foo.com/aa/./foo.html", "http://foo.com/aa/foo.html");
     normalizeTest("http://foo.com/aa/../", "http://foo.com/");
     normalizeTest("http://foo.com/aa/bb/../", "http://foo.com/aa/");
-    normalizeTest("http://foo.com/aa/..", "http://foo.com/aa/..");
+    normalizeTest("http://foo.com/aa/..", "http://foo.com/");
     normalizeTest("http://foo.com/aa/bb/cc/../../foo.html",
         "http://foo.com/aa/foo.html");
     normalizeTest("http://foo.com/aa/bb/../cc/dd/../ee/foo.html",
@@ -93,10 +93,12 @@ public class TestBasicURLNormalizer {
         "http://foo.com/aa/bb/foo.html");
     normalizeTest("http://foo.com////aa////bb////foo.html",
         "http://foo.com/aa/bb/foo.html");
+    normalizeTest("http://foo.com/aa?referer=http://bar.com",
+        "http://foo.com/aa?referer=http://bar.com");
   }
 
   private void normalizeTest(String weird, String normal) throws Exception {
-    Assert.assertEquals(normal,
+    Assert.assertEquals("normalizing: " + weird, normal,
         normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
   }
 

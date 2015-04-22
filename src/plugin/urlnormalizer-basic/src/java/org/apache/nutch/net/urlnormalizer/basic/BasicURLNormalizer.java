@@ -17,19 +17,20 @@
 
 package org.apache.nutch.net.urlnormalizer.basic;
 
-import java.net.URL;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.regex.Pattern;
 
-// Slf4j Logging imports
+import org.apache.hadoop.conf.Configured;
+import org.apache.nutch.net.URLNormalizer;
+import org.apache.nutch.net.URLNormalizers;
+import org.apache.nutch.util.NutchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-// Nutch imports
-import org.apache.nutch.net.URLNormalizer;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
-import org.apache.oro.text.regex.*;
 
 /**
  * Converts URLs to a normal form:
@@ -42,57 +43,12 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
   public static final Logger LOG = LoggerFactory
       .getLogger(BasicURLNormalizer.class);
 
-  private Perl5Compiler compiler = new Perl5Compiler();
-  private ThreadLocal<Perl5Matcher> matchers = new ThreadLocal<Perl5Matcher>() {
-    protected Perl5Matcher initialValue() {
-      return new Perl5Matcher();
-    }
-  };
-  private final Rule relativePathRule;
-  private final Rule leadingRelativePathRule;
-  private final Rule currentPathRule;
-  private final Rule adjacentSlashRule;
-
-  private final static java.util.regex.Pattern hasNormalizablePattern = java.util.regex.Pattern
-      .compile("/\\.?\\.?/");
-
-  private Configuration conf;
-
-  public BasicURLNormalizer() {
-    try {
-      // this pattern tries to find spots like "/xx/../" in the url, which
-      // could be replaced by "/" xx consists of chars, different then "/"
-      // (slash) and needs to have at least one char different from "."
-      relativePathRule = new Rule();
-      relativePathRule.pattern = (Perl5Pattern) compiler.compile(
-          "(/[^/]*[^/.]{1}[^/]*/\\.\\./)", Perl5Compiler.READ_ONLY_MASK);
-      relativePathRule.substitution = new Perl5Substitution("/");
-
-      // this pattern tries to find spots like leading "/../" in the url,
-      // which could be replaced by "/"
-      leadingRelativePathRule = new Rule();
-      leadingRelativePathRule.pattern = (Perl5Pattern) compiler.compile(
-          "^(/\\.\\./)+", Perl5Compiler.READ_ONLY_MASK);
-      leadingRelativePathRule.substitution = new Perl5Substitution("/");
-
-      // this pattern tries to find spots like "/./" in the url,
-      // which could be replaced by "/"
-      currentPathRule = new Rule();
-      currentPathRule.pattern = (Perl5Pattern) compiler.compile("(/\\./)",
-          Perl5Compiler.READ_ONLY_MASK);
-      currentPathRule.substitution = new Perl5Substitution("/");
-
-      // this pattern tries to find spots like "xx//yy" in the url,
-      // which could be replaced by a "/"
-      adjacentSlashRule = new Rule();
-      adjacentSlashRule.pattern = (Perl5Pattern) compiler.compile("/{2,}",
-          Perl5Compiler.READ_ONLY_MASK);
-      adjacentSlashRule.substitution = new Perl5Substitution("/");
-
-    } catch (MalformedPatternException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  /**
+   * Pattern to detect whether a URL path could be normalized. Contains one of
+   * /. or ./ /.. or ../ //
+   */
+  private final static Pattern hasNormalizablePathPattern = Pattern
+      .compile("/[./]|[.]/");
 
   public String normalize(String urlString, String scope)
       throws MalformedURLException {
@@ -138,9 +94,8 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         changed = true;
       }
 
-      // check for unnecessary use of "/../"
-      String file2 = substituteUnnecessaryRelativePaths(file);
-
+      // check for unnecessary use of "/../", "/./", and "//"
+      String file2 = getFileWithNormalizedPath(url);
       if (!file.equals(file2)) {
         changed = true;
         file = file2;
@@ -154,72 +109,58 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     return urlString;
   }
 
-  private String substituteUnnecessaryRelativePaths(String file) {
+  private String getFileWithNormalizedPath(URL url)
+      throws MalformedURLException {
+    String file;
 
-    if (!hasNormalizablePattern.matcher(file).find())
-      return file;
-
-    String fileWorkCopy = file;
-    int oldLen = file.length();
-    int newLen = oldLen - 1;
-
-    // All substitutions will be done step by step, to ensure that certain
-    // constellations will be normalized, too
-    //
-    // For example: "/aa/bb/../../cc/../foo.html will be normalized in the
-    // following manner:
-    // "/aa/bb/../../cc/../foo.html"
-    // "/aa/../cc/../foo.html"
-    // "/cc/../foo.html"
-    // "/foo.html"
-    //
-    // The normalization also takes care of leading "/../", which will be
-    // replaced by "/", because this is a rather a sign of bad webserver
-    // configuration than of a wanted link. For example, urls like
-    // "http://www.foo.com/../" should return a http 404 error instead of
-    // redirecting to "http://www.foo.com".
-    //
-    Perl5Matcher matcher = (Perl5Matcher) matchers.get();
-
-    while (oldLen != newLen) {
-      // substitue first occurence of "/xx/../" by "/"
-      oldLen = fileWorkCopy.length();
-      fileWorkCopy = Util.substitute(matcher, relativePathRule.pattern,
-          relativePathRule.substitution, fileWorkCopy, 1);
-
-      // remove leading "/../"
-      fileWorkCopy = Util.substitute(matcher, leadingRelativePathRule.pattern,
-          leadingRelativePathRule.substitution, fileWorkCopy, 1);
-
-      // remove unnecessary "/./"
-      fileWorkCopy = Util.substitute(matcher, currentPathRule.pattern,
-          currentPathRule.substitution, fileWorkCopy, 1);
-
-      // collapse adjacent slashes with "/"
-      fileWorkCopy = Util.substitute(matcher, adjacentSlashRule.pattern,
-          adjacentSlashRule.substitution, fileWorkCopy, 1);
-
-      newLen = fileWorkCopy.length();
+    if (hasNormalizablePathPattern.matcher(url.getPath()).find()) {
+      // only normalize the path if there is something to normalize
+      // to avoid needless work
+      try {
+        file = url.toURI().normalize().toURL().getFile();
+        // URI.normalize() does not normalize leading dot segments,
+        // see also http://tools.ietf.org/html/rfc3986#section-5.2.4
+        int start = 0;
+        while (file.startsWith("/../", start)) {
+          start += 3;
+        }
+        if (start > 0) {
+          file = file.substring(start);
+        }
+      } catch (URISyntaxException e) {
+        file = url.getFile();
+      }
+    } else {
+      file = url.getFile();
     }
 
-    return fileWorkCopy;
+    // if path is empty return a single slash
+    if (file.isEmpty()) {
+      file = "/";
+    }
+
+    return file;
   }
 
-  /**
-   * Class which holds a compiled pattern and its corresponding substition
-   * string.
-   */
-  private static class Rule {
-    public Perl5Pattern pattern;
-    public Perl5Substitution substitution;
-  }
-
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-
-  public Configuration getConf() {
-    return this.conf;
+  public static void main(String args[]) throws IOException {
+    BasicURLNormalizer normalizer = new BasicURLNormalizer();
+    normalizer.setConf(NutchConfiguration.create());
+    String scope = URLNormalizers.SCOPE_DEFAULT;
+    if (args.length >= 1) {
+      scope = args[0];
+      System.out.println("Scope: " + scope);
+    }
+    String line, normUrl;
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    while ((line = in.readLine()) != null) {
+      try {
+        normUrl = normalizer.normalize(line, scope);
+        System.out.println(normUrl);
+      } catch (MalformedURLException e) {
+        System.out.println("failed: " + line);
+      }
+    }
+    System.exit(0);
   }
 
 }
