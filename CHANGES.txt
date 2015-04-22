@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1996 Make protocol-selenium README part of plugin (lewismc)
+
 * NUTCH-1990 Use URI.normalise() in BasicURLNormalizer (snagel, jnioche)
 
 * NUTCH-1973 Job Administration end point for the REST service (Sujen Shah via mattmann)
