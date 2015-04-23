@@ -5,4 +5,4 @@
 3. Upgrade Tika's own dependencies in src/plugin/parse-tika/plugin.xml
    To get the list of dependencies and their versions execute:
    $ ant -f ./build-ivy.xml
-   $ ls lib/
+   $ ls lib | sed 's/^/ <library name="/g' | sed 's/$/"\/>/g'
