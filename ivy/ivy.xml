@@ -61,7 +61,7 @@
 			<exclude org="ant" name="ant" />
 		</dependency>
 
-		<dependency org="org.apache.tika" name="tika-core" rev="1.7" />
+		<dependency org="org.apache.tika" name="tika-core" rev="1.8" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
 
 		<dependency org="xerces" name="xercesImpl" rev="2.9.1" />

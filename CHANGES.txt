@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1994 Upgrade to Apache Tika 1.8 (lewismc)
+
 * NUTCH-1996 Make protocol-selenium README part of plugin (lewismc)
 
 * NUTCH-1990 Use URI.normalise() in BasicURLNormalizer (snagel, jnioche)
