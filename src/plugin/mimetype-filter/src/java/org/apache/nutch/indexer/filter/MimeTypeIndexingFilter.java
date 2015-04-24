@@ -20,8 +20,18 @@ package org.apache.nutch.indexer.filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.UnrecognizedOptionException;
+
 // Nutch imports
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
@@ -32,16 +42,25 @@ import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 
-import org.apache.nutch.parse.Parse;
 import org.apache.nutch.net.protocols.Response;
 
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseStatus;
+
+import org.apache.nutch.metadata.Metadata;
+
 import org.apache.nutch.util.MimeUtil;
+import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.PrefixStringMatcher;
 import org.apache.nutch.util.TrieStringMatcher;
 import org.apache.tika.Tika;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +115,7 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
       LOG.info(String.format("[%s] %s", contentType, url));
     }
 
-    if (null != trie) {
+    if (trie != null) {
       if (trie.shortestMatch(contentType) == null) {
         // no match, but
         if (acceptMode) {
@@ -183,9 +202,72 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
   public Configuration getConf() {
     return this.conf;
   }
-    /*
-     * ------------------------------ * </implementation:Configurable> *
-     * ------------------------------
-     */
-}
 
+  /**
+   * Main method for invoking this tool
+   *
+   * @throws IOException, IndexingException
+   */
+  public static void main(String[] args) throws IOException, IndexingException {
+    Option helpOpt = new Option("h", "help", false, "show this help message");
+    Option rulesOpt = OptionBuilder.withArgName("file").hasArg()
+        .withDescription(
+            "Rules file to be used in the tests relative to the conf directory")
+        .isRequired().create("rules");
+
+    Options options = new Options();
+    options.addOption(helpOpt).addOption(rulesOpt);
+
+    CommandLineParser parser = new GnuParser();
+    HelpFormatter formatter = new HelpFormatter();
+    String rulesFile;
+
+    try {
+      CommandLine line = parser.parse(options, args);
+
+      if (line.hasOption("help") || !line.hasOption("rules")) {
+        formatter
+            .printHelp("org.apache.nutch.indexer.filter.MimeTypeIndexingFilter",
+                options, true);
+        return;
+      }
+
+      rulesFile = line.getOptionValue("rules");
+    } catch (UnrecognizedOptionException e) {
+      formatter
+          .printHelp("org.apache.nutch.indexer.filter.MimeTypeIndexingFilter",
+              options, true);
+      return;
+    } catch (Exception e) {
+      LOG.error(StringUtils.stringifyException(e));
+      e.printStackTrace();
+      return;
+    }
+
+    MimeTypeIndexingFilter filter = new MimeTypeIndexingFilter();
+    Configuration conf = NutchConfiguration.create();
+    conf.set(MimeTypeIndexingFilter.MIMEFILTER_REGEX_FILE, rulesFile);
+    filter.setConf(conf);
+
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    String line;
+
+    while ((line = in.readLine()) != null && !line.isEmpty()) {
+      Metadata metadata = new Metadata();
+      metadata.set(Response.CONTENT_TYPE, line);
+      ParseImpl parse = new ParseImpl("text",
+          new ParseData(new ParseStatus(), "title", new Outlink[0], metadata));
+
+      NutchDocument doc = filter.filter(new NutchDocument(), parse,
+          new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
+
+      if (doc != null) {
+        System.out.print("+ ");
+        System.out.println(line);
+      } else {
+        System.out.print("- ");
+        System.out.println(line);
+      }
+    }
+  }
+}
