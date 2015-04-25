@@ -2,6 +2,9 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1991 Tika mime detection not using Nutch supplied tika-mimetypes.xml for content based 
+  detection (Iain Lopata, snagel via mattmann)
+
 * NUTCH-1994 Upgrade to Apache Tika 1.8 (lewismc)
 
 * NUTCH-1996 Make protocol-selenium README part of plugin (lewismc)
