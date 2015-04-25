@@ -515,6 +515,31 @@ public class CommonCrawlDataDumper {
 	    tarOutput.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
 	}
 	
+	/**
+	 * Writes the CBOR "Self-Describe Tag" (value 55799, serialized as 3-byte
+	 * sequence of {@code 0xd9d9f7}) at the current position. This method must
+	 * be used to write the CBOR magic number at the beginning of the document.
+	 * Since version 2.5, <a
+	 * href="https://github.com/FasterXML/jackson-dataformat-cbor"
+	 * >jackson-dataformat-cbor</a> will support the {@code WRITE_TYPE_HEADER}
+	 * feature to write that type tag at the beginning of the document.
+	 * 
+	 * @see <a href="https://tools.ietf.org/html/rfc7049#section-2.4.5">RFC
+	 *      7049</a>
+	 * @param generator {@link CBORGenerator} object used to create a CBOR-encoded document.
+	 * @throws IOException if any I/O error occurs.
+	 */
+	private void writeMagicHeader(CBORGenerator generator) throws IOException {
+		// Writes self-describe CBOR
+		// https://tools.ietf.org/html/rfc7049#section-2.4.5
+		// It will be supported in jackson-cbor since 2.5
+		byte[] header = new byte[3];
+		header[0] = (byte) 0xd9;
+		header[1] = (byte) 0xd9;
+		header[2] = (byte) 0xf7;
+		generator.writeBytes(header, 0, header.length);
+	}
+	
 	private byte[] serializeCBORData(String jsonData) {
 		CBORFactory factory = new CBORFactory();
 		
@@ -524,6 +549,8 @@ public class CommonCrawlDataDumper {
 		try {
 			stream = new ByteArrayOutputStream();
 			generator = factory.createGenerator(stream);
+			// Writes CBOR tag
+			writeMagicHeader(generator);
 			generator.writeString(jsonData);
 			generator.flush();
 			stream.flush();
