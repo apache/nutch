@@ -1,0 +1,7 @@
+# Both domains have duplicate URL's, some with slashes and some without
+
+# We prefer this domain with slashes
+www.example.org +
+
+# ..but this domain without
+www.example.net -

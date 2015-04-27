@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1969 URL Normalizer properly handling slashes (markus via mattmann)
+
 * NUTCH-2001 Sub Collection Field Name incorrect in nutch-default.xml 
   (Jeff Cocking via mattmann)
 
