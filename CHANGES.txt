@@ -2,6 +2,9 @@ Nutch Change Log
  
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-2001 Sub Collection Field Name incorrect in nutch-default.xml 
+  (Jeff Cocking via mattmann)
+
 * NUTCH-1997 Add CBOR "magic header" to CommonCrawlDataDumper 
   output (Giuseppe Totaro, Luke Sh via mattmann)
 
