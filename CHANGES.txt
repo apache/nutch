@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-1873 Solr IndexWriter/Job to report number of docs indexed. (snagel via lewismc)
+
 * NUTCH-1934 Refactor Fetcher in trunk (lewismc)
 
 * NUTCH-2004 ParseChecker does not handle redirects (mjoyce via lewismc)

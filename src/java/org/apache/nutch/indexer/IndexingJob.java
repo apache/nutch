@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import org.apache.nutch.segment.SegmentChecker;
@@ -31,6 +32,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.Counters.Counter;
+import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -110,11 +113,17 @@ public class IndexingJob extends Configured implements Tool {
 
     FileOutputFormat.setOutputPath(job, tmp);
     try {
-      JobClient.runJob(job);
+      RunningJob indexJob = JobClient.runJob(job);
       // do the commits once and for all the reducers in one go
       if (!noCommit) {
         writers.open(job, "commit");
         writers.commit();
+      }
+      LOG.info("Indexer: number of documents indexed, deleted, or skipped:");
+      for (Counter counter : indexJob.getCounters().getGroup("IndexerStatus")) {
+        LOG.info("Indexer: {}  {}",
+            String.format(Locale.ROOT, "%6d", counter.getValue()),
+            counter.getName());
       }
       long end = System.currentTimeMillis();
       LOG.info("Indexer: finished at " + sdf.format(end) + ", elapsed: "
@@ -127,7 +136,7 @@ public class IndexingJob extends Configured implements Tool {
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err
-          .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
+      .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
       IndexWriters writers = new IndexWriters(getConf());
       System.err.println(writers.describe());
       return -1;
