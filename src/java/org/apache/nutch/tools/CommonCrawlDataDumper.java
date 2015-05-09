@@ -245,6 +245,11 @@ public class CommonCrawlDataDumper {
 				.hasArg(false)
 				.withDescription("an optional format for key value in JSON output.")
 				.create("reverseKey");
+		Option extensionOpt = OptionBuilder
+				.withArgName("extension")
+				.hasArg(true)
+				.withDescription("an optional file extension for output documents.")
+				.create("extension");
 
 		// create the options
 		Options options = new Options();
@@ -261,6 +266,7 @@ public class CommonCrawlDataDumper {
 		options.addOption(epochFilenameOpt);
 		options.addOption(jsonArrayOpt);
 		options.addOption(reverseKeyOpt);
+		options.addOption(extensionOpt);
 
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -281,6 +287,7 @@ public class CommonCrawlDataDumper {
 			boolean simpleDateFormat = line.hasOption("SimpleDateFormat");
 			boolean jsonArray = line.hasOption("jsonArray");
 			boolean reverseKey = line.hasOption("reverseKey");
+			String extension = line.getOptionValue("extension", "");
 			
 			CommonCrawlConfig config = new CommonCrawlConfig();
 			config.setKeyPrefix(keyPrefix);
@@ -296,7 +303,7 @@ public class CommonCrawlDataDumper {
 
 			CommonCrawlDataDumper dumper = new CommonCrawlDataDumper(config);
 			
-			dumper.dump(outputDir, segmentRootDir, gzip, mimeTypes, epochFilename);
+			dumper.dump(outputDir, segmentRootDir, gzip, mimeTypes, epochFilename, extension);
 			
 		} catch (Exception e) {
 			LOG.error(CommonCrawlDataDumper.class.getName() + ": " + StringUtils.stringifyException(e));
@@ -329,9 +336,13 @@ public class CommonCrawlDataDumper {
 	 * @param mimetypes
 	 *            an array of mime types we have to dump, all others will be
      *            filtered out.
-	 * @throws Exception
+     * @param epochFilename
+     *            if {@code true}, output files will be names using the epoch time (in milliseconds).
+     * @param extension
+     *            a file extension to use with output documents.
+	 * @throws Exception if any exception occurs.
 	 */
-	public void dump(File outputDir, File segmentRootDir, boolean gzip,	String[] mimeTypes, boolean epochFilename) throws Exception {
+	public void dump(File outputDir, File segmentRootDir, boolean gzip,	String[] mimeTypes, boolean epochFilename, String extension) throws Exception {
 		if (gzip) {
 			LOG.info("Gzipping CBOR data has been skipped");
 		}
@@ -385,10 +396,13 @@ public class CommonCrawlDataDumper {
 					Metadata metadata = content.getMetadata();
 					String url = key.toString();
 					String baseName = FilenameUtils.getBaseName(url);
-					String extension = FilenameUtils.getExtension(url);
+					String extensionName = FilenameUtils.getExtension(url);
 					
-					if ((extension == null) || extension.isEmpty()) {
-						extension = "html";
+					if (!extension.isEmpty()) {
+						extensionName = extension;
+					}
+					else if ((extensionName == null) || extensionName.isEmpty()) {
+						extensionName = "html";
 					}
 					
 					String outputFullPath = null;
@@ -410,14 +424,14 @@ public class CommonCrawlDataDumper {
 					}	
 					
 					if (epochFilename) {
-						outputFullPath = DumpFileUtil.createFileNameFromUrl(outputDir.getAbsolutePath(), reverseKey, url, timestamp, extension, !gzip);
+						outputFullPath = DumpFileUtil.createFileNameFromUrl(outputDir.getAbsolutePath(), reverseKey, url, timestamp, extensionName, !gzip);
 						outputRelativePath = outputFullPath.substring(0, outputFullPath.lastIndexOf(File.separator)-1);
-						filename = content.getMetadata().get(Metadata.DATE) + "." + extension;
+						filename = content.getMetadata().get(Metadata.DATE) + "." + extensionName;
 					}
 					else {
 						String md5Ofurl = DumpFileUtil.getUrlMD5(url);
 						String fullDir = DumpFileUtil.createTwoLevelsDirectory(outputDir.getAbsolutePath(), md5Ofurl, !gzip);
-						filename = DumpFileUtil.createFileName(md5Ofurl, baseName, extension);
+						filename = DumpFileUtil.createFileName(md5Ofurl, baseName, extensionName);
 						outputFullPath = String.format("%s/%s", fullDir, filename);
 	
 						String [] fullPathLevels = fullDir.split(File.separator);
