@@ -20,10 +20,15 @@ package org.apache.nutch.protocol;
 // JDK imports
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.LineNumberReader;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 // Commons Logging imports
@@ -32,10 +37,11 @@ import org.slf4j.LoggerFactory;
 
 // Nutch imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.io.Text;
-
-import com.google.common.io.Files;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.util.NutchConfiguration;
 
 import crawlercommons.robots.BaseRobotRules;
 import crawlercommons.robots.SimpleRobotRules;
@@ -46,8 +52,11 @@ import crawlercommons.robots.SimpleRobotRulesParser;
  * This class uses crawler-commons for handling the parsing of
  * {@code robots.txt} files. It emits SimpleRobotRules objects, which describe
  * the download permissions as described in SimpleRobotRulesParser.
+ * 
+ * Protocol-specific implementations have to implement the method
+ * {@link getRobotRulesSet}.
  */
-public abstract class RobotRulesParser implements Configurable {
+public abstract class RobotRulesParser implements Tool {
 
   public static final Logger LOG = LoggerFactory
       .getLogger(RobotRulesParser.class);
@@ -70,8 +79,12 @@ public abstract class RobotRulesParser implements Configurable {
       RobotRulesMode.ALLOW_NONE);
 
   private static SimpleRobotRulesParser robotParser = new SimpleRobotRulesParser();
-  private Configuration conf;
+  protected Configuration conf;
   protected String agentNames;
+
+  /** set of host names or IPs to be explicitly excluded from robots.txt checking */
+  protected Set<String> whiteList = new HashSet<String>();;
+
 
   public RobotRulesParser() {
   }
@@ -112,6 +125,12 @@ public abstract class RobotRulesParser implements Configurable {
 
       agentNames = sb.toString();
     }
+
+    String[] confWhiteList = conf.getStrings("http.robot.rules.whitelist");
+    if (confWhiteList != null && confWhiteList.length > 0) {
+      whiteList.addAll(Arrays.asList(confWhiteList));
+      LOG.info("Whitelisted hosts: " + whiteList);
+    }
   }
 
   /**
@@ -119,6 +138,14 @@ public abstract class RobotRulesParser implements Configurable {
    */
   public Configuration getConf() {
     return conf;
+  }
+
+
+  /**
+   * Check whether a URL belongs to a whitelisted host.
+   */
+  public boolean isWhiteListed(URL url) {
+    return whiteList.contains(url.getHost());
   }
 
   /**
@@ -151,41 +178,127 @@ public abstract class RobotRulesParser implements Configurable {
     return getRobotRulesSet(protocol, u);
   }
 
+  /**
+   * Fetch robots.txt (or it's protocol-specific equivalent) which applies to
+   * the given URL, parse it and return the set of robot rules applicable for
+   * the configured agent name(s).
+   * 
+   * @param protocol
+   *          protocol implementation
+   * @param url
+   *          URL to be checked whether fetching is allowed by robot rules
+   * @return robot rules
+   */
   public abstract BaseRobotRules getRobotRulesSet(Protocol protocol, URL url);
 
-  /** command-line main for testing */
-  public static void main(String[] argv) {
+  @Override
+  public int run(String[] args) {
 
-    if (argv.length != 3) {
-      System.err
-          .println("Usage: RobotRulesParser <robots-file> <url-file> <agent-names>\n");
-      System.err
-          .println("\tThe <robots-file> will be parsed as a robots.txt file,");
-      System.err
-          .println("\tusing the given <agent-name> to select rules.  URLs ");
-      System.err
-          .println("\twill be read (one per line) from <url-file>, and tested");
-      System.err
-          .println("\tagainst the rules. Multiple agent names can be provided using");
-      System.err.println("\tcomma as a delimiter without any spaces.");
+    if (args.length < 2) {
+      String[] help = {
+          "Usage: RobotRulesParser <robots-file> <url-file> [<agent-names>]\n",
+          "\tThe <robots-file> will be parsed as a robots.txt file,",
+          "\tusing the given <agent-name> to select rules.",
+          "\tURLs will be read (one per line) from <url-file>,",
+          "\tand tested against the rules.",
+          "\tMultiple agent names can be provided using",
+          "\tcomma as a delimiter without any spaces.",
+          "\tIf no agent name is given the property http.agent.name",
+          "\tis used. If http.agent.name is empty, robots.txt is checked",
+          "\tfor rules assigned to the user agent `*' (meaning any other)." };
+      for (String s : help) {
+        System.err.println(s);
+      }
       System.exit(-1);
     }
 
-    try {
-      byte[] robotsBytes = Files.toByteArray(new File(argv[0]));
-      BaseRobotRules rules = robotParser.parseContent(argv[0], robotsBytes,
-          "text/plain", argv[2]);
+    File robotsFile = new File(args[0]);
+    File urlFile = new File(args[1]);
 
-      LineNumberReader testsIn = new LineNumberReader(new FileReader(argv[1]));
-      String testPath = testsIn.readLine().trim();
+    if (args.length > 2) {
+      // set agent name from command-line in configuration and update parser
+      String agents = args[2];
+      conf.set("http.agent.name", agents);
+      setConf(conf);
+    }
+
+    try {
+      BaseRobotRules rules = getRobotRulesSet(null, robotsFile.toURI().toURL());
+
+      LineNumberReader testsIn = new LineNumberReader(new FileReader(urlFile));
+      String testPath;
+      testPath = testsIn.readLine().trim();
       while (testPath != null) {
-        System.out.println((rules.isAllowed(testPath) ? "allowed"
-            : "not allowed") + ":\t" + testPath);
+        try {
+          // testPath can be just a path or a complete URL
+          URL url = new URL(testPath);
+          String status;
+          if (isWhiteListed(url)) {
+            status = "whitelisted";
+          } else if (rules.isAllowed(testPath)) {
+            status = "allowed";
+          } else {
+            status = "not allowed";
+          }
+          System.out.println(status + ":\t" + testPath);
+        } catch (MalformedURLException e) {
+        }
         testPath = testsIn.readLine();
       }
       testsIn.close();
-    } catch (Exception e) {
-      e.printStackTrace();
+    } catch (IOException e) {
+      LOG.error("Failed to run: " + StringUtils.stringifyException(e));
+      return -1;
     }
+
+    return 0;
   }
+
+  /**
+   * {@link RobotRulesParser} implementation which expects the location of the
+   * robots.txt passed by URL (usually pointing to a local file) in
+   * {@link getRobotRulesSet}.
+   */
+  private static class TestRobotRulesParser extends RobotRulesParser {
+
+    public TestRobotRulesParser(Configuration conf) {
+      // make sure that agent name is set so that setConf() does not complain,
+      // the agent name is later overwritten by command-line argument
+      if (conf.get("http.agent.name") == null) {
+        conf.set("http.agent.name", "*");
+      }
+      setConf(conf);
+    }
+
+    /**
+     * @param protocol  (ignored)
+     * @param url
+     *          location of the robots.txt file
+     * */
+    public BaseRobotRules getRobotRulesSet(Protocol protocol, URL url) {
+      BaseRobotRules rules;
+      try {
+        int contentLength = url.openConnection().getContentLength();
+        byte[] robotsBytes = new byte[contentLength];
+        InputStream openStream = url.openStream();
+        openStream.read(robotsBytes);
+        openStream.close();
+        rules = robotParser.parseContent(url.toString(), robotsBytes,
+            "text/plain", this.conf.get("http.agent.name"));
+      } catch (IOException e) {
+        LOG.error("Failed to open robots.txt file " + url
+            + StringUtils.stringifyException(e));
+        rules = EMPTY_RULES;
+      }
+      return rules;
+    }
+
+  }
+
+  public static void main(String[] args) throws Exception {
+    Configuration conf = NutchConfiguration.create();
+    int res = ToolRunner.run(conf, new TestRobotRulesParser(conf), args);
+    System.exit(res);
+  }
+
 }

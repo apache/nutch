@@ -29,7 +29,6 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.RobotRulesParser;
 
 import crawlercommons.robots.BaseRobotRules;
-import crawlercommons.robots.SimpleRobotRules;
 
 /**
  * This class is used for parsing robots for urls belonging to HTTP protocol. It
@@ -87,16 +86,31 @@ public class HttpRobotRulesParser extends RobotRulesParser {
    */
   public BaseRobotRules getRobotRulesSet(Protocol http, URL url) {
 
+    if (LOG.isTraceEnabled() && isWhiteListed(url)) {
+      LOG.trace("Ignoring robots.txt (host is whitelisted) for URL: {}", url);
+    }
+
     String cacheKey = getCacheKey(url);
-    BaseRobotRules robotRules = (SimpleRobotRules) CACHE.get(cacheKey);
+    BaseRobotRules robotRules = CACHE.get(cacheKey);
+
+    if (robotRules != null) {
+      return robotRules; // cached rule
+    } else if (LOG.isTraceEnabled()) {
+      LOG.trace("cache miss " + url);
+    }
 
     boolean cacheRule = true;
+    URL redir = null;
 
-    if (robotRules == null) { // cache miss
-      URL redir = null;
-      if (LOG.isTraceEnabled()) {
-        LOG.trace("cache miss " + url);
-      }
+    if (isWhiteListed(url)) {
+      // check in advance whether a host is whitelisted
+      // (we do not need to fetch robots.txt)
+      robotRules = EMPTY_RULES;
+      LOG.info("Whitelisted host found for: {}", url);
+      LOG.info("Ignoring robots.txt for all URLs from whitelisted host: {}",
+          url.getHost());
+
+    } else {
       try {
         Response response = ((HttpBase) http).getResponse(new URL(url,
             "/robots.txt"), new CrawlDatum(), true);
@@ -127,7 +141,7 @@ public class HttpRobotRulesParser extends RobotRulesParser {
         else if ((response.getCode() == 403) && (!allowForbidden))
           robotRules = FORBID_ALL_RULES; // use forbid all
         else if (response.getCode() >= 500) {
-          cacheRule = false;
+          cacheRule = false; // try again later to fetch robots.txt
           robotRules = EMPTY_RULES;
         } else
           robotRules = EMPTY_RULES; // use default rules
@@ -135,18 +149,19 @@ public class HttpRobotRulesParser extends RobotRulesParser {
         if (LOG.isInfoEnabled()) {
           LOG.info("Couldn't get robots.txt for " + url + ": " + t.toString());
         }
-        cacheRule = false;
+        cacheRule = false; // try again later to fetch robots.txt
         robotRules = EMPTY_RULES;
       }
+    }
 
-      if (cacheRule) {
-        CACHE.put(cacheKey, robotRules); // cache rules for host
-        if (redir != null && !redir.getHost().equalsIgnoreCase(url.getHost())) {
-          // cache also for the redirected host
-          CACHE.put(getCacheKey(redir), robotRules);
-        }
+    if (cacheRule) {
+      CACHE.put(cacheKey, robotRules); // cache rules for host
+      if (redir != null && !redir.getHost().equalsIgnoreCase(url.getHost())) {
+        // cache also for the redirected host
+        CACHE.put(getCacheKey(redir), robotRules);
       }
     }
+
     return robotRules;
   }
 }
