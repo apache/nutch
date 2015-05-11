@@ -101,20 +101,16 @@ public class TestCommonCrawlDataDumper {
 
 		CommonCrawlDataDumper dumper = new CommonCrawlDataDumper(
 				new CommonCrawlConfig());
-		dumper.dump(tempDir, sampleSegmentDir, false, null, false);
+		dumper.dump(tempDir, sampleSegmentDir, false, null, false, "");
 
 		Collection<File> tempFiles = FileUtils.listFiles(tempDir,
 				FileFilterUtils.fileFileFilter(),
 				FileFilterUtils.directoryFileFilter());
 
-		boolean hasAll = true;
 		for (String expectedFileName : crawledFiles) {
-			if (!hasFile(expectedFileName, tempFiles)) {
-				hasAll = false;
-				break;
-			}
+		  assertTrue("Missed file " + expectedFileName + " in dump", 
+		      hasFile(expectedFileName, tempFiles));
 		}
-		assertTrue(hasAll);
 
 	}
 

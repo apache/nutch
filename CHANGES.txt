@@ -2,7 +2,7 @@ Nutch Change Log
  
 Nutch Current Development 1.11-SNAPSHOT
 
-* NUTCH-1988 Add support for user-defined file extension to CommonCrawlDataDumper (totaro via mattmann)
+* NUTCH-1998 Add support for user-defined file extension to CommonCrawlDataDumper (totaro via mattmann)
 
 * NUTCH-1873 Solr IndexWriter/Job to report number of docs indexed. (snagel via lewismc)
  
@@ -53,8 +53,6 @@ Release Report: http://s.apache.org/nutch10
 * NUTCH-1854 bin/crawl fails with a parsing fetcher (Asitang Mishra via snagel)
 
 * NUTCH-1989 Handling invalid URLs in CommonCrawlDataDumper (Giuseppe Totaro via mattmann)
-
-* NUTCH-1988 Make nested output directory dump optional (Michael Joyce via mattmann)
 
 * NUTCH-1927 Create a whitelist of IPs/hostnames to allow skipping of RobotRules parsing (mattmann, snagel)
 
