@@ -77,6 +77,10 @@ public class IndexerMapReduce extends Configured implements
   private URLNormalizers urlNormalizers;
   private URLFilters urlFilters;
 
+  /** Predefined action to delete documents from the index */
+  private static final NutchIndexAction DELETE_ACTION = new NutchIndexAction(
+      null, NutchIndexAction.DELETE);
+
   public void configure(JobConf job) {
     setConf(job);
     this.filters = new IndexingFilters(getConf());
@@ -206,9 +210,7 @@ public class IndexerMapReduce extends Configured implements
           if (robotsMeta != null
               && robotsMeta.toLowerCase().indexOf("noindex") != -1) {
             // Delete it!
-            NutchIndexAction action = new NutchIndexAction(null,
-                NutchIndexAction.DELETE);
-            output.collect(key, action);
+            output.collect(key, DELETE_ACTION);
             reporter.incrCounter("IndexerStatus", "deleted (robots=noindex)", 1);
             return;
           }
@@ -225,10 +227,7 @@ public class IndexerMapReduce extends Configured implements
       if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE
           || dbDatum.getStatus() == CrawlDatum.STATUS_DB_GONE) {
         reporter.incrCounter("IndexerStatus", "deleted (gone)", 1);
-
-        NutchIndexAction action = new NutchIndexAction(null,
-            NutchIndexAction.DELETE);
-        output.collect(key, action);
+        output.collect(key, DELETE_ACTION);
         return;
       }
 
@@ -237,10 +236,7 @@ public class IndexerMapReduce extends Configured implements
           || dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM
           || dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
         reporter.incrCounter("IndexerStatus", "deleted redirects", 1);
-
-        NutchIndexAction action = new NutchIndexAction(null,
-            NutchIndexAction.DELETE);
-        output.collect(key, action);
+        output.collect(key, DELETE_ACTION);
         return;
       }
     }
@@ -253,9 +249,7 @@ public class IndexerMapReduce extends Configured implements
     // Whether to delete pages marked as duplicates
     if (delete && dbDatum.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
       reporter.incrCounter("IndexerStatus", "deleted duplicates", 1);
-      NutchIndexAction action = new NutchIndexAction(null,
-          NutchIndexAction.DELETE);
-      output.collect(key, action);
+      output.collect(key, DELETE_ACTION);
       return;
     }
 
