@@ -2,6 +2,8 @@ Nutch Change Log
  
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2006 IndexingFiltersChecker to take custom metadata as input (jnioche)
+
 * NUTCH-2008 IndexerMapReduce to use single instance of NutchIndexAction for deletions (snagel)
 
 * NUTCH-1998 Add support for user-defined file extension to CommonCrawlDataDumper (totaro via mattmann)
