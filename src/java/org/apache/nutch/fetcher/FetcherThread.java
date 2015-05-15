@@ -123,6 +123,9 @@ public class FetcherThread extends Thread {
   private AtomicInteger pages;
 
   private AtomicLong bytes;
+  
+  //Used by the REST service
+  private FetchNode fetchNode;
 
   public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues, 
       QueueFeeder feeder, AtomicInteger spinWaiting, AtomicLong lastRequestStart, Reporter reporter,
@@ -188,6 +191,9 @@ public class FetcherThread extends Thread {
     try {
 
       while (true) {
+        // creating FetchNode for storing in FetchNodeDb
+        this.fetchNode = new FetchNode();
+        
         // check whether must be stopped
         if (isHalted()) {
           LOG.debug(getName() + " set to halted");
@@ -282,6 +288,11 @@ public class FetcherThread extends Thread {
             ((FetchItemQueues) fetchQueues).finishFetchItem(fit);
 
             String urlString = fit.url.toString();
+            
+            //used for FetchNode
+            fetchNode.setStatus(status.getCode());
+            fetchNode.setFetchTime(System.currentTimeMillis());
+            fetchNode.setUrl(fit.url);
 
             reporter.incrCounter("FetcherStatus", status.getName(), 1);
 
@@ -608,7 +619,12 @@ public class FetcherThread extends Thread {
           } else {
             fromHost = null;
           }
-
+          
+          //used by fetchNode            
+          fetchNode.setOutlinks(links);
+          fetchNode.setTitle(parseData.getTitle());
+          FetchNodeDb.getInstance().put(fetchNode.getUrl().toString(), fetchNode);
+          
           int validCount = 0;
 
           // Process all outlinks, normalize, filter and deduplicate
