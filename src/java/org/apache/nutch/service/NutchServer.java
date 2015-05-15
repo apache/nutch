@@ -24,6 +24,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
@@ -36,6 +37,7 @@ import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
+import org.apache.nutch.fetcher.FetchNodeDb;
 import org.apache.nutch.service.impl.ConfManagerImpl;
 import org.apache.nutch.service.impl.JobFactory;
 import org.apache.nutch.service.impl.JobManagerImpl;
@@ -69,6 +71,8 @@ public class NutchServer {
   private JobManager jobManager;
   private JAXRSServerFactoryBean sf; 
 
+  private static FetchNodeDb fetchNodeDb;
+  
   private static NutchServer server;
 
   static {
@@ -80,6 +84,7 @@ public class NutchServer {
     BlockingQueue<Runnable> runnables = Queues.newArrayBlockingQueue(JOB_CAPACITY);
     NutchServerPoolExecutor executor = new NutchServerPoolExecutor(10, JOB_CAPACITY, 1, TimeUnit.HOURS, runnables);
     jobManager = new JobManagerImpl(new JobFactory(), configManager, executor);
+    fetchNodeDb = FetchNodeDb.getInstance();
 
     sf = new JAXRSServerFactoryBean();
     BindingFactoryManager manager = sf.getBus().getExtension(BindingFactoryManager.class);
@@ -139,6 +144,10 @@ public class NutchServer {
     return jobManager;
   }
 
+  public FetchNodeDb getFetchNodeDb(){
+    return fetchNodeDb;
+  }
+  
   public boolean isRunning(){
     return running;
   }

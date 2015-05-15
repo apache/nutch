@@ -17,18 +17,26 @@
 package org.apache.nutch.service.resources;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDbReader;
+import org.apache.nutch.fetcher.FetchNode;
+import org.apache.nutch.fetcher.FetchNodeDb;
 import org.apache.nutch.service.model.request.DbQuery;
+import org.apache.nutch.service.model.response.FetchNodeDbInfo;
 
 @Path(value = "/db")
 public class DbResource extends AbstractResource {
@@ -55,7 +63,31 @@ public class DbResource extends AbstractResource {
     return null;
 
   }	
-
+  
+  @GET
+  @Path(value="/fetchdb")
+  public List<FetchNodeDbInfo> fetchDb(@DefaultValue("0")@QueryParam("to")int to, @DefaultValue("0")@QueryParam("from")int from){
+    List<FetchNodeDbInfo> listOfFetchedNodes = new ArrayList<FetchNodeDbInfo>();
+    Map<Integer, FetchNode> fetchNodedbMap = FetchNodeDb.getInstance().getFetchNodeDb();
+    
+    if(to ==0 || to>fetchNodedbMap.size()){
+      to = fetchNodedbMap.size();
+    }
+    for(int i=from;i<=to;i++){
+      if(!fetchNodedbMap.containsKey(i)){
+        continue;
+      }
+      FetchNode node = fetchNodedbMap.get(i);
+      FetchNodeDbInfo fdbInfo = new FetchNodeDbInfo();
+      fdbInfo.setUrl(node.getUrl().toString());
+      fdbInfo.setStatus(node.getStatus());
+      fdbInfo.setNumOfOutlinks(node.getOutlinks().length);
+      fdbInfo.setChildNodes(node.getOutlinks());
+      listOfFetchedNodes.add(fdbInfo);
+    }
+    
+    return listOfFetchedNodes;
+  }
   @SuppressWarnings("resource")
   private Response crawlDbStats(Configuration conf, Map<String, String> args, String crawlId){
     CrawlDbReader dbr = new CrawlDbReader();
