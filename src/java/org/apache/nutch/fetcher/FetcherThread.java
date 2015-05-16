@@ -57,6 +57,7 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
@@ -192,7 +193,8 @@ public class FetcherThread extends Thread {
 
       while (true) {
         // creating FetchNode for storing in FetchNodeDb
-        this.fetchNode = new FetchNode();
+        if(NutchServer.getInstance().isRunning())
+          this.fetchNode = new FetchNode();
         
         // check whether must be stopped
         if (isHalted()) {
@@ -290,9 +292,11 @@ public class FetcherThread extends Thread {
             String urlString = fit.url.toString();
             
             //used for FetchNode
-            fetchNode.setStatus(status.getCode());
-            fetchNode.setFetchTime(System.currentTimeMillis());
-            fetchNode.setUrl(fit.url);
+            if(fetchNode!=null){
+              fetchNode.setStatus(status.getCode());
+              fetchNode.setFetchTime(System.currentTimeMillis());
+              fetchNode.setUrl(fit.url);
+            }
 
             reporter.incrCounter("FetcherStatus", status.getName(), 1);
 
@@ -620,11 +624,12 @@ public class FetcherThread extends Thread {
             fromHost = null;
           }
           
-          //used by fetchNode            
-          fetchNode.setOutlinks(links);
-          fetchNode.setTitle(parseData.getTitle());
-          FetchNodeDb.getInstance().put(fetchNode.getUrl().toString(), fetchNode);
-          
+          //used by fetchNode         
+          if(fetchNode!=null){
+            fetchNode.setOutlinks(links);
+            fetchNode.setTitle(parseData.getTitle());
+            FetchNodeDb.getInstance().put(fetchNode.getUrl().toString(), fetchNode);
+          }
           int validCount = 0;
 
           // Process all outlinks, normalize, filter and deduplicate
