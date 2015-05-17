@@ -113,6 +113,19 @@ public class SegmentChecker {
 
       return false;
     }
+
+  }
+
+  /**
+   * Check the segment to see if it is has been parsed before.
+   */
+  public static boolean isParsed(Path segment, FileSystem fs)
+      throws IOException {
+
+      if (fs.exists(new Path(segment, CrawlDatum.PARSE_DIR_NAME))){
+	return true;
+      }
+      return false;
   }
 
 }
