@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2014 Fetcher hang-up on completion (snagel)
+
 * NUTCH-2011 Endpoint to support realtime JSON output from the fetcher (Sujen Shah via mattmann)
 
 * NUTCH-2006 IndexingFiltersChecker to take custom metadata as input (jnioche)

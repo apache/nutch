@@ -214,7 +214,7 @@ public class Fetcher extends NutchTool implements Tool,
 
     for (int i = 0; i < threadCount; i++) { // spawn threads
       FetcherThread t = new FetcherThread(getConf(), getActiveThreads(), fetchQueues, 
-          feeder, spinWaiting, lastRequestStart, reporter, activeThreads, segmentName,
+          feeder, spinWaiting, lastRequestStart, reporter, errors, segmentName,
           parsing, output, storingContent, pages, bytes);
       fetcherThreads.add(t);
       t.start();
