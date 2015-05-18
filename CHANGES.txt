@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2013 Fetcher: missing logs "fetching ..." on stdout (snagel)
+
 * NUTCH-2014 Fetcher hang-up on completion (snagel)
 
 * NUTCH-2011 Endpoint to support realtime JSON output from the fetcher (Sujen Shah via mattmann)
