@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+    <property>
+        <name>http.agent.name</name>
+        <value>Mozilla/5.0</value>
+    </property>
+    <property>
+        <name>http.robots.agents</name>
+        <value>Mozilla/5.0,*</value>
+    </property>
+    <property>
+        <name>http.agent.description</name>
+        <value>Mozilla/5</value>
+    </property>
+    <property>
+        <name>http.agent.version</name>
+        <value>0.0.1</value>
+    </property>
+    <property>
+        <name>http.agent.url</name>
+        <value>http://www.google.com</value>
+    </property>
+    <property>
+        <name>http.agent.email</name>
+        <value>mo.meabed@gmail.com</value>
+    </property>
+    <property>
+        <name>http.content.limit</name>
+        <value>1000000</value>
+    </property>
+    <property>
+        <name>storage.data.store.class</name>
+        <value>org.apache.gora.cassandra.store.CassandraStore</value>
+        <description>Default class for storing data</description>
+    </property>
+    <property>
+        <name>fetcher.server.delay</name>
+        <value>2.0</value>
+        <description>The number of seconds the fetcher will delay between
+            successive requests to the same server.
+        </description>
+    </property>
+    <property>
+        <name>indexer.max.title.length</name>
+        <value>300</value>
+        <description>The maximum number of characters of a title that are indexed. A value of -1 disables this check.
+            Used by index-basic.
+        </description>
+    </property>
+    <property>
+        <name>db.ignore.external.links</name>
+        <value>true</value>
+        <description>If true, outlinks leading from a page to external hosts
+            will be ignored. This is an effective way to limit the crawl to include
+            only initially injected hosts, without creating complex URLFilters.
+        </description>
+    </property>
+    <property>
+        <name>fetcher.parse</name>
+        <value>true</value>
+        <description>If true, fetcher will parse content. NOTE: previous releases would
+            default to true. Since 2.0 this is set to false as a safer default.
+        </description>
+    </property>
+    <property>
+        <name>plugin.includes</name>
+        <value>protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor|more|html)|urlnormalizer-(pass|regex|basic)|scoring-opic|protocol-httpclient|language-identifier|indexer-solr</value>
+        <description>Regular expression naming plugin directory names to
+            include. Any plugin not matching this expression is excluded.
+            In any case you need at least include the nutch-extensionpoints plugin. By
+            default Nutch includes crawling just HTML and plain text via HTTP,
+            and basic indexing and search plugins. In order to use HTTPS please enable
+            protocol-httpclient, but be aware of possible intermittent problems with the
+            underlying commons-httpclient library.
+        </description>
+    </property>
+</configuration>
