@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.4-SNAPSHOT
 
+* NUTCH-1923 Nutch + Cassandra Docker (Mohamed Meabed via lewismc)
+
 * NUTCH-1994 Upgrade to Apache Tika 1.8 (lewismc)
 
 * NUTCH-1990 Use URI.normalise() in BasicURLNormalizer (snagel, jnioche)
