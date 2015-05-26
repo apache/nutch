@@ -170,7 +170,12 @@ public class GeneratorJob extends NutchTool implements Tool {
     }
 
     // map to inverted subset due for fetch, sort by score
-    Long topN = (Long) args.get(Nutch.ARG_TOPN);
+    Long topN = null;
+    try {
+      topN = (Long) args.get(Nutch.ARG_TOPN);
+    } catch(Exception e) {
+      topN = Long.parseLong(args.get(Nutch.ARG_TOPN).toString());
+    }
     Long curTime = (Long) args.get(Nutch.ARG_CURTIME);
     if (curTime == null) {
       curTime = System.currentTimeMillis();

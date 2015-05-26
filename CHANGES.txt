@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.4-SNAPSHOT
 
+* NUTCH-2019 ClassPathException sending topN argument for /job/create using Nutch 2.x RESTApi (Alex Koh, lewismc)
+
 * NUTCH-1923 Nutch + Cassandra Docker (Mohamed Meabed via lewismc)
 
 * NUTCH-1994 Upgrade to Apache Tika 1.8 (lewismc)
