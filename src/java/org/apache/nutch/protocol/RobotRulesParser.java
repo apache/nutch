@@ -129,18 +129,22 @@ public abstract class RobotRulesParser implements Tool {
     }
 
     String[] confWhiteList = conf.getStrings("http.robot.rules.whitelist");
-
-    for (int i = 0; i < confWhiteList.length; i++) {
-      if (confWhiteList[i].isEmpty()) {
-    	  LOG.info("Empty whitelisted URL skipped!");
-    	  continue;
-      }
-      whiteList.add(confWhiteList[i]);
+    if (confWhiteList == null) {
+      LOG.info("robots.txt whitelist not configured.");
     }
-    
-    if (whiteList.size() > 0) {
-      matcher = new SuffixStringMatcher(whiteList);
-      LOG.info("Whitelisted hosts: " + whiteList);
+    else {
+      for (int i = 0; i < confWhiteList.length; i++) {
+        if (confWhiteList[i].isEmpty()) {
+      	  LOG.info("Empty whitelisted URL skipped!");
+      	  continue;
+        }
+        whiteList.add(confWhiteList[i]);
+      }
+      
+      if (whiteList.size() > 0) {
+        matcher = new SuffixStringMatcher(whiteList);
+        LOG.info("Whitelisted hosts: " + whiteList);
+      }
     }
   }
 

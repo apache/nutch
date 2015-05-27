@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-1995 Add support for wildcard to http.robot.rules.whitelist
+
 * NUTCH-2013 Fetcher: missing logs "fetching ..." on stdout (snagel)
 
 * NUTCH-2014 Fetcher hang-up on completion (snagel)
