@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -67,6 +68,9 @@ public abstract class HttpBase implements Protocol {
 
   /** The proxy port. */
   protected int proxyPort = 8080;
+  
+  /** The proxy exception list. */
+  protected HashMap proxyException = new HashMap(); 
 
   /** Indicates if a proxy is used */
   protected boolean useProxy = false;
@@ -135,6 +139,7 @@ public abstract class HttpBase implements Protocol {
     this.conf = conf;
     this.proxyHost = conf.get("http.proxy.host");
     this.proxyPort = conf.getInt("http.proxy.port", 8080);
+    this.proxyException = arrayToMap(conf.getStrings("http.proxy.exception.list"));
     this.useProxy = (proxyHost != null && proxyHost.length() > 0);
     this.timeout = conf.getInt("http.timeout", 10000);
     this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
@@ -340,7 +345,12 @@ public abstract class HttpBase implements Protocol {
     return proxyPort;
   }
 
-  public boolean useProxy() {
+  public boolean useProxy(URL url) {
+    if (!useProxy){
+      return false;
+    } else if (proxyException.get(url.getHost())!=null){
+      return false;
+    }
     return useProxy;
   }
 
@@ -434,6 +444,7 @@ public abstract class HttpBase implements Protocol {
     if (logger.isInfoEnabled()) {
       logger.info("http.proxy.host = " + proxyHost);
       logger.info("http.proxy.port = " + proxyPort);
+      logger.info("http.proxy.exception.list = " + useProxy);
       logger.info("http.timeout = " + timeout);
       logger.info("http.content.limit = " + maxContent);
       logger.info("http.agent = " + userAgent);
@@ -546,5 +557,23 @@ public abstract class HttpBase implements Protocol {
 
   public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
     return robots.getRobotRulesSet(this, url);
+  }
+  
+  /**
+   * Transforming a String[] into a HashMap for faster searching
+   * @param input String[]
+   * @return a new HashMap
+   */
+  private HashMap arrayToMap(String[]input){
+    if (input==null ||input.length==0) {
+      return new HashMap();
+    }
+    HashMap hm=new HashMap();
+    for (int i=0;i<input.length;i++){
+      if (!"".equals(input[i].trim())){
+        hm.put(input[i],input[i]);
+      }
+    }
+    return hm;
   }
 }
