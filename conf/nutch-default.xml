@@ -118,15 +118,6 @@
 </property>
 
 <property>
-   <name>http.robot.rules.whitelist</name> 	 
-   <value></value> 	 
-   <description>Comma separated list of hostnames or IP addresses to ignore 	 
-   robot rules parsing for. Use with care and only if you are explicitly 	 
-   allowed by the site owner to ignore the site's robots.txt! 	 
-   </description> 	 
-</property> 	 
-   	   	   	   	   	   	 	  	 
-<property>
   <name>http.robot.rules.whitelist</name>
   <value></value>
   <description>Comma separated list of hostnames or IP addresses to ignore 

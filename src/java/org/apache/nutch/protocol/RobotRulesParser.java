@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.LineNumberReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -42,6 +41,7 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.SuffixStringMatcher;
 
 import crawlercommons.robots.BaseRobotRules;
 import crawlercommons.robots.SimpleRobotRules;
@@ -62,7 +62,7 @@ public abstract class RobotRulesParser implements Tool {
       .getLogger(RobotRulesParser.class);
 
   protected static final Hashtable<String, BaseRobotRules> CACHE = new Hashtable<String, BaseRobotRules>();
-
+  
   /**
    * A {@link BaseRobotRules} object appropriate for use when the
    * {@code robots.txt} file is empty or missing; all requests are allowed.
@@ -83,8 +83,10 @@ public abstract class RobotRulesParser implements Tool {
   protected String agentNames;
 
   /** set of host names or IPs to be explicitly excluded from robots.txt checking */
-  protected Set<String> whiteList = new HashSet<String>();;
-
+  protected Set<String> whiteList = new HashSet<String>();
+  
+  /* Matcher user for efficiently matching URLs against a set of suffixes. */
+  private SuffixStringMatcher matcher = null;
 
   public RobotRulesParser() {
   }
@@ -127,8 +129,17 @@ public abstract class RobotRulesParser implements Tool {
     }
 
     String[] confWhiteList = conf.getStrings("http.robot.rules.whitelist");
-    if (confWhiteList != null && confWhiteList.length > 0) {
-      whiteList.addAll(Arrays.asList(confWhiteList));
+
+    for (int i = 0; i < confWhiteList.length; i++) {
+      if (confWhiteList[i].isEmpty()) {
+    	  LOG.info("Empty whitelisted URL skipped!");
+    	  continue;
+      }
+      whiteList.add(confWhiteList[i]);
+    }
+    
+    if (whiteList.size() > 0) {
+      matcher = new SuffixStringMatcher(whiteList);
       LOG.info("Whitelisted hosts: " + whiteList);
     }
   }
@@ -140,12 +151,18 @@ public abstract class RobotRulesParser implements Tool {
     return conf;
   }
 
-
   /**
    * Check whether a URL belongs to a whitelisted host.
    */
   public boolean isWhiteListed(URL url) {
-    return whiteList.contains(url.getHost());
+    boolean match = false;
+    String urlString = url.getHost();
+    
+    if (matcher != null) {
+    	match = matcher.matches(urlString);
+    }
+    
+    return match;
   }
 
   /**
