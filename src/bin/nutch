@@ -270,6 +270,11 @@ elif [ "$COMMAND" = "plugin" ] ; then
   CLASS=org.apache.nutch.plugin.PluginRepository
 elif [ "$COMMAND" = "junit" ] ; then
   CLASSPATH="$CLASSPATH:$NUTCH_HOME/test/classes/"
+  if $local; then
+    for f in "$NUTCH_HOME"/test/lib/*.jar; do
+      CLASSPATH="${CLASSPATH}:$f";
+    done
+  fi
   CLASS=org.junit.runner.JUnitCore
 elif [ "$COMMAND" = "startserver" ] ; then
   CLASS=org.apache.nutch.service.NutchServer

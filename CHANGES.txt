@@ -2,7 +2,9 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
-* NUTCH-1995 Add support for wildcard to http.robot.rules.whitelist
+* NUTCH-2007 add test libs to classpath of bin/nutch junit (snagel)
+
+* NUTCH-1995 Add support for wildcard to http.robot.rules.whitelist (totaro)
 
 * NUTCH-2013 Fetcher: missing logs "fetching ..." on stdout (snagel)
 
