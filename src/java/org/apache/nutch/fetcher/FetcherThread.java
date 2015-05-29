@@ -127,6 +127,7 @@ public class FetcherThread extends Thread {
   
   //Used by the REST service
   private FetchNode fetchNode;
+  private boolean reportToNutchServer; 
 
   public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues, 
       QueueFeeder feeder, AtomicInteger spinWaiting, AtomicLong lastRequestStart, Reporter reporter,
@@ -193,8 +194,11 @@ public class FetcherThread extends Thread {
 
       while (true) {
         // creating FetchNode for storing in FetchNodeDb
-        if(NutchServer.getInstance().isRunning())
+        //checking for the server to be running and fetcher.parse to be true
+        if(parsing && NutchServer.getInstance().isRunning())
           this.fetchNode = new FetchNode();
+        else
+          this.fetchNode = null;
         
         // check whether must be stopped
         if (isHalted()) {
