@@ -191,11 +191,13 @@ public class FetcherThread extends Thread {
 
     FetchItem fit = null;
     try {
-
+      //checking for the server to be running and fetcher.parse to be true
+      if(parsing && NutchServer.getInstance().isRunning())
+        reportToNutchServer = true;
+      
       while (true) {
-        // creating FetchNode for storing in FetchNodeDb
-        //checking for the server to be running and fetcher.parse to be true
-        if(parsing && NutchServer.getInstance().isRunning())
+        // creating FetchNode for storing in FetchNodeDb        
+        if(reportToNutchServer)
           this.fetchNode = new FetchNode();
         else
           this.fetchNode = null;
