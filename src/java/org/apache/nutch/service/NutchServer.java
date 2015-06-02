@@ -200,11 +200,11 @@ public class NutchServer {
 
     return options;
   }
-  
+
   public boolean canStop(boolean force){
     if(force)
       return true;
-    
+
     Collection<JobInfo> jobs = getJobManager().list(null, State.RUNNING);
     return jobs.isEmpty();
   }
