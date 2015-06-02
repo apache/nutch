@@ -19,6 +19,7 @@ package org.apache.nutch.service;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +43,9 @@ import org.apache.nutch.service.impl.ConfManagerImpl;
 import org.apache.nutch.service.impl.JobFactory;
 import org.apache.nutch.service.impl.JobManagerImpl;
 import org.apache.nutch.service.impl.NutchServerPoolExecutor;
+import org.apache.nutch.service.model.response.JobInfo;
+import org.apache.nutch.service.model.response.JobInfo.State;
+import org.apache.nutch.service.resources.AdminResource;
 import org.apache.nutch.service.resources.ConfigResource;
 import org.apache.nutch.service.resources.DbResource;
 import org.apache.nutch.service.resources.JobResource;
@@ -127,6 +131,7 @@ public class NutchServer {
     resources.add(JobResource.class);
     resources.add(ConfigResource.class);
     resources.add(DbResource.class);
+    resources.add(AdminResource.class);
     return resources;
   }
 
@@ -195,5 +200,20 @@ public class NutchServer {
 
     return options;
   }
+  
+  public boolean canStop(boolean force){
+    if(force)
+      return true;
+    
+    Collection<JobInfo> jobs = getJobManager().list(null, State.RUNNING);
+    return jobs.isEmpty();
+  }
 
+  public int getPort() {
+    return port;
+  }
+
+  public void stop() {
+    System.exit(0);
+  }
 }
