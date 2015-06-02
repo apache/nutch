@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2015 Make FetchNodeDb optional (off by default) if NutchServer is not used (Sujen Shah via mattmann)
+
 * NUTCH-208 http: proxy exception list: (Matthias Günter, siren, markus, lewismc)
 
 * NUTCH-2007 add test libs to classpath of bin/nutch junit (snagel)
