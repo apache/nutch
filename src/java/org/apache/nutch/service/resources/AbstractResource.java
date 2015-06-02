@@ -32,7 +32,7 @@ public abstract class AbstractResource {
   protected JobManager jobManager;
   protected ConfManager configManager;
   protected NutchServer server;
-  
+
   public AbstractResource() {
     server = NutchServer.getInstance();
     configManager = NutchServer.getInstance().getConfManager();
