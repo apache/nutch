@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2027 seed list REST endpoint for Nutch 1.10 (Asitang Mishra via mattmann)
+
 * NUTCH-2031 Create Admin End point for Nutch 1.x REST service (Sujen Shah via mattmann)
 
 * NUTCH-2015 Make FetchNodeDb optional (off by default) if NutchServer is not used (Sujen Shah via mattmann)
