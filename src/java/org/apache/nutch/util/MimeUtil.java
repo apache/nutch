@@ -77,11 +77,10 @@ public final class MimeUtil {
     if (mimeTypez == null) {
       try {
         String customMimeTypeFile = conf.get("mime.types.file");
-        LOG.warn(">>"+customMimeTypeFile);
         if (customMimeTypeFile != null
             && customMimeTypeFile.equals("") == false) {
           try {
-            LOG.warn(customMimeTypeFile);
+            LOG.info("Using custom mime.types.file: {}", customMimeTypeFile);
             mimeTypez = MimeTypesFactory.create(conf
                 .getConfResourceAsInputStream(customMimeTypeFile));
           } catch (Exception e) {
