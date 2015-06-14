@@ -83,8 +83,17 @@ public class SimilarityScoringFilter implements ScoringFilter {
       LOG.info("Calculating similarity between golddoc and {}",url);
       double metaKeywordSimilarity = cs.calculateCosineSimilarity(goldStandard, parse.getData().getParseMeta().get("metatag.keyword"));
       double metaDescriptionSimilarity = cs.calculateCosineSimilarity(goldStandard, parse.getData().getParseMeta().get("metatag.description"));
+      int count = 0;
+      if(parseTextSimilarity!=0)
+        count++;
+      if(metaDescriptionSimilarity!=0)
+        count++;
+      if(metaKeywordSimilarity!=0)
+        count++;
+      if(count==0)
+        count++;
       
-      double score =  parseTextSimilarity+metaDescriptionSimilarity + metaKeywordSimilarity;
+      double score =  (parseTextSimilarity+metaDescriptionSimilarity + metaKeywordSimilarity)/count;
       System.out.println("Score of the url " + url + " is : " + score);
       LOG.info("Setting score of {} to {}",url, score);
       LOG.info("Score break down TextSimilarity : {}, metaKeywordSimilarity : {}, metaDescriptionSimilarity : {}",
