@@ -56,7 +56,7 @@ public class DocumentVector {
   }
   
   private void removeStopWords(){
-    File stopWordFile = new File("/Users/shah/Desktop/nutch/runtime/local/stopword.txt");
+    File stopWordFile = new File("stopword.txt");
     try {
       String[] stopWordList1 = FileUtils.readFileToString(stopWordFile).split("\n");
       for(String stopWord: stopWordList1){
