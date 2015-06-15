@@ -16,22 +16,23 @@
  */
 package org.apache.nutch.scoring.similarity;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.conf.Configuration;
 
 public class DocumentVector {
 
   Map<String, Integer> termFreqVect;
 
-  public DocumentVector(String text){
+  public DocumentVector(String text, Configuration conf){
     
     termFreqVect = new HashMap<String, Integer>();
     createDocVect(text);
-    removeStopWords();
+    removeStopWords(conf);
   }
   
   private void createDocVect(String text){
@@ -52,10 +53,11 @@ public class DocumentVector {
     return termFreqVect;
   }
   
-  private void removeStopWords(){
-    File stopWordFile = new File("stopword.txt");
+  private void removeStopWords(Configuration conf){
+    String stopWordFilePath = conf.get("scoring.similarity.stopword.file");
+    Reader reader = conf.getConfResourceAsReader(stopWordFilePath);
     try {
-      String[] stopWordList1 = FileUtils.readFileToString(stopWordFile).split("\n");
+      String[] stopWordList1 = IOUtils.toString(reader).split("\n");
       for(String stopWord: stopWordList1){
         stopWord = stopWord.trim();
         if(termFreqVect.containsKey(stopWord)){
