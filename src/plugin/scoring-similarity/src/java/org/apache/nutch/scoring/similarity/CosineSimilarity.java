@@ -18,12 +18,19 @@ package org.apache.nutch.scoring.similarity;
 
 import java.util.Map;
 
+import org.apache.hadoop.conf.Configuration;
+
 public class CosineSimilarity {
 
+  private Configuration conf;
+  
+  public CosineSimilarity(Configuration conf){
+    this.conf = conf;
+  }
   public double calculateCosineSimilarity(String goldStandard, String document2){
 
-    DocumentVector docVect1 = new DocumentVector(goldStandard);
-    DocumentVector docVect2 = new DocumentVector(document2);
+    DocumentVector docVect1 = new DocumentVector(goldStandard, conf);
+    DocumentVector docVect2 = new DocumentVector(document2, conf);
 
     double doc1Dist = getEuclideanDist(docVect1);
     double doc2Dist = getEuclideanDist(docVect2);
