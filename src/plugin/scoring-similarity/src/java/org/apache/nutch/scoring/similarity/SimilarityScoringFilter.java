@@ -110,7 +110,6 @@ public class SimilarityScoringFilter implements ScoringFilter {
         count++;
       
       double score =  (parseTextSimilarity+metaDescriptionSimilarity + metaKeywordSimilarity)/count;
-      System.out.println("Score of the url " + url + " is : " + score);
       LOG.info("Setting score of {} to {}",url, score);
       LOG.info("Score break down TextSimilarity : {}, metaKeywordSimilarity : {}, metaDescriptionSimilarity : {}",
           parseTextSimilarity, metaKeywordSimilarity, metaDescriptionSimilarity);

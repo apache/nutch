@@ -46,9 +46,6 @@ public class DocumentVector {
           termFreqVect.put(token, 1);
       }
     }
-    else
-      System.out.println("Text for creating doc is null");
-    
   }
   
   public Map<String, Integer> getTermFreqVect(){
