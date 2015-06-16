@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Parse;
@@ -105,6 +106,7 @@ public class CosineSimilarityModel implements SimilarityModel{
         LOG.info("Creating DocVector from path - {}",goldStandardDocPath);
       }
     } catch (IOException e) {
+      LOG.error("Failed to create Document vector : {}",StringUtils.stringifyException(e));
       e.printStackTrace();
     }    
   }
