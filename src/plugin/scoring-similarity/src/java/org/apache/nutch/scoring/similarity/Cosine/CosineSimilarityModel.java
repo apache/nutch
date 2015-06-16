@@ -96,7 +96,7 @@ public class CosineSimilarityModel implements SimilarityModel{
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
-    goldStandardDocPath = conf.get("similarity.model.path");
+    goldStandardDocPath = conf.get("scoring.similarity.model.path");
     Reader reader = conf.getConfResourceAsReader(goldStandardDocPath);
     try {
       String fileContent = IOUtils.toString(reader);
