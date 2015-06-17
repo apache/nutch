@@ -29,11 +29,12 @@ import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.*;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.hadoop.fs.FileSystem;
+
 import org.apache.nutch.util.*;
 import org.apache.hadoop.fs.Path;
 
@@ -56,6 +57,14 @@ public class ParseSegment extends NutchTool implements Tool,
   private ParseUtil parseUtil;
 
   private boolean skipTruncated;
+  
+  public static final String PARSER_MODELFILTER="parser.modelfilter";
+  public static final String TRAINFILE_MODELFILTER="parser.modelfilter.trainfile";
+  public static final String DICTFILE_MODELFILTER="parser.modelfilter.dictionaryfile";
+  
+  private boolean filterflag;
+  private URLFilters filters;
+  private ModelURLFilterAbstract filter;
 
   public ParseSegment() {
     this(null);
@@ -69,6 +78,18 @@ public class ParseSegment extends NutchTool implements Tool,
     setConf(job);
     this.scfilters = new ScoringFilters(job);
     skipTruncated = job.getBoolean(SKIP_TRUNCATED, true);
+    
+    filterflag = job.getBoolean(PARSER_MODELFILTER, true);
+    if(filterflag){
+    	String[] args=new String[2];
+    	args[0]=getConf().get(TRAINFILE_MODELFILTER);
+    	args[1]=getConf().get(DICTFILE_MODELFILTER);
+    	
+	filters = new URLFilters(job);
+	filter=(ModelURLFilterAbstract) filters.getFilter("org.apache.nutch.urlfilter.model.ModelURLFilter");
+	filter.configure(args);
+   
+  }
   }
 
   public void close() {
@@ -140,6 +161,29 @@ public class ParseSegment extends NutchTool implements Tool,
           LOG.warn("Error passing score: " + url + ": " + e.getMessage());
         }
       }
+      
+if(filterflag){
+          
+    	  
+    	  
+    	  filter.filterParse(parse.getText());
+    	  
+          ArrayList<Outlink> tempOutlinks= new ArrayList<Outlink>();
+          Outlink[] out=null;
+          for(int i=0;i<parse.getData().getOutlinks().length;i++){
+        	  
+          if(filter.filterUrl(parse.getData().getOutlinks()[i].getToUrl())){
+        	  tempOutlinks.add(parse.getData().getOutlinks()[i]);
+        			  
+          }
+          }
+          out=new Outlink[tempOutlinks.size()];
+          for(int i=0;i<tempOutlinks.size();i++){
+        	  out[i]=tempOutlinks.get(i);
+          }
+          
+          parse.getData().setOutlinks(out);
+          }
 
       long end = System.currentTimeMillis();
       LOG.info("Parsed (" + Long.toString(end - start) + "ms):" + url);
