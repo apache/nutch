@@ -41,4 +41,24 @@ public class URLFilters {
     }
     return urlString;
   }
+/**Get a filter with the full classname if only it is activated through the nutchsite.xml*/
+  public URLFilter getFilter(String pid) {
+
+    if (filter == null) {
+
+      for (int i = 0; i < this.filters.length; i++) {
+
+        if (filters[i].getClass().getName().equals(pid)) {
+
+          filter = filters[i];
+          break;
+        }
+
+      }
+
+    }
+    return filter;
+
+  }
+
 }
