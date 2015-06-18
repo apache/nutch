@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.scoring.similarity.Cosine;
+package org.apache.nutch.scoring.similarity.cosine;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -32,6 +32,8 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.similarity.SimilarityModel;
+import org.apache.nutch.scoring.similarity.Cosine.CosineSimilarityModel;
+import org.apache.nutch.scoring.similarity.Cosine.DocumentVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

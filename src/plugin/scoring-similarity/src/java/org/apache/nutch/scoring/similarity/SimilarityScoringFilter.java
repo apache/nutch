@@ -28,7 +28,7 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.AbstractScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
-import org.apache.nutch.scoring.similarity.Cosine.CosineSimilarityModel;
+import org.apache.nutch.scoring.similarity.cosine.CosineSimilarityModel;
 
 public class SimilarityScoringFilter extends AbstractScoringFilter {
 
