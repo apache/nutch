@@ -16,19 +16,17 @@
  */
 package org.apache.nutch.urlfilter.model;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.nutch.parse.ModelURLFilterAbstract;
 
 
 import java.io.Reader;
-
 import java.io.BufferedReader;
-
 import java.io.IOException;
-
 import java.util.ArrayList;
 
 /**
@@ -43,116 +41,116 @@ import java.util.ArrayList;
  */
 public class ModelURLFilter extends ModelURLFilterAbstract {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(ModelURLFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(ModelURLFilter.class);
 
-	private boolean relevent = false;
-	private Configuration conf;
-	private String inputFilePath;
-	private String dictionaryFile;
-	private ArrayList<String> wordlist = new ArrayList<String>();
+  private Configuration conf;
+  private String inputFilePath;
+  private String dictionaryFile;
+  private ArrayList<String> wordlist = new ArrayList<String>();
 
-	public ModelURLFilter() throws Exception {
+  public ModelURLFilter() throws Exception {
 
-	}
+  }
 
-	public void configure(String[] args) {
+  public void configure(String[] args) throws Exception {
 
-		inputFilePath = args[0];
-		dictionaryFile = args[1];
-		BufferedReader br = null;
+    inputFilePath = args[0];
+    dictionaryFile = args[1];
+    BufferedReader br = null;
 
-		try {
+    try {
 
-			String CurrentLine;
+      String CurrentLine;
 
-			Reader reader = conf.getConfResourceAsReader(dictionaryFile);
-			br = new BufferedReader(reader);
-			while ((CurrentLine = br.readLine()) != null) {
-				wordlist.add(CurrentLine);
-			}
+      Reader reader = conf.getConfResourceAsReader(dictionaryFile);
+      br = new BufferedReader(reader);
+      while ((CurrentLine = br.readLine()) != null) {
+        wordlist.add(CurrentLine);
+      }
 
-		} catch (IOException e) {
+    } catch (IOException e) {
+      LOG.error("Error occured while reading the wordlist");
+      throw new Exception("Error occured while reading the wordlist");
+    } finally {
+      try {
+        if (br != null)
+          br.close();
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
+    }
 
-			e.printStackTrace();
-		} finally {
-			try {
-				if (br != null)
-					br.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
+    try {
 
-		try {
+      train();
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      LOG.error("Error occured while training");
+      throw new Exception("Error occured while training");
+    }
+  }
 
-			train();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+  public boolean filterParse(String text) {
 
-	public void filterParse(String text) {
+    try {
+      return classify(text);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      LOG.error("Error occured while classifying:: " + text);
 
-		try {
-			relevent = classify(text);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    }
 
-	}
+    return false;
+  }
 
-	public boolean filterUrl(String url) {
+  public boolean filterUrl(String url) {
 
-		if (!relevent) {
-			if (!containsWord(url, wordlist)) {
-				return false;
-			}
-		}
+    return containsWord(url, wordlist);
 
-		return true;
-	}
+  }
 
-	public String filter(String url) {
+  public String filter(String url) {
 
-		return url;
+    return url;
 
-	}
+  }
 
-	public boolean classify(String text) throws IOException {
+  public boolean classify(String text) throws IOException {
 
-		// if classified as relevent "1" then return true
-		if (NBClassifier.classify(text).equals("1"))
-			return true;
-		return false;
-	}
+    // if classified as relevent "1" then return true
+    if (NaiveBayesClassifier.classify(text).equals("1"))
+      return true;
+    return false;
+  }
 
-	public void train() throws Exception {
+  public void train() throws Exception {
+    // check if the model file exists, if it does then don't train
+    if (!FileSystem.get(conf).exists(new Path("model"))) {
+      LOG.info("Training the Naive Bayes Model");
+      NaiveBayesClassifier.createModel(inputFilePath);
+    } else {
+      LOG.info("Model already exists. Skipping training.");
+    }
+  }
 
-		// check if the model file exists, if it does then don't train
-		NBClassifier.createModel(inputFilePath);
+  public boolean containsWord(String url, ArrayList<String> wordlist) {
+    for (String word : wordlist) {
+      if (url.contains(word)) {
+        return true;
+      }
+    }
 
-	}
+    return false;
+  }
 
-	public boolean containsWord(String url, ArrayList<String> wordlist) {
-		for (String word : wordlist) {
-			if (url.contains(word)) {
-				return true;
-			}
-		}
+  public void setConf(Configuration conf) {
+    this.conf = conf;
 
-		return false;
-	}
+  }
 
-	public void setConf(Configuration conf) {
-		this.conf = conf;
-
-	}
-
-	public Configuration getConf() {
-		return this.conf;
-	}
+  public Configuration getConf() {
+    return this.conf;
+  }
 
 }

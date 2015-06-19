@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -25,6 +25,7 @@ public class URLFilters {
 
   public static final String URLFILTER_ORDER = "urlfilter.order";
   private URLFilter[] filters;
+  private URLFilter filter=null;
 
   public URLFilters(Configuration conf) {
     this.filters = (URLFilter[]) PluginRepository.get(conf).getOrderedPlugins(
@@ -41,14 +42,18 @@ public class URLFilters {
     }
     return urlString;
   }
-/**Get a filter with the full classname if only it is activated through the nutchsite.xml*/
-  public URLFilter getFilter(String pid) {
+
+  /**
+   * Get a filter with the full classname if only it is activated through the
+   * nutch-site.xml
+   */
+  public URLFilter getFilter(String classname) {
 
     if (filter == null) {
 
       for (int i = 0; i < this.filters.length; i++) {
 
-        if (filters[i].getClass().getName().equals(pid)) {
+        if (filters[i].getClass().getName().equals(classname)) {
 
           filter = filters[i];
           break;

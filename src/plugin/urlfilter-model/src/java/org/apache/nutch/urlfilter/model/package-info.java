@@ -16,10 +16,12 @@
  */
 
 /**
- * URL filter plugin to include only URLs which match an element in a given list of
- * domain suffixes, domain names, and/or host names.
- * See {@link org.apache.nutch.urlfilter.domainblacklist} for the counterpart
- * (exclude URLs by host or domain).
+ * URL filter plugin with a two tier architecture for filtering:
+ * The filter is called from the parser and looks at the current page that was parsed.
+ * Does a Naive Bayes Classification on the text of the page and decides if it is relevant or not.
+ * If relevant then let all the outlinks pass, if not then the second check kicks in,
+ * which checks for some "hotwords" in the outlink urls itself (from a wordlist provided by the user).
+ * If a match then let the outlink pass).
  */
 package org.apache.nutch.urlfilter.model;
 
