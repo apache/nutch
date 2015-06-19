@@ -200,6 +200,7 @@
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
       <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
       <packageset dir="${plugins.dir}/scoring-depth/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-similarity/src/java"/>
       <packageset dir="${plugins.dir}/scoring-link/src/java"/>
       <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
       <packageset dir="${plugins.dir}/subcollection/src/java"/>
@@ -610,6 +611,7 @@
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
       <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
       <packageset dir="${plugins.dir}/scoring-depth/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-similarity/src/java"/>
       <packageset dir="${plugins.dir}/scoring-link/src/java"/>
       <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
       <packageset dir="${plugins.dir}/subcollection/src/java"/>
@@ -1019,6 +1021,7 @@
         <source path="${plugins.dir}/protocol-selenium/src/java"/>
         <source path="${plugins.dir}/protocol-selenium/src/test"/>
         <source path="${plugins.dir}/scoring-depth/src/java/" />
+        <source path="${plugins.dir}/scoring-similarity/src/java/" />
         <source path="${plugins.dir}/scoring-link/src/java/" />
         <source path="${plugins.dir}/scoring-opic/src/java/" />
         <source path="${plugins.dir}/subcollection/src/java/" />
