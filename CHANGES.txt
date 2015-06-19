@@ -2,7 +2,7 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
-* NUTCH-2039 Relevance based scoring filter (Sujen Shah via mattmann)
+* NUTCH-2039 Relevance based scoring filter (Sujen Shah, lewismc via mattmann)
 
 * NUTCH-2037 Job endpoint to support Indexing from the REST API (Sujen Shah via mattmann)
 
