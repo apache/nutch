@@ -1259,6 +1259,34 @@
 <!-- urlfilter plugin properties -->
 
 <property>
+  <name>urlfilter.model.trainfile</name>
+  <value></value>
+  <description>Set the name of the file to be used for Naive Bayes training. The format will be: 
+Each line contains two tab seperted parts
+There are two columns/parts:
+1. "1" or "0", "1" for relevent and "0" for irrelevent document.
+3. Text (text that will be used for training)
+
+Each row will be considered a new "document" for the classifier.
+
+  </description>
+</property>
+
+<property>
+  <name>urlfilter.model.wordlist</name>
+  <value></value>
+  <description>Put the name of the file you want to be used as a list of "hot words" to be matched in the url for the model filter. The format should be one word per line.
+  </description>
+</property>
+
+<property>
+  <name>urlfilter.model.filter</name>
+  <value>false</value>
+  <description>A boolean. Set it to true if using the model filter.
+  </description>
+</property>
+
+<property>
   <name>urlfilter.domain.file</name>
   <value>domain-urlfilter.txt</value>
   <description>Name of file on CLASSPATH containing either top level domains or
