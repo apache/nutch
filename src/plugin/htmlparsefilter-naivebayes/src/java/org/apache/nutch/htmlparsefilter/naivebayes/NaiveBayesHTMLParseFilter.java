@@ -48,167 +48,152 @@ import java.util.ArrayList;
  */
 public class NaiveBayesHTMLParseFilter implements HtmlParseFilter {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(NaiveBayesHTMLParseFilter.class);
+	private static final Logger LOG = LoggerFactory
+			.getLogger(NaiveBayesHTMLParseFilter.class);
 
-  public static final String TRAINFILE_MODELFILTER = "htmlparsefilter.naivebayes.trainfile";
-  public static final String DICTFILE_MODELFILTER = "htmlparsefilter.naivebayes.wordlist";
+	public static final String TRAINFILE_MODELFILTER = "htmlparsefilter.naivebayes.trainfile";
+	public static final String DICTFILE_MODELFILTER = "htmlparsefilter.naivebayes.wordlist";
 
-  private Configuration conf;
-  private String inputFilePath;
-  private String dictionaryFile;
-  private ArrayList<String> wordlist = new ArrayList<String>();
+	private Configuration conf;
+	private String inputFilePath;
+	private String dictionaryFile;
+	private ArrayList<String> wordlist = new ArrayList<String>();
 
-  public NaiveBayesHTMLParseFilter() {
+	public boolean filterParse(String text) {
 
-  }
+		try {
+			return classify(text);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			LOG.error("Error occured while classifying:: " + text);
+			e.printStackTrace();
+		}
 
-  public boolean filterParse(String text) {
+		return false;
+	}
 
-    try {
-      return classify(text);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      LOG.error("Error occured while classifying:: " + text);
+	public boolean filterUrl(String url) {
 
-    }
+		return containsWord(url, wordlist);
 
-    return false;
-  }
+	}
 
-  public boolean filterUrl(String url) {
+	public boolean classify(String text) throws IOException {
 
-    return containsWord(url, wordlist);
+		// if classified as relevent "1" then return true
+		if (NaiveBayesClassifier.classify(text).equals("1"))
+			return true;
+		return false;
+	}
 
-  }
+	public void train() throws Exception {
+		// check if the model file exists, if it does then don't train
+		if (!FileSystem.get(conf).exists(new Path("model"))) {
+			LOG.info("Training the Naive Bayes Model");
+			NaiveBayesClassifier.createModel(inputFilePath);
+		} else {
+			LOG.info("Model already exists. Skipping training.");
+		}
+	}
 
-  public boolean classify(String text) throws IOException {
+	public boolean containsWord(String url, ArrayList<String> wordlist) {
+		for (String word : wordlist) {
+			if (url.contains(word)) {
+				return true;
+			}
+		}
 
-    // if classified as relevent "1" then return true
-    if (NaiveBayesClassifier.classify(text).equals("1"))
-      return true;
-    return false;
-  }
+		return false;
+	}
 
-  public void train() throws Exception {
-    // check if the model file exists, if it does then don't train
-    if (!FileSystem.get(conf).exists(new Path("model"))) {
-      LOG.info("Training the Naive Bayes Model");
-      NaiveBayesClassifier.createModel(inputFilePath);
-    } else {
-      LOG.info("Model already exists. Skipping training.");
-    }
-  }
+	public void setConf(Configuration conf) {
+		this.conf = conf;
+		inputFilePath = conf.get(TRAINFILE_MODELFILTER);
+		dictionaryFile = conf.get(DICTFILE_MODELFILTER);
+		if (inputFilePath == null || inputFilePath.trim().length() == 0
+				|| dictionaryFile == null
+				|| dictionaryFile.trim().length() == 0) {
+			String message = "HtmlParseFilter: NaiveBayes: trainfile or wordlist not set in the htmlparsefilte.naivebayes.trainfile or htmlparsefilte.naivebayes.wordlist";
+			if (LOG.isErrorEnabled()) {
+				LOG.error(message);
+			}
+			throw new IllegalArgumentException(message);
+		}
+		BufferedReader br = null;
 
-  public boolean containsWord(String url, ArrayList<String> wordlist) {
-    for (String word : wordlist) {
-      if (url.contains(word)) {
-        return true;
-      }
-    }
+		try {
 
-    return false;
-  }
+			String CurrentLine;
 
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-    inputFilePath = conf.get(TRAINFILE_MODELFILTER);
-    dictionaryFile = conf.get(DICTFILE_MODELFILTER);
-    if (inputFilePath == null || inputFilePath.trim().length() == 0
-        || dictionaryFile == null || dictionaryFile.trim().length() == 0) {
-      String message = "Model URLFilter: trainfile or wordlist not set in the urlfilter.model.trainfile or urlfilter.model.wordlist";
-      if (LOG.isErrorEnabled()) {
-        LOG.error(message);
-      }
-      throw new IllegalArgumentException(message);
-    }
-    BufferedReader br = null;
+			Reader reader = conf.getConfResourceAsReader(dictionaryFile);
+			br = new BufferedReader(reader);
+			while ((CurrentLine = br.readLine()) != null) {
+				wordlist.add(CurrentLine);
+			}
 
-    try {
+		} catch (IOException e) {
+			LOG.error("Error occured while reading the wordlist");
+			e.printStackTrace();
 
-      String CurrentLine;
+		}
 
-      Reader reader = conf.getConfResourceAsReader(dictionaryFile);
-      br = new BufferedReader(reader);
-      while ((CurrentLine = br.readLine()) != null) {
-        wordlist.add(CurrentLine);
-      }
+		try {
 
-    } catch (IOException e) {
-      LOG.error("Error occured while reading the wordlist");
+			train();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			LOG.error("Error occured while training");
+			e.printStackTrace();
 
-    } finally {
-      try {
-        if (br != null)
-          br.close();
-      } catch (IOException ex) {
-        ex.printStackTrace();
-      }
-    }
+		}
 
-    try {
+	}
 
-      train();
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      LOG.error("Error occured while training");
-      e.getStackTrace();
+	public Configuration getConf() {
+		return this.conf;
+	}
 
-    }
+	@Override
+	public ParseResult filter(Content content, ParseResult parseResult,
+			HTMLMetaTags metaTags, DocumentFragment doc) {
 
-  }
+		Parse parse = parseResult.get(content.getUrl());
 
-  public Configuration getConf() {
-    return this.conf;
-  }
+		String url = content.getBaseUrl();
+		ArrayList<Outlink> tempOutlinks = new ArrayList<Outlink>();
+		String text = parse.getText();
 
-  @Override
-  public ParseResult filter(Content content, ParseResult parseResult,
-      HTMLMetaTags metaTags, DocumentFragment doc) {
+		if (!filterParse(text)) { // kick in the second tier
+			// if parent page found
+			// irrelevent
+			LOG.info("HtmlParseFilter: NaiveBayes: Page found irrelevent:: "
+					+ url);
+			LOG.info("Checking outlinks");
 
-    Parse parse = parseResult.get(content.getUrl());
+			Outlink[] out = null;
+			for (int i = 0; i < parse.getData().getOutlinks().length; i++) {
+				LOG.info("HtmlParseFilter: NaiveBayes: Outlink to check:: "
+						+ parse.getData().getOutlinks()[i].getToUrl());
+				if (filterUrl(parse.getData().getOutlinks()[i].getToUrl())) {
+					tempOutlinks.add(parse.getData().getOutlinks()[i]);
+					LOG.info("HtmlParseFilter: NaiveBayes: found relevent");
 
-    String url = content.getBaseUrl();
-    ArrayList<Outlink> tempOutlinks = new ArrayList<Outlink>();
-    String title = parse.getData().getTitle();
-    ParseStatus status = parse.getData().getStatus();
-    String text = parse.getText();
+				} else {
+					LOG.info("HtmlParseFilter: NaiveBayes: found irrelevent");
+				}
+			}
+			out = new Outlink[tempOutlinks.size()];
+			for (int i = 0; i < tempOutlinks.size(); i++) {
+				out[i] = tempOutlinks.get(i);
+			}
+			parse.getData().setOutlinks(out);
 
-    if (!filterParse(text)) { // kick in the second tier
-      // if parent page found
-      // irrelevent
-      LOG.info("ModelURLFilter: Page found irrelevent:: " + url);
-      LOG.info("Checking outlinks");
+		} else {
+			LOG.info("HtmlParseFilter: NaiveBayes: Page found relevent:: "
+					+ url);
+		}
 
-      Outlink[] out = null;
-      for (int i = 0; i < parse.getData().getOutlinks().length; i++) {
-        LOG.info("ModelURLFilter: Outlink to check:: "
-            + parse.getData().getOutlinks()[i].getToUrl());
-        if (filterUrl(parse.getData().getOutlinks()[i].getToUrl())) {
-          tempOutlinks.add(parse.getData().getOutlinks()[i]);
-          LOG.info("ModelURLFilter: found relevent");
-
-        } else {
-          LOG.info("ModelURLFilter: found irrelevent");
-        }
-      }
-      out = new Outlink[tempOutlinks.size()];
-      for (int i = 0; i < tempOutlinks.size(); i++) {
-        out[i] = tempOutlinks.get(i);
-      }
-      ParseData parseData = new ParseData(status, title, out, parse.getData()
-          .getContentMeta(), parse.getData().getParseMeta());
-
-      // replace original parse obj with new one
-      parseResult.put(content.getUrl(), new ParseText(text), parseData);
-
-    } else {
-      LOG.info("ModelURLFilter: Page found relevent:: " + url);
-    }
-
-    // TODO Auto-generated method stub
-
-    return parseResult;
-  }
+		return parseResult;
+	}
 
 }
