@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.urlfilter.model;
+package org.apache.nutch.htmlparsefilter.naivebayes;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -201,7 +201,7 @@ public class NaiveBayesClassifier {
         configuration.getConfResourceAsReader(inputFileName));
     Text key = new Text();
     Text value = new Text();
-    long uniqueid=0;
+    long uniqueid = 0;
     while (true) {
       uniqueid++;
       String line = reader.readLine();
@@ -213,7 +213,7 @@ public class NaiveBayesClassifier {
         continue;
       }
       String category = tokens[0];
-      String id = ""+uniqueid;
+      String id = "" + uniqueid;
       String message = tokens[1];
       key.set("/" + category + "/" + id);
       value.set(message);
@@ -225,5 +225,4 @@ public class NaiveBayesClassifier {
 
   }
 
-  
 }

@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -29,7 +29,6 @@ import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.*;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -57,14 +56,6 @@ public class ParseSegment extends NutchTool implements Tool,
 
   private boolean skipTruncated;
 
-  public static final String PARSER_MODELFILTER = "urlfilter.model.filter";
-  public static final String TRAINFILE_MODELFILTER = "urlfilter.model.trainfile";
-  public static final String DICTFILE_MODELFILTER = "urlfilter.model.wordlist";
-
-  private boolean filterflag;
-  private URLFilters filters;
-  private ModelURLFilterAbstract filter;
-
   public ParseSegment() {
     this(null);
   }
@@ -77,35 +68,6 @@ public class ParseSegment extends NutchTool implements Tool,
     setConf(job);
     this.scfilters = new ScoringFilters(job);
     skipTruncated = job.getBoolean(SKIP_TRUNCATED, true);
-    
-    filterflag = job.getBoolean(PARSER_MODELFILTER, true);
-    if (filterflag) {
-      String[] args = new String[2];
-      args[0] = getConf().get(TRAINFILE_MODELFILTER);
-      args[1] = getConf().get(DICTFILE_MODELFILTER);
-
-      if (args[0] == null || args[0].trim().length() == 0 || args[1] == null
-          || args[1].trim().length() == 0) {
-        String message = "Model URLFilter: trainfile or wordlist not set in the urlfilter.model.trainfile or urlfilter.model.wordlist";
-        if (LOG.isErrorEnabled()) {
-          filterflag = false;
-          LOG.error(message);
-        }
-        throw new IllegalArgumentException(message);
-      } else {
-        try {
-          filters = new URLFilters(job);
-          filter = (ModelURLFilterAbstract) filters
-              .getFilter("org.apache.nutch.urlfilter.model.ModelURLFilter");
-          filter.configure(args);
-        } catch (Exception e) {
-          // TODO: handle exception
-          LOG.warn("There was some problem while getting the model filter or training it. Not using the filter");
-          filterflag = false;
-        }
-
-      }
-    }
   }
 
   public void close() {
@@ -175,37 +137,6 @@ public class ParseSegment extends NutchTool implements Tool,
       } catch (ScoringFilterException e) {
         if (LOG.isWarnEnabled()) {
           LOG.warn("Error passing score: " + url + ": " + e.getMessage());
-        }
-      }
-      
-      if (filterflag) {
-
-        if (!filter.filterParse(parse.getText())) { // kick in the second tier
-                                                    // if parent page found
-                                                    // irrelevent
-          LOG.info("ModelURLFilter: Page found irrelevent:: " + url);
-          LOG.info("Checking outlinks");
-          ArrayList<Outlink> tempOutlinks = new ArrayList<Outlink>();
-          Outlink[] out = null;
-          for (int i = 0; i < parse.getData().getOutlinks().length; i++) {
-            LOG.info("ModelURLFilter: Outlink to check:: "
-                + parse.getData().getOutlinks()[i].getToUrl());
-            if (filter.filterUrl(parse.getData().getOutlinks()[i].getToUrl())) {
-              tempOutlinks.add(parse.getData().getOutlinks()[i]);
-              LOG.info("ModelURLFilter: found relevent");
-
-            } else {
-              LOG.info("ModelURLFilter: found irrelevent");
-            }
-          }
-          out = new Outlink[tempOutlinks.size()];
-          for (int i = 0; i < tempOutlinks.size(); i++) {
-            out[i] = tempOutlinks.get(i);
-          }
-
-          parse.getData().setOutlinks(out);
-        } else {
-          LOG.info("ModelURLFilter: Page found relevent:: " + url);
         }
       }
 

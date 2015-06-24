@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,12 +16,13 @@
  */
 
 /**
- * URL filter plugin with a two tier architecture for filtering:
- * The filter is called from the parser and looks at the current page that was parsed.
- * Does a Naive Bayes Classification on the text of the page and decides if it is relevant or not.
- * If relevant then let all the outlinks pass, if not then the second check kicks in,
- * which checks for some "hotwords" in the outlink urls itself (from a wordlist provided by the user).
- * If a match then let the outlink pass).
+ * Html Parse filter that classifies the outlinks from the parseresult as
+ * relevant or irrelevant based on the parseText's relevancy (using a training
+ * file where you can give positive and negative example texts see the
+ * description of htmlparsefilter.naivebayes.trainfile) and if found irrelevent
+ * it gives the link a second chance if it contains any of the words from the
+ * list given in htmlparsefilter.naivebayes.wordlist. CAUTION: Set the
+ * parser.timeout to -1 or a bigger value than 30, when using this classifier.
  */
-package org.apache.nutch.urlfilter.model;
+package org.apache.nutch.htmlparsefilter.naivebayes;
 

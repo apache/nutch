@@ -16,13 +16,13 @@
  limitations under the License.
 -->
 <plugin
-   id="urlfilter-model"
+   id="htmlparsefilter-naivebayes"
    name="Model URL Filter"
    version="1.0.0"
    provider-name="nutch.org">
 
    <runtime>
-      <library name="urlfilter-model.jar">
+      <library name="htmlparsefilter-naivebayes.jar">
          <export name="*"/>
       </library>     
    </runtime>
@@ -31,11 +31,11 @@
       <import plugin="nutch-extensionpoints"/>
    </requires>
 
-   <extension id="org.apache.nutch.net.urlfilter.model"
-              name="Nutch Model URL Filter"
-              point="org.apache.nutch.net.URLFilter">
-      <implementation id="ModelURLFilter"
-                      class="org.apache.nutch.urlfilter.model.ModelURLFilter"/>
+   <extension id="org.apache.nutch.htmlparsefilter.naivebayes"
+              name="Nutch HTML Parser Filter"
+              point="org.apache.nutch.parse.HtmlParseFilter">
+      <implementation id="NaiveBayesHTMLParseFilter"
+                      class="org.apache.nutch.htmlparsefilter.naivebayes.NaiveBayesHTMLParseFilter"/>
    </extension>
 
 </plugin>

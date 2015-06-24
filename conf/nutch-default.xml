@@ -1109,7 +1109,7 @@
   default Nutch includes crawling just HTML and plain text via HTTP,
   and basic indexing and search plugins. In order to use HTTPS please enable 
   protocol-httpclient, but be aware of possible intermittent problems with the 
-  underlying commons-httpclient library.
+  underlying commons-httpclient library. Set htmlparsefilter-naivebayes for classification based focused crawler.
   </description>
 </property>
 
@@ -1208,6 +1208,28 @@
 </property>
 
 <property>
+  <name>htmlparsefilter.naivebayes.trainfile</name>
+  <value></value>
+  <description>Set the name of the file to be used for Naive Bayes training. The format will be: 
+Each line contains two tab seperted parts
+There are two columns/parts:
+1. "1" or "0", "1" for relevent and "0" for irrelevent document.
+3. Text (text that will be used for training)
+
+Each row will be considered a new "document" for the classifier.
+CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this classifier.
+
+  </description>
+</property>
+
+<property>
+  <name>htmlparsefilter.naivebayes.wordlist</name>
+  <value></value>
+  <description>Put the name of the file you want to be used as a list of important words to be matched in the url for the model filter. The format should be one word per line.
+  </description>
+</property>
+
+<property>
   <name>parser.timeout</name>
   <value>30</value>
   <description>Timeout in seconds for the parsing of a document, otherwise treats it as an exception and 
@@ -1258,33 +1280,6 @@
 
 <!-- urlfilter plugin properties -->
 
-<property>
-  <name>urlfilter.model.trainfile</name>
-  <value></value>
-  <description>Set the name of the file to be used for Naive Bayes training. The format will be: 
-Each line contains two tab seperted parts
-There are two columns/parts:
-1. "1" or "0", "1" for relevent and "0" for irrelevent document.
-3. Text (text that will be used for training)
-
-Each row will be considered a new "document" for the classifier.
-
-  </description>
-</property>
-
-<property>
-  <name>urlfilter.model.wordlist</name>
-  <value></value>
-  <description>Put the name of the file you want to be used as a list of "hot words" to be matched in the url for the model filter. The format should be one word per line.
-  </description>
-</property>
-
-<property>
-  <name>urlfilter.model.filter</name>
-  <value>false</value>
-  <description>A boolean. Set it to true if using the model filter.
-  </description>
-</property>
 
 <property>
   <name>urlfilter.domain.file</name>
