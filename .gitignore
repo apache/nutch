@@ -5,3 +5,4 @@ conf/slaves
 build/
 runtime/
 logs/
+/bin/
