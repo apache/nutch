@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -23,24 +23,22 @@ import org.apache.nutch.plugin.PluginRepository;
 /** Creates and caches {@link URLFilter} implementing plugins. */
 public class URLFilters {
 
-	public static final String URLFILTER_ORDER = "urlfilter.order";
-	private URLFilter[] filters;
+  public static final String URLFILTER_ORDER = "urlfilter.order";
+  private URLFilter[] filters;
 
-	public URLFilters(Configuration conf) {
-		this.filters = (URLFilter[]) PluginRepository.get(conf)
-				.getOrderedPlugins(URLFilter.class, URLFilter.X_POINT_ID,
-						URLFILTER_ORDER);
-	}
+  public URLFilters(Configuration conf) {
+    this.filters = (URLFilter[]) PluginRepository.get(conf).getOrderedPlugins(
+        URLFilter.class, URLFilter.X_POINT_ID, URLFILTER_ORDER);
+  }
 
-	/** Run all defined filters. Assume logical AND. */
-	public String filter(String urlString) throws URLFilterException {
-		for (int i = 0; i < this.filters.length; i++) {
-			if (urlString == null)
-				return null;
-			urlString = this.filters[i].filter(urlString);
+  /** Run all defined filters. Assume logical AND. */
+  public String filter(String urlString) throws URLFilterException {
+    for (int i = 0; i < this.filters.length; i++) {
+      if (urlString == null)
+        return null;
+      urlString = this.filters[i].filter(urlString);
 
-		}
-		return urlString;
-	}
-
+    }
+    return urlString;
+  }
 }
