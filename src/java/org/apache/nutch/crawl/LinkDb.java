@@ -196,6 +196,7 @@ public class LinkDb extends NutchTool implements Tool,
         && job.getBoolean(IGNORE_EXTERNAL_LINKS, false)) {
       LOG.warn("LinkDb: internal and external links are ignored! "
           + "Nothing to do, actually. Exiting.");
+      LockUtil.removeLockFile(fs, lock);
       return;
     }
 

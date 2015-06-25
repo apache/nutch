@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2000 Link inversion fails with .locked already exists (jnioche, snagel)
+
 * NUTCH-2036 Adding some continuous crawl goodies to the crawl script (jorge, snagel)
 
 * NUTCH-2039 Relevance based scoring filter (Sujen Shah, lewismc via mattmann)
