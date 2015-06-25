@@ -1195,7 +1195,7 @@
 </property>
 
 <property>
-  <name>parsefilter.order</name>
+  <name>htmlparsefilter.order</name>
   <value></value>
   <description>The order by which Parse filters are applied.
   If empty, all available Parse filters (as dictated by properties
