@@ -211,7 +211,7 @@
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-suffix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-validator/src/java"/>
-      <packageset dir="${plugins.dir}/htmlparsefilter-naivebayes/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/urlmeta/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-basic/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-host/src/java"/>
@@ -622,7 +622,7 @@
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-suffix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-validator/src/java"/>
-      <packageset dir="${plugins.dir}/htmlparsefilter-naivebayes/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/urlmeta/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-basic/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-host/src/java"/>
@@ -1039,7 +1039,7 @@
         <source path="${plugins.dir}/urlfilter-suffix/src/test/" />
         <source path="${plugins.dir}/urlfilter-validator/src/java/" />
         <source path="${plugins.dir}/urlfilter-validator/src/test/" />
-        <source path="${plugins.dir}/htmlparsefilter-naivebayes/src/java/" />
+        <source path="${plugins.dir}/parsefilter-naivebayes/src/java/" />
         <source path="${plugins.dir}/urlmeta/src/java/" />
         <source path="${plugins.dir}/urlnormalizer-basic/src/java/" />
         <source path="${plugins.dir}/urlnormalizer-basic/src/test/" />
