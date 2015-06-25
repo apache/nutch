@@ -23,6 +23,7 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -33,6 +34,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
@@ -354,8 +356,20 @@ public class IndexerMapReduce extends Configured implements
 
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
 
-    if (linkDb != null)
-      FileInputFormat.addInputPath(job, new Path(linkDb, LinkDb.CURRENT_NAME));
+    if (linkDb != null) {
+      Path currentLinkDb = new Path(linkDb, LinkDb.CURRENT_NAME);
+      try {
+        if (FileSystem.get(job).exists(currentLinkDb)) {
+          FileInputFormat.addInputPath(job, currentLinkDb);
+        } else {
+          LOG.warn("Ignoring linkDb for indexing, no linkDb found in path: {}",
+              linkDb);
+        }
+      } catch (IOException e) {
+        LOG.warn("Failed to use linkDb ({}) for indexing: {}", linkDb,
+            StringUtils.stringifyException(e));
+      }
+    }
 
     job.setInputFormat(SequenceFileInputFormat.class);
 
