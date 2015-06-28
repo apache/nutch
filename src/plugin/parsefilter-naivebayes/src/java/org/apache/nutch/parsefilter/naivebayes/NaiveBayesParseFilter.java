@@ -93,7 +93,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
       LOG.info("Training the Naive Bayes Model");
       NaiveBayesClassifier.createModel(inputFilePath);
     } else {
-      LOG.info("Model already exists. Skipping training.");
+      LOG.info("Model file already exists. Skipping training.");
     }
   }
 
@@ -119,12 +119,20 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
       }
       throw new IllegalArgumentException(message);
     }
-    BufferedReader br = null;
-
     try {
+      if ((FileSystem.get(conf).exists(new Path(inputFilePath)))
+          || (FileSystem.get(conf).exists(new Path(dictionaryFile)))) {
+        String message = "ParseFilter: NaiveBayes: " + inputFilePath + " or "
+            + dictionaryFile + " not found!";
+        if (LOG.isErrorEnabled()) {
+          LOG.error(message);
+        }
+        throw new IllegalArgumentException(message);
+      }
+
+      BufferedReader br = null;
 
       String CurrentLine;
-
       Reader reader = conf.getConfResourceAsReader(dictionaryFile);
       br = new BufferedReader(reader);
       while ((CurrentLine = br.readLine()) != null) {
@@ -132,8 +140,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
       }
 
     } catch (IOException e) {
-      LOG.error("Error occured while reading the wordlist:: "
-          + StringUtils.stringifyException(e));
+      LOG.error(StringUtils.stringifyException(e));
 
     }
 
@@ -142,8 +149,8 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
       train();
     } catch (Exception e) {
       // TODO Auto-generated catch block
-      LOG.error("Error occured while training");
-      e.printStackTrace();
+      LOG.error("Error occured while training:: "
+          + StringUtils.stringifyException(e));
 
     }
 

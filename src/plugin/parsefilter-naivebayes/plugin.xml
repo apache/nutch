@@ -24,7 +24,11 @@
    <runtime>
       <library name="parsefilter-naivebayes.jar">
          <export name="*"/>
-      </library>     
+      </library>
+      <library name="lucene-analyzers-common-4.3.0.jar"/>
+      <library name="mahout-math-0.8.jar"/>
+      <library name="mahout-core-0.8.jar"/>
+      <library name="lucene-core-4.3.0.jar"/>     
    </runtime>
 
    <requires>
