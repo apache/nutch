@@ -96,6 +96,10 @@
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22"
 			conf="test->default" />
 
+                <!-- naive bayes parse filter -->
+                <dependency org="org.apache.mahout.commons" name="commons-cli" rev="2.0-mahout"
+                        conf="test->default" />
+
 		<!--global exclusion -->
 		<exclude module="jmxtools" />
 		<exclude module="jms" />
