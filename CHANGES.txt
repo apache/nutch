@@ -2,6 +2,9 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2038 fix for NUTCH-2038: Naive Bayes classifier based html Parse filter (for filtering outlinks) 
+  (Asitang Mishra, snagel via mattmann)
+
 * NUTCH-2041 indexer fails if linkdb is missing (snagel)
 
 * NUTCH-2016 Remove unused class OldFetcher (snagel)
