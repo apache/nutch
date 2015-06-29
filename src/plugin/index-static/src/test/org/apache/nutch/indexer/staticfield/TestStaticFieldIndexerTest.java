@@ -115,4 +115,42 @@ public class TestStaticFieldIndexerTest {
     Assert.assertTrue("test if doc has field4", doc.getField("field4")
         .getValues().contains("val4"));
   }
+
+  /**
+   * Test for NUTCH-2052 custom delimiters in index.static.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testCustomDelimiters() throws Exception {
+
+    conf.set("index.static.fieldsep", ">");
+    conf.set("index.static.keysep", "=");
+    conf.set("index.static.valuesep", "|");
+    conf.set("index.static",
+        "field1=val1>field2    =      val2|val3     >field3>field4 =val4 > ");
+    Assert.assertNotNull(filter);
+    filter.setConf(conf);
+
+    NutchDocument doc = new NutchDocument();
+
+    try {
+      filter.filter(doc, parse, url, crawlDatum, inlinks);
+    } catch (Exception e) {
+      e.printStackTrace();
+      Assert.fail(e.getMessage());
+    }
+
+    Assert.assertNotNull(doc);
+    Assert.assertFalse("test if doc is not empty", doc.getFieldNames()
+        .isEmpty());
+    Assert.assertEquals("test if doc has 3 fields", 3, doc.getFieldNames()
+        .size());
+    Assert.assertTrue("test if doc has field1", doc.getField("field1")
+        .getValues().contains("val1"));
+    Assert.assertTrue("test if doc has field2", doc.getField("field2")
+        .getValues().contains("val2"));
+    Assert.assertTrue("test if doc has field4", doc.getField("field4")
+        .getValues().contains("val4"));
+  }
 }
