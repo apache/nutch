@@ -28,7 +28,15 @@
       <library name="lucene-analyzers-common-4.3.0.jar"/>
       <library name="mahout-math-0.8.jar"/>
       <library name="mahout-core-0.8.jar"/>
-      <library name="lucene-core-4.3.0.jar"/>     
+      <library name="lucene-core-4.3.0.jar"/>
+      <library name="slf4j-api-1.7.5.jar"/>
+      <library name="jackson-mapper-asl-1.9.12.jar"/>
+      <library name="guava-14.0.1.jar"/>
+      <library name="commons-math3-3.2.jar"/>
+      <library name="commons-lang3-3.1.jar"/>
+      <library name="commons-io-2.4.jar"/>
+      <library name="commons-cli-2.0-mahout.jar"/>
+      <library name="jackson-core-asl-1.9.12.jar"/>     
    </runtime>
 
    <requires>

@@ -16,9 +16,11 @@
  */
 package org.apache.nutch.parsefilter.naivebayes;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.DocumentFragment;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -27,16 +29,11 @@ import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseResult;
-import org.apache.nutch.parse.ParseStatus;
-import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
-
-import java.io.Reader;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.DocumentFragment;
 
 /**
  * Html Parse filter that classifies the outlinks from the parseresult as
