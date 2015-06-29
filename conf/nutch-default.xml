@@ -1414,6 +1414,33 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>index.static.fieldsep</name>
+  <value>,</value>
+  <description>
+  Used by plugin index-static to parse the property index.static.  Default: comma.
+  This delimiter is used to separate individual field specifications in the property.
+  </description>
+</property>
+
+<property>
+  <name>index.static.keysep</name>
+  <value>:</value>
+  <description>
+  Used by plugin index-static to parse the property index.static.  Default: colon.
+  This delimiter is used to separate the field name from the field value in the field specification.
+  </description>
+</property>
+
+<property>
+  <name>index.static.valuesep</name>
+  <value> </value>
+  <description>
+  Used by plugin index-static to parse the property index.static.  Default: space.
+  This delimiter is used to separate multiple field values in the value setting of the field specification.
+  </description>
+</property>
+
 <!-- index-metadata plugin properties -->
 
 <property>
