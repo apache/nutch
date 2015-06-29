@@ -77,7 +77,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
 
   public boolean classify(String text) throws IOException {
 
-    // if classified as relevent "1" then return true
+    // if classified as relevant "1" then return true
     if (NaiveBayesClassifier.classify(text).equals("1"))
       return true;
     return false;
@@ -107,23 +107,37 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
     this.conf = conf;
     inputFilePath = conf.get(TRAINFILE_MODELFILTER);
     dictionaryFile = conf.get(DICTFILE_MODELFILTER);
-    if (inputFilePath == null || inputFilePath.trim().length() == 0
-        || dictionaryFile == null || dictionaryFile.trim().length() == 0) {
-      String message = "ParseFilter: NaiveBayes: trainfile or wordlist not set in the parsefilte.naivebayes.trainfile or parsefilte.naivebayes.wordlist";
-      if (LOG.isErrorEnabled()) {
-        LOG.error(message);
-      }
-      throw new IllegalArgumentException(message);
-    }
+    String message = null;
+    boolean errorloading = false;
+
     try {
-      if ((FileSystem.get(conf).exists(new Path(inputFilePath)))
-          || (FileSystem.get(conf).exists(new Path(dictionaryFile)))) {
-        String message = "ParseFilter: NaiveBayes: " + inputFilePath + " or "
-            + dictionaryFile + " not found!";
+      if (inputFilePath == null || inputFilePath.trim().length() == 0) {
+        message = "ParseFilter: NaiveBayes: trainfile not set in parsefilter.naivebayes.trainfile";
+        errorloading = true;
+      }
+
+      if (dictionaryFile == null || dictionaryFile.trim().length() == 0) {
+
+        message = "ParseFilter: NaiveBayes: wordlist not set in parsefilter.naivebayes.wordlist";
+        errorloading = true;
+      }
+
+      if (FileSystem.get(conf).exists(new Path(inputFilePath))) {
+        message = "ParseFilter: NaiveBayes: train file: " + inputFilePath
+            + " does not exist!";
+        errorloading = true;
+      }
+      if (FileSystem.get(conf).exists(new Path(dictionaryFile))) {
+        message = "ParseFilter: NaiveBayes: wordlist file: " + dictionaryFile
+            + " does not exist!";
+        errorloading = true;
+      }
+
+      if (errorloading) {
         if (LOG.isErrorEnabled()) {
           LOG.error(message);
         }
-        throw new IllegalArgumentException(message);
+        throw new IOException(message);
       }
 
       BufferedReader br = null;
@@ -136,13 +150,14 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
       }
 
     } catch (IOException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error(e.getMessage()
+          + " Error occured during loading. training will be skipped");
 
     }
 
     try {
-
-      train();
+      if (!errorloading)
+        train();
     } catch (Exception e) {
 
       LOG.error("Error occured while training:: "
@@ -166,32 +181,40 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
     ArrayList<Outlink> tempOutlinks = new ArrayList<Outlink>();
     String text = parse.getText();
 
-    if (!filterParse(text)) { // kick in the second tier
-      // if parent page found
-      // irrelevent
-      LOG.info("ParseFilter: NaiveBayes: Page found irrelevent:: " + url);
-      LOG.info("Checking outlinks");
+    try {
+      if (FileSystem.get(conf).exists(new Path("model")) && !filterParse(text)) { // kick
+                                                                                  // in
+                                                                                  // the
+                                                                                  // second
+                                                                                  // tier
+        // if parent page found
+        // irrelevent
+        LOG.info("ParseFilter: NaiveBayes: Page found irrelevent:: " + url);
+        LOG.info("Checking outlinks");
 
-      Outlink[] out = null;
-      for (int i = 0; i < parse.getData().getOutlinks().length; i++) {
-        LOG.info("ParseFilter: NaiveBayes: Outlink to check:: "
-            + parse.getData().getOutlinks()[i].getToUrl());
-        if (filterUrl(parse.getData().getOutlinks()[i].getToUrl())) {
-          tempOutlinks.add(parse.getData().getOutlinks()[i]);
-          LOG.info("ParseFilter: NaiveBayes: found relevent");
+        Outlink[] out = null;
+        for (int i = 0; i < parse.getData().getOutlinks().length; i++) {
+          LOG.info("ParseFilter: NaiveBayes: Outlink to check:: "
+              + parse.getData().getOutlinks()[i].getToUrl());
+          if (filterUrl(parse.getData().getOutlinks()[i].getToUrl())) {
+            tempOutlinks.add(parse.getData().getOutlinks()[i]);
+            LOG.info("ParseFilter: NaiveBayes: found relevent");
 
-        } else {
-          LOG.info("ParseFilter: NaiveBayes: found irrelevent");
+          } else {
+            LOG.info("ParseFilter: NaiveBayes: found irrelevent");
+          }
         }
-      }
-      out = new Outlink[tempOutlinks.size()];
-      for (int i = 0; i < tempOutlinks.size(); i++) {
-        out[i] = tempOutlinks.get(i);
-      }
-      parse.getData().setOutlinks(out);
+        out = new Outlink[tempOutlinks.size()];
+        for (int i = 0; i < tempOutlinks.size(); i++) {
+          out[i] = tempOutlinks.get(i);
+        }
+        parse.getData().setOutlinks(out);
 
-    } else {
-      LOG.info("ParseFilter: NaiveBayes: Page found relevent:: " + url);
+      } else {
+        LOG.info("ParseFilter: NaiveBayes: Page found relevent:: " + url);
+      }
+    } catch (IOException e) {
+      LOG.error("ParseFilter: NaiveBayes: Error reading the model file. Skippking classification.");
     }
 
     return parseResult;

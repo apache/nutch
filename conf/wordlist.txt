@@ -1,4 +1,0 @@
-nutch
-funny
-happy
-search
