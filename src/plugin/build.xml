@@ -62,6 +62,7 @@
      <ant dir="scoring-depth" target="deploy"/>
      <ant dir="scoring-opic" target="deploy"/>
      <ant dir="scoring-link" target="deploy"/>
+     <ant dir="scoring-similarity" target="deploy"/>
      <ant dir="subcollection" target="deploy"/>
      <ant dir="tld" target="deploy"/>
      <ant dir="urlfilter-automaton" target="deploy"/>
@@ -71,6 +72,7 @@
      <ant dir="urlfilter-regex" target="deploy"/>
      <ant dir="urlfilter-suffix" target="deploy"/>
      <ant dir="urlfilter-validator" target="deploy"/>
+     <ant dir="parsefilter-naivebayes" target="deploy"/>
      <ant dir="urlmeta" target="deploy"/>
      <ant dir="urlnormalizer-ajax" target="deploy"/>
      <ant dir="urlnormalizer-basic" target="deploy"/>
@@ -165,6 +167,7 @@
     <ant dir="scoring-depth" target="clean"/>
     <ant dir="scoring-opic" target="clean"/>
     <ant dir="scoring-link" target="clean"/>
+    <ant dir="scoring-similarity" target="clean"/>
     <ant dir="subcollection" target="clean"/>
     <ant dir="tld" target="clean"/>
     <ant dir="urlfilter-automaton" target="clean"/>
@@ -174,6 +177,7 @@
     <ant dir="urlfilter-regex" target="clean"/>
     <ant dir="urlfilter-suffix" target="clean"/>
     <ant dir="urlfilter-validator" target="clean"/>
+    <ant dir="parsefilter-naivebayes" target="clean" />
     <ant dir="urlmeta" target="clean"/>
     <ant dir="urlnormalizer-ajax" target="clean"/>
     <ant dir="urlnormalizer-basic" target="clean"/>

@@ -1,5 +1,54 @@
 Nutch Change Log
+  
+Nutch Current Development 1.11-SNAPSHOT
+
+* NUTCH-2038 fix for NUTCH-2038: Naive Bayes classifier based html Parse filter (for filtering outlinks) 
+  (Asitang Mishra, snagel via mattmann)
+
+* NUTCH-2041 indexer fails if linkdb is missing (snagel)
+
+* NUTCH-2016 Remove unused class OldFetcher (snagel)
+
+* NUTCH-2000 Link inversion fails with .locked already exists (jnioche, snagel)
+
+* NUTCH-2036 Adding some continuous crawl goodies to the crawl script (jorge, snagel)
+
+* NUTCH-2039 Relevance based scoring filter (Sujen Shah, lewismc via mattmann)
+
+* NUTCH-2037 Job endpoint to support Indexing from the REST API (Sujen Shah via mattmann)
+
+* NUTCH-2017 Remove debug log from MimeUtil (snagel)
+
+* NUTCH-2027 seed list REST endpoint for Nutch 1.10 (Asitang Mishra via mattmann)
+
+* NUTCH-2031 Create Admin End point for Nutch 1.x REST service (Sujen Shah via mattmann)
+
+* NUTCH-2015 Make FetchNodeDb optional (off by default) if NutchServer is not used (Sujen Shah via mattmann)
+
+* NUTCH-208 http: proxy exception list: (Matthias Günter, siren, markus, lewismc)
+
+* NUTCH-2007 add test libs to classpath of bin/nutch junit (snagel)
+
+* NUTCH-1995 Add support for wildcard to http.robot.rules.whitelist (totaro)
+
+* NUTCH-2013 Fetcher: missing logs "fetching ..." on stdout (snagel)
+
+* NUTCH-2014 Fetcher hang-up on completion (snagel)
+
+* NUTCH-2011 Endpoint to support realtime JSON output from the fetcher (Sujen Shah via mattmann)
+
+* NUTCH-2006 IndexingFiltersChecker to take custom metadata as input (jnioche)
+
+* NUTCH-2008 IndexerMapReduce to use single instance of NutchIndexAction for deletions (snagel)
+
+* NUTCH-1998 Add support for user-defined file extension to CommonCrawlDataDumper (totaro via mattmann)
+
+* NUTCH-1873 Solr IndexWriter/Job to report number of docs indexed. (snagel via lewismc)
  
+* NUTCH-1934 Refactor Fetcher in trunk (lewismc)
+
+* NUTCH-2004 ParseChecker does not handle redirects (mjoyce via lewismc)
+
 Nutch 1.10 Release - 29/04/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch10
 
@@ -43,8 +92,6 @@ Release Report: http://s.apache.org/nutch10
 * NUTCH-1854 bin/crawl fails with a parsing fetcher (Asitang Mishra via snagel)
 
 * NUTCH-1989 Handling invalid URLs in CommonCrawlDataDumper (Giuseppe Totaro via mattmann)
-
-* NUTCH-1988 Make nested output directory dump optional (Michael Joyce via mattmann)
 
 * NUTCH-1927 Create a whitelist of IPs/hostnames to allow skipping of RobotRules parsing (mattmann, snagel)
 

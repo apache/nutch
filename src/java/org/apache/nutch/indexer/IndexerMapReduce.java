@@ -34,6 +34,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
@@ -77,6 +78,10 @@ public class IndexerMapReduce extends Configured implements
   // url normalizers, filters and job configuration
   private URLNormalizers urlNormalizers;
   private URLFilters urlFilters;
+
+  /** Predefined action to delete documents from the index */
+  private static final NutchIndexAction DELETE_ACTION = new NutchIndexAction(
+      null, NutchIndexAction.DELETE);
 
   public void configure(JobConf job) {
     setConf(job);
@@ -207,9 +212,8 @@ public class IndexerMapReduce extends Configured implements
           if (robotsMeta != null
               && robotsMeta.toLowerCase().indexOf("noindex") != -1) {
             // Delete it!
-            NutchIndexAction action = new NutchIndexAction(null,
-                NutchIndexAction.DELETE);
-            output.collect(key, action);
+            output.collect(key, DELETE_ACTION);
+            reporter.incrCounter("IndexerStatus", "deleted (robots=noindex)", 1);
             return;
           }
         }
@@ -224,11 +228,8 @@ public class IndexerMapReduce extends Configured implements
     if (delete && fetchDatum != null && dbDatum != null) {
       if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE
           || dbDatum.getStatus() == CrawlDatum.STATUS_DB_GONE) {
-        reporter.incrCounter("IndexerStatus", "Documents deleted", 1);
-
-        NutchIndexAction action = new NutchIndexAction(null,
-            NutchIndexAction.DELETE);
-        output.collect(key, action);
+        reporter.incrCounter("IndexerStatus", "deleted (gone)", 1);
+        output.collect(key, DELETE_ACTION);
         return;
       }
 
@@ -236,12 +237,8 @@ public class IndexerMapReduce extends Configured implements
           || fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP
           || dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM
           || dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
-        reporter.incrCounter("IndexerStatus", "Deleted redirects", 1);
-        reporter.incrCounter("IndexerStatus", "Perm redirects deleted", 1);
-
-        NutchIndexAction action = new NutchIndexAction(null,
-            NutchIndexAction.DELETE);
-        output.collect(key, action);
+        reporter.incrCounter("IndexerStatus", "deleted redirects", 1);
+        output.collect(key, DELETE_ACTION);
         return;
       }
     }
@@ -253,16 +250,14 @@ public class IndexerMapReduce extends Configured implements
 
     // Whether to delete pages marked as duplicates
     if (delete && dbDatum.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
-      reporter.incrCounter("IndexerStatus", "Duplicates deleted", 1);
-      NutchIndexAction action = new NutchIndexAction(null,
-          NutchIndexAction.DELETE);
-      output.collect(key, action);
+      reporter.incrCounter("IndexerStatus", "deleted duplicates", 1);
+      output.collect(key, DELETE_ACTION);
       return;
     }
 
     // Whether to skip DB_NOTMODIFIED pages
     if (skip && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
-      reporter.incrCounter("IndexerStatus", "Skipped", 1);
+      reporter.incrCounter("IndexerStatus", "skipped (not modified)", 1);
       return;
     }
 
@@ -305,13 +300,13 @@ public class IndexerMapReduce extends Configured implements
       if (LOG.isWarnEnabled()) {
         LOG.warn("Error indexing " + key + ": " + e);
       }
-      reporter.incrCounter("IndexerStatus", "Errors", 1);
+      reporter.incrCounter("IndexerStatus", "errors (IndexingFilter)", 1);
       return;
     }
 
     // skip documents discarded by indexing filters
     if (doc == null) {
-      reporter.incrCounter("IndexerStatus", "Skipped by filters", 1);
+      reporter.incrCounter("IndexerStatus", "skipped by indexing filters", 1);
       return;
     }
 
@@ -321,6 +316,7 @@ public class IndexerMapReduce extends Configured implements
       boost = this.scfilters.indexerScore(key, doc, dbDatum, fetchDatum, parse,
           inlinks, boost);
     } catch (final ScoringFilterException e) {
+      reporter.incrCounter("IndexerStatus", "errors (ScoringFilter)", 1);
       if (LOG.isWarnEnabled()) {
         LOG.warn("Error calculating score " + key + ": " + e);
       }
@@ -331,7 +327,7 @@ public class IndexerMapReduce extends Configured implements
     // store boost for use by explain and dedup
     doc.add("boost", Float.toString(boost));
 
-    reporter.incrCounter("IndexerStatus", "Documents added", 1);
+    reporter.incrCounter("IndexerStatus", "indexed (add/update)", 1);
 
     NutchIndexAction action = new NutchIndexAction(doc, NutchIndexAction.ADD);
     output.collect(key, action);
@@ -360,8 +356,20 @@ public class IndexerMapReduce extends Configured implements
 
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
 
-    if (linkDb != null)
-      FileInputFormat.addInputPath(job, new Path(linkDb, LinkDb.CURRENT_NAME));
+    if (linkDb != null) {
+      Path currentLinkDb = new Path(linkDb, LinkDb.CURRENT_NAME);
+      try {
+        if (FileSystem.get(job).exists(currentLinkDb)) {
+          FileInputFormat.addInputPath(job, currentLinkDb);
+        } else {
+          LOG.warn("Ignoring linkDb for indexing, no linkDb found in path: {}",
+              linkDb);
+        }
+      } catch (IOException e) {
+        LOG.warn("Failed to use linkDb ({}) for indexing: {}", linkDb,
+            StringUtils.stringifyException(e));
+      }
+    }
 
     job.setInputFormat(SequenceFileInputFormat.class);
 

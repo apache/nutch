@@ -17,6 +17,8 @@
 
 package org.apache.nutch.indexer;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
+import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
@@ -69,16 +72,29 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     String url = null;
     boolean dumpText = false;
 
-    String usage = "Usage: IndexingFiltersChecker [-dumpText] <url>";
+    String usage = "Usage: IndexingFiltersChecker [-dumpText] [-md key=value] <url>";
 
     if (args.length == 0) {
       System.err.println(usage);
       return -1;
     }
 
+    // used to simulate the metadata propagated from injection
+    HashMap<String, String> metadata = new HashMap<String, String>();
+
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-dumpText")) {
         dumpText = true;
+      } else if (args[i].equals("-md")) {
+        String k = null, v = null;
+        String nextOne = args[++i];
+        int firstEquals = nextOne.indexOf("=");
+        if (firstEquals != -1) {
+          k = nextOne.substring(0, firstEquals);
+          v = nextOne.substring(firstEquals + 1);
+        } else
+          k = nextOne;
+        metadata.put(k, v);
       } else if (i != args.length - 1) {
         System.err.println(usage);
         System.exit(-1);
@@ -87,17 +103,25 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       }
     }
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("fetching: " + url);
-    }
+    LOG.info("fetching: " + url);
 
-    IndexingFilters indexers = new IndexingFilters(conf);
-
-    ProtocolFactory factory = new ProtocolFactory(conf);
-    Protocol protocol = factory.getProtocol(url);
     CrawlDatum datum = new CrawlDatum();
 
-    ProtocolOutput output = protocol.getProtocolOutput(new Text(url), datum);
+    Iterator<String> iter = metadata.keySet().iterator();
+    while (iter.hasNext()) {
+      String key = iter.next();
+      String value = metadata.get(key);
+      if (value == null)
+        value = "";
+      datum.getMetaData().put(new Text(key), new Text(value));
+    }
+
+    IndexingFilters indexers = new IndexingFilters(getConf());
+
+    ProtocolFactory factory = new ProtocolFactory(getConf());
+    Protocol protocol = factory.getProtocol(url);
+    Text turl = new Text(url);
+    ProtocolOutput output = protocol.getProtocolOutput(turl, datum);
 
     if (!output.getStatus().isSuccess()) {
       System.out.println("Fetch failed with protocol status: "
@@ -126,12 +150,18 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       LOG.warn("Content is truncated, parse may fail!");
     }
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("parsing: " + url);
-      LOG.info("contentType: " + contentType);
+    ScoringFilters scfilters = new ScoringFilters(getConf());
+    // call the scoring filters
+    try {
+      scfilters.passScoreBeforeParsing(turl, datum, content);
+    } catch (Exception e) {
+      LOG.warn("Couldn't pass score, url {} ({})", url, e);
     }
 
-    ParseResult parseResult = new ParseUtil(conf).parse(content);
+    LOG.info("parsing: {}", url);
+    LOG.info("contentType: {}", contentType);
+
+    ParseResult parseResult = new ParseUtil(getConf()).parse(content);
 
     NutchDocument doc = new NutchDocument();
     doc.add("id", url);
@@ -150,12 +180,19 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       return -1;
     }
 
-    byte[] signature = SignatureFactory.getSignature(conf).calculate(content,
+    byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content,
         parse);
     parse.getData().getContentMeta()
         .set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
     String digest = parse.getData().getContentMeta().get(Nutch.SIGNATURE_KEY);
     doc.add("digest", digest);
+
+    // call the scoring filters
+    try {
+      scfilters.passScoreAfterParsing(turl, content, parseResult.get(turl));
+    } catch (Exception e) {
+      LOG.warn("Couldn't pass score, url {} ({})", turl, e);
+    }
 
     try {
       doc = indexers.filter(doc, parse, urlText, datum, inlinks);
@@ -179,7 +216,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       }
     }
 
-    if (conf.getBoolean("doIndex", false) && doc != null) {
+    if (getConf().getBoolean("doIndex", false) && doc != null) {
       IndexWriters writers = new IndexWriters(getConf());
       writers.open(new JobConf(getConf()), "IndexingFilterChecker");
       writers.write(doc);
@@ -193,16 +230,5 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     final int res = ToolRunner.run(NutchConfiguration.create(),
         new IndexingFiltersChecker(), args);
     System.exit(res);
-  }
-
-  Configuration conf;
-
-  public Configuration getConf() {
-    return conf;
-  }
-
-  @Override
-  public void setConf(Configuration arg0) {
-    conf = arg0;
   }
 }

@@ -28,6 +28,7 @@ import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.Injector;
 import org.apache.nutch.crawl.LinkDb;
 import org.apache.nutch.fetcher.Fetcher;
+import org.apache.nutch.indexer.IndexingJob;
 import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.util.NutchTool;
 
@@ -42,6 +43,7 @@ public class JobFactory {
     typeToClass.put(JobType.GENERATE, Generator.class);
     typeToClass.put(JobType.FETCH, Fetcher.class);
     typeToClass.put(JobType.PARSE, ParseSegment.class);
+    typeToClass.put(JobType.INDEX, IndexingJob.class);
     typeToClass.put(JobType.UPDATEDB, CrawlDb.class);
     typeToClass.put(JobType.INVERTLINKS, LinkDb.class);
     typeToClass.put(JobType.DEDUP, DeduplicationJob.class);

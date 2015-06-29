@@ -117,8 +117,8 @@ public class HttpResponse implements Response {
       socket.setSoTimeout(http.getTimeout());
 
       // connect
-      String sockHost = http.useProxy() ? http.getProxyHost() : host;
-      int sockPort = http.useProxy() ? http.getProxyPort() : port;
+      String sockHost = http.useProxy(url) ? http.getProxyHost() : host;
+      int sockPort = http.useProxy(url) ? http.getProxyPort() : port;
       InetSocketAddress sockAddr = new InetSocketAddress(sockHost, sockPort);
       socket.connect(sockAddr, http.getTimeout());
 
@@ -158,7 +158,7 @@ public class HttpResponse implements Response {
       OutputStream req = socket.getOutputStream();
 
       StringBuffer reqStr = new StringBuffer("GET ");
-      if (http.useProxy()) {
+      if (http.useProxy(url)) {
         reqStr.append(url.getProtocol() + "://" + host + portString + path);
       } else {
         reqStr.append(path);
@@ -329,7 +329,6 @@ public class HttpResponse implements Response {
    * @throws HttpException
    * @throws IOException
    */
-  @SuppressWarnings("unused")
   private void readChunkedContent(PushbackInputStream in, StringBuffer line)
       throws HttpException, IOException {
     boolean doneChunks = false;

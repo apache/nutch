@@ -16,27 +16,35 @@
  */
 package org.apache.nutch.indexer;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.Counters.Counter;
+import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * Generic indexer which relies on the plugins implementing IndexWriter
  **/
 
-public class IndexingJob extends Configured implements Tool {
+public class IndexingJob extends NutchTool implements Tool {
 
   public static Logger LOG = LoggerFactory.getLogger(IndexingJob.class);
 
@@ -110,11 +118,17 @@ public class IndexingJob extends Configured implements Tool {
 
     FileOutputFormat.setOutputPath(job, tmp);
     try {
-      JobClient.runJob(job);
+      RunningJob indexJob = JobClient.runJob(job);
       // do the commits once and for all the reducers in one go
       if (!noCommit) {
         writers.open(job, "commit");
         writers.commit();
+      }
+      LOG.info("Indexer: number of documents indexed, deleted, or skipped:");
+      for (Counter counter : indexJob.getCounters().getGroup("IndexerStatus")) {
+        LOG.info("Indexer: {}  {}",
+            String.format(Locale.ROOT, "%6d", counter.getValue()),
+            counter.getName());
       }
       long end = System.currentTimeMillis();
       LOG.info("Indexer: finished at " + sdf.format(end) + ", elapsed: "
@@ -127,7 +141,7 @@ public class IndexingJob extends Configured implements Tool {
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err
-          .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
+      .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
       IndexWriters writers = new IndexWriters(getConf());
       System.err.println(writers.describe());
       return -1;
@@ -187,5 +201,89 @@ public class IndexingJob extends Configured implements Tool {
     final int res = ToolRunner.run(NutchConfiguration.create(),
         new IndexingJob(), args);
     System.exit(res);
+  }
+
+
+  //Used for REST API
+  @Override
+  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+    boolean noCommit = false;
+    boolean deleteGone = false; 
+    boolean filter = false;
+    boolean normalize = false;
+    boolean isSegment = false;
+    String params= null;
+    Configuration conf = getConf();
+
+    String crawldb = crawlId+"/crawldb";
+    Path crawlDb = new Path(crawldb);
+    Path linkDb = null;
+    List<Path> segments = new ArrayList<Path>();
+
+    if(args.containsKey("linkdb")){
+      linkDb = new Path(crawlId+"/linkdb");
+    }
+
+    if(args.containsKey("dir")){
+      isSegment = true;
+      Path dir = new Path(crawlId+"/segments");
+      FileSystem fs = dir.getFileSystem(getConf());
+      FileStatus[] fstats = fs.listStatus(dir,
+          HadoopFSUtil.getPassDirectoriesFilter(fs));
+      Path[] files = HadoopFSUtil.getPaths(fstats);
+      for (Path p : files) {
+        if (SegmentChecker.isIndexable(p,fs)) {
+          segments.add(p);
+        }
+      }     
+    }
+  
+    if(args.containsKey("segments")){
+      isSegment = true;
+      String listOfSegments[] = args.get("segments").split(",");
+      for(String s: listOfSegments){
+        segments.add(new Path(s));
+      }
+    }
+    
+    if(!isSegment){
+      String segment_dir = crawlId+"/segments";
+      File segmentsDir = new File(segment_dir);
+      File[] segmentsList = segmentsDir.listFiles();  
+      Arrays.sort(segmentsList, new Comparator<File>(){
+        @Override
+        public int compare(File f1, File f2) {
+          if(f1.lastModified()>f2.lastModified())
+            return -1;
+          else
+            return 0;
+        }      
+      });
+
+      Path segment = new Path(segmentsList[0].getPath());
+      segments.add(segment);
+    }
+    
+    if(args.containsKey("noCommit")){
+      noCommit = true;
+    }
+    if(args.containsKey("deleteGone")){
+      deleteGone = true;
+    }
+    if(args.containsKey("normalize")){
+      normalize = true;
+    }
+    if(args.containsKey("filter")){
+      filter = true;
+    }
+    if(args.containsKey("params")){
+      params = args.get("params");
+    }
+    setConf(conf);
+    index(crawlDb, linkDb, segments, noCommit, deleteGone, params, filter,
+        normalize);
+    Map<String, Object> results = new HashMap<String, Object>();
+    results.put("result", 0);
+    return results;
   }
 }

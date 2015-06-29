@@ -227,6 +227,10 @@ public class ProtocolStatus implements Writable {
         || code == ROBOTS_DENIED;
   }
 
+  public boolean isRedirect() {
+      return code == MOVED || code == TEMP_MOVED;
+  }
+
   public String getMessage() {
     if (args != null && args.length > 0)
       return args[0];
