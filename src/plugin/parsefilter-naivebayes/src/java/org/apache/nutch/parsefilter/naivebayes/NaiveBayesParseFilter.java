@@ -122,12 +122,12 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
         errorloading = true;
       }
 
-      if (FileSystem.get(conf).exists(new Path(inputFilePath))) {
+      if (!FileSystem.get(conf).exists(new Path(inputFilePath))) {
         message = "ParseFilter: NaiveBayes: train file: " + inputFilePath
             + " does not exist!";
         errorloading = true;
       }
-      if (FileSystem.get(conf).exists(new Path(dictionaryFile))) {
+      if (!FileSystem.get(conf).exists(new Path(dictionaryFile))) {
         message = "ParseFilter: NaiveBayes: wordlist file: " + dictionaryFile
             + " does not exist!";
         errorloading = true;
