@@ -40,9 +40,6 @@ public class StaticFieldIndexer implements IndexingFilter {
   private Configuration conf;
   private HashMap<String, String[]> fields;
   private boolean addStaticFields = false;
-  private String fieldSep = ",";
-  private String kevSep = ":";
-  private String valueSep = " ";
 
   /**
    * The {@link StaticFieldIndexer} filter object which adds fields as per
@@ -88,10 +85,10 @@ public class StaticFieldIndexer implements IndexingFilter {
      * The format is very easy, it's a comma-separated list of fields in the
      * form <name>:<value>
      */
-    for (String field : fieldsString.split(this.fieldSep)) {
-      String[] entry = field.split(this.kevSep);
+    for (String field : fieldsString.split(",")) {
+      String[] entry = field.split(":");
       if (entry.length == 2)
-        fields.put(entry[0].trim(), entry[1].trim().split(this.valueSep));
+        fields.put(entry[0].trim(), entry[1].trim().split(" "));
     }
 
     return fields;
@@ -102,12 +99,6 @@ public class StaticFieldIndexer implements IndexingFilter {
    */
   public void setConf(Configuration conf) {
     this.conf = conf;
-
-    // NUTCH-2052: Allow user-defined delimiters in index.static
-    this.fieldSep = conf.get("index.static.fieldsep", ",");
-    this.kevSep = conf.get("index.static.keysep", ":");
-    this.valueSep = conf.get("index.static.valuesep", " ");
-
     String fieldsString = conf.get("index.static", null);
     if (fieldsString != null) {
       this.addStaticFields = true;
