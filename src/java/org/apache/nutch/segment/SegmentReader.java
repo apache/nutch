@@ -507,55 +507,64 @@ public class SegmentReader extends Configured implements
 
   public void getStats(Path segment, final SegmentReaderStats stats)
       throws Exception {
-    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(
-        getConf(), new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
     long cnt = 0L;
     Text key = new Text();
-    for (int i = 0; i < readers.length; i++) {
-      while (readers[i].next(key))
-        cnt++;
-      readers[i].close();
-    }
-    stats.generated = cnt;
-    Path fetchDir = new Path(segment, CrawlDatum.FETCH_DIR_NAME);
-    if (fs.exists(fetchDir) && fs.getFileStatus(fetchDir).isDir()) {
-      cnt = 0L;
-      long start = Long.MAX_VALUE;
-      long end = Long.MIN_VALUE;
-      CrawlDatum value = new CrawlDatum();
-      MapFile.Reader[] mreaders = MapFileOutputFormat.getReaders(fs, fetchDir,
-          getConf());
-      for (int i = 0; i < mreaders.length; i++) {
-        while (mreaders[i].next(key, value)) {
+    
+    if (ge) {
+      SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(
+          getConf(), new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
+      for (int i = 0; i < readers.length; i++) {
+        while (readers[i].next(key))
           cnt++;
-          if (value.getFetchTime() < start)
-            start = value.getFetchTime();
-          if (value.getFetchTime() > end)
-            end = value.getFetchTime();
-        }
-        mreaders[i].close();
+        readers[i].close();
       }
-      stats.start = start;
-      stats.end = end;
-      stats.fetched = cnt;
+      stats.generated = cnt;
     }
-    Path parseDir = new Path(segment, ParseData.DIR_NAME);
-    if (fs.exists(parseDir) && fs.getFileStatus(parseDir).isDir()) {
-      cnt = 0L;
-      long errors = 0L;
-      ParseData value = new ParseData();
-      MapFile.Reader[] mreaders = MapFileOutputFormat.getReaders(fs, parseDir,
-          getConf());
-      for (int i = 0; i < mreaders.length; i++) {
-        while (mreaders[i].next(key, value)) {
-          cnt++;
-          if (!value.getStatus().isSuccess())
-            errors++;
+    
+    if (fe) {
+      Path fetchDir = new Path(segment, CrawlDatum.FETCH_DIR_NAME);
+      if (fs.exists(fetchDir) && fs.getFileStatus(fetchDir).isDir()) {
+        cnt = 0L;
+        long start = Long.MAX_VALUE;
+        long end = Long.MIN_VALUE;
+        CrawlDatum value = new CrawlDatum();
+        MapFile.Reader[] mreaders = MapFileOutputFormat.getReaders(fs, fetchDir,
+            getConf());
+        for (int i = 0; i < mreaders.length; i++) {
+          while (mreaders[i].next(key, value)) {
+            cnt++;
+            if (value.getFetchTime() < start)
+              start = value.getFetchTime();
+            if (value.getFetchTime() > end)
+              end = value.getFetchTime();
+          }
+          mreaders[i].close();
         }
-        mreaders[i].close();
+        stats.start = start;
+        stats.end = end;
+        stats.fetched = cnt;
       }
-      stats.parsed = cnt;
-      stats.parseErrors = errors;
+    }
+    
+    if (pd) {
+      Path parseDir = new Path(segment, ParseData.DIR_NAME);
+      if (fs.exists(parseDir) && fs.getFileStatus(parseDir).isDir()) {
+        cnt = 0L;
+        long errors = 0L;
+        ParseData value = new ParseData();
+        MapFile.Reader[] mreaders = MapFileOutputFormat.getReaders(fs, parseDir,
+            getConf());
+        for (int i = 0; i < mreaders.length; i++) {
+          while (mreaders[i].next(key, value)) {
+            cnt++;
+            if (!value.getStatus().isSuccess())
+              errors++;
+          }
+          mreaders[i].close();
+        }
+        stats.parsed = cnt;
+        stats.parseErrors = errors;
+      }
     }
   }
 

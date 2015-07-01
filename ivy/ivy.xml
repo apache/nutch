@@ -80,6 +80,13 @@
                 <dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.5.1" />
                 <dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.5.1" />	
 
+                <dependency org="org.apache.commons" name="commons-jexl" rev="2.1.1" />
+
+                 <dependency org="org.apache.mahout" name="mahout-math" rev="0.8" />
+                 <dependency org="org.apache.mahout" name="mahout-core" rev="0.8" />
+                 <dependency org="org.apache.lucene" name="lucene-core" rev="4.3.0" />
+                 <dependency org="org.apache.lucene" name="lucene-analyzers-common" rev="4.3.0" />
+              
 		<!--Configuration: test -->
 
 		<!--artifacts needed for testing -->
@@ -104,6 +111,8 @@
 		<exclude module="jmxtools" />
 		<exclude module="jms" />
 		<exclude module="jmxri" />
+                <exclude org="com.thoughtworks.xstream"/>
+                <exclude org="org.apache.mrunit"/>
 
 	</dependencies>
 

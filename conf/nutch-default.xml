@@ -1224,7 +1224,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 
 <property>
   <name>parsefilter.naivebayes.wordlist</name>
-  <value>wordlist.txt</value>
+  <value>naivebayes-wordlist.txt</value>
   <description>Put the name of the file you want to be used as a list of 
   important words to be matched in the url for the model filter. The format should be one word per line.
   </description>

@@ -209,6 +209,13 @@ public class CrawlDbReducer implements
     case CrawlDatum.STATUS_FETCH_REDIR_TEMP: // successful fetch, redirected
     case CrawlDatum.STATUS_FETCH_REDIR_PERM:
     case CrawlDatum.STATUS_FETCH_NOTMODIFIED: // successful fetch, notmodified
+      // https://issues.apache.org/jira/browse/NUTCH-1656
+      if (metaFromParse != null) {
+        for (Entry<Writable, Writable> e : metaFromParse.entrySet()) {
+          result.getMetaData().put(e.getKey(), e.getValue());
+        }
+      }
+      
       // determine the modification status
       int modified = FetchSchedule.STATUS_UNKNOWN;
       if (fetch.getStatus() == CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
@@ -258,13 +265,6 @@ public class CrawlDbReducer implements
             result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         }
         result.setSignature(signature);
-      }
-
-      // https://issues.apache.org/jira/browse/NUTCH-1656
-      if (metaFromParse != null) {
-        for (Entry<Writable, Writable> e : metaFromParse.entrySet()) {
-          result.getMetaData().put(e.getKey(), e.getValue());
-        }
       }
 
       // if fetchInterval is larger than the system-wide maximum, trigger
