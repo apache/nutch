@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-1684 ParseMeta to be added before fetch schedulers are run (markus)
+
 * NUTCH-2038 fix for NUTCH-2038: Naive Bayes classifier based html Parse filter (for filtering outlinks) 
   (Asitang Mishra, snagel via mattmann)
 
