@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2052 Enhance index-static to allow configurable delimiters (Peter Ciuffetti via mattmann)
+
 * NUTCH-2038 fix for NUTCH-2038: Naive Bayes classifier based html Parse filter (for filtering outlinks) 
   (Asitang Mishra, snagel via mattmann)
 
