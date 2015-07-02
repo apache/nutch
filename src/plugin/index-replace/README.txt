@@ -1,17 +1,17 @@
-ParseReplace plugin
+IndexReplace plugin
 
-Allows post-parsing regexp replace manipulation of metadata fields.
+Allows indexing-time regexp replace manipulation of metadata fields.
 
 Configuration Example
     <property>
-      <name>parse.replace.regexp</name>
+      <name>index.replace.regexp</name>
       <value>
         id=/file:/http:/
         url=/file:/http:/128
       </value>
     </property
 
-Property format: parse.replace.regexp
+Property format: index.replace.regexp
     The format of the property is a list of regexp replacements, one line per field being
     modified.  Field names would be one of those from https://wiki.apache.org/nutch/IndexStructure.
 
@@ -49,12 +49,12 @@ Non-string Datatypes
 Host and URL specifc replacements.
     If the replacements should apply only to specifc pages, then add a sequence like
 
-    hostmatch=/host match pattern/
+    hostmatch=hostmatchpattern
     fld1=/regexp/replace/flags
     fld2=/regexp/replace/flags
 
     or
-    urlmatch=/url match pattern/
+    urlmatch=urlmatchpattern
     fld1=/regexp/replace/flags
     fld2=/regexp/replace/flags
 
@@ -64,7 +64,7 @@ to pages which match the host or url field (up to the next hostmatch or urlmatch
 and urlmatch patterns must be unique in this property.
 
 Plugin order
-    TBD... But in most cases you will want this plugin to run last.
+    In most cases you will want this plugin to run last.
 
 Testing your match patterns
     Online Regexp testers like http://www.regexplanet.com/advanced/java/index.html

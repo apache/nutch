@@ -16,7 +16,7 @@
  */
 
 /**
- * Parse filter to allow pattern replacements on parsed metadata.
+ * Indexing filter to allow pattern replacements on metadata.
  */
-package org.apache.nutch.parse.replace;
+package org.apache.nutch.indexer.replace;
 
