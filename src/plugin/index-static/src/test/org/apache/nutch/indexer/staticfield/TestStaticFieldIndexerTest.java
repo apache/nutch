@@ -165,11 +165,8 @@ public class TestStaticFieldIndexerTest {
     conf.set("index.static.fieldsep", "\n\n");
     conf.set("index.static.keysep", "\t\t");
     conf.set("index.static.valuesep", "***");
-    conf.set("index.static",
-      "field1\t\tval1\n\n" + 
-      "field2\t\tval2***val3\n\n" + 
-      "field3\n\n" +
-      "field4\t\tval4\n\n\n\n");
+    conf.set("index.static", "field1\t\tval1\n\n" + "field2\t\tval2***val3\n\n"
+        + "field3\n\n" + "field4\t\tval4\n\n\n\n");
     Assert.assertNotNull(filter);
     filter.setConf(conf);
 
