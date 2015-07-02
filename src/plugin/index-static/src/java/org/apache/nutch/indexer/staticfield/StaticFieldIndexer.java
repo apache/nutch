@@ -104,9 +104,9 @@ public class StaticFieldIndexer implements IndexingFilter {
     this.conf = conf;
 
     // NUTCH-2052: Allow user-defined delimiters in index.static
-    this.fieldSep = conf.get("index.static.fieldsep", ",");
-    this.kevSep = conf.get("index.static.keysep", ":");
-    this.valueSep = conf.get("index.static.valuesep", " ");
+    this.fieldSep = this.regexEscape(conf.get("index.static.fieldsep", ","));
+    this.kevSep = this.regexEscape(conf.get("index.static.keysep", ":"));
+    this.valueSep = this.regexEscape(conf.get("index.static.valuesep", " "));
 
     String fieldsString = conf.get("index.static", null);
     if (fieldsString != null) {
@@ -120,5 +120,24 @@ public class StaticFieldIndexer implements IndexingFilter {
    */
   public Configuration getConf() {
     return this.conf;
+  }
+
+  /**
+   * Escapes any character that needs escaping so it can be used in a regexp.
+   */
+  protected String regexEscape(String in) {
+    String result = in;
+    if (in != null) {
+      StringBuffer sb = new StringBuffer();
+      for (int i = 0; i < in.length(); i++) {
+        CharSequence c = in.subSequence(i, i+1);
+        if ("<([{\\^-=$!|]})?*+.>".contains(c)) {
+          sb.append('\\');
+        }
+        sb.append(c);
+      }
+      result = sb.toString();
+    }
+    return result;
   }
 }
