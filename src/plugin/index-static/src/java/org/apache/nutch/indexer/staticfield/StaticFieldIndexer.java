@@ -40,6 +40,9 @@ public class StaticFieldIndexer implements IndexingFilter {
   private Configuration conf;
   private HashMap<String, String[]> fields;
   private boolean addStaticFields = false;
+  private String fieldSep = ",";
+  private String kevSep = ":";
+  private String valueSep = " ";
 
   /**
    * The {@link StaticFieldIndexer} filter object which adds fields as per
@@ -85,10 +88,10 @@ public class StaticFieldIndexer implements IndexingFilter {
      * The format is very easy, it's a comma-separated list of fields in the
      * form <name>:<value>
      */
-    for (String field : fieldsString.split(",")) {
-      String[] entry = field.split(":");
+    for (String field : fieldsString.split(this.fieldSep)) {
+      String[] entry = field.split(this.kevSep);
       if (entry.length == 2)
-        fields.put(entry[0].trim(), entry[1].trim().split(" "));
+        fields.put(entry[0].trim(), entry[1].trim().split(this.valueSep));
     }
 
     return fields;
@@ -99,6 +102,12 @@ public class StaticFieldIndexer implements IndexingFilter {
    */
   public void setConf(Configuration conf) {
     this.conf = conf;
+
+    // NUTCH-2052: Allow user-defined delimiters in index.static
+    this.fieldSep = this.regexEscape(conf.get("index.static.fieldsep", ","));
+    this.kevSep = this.regexEscape(conf.get("index.static.keysep", ":"));
+    this.valueSep = this.regexEscape(conf.get("index.static.valuesep", " "));
+
     String fieldsString = conf.get("index.static", null);
     if (fieldsString != null) {
       this.addStaticFields = true;
@@ -111,5 +120,24 @@ public class StaticFieldIndexer implements IndexingFilter {
    */
   public Configuration getConf() {
     return this.conf;
+  }
+
+  /**
+   * Escapes any character that needs escaping so it can be used in a regexp.
+   */
+  protected String regexEscape(String in) {
+    String result = in;
+    if (in != null) {
+      StringBuffer sb = new StringBuffer();
+      for (int i = 0; i < in.length(); i++) {
+        CharSequence c = in.subSequence(i, i+1);
+        if ("<([{\\^-=$!|]})?*+.>".contains(c)) {
+          sb.append('\\');
+        }
+        sb.append(c);
+      }
+      result = sb.toString();
+    }
+    return result;
   }
 }
