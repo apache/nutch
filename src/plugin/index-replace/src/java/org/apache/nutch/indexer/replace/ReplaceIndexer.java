@@ -40,7 +40,46 @@ import org.apache.nutch.parse.Parse;
 /**
  * Do pattern replacements on selected field contents prior to indexing.
  * 
+ * To use this plugin, add <code>index-replace</code> to your
+ * <code>plugin.includes</code>. Example:
+ * 
+ * <pre>
+ *   &lt;property>
+ *    &lt;name>plugin.includes&lt;/name>
+ *    &lt;value>protocol-(http)|urlfilter-regex|parse-(html|tika|metatags)|index-(basic|anchor|metadata|replace)|urlnormalizer-(pass|regex|basic)|indexer-solr&lt;/value>
+ *   &lt;/property>
+ * </pre>
+ *
+ * And then add the <code>index.replace.regexp</code> property to
+ * <code>conf/nutch-site.xml</code>. This contains a list of replacement
+ * instructions per field name, one per line. eg.
+ * 
+ * <pre>
+ *   fieldname=/regexp/replacement/[flags]
+ * </pre>
+ * 
+ * <pre>
+ *   &lt;property>
+ *    &lt;name>index.replace.regexp&lt;/name>
+ *    &lt;value>
+ *      hostmatch=.*\\.com
+ *      title=/search/replace/2
+ *    &lt;/value>
+ *   &lt;/property>
+ * </pre>
+ * 
+ * <code>hostmatch=</code> and <code>urlmatch=</code> lines indicate the match
+ * pattern for a host or url. The field replacements that follow this line will
+ * apply only to pages from the matching host or url. Replacements run in the
+ * order specified. Field names may appear multiple times if multiple
+ * replacements are needed.
+ * 
+ * The property format is defined in greater detail in
+ * <code>conf/nutch-default.xml</code>.
+ *
  * @author Peter Ciuffetti
+ * @see <a
+ *      href="https://issues.apache.org/jira/browse/NUTCH-2058">NUTCH-2058</a>
  */
 public class ReplaceIndexer implements IndexingFilter {
 

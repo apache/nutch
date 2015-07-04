@@ -33,6 +33,19 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * JUnit tests for the <code>index-replace</code> plugin.
+ * 
+ * In these tests, the sample file has some meta tags added to the Nutch
+ * document by the <code>index-metadata</code> plugin. The
+ * <code>index-replace</code> plugin is then used to either change (or not
+ * change) the fields depending on the various values of
+ * <code>index.replace.regexp</code> property being provided to Nutch.
+ * 
+ * 
+ * @author Peter Ciuffetti
+ *
+ */
 public class TestIndexReplace {
 
   private static final String INDEX_REPLACE_PROPERTY = "index.replace.regexp";
@@ -43,11 +56,6 @@ public class TestIndexReplace {
 
   /**
    * Run a test file through the Nutch parser and index filters.
-   * 
-   * In these tests, the sample file has some meta tags added to the Nutch
-   * document by index-metadata plugin. The index-replace plugin is then used to
-   * either change (or not change) the fields depending on the various values of
-   * index.replace.regexp property being provided to Nutch.
    * 
    * @param fileName
    * @param conf
@@ -114,12 +122,13 @@ public class TestIndexReplace {
     try {
       rp.setConf(conf);
     } catch (RuntimeException ohno) {
-      Assert.fail("Unable to parse a valid index.replace.regexp property! " + ohno.getMessage());
+      Assert.fail("Unable to parse a valid index.replace.regexp property! "
+          + ohno.getMessage());
     }
 
     Configuration parsedConf = rp.getConf();
 
-    // Does the getter equal the setter?  Too easy!
+    // Does the getter equal the setter? Too easy!
     Assert.assertEquals(indexReplaceProperty,
         parsedConf.get(INDEX_REPLACE_PROPERTY));
   }
@@ -127,8 +136,8 @@ public class TestIndexReplace {
   /**
    * Test metatag value replacement using global replacement settings.
    * 
-   * The index.replace.regexp property does not use hostmatch or urlmatch, so all
-   * patterns are global.
+   * The index.replace.regexp property does not use hostmatch or urlmatch, so
+   * all patterns are global.
    */
   @Test
   public void testGlobalReplacement() {
@@ -162,9 +171,10 @@ public class TestIndexReplace {
   /**
    * Test that invalid property settings are handled and ignored.
    * 
-   * This test provides an invalid property setting that will fail property parsing
-   * and Pattern.compile. The expected outcome is that the patterns will not
-   * cause failure and the targeted fields will not be modified by the filter.
+   * This test provides an invalid property setting that will fail property
+   * parsing and Pattern.compile. The expected outcome is that the patterns will
+   * not cause failure and the targeted fields will not be modified by the
+   * filter.
    */
   @Test
   public void testInvalidPatterns() {
@@ -271,8 +281,8 @@ public class TestIndexReplace {
   }
 
   /**
-   * Test a global pattern match for description and URL pattern match
-   * for keywords and author.
+   * Test a global pattern match for description and URL pattern match for
+   * keywords and author.
    * 
    * All three should be triggered. It also tests replacement groups.
    */
@@ -310,8 +320,8 @@ public class TestIndexReplace {
   }
 
   /**
-   * Test a global pattern match for description and URL pattern match
-   * for keywords and author.
+   * Test a global pattern match for description and URL pattern match for
+   * keywords and author.
    * 
    * Only the global match should be triggered.
    */
@@ -384,7 +394,8 @@ public class TestIndexReplace {
   /**
    * Test a replacement pattern that uses the flags feature.
    * 
-   * A 2 is Pattern.CASE_INSENSITIVE.  We look for upper case and expect to match any case.
+   * A 2 is Pattern.CASE_INSENSITIVE. We look for upper case and expect to match
+   * any case.
    */
   @Test
   public void testReplacementsWithFlags() {
@@ -405,7 +416,8 @@ public class TestIndexReplace {
     // Run the document through the parser and index filters.
     NutchDocument doc = parseAndFilterFile(sampleFile, conf);
 
-    // Check that the value produced by the case-insensitive replacement has worked.
+    // Check that the value produced by the case-insensitive replacement has
+    // worked.
     Assert.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
   }

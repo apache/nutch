@@ -1544,10 +1544,12 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
     bin/nutch generate crawl/crawldb crawl/segments
     bin/nutch fetch crawl/segments/[segment]
     bin/nutch parse crawl/segments/[segment]
-    To inspect the returned fields...
-    bin/nutch readseg -dump crawl/segments/[segment] testout
-    less testout/dump
-    to retry: delete crawl/segments/[segment]/crawl_parse and repeat the parse and dump step.
+    bin/nutch invertlinks crawl/linkdb -dir crawl/segments
+    ...index your document, for example with SOLR...
+    bin/nutch solrindex http://localhost:8983/solr crawl/crawldb/ -linkdb crawl/linkdb/ crawl/segement[segment] -filter -normalize
+
+    Inspect your index with the solr admin panel...
+    http://localhost:8983/solr/#/
   </description>
 </property>
 

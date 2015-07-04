@@ -83,9 +83,9 @@ Testing your match patterns
         bin/nutch generate crawl/crawldb crawl/segments
         bin/nutch fetch crawl/segments/[segment]
         bin/nutch parse crawl/segments/[segment]
+        bin/nutch invertlinks crawl/linkdb -dir crawl/segments
+        ...index your document, for example with SOLR...
+        bin/nutch solrindex http://localhost:8983/solr crawl/crawldb/ -linkdb crawl/linkdb/ crawl/segement[segment] -filter -normalize
 
-    To inspect the returned fields...
-        bin/nutch readseg -dump crawl/segments/[segment] testout
-        less testout/dump
-
-    To retry: delete crawl/segments/[segment]/crawl_parse and repeat the parse and dump step.
+    To inspect your index with the solr admin panel...
+        http://localhost:8983/solr/#/
