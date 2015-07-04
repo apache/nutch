@@ -6,8 +6,8 @@ Configuration Example
     <property>
       <name>index.replace.regexp</name>
       <value>
-        id=/file:/http:/
-        url=/file:/http:/128
+        id=/file\\:/http\\:my.site.com/
+        url=/file\\:/http\\:my.site.com/128
       </value>
     </property
 
@@ -15,7 +15,7 @@ Property format: index.replace.regexp
     The format of the property is a list of regexp replacements, one line per field being
     modified.  Field names would be one of those from https://wiki.apache.org/nutch/IndexStructure.
 
-    The fieldname preceeds the equal sign.  The first character after the equal sign signifies
+    The fieldname precedes the equal sign.  The first character after the equal sign signifies
     the delimiter for the regexp, the replacement value and the flags.
 
 Replacement Sequence
@@ -37,7 +37,7 @@ Flags
 
 Escaping
     Since the regexp is being read from a config file, any escaped values must be double
-    escaped.  Eg:  id=/\\s+//  will cause the esacped \s+ match pattern to be used.
+    escaped.  Eg:  id=/\\s+//  will cause the escaped \s+ match pattern to be used.
 
 Multi-valued Fields
     If a field has multiple values, the replacement will be applied to each value in turn.
@@ -46,8 +46,8 @@ Non-string Datatypes
     Replacement is possible only on String field datatypes.  If the field you name in the property is
     not a String datatype, it will be silently ignored.
 
-Host and URL specifc replacements.
-    If the replacements should apply only to specifc pages, then add a sequence like
+Host and URL specific replacements.
+    If the replacements should apply only to specific pages, then add a sequence like
 
     hostmatch=hostmatchpattern
     fld1=/regexp/replace/flags

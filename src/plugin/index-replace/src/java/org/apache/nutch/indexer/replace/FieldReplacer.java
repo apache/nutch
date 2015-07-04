@@ -94,6 +94,10 @@ public class FieldReplacer {
 		return this.replacement;
 	}
 
+	/**
+	 * Does this FieldReplacer have a valid fieldname and pattern?
+	 * @return
+	 */
 	public boolean isValid() {
 		return this.isValid;
 	}

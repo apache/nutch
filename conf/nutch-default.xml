@@ -1487,16 +1487,16 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
     Field names would be one of those from https://wiki.apache.org/nutch/IndexStructure.
     The replacements will happen in the order listed. If a field needs multiple replacement operations
     they may be listed more than once.
-    The fieldname preceeds the equal sign.  The first character after the equal sign signifies
+    The fieldname precedes the equal sign.  The first character after the equal sign signifies
     the delimiter for the regexp, the replacement value and the flags.
 
-    The regexp and the option flags should correspond to Pattern.compile(String regexp, int flags) defined
+    The regexp and the optional flags should correspond to Pattern.compile(String regexp, int flags) defined
     here: http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html#compile%28java.lang.String,%20int%29
     The flags is an integer sum of the flag values defined in
     http://docs.oracle.com/javase/7/docs/api/constant-values.html (Sec: java.util.regex.Pattern)
     Patterns are compiled when the plugin is initialized for efficiency.
     Escaping: since the regexp is being read from this config file, any escaped values must be double
-    escaped.  Eg:  id=/\\s+//  will cause the esacped \s+ match pattern to be used.
+    escaped.  Eg:  id=/\\s+//  will cause the escaped \s+ match pattern to be used.
 
     The replacement value should correspond to Java Matcher(CharSequence input).replaceAll(String replacement):
     http://docs.oracle.com/javase/7/docs/api/java/util/regex/Matcher.html#replaceAll%28java.lang.String%29
@@ -1508,8 +1508,8 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
     Replacement is possible only on String field datatypes.  If the field you name in the property is
     not a String datatype, it will be silently ignored.
 
-    Host and URL specifc replacements.
-    If the replacements should apply only to specifc pages, then add a sequence like
+    Host and URL specific replacements.
+    If the replacements should apply only to specific pages, then add a sequence like
 
     hostmatch=hostmatchpattern
     fld1=/regexp/replace/flags

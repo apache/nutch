@@ -18,7 +18,7 @@ package org.apache.nutch.indexer.replace;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -47,13 +47,13 @@ public class ReplaceIndexer implements IndexingFilter {
   private static final Log LOG = LogFactory.getLog(ReplaceIndexer.class
       .getName());
 
-  /** Special fieldname signifying the start of a host-specific match set */
+  /** Special field name signifying the start of a host-specific match set */
   private static final String HOSTMATCH = "hostmatch";
-  /** Special fieldname signifying the start of a url-specific match set */
+  /** Special field name signifying the start of a url-specific match set */
   private static final String URLMATCH = "urlmatch";
 
-  private static Map<Pattern, List<FieldReplacer>> FIELDREPLACERS_BY_HOST = new HashMap<Pattern, List<FieldReplacer>>();
-  private static Map<Pattern, List<FieldReplacer>> FIELDREPLACERS_BY_URL = new HashMap<Pattern, List<FieldReplacer>>();
+  private static Map<Pattern, List<FieldReplacer>> FIELDREPLACERS_BY_HOST = new LinkedHashMap<Pattern, List<FieldReplacer>>();
+  private static Map<Pattern, List<FieldReplacer>> FIELDREPLACERS_BY_URL = new LinkedHashMap<Pattern, List<FieldReplacer>>();
 
   private static Pattern LINE_SPLIT = Pattern.compile("(^.+$)+",
       Pattern.MULTILINE);
@@ -66,6 +66,8 @@ public class ReplaceIndexer implements IndexingFilter {
    */
   public void setConf(Configuration conf) {
     this.conf = conf;
+    FIELDREPLACERS_BY_HOST.clear();
+    FIELDREPLACERS_BY_URL.clear();
     String value = conf.get("index.replace.regexp", null);
     if (value != null) {
       LOG.debug("Parsing index.replace.regexp property");
@@ -102,9 +104,9 @@ public class ReplaceIndexer implements IndexingFilter {
       if (line != null && line.length() > 0) {
 
         // Split the line into field and value
-        Matcher nameValueMatcher = NAME_VALUE_SPLIT.matcher(line);
+        Matcher nameValueMatcher = NAME_VALUE_SPLIT.matcher(line.trim());
         if (nameValueMatcher.find()) {
-          String fieldName = nameValueMatcher.group(1);
+          String fieldName = nameValueMatcher.group(1).trim();
           String value = nameValueMatcher.group(2);
           if (fieldName != null && value != null) {
             // Check if the field name is one of our special cases.
@@ -115,7 +117,8 @@ public class ReplaceIndexer implements IndexingFilter {
               } catch (PatternSyntaxException pse) {
                 LOG.error("hostmatch pattern does not compile: "
                     + pse.getMessage());
-                hostPattern = Pattern.compile("willnotmatchanything");
+                // Deactivate this invalid match set by making it match no host.
+                hostPattern = Pattern.compile("willnotmatchanyhost");
               }
             } else if (URLMATCH.equals(fieldName)) {
               try {
@@ -123,24 +126,33 @@ public class ReplaceIndexer implements IndexingFilter {
               } catch (PatternSyntaxException pse) {
                 LOG.error("urlmatch pattern does not compile: "
                     + pse.getMessage());
-                urlPattern = Pattern.compile("willnotmatchanything");
+                // Deactivate this invalid match set by making it match no url.
+                urlPattern = Pattern.compile("willnotmatchanyurl");
               }
             } else if (value.length() > 3) {
               String sep = value.substring(0, 1);
 
               // Divide the value into pattern / replacement / flags.
               value = value.substring(1);
+              if (!value.contains(sep)) {
+                LOG.error("Pattern '" + line
+                    + "', not parseable.  Missing separator " + sep);
+                continue;
+              }
               String pattern = value.substring(0, value.indexOf(sep));
               value = value.substring(pattern.length() + 1);
-              String replacement = value.substring(0, value.indexOf(sep));
+              String replacement = value;
+              if (value.contains(sep)) {
+                replacement = value.substring(0, value.indexOf(sep));
+              }
               int flags = 0;
               if (value.length() > replacement.length() + 1) {
                 value = value.substring(replacement.length() + 1).trim();
                 try {
                   flags = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
-                  LOG.error("Pattern " + propertyValue
-                      + ", has invalid flags component");
+                  LOG.error("Pattern " + line + ", has invalid flags component");
+                  continue;
                 }
               }
               Integer iFlags = (flags > 0) ? new Integer(flags) : null;
