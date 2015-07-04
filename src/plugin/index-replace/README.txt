@@ -7,7 +7,7 @@ Configuration Example
       <name>index.replace.regexp</name>
       <value>
         id=/file\\:/http\\:my.site.com/
-        url=/file\\:/http\\:my.site.com/128
+        url=/file\\:/http\\:my.site.com/2
       </value>
     </property
 
