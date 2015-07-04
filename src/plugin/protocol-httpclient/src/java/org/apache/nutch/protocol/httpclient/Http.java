@@ -62,15 +62,24 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 /**
- * <p>This class is a protocol plugin that configures an HTTP client for Basic,
+ * <p>
+ * This class is a protocol plugin that configures an HTTP client for Basic,
  * Digest and NTLM authentication schemes for web server as well as proxy
  * server. It takes care of HTTPS protocol as well as cookies in a single fetch
- * session.</p>
- * <p>Documentation can be found on the Nutch <a href="https://wiki.apache.org/nutch/HttpAuthenticationSchemes">HttpAuthenticationSchemes</a>
- * wiki page.</p>
- * <p>The original description of the motivation to support <a href="https://wiki.apache.org/nutch/HttpPostAuthentication">HttpPostAuthentication</a>
- * is also included on the Nutch wiki. Additionally HttpPostAuthentication development is documented
- * at the <a href="https://issues.apache.org/jira/browse/NUTCH-827">NUTCH-827</a> Jira issue.
+ * session.
+ * </p>
+ * <p>
+ * Documentation can be found on the Nutch <a
+ * href="https://wiki.apache.org/nutch/HttpAuthenticationSchemes"
+ * >HttpAuthenticationSchemes</a> wiki page.
+ * </p>
+ * <p>
+ * The original description of the motivation to support <a
+ * href="https://wiki.apache.org/nutch/HttpPostAuthentication"
+ * >HttpPostAuthentication</a> is also included on the Nutch wiki. Additionally
+ * HttpPostAuthentication development is documented at the <a
+ * href="https://issues.apache.org/jira/browse/NUTCH-827">NUTCH-827</a> Jira
+ * issue.
  * 
  * @author Susam Pal
  */
@@ -178,7 +187,7 @@ public class Http extends HttpBase {
   private void configureClient() {
 
     // Set up an HTTPS socket factory that accepts self-signed certs.
-    //ProtocolSocketFactory factory = new SSLProtocolSocketFactory();
+    // ProtocolSocketFactory factory = new SSLProtocolSocketFactory();
     ProtocolSocketFactory factory = new DummySSLProtocolSocketFactory();
     Protocol https = new Protocol("https", factory, 443);
     Protocol.registerProtocol("https", https);
@@ -188,12 +197,20 @@ public class Http extends HttpBase {
     params.setSoTimeout(timeout);
     params.setSendBufferSize(BUFFER_SIZE);
     params.setReceiveBufferSize(BUFFER_SIZE);
-    params.setMaxTotalConnections(maxThreadsTotal);
+
+    // --------------------------------------------------------------------------------
+    // NUTCH-1836: Modification to increase the number of available connections
+    // for multi-threaded crawls.
+    // --------------------------------------------------------------------------------
+    params.setMaxTotalConnections(conf.getInt(
+        "mapred.tasktracker.map.tasks.maximum", 5)
+        * conf.getInt("fetcher.threads.fetch", maxThreadsTotal));
 
     // Also set max connections per host to maxThreadsTotal since all threads
     // might be used to fetch from the same host - otherwise timeout errors can
     // occur
-    params.setDefaultMaxConnectionsPerHost(maxThreadsTotal);
+    params.setDefaultMaxConnectionsPerHost(conf.getInt(
+        "fetcher.threads.fetch", maxThreadsTotal));
 
     // executeMethod(HttpMethod) seems to ignore the connection timeout on the
     // connection manager.
@@ -203,16 +220,16 @@ public class Http extends HttpBase {
     HostConfiguration hostConf = client.getHostConfiguration();
     ArrayList<Header> headers = new ArrayList<Header>();
     // Set the User Agent in the header
-    //headers.add(new Header("User-Agent", userAgent)); //NUTCH-1941
+    // headers.add(new Header("User-Agent", userAgent)); //NUTCH-1941
     // prefer English
     headers.add(new Header("Accept-Language", acceptLanguage));
     // prefer UTF-8
     headers.add(new Header("Accept-Charset", "utf-8,ISO-8859-1;q=0.7,*;q=0.7"));
     // prefer understandable formats
     headers
-    .add(new Header(
-        "Accept",
-        "text/html,application/xml;q=0.9,application/xhtml+xml,text/xml;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"));
+        .add(new Header(
+            "Accept",
+            "text/html,application/xml;q=0.9,application/xhtml+xml,text/xml;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"));
     // accept gzipped content
     headers.add(new Header("Accept-Encoding", "x-gzip, gzip, deflate"));
     hostConf.getParams().setParameter("http.default-headers", headers);
@@ -287,8 +304,7 @@ public class Http extends HttpBase {
         String authMethod = credElement.getAttribute("authMethod");
         // read http form post auth info
         if (StringUtils.isNotBlank(authMethod)) {
-          formConfigurer = readFormAuthConfigurer(credElement,
-              authMethod);
+          formConfigurer = readFormAuthConfigurer(credElement, authMethod);
           continue;
         }
 
@@ -361,12 +377,12 @@ public class Http extends HttpBase {
   }
 
   /**
-   * <auth-configuration> <credentials authMethod="formAuth"
-   * loginUrl="loginUrl" loginFormId="loginFormId" loginRedirect="true">
-   * <loginPostData> <field name="username" value="user1"/> </loginPostData>
-   * <additionalPostHeaders> <field name="header1" value="vaule1"/>
-   * </additionalPostHeaders> <removedFormFields> <field name="header1"/>
-   * </removedFormFields> </credentials> </auth-configuration>
+   * <auth-configuration> <credentials authMethod="formAuth" loginUrl="loginUrl"
+   * loginFormId="loginFormId" loginRedirect="true"> <loginPostData> <field
+   * name="username" value="user1"/> </loginPostData> <additionalPostHeaders>
+   * <field name="header1" value="vaule1"/> </additionalPostHeaders>
+   * <removedFormFields> <field name="header1"/> </removedFormFields>
+   * </credentials> </auth-configuration>
    */
   private static HttpFormAuthConfigurer readFormAuthConfigurer(
       Element credElement, String authMethod) {
@@ -424,8 +440,7 @@ public class Http extends HttpBase {
             String value = fieldElement.getAttribute("value");
             additionalPostHeaders.put(name, value);
           }
-          formConfigurer
-          .setAdditionalPostHeaders(additionalPostHeaders);
+          formConfigurer.setAdditionalPostHeaders(additionalPostHeaders);
         } else if ("removedFormFields".equals(element.getTagName())) {
           Set<String> removedFormFields = new HashSet<String>();
           NodeList childNodes = element.getChildNodes();
