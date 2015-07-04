@@ -13,8 +13,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
---%>
-<%--
+--%><%--
   This JSP tests digest authentication. It generates an HTTP response
   with authorization header for digest authentication and checks the
   user-name supplied by the client. It does not check the other
@@ -23,12 +22,10 @@
   be tested.
 
   Author: Susam Pal
---%>
-<%@ page
+--%><%@ page
     import = "java.util.StringTokenizer"
     import = "java.util.HashMap"
-%>
-<%
+%><%
   String username = "digest_user";
   String authHeader = request.getHeader("Authorization");
   

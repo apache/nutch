@@ -13,8 +13,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
---%>
-<%--
+--%><%--
   This JSP demonstrates basic authentication. When this JSP page is
   requested with no query parameters, then the user must enter the
   username as 'userx' and password as 'passx' when prompted for
@@ -25,11 +24,9 @@
   code below.
 
   Author: Susam Pal
---%>
-<%@ page
+--%><%@ page
     import = "sun.misc.BASE64Decoder"
-%>
-<%
+%><%
   String authHeader = request.getHeader("Authorization");
   String realm = null;
   String username = null;
