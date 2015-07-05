@@ -13,8 +13,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
---%>
-<%--
+--%><%--
   This JSP tests NTLM authentication. It generates an HTTP response
   with authorization header for NTLM authentication and checks the
   user-name supplied by the client. It does not check the other
@@ -23,12 +22,10 @@
   be tested.
 
   Author: Susam Pal
---%>
-<%@ page
+--%><%@ page
     import = "sun.misc.BASE64Decoder"
     import = "sun.misc.BASE64Encoder"
-%>
-<%
+%><%
   String authHeader = request.getHeader("Authorization");
   String username = null;
   String domain = null;

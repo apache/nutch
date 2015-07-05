@@ -13,8 +13,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
---%>
-<%--
+--%><%--
   This JSP tests whether the client can remember cookies. When the JSP
   is fetched for the first time without any query parameters, it sets
   a few cookies in the client. On a second request, with the query
@@ -23,8 +22,7 @@
   If the cookies are not found, HTTP 403 response is returned.
 
   Author: Susam Pal
---%>
-<%
+--%><%
   String cookieParam = request.getParameter("cookie");
   if (!"yes".equals(cookieParam)) { // Send cookies
     response.addCookie(new Cookie("var1", "val1"));
