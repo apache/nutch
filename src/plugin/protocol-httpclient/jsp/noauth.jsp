@@ -13,16 +13,14 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
---%>
-<%--
+--%><%--
   This JSP tests whether the client is sending any pre-emptive
   authentication headers. The client is expected not to send pre-emptive
   authentication headers. If such authentication headers are found, this
   JSP will return an HTTP 403 response; HTTP 200 response otherwise.
 
   Author: Susam Pal
---%>
-<%
+--%><%
   if (request.getHeader("Authorization") != null) {
     response.sendError(response.SC_UNAUTHORIZED);
   } else {

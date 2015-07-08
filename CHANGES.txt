@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2059 protocol-httpclient, protocol-http unit test errors on Jenkins (Peter Ciuffetti via mattmann)
+
 * NUTCH-1980 Jexl expressions for CrawlDbReader (markus)
 
 * NUTCH-1692 SegmentReader was broken in distributed mode (markus, tejasp)
