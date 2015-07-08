@@ -39,6 +39,11 @@ Escaping
     Since the regexp is being read from a config file, any escaped values must be double
     escaped.  Eg:  id=/\\s+//  will cause the escaped \s+ match pattern to be used.
 
+Creating New Fields
+    If you express the fieldname as fldname1:fldname2=[replacement], then the replacer will create a new field
+    from the source field.  The source field remains unmodified.  This is an alternative to solrindex-mapping
+    which is only able to copy fields verbatim.
+
 Multi-valued Fields
     If a field has multiple values, the replacement will be applied to each value in turn.
 

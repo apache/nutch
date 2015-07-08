@@ -38,6 +38,7 @@ public class FieldReplacer {
 			.getName());
 
 	private final String fieldName;
+	private final String toFieldName;
 	private final Pattern pattern;
 	private final String replacement;
 	private boolean isValid;
@@ -50,7 +51,9 @@ public class FieldReplacer {
 	 * This prevents this caller from attempting invalid replacements.
 	 * 
 	 * @param fieldName
-	 *            the name of the field to operate on. Required.
+	 *            the name of the source field to operate on. Required.
+   * @param toFieldName
+   *            the name of the target field. Required.
 	 * @param pattern
 	 *            the pattern the field must match. Required.
 	 * @param replacement
@@ -58,7 +61,7 @@ public class FieldReplacer {
 	 * @param flags
 	 *            the Pattern flags value, or null if no flags are needed
 	 */
-	public FieldReplacer(String fieldName, String pattern, String replacement,
+	public FieldReplacer(String fieldName, String toFieldName, String pattern, String replacement,
 			Integer flags) {
 
 		this.isValid = true;
@@ -79,6 +82,7 @@ public class FieldReplacer {
 		}
 
 		this.fieldName = fieldName.trim();
+		this.toFieldName = toFieldName.trim();
 
 		if (this.isValid) {
 			Pattern myPattern = null;
@@ -98,9 +102,26 @@ public class FieldReplacer {
 		}
 	}
 
+	/**
+	 * Field replacer with the input and output field the same.
+	 * 
+	 * @param fieldName
+	 * @param pattern
+	 * @param replacement
+	 * @param flags
+	 */
+	public FieldReplacer(String fieldName, String pattern, String replacement,
+      Integer flags) {
+	  this(fieldName, fieldName, pattern, replacement, flags);
+	}
+
 	public String getFieldName() {
 		return this.fieldName;
 	}
+
+  public String getToFieldName() {
+    return this.toFieldName;
+  }
 
 	public Pattern getPattern() {
 		return this.pattern;

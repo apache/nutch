@@ -169,6 +169,12 @@ public class ReplaceIndexer implements IndexingFilter {
                 urlPattern = Pattern.compile("willnotmatchanyurl");
               }
             } else if (value.length() > 3) {
+              String toFieldName = fieldName;
+              // If the fieldname has a colon, this indicates a different target field.
+              if (fieldName.indexOf(':') > 0) {
+                toFieldName = fieldName.substring(fieldName.indexOf(':') + 1);
+                fieldName = fieldName.substring(0, fieldName.indexOf(':'));
+              }
               String sep = value.substring(0, 1);
 
               // Divide the value into pattern / replacement / flags.
@@ -197,7 +203,7 @@ public class ReplaceIndexer implements IndexingFilter {
               Integer iFlags = (flags > 0) ? new Integer(flags) : null;
 
               // Make a FieldReplacer out of these params.
-              FieldReplacer fr = new FieldReplacer(fieldName, pattern,
+              FieldReplacer fr = new FieldReplacer(fieldName, toFieldName, pattern,
                   replacement, iFlags);
 
               // Add this field replacer to the list for this host or URL.
@@ -307,10 +313,11 @@ public class ReplaceIndexer implements IndexingFilter {
                   }
                 }
 
-                // Remove the field and add our replaced values.
-                doc.removeField(fieldName);
+                // Remove the target field and add our replaced values.
+                String targetFieldName = fp.getToFieldName();
+                doc.removeField(targetFieldName);
                 for (String newFieldValue : newFieldValues) {
-                  doc.add(fieldName, newFieldValue);
+                  doc.add(targetFieldName, newFieldValue);
                 }
               }
             }

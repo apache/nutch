@@ -112,7 +112,7 @@ public class TestIndexReplace {
         + "  metatag.keywords=/\\,/\\!/\n"
         + "  hostmatch=.*.com\n"
         + "  metatag.keywords=/\\,/\\?/\n"
-        + "  metatag.author=/\\s+/ David /\n"
+        + "  metatag.author:dc_author=/\\s+/ David /\n"
         + "  urlmatch=.*.html\n"
         + "  metatag.keywords=/\\,/\\./\n" + "  metatag.author=/\\s+/ D. /\n";
 
@@ -420,5 +420,37 @@ public class TestIndexReplace {
     // worked.
     Assert.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
+  }
+
+  /**
+   * Test a replacement pattern that uses the target field feature.
+   * Check that the input is not modifid and that the taret field is added.
+   */
+  @Test
+  public void testReplacementsDifferentTarget() {
+    String expectedDescription = "With this plugin, I control the description! Bwuhuhuhaha!";
+    String expectedTargetDescription = "With this awesome plugin, I control the description! Bwuhuhuhaha!";
+    String indexReplaceProperty = "  metatag.description:new=/this plugin/this awesome plugin/";
+
+    Configuration conf = NutchConfiguration.create();
+    conf.set(
+        "plugin.includes",
+        "protocol-file|urlfilter-regex|parse-(html|metatags)|index-(basic|anchor|metadata|static|replace)|urlnormalizer-(pass|regex|basic)");
+    conf.set(INDEX_REPLACE_PROPERTY, indexReplaceProperty);
+    conf.set("metatags.names", "author,description,keywords");
+    conf.set("index.parse.md",
+        "metatag.author,metatag.description,metatag.keywords");
+    // Not necessary but helpful when debugging the filter.
+    conf.set("http.timeout", "99999999999");
+
+    // Run the document through the parser and index filters.
+    NutchDocument doc = parseAndFilterFile(sampleFile, conf);
+
+    // Check that the input field has not been modified
+    Assert.assertEquals(expectedDescription,
+        doc.getFieldValue("metatag.description"));
+    // Check that the output field has created
+    Assert.assertEquals(expectedTargetDescription,
+        doc.getFieldValue("new"));
   }
 }
