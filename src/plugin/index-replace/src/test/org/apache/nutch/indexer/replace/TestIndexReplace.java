@@ -141,7 +141,7 @@ public class TestIndexReplace {
    */
   @Test
   public void testGlobalReplacement() {
-    String expectedDescription = "With this awesome plugin, nutch is my bitch! Bwuhuhuhaha!";
+    String expectedDescription = "With this awesome plugin, I control the description! Bwuhuhuhaha!";
     String expectedKeywords = "Breathtaking! Riveting! Two Thumbs Up!";
     String expectedAuthor = "Peter D. Ciuffetti";
     String indexReplaceProperty = "  metatag.description=/this(.*)plugin/this awesome plugin/\n"
@@ -178,7 +178,7 @@ public class TestIndexReplace {
    */
   @Test
   public void testInvalidPatterns() {
-    String expectedDescription = "With this plugin, nutch is my bitch! Bwuhuhuhaha!";
+    String expectedDescription = "With this plugin, I control the description! Bwuhuhuhaha!";
     String expectedKeywords = "Breathtaking, Riveting, Two Thumbs Up!";
     String expectedAuthor = "Peter Ciuffetti";
     // Contains: invalid pattern, invalid flags, incomplete property
@@ -213,7 +213,7 @@ public class TestIndexReplace {
    */
   @Test
   public void testUrlMatchesPattern() {
-    String expectedDescription = "With this awesome plugin, nutch is my bitch! Bwuhuhuhaha!";
+    String expectedDescription = "With this awesome plugin, I control the description! Bwuhuhuhaha!";
     String expectedKeywords = "Breathtaking! Riveting! Two Thumbs Up!";
     String expectedAuthor = "Peter D. Ciuffetti";
     String indexReplaceProperty = " urlmatch=.*.html\n"
@@ -250,7 +250,7 @@ public class TestIndexReplace {
    */
   @Test
   public void testUrlNotMatchesPattern() {
-    String expectedDescription = "With this plugin, nutch is my bitch! Bwuhuhuhaha!";
+    String expectedDescription = "With this plugin, I control the description! Bwuhuhuhaha!";
     String expectedKeywords = "Breathtaking, Riveting, Two Thumbs Up!";
     String expectedAuthor = "Peter Ciuffetti";
     String indexReplaceProperty = " urlmatch=.*.xml\n"
@@ -288,7 +288,7 @@ public class TestIndexReplace {
    */
   @Test
   public void testGlobalAndUrlMatchesPattern() {
-    String expectedDescription = "With this awesome plugin, nutch is my bitch! Bwuhuhuhaha!";
+    String expectedDescription = "With this awesome plugin, I control the description! Bwuhuhuhaha!";
     String expectedKeywords = "Breathtaking! Riveting! Two Thumbs Up!";
     String expectedAuthor = "Peter D. Ciuffetti";
     String indexReplaceProperty = "  metatag.description=/this(.*)plugin/this$1awesome$1plugin/\n"
@@ -327,7 +327,7 @@ public class TestIndexReplace {
    */
   @Test
   public void testGlobalAndUrlNotMatchesPattern() {
-    String expectedDescription = "With this awesome plugin, nutch is my bitch! Bwuhuhuhaha!";
+    String expectedDescription = "With this awesome plugin, I control the description! Bwuhuhuhaha!";
     String expectedKeywords = "Breathtaking, Riveting, Two Thumbs Up!";
     String expectedAuthor = "Peter Ciuffetti";
     String indexReplaceProperty = "  metatag.description=/this(.*)plugin/this$1awesome$1plugin/\n"
@@ -365,7 +365,7 @@ public class TestIndexReplace {
    */
   @Test
   public void testReplacementsRunInSpecifedOrder() {
-    String expectedDescription = "With this awesome plugin, nutch is my bitch! Bwuhuhuhaha!";
+    String expectedDescription = "With this awesome plugin, I control the description! Bwuhuhuhaha!";
     String indexReplaceProperty = "  metatag.description=/this plugin/this amazing plugin/\n"
         + "  metatag.description=/this amazing plugin/this valuable plugin/\n"
         + "  metatag.description=/this valuable plugin/this cool plugin/\n"
@@ -399,7 +399,7 @@ public class TestIndexReplace {
    */
   @Test
   public void testReplacementsWithFlags() {
-    String expectedDescription = "With this awesome plugin, nutch is my bitch! Bwuhuhuhaha!";
+    String expectedDescription = "With this awesome plugin, I control the description! Bwuhuhuhaha!";
     String indexReplaceProperty = "  metatag.description=/THIS PLUGIN/this awesome plugin/2";
 
     Configuration conf = NutchConfiguration.create();
