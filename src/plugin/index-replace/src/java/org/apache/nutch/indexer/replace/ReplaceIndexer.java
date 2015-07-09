@@ -154,7 +154,7 @@ public class ReplaceIndexer implements IndexingFilter {
               try {
                 hostPattern = Pattern.compile(value);
               } catch (PatternSyntaxException pse) {
-                LOG.error("hostmatch pattern does not compile: "
+                LOG.error("hostmatch pattern " + value + " does not compile: "
                     + pse.getMessage());
                 // Deactivate this invalid match set by making it match no host.
                 hostPattern = Pattern.compile("willnotmatchanyhost");
@@ -163,14 +163,15 @@ public class ReplaceIndexer implements IndexingFilter {
               try {
                 urlPattern = Pattern.compile(value);
               } catch (PatternSyntaxException pse) {
-                LOG.error("urlmatch pattern does not compile: "
+                LOG.error("urlmatch pattern " + value + " does not compile: "
                     + pse.getMessage());
                 // Deactivate this invalid match set by making it match no url.
                 urlPattern = Pattern.compile("willnotmatchanyurl");
               }
             } else if (value.length() > 3) {
               String toFieldName = fieldName;
-              // If the fieldname has a colon, this indicates a different target field.
+              // If the fieldname has a colon, this indicates a different target
+              // field.
               if (fieldName.indexOf(':') > 0) {
                 toFieldName = fieldName.substring(fieldName.indexOf(':') + 1);
                 fieldName = fieldName.substring(0, fieldName.indexOf(':'));
@@ -203,8 +204,8 @@ public class ReplaceIndexer implements IndexingFilter {
               Integer iFlags = (flags > 0) ? new Integer(flags) : null;
 
               // Make a FieldReplacer out of these params.
-              FieldReplacer fr = new FieldReplacer(fieldName, toFieldName, pattern,
-                  replacement, iFlags);
+              FieldReplacer fr = new FieldReplacer(fieldName, toFieldName,
+                  pattern, replacement, iFlags);
 
               // Add this field replacer to the list for this host or URL.
               if (urlPattern != null) {

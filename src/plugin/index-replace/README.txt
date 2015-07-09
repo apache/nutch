@@ -6,8 +6,8 @@ Configuration Example
     <property>
       <name>index.replace.regexp</name>
       <value>
-        id=/file\\:/http\\:my.site.com/
-        url=/file\\:/http\\:my.site.com/2
+        id=/file\:/http\:my.site.com/
+        url=/file\:/http\:my.site.com/2
       </value>
     </property
 
@@ -34,10 +34,6 @@ Replacement Format
 Flags
     The flags is an integer sum of the flag values defined in
     http://docs.oracle.com/javase/7/docs/api/constant-values.html (Sec: java.util.regex.Pattern)
-
-Escaping
-    Since the regexp is being read from a config file, any escaped values must be double
-    escaped.  Eg:  id=/\\s+//  will cause the escaped \s+ match pattern to be used.
 
 Creating New Fields
     If you express the fieldname as fldname1:fldname2=[replacement], then the replacer will create a new field
@@ -91,6 +87,9 @@ Testing your match patterns
         bin/nutch invertlinks crawl/linkdb -dir crawl/segments
         ...index your document, for example with SOLR...
         bin/nutch solrindex http://localhost:8983/solr crawl/crawldb/ -linkdb crawl/linkdb/ crawl/segement[segment] -filter -normalize
+
+    Inspect hadoop.log for info about pattern parsing and compilation..
+        grep replace logs/hadoop.log
 
     To inspect your index with the solr admin panel...
         http://localhost:8983/solr/#/
