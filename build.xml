@@ -22,7 +22,6 @@
   <property file="${user.home}/build.properties" />
   <property file="${basedir}/build.properties" />
   <property file="${basedir}/default.properties" />
-  <property name="test.junit.output.format" value="plain"/>
   <property name="release.dir" value="${build.dir}/release"/>
   
   <!-- define Maven coordinates, repository url and artifacts name etc -->
