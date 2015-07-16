@@ -42,7 +42,6 @@ public class TestProtocolHttpClient {
   private int port;
   private Http http = new Http();
 
-  @SuppressWarnings("deprecation")
   @Before
   public void setUp() throws Exception {
 
@@ -50,7 +49,7 @@ public class TestProtocolHttpClient {
     context.setContextPath("/");
     context.setResourceBase(RES_DIR);
     ServletHandler sh = new ServletHandler();
-    sh.addServlet("org.apache.jasper.servlet.JspServlet", "*.jsp");
+    sh.addServletWithMapping("org.apache.jasper.servlet.JspServlet", "*.jsp");
     context.addHandler(sh);
     context.addHandler(new SessionHandler());
 
@@ -68,6 +67,11 @@ public class TestProtocolHttpClient {
   @After
   public void tearDown() throws Exception {
     server.stop();
+    for (int i = 0; i < 5; i++) {
+      if (!server.isStopped()) {
+       Thread.sleep(1000);
+      }
+    }
   }
 
   /**
@@ -164,19 +168,30 @@ public class TestProtocolHttpClient {
 
   /**
    * Starts the Jetty server at a specified port.
-   * 
+   *
+   * Will try up to 10 ports to find an available port to use.
+   *
    * @param portno
    *          Port number.
    * @throws Exception
    *           When an error occurs.
    */
   private void startServer(int portno) throws Exception {
-    port = portno;
     SocketConnector listener = new SocketConnector();
     listener.setHost("127.0.0.1");
-    listener.setPort(port);
     server.addConnector(listener);
-    server.start();
+    for (int p = portno; p < portno + 10; p++) {
+      port = portno;
+      listener.setPort(port);
+      try {
+        server.start();
+        break;
+      } catch (Exception e) {
+        if (p == portno + 9) {
+          throw e;
+        }
+      }
+    }
   }
 
   /**
