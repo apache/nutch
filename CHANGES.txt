@@ -2,6 +2,9 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2058 Indexer plugin that allows RegEx replacements on the NutchDocument 
+  field values (Peter Ciuffetti via mattmann)
+
 * NUTCH-2059 protocol-httpclient, protocol-http unit test errors on Jenkins (Peter Ciuffetti via mattmann)
 
 * NUTCH-1980 Jexl expressions for CrawlDbReader (markus)
@@ -83,8 +86,6 @@ Release Report: http://s.apache.org/nutch10
 
 * NUTCH-1987 - Make bin/crawl indexer agnostic (Michael Joyce, snagel via mattmann)
  
-* NUTCH-1854 bin/crawl fails with a parsing fetcher (Asitang Mishra via snagel)
-
 * NUTCH-1989 Handling invalid URLs in CommonCrawlDataDumper (Giuseppe Totaro via mattmann)
 
 * NUTCH-1988 Make nested output directory dump optional (Michael Joyce via mattmann)

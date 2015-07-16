@@ -1501,6 +1501,23 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>index.replace.regexp</name>
+  <value/>
+  <description>Allows indexing-time regexp replace manipulation of metadata fields.
+    The format of the property is a list of regexp replacements, one line per field being
+    modified.  Include index-replace in your plugin.includes.
+
+    Example:
+        hostmatch=.*somedomain.com
+        fldname1=/regexp/replacement/flags
+        fldname2=/regexp/replacement/flags
+
+    Field names would be one of those from https://wiki.apache.org/nutch/IndexStructure.
+    See https://wiki.apache.org/nutch/IndexReplace for further details.
+  </description>
+</property>
+
 <!-- parse-metatags plugin properties -->
 <property>
   <name>metatags.names</name>
