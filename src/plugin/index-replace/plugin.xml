@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="index-replace"
+   name="Replace Indexer"
+   version="1.0"
+   provider-name="PeterCiuffetti">
+
+   <runtime>
+      <library name="index-replace.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.indexer.replace"
+              name="Replace Indexer"
+              point="org.apache.nutch.indexer.IndexingFilter">
+      <implementation id="ReplaceIndexer"
+                      class="org.apache.nutch.indexer.replace.ReplaceIndexer"/>
+   </extension>
+
+</plugin>
+
