@@ -58,6 +58,34 @@ public class HttpWebClient {
     };
   };
 
+  public static WebDriver getDriverForPage(String url, Configuration conf) {
+      WebDriver driver = null;
+      try {
+          driver = new FirefoxDriver();
+          driver.get(url);
+          // This delay should really be configurable ...
+          new WebDriverWait(driver, 3);
+      } catch (Exception e) {
+          throw new RuntimeException(e);
+      }
+
+      return driver;
+  }
+
+  public static String getHTMLContent(WebDriver driver) {
+      return driver.findElement(By.tagName("body")).getAttribute("innerHTML");
+  }
+
+  public static void cleanUpDriver(WebDriver driver) {
+      if (driver != null) {
+          try {
+              driver.quit();
+          } catch (Exception e) {
+              throw new RuntimeException(e);
+          }
+      }
+  }
+
   /**
    * Function for obtaining the HTML BODY using the selected
    * {@link org.openqa.selenium.WebDriver}.
