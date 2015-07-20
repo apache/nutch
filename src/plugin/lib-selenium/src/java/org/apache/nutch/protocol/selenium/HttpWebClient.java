@@ -60,11 +60,12 @@ public class HttpWebClient {
 
   public static WebDriver getDriverForPage(String url, Configuration conf) {
       WebDriver driver = null;
+      long pageLoadWait = conf.getLong("libselenium.page.load.delay", 3);
+
       try {
           driver = new FirefoxDriver();
           driver.get(url);
-          // This delay should really be configurable ...
-          new WebDriverWait(driver, 3);
+          new WebDriverWait(driver, pageLoadWait);
       } catch (Exception e) {
           throw new RuntimeException(e);
       }
@@ -98,7 +99,7 @@ public class HttpWebClient {
    * @return the rendered inner HTML page
    */
   public static String getHtmlPage(String url, Configuration conf) {
-
+    long pageLoadWait = conf.getLong("libselenium.page.load.delay", 3);
     WebDriver driver = null;
     try {
       String driverType  = conf.get("selenium.driver", "firefox");
@@ -123,8 +124,7 @@ public class HttpWebClient {
       LOG.debug("Selenium {} WebDriver selected.", driverType);
       driver.get(url);
 
-      // Wait for the page to load, timeout after 3 seconds
-      new WebDriverWait(driver, 3);
+      new WebDriverWait(driver, pageLoadWait);
 
       if (conf.getBoolean("selenium.take.screenshot", false)) {
         File srcFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
