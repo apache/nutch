@@ -1783,4 +1783,15 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<!-- protocol-interactiveselenium configuration -->
+<property>
+  <name>interactiveselenium.handlers</name>
+  <value>DefaultHandler</value>
+  <description>
+    A comma separated list of Selenium handlers that should be run for a given
+    URL. The DefaultHandler causes the same functionality as protocol-selenium.
+    Custom handlers can be implemented in the plugin package and included here.
+  </description>
+</property>
+
 </configuration>
