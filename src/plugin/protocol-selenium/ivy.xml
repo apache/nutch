@@ -42,6 +42,10 @@
     <dependency org="com.opera" name="operadriver" rev="1.5">
       <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
     </dependency>
+    <dependency org="com.codeborne" name="phantomjsdriver" rev="1.2.1" >
+      <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
+      <exclude org="org.seleniumhq.selenium" name="selenium-java" />
+    </dependency>
     <!-- end selenium dependencies -->
   </dependencies>
   

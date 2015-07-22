@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2021 Use protocol-selenium to Capture Screenshots of the Page as it is Fetched (lewismc)
+
 * NUTCH-2058 Indexer plugin that allows RegEx replacements on the NutchDocument 
   field values (Peter Ciuffetti via mattmann)
 

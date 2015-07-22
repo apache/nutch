@@ -26,8 +26,6 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.security.MessageDigest;
-
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -102,7 +100,7 @@ import org.slf4j.LoggerFactory;
  *     {"mimeType":"video/quicktime","count":"2"}
  *     {"mimeType":"image/gif","count":"63"}
  *   ]
- *  
+ * }
  * </pre>
  * <p>
  * In the case above, the tool would have been run with the <b>-mimeType
