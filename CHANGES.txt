@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-1785 Ability to index raw content (markus, lewismc)
+
 * NUTCH-2063 Add -mimeStats flag to FileDumper tool (Mike Joyce via lewismc)
 
 * NUTCH-2021 Use protocol-selenium to Capture Screenshots of the Page as it is Fetched (lewismc)
