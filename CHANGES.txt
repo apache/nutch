@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2072 Deflate encoding support is broken when http.content.limit is set to -1 (Tanguy Moal via mattmann)
+
 * NUTCH-2062 Add Plugin for interacting with Selenium WebDriver (Michael Joyce, mattmann)
 
 * NUTCH-1785 Ability to index raw content (markus, lewismc)
