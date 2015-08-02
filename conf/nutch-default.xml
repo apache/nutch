@@ -1772,4 +1772,26 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<!-- lib-selenium configuration -->
+<property>
+  <name>libselenium.page.load.delay</name>
+  <value>3</value>
+  <description>
+    The delay in seconds to use when loading a page with lib-selenium. This
+    setting is used by protocol-selenium and protocol-interactiveselenium
+    since they depending on lib-selenium for fetching.
+  </description>
+</property>
+
+<!-- protocol-interactiveselenium configuration -->
+<property>
+  <name>interactiveselenium.handlers</name>
+  <value>DefaultHandler</value>
+  <description>
+    A comma separated list of Selenium handlers that should be run for a given
+    URL. The DefaultHandler causes the same functionality as protocol-selenium.
+    Custom handlers can be implemented in the plugin package and included here.
+  </description>
+</property>
+
 </configuration>
