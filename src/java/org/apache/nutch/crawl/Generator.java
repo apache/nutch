@@ -757,9 +757,9 @@ public class Generator extends NutchTool implements Tool {
 
     Map<String, Object> results = new HashMap<String, Object>();
     String RESULT = "result";
-    String crawldb = crawlId+"/crawldb";
+    String crawldb = (args.containsKey("crawldb")) ? args.get("crawldb") : crawlId+"/crawldb";
     Path dbDir = new Path(crawldb);
-    String segments_dir = crawlId+"/segments";
+    String segments_dir = (args.containsKey("segment_dir")) ? args.get("segments_dir") : crawlId+"/segments";
     Path segmentsDir = new Path(segments_dir);
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;
