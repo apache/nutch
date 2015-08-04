@@ -22,6 +22,8 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -34,7 +36,6 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
@@ -48,6 +49,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseText;
+import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 
@@ -64,10 +66,12 @@ public class IndexerMapReduce extends Configured implements
   public static final String INDEXER_SKIP_NOTMODIFIED = "indexer.skip.notmodified";
   public static final String URL_FILTERING = "indexer.url.filters";
   public static final String URL_NORMALIZING = "indexer.url.normalizers";
+  public static final String INDEXER_BINARY_AS_BASE64 = "indexer.binary.base64";
 
   private boolean skip = false;
   private boolean delete = false;
   private boolean deleteRobotsNoIndex = false;
+  private boolean base64 = false;
   private IndexingFilters filters;
   private ScoringFilters scfilters;
 
@@ -91,6 +95,7 @@ public class IndexerMapReduce extends Configured implements
     this.deleteRobotsNoIndex = job.getBoolean(INDEXER_DELETE_ROBOTS_NOINDEX,
         false);
     this.skip = job.getBoolean(INDEXER_SKIP_NOTMODIFIED, false);
+    this.base64 = job.getBoolean(INDEXER_BINARY_AS_BASE64, false);
 
     normalize = job.getBoolean(URL_NORMALIZING, false);
     filter = job.getBoolean(URL_FILTERING, false);
@@ -159,7 +164,7 @@ public class IndexerMapReduce extends Configured implements
 
   public void map(Text key, Writable value,
       OutputCollector<Text, NutchWritable> output, Reporter reporter)
-      throws IOException {
+          throws IOException {
 
     String urlString = filterUrl(normalizeUrl(key.toString()));
     if (urlString == null) {
@@ -173,10 +178,11 @@ public class IndexerMapReduce extends Configured implements
 
   public void reduce(Text key, Iterator<NutchWritable> values,
       OutputCollector<Text, NutchIndexAction> output, Reporter reporter)
-      throws IOException {
+          throws IOException {
     Inlinks inlinks = null;
     CrawlDatum dbDatum = null;
     CrawlDatum fetchDatum = null;
+    Content content = null;
     ParseData parseData = null;
     ParseText parseText = null;
 
@@ -219,6 +225,8 @@ public class IndexerMapReduce extends Configured implements
         }
       } else if (value instanceof ParseText) {
         parseText = (ParseText) value;
+      } else if (value instanceof Content) {
+        content = (Content)value;
       } else if (LOG.isWarnEnabled()) {
         LOG.warn("Unrecognized type: " + value.getClass());
       }
@@ -327,6 +335,18 @@ public class IndexerMapReduce extends Configured implements
     // store boost for use by explain and dedup
     doc.add("boost", Float.toString(boost));
 
+    if (content != null) {
+      // Get the original unencoded content
+      String binary = new String(content.getContent());
+
+      // optionally encode as base64
+      if (base64) {
+        binary = Base64.encodeBase64String(StringUtils.getBytesUtf8(binary));
+      }
+
+      doc.add("binaryContent", binary);
+    }
+
     reporter.incrCounter("IndexerStatus", "indexed (add/update)", 1);
 
     NutchIndexAction action = new NutchIndexAction(doc, NutchIndexAction.ADD);
@@ -337,7 +357,7 @@ public class IndexerMapReduce extends Configured implements
   }
 
   public static void initMRJob(Path crawlDb, Path linkDb,
-      Collection<Path> segments, JobConf job) {
+      Collection<Path> segments, JobConf job, boolean addBinaryContent) {
 
     LOG.info("IndexerMapReduce: crawldb: " + crawlDb);
 
@@ -352,6 +372,10 @@ public class IndexerMapReduce extends Configured implements
           CrawlDatum.PARSE_DIR_NAME));
       FileInputFormat.addInputPath(job, new Path(segment, ParseData.DIR_NAME));
       FileInputFormat.addInputPath(job, new Path(segment, ParseText.DIR_NAME));
+
+      if (addBinaryContent) {
+        FileInputFormat.addInputPath(job, new Path(segment, Content.DIR_NAME));
+      }
     }
 
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
@@ -367,7 +391,7 @@ public class IndexerMapReduce extends Configured implements
         }
       } catch (IOException e) {
         LOG.warn("Failed to use linkDb ({}) for indexing: {}", linkDb,
-            StringUtils.stringifyException(e));
+            org.apache.hadoop.util.StringUtils.stringifyException(e));
       }
     }
 

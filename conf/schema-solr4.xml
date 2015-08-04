@@ -32,6 +32,8 @@
     <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
 
+    <fieldtype name="binary" class="solr.BinaryField"/>
+
 
     <!--
       Default numeric field types. For faster range queries, consider the tint/tfloat/tlong/tdouble types.
@@ -405,6 +407,10 @@
 
     <!-- fields for tld plugin -->    
     <field name="tld" type="string" stored="false" indexed="false"/>
+
+    <!-- field containing segment's raw binary content if indexed with -addBinaryContent -->
+    <field name="binaryContent" type="binary" stored="true" indexed="false"/>
+
  </fields>
  <uniqueKey>id</uniqueKey>
  <defaultSearchField>text</defaultSearchField>

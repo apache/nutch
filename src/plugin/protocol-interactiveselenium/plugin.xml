@@ -15,19 +15,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<!--
- ! A common framework for http protocol implementations
- !-->
 <plugin
-   id="lib-selenium"
-   name="HTTP Framework"
-   version="1.0"
-   provider-name="org.apache.nutch">
+   id="protocol-interactiveselenium"
+   name="Http Protocol Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
 
    <runtime>
-     <library name="lib-selenium.jar">
-        <export name="*"/>
-     </library>
+      <library name="protocol-interactiveselenium.jar">
+         <export name="*"/>
+      </library>
       <library name="cglib-nodep-2.1_3.jar"/>
       <library name="commons-codec-1.9.jar"/>
       <library name="commons-collections-3.2.1.jar"/>
@@ -74,12 +71,20 @@
    </runtime>
 
    <requires>
-     <library name="selenium-java-2.44.0.jar">
-       <export name="*"/>
-     </library>
-     <library name="operadriver-1.5.jar">
-       <export name="*"/>
-       <exclude name="selenium-remote-driver" />
-     </library>
+      <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-http"/>
+      <import plugin="lib-selenium"/>
    </requires>
+
+   <extension id="org.apache.nutch.protocol.interactiveselenium"
+              name="HttpProtocol"
+              point="org.apache.nutch.protocol.Protocol">
+
+      <implementation id="org.apache.nutch.protocol.interactiveselenium.Http"
+                      class="org.apache.nutch.protocol.interactiveselenium.Http">
+        <parameter name="protocolName" value="http"/>
+      </implementation>
+
+   </extension>
+
 </plugin>

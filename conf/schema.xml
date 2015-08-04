@@ -39,6 +39,7 @@
         <fieldType name="date" class="solr.TrieDateField" precisionStep="0"
             omitNorms="true" positionIncrementGap="0"/>
         <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
+        <fieldtype name="binary" class="solr.BinaryField"/>
 
         <fieldType name="text" class="solr.TextField"
             positionIncrementGap="100">
@@ -175,6 +176,9 @@
             
         <!-- fields for tld plugin -->    
         <field name="tld" type="string" stored="false" indexed="false"/>
+
+        <!-- field containing segment's raw binary content if indexed with -addBinaryContent -->
++       <field name="binaryContent" type="binary" stored="true" indexed="false"/>
 
         <!-- to work with Solr 4.9 and beyond that use RealTimeGetHandler -->
         <field name="_version_" type="long" indexed="true" stored="true"/>

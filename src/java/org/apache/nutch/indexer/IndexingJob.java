@@ -83,6 +83,22 @@ public class IndexingJob extends NutchTool implements Tool {
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
       boolean noCommit, boolean deleteGone, String params, boolean filter,
       boolean normalize) throws IOException {
+    index(crawlDb, linkDb, segments, noCommit, deleteGone, params, false,
+        false, false);
+  }
+
+  public void index(Path crawlDb, Path linkDb, List<Path> segments,
+      boolean noCommit, boolean deleteGone, String params,
+      boolean filter, boolean normalize, boolean addBinaryContent) throws IOException {
+    index(crawlDb, linkDb, segments, noCommit, deleteGone, params, false,
+        false, false, false);
+  }
+
+  public void index(Path crawlDb, Path linkDb, List<Path> segments,
+      boolean noCommit, boolean deleteGone, String params,
+      boolean filter, boolean normalize, boolean addBinaryContent,
+      boolean base64) throws IOException {
+
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -94,11 +110,17 @@ public class IndexingJob extends NutchTool implements Tool {
     LOG.info("Indexer: deleting gone documents: " + deleteGone);
     LOG.info("Indexer: URL filtering: " + filter);
     LOG.info("Indexer: URL normalizing: " + normalize);
-
+    if (addBinaryContent) {
+      if (base64) {
+        LOG.info("Indexer: adding binary content as Base64");
+      } else {
+        LOG.info("Indexer: adding binary content");
+      }
+    }        
     IndexWriters writers = new IndexWriters(getConf());
     LOG.info(writers.describe());
 
-    IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job);
+    IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job, addBinaryContent);
 
     // NOW PASSED ON THE COMMAND LINE AS A HADOOP PARAM
     // job.set(SolrConstants.SERVER_URL, solrUrl);
@@ -106,6 +128,7 @@ public class IndexingJob extends NutchTool implements Tool {
     job.setBoolean(IndexerMapReduce.INDEXER_DELETE, deleteGone);
     job.setBoolean(IndexerMapReduce.URL_FILTERING, filter);
     job.setBoolean(IndexerMapReduce.URL_NORMALIZING, normalize);
+    job.setBoolean(IndexerMapReduce.INDEXER_BINARY_AS_BASE64, base64);
 
     if (params != null) {
       job.set(IndexerMapReduce.INDEXER_PARAMS, params);
@@ -141,7 +164,8 @@ public class IndexingJob extends NutchTool implements Tool {
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err
-      .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
+      //.println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
+      .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize] [-addBinaryContent] [-base64]");
       IndexWriters writers = new IndexWriters(getConf());
       System.err.println(writers.describe());
       return -1;
@@ -157,6 +181,8 @@ public class IndexingJob extends NutchTool implements Tool {
     boolean deleteGone = false;
     boolean filter = false;
     boolean normalize = false;
+    boolean addBinaryContent = false;
+    boolean base64 = false;
 
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-linkdb")) {
@@ -180,6 +206,10 @@ public class IndexingJob extends NutchTool implements Tool {
         filter = true;
       } else if (args[i].equals("-normalize")) {
         normalize = true;
+      } else if (args[i].equals("-addBinaryContent")) {
+        addBinaryContent = true;
+      } else if (args[i].equals("-base64")) {
+        base64 = true;
       } else if (args[i].equals("-params")) {
         params = args[++i];
       } else {
@@ -188,8 +218,7 @@ public class IndexingJob extends NutchTool implements Tool {
     }
 
     try {
-      index(crawlDb, linkDb, segments, noCommit, deleteGone, params, filter,
-          normalize);
+      index(crawlDb, linkDb, segments, noCommit, deleteGone, params, filter, normalize, addBinaryContent, base64);
       return 0;
     } catch (final Exception e) {
       LOG.error("Indexer: " + StringUtils.stringifyException(e));

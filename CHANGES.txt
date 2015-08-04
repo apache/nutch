@@ -2,6 +2,18 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2066 Parameterize Generate REST endpoint (Sujen Shah via mattmann)
+
+* NUTCH-2072 Deflate encoding support is broken when http.content.limit is set to -1 (Tanguy Moal via mattmann)
+
+* NUTCH-2062 Add Plugin for interacting with Selenium WebDriver (Michael Joyce, mattmann)
+
+* NUTCH-1785 Ability to index raw content (markus, lewismc)
+
+* NUTCH-2063 Add -mimeStats flag to FileDumper tool (Mike Joyce via lewismc)
+
+* NUTCH-2021 Use protocol-selenium to Capture Screenshots of the Page as it is Fetched (lewismc)
+
 * NUTCH-2058 Indexer plugin that allows RegEx replacements on the NutchDocument 
   field values (Peter Ciuffetti via mattmann)
 
@@ -99,16 +111,6 @@ Release Report: http://s.apache.org/nutch10
 * NUTCH-1911 Improve DomainStatistics tool command line parsing (Michael Joyce via mattmann)
 
 * NUTCH-1854 bin/crawl fails with a parsing fetcher (Asitang Mishra via snagel)
-
-* NUTCH-1989 Handling invalid URLs in CommonCrawlDataDumper (Giuseppe Totaro via mattmann)
-
-* NUTCH-1927 Create a whitelist of IPs/hostnames to allow skipping of RobotRules parsing (mattmann, snagel)
-
-* NUTCH-1986 Clarify Elastic Search Indexer Plugin Settings (Michael Joyce via mattmann)
-
-* NUTCH-1906 Typo in CrawlDbReader command line help (Michael Joyce via mattmann)
-
-* NUTCH-1911 Improve DomainStatistics tool command line parsing (Michael Joyce via mattmann)
 
 * NUTCH-1981 Upgrade to icu4j 55.1 (Marko Asplund via snagel)
 
