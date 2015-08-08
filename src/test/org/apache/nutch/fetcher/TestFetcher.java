@@ -70,6 +70,11 @@ public class TestFetcher {
   @After
   public void tearDown() throws Exception {
     server.stop();
+    for (int i = 0; i < 5; i++) {
+      if (!server.isStopped()) {
+       Thread.sleep(1000);
+      }
+    }
     fs.delete(testdir, true);
   }
 
