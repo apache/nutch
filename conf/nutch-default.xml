@@ -1615,12 +1615,43 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <!-- solr index properties -->
+
+<property>
+  <name>solr.server.type</name>
+  <value>http</value>
+  <description>
+    Specifies the SolrServer implementation to use. This is a string value
+    of one of the following 'cloud', 'concurrent', 'http' or 'lb'.
+    The values represent CloudSolrServer, ConcurrentUpdateSolrServer, 
+    HttpSolrServer or LBHttpSolrServer respectively.
+  </description>
+</property>
+
 <property>
   <name>solr.server.url</name>
   <value>http://127.0.0.1:8983/solr/</value>
   <description>
       Defines the Solr URL into which data should be indexed using the
       indexer-solr plugin.
+  </description>
+</property>
+
+<property>
+  <name>solr.zookeeper.url</name>
+  <value></value>
+  <description>
+      Defines the Zookeeper URL which is an essential setting to be used 
+      when using SolrCloud. This should be a fully qualified URL similar to
+      the property provided within 'solr.server.url' above.
+  </description>
+</property>
+
+<property>
+  <name>solr.loadbalance.urls</name>
+  <value></value>
+  <description>
+      A comma-seperated value representing the Solr servers to be used when
+      initiating LBHttpSolrServer as the SolrServer implementation. 
   </description>
 </property>
 

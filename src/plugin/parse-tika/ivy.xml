@@ -38,6 +38,8 @@
   <dependencies>
     <dependency org="org.apache.tika" name="tika-parsers" rev="1.8" conf="*->default">
      <exclude org="org.apache.tika" name="tika-core" />
+     <exclude org="org.apache.httpcomponents" name="httpclient" />
+     <exclude org="org.apache.httpcomponents" name="httpcore" />
     </dependency>
     <override module="rome" rev="0.9"/>
   </dependencies>

@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-1486 Upgrade to Solr 4.10.2 (lewismc, markus)
+
 * NUTCH-2048 parse-tika: fix dependencies in plugin.xml (Michael Joyce via snagel)
 
 * NUTCH-2066 Parameterize Generate REST endpoint (Sujen Shah via mattmann)

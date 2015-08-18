@@ -55,7 +55,7 @@ public class SolrIndexWriter implements IndexWriter {
   private boolean delete = false;
 
   public void open(JobConf job, String name) throws IOException {
-    SolrServer server = SolrUtils.getCommonsHttpSolrServer(job);
+    SolrServer server = SolrUtils.getSolrServer(job);
     init(server, job);
   }
 
@@ -183,7 +183,7 @@ public class SolrIndexWriter implements IndexWriter {
     config = conf;
     String serverURL = conf.get(SolrConstants.SERVER_URL);
     if (serverURL == null) {
-      String message = "Missing SOLR URL. Should be set via -D "
+      String message = "Missing Solr URL. Should be set via -D "
           + SolrConstants.SERVER_URL;
       message += "\n" + describe();
       LOG.error(message);
@@ -192,15 +192,20 @@ public class SolrIndexWriter implements IndexWriter {
   }
 
   public String describe() {
-    StringBuffer sb = new StringBuffer("SOLRIndexWriter\n");
+    StringBuffer sb = new StringBuffer("SolrIndexWriter\n");
+    sb.append("\t").append(SolrConstants.SERVER_TYPE)
+        .append(" : Type of SolrServer to communicate with (default 'http' however options include 'cloud', 'lb' and 'concurrent')\n");
     sb.append("\t").append(SolrConstants.SERVER_URL)
-        .append(" : URL of the SOLR instance (mandatory)\n");
-    sb.append("\t").append(SolrConstants.COMMIT_SIZE)
-        .append(" : buffer size when sending to SOLR (default 1000)\n");
+        .append(" : URL of the Solr instance (mandatory)\n");
+    sb.append("\t").append(SolrConstants.ZOOKEEPER_URL)
+        .append(" : URL of the Zookeeper URL (mandatory if 'cloud' value for solr.server.type)\n");
+    sb.append("\t").append(SolrConstants.LOADBALANCE_URLS)
+        .append(" : Comma-separated string of Solr server strings to be used (madatory if 'lb' value for solr.server.type)\n");
     sb.append("\t")
         .append(SolrConstants.MAPPING_FILE)
-        .append(
-            " : name of the mapping file for fields (default solrindex-mapping.xml)\n");
+        .append(" : name of the mapping file for fields (default solrindex-mapping.xml)\n");
+    sb.append("\t").append(SolrConstants.COMMIT_SIZE)
+        .append(" : buffer size when sending to Solr (default 1000)\n");
     sb.append("\t").append(SolrConstants.USE_AUTH)
         .append(" : use authentication (default false)\n");
     sb.append("\t").append(SolrConstants.USERNAME)
@@ -209,5 +214,4 @@ public class SolrIndexWriter implements IndexWriter {
         .append(" : password for authentication\n");
     return sb.toString();
   }
-
 }

@@ -19,7 +19,6 @@ package org.apache.nutch.indexer;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configurable;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 
 // Nutch imports
