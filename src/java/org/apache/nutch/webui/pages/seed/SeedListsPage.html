@@ -1,0 +1,75 @@
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+<head>
+<meta charset="utf-8" />
+<title>Wicket extend</title>
+</head>
+
+<body>
+	<wicket:extend>
+		<h2>
+			<wicket:message key="navbar.menu.seedLists">Seed lists</wicket:message>
+		</h2>
+
+		<div class="row">
+			<div class="col-lg-8">
+				<div class="row">
+					<div class="col-lg-8 col-md-offset-10">
+						<button class="btn btn-success btn-default" wicket:id="newSeedList">
+							<i class="fa fa-plus"></i> Add new list
+						</button>
+					</div>
+				</div>
+				<table class="table table-hover table-striped tablesorter">
+					<thead>
+						<tr>
+							<th class="header col-md-3">Name</th>
+							<th class="header col-md-2">Urls</th>
+							<th></th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr wicket:id="seedLists">
+							<td>
+								<a href="#" wicket:id="edit">
+									<span wicket:id="name">List name</span>
+								</a>
+							</td>
+							<td>
+								<span wicket:id="seedUrlsCount">10</span>
+							</td>
+							<td>
+								<button class="btn btn-sm btn-danger" type="button" wicket:id="delete">
+									<span class="fa fa-trash-o"></span>
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-lg-4">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h3 class="panel-title">Help</h3>
+					</div>
+					<div class="panel-body">
+						<p>Some help about seed lists</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--row-->
+	</wicket:extend>
+</body>
+</html>
