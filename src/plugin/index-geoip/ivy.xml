@@ -36,7 +36,11 @@
   </publications>
 
   <dependencies>
-    <dependency org="com.maxmind.geoip2" name="geoip2" rev="2.1.0" />
+    <dependency org="com.maxmind.geoip2" name="geoip2" rev="2.3.1" >
+      <!-- Exlude due to classpath issues -->
+      <exclude org="org.apache.httpcomponents" name="httpclient" />
+      <exclude org="org.apache.httpcomponents" name="httpcore" />
+    </dependency>
   </dependencies>
   
 </ivy-module>

@@ -2,6 +2,18 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-1486 Upgrade to Solr 4.10.2 (lewismc, markus)
+
+* NUTCH-2048 parse-tika: fix dependencies in plugin.xml (Michael Joyce via snagel)
+
+* NUTCH-2066 Parameterize Generate REST endpoint (Sujen Shah via mattmann)
+
+* NUTCH-2072 Deflate encoding support is broken when http.content.limit is set to -1 (Tanguy Moal via mattmann)
+
+* NUTCH-2062 Add Plugin for interacting with Selenium WebDriver (Michael Joyce, mattmann)
+
+* NUTCH-1785 Ability to index raw content (markus, lewismc)
+
 * NUTCH-2063 Add -mimeStats flag to FileDumper tool (Mike Joyce via lewismc)
 
 * NUTCH-2021 Use protocol-selenium to Capture Screenshots of the Page as it is Fetched (lewismc)

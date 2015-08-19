@@ -16,14 +16,20 @@
  */
 package org.apache.nutch.indexwriter.solr;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.impl.CloudSolrServer;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
+import org.apache.solr.client.solrj.SolrServer;
 
 import java.net.MalformedURLException;
 
@@ -31,33 +37,62 @@ public class SolrUtils {
 
   public static Logger LOG = LoggerFactory.getLogger(SolrUtils.class);
 
-  public static CommonsHttpSolrServer getCommonsHttpSolrServer(JobConf job)
+  private static SolrServer server;
+
+  public static SolrServer getSolrServer(JobConf job)
       throws MalformedURLException {
-    HttpClient client = new HttpClient();
 
+    boolean auth = job.getBoolean(SolrConstants.USE_AUTH, false);
+
+    CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
     // Check for username/password
-    if (job.getBoolean(SolrConstants.USE_AUTH, false)) {
+    if (auth) {
       String username = job.get(SolrConstants.USERNAME);
-
       LOG.info("Authenticating as: " + username);
-
       AuthScope scope = new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT,
           AuthScope.ANY_REALM, AuthScope.ANY_SCHEME);
-
-      client.getState().setCredentials(
-          scope,
-          new UsernamePasswordCredentials(username, job
-              .get(SolrConstants.PASSWORD)));
-
-      HttpClientParams params = client.getParams();
-      params.setAuthenticationPreemptive(true);
-
-      client.setParams(params);
+      credentialsProvider.setCredentials(scope, 
+          new UsernamePasswordCredentials(username, job.get(SolrConstants.PASSWORD)));
     }
+    CloseableHttpClient client = 
+        HttpClientBuilder.create().setDefaultCredentialsProvider(credentialsProvider).build();
 
-    String serverURL = job.get(SolrConstants.SERVER_URL);
+    String solrServer = job.get(SolrConstants.SERVER_TYPE, "http");
+    String zkHost = job.get(SolrConstants.ZOOKEEPER_URL, null);
+    String solrServerUrl = job.get(SolrConstants.SERVER_URL);
 
-    return new CommonsHttpSolrServer(serverURL, client);
+    switch (solrServer) {
+    case "cloud":
+      server = new CloudSolrServer(zkHost);
+      LOG.debug("CloudSolrServer selected as indexing server.");
+      break;
+    case "concurrent":
+      server = new ConcurrentUpdateSolrServer(solrServerUrl, client, 1000, 10);
+      LOG.debug("ConcurrentUpdateSolrServer selected as indexing server.");
+      break;
+    case "http":
+      if (auth) {
+        server = new HttpSolrServer(solrServerUrl, client);
+      } else {
+        server = new HttpSolrServer(solrServerUrl);
+      }
+      LOG.debug("HttpSolrServer selected as indexing server.");
+      break;
+    case "lb":
+      String[] lbServerString = job.get(SolrConstants.LOADBALANCE_URLS).split(",");
+      server = new LBHttpSolrServer(client, lbServerString);
+      LOG.debug("LBHttpSolrServer selected as indexing server.");
+      break;
+    default:
+      if (auth) {
+        server = new HttpSolrServer(solrServerUrl, client);
+      } else {
+        server = new HttpSolrServer(solrServerUrl);
+      }
+      LOG.debug("HttpSolrServer selected as indexing server.");
+      break;
+    }
+    return server;
   }
 
   public static String stripNonCharCodepoints(String input) {

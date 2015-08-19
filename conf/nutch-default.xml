@@ -1615,12 +1615,43 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <!-- solr index properties -->
+
+<property>
+  <name>solr.server.type</name>
+  <value>http</value>
+  <description>
+    Specifies the SolrServer implementation to use. This is a string value
+    of one of the following 'cloud', 'concurrent', 'http' or 'lb'.
+    The values represent CloudSolrServer, ConcurrentUpdateSolrServer, 
+    HttpSolrServer or LBHttpSolrServer respectively.
+  </description>
+</property>
+
 <property>
   <name>solr.server.url</name>
   <value>http://127.0.0.1:8983/solr/</value>
   <description>
       Defines the Solr URL into which data should be indexed using the
       indexer-solr plugin.
+  </description>
+</property>
+
+<property>
+  <name>solr.zookeeper.url</name>
+  <value></value>
+  <description>
+      Defines the Zookeeper URL which is an essential setting to be used 
+      when using SolrCloud. This should be a fully qualified URL similar to
+      the property provided within 'solr.server.url' above.
+  </description>
+</property>
+
+<property>
+  <name>solr.loadbalance.urls</name>
+  <value></value>
+  <description>
+      A comma-seperated value representing the Solr servers to be used when
+      initiating LBHttpSolrServer as the SolrServer implementation. 
   </description>
 </property>
 
@@ -1769,6 +1800,28 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
     to if the 'selenium.take.screenshot' proerty is set to true.
     By default this is null, in this case screenshots held in memory
     are simply discarded.
+  </description>
+</property>
+
+<!-- lib-selenium configuration -->
+<property>
+  <name>libselenium.page.load.delay</name>
+  <value>3</value>
+  <description>
+    The delay in seconds to use when loading a page with lib-selenium. This
+    setting is used by protocol-selenium and protocol-interactiveselenium
+    since they depending on lib-selenium for fetching.
+  </description>
+</property>
+
+<!-- protocol-interactiveselenium configuration -->
+<property>
+  <name>interactiveselenium.handlers</name>
+  <value>DefaultHandler</value>
+  <description>
+    A comma separated list of Selenium handlers that should be run for a given
+    URL. The DefaultHandler causes the same functionality as protocol-selenium.
+    Custom handlers can be implemented in the plugin package and included here.
   </description>
 </property>
 

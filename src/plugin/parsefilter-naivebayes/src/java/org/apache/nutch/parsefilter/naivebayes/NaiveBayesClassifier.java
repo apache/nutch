@@ -35,7 +35,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.util.Version;
 import org.apache.mahout.classifier.naivebayes.BayesUtils;
 import org.apache.mahout.classifier.naivebayes.NaiveBayesModel;
 import org.apache.mahout.classifier.naivebayes.StandardNaiveBayesClassifier;
@@ -47,17 +46,12 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.Vector.Element;
 import org.apache.mahout.vectorizer.SparseVectorsFromSequenceFiles;
 import org.apache.mahout.vectorizer.TFIDF;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.Multiset;
 
 public class NaiveBayesClassifier {
 
   private static NaiveBayesModel model = null;
-  private static final Logger LOG = LoggerFactory
-      .getLogger(NaiveBayesClassifier.class);
 
   public static Map<String, Integer> readDictionnary(Configuration conf,
       Path dictionnaryPath) {
@@ -114,7 +108,7 @@ public class NaiveBayesClassifier {
 
   public static String classify(String text, String modelPath,
       String labelIndexPath, String dictionaryPath, String documentFrequencyPath)
-      throws IOException {
+          throws IOException {
 
     Configuration configuration = new Configuration();
 
@@ -134,7 +128,7 @@ public class NaiveBayesClassifier {
         new Path(documentFrequencyPath));
 
     // analyzer used to extract word from text
-    Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_43);
+    Analyzer analyzer = new StandardAnalyzer();
 
     // int labelCount = labels.size();
     int documentCount = documentFrequency.get(-1).intValue();

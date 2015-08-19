@@ -15,29 +15,24 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<plugin id="indexer-solr" name="SOLRIndexWriter" version="1.0.0"
+<plugin id="indexer-solr" name="SolrIndexWriter" version="1.0.0"
   provider-name="nutch.apache.org">
 
   <runtime>
     <library name="indexer-solr.jar">
       <export name="*" />
     </library>
-
-     <library name="activation-1.1.jar"/>
-     <library name="commons-codec-1.4.jar"/>
-     <library name="commons-httpclient-3.1.jar"/>
-     <library name="commons-io-1.4.jar"/>
-     <library name="commons-logging-1.1.1.jar"/>
-     <library name="geronimo-stax-api_1.0_spec-1.0.1.jar"/>
-     <library name="jline-0.9.1.jar"/>
-     <library name="log4j-1.2.15.jar"/>
-     <library name="lucene-core-3.4.0.jar"/>
-     <library name="mail-1.4.1.jar"/>
-     <library name="slf4j-api-1.6.1.jar"/>
-     <library name="solr-solrj-3.4.0.jar"/>
-     <library name="stax-api-1.0.1.jar"/>
-     <library name="wstx-asl-3.2.7.jar"/>
-     <library name="zookeeper-3.3.1.jar"/>
+      <library name="commons-codec-1.9.jar"/>
+      <library name="commons-io-2.3.jar"/>
+      <library name="commons-logging-1.1.3.jar"/>
+      <library name="httpclient-4.3.1.jar"/>
+      <library name="httpcore-4.3.jar"/>
+      <library name="httpmime-4.3.1.jar"/>
+      <library name="noggit-0.5.jar"/>
+      <library name="slf4j-api-1.7.6.jar"/>
+      <library name="solr-solrj-4.10.2.jar"/>
+      <library name="wstx-asl-3.2.7.jar"/>
+      <library name="zookeeper-3.4.6.jar"/>
   </runtime>
 
   <requires>
@@ -45,9 +40,9 @@
   </requires>
 
   <extension id="org.apache.nutch.indexer.solr"
-    name="SOLR Index Writer"
+    name="Solr Index Writer"
     point="org.apache.nutch.indexer.IndexWriter">
-    <implementation id="SOLRIndexWriter"
+    <implementation id="SolrIndexWriter"
       class="org.apache.nutch.indexwriter.solr.SolrIndexWriter" />
   </extension>
 

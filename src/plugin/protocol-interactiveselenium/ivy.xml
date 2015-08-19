@@ -32,13 +32,17 @@
 
   <publications>
     <!--get the artifact from our module name-->
-    <artifact conf="master"/>
+    <artifact conf="default"/>
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.solr" name="solr-solrj" rev="4.10.2" conf="*->default"/>
-    <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.3.1"  conf="*->default"/>
-   <dependency org="org.apache.httpcomponents" name="httpmime" rev="4.3.1"  conf="*->default"/>
+    <!-- begin selenium dependencies -->
+    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="2.44.0" />
+    
+    <dependency org="com.opera" name="operadriver" rev="1.5">
+      <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
+    </dependency>
+    <!-- end selenium dependencies -->
   </dependencies>
   
 </ivy-module>

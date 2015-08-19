@@ -495,8 +495,12 @@ public abstract class HttpBase implements Protocol {
       LOGGER.trace("inflating....");
     }
 
-    byte[] content = DeflateUtils
-        .inflateBestEffort(compressed, getMaxContent());
+    byte[] content;
+    if (getMaxContent() >= 0) {
+      content = DeflateUtils.inflateBestEffort(compressed, getMaxContent());
+    } else {
+      content = DeflateUtils.inflateBestEffort(compressed);
+    }
 
     if (content == null)
       throw new IOException("inflateBestEffort returned null");

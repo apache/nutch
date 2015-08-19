@@ -15,7 +15,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="parse-tika" default="deps-jar" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="parsefilter-naivebayes" default="deps-jar" xmlns:ivy="antlib:org.apache.ivy.ant">
 
     <property name="ivy.install.version" value="2.1.0" />
     <condition property="ivy.home" value="${env.IVY_HOME}">
@@ -48,7 +48,7 @@
     </target>
 
   <target name="deps-jar" depends="init-ivy">
-    <ivy:retrieve pattern="lib/[artifact]-[revision].[ext]" sync="true"/>
+    <ivy:retrieve pattern="lib/[artifact]-[revision].[ext]"/>
   </target>
 
 </project>
