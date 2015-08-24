@@ -70,9 +70,9 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
   protected float DEC_RATE;
 
-  private int MAX_INTERVAL;
+  private float MAX_INTERVAL;
 
-  private int MIN_INTERVAL;
+  private float MIN_INTERVAL;
 
   private boolean SYNC_DELTA;
 
@@ -84,9 +84,9 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       return;
     INC_RATE = conf.getFloat("db.fetch.schedule.adaptive.inc_rate", 0.2f);
     DEC_RATE = conf.getFloat("db.fetch.schedule.adaptive.dec_rate", 0.2f);
-    MIN_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.min_interval", 60);
-    MAX_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.max_interval",
-        SECONDS_PER_DAY * 365); // 1 year
+    MIN_INTERVAL = conf.getFloat("db.fetch.schedule.adaptive.min_interval", (float) 60.0);
+    MAX_INTERVAL = conf.getFloat("db.fetch.schedule.adaptive.max_interval",
+        (float) SECONDS_PER_DAY * 365); // 1 year
     SYNC_DELTA = conf.getBoolean("db.fetch.schedule.adaptive.sync_delta", true);
     SYNC_DELTA_RATE = conf.getFloat(
         "db.fetch.schedule.adaptive.sync_delta_rate", 0.2f);

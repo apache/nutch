@@ -33,7 +33,6 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.nutch.util.*;
 import org.apache.hadoop.fs.Path;
 

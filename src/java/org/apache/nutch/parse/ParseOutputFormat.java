@@ -20,13 +20,13 @@ package org.apache.nutch.parse;
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
+import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
+import org.apache.hadoop.io.SequenceFile.Metadata;
+import org.apache.hadoop.io.compress.DefaultCodec;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -119,14 +119,33 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
     final String[] parseMDtoCrawlDB = job.get("db.parsemeta.to.crawldb", "")
         .split(" *, *");
 
-    final MapFile.Writer textOut = new MapFile.Writer(job, fs, text.toString(),
-        Text.class, ParseText.class, CompressionType.RECORD, progress);
+    // textOut Options
+    Option tKeyClassOpt = (Option) MapFile.Writer.keyClass(Text.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option tValClassOpt = SequenceFile.Writer.valueClass(ParseText.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option tProgressOpt = SequenceFile.Writer.progressable(progress);
+    org.apache.hadoop.io.SequenceFile.Writer.Option tCompOpt = SequenceFile.Writer.compression(CompressionType.RECORD);
+    
+    final MapFile.Writer textOut = new MapFile.Writer(job, text,
+        tKeyClassOpt, tValClassOpt, tCompOpt, tProgressOpt);
+    
+    // dataOut Options
+    Option dKeyClassOpt = (Option) MapFile.Writer.keyClass(Text.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option dValClassOpt = SequenceFile.Writer.valueClass(ParseData.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option dProgressOpt = SequenceFile.Writer.progressable(progress);
+    org.apache.hadoop.io.SequenceFile.Writer.Option dCompOpt = SequenceFile.Writer.compression(compType);
 
-    final MapFile.Writer dataOut = new MapFile.Writer(job, fs, data.toString(),
-        Text.class, ParseData.class, compType, progress);
-
-    final SequenceFile.Writer crawlOut = SequenceFile.createWriter(fs, job,
-        crawl, Text.class, CrawlDatum.class, compType, progress);
+    final MapFile.Writer dataOut = new MapFile.Writer(job, data,
+        dKeyClassOpt, dValClassOpt, dCompOpt, dProgressOpt);
+    
+    final SequenceFile.Writer crawlOut = SequenceFile.createWriter(job, SequenceFile.Writer.file(crawl),
+        SequenceFile.Writer.keyClass(Text.class),
+        SequenceFile.Writer.valueClass(CrawlDatum.class),
+        SequenceFile.Writer.bufferSize(fs.getConf().getInt("io.file.buffer.size",4096)),
+        SequenceFile.Writer.replication(fs.getDefaultReplication(crawl)),
+        SequenceFile.Writer.blockSize(1073741824),
+        SequenceFile.Writer.compression(compType, new DefaultCodec()),
+        SequenceFile.Writer.progressable(progress),
+        SequenceFile.Writer.metadata(new Metadata())); 
 
     return new RecordWriter<Text, Parse>() {
 

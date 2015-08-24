@@ -122,7 +122,7 @@ public class TestFetcher {
     Path content = new Path(new Path(generatedSegment[0], Content.DIR_NAME),
         "part-00000/data");
     @SuppressWarnings("resource")
-    SequenceFile.Reader reader = new SequenceFile.Reader(fs, content, conf);
+    SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(content));
 
     ArrayList<String> handledurls = new ArrayList<String>();
 
@@ -154,7 +154,7 @@ public class TestFetcher {
     // verify parse data
     Path parseData = new Path(
         new Path(generatedSegment[0], ParseData.DIR_NAME), "part-00000/data");
-    reader = new SequenceFile.Reader(fs, parseData, conf);
+    reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(parseData));
 
     READ_PARSE_DATA: do {
       Text key = new Text();

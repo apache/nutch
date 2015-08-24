@@ -167,7 +167,7 @@ public class FileDumper {
               + "]: no data directory present");
           continue;
         }
-        SequenceFile.Reader reader = new SequenceFile.Reader(fs, file, conf);
+        SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(file));
 
         Writable key = (Writable) reader.getKeyClass().newInstance();
         Content content = null;
@@ -209,7 +209,7 @@ public class FileDumper {
           }
 
           if (filter) {
-	    if (!mimeTypeStats) {
+            if (!mimeTypeStats) {
               String md5Ofurl = DumpFileUtil.getUrlMD5(url);
               String fullDir = DumpFileUtil.createTwoLevelsDirectory(outputDir.getAbsolutePath(), md5Ofurl);
   

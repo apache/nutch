@@ -60,7 +60,7 @@ public class TestURLNormalizers {
           "http://www.example.org//path/to//somewhere.html",
           URLNormalizers.SCOPE_DEFAULT);
       Assert.assertEquals(normalizedHost,
-          "http://example.org/path/to/somewhere.html");
+          "http://www.example.org/path/to/somewhere.html");
     } catch (MalformedURLException mue) {
       Assert.fail(mue.toString());
     }

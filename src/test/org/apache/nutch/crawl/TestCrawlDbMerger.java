@@ -26,7 +26,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.After;
@@ -96,6 +98,17 @@ public class TestCrawlDbMerger {
     }
   }
 
+  /**
+   * Test creates two sample {@link org.apache.nutch.crawl.CrawlDb}'s
+   * populating entries for keys as {@link org.apache.hadoop.io.Text} e.g. URLs 
+   * and values as {@link org.apache.nutch.crawl.CrawlDatum} e.g. record data. 
+   * It then simulates a merge process for the two CrawlDb's via the {@link org.apache.nutch.crawl.CrawlDbMerger}
+   * tool. The merged CrawlDb is then written to an arbitrary output location and the results
+   * read using the {@link org.apache.nutch.crawl.CrawlDbReader} tool. 
+   * Test assertions include comparing expected CrawlDb key, value (URL, CrawlDatum) values
+   * with actual results based on the merge process. 
+   * @throws Exception
+   */
   @Test
   public void testMerge() throws Exception {
     Path crawldb1 = new Path(testDir, "crawldb1");
@@ -131,8 +144,12 @@ public class TestCrawlDbMerger {
       TreeSet<String> init, CrawlDatum cd) throws Exception {
     LOG.fine("* creating crawldb: " + crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(config, fs, new Path(dir,
-        "part-00000").toString(), Text.class, CrawlDatum.class);
+    
+    Option wKeyOpt = MapFile.Writer.keyClass(Text.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option wValueOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
+    
+    MapFile.Writer writer = new MapFile.Writer(config, new Path(dir,
+        "part-00000"), wKeyOpt, wValueOpt);
     Iterator<String> it = init.iterator();
     while (it.hasNext()) {
       String key = it.next();

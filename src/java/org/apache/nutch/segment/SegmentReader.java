@@ -523,7 +523,7 @@ public class SegmentReader extends Configured implements
     
     if (fe) {
       Path fetchDir = new Path(segment, CrawlDatum.FETCH_DIR_NAME);
-      if (fs.exists(fetchDir) && fs.getFileStatus(fetchDir).isDir()) {
+      if (fs.exists(fetchDir) && fs.getFileStatus(fetchDir).isDirectory()) {
         cnt = 0L;
         long start = Long.MAX_VALUE;
         long end = Long.MIN_VALUE;
@@ -548,7 +548,7 @@ public class SegmentReader extends Configured implements
     
     if (pd) {
       Path parseDir = new Path(segment, ParseData.DIR_NAME);
-      if (fs.exists(parseDir) && fs.getFileStatus(parseDir).isDir()) {
+      if (fs.exists(parseDir) && fs.getFileStatus(parseDir).isDirectory()) {
         cnt = 0L;
         long errors = 0L;
         ParseData value = new ParseData();

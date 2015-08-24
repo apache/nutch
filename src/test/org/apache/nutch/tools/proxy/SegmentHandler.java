@@ -145,7 +145,7 @@ public class SegmentHandler extends AbstractTestbedHandler {
 
       MapFile.Reader[] parts = new MapFile.Reader[names.length];
       for (int i = 0; i < names.length; i++) {
-        parts[i] = new MapFile.Reader(fs, names[i].toString(), conf);
+        parts[i] = new MapFile.Reader(names[i], conf);
       }
       return parts;
     }

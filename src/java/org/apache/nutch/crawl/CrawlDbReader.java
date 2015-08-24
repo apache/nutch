@@ -33,14 +33,6 @@ import java.util.regex.Pattern;
 import java.util.TreeMap;
 
 
-
-
-
-
-
-
-
-
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,9 +67,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.StringUtil;
-
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 
@@ -778,6 +768,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           String[] st = k.split(" ");
           int code = Integer.parseInt(st[1]);
           if (st.length > 2){
+            @SuppressWarnings("unchecked")
             Map<String, Object> individualStatusInfo = (Map<String, Object>) statusMap.get(String.valueOf(code));
             Map<String, String> hostValues;
             if(individualStatusInfo.containsKey("hostValues")){

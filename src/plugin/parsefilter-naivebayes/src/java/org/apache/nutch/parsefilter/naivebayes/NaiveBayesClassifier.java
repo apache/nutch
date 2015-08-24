@@ -29,8 +29,10 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.Metadata;
 import org.apache.hadoop.io.SequenceFile.Writer;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.compress.DefaultCodec;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -46,6 +48,7 @@ import org.apache.mahout.math.Vector;
 import org.apache.mahout.math.Vector.Element;
 import org.apache.mahout.vectorizer.SparseVectorsFromSequenceFiles;
 import org.apache.mahout.vectorizer.TFIDF;
+
 import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.Multiset;
 
@@ -190,8 +193,16 @@ public class NaiveBayesClassifier {
       throws IOException {
     Configuration configuration = new Configuration();
     FileSystem fs = FileSystem.get(configuration);
-    Writer writer = new SequenceFile.Writer(fs, configuration, new Path(
-        outputDirName + "/chunk-0"), Text.class, Text.class);
+    SequenceFile.Writer writer = SequenceFile.createWriter(configuration, 
+        Writer.file(new Path(outputDirName + "/chunk-0")),
+        Writer.keyClass(Text.class),
+        Writer.valueClass(Text.class),
+        Writer.bufferSize(fs.getConf().getInt("io.file.buffer.size",4096)),
+        Writer.replication(fs.getDefaultReplication(new Path(outputDirName + "/chunk-0"))),
+        Writer.blockSize(1073741824),
+        Writer.compression(SequenceFile.CompressionType.BLOCK, new DefaultCodec()),
+        Writer.progressable(null),
+        Writer.metadata(new Metadata())); 
     BufferedReader reader = null;
     reader = new BufferedReader(
         configuration.getConfResourceAsReader(inputFileName));

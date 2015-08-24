@@ -23,12 +23,12 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-
 import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.MapFile.Writer.Option;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
-
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.InvalidJobConfException;
 import org.apache.hadoop.mapred.OutputFormat;
@@ -37,7 +37,6 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Progressable;
-
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.protocol.Content;
@@ -68,8 +67,13 @@ public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
     final CompressionType compType = SequenceFileOutputFormat
         .getOutputCompressionType(job);
 
-    final MapFile.Writer fetchOut = new MapFile.Writer(job, fs,
-        fetch.toString(), Text.class, CrawlDatum.class, compType, progress);
+    Option fKeyClassOpt = MapFile.Writer.keyClass(Text.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option fValClassOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option fProgressOpt = SequenceFile.Writer.progressable(progress);
+    org.apache.hadoop.io.SequenceFile.Writer.Option fCompOpt = SequenceFile.Writer.compression(compType);
+    
+    final MapFile.Writer fetchOut = new MapFile.Writer(job,
+        fetch, fKeyClassOpt, fValClassOpt, fCompOpt, fProgressOpt);
 
     return new RecordWriter<Text, NutchWritable>() {
       private MapFile.Writer contentOut;
@@ -77,8 +81,12 @@ public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
 
       {
         if (Fetcher.isStoringContent(job)) {
-          contentOut = new MapFile.Writer(job, fs, content.toString(),
-              Text.class, Content.class, compType, progress);
+          Option cKeyClassOpt = MapFile.Writer.keyClass(Text.class);
+          org.apache.hadoop.io.SequenceFile.Writer.Option cValClassOpt = SequenceFile.Writer.valueClass(Content.class);
+          org.apache.hadoop.io.SequenceFile.Writer.Option cProgressOpt = SequenceFile.Writer.progressable(progress);
+          org.apache.hadoop.io.SequenceFile.Writer.Option cCompOpt = SequenceFile.Writer.compression(compType);
+          contentOut = new MapFile.Writer(job, content,
+              cKeyClassOpt, cValClassOpt, cCompOpt, cProgressOpt);
         }
 
         if (Fetcher.isParsing(job)) {

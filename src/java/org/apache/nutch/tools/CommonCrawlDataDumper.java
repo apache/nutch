@@ -380,7 +380,7 @@ public class CommonCrawlDataDumper {
 					LOG.warn("Skipping segment: [" + segmentContentPath	+ "]: no data directory present");
 					continue;
 				}
-				SequenceFile.Reader reader = new SequenceFile.Reader(fs, file, nutchConfig);
+				SequenceFile.Reader reader = new SequenceFile.Reader(nutchConfig, SequenceFile.Reader.file(file));
 
 				if (!new File(file.toString()).exists()) {
 					LOG.warn("Skipping segment: [" + segmentContentPath	+ "]: no data directory present");

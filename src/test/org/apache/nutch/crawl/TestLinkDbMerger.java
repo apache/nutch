@@ -27,7 +27,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.After;
 import org.junit.Assert;
@@ -137,8 +139,11 @@ public class TestLinkDbMerger {
       TreeMap<String, String[]> init) throws Exception {
     LOG.fine("* creating linkdb: " + linkdb);
     Path dir = new Path(linkdb, LinkDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(config, fs, new Path(dir,
-        "part-00000").toString(), Text.class, Inlinks.class);
+    
+    Option wKeyOpt = MapFile.Writer.keyClass(Text.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option wValueOpt = SequenceFile.Writer.valueClass(Inlinks.class);
+    MapFile.Writer writer = new MapFile.Writer(config, new Path(dir,
+        "part-00000"), wKeyOpt, wValueOpt);
     Iterator<String> it = init.keySet().iterator();
     while (it.hasNext()) {
       String key = it.next();

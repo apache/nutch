@@ -18,8 +18,6 @@
 package org.apache.nutch.service;
 
 import java.util.Collection;
-import java.util.Map;
-
 import org.apache.nutch.service.model.request.JobConfig;
 import org.apache.nutch.service.model.response.JobInfo;
 import org.apache.nutch.service.model.response.JobInfo.State;

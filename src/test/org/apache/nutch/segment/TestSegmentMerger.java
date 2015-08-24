@@ -23,6 +23,8 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.MapFile.Writer.Option;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapFileOutputFormat;
 import org.apache.nutch.parse.ParseText;
@@ -56,8 +58,9 @@ public class TestSegmentMerger {
     DecimalFormat df = new DecimalFormat("0000000");
     Text k = new Text();
     Path ptPath = new Path(new Path(seg1, ParseText.DIR_NAME), "part-00000");
-    MapFile.Writer w = new MapFile.Writer(conf, fs, ptPath.toString(),
-        Text.class, ParseText.class);
+    Option kOpt = MapFile.Writer.keyClass(Text.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option vOpt = SequenceFile.Writer.valueClass(ParseText.class);
+    MapFile.Writer w = new MapFile.Writer(conf, ptPath, kOpt, vOpt);
     long curSize = 0;
     countSeg1 = 0;
     FileStatus fileStatus = fs.getFileStatus(ptPath);
@@ -73,8 +76,9 @@ public class TestSegmentMerger {
     System.err.println(" - done: " + countSeg1 + " records.");
     System.err.println("Creating large segment 2...");
     ptPath = new Path(new Path(seg2, ParseText.DIR_NAME), "part-00000");
-    w = new MapFile.Writer(conf, fs, ptPath.toString(), Text.class,
-        ParseText.class);
+    Option wKeyOpt = MapFile.Writer.keyClass(Text.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option wValueOpt = SequenceFile.Writer.valueClass(ParseText.class);
+    w = new MapFile.Writer(conf, ptPath, wKeyOpt, wValueOpt);
     curSize = 0;
     countSeg2 = 0;
     while (curSize < blkSize * 2) {

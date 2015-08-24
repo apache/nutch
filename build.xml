@@ -427,9 +427,6 @@
     <copy todir="${test.build.data}">
       <fileset dir="src/testresources" includes="**/*"/>
     </copy>
-    
-    <copy file="${test.src.dir}/nutch-site.xml"
-          todir="${test.build.classes}"/>
 
     <copy file="${test.src.dir}/log4j.properties"
           todir="${test.build.classes}"/>

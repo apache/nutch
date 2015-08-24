@@ -29,8 +29,9 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.Text;
-
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.ContextHandler;
@@ -56,8 +57,10 @@ public class CrawlDBTestUtil {
       Path crawldb, List<URLCrawlDatum> init) throws Exception {
     LOG.trace("* creating crawldb: " + crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(conf, fs, new Path(dir,
-        "part-00000").toString(), Text.class, CrawlDatum.class);
+    Option wKeyOpt = MapFile.Writer.keyClass(Text.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option wValueOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
+    MapFile.Writer writer = new MapFile.Writer(conf, new Path(dir,
+        "part-00000"), wKeyOpt, wValueOpt);
     Iterator<URLCrawlDatum> it = init.iterator();
     while (it.hasNext()) {
       URLCrawlDatum row = it.next();

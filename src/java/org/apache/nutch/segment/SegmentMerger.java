@@ -34,7 +34,10 @@ import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
+import org.apache.hadoop.io.SequenceFile.Metadata;
+import org.apache.hadoop.io.compress.DefaultCodec;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.FileSplit;
@@ -160,8 +163,7 @@ public class SegmentMerger extends Configured implements Tool,
         throw new RuntimeException("Cannot identify segment:", e);
       }
 
-      SequenceFile.Reader reader = new SequenceFile.Reader(FileSystem.get(job),
-          fSplit.getPath(), job);
+      SequenceFile.Reader reader = new SequenceFile.Reader(job, SequenceFile.Reader.file(fSplit.getPath()));
 
       final Writable w;
       try {
@@ -284,9 +286,26 @@ public class SegmentMerger extends Configured implements Tool,
             wname = new Path(new Path(new Path(out, segmentName + "-" + slice),
                 dirName), name);
           }
-          res = SequenceFile.createWriter(fs, job, wname, Text.class,
-              CrawlDatum.class,
-              SequenceFileOutputFormat.getOutputCompressionType(job), progress);
+          
+//          Option rKeyClassOpt = MapFile.Writer.keyClass(Text.class);
+//          org.apache.hadoop.io.SequenceFile.Writer.Option rValClassOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
+//          Option rProgressOpt = (Option) SequenceFile.Writer.progressable(progress);
+//          Option rCompOpt = (Option) SequenceFile.Writer.compression(SequenceFileOutputFormat.getOutputCompressionType(job));
+//          Option rFileOpt = (Option) SequenceFile.Writer.file(wname);
+          
+          //res = SequenceFile.createWriter(job, rFileOpt, rKeyClassOpt,
+           //   rValClassOpt, rCompOpt, rProgressOpt);
+          
+          res = SequenceFile.createWriter(job, SequenceFile.Writer.file(wname),
+              SequenceFile.Writer.keyClass(Text.class),
+              SequenceFile.Writer.valueClass(CrawlDatum.class),
+              SequenceFile.Writer.bufferSize(fs.getConf().getInt("io.file.buffer.size",4096)),
+              SequenceFile.Writer.replication(fs.getDefaultReplication(wname)),
+              SequenceFile.Writer.blockSize(1073741824),
+              SequenceFile.Writer.compression(SequenceFileOutputFormat.getOutputCompressionType(job), new DefaultCodec()),
+              SequenceFile.Writer.progressable(progress),
+              SequenceFile.Writer.metadata(new Metadata())); 
+          
           sliceWriters.put(slice + dirName, res);
           return res;
         }
@@ -314,8 +333,14 @@ public class SegmentMerger extends Configured implements Tool,
           if (clazz.isAssignableFrom(ParseText.class)) {
             compType = CompressionType.RECORD;
           }
-          res = new MapFile.Writer(job, fs, wname.toString(), Text.class,
-              clazz, compType, progress);
+          
+          Option rKeyClassOpt = (Option) MapFile.Writer.keyClass(Text.class);
+          org.apache.hadoop.io.SequenceFile.Writer.Option rValClassOpt = SequenceFile.Writer.valueClass(clazz);
+          org.apache.hadoop.io.SequenceFile.Writer.Option rProgressOpt = SequenceFile.Writer.progressable(progress);
+          org.apache.hadoop.io.SequenceFile.Writer.Option rCompOpt = SequenceFile.Writer.compression(compType);
+          
+          res = new MapFile.Writer(job, wname, rKeyClassOpt,
+              rValClassOpt, rCompOpt, rProgressOpt);
           sliceWriters.put(slice + dirName, res);
           return res;
         }

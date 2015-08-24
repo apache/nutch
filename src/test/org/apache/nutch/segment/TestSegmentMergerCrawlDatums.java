@@ -24,6 +24,8 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapFileOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -381,8 +383,9 @@ public class TestSegmentMergerCrawlDatums {
         new Path(segment, CrawlDatum.FETCH_DIR_NAME), "part-00000");
 
     // Get a writer for map files containing <Text,CrawlDatum> pairs
-    MapFile.Writer writer = new MapFile.Writer(conf, fs,
-        crawlFetchPath.toString(), Text.class, CrawlDatum.class);
+    Option wKeyOpt = MapFile.Writer.keyClass(Text.class);
+    org.apache.hadoop.io.SequenceFile.Writer.Option wValueOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
+    MapFile.Writer writer = new MapFile.Writer(conf, crawlFetchPath, wKeyOpt, wValueOpt);
 
     // Whether we're handling a redirect now
     // first add the linked datum

@@ -26,6 +26,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.SequenceFile.Reader.Option;
 import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
 import org.junit.After;
 import org.junit.Assert;
@@ -292,7 +293,8 @@ public class TestGenerator {
   private ArrayList<URLCrawlDatum> readContents(Path fetchlist)
       throws IOException {
     // verify results
-    SequenceFile.Reader reader = new SequenceFile.Reader(fs, fetchlist, conf);
+    Option rFile = SequenceFile.Reader.file(fetchlist);
+    SequenceFile.Reader reader = new SequenceFile.Reader(conf, rFile);
 
     ArrayList<URLCrawlDatum> l = new ArrayList<URLCrawlDatum>();
 

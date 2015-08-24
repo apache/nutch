@@ -43,10 +43,11 @@
 		<dependency org="commons-collections" name="commons-collections" rev="3.1" conf="*->default" />
 		<dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" conf="*->master" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.3" conf="*->default" />
-        <dependency org="org.apache.commons" name="commons-compress" rev="1.9" conf="*->default" />	
+        <dependency org="org.apache.commons" name="commons-compress" rev="1.9" conf="*->default" />
         <dependency org="org.apache.commons" name="commons-jexl" rev="2.1.1" />
-
-		<dependency org="org.apache.hadoop" name="hadoop-core" rev="1.2.0" conf="*->default">
+            
+        <!-- Hadoop Dependencies -->
+		<dependency org="org.apache.hadoop" name="hadoop-common" rev="2.4.0" conf="*->default">
 			<exclude org="hsqldb" name="hsqldb" />
 			<exclude org="net.sf.kosmosfs" name="kfs" />
 			<exclude org="net.java.dev.jets3t" name="jets3t" />
@@ -54,6 +55,10 @@
 			<exclude org="org.mortbay.jetty" name="jsp-*" />
 			<exclude org="ant" name="ant" />
 		</dependency>
+        <dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.4.0" conf="*->default"/>
+        <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="2.4.0" conf="*->default"/>
+        <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="2.4.0" conf="*->default"/>
+        <!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.apache.tika" name="tika-core" rev="1.8" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
@@ -77,16 +82,24 @@
               
 		<!--artifacts needed for testing -->
 		<dependency org="junit" name="junit" rev="4.11" conf="test->default" />
-		<dependency org="org.apache.hadoop" name="hadoop-test" rev="1.2.0" conf="test->default" />
+		<!--dependency org="org.apache.hadoop" name="hadoop-test" rev="1.2.0" conf="test->default" /-->
 		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.22" conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22" conf="test->default" />
 		<!-- end of test artifacts -->
 
+
+		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" conf="test->default" />
+
+		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.22" conf="test->default" />
+		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22" conf="test->default" />
+
 		<!--global exclusion -->
 		<exclude module="jmxtools" />
 		<exclude module="jms" />
 		<exclude module="jmxri" />
+        <exclude org="com.thoughtworks.xstream"/>
+        <exclude org="org.apache.mrunit"/>
         <exclude org="com.thoughtworks.xstream"/>
 
 	</dependencies>

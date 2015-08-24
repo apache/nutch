@@ -65,7 +65,6 @@ public class ContentAsTextInputFormat extends
 
       // convert the content object to text
       Text tKey = key;
-      Text tValue = value;
       if (!sequenceFileRecordReader.next(innerKey, innerValue)) {
         return false;
       }

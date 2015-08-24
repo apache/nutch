@@ -20,8 +20,6 @@ package org.apache.nutch.util.domain;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -103,7 +101,7 @@ public class DomainStatistics extends Configured implements Tool {
     conf.setInt("domain.statistics.mode", mode);
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
 
-    Job job = new Job(conf, jobName);
+    Job job = Job.getInstance(conf, jobName);
     job.setJarByClass(DomainStatistics.class);
 
     String[] inputDirsSpecs = inputDir.split(",");

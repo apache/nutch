@@ -18,7 +18,6 @@
 package org.apache.nutch.crawl;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.*;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.util.MimeUtil;

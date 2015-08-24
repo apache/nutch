@@ -48,7 +48,7 @@ public class LockUtil {
     if (fs.exists(lockFile)) {
       if (!accept)
         throw new IOException("lock file " + lockFile + " already exists.");
-      if (fs.getFileStatus(lockFile).isDir())
+      if (fs.getFileStatus(lockFile).isDirectory())
         throw new IOException("lock file " + lockFile
             + " already exists and is a directory.");
       // do nothing - the file already exists.
@@ -76,7 +76,7 @@ public class LockUtil {
       throws IOException {
     if (!fs.exists(lockFile))
       return false;
-    if (fs.getFileStatus(lockFile).isDir())
+    if (fs.getFileStatus(lockFile).isDirectory())
       throw new IOException("lock file " + lockFile
           + " exists but is a directory!");
     return fs.delete(lockFile, false);

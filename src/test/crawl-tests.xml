@@ -48,5 +48,15 @@
   </description>                                                                                                                                             
 </property>
 
+<property>
+  <name>io.serializations</name>
+  <value>org.apache.hadoop.io.serializer.WritableSerialization,org.apache.hadoop.io.serializer.JavaSerialization</value>
+  <!-- org.apache.hadoop.io.serializer.avro.AvroSpecificSerialization,
+  org.apache.hadoop.io.serializer.avro.AvroReflectSerialization,
+  org.apache.hadoop.io.serializer.avro.AvroGenericSerialization, -->
+  <description>A list of serialization classes that can be used for
+  obtaining serializers and deserializers.</description>
+</property>
+
 </configuration>
 

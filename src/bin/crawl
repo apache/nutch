@@ -140,7 +140,7 @@ commonOptions="-D mapred.reduce.tasks=$numTasks -D mapred.child.java.opts=-Xmx10
  # check that hadoop can be found on the path
 if [ $mode = "distributed" ]; then
  if [ $(which hadoop | wc -l ) -eq 0 ]; then
-    echo "Can't find Hadoop executable. Add HADOOP_HOME/bin to the path or run in local mode."
+    echo "Can't find Hadoop executable. Add HADOOP_COMMON_HOME/bin to the path or run in local mode."
     exit -1;
  fi
 fi
