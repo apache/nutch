@@ -27,6 +27,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -38,6 +40,7 @@ import java.net.URL;
 
 public class HttpResponse implements Response {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HttpResponse.class);
     private Http http;
     private URL url;
     private String orig;
@@ -56,14 +59,19 @@ public class HttpResponse implements Response {
         this.conf = conf;
         this.http = http;
         this.url = url;
-        this.orig = url.toString();
         this.base = url.toString();
 
         WebDriver driver = new FirefoxDriver();
         try {
+            int timeout = http.getTimeout();
+
+            // This should be extracted to a HTTPRenderBase class or similar
+            int sleep = conf.getInt("http.min.render", 1500);
+
             driver.get(url.toString());
             // Wait for the page to load, timeout after 3 seconds
-            WebDriverWait webDriverWait = new WebDriverWait(driver, conf.getInt("http.timeout", 10000));
+            WebDriverWait webDriverWait = new WebDriverWait(driver, timeout);
+            Thread.sleep(Math.min(sleep, timeout));
             webDriverWait.until(new Predicate<WebDriver>() {
                 @Override
                 public boolean apply(WebDriver webDriver) {
@@ -73,6 +81,8 @@ public class HttpResponse implements Response {
             String innerHtml = driver.findElement(By.tagName("body")).getAttribute("innerHTML");
             code = 200;
             content = innerHtml.getBytes("UTF-8");
+        } catch (InterruptedException e) {
+            LOG.warn("WebDriver was interrupted before trying to fetch response", e);
         } finally {
             driver.close();
         }
