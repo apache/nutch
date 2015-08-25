@@ -30,21 +30,14 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-
-// import org.apache.nutch.crawl.CrawlDatum;
-
-/* Most of this code was borrowed from protocol-htmlunit; which in turn borrowed it from protocol-httpclient */
 
 public class HttpResponse implements Response {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpResponse.class);
     private Http http;
     private URL url;
-    private String orig;
-    private String base;
     private byte[] content;
     private int code;
     private Metadata headers = new SpellCheckedMetadata();
@@ -59,7 +52,6 @@ public class HttpResponse implements Response {
         this.conf = conf;
         this.http = http;
         this.url = url;
-        this.base = url.toString();
 
         WebDriver driver = new FirefoxDriver();
         try {
