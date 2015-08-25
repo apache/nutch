@@ -159,13 +159,6 @@
     <dependency org="de.agilecoders.wicket" name="wicket-bootstrap-core" rev="0.9.2" conf="*->default" />
     <dependency org="de.agilecoders.wicket" name="wicket-bootstrap-extensions" rev="0.9.2" conf="*->default" />
 
-    <!-- begin selenium dependencies -->
-    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="2.47.1" />
-
-    <dependency org="com.opera" name="operadriver" rev="1.5">
-      <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
-    </dependency>
-
     <!--global exclusion -->
     <exclude module="ant" />
     <exclude module="slf4j-jdk14" />

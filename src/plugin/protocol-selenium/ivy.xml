@@ -36,6 +36,12 @@
   </publications>
 
   <dependencies>
+      <!-- begin selenium dependencies -->
+      <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="2.47.1" />
+
+      <dependency org="com.opera" name="operadriver" rev="1.5">
+          <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
+      </dependency>
   </dependencies>
   
 </ivy-module>
