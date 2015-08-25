@@ -17,6 +17,7 @@
 
 package org.apache.nutch.protocol.selenium;
 
+import com.google.common.base.Predicate;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
@@ -62,8 +63,13 @@ public class HttpResponse implements Response {
         try {
             driver.get(url.toString());
             // Wait for the page to load, timeout after 3 seconds
-            new WebDriverWait(driver, 3);
-
+            WebDriverWait webDriverWait = new WebDriverWait(driver, conf.getInt("http.timeout", 10000));
+            webDriverWait.until(new Predicate<WebDriver>() {
+                @Override
+                public boolean apply(WebDriver webDriver) {
+                    return webDriver.findElement(By.tagName("body")) != null;
+                }
+            });
             String innerHtml = driver.findElement(By.tagName("body")).getAttribute("innerHTML");
             code = 200;
             content = innerHtml.getBytes("UTF-8");
