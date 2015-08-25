@@ -21,8 +21,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.ProtocolException;
-import org.apache.nutch.protocol.http.api.HttpException;
 import org.apache.nutch.storage.WebPage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -30,6 +28,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 // import org.apache.nutch.crawl.CrawlDatum;
@@ -51,7 +50,7 @@ public class HttpResponse implements Response {
      */
     private Configuration conf = null;
 
-    public HttpResponse(Http http, URL url, WebPage page, Configuration conf) throws ProtocolException, IOException {
+    public HttpResponse(Http http, URL url, WebPage page, Configuration conf) throws UnsupportedEncodingException {
 
         this.conf = conf;
         this.http = http;
