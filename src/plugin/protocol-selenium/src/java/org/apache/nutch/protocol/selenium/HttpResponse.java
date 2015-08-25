@@ -72,26 +72,27 @@ public class HttpResponse implements Response {
         }
     }
 
+    @Override
     public URL getUrl() {
         return url;
     }
 
+    @Override
     public int getCode() {
         return code;
     }
 
+    @Override
     public String getHeader(String name) {
         return headers.get(name);
     }
 
-    /* ------------------------- *
-     * <implementation:Response> *
-     * ------------------------- */
-
+    @Override
     public Metadata getHeaders() {
         return headers;
     }
 
+    @Override
     public byte[] getContent() {
         return content;
     }
