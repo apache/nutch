@@ -17,8 +17,6 @@
 
 package org.apache.nutch.protocol.selenium;
 
-// JDK imports
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
@@ -31,9 +29,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.PushbackInputStream;
 import java.net.URL;
 
 // import org.apache.nutch.crawl.CrawlDatum;
@@ -63,7 +59,7 @@ public class HttpResponse implements Response {
         this.orig = url.toString();
         this.base = url.toString();
 
-        FirefoxDriver driver = new FirefoxDriver();
+        WebDriver driver = new FirefoxDriver();
         try {
             driver.get(url.toString());
             // Wait for the page to load, timeout after 3 seconds
