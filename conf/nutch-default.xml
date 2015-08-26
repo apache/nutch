@@ -1785,7 +1785,10 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <description>
     A String value representing the flavour of Selenium 
     WebDriver() to use. Currently the following options
-    exist - firefox, chrome, safari and opera.
+    exist - 'firefox', 'chrome', 'safari', 'opera' and 'remote'.
+    If 'remote' is used it is essential to also set correct properties for
+    'selenium.hub.port', 'selenium.hub.path', 'selenium.hub.host' and
+    'selenium.hub.protocol'.
   </description>
 </property>
 
@@ -1811,6 +1814,30 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
     By default this is null, in this case screenshots held in memory
     are simply discarded.
   </description>
+</property>
+
+<property>
+  <name>selenium.hub.port</name>
+  <value>4444</value>
+  <description>Selenium Hub Location connection port</description>
+</property>
+
+<property>
+  <name>selenium.hub.path</name>
+  <value>/wd/hub</value>
+  <description>Selenium Hub Location connection path</description>
+</property>
+
+<property>
+  <name>selenium.hub.host</name>
+  <value>localhost</value>
+  <description>Selenium Hub Location connection host</description>
+</property>
+
+<property>
+  <name>selenium.hub.protocol</name>
+  <value>http</value>
+  <description>Selenium Hub Location connection protocol</description>
 </property>
 
 <!-- lib-selenium configuration -->

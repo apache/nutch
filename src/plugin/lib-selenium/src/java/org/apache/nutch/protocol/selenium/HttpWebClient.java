@@ -17,7 +17,6 @@
 package org.apache.nutch.protocol.selenium;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
@@ -30,15 +29,20 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import com.opera.core.systems.OperaDriver;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.String;
+import java.net.URL;
 
 public class HttpWebClient {
 
@@ -76,6 +80,13 @@ public class HttpWebClient {
             break;
           case "opera":
             driver = new OperaDriver();
+            break;
+          case "remote":
+            String seleniumHubHost = conf.get("selenium.hub.host", "localhost");
+            int seleniumHubPort = Integer.parseInt(conf.get("selenium.hub.port", "4444"));
+            String seleniumHubPath = conf.get("selenium.hub.path", "/wd/hub");
+            String seleniumHubProtocol = conf.get("selenium.hub.protocol", "http");
+            driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), DesiredCapabilities.firefox());
             break;
           default:
             LOG.error("The Selenium WebDriver choice {} is not available... defaulting to FirefoxDriver().", driverType);

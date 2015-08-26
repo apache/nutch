@@ -137,11 +137,8 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
 
     } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
-
     }
-
     try {
-
       train();
     } catch (Exception e) {
 
@@ -169,7 +166,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
     if (!filterParse(text)) { // kick in the second tier
       // if parent page found
       // irrelevent
-      LOG.info("ParseFilter: NaiveBayes: Page found irrelevent:: " + url);
+      LOG.info("ParseFilter: NaiveBayes: Page found irrelevant:: " + url);
       LOG.info("Checking outlinks");
 
       Outlink[] out = null;
