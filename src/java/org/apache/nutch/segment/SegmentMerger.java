@@ -634,6 +634,14 @@ public class SegmentMerger extends Configured implements Tool,
     boolean c = true;
     boolean pd = true;
     boolean pt = true;
+    
+    // These contain previous values, we use it to track changes in the loop
+    boolean pg = true;
+    boolean pf = true;
+    boolean pp = true;
+    boolean pc = true;
+    boolean ppd = true;
+    boolean ppt = true;
     for (int i = 0; i < segs.length; i++) {
       if (!fs.exists(segs[i])) {
         if (LOG.isWarnEnabled()) {
@@ -657,6 +665,13 @@ public class SegmentMerger extends Configured implements Tool,
       p = p && fs.exists(pDir);
       pd = pd && fs.exists(pdDir);
       pt = pt && fs.exists(ptDir);
+      
+      // Input changed?
+      if (g != pg || f != pf || p != pp || c != pc || pd != ppd || pt != ppt) {
+        LOG.info(segs[i] + " changed input dirs");
+      }
+      
+      pg = g; pf = f; pp = p; pc = c; ppd = pd; ppt = pt;
     }
     StringBuffer sb = new StringBuffer();
     if (c)
