@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2085 Upgrade Guava (markus)
+
 * NUTCH-2084 SegmentMerger to report missing input dirs (markus)
 
 * NUTCH-2083 Implement functionality to shadow nutch-selenium-grid-plugin from Mo Omer (lewismc)

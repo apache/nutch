@@ -67,7 +67,7 @@
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
 		<dependency org="oro" name="oro" rev="2.0.8" />
 
-		<dependency org="com.google.guava" name="guava" rev="11.0.2" />
+		<dependency org="com.google.guava" name="guava" rev="16.0.1" />
 
 		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="0.6" />
 		
