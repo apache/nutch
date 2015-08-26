@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-1517 CloudSearch indexer (jnioche)
+
 * NUTCH-2085 Upgrade Guava (markus)
 
 * NUTCH-2084 SegmentMerger to report missing input dirs (markus)
