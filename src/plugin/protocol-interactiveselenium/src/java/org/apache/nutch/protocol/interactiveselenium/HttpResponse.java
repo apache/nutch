@@ -271,6 +271,10 @@ public class HttpResponse implements Response {
     String processedPage = "";
 
     for (InteractiveSeleniumHandler handler : this.handlers) {
+        if (! handler.shouldProcessURL(url.toString())) {
+            continue;
+        }
+
         WebDriver driver = HttpWebClient.getDriverForPage(url.toString(), conf);
 
         handler.processDriver(driver);
