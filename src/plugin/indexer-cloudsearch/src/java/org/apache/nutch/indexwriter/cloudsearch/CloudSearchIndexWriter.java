@@ -314,7 +314,9 @@ public class CloudSearchIndexWriter implements IndexWriter {
     // This will flush any unsent documents.
     commit();
     // close the client
-    client.shutdown();
+    if (client != null){
+      client.shutdown();
+    }
   }
 
   public Configuration getConf() {
