@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2077 Upgrade to Tika 1.10 (Michael Joyce via lewismc)
+
 * NUTCH-1517 CloudSearch indexer (jnioche)
 
 * NUTCH-2085 Upgrade Guava (markus)
