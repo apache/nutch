@@ -2,6 +2,9 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2088 Add URL Processing Check to Interactive Selenium 
+  Handlers (Michael Joyce via mattmann)
+
 * NUTCH-2077 Upgrade to Tika 1.10 (Michael Joyce via lewismc)
 
 * NUTCH-1517 CloudSearch indexer (jnioche)

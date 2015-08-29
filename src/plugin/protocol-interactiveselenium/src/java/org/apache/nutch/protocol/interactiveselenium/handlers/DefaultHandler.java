@@ -21,4 +21,8 @@ import org.openqa.selenium.WebDriver;
 
 public class DefaultHandler implements InteractiveSeleniumHandler {
     public void processDriver(WebDriver driver) {}
+
+    public boolean shouldProcessURL(String URL) {
+        return true;
+    }
 }
