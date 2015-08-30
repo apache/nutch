@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+<head>
+<meta charset="utf-8" />
+<title>Wicket extend</title>
+</head>
+
+<body>
+	<wicket:extend>
+		<h2>
+			<wicket:message key="settings">Settings</wicket:message>
+		</h2>
+		<div class="row">
+			<div class="col-lg-12">
+				<table class="table table-hover tablesorter table-bordered">
+					<thead>
+						<tr>
+							<th class="header col-lg-3">
+								<wicket:message key="settings.header.name">Name</wicket:message>
+							</th>
+							<th class="header col-lg-9">
+								<wicket:message key="settings.header.value">Value</wicket:message>
+							</th>
+						</tr>
+					</thead>
+					<tbody wicket:id="settingsTable">
+						<tr wicket:id="settings">
+							<td>
+								<span wicket:id="name">Name</span>
+							</td>
+							<td>
+<!-- 								<span wicket:id="value">Value</span> -->
+					<input class="col-lg-12" wicket:id="value" placeholder="http://localhost:8080">
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</wicket:extend>
+
+</body>
+</html>
