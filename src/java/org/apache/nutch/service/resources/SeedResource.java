@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 import javax.ws.rs.Consumes;
@@ -37,79 +35,75 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.nutch.service.model.request.SeedList;
+import org.apache.nutch.service.model.request.SeedUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.Files;
 
-/**
- * used to create a seedlist (for the Nutch server) 
- * called seed.txt in the directory/folder provided by the SeedList object 
- * 
- *
- */
-
-@Path(value = "/seed")
+@Path("/seed")
 public class SeedResource extends AbstractResource {
-	private static final Logger log = LoggerFactory
-			.getLogger(SeedResource.class);
+  private static final Logger log = LoggerFactory
+      .getLogger(AdminResource.class);
 
-	@POST
-	@Path(value = "/create")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public boolean create(SeedList seedList) {
-		if (seedList == null) {
-			throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
-					.entity("Seed list cannot be empty!").build());
-		}
-		File seedFile = createSeedFile(seedList.getDirectory());
-		BufferedWriter writer = getWriter(seedFile);
-		Collection<String> seedUrls = seedList.getSeedUrls();
-		if (CollectionUtils.isNotEmpty(seedUrls)) {
-			for (String seedUrl : seedUrls) {
-				writeUrl(writer, seedUrl);
-			}
-		}
+  @POST
+  @Path("/create")
+  @Consumes(MediaType.APPLICATION_JSON)
+  /**
+   * Method creates seed list file and returns temorary directory path
+   * @param seedList
+   * @return
+   */
+  public String createSeedFile(SeedList seedList) {
+    if (seedList == null) {
+      throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
+          .entity("Seed list cannot be empty!").build());
+    }
+    File seedFile = createSeedFile();
+    BufferedWriter writer = getWriter(seedFile);
 
-		return true;
-	}
+    Collection<SeedUrl> seedUrls = seedList.getSeedUrls();
+    if (CollectionUtils.isNotEmpty(seedUrls)) {
+      for (SeedUrl seedUrl : seedUrls) {
+        writeUrl(writer, seedUrl);
+      }
+    }
 
-	private void writeUrl(BufferedWriter writer, String seedUrl) {
-		try {
-			writer.write(seedUrl);
-			writer.newLine();
-			writer.flush();
-		} catch (IOException e) {
-			throw handleException(e);
-		}
-	}
+    return seedFile.getParent();
+  }
 
-	private BufferedWriter getWriter(File seedFile) {
-		try {
-			return new BufferedWriter(new FileWriter(seedFile));
-		} catch (FileNotFoundException e) {
-			throw handleException(e);
-		} catch (IOException e) {
-			throw handleException(e);
-		}
-	}
+  private void writeUrl(BufferedWriter writer, SeedUrl seedUrl) {
+    try {
+      writer.write(seedUrl.getUrl());
+      writer.newLine();
+      writer.flush();
+    } catch (IOException e) {
+      throw handleException(e);
+    }
+  }
 
-	private File createSeedFile(String directory) {
-		try {
-			java.nio.file.Path path=Paths.get(directory);
-			if (!Files.exists(path)) {
-				new File(directory).mkdir();
-			}	
-			File targetFile = new File(directory+"/seed.txt");
-			return targetFile;
-		} catch (Exception e) {
-			throw handleException(e);
-		}
-	}
+  private BufferedWriter getWriter(File seedFile) {
+    try {
+      return new BufferedWriter(new FileWriter(seedFile));
+    } catch (FileNotFoundException e) {
+      throw handleException(e);
+    } catch (IOException e) {
+      throw handleException(e);
+    }
+  }
 
-	private RuntimeException handleException(Exception e) {
-		log.error("Cannot create seed file!", e);
-		return new WebApplicationException(status(Status.INTERNAL_SERVER_ERROR)
-				.entity("Cannot create seed file!").build());
-	}
+  private File createSeedFile() {
+    try {
+      return File.createTempFile("seed", ".txt", Files.createTempDir());
+    } catch (IOException e) {
+      throw handleException(e);
+    }
+  }
+
+  private RuntimeException handleException(Exception e) {
+    log.error("Cannot create seed file!", e);
+    return new WebApplicationException(status(Status.INTERNAL_SERVER_ERROR)
+        .entity("Cannot create seed file!").build());
+  }
 
 }

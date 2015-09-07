@@ -17,16 +17,19 @@
 package org.apache.nutch.service.model.request;
 
 import java.io.Serializable;
-import java.util.Collection;
 
-public class SeedList implements Serializable {
+public class SeedUrl implements Serializable {
 
   private Long id;
 
-  private String name;
+  private SeedList seedList;
 
-  private Collection<SeedUrl> seedUrls;
+  private String url;
 
+  public SeedUrl(String url) {
+    this.url = url;
+  }
+  
   public Long getId() {
     return id;
   }
@@ -35,20 +38,20 @@ public class SeedList implements Serializable {
     this.id = id;
   }
 
-  public Collection<SeedUrl> getSeedUrls() {
-    return seedUrls;
+  public String getUrl() {
+    return url;
   }
 
-  public void setSeedUrls(Collection<SeedUrl> seedUrls) {
-    this.seedUrls = seedUrls;
+  public void setUrl(String url) {
+    this.url = url;
   }
 
-  public String getName() {
-    return name;
+  public SeedList getSeedList() {
+    return seedList;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setSeedList(SeedList seedList) {
+    this.seedList = seedList;
   }
 
   @Override
@@ -67,7 +70,7 @@ public class SeedList implements Serializable {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    SeedList other = (SeedList) obj;
+    SeedUrl other = (SeedUrl) obj;
     if (id == null) {
       if (other.id != null)
         return false;
@@ -75,5 +78,4 @@ public class SeedList implements Serializable {
       return false;
     return true;
   }
-
 }

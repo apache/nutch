@@ -2,6 +2,9 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2090 Refactor Seed Resource in REST API (Sujen Shah
+  via mattmann)
+
 * NUTCH-2088 Add URL Processing Check to Interactive Selenium 
   Handlers (Michael Joyce via mattmann)
 
