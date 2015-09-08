@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.protocol.Content;
 
 /**
  * This class provides methods to map crawled data on JSON using a {@see StringBuilder} object. 
@@ -32,7 +33,7 @@ public class CommonCrawlFormatSimple extends AbstractCommonCrawlFormat {
 	
 	private int tabCount;
 	
-	public CommonCrawlFormatSimple(String url, byte[] content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+	public CommonCrawlFormatSimple(String url, Content content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
 		super(url, content, metadata, nutchConf, config);
 		
 		this.sb = new StringBuilder();

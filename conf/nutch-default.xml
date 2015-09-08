@@ -1862,4 +1862,22 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>store.http.request</name>
+  <value>false</value>
+  <description>
+    Store the raw request made by Nutch, required to use the CommonCrawlDataDumper
+    tool for the WARC format.
+  </description>
+</property>
+
+<property>
+  <name>store.http.headers</name>
+  <value>false</value>
+  <description>
+    Store the raw headers received by Nutch from the server, required to use the 
+    CommonCrawlDataDumper tool for the WARC format.
+  </description>
+</property>
+
 </configuration>

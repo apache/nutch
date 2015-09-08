@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.protocol.Content;
 
 /**
  * Factory class that creates new {@see CommonCrawlFormat} objects (a.k.a. formatter) that map crawled files to CommonCrawl format.   
@@ -38,8 +39,9 @@ public class CommonCrawlFormatFactory {
 	 * @param config the CommonCrawl output configuration.
 	 * @return the new {@see CommonCrawlFormat} object.
 	 * @throws IOException If any I/O error occurs.
+	 * @deprecated
 	 */
-	public static CommonCrawlFormat getCommonCrawlFormat(String formatType, String url, byte[] content,	Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+	public static CommonCrawlFormat getCommonCrawlFormat(String formatType, String url, Content content,	Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
 		if (formatType == null) {
 			return null;
 		}
@@ -54,6 +56,19 @@ public class CommonCrawlFormatFactory {
 			return new CommonCrawlFormatSimple(url, content, metadata, nutchConf, config);
 		}
 		
+		return null;
+	}
+
+	// The format should not depend on variable attributes, essentially this
+	// should be one for the full job
+	public static CommonCrawlFormat getCommonCrawlFormat(String formatType, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+		if (formatType.equalsIgnoreCase("WARC")) {
+			return new CommonCrawlFormatWARC(nutchConf, config);
+		}
+
+		if (formatType.equalsIgnoreCase("JACKSON")) {
+			return new CommonCrawlFormatJackson( nutchConf, config);
+		}
 		return null;
 	}
 }

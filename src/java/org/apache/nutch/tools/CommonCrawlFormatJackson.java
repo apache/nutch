@@ -25,6 +25,7 @@ import org.apache.nutch.metadata.Metadata;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.apache.nutch.protocol.Content;
 
 /**
  * This class provides methods to map crawled data on JSON using Jackson Streaming APIs. 
@@ -36,8 +37,18 @@ public class CommonCrawlFormatJackson extends AbstractCommonCrawlFormat {
 	
 	private JsonGenerator generator;
 
+	public CommonCrawlFormatJackson(Configuration nutchConf,
+			CommonCrawlConfig config) throws IOException {
+		super(null, null, null, nutchConf, config);
+
+		JsonFactory factory = new JsonFactory();
+		this.out = new ByteArrayOutputStream();
+		this.generator = factory.createGenerator(out);
+
+		this.generator.useDefaultPrettyPrinter(); // INDENTED OUTPUT
+	}
 	
-	public CommonCrawlFormatJackson(String url, byte[] content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+	public CommonCrawlFormatJackson(String url, Content content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
 		super(url, content, metadata, nutchConf, config);
 		
 		JsonFactory factory = new JsonFactory();

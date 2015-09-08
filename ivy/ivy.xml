@@ -80,6 +80,11 @@
         <dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.5.1" />
         <dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.5.1" />	
               
+		<!-- WARC artifacts needed  -->
+		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.5" conf="*->default">
+			<exclude module="hadoop-core"/>
+		</dependency>
+
 		<!--artifacts needed for testing -->
 		<dependency org="junit" name="junit" rev="4.11" conf="test->default" />
 		<!--dependency org="org.apache.hadoop" name="hadoop-test" rev="1.2.0" conf="test->default" /-->
