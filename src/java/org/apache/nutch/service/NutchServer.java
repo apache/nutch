@@ -107,7 +107,7 @@ public class NutchServer {
     return server;
   }
 
-  private static void startServer() {
+  protected static void startServer() {
     server.start();
   }
 
@@ -211,6 +211,10 @@ public class NutchServer {
     return jobs.isEmpty();
   }
 
+  protected static void setPort(int port) {
+	  NutchServer.port = port;
+  }
+  
   public int getPort() {
     return port;
   }
