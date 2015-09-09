@@ -27,39 +27,39 @@ import org.slf4j.LoggerFactory;
 
 public class TestNutchServer {
 
-	private static final Logger LOG = LoggerFactory.getLogger(TestNutchServer.class);
-	NutchServer server = NutchServer.getInstance();
+  private static final Logger LOG = LoggerFactory.getLogger(TestNutchServer.class);
+  NutchServer server = NutchServer.getInstance();
 
-	private int port[] = {8081, 9999, 9100, 8900};
-	private final String ENDPOINT_ADDRESS = "http://localhost:";
+  private int port[] = {8081, 9999, 9100, 8900};
+  private final String ENDPOINT_ADDRESS = "http://localhost:";
 
-	@Test
-	public void testNutchServerStartup() {
-		boolean isRunning = false;
-		for(int i=0;i<port.length; i++) {
-			try {
-				startServer(port[i]);
-				isRunning = true;
-				break;
-			}catch(Exception e) {
-				LOG.info("Could not start server on port: {}. Tries remaining {}",port[i],port.length-i);
-			}
-		}
-		if(!isRunning) {
-			LOG.info("Could not start server, all ports in use");
-		}
-		else {
-			LOG.info("Testing admin endpoint");
-			WebClient client = WebClient.create(ENDPOINT_ADDRESS + server.getPort());
-			Response response = client.path("admin").get();
-			Assert.assertTrue(response.readEntity(String.class).contains("startDate"));
-			response = client.path("stop").get();
-			Assert.assertTrue(response.readEntity(String.class).contains("Stopping"));
-		}
-	}
-	
-	private void startServer(int port) throws Exception{
-		NutchServer.setPort(port);
-		NutchServer.startServer();
-	}
+  @Test
+  public void testNutchServerStartup() {
+    boolean isRunning = false;
+    for(int i=0;i<port.length; i++) {
+      try {
+        startServer(port[i]);
+        isRunning = true;
+        break;
+      }catch(Exception e) {
+        LOG.info("Could not start server on port: {}. Tries remaining {}",port[i],port.length-i);
+      }
+    }
+    if(!isRunning) {
+      LOG.info("Could not start server, all ports in use");
+    }
+    else {
+      LOG.info("Testing admin endpoint");
+      WebClient client = WebClient.create(ENDPOINT_ADDRESS + server.getPort());
+      Response response = client.path("admin").get();
+      Assert.assertTrue(response.readEntity(String.class).contains("startDate"));
+      response = client.path("stop").get();
+      Assert.assertTrue(response.readEntity(String.class).contains("Stopping"));
+    }
+  }
+
+  private void startServer(int port) throws Exception{
+    NutchServer.setPort(port);
+    NutchServer.startServer();
+  }
 }
