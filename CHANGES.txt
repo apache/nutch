@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2092: Unit Test for NutchServer (Sujen Shah via mattmann)
+
 * NUTCH-2096 Explicitly indicate broswer binary to use when selecting 
   selenium remote option in config (Kim Whitehall via mattmann)
 

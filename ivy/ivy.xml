@@ -71,14 +71,15 @@
 
 		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="0.6" />
 		
-        <dependency org="org.apache.cxf" name="cxf" rev="3.0.4"/>
-        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.0.4"/>
-        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.0.4"/>
-        <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.0.4"/>
-        <dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.0.4"/>
-        <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.1" /> 
-        <dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.5.1" />
-        <dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.5.1" />	
+        <dependency org="org.apache.cxf" name="cxf" rev="3.0.4" conf="*->default"/>
+        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.0.4" conf="*->default"/>
+        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.0.4" conf="*->default"/>
+        <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.0.4" conf="*->default"/>
+        <dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.0.4" conf="*->default"/>
+        <dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.0.4" conf="test->default"/>
+        <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.1"  conf="*->default"/> 
+        <dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.5.1" conf="*->default"/>
+        <dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.5.1" conf="*->default"/>	
               
 		<!--artifacts needed for testing -->
 		<dependency org="junit" name="junit" rev="4.11" conf="test->default" />
