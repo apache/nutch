@@ -2,6 +2,9 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2096 Explicitly indicate broswer binary to use when selecting 
+  selenium remote option in config (Kim Whitehall via mattmann)
+
 * NUTCH-2090 Refactor Seed Resource in REST API (Sujen Shah
   via mattmann)
 
