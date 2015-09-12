@@ -1787,8 +1787,8 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
     WebDriver() to use. Currently the following options
     exist - 'firefox', 'chrome', 'safari', 'opera' and 'remote'.
     If 'remote' is used it is essential to also set correct properties for
-    'selenium.hub.port', 'selenium.hub.path', 'selenium.hub.host' and
-    'selenium.hub.protocol'.
+    'selenium.hub.port', 'selenium.hub.path', 'selenium.hub.host',
+    'selenium.hub.protocol', 'selenium.grid.driver' and 'selenium.grid.binary'.
   </description>
 </property>
 
@@ -1838,6 +1838,22 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <name>selenium.hub.protocol</name>
   <value>http</value>
   <description>Selenium Hub Location connection protocol</description>
+</property>
+
+<property>
+  <name>selenium.grid.driver</name>
+  <value>firefox</value>
+  <description>A String value representing the flavour of Selenium 
+    WebDriver() used on the selenium grid. Currently the following options
+    exist - 'firefox' </description>
+</property>
+
+<property>
+  <name>selenium.grid.binary</name>
+  <value></value>
+  <description>A String value representing the path to the browser binary 
+    location for each node
+ </description>
 </property>
 
 <!-- lib-selenium configuration -->

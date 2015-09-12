@@ -64,6 +64,7 @@ public class HttpWebClient {
 
   public static WebDriver getDriverForPage(String url, Configuration conf) {
       WebDriver driver = null;
+      DesiredCapabilities capabilities = null;
       long pageLoadWait = conf.getLong("libselenium.page.load.delay", 3);
 
       try {
@@ -86,8 +87,22 @@ public class HttpWebClient {
             int seleniumHubPort = Integer.parseInt(conf.get("selenium.hub.port", "4444"));
             String seleniumHubPath = conf.get("selenium.hub.path", "/wd/hub");
             String seleniumHubProtocol = conf.get("selenium.hub.protocol", "http");
-            driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), DesiredCapabilities.firefox());
-            break;
+            String seleniumGridDriver = conf.get("selenium.grid.driver","firefox");
+            String seleniumGridBinary = conf.get("selenium.grid.binary");
+
+            switch (seleniumGridDriver){
+              case "firefox":
+                capabilities = DesiredCapabilities.firefox();
+                capabilities.setBrowserName("firefox");
+                capabilities.setJavascriptEnabled(true);
+                capabilities.setCapability("firefox_binary",seleniumGridBinary);
+                driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), capabilities);
+                break;
+              default:
+                LOG.error("The Selenium Grid WebDriver choice {} is not available... defaulting to FirefoxDriver().", driverType);
+                driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), DesiredCapabilities.firefox());
+                break;
+            }
           default:
             LOG.error("The Selenium WebDriver choice {} is not available... defaulting to FirefoxDriver().", driverType);
             driver = new FirefoxDriver();
