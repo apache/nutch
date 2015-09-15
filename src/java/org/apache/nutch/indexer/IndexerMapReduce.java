@@ -287,6 +287,9 @@ public class IndexerMapReduce extends Configured implements
 
     final Parse parse = new ParseImpl(parseText, parseData);
     try {
+      // Indexing filters may also be interested in the signature
+      fetchDatum.setSignature(dbDatum.getSignature());
+      
       // extract information from dbDatum and pass it to
       // fetchDatum so that indexing filters can use it
       final Text url = (Text) dbDatum.getMetaData().get(
