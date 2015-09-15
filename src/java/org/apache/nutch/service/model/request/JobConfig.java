@@ -27,7 +27,7 @@ public class JobConfig {
   private JobType type;
   private String confId;
   private String jobClassName;
-  private Map<String, String> args;
+  private Map<String, Object> args;
 
   public String getCrawlId() {
     return crawlId;
@@ -53,11 +53,11 @@ public class JobConfig {
     this.confId = confId;
   }
 
-  public Map<String, String> getArgs() {
+  public Map<String, Object> getArgs() {
     return args;
   }
 
-  public void setArgs(Map<String, String> args) {
+  public void setArgs(Map<String, Object> args) {
     this.args = args;
   }
 

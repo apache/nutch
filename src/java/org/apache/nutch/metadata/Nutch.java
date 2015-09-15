@@ -80,4 +80,11 @@ public interface Nutch {
 	public static final String STAT_PROGRESS = "progress";
 	/**Used by Nutch REST service */
 	public static final String CRAWL_ID_KEY = "storage.crawl.id";
+	
+	public static final String ARG_SEEDDIR = "url_dir";
+	public static final String ARG_CRAWLDB = "crawldb";
+	public static final String ARG_LINKDB = "linkdb";
+	public static final String VAL_RESULT = "result";
+	public static final String ARG_SEGMENTDIR = "segment_dir";
+	public static final String ARG_SEGMENT = "segment";
 }

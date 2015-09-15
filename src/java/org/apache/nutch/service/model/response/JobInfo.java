@@ -35,7 +35,7 @@ public class JobInfo {
   private String id;
   private JobType type;
   private String confId;
-  private Map<String, String> args;
+  private Map<String, Object> args;
   private Map<String, Object> result;
   private State state;
   private String msg;
@@ -69,10 +69,10 @@ public class JobInfo {
   public void setConfId(String confId) {
     this.confId = confId;
   }
-  public Map<String, String> getArgs() {
+  public Map<String, Object> getArgs() {
     return args;
   }
-  public void setArgs(Map<String, String> args) {
+  public void setArgs(Map<String, Object> args) {
     this.args = args;
   }
   public Map<String, Object> getResult() {

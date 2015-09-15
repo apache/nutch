@@ -388,17 +388,37 @@ public class Injector extends NutchTool implements Tool {
   /**
    * Used by the Nutch REST service
    */
-  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+  public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
     if(args.size()<1){
       throw new IllegalArgumentException("Required arguments <url_dir>");
     }
     Map<String, Object> results = new HashMap<String, Object>();
-    String RESULT = "result";
-    String crawldb = crawlId+"/crawldb";
-    String url_dir = args.get("url_dir");
 
-    inject(new Path(crawldb), new Path(url_dir));
-    results.put(RESULT, Integer.toString(0));
+    Path crawlDb;
+    if(args.containsKey(Nutch.ARG_CRAWLDB)) {
+    	Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
+    	if(crawldbPath instanceof Path) {
+    		crawlDb = (Path) crawldbPath;
+    	}
+    	else {
+    		crawlDb = new Path(crawldbPath.toString());
+    	}
+    }
+    else {
+    	crawlDb = new Path(crawlId+"/crawldb");
+    }
+    
+    Path input;
+    Object path = args.get(Nutch.ARG_SEEDDIR);
+    if(path instanceof Path) {
+    	input = (Path) path;
+    }
+    else {
+    	input = new Path(path.toString());
+    }
+
+    inject(crawlDb, input);
+    results.put(Nutch.VAL_RESULT, Integer.toString(0));
     return results;
 
   }

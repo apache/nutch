@@ -268,33 +268,43 @@ public class ParseSegment extends NutchTool implements Tool,
   /*
    * Used for Nutch REST service
    */
-  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+  public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
     Map<String, Object> results = new HashMap<String, Object>();
-    String RESULT = "result";
+    Path segment;
+    if(args.containsKey(Nutch.ARG_SEGMENT)) {
+    	Object seg = args.get(Nutch.ARG_SEGMENT);
+    	if(seg instanceof Path) {
+    		segment = (Path) seg;
+    	}
+    	else {
+    		segment = new Path(seg.toString());
+    	}
+    }
+    else {
+    	String segment_dir = crawlId+"/segments";
+        File segmentsDir = new File(segment_dir);
+        File[] segmentsList = segmentsDir.listFiles();  
+        Arrays.sort(segmentsList, new Comparator<File>(){
+          @Override
+          public int compare(File f1, File f2) {
+            if(f1.lastModified()>f2.lastModified())
+              return -1;
+            else
+              return 0;
+          }      
+        });
+        segment = new Path(segmentsList[0].getPath());
+    }
+    
     if (args.containsKey("nofilter")) {
       getConf().setBoolean("parse.filter.urls", false);
     }
     if (args.containsKey("nonormalize")) {
       getConf().setBoolean("parse.normalize.urls", false);
     }
-
-    String segment_dir = crawlId+"/segments";
-    File segmentsDir = new File(segment_dir);
-    File[] segmentsList = segmentsDir.listFiles();  
-    Arrays.sort(segmentsList, new Comparator<File>(){
-      @Override
-      public int compare(File f1, File f2) {
-        if(f1.lastModified()>f2.lastModified())
-          return -1;
-        else
-          return 0;
-      }      
-    });
-    
-    Path segment = new Path(segmentsList[0].getPath());
     parse(segment);
-    results.put(RESULT, Integer.toString(0));
+    results.put(Nutch.VAL_RESULT, Integer.toString(0));
     return results;
   }
 }

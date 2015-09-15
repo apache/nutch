@@ -752,15 +752,10 @@ public class Generator extends NutchTool implements Tool {
   }
 
   @Override
-  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
-
+  public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
     Map<String, Object> results = new HashMap<String, Object>();
-    String RESULT = "result";
-    String crawldb = (args.containsKey("crawldb")) ? args.get("crawldb") : crawlId+"/crawldb";
-    Path dbDir = new Path(crawldb);
-    String segments_dir = (args.containsKey("segment_dir")) ? args.get("segments_dir") : crawlId+"/segments";
-    Path segmentsDir = new Path(segments_dir);
+  
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;
     int numFetchers = -1;
@@ -769,15 +764,42 @@ public class Generator extends NutchTool implements Tool {
     boolean force = false;
     int maxNumSegments = 1;
 
+    Path crawlDb;
+    if(args.containsKey(Nutch.ARG_CRAWLDB)) {
+    	Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
+    	if(crawldbPath instanceof Path) {
+    		crawlDb = (Path) crawldbPath;
+    	}
+    	else {
+    		crawlDb = new Path(crawldbPath.toString());
+    	}
+    }
+    else {
+    	crawlDb = new Path(crawlId+"/crawldb");
+    }
+    
+    Path segmentsDir;
+    if(args.containsKey(Nutch.ARG_SEGMENTDIR)) {
+    	Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
+    	if(segDir instanceof Path) {
+    		segmentsDir = (Path) segDir;
+    	}
+    	else {
+    		segmentsDir = new Path(segDir.toString());
+    	}
+    }
+    else {
+    	segmentsDir = new Path(crawlId+"/segments");
+    }
 
     if (args.containsKey("topN")) {
-      topN = Long.parseLong(args.get("topN"));
+      topN = Long.parseLong((String)args.get("topN"));
     }
     if (args.containsKey("numFetchers")) {
-      numFetchers = Integer.parseInt(args.get("numFetchers"));
+      numFetchers = Integer.parseInt((String)args.get("numFetchers"));
     }
     if (args.containsKey("adddays")) {
-      long numDays = Integer.parseInt(args.get("adddays"));
+      long numDays = Integer.parseInt((String)args.get("adddays"));
       curTime += numDays * 1000L * 60 * 60 * 24;
     }
     if (args.containsKey("noFilter")) {
@@ -790,23 +812,23 @@ public class Generator extends NutchTool implements Tool {
       force = true;
     } 
     if (args.containsKey("maxNumSegments")) {
-      maxNumSegments = Integer.parseInt(args.get("maxNumSegments"));
+      maxNumSegments = Integer.parseInt((String)args.get("maxNumSegments"));
     }
 
     try {
-      Path[] segs = generate(dbDir, segmentsDir, numFetchers, topN, curTime,
+      Path[] segs = generate(crawlDb, segmentsDir, numFetchers, topN, curTime,
           filter, norm, force, maxNumSegments);
       if (segs == null){
-        results.put(RESULT, Integer.toString(1));
+        results.put(Nutch.VAL_RESULT, Integer.toString(1));
         return results;
       }
 
     } catch (Exception e) {
       LOG.error("Generator: " + StringUtils.stringifyException(e));
-      results.put(RESULT, Integer.toString(-1));
+      results.put(Nutch.VAL_RESULT, Integer.toString(-1));
       return results;
     }
-    results.put(RESULT, Integer.toString(0));
+    results.put(Nutch.VAL_RESULT, Integer.toString(0));
     return results;
   }
 }
