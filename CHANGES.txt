@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.4-SNAPSHOT
 
+* NUTCH-1679 UpdateDb using batchId, link may override crawled page (Tien Nguyen Manh, Koen Smets, Alfonso Nishikawa, Alexander Kingson via lewismc)
+
 * NUTCH-2077 Upgrade to Tika 1.10 (Michael Joyce, lewismc)
 
 * NUTCH-2045 index-basic incorrect assignment of next fetch time (page.getFetchTime()) as page fetch time (lewismc)

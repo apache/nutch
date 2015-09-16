@@ -35,10 +35,12 @@ import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.WebPageWritable;
+import org.apache.nutch.storage.StorageUtils;
+import org.apache.gora.store.DataStore;
 import org.slf4j.Logger;
 
 public class DbUpdateReducer extends
-    GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
+GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
@@ -51,10 +53,11 @@ public class DbUpdateReducer extends
   private ScoringFilters scoringFilters;
   private List<ScoreDatum> inlinkedScoreData = new ArrayList<ScoreDatum>();
   private int maxLinks;
+  public DataStore<String, WebPage> datastore;
 
   @Override
   protected void setup(Context context) throws IOException,
-      InterruptedException {
+  InterruptedException {
     Configuration conf = context.getConfiguration();
     retryMax = conf.getInt("db.fetch.retry.max", 3);
     additionsAllowed = conf.getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);
@@ -62,6 +65,17 @@ public class DbUpdateReducer extends
     schedule = FetchScheduleFactory.getFetchSchedule(conf);
     scoringFilters = new ScoringFilters(conf);
     maxLinks = conf.getInt("db.update.max.inlinks", 10000);
+    try {
+      datastore = StorageUtils.createWebStore(conf, String.class, WebPage.class);
+    }
+    catch (ClassNotFoundException e) {
+      throw new IOException(e);
+    }
+  }
+  
+  @Override
+  protected void cleanup(Context context) throws IOException, InterruptedException {
+    datastore.close();
   }
 
   @Override
@@ -70,6 +84,8 @@ public class DbUpdateReducer extends
     String keyUrl = key.getUrl().toString();
 
     WebPage page = null;
+    //initialize old_page for checking if the outlink is already in the datastore
+    WebPage old_page = null;
     inlinkedScoreData.clear();
 
     for (NutchWritable nutchWritable : values) {
@@ -94,7 +110,12 @@ public class DbUpdateReducer extends
       return;
     }
 
-    if (page == null) { // new row
+    //check if page is already in the db
+    if(page == null && (old_page = datastore.get(keyUrl)) != null) { 
+      //if we return here inlinks will not be updated
+      page=old_page;
+    } 
+    else if (page == null) { //new row 
       if (!additionsAllowed) {
         return;
       }
