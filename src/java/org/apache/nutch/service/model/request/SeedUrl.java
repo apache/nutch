@@ -26,6 +26,8 @@ public class SeedUrl implements Serializable {
 
   private String url;
 
+  public SeedUrl() {}
+
   public SeedUrl(String url) {
     this.url = url;
   }

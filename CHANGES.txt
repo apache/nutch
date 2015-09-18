@@ -2,6 +2,8 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2098 Add null SeedUrl constructor (Aron Ahmadia via mattmann)
+
 * NUTCH-2093 Indexing filters to use current signatures (markus)
 
 * NUTCH-2092: Unit Test for NutchServer (Sujen Shah via mattmann)
