@@ -396,25 +396,25 @@ public class Injector extends NutchTool implements Tool {
 
     Path crawlDb;
     if(args.containsKey(Nutch.ARG_CRAWLDB)) {
-    	Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
-    	if(crawldbPath instanceof Path) {
-    		crawlDb = (Path) crawldbPath;
-    	}
-    	else {
-    		crawlDb = new Path(crawldbPath.toString());
-    	}
+      Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
+      if(crawldbPath instanceof Path) {
+        crawlDb = (Path) crawldbPath;
+      }
+      else {
+        crawlDb = new Path(crawldbPath.toString());
+      }
     }
     else {
-    	crawlDb = new Path(crawlId+"/crawldb");
+      crawlDb = new Path(crawlId+"/crawldb");
     }
-    
+
     Path input;
     Object path = args.get(Nutch.ARG_SEEDDIR);
     if(path instanceof Path) {
-    	input = (Path) path;
+      input = (Path) path;
     }
     else {
-    	input = new Path(path.toString());
+      input = new Path(path.toString());
     }
 
     inject(crawlDb, input);

@@ -240,7 +240,7 @@ public class CrawlDb extends NutchTool implements Tool {
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
     Map<String, Object> results = new HashMap<String, Object>();
-    
+
     boolean normalize = getConf().getBoolean(CrawlDbFilter.URL_NORMALIZING,
         false);
     boolean filter = getConf().getBoolean(CrawlDbFilter.URL_FILTERING, false);
@@ -261,60 +261,60 @@ public class CrawlDb extends NutchTool implements Tool {
     if (args.containsKey("noAdditions")) {
       additionsAllowed = false;
     }
-    
+
     Path crawlDb;
     if(args.containsKey(Nutch.ARG_CRAWLDB)) {
-    	Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
-    	if(crawldbPath instanceof Path) {
-    		crawlDb = (Path) crawldbPath;
-    	}
-    	else {
-    		crawlDb = new Path(crawldbPath.toString());
-    	}
+      Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
+      if(crawldbPath instanceof Path) {
+        crawlDb = (Path) crawldbPath;
+      }
+      else {
+        crawlDb = new Path(crawldbPath.toString());
+      }
     }
     else {
-    	crawlDb = new Path(crawlId+"/crawldb");
+      crawlDb = new Path(crawlId+"/crawldb");
     }
-    
+
     Path segmentsDir;
     final FileSystem fs = FileSystem.get(getConf());
     if(args.containsKey(Nutch.ARG_SEGMENTDIR)) {
-    	Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
-    	if(segDir instanceof Path) {
-    		segmentsDir = (Path) segDir;
-    	}
-    	else {
-    		segmentsDir = new Path(segDir.toString());
-    	}
-    	FileStatus[] paths = fs.listStatus(segmentsDir,
-    			HadoopFSUtil.getPassDirectoriesFilter(fs));
-            dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
+      Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
+      if(segDir instanceof Path) {
+        segmentsDir = (Path) segDir;
+      }
+      else {
+        segmentsDir = new Path(segDir.toString());
+      }
+      FileStatus[] paths = fs.listStatus(segmentsDir,
+          HadoopFSUtil.getPassDirectoriesFilter(fs));
+      dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
     }
-    
+
     else if(args.containsKey(Nutch.ARG_SEGMENT)) {
-    	Object segments = args.get(Nutch.ARG_SEGMENT);
-    	ArrayList<String> segmentList = new ArrayList<String>();
-    	if(segments instanceof ArrayList) {
-    		segmentList = (ArrayList<String>)segments;
-    	}
-    	for(String segment: segmentList) {
-    	  dirs.add(new Path(segment));
-    	}
+      Object segments = args.get(Nutch.ARG_SEGMENT);
+      ArrayList<String> segmentList = new ArrayList<String>();
+      if(segments instanceof ArrayList) {
+        segmentList = (ArrayList<String>)segments;
+      }
+      for(String segment: segmentList) {
+        dirs.add(new Path(segment));
+      }
     }
     else {
-    	 String segment_dir = crawlId+"/segments";
-    	    File dir = new File(segment_dir);
-    	    File[] segmentsList = dir.listFiles();  
-    	    Arrays.sort(segmentsList, new Comparator<File>(){
-    	      @Override
-    	      public int compare(File f1, File f2) {
-    	        if(f1.lastModified()>f2.lastModified())
-    	          return -1;
-    	        else
-    	          return 0;
-    	      }      
-    	    });
-    	    dirs.add(new Path(segmentsList[0].getPath()));
+      String segment_dir = crawlId+"/segments";
+      File dir = new File(segment_dir);
+      File[] segmentsList = dir.listFiles();  
+      Arrays.sort(segmentsList, new Comparator<File>(){
+        @Override
+        public int compare(File f1, File f2) {
+          if(f1.lastModified()>f2.lastModified())
+            return -1;
+          else
+            return 0;
+        }      
+      });
+      dirs.add(new Path(segmentsList[0].getPath()));
     }
     try {
       update(crawlDb, dirs.toArray(new Path[dirs.size()]), normalize,

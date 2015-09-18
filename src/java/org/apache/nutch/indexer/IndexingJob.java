@@ -247,46 +247,46 @@ public class IndexingJob extends NutchTool implements Tool {
 
     Path crawlDb;
     if(args.containsKey(Nutch.ARG_CRAWLDB)) {
-    	Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
-    	if(crawldbPath instanceof Path) {
-    		crawlDb = (Path) crawldbPath;
-    	}
-    	else {
-    		crawlDb = new Path(crawldbPath.toString());
-    	}
+      Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
+      if(crawldbPath instanceof Path) {
+        crawlDb = (Path) crawldbPath;
+      }
+      else {
+        crawlDb = new Path(crawldbPath.toString());
+      }
     }
     else {
-    	crawlDb = new Path(crawlId+"/crawldb");
+      crawlDb = new Path(crawlId+"/crawldb");
     }
-    
+
     Path linkdb = null;
     List<Path> segments = new ArrayList<Path>();
 
     if(args.containsKey(Nutch.ARG_LINKDB)){
-        if(args.containsKey(Nutch.ARG_LINKDB)) {
-        	Object path = args.get(Nutch.ARG_LINKDB);
-        	if(path instanceof Path) {
-        		linkdb = (Path) path;
-        	}
-        	else {
-        		linkdb = new Path(path.toString());
-        	}
+      if(args.containsKey(Nutch.ARG_LINKDB)) {
+        Object path = args.get(Nutch.ARG_LINKDB);
+        if(path instanceof Path) {
+          linkdb = (Path) path;
         }
         else {
-        	linkdb = new Path(crawlId+"/linkdb");
+          linkdb = new Path(path.toString());
         }
+      }
+      else {
+        linkdb = new Path(crawlId+"/linkdb");
+      }
     }
 
     if(args.containsKey(Nutch.ARG_SEGMENTDIR)){
       isSegment = true;
       Path segmentsDir;
       Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
-  	if(segDir instanceof Path) {
-  		segmentsDir = (Path) segDir;
-  	}
-  	else {
-  		segmentsDir = new Path(segDir.toString());
-  	}
+      if(segDir instanceof Path) {
+        segmentsDir = (Path) segDir;
+      }
+      else {
+        segmentsDir = new Path(segDir.toString());
+      }
       FileSystem fs = segmentsDir.getFileSystem(getConf());
       FileStatus[] fstats = fs.listStatus(segmentsDir,
           HadoopFSUtil.getPassDirectoriesFilter(fs));
@@ -297,7 +297,7 @@ public class IndexingJob extends NutchTool implements Tool {
         }
       }     
     }
-  
+
     if(args.containsKey(Nutch.ARG_SEGMENT)){
       isSegment = true;
       Object seg = args.get(Nutch.ARG_SEGMENT);
@@ -308,11 +308,8 @@ public class IndexingJob extends NutchTool implements Tool {
       for(String segment: segmentList) {
         segments.add(new Path(segment));
       }
-//      for(String s: listOfSegments){
-//        segments.add(new Path(s));
-//      }
     }
-    
+
     if(!isSegment){
       String segment_dir = crawlId+"/segments";
       File segmentsDir = new File(segment_dir);
@@ -329,7 +326,7 @@ public class IndexingJob extends NutchTool implements Tool {
       Path segment = new Path(segmentsList[0].getPath());
       segments.add(segment);
     }
-    
+
     if(args.containsKey("noCommit")){
       noCommit = true;
     }

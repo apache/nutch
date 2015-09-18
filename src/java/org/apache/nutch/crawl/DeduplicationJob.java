@@ -304,10 +304,10 @@ public class DeduplicationJob extends NutchTool implements Tool {
     String[] arg = new String[1];
     String crawldb;
     if(args.containsKey(Nutch.ARG_CRAWLDB)) {
-    	crawldb = (String)args.get(Nutch.ARG_CRAWLDB);
+      crawldb = (String)args.get(Nutch.ARG_CRAWLDB);
     }
     else {
-    	crawldb = crawlId+"/crawldb";
+      crawldb = crawlId+"/crawldb";
     }
     arg[0] = crawldb;
     int res = run(arg);

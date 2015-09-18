@@ -755,7 +755,7 @@ public class Generator extends NutchTool implements Tool {
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
     Map<String, Object> results = new HashMap<String, Object>();
-  
+
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;
     int numFetchers = -1;
@@ -766,30 +766,30 @@ public class Generator extends NutchTool implements Tool {
 
     Path crawlDb;
     if(args.containsKey(Nutch.ARG_CRAWLDB)) {
-    	Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
-    	if(crawldbPath instanceof Path) {
-    		crawlDb = (Path) crawldbPath;
-    	}
-    	else {
-    		crawlDb = new Path(crawldbPath.toString());
-    	}
+      Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
+      if(crawldbPath instanceof Path) {
+        crawlDb = (Path) crawldbPath;
+      }
+      else {
+        crawlDb = new Path(crawldbPath.toString());
+      }
     }
     else {
-    	crawlDb = new Path(crawlId+"/crawldb");
+      crawlDb = new Path(crawlId+"/crawldb");
     }
-    
+
     Path segmentsDir;
     if(args.containsKey(Nutch.ARG_SEGMENTDIR)) {
-    	Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
-    	if(segDir instanceof Path) {
-    		segmentsDir = (Path) segDir;
-    	}
-    	else {
-    		segmentsDir = new Path(segDir.toString());
-    	}
+      Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
+      if(segDir instanceof Path) {
+        segmentsDir = (Path) segDir;
+      }
+      else {
+        segmentsDir = new Path(segDir.toString());
+      }
     }
     else {
-    	segmentsDir = new Path(crawlId+"/segments");
+      segmentsDir = new Path(crawlId+"/segments");
     }
 
     if (args.containsKey("topN")) {

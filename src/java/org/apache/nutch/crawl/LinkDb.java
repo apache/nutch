@@ -344,23 +344,23 @@ public class LinkDb extends NutchTool implements Tool,
    */
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
-    
+
     Map<String, Object> results = new HashMap<String, Object>();
-    
+
     Path linkdb;
     if(args.containsKey(Nutch.ARG_LINKDB)) {
-    	Object path = args.get(Nutch.ARG_LINKDB);
-    	if(path instanceof Path) {
-    		linkdb = (Path) path;
-    	}
-    	else {
-    		linkdb = new Path(path.toString());
-    	}
+      Object path = args.get(Nutch.ARG_LINKDB);
+      if(path instanceof Path) {
+        linkdb = (Path) path;
+      }
+      else {
+        linkdb = new Path(path.toString());
+      }
     }
     else {
-    	linkdb = new Path(crawlId+"/linkdb");
+      linkdb = new Path(crawlId+"/linkdb");
     }
-    
+
 
     ArrayList<Path> segs = new ArrayList<Path>();
     boolean filter = true;
@@ -375,46 +375,46 @@ public class LinkDb extends NutchTool implements Tool,
     if (args.containsKey("force")) {
       force = true;
     }
-    
+
     Path segmentsDir;
     final FileSystem fs = FileSystem.get(getConf());
     if(args.containsKey(Nutch.ARG_SEGMENTDIR)) {
-    	Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
-    	if(segDir instanceof Path) {
-    		segmentsDir = (Path) segDir;
-    	}
-    	else {
-    		segmentsDir = new Path(segDir.toString());
-    	}
-    	FileStatus[] paths = fs.listStatus(segmentsDir,
-    			HadoopFSUtil.getPassDirectoriesFilter(fs));
-            segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
+      Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
+      if(segDir instanceof Path) {
+        segmentsDir = (Path) segDir;
+      }
+      else {
+        segmentsDir = new Path(segDir.toString());
+      }
+      FileStatus[] paths = fs.listStatus(segmentsDir,
+          HadoopFSUtil.getPassDirectoriesFilter(fs));
+      segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
     }
     else if(args.containsKey(Nutch.ARG_SEGMENT)) {
-    	Object segments = args.get(Nutch.ARG_SEGMENT);
-    	ArrayList<String> segmentList = new ArrayList<String>();
-    	if(segments instanceof ArrayList) {
-    	  segmentList = (ArrayList<String>)segments;
-    	}
-    	for(String segment: segmentList) {
+      Object segments = args.get(Nutch.ARG_SEGMENT);
+      ArrayList<String> segmentList = new ArrayList<String>();
+      if(segments instanceof ArrayList) {
+        segmentList = (ArrayList<String>)segments;
+      }
+      for(String segment: segmentList) {
         segs.add(new Path(segment));
       }
     }
     else {
-   	 String segment_dir = crawlId+"/segments";
-   	    File dir = new File(segment_dir);
-   	    File[] segmentsList = dir.listFiles();  
-   	    Arrays.sort(segmentsList, new Comparator<File>(){
-   	      @Override
-   	      public int compare(File f1, File f2) {
-   	        if(f1.lastModified()>f2.lastModified())
-   	          return -1;
-   	        else
-   	          return 0;
-   	      }      
-   	    });
-   	    segs.add(new Path(segmentsList[0].getPath()));
-   }
+      String segment_dir = crawlId+"/segments";
+      File dir = new File(segment_dir);
+      File[] segmentsList = dir.listFiles();  
+      Arrays.sort(segmentsList, new Comparator<File>(){
+        @Override
+        public int compare(File f1, File f2) {
+          if(f1.lastModified()>f2.lastModified())
+            return -1;
+          else
+            return 0;
+        }      
+      });
+      segs.add(new Path(segmentsList[0].getPath()));
+    }
     try {
       invert(linkdb, segs.toArray(new Path[segs.size()]), normalize, filter, force);
       results.put(Nutch.VAL_RESULT, Integer.toString(0));
