@@ -2,6 +2,9 @@ Nutch Change Log
   
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2099 Refactoring the REST endpoints for integration with 
+  webui (Sujen Shah via mattmann)
+
 * NUTCH-2098 Add null SeedUrl constructor (Aron Ahmadia via mattmann)
 
 * NUTCH-2093 Indexing filters to use current signatures (markus)

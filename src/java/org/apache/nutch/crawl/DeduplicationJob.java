@@ -44,6 +44,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
@@ -298,17 +299,19 @@ public class DeduplicationJob extends NutchTool implements Tool {
   }
 
   @Override
-  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
-//    if(args.size()<1){
-//      throw new IllegalArgumentException("Required argument <crawldb>");
-//    }
+  public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
     Map<String, Object> results = new HashMap<String, Object>();
-    String RESULT = "result";
     String[] arg = new String[1];
-    String crawldb = crawlId+"/crawldb";
+    String crawldb;
+    if(args.containsKey(Nutch.ARG_CRAWLDB)) {
+      crawldb = (String)args.get(Nutch.ARG_CRAWLDB);
+    }
+    else {
+      crawldb = crawlId+"/crawldb";
+    }
     arg[0] = crawldb;
     int res = run(arg);
-    results.put(RESULT, Integer.toString(res));
+    results.put(Nutch.VAL_RESULT, Integer.toString(res));
     return results;
   }
 }

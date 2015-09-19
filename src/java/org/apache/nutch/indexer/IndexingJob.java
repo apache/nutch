@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -235,7 +236,7 @@ public class IndexingJob extends NutchTool implements Tool {
 
   //Used for REST API
   @Override
-  public Map<String, Object> run(Map<String, String> args, String crawlId) throws Exception {
+  public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
     boolean noCommit = false;
     boolean deleteGone = false; 
     boolean filter = false;
@@ -244,20 +245,50 @@ public class IndexingJob extends NutchTool implements Tool {
     String params= null;
     Configuration conf = getConf();
 
-    String crawldb = crawlId+"/crawldb";
-    Path crawlDb = new Path(crawldb);
-    Path linkDb = null;
-    List<Path> segments = new ArrayList<Path>();
-
-    if(args.containsKey("linkdb")){
-      linkDb = new Path(crawlId+"/linkdb");
+    Path crawlDb;
+    if(args.containsKey(Nutch.ARG_CRAWLDB)) {
+      Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
+      if(crawldbPath instanceof Path) {
+        crawlDb = (Path) crawldbPath;
+      }
+      else {
+        crawlDb = new Path(crawldbPath.toString());
+      }
+    }
+    else {
+      crawlDb = new Path(crawlId+"/crawldb");
     }
 
-    if(args.containsKey("dir")){
+    Path linkdb = null;
+    List<Path> segments = new ArrayList<Path>();
+
+    if(args.containsKey(Nutch.ARG_LINKDB)){
+      if(args.containsKey(Nutch.ARG_LINKDB)) {
+        Object path = args.get(Nutch.ARG_LINKDB);
+        if(path instanceof Path) {
+          linkdb = (Path) path;
+        }
+        else {
+          linkdb = new Path(path.toString());
+        }
+      }
+      else {
+        linkdb = new Path(crawlId+"/linkdb");
+      }
+    }
+
+    if(args.containsKey(Nutch.ARG_SEGMENTDIR)){
       isSegment = true;
-      Path dir = new Path(crawlId+"/segments");
-      FileSystem fs = dir.getFileSystem(getConf());
-      FileStatus[] fstats = fs.listStatus(dir,
+      Path segmentsDir;
+      Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
+      if(segDir instanceof Path) {
+        segmentsDir = (Path) segDir;
+      }
+      else {
+        segmentsDir = new Path(segDir.toString());
+      }
+      FileSystem fs = segmentsDir.getFileSystem(getConf());
+      FileStatus[] fstats = fs.listStatus(segmentsDir,
           HadoopFSUtil.getPassDirectoriesFilter(fs));
       Path[] files = HadoopFSUtil.getPaths(fstats);
       for (Path p : files) {
@@ -266,15 +297,19 @@ public class IndexingJob extends NutchTool implements Tool {
         }
       }     
     }
-  
-    if(args.containsKey("segments")){
+
+    if(args.containsKey(Nutch.ARG_SEGMENT)){
       isSegment = true;
-      String listOfSegments[] = args.get("segments").split(",");
-      for(String s: listOfSegments){
-        segments.add(new Path(s));
+      Object seg = args.get(Nutch.ARG_SEGMENT);
+      ArrayList<String> segmentList = new ArrayList<String>();
+      if(seg instanceof ArrayList) {
+        segmentList = (ArrayList<String>)seg;
+      }
+      for(String segment: segmentList) {
+        segments.add(new Path(segment));
       }
     }
-    
+
     if(!isSegment){
       String segment_dir = crawlId+"/segments";
       File segmentsDir = new File(segment_dir);
@@ -288,11 +323,10 @@ public class IndexingJob extends NutchTool implements Tool {
             return 0;
         }      
       });
-
       Path segment = new Path(segmentsList[0].getPath());
       segments.add(segment);
     }
-    
+
     if(args.containsKey("noCommit")){
       noCommit = true;
     }
@@ -306,13 +340,13 @@ public class IndexingJob extends NutchTool implements Tool {
       filter = true;
     }
     if(args.containsKey("params")){
-      params = args.get("params");
+      params = (String)args.get("params");
     }
     setConf(conf);
-    index(crawlDb, linkDb, segments, noCommit, deleteGone, params, filter,
+    index(crawlDb, linkdb, segments, noCommit, deleteGone, params, filter,
         normalize);
     Map<String, Object> results = new HashMap<String, Object>();
-    results.put("result", 0);
+    results.put(Nutch.VAL_RESULT, 0);
     return results;
   }
 }

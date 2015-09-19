@@ -80,4 +80,17 @@ public interface Nutch {
 	public static final String STAT_PROGRESS = "progress";
 	/**Used by Nutch REST service */
 	public static final String CRAWL_ID_KEY = "storage.crawl.id";
+	/** Argument key to specify location of the seed url dir for the REST endpoints **/
+	public static final String ARG_SEEDDIR = "url_dir";
+	/** Argument key to specify the location of crawldb for the REST endpoints **/
+	public static final String ARG_CRAWLDB = "crawldb";
+	/** Argument key to specify the location of linkdb for the REST endpoints **/
+	public static final String ARG_LINKDB = "linkdb";
+	/** Name of the key used in the Result Map sent back by the REST endpoint **/
+	public static final String VAL_RESULT = "result";
+	/** Argument key to specify the location of a directory of segments for the REST endpoints.
+	 * Similar to the -dir command in the bin/nutch script **/
+	public static final String ARG_SEGMENTDIR = "segment_dir";
+	/** Argument key to specify the location of individual segment for the REST endpoints **/
+	public static final String ARG_SEGMENT = "segment";
 }
