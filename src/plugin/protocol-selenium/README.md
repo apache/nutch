@@ -14,7 +14,9 @@ There are essentially two ways in which Nutch can be used with Selenium.
 
 # Installation
 
-## Part 1: Setting up Selenium
+## Part 1: 
+
+### A) Setting up Selenium (local mode)
 
  * Ensure that you have Firefox installed. More info about the package @ [launchpad](https://launchpad.net/ubuntu/trusty/+source/firefox)
 ```
@@ -31,9 +33,38 @@ sudo apt-get install xorg synaptic xvfb gtk2-engines-pixbuf xfonts-cyrillic xfon
 sudo /usr/bin/Xvfb :11 -screen 0 1024x768x24 &
 sudo export DISPLAY=:11
 ```
+### B) Setting up a Selenium Grid 
+
+Using the Selenium Grid will allow you to parallelize the job by facilitating access of several instances of browsers whether on one machine or on several machines. Note that grid facilitates heterogeneity with regards to browser types used. However, these steps have been tested using a homogenous firefox Selenium Grid. 
+
+ * Download the [Selenium Standalone Server](http://www.seleniumhq.org/download/) and follow the installation instructions.
+ 
+ * Some important configurations to note while setting up the selenium-hub and the selenium-nodes are:
+    * For the hub: 
+      - maxSession (how many browser sessions to allow on the grid at a time)
+      - browserTimeout (how long to wait before timing out a browser session. This is dependent on the interactivity to be completed on the page)
+      
+    * For the nodes:
+      - browserName=<browser>, maxInstances (the max number of instances of the same version browser to allow per a system)
+      - browserName=<browser>, maxSession (the max number of sessions of any type of browser/version to allow per a system)
+      
+  * Go headless with your selenium Grid installation. There are different ways to this. See [this resource](http://elementalselenium.com/tips/38-headless) for further details. 
+ 
+  * For Nutch efficiency, and optimization of the grid, consider editing the following configs in **nutch-site.xml**
+    - fetcher.threads.per.queue (change value to the value of the maxSession config on the hub)
+    - fetcher.threads.fetch (change value to the value of the maxSession config on the hub)
+    - fetcher.server.delay (As multiple threads may be accessing a single server at a time, consider changing this value to 4-5 seconds for politeness)
+    - fetcher.server.min.delay (As multiple threads may be accessing a single server at a time, consider changing this values to 4-5 seconds for politeness)
+    - Ensure all configs for the hub mentioned in Part 2 are appropriately set. 
+
+  * To activate the full selenium grid, edit **$NUTCH_HOME/runtime/local/bin/crawl** script:
+    - numThreads = maxSession on nodes * num of nodes
+
+
 ## Part 2: Installing plugin for Nutch (where NUTCH_HOME is the root of your nutch install)
 
  * Ensure that the plugin will be used as the protocol parser in your config
+
 ```
 <!-- NUTCH_HOME/conf/nutch-site.xml -->
 
@@ -53,7 +84,7 @@ sudo export DISPLAY=:11
   </property>
 ```
 
-Then ensure that you have the correct configuration set within the following configuration options
+* Then ensure that you have the correct configuration set within the following configuration options
 
 ```
 <!-- protocol-selenium plugin properties -->
@@ -119,6 +150,22 @@ Then ensure that you have the correct configuration set within the following con
   <description>Selenium Hub Location connection protocol</description>
 </property>
 
+<property>
+  <name>selenium.grid.driver</name>
+  <value>firefox</value>
+  <description>A String value representing the flavour of Selenium 
+    WebDriver() used on the selenium grid. Currently the following options
+    exist - 'firefox' </description>
+</property>
+
+<property>
+  <name>selenium.grid.binary</name>
+  <value></value>
+  <description>A String value representing the path to the browser binary 
+    location for each node
+ </description>
+</property>
+
 <!-- lib-selenium configuration -->
 <property>
   <name>libselenium.page.load.delay</name>
@@ -140,4 +187,9 @@ ant runtime
 
  * Start your web crawl (Ensure that you followed the above steps and have started your xvfb display as shown above)
 
+## Part 3: Common Pitfalls
 
+* Be sure your browser version and selenium version are compatible 
+* Be sure to start the Xvfb window then start selenium
+* Disconnecting and reconnect nodes after a hub config change has proven useful in our tests. 
+* Be sure that each browser session deallocates its webdriver resource independently of any other tests running on other broswers (check out driver.quit() and driver.close()). 

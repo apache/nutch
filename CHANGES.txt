@@ -2,6 +2,9 @@ Nutch Change Log
    
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2104 Add documentation to the protocol-selenium plugin Readme file 
+  re: selenium grid implementation (Kim Whitehall via mattmann)
+
 * NUTCH-2099 Refactoring the REST endpoints for integration with 
   webui (Sujen Shah via mattmann)
 
