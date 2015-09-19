@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.4-SNAPSHOT
 
+* NUTCH-2094 Stopping and Restarting a crawl has issues in the Web UI (Prerna Satija via mattmann)
+
 * NUTCH-1679 UpdateDb using batchId, link may override crawled page (Tien Nguyen Manh, Koen Smets, Alfonso Nishikawa, Alexander Kingson via lewismc)
 
 * NUTCH-2077 Upgrade to Tika 1.10 (Michael Joyce, lewismc)
