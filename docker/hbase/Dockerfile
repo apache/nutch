@@ -35,8 +35,8 @@ RUN echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true 
 RUN apt-get install -y ant openssh-server zookeeperd vim telnet subversion rsync curl build-essential maven
 
 # Download Hadoop
-RUN wget -q 'https://archive.apache.org/dist/hadoop/core/hadoop-2.4.0/hadoop-2.4.0.tar.gz'
-RUN wget -q 'https://github.com/apache/hbase/archive/0.94.14.tar.gz' && mv 0.94.14.tar.gz hbase-0.94.14.tar.gz
+RUN wget -q 'https://archive.apache.org/dist/hadoop/core/hadoop-2.5.1/hadoop-2.5.1.tar.gz'
+RUN wget -q 'http://archive.apache.org/dist/hbase/hbase-0.98.8/hbase-0.98.8-hadoop2-bin.tar.gz'
 RUN wget -q 'https://protobuf.googlecode.com/files/protobuf-2.5.0.tar.gz'
 RUN svn checkout http://svn.apache.org/repos/asf/nutch/branches/2.x/ nutch-sources
 
@@ -55,11 +55,11 @@ RUN chown hduser /home/hduser/.ssh/config
 RUN sed -ri 's/session[[:blank:]]+required[[:blank:]]+pam_loginuid.so/session optional pam_loginuid.so/g' /etc/pam.d/sshd
 
 # Deploy and setup file permissions
-RUN tar xvfz /root/hadoop-2.4.0.tar.gz -C /opt && \
-  ln -s /opt/hadoop-2.4.0 /opt/hadoop && \
-  chown -R root:root /opt/hadoop-2.4.0 && \
-  mkdir /opt/hadoop-2.4.0/logs && \
-  chown -R hduser:hadoop /opt/hadoop-2.4.0/logs
+RUN tar xvfz /root/hadoop-2.5.1.tar.gz -C /opt && \
+  ln -s /opt/hadoop-2.5.1 /opt/hadoop && \
+  chown -R root:root /opt/hadoop-2.5.1 && \
+  mkdir /opt/hadoop-2.5.1/logs && \
+  chown -R hduser:hadoop /opt/hadoop-2.5.1/logs
 
 # Unpack and compile Google protobuf
 RUN tar xvfz /root/protobuf-2.5.0.tar.gz -C /opt && \
@@ -67,14 +67,11 @@ RUN tar xvfz /root/protobuf-2.5.0.tar.gz -C /opt && \
 RUN cd /opt/protobuf-2.5.0 && ./configure && make && make check && make install
 
 # Deploy and setup file permissions
-RUN tar xvfz /root/hbase-0.94.14.tar.gz -C /opt && \
-  chown -R root:root /opt/hbase-0.94.14
-# http://hbase.apache.org/book.html#basic.prerequisites - 4.1.1 - HBase has to be compiled from sources :(
-RUN vim -c '%s/2.4.0a/2.5.0/g' -c '%s/2.0.0-alpha/2.4.0' -c 'x' /opt/hbase-0.94.14/pom.xml
-RUN cd /opt/hbase-0.94.14/ && mvn clean install assembly:single -Dhadoop.profile=2.0 -DskipTests
+RUN tar xvfz /root/hbase-0.98.8-hadoop2-bin.tar.gz -C /opt && \
+  chown -R root:root /opt/hbase-0.98.8-hadoop2
 
 # link binaries, create logs directory
-RUN ln -s /opt/hbase-0.94.14/target/hbase-0.94.14/hbase-0.94.14 /opt/hbase &&  mkdir /opt/hbase/logs && \
+RUN ln -s /opt/hbase-0.98.8-hadoop2 /opt/hbase &&  mkdir /opt/hbase/logs && \
   chown -R hduser:hadoop /opt/hbase/logs
 
  # Deploy and setup file permissions

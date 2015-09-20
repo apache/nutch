@@ -1,6 +1,6 @@
 # Nutch Dockerfile #
 
-This directory contains Dockerfile of [Nutch](http://nutch.apache.org) for [Docker](https://www.docker.com/)'s [automated build](https://registry.hub.docker.com/u/dockerfile/elasticsearch/) published to the [Hub Registry](https://registry.hub.docker.com/).
+This directory contains a Dockerfile of [Nutch 2.X](http://nutch.apache.org) for [Docker](https://www.docker.com/).
 
 ## What is Nutch?
 
@@ -14,9 +14,9 @@ Nutch can run on a single machine, but gains a lot of its strength from running 
 
 Current configuration of this image consists of components:
 	
-*	Hadoop 2.4.0
-*	HBase 0.94.14
-*	Nutch 2.x
+*	Apache Hadoop 2.5.1
+*	Apache HBase 0.98.8-hadoop2
+*	Apache Nutch 2.X HEAD (this will ensure that you are always running off of bleeding edge)
 
 ##  Base Image
 
@@ -57,3 +57,7 @@ Review configuration in /opt/nutch/conf/ and you can start crawling.
 	/opt/nutch/bin/nutch parse <batchId>
 	/opt/nutch/bin/nutch updatedb <batchId>
 	[...]
+
+## Resources
+
+For more information on Nutch 2.X please see the [tutorials](http://wiki.apache.org/nutch/#Nutch_2.X_tutorial.28s.29) and [Nutch 2.X wiki space](http://wiki.apache.org/nutch/#Nutch_2.x).
