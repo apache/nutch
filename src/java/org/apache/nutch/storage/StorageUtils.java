@@ -91,7 +91,7 @@ public class StorageUtils {
   public static <K, V extends Persistent> Class<? extends DataStore<K, V>> getDataStoreClass(
       Configuration conf) throws ClassNotFoundException {
     return (Class<? extends DataStore<K, V>>) Class.forName(conf.get(
-        "storage.data.store.class", "org.apache.gora.sql.store.SqlStore"));
+        "storage.data.store.class", "org.apache.gora.memory.store.MemStore"));
   }
 
   public static <K, V> void initMapperJob(Job job,

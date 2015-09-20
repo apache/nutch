@@ -25,9 +25,7 @@ import java.util.Map.Entry;
 import org.apache.avro.util.Utf8;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.storage.Mark;
-import org.apache.nutch.util.NutchJob;
 import org.slf4j.Logger;
-import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.scoring.ScoreDatum;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -45,6 +43,7 @@ public class DbUpdateMapper extends
 
   private final List<ScoreDatum> scoreData = new ArrayList<ScoreDatum>();
 
+  @SuppressWarnings("unused")
   private Utf8 batchId;
 
   // reuse writables

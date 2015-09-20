@@ -18,13 +18,10 @@ package org.apache.nutch.fetcher;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
-import java.util.StringTokenizer;
-
 import org.apache.avro.util.Utf8;
 import org.apache.gora.filter.FilterOp;
 import org.apache.gora.filter.MapFieldValueFilter;
@@ -188,7 +185,7 @@ public class FetcherJob extends NutchTool implements Tool {
     LOG.info("FetcherJob : timelimit set for : "
         + getConf().getLong("fetcher.timelimit", -1));
     numJobs = 1;
-    currentJob = new NutchJob(getConf(), "fetch");
+    currentJob = NutchJob.getInstance(getConf(), "fetch");
 
     // for politeness, don't permit parallel execution of a single task
     currentJob.setReduceSpeculativeExecution(false);

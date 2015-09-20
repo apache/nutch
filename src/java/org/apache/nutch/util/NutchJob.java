@@ -28,11 +28,26 @@ import java.io.IOException;
 /** A {@link Job} for Nutch jobs. */
 public class NutchJob extends Job {
 
+  /**
+   * 
+   * @param conf
+   * @throws IOException
+   * @deprecated use {@link NutchJob#getInstance(Configuration)}
+   */
+  @Deprecated
   public NutchJob(Configuration conf) throws IOException {
     super(conf);
-    setJarByClass(this.getClass());
+    super.setJarByClass(this.getClass());
   }
 
+  /**
+   * 
+   * @param conf
+   * @param jobName
+   * @throws IOException
+   * @deprecated use {@link NutchJob#getInstance(Configuration, String)}
+   */
+  @Deprecated
   public NutchJob(Configuration conf, String jobName) throws IOException {
     super(conf, jobName);
     // prefix jobName with crawlId if not empty
@@ -41,7 +56,57 @@ public class NutchJob extends Job {
       jobName = "[" + crawlId + "]" + jobName;
       setJobName(jobName);
     }
-    setJarByClass(this.getClass());
+    super.setJarByClass(this.getClass());
+  }
+  
+  /**
+   * Creates a new {@link NutchJob} with no particular {@link org.apache.hadoop.mapreduce.Cluster} and a 
+   * given {@link org.apache.hadoop.conf.Configuration}.
+   * 
+   * The <code>NutchJob</code> makes a copy of the <code>Configuration</code> so 
+   * that any necessary internal modifications do not reflect on the incoming 
+   * parameter.
+   * 
+   * A Cluster will be created from the conf parameter only when it's needed.
+   * 
+   * This code heavily mimics that of Hadoop's.
+   * 
+   * @param conf the configuration
+   * @return the {@link NutchJob} , with no connection to a cluster yet.
+   * @throws IOException
+   */
+  public static NutchJob getInstance(Configuration conf) throws IOException {
+    // create with a null Cluster
+    NutchJobConf jobConf = new NutchJobConf(conf);
+    return new NutchJob(jobConf);
+  }
+
+      
+  /**
+   * Creates a new {@link NutchJob} with no particular {@link org.apache.hadoop.mapreduce.Cluster} 
+   * and a given jobName.
+   * A Cluster will be created from the conf parameter only when it's needed.
+   *
+   * The <code>NutchJob</code> makes a copy of the <code>Configuration</code> so 
+   * that any necessary internal modifications do not reflect on the incoming 
+   * parameter.
+   * 
+   * @param conf the configuration
+   * @param jobName the name given to this NutchJob
+   * @return the {@link NutchJob} , with no connection to a cluster yet.
+   * @throws IOException
+   */
+  public static NutchJob getInstance(Configuration conf, String jobName)
+           throws IOException {
+    // create with a null Cluster
+    NutchJob result = getInstance(conf);
+    // prefix jobName with crawlId if not empty
+    String crawlId = conf.get("storage.crawl.id");
+    if (!StringUtils.isEmpty(crawlId)) {
+      jobName = "[" + crawlId + "]" + jobName;
+      result.setJobName(jobName);
+    }
+    return result;
   }
 
   @Override

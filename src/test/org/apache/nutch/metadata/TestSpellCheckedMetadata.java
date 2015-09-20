@@ -22,7 +22,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
@@ -258,6 +260,7 @@ public class TestSpellCheckedMetadata {
    */
   @Test
   public final void testHandlingSpeed() {
+    @SuppressWarnings("unused")
     SpellCheckedMetadata result;
     long start = System.currentTimeMillis();
     for (int i = 0; i < NUM_ITERATIONS; i++) {

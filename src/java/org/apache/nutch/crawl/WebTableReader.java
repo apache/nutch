@@ -314,7 +314,7 @@ public class WebTableReader extends NutchTool implements Tool {
     }
 
     Path outFolder = new Path(output);
-    Job job = new NutchJob(getConf(), "db_dump");
+    Job job = NutchJob.getInstance(getConf(), "db_dump");
     Configuration cfg = job.getConfiguration();
     cfg.set(WebTableRegexMapper.regexParamName, regex);
     cfg.setBoolean(WebTableRegexMapper.contentParamName, content);
@@ -339,6 +339,7 @@ public class WebTableReader extends NutchTool implements Tool {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Text.class);
 
+    @SuppressWarnings("unused")
     boolean success = job.waitForCompletion(true);
 
     if (LOG.isInfoEnabled()) {
@@ -540,7 +541,7 @@ public class WebTableReader extends NutchTool implements Tool {
         + "stat_tmp" + System.currentTimeMillis());
 
     numJobs = 1;
-    currentJob = new NutchJob(getConf(), "db_stats");
+    currentJob = NutchJob.getInstance(getConf(), "db_stats");
 
     currentJob.getConfiguration().setBoolean(
         "mapreduce.fileoutputcommitter.marksuccessfuljobs", false);

@@ -42,6 +42,7 @@ import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -370,7 +371,7 @@ public class SolrDeleteDuplicates
 
     getConf().set(SolrConstants.SERVER_URL, solrUrl);
 
-    Job job = new Job(getConf(), "solrdedup");
+    Job job = NutchJob.getInstance(getConf(), "solrdedup");
 
     job.setInputFormatClass(SolrInputFormat.class);
     job.setOutputFormatClass(NullOutputFormat.class);

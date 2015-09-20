@@ -37,9 +37,13 @@ import java.util.Comparator;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Basic generator test. 1. Insert entries in webtable 2. Generates entries to
- * fetch 3. Verifies that number of generated urls match 4. Verifies that
- * highest scoring urls are generated
+ * Basic generator test. 
+ * <ol>
+ * <li>Insert entries in webtable</li>
+ * <li>Generates entries to fetch</li>
+ * <li>Verifies that number of generated urls match, and finally </li>
+ * <li>Verifies that highest scoring urls are generated.</li>
+ * <ol>
  * 
  */
 public class TestGenerator extends AbstractNutchTest {
@@ -67,7 +71,7 @@ public class TestGenerator extends AbstractNutchTest {
    * @throws Exception
    */
   @Test
-  @Ignore("Temporarily diable until NUTCH-1572 is addressed.")
+  @Ignore("GORA-240 Tests for MemStore")
   public void testGenerateHighest() throws Exception {
 
     final int NUM_RESULTS = 2;
@@ -130,7 +134,7 @@ public class TestGenerator extends AbstractNutchTest {
    * @throws Exception
    */
   @Test
-  @Ignore("Temporarily diable until NUTCH-1572 is addressed.")
+  @Ignore("GORA-240 Tests for MemStore")
   public void testGenerateHostLimit() throws Exception {
     ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();
 
@@ -183,7 +187,7 @@ public class TestGenerator extends AbstractNutchTest {
    * @throws Exception
    */
   @Test
-  @Ignore("Temporarily diable until NUTCH-1572 is addressed.")
+  @Ignore("GORA-240 Tests for MemStore")
   public void testGenerateDomainLimit() throws Exception {
     ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();
 
@@ -240,7 +244,7 @@ public class TestGenerator extends AbstractNutchTest {
    * @throws IOException
    */
   @Test
-  @Ignore("Temporarily diable until NUTCH-1572 is addressed.")
+  @Ignore("GORA-240 Tests for MemStore")
   public void testFilter() throws IOException, Exception {
 
     ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();

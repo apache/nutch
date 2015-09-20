@@ -16,8 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.parse;
 
-import java.util.HashMap;
-
 public interface ParseStatusCodes {
   // Primary status codes:
 

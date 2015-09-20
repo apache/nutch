@@ -16,7 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.crawl;
 
-import org.apache.avro.util.Utf8;
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.GeneratorJob.SelectorEntry;
@@ -31,8 +30,6 @@ import org.apache.nutch.util.TableUtil;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
 
 public class GeneratorMapper extends
     GoraMapper<String, WebPage, SelectorEntry, WebPage> {

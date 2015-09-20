@@ -208,7 +208,7 @@ public class InjectorJob extends NutchTool implements Tool {
     }
     numJobs = 1;
     currentJobNum = 0;
-    currentJob = new NutchJob(getConf(), "inject " + input);
+    currentJob = NutchJob.getInstance(getConf(), "inject " + input);
     FileInputFormat.addInputPath(currentJob, input);
     currentJob.setMapperClass(UrlMapper.class);
     currentJob.setMapOutputKeyClass(String.class);

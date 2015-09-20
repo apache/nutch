@@ -51,7 +51,6 @@ public class TestInjector extends AbstractNutchTest {
   }
 
   @Test
-  @Ignore("Temporarily diable until NUTCH-1572 is addressed.")
   public void testInject() throws Exception {
     ArrayList<String> urls = new ArrayList<String>();
     for (int i = 0; i < 100; i++) {

@@ -16,7 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.parse;
 
-import org.apache.avro.generic.GenericArray;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.storage.ParseStatus;

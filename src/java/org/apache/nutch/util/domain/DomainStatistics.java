@@ -101,7 +101,7 @@ public class DomainStatistics extends Configured implements Tool {
     long start = System.currentTimeMillis();
     LOG.info("DomainStatistics: starting at " + sdf.format(start));
 
-    Job job = new NutchJob(getConf(), "Domain statistics");
+    Job job = NutchJob.getInstance(getConf(), "Domain statistics");
     DataStore<String, WebPage> store = StorageUtils.createWebStore(
         job.getConfiguration(), String.class, WebPage.class);
 

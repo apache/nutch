@@ -65,7 +65,6 @@ public class TestGoraStorage extends AbstractNutchTest {
    * @throws Exception
    */
   @Test
-  @Ignore("GORA-326 Removal of _g_dirty field from _ALL_FIELDS array and Field Enum in Persistent classes")
   public void testSinglethreaded() throws Exception {
     String id = "singlethread";
     readWrite(id, webPageStore);
@@ -113,7 +112,6 @@ public class TestGoraStorage extends AbstractNutchTest {
    * @throws Exception
    */
   @Test
-  @Ignore("Temporarily diable until NUTCH-1572 is addressed.")
   public void testMultithreaded() throws Exception {
     // create a fixed thread pool
     int numThreads = 8;
@@ -155,7 +153,6 @@ public class TestGoraStorage extends AbstractNutchTest {
    * @throws Exception
    */
   @Test
-  @Ignore("GORA-326 Removal of _g_dirty field from _ALL_FIELDS array and Field Enum in Persistent classes")
   public void testMultiProcess() throws Exception {
     // create and start a hsql server, a stand-alone (memory backed) db
     // (important: a stand-alone server should be used because simple

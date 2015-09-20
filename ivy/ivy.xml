@@ -46,13 +46,19 @@
     <dependency org="commons-codec" name="commons-codec" rev="1.3"
       conf="*->default" />
 
-    <dependency org="org.apache.hadoop" name="hadoop-core"
-      rev="1.2.0" conf="*->default">
+    <!-- Hadoop Dependencies -->
+    <dependency org="org.apache.hadoop" name="hadoop-common" rev="2.5.2" conf="*->default">
+      <exclude org="hsqldb" name="hsqldb" />
       <exclude org="net.sf.kosmosfs" name="kfs" />
       <exclude org="net.java.dev.jets3t" name="jets3t" />
       <exclude org="org.eclipse.jdt" name="core" />
       <exclude org="org.mortbay.jetty" name="jsp-*" />
+      <exclude org="ant" name="ant" />
     </dependency>
+    <dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.5.2" conf="*->default"/>
+    <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="2.5.2" conf="*->default"/>
+    <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="2.5.2" conf="*->default"/>
+    <!-- End of Hadoop Dependencies -->
 
     <dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
     <dependency org="org.apache.tika" name="tika-core" rev="1.10" />
@@ -70,22 +76,12 @@
     <dependency org="com.google.guava" name="guava" rev="11.0.2" />
     <dependency org="com.google.code.crawler-commons" name="crawler-commons" rev="0.5" />
     
-	<dependency org="org.restlet.jse" name="org.restlet" rev="2.2.3" conf="*->default" />
-    <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.2.3" 
-      conf="*->default" />
-    <dependency org="org.restlet.jse" name="org.restlet.ext.jaxrs" rev="2.2.3" 
-      conf="*->default" />
-    <!--Configuration: test -->
+    <dependency org="org.restlet.jse" name="org.restlet" rev="2.2.3" conf="*->default" />
+    <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.2.3" conf="*->default" />
+    <dependency org="org.restlet.jse" name="org.restlet.ext.jaxrs" rev="2.2.3" conf="*->default" />
 
     <!--artifacts needed for testing -->
     <dependency org="junit" name="junit" rev="4.11" conf="*->default" />
-
-    <dependency org="org.apache.hadoop" name="hadoop-test" rev="1.2.0" conf="test->default">
-      <exclude org="net.sf.kosmosfs" name="kfs" />
-      <exclude org="net.java.dev.jets3t" name="jets3t" />
-      <exclude org="org.eclipse.jdt" name="core" />
-      <exclude org="org.mortbay.jetty" name="jsp-*" />
-    </dependency>
 
     <dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" conf="test->default" />
     <dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.26" conf="test->default" />
@@ -93,8 +89,8 @@
 
     <dependency org="org.hsqldb" name="hsqldb" rev="2.2.8" conf="*->default" />
     <dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
-	<dependency org="org.mockito" name="mockito-all" rev="1.9.5" conf="test->default"/>
-	<dependency org="org.springframework" name="spring-test" rev="4.0.4.RELEASE" conf="test->default"/>
+    <dependency org="org.mockito" name="mockito-all" rev="1.9.5" conf="test->default"/>
+    <dependency org="org.springframework" name="spring-test" rev="4.0.4.RELEASE" conf="test->default"/>
 	
 
     <!--================-->
@@ -103,11 +99,11 @@
     <!-- N.B. To use Gora SNAPSHOT's merely replace the 'ref' value with the SNAPSHOT version 
     and add changing="true" alongside the dependency declaration. An example has been
     provided for the gora-core dependency as below -->
-    <dependency org="org.apache.gora" name="gora-core" rev="0.5" conf="*->default"/>
+    <dependency org="org.apache.gora" name="gora-core" rev="0.6.1" conf="*->default"/>
     
     <!-- Uncomment this to use SQL as Gora backend. It should be noted that the 
     gora-sql 0.1.1-incubating artifact is NOT compatable with gora-core 0.3. Users should 
-    downgrade to gora-core 0.2.1 in order to use SQL as a backend. -->
+    downgrade to gora-core 0.2.1 in order to use SQL as a backend however this is not suggested. -->
     <!--
     <dependency org="org.apache.gora" name="gora-sql" rev="0.1.1-incubating" conf="*->default" />
     -->
@@ -117,29 +113,29 @@
     -->
     <!-- Uncomment this to use HBase as Gora backend. -->
     <!--     
-    <dependency org="org.apache.gora" name="gora-hbase" rev="0.5" conf="*->default" /> 
+    <dependency org="org.apache.gora" name="gora-hbase" rev="0.6.1" conf="*->default" /> 
     -->
     <!-- Uncomment this to use Accumulo as Gora backend. -->
     <!--
-    <dependency org="org.apache.gora" name="gora-accumulo" rev="0.5" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-accumulo" rev="0.6.1" conf="*->default" />
     -->
     <!-- Uncomment this to use Cassandra as Gora backend. -->
     <!-- 
-    <dependency org="org.apache.gora" name="gora-cassandra" rev="0.5" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-cassandra" rev="0.6.1" conf="*->default" />
     -->
     <!-- Uncomment this to use MongoDB as Gora backend. -->
     <!--
-    <dependency org="org.apache.gora" name="gora-mongodb" rev="0.5" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-mongodb" rev="0.6.1" conf="*->default" />
     -->    
     <!-- Uncomment this to use Solr as Gora backend. -->
     <!--
-    <dependency org="org.apache.gora" name="gora-solr" rev="0.5" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-solr" rev="0.6.1" conf="*->default" />
     -->
     <!-- The gora-compiler is used within the 'ant generate-gora-src' target to compile
     the Gora .avsc files within ./src/gora 
     -->
-    <dependency org="org.apache.gora" name="gora-compiler-cli" rev="0.5" conf="*->default"/>
-    <dependency org="org.apache.gora" name="gora-compiler" rev="0.5" conf="*->default"/>
+    <dependency org="org.apache.gora" name="gora-compiler-cli" rev="0.6.1" conf="*->default"/>
+    <dependency org="org.apache.gora" name="gora-compiler" rev="0.6.1" conf="*->default"/>
 
     <!-- web app dependencies -->
 

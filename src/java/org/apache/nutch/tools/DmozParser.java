@@ -100,8 +100,7 @@ public class DmozParser {
    */
   private class RDFProcessor extends DefaultHandler {
     String curURL = null, curSection = null;
-    boolean titlePending = false, descPending = false,
-        insideAdultSection = false;
+    boolean titlePending = false, descPending = false;
     Pattern topicPattern = null;
     StringBuffer title = new StringBuffer(), desc = new StringBuffer();
     XMLReader reader;

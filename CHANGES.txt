@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.4-SNAPSHOT
 
+* NUTCH-1946 Upgrade to Gora 0.6.1 (lewismc, hsaputra, Jeroen Vlek)
+
 * NUTCH-2094 Stopping and Restarting a crawl has issues in the Web UI (Prerna Satija via mattmann)
 
 * NUTCH-1679 UpdateDb using batchId, link may override crawled page (Tien Nguyen Manh, Koen Smets, Alfonso Nishikawa, Alexander Kingson via lewismc)

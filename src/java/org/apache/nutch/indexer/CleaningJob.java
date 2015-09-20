@@ -99,7 +99,6 @@ public class CleaningJob extends NutchTool implements Tool {
   public static class CleanReducer extends
       Reducer<String, WebPage, NullWritable, NullWritable> {
     private int numDeletes = 0;
-    private static final int NUM_MAX_DELETE_REQUEST = 1000;
     private boolean commit;
     IndexWriters writers = null;
 
@@ -135,7 +134,7 @@ public class CleaningJob extends NutchTool implements Tool {
   @Override
   public Map<String, Object> run(Map<String, Object> args) throws Exception {
     getConf().setBoolean(ARG_COMMIT, (Boolean) args.get(ARG_COMMIT));
-    currentJob = new NutchJob(getConf(), "CleaningJob");
+    currentJob = NutchJob.getInstance(getConf(), "CleaningJob");
     currentJob.getConfiguration().setClass(
         "mapred.output.key.comparator.class", StringComparator.class,
         RawComparator.class);

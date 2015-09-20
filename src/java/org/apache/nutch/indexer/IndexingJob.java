@@ -139,7 +139,7 @@ public class IndexingJob extends NutchTool implements Tool {
     Configuration conf = getConf();
     conf.set(GeneratorJob.BATCH_ID, batchId);
 
-    Job job = new NutchJob(conf, "Indexer");
+    Job job = NutchJob.getInstance(conf, "Indexer");
     // TODO: Figure out why this needs to be here
     job.getConfiguration().setClass("mapred.output.key.comparator.class",
         StringComparator.class, RawComparator.class);

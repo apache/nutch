@@ -94,7 +94,7 @@ public class HostDbUpdateJob implements Tool {
       FIELDS.add(WebPage.Field.OUTLINKS);
     }
 
-    NutchJob job = new NutchJob(getConf(), "hostdb-update");
+    NutchJob job = NutchJob.getInstance(getConf(), "hostdb-update");
 
     // === Map ===
     DataStore<String, WebPage> pageStore = StorageUtils.createWebStore(

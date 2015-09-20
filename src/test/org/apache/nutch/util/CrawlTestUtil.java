@@ -31,9 +31,6 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.jetty.handler.HandlerList;
 import org.mortbay.jetty.handler.ResourceHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -41,9 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class CrawlTestUtil {
-
-  private static final Logger LOG = LoggerFactory
-      .getLogger(CrawlTestUtil.class);
 
   /**
    * For now we need to manually construct our Configuration, because we need to

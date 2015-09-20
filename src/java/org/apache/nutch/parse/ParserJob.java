@@ -33,7 +33,6 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.GeneratorJob;
 import org.apache.nutch.crawl.SignatureFactory;
-import org.apache.nutch.crawl.URLWebPage;
 import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.storage.Mark;
@@ -49,7 +48,6 @@ import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.ToolUtil;
 import org.apache.gora.filter.FilterOp;
-import org.apache.gora.filter.SingleFieldValueFilter;
 import org.apache.gora.mapreduce.GoraMapper;
 
 public class ParserJob extends NutchTool implements Tool {
@@ -250,7 +248,7 @@ public class ParserJob extends NutchTool implements Tool {
     } else {
       LOG.info("ParserJob: batchId:\t" + batchId);
     }
-    currentJob = new NutchJob(getConf(), "parse");
+    currentJob = NutchJob.getInstance(getConf(), "parse");
 
     Collection<WebPage.Field> fields = getFields(currentJob);
     MapFieldValueFilter<String, WebPage> batchIdFilter = getBatchIdFilter(batchId);

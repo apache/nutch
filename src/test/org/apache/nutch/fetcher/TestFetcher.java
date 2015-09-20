@@ -66,7 +66,6 @@ public class TestFetcher extends AbstractNutchTest {
   }
 
   @Test
-  @Ignore("Temporarily diable until NUTCH-1572 is addressed.")
   public void testFetch() throws Exception {
 
     // generate seedlist

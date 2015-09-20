@@ -16,7 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.util;
 
-import org.apache.avro.util.Utf8;
 import org.apache.commons.lang.StringUtils;
 
 import java.net.MalformedURLException;

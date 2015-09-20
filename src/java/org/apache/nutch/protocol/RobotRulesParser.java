@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.LineNumberReader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
@@ -33,8 +32,6 @@ import org.slf4j.LoggerFactory;
 // Nutch imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configurable;
-import org.apache.hadoop.io.Text;
-
 import com.google.common.io.Files;
 
 import crawlercommons.robots.BaseRobotRules;

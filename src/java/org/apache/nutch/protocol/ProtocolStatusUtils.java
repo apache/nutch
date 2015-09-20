@@ -16,7 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.protocol;
 
-import org.apache.avro.generic.GenericArray;
 import org.apache.avro.util.Utf8;
 import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.util.TableUtil;

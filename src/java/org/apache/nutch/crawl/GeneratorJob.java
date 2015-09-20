@@ -167,6 +167,12 @@ public class GeneratorJob extends NutchTool implements Tool {
     String batchId = (String) args.get(Nutch.ARG_BATCH);
     if (batchId != null) {
       getConf().set(GeneratorJob.BATCH_ID, batchId);
+    } else {
+      // generate batchId
+      long curTime = System.currentTimeMillis();
+      int randomSeed = Math.abs(new Random().nextInt());
+      batchId = (curTime / 1000) + "-" + randomSeed;
+      getConf().set(BATCH_ID, batchId);
     }
 
     // map to inverted subset due for fetch, sort by score
@@ -209,7 +215,7 @@ public class GeneratorJob extends NutchTool implements Tool {
     }
     numJobs = 1;
     currentJobNum = 0;
-    currentJob = new NutchJob(getConf(), "generate: " + getConf().get(BATCH_ID));
+    currentJob = NutchJob.getInstance(getConf(), "generate: " + getConf().get(BATCH_ID));
     Collection<WebPage.Field> fields = getFields(currentJob);
     StorageUtils.initMapperJob(currentJob, fields, SelectorEntry.class,
         WebPage.class, GeneratorMapper.class, SelectorEntryPartitioner.class,

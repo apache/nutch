@@ -140,7 +140,7 @@ public class HostInjectorJob implements Tool {
   public boolean inject(Path hostDir) throws Exception {
     LOG.info("HostInjectorJob: starting");
     LOG.info("HostInjectorJob: hostDir: " + hostDir);
-    Job job = new NutchJob(getConf(), "inject-hosts " + hostDir);
+    Job job = NutchJob.getInstance(getConf(), "inject-hosts " + hostDir);
     FileInputFormat.addInputPath(job, hostDir);
     job.setMapperClass(UrlMapper.class);
     job.setMapOutputKeyClass(String.class);

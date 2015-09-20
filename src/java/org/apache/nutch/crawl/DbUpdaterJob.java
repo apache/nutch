@@ -24,7 +24,6 @@ import java.util.Map;
 import org.apache.avro.util.Utf8;
 import org.apache.gora.filter.FilterOp;
 import org.apache.gora.filter.MapFieldValueFilter;
-import org.apache.gora.filter.SingleFieldValueFilter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -92,7 +91,7 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     HashSet<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
     fields.addAll(scoringFilters.getFields());
 
-    currentJob = new NutchJob(getConf(), "update-table");
+    currentJob = NutchJob.getInstance(getConf(), "update-table");
     if (crawlId != null) {
       currentJob.getConfiguration().set(Nutch.CRAWL_ID_KEY, crawlId);
     }
