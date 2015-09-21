@@ -87,13 +87,29 @@
 		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.22" conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22" conf="test->default" />
-		<!-- end of test artifacts -->
-
-
+		
 		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" conf="test->default" />
-
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.22" conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22" conf="test->default" />
+		<!-- end of test artifacts -->
+
+		<!-- web app dependencies -->
+
+    	<dependency org="org.apache.commons" name="commons-collections4" rev="4.0" conf="*->default" />
+    	<dependency org="org.springframework" name="spring-core" rev="4.0.4.RELEASE" conf="*->default" />
+    	<dependency org="org.springframework" name="spring-context" rev="4.0.4.RELEASE" conf="*->default" />
+    	<dependency org="org.springframework" name="spring-web" rev="4.0.4.RELEASE" conf="*->default" />
+
+    	<dependency org="com.sun.jersey" name="jersey-client" rev="1.8" conf="*->default" />
+	
+    	<dependency org="com.j256.ormlite" name="ormlite-jdbc" rev="4.48" conf="*->default" />
+    	<dependency org="com.h2database" name="h2" rev="1.4.180" conf="*->default" />
+    	<dependency org="org.eclipse.persistence" name="javax.persistence" rev="2.0.0" conf="*->default" />
+	
+    	<dependency org="org.apache.wicket" name="wicket-core" rev="6.16.0" conf="*->default" />
+    	<dependency org="org.apache.wicket" name="wicket-spring" rev="6.16.0" conf="*->default" />
+    	<dependency org="de.agilecoders.wicket" name="wicket-bootstrap-core" rev="0.9.2" conf="*->default" />
+    	<dependency org="de.agilecoders.wicket" name="wicket-bootstrap-extensions" rev="0.9.2" conf="*->default" />
 
 		<!--global exclusion -->
 		<exclude module="jmxtools" />
