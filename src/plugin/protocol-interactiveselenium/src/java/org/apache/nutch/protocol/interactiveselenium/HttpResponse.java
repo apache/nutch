@@ -36,8 +36,8 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpException;
 import org.apache.nutch.protocol.http.api.HttpBase;
+import org.apache.nutch.protocol.interactiveselenium.handlers.InteractiveSeleniumHandler;
 import org.openqa.selenium.WebDriver;
-
 import org.apache.nutch.protocol.selenium.HttpWebClient;
 
 /* Most of this code was borrowed from protocol-htmlunit; which in turn borrowed it from protocol-httpclient */
@@ -56,7 +56,8 @@ public class HttpResponse implements Response {
   /** The nutch configuration */
   private Configuration conf = null;
 
-  public HttpResponse(Http http, URL url, CrawlDatum datum) throws ProtocolException, IOException {
+  public HttpResponse(Http http, URL url, CrawlDatum datum)
+      throws ProtocolException, IOException {
 
     this.conf = http.getConf();
     this.http = http;
@@ -138,7 +139,8 @@ public class HttpResponse implements Response {
       reqStr.append("\r\n");
 
       if (datum.getModifiedTime() > 0) {
-        reqStr.append("If-Modified-Since: " + HttpDateFormat.toString(datum.getModifiedTime()));
+        reqStr.append("If-Modified-Since: "
+            + HttpDateFormat.toString(datum.getModifiedTime()));
         reqStr.append("\r\n");
       }
       reqStr.append("\r\n");
@@ -149,8 +151,8 @@ public class HttpResponse implements Response {
       req.flush();
 
       PushbackInputStream in = // process response
-          new PushbackInputStream(new BufferedInputStream(socket.getInputStream(), Http.BUFFER_SIZE),
-              Http.BUFFER_SIZE);
+      new PushbackInputStream(new BufferedInputStream(socket.getInputStream(),
+          Http.BUFFER_SIZE), Http.BUFFER_SIZE);
 
       StringBuffer line = new StringBuffer();
 
@@ -166,9 +168,10 @@ public class HttpResponse implements Response {
       // Get Content type header
       String contentType = getHeader(Response.CONTENT_TYPE);
 
-      // handle with Selenium only if content type in HTML or XHTML 
+      // handle with Selenium only if content type in HTML or XHTML
       if (contentType != null) {
-        if (contentType.contains("text/html") || contentType.contains("application/xhtml")) {
+        if (contentType.contains("text/html")
+            || contentType.contains("application/xhtml")) {
           readPlainContent(url);
         } else {
           try {
@@ -178,11 +181,13 @@ public class HttpResponse implements Response {
               try {
                 contentLength = Integer.parseInt(contentLengthString.trim());
               } catch (NumberFormatException ex) {
-                throw new HttpException("bad content length: " + contentLengthString);
+                throw new HttpException("bad content length: "
+                    + contentLengthString);
               }
             }
 
-            if (http.getMaxContent() >= 0 && contentLength > http.getMaxContent()) {
+            if (http.getMaxContent() >= 0
+                && contentLength > http.getMaxContent()) {
               contentLength = http.getMaxContent();
             }
 
@@ -208,7 +213,7 @@ public class HttpResponse implements Response {
             }
           }
         }
-      } 
+      }
 
     } finally {
       if (socket != null)
@@ -216,9 +221,10 @@ public class HttpResponse implements Response {
     }
   }
 
-  /* ------------------------- *
-   * <implementation:Response> *
-   * ------------------------- */
+  /*
+   * ------------------------- * <implementation:Response> *
+   * -------------------------
+   */
 
   public URL getUrl() {
     return url;
@@ -240,53 +246,62 @@ public class HttpResponse implements Response {
     return content;
   }
 
-  /* ------------------------- *
-   * <implementation:Response> *
-   * ------------------------- */
+  /*
+   * ------------------------- * <implementation:Response> *
+   * -------------------------
+   */
   private void loadSeleniumHandlers() {
-    if (handlers != null) return;
+    if (handlers != null)
+      return;
 
-    String handlerConfig = this.conf.get("interactiveselenium.handlers", "DefaultHandler");
+    String handlerConfig = this.conf.get("interactiveselenium.handlers",
+        "DefaultHandler");
     String[] handlerNames = handlerConfig.split(",");
     handlers = new InteractiveSeleniumHandler[handlerNames.length];
     for (int i = 0; i < handlerNames.length; i++) {
-        try {
-            String classToLoad = this.getClass().getPackage().getName() + "." + handlerNames[i];
-            handlers[i] = InteractiveSeleniumHandler.class.cast(Class.forName(classToLoad).newInstance());
-            Http.LOG.info("Successfully loaded " + classToLoad);
-        } catch (ClassNotFoundException e) {
-            Http.LOG.info("Unable to load Handler class for: " + handlerNames[i]);
-        } catch (InstantiationException e) {
-            Http.LOG.info("Unable to instantiate Handler: " + handlerNames[i]);
-        } catch (IllegalAccessException e) {
-            Http.LOG.info("Illegal access with Handler: " + handlerNames[i]);
-        }
+      try {
+        String classToLoad = this.getClass().getPackage().getName() + "."
+            + handlerNames[i];
+        handlers[i] = InteractiveSeleniumHandler.class.cast(Class.forName(
+            classToLoad).newInstance());
+        Http.LOG.info("Successfully loaded " + classToLoad);
+      } catch (ClassNotFoundException e) {
+        Http.LOG.info("Unable to load Handler class for: " + handlerNames[i]);
+      } catch (InstantiationException e) {
+        Http.LOG.info("Unable to instantiate Handler: " + handlerNames[i]);
+      } catch (IllegalAccessException e) {
+        Http.LOG.info("Illegal access with Handler: " + handlerNames[i]);
+      }
     }
   }
 
   private void readPlainContent(URL url) throws IOException {
     if (handlers == null)
-        loadSeleniumHandlers();
+      loadSeleniumHandlers();
 
     String processedPage = "";
 
     for (InteractiveSeleniumHandler handler : this.handlers) {
-        if (! handler.shouldProcessURL(url.toString())) {
-            continue;
-        }
+      if (!handler.shouldProcessURL(url.toString())) {
+        continue;
+      }
 
-        WebDriver driver = HttpWebClient.getDriverForPage(url.toString(), conf);
+      WebDriver driver = HttpWebClient.getDriverForPage(url.toString(), conf);
+      handler.processDriver(driver);
 
-        handler.processDriver(driver);
-        processedPage += HttpWebClient.getHTMLContent(driver, conf);
+      String multiProcessedData = handler.multiProcessDriver(driver);
 
-        HttpWebClient.cleanUpDriver(driver);
+      processedPage += HttpWebClient.getHTMLContent(multiProcessedData, driver,
+          conf);
+
+      HttpWebClient.cleanUpDriver(driver);
     }
 
     content = processedPage.getBytes("UTF-8");
   }
 
-  private int parseStatusLine(PushbackInputStream in, StringBuffer line) throws IOException, HttpException {
+  private int parseStatusLine(PushbackInputStream in, StringBuffer line)
+      throws IOException, HttpException {
     readLine(in, line, false);
 
     int codeStart = line.indexOf(" ");
@@ -301,13 +316,15 @@ public class HttpResponse implements Response {
     try {
       code = Integer.parseInt(line.substring(codeStart + 1, codeEnd));
     } catch (NumberFormatException e) {
-      throw new HttpException("bad status line '" + line + "': " + e.getMessage(), e);
+      throw new HttpException("bad status line '" + line + "': "
+          + e.getMessage(), e);
     }
 
     return code;
   }
 
-  private void processHeaderLine(StringBuffer line) throws IOException, HttpException {
+  private void processHeaderLine(StringBuffer line) throws IOException,
+      HttpException {
 
     int colonIndex = line.indexOf(":"); // key is up to colon
     if (colonIndex == -1) {
@@ -333,24 +350,26 @@ public class HttpResponse implements Response {
   }
 
   // Adds headers to our headers Metadata
-  private void parseHeaders(PushbackInputStream in, StringBuffer line) throws IOException, HttpException {
+  private void parseHeaders(PushbackInputStream in, StringBuffer line)
+      throws IOException, HttpException {
 
     while (readLine(in, line, true) != 0) {
 
       // handle HTTP responses with missing blank line after headers
       int pos;
-      if (((pos = line.indexOf("<!DOCTYPE")) != -1) || ((pos = line.indexOf("<HTML")) != -1)
+      if (((pos = line.indexOf("<!DOCTYPE")) != -1)
+          || ((pos = line.indexOf("<HTML")) != -1)
           || ((pos = line.indexOf("<html")) != -1)) {
 
         in.unread(line.substring(pos).getBytes("UTF-8"));
         line.setLength(pos);
 
         try {
-          //TODO: (CM) We don't know the header names here
-          //since we're just handling them generically. It would
-          //be nice to provide some sort of mapping function here
-          //for the returned header names to the standard metadata
-          //names in the ParseData class
+          // TODO: (CM) We don't know the header names here
+          // since we're just handling them generically. It would
+          // be nice to provide some sort of mapping function here
+          // for the returned header names to the standard metadata
+          // names in the ParseData class
           processHeaderLine(line);
         } catch (Exception e) {
           // fixme:
@@ -363,8 +382,8 @@ public class HttpResponse implements Response {
     }
   }
 
-  private static int readLine(PushbackInputStream in, StringBuffer line, boolean allowContinuedLine)
-      throws IOException {
+  private static int readLine(PushbackInputStream in, StringBuffer line,
+      boolean allowContinuedLine) throws IOException {
     line.setLength(0);
     for (int c = in.read(); c != -1; c = in.read()) {
       switch (c) {

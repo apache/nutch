@@ -15,14 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.protocol.interactiveselenium;
+package org.apache.nutch.protocol.interactiveselenium.handlers;
 
 import org.openqa.selenium.WebDriver;
 
 public class DefaultHandler implements InteractiveSeleniumHandler {
-    public void processDriver(WebDriver driver) {}
+  public void processDriver(WebDriver driver) {
+  }
 
-    public boolean shouldProcessURL(String URL) {
-        return true;
-    }
+  public boolean shouldProcessURL(String URL) {
+    return true;
+  }
+
+  public String multiProcessDriver(WebDriver driver) {
+    return null;
+  }
+
 }
