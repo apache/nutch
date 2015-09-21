@@ -27,7 +27,7 @@
   </info>
 
   <configurations>
-    <include file="../../..//ivy/ivy-configurations.xml"/>
+    <include file="../../../ivy/ivy-configurations.xml"/>
   </configurations>
 
   <publications>
@@ -36,17 +36,7 @@
   </publications>
 
   <dependencies>
-    <!-- begin selenium dependencies -->
-    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="2.44.0" />
-    
-    <dependency org="com.opera" name="operadriver" rev="1.5">
-      <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
-    </dependency>
-    <dependency org="com.codeborne" name="phantomjsdriver" rev="1.2.1" >
-      <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
-      <exclude org="org.seleniumhq.selenium" name="selenium-java" />
-    </dependency>
-    <!-- end selenium dependencies -->
+    <!-- Note: only dependencies which are not contained in lib-selenium have to be listed here! -->
   </dependencies>
   
 </ivy-module>

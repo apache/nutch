@@ -1,6 +1,9 @@
 1. Upgrade various driver versions dependency in src/plugin/lib-selenium/ivy.xml
 
-2. Upgrade Tika's own dependencies in src/plugin/lib-selenium/plugin.xml
-   To get the list of dependencies and their versions execute:
-   $ ant -f ./build-ivy.xml
-   $ ls lib | sed 's/^/      <library name="/g' | sed 's/$/"\/>/g'
+2. Upgrade Selenium's own dependencies in src/plugin/lib-selenium/plugin.xml
+
+   To get a list of dependencies and their versions execute:
+    $ ant -f ./build-ivy.xml
+    $ ls lib | sed 's/^/     <library name="/g' | sed 's/$/">\n       <export name="*"\/>\n     <\/library>/g'
+
+   Note that all dependent libraries are exported for a "library" plugin ("lib-selenium").
