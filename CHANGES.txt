@@ -2,6 +2,8 @@ Nutch Change Log
    
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2095 WARC exporter for the CommonCrawlDataDumper (jorgelbg)
+
 * NUTCH-2102 WARC Exporter (jnioche)
 
 * NUTCH-2106 Runtime to contain Selenium and dependencies only once (snagel)
