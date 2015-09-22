@@ -87,6 +87,7 @@ if [ $# = 0 ]; then
   echo "  plugin            load a plugin and run one of its classes main()"
   echo "  junit             runs the given JUnit test"
   echo "  startserver	    runs the Nutch Server on localhost:8081"
+  echo "  warc	  	        exports crawled data from segments at the WARC format"
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
@@ -278,6 +279,8 @@ elif [ "$COMMAND" = "junit" ] ; then
   CLASS=org.junit.runner.JUnitCore
 elif [ "$COMMAND" = "startserver" ] ; then
   CLASS=org.apache.nutch.service.NutchServer
+elif [ "$COMMAND" = "warc" ] ; then
+  CLASS=org.apache.nutch.tools.warc.WARCExporter
 else
   CLASS=$COMMAND
 fi

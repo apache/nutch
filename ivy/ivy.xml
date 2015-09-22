@@ -70,6 +70,8 @@
 		<dependency org="com.google.guava" name="guava" rev="16.0.1" />
 
 		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="0.6" />
+
+		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0" />
 		
         <dependency org="org.apache.cxf" name="cxf" rev="3.0.4" conf="*->default"/>
         <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.0.4" conf="*->default"/>
