@@ -46,106 +46,129 @@ import java.net.URL;
 
 public class HttpWebClient {
 
-  private static final Logger LOG = LoggerFactory.getLogger(HttpWebClient.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(HttpWebClient.class);
 
   public static ThreadLocal<WebDriver> threadWebDriver = new ThreadLocal<WebDriver>() {
 
     @Override
-    protected WebDriver initialValue()
-    {
+    protected WebDriver initialValue() {
       FirefoxProfile profile = new FirefoxProfile();
       profile.setPreference("permissions.default.stylesheet", 2);
       profile.setPreference("permissions.default.image", 2);
-      profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", "false");
+      profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so",
+          "false");
       WebDriver driver = new FirefoxDriver(profile);
       return driver;
     };
   };
 
   public static WebDriver getDriverForPage(String url, Configuration conf) {
-      WebDriver driver = null;
-      DesiredCapabilities capabilities = null;
-      long pageLoadWait = conf.getLong("libselenium.page.load.delay", 3);
+    WebDriver driver = null;
+    DesiredCapabilities capabilities = null;
+    long pageLoadWait = conf.getLong("libselenium.page.load.delay", 3);
 
-      try {
-        String driverType  = conf.get("selenium.driver", "firefox");
-        switch (driverType) {
-          case "firefox":
-            driver = new FirefoxDriver();
-            break;
-          case "chrome":
-            driver = new ChromeDriver();
-            break;
-          case "safari":
-            driver = new SafariDriver();
-            break;
-          case "opera":
-            driver = new OperaDriver();
-            break;
-          case "remote":
-            String seleniumHubHost = conf.get("selenium.hub.host", "localhost");
-            int seleniumHubPort = Integer.parseInt(conf.get("selenium.hub.port", "4444"));
-            String seleniumHubPath = conf.get("selenium.hub.path", "/wd/hub");
-            String seleniumHubProtocol = conf.get("selenium.hub.protocol", "http");
-            String seleniumGridDriver = conf.get("selenium.grid.driver","firefox");
-            String seleniumGridBinary = conf.get("selenium.grid.binary");
+    try {
+      String driverType = conf.get("selenium.driver", "firefox");
+      switch (driverType) {
+      case "firefox":
+        driver = new FirefoxDriver();
+        break;
+      case "chrome":
+        driver = new ChromeDriver();
+        break;
+      case "safari":
+        driver = new SafariDriver();
+        break;
+      case "opera":
+        driver = new OperaDriver();
+        break;
+      case "remote":
+        String seleniumHubHost = conf.get("selenium.hub.host", "localhost");
+        int seleniumHubPort = Integer.parseInt(conf.get("selenium.hub.port",
+            "4444"));
+        String seleniumHubPath = conf.get("selenium.hub.path", "/wd/hub");
+        String seleniumHubProtocol = conf.get("selenium.hub.protocol", "http");
+        String seleniumGridDriver = conf.get("selenium.grid.driver", "firefox");
+        String seleniumGridBinary = conf.get("selenium.grid.binary");
 
-            switch (seleniumGridDriver){
-              case "firefox":
-                capabilities = DesiredCapabilities.firefox();
-                capabilities.setBrowserName("firefox");
-                capabilities.setJavascriptEnabled(true);
-                capabilities.setCapability("firefox_binary",seleniumGridBinary);
-                driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), capabilities);
-                break;
-              default:
-                LOG.error("The Selenium Grid WebDriver choice {} is not available... defaulting to FirefoxDriver().", driverType);
-                driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), DesiredCapabilities.firefox());
-                break;
-            }
-          default:
-            LOG.error("The Selenium WebDriver choice {} is not available... defaulting to FirefoxDriver().", driverType);
-            driver = new FirefoxDriver();
-            break;
+        switch (seleniumGridDriver) {
+        case "firefox":
+          capabilities = DesiredCapabilities.firefox();
+          capabilities.setBrowserName("firefox");
+          capabilities.setJavascriptEnabled(true);
+          capabilities.setCapability("firefox_binary", seleniumGridBinary);
+          driver = new RemoteWebDriver(new URL(seleniumHubProtocol,
+              seleniumHubHost, seleniumHubPort, seleniumHubPath), capabilities);
+          break;
+        default:
+          LOG.error(
+              "The Selenium Grid WebDriver choice {} is not available... defaulting to FirefoxDriver().",
+              driverType);
+          driver = new RemoteWebDriver(new URL(seleniumHubProtocol,
+              seleniumHubHost, seleniumHubPort, seleniumHubPath),
+              DesiredCapabilities.firefox());
+          break;
         }
-        LOG.debug("Selenium {} WebDriver selected.", driverType);
-  
-        driver.get(url);
-        new WebDriverWait(driver, pageLoadWait);
-      } catch (Exception e) {
-        throw new RuntimeException(e);
+      default:
+        LOG.error(
+            "The Selenium WebDriver choice {} is not available... defaulting to FirefoxDriver().",
+            driverType);
+        driver = new FirefoxDriver();
+        break;
       }
+      LOG.debug("Selenium {} WebDriver selected.", driverType);
 
-      return driver;
+      driver.get(url);
+      new WebDriverWait(driver, pageLoadWait);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+    return driver;
   }
 
   public static String getHTMLContent(WebDriver driver, Configuration conf) {
-      if (conf.getBoolean("selenium.take.screenshot", false)) {
-        takeScreenshot(driver, conf);
-      }
+    if (conf.getBoolean("selenium.take.screenshot", false)) {
+      takeScreenshot(driver, conf);
+    }
 
+    return driver.findElement(By.tagName("body")).getAttribute("innerHTML");
+  }
+
+  public static String getHTMLContent(String multiProcessedData,
+      WebDriver driver, Configuration conf) {
+    if (conf.getBoolean("selenium.take.screenshot", false)) {
+      takeScreenshot(driver, conf);
+    }
+
+    if (multiProcessedData == null)
       return driver.findElement(By.tagName("body")).getAttribute("innerHTML");
+    else
+      return multiProcessedData;
   }
 
   public static void cleanUpDriver(WebDriver driver) {
-      if (driver != null) {
-          try {
-              driver.quit();
-          } catch (Exception e) {
-              throw new RuntimeException(e);
-          }
+    if (driver != null) {
+      try {
+        driver.quit();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
       }
+    }
   }
 
   /**
    * Function for obtaining the HTML BODY using the selected
-   * {@link org.openqa.selenium.WebDriver}.
-   * There are a number of configuration properties within
-   * <code>nutch-site.xml</code> which determine whether to
-   * take screenshots of the rendered pages and persist them
-   * as timestamped .png's into HDFS.
-   * @param url the URL to fetch and render
-   * @param conf the {@link org.apache.hadoop.conf.Configuration}
+   * {@link org.openqa.selenium.WebDriver}. There are a number of configuration
+   * properties within <code>nutch-site.xml</code> which determine whether to
+   * take screenshots of the rendered pages and persist them as timestamped
+   * .png's into HDFS.
+   * 
+   * @param url
+   *          the URL to fetch and render
+   * @param conf
+   *          the {@link org.apache.hadoop.conf.Configuration}
    * @return the rendered inner HTML page
    */
   public static String getHtmlPage(String url, Configuration conf) {
@@ -156,10 +179,12 @@ public class HttpWebClient {
         takeScreenshot(driver, conf);
       }
 
-      String innerHtml = driver.findElement(By.tagName("body")).getAttribute("innerHTML");
+      String innerHtml = driver.findElement(By.tagName("body")).getAttribute(
+          "innerHTML");
       return innerHtml;
 
-      // I'm sure this catch statement is a code smell ; borrowing it from lib-htmlunit
+      // I'm sure this catch statement is a code smell ; borrowing it from
+      // lib-htmlunit
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -174,22 +199,29 @@ public class HttpWebClient {
   private static void takeScreenshot(WebDriver driver, Configuration conf) {
     try {
       String url = driver.getCurrentUrl();
-      File srcFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+      File srcFile = ((TakesScreenshot) driver)
+          .getScreenshotAs(OutputType.FILE);
       LOG.debug("In-memory screenshot taken of: {}", url);
       FileSystem fs = FileSystem.get(conf);
-      Path screenshotPath = new Path(conf.get("selenium.screenshot.location") + "/" + srcFile.getName());
+      Path screenshotPath = new Path(conf.get("selenium.screenshot.location")
+          + "/" + srcFile.getName());
       if (screenshotPath != null) {
         OutputStream os = null;
         if (!fs.exists(screenshotPath)) {
-          LOG.debug("No existing screenshot already exists... creating new file at {} {}.", screenshotPath, srcFile.getName());
+          LOG.debug(
+              "No existing screenshot already exists... creating new file at {} {}.",
+              screenshotPath, srcFile.getName());
           os = fs.create(screenshotPath);
         }
         InputStream is = new BufferedInputStream(new FileInputStream(srcFile));
         IOUtils.copyBytes(is, os, conf);
-        LOG.debug("Screenshot for {} successfully saved to: {} {}", url, screenshotPath, srcFile.getName()); 
+        LOG.debug("Screenshot for {} successfully saved to: {} {}", url,
+            screenshotPath, srcFile.getName());
       } else {
-        LOG.warn("Screenshot for {} not saved to HDFS (subsequently disgarded) as value for "
-            + "'selenium.screenshot.location' is absent from nutch-site.xml.", url);
+        LOG.warn(
+            "Screenshot for {} not saved to HDFS (subsequently disgarded) as value for "
+                + "'selenium.screenshot.location' is absent from nutch-site.xml.",
+            url);
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
