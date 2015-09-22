@@ -23,6 +23,7 @@ import java.util.Deque;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.protocol.Content;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -37,7 +38,7 @@ public class CommonCrawlFormatJettinson extends AbstractCommonCrawlFormat {
 	
 	private Deque<JSONArray> stackArrays;
 
-	public CommonCrawlFormatJettinson(String url, byte[] content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
+	public CommonCrawlFormatJettinson(String url, Content content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
 		super(url, content, metadata, nutchConf, config);
 		
 		stackObjects = new ArrayDeque<JSONObject>();

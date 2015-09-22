@@ -39,6 +39,12 @@ public class CommonCrawlConfig implements Serializable {
 	private boolean reverseKey = false;
 	
 	private String reverseKeyValue = "";
+
+	private boolean compressed = false;
+
+	private long warcSize = 0;
+
+	private String outputDir;
 	
 	/**
 	 * Default constructor
@@ -113,5 +119,29 @@ public class CommonCrawlConfig implements Serializable {
 	
 	public String getReverseKeyValue() {
 		return this.reverseKeyValue;
+	}
+
+	public boolean isCompressed() {
+		return compressed;
+	}
+
+	public void setCompressed(boolean compressed) {
+		this.compressed = compressed;
+	}
+
+	public long getWarcSize() {
+		return warcSize;
+	}
+
+	public void setWarcSize(long warcSize) {
+		this.warcSize = warcSize;
+	}
+
+	public String getOutputDir() {
+		return outputDir;
+	}
+
+	public void setOutputDir(String outputDir) {
+		this.outputDir = outputDir;
 	}
 }
