@@ -198,7 +198,7 @@ public class NutchServer {
     OptionBuilder.withArgName("host");
     OptionBuilder.hasOptionalArg();
     OptionBuilder.withDescription("The host to bind the Nutch Server to. Default is localhost.");
-    options.addOption(OptionBuilder.create(CMD_PORT));
+    options.addOption(OptionBuilder.create(CMD_HOST));
 
     return options;
   }
