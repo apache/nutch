@@ -890,7 +890,7 @@
 
 <property>
   <name>plugin.folders</name>
-  <value>/usr/local/2scot/build/plugins</value>
+  <value>plugins</value>
   <description>Directories where nutch plugins are located.  Each
   element may be a relative or absolute path.  If absolute, it is used
   as is.  If relative, it is searched for on the classpath.</description>
