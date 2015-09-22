@@ -101,7 +101,7 @@ public class TestCommonCrawlDataDumper {
 
 		CommonCrawlDataDumper dumper = new CommonCrawlDataDumper(
 				new CommonCrawlConfig());
-		dumper.dump(tempDir, sampleSegmentDir, false, null, false, "");
+		dumper.dump(tempDir, sampleSegmentDir, false, null, false, "", false);
 
 		Collection<File> tempFiles = FileUtils.listFiles(tempDir,
 				FileFilterUtils.fileFileFilter(),
