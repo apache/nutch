@@ -111,15 +111,19 @@ public class DumpFileUtil {
 		// print total stats
 		builder.append("\nTOTAL Stats:\n");
 		builder.append("[\n");
+		int mimetypeCount = 0;
 		for (String mimeType : typeCounts.keySet()) {
 			builder.append("    {\"mimeType\":\"");
 			builder.append(mimeType);
 			builder.append("\",\"count\":\"");
 			builder.append(typeCounts.get(mimeType));
 			builder.append("\"}\n");
+			mimetypeCount += typeCounts.get(mimeType);
 		}
 		builder.append("]\n");
+		builder.append("Total count: " + mimetypeCount + "\n");
 		// filtered types stats
+		mimetypeCount = 0;
 		if (!filteredCounts.isEmpty()) {
 			builder.append("\nFILTERED Stats:\n");
 			builder.append("[\n");
@@ -129,8 +133,10 @@ public class DumpFileUtil {
 				builder.append("\",\"count\":\"");
 				builder.append(filteredCounts.get(mimeType));
 				builder.append("\"}\n");
+				mimetypeCount += filteredCounts.get(mimeType);
 			}
 			builder.append("]\n");
+			builder.append("Total filtered count: " + mimetypeCount + "\n");
 		}
 		return builder.toString();
 	}  

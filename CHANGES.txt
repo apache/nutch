@@ -2,6 +2,8 @@ Nutch Change Log
    
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2115 - Add total counts to mimetype stats (Jimmy Joyce via lewismc)
+
 * NUTCH-2111 Delete temporary files location for selenium tmp files after driver quits (Kim Whitehall via lewismc)
 
 * NUTCH-2095 WARC exporter for the CommonCrawlDataDumper (jorgelbg)
