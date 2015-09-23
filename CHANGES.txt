@@ -1,6 +1,9 @@
 Nutch Change Log
 
-Current Development 2.4-SNAPSHOT
+Nutch 2.3.1 Release 22092015 (ddmmyyyy)
+Release Report - http://s.apache.org/nutch_2.3.1
+
+* NUTCH-2018 Ensure that the Docker containers for Nutch 2.X are part of the Release Management Documentation (lewismc)
 
 * NUTCH-2105 Update Nutch Cassandra Dockerfile to work with Gora Nutch 2.3.1 (lewismc)
 
