@@ -1,13 +1,11 @@
-#Apache Nutch 2.x with Cassandra on Docker
+Apache Nutch 2.x with Cassandra on Docker
 =======================
 
-This project is 3 Docker containers running Apache Nutch 2.x configured with Cassandra storage.
-
-Due to the lack of integration information between Nutch 2.x / Cassandra, Mohamed Meabed (@Meabed) developed these docker containers with configuration and integration between them.
+This project contains 3 Docker containers running Apache Nutch 2.x configured with [Apache Cassandra](http://cassandra.apache.org) storage.
 
 This is project is fully operational but its still experimental, any feedback, suggestions should be directed to dev@nutch.apache.org and contribution(s) will be highly appreciated! 
 
-##Usage notes:
+#Usage
 
 1. Build the images and start the containers " NOTE: for Mac OS running boot2docker, Please read the Notes section Below ". 
 

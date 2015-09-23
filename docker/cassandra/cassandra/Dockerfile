@@ -1,7 +1,20 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
 #
-# Cassandra
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # meabed/debian-jdk
-# docker build -t meabed/cassandra:latest .
+# docker build -t apache/cassandra:latest .
 #
 # sudo sysctl -w vm.max_map_count=2621444
 # sudo su
@@ -13,14 +26,14 @@
 # ulimit -c unlimited
 
 FROM meabed/debian-jdk
-MAINTAINER Mohamed Meabed "mo.meabed@gmail.com"
+MAINTAINER Nutch Developers "dev@nutch.apache.org"
 
 USER root
 ENV DEBIAN_FRONTEND noninteractive
 
 
 # ADD DataStax sources
-RUN echo "deb http://debian.datastax.com/community stable main" | tee -a /etc/apt/sources.list.d/cassandra.sources.list
+RUN echo "deb http://debian.datastax.com/community 2.1 main" | tee -a /etc/apt/sources.list.d/cassandra.sources.list
 RUN curl -L http://debian.datastax.com/debian/repo_key | apt-key add -
 
 RUN apt-get update
