@@ -33,6 +33,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.io.TemporaryFilesystem;
 
 import com.opera.core.systems.OperaDriver;
 
@@ -96,6 +97,7 @@ public class HttpWebClient {
                 capabilities.setBrowserName("firefox");
                 capabilities.setJavascriptEnabled(true);
                 capabilities.setCapability("firefox_binary",seleniumGridBinary);
+                System.setProperty("webdriver.reap_profile", "false");
                 driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), capabilities);
                 break;
               default:
@@ -131,6 +133,7 @@ public class HttpWebClient {
       if (driver != null) {
           try {
               driver.quit();
+              TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
           } catch (Exception e) {
               throw new RuntimeException(e);
           }
@@ -161,6 +164,7 @@ public class HttpWebClient {
 
       // I'm sure this catch statement is a code smell ; borrowing it from lib-htmlunit
     } catch (Exception e) {
+      TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
       throw new RuntimeException(e);
     } finally {
       cleanUpDriver(driver);
