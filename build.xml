@@ -979,7 +979,6 @@
         <source path="${plugins.dir}/index-basic/src/java/" />
         <source path="${plugins.dir}/index-basic/src/test/" />
         <source path="${plugins.dir}/index-geoip/src/java/" />
-        <source path="${plugins.dir}/index-geoip/src/test/" />
         <source path="${plugins.dir}/mimetype-filter/src/java/" />
         <source path="${plugins.dir}/mimetype-filter/src/test/" />
         <source path="${plugins.dir}/indexer-dummy/src/java/" />
@@ -997,7 +996,6 @@
         <source path="${plugins.dir}/lib-http/src/java/" />
         <source path="${plugins.dir}/lib-http/src/test/" />
         <source path="${plugins.dir}/lib-selenium/src/java/" />
-        <source path="${plugins.dir}/lib-selenium/src/test/" />
         <source path="${plugins.dir}/lib-regex-filter/src/java/" />
         <source path="${plugins.dir}/lib-regex-filter/src/test/" />
         <source path="${plugins.dir}/microformats-reltag/src/java/" />
@@ -1022,7 +1020,6 @@
         <source path="${plugins.dir}/protocol-http/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/test/" />
         <source path="${plugins.dir}/protocol-selenium/src/java"/>
-        <source path="${plugins.dir}/protocol-selenium/src/test"/>
         <source path="${plugins.dir}/scoring-depth/src/java/" />
         <source path="${plugins.dir}/scoring-similarity/src/java/" />
         <source path="${plugins.dir}/scoring-link/src/java/" />
