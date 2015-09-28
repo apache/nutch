@@ -1,0 +1,52 @@
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+<head>
+<meta charset="utf-8" />
+<title>Wicket extend</title>
+</head>
+
+<body>
+	<wicket:extend>
+		<h2>
+			<wicket:message key="navbar.menu.dashboard">Instances</wicket:message>
+		</h2>
+		<div class="row">
+			<div class="col-lg-3">
+				<div class="panel panel-info">
+					<div wicket:id="panel" class="panel-heading">
+						<div class="row">
+							<div class="col-xs-6">
+								<i class="fa fa-gears fa-5x"></i>
+							</div>
+							<div class="col-xs-6 text-right">
+								<p class="announcement-heading" wicket:id="jobsRunning">2</p>
+								<p class="announcement-text">Jobs running</p>
+							</div>
+						</div>
+					</div>
+					<a href="#non-existing-id" wicket:id="viewInstances">
+						<div class="panel-footer announcement-bottom">
+							<div class="row">
+								<div class="col-xs-6">View instances</div>
+								<div class="col-xs-6 text-right">
+									<i class="fa fa-arrow-circle-right"></i>
+								</div>
+							</div>
+						</div>
+					</a>
+				</div>
+			</div>
+		</div>
+	</wicket:extend>
+</body>
+</html>

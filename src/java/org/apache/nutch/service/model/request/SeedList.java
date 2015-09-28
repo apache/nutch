@@ -19,12 +19,18 @@ package org.apache.nutch.service.model.request;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.apache.commons.collections4.CollectionUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 public class SeedList implements Serializable {
 
   private Long id;
 
   private String name;
 
+  @JsonManagedReference
   private Collection<SeedUrl> seedUrls;
 
   public Long getId() {
@@ -49,6 +55,14 @@ public class SeedList implements Serializable {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  @JsonIgnore
+  public int getSeedUrlsCount() {
+    if (CollectionUtils.isEmpty(seedUrls)) {
+      return 0;
+    }
+    return seedUrls.size();
   }
 
   @Override
