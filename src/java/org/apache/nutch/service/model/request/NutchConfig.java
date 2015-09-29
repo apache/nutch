@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Collections;
 
 public class NutchConfig {
-  private String configId;
+  private String confId;
   private boolean force = false;
   private Map<String, String> params = Collections.emptyMap();
 
@@ -33,12 +33,12 @@ public class NutchConfig {
     this.params = params;
   }
 
-  public String getConfigId() {
-    return configId;
+  public String getConfId() {
+    return confId;
   }
 
-  public void setConfigId(String configId) {
-    this.configId = configId;
+  public void setConfId(String confId) {
+    this.confId = confId;
   }
 
   public boolean isForce() {

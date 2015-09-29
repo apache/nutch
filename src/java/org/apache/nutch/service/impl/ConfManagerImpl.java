@@ -90,8 +90,8 @@ public class ConfManagerImpl implements ConfManager {
    * @return String - confId
    */
   public String create(NutchConfig nutchConfig) {
-    if (StringUtils.isBlank(nutchConfig.getConfigId())) {
-      nutchConfig.setConfigId(String.valueOf(newConfigId.incrementAndGet()));
+    if (StringUtils.isBlank(nutchConfig.getConfId()) || nutchConfig.getConfId() == null) {
+      throw new IllegalArgumentException("ConfId cannot be blank");
     }
 
     if (!canCreate(nutchConfig)) {
@@ -99,7 +99,7 @@ public class ConfManagerImpl implements ConfManager {
     }
 
     createHadoopConfig(nutchConfig);
-    return nutchConfig.getConfigId();
+    return nutchConfig.getConfId();
   }
 
 
@@ -108,10 +108,7 @@ public class ConfManagerImpl implements ConfManager {
   }
 
   private boolean canCreate(NutchConfig nutchConfig) {
-    if (nutchConfig.isForce()) {
-      return true;
-    }
-    if (!configurations.containsKey(nutchConfig.getConfigId())) {
+    if (!configurations.containsKey(nutchConfig.getConfId())) {
       return true;
     }
     return false;
@@ -119,7 +116,7 @@ public class ConfManagerImpl implements ConfManager {
 
   private void createHadoopConfig(NutchConfig nutchConfig) {
     Configuration conf = NutchConfiguration.create();
-    configurations.put(nutchConfig.getConfigId(), conf);
+    configurations.put(nutchConfig.getConfId(), conf);
 
     if (MapUtils.isEmpty(nutchConfig.getParams())) {
       return;
