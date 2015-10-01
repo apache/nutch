@@ -102,13 +102,4 @@ public class ConfigResource extends AbstractResource{
     }
     return Response.ok().build();
   }
-  
-  
-  
-  
-  
-  
-  
-  
-  
 }
