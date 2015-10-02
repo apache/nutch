@@ -97,4 +97,11 @@ public interface Nutch {
 	public static final String ARG_SEGMENTDIR = "segment_dir";
 	/** Argument key to specify the location of individual segment for the REST endpoints **/
 	public static final String ARG_SEGMENT = "segment";
+	
+	/** Metadata used for the FetcherThreadEvent for publishing to subscribers*/
+	public static final String FETCH_EVENT_TITLE = "title";
+	public static final String FETCH_EVENT_CONTENTTYPE = "content-type";
+	public static final String FETCH_EVENT_SCORE = "score";
+	public static final String FETCH_EVENT_FETCHTIME = "fetchTime";
+	public static final String FETCH_EVENT_CONTENTLANG = "content-language";
 }
