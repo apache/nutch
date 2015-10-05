@@ -28,6 +28,7 @@ import java.util.Collection;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -49,15 +50,16 @@ public class SeedResource extends AbstractResource {
   @POST
   @Path("/create")
   @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.TEXT_PLAIN)
   /**
    * Method creates seed list file and returns temorary directory path
    * @param seedList
    * @return
    */
-  public String createSeedFile(SeedList seedList) {
+  public Response createSeedFile(SeedList seedList) {
     if (seedList == null) {
-      throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
-          .entity("Seed list cannot be empty!").build());
+      return Response.status(Status.BAD_REQUEST)
+          .entity("Seed list cannot be empty!").build();
     }
     File seedFile = createSeedFile();
     BufferedWriter writer = getWriter(seedFile);
@@ -69,7 +71,7 @@ public class SeedResource extends AbstractResource {
       }
     }
 
-    return seedFile.getParent();
+    return Response.ok().entity(seedFile.getParent()).build();
   }
 
   private void writeUrl(BufferedWriter writer, SeedUrl seedUrl) {

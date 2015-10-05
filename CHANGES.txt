@@ -2,6 +2,9 @@ Nutch Change Log
    
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2123 Seed List REST API returns Text but headers indicate/require JSON
+  (Aron Ahmadia, Sujen Shah via mattmann)
+
 * NUTCH-2086 Nutch 1.X Webui (Sujen Shah, mattmann via lewismc)
 
 * NUTCH-2121 Update javadoc link for Hadoop 2.4.0 in default.properties (Sujen Shah)
