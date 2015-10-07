@@ -2,6 +2,8 @@ Nutch Change Log
    
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2124 Fetcher following same redirect again and again (Yogendra Kumar Soni via snagel)
+
 * NUTCH-2123 Seed List REST API returns Text but headers indicate/require JSON
   (Aron Ahmadia, Sujen Shah via mattmann)
 

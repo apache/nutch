@@ -325,7 +325,7 @@ public class FetcherThread extends Thread {
                     newUrl, refreshTime < Fetcher.PERM_REFRESH_TIME,
                     Fetcher.CONTENT_REDIR);
                 if (redirUrl != null) {
-                  queueRedirect(redirUrl, fit);
+                  fit = queueRedirect(redirUrl, fit);
                 }
               }
               break;
@@ -346,7 +346,7 @@ public class FetcherThread extends Thread {
               Text redirUrl = handleRedirect(fit.url, fit.datum, urlString,
                   newUrl, temp, Fetcher.PROTOCOL_REDIR);
               if (redirUrl != null) {
-                queueRedirect(redirUrl, fit);
+                fit = queueRedirect(redirUrl, fit);
               } else {
                 // stop redirecting
                 redirecting = false;
@@ -485,7 +485,7 @@ public class FetcherThread extends Thread {
     }
   }
 
-  private void queueRedirect(Text redirUrl, FetchItem fit)
+  private FetchItem queueRedirect(Text redirUrl, FetchItem fit)
       throws ScoringFilterException {
     CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED,
         fit.datum.getFetchInterval(), fit.datum.getScore());
@@ -506,6 +506,7 @@ public class FetcherThread extends Thread {
       reporter.incrCounter("FetcherStatus", "FetchItem.notCreated.redirect",
           1);
     }
+    return fit;
   }
 
   private void logError(Text url, String message) {
