@@ -2,9 +2,9 @@ Nutch Change Log
    
 Nutch Current Development 1.11-SNAPSHOT
 
-* NUTCH-2109 Create a brute force click-all-ajax-links utility fucntion for selenium interactive plugin
+* NUTCH-2109 Create a brute force click-all-ajax-links utility fucntion for selenium interactive plugin (Asitang Mishra)
 
-* NUTCH-2108 Add a function to the selenium interactive plugin interface to do multiple manipulation of driver and then return the data
+* NUTCH-2108 Add a function to the selenium interactive plugin interface to do multiple manipulation of driver and then return the data (Asitang Mishra)
 
 * NUTCH-2124 Fetcher following same redirect again and again (Yogendra Kumar Soni via snagel)
 
