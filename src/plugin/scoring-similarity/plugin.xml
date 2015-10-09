@@ -26,8 +26,13 @@
       <library name="scoring-similarity.jar">
          <export name="*"/>
       </library>
+      <library name="lucene-core-4.10.2.jar"/>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+   
    <extension id="org.apache.nutch.scoring.similarity"
               name="SimilarityScoring"
               point="org.apache.nutch.scoring.ScoringFilter">

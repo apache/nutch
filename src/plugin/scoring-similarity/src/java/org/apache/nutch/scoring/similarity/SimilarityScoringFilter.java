@@ -17,6 +17,7 @@
 package org.apache.nutch.scoring.similarity;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
@@ -28,13 +29,12 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.AbstractScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
-import org.apache.nutch.scoring.similarity.cosine.CosineSimilarityModel;
+import org.apache.nutch.scoring.similarity.cosine.CosineSimilarity;
 
 public class SimilarityScoringFilter extends AbstractScoringFilter {
 
   private Configuration conf;
   private SimilarityModel similarityModel;
-
   @Override
   public Configuration getConf() {
     return conf;
@@ -43,7 +43,11 @@ public class SimilarityScoringFilter extends AbstractScoringFilter {
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
-    similarityModel = new CosineSimilarityModel();
+    switch(conf.get("scoring.similarity.model","cosine")){
+    case "cosine":
+      similarityModel = (SimilarityModel) new CosineSimilarity();
+      break;
+    }
     similarityModel.setConf(conf);
   }
 

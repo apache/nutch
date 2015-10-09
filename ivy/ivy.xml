@@ -87,7 +87,8 @@
         <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.1"  conf="*->default"/> 
         <dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.5.1" conf="*->default"/>
         <dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.5.1" conf="*->default"/>	
-              
+        
+        <dependency org="org.apache.lucene" name="lucene-analyzers-common" rev="4.10.2" conf="*->default"></dependency>
 		<!-- WARC artifacts needed  -->
 		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.5" conf="*->default">
 			<exclude module="hadoop-core"/>

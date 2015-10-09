@@ -1390,7 +1390,7 @@ For more detailed information on the working of this filter
 visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 
 <property>
-    <name>scoring.similarity.model.path</name>
+    <name>cosine.goldstandard.file</name>
     <value>goldstandard.txt</value>
     <description>Path to the gold standard file which contains all the relevant text and terms, 
       pertaining to the domain.
