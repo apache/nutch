@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.protocol.interactiveselenium;
+package org.apache.nutch.protocol.interactiveselenium.handlers;
 
 import java.util.List;
 
