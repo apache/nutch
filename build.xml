@@ -1019,6 +1019,7 @@
         <source path="${plugins.dir}/protocol-httpclient/src/test/" />
         <source path="${plugins.dir}/protocol-http/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/test/" />
+      	<source path="${plugins.dir}/protocol-interactiveselenium/src/java"/>
         <source path="${plugins.dir}/protocol-selenium/src/java"/>
         <source path="${plugins.dir}/scoring-depth/src/java/" />
         <source path="${plugins.dir}/scoring-similarity/src/java/" />
