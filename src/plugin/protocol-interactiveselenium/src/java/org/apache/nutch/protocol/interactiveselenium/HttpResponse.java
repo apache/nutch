@@ -251,7 +251,7 @@ public class HttpResponse implements Response {
     handlers = new InteractiveSeleniumHandler[handlerNames.length];
     for (int i = 0; i < handlerNames.length; i++) {
         try {
-            String classToLoad = this.getClass().getPackage().getName() + "." + handlerNames[i];
+            String classToLoad = this.getClass().getPackage().getName() + "." + "handlers." +  handlerNames[i];
             handlers[i] = InteractiveSeleniumHandler.class.cast(Class.forName(classToLoad).newInstance());
             Http.LOG.info("Successfully loaded " + classToLoad);
         } catch (ClassNotFoundException e) {
