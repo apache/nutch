@@ -39,7 +39,7 @@ import java.util.ArrayList;
  * Html Parse filter that classifies the outlinks from the parseresult as
  * relevant or irrelevant based on the parseText's relevancy (using a training
  * file where you can give positive and negative example texts see the
- * description of parsefilter.naivebayes.trainfile) and if found irrelevent it
+ * description of parsefilter.naivebayes.trainfile) and if found irrelevant it
  * gives the link a second chance if it contains any of the words from the list
  * given in parsefilter.naivebayes.wordlist. CAUTION: Set the parser.timeout to
  * -1 or a bigger value than 30, when using this classifier.
@@ -77,17 +77,17 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
 
   public boolean classify(String text) throws IOException {
 
-    // if classified as relevent "1" then return true
-    if (NaiveBayesClassifier.classify(text).equals("1"))
+    // if classified as relevant "1" then return true
+    if (Classify.classify(text).equals("1"))
       return true;
     return false;
   }
 
   public void train() throws Exception {
     // check if the model file exists, if it does then don't train
-    if (!FileSystem.get(conf).exists(new Path("model"))) {
+    if (!FileSystem.get(conf).exists(new Path("naivebayes-model"))) {
       LOG.info("Training the Naive Bayes Model");
-      NaiveBayesClassifier.createModel(inputFilePath);
+      Train.start(inputFilePath);
     } else {
       LOG.info("Model file already exists. Skipping training.");
     }
@@ -165,7 +165,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
 
     if (!filterParse(text)) { // kick in the second tier
       // if parent page found
-      // irrelevent
+      // irrelevant
       LOG.info("ParseFilter: NaiveBayes: Page found irrelevant:: " + url);
       LOG.info("Checking outlinks");
 
@@ -175,10 +175,10 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
             + parse.getData().getOutlinks()[i].getToUrl());
         if (filterUrl(parse.getData().getOutlinks()[i].getToUrl())) {
           tempOutlinks.add(parse.getData().getOutlinks()[i]);
-          LOG.info("ParseFilter: NaiveBayes: found relevent");
+          LOG.info("ParseFilter: NaiveBayes: found relevant");
 
         } else {
-          LOG.info("ParseFilter: NaiveBayes: found irrelevent");
+          LOG.info("ParseFilter: NaiveBayes: found irrelevant");
         }
       }
       out = new Outlink[tempOutlinks.size()];
@@ -188,7 +188,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
       parse.getData().setOutlinks(out);
 
     } else {
-      LOG.info("ParseFilter: NaiveBayes: Page found relevent:: " + url);
+      LOG.info("ParseFilter: NaiveBayes: Page found relevant:: " + url);
     }
 
     return parseResult;
