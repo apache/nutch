@@ -80,6 +80,10 @@ public class DumpFileUtil {
             LOG.info("File extension is too long. Truncated to {} characters.", MAX_LENGTH_OF_EXTENSION);
             fileExtension = StringUtils.substring(fileExtension, 0, MAX_LENGTH_OF_EXTENSION);
         }
+	
+	// Added to prevent FileNotFoundException (Invalid Argument) - in *nix environment
+        fileBaseName = fileBaseName.replaceAll("\\?", "");
+        fileExtension = fileExtension.replaceAll("\\?", "");
 
         return String.format(FILENAME_PATTERN, md5, fileBaseName, fileExtension);
     }

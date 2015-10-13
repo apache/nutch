@@ -219,8 +219,26 @@ public class FileDumper {
   
                 if (!outputFile.exists()) {
                   LOG.info("Writing: [" + outputFullPath + "]");
-                  FileOutputStream output = new FileOutputStream(outputFile);
-                  IOUtils.write(content.getContent(), output);
+
+		  // Modified to prevent FileNotFoundException (Invalid Argument) 
+		  FileOutputStream output = null;
+		  try {
+                        output = new FileOutputStream(outputFile);
+                        IOUtils.write(content.getContent(), output);
+                  }
+                  catch (Exception e) {
+                        LOG.warn("Write Error: [" + outputFullPath + "]");
+			e.printStackTrace();
+                  }
+                  finally {
+                        if (output != null) {
+                                output.flush();
+				try {
+                                	output.close();
+				} catch (Exception ignore) {
+				}
+                        }
+                  }
                   fileCount++;
                 } else {
                   LOG.info("Skipping writing: [" + outputFullPath
