@@ -32,10 +32,11 @@ public class DefalultMultiInteractionHandler implements
   private static final Logger LOG = LoggerFactory
       .getLogger(DefalultMultiInteractionHandler.class);
 
-  public void processDriver(WebDriver driver) {
+  public String processDriver(WebDriver driver) {
+    // loop and get multiple pages in this string
+    String accumulatedData = "";
     try {
-      // loop and get multiple pages in this string
-      String accumulatedData = "";
+      
       // append the string to the last page's driver
       JavascriptExecutor jsx = (JavascriptExecutor) driver;
       jsx.executeScript("document.body.innerHTML=document.body.innerHTML "
@@ -43,6 +44,7 @@ public class DefalultMultiInteractionHandler implements
     } catch (Exception e) {
       LOG.info(StringUtils.stringifyException(e));
     }
+    return accumulatedData;
   }
 
   public boolean shouldProcessURL(String URL) {
