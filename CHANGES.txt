@@ -2,6 +2,8 @@ Nutch Change Log
    
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2142 Nutch File Dump - FileNotFoundException (Invalid Argument) Error (Karanjeet Singh via mattmann)
+
 * NUTCH-2136 Implement a different version of Naive Bayes Parse Filter (Asitang Mishra)
 
 * NUTCH-2109 Create a brute force click-all-ajax-links utility fucntion for selenium interactive plugin (Asitang Mishra)
