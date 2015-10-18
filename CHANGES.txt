@@ -1,5 +1,5 @@
 Nutch Change Log
-   
+    
 Nutch Current Development 1.11-SNAPSHOT
 
 * NUTCH-2141 Change the InteractiveSelenium plugin handler Interface to return page content
