@@ -29,6 +29,7 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
@@ -129,6 +130,9 @@ public class Ftp implements Protocol {
         response = new FtpResponse(u, datum, this, getConf()); // make a request
 
         int code = response.getCode();
+        datum.getMetaData().put(Nutch.PROTOCOL_STATUS_CODE_KEY,
+          new Text(Integer.toString(code)));
+        
 
         if (code == 200) { // got a good response
           return new ProtocolOutput(response.toContent()); // return it

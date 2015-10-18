@@ -41,6 +41,8 @@ public interface Nutch {
 	public static final Text WRITABLE_GENERATE_TIME_KEY = new Text(
 			GENERATE_TIME_KEY);
 
+	public static final Text PROTOCOL_STATUS_CODE_KEY = new Text("nutch.protocol.code");
+
 	public static final String PROTO_STATUS_KEY = "_pst_";
 
 	public static final Text WRITABLE_PROTO_STATUS_KEY = new Text(

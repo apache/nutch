@@ -20,6 +20,6 @@ package org.apache.nutch.protocol.interactiveselenium;
 import org.openqa.selenium.WebDriver;
 
 public interface InteractiveSeleniumHandler {
-    public void processDriver(WebDriver driver);
+    public String processDriver(WebDriver driver);
     public boolean shouldProcessURL(String URL);
 }

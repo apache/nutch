@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
@@ -265,6 +266,9 @@ public abstract class HttpBase implements Protocol {
       }
 
       int code = response.getCode();
+      datum.getMetaData().put(Nutch.PROTOCOL_STATUS_CODE_KEY,
+        new Text(Integer.toString(code)));
+
       byte[] content = response.getContent();
       Content c = new Content(u.toString(), u.toString(),
           (content == null ? EMPTY_CONTENT : content),
