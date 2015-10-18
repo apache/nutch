@@ -277,8 +277,7 @@ public class HttpResponse implements Response {
 
         WebDriver driver = HttpWebClient.getDriverForPage(url.toString(), conf);
 
-        handler.processDriver(driver);
-        processedPage += HttpWebClient.getHTMLContent(driver, conf);
+        processedPage += handler.processDriver(driver);
 
         HttpWebClient.cleanUpDriver(driver);
     }

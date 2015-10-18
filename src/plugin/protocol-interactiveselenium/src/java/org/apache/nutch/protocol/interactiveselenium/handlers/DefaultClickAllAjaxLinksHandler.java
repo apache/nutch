@@ -38,10 +38,11 @@ public class DefaultClickAllAjaxLinksHandler implements InteractiveSeleniumHandl
   private static final Logger LOG = LoggerFactory
       .getLogger(DefaultClickAllAjaxLinksHandler.class);
 
-  public void processDriver(WebDriver driver) {
-
+  public String processDriver(WebDriver driver) {
+    
+    String accumulatedData = "";
     try {
-      String accumulatedData = "";
+      
 
       driver.findElement(By.tagName("body")).getAttribute("innerHTML");
       Configuration conf = NutchConfiguration.create();
@@ -78,6 +79,7 @@ public class DefaultClickAllAjaxLinksHandler implements InteractiveSeleniumHandl
     } catch (Exception e) {
       LOG.info(StringUtils.stringifyException(e));
     }
+    return accumulatedData;
   }
 
   public boolean shouldProcessURL(String URL) {

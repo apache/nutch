@@ -2,6 +2,9 @@ Nutch Change Log
    
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2141 Change the InteractiveSelenium plugin handler Interface to return page content
+  (Balaji Gurumurthy via mattmann)
+
 * NUTCH-2129 Add protocol status tracking to crawl datum (Michael Joyce via mattmann)
 
 * NUTCH-2142 Nutch File Dump - FileNotFoundException (Invalid Argument) Error (Karanjeet Singh via mattmann)
