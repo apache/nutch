@@ -49,6 +49,10 @@
       name="Nutch URL Filter"/>
 
 <extension-point
+        id="org.apache.nutch.net.URLExemptionFilter"
+        name="Nutch URL Ignore Exemption Filter"/>
+
+<extension-point
       id="org.apache.nutch.net.URLNormalizer"
       name="Nutch URL Normalizer"/>
 
