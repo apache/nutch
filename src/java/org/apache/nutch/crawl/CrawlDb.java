@@ -28,8 +28,10 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.*;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
@@ -171,6 +173,23 @@ public class CrawlDb extends NutchTool implements Tool {
       fs.delete(old, true);
     Path lock = new Path(crawlDb, LOCK_NAME);
     LockUtil.removeLockFile(fs, lock);
+  }
+
+  public static void install(Job job, Path crawlDb) throws IOException {
+    Configuration conf = job.getConfiguration();
+    boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
+    FileSystem fs = FileSystem.get(conf);
+    Path old = new Path(crawlDb, "old");
+    Path current = new Path(crawlDb, CURRENT_NAME);
+    Path tempCrawlDb = org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+        .getOutputPath(job);
+    FSUtils.replace(fs, old, current, true);
+    FSUtils.replace(fs, current, tempCrawlDb, true);
+    Path lock = new Path(crawlDb, LOCK_NAME);
+    LockUtil.removeLockFile(fs, lock);
+    if (!preserveBackup && fs.exists(old)) {
+      fs.delete(old, true);
+    }
   }
 
   public static void main(String[] args) throws Exception {
