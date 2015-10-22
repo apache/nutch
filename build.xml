@@ -178,6 +178,7 @@
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
       <packageset dir="${plugins.dir}/index-replace/src/java"/>
       <packageset dir="${plugins.dir}/index-static/src/java"/>
+      <packageset dir="${plugins.dir}/index-links/src/java"/>
       <packageset dir="${plugins.dir}/mimetype-filter/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
@@ -589,6 +590,7 @@
       <packageset dir="${plugins.dir}/index-more/src/java"/>
       <packageset dir="${plugins.dir}/index-replace/src/java"/>
       <packageset dir="${plugins.dir}/index-static/src/java"/>
+      <packageset dir="${plugins.dir}/index-links/src/java"/>
       <packageset dir="${plugins.dir}/mimetype-filter/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
@@ -979,6 +981,8 @@
         <source path="${plugins.dir}/index-basic/src/java/" />
         <source path="${plugins.dir}/index-basic/src/test/" />
         <source path="${plugins.dir}/index-geoip/src/java/" />
+        <source path="${plugins.dir}/index-links/src/java/" />
+        <source path="${plugins.dir}/index-links/src/test/" />
         <source path="${plugins.dir}/mimetype-filter/src/java/" />
         <source path="${plugins.dir}/mimetype-filter/src/test/" />
         <source path="${plugins.dir}/indexer-dummy/src/java/" />

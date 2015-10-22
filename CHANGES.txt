@@ -2,6 +2,8 @@ Nutch Change Log
     
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2139 Basic plugin to index inlinks and outlinks (jorgelbg)
+
 * NUTCH-2128 Review and update mapred --> mapreduce config params in crawl script (lewismc)
 
 * NUTCH-2141 Change the InteractiveSelenium plugin handler Interface to return page content
