@@ -43,14 +43,14 @@ import java.util.Set;
  * file:
  *
  * <property>
- *   <name>outlinks.host.ignore</name>
+ *   <name>index.links.outlinks.host.ignore</name>
  *   <value>true</value>
  * </property>
  *
  * The same configuration is available for inlinks:
  *
  * <property>
- *   <name>inlinks.host.ignore</name>
+ *   <name>index.links.inlinks.host.ignore</name>
  *   <value>true</value>
  * </property>
  *
@@ -58,7 +58,7 @@ import java.util.Set;
  * following to your configuration file.
  *
  * <property>
- *   <name>links.hosts.only</name>
+ *   <name>index.links.hosts.only</name>
  *   <value>false</value>
  * </property>
  *
