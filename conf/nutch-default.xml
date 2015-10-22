@@ -1896,4 +1896,37 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<!-- index-links plugin -->
+
+<property>
+  <name>index.links.outlinks.host.ignore</name>
+  <value>false</value>
+  <description>
+    Ignore outlinks that point out to the same host as the URL being indexed. 
+    By default all outlinks are indexed. If db.ignore.internal.links is true (default
+    value), this setting does nothing since the internal links are already
+    ignored.
+  </description>
+</property>
+
+<property>
+  <name>index.links.inlinks.host.ignore</name>
+  <value>false</value>
+  <description>
+    Ignore inlinks coming from the same host as the URL being indexed. By default 
+    all inlinks are indexed. If db.ignore.internal.links is true (default
+    value), this setting does nothing since the internal links are already
+    ignored.
+  </description>
+</property>
+
+<property>
+  <name>index.links.hosts.only</name>
+  <value>false</value>
+  <description>
+    This force the index-links plugin to only index the host portion of the inlinks
+    or outlinks.
+  </description>
+</property>
+
 </configuration>
