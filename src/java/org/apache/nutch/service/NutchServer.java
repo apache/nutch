@@ -49,6 +49,7 @@ import org.apache.nutch.service.resources.AdminResource;
 import org.apache.nutch.service.resources.ConfigResource;
 import org.apache.nutch.service.resources.DbResource;
 import org.apache.nutch.service.resources.JobResource;
+import org.apache.nutch.service.resources.ReaderResouce;
 import org.apache.nutch.service.resources.SeedResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,6 +135,7 @@ public class NutchServer {
     resources.add(DbResource.class);
     resources.add(AdminResource.class);
     resources.add(SeedResource.class);
+    resources.add(ReaderResouce.class);
     return resources;
   }
 

@@ -2,6 +2,8 @@ Nutch Change Log
     
 Nutch Current Development 1.11-SNAPSHOT
 
+* NUTCH-2149 REST endpoint to read Nutch sequence files (Sujen Shah)
+
 * NUTCH-2139 Basic plugin to index inlinks and outlinks (jorgelbg)
 
 * NUTCH-2128 Review and update mapred --> mapreduce config params in crawl script (lewismc)
