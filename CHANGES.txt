@@ -1,6 +1,7 @@
 Nutch Change Log
     
-Nutch Current Development 1.11-SNAPSHOT
+Nutch Current Development 1.11 25/10/2015 (dd/mm/yyyy)
+Release Report: http://s.apache.org/nutch11
 
 * NUTCH-2149 REST endpoint to read Nutch sequence files (Sujen Shah)
 
