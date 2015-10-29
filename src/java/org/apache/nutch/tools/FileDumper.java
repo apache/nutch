@@ -126,12 +126,16 @@ public class FileDumper {
    * @param mimeTypes
    *          an array of mime types we have to dump, all others will be
    *          filtered out.
+   * @param flatDir
+   *          a boolean flag specifying whether the output directory should contain
+   *          only files instead of using nested directories to prevent naming
+   *          conflicts.
    * @param mimeTypeStats
-   * 	      a flag indicating whether mimetype stats should be displayed
-   * 	      instead of dumping files.
+   *          a flag indicating whether mimetype stats should be displayed
+   *          instead of dumping files.
    * @throws Exception
    */
-  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean mimeTypeStats)
+  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean flatDir, boolean mimeTypeStats)
       throws Exception {
     if (mimeTypes == null)
       LOG.info("Accepting all mimetypes.");
@@ -150,7 +154,7 @@ public class FileDumper {
       }
     });
     if (segmentDirs == null) {
-      System.err.println("No segment directories found in ["
+      LOG.error("No segment directories found in ["
           + segmentRootDir.getAbsolutePath() + "]");
       return;
     }
@@ -211,38 +215,42 @@ public class FileDumper {
           if (filter) {
             if (!mimeTypeStats) {
               String md5Ofurl = DumpFileUtil.getUrlMD5(url);
-              String fullDir = DumpFileUtil.createTwoLevelsDirectory(outputDir.getAbsolutePath(), md5Ofurl);
-  
+
+              String fullDir = outputDir.getAbsolutePath();
+              if (!flatDir) {
+                fullDir = DumpFileUtil.createTwoLevelsDirectory(fullDir, md5Ofurl);
+              }
+
               if (!Strings.isNullOrEmpty(fullDir)) {
                 String outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
                 File outputFile = new File(outputFullPath);
-  
+
                 if (!outputFile.exists()) {
                   LOG.info("Writing: [" + outputFullPath + "]");
 
-		  // Modified to prevent FileNotFoundException (Invalid Argument) 
-		  FileOutputStream output = null;
-		  try {
-                        output = new FileOutputStream(outputFile);
-                        IOUtils.write(content.getContent(), output);
+                  // Modified to prevent FileNotFoundException (Invalid Argument) 
+                  FileOutputStream output = null;
+                  try {
+                    output = new FileOutputStream(outputFile);
+                    IOUtils.write(content.getContent(), output);
                   }
                   catch (Exception e) {
-                        LOG.warn("Write Error: [" + outputFullPath + "]");
-			e.printStackTrace();
+                    LOG.warn("Write Error: [" + outputFullPath + "]");
+                    e.printStackTrace();
                   }
                   finally {
-                        if (output != null) {
-                                output.flush();
-				try {
-                                	output.close();
-				} catch (Exception ignore) {
-				}
-                        }
+                    if (output != null) {
+                      output.flush();
+                      try {
+                        output.close();
+                      } catch (Exception ignore) {
+                      }
+                    }
                   }
                   fileCount++;
                 } else {
                   LOG.info("Skipping writing: [" + outputFullPath
-                          + "]: file already exists");
+                      + "]: file already exists");
                 }
               }
             }
@@ -282,27 +290,33 @@ public class FileDumper {
     // argument options
     @SuppressWarnings("static-access")
     Option outputOpt = OptionBuilder
-        .withArgName("outputDir")
-        .hasArg()
-        .withDescription(
-            "output directory (which will be created) to host the raw data")
-        .create("outputDir");
+    .withArgName("outputDir")
+    .hasArg()
+    .withDescription(
+        "output directory (which will be created) to host the raw data")
+    .create("outputDir");
     @SuppressWarnings("static-access")
     Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
-        .withDescription("the segment(s) to use").create("segment");
+    .withDescription("the segment(s) to use").create("segment");
     @SuppressWarnings("static-access")
     Option mimeOpt = OptionBuilder
-        .withArgName("mimetype")
-        .hasArgs()
-        .withDescription(
-            "an optional list of mimetypes to dump, excluding all others. Defaults to all.")
-        .create("mimetype");
+    .withArgName("mimetype")
+    .hasArgs()
+    .withDescription(
+        "an optional list of mimetypes to dump, excluding all others. Defaults to all.")
+    .create("mimetype");
     @SuppressWarnings("static-access")
     Option mimeStat = OptionBuilder
-        .withArgName("mimeStats")
-        .withDescription(
-            "only display mimetype stats for the segment(s) instead of dumping file.")
-        .create("mimeStats");
+    .withArgName("mimeStats")
+    .withDescription(
+        "only display mimetype stats for the segment(s) instead of dumping file.")
+    .create("mimeStats");
+    @SuppressWarnings("static-access")
+    Option dirStructureOpt = OptionBuilder
+    .withArgName("flatdir")
+    .withDescription(
+        "optionally specify that the output directory should only contain files.")
+    .create("flatdir");
 
     // create the options
     Options options = new Options();
@@ -311,6 +325,7 @@ public class FileDumper {
     options.addOption(segOpt);
     options.addOption(mimeOpt);
     options.addOption(mimeStat);
+    options.addOption(dirStructureOpt);
 
     CommandLineParser parser = new GnuParser();
     try {
@@ -325,22 +340,23 @@ public class FileDumper {
       File outputDir = new File(line.getOptionValue("outputDir"));
       File segmentRootDir = new File(line.getOptionValue("segment"));
       String[] mimeTypes = line.getOptionValues("mimetype");
+      boolean flatDir = line.hasOption("flatdir");
       boolean shouldDisplayStats = false;
       if (line.hasOption("mimeStats"))
         shouldDisplayStats = true;
 
       if (!outputDir.exists()) {
         LOG.warn("Output directory: [" + outputDir.getAbsolutePath()
-            + "]: does not exist, creating it.");
-	if (!shouldDisplayStats) {
+        + "]: does not exist, creating it.");
+        if (!shouldDisplayStats) {
           if (!outputDir.mkdirs())
             throw new Exception("Unable to create: ["
-              + outputDir.getAbsolutePath() + "]");
+                + outputDir.getAbsolutePath() + "]");
         }
       }
 
       FileDumper dumper = new FileDumper();
-      dumper.dump(outputDir, segmentRootDir, mimeTypes, shouldDisplayStats);
+      dumper.dump(outputDir, segmentRootDir, mimeTypes, flatDir, shouldDisplayStats);
     } catch (Exception e) {
       LOG.error("FileDumper: " + StringUtils.stringifyException(e));
       e.printStackTrace();
