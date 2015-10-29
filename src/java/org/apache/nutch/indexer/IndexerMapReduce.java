@@ -329,7 +329,7 @@ public class IndexerMapReduce extends Configured implements
     } catch (final ScoringFilterException e) {
       reporter.incrCounter("IndexerStatus", "errors (ScoringFilter)", 1);
       if (LOG.isWarnEnabled()) {
-        LOG.warn("Error calculating score " + key + ": " + e);
+        LOG.warn("Error calculating score {}: {}", key, e);
       }
       return;
     }
@@ -362,13 +362,13 @@ public class IndexerMapReduce extends Configured implements
   public static void initMRJob(Path crawlDb, Path linkDb,
       Collection<Path> segments, JobConf job, boolean addBinaryContent) {
 
-    LOG.info("IndexerMapReduce: crawldb: " + crawlDb);
+    LOG.info("IndexerMapReduce: crawldb: {}", crawlDb);
 
     if (linkDb != null)
-      LOG.info("IndexerMapReduce: linkdb: " + linkDb);
+      LOG.info("IndexerMapReduce: linkdb: {}", linkDb);
 
     for (final Path segment : segments) {
-      LOG.info("IndexerMapReduces: adding segment: " + segment);
+      LOG.info("IndexerMapReduces: adding segment: {}", segment);
       FileInputFormat.addInputPath(job, new Path(segment,
           CrawlDatum.FETCH_DIR_NAME));
       FileInputFormat.addInputPath(job, new Path(segment,

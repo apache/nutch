@@ -276,7 +276,7 @@
 		<arg value="-DrepositoryId=${maven-repository-id}" />
 		<arg value="-DpomFile=pom.xml" />
 		<arg value="-Dfile=${maven-jar}" />
-                       <arg value="-Papache-release" />
+    <arg value="-Papache-release" />
 	</artifact:mvn>
 
 	<!-- sign and deploy the sources artifact -->
@@ -287,7 +287,7 @@
 		<arg value="-DpomFile=pom.xml" />
 		<arg value="-Dfile=${maven-sources-jar}" />
 		<arg value="-Dclassifier=sources" />
-                       <arg value="-Papache-release" />
+    <arg value="-Papache-release" />
 	</artifact:mvn>
 
 	<!-- sign and deploy the javadoc artifact -->
@@ -298,8 +298,33 @@
 		<arg value="-DpomFile=pom.xml" />
 		<arg value="-Dfile=${maven-javadoc-jar}" />
 		<arg value="-Dclassifier=javadoc" />
-                       <arg value="-Papache-release" />
+    <arg value="-Papache-release" />
 	</artifact:mvn>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Generate REST API Documentation with Miredot                       -->
+  <!-- ================================================================== -->
+  <target name="restdocs" description="--> generate REST API Documentation with Miredot">
+
+    <!-- generate a pom file -->
+    <ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml" templatefile="ivy/mvn.template">
+      <mapping conf="default" scope="compile"/>
+      <mapping conf="runtime" scope="runtime"/>
+    </ivy:makepom>
+
+    <!--artifact:dependencies pathId="dependency.classpath">
+      <dependency groupId="log4j" artifactId="log4j" version="1.2.15" >
+        <exclusion groupId="javax.jms" artifactId="jms" />
+        <exclusion groupId="com.sun.jdmk" artifactId="jmxtools" />
+        <exclusion groupId="com.sun.jmx" artifactId="jmxri" />
+      </dependency>
+    </artifact:dependencies-->
+
+    <artifact:mvn>
+      <arg value="test"/>
+      <arg value="-e"/>
+    </artifact:mvn>
   </target>
 
   <!-- ================================================================== -->
@@ -934,7 +959,7 @@
   </path>
   
   <!-- target: ant-eclipse-download   =================================== -->
-  <target name="ant-eclipse-download" description="Downloads the ant-eclipse binary.">
+  <target name="ant-eclipse-download" description="--> downloads the ant-eclipse binary.">
     <get src="http://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
          dest="${build.dir}/ant-eclipse-1.0.bin.tar.bz2" usetimestamp="false" />
 
@@ -951,7 +976,7 @@
   <!-- target: eclipse   ================================================ -->
   <target name="eclipse" 
           depends="clean-eclipse,init,resolve-test,job,ant-eclipse-download"
-          description="Create eclipse project files">
+          description="--> create eclipse project files">
 
 	     <pathconvert property="eclipse.project">
 	       <path path="${basedir}"/>

@@ -103,14 +103,14 @@ public class IndexingJob extends NutchTool implements Tool {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
-    LOG.info("Indexer: starting at " + sdf.format(start));
+    LOG.info("Indexer: starting at {}", sdf.format(start));
 
     final JobConf job = new NutchJob(getConf());
     job.setJobName("Indexer");
 
-    LOG.info("Indexer: deleting gone documents: " + deleteGone);
-    LOG.info("Indexer: URL filtering: " + filter);
-    LOG.info("Indexer: URL normalizing: " + normalize);
+    LOG.info("Indexer: deleting gone documents: {}", deleteGone);
+    LOG.info("Indexer: URL filtering: {}", filter);
+    LOG.info("Indexer: URL normalizing: {}", normalize);
     if (addBinaryContent) {
       if (base64) {
         LOG.info("Indexer: adding binary content as Base64");
@@ -222,7 +222,7 @@ public class IndexingJob extends NutchTool implements Tool {
       index(crawlDb, linkDb, segments, noCommit, deleteGone, params, filter, normalize, addBinaryContent, base64);
       return 0;
     } catch (final Exception e) {
-      LOG.error("Indexer: " + StringUtils.stringifyException(e));
+      LOG.error("Indexer: {}", StringUtils.stringifyException(e));
       return -1;
     }
   }

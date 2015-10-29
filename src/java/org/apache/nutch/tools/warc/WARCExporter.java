@@ -247,7 +247,7 @@ public class WARCExporter extends Configured implements Tool {
         reporter.getCounter("WARCExporter", "records generated").increment(1);
       } catch (IOException exception) {
         LOG.error("Exception when generating WARC record for {} : {}", key,
-            exception.getMessage(), exception);
+            exception.getMessage());
         reporter.getCounter("WARCExporter", "exception").increment(1);
       }
 
@@ -263,7 +263,7 @@ public class WARCExporter extends Configured implements Tool {
     job.setJobName("warc-exporter " + output);
 
     for (final Path segment : segments) {
-      LOG.info("warc-exporter: adding segment: " + segment);
+      LOG.info("warc-exporter: adding segment: {}", segment);
       FileInputFormat.addInputPath(job, new Path(segment, Content.DIR_NAME));
       FileInputFormat.addInputPath(job,
           new Path(segment, CrawlDatum.FETCH_DIR_NAME));

@@ -17,7 +17,6 @@
 
 package org.apache.nutch.service;
 
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -101,7 +100,6 @@ public class NutchServer {
     sf.setResourceProviders(getResourceProviders());
     sf.setProvider(new JacksonJaxbJsonProvider());
 
-
   }
 
   public static NutchServer getInstance() {
@@ -124,8 +122,7 @@ public class NutchServer {
 
     started = System.currentTimeMillis();
     running = true;
-    LOG.info("Started Nutch Server on {}:{} at {}", host, port, started);
-    System.out.println("Started Nutch Server on " + host + ":" + port + " at " + started);
+    LOG.info("Started Nutch Server on {}:{} at {}", new Object[] {host, port, started});
   }
 
   private List<Class<?>> getClasses() {

@@ -3,6 +3,8 @@ Nutch Change Log
 Nutch Current Development 1.11 25/10/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch11
 
+* NUTCH-1800 Documentation for Nutch 1.X and 2.X REST APIs (lewismc)
+
 * NUTCH-2149 REST endpoint to read Nutch sequence files (Sujen Shah)
 
 * NUTCH-2139 Basic plugin to index inlinks and outlinks (jorgelbg)
