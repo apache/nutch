@@ -16,13 +16,14 @@
  */
 package org.apache.nutch.service.model.request;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class DbQuery {
 
   private String confId;
   private String type;
-  private Map<String, String> args;
+  private Map<String, String> args = new HashMap<String, String>();
   private String crawlId;
 
   public String getConfId() {

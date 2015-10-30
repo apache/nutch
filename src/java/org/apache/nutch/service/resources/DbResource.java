@@ -30,6 +30,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDbReader;
@@ -44,8 +45,17 @@ public class DbResource extends AbstractResource {
   @POST
   @Path(value = "/crawldb")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Object readdb(DbQuery dbQuery){
+  public Response readdb(DbQuery dbQuery){
+    if(dbQuery == null)
+      return Response.status(Status.BAD_REQUEST).build();
+    
     Configuration conf = configManager.get(dbQuery.getConfId());
+    if(conf == null){
+      conf = configManager.get(ConfigResource.DEFAULT);
+    }
+    if(dbQuery.getCrawlId() == null || dbQuery.getType() == null){
+      return Response.status(Status.BAD_REQUEST).build();
+    }
     String type = dbQuery.getType();
 
     if(type.equalsIgnoreCase("stats")){
@@ -63,13 +73,13 @@ public class DbResource extends AbstractResource {
     return null;
 
   }	
-  
+
   @GET
   @Path(value="/fetchdb")
   public List<FetchNodeDbInfo> fetchDb(@DefaultValue("0")@QueryParam("to")int to, @DefaultValue("0")@QueryParam("from")int from){
     List<FetchNodeDbInfo> listOfFetchedNodes = new ArrayList<FetchNodeDbInfo>();
     Map<Integer, FetchNode> fetchNodedbMap = FetchNodeDb.getInstance().getFetchNodeDb();
-    
+
     if(to ==0 || to>fetchNodedbMap.size()){
       to = fetchNodedbMap.size();
     }
@@ -85,7 +95,7 @@ public class DbResource extends AbstractResource {
       fdbInfo.setChildNodes(node.getOutlinks());
       listOfFetchedNodes.add(fdbInfo);
     }
-    
+
     return listOfFetchedNodes;
   }
   @SuppressWarnings("resource")
@@ -95,7 +105,7 @@ public class DbResource extends AbstractResource {
       return Response.ok(dbr.query(args, conf, "stats", crawlId)).build();
     }catch(Exception e){
       e.printStackTrace();
-      return Response.serverError().entity(e.getMessage()).build();
+      return Response.serverError().entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }
   }
 
@@ -106,7 +116,7 @@ public class DbResource extends AbstractResource {
       return Response.ok(dbr.query(args, conf, "dump", crawlId), MediaType.APPLICATION_OCTET_STREAM).build();
     }catch(Exception e){
       e.printStackTrace();
-      return Response.serverError().entity(e.getMessage()).build();
+      return Response.serverError().entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }
   }
 
@@ -117,7 +127,7 @@ public class DbResource extends AbstractResource {
       return Response.ok(dbr.query(args, conf, "topN", crawlId), MediaType.APPLICATION_OCTET_STREAM).build();
     }catch(Exception e){
       e.printStackTrace();
-      return Response.serverError().entity(e.getMessage()).build();
+      return Response.serverError().entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }		
   }
 
@@ -127,7 +137,7 @@ public class DbResource extends AbstractResource {
       return Response.ok(dbr.query(args, conf, "url", crawlId)).build();
     }catch(Exception e){
       e.printStackTrace();
-      return Response.serverError().entity(e.getMessage()).build();
+      return Response.serverError().entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
     }
   }
 }

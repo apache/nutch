@@ -3,6 +3,8 @@ Nutch Change Log
 Nutch 1.11 Release 25/10/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch11
 
+* NUTCH-2154 Nutch REST API (DB) suffering NullPointerException (Aron Ahmadia, Sujen Shah via mattmann)
+
 * NUTCH-2150 Add protocolstats utility (Michael Joyce via mattmann)
 
 * NUTCH-2146 hashCode on the Outlink class (jorgelbg via mattmann)
