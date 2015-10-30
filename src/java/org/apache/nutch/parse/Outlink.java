@@ -128,4 +128,8 @@ public class Outlink implements Writable {
     return repr.toString();
   }
 
+  @Override
+  public int hashCode() {
+    return toUrl.hashCode() ^ anchor.hashCode();
+  }
 }
