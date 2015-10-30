@@ -80,6 +80,7 @@ if [ $# = 0 ]; then
   echo "  parsechecker      check the parser for a given url"
   echo "  indexchecker      check the indexing filters for a given url"
   echo "  domainstats       calculate domain statistics from crawldb"
+  echo "  crawlcomplete     calculate crawl completion stats from crawldb"
   echo "  webgraph          generate a web graph from existing segments"
   echo "  linkrank          run a link analysis program on the generated web graph"
   echo "  scoreupdater      updates the crawldb with linkrank scores"
@@ -260,6 +261,8 @@ elif [ "$COMMAND" = "indexchecker" ] ; then
   CLASS=org.apache.nutch.indexer.IndexingFiltersChecker
 elif [ "$COMMAND" = "domainstats" ] ; then 
   CLASS=org.apache.nutch.util.domain.DomainStatistics
+elif [ "$COMMAND" = "crawlcomplete" ] ; then
+  CLASS=org.apache.nutch.util.CrawlCompletionStats
 elif [ "$COMMAND" = "webgraph" ] ; then
   CLASS=org.apache.nutch.scoring.webgraph.WebGraph
 elif [ "$COMMAND" = "linkrank" ] ; then

@@ -1,7 +1,9 @@
 Nutch Change Log
     
-Nutch Current Development 1.11 25/10/2015 (dd/mm/yyyy)
+Nutch 1.11 Release 25/10/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch11
+
+* NUTCH-2155 Create a "crawl completeness" utility (Michael Joyce via mattmann)
 
 * NUTCH-1988 Make nested output directory dump optional... again (Michael Joyce via lewismc)
 
