@@ -330,7 +330,7 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
 
             reverseKey = reverseUrl(url);
             config.setReverseKeyValue(
-                reverseKey.replace("/", "_") + "_" + DigestUtils.shaHex(url)
+                reverseKey.replace("/", "_") + "_" + DigestUtils.sha1Hex(url)
                     + "_" + timestamp);
           }
 

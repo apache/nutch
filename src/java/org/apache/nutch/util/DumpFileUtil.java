@@ -89,7 +89,7 @@ public class DumpFileUtil {
     }
     
     public static String createFileNameFromUrl(String basePath, String reverseKey, String urlString, String epochScrapeTime, String fileExtension, boolean makeDir) {
-		String fullDirPath = basePath + File.separator + reverseKey + File.separator + DigestUtils.shaHex(urlString);
+		String fullDirPath = basePath + File.separator + reverseKey + File.separator + DigestUtils.sha1Hex(urlString);
 		
 		if (makeDir) {
 	        try {

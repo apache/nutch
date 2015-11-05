@@ -22,7 +22,6 @@ public class VerticalMenu extends Navbar {
 
   public VerticalMenu(String componentId) {
     super(componentId);
-    // TODO Auto-generated constructor stub
   }
 
 }

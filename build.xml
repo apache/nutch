@@ -104,7 +104,12 @@
      deprecation="${javac.deprecation}">
       <compilerarg value="-Xlint:-path"/>
       <classpath refid="classpath"/>
-    </javac>    
+    </javac>
+    <copy todir="${build.classes}">
+      <fileset dir="${src.dir}" includes="**/*.html" />
+      <fileset dir="${src.dir}" includes="**/*.css" />
+      <fileset dir="${src.dir}" includes="**/*.properties" />
+    </copy>    
   </target>
 
   <target name="compile-plugins" depends="init, resolve-default" description="--> compile plugins only">
