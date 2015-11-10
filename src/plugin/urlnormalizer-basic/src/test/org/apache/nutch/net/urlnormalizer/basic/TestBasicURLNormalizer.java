@@ -34,6 +34,72 @@ public class TestBasicURLNormalizer {
     conf = NutchConfiguration.create();
     normalizer.setConf(conf);
   }
+  
+  @Test
+  public void testNUTCH1098() throws Exception {
+    // check that % encoding is normalized
+    normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
+
+    // check that % encoding works correctly at end of URL
+    normalizeTest("http://foo.com/%66oo.htm%6c", "http://foo.com/foo.html");
+    normalizeTest("http://foo.com/%66oo.ht%6dl", "http://foo.com/foo.html");
+
+    // check that % decoder do not overlap strings
+    normalizeTest("http://foo.com/%66oo.ht%6d%6c", "http://foo.com/foo.html");
+    
+    // check that % decoder leaves high bit chars alone
+    normalizeTest("http://foo.com/%66oo.htm%C0", "http://foo.com/foo.htm%C0");
+
+    // check that % decoder leaves control chars alone
+    normalizeTest("http://foo.com/%66oo.htm%1A", "http://foo.com/foo.htm%1A");
+
+    // check that % decoder converts to upper case letters
+    normalizeTest("http://foo.com/%66oo.htm%c0", "http://foo.com/foo.htm%C0");
+
+    // check that % decoder leaves encoded spaces alone
+    normalizeTest("http://foo.com/you%20too.html", "http://foo.com/you%20too.html");
+
+    // check that spaces are encoded into %20
+    normalizeTest("http://foo.com/you too.html", "http://foo.com/you%20too.html");
+
+    // check that encoded # are not decoded
+    normalizeTest("http://foo.com/file.html%23cz", "http://foo.com/file.html%23cz");
+
+    // check that encoded / are not decoded
+    normalizeTest("http://foo.com/fast/dir%2fcz", "http://foo.com/fast/dir%2Fcz");
+
+    // check that control chars are encoded
+    normalizeTest("http://foo.com/\u001a!", "http://foo.com/%1A!");
+
+    // check that control chars are always encoded into 2 digits
+    normalizeTest("http://foo.com/\u0001!", "http://foo.com/%01!");
+
+    // check encoding of spanish chars
+    normalizeTest("http://mydomain.com/en Espa\u00F1ol.aspx", "http://mydomain.com/en%20Espa%C3%B1ol.aspx");
+  }
+  
+  @Test
+  public void testNUTCH2064() throws Exception {
+    // Ampersand and colon and other punctuation characters are not to be unescaped
+    normalizeTest("http://x.com/s?q=a%26b&m=10", "http://x.com/s?q=a%26b&m=10");
+    normalizeTest("http://x.com/show?http%3A%2F%2Fx.com%2Fb",
+        "http://x.com/show?http%3A%2F%2Fx.com%2Fb");
+    normalizeTest("http://google.com/search?q=c%2B%2B",
+        "http://google.com/search?q=c%2B%2B");
+    // do also not touch the query part which is application/x-www-form-urlencoded
+    normalizeTest("http://x.com/s?q=a+b", "http://x.com/s?q=a+b");
+    // and keep Internationalized domain names
+    // http://bücher.de/ may be http://xn--bcher-kva.de/
+    // but definitely not http://b%C3%BCcher.de/
+    normalizeTest("http://b\u00fccher.de/", "http://b\u00fccher.de/");
+    // test whether percent-encoding works together with other normalizations
+    normalizeTest("http://x.com/./a/../%66.html", "http://x.com/f.html");
+    // [ and ] need escaping as well
+    normalizeTest("http://x.com/?x[y]=1", "http://x.com/?x%5By%5D=1");
+    // boundary test for first character outside the ASCII range (U+0080)
+    normalizeTest("http://x.com/foo\u0080", "http://x.com/foo%C2%80");
+    normalizeTest("http://x.com/foo%c2%80", "http://x.com/foo%C2%80");
+  }
 
   @Test
   public void testNormalizer() throws Exception {

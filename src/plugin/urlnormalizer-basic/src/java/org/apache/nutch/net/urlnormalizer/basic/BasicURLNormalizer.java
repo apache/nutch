@@ -23,6 +23,9 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.Locale;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configured;
@@ -37,6 +40,9 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>remove dot segments in path: <code>/./</code> or <code>/../</code></li>
  * <li>remove default ports, e.g. 80 for protocol <code>http://</code></li>
+ * <li>normalize <a href=
+ * "https://en.wikipedia.org/wiki/Percent-encoding#Percent-encoding_in_a_URI">
+ * percent-encoding</a> in URL paths</li>
  * </ul>
  */
 public class BasicURLNormalizer extends Configured implements URLNormalizer {
@@ -50,8 +56,41 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
   private final static Pattern hasNormalizablePathPattern = Pattern
       .compile("/[./]|[.]/");
 
+  /**
+   * Nutch 1098 - finds URL encoded parts of the URL
+   */
+  private final static Pattern unescapeRulePattern = Pattern
+      .compile("%([0-9A-Fa-f]{2})");
+  
+  // charset used for encoding URLs before escaping
+  private final static Charset utf8 = Charset.forName("UTF-8");
+
+  /** look-up table for characters which should not be escaped in URL paths */
+  private final static boolean[] unescapedCharacters = new boolean[128];
+  static {
+    for (int c = 0; c < 128; c++) {
+      /* https://tools.ietf.org/html/rfc3986#section-2.2
+       * For consistency, percent-encoded octets in the ranges of ALPHA
+       * (%41-%5A and %61-%7A), DIGIT (%30-%39), hyphen (%2D), period (%2E),
+       * underscore (%5F), or tilde (%7E) should not be created by URI
+       * producers and, when found in a URI, should be decoded to their
+       * corresponding unreserved characters by URI normalizers.
+       */
+      if ((0x41 <= c && c <= 0x5A)
+        || (0x61 <= c && c <= 0x7A)
+        || (0x30 <= c && c <= 0x39)
+        || c == 0x2D || c == 0x2E
+        || c == 0x5F || c == 0x7E) {
+        unescapedCharacters[c] = true;
+      } else {
+        unescapedCharacters[c] = false;
+      }
+    }
+  }
+
   public String normalize(String urlString, String scope)
       throws MalformedURLException {
+    
     if ("".equals(urlString)) // permit empty
       return urlString;
 
@@ -100,7 +139,14 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         changed = true;
         file = file2;
       }
+    }
 
+    // properly encode characters in path/file using percent-encoding
+    String file2 = unescapePath(file);
+    file2 = escapePath(file2);
+    if (!file.equals(file2)) {
+      changed = true;
+      file = file2;
     }
 
     if (changed)
@@ -140,6 +186,84 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     }
 
     return file;
+  }
+  
+  /**
+   * Remove % encoding from path segment in URL for characters which should be
+   * unescaped according to <a
+   * href="https://tools.ietf.org/html/rfc3986#section-2.2">RFC3986</a>.
+   */
+  private String unescapePath(String path) {
+    StringBuilder sb = new StringBuilder();
+    
+    Matcher matcher = unescapeRulePattern.matcher(path);
+    
+    int end = -1;
+    int letter;
+
+    // Traverse over all encoded groups
+    while (matcher.find()) {
+      // Append everything up to this group
+      sb.append(path.substring(end + 1, matcher.start()));
+      
+      // Get the integer representation of this hexadecimal encoded character
+      letter = Integer.valueOf(matcher.group().substring(1), 16);
+
+      if (letter < 128 && unescapedCharacters[letter]) {
+        // character should be unescaped in URLs
+        sb.append(new Character((char)letter));
+      } else {
+        // Append the encoded character as uppercase
+        sb.append(matcher.group().toUpperCase(Locale.ROOT));
+      }
+      
+      end = matcher.start() + 2;
+    }
+    
+    letter = path.length();
+    
+    // Append the rest if there's anything
+    if (end <= letter - 1) {
+      sb.append(path.substring(end + 1, letter));
+    }
+
+    // Ok!
+    return sb.toString();
+  }
+
+  /**
+   * Convert path segment of URL from Unicode to UTF-8 and escape all
+   * characters which should be escaped according to <a
+   * href="https://tools.ietf.org/html/rfc3986#section-2.2">RFC3986</a>..
+   */
+  private String escapePath(String path) {
+    StringBuilder sb = new StringBuilder(path.length());
+
+    // Traverse over all bytes in this URL
+    for (byte b: path.getBytes(utf8)) {
+      // Is this a control character?
+      if (b < 33 || b == 91 || b == 93) {
+        // Start escape sequence 
+        sb.append('%');
+        
+        // Get this byte's hexadecimal representation 
+        String hex = Integer.toHexString(b & 0xFF).toUpperCase();
+        
+        // Do we need to prepend a zero?
+        if (hex.length() % 2 != 0 ) {
+          sb.append('0');
+          sb.append(hex);
+        } else {
+          // No, append this hexadecimal representation
+          sb.append(hex);
+        }
+      } else {
+        // No, just append this character as-is
+        sb.append((char)b);
+      }
+    }
+    
+    return sb.toString();
   }
 
   public static void main(String args[]) throws IOException {
