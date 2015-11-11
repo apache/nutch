@@ -17,6 +17,7 @@
 
 package org.apache.nutch.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -68,15 +69,18 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.out
-          .println("usage: ProtocolStatistics <crawl db> <output dir> [numOfReducer]");
+      System.err.println("Usage: ProtocolStatistics inputDirs outDir [numOfReducer]");
+
+      System.err.println("\tinputDirs\tComma separated list of crawldb input directories");
+      System.err.println("\t\t\tE.g.: crawl/crawldb/");
+
+      System.err.println("\toutDir\t\tOutput directory where results should be dumped");
+
+      System.err.println("\t[numOfReducers]\tOptional number of reduce jobs to use. Defaults to 1.");
       return 1;
     }
     String inputDir = args[0];
     String outputDir = args[1];
-
-    System.out.println(inputDir);
-    System.out.println(outputDir);
 
     int numOfReducers = 1;
 
@@ -98,7 +102,8 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
     String[] inputDirsSpecs = inputDir.split(",");
     for (int i = 0; i < inputDirsSpecs.length; i++) {
-      FileInputFormat.addInputPath(job, new Path(inputDirsSpecs[i]));
+      File completeInputPath = new File(new File(inputDirsSpecs[i]), "current");
+      FileInputFormat.addInputPath(job, new Path(completeInputPath.toString()));
     }
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
