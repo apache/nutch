@@ -17,6 +17,7 @@
 
 package org.apache.nutch.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -60,11 +61,22 @@ public class CrawlCompletionStats extends Configured implements Tool {
   private int mode = 0;
 
   public int run(String[] args) throws Exception {
-    if (args.length < 2) {
-      System.out
-          .println("usage: CrawlCompletionStats inputDirs outDir host|domain [numOfReducer]");
+    if (args.length < 3) {
+      System.err.println("Usage: CrawlCompletionStats inputDirs outDir mode [numOfReducer]");
+
+      System.err.println("\tinputDirs\tComma separated list of crawldb input directories");
+      System.err.println("\t\t\tE.g.: crawl/crawldb/");
+
+      System.err.println("\toutDir\t\tOutput directory where results should be dumped");
+
+      System.err.println("\tmode\t\tSet statistics gathering mode");
+      System.err.println("\t\t\t\thost\tGather statistics by host");
+      System.err.println("\t\t\t\tdomain\tGather statistics by domain");
+
+      System.err.println("\t[numOfReducers]\tOptional number of reduce jobs to use. Defaults to 1.");
       return 1;
     }
+
     String inputDir = args[0];
     String outputDir = args[1];
     int numOfReducers = 1;
@@ -96,7 +108,9 @@ public class CrawlCompletionStats extends Configured implements Tool {
 
     String[] inputDirsSpecs = inputDir.split(",");
     for (int i = 0; i < inputDirsSpecs.length; i++) {
-      FileInputFormat.addInputPath(job, new Path(inputDirsSpecs[i]));
+      File completeInputPath = new File(new File(inputDirsSpecs[i]), "current");
+      FileInputFormat.addInputPath(job, new Path(completeInputPath.toString()));
+      
     }
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
