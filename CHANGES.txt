@@ -3,6 +3,8 @@ Nutch Change Log
 Nutch 1.11 Release 25/10/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch11
 
+* NUTCH-2167 Backport TableUtil from 2.x for URL reversing (joyce)
+
 * NUTCH-2160 Upgrade Selenium Java to 2.48.2 (lewismc, kwhitehall)
 
 * NUTCH-2120 Remove MapWritable from trunk codebase (lewismc)
