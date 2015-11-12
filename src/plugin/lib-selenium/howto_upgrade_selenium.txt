@@ -7,3 +7,9 @@
     $ ls lib | sed 's/^/     <library name="/g' | sed 's/$/">\n       <export name="*"\/>\n     <\/library>/g'
 
    Note that all dependent libraries are exported for a "library" plugin ("lib-selenium").
+
+   N.B. The above Regex + Sed commands may not work if you are using MacOSX's Sed. In this instance you can instal GNU Sed as follows
+
+   $ brew install gnu-sed --with-default-names
+
+   You can then restart your terminal and the Regex + Sed command should work just fine!
