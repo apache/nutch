@@ -162,107 +162,118 @@ public class FileDumper {
     for (File segment : segmentDirs) {
       LOG.info("Processing segment: [" + segment.getAbsolutePath() + "]");
       DataOutputStream doutputStream = null;
-      try {
-        String segmentPath = segment.getAbsolutePath() + "/" + Content.DIR_NAME
-            + "/part-00000/data";
-        Path file = new Path(segmentPath);
-        if (!new File(file.toString()).exists()) {
-          LOG.warn("Skipping segment: [" + segmentPath
-              + "]: no data directory present");
-          continue;
+
+      File segmentDir = new File(segment.getAbsolutePath(), Content.DIR_NAME);
+      File[] partDirs = segmentDir.listFiles(new FileFilter() {
+        @Override
+        public boolean accept(File file) {
+          return file.canRead() && file.isDirectory();
         }
-        SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(file));
+      });
 
-        Writable key = (Writable) reader.getKeyClass().newInstance();
-        Content content = null;
-
-        while (reader.next(key)) {
-          content = new Content();
-          reader.getCurrentValue(content);
-          String url = key.toString();
-          String baseName = FilenameUtils.getBaseName(url);
-          String extension = FilenameUtils.getExtension(url);
-          if (extension == null || (extension != null && extension.equals(""))) {
-            extension = "html";
+      for (File partDir : partDirs) {
+        try {
+          String segmentPath = partDir + "/data";
+          Path file = new Path(segmentPath);
+          if (!new File(file.toString()).exists()) {
+            LOG.warn("Skipping segment: [" + segmentPath
+                + "]: no data directory present");
+            continue;
           }
 
-          String filename = baseName + "." + extension;
-          ByteArrayInputStream bas = null;
-          Boolean filter = false;
-          try {
-            bas = new ByteArrayInputStream(content.getContent());
-            String mimeType = new Tika().detect(content.getContent());
-            collectStats(typeCounts, mimeType);
-            if (mimeType != null) {
-              if (mimeTypes == null
-                  || Arrays.asList(mimeTypes).contains(mimeType)) {
-                collectStats(filteredCounts, mimeType);
-                filter = true;
+          SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(file));
+
+          Writable key = (Writable) reader.getKeyClass().newInstance();
+          Content content = null;
+
+          while (reader.next(key)) {
+            content = new Content();
+            reader.getCurrentValue(content);
+            String url = key.toString();
+            String baseName = FilenameUtils.getBaseName(url);
+            String extension = FilenameUtils.getExtension(url);
+            if (extension == null || (extension != null && extension.equals(""))) {
+              extension = "html";
+            }
+
+            String filename = baseName + "." + extension;
+            ByteArrayInputStream bas = null;
+            Boolean filter = false;
+            try {
+              bas = new ByteArrayInputStream(content.getContent());
+              String mimeType = new Tika().detect(content.getContent());
+              collectStats(typeCounts, mimeType);
+              if (mimeType != null) {
+                if (mimeTypes == null
+                    || Arrays.asList(mimeTypes).contains(mimeType)) {
+                  collectStats(filteredCounts, mimeType);
+                  filter = true;
+                }
+              }
+            } catch (Exception e) {
+              e.printStackTrace();
+              LOG.warn("Tika is unable to detect type for: [" + url + "]");
+            } finally {
+              if (bas != null) {
+                try {
+                  bas.close();
+                } catch (Exception ignore) {
+                }
               }
             }
-          } catch (Exception e) {
-            e.printStackTrace();
-            LOG.warn("Tika is unable to detect type for: [" + url + "]");
-          } finally {
-            if (bas != null) {
-              try {
-                bas.close();
-              } catch (Exception ignore) {
-              }
-            }
-          }
 
-          if (filter) {
-            if (!mimeTypeStats) {
-              String md5Ofurl = DumpFileUtil.getUrlMD5(url);
+            if (filter) {
+              if (!mimeTypeStats) {
+                String md5Ofurl = DumpFileUtil.getUrlMD5(url);
 
-              String fullDir = outputDir.getAbsolutePath();
-              if (!flatDir) {
-                fullDir = DumpFileUtil.createTwoLevelsDirectory(fullDir, md5Ofurl);
-              }
+                String fullDir = outputDir.getAbsolutePath();
+                if (!flatDir) {
+                  fullDir = DumpFileUtil.createTwoLevelsDirectory(fullDir, md5Ofurl);
+                }
 
-              if (!Strings.isNullOrEmpty(fullDir)) {
-                String outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
-                File outputFile = new File(outputFullPath);
+                if (!Strings.isNullOrEmpty(fullDir)) {
+                  String outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
+                  File outputFile = new File(outputFullPath);
 
-                if (!outputFile.exists()) {
-                  LOG.info("Writing: [" + outputFullPath + "]");
+                  if (!outputFile.exists()) {
+                    LOG.info("Writing: [" + outputFullPath + "]");
 
-                  // Modified to prevent FileNotFoundException (Invalid Argument) 
-                  FileOutputStream output = null;
-                  try {
-                    output = new FileOutputStream(outputFile);
-                    IOUtils.write(content.getContent(), output);
-                  }
-                  catch (Exception e) {
-                    LOG.warn("Write Error: [" + outputFullPath + "]");
-                    e.printStackTrace();
-                  }
-                  finally {
-                    if (output != null) {
-                      output.flush();
-                      try {
-                        output.close();
-                      } catch (Exception ignore) {
+                    // Modified to prevent FileNotFoundException (Invalid Argument) 
+                    FileOutputStream output = null;
+                    try {
+                      output = new FileOutputStream(outputFile);
+                      IOUtils.write(content.getContent(), output);
+                    }
+                    catch (Exception e) {
+                      LOG.warn("Write Error: [" + outputFullPath + "]");
+                      e.printStackTrace();
+                    }
+                    finally {
+                      if (output != null) {
+                        output.flush();
+                        try {
+                          output.close();
+                        } catch (Exception ignore) {
+                        }
                       }
                     }
+                    fileCount++;
+                  } else {
+                    LOG.info("Skipping writing: [" + outputFullPath
+                        + "]: file already exists");
                   }
-                  fileCount++;
-                } else {
-                  LOG.info("Skipping writing: [" + outputFullPath
-                      + "]: file already exists");
                 }
               }
             }
           }
-        }
-        reader.close();
-      } finally {
-        fs.close();
-        if (doutputStream != null) {
-          try {
-            doutputStream.close();
-          } catch (Exception ignore) {
+          reader.close();
+        } finally {
+          fs.close();
+          if (doutputStream != null) {
+            try {
+              doutputStream.close();
+            } catch (Exception ignore) {
+            }
           }
         }
       }
