@@ -43,6 +43,10 @@ public class ConfigResource extends AbstractResource{
 
   public static final String DEFAULT = "default";
 
+  /**
+   * Returns a list of all configurations created.
+   * @return List of configurations
+   */
   @GET
   @Path("/")
 	@JacksonFeatures(serializationEnable =  { SerializationFeature.INDENT_OUTPUT })
@@ -50,6 +54,11 @@ public class ConfigResource extends AbstractResource{
     return configManager.list();
   }
 
+  /** 
+   * Get configuration properties 
+   * @param configId The configuration ID to fetch
+   * @return HashMap of the properties set within the given configId
+   */
   @GET
   @Path("/{configId}")
 	@JacksonFeatures(serializationEnable =  { SerializationFeature.INDENT_OUTPUT })
@@ -57,6 +66,12 @@ public class ConfigResource extends AbstractResource{
     return configManager.getAsMap(configId);
   }
 
+  /**
+   * Get property 
+   * @param configId The ID of the configuration
+   * @param propertyId The name(key) of the property
+   * @return value of the specified property in the provided configId.
+   */
   @GET
   @Path("/{configId}/{propertyId}")
   @Produces(MediaType.TEXT_PLAIN)
@@ -66,12 +81,21 @@ public class ConfigResource extends AbstractResource{
     return configManager.getAsMap(configId).get(propertyId);
   }
 
+  /**
+   * Removes the configuration from the list of known configurations. 
+   * @param configId The ID of the configuration to delete
+   */
   @DELETE
   @Path("/{configId}")
   public void deleteConfig(@PathParam("configId") String configId) {
     configManager.delete(configId);
   }
 
+  /**
+   * Create new configuration.
+   * @param newConfig 
+   * @return The name of the new configuration created
+   */
   @POST
   @Path("/create")
   @Consumes(MediaType.APPLICATION_JSON)
@@ -90,6 +114,14 @@ public class ConfigResource extends AbstractResource{
     return Response.ok(newConfig.getConfigId()).build();
   }
   
+  /**
+   * Adds/Updates a particular property value in the configuration
+   * @param confId Configuration ID whose property needs to be updated. Make sure that the given
+   *               confId exists to prevent errors. 
+   * @param propertyKey Name of the property
+   * @param value Value as a simple text 
+   * @return Success code
+   */
   @PUT
   @Path("/{configId}/{propertyId}")
   @Consumes(MediaType.TEXT_PLAIN)

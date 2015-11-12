@@ -34,6 +34,10 @@ public class AdminResource extends AbstractResource{
   private static final Logger LOG = LoggerFactory
       .getLogger(AdminResource.class);
 
+  /**
+   * To get the status of the Nutch Server 
+   * @return
+   */
   @GET
   @Path(value="/")
   public NutchServerInfo getServerStatus(){
@@ -45,6 +49,11 @@ public class AdminResource extends AbstractResource{
     return serverInfo;
   }
 
+  /**
+   * Stop the Nutch server
+   * @param force If set to true, it will kill any running jobs
+   * @return
+   */
   @GET
   @Path(value="/stop")
   public String stopServer(@QueryParam("force") boolean force){
