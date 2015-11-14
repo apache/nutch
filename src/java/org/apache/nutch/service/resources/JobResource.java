@@ -35,6 +35,11 @@ import org.apache.nutch.service.model.response.JobInfo.State;
 @Path(value = "/job")
 public class JobResource extends AbstractResource {
 
+  /**
+   * Get job history
+   * @param crawlId
+   * @return A nested JSON object of all the jobs created
+   */
   @GET
   @Path(value = "/")
   @JacksonFeatures(serializationEnable =  { SerializationFeature.INDENT_OUTPUT })
@@ -42,6 +47,12 @@ public class JobResource extends AbstractResource {
     return jobManager.list(crawlId, State.ANY);
   }
 
+  /**
+   * Get job info
+   * @param id Job ID
+   * @param crawlId Crawl ID
+   * @return A JSON object of job parameters
+   */
   @GET
   @Path(value = "/{id}")
   @JacksonFeatures(serializationEnable =  { SerializationFeature.INDENT_OUTPUT })
@@ -50,6 +61,12 @@ public class JobResource extends AbstractResource {
     return jobManager.get(crawlId, id);
   }
 
+  /**
+   * Stop Job
+   * @param id Job ID
+   * @param crawlId
+   * @return
+   */
   @GET
   @Path(value = "/{id}/stop")
   public boolean stop(@PathParam("id") String id,
@@ -57,6 +74,7 @@ public class JobResource extends AbstractResource {
     return jobManager.stop(crawlId, id);
   }
 
+  
   @GET
   @Path(value = "/{id}/abort")
   public boolean abort(@PathParam("id") String id,
@@ -64,6 +82,11 @@ public class JobResource extends AbstractResource {
     return jobManager.abort(crawlId, id);
   }
 
+  /**
+   * Create a new job
+   * @param config The parameters of the job to create
+   * @return A JSON object of the job created with its details
+   */
   @POST
   @Path(value = "/create")
   @Consumes(MediaType.APPLICATION_JSON)

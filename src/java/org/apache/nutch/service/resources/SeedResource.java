@@ -47,15 +47,15 @@ public class SeedResource extends AbstractResource {
   private static final Logger log = LoggerFactory
       .getLogger(AdminResource.class);
 
+  /**
+   * Method creates seed list file and returns temporary directory path
+   * @param seedList
+   * @return
+   */
   @POST
   @Path("/create")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.TEXT_PLAIN)
-  /**
-   * Method creates seed list file and returns temorary directory path
-   * @param seedList
-   * @return
-   */
   public Response createSeedFile(SeedList seedList) {
     if (seedList == null) {
       return Response.status(Status.BAD_REQUEST)
