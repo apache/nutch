@@ -48,6 +48,7 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.TableUtil;
 
 //Tika imports
 import org.apache.tika.Tika;
@@ -135,7 +136,7 @@ public class FileDumper {
    *          instead of dumping files.
    * @throws Exception
    */
-  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean flatDir, boolean mimeTypeStats)
+  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean flatDir, boolean mimeTypeStats, boolean reverseURLDump)
       throws Exception {
     if (mimeTypes == null)
       LOG.info("Accepting all mimetypes.");
@@ -227,14 +228,50 @@ public class FileDumper {
                 String md5Ofurl = DumpFileUtil.getUrlMD5(url);
 
                 String fullDir = outputDir.getAbsolutePath();
-                if (!flatDir) {
+                if (!flatDir && !reverseURLDump) {
                   fullDir = DumpFileUtil.createTwoLevelsDirectory(fullDir, md5Ofurl);
                 }
 
                 if (!Strings.isNullOrEmpty(fullDir)) {
-                  String outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
-                  File outputFile = new File(outputFullPath);
+                  String outputFullPath;
 
+                  if (reverseURLDump) {
+                    String[] reversedURL = TableUtil.reverseUrl(url).split(":");
+                    reversedURL[0] = reversedURL[0].replace('.', '/');
+
+                    // URLs with content at a folder level and nested below that
+                    // run into problems when dumping. For example:
+                    //
+                    // www.foo.com/bar/
+                    // www.foo.com/bar/about.html
+                    //
+                    // One of these will fail to dump depending on processing order.
+                    // To address this, we will use a placeholder when dumping a URL
+                    // such as the one ending in '/bar/'
+                    String lastDir = reversedURL[reversedURL.length - 1];
+                    if (! lastDir.contains(".")) {
+                      if (lastDir.charAt(lastDir.length() - 1) != '/') {
+                        reversedURL[reversedURL.length - 1] += '/';
+                      }
+                      reversedURL[reversedURL.length - 1] += "_file";
+                    }
+
+                    String reversedURLPath = String.join("/", reversedURL);
+                    outputFullPath = String.format("%s/%s", fullDir, reversedURLPath);
+                    
+                    // We'll drop the trailing file name and create the nested structure if it doesn't already exist.
+                    String[] splitPath = outputFullPath.split("/");
+                    File fullOutputDir = new File(String.join("/", Arrays.asList(splitPath).subList(0, splitPath.length - 1)));
+
+                    if (!fullOutputDir.exists()) {
+                      fullOutputDir.mkdirs();
+                    }
+                  } else {
+                    outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
+                  }
+
+                  File outputFile = new File(outputFullPath);
+                  
                   if (!outputFile.exists()) {
                     LOG.info("Writing: [" + outputFullPath + "]");
 
@@ -328,6 +365,12 @@ public class FileDumper {
     .withDescription(
         "optionally specify that the output directory should only contain files.")
     .create("flatdir");
+    @SuppressWarnings("static-access")
+    Option reverseURLOutput = OptionBuilder
+    .withArgName("reverseUrlDirs")
+    .withDescription(
+        "optionally specify to use reverse URL folders for output structure.")
+    .create("reverseUrlDirs");
 
     // create the options
     Options options = new Options();
@@ -337,6 +380,7 @@ public class FileDumper {
     options.addOption(mimeOpt);
     options.addOption(mimeStat);
     options.addOption(dirStructureOpt);
+    options.addOption(reverseURLOutput);
 
     CommandLineParser parser = new GnuParser();
     try {
@@ -355,6 +399,9 @@ public class FileDumper {
       boolean shouldDisplayStats = false;
       if (line.hasOption("mimeStats"))
         shouldDisplayStats = true;
+      boolean reverseURLDump = false;
+      if (line.hasOption("reverseUrlDirs"))
+        reverseURLDump = true;
 
       if (!outputDir.exists()) {
         LOG.warn("Output directory: [" + outputDir.getAbsolutePath()
@@ -367,7 +414,7 @@ public class FileDumper {
       }
 
       FileDumper dumper = new FileDumper();
-      dumper.dump(outputDir, segmentRootDir, mimeTypes, flatDir, shouldDisplayStats);
+      dumper.dump(outputDir, segmentRootDir, mimeTypes, flatDir, shouldDisplayStats, reverseURLDump);
     } catch (Exception e) {
       LOG.error("FileDumper: " + StringUtils.stringifyException(e));
       e.printStackTrace();
