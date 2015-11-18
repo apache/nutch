@@ -3,6 +3,8 @@ Nutch Change Log
 Nutch 1.11 Release 25/10/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch11
 
+* NUTCH-2173 String.join in FileDumper breaks the build (joyce)
+
 * NUTCH-2166 Add reverse URL format to dump tool (joyce)
 
 * NUTCH-2157 Addressing Miredot REST API Warnings (Sujen Shah)

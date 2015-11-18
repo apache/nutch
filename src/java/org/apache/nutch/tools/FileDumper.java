@@ -256,12 +256,12 @@ public class FileDumper {
                       reversedURL[reversedURL.length - 1] += "_file";
                     }
 
-                    String reversedURLPath = String.join("/", reversedURL);
+                    String reversedURLPath = org.apache.commons.lang3.StringUtils.join(reversedURL, "/");
                     outputFullPath = String.format("%s/%s", fullDir, reversedURLPath);
                     
                     // We'll drop the trailing file name and create the nested structure if it doesn't already exist.
                     String[] splitPath = outputFullPath.split("/");
-                    File fullOutputDir = new File(String.join("/", Arrays.asList(splitPath).subList(0, splitPath.length - 1)));
+                    File fullOutputDir = new File(org.apache.commons.lang3.StringUtils.join(Arrays.copyOf(splitPath, splitPath.length - 1), "/"));
 
                     if (!fullOutputDir.exists()) {
                       fullOutputDir.mkdirs();
