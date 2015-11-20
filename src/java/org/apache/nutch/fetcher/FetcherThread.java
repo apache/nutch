@@ -85,6 +85,7 @@ public class FetcherThread extends Thread {
   private boolean redirecting;
   private int redirectCount;
   private boolean ignoreExternalLinks;
+  private String ignoreExternalLinksMode;
 
   // Used by fetcher.follow.outlinks.depth in parse
   private int maxOutlinksPerPage;
@@ -168,14 +169,13 @@ public class FetcherThread extends Thread {
     }
     LOG.info("Using queue mode : " + queueMode);
     this.maxRedirect = conf.getInt("http.redirect.max", 3);
-    this.ignoreExternalLinks = conf.getBoolean("db.ignore.external.links",
-        false);
 
     maxOutlinksPerPage = conf.getInt("db.max.outlinks.per.page", 100);
     maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
         : maxOutlinksPerPage;
     interval = conf.getInt("db.fetch.interval.default", 2592000);
     ignoreExternalLinks = conf.getBoolean("db.ignore.external.links", false);
+    ignoreExternalLinksMode = conf.get("db.ignore.external.links.mode", "byHost");
     maxOutlinkDepth = conf.getInt("fetcher.follow.outlinks.depth", -1);
     outlinksIgnoreExternal = conf.getBoolean(
         "fetcher.follow.outlinks.ignore.external", false);
@@ -616,19 +616,21 @@ public class FetcherThread extends Thread {
             }
           }
 
-          String fromHost;
+          String origin = null;
 
           // collect outlinks for subsequent db update
           Outlink[] links = parseData.getOutlinks();
           int outlinksToStore = Math.min(maxOutlinks, links.length);
           if (ignoreExternalLinks) {
-            try {
-              fromHost = new URL(url.toString()).getHost().toLowerCase();
-            } catch (MalformedURLException e) {
-              fromHost = null;
+            URL originURL = new URL(url.toString());
+            // based on domain?
+            if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
+              origin = URLUtil.getDomainName(originURL).toLowerCase();
+            } 
+            // use host 
+            else {
+              origin = originURL.getHost().toLowerCase();
             }
-          } else {
-            fromHost = null;
           }
           
           //used by fetchNode         
@@ -646,7 +648,7 @@ public class FetcherThread extends Thread {
             String toUrl = links[i].getToUrl();
 
             toUrl = ParseOutputFormat.filterNormalize(url.toString(), toUrl,
-                fromHost, ignoreExternalLinks, urlFilters, normalizers);
+                origin, ignoreExternalLinks, ignoreExternalLinksMode, urlFilters, normalizers);
             if (toUrl == null) {
               continue;
             }

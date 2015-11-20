@@ -104,6 +104,9 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
     final int interval = job.getInt("db.fetch.interval.default", 2592000);
     final boolean ignoreExternalLinks = job.getBoolean(
         "db.ignore.external.links", false);
+    final String ignoreExternalLinksMode = job.get(
+        "db.ignore.external.links.mode", "byHost");
+    
     int maxOutlinksPerPage = job.getInt("db.max.outlinks.per.page", 100);
     final boolean isParsing = job.getBoolean("fetcher.parse", true);
     final int maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
@@ -152,7 +155,8 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
       public void write(Text key, Parse parse) throws IOException {
 
         String fromUrl = key.toString();
-        String fromHost = null;
+        // host or domain name of the source URL
+        String origin = null;
         textOut.append(key, new ParseText(parse.getText()));
 
         ParseData parseData = parse.getData();
@@ -184,15 +188,17 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
         if (parseMDCrawlDatum != null)
           crawlOut.append(key, parseMDCrawlDatum);
 
+        // need to determine origin (once for all outlinks)
         if (ignoreExternalLinks) {
-          // need to determine fromHost (once for all outlinks)
-          try {
-            fromHost = new URL(fromUrl).getHost().toLowerCase();
-          } catch (MalformedURLException e) {
-            fromHost = null;
+          URL originURL = new URL(fromUrl.toString());
+          // based on domain?
+          if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
+            origin = URLUtil.getDomainName(originURL).toLowerCase();
+          } 
+          // use host 
+          else {
+            origin = originURL.getHost().toLowerCase();
           }
-        } else {
-          fromHost = null;
         }
 
         ParseStatus pstatus = parseData.getStatus();
@@ -200,8 +206,8 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
             && pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
           String newUrl = pstatus.getMessage();
           int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
-          newUrl = filterNormalize(fromUrl, newUrl, fromHost,
-              ignoreExternalLinks, filters, normalizers,
+          newUrl = filterNormalize(fromUrl, newUrl, origin,
+              ignoreExternalLinks, ignoreExternalLinksMode, filters, normalizers,
               URLNormalizers.SCOPE_FETCHER);
 
           if (newUrl != null) {
@@ -231,8 +237,8 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
 
           // Only normalize and filter if fetcher.parse = false
           if (!isParsing) {
-            toUrl = ParseOutputFormat.filterNormalize(fromUrl, toUrl, fromHost,
-                ignoreExternalLinks, filters, normalizers);
+            toUrl = ParseOutputFormat.filterNormalize(fromUrl, toUrl, origin,
+                ignoreExternalLinks, ignoreExternalLinksMode, filters, normalizers);
             if (toUrl == null) {
               continue;
             }
@@ -310,28 +316,38 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
   }
 
   public static String filterNormalize(String fromUrl, String toUrl,
-      String fromHost, boolean ignoreExternalLinks, URLFilters filters,
+      String fromHost, boolean ignoreExternalLinks,
+      String ignoreExternalLinksMode, URLFilters filters,
       URLNormalizers normalizers) {
     return filterNormalize(fromUrl, toUrl, fromHost, ignoreExternalLinks,
-        filters, normalizers, URLNormalizers.SCOPE_OUTLINK);
+        ignoreExternalLinksMode, filters, normalizers,
+        URLNormalizers.SCOPE_OUTLINK);
   }
 
   public static String filterNormalize(String fromUrl, String toUrl,
-      String fromHost, boolean ignoreExternalLinks, URLFilters filters,
+      String origin, boolean ignoreExternalLinks, String ignoreExternalLinksMode, URLFilters filters,
       URLNormalizers normalizers, String urlNormalizerScope) {
     // ignore links to self (or anchors within the page)
     if (fromUrl.equals(toUrl)) {
       return null;
     }
     if (ignoreExternalLinks) {
-      String toHost;
+      URL targetURL = null;
       try {
-        toHost = new URL(toUrl).getHost().toLowerCase();
-      } catch (MalformedURLException e) {
-        toHost = null;
-      }
-      if (toHost == null || !toHost.equals(fromHost)) { // external links
+        targetURL = new URL(toUrl);
+      } catch (MalformedURLException e1) {
         return null; // skip it
+      }
+      if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
+        String toDomain = URLUtil.getDomainName(targetURL).toLowerCase();
+        if (toDomain == null || !toDomain.equals(origin)) {
+          return null; // skip it
+        }
+      } else {
+        String toHost = targetURL.getHost().toLowerCase();
+        if (toHost == null || !toHost.equals(origin)) {
+          return null; // skip it
+        }
       }
     }
     try {
