@@ -1719,8 +1719,8 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 
 <property> 
   <name>elastic.port</name>
-  <value>9300</value>The port to connect to using TransportClient.<description>
-  </description>
+  <value>9300</value>
+  <description>The port to connect to using TransportClient.</description>
 </property>
 
 <property> 
