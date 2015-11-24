@@ -51,7 +51,7 @@
   <value>true</value>
   <description>The crawler is not restricted to the directories that you specified in the
     Urls file but it is jumping into the parent directories as well. For your own crawlings you can
-    change this bahavior (set to false) the way that only directories beneath the directories that you specify get
+    change this behavior (set to false) the way that only directories beneath the directories that you specify get
     crawled.</description>
 </property>
 
@@ -209,7 +209,7 @@
   <value>100</value>
   <description>The number of times a thread will delay when trying to
   fetch a page.  Each time it finds that a host is busy, it will wait
-  fetcher.server.delay.  After http.max.delays attepts, it will give
+  fetcher.server.delay.  After http.max.delays attempts, it will give
   up on the page for now.</description>
 </property>
 
@@ -752,7 +752,7 @@
   <value>5.0</value>
   <description>The number of seconds the fetcher will delay between 
    successive requests to the same server. Note that this might get
-   overriden by a Crawl-Delay from a robots.txt and is used ONLY if 
+   overridden by a Crawl-Delay from a robots.txt and is used ONLY if 
    fetcher.threads.per.queue is set to 1.
    </description>
 </property>
@@ -1102,8 +1102,8 @@
   <name>plugin.auto-activation</name>
   <value>true</value>
   <description>Defines if some plugins that are not activated regarding
-  the plugin.includes and plugin.excludes properties must be automaticaly
-  activated if they are needed by some actived plugins.
+  the plugin.includes and plugin.excludes properties must be automatically
+  activated if they are needed by some active plugins.
   </description>
 </property>
 
@@ -1218,14 +1218,13 @@
   <name>parsefilter.naivebayes.trainfile</name>
   <value>naivebayes-train.txt</value>
   <description>Set the name of the file to be used for Naive Bayes training. The format will be: 
-Each line contains two tab seperted parts
+Each line contains two tab separated parts
 There are two columns/parts:
-1. "1" or "0", "1" for relevent and "0" for irrelevent document.
-3. Text (text that will be used for training)
+1. "1" or "0", "1" for relevant and "0" for irrelevant documents.
+2. Text (text that will be used for training)
 
 Each row will be considered a new "document" for the classifier.
 CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this classifier.
-
   </description>
 </property>
 
@@ -1272,7 +1271,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <name>tika.htmlmapper.classname</name>
   <value>org.apache.tika.parser.html.IdentityHtmlMapper</value>
   <description>Classname of Tika HTMLMapper to use. Influences the elements included in the DOM and hence
-  the behaviour of the HTMLParseFilters.
+  the behavior of the HTMLParseFilters.
   </description>
 </property>
 -->
@@ -1360,7 +1359,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <name>scoring.depth.max</name>
   <value>1000</value>
   <description>Max depth value from seed allowed by default.
-  Can be overriden on a per-seed basis by specifying "_maxdepth_=VALUE"
+  Can be overridden on a per-seed basis by specifying "_maxdepth_=VALUE"
   as a seed metadata. This plugin adds a "_depth_" metadatum to the pages
   to track the distance from the seed it was found from. 
   The depth is used to prioritise URLs in the generation step so that
@@ -1373,7 +1372,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <property>
   <name>lang.analyze.max.length</name>
   <value>2048</value>
-  <description> The maximum bytes of data to uses to indentify
+  <description> The maximum number of bytes used to identify
   the language (0 means full content analysis).
   The larger is this value, the better is the analysis, but the
   slowest it is.
@@ -1667,7 +1666,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <name>solr.loadbalance.urls</name>
   <value></value>
   <description>
-      A comma-seperated value representing the Solr servers to be used when
+      A comma-separated value representing the Solr servers to be used when
       initiating LBHttpSolrServer as the SolrServer implementation. 
   </description>
 </property>
@@ -1677,7 +1676,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <value>solrindex-mapping.xml</value>
   <description>
   Defines the name of the file that will be used in the mapping of internal
-  nutch field names to solr index fields as specified in the target Solr schema.
+  Nutch field names to solr index fields as specified in the target Solr schema.
   </description>
 </property>
 
@@ -1727,7 +1726,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <property> 
   <name>elastic.cluster</name>
   <value></value>
-  <description>The cluster name to discover. Either host and potr must be defined
+  <description>The cluster name to discover. Either host and port must be defined
   or cluster.</description>
 </property>
 
@@ -1817,7 +1816,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <value></value>
   <description>
     The location on disk where a URL screenshot should be saved
-    to if the 'selenium.take.screenshot' proerty is set to true.
+    to if the 'selenium.take.screenshot' property is set to true.
     By default this is null, in this case screenshots held in memory
     are simply discarded.
   </description>
