@@ -133,7 +133,7 @@ public class TestProtocolHttp {
     if (page.compareTo("/nonexists.html") != 0
         && page.compareTo("/brokenpage.jsp") != 0
         && page.compareTo("/redirection") != 0) {
-      assertEquals("ContentType " + url, "application/xhtml+xml",
+      assertEquals("ContentType " + url, "text/html",
           content.getContentType());
     }
   }
