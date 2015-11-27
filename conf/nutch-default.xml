@@ -433,7 +433,9 @@
   <value>org.apache.nutch.crawl.DefaultFetchSchedule</value>
   <description>The implementation of fetch schedule. DefaultFetchSchedule simply
   adds the original fetchInterval to the last fetch time, regardless of
-  page changes.</description>
+  page changes, whereas AdaptiveFetchSchedule (see below) tries to adapt
+  to the rate at which a given page is changed. 
+  </description>
 </property>
 
 <property>
