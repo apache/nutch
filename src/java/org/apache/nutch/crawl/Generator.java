@@ -539,9 +539,9 @@ public class Generator extends NutchTool implements Tool {
     if (numLists == -1) { // for politeness make
       numLists = job.getNumMapTasks(); // a partition per fetch task
     }
-    if ("local".equals(job.get("mapred.job.tracker")) && numLists != 1) {
+    if ("local".equals(job.get("mapreduce.framework.name")) && numLists != 1) {
       // override
-      LOG.info("Generator: jobtracker is 'local', generating exactly one partition.");
+      LOG.info("Generator: running in local mode, generating exactly one partition.");
       numLists = 1;
     }
     job.setLong(GENERATOR_CUR_TIME, curTime);

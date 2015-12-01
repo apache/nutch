@@ -3,6 +3,8 @@ Nutch Change Log
 Nutch 1.11 Release 25/10/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch11
 
+* NUTCH-2177 Generator produces only one partition even in distributed mode (jnioche, snagel)
+
 * NUTCH-2158 Upgrade to Tika 1.11 (jnioche, snagel)
 
 * NUTCH-2175 Typos in property descriptions in nutch-default.xml (Roannel Fernández Hernández via snagel)
