@@ -3,6 +3,8 @@ Nutch Change Log
 Nutch 2.3.1 Release 22092015 (ddmmyyyy)
 Release Report - http://s.apache.org/nutch_2.3.1
 
+* NUTCH-2107 plugin.xml to validate against plugin.dtd (snagel)
+
 * NUTCH-2130 copyField rawcontent creates error within schema.xml (Sherban Drulea, lewismc, snagel)
 
 * NUTCH-2018 Ensure that the Docker containers for Nutch 2.X are part of the Release Management Documentation (lewismc)
