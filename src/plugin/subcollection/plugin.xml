@@ -21,16 +21,16 @@
    version="1.0.0"
    provider-name="apache.org">
 
-   <requires>
-      <import plugin="nutch-extensionpoints"/>
-   </requires>
-
    <runtime>
       <library name="subcollection.jar">
          <export name="*"/>
       </library>
    </runtime>
    
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.apache.nutch.indexer.subcollection.indexing"
               name="Subcollection Indexing Filter"
               point="org.apache.nutch.indexer.IndexingFilter">
