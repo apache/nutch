@@ -1,6 +1,6 @@
 Nutch Change Log
     
-Nutch 1.11 Release 25/10/2015 (dd/mm/yyyy)
+Nutch 1.11 Release 03/12/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch11
 
 * NUTCH-2176 Clean up of log4j.properties (markus)
