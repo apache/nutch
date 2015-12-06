@@ -312,10 +312,12 @@ public class MoreIndexingFilter implements IndexingFilter {
   }
 
   private void readConfiguration() throws IOException {
+    LOG.info("Reading content type mappings from file contenttype-mapping.txt");
     BufferedReader reader = new BufferedReader(
         conf.getConfResourceAsReader("contenttype-mapping.txt"));
     String line;
     String parts[];
+    boolean formatWarningShown = false;
 
     mimeMap = new HashMap<String, String>();
 
@@ -328,6 +330,12 @@ public class MoreIndexingFilter implements IndexingFilter {
         if (parts.length > 1) {
           for (int i = 1; i < parts.length; i++) {
             mimeMap.put(parts[i].trim(), parts[0].trim());
+          }
+        } else {
+          LOG.warn("Wrong format of line: {}", line);
+          if (!formatWarningShown) {
+            LOG.warn("Expected format: <target type> <tab> <type1> [<tab> <type2> ...]");
+            formatWarningShown = true;
           }
         }
       }
