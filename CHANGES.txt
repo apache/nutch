@@ -3,6 +3,8 @@ Nutch Change Log
 Nutch 2.3.1 Release 22092015 (ddmmyyyy)
 Release Report - http://s.apache.org/nutch_2.3.1
 
+* NUTCH-2042 parse-html increase chunk size used to detect charset (snagel)
+
 * NUTCH-2107 plugin.xml to validate against plugin.dtd (snagel)
 
 * NUTCH-2130 copyField rawcontent creates error within schema.xml (Sherban Drulea, lewismc, snagel)
