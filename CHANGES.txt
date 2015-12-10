@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2180 FileDumper skips Corrupt Segments (Harshavardhan Manjunatha via lewismc)
+
 * NUTCH-2042 parse-html increase chunk size used to detect charset (snagel)
 
 * NUTCH-2172 index-more: document format of contenttype-mapping.txt (Nicola Tonellotto, snagel)

@@ -172,6 +172,11 @@ public class FileDumper {
         }
       });
 
+      if (partDirs == null) {
+        LOG.warn("Skipping Corrupt Segment: [{}]", segment.getAbsolutePath());
+        continue;
+      }
+
       for (File partDir : partDirs) {
         try {
           String segmentPath = partDir + "/data";
