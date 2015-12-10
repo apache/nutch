@@ -173,7 +173,7 @@ public class FileDumper {
       });
 
       if (partDirs == null) {
-        LOG.warn("Skipping Corrupt Segment: [" + segment.getAbsolutePath() + "]");
+        LOG.warn("Skipping Corrupt Segment: [{}]", segment.getAbsolutePath());
         continue;
       }
 
