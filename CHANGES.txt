@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2183 Improvement to SegmentChecker for skipping non-segments present in segments directory (lewismc)
+
 * NUTCH-2180 FileDumper skips Corrupt Segments (Harshavardhan Manjunatha via lewismc)
 
 * NUTCH-2042 parse-html increase chunk size used to detect charset (snagel)

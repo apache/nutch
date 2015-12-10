@@ -65,6 +65,11 @@ public class SegmentChecker {
   public static boolean checkSegmentDir(Path segmentPath, FileSystem fs)
       throws IOException {
 
+    if (segmentPath.getName().length() != 14) {
+      LOG.warn("The input path at {} is not a segment... skipping", segmentPath.getName());
+      return false;
+    }
+    
     FileStatus[] fstats_segment = fs.listStatus(segmentPath,
         HadoopFSUtil.getPassDirectoriesFilter(fs));
     Path[] segment_files = HadoopFSUtil.getPaths(fstats_segment);

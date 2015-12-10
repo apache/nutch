@@ -186,11 +186,13 @@ public class IndexingJob extends NutchTool implements Tool {
     boolean base64 = false;
 
     for (int i = 1; i < args.length; i++) {
+      FileSystem fs = null;
+      Path dir = null;
       if (args[i].equals("-linkdb")) {
         linkDb = new Path(args[++i]);
       } else if (args[i].equals("-dir")) {
-        Path dir = new Path(args[++i]);
-        FileSystem fs = dir.getFileSystem(getConf());
+        dir = new Path(args[++i]);
+        fs = dir.getFileSystem(getConf());
         FileStatus[] fstats = fs.listStatus(dir,
             HadoopFSUtil.getPassDirectoriesFilter(fs));
         Path[] files = HadoopFSUtil.getPaths(fstats);
@@ -214,7 +216,11 @@ public class IndexingJob extends NutchTool implements Tool {
       } else if (args[i].equals("-params")) {
         params = args[++i];
       } else {
-        segments.add(new Path(args[i]));
+        dir = new Path(args[i]);
+        fs = dir.getFileSystem(getConf());
+        if (SegmentChecker.isIndexable(dir,fs)) {
+          segments.add(dir);
+        }
       }
     }
 
