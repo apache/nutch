@@ -37,6 +37,7 @@ import org.apache.commons.cli.Options;
 //Commons imports
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 
 //Hadoop
 import org.apache.hadoop.conf.Configuration;
@@ -244,24 +245,7 @@ public class FileDumper {
                     String[] reversedURL = TableUtil.reverseUrl(url).split(":");
                     reversedURL[0] = reversedURL[0].replace('.', '/');
 
-                    // URLs with content at a folder level and nested below that
-                    // run into problems when dumping. For example:
-                    //
-                    // www.foo.com/bar/
-                    // www.foo.com/bar/about.html
-                    //
-                    // One of these will fail to dump depending on processing order.
-                    // To address this, we will use a placeholder when dumping a URL
-                    // such as the one ending in '/bar/'
-                    String lastDir = reversedURL[reversedURL.length - 1];
-                    if (! lastDir.contains(".")) {
-                      if (lastDir.charAt(lastDir.length() - 1) != '/') {
-                        reversedURL[reversedURL.length - 1] += '/';
-                      }
-                      reversedURL[reversedURL.length - 1] += "_file";
-                    }
-
-                    String reversedURLPath = org.apache.commons.lang3.StringUtils.join(reversedURL, "/");
+                    String reversedURLPath = reversedURL[0] + "/" + DigestUtils.sha256Hex(url).toUpperCase();
                     outputFullPath = String.format("%s/%s", fullDir, reversedURLPath);
                     
                     // We'll drop the trailing file name and create the nested structure if it doesn't already exist.

@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2182 Make reverseUrlDirs file dumper option hash the URL for consistency
+
 * NUTCH-2183 Improvement to SegmentChecker for skipping non-segments present in segments directory (lewismc)
 
 * NUTCH-2180 FileDumper skips Corrupt Segments (Harshavardhan Manjunatha via lewismc)
