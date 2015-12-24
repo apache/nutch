@@ -180,9 +180,10 @@ public class DomainURLFilter implements URLFilter {
   }
 
   public String filter(String url) {
-
+    // https://issues.apache.org/jira/browse/NUTCH-2189
+    if (domainSet.size() == 0) return url;
+    
     try {
-
       // match for suffix, domain, and host in that order. more general will
       // override more specific
       String domain = URLUtil.getDomainName(url).toLowerCase().trim();
