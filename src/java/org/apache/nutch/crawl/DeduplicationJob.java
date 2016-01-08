@@ -49,6 +49,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
+import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,12 +68,16 @@ public class DeduplicationJob extends NutchTool implements Tool {
       .getLogger(DeduplicationJob.class);
 
   private final static Text urlKey = new Text("_URLTEMPKEY_");
+  private final static String DEDUPLICATION_GROUP_MODE = "deduplication.group.mode";
 
   public static class DBFilter implements
       Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum> {
+      
+    private String groupMode;
 
     @Override
     public void configure(JobConf arg0) {
+      groupMode = arg0.get(DEDUPLICATION_GROUP_MODE);
     }
 
     @Override
@@ -90,10 +95,31 @@ public class DeduplicationJob extends NutchTool implements Tool {
         byte[] signature = value.getSignature();
         if (signature == null)
           return;
-        BytesWritable sig = new BytesWritable(signature);
+        String url = key.toString();
+        BytesWritable sig = null;
+        byte[] data;
+        switch (groupMode) {
+          case "none":
+            sig = new BytesWritable(signature);
+            break;
+          case "host":
+            byte[] host = URLUtil.getHost(url).getBytes();
+            data = new byte[signature.length + host.length];
+            System.arraycopy(signature, 0, data, 0, signature.length);
+            System.arraycopy(host, 0, data, signature.length, host.length);
+            sig = new BytesWritable(data);
+            break;
+          case "domain":
+            byte[] domain = URLUtil.getDomainName(url).getBytes();
+            data = new byte[signature.length + domain.length];
+            System.arraycopy(signature, 0, data, 0, signature.length);
+            System.arraycopy(domain, 0, data, signature.length, domain.length);
+            sig = new BytesWritable(data);
+            break;
+        }
         // add the URL as a temporary MD
         value.getMetaData().put(urlKey, key);
-        // reduce on the signature
+        // reduce on the signature optionall grouped on host or domain or not at all
         output.collect(sig, value);
       }
     }
@@ -216,11 +242,17 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
   public int run(String[] args) throws IOException {
     if (args.length < 1) {
-      System.err.println("Usage: DeduplicationJob <crawldb>");
+      System.err.println("Usage: DeduplicationJob <crawldb> [-group <none|host|domain>]");
       return 1;
     }
 
+    String group = "none";
     String crawldb = args[0];
+    
+    for (int i = 1; i < args.length; i++) {
+      if (args[i].equals("-group"))
+        group = args[++i];
+    }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -233,6 +265,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     JobConf job = new NutchJob(getConf());
 
     job.setJobName("Deduplication on " + crawldb);
+    job.set(DEDUPLICATION_GROUP_MODE, group);
 
     FileInputFormat.addInputPath(job, new Path(crawldb, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);

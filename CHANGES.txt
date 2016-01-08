@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2178 DeduplicationJob to optionally group on host or domain (markus)
+
 * NUTCH-1449 Optionally delete documents skipped by IndexingFilters (markus)
 
 * NUTCH-2189 Domain filter must deactivate if no rules are present (markus)
