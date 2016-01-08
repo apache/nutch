@@ -1043,6 +1043,20 @@
   </description>
 </property>
 
+<property>
+  <name>indexer.delete.robots.noindex</name>
+  <value>false</value>
+  <description>Whether the indexer will delete documents marked by robots=noindex
+  </description>
+</property>
+
+<property>
+  <name>indexer.delete.skipped.by.indexingfilter</name>
+  <value>false</value>
+  <description>Whether the indexer will delete documents that were skipped by indexing filters
+  </description>
+</property>
+
 <!-- URL normalizer properties -->
 
 <property>

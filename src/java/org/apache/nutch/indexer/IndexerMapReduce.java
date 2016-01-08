@@ -63,6 +63,7 @@ public class IndexerMapReduce extends Configured implements
   public static final String INDEXER_PARAMS = "indexer.additional.params";
   public static final String INDEXER_DELETE = "indexer.delete";
   public static final String INDEXER_DELETE_ROBOTS_NOINDEX = "indexer.delete.robots.noindex";
+  public static final String INDEXER_DELETE_SKIPPED = "indexer.delete.skipped.by.indexingfilter";
   public static final String INDEXER_SKIP_NOTMODIFIED = "indexer.skip.notmodified";
   public static final String URL_FILTERING = "indexer.url.filters";
   public static final String URL_NORMALIZING = "indexer.url.normalizers";
@@ -71,6 +72,7 @@ public class IndexerMapReduce extends Configured implements
   private boolean skip = false;
   private boolean delete = false;
   private boolean deleteRobotsNoIndex = false;
+  private boolean deleteSkippedByIndexingFilter = false;
   private boolean base64 = false;
   private IndexingFilters filters;
   private ScoringFilters scfilters;
@@ -93,6 +95,8 @@ public class IndexerMapReduce extends Configured implements
     this.scfilters = new ScoringFilters(getConf());
     this.delete = job.getBoolean(INDEXER_DELETE, false);
     this.deleteRobotsNoIndex = job.getBoolean(INDEXER_DELETE_ROBOTS_NOINDEX,
+        false);
+    this.deleteSkippedByIndexingFilter = job.getBoolean(INDEXER_DELETE_SKIPPED,
         false);
     this.skip = job.getBoolean(INDEXER_SKIP_NOTMODIFIED, false);
     this.base64 = job.getBoolean(INDEXER_BINARY_AS_BASE64, false);
@@ -245,7 +249,7 @@ public class IndexerMapReduce extends Configured implements
           || fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP
           || dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM
           || dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
-        reporter.incrCounter("IndexerStatus", "deleted redirects", 1);
+        reporter.incrCounter("IndexerStatus", "deleted (redirects)", 1);
         output.collect(key, DELETE_ACTION);
         return;
       }
@@ -258,7 +262,7 @@ public class IndexerMapReduce extends Configured implements
 
     // Whether to delete pages marked as duplicates
     if (delete && dbDatum.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
-      reporter.incrCounter("IndexerStatus", "deleted duplicates", 1);
+      reporter.incrCounter("IndexerStatus", "deleted (duplicates)", 1);
       output.collect(key, DELETE_ACTION);
       return;
     }
@@ -284,8 +288,25 @@ public class IndexerMapReduce extends Configured implements
 
     // add digest, used by dedup
     doc.add("digest", metadata.get(Nutch.SIGNATURE_KEY));
-
+    
     final Parse parse = new ParseImpl(parseText, parseData);
+    float boost = 1.0f;
+    // run scoring filters
+    try {
+      boost = this.scfilters.indexerScore(key, doc, dbDatum, fetchDatum, parse,
+          inlinks, boost);
+    } catch (final ScoringFilterException e) {
+      reporter.incrCounter("IndexerStatus", "errors (ScoringFilter)", 1);
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Error calculating score {}: {}", key, e);
+      }
+      return;
+    }
+    // apply boost to all indexed fields.
+    doc.setWeight(boost);
+    // store boost for use by explain and dedup
+    doc.add("boost", Float.toString(boost));
+
     try {
       // Indexing filters may also be interested in the signature
       fetchDatum.setSignature(dbDatum.getSignature());
@@ -317,26 +338,16 @@ public class IndexerMapReduce extends Configured implements
 
     // skip documents discarded by indexing filters
     if (doc == null) {
-      reporter.incrCounter("IndexerStatus", "skipped by indexing filters", 1);
-      return;
-    }
-
-    float boost = 1.0f;
-    // run scoring filters
-    try {
-      boost = this.scfilters.indexerScore(key, doc, dbDatum, fetchDatum, parse,
-          inlinks, boost);
-    } catch (final ScoringFilterException e) {
-      reporter.incrCounter("IndexerStatus", "errors (ScoringFilter)", 1);
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Error calculating score {}: {}", key, e);
+      // https://issues.apache.org/jira/browse/NUTCH-1449
+      if (deleteSkippedByIndexingFilter) {
+        NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+        output.collect(key, action);
+        reporter.incrCounter("IndexerStatus", "deleted (IndexingFilter)", 1);
+      } else {
+        reporter.incrCounter("IndexerStatus", "skipped (IndexingFilter)", 1);
       }
       return;
     }
-    // apply boost to all indexed fields.
-    doc.setWeight(boost);
-    // store boost for use by explain and dedup
-    doc.add("boost", Float.toString(boost));
 
     if (content != null) {
       // Get the original unencoded content

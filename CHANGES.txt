@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1449 Optionally delete documents skipped by IndexingFilters (markus)
+
 * NUTCH-2189 Domain filter must deactivate if no rules are present (markus)
 
 * NUTCH-2182 Make reverseUrlDirs file dumper option hash the URL for consistency (joyce)
