@@ -1,0 +1,12 @@
+# Skip all url's containing skip for example.org
+> www.example.org
+-skip
+<
+
+# Allow all url's containing skip for example.com
+> www.example.com
++skip
+<
+
+# Skip everything else
+-.

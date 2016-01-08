@@ -52,5 +52,10 @@ public class TestRegexURLFilter extends RegexURLFilterBaseTest {
     bench(400, "Benchmarks");
     bench(800, "Benchmarks");
   }
+  
+  @Test
+  public void test1838() {
+    test("nutch1838");
+  }
 
 }

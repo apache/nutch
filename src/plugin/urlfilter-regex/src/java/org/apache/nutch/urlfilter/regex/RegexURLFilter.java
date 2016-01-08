@@ -72,6 +72,12 @@ public class RegexURLFilter extends RegexURLFilterBase {
   protected RegexRule createRule(boolean sign, String regex) {
     return new Rule(sign, regex);
   }
+  
+  protected RegexRule createRule(boolean sign, String regex, String hostOrDomain) {
+    return new Rule(sign, regex, hostOrDomain);
+  }
+  
+  
 
   /*
    * ------------------------------------ * </implementation:RegexURLFilterBase>
@@ -89,7 +95,11 @@ public class RegexURLFilter extends RegexURLFilterBase {
     private Pattern pattern;
 
     Rule(boolean sign, String regex) {
-      super(sign, regex);
+      this(sign, regex, null);
+    }
+    
+    Rule(boolean sign, String regex, String hostOrDomain) {
+      super(sign, regex, hostOrDomain);
       pattern = Pattern.compile(regex);
     }
 

@@ -80,6 +80,10 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
   protected RegexRule createRule(boolean sign, String regex) {
     return new Rule(sign, regex);
   }
+  
+  protected RegexRule createRule(boolean sign, String regex, String hostOrDomain) {
+    return new Rule(sign, regex, hostOrDomain);
+  }
 
   /*
    * ------------------------------------ * </implementation:RegexURLFilterBase>
@@ -96,6 +100,11 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
 
     Rule(boolean sign, String regex) {
       super(sign, regex);
+      automaton = new RunAutomaton(new RegExp(regex, RegExp.ALL).toAutomaton());
+    }
+    
+    Rule(boolean sign, String regex, String hostOrDomain) {
+      super(sign, regex, hostOrDomain);
       automaton = new RunAutomaton(new RegExp(regex, RegExp.ALL).toAutomaton());
     }
 

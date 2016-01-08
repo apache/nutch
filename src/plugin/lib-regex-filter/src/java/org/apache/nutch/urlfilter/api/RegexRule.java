@@ -24,6 +24,10 @@ package org.apache.nutch.urlfilter.api;
 public abstract class RegexRule {
 
   private final boolean sign;
+  
+  private final String hostOrDomain;
+  
+  private final String regex;
 
   /**
    * Constructs a new regular expression rule.
@@ -38,7 +42,27 @@ public abstract class RegexRule {
    *          {@link #match(String)} method).
    */
   protected RegexRule(boolean sign, String regex) {
+    this(sign, regex, null);
+  }
+  
+  /**
+   * Constructs a new regular expression rule.
+   * 
+   * @param sign
+   *          specifies if this rule must filter-in or filter-out. A
+   *          <code>true</code> value means that any url matching this rule must
+   *          be accepted, a <code>false</code> value means that any url
+   *          matching this rule must be rejected.
+   * @param regex
+   *          is the regular expression used for matching (see
+   *          {@link #match(String)} method).
+   * @param hostOrDomain
+   *          the host or domain to which this regex belongs
+   */
+  protected RegexRule(boolean sign, String regex, String hostOrDomain) {
     this.sign = sign;
+    this.hostOrDomain = hostOrDomain;
+    this.regex = regex;
   }
 
   /**
@@ -50,6 +74,20 @@ public abstract class RegexRule {
   protected boolean accept() {
     return sign;
   }
+
+  /**
+   * Return if this rule is used for filtering-in or out.
+   *
+   * @return host or domain this regex rule belongs to
+   */
+  protected String hostOrDomain() { return hostOrDomain; }
+  
+  /**
+   * Return if this rule's regex.
+   *
+   * @return this regex
+   */
+  protected String regex() { return regex; }
 
   /**
    * Checks if a url matches this rule.

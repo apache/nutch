@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -36,6 +37,7 @@ import org.apache.hadoop.conf.Configuration;
 
 // Nutch imports
 import org.apache.nutch.net.*;
+import org.apache.nutch.util.URLUtil;
 
 /**
  * Generic {@link org.apache.nutch.net.URLFilter URL filter} based on regular
@@ -123,6 +125,20 @@ public abstract class RegexURLFilterBase implements URLFilter {
    *          is the regular expression associated to this rule.
    */
   protected abstract RegexRule createRule(boolean sign, String regex);
+  
+  /**
+   * Creates a new {@link RegexRule}.
+   * @param 
+   *        sign of the regular expression.
+   *        A <code>true</code> value means that any URL matching this rule
+   *        must be included, whereas a <code>false</code>
+   *        value means that any URL matching this rule must be excluded.
+   * @param regex
+   *        is the regular expression associated to this rule.
+   * @param hostOrDomain
+   *        the host or domain to which this regex belongs
+   */
+  protected abstract RegexRule createRule(boolean sign, String regex, String hostOrDomain);
 
   /**
    * Returns the name of the file of rules to use for a particular
@@ -142,7 +158,35 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
   // Inherited Javadoc
   public String filter(String url) {
+    String host = URLUtil.getHost(url);
+    String domain = null;
+    
+    try {
+      domain = URLUtil.getDomainName(url);
+    } catch (MalformedURLException e) {
+      // shouldnt happen here right?
+    }
+    
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("URL belongs to host " + host + " and domain " + domain);
+    }
+
     for (RegexRule rule : rules) {
+      // Skip the skip for rules that don't share the same host and domain
+      if (rule.hostOrDomain() != null &&
+            !rule.hostOrDomain().equals(host) &&
+            !rule.hostOrDomain().equals(domain)) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Skipping rule [" + rule.regex() + "] for host: " + rule.hostOrDomain());
+        }
+
+        continue;
+      }
+    
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Applying rule [" + rule.regex() + "] for host: " + host + " and domain " + domain);
+      }
+
       if (rule.match(url)) {
         return rule.accept() ? url : null;
       }
@@ -204,7 +248,8 @@ public abstract class RegexURLFilterBase implements URLFilter {
     BufferedReader in = new BufferedReader(reader);
     List<RegexRule> rules = new ArrayList<RegexRule>();
     String line;
-
+    String hostOrDomain = null;
+    
     while ((line = in.readLine()) != null) {
       if (line.length() == 0) {
         continue;
@@ -222,15 +267,21 @@ public abstract class RegexURLFilterBase implements URLFilter {
       case '\n':
       case '#': // skip blank & comment lines
         continue;
+      case '>':
+        hostOrDomain = line.substring(1).trim();
+        continue;
+      case '<':
+        hostOrDomain = null;
+        continue;
       default:
         throw new IOException("Invalid first character: " + line);
       }
 
       String regex = line.substring(1);
       if (LOG.isTraceEnabled()) {
-        LOG.trace("Adding rule [" + regex + "]");
+        LOG.trace("Adding rule [" + regex + "] for " + hostOrDomain);
       }
-      RegexRule rule = createRule(sign, regex);
+      RegexRule rule = createRule(sign, regex, hostOrDomain);
       rules.add(rule);
     }
     return rules;
