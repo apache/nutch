@@ -16,45 +16,26 @@
  */
 package org.apache.nutch.indexer.html;
 
-import java.util.Scanner;
-import java.nio.ByteBuffer;
 import java.io.ByteArrayInputStream;
-
-import java.text.ParseException;
+import java.nio.ByteBuffer;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
+import java.util.Scanner;
 
-import org.apache.avro.util.Utf8;
-import org.apache.commons.lang.StringUtils;
-import org.apache.nutch.util.StringUtil;
-
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.metadata.HttpHeaders;
-import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.MimeUtil;
-import org.apache.nutch.util.TableUtil;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-import org.apache.oro.text.regex.Perl5Pattern;
-import org.apache.solr.common.util.DateUtil;
+import org.apache.nutch.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * Add HTML of page the document element so it can be indexed in scheme.xml
- *
- * @author Mohamed Meabed <mo.meabed@gmail.com>
+ * Add raw HTML content of a document to the index.
  */
 
 public class HtmlIndexingFilter implements IndexingFilter {
@@ -93,6 +74,7 @@ public class HtmlIndexingFilter implements IndexingFilter {
                 data = scanner.next();
             }
             doc.add("rawcontent", StringUtil.cleanField(data));
+            scanner.close();
         }
         return doc;
     }

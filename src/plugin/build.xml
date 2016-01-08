@@ -29,6 +29,7 @@
      <ant dir="creativecommons" target="deploy"/>
      <ant dir="index-anchor" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
+     <ant dir="index-html" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
      <ant dir="index-metadata" target="deploy"/>
      <ant dir="indexer-solr" target="deploy"/>
@@ -116,6 +117,7 @@
     <ant dir="feed" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-basic" target="clean"/>
+    <ant dir="index-html" target="clean"/>
     <ant dir="index-more" target="clean"/>
     <ant dir="index-metadata" target="clean"/>
     <ant dir="indexer-solr" target="clean"/>
