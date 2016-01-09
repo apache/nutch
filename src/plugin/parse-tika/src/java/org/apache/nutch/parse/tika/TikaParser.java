@@ -207,7 +207,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     this.tikaConfig = null;
 
     try {
-      tikaConfig = TikaConfig.getDefaultConfig();
+      tikaConfig = new TikaConfig(this.getClass().getClassLoader());
     } catch (Exception e2) {
       String message = "Problem loading default Tika configuration";
       LOG.error(message, e2);

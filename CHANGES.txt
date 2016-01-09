@@ -3,6 +3,8 @@ Nutch Change Log
 Nutch 2.3.1 Release 22092015 (ddmmyyyy)
 Release Report - http://s.apache.org/nutch_2.3.1
 
+* NUTCH-2168 Parse-tika fails to retrieve parser (snagel, Auro Miralles, lewismc)
+
 * NUTCH-2169 Integrate index-html into Nutch build (snagel)
 
 * NUTCH-2143 GeneratorJob ignores batch id passed as argument (liuqibj, lewismc, snagel)
