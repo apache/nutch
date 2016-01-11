@@ -1,0 +1,7 @@
+# format: host\tprotocol\n
+
+example.org	http
+example.net	http
+
+example.io	https
+example.nl	https

@@ -224,6 +224,7 @@
       <packageset dir="${plugins.dir}/urlnormalizer-basic/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-host/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-pass/src/java"/>
+      <packageset dir="${plugins.dir}/urlnormalizer-protocol/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-querystring/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-slash/src/java"/>
@@ -660,6 +661,7 @@
       <packageset dir="${plugins.dir}/urlnormalizer-basic/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-host/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-pass/src/java"/>
+      <packageset dir="${plugins.dir}/urlnormalizer-protocol/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-querystring/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-slash/src/java"/>
@@ -1082,6 +1084,8 @@
         <source path="${plugins.dir}/urlnormalizer-host/src/test/" />
         <source path="${plugins.dir}/urlnormalizer-pass/src/java/" />
         <source path="${plugins.dir}/urlnormalizer-pass/src/test/" />
+        <source path="${plugins.dir}/urlnormalizer-protocol/src/java/" />
+        <source path="${plugins.dir}/urlnormalizer-protocol/src/test/" />
         <source path="${plugins.dir}/urlnormalizer-querystring/src/java/" />
         <source path="${plugins.dir}/urlnormalizer-querystring/src/test/" />
         <source path="${plugins.dir}/urlnormalizer-regex/src/java/" />
