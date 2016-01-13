@@ -32,6 +32,7 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseSegment;
@@ -43,7 +44,6 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.StringUtil;
-import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,10 +69,11 @@ public class IndexingFiltersChecker extends Configured implements Tool {
   public int run(String[] args) throws Exception {
     String contentType = null;
     String url = null;
+    URLNormalizers normalizers = null;
     boolean dumpText = false;
     boolean followRedirects = false;
 
-    String usage = "Usage: IndexingFiltersChecker [-followRedirects] [-dumpText] [-md key=value] <url>";
+    String usage = "Usage: IndexingFiltersChecker [-normalize] [-followRedirects] [-dumpText] [-md key=value] <url>";
 
     if (args.length == 0) {
       System.err.println(usage);
@@ -83,7 +84,9 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     HashMap<String, String> metadata = new HashMap<String, String>();
 
     for (int i = 0; i < args.length; i++) {
-      if (args[i].equals("-followRedirects")) {
+      if (args[i].equals("-normalize")) {
+        normalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_DEFAULT);
+      } else if (args[i].equals("-followRedirects")) {
         followRedirects = true;
       } else if (args[i].equals("-dumpText")) {
         dumpText = true;
@@ -101,8 +104,12 @@ public class IndexingFiltersChecker extends Configured implements Tool {
         System.err.println(usage);
         System.exit(-1);
       } else {
-        url = URLUtil.toASCII(args[i]);
+        url =args[i];
       }
+    }
+    
+    if (normalizers != null) {
+      url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
     }
 
     LOG.info("fetching: " + url);
@@ -129,6 +136,11 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     while (!output.getStatus().isSuccess() && followRedirects && output.getStatus().isRedirect() && maxRedirects != 0) {
       String[] stuff = output.getStatus().getArgs();
       url = stuff[0];
+      
+      if (normalizers != null) {
+        url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
+      }
+    
       turl.set(url);
       
       // try again
