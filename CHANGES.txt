@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2195 IndexingFilterChecker to optionally follow N redirects (markus)
+
 * NUTCH-2190 Protocol normalizer (markus)
 
 * NUTCH-1838 Host and domain based regex and automaton filtering (markus)

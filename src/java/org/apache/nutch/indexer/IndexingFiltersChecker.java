@@ -70,8 +70,9 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     String contentType = null;
     String url = null;
     boolean dumpText = false;
+    boolean followRedirects = false;
 
-    String usage = "Usage: IndexingFiltersChecker [-dumpText] [-md key=value] <url>";
+    String usage = "Usage: IndexingFiltersChecker [-followRedirects] [-dumpText] [-md key=value] <url>";
 
     if (args.length == 0) {
       System.err.println(usage);
@@ -82,7 +83,9 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     HashMap<String, String> metadata = new HashMap<String, String>();
 
     for (int i = 0; i < args.length; i++) {
-      if (args[i].equals("-dumpText")) {
+      if (args[i].equals("-followRedirects")) {
+        followRedirects = true;
+      } else if (args[i].equals("-dumpText")) {
         dumpText = true;
       } else if (args[i].equals("-md")) {
         String k = null, v = null;
@@ -116,11 +119,22 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     }
 
     IndexingFilters indexers = new IndexingFilters(getConf());
+    
+    int maxRedirects = 3;
 
-    ProtocolFactory factory = new ProtocolFactory(getConf());
-    Protocol protocol = factory.getProtocol(url);
+    ProtocolOutput output = getProtocolOutput(url, datum);
     Text turl = new Text(url);
-    ProtocolOutput output = protocol.getProtocolOutput(turl, datum);
+    
+    // Following redirects and not reached maxRedirects?
+    while (!output.getStatus().isSuccess() && followRedirects && output.getStatus().isRedirect() && maxRedirects != 0) {
+      String[] stuff = output.getStatus().getArgs();
+      url = stuff[0];
+      turl.set(url);
+      
+      // try again
+      output = getProtocolOutput(url, datum);
+      maxRedirects--;
+    }
 
     if (!output.getStatus().isSuccess()) {
       System.out.println("Fetch failed with protocol status: "
@@ -223,6 +237,14 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     }
 
     return 0;
+  }
+  
+  protected ProtocolOutput getProtocolOutput(String url, CrawlDatum datum) throws Exception {
+    ProtocolFactory factory = new ProtocolFactory(getConf());
+    Protocol protocol = factory.getProtocol(url);
+    Text turl = new Text(url);
+    ProtocolOutput output = protocol.getProtocolOutput(turl, datum);
+    return output;
   }
 
   public static void main(String[] args) throws Exception {
