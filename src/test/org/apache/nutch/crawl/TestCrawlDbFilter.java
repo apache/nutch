@@ -106,7 +106,7 @@ public class TestCrawlDbFilter {
     job.setOutputValueClass(CrawlDatum.class);
     JobClient.runJob(job);
 
-    Path fetchlist = new Path(new Path(newCrawlDb, "part-00000"), "data");
+    Path fetchlist = new Path(new Path(newCrawlDb, "part-r-00000"), "data");
 
     ArrayList<URLCrawlDatum> l = readContents(fetchlist);
 

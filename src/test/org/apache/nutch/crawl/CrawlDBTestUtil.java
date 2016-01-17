@@ -60,7 +60,7 @@ public class CrawlDBTestUtil {
     Option wKeyOpt = MapFile.Writer.keyClass(Text.class);
     org.apache.hadoop.io.SequenceFile.Writer.Option wValueOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
     MapFile.Writer writer = new MapFile.Writer(conf, new Path(dir,
-        "part-00000"), wKeyOpt, wValueOpt);
+        "part-r-00000"), wKeyOpt, wValueOpt);
     Iterator<URLCrawlDatum> it = init.iterator();
     while (it.hasNext()) {
       URLCrawlDatum row = it.next();

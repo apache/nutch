@@ -149,7 +149,7 @@ public class TestCrawlDbMerger {
     org.apache.hadoop.io.SequenceFile.Writer.Option wValueOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
     
     MapFile.Writer writer = new MapFile.Writer(config, new Path(dir,
-        "part-00000"), wKeyOpt, wValueOpt);
+        "part-r-00000"), wKeyOpt, wValueOpt);
     Iterator<String> it = init.iterator();
     while (it.hasNext()) {
       String key = it.next();

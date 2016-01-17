@@ -141,7 +141,7 @@ public class TestInjector {
 
   private List<String> readCrawldb() throws IOException {
     Path dbfile = new Path(crawldbPath, CrawlDb.CURRENT_NAME
-        + "/part-00000/data");
+        + "/part-r-00000/data");
     System.out.println("reading:" + dbfile);
     Option rFile = SequenceFile.Reader.file(dbfile);
     @SuppressWarnings("resource")
@@ -161,7 +161,7 @@ public class TestInjector {
 
   private HashMap<String, CrawlDatum> readCrawldbRecords() throws IOException {
     Path dbfile = new Path(crawldbPath, CrawlDb.CURRENT_NAME
-        + "/part-00000/data");
+        + "/part-r-00000/data");
     System.out.println("reading:" + dbfile);
     Option rFile = SequenceFile.Reader.file(dbfile);
     @SuppressWarnings("resource")
