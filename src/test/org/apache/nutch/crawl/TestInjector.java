@@ -66,7 +66,8 @@ public class TestInjector {
   }
 
   @Test
-  public void testInject() throws IOException {
+  public void testInject()
+      throws IOException, ClassNotFoundException, InterruptedException {
     ArrayList<String> urls = new ArrayList<String>();
     // We'll use a separate list for MD so we can still compare url with
     // containsAll

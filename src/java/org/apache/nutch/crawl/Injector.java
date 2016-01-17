@@ -319,12 +319,13 @@ public class Injector extends NutchTool implements Tool {
     setConf(conf);
   }
 
-  public void inject(Path crawlDb, Path urlDir) throws Exception {
+  public void inject(Path crawlDb, Path urlDir)
+      throws IOException, ClassNotFoundException, InterruptedException {
     inject(crawlDb, urlDir, false, false);
   }
 
   public void inject(Path crawlDb, Path urlDir, boolean overwrite,
-      boolean update) throws Exception {
+      boolean update) throws IOException, ClassNotFoundException, InterruptedException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
 
@@ -397,7 +398,7 @@ public class Injector extends NutchTool implements Tool {
         LOG.info("Injector: finished at " + sdf.format(end) + ", elapsed: "
             + TimingUtil.elapsedTime(start, end));
       }
-    } catch (Exception e) {
+    } catch (IOException e) {
       if (fs.exists(tempCrawlDb)) {
         fs.delete(tempCrawlDb, true);
       }

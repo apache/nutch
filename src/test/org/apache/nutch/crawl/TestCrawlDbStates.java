@@ -195,8 +195,9 @@ public class TestCrawlDbStates {
   public void testCrawlDbStatTransitionInject() {
     LOG.info("Test CrawlDatum states in Injector after inject");
     Configuration conf = CrawlDBTestUtil.createConfiguration();
-    CrawlDbUpdateUtil<Injector.InjectReducer> inject = new CrawlDbUpdateUtil<Injector.InjectReducer>(
-        new Injector.InjectReducer(), conf);
+    Injector.InjectReducer injector = new Injector.InjectReducer();
+    CrawlDbUpdateTestDriver<Injector.InjectReducer> injectDriver =
+        new CrawlDbUpdateTestDriver<Injector.InjectReducer>(injector, conf);
     ScoringFilters scfilters = new ScoringFilters(conf);
     for (String sched : schedules) {
       LOG.info("Testing inject with " + sched);
@@ -229,7 +230,7 @@ public class TestCrawlDbStates {
           LOG.error(StringUtils.stringifyException(e));
         }
         values.add(injected);
-        List<CrawlDatum> res = inject.update(values);
+        List<CrawlDatum> res = injectDriver.update(values);
         if (res.size() != 1) {
           fail("Inject didn't result in one single CrawlDatum per URL");
           continue;

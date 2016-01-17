@@ -35,7 +35,7 @@
     value="https://repository.apache.org/content/repositories/snapshots/"
     override="false"/>
   <property name="maven2.pattern"
-    value="[organisation]/[module]/[revision]/[module]-[revision]"/>
+    value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier])"/>
   <property name="maven2.pattern.ext"
     value="${maven2.pattern}.[ext]"/>
   <!-- pull in the local repository -->

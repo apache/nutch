@@ -79,7 +79,7 @@ public class TestFetcher {
   }
 
   @Test
-  public void testFetch() throws IOException {
+  public void testFetch() throws IOException, ClassNotFoundException, InterruptedException {
 
     // generate seedlist
     ArrayList<String> urls = new ArrayList<String>();

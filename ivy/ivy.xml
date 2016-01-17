@@ -11,7 +11,7 @@
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. -->
 
-<ivy-module version="1.0">
+<ivy-module version="1.0" xmlns:maven="http://ant.apache.org/ivy/maven">
 	<info organisation="org.apache.nutch" module="nutch">
 		<license name="Apache 2.0"
 			url="http://www.apache.org/licenses/LICENSE-2.0.txt/" />
@@ -98,6 +98,10 @@
 
 		<!--artifacts needed for testing -->
 		<dependency org="junit" name="junit" rev="4.11" conf="test->default" />
+		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">
+			<artifact name="mrunit" maven:classifier="hadoop2" />
+			<exclude org="log4j" module="log4j" />
+		</dependency>
 		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.22" conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22" conf="test->default" />
@@ -125,9 +129,7 @@
 		<exclude module="jmxtools" />
 		<exclude module="jms" />
 		<exclude module="jmxri" />
-        <exclude org="com.thoughtworks.xstream"/>
-        <exclude org="org.apache.mrunit"/>
-        <exclude org="com.thoughtworks.xstream"/>
+		<exclude org="com.thoughtworks.xstream"/>
 
 	</dependencies>
 
