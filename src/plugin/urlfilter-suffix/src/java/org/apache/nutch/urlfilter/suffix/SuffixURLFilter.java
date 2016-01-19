@@ -196,6 +196,7 @@ public class SuffixURLFilter implements URLFilter {
     String line;
 
     while ((line = in.readLine()) != null) {
+      line = line.trim();
       if (line.length() == 0)
         continue;
 
