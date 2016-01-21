@@ -59,7 +59,6 @@ import org.apache.hadoop.mapred.lib.HashPartitioner;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.scoring.webgraph.Loops.LoopSet;
 import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -246,9 +245,8 @@ public class LinkDumper extends Configured implements Tool {
       String fromUrl = key.toString();
       List<LinkDatum> outlinks = new ArrayList<LinkDatum>();
       Node node = null;
-      LoopSet loops = null;
-
-      // loop through all values aggregating outlinks, saving node and loopset
+      
+      // loop through all values aggregating outlinks, saving node
       while (values.hasNext()) {
         ObjectWritable write = values.next();
         Object obj = write.get();
@@ -256,24 +254,15 @@ public class LinkDumper extends Configured implements Tool {
           node = (Node) obj;
         } else if (obj instanceof LinkDatum) {
           outlinks.add(WritableUtils.clone((LinkDatum) obj, conf));
-        } else if (obj instanceof LoopSet) {
-          loops = (LoopSet) obj;
         }
       }
 
       // only collect if there are outlinks
       int numOutlinks = node.getNumOutlinks();
       if (numOutlinks > 0) {
-
-        Set<String> loopSet = (loops != null) ? loops.getLoopSet() : null;
         for (int i = 0; i < outlinks.size(); i++) {
           LinkDatum outlink = outlinks.get(i);
           String toUrl = outlink.getUrl();
-
-          // remove any url that is in the loopset, same as LinkRank
-          if (loopSet != null && loopSet.contains(toUrl)) {
-            continue;
-          }
 
           // collect the outlink as an inlink with the node
           output.collect(new Text(toUrl), new LinkNode(fromUrl, node));
@@ -343,8 +332,6 @@ public class LinkDumper extends Configured implements Tool {
 
     Path linkdump = new Path(webGraphDb, DUMP_DIR);
     Path nodeDb = new Path(webGraphDb, WebGraph.NODE_DIR);
-    Path loopSetDb = new Path(webGraphDb, Loops.LOOPS_DIR);
-    boolean loopsExists = fs.exists(loopSetDb);
     Path outlinkDb = new Path(webGraphDb, WebGraph.OUTLINK_DIR);
 
     // run the inverter job
@@ -353,9 +340,6 @@ public class LinkDumper extends Configured implements Tool {
     JobConf inverter = new NutchJob(conf);
     inverter.setJobName("LinkDumper: inverter");
     FileInputFormat.addInputPath(inverter, nodeDb);
-    if (loopsExists) {
-      FileInputFormat.addInputPath(inverter, loopSetDb);
-    }
     FileInputFormat.addInputPath(inverter, outlinkDb);
     inverter.setInputFormat(SequenceFileInputFormat.class);
     inverter.setMapperClass(Inverter.class);

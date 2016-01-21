@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2201 Remove loops program from webgraph package (markus)
+
 * NUTCH-1325 HostDB for Nutch (Gui Forget, markus, tejasp)
 
 * NUTCH-2203 Suffix URL filter can't handle trailing/leading whitespaces (Jurian Broertjes via markus)
