@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1325 HostDB for Nutch (Gui Forget, markus, tejasp)
+
 * NUTCH-2203 Suffix URL filter can't handle trailing/leading whitespaces (Jurian Broertjes via markus)
 
 * NUTCH-2194 Run IndexingFilterChecker as simple Telnet server (markus)

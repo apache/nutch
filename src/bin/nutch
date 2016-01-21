@@ -90,7 +90,9 @@ if [ $# = 0 ]; then
   echo "  junit             runs the given JUnit test"
   echo "  startserver       runs the Nutch Server on localhost:8081"
   echo "  webapp            run a local Nutch Web Application on locahost:8080"
-  echo "  warc	            exports crawled data from segments at the WARC format"
+  echo "  warc              exports crawled data from segments at the WARC format"
+  echo "  updatehostdb      update the host db with records from the crawl db"
+  echo "  readhostdb        read / dump host db"
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
@@ -290,6 +292,10 @@ elif [ "$COMMAND" = "webapp" ] ; then
   CLASS=org.apache.nutch.webui.NutchUiServer
 elif [ "$COMMAND" = "warc" ] ; then
   CLASS=org.apache.nutch.tools.warc.WARCExporter
+elif [ "$COMMAND" = "updatehostdb" ] ; then
+  CLASS=org.apache.nutch.hostdb.UpdateHostDb
+elif [ "$COMMAND" = "readhostdb" ] ; then
+  CLASS=org.apache.nutch.hostdb.ReadHostDb
 else
   CLASS=$COMMAND
 fi

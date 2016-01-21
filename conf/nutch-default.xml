@@ -1951,4 +1951,112 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<!-- HostDB settings -->
+<property>
+  <name>hostdb.recheck.interval</name>
+  <value>86400000</value>
+  <description>
+    Interval between rechecks in milliseconds. Default is one week. Recheck
+    interval is multiplied by the number of DNS lookup failures for a given
+    host.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.purge.failed.hosts.threshold</name>
+  <value>3</value>
+  <description>
+    If hosts have more failed DNS lookups than this threshold, they are
+    removed from the HostDB. Hosts can, of course, return if they are still
+    present in the CrawlDB.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.num.resolvers.threads</name>
+  <value>25</value>
+  <description>
+    Number of resolver threads per reducer. Make sure your DNS resolver is
+    capable of handling this value multiplied by the number of reducers.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.check.failed</name>
+  <value>true</value>
+  <description>
+    True if hosts for which DNS lookup failed are eligible for recheck. If
+    false, hosts that failed DNS lookup more than 0 times are not eligible
+    for DNS lookup.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.check.new</name>
+  <value>true</value>
+  <description>
+    True if newly discovered hosts eligible for DNS lookup check. If false,
+    hosts that are just added to the HostDB are not eligible for DNS lookup.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.check.known</name>
+  <value>true</value>
+  <description>
+    True if newly already known hosts eligible for DNS lookup check. If false,
+    known hosts are not eligible for DNS lookup.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.force.check</name>
+  <value>false</value>
+  <description>
+    If true hosts are checked regardless of their respective recheck
+    intervals or status.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.url.filter</name>
+  <value>false</value>
+  <description>
+    Whether the records are to be passed through configured filters.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.url.normalize</name>
+  <value>false</value>
+  <description>
+    Whether the records are to be passed through configured normalizers.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.numeric.fields</name>
+  <value>_rs_</value>
+  <description>
+    Comma-separated list of CrawlDatum metadata fields for which aggregations are needed.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.string.fields</name>
+  <value>Content-Type</value>
+  <description>
+    Comma-separated list of CrawlDatum metadata fields for which sums are needed.
+  </description>
+</property>
+
+<property>
+  <name>hostdb.percentiles</name>
+  <value>50,75,95,99</value>
+  <description>
+    Comma-separated list of percentiles that must be calculated for all numeric
+    field aggregations. Host metadata will contain fields for each percentile.
+  </description>
+</property>
+
 </configuration>
