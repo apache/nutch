@@ -1,5 +1,9 @@
 Nutch Change Log
 
+Nutch 2.4 Development
+
+Put Jira release report here
+
 Nutch 2.3.1 Release 22092015 (ddmmyyyy)
 Release Report - http://s.apache.org/nutch_2.3.1
 
