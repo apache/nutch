@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from stackbrew/ubuntu:saucy
-MAINTAINER Radoslaw Stankiewicz <rrydziu@gmail.com>
+from ubuntu:14.04
+MAINTAINER Nutch Developers <dev@nutch.apache.org>
 
 WORKDIR /root/
 

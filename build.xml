@@ -169,6 +169,7 @@
       <!--packageset dir="${plugins.dir}/feed/src/java"/-->
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
+      <packageset dir="${plugins.dir}/index-html/src/java"/>
       <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java"/>
@@ -599,6 +600,7 @@
       <!--packageset dir="${plugins.dir}/feed/src/java"/-->
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
+      <packageset dir="${plugins.dir}/index-html/src/java"/>
       <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java"/>
@@ -967,6 +969,7 @@
         <source path="${basedir}/src/plugin/index-anchor/src/test/" />
         <source path="${basedir}/src/plugin/index-basic/src/java/" />
         <source path="${basedir}/src/plugin/index-basic/src/test/" />
+        <source path="${basedir}/src/plugin/index-html/src/java/" />
         <source path="${basedir}/src/plugin/index-metadata/src/java/" />
         <source path="${basedir}/src/plugin/index-more/src/java/" />
         <source path="${basedir}/src/plugin/index-more/src/test/" />
