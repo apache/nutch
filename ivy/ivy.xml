@@ -92,6 +92,7 @@
 		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.5" conf="*->default">
 			<exclude module="hadoop-core"/>
 			<exclude org="com.google.guava"/>
+			<exclude org="junit"/>
 		</dependency>
 
 		<!--artifacts needed for testing -->

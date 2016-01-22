@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2204 Remove junit lib from runtime (snagel)
+
 * NUTCH-2201 Remove loops program from webgraph package (markus)
 
 * NUTCH-1325 HostDB for Nutch (Gui Forget, markus, tejasp)
