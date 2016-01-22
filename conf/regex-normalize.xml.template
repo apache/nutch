@@ -39,12 +39,11 @@
   <substitution>/$3</substitution>
 </regex> -->
 
-<!-- removes interpage href anchors such as site.com#location
-     (also done by urlnormalizer-basic
+<!-- removes interpage href anchors such as site.com#location -->
 <regex>
-  <pattern>#.*</pattern>
+  <pattern>#.*?(\?|&amp;|$)</pattern>
   <substitution>$1</substitution>
-</regex> -->
+</regex>
 
 <!-- cleans ?&amp;var=value into ?var=value -->
 <regex>
