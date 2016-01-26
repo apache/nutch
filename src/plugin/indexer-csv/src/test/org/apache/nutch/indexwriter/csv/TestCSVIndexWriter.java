@@ -17,26 +17,29 @@
 
 package org.apache.nutch.indexwriter.csv;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import junit.framework.TestCase;
 
 /**
  * Test CSVIndexWriter. Focus is on CSV-specific potential issues, mainly quoting and escaping.
  */
 
-public class TestCSVIndexWriter extends TestCase {
+public class TestCSVIndexWriter {
 
   protected static final Logger LOG = LoggerFactory.getLogger(TestCSVIndexWriter.class);
 
@@ -113,8 +116,9 @@ public class TestCSVIndexWriter extends TestCase {
   }
 
   /** defaults, no quoting necessary */
+  @Test
   public void testCSVdefault() throws IOException {
-    String[] fields = { "url", "http://nutch.apache.org/", "title",
+    String[] fields = { "id", "http://nutch.apache.org/", "title",
         "Welcome to Apache Nutch", "content",
         "Apache Nutch is an open source web-search software project. ..." };
     String csv = getCSV(new String[0], fields);
@@ -124,6 +128,7 @@ public class TestCSVIndexWriter extends TestCase {
     }
   }
 
+  @Test
   public void testCSVquoteFieldSeparators() throws IOException {
     String[] params = { CSVIndexWriter.CSV_FIELDS, "test,test2" };
     String[] fields = { "test", "a,b", "test2", "c,d" };
@@ -132,6 +137,7 @@ public class TestCSVIndexWriter extends TestCase {
         "\"a,b\",\"c,d\"", csv.trim());
   }
 
+  @Test
   public void testCSVquoteRecordSeparators() throws IOException {
     String[] params = { CSVIndexWriter.CSV_FIELDS, "test" };
     String[] fields = { "test", "a\nb" };
@@ -140,6 +146,7 @@ public class TestCSVIndexWriter extends TestCase {
         "\"a\nb\"", csv.trim());
   }
 
+  @Test
   public void testCSVescapeQuotes() throws IOException {
     String[] params = { CSVIndexWriter.CSV_FIELDS, "test" };
     String[] fields = { "test", "a,b:\"quote\",c" };
@@ -148,6 +155,7 @@ public class TestCSVIndexWriter extends TestCase {
         "\"a,b:\"\"quote\"\",c\"", csv.trim());
   }
 
+  @Test
   public void testCSVclipMaxLength() throws IOException {
     String[] params = { CSVIndexWriter.CSV_FIELDS, "test",
         CSVIndexWriter.CSV_MAXFIELDLENGTH, "8" };
@@ -156,15 +164,17 @@ public class TestCSVIndexWriter extends TestCase {
     assertEquals("Field clipped to max. length = 8", "01234567", csv.trim());
   }
 
+  @Test
   public void testCSVclipMaxLengthQuote() throws IOException {
     String[] params = { CSVIndexWriter.CSV_FIELDS, "test",
         CSVIndexWriter.CSV_MAXFIELDLENGTH, "7" };
-    String[] fields = { "test", "1,\"2\",3,4" };
+    String[] fields = { "test", "1,\"2\",3,\"4\"" };
     String csv = getCSV(params, fields);
     assertEquals("Field clipped to max. length = 7", "\"1,\"\"2\"\",3\"",
         csv.trim());
   }
 
+  @Test
   public void testCSVmultiValueFields() throws IOException {
     String[] params = { CSVIndexWriter.CSV_FIELDS, "test",
         CSVIndexWriter.CSV_VALUESEPARATOR, "|",
@@ -175,6 +185,7 @@ public class TestCSVIndexWriter extends TestCase {
         "abc|def", csv.trim());
   }
 
+  @Test
   public void testCSVEncoding() throws IOException {
     String[] charsets = { "iso-8859-1",
         "\u00e4\u00f6\u00fc\u00df\u00e9\u00f4\u00ee", // äöüßéôî
@@ -194,6 +205,7 @@ public class TestCSVIndexWriter extends TestCase {
   }
 
   /** test non-ASCII separator */
+  @Test
   public void testCSVEncodingSeparator() throws IOException {
     String[] params = { CSVIndexWriter.CSV_FIELDS, "test",
         CSVIndexWriter.CSV_CHARSET, "iso-8859-1",
@@ -206,6 +218,7 @@ public class TestCSVIndexWriter extends TestCase {
         "abc\u00a6def", csv.trim());
   }
 
+  @Test
   public void testCSVtabSeparated() throws IOException {
     String[] params = { CSVIndexWriter.CSV_FIELDS, "1,2,3",
         CSVIndexWriter.CSV_FIELD_SEPARATOR, "\t",
@@ -228,6 +241,7 @@ public class TestCSVIndexWriter extends TestCase {
     assertEquals("tab-separated output", "A\tB\tC", records[1]);
   }
 
+  @Test
   public void testCSVdateField() throws IOException {
     String[] params = { CSVIndexWriter.CSV_FIELDS, "date" };
     NutchDocument[] docs = new NutchDocument[1];

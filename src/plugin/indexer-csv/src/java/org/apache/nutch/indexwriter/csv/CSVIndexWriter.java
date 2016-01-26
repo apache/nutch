@@ -20,6 +20,7 @@ package org.apache.nutch.indexwriter.csv;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Date;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 
@@ -108,7 +109,8 @@ public class CSVIndexWriter implements IndexWriter {
       setFromConf(conf, property, false);
     }
 
-    protected void setFromConf(Configuration conf, String property, boolean isChar) {
+    protected void setFromConf(Configuration conf, String property,
+        boolean isChar) {
       String str = conf.get(property);
       if (isChar && str != null && !str.isEmpty()) {
         LOG.warn("Separator " + property
@@ -172,6 +174,13 @@ public class CSVIndexWriter implements IndexWriter {
   private int maxFieldLength = 4096;
   public static final String CSV_MAXFIELDLENGTH = "indexer.csv.maxfieldlength";
 
+  /**
+   * max. number of values of one field, useful for fields with potentially many
+   * variant values, e.g., the "anchor" texts field
+   */
+  private int maxFieldValues = 12;
+  public static final String CSV_MAXFIELDVALUES = "indexer.csv.maxfieldvalues";
+
   /** max. length of a field value */
   private boolean withHeader = true;
   public static final String CSV_WITHHEADER = "indexer.csv.header";
@@ -199,8 +208,11 @@ public class CSVIndexWriter implements IndexWriter {
       + String.format("\n  %-24s : %s", CSV_VALUESEPARATOR,
           "separator between multiple values of one field, "
               + "default: | (U+007C)")
+      + String.format("\n  %-24s : %s", CSV_MAXFIELDVALUES,
+          "max. number of values of one field, useful for, "
+              + " e.g., the anchor texts field, default: 12")
       + String.format("\n  %-24s : %s", CSV_MAXFIELDLENGTH,
-          "max. length of a field value in characters, default: 4096")
+          "max. length of a single field value in characters, default: 4096.")
       + String.format("\n  %-24s : %s", CSV_CHARSET,
           "encoding of CSV file, default: UTF-8")
       + String.format("\n  %-24s : %s", CSV_WITHHEADER,
@@ -214,26 +226,26 @@ public class CSVIndexWriter implements IndexWriter {
 
   protected FSDataOutputStream csvout;
 
-  private Path path;
-  private Path tmpPath;
+  private Path csvFSOutFile;
+  private Path csvLocalOutFile;
 
   @Override
   public void open(JobConf job, String name) throws IOException {
     fs = FileSystem.get(job);
-    path = new Path(outputPath, name);
-    tmpPath = job.getLocalPath(outputPath + "/_"
-        + Integer.toString(new Random().nextInt()));
-    if (fs.exists(path)) {
+    LOG.info("Writing output to {}", outputPath);
+    csvLocalOutFile = job.getLocalPath("tmp_" + System.currentTimeMillis() + "-"
+        + Integer.toString(new Random().nextInt()) + "/nutch.csv");
+    csvFSOutFile = new Path(outputPath, "nutch.csv");
+    if (fs.exists(csvFSOutFile)) {
       // clean-up
-      LOG.warn("Removing existing output path " + path);
-      fs.delete(path, true);
-      FileOutputFormat.setOutputPath(job, path);
+      LOG.warn("Removing existing output path {}", csvFSOutFile);
+      fs.delete(csvFSOutFile, true);
+      FileOutputFormat.setOutputPath(job, csvFSOutFile);
       job.getOutputFormat().checkOutputSpecs(fs, job);
 
     }
-    Path outPath = fs.startLocalOutput(path, tmpPath);
-    Path outFile = new Path(outPath, "nutch.csv");
-    csvout = fs.create(outFile);
+    Path file = fs.startLocalOutput(csvFSOutFile, csvLocalOutFile);
+    csvout = fs.create(file);
     if (withHeader) {
       for (int i = 0; i < fields.length; i++) {
         if (i > 0)
@@ -252,13 +264,18 @@ public class CSVIndexWriter implements IndexWriter {
       }
       NutchField field = doc.getField(fields[i]);
       if (field != null) {
-        int nValues = field.getValues().size();
+        List<Object> values = field.getValues();
+        int nValues = values.size();
+        if (nValues > maxFieldValues) {
+          nValues = maxFieldValues;
+        }
         if (nValues > 1) {
           // always quote multi-value fields
           csvout.write(quoteCharacter.bytes);
         }
-        for (ListIterator<Object> it = field.getValues().listIterator(); it
-            .hasNext();) {
+        ListIterator<Object> it = values.listIterator();
+        int j = 0;
+        while (it.hasNext() && j <= nValues) {
           Object objval = it.next();
           String value;
           if (objval == null) {
@@ -288,6 +305,7 @@ public class CSVIndexWriter implements IndexWriter {
     csvout.write(recordSeparator.bytes);
   }
 
+  /** (deletion of documents is not supported) */
   @Override
   public void delete(String key) throws IOException {
   }
@@ -300,10 +318,11 @@ public class CSVIndexWriter implements IndexWriter {
   @Override
   public void close() throws IOException {
     csvout.close();
-    fs.completeLocalOutput(path, tmpPath);
-    LOG.info("Finished CSV index " + new Path(path, "nutch.csv"));
+    fs.completeLocalOutput(csvFSOutFile, csvLocalOutFile);
+    LOG.info("Finished CSV index in {}", csvFSOutFile);
   }
 
+  /** (nothing to commit) */
   @Override
   public void commit() throws IOException {
   }
@@ -311,6 +330,11 @@ public class CSVIndexWriter implements IndexWriter {
   @Override
   public Configuration getConf() {
     return config;
+  }
+
+  @Override
+  public String describe() {
+    return getClass().getSimpleName() + description;
   }
 
   @Override
@@ -329,7 +353,9 @@ public class CSVIndexWriter implements IndexWriter {
     withHeader = conf.getBoolean(CSV_WITHHEADER, true);
     maxFieldLength = conf.getInt(CSV_MAXFIELDLENGTH, maxFieldLength);
     LOG.info(CSV_MAXFIELDLENGTH + " = " + maxFieldLength);
-    fields = conf.getStrings(CSV_FIELDS, "url", "title", "content");
+    maxFieldValues = conf.getInt(CSV_MAXFIELDVALUES, maxFieldValues);
+    LOG.info(CSV_MAXFIELDVALUES + " = " + maxFieldValues);
+    fields = conf.getStrings(CSV_FIELDS, "id", "title", "content");
     LOG.info("fields =");
     for (String f : fields) {
       LOG.info("\t" + f);
@@ -340,8 +366,8 @@ public class CSVIndexWriter implements IndexWriter {
   private void writeQuoted (String value) throws IOException {
     int nextQuoteChar;
     if (quoteCharacter.chars.length > 0
-        && (((nextQuoteChar = quoteCharacter.find(value, 0)) >= 0)
-            || (fieldSeparator.find(value, 0) >= 0)
+        && (((nextQuoteChar = quoteCharacter.find(value, 0)) >= 0) 
+            || (fieldSeparator.find(value, 0) >= 0) 
             || (recordSeparator.find(value, 0) >= 0))) {
       // need quotes
       csvout.write(quoteCharacter.bytes);
@@ -371,7 +397,7 @@ public class CSVIndexWriter implements IndexWriter {
     if (max > maxFieldLength) {
       max = maxFieldLength;
     }
-    while (nextQuoteChar > 0) {
+    while (nextQuoteChar > 0 && nextQuoteChar < max) {
       csvout.write(value.substring(start, nextQuoteChar).getBytes(encoding));
       csvout.write(escapeCharacter.bytes);
       csvout.write(quoteCharacter.bytes);
