@@ -19,8 +19,9 @@ package org.apache.nutch.storage;
 import org.apache.avro.util.Utf8;
 
 public enum Mark {
-  INJECT_MARK("_injmrk_"), GENERATE_MARK("_gnmrk_"), FETCH_MARK("_ftcmrk_"), PARSE_MARK(
-      "__prsmrk__"), UPDATEDB_MARK("_updmrk_"), INDEX_MARK("_idxmrk_");
+  INJECT_MARK("_injmrk_"), GENERATE_MARK("_gnmrk_"), FETCH_MARK("_ftcmrk_"),
+  PARSE_MARK("__prsmrk__"), UPDATEDB_MARK("_updmrk_"), INDEX_MARK("_idxmrk_"),
+  SITEMAP_MARK("_stmmrk_");
 
   private Utf8 name;
 

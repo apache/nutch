@@ -5,3 +5,7 @@ conf/slaves
 build/
 runtime/
 logs/
+*.iml
+.idea
+.log
+

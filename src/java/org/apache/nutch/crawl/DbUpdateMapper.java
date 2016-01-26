@@ -36,7 +36,7 @@ import org.apache.nutch.util.WebPageWritable;
 import org.apache.gora.mapreduce.GoraMapper;
 
 public class DbUpdateMapper extends
-    GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
+GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
   public static final Logger LOG = DbUpdaterJob.LOG;
 
   private ScoringFilters scoringFilters;
@@ -57,7 +57,7 @@ public class DbUpdateMapper extends
     if (Mark.GENERATE_MARK.checkMark(page) == null) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Skipping " + TableUtil.unreverseUrl(key)
-            + "; not generated yet");
+        + "; not generated yet");
       }
       return;
     }
@@ -66,16 +66,10 @@ public class DbUpdateMapper extends
 
     scoreData.clear();
     Map<CharSequence, CharSequence> outlinks = page.getOutlinks();
-    if (outlinks != null) {
-      for (Entry<CharSequence, CharSequence> e : outlinks.entrySet()) {
-        int depth = Integer.MAX_VALUE;
-        CharSequence depthUtf8 = page.getMarkers().get(DbUpdaterJob.DISTANCE);
-        if (depthUtf8 != null)
-          depth = Integer.parseInt(depthUtf8.toString());
-        scoreData.add(new ScoreDatum(0.0f, e.getKey().toString(), e.getValue()
-            .toString(), depth));
-      }
-    }
+    addScoreData(page, outlinks);
+
+    Map<CharSequence, CharSequence> sitemaps = page.getSitemaps();
+    addScoreData(page, sitemaps);
 
     // TODO: Outlink filtering (i.e. "only keep the first n outlinks")
     try {
@@ -99,6 +93,19 @@ public class DbUpdateMapper extends
       urlWithScore.setScore(scoreDatum.getScore());
       nutchWritable.set(scoreDatum);
       context.write(urlWithScore, nutchWritable);
+    }
+  }
+
+  private void addScoreData(WebPage page, Map<CharSequence, CharSequence> map) {
+    if (map != null) {
+      for (Entry<CharSequence, CharSequence> e : map.entrySet()) {
+        int depth = Integer.MAX_VALUE;
+        CharSequence depthUtf8 = page.getMarkers().get(DbUpdaterJob.DISTANCE);
+        if (depthUtf8 != null)
+          depth = Integer.parseInt(depthUtf8.toString());
+        scoreData.add(new ScoreDatum(0.0f, e.getKey().toString(), e.getValue()
+            .toString(), depth));
+      }
     }
   }
 

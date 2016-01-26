@@ -27,7 +27,8 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
     implements org.apache.avro.specific.SpecificRecord,
     org.apache.gora.persistency.Persistent {
   public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser()
-      .parse("{\"type\":\"record\",\"name\":\"WebPage\",\"namespace\":\"org.apache.nutch.storage\",\"doc\":\"WebPage is the primary data structure in Nutch representing crawl data for a given WebPage at some point in time\",\"fields\":[{\"name\":\"baseUrl\",\"type\":[\"null\",\"string\"],\"doc\":\"The original associated with this WebPage.\",\"default\":null},{\"name\":\"status\",\"type\":\"int\",\"doc\":\"A crawl status associated with the WebPage, can be of value STATUS_UNFETCHED - WebPage was not fetched yet, STATUS_FETCHED - WebPage was successfully fetched, STATUS_GONE - WebPage no longer exists, STATUS_REDIR_TEMP - WebPage temporarily redirects to other page, STATUS_REDIR_PERM - WebPage permanently redirects to other page, STATUS_RETRY - Fetching unsuccessful, needs to be retried e.g. transient errors and STATUS_NOTMODIFIED - fetching successful - page is not modified\",\"default\":0},{\"name\":\"fetchTime\",\"type\":\"long\",\"doc\":\"The system time in milliseconds for when the page was fetched.\",\"default\":0},{\"name\":\"prevFetchTime\",\"type\":\"long\",\"doc\":\"The system time in milliseconds for when the page was last fetched if it was previously fetched which can be used to calculate time delta within a fetching schedule implementation\",\"default\":0},{\"name\":\"fetchInterval\",\"type\":\"int\",\"doc\":\"The default number of seconds between re-fetches of a page. The default is considered as 30 days unless a custom fetch schedle is implemented.\",\"default\":0},{\"name\":\"retriesSinceFetch\",\"type\":\"int\",\"doc\":\"The number of retried attempts at fetching the WebPage since it was last successfully fetched.\",\"default\":0},{\"name\":\"modifiedTime\",\"type\":\"long\",\"doc\":\"The system time in milliseconds for when this WebPage was modified by the WebPage author, if this is not available we default to the server for this information. This is important to understand the changing nature of the WebPage.\",\"default\":0},{\"name\":\"prevModifiedTime\",\"type\":\"long\",\"doc\":\"The system time in milliseconds for when this WebPage was previously modified by the author, if this is not available then we default to the server for this information. This is important to understand the changing nature of a WebPage.\",\"default\":0},{\"name\":\"protocolStatus\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ProtocolStatus\",\"doc\":\"A nested container representing data captured from web server responses.\",\"fields\":[{\"name\":\"code\",\"type\":\"int\",\"doc\":\"A protocol response code which can be one of SUCCESS - content was retrieved without errors, FAILED - Content was not retrieved. Any further errors may be indicated in args, PROTO_NOT_FOUND - This protocol was not found. Application may attempt to retry later, GONE - Resource is gone, MOVED - Resource has moved permanently. New url should be found in args, TEMP_MOVED - Resource has moved temporarily. New url should be found in args., NOTFOUND - Resource was not found, RETRY - Temporary failure. Application may retry immediately., EXCEPTION - Unspecified exception occured. Further information may be provided in args., ACCESS_DENIED - Access denied - authorization required, but missing/incorrect., ROBOTS_DENIED - Access denied by robots.txt rules., REDIR_EXCEEDED - Too many redirects., NOTFETCHING - Not fetching., NOTMODIFIED - Unchanged since the last fetch., WOULDBLOCK - Request was refused by protocol plugins, because it would block. The expected number of milliseconds to wait before retry may be provided in args., BLOCKED - Thread was blocked http.max.delays times during fetching.\",\"default\":0},{\"name\":\"args\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"doc\":\"Optional arguments supplied to compliment and/or justify the response code.\",\"default\":[]},{\"name\":\"lastModified\",\"type\":\"long\",\"doc\":\"A server reponse indicating when this page was last modified, this can be unreliable at times hence this is used as a default fall back value for the preferred 'modifiedTime' and 'preModifiedTime' obtained from the WebPage itself.\",\"default\":0}]}],\"default\":null},{\"name\":\"content\",\"type\":[\"null\",\"bytes\"],\"doc\":\"The entire raw document content e.g. raw XHTML\",\"default\":null},{\"name\":\"contentType\",\"type\":[\"null\",\"string\"],\"doc\":\"The type of the content contained within the document itself. ContentType is an alias for MimeType. Historically, this parameter was only called MimeType, but since this is actually the value included in the HTTP Content-Type header, it can also include the character set encoding, which makes it more than just a MimeType specification. If MimeType is specified e.g. not None, that value is used. Otherwise, ContentType is used. If neither is given, the DEFAULT_CONTENT_TYPE setting is used.\",\"default\":null},{\"name\":\"prevSignature\",\"type\":[\"null\",\"bytes\"],\"doc\":\"An implementation of a WebPage's previous signature from which it can be identified and referenced at any point in time. This can be used to uniquely identify WebPage deltas based on page fingerprints.\",\"default\":null},{\"name\":\"signature\",\"type\":[\"null\",\"bytes\"],\"doc\":\"An implementation of a WebPage's signature from which it can be identified and referenced at any point in time. This is essentially the WebPage's fingerprint represnting its state for any point in time.\",\"default\":null},{\"name\":\"title\",\"type\":[\"null\",\"string\"],\"doc\":\"The title of the WebPage.\",\"default\":null},{\"name\":\"text\",\"type\":[\"null\",\"string\"],\"doc\":\"The textual content of the WebPage devoid from native markup.\",\"default\":null},{\"name\":\"parseStatus\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ParseStatus\",\"doc\":\"A nested container representing parse status data captured from invocation of parsers on fetch of a WebPage\",\"fields\":[{\"name\":\"majorCode\",\"type\":\"int\",\"doc\":\"Major parsing status' including NOTPARSED (Parsing was not performed), SUCCESS (Parsing succeeded), FAILED (General failure. There may be a more specific error message in arguments.)\",\"default\":0},{\"name\":\"minorCode\",\"type\":\"int\",\"doc\":\"Minor parsing status' including SUCCESS_OK - Successful parse devoid of anomalies or issues, SUCCESS_REDIRECT - Parsed content contains a directive to redirect to another URL. The target URL can be retrieved from the arguments., FAILED_EXCEPTION - Parsing failed. An Exception occured which may be retrieved from the arguments., FAILED_TRUNCATED - Parsing failed. Content was truncated, but the parser cannot handle incomplete content., FAILED_INVALID_FORMAT - Parsing failed. Invalid format e.g. the content may be corrupted or of wrong type., FAILED_MISSING_PARTS - Parsing failed. Other related parts of the content are needed to complete parsing. The list of URLs to missing parts may be provided in arguments. The Fetcher may decide to fetch these parts at once, then put them into Content.metadata, and supply them for re-parsing., FAILED_MISING_CONTENT - Parsing failed. There was no content to be parsed - probably caused by errors at protocol stage.\",\"default\":0},{\"name\":\"args\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"doc\":\"Optional arguments supplied to compliment and/or justify the parse status code.\",\"default\":[]}]}],\"default\":null},{\"name\":\"score\",\"type\":\"float\",\"doc\":\"A score used to determine a WebPage's relevance within the web graph it is part of. This score may change over time based on graph characteristics.\",\"default\":0},{\"name\":\"reprUrl\",\"type\":[\"null\",\"string\"],\"doc\":\"In the case where we are given two urls, a source and a destination of a redirect, we should determine and persist the representative url. The logic used to determine this is based largely on Yahoo!'s Slurp Crawler\",\"default\":null},{\"name\":\"headers\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"string\"]},\"doc\":\"Header information returned from the web server used to server the content which is subsequently fetched from. This includes keys such as TRANSFER_ENCODING, CONTENT_ENCODING, CONTENT_LANGUAGE, CONTENT_LENGTH, CONTENT_LOCATION, CONTENT_DISPOSITION, CONTENT_MD5, CONTENT_TYPE, LAST_MODIFIED and LOCATION.\",\"default\":{}},{\"name\":\"outlinks\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"string\"]},\"doc\":\"Embedded hyperlinks which direct outside of the current domain.\",\"default\":{}},{\"name\":\"inlinks\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"string\"]},\"doc\":\"Embedded hyperlinks which link to pages within the current domain.\",\"default\":{}},{\"name\":\"markers\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"string\"]},\"doc\":\"Markers flags which represent user and machine decisions which have affected influenced a WebPage's current state. Markers can be system specific and user machine driven in nature. They are assigned to a WebPage on a job-by-job basis and thier values indicative of what actions should be associated with a WebPage.\",\"default\":{}},{\"name\":\"metadata\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"bytes\"]},\"doc\":\"A multi-valued metadata container used for storing everything from structured WebPage characterists, to ad-hoc extraction and metadata augmentation for any given WebPage.\",\"default\":{}},{\"name\":\"batchId\",\"type\":[\"null\",\"string\"],\"doc\":\"A batchId that this WebPage is assigned to. WebPage's are fetched in batches, called fetchlists. Pages are partitioned but can always be associated and fetched alongside pages of similar value (within a crawl cycle) based on batchId.\",\"default\":null}]}");
+      .parse(
+          "{\"type\":\"record\",\"name\":\"WebPage\",\"namespace\":\"org.apache.nutch.storage\",\"doc\":\"WebPage is the primary data structure in Nutch representing crawl data for a given WebPage at some point in time\",\"fields\":[{\"name\":\"baseUrl\",\"type\":[\"null\",\"string\"],\"doc\":\"The original associated with this WebPage.\",\"default\":null},{\"name\":\"status\",\"type\":\"int\",\"doc\":\"A crawl status associated with the WebPage, can be of value STATUS_UNFETCHED - WebPage was not fetched yet, STATUS_FETCHED - WebPage was successfully fetched, STATUS_GONE - WebPage no longer exists, STATUS_REDIR_TEMP - WebPage temporarily redirects to other page, STATUS_REDIR_PERM - WebPage permanently redirects to other page, STATUS_RETRY - Fetching unsuccessful, needs to be retried e.g. transient errors and STATUS_NOTMODIFIED - fetching successful - page is not modified\",\"default\":0},{\"name\":\"fetchTime\",\"type\":\"long\",\"doc\":\"The system time in milliseconds for when the page was fetched.\",\"default\":0},{\"name\":\"prevFetchTime\",\"type\":\"long\",\"doc\":\"The system time in milliseconds for when the page was last fetched if it was previously fetched which can be used to calculate time delta within a fetching schedule implementation\",\"default\":0},{\"name\":\"fetchInterval\",\"type\":\"int\",\"doc\":\"The default number of seconds between re-fetches of a page. The default is considered as 30 days unless a custom fetch schedle is implemented.\",\"default\":0},{\"name\":\"retriesSinceFetch\",\"type\":\"int\",\"doc\":\"The number of retried attempts at fetching the WebPage since it was last successfully fetched.\",\"default\":0},{\"name\":\"modifiedTime\",\"type\":\"long\",\"doc\":\"The system time in milliseconds for when this WebPage was modified by the WebPage author, if this is not available we default to the server for this information. This is important to understand the changing nature of the WebPage.\",\"default\":0},{\"name\":\"prevModifiedTime\",\"type\":\"long\",\"doc\":\"The system time in milliseconds for when this WebPage was previously modified by the author, if this is not available then we default to the server for this information. This is important to understand the changing nature of a WebPage.\",\"default\":0},{\"name\":\"protocolStatus\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ProtocolStatus\",\"doc\":\"A nested container representing data captured from web server responses.\",\"fields\":[{\"name\":\"code\",\"type\":\"int\",\"doc\":\"A protocol response code which can be one of SUCCESS - content was retrieved without errors, FAILED - Content was not retrieved. Any further errors may be indicated in args, PROTO_NOT_FOUND - This protocol was not found. Application may attempt to retry later, GONE - Resource is gone, MOVED - Resource has moved permanently. New url should be found in args, TEMP_MOVED - Resource has moved temporarily. New url should be found in args., NOTFOUND - Resource was not found, RETRY - Temporary failure. Application may retry immediately., EXCEPTION - Unspecified exception occured. Further information may be provided in args., ACCESS_DENIED - Access denied - authorization required, but missing/incorrect., ROBOTS_DENIED - Access denied by robots.txt rules., REDIR_EXCEEDED - Too many redirects., NOTFETCHING - Not fetching., NOTMODIFIED - Unchanged since the last fetch., WOULDBLOCK - Request was refused by protocol plugins, because it would block. The expected number of milliseconds to wait before retry may be provided in args., BLOCKED - Thread was blocked http.max.delays times during fetching.\",\"default\":0},{\"name\":\"args\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"doc\":\"Optional arguments supplied to compliment and/or justify the response code.\",\"default\":[]},{\"name\":\"lastModified\",\"type\":\"long\",\"doc\":\"A server reponse indicating when this page was last modified, this can be unreliable at times hence this is used as a default fall back value for the preferred 'modifiedTime' and 'preModifiedTime' obtained from the WebPage itself.\",\"default\":0}]}],\"default\":null},{\"name\":\"content\",\"type\":[\"null\",\"bytes\"],\"doc\":\"The entire raw document content e.g. raw XHTML\",\"default\":null},{\"name\":\"contentType\",\"type\":[\"null\",\"string\"],\"doc\":\"The type of the content contained within the document itself. ContentType is an alias for MimeType. Historically, this parameter was only called MimeType, but since this is actually the value included in the HTTP Content-Type header, it can also include the character set encoding, which makes it more than just a MimeType specification. If MimeType is specified e.g. not None, that value is used. Otherwise, ContentType is used. If neither is given, the DEFAULT_CONTENT_TYPE setting is used.\",\"default\":null},{\"name\":\"prevSignature\",\"type\":[\"null\",\"bytes\"],\"doc\":\"An implementation of a WebPage's previous signature from which it can be identified and referenced at any point in time. This can be used to uniquely identify WebPage deltas based on page fingerprints.\",\"default\":null},{\"name\":\"signature\",\"type\":[\"null\",\"bytes\"],\"doc\":\"An implementation of a WebPage's signature from which it can be identified and referenced at any point in time. This is essentially the WebPage's fingerprint represnting its state for any point in time.\",\"default\":null},{\"name\":\"title\",\"type\":[\"null\",\"string\"],\"doc\":\"The title of the WebPage.\",\"default\":null},{\"name\":\"text\",\"type\":[\"null\",\"string\"],\"doc\":\"The textual content of the WebPage devoid from native markup.\",\"default\":null},{\"name\":\"parseStatus\",\"type\":[\"null\",{\"type\":\"record\",\"name\":\"ParseStatus\",\"doc\":\"A nested container representing parse status data captured from invocation of parsers on fetch of a WebPage\",\"fields\":[{\"name\":\"majorCode\",\"type\":\"int\",\"doc\":\"Major parsing status' including NOTPARSED (Parsing was not performed), SUCCESS (Parsing succeeded), FAILED (General failure. There may be a more specific error message in arguments.)\",\"default\":0},{\"name\":\"minorCode\",\"type\":\"int\",\"doc\":\"Minor parsing status' including SUCCESS_OK - Successful parse devoid of anomalies or issues, SUCCESS_REDIRECT - Parsed content contains a directive to redirect to another URL. The target URL can be retrieved from the arguments., FAILED_EXCEPTION - Parsing failed. An Exception occured which may be retrieved from the arguments., FAILED_TRUNCATED - Parsing failed. Content was truncated, but the parser cannot handle incomplete content., FAILED_INVALID_FORMAT - Parsing failed. Invalid format e.g. the content may be corrupted or of wrong type., FAILED_MISSING_PARTS - Parsing failed. Other related parts of the content are needed to complete parsing. The list of URLs to missing parts may be provided in arguments. The Fetcher may decide to fetch these parts at once, then put them into Content.metadata, and supply them for re-parsing., FAILED_MISING_CONTENT - Parsing failed. There was no content to be parsed - probably caused by errors at protocol stage.\",\"default\":0},{\"name\":\"args\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"doc\":\"Optional arguments supplied to compliment and/or justify the parse status code.\",\"default\":[]}]}],\"default\":null},{\"name\":\"score\",\"type\":\"float\",\"doc\":\"A score used to determine a WebPage's relevance within the web graph it is part of. This score may change over time based on graph characteristics.\",\"default\":0},{\"name\":\"reprUrl\",\"type\":[\"null\",\"string\"],\"doc\":\"In the case where we are given two urls, a source and a destination of a redirect, we should determine and persist the representative url. The logic used to determine this is based largely on Yahoo!'s Slurp Crawler\",\"default\":null},{\"name\":\"headers\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"string\"]},\"doc\":\"Header information returned from the web server used to server the content which is subsequently fetched from. This includes keys such as TRANSFER_ENCODING, CONTENT_ENCODING, CONTENT_LANGUAGE, CONTENT_LENGTH, CONTENT_LOCATION, CONTENT_DISPOSITION, CONTENT_MD5, CONTENT_TYPE, LAST_MODIFIED and LOCATION.\",\"default\":{}},{\"name\":\"outlinks\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"string\"]},\"doc\":\"Embedded hyperlinks which direct outside of the current domain.\",\"default\":{}},{\"name\":\"inlinks\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"string\"]},\"doc\":\"Embedded hyperlinks which link to pages within the current domain.\",\"default\":{}},{\"name\":\"markers\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"string\"]},\"doc\":\"Markers flags which represent user and machine decisions which have affected influenced a WebPage's current state. Markers can be system specific and user machine driven in nature. They are assigned to a WebPage on a job-by-job basis and thier values indicative of what actions should be associated with a WebPage.\",\"default\":{}},{\"name\":\"metadata\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"bytes\"]},\"doc\":\"A multi-valued metadata container used for storing everything from structured WebPage characterists, to ad-hoc extraction and metadata augmentation for any given WebPage.\",\"default\":{}},{\"name\":\"batchId\",\"type\":[\"null\",\"string\"],\"doc\":\"A batchId that this WebPage is assigned to. WebPage's are fetched in batches, called fetchlists. Pages are partitioned but can always be associated and fetched alongside pages of similar value (within a crawl cycle) based on batchId.\",\"default\":null},{\"name\":\"sitemaps\",\"type\":{\"type\":\"map\",\"values\":[\"null\",\"string\"]},\"doc\":\"Sitemap urls in robot.txt\",\"default\":{}},{\"name\":\"stmPriority\",\"type\":\"float\",\"doc\":\"A priority  inlinks from sitemap file\",\"default\":0}]}");
 
   /** Enum containing all data bean's fields. */
   public static enum Field {
@@ -40,7 +41,8 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
         14, "text"), PARSE_STATUS(15, "parseStatus"), SCORE(16, "score"), REPR_URL(
         17, "reprUrl"), HEADERS(18, "headers"), OUTLINKS(19, "outlinks"), INLINKS(
         20, "inlinks"), MARKERS(21, "markers"), METADATA(22, "metadata"), BATCH_ID(
-        23, "batchId"), ;
+        23, "batchId"), SITEMAPS(24, "sitemaps"), STM_PRIORITY(25,
+        "stmPriority"),;
     /**
      * Field's index.
      */
@@ -97,7 +99,7 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
       "modifiedTime", "prevModifiedTime", "protocolStatus", "content",
       "contentType", "prevSignature", "signature", "title", "text",
       "parseStatus", "score", "reprUrl", "headers", "outlinks", "inlinks",
-      "markers", "metadata", "batchId", };
+      "markers", "metadata", "batchId", "sitemaps", "stmPriority" };
 
   /**
    * Gets the total field count.
@@ -187,6 +189,8 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
    * part of. This score may change over time based on graph characteristics.
    */
   private float score;
+
+  private float stmPriority;
   /**
    * In the case where we are given two urls, a source and a destination of a
    * redirect, we should determine and persist the representative url. The logic
@@ -226,6 +230,8 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
    * cycle) based on batchId.
    */
   private java.lang.CharSequence batchId;
+
+  private java.util.Map<java.lang.CharSequence, java.lang.CharSequence> sitemaps;
 
   public org.apache.avro.Schema getSchema() {
     return SCHEMA$;
@@ -282,6 +288,10 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
       return metadata;
     case 23:
       return batchId;
+    case 24:
+      return sitemaps;
+    case 25:
+      return stmPriority;
     default:
       throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
@@ -372,6 +382,14 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
       break;
     case 23:
       batchId = (java.lang.CharSequence) (value);
+      break;
+    case 24:
+      sitemaps = (java.util.Map<java.lang.CharSequence, java.lang.CharSequence>) ((value instanceof org.apache.gora.persistency.Dirtyable) ? value
+          : new org.apache.gora.persistency.impl.DirtyMapWrapper(
+          (java.util.Map) value));
+      break;
+    case 25:
+      stmPriority = (java.lang.Float) (value);
       break;
     default:
       throw new org.apache.avro.AvroRuntimeException("Bad index");
@@ -911,6 +929,33 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
   }
 
   /**
+   * Gets the value of the 'stmPriority' field. A stmPriority indicate
+   * priority value of the urls from sitemap.
+   */
+  public java.lang.Float getStmPriority() {
+    return stmPriority;
+  }
+
+  /**
+   * Sets the value of the 'stmPriority' field. A stmPriority indicate
+   * priority value of the urls from sitemap. * @param value the value to set.
+   */
+  public void setStmPriority(java.lang.Float value) {
+    this.stmPriority = value;
+    setDirty(25);
+  }
+
+  /**
+   * Checks the dirty status of the 'stmPriority' field. A field is dirty if it
+   * represents a change that has not yet been written to the database.
+   * A stmPriority indicate priority value of the urls from sitemap. * @param
+   * value the value to set.
+   */
+  public boolean isStmPriorityDirty(java.lang.Float value) {
+    return isDirty(25);
+  }
+
+  /**
    * Gets the value of the 'reprUrl' field. In the case where we are given two
    * urls, a source and a destination of a redirect, we should determine and
    * persist the representative url. The logic used to determine this is based
@@ -1151,6 +1196,36 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
     return isDirty(23);
   }
 
+
+  /**
+   * Gets the value of the 'sitemaps' field. Sitemap list for the current host.
+   */
+  public java.util.Map<java.lang.CharSequence, java.lang.CharSequence> getSitemaps() {
+    return sitemaps;
+  }
+
+  /**
+   * Sets the value of the 'sitemap' field. Sitemap list for the current host.
+   * @param value the value to set.
+   */
+  public void setSitemaps(
+      java.util.Map<java.lang.CharSequence, java.lang.CharSequence> value) {
+    this.sitemaps = (value instanceof org.apache.gora.persistency.Dirtyable) ? value
+        : new org.apache.gora.persistency.impl.DirtyMapWrapper(value);
+    setDirty(24);
+  }
+
+  /**
+   * Checks the dirty status of the 'sitemap' field. A field is dirty if it
+   * represents a change that has not yet been written to the database.
+   * Sets the value of the 'sitemap' field. Sitemap list for the current host.
+   * @param value the value to set.
+   */
+  public boolean isSitemapsDirty(
+      java.util.Map<java.lang.CharSequence, java.lang.CharSequence> value) {
+    return isDirty(24);
+  }
+
   /** Creates a new WebPage RecordBuilder */
   public static org.apache.nutch.storage.WebPage.Builder newBuilder() {
     return new org.apache.nutch.storage.WebPage.Builder();
@@ -1217,6 +1292,7 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
     private java.lang.CharSequence text;
     private org.apache.nutch.storage.ParseStatus parseStatus;
     private float score;
+    private float stmPriority;
     private java.lang.CharSequence reprUrl;
     private java.util.Map<java.lang.CharSequence, java.lang.CharSequence> headers;
     private java.util.Map<java.lang.CharSequence, java.lang.CharSequence> outlinks;
@@ -1224,6 +1300,8 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
     private java.util.Map<java.lang.CharSequence, java.lang.CharSequence> markers;
     private java.util.Map<java.lang.CharSequence, java.nio.ByteBuffer> metadata;
     private java.lang.CharSequence batchId;
+    private java.util.Map<java.lang.CharSequence, java.lang.CharSequence> sitemaps;
+
 
     /** Creates a new Builder */
     private Builder() {
@@ -1357,6 +1435,17 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
         this.batchId = (java.lang.CharSequence) data().deepCopy(
             fields()[23].schema(), other.batchId);
         fieldSetFlags()[23] = true;
+      }
+      if (isValidValue(fields()[24], other.sitemaps)) {
+        this.sitemaps = (java.util.Map<java.lang.CharSequence, java.lang.CharSequence>) data()
+            .deepCopy(fields()[24].schema(), other.sitemaps);
+        fieldSetFlags()[24] = true;
+      }
+      if (isValidValue(fields()[25], other.stmPriority)) {
+        this.stmPriority = (java.lang.Float) data()
+            .deepCopy(fields()[25].schema(),
+                other.stmPriority);
+        fieldSetFlags()[25] = true;
       }
     }
 
@@ -1970,6 +2059,44 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
       return this;
     }
 
+    /** Gets the value of the 'sitemaps' field */
+    public java.util.Map<java.lang.CharSequence, java.lang.CharSequence> getSitemaps() {
+      return sitemaps;
+    }
+
+    /** Sets the value of the 'sitemaps' field */
+    public org.apache.nutch.storage.WebPage.Builder setSitemaps(
+        java.util.Map<java.lang.CharSequence, java.lang.CharSequence> value) {
+      validate(fields()[24], value);
+      this.sitemaps = value;
+      fieldSetFlags()[24] = true;
+      return this;
+    }
+
+    /** Checks whether the 'sitemaps' field has been set */
+    public boolean hasSitemaps() {
+      return fieldSetFlags()[24];
+    }
+
+    /** Clears the value of the 'sitemaps' field */
+    public org.apache.nutch.storage.WebPage.Builder clearSitemaps() {
+      sitemaps = null;
+      fieldSetFlags()[24] = false;
+      return this;
+    }
+
+    public java.lang.Float getStmPriority() {
+      return stmPriority;
+    }
+
+    public org.apache.nutch.storage.WebPage.Builder setStmPriority(
+        float value) {
+      validate(fields()[25], value);
+      this.stmPriority = value;
+      fieldSetFlags()[25] = true;
+      return this;
+    }
+
     @Override
     public WebPage build() {
       try {
@@ -2027,6 +2154,11 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
                 (java.util.Map) defaultValue(fields()[22]));
         record.batchId = fieldSetFlags()[23] ? this.batchId
             : (java.lang.CharSequence) defaultValue(fields()[23]);
+        record.sitemaps = fieldSetFlags()[24] ? this.sitemaps
+            : (java.util.Map<java.lang.CharSequence, java.lang.CharSequence>) new org.apache.gora.persistency.impl.DirtyMapWrapper(
+            (java.util.Map) defaultValue(fields()[24]));
+        record.stmPriority = fieldSetFlags()[25] ? this.stmPriority
+            : (java.lang.Float) defaultValue(fields()[25]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
@@ -2870,6 +3002,63 @@ public class WebPage extends org.apache.gora.persistency.impl.PersistentBase
      * cycle) based on batchId. * @param value the value to set.
      */
     public boolean isBatchIdDirty(java.lang.CharSequence value) {
+      throw new java.lang.UnsupportedOperationException(
+          "IsDirty is not supported on tombstones");
+    }
+
+    /**
+     * Gets the value of the 'sitemaps' field. Sitemap list for the current host.
+     */
+    public java.util.Map<java.lang.CharSequence, java.lang.CharSequence> getSitemaps() {
+      throw new java.lang.UnsupportedOperationException(
+          "Get is not supported on tombstones");
+    }
+
+    /**
+     * Sets the value of the 'sitemaps' field. Sitemap list for the current
+     * host. @param value the value to set.
+     */
+    public void setSitemaps(
+        java.util.Map<java.lang.CharSequence, java.lang.CharSequence> value) {
+      throw new java.lang.UnsupportedOperationException(
+          "Set is not supported on tombstones");
+    }
+
+    /**
+     * Checks the dirty status of the 'batchId' field. A field is dirty if it
+     * represents a change that has not yet been written to the database. Sitemap
+     * list for the current host. @param value the value to set.
+     */
+    public boolean isSitemapsDirty(
+        java.util.Map<java.lang.CharSequence, java.lang.CharSequence> value) {
+      throw new java.lang.UnsupportedOperationException(
+          "IsDirty is not supported on tombstones");
+    }
+
+    /**
+     * Gets the value of the 'stmPriority' field. A stmPriority indicate
+     * priority value of the urls from sitemap.
+     */
+    public java.lang.Float getStmPriority() {
+      throw new java.lang.UnsupportedOperationException(
+          "Get is not supported on tombstones");
+    }
+
+    /**
+     * Sets the value of the 'stmPriority' field. A stmPriority indicate
+     * priority value of the urls from sitemap. * @param value the value to set.
+     */
+    public void setStmPriority(java.lang.Float value) {
+      throw new java.lang.UnsupportedOperationException(
+          "Set is not supported on tombstones");
+    }
+    /**
+     * Checks the dirty status of the 'stmPriority' field. A field is dirty if it
+     * represents a change that has not yet been written to the database.
+     * A stmPriority indicate priority value of the urls from sitemap. * @param
+     * value the value to set.
+     */
+    public boolean isStmPriorityDirty(java.lang.Float value) {
       throw new java.lang.UnsupportedOperationException(
           "IsDirty is not supported on tombstones");
     }

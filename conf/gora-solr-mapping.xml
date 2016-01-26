@@ -35,6 +35,7 @@
         <field name="modifiedTime" column="modifiedTime"/>
         <field name="prevModifiedTime" column="prevModifiedTime" />
         <field name="batchId" column="batchId" />
+        <field name="sitemaps" family="sitemaps"/>
         
         <!-- parse fields -->
         <field name="title" column="title" />
@@ -43,6 +44,7 @@
         <field name="prevSignature" column="prevSignature"/>
         <!-- score fields -->
         <field name="score" column="score"/>
+        <field name="stmPriority" column="stmPriority"/>
         <field name="headers" column="headers"/>
         <field name="inlinks" column="inlinks" />
         <field name="outlinks" column="outlinks"/>

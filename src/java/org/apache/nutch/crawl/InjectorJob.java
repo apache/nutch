@@ -65,8 +65,6 @@ public class InjectorJob extends NutchTool implements Tool {
 
   private static final Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
-  private static final Utf8 YES_STRING = new Utf8("y");
-
   static {
     FIELDS.add(WebPage.Field.MARKERS);
     FIELDS.add(WebPage.Field.STATUS);
@@ -79,8 +77,7 @@ public class InjectorJob extends NutchTool implements Tool {
    */
   public static String nutchFetchIntervalMDName = "nutch.fetchInterval";
 
-  public static class UrlMapper extends
-      Mapper<LongWritable, Text, String, WebPage> {
+  public static class UrlMapper extends Mapper<LongWritable, Text, String, WebPage> {
     private URLNormalizers urlNormalizers;
     private int interval;
     private float scoreInjected;
@@ -90,7 +87,7 @@ public class InjectorJob extends NutchTool implements Tool {
 
     @Override
     protected void setup(Context context) throws IOException,
-        InterruptedException {
+    InterruptedException {
       urlNormalizers = new URLNormalizers(context.getConfiguration(),
           URLNormalizers.SCOPE_INJECT);
       interval = context.getConfiguration().getInt("db.fetch.interval.default",
@@ -117,13 +114,26 @@ public class InjectorJob extends NutchTool implements Tool {
       float customScore = -1f;
       int customInterval = interval;
       Map<String, String> metadata = new TreeMap<String, String>();
+      InjectType injectType = InjectType.INJECT;
       if (url.indexOf("\t") != -1) {
         String[] splits = url.split("\t");
         url = splits[0];
         for (int s = 1; s < splits.length; s++) {
           // find separation between name and value
           int indexEquals = splits[s].indexOf("=");
-          if (indexEquals == -1) {
+          if (splits[s].indexOf("sitemaps:") > -1) {
+            String[] sitemaps = splits[s].trim().split(" ");
+            String sitemapUrl;
+            for (int i = 1; i < sitemaps.length; i++) {
+              sitemapUrl = url + sitemaps[i];
+              write(sitemapUrl, context, customInterval, customScore,
+                  new HashMap<String, String>(), InjectType.SITEMAP_INJECT);
+            }
+            continue;
+          } else if (splits[s].indexOf("-sitemap") == 0) {
+            injectType = InjectType.SITEMAP_INJECT;
+            continue;
+          } else if (indexEquals == -1) {
             // skip anything without a =
             continue;
           }
@@ -143,6 +153,12 @@ public class InjectorJob extends NutchTool implements Tool {
             metadata.put(metaname, metavalue);
         }
       }
+      write(url, context, customInterval, customScore, metadata, injectType);
+    }
+
+    private void write(String url, Context context, Integer customInterval,
+        Float customScore, Map<String, String> metadata, InjectType injectType)
+            throws IOException, InterruptedException {
       try {
         url = urlNormalizers.normalize(url, URLNormalizers.SCOPE_INJECT);
         url = filters.filter(url); // filter the url
@@ -177,14 +193,13 @@ public class InjectorJob extends NutchTool implements Tool {
           scfilters.injectedScore(url, row);
         } catch (ScoringFilterException e) {
           if (LOG.isWarnEnabled()) {
-            LOG.warn("Cannot filter injected score for url " + url
-                + ", using default (" + e.getMessage() + ")");
+            LOG.warn("Cannot filter injected score for url {}, using default ({})", url, e.getMessage());
           }
         }
         context.getCounter("injector", "urls_injected").increment(1);
         row.getMarkers()
-            .put(DbUpdaterJob.DISTANCE, new Utf8(String.valueOf(0)));
-        Mark.INJECT_MARK.putMark(row, YES_STRING);
+        .put(DbUpdaterJob.DISTANCE, new Utf8(String.valueOf(0)));
+        Mark.INJECT_MARK.putMark(row, injectType.getTypeString());
         context.write(reversedUrl, row);
       }
     }

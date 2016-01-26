@@ -129,7 +129,12 @@ public abstract class HttpBase implements Protocol {
     this.proxyPort = conf.getInt("http.proxy.port", 8080);
     this.useProxy = (proxyHost != null && proxyHost.length() > 0);
     this.timeout = conf.getInt("http.timeout", 10000);
-    this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
+    boolean sitemap = conf.getBoolean("fetcher.job.sitemap", false);
+    if (sitemap) {
+      this.maxContent = -1;
+    } else {
+      this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
+    }
     this.userAgent = getAgentString(conf.get("http.agent.name"),
         conf.get("http.agent.version"), conf.get("http.agent.description"),
         conf.get("http.agent.url"), conf.get("http.agent.email"));

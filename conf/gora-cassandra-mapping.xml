@@ -58,6 +58,7 @@
         <field name="modifiedTime" family="f" qualifier="mod" ttl="0"/>
         <field name="prevModifiedTime" family="f" qualifier="pmod" ttl="0"/>
         <field name="batchId" family="f" qualifier="bid" ttl="0"/>
+        <field name="sitemaps" family="f" qualifier="stm" ttl="0"/>
         
         <!-- parse fields -->
         <field name="title" family="p" qualifier="t" ttl="0"/>
@@ -67,6 +68,7 @@
         
         <!-- score fields -->
         <field name="score" family="f" qualifier="s" ttl="0"/>
+        <field name="stmPriority" family="f" qualifier="sp" ttl="0"/>
         
         <!-- super columns -->
         <field name="headers" family="sc" qualifier="h" ttl="0"/>

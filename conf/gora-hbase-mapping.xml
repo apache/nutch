@@ -46,6 +46,7 @@ http://gora.apache.org/current/gora-hbase.html
         <family name="s" maxVersions="1"/>
         <family name="il" maxVersions="1"/>
         <family name="ol" maxVersions="1"/>
+        <family name="stm" maxVersions="1"/>
         <family name="h" maxVersions="1"/>
         <family name="mtdt" maxVersions="1"/>
         <family name="mk" maxVersions="1"/>
@@ -66,6 +67,8 @@ http://gora.apache.org/current/gora-hbase.html
         <field name="modifiedTime" family="f" qualifier="mod"/>
         <field name="prevModifiedTime" family="f" qualifier="pmod"/>
         <field name="batchId" family="f" qualifier="bid"/>
+     	  <field name="sitemaps" family="stm"/>
+     
 
         <!-- parse fields                                       -->
         <field name="title" family="p" qualifier="t"/>
@@ -76,6 +79,8 @@ http://gora.apache.org/current/gora-hbase.html
         
         <!-- score fields                                       -->
         <field name="score" family="s" qualifier="s"/>
+        <field name="stmPriority" family="s" qualifier="sp"/>
+
         <field name="headers" family="h"/>
         <field name="inlinks" family="il"/>
         <field name="outlinks" family="ol"/>

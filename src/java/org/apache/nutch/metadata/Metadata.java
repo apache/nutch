@@ -19,10 +19,7 @@ package org.apache.nutch.metadata;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -95,6 +92,15 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
    */
   public String[] getValues(final String name) {
     return _getValues(name);
+  }
+
+  /**
+   * Get the metadata list
+   *
+   * @return the values associated to a metadata name.
+   */
+  public Set<Map.Entry<String, String[]>> getMetaData() {
+    return metadata.entrySet();
   }
 
   private String[] _getValues(final String name) {

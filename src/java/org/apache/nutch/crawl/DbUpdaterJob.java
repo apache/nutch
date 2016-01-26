@@ -64,6 +64,7 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     FIELDS.add(WebPage.Field.PREV_FETCH_TIME);
     FIELDS.add(WebPage.Field.PREV_MODIFIED_TIME);
     FIELDS.add(WebPage.Field.HEADERS);
+    FIELDS.add(WebPage.Field.SITEMAPS);
   }
 
   public static final Utf8 DISTANCE = new Utf8("dist");

@@ -491,7 +491,8 @@ public class FetcherReducer extends
           }
           try {
             LOG.info("fetching " + fit.url + " (queue crawl delay="
-                + fetchQueues.getFetchItemQueue(fit.queueID).crawlDelay + "ms)");
+                + fetchQueues.getFetchItemQueue(fit.queueID).crawlDelay
+                + "ms)");
 
             // fetch the page
             final Protocol protocol = this.protocolFactory.getProtocol(fit.url);
@@ -527,6 +528,19 @@ public class FetcherReducer extends
                 }
               }
             }
+
+            boolean stmRobot = context.getConfiguration().getBoolean(FetcherJob.SITEMAP_DETECT, false);
+
+            if (stmRobot && (fit.u.getFile() == null
+                || fit.u.getFile().length() == 0 || (
+                fit.u.getFile().length() == 1 && fit.u.getFile().equals(
+                    "/")))) {
+              for (String stmUrl : rules.getSitemaps()) {
+                fit.page.getSitemaps()
+                    .put(new Utf8(stmUrl), new Utf8());
+              }
+            }
+
             final ProtocolOutput output = protocol.getProtocolOutput(fit.url,
                 fit.page);
             final ProtocolStatus status = output.getStatus();
@@ -806,7 +820,13 @@ public class FetcherReducer extends
     parse = conf.getBoolean(FetcherJob.PARSE_KEY, false);
     storingContent = conf.getBoolean("fetcher.store.content", true);
     if (parse) {
-      skipTruncated = conf.getBoolean(ParserJob.SKIP_TRUNCATED, true);
+      boolean sitemap = conf.getBoolean(FetcherJob.SITEMAP, false);
+
+      if (sitemap) {
+        skipTruncated = false;
+      } else {
+        skipTruncated = conf.getBoolean(ParserJob.SKIP_TRUNCATED, true);
+      }
       parseUtil = new ParseUtil(conf);
     }
     LOG.info("Fetcher: threads: " + threadCount);

@@ -216,6 +216,16 @@
 </property>
 
 <property>
+  <name>sitemap.content.limit</name>
+  <value>-1</value>
+  <description>The length limit for downloaded content using the http
+  protocol for sitemap, in bytes. If this value is nonnegative (>=0),
+  content longer than it will be truncated; otherwise, no truncation at all. Do not
+  confuse this setting with the file.content.limit setting.
+  </description>
+</property>
+
+<property>
   <name>http.proxy.host</name>
   <value></value>
   <description>The proxy hostname.  If empty, no proxy is used.</description>
@@ -1005,6 +1015,17 @@
   <value>30</value>
   <description>Timeout in seconds for the parsing of a document, otherwise treats it as an exception and 
   moves on the the following documents. This parameter is applied to any Parser implementation. 
+  Set to -1 to deactivate, bearing in mind that this could cause
+  the parsing to crash because of a very long or corrupted document.
+  </description>
+</property>
+
+<property>
+  <name>sitemap.parser.timeout</name>
+  <value>30</value>
+  <description>Timeout in seconds for the parsing of a document, otherwise
+  treats it as an exception and moves on the the following documents. 
+  This parameter is applied to Sitemap Parser implementation.
   Set to -1 to deactivate, bearing in mind that this could cause
   the parsing to crash because of a very long or corrupted document.
   </description>

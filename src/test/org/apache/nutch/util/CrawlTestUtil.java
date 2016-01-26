@@ -23,6 +23,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.nutch.crawl.GeneratorJob;
 import org.apache.nutch.crawl.URLWebPage;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
@@ -97,7 +98,7 @@ public class CrawlTestUtil {
    */
   public static ArrayList<URLWebPage> readContents(
       DataStore<String, WebPage> store, Mark requiredMark, String... fields)
-      throws Exception {
+          throws Exception {
     ArrayList<URLWebPage> l = new ArrayList<URLWebPage>();
 
     Query<String, WebPage> query = store.newQuery();
@@ -144,5 +145,22 @@ public class CrawlTestUtil {
     handlers.setHandlers(new Handler[] { handler, new DefaultHandler() });
     webServer.setHandler(handlers);
     return webServer;
+  }
+
+  /**
+   * Generate Fetchlist.
+   *
+   * @param numResults number of results to generate
+   * @param config     Configuration to use
+   * @return path to generated batch
+   * @throws IOException
+   */
+  public static void generateFetchlist(int numResults, Configuration config,
+      boolean filter, boolean sitemap) throws Exception {
+    // generate batch
+    GeneratorJob g = new GeneratorJob();
+    g.setConf(config);
+    String batchId = g.generate(numResults, System.currentTimeMillis(), filter,
+        false, sitemap);
   }
 }

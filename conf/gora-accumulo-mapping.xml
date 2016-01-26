@@ -32,6 +32,7 @@
         <family name="s" />
         <family name="il" />
         <family name="ol" />
+        <family name="stm" />
         <family name="h" />
         <family name="mtdt" />
         <family name="mk" />
@@ -53,6 +54,7 @@
         <field name="modifiedTime" family="f" qualifier="mod"/>
         <field name="prevModifiedTime" family="f" qualifier="pmod"/>
         <field name="batchId" family="f" qualifier="bid"/>
+        <field name="sitemaps" family="stm"/>
         
         <!-- parse fields                                       -->
         <field name="title" family="p" qualifier="t"/>
@@ -63,11 +65,12 @@
         
         <!-- score fields                                       -->
         <field name="score" family="s" qualifier="s"/>
-        <field name="headers" family="h"/>
-        <field name="inlinks" family="il"/>
-        <field name="outlinks" family="ol"/>
-        <field name="metadata" family="mtdt"/>
-        <field name="markers" family="mk"/>
+        <field name="stmPriority" family="s" qualifier="sp"/>
+        <field name="headers" family="h" qualifier="hea"/>
+        <field name="inlinks" family="il" qualifier="inl"/>
+        <field name="outlinks" family="ol" qualifier="out"/>
+        <field name="metadata" family="mtdt" qualifier="met"/>
+        <field name="markers" family="mk" qualifier="mar"/>
     </class>
     
     <table name="host">
@@ -77,9 +80,9 @@
     </table>
     
     <class table="host" keyClass="java.lang.String" name="org.apache.nutch.storage.Host">
-        <field name="metadata" family="mtdt"/>
-        <field name="inlinks" family="il"/>
-        <field name="outlinks" family="ol"/>
+        <field name="metadata" family="mtdt" qualifier="met"/>
+        <field name="inlinks" family="il" qualifier="inl"/>
+        <field name="outlinks" family="ol" qualifier="out"/>
     </class>
     
 </gora-orm>

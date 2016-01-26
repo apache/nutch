@@ -51,6 +51,7 @@ public class GeneratorJob extends NutchTool implements Tool {
   public static final String GENERATOR_MIN_SCORE = "generate.min.score";
   public static final String GENERATOR_FILTER = "generate.filter";
   public static final String GENERATOR_NORMALISE = "generate.normalise";
+  public static final String GENERATOR_SITEMAP = "generate.sitemap";
   public static final String GENERATOR_MAX_COUNT = "generate.max.count";
   public static final String GENERATOR_COUNT_MODE = "generate.count.mode";
   public static final String GENERATOR_COUNT_VALUE_DOMAIN = "domain";
@@ -75,7 +76,7 @@ public class GeneratorJob extends NutchTool implements Tool {
   public static final Logger LOG = LoggerFactory.getLogger(GeneratorJob.class);
 
   public static class SelectorEntry implements
-      WritableComparable<SelectorEntry> {
+  WritableComparable<SelectorEntry> {
 
     String url;
     float score;
@@ -170,7 +171,7 @@ public class GeneratorJob extends NutchTool implements Tool {
     String batchId = (curTime / 1000) + "-" + randomSeed;
     return batchId;
   }
-  
+
   public Map<String, Object> run(Map<String, Object> args) throws Exception {
     String batchId = (String) args.get(Nutch.ARG_BATCH);
     if (batchId == null) {
@@ -191,12 +192,16 @@ public class GeneratorJob extends NutchTool implements Tool {
     }
     Boolean filter = (Boolean) args.get(Nutch.ARG_FILTER);
     Boolean norm = (Boolean) args.get(Nutch.ARG_NORMALIZE);
+    Boolean sitemap = (Boolean) args.get(Nutch.ARG_SITEMAP);
+
     // map to inverted subset due for fetch, sort by score
     getConf().setLong(GENERATOR_CUR_TIME, curTime);
     if (topN != null)
       getConf().setLong(GENERATOR_TOP_N, topN);
     if (filter != null)
       getConf().setBoolean(GENERATOR_FILTER, filter);
+    if (sitemap != null)
+      getConf().setBoolean(GENERATOR_SITEMAP, sitemap);
 
     getConf().setLong(Nutch.GENERATE_TIME_KEY, System.currentTimeMillis());
     if (norm != null)
@@ -239,23 +244,26 @@ public class GeneratorJob extends NutchTool implements Tool {
    * @throws ClassNotFoundException
    * @throws InterruptedException
    * */
-  public String generate(long topN, long curTime, boolean filter, boolean norm)
-      throws Exception {
+  public String generate(long topN, long curTime, boolean filter, boolean norm,
+      boolean sitemap) throws Exception {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
-    LOG.info("GeneratorJob: starting at " + sdf.format(start));
+    LOG.info("GeneratorJob: starting at {}", sdf.format(start));
     LOG.info("GeneratorJob: Selecting best-scoring urls due for fetch.");
     LOG.info("GeneratorJob: starting");
-    LOG.info("GeneratorJob: filtering: " + filter);
-    LOG.info("GeneratorJob: normalizing: " + norm);
+    LOG.info("GeneratorJob: filtering: {}", filter);
+    LOG.info("GeneratorJob: normalizing: {}", norm);
+    if (sitemap) {
+      LOG.info("GeneratorJob: sitemap: {}", sitemap);
+    }
     if (topN != Long.MAX_VALUE) {
-      LOG.info("GeneratorJob: topN: " + topN);
+      LOG.info("GeneratorJob: topN: {}", topN);
     }
     String batchId = getConf().get(BATCH_ID);
     Map<String, Object> results = run(ToolUtil.toArgMap(Nutch.ARG_TOPN, topN,
         Nutch.ARG_CURTIME, curTime, Nutch.ARG_FILTER, filter,
-        Nutch.ARG_NORMALIZE, norm, Nutch.ARG_BATCH, batchId));
+        Nutch.ARG_NORMALIZE, norm, Nutch.ARG_BATCH, batchId, Nutch.ARG_SITEMAP, sitemap));
     if (batchId == null) {
       // use generated random batch id
       batchId = (String) results.get(BATCH_ID);
@@ -263,10 +271,10 @@ public class GeneratorJob extends NutchTool implements Tool {
 
     long finish = System.currentTimeMillis();
     long generateCount = (Long) results.get(GENERATE_COUNT);
-    LOG.info("GeneratorJob: finished at " + sdf.format(finish)
-        + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
-    LOG.info("GeneratorJob: generated batch id: " + batchId + " containing "
-        + generateCount + " URLs");
+    LOG.info("GeneratorJob: finished at {}, time elapsed: {}", 
+        sdf.format(finish), TimingUtil.elapsedTime(start, finish));
+    LOG.info("GeneratorJob: generated batch id: {} containing {} URLs", 
+        batchId, generateCount);
     if (generateCount == 0) {
       return null;
     }
@@ -276,19 +284,21 @@ public class GeneratorJob extends NutchTool implements Tool {
   public int run(String[] args) throws Exception {
     if (args.length <= 0) {
       System.out
-          .println("Usage: GeneratorJob [-topN N] [-crawlId id] [-noFilter] [-noNorm] [-adddays numDays]");
+      .println("Usage: GeneratorJob [-topN N] [-crawlId id] [-noFilter] [-noNorm] [-adddays numDays] [-sitemap]");
       System.out
-          .println("    -topN <N>      - number of top URLs to be selected, default is Long.MAX_VALUE ");
+      .println("    -topN <N>      - number of top URLs to be selected, default is Long.MAX_VALUE ");
       System.out
-          .println("    -crawlId <id>  - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\");");
+      .println("    -crawlId <id>  - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\");");
       System.out
-          .println("    -noFilter      - do not activate the filter plugin to filter the url, default is true ");
+      .println("    -noFilter      - do not activate the filter plugin to filter the url, default is true ");
       System.out
-          .println("    -noNorm        - do not activate the normalizer plugin to normalize the url, default is true ");
+      .println("    -noNorm        - do not activate the normalizer plugin to normalize the url, default is true ");
       System.out
-          .println("    -adddays       - Adds numDays to the current time to facilitate crawling urls already");
+      .println("    -adddays       - Adds numDays to the current time to facilitate crawling urls already");
       System.out
-          .println("                     fetched sooner then db.fetch.interval.default. Default value is 0.");
+      .println("    -sitemap       - generate only sitemap url, default false");
+      System.out
+      .println("                     fetched sooner then db.fetch.interval.default. Default value is 0.");
       System.out.println("    -batchId       - the batch id ");
       System.out.println("----------------------");
       System.out.println("Please set the params.");
@@ -297,6 +307,7 @@ public class GeneratorJob extends NutchTool implements Tool {
 
     long curTime = System.currentTimeMillis(), topN = Long.MAX_VALUE;
     boolean filter = true, norm = true;
+    boolean sitemap = false;
 
     for (int i = 0; i < args.length; i++) {
       if ("-topN".equals(args[i])) {
@@ -307,6 +318,8 @@ public class GeneratorJob extends NutchTool implements Tool {
         norm = false;
       } else if ("-crawlId".equals(args[i])) {
         getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
+      } else if ("-sitemap".equals(args[i])) {
+        sitemap = true;
       } else if ("-adddays".equals(args[i])) {
         long numDays = Integer.parseInt(args[++i]);
         curTime += numDays * 1000L * 60 * 60 * 24;
@@ -319,7 +332,7 @@ public class GeneratorJob extends NutchTool implements Tool {
     }
 
     try {
-      return (generate(topN, curTime, filter, norm) != null) ? 0 : 1;
+      return (generate(topN, curTime, filter, norm, sitemap) != null) ? 0 : 1;
     } catch (Exception e) {
       LOG.error("GeneratorJob: " + StringUtils.stringifyException(e));
       return -1;
