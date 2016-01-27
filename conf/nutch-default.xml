@@ -1383,6 +1383,28 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<!-- scoring similarity properties
+Add scoring-similarity to the list of active plugins
+ in the parameter 'plugin.includes' in order to use it. 
+For more detailed information on the working of this filter 
+visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
+
+<property>
+    <name>scoring.similarity.model.path</name>
+    <value>goldstandard.txt</value>
+    <description>Path to the gold standard file which contains all the relevant text and terms, 
+      pertaining to the domain.
+    </description>
+</property>
+
+ <property>
+    <name>scoring.similarity.stopword.file</name>
+    <value>stopwords.txt</value>
+    <description>Name of the stopword text file. The user can specify a custom list of stop words 
+      in a text file. Each new stopword should be on a new line.
+    </description>
+</property>
+
 <!-- language-identifier plugin properties -->
 
 <property>
