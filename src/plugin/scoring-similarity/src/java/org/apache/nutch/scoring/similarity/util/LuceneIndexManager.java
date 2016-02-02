@@ -52,7 +52,6 @@ import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 
 /**
  * This class provides the functionality to read/write Lucene indexes
- * @author Sujen Shah
  *
  */
 public class LuceneIndexManager {

@@ -32,7 +32,6 @@ import org.apache.lucene.analysis.util.CharArraySet;
 
 /**
  * Creates a custom analyzer based on user provided inputs
- * @author Sujen Shah
  *
  */
 public class LuceneAnalyzerUtil extends Analyzer{ 
