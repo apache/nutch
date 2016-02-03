@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2211 Added filterchecker and normalizerchecker to bin/nutch script (markus)
+
 * NUTCH-2197 Add Solr 5 cloud indexer support (Jurian Broertjes via markus)
 
 * NUTCH-2206 Provide example scoring.similarity.stopword.file (sujen)

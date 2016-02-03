@@ -79,6 +79,8 @@ if [ $# = 0 ]; then
   echo "  clean             remove HTTP 301 and 404 documents and duplicates from indexing backends configured via plugins"
   echo "  parsechecker      check the parser for a given url"
   echo "  indexchecker      check the indexing filters for a given url"
+  echo "  filterchecker     check url filters for a given url"
+  echo "  normalizerchecker check url normalizers for a given url"
   echo "  domainstats       calculate domain statistics from crawldb"
   echo "  protocolstats     calculate protocol status code stats from crawldb"
   echo "  crawlcomplete     calculate crawl completion stats from crawldb"
@@ -262,6 +264,10 @@ elif [ "$COMMAND" = "parsechecker" ] ; then
   CLASS=org.apache.nutch.parse.ParserChecker
 elif [ "$COMMAND" = "indexchecker" ] ; then
   CLASS=org.apache.nutch.indexer.IndexingFiltersChecker
+elif [ "$COMMAND" = "filterchecker" ] ; then
+  CLASS=org.apache.nutch.net.URLFilterChecker
+elif [ "$COMMAND" = "normalizerchecker" ] ; then
+  CLASS=org.apache.nutch.net.URLNormalizerChecker
 elif [ "$COMMAND" = "domainstats" ] ; then 
   CLASS=org.apache.nutch.util.domain.DomainStatistics
 elif [ "$COMMAND" = "protocolstats" ] ; then
