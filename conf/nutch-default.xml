@@ -1390,6 +1390,15 @@ For more detailed information on the working of this filter
 visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 
 <property>
+    <name>scoring.similarity.model</name>
+    <value>cosine</value>
+    <description>The type of similarity metric to use. Eg - cosine (which is, currently, the only available model).
+      Please make sure to set the model specific properties for the scoring to function properly. 
+      Description of these properties can be found on the wiki.
+    </description>
+</property>
+
+<property>
     <name>cosine.goldstandard.file</name>
     <value>goldstandard.txt</value>
     <description>Path to the gold standard file which contains all the relevant text and terms, 
