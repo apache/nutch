@@ -22,17 +22,16 @@
     <library name="indexer-solr.jar">
       <export name="*" />
     </library>
-      <library name="commons-codec-1.9.jar"/>
-      <library name="commons-io-2.3.jar"/>
-      <library name="commons-logging-1.1.3.jar"/>
-      <library name="httpclient-4.3.1.jar"/>
-      <library name="httpcore-4.3.jar"/>
-      <library name="httpmime-4.3.1.jar"/>
-      <library name="noggit-0.5.jar"/>
-      <library name="slf4j-api-1.7.6.jar"/>
-      <library name="solr-solrj-4.10.2.jar"/>
-      <library name="wstx-asl-3.2.7.jar"/>
-      <library name="zookeeper-3.4.6.jar"/>
+      <library name="commons-io-2.4.jar"/>
+      <library name="httpclient-4.4.1.jar"/>
+      <library name="httpcore-4.4.1.jar"/>
+      <library name="httpmime-4.4.1.jar"/>
+      <library name="noggit-0.6.jar"/>
+      <library name="slf4j-api-1.7.7.jar"/>
+      <library name="solr-solrj-5.4.1.jar"/>
+      <library name="stax2-api-3.1.4.jar"/>
+      <library name="woodstox-core-asl-4.4.1.jar"/>
+      <library name="zookeeper-3.4.6.jar"/> 
   </runtime>
 
   <requires>

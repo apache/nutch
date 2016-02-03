@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2197 Add Solr 5 cloud indexer support (Jurian Broertjes via markus)
+
 * NUTCH-2206 Provide example scoring.similarity.stopword.file (sujen)
 
 * NUTCH-2204 Remove junit lib from runtime (snagel)

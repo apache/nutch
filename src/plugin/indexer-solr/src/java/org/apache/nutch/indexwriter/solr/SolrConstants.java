@@ -17,7 +17,6 @@
 package org.apache.nutch.indexwriter.solr;
 
 public interface SolrConstants {
-  
   public static final String SOLR_PREFIX = "solr.";
 
   public static final String SERVER_URL = SOLR_PREFIX + "server.url";
@@ -31,13 +30,23 @@ public interface SolrConstants {
   public static final String USERNAME = SOLR_PREFIX + "auth.username";
 
   public static final String PASSWORD = SOLR_PREFIX + "auth.password";
-  
-  public static final String SERVER_TYPE = SOLR_PREFIX + "server.type";
-  
-  public static final String ZOOKEEPER_URL = SOLR_PREFIX + "zookeeper.url";
-  
-  public static final String LOADBALANCE_URLS = SOLR_PREFIX + "loadbalance.urls";
-  
+
+  public static final String COLLECTION = SOLR_PREFIX + "collection";
+
+  public static final String ZOOKEEPER_HOSTS = SOLR_PREFIX + "zookeeper.hosts";
+
+  public static final String ID_FIELD = "id";
+
+  public static final String URL_FIELD = "url";
+
+  public static final String BOOST_FIELD = "boost";
+
+  public static final String TIMESTAMP_FIELD = "tstamp";
+
+  public static final String DIGEST_FIELD = "digest";
+
+
+
   @Deprecated
   public static final String COMMIT_INDEX = SOLR_PREFIX + "commit.index";
 

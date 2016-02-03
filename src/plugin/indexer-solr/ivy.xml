@@ -36,9 +36,9 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.solr" name="solr-solrj" rev="4.10.2" conf="*->default"/>
-    <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.3.1"  conf="*->default"/>
-   <dependency org="org.apache.httpcomponents" name="httpmime" rev="4.3.1"  conf="*->default"/>
+    <dependency org="org.apache.solr" name="solr-solrj" rev="5.4.1"/>
+    <dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.1" conf="*->default"/>
+    <dependency org="org.apache.httpcomponents" name="httpmime" rev="4.4.1" conf="*->default"/>
   </dependencies>
   
 </ivy-module>
