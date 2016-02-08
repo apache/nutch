@@ -2,7 +2,7 @@ Nutch Change Log
 
 Nutch 2.4 Development
 
-Put Jira release report here
+ * NUTCH-1314 Impose a limit on the length of outlink target urls (ferdy, lewismc, tejasp, Canan Girgin, Tien Nguyen Manh)
 
 Nutch 2.3.1 Release 22092015 (ddmmyyyy)
 Release Report - http://s.apache.org/nutch_2.3.1

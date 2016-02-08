@@ -70,6 +70,7 @@ public class ParseUtil extends Configured {
   public static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
 
   private static final int DEFAULT_MAX_PARSE_TIME = 30;
+  private static final int DEFAULT_OUTLINKS_MAX_TARGET_LENGTH = 3000;
 
   private Configuration conf;
   private Signature sig;
@@ -80,6 +81,7 @@ public class ParseUtil extends Configured {
   private ParserFactory parserFactory;
   /** Parser timeout set to 30 sec by default. Set -1 to deactivate **/
   private int maxParseTime;
+  private int maxTargetLength;
   private ExecutorService executorService;
 
   /**
@@ -100,6 +102,7 @@ public class ParseUtil extends Configured {
   public void setConf(Configuration conf) {
     this.conf = conf;
     parserFactory = new ParserFactory(conf);
+    maxTargetLength = conf.getInt("parser.html.outlinks.max.target.length", DEFAULT_OUTLINKS_MAX_TARGET_LENGTH);
     if (conf.getBoolean("parse.sitemap", false)) {
       maxParseTime = conf.getInt("parser.timeout", DEFAULT_MAX_PARSE_TIME);
     } else {
@@ -373,6 +376,9 @@ public class ParseUtil extends Configured {
         for (int i = 0; validCount < outlinksToStore
             && i < outlinks.length; i++, validCount++) {
           String toUrl = outlinks[i].getToUrl();
+          if (toUrl.length() > maxTargetLength) {
+            continue; // skip it
+          }
           String toHost;
           if (ignoreExternalLinks) {
             try {
