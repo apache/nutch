@@ -1005,13 +1005,6 @@
 </property>
 
 <property>
-  <name>parser.html.outlinks.max.target.length</name>
-  <value>3000</value>
-  <description>The maximum number of characters permitted in an outlink urls target.
-  </description>
-</property>
-
-<property>
   <name>htmlparsefilter.order</name>
   <value></value>
   <description>The order by which HTMLParse filters are applied.
