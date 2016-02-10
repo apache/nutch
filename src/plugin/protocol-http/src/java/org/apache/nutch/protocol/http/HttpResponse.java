@@ -238,10 +238,6 @@ public class HttpResponse implements Response {
         haveSeenNonContinueStatus = code != 100; // 100 is "Continue"
       }
 
-      if (httpHeaders != null) {
-        headers.add("_response.headers_", httpHeaders.toString());
-      }
-
       String transferEncoding = getHeader(Response.TRANSFER_ENCODING);
       if (transferEncoding != null && "chunked"
           .equalsIgnoreCase(transferEncoding.trim())) {
@@ -256,6 +252,11 @@ public class HttpResponse implements Response {
       } else if ("deflate".equals(contentEncoding)) {
         content = http.processDeflateEncoded(content, url);
       } else {
+        // store the headers verbatim only if the response was not compressed
+        // as the content length reported with not match otherwise
+        if (httpHeaders != null) {
+          headers.add("_response.headers_", httpHeaders.toString());
+        }
         if (Http.LOG.isTraceEnabled()) {
           Http.LOG.trace("fetched " + content.length + " bytes from " + url);
         }
