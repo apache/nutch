@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2209 Improved Tokenization for Similarity Scoring plugin (Sujen)
+
 * NUTCH-2211 Added filterchecker and normalizerchecker to bin/nutch script (markus)
 
 * NUTCH-2197 Add Solr 5 cloud indexer support (Jurian Broertjes via markus)
