@@ -49,8 +49,8 @@ import org.apache.hadoop.util.Progressable;
 public class ParseOutputFormat implements OutputFormat<Text, Parse> {
   private static final Logger LOG = LoggerFactory
       .getLogger(ParseOutputFormat.class);
-
   private URLFilters filters;
+  private URLExemptionFilters exemptionFilters;
   private URLNormalizers normalizers;
   private ScoringFilters scfilters;
 
@@ -94,6 +94,7 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
 
     if (job.getBoolean("parse.filter.urls", true)) {
       filters = new URLFilters(job);
+      exemptionFilters = new URLExemptionFilters(job);
     }
 
     if (job.getBoolean("parse.normalize.urls", true)) {
@@ -207,8 +208,8 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
           String newUrl = pstatus.getMessage();
           int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
           newUrl = filterNormalize(fromUrl, newUrl, origin,
-              ignoreExternalLinks, ignoreExternalLinksMode, filters, normalizers,
-              URLNormalizers.SCOPE_FETCHER);
+              ignoreExternalLinks, ignoreExternalLinksMode, filters, exemptionFilters,
+              normalizers, URLNormalizers.SCOPE_FETCHER);
 
           if (newUrl != null) {
             String reprUrl = URLUtil.chooseRepr(fromUrl, newUrl,
@@ -238,7 +239,7 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
           // Only normalize and filter if fetcher.parse = false
           if (!isParsing) {
             toUrl = ParseOutputFormat.filterNormalize(fromUrl, toUrl, origin,
-                ignoreExternalLinks, ignoreExternalLinksMode, filters, normalizers);
+                ignoreExternalLinks, ignoreExternalLinksMode, filters, exemptionFilters, normalizers, URLNormalizers.SCOPE_OUTLINK);
             if (toUrl == null) {
               continue;
             }
@@ -316,17 +317,18 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
   }
 
   public static String filterNormalize(String fromUrl, String toUrl,
-      String fromHost, boolean ignoreExternalLinks,
-      String ignoreExternalLinksMode, URLFilters filters,
-      URLNormalizers normalizers) {
-    return filterNormalize(fromUrl, toUrl, fromHost, ignoreExternalLinks,
-        ignoreExternalLinksMode, filters, normalizers,
-        URLNormalizers.SCOPE_OUTLINK);
+      String origin, boolean ignoreExternalLinks, String ignoreExternalLinksMode, URLFilters filters,
+      URLExemptionFilters exemptionFilters, URLNormalizers normalizers) {
+
+    return filterNormalize(fromUrl, toUrl, origin, ignoreExternalLinks, ignoreExternalLinksMode,
+        filters, exemptionFilters, normalizers, URLNormalizers.SCOPE_OUTLINK);
   }
 
   public static String filterNormalize(String fromUrl, String toUrl,
-      String origin, boolean ignoreExternalLinks, String ignoreExternalLinksMode, URLFilters filters,
-      URLNormalizers normalizers, String urlNormalizerScope) {
+      String origin, boolean ignoreExternalLinks,
+      String ignoreExternalLinksMode, URLFilters filters,
+      URLExemptionFilters exemptionFilters, URLNormalizers normalizers,
+                                       String urlNormalizerScope) {
     // ignore links to self (or anchors within the page)
     if (fromUrl.equals(toUrl)) {
       return null;
@@ -338,6 +340,9 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
       } catch (MalformedURLException e1) {
         return null; // skip it
       }
+
+
+
       if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
         String toDomain = URLUtil.getDomainName(targetURL).toLowerCase();
         if (toDomain == null || !toDomain.equals(origin)) {
@@ -345,11 +350,19 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
         }
       } else {
         String toHost = targetURL.getHost().toLowerCase();
-        if (toHost == null || !toHost.equals(origin)) {
-          return null; // skip it
+
+        if (toHost == null || !toHost.equals(origin)) { // external links
+          if ( exemptionFilters != null
+              && exemptionFilters.isExempted(fromUrl, toUrl)) {
+            // This url is exempted.
+            LOG.debug("External Link is exempted from db.ignore.external :: {}",  toUrl);
+          } else {
+            return null; // skip it
+          }
         }
       }
     }
+
     try {
       if (normalizers != null) {
         toUrl = normalizers.normalize(toUrl, urlNormalizerScope); // normalize
