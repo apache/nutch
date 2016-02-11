@@ -1,0 +1,21 @@
+# Exemption rules to db.ignore.external.links
+#
+# Format :
+#--------
+# UrlRegex1
+# UrlRegex2
+# UrlRegex3
+
+
+# NOTE ::
+# 1. When the url matches any of the regex then that url is exempted.
+# 2. # in the beginning makes it a comment line
+# 3. To Test the regex, update this file and use the below command
+#   bin/nutch plugin urlfilter-ignoreexempt org.apache.nutch.urlfilter.ignoreexempt.ExemptionUrlFilter <URL>
+# 4. Dont forget to enable this plugin in nutch-site.xml
+
+
+# Example 1:
+#----------
+# To exempt urls ending with image extensions, uncomment the below line
+#.*\.(jpg|JPG|png$|PNG|gif|GIF)$
