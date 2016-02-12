@@ -1452,6 +1452,26 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<!-- language-filter plugin properties -->
+
+<property>
+  <name>language.filter.type</name>
+  <value>filter</value>
+  <description>language-filter plugin look this parameter for filter or
+               accept languages which define language.filter.languages.
+               if set to accept, crawler goes only language.filter.languages languages.
+               if set to filter, crawler not goes only language.filter.languages languages.
+  </description>
+</property>
+
+<property>
+  <name>language.filter.languages</name>
+  <value></value>
+  <description>accept or filter pages in these languages while crawling.
+                 Entries must be ISO-639 language codes and seperate with comma.
+  </description>
+</property>
+
 <!-- index-static plugin properties -->
 
 <property>
