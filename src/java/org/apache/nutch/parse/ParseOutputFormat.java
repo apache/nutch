@@ -340,9 +340,6 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
       } catch (MalformedURLException e1) {
         return null; // skip it
       }
-
-
-
       if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
         String toDomain = URLUtil.getDomainName(targetURL).toLowerCase();
         if (toDomain == null || !toDomain.equals(origin)) {

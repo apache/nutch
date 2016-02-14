@@ -29,6 +29,8 @@
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-regex-filter"/>
+      <import plugin="urlfilter-regex"/>
    </requires>
 
    <extension id="org.apache.nutch.net.urlfilter.ignoreexempt"
