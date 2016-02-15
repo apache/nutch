@@ -103,7 +103,7 @@ public class LanguageFilter implements HtmlParseFilter {
        else if(type.equals(LANG_FILTER_TYPE_FILTERING))
            filterLangOnly = true;
        
-       String languages = conf.get(LANG_FILTER_LANGUAGES,"tr");
+       String languages = conf.get(LANG_FILTER_LANGUAGES,"en");
        LANGUAGES = Arrays.asList(languages.split(" "));
    }
 
