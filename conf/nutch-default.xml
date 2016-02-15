@@ -1468,7 +1468,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>language.filter.languages</name>
   <value></value>
   <description>accept or filter pages in these languages while crawling.
-                 Entries must be ISO-639 language codes and seperate with comma.
+                 Entries must be ISO-639 language codes and seperate with space.
   </description>
 </property>
 
