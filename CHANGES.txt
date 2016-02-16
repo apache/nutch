@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1233 Rely on Tika for outlink extraction (markus)
+
 * NUTCH-2210 Upgrade to Tika 1.12 (markus)
 
 * NUTCH-2209 Improved Tokenization for Similarity Scoring plugin (Sujen)

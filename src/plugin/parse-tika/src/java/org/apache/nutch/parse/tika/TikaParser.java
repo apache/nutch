@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,9 +44,13 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.html.HtmlMapper;
 import org.apache.tika.sax.XHTMLContentHandler;
+import org.apache.tika.sax.Link;
+import org.apache.tika.sax.LinkContentHandler;
+import org.apache.tika.sax.TeeContentHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
+import org.xml.sax.ContentHandler;
 
 /**
  * Wrapper for Tika parsers. Mimics the HTMLParser but using the XHTML
@@ -95,16 +100,20 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     HTMLDocumentImpl doc = new HTMLDocumentImpl();
     doc.setErrorChecking(false);
     DocumentFragment root = doc.createDocumentFragment();
+
     DOMBuilder domhandler = new DOMBuilder(doc, root);
+    LinkContentHandler linkContentHandler = new LinkContentHandler();
     domhandler.setUpperCaseElementNames(upperCaseElementNames);
     domhandler.setDefaultNamespaceURI(XHTMLContentHandler.XHTML);
 
     ParseContext context = new ParseContext();
+    TeeContentHandler teeContentHandler = new TeeContentHandler(domhandler, linkContentHandler);
+    
     if (HTMLMapper != null)
       context.set(HtmlMapper.class, HTMLMapper);
     tikamd.set(Metadata.CONTENT_TYPE, mimeType);
     try {
-      parser.parse(new ByteArrayInputStream(raw), domhandler, tikamd, context);
+      parser.parse(new ByteArrayInputStream(raw), (ContentHandler)teeContentHandler, tikamd, context);
     } catch (Exception e) {
       LOG.error("Error parsing " + content.getUrl(), e);
       return new ParseStatus(ParseStatus.FAILED, e.getMessage())
@@ -147,7 +156,12 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       if (LOG.isTraceEnabled()) {
         LOG.trace("Getting links...");
       }
-      utils.getOutlinks(baseTag != null ? baseTag : base, l, root);
+      
+      // pre-1233 outlink extraction
+      //utils.getOutlinks(baseTag != null ? baseTag : base, l, root);
+      // Get outlinks from Tika
+      List<Link> tikaExtractedOutlinks = linkContentHandler.getLinks();
+      utils.getOutlinks(baseTag != null ? baseTag : base, l, tikaExtractedOutlinks);
       outlinks = l.toArray(new Outlink[l.size()]);
       if (LOG.isTraceEnabled()) {
         LOG.trace("found " + outlinks.length + " outlinks in "
