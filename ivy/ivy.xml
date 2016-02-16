@@ -65,7 +65,7 @@
         <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="2.4.0" conf="*->default"/>
         <!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="1.11" />
+		<dependency org="org.apache.tika" name="tika-core" rev="1.12" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
 
 		<dependency org="xerces" name="xercesImpl" rev="2.9.1" />

@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2210 Upgrade to Tika 1.12 (markus)
+
 * NUTCH-2209 Improved Tokenization for Similarity Scoring plugin (Sujen)
 
 * NUTCH-2211 Added filterchecker and normalizerchecker to bin/nutch script (markus)
