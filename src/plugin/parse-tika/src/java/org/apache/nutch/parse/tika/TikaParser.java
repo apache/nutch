@@ -40,6 +40,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
+import org.apache.tika.parser.html.BoilerpipeContentHandler;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.html.HtmlMapper;
@@ -72,6 +73,9 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   @SuppressWarnings("deprecation")
   public ParseResult getParse(Content content) {
     String mimeType = content.getContentType();
+    
+    boolean useBoilerpipe = getConf().get("tika.extractor", "none").equals("boilerpipe");
+    String boilerpipeExtractorName = getConf().get("tika.extractor.boilerpipe.algorithm", "ArticleExtractor");
 
     URL base;
     try {
@@ -101,13 +105,25 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     doc.setErrorChecking(false);
     DocumentFragment root = doc.createDocumentFragment();
 
-    DOMBuilder domhandler = new DOMBuilder(doc, root);
+    ContentHandler domHandler;
+    
+    // Check whether to use Tika's BoilerplateContentHandler
+    if (useBoilerpipe) {
+      BoilerpipeContentHandler bpHandler = new BoilerpipeContentHandler((ContentHandler)new DOMBuilder(doc, root),
+      BoilerpipeExtractorRepository.getExtractor(boilerpipeExtractorName));
+      bpHandler.setIncludeMarkup(true);
+      domHandler = (ContentHandler)bpHandler;
+    } else {
+      DOMBuilder domBuilder = new DOMBuilder(doc, root);
+      domBuilder.setUpperCaseElementNames(upperCaseElementNames);
+      domBuilder.setDefaultNamespaceURI(XHTMLContentHandler.XHTML);
+      domHandler = (ContentHandler)domBuilder;
+    }
+
     LinkContentHandler linkContentHandler = new LinkContentHandler();
-    domhandler.setUpperCaseElementNames(upperCaseElementNames);
-    domhandler.setDefaultNamespaceURI(XHTMLContentHandler.XHTML);
 
     ParseContext context = new ParseContext();
-    TeeContentHandler teeContentHandler = new TeeContentHandler(domhandler, linkContentHandler);
+    TeeContentHandler teeContentHandler = new TeeContentHandler(domHandler, linkContentHandler);
     
     if (HTMLMapper != null)
       context.set(HtmlMapper.class, HTMLMapper);

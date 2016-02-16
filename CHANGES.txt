@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-961 Expose Tika's Boilerpipe support (Gabriele Kahlout, Vincent Slot, markus)
+
 * NUTCH-1233 Rely on Tika for outlink extraction (markus)
 
 * NUTCH-2210 Upgrade to Tika 1.12 (markus)

@@ -1300,6 +1300,22 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>tika.extractor</name>
+  <value>none</value>
+  <description>
+  Which text extraction algorithm to use. Valid values are: boilerpipe or none.
+  </description>
+</property>
+
+<property> 
+  <name>tika.extractor.boilerpipe.algorithm</name>
+  <value>ArticleExtractor</value>
+  <description> 
+  Which Boilerpipe algorithm to use. Valid values are: DefaultExtractor, ArticleExtractor
+  or CanolaExtractor.
+  </description>
+</property>
 
 <!-- urlfilter plugin properties -->
 
