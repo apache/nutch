@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2224 Average bytes/second calculated incorrectly in fetcher (Tien Nguyen Manh via markus)
+
 * NUTCH-2225 Parsed time calculated incorrectly (Tien Nguyen Manh via markus)
 
 * NUTCH-961 Expose Tika's Boilerpipe support (Gabriele Kahlout, Vincent Slot, markus)
