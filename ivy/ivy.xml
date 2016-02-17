@@ -68,7 +68,7 @@
 		<dependency org="org.apache.tika" name="tika-core" rev="1.12" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
 
-		<dependency org="xerces" name="xercesImpl" rev="2.9.1" />
+		<dependency org="xerces" name="xercesImpl" rev="2.11.0" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
 		<dependency org="oro" name="oro" rev="2.0.8" />
 
