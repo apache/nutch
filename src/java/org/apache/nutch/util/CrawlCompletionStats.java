@@ -23,6 +23,14 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.MissingOptionException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -61,27 +69,60 @@ public class CrawlCompletionStats extends Configured implements Tool {
   private int mode = 0;
 
   public int run(String[] args) throws Exception {
-    if (args.length < 3) {
-      System.err.println("Usage: CrawlCompletionStats inputDirs outDir mode [numOfReducer]");
+    Option helpOpt = new Option("h", "help", false, "Show this message");
+    Option inDirs = OptionBuilder
+        .withArgName("inputDirs")
+        .isRequired()
+        .withDescription("Comma separated list of crawl directories")
+        .hasArgs()
+        .create("inputDirs");
+    Option outDir = OptionBuilder
+        .withArgName("outputDir")
+        .isRequired()
+        .withDescription("Output directory where results should be dumped")
+        .hasArgs()
+        .create("outputDir");
+    Option modeOpt = OptionBuilder
+        .withArgName("mode")
+        .isRequired()
+        .withDescription("Set statistics gathering mode (by 'host' or by 'domain')")
+        .hasArgs()
+        .create("mode");
+    Option numReducers = OptionBuilder
+        .withArgName("numReducers")
+        .withDescription("Optional number of reduce jobs to use. Defaults to 1")
+        .hasArgs()
+        .create("numReducers");
 
-      System.err.println("\tinputDirs\tComma separated list of crawldb input directories");
-      System.err.println("\t\t\tE.g.: crawl/crawldb/");
+    Options options = new Options();
+    options.addOption(helpOpt);
+    options.addOption(inDirs);
+    options.addOption(outDir);
+    options.addOption(modeOpt);
+    options.addOption(numReducers);
 
-      System.err.println("\toutDir\t\tOutput directory where results should be dumped");
+    CommandLineParser parser = new GnuParser();
+    CommandLine cli;
 
-      System.err.println("\tmode\t\tSet statistics gathering mode");
-      System.err.println("\t\t\t\thost\tGather statistics by host");
-      System.err.println("\t\t\t\tdomain\tGather statistics by domain");
-
-      System.err.println("\t[numOfReducers]\tOptional number of reduce jobs to use. Defaults to 1.");
+    try {
+      cli = parser.parse(options, args);
+    } catch (MissingOptionException e) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp("CrawlCompletionStats", options, true);
       return 1;
     }
 
-    String inputDir = args[0];
-    String outputDir = args[1];
-    int numOfReducers = 1;
+    if (cli.hasOption("help")) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp("CrawlCompletionStats", options, true);
+      return 1;
+    }
 
-    if (args.length > 3) {
+    String inputDir = cli.getOptionValue("inputDirs");
+    String outputDir = cli.getOptionValue("outputDir");
+
+    int numOfReducers = 1;
+    if (cli.hasOption("numReducers")) {
       numOfReducers = Integer.parseInt(args[3]);
     }
 
@@ -91,10 +132,10 @@ public class CrawlCompletionStats extends Configured implements Tool {
 
     int mode = 0;
     String jobName = "CrawlCompletionStats";
-    if (args[2].equals("host")) {
+    if (cli.getOptionValue("mode").equals("host")) {
       jobName = "Host CrawlCompletionStats";
       mode = MODE_HOST;
-    } else if (args[2].equals("domain")) {
+    } else if (cli.getOptionValue("mode").equals("domain")) {
       jobName = "Domain CrawlCompletionStats";
       mode = MODE_DOMAIN;
     }
@@ -108,7 +149,7 @@ public class CrawlCompletionStats extends Configured implements Tool {
 
     String[] inputDirsSpecs = inputDir.split(",");
     for (int i = 0; i < inputDirsSpecs.length; i++) {
-      File completeInputPath = new File(new File(inputDirsSpecs[i]), "current");
+      File completeInputPath = new File(new File(inputDirsSpecs[i]), "crawldb/current");
       FileInputFormat.addInputPath(job, new Path(completeInputPath.toString()));
       
     }
