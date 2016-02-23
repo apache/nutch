@@ -84,6 +84,7 @@ public class FetcherThread extends Thread {
   private String reprUrl;
   private boolean redirecting;
   private int redirectCount;
+  private boolean ignoreInternalLinks;
   private boolean ignoreExternalLinks;
   private String ignoreExternalLinksMode;
 
@@ -174,6 +175,7 @@ public class FetcherThread extends Thread {
     maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
         : maxOutlinksPerPage;
     interval = conf.getInt("db.fetch.interval.default", 2592000);
+    ignoreInternalLinks = conf.getBoolean("db.ignore.internal.links", false);
     ignoreExternalLinks = conf.getBoolean("db.ignore.external.links", false);
     ignoreExternalLinksMode = conf.get("db.ignore.external.links.mode", "byHost");
     maxOutlinkDepth = conf.getInt("fetcher.follow.outlinks.depth", -1);
@@ -428,10 +430,10 @@ public class FetcherThread extends Thread {
     newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
     newUrl = urlFilters.filter(newUrl);
 
-    if (ignoreExternalLinks) {
-      try {
-        String origHost = new URL(urlString).getHost().toLowerCase();
-        String newHost = new URL(newUrl).getHost().toLowerCase();
+    try {
+      String origHost = new URL(urlString).getHost().toLowerCase();
+      String newHost = new URL(newUrl).getHost().toLowerCase();
+      if (ignoreExternalLinks) {
         if (!origHost.equals(newHost)) {
           if (LOG.isDebugEnabled()) {
             LOG.debug(" - ignoring redirect " + redirType + " from "
@@ -440,10 +442,20 @@ public class FetcherThread extends Thread {
           }
           return null;
         }
-      } catch (MalformedURLException e) {
       }
-    }
-
+      
+      if (ignoreInternalLinks) {
+        if (origHost.equals(newHost)) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(" - ignoring redirect " + redirType + " from "
+                + urlString + " to " + newUrl
+                + " because internal links are ignored");
+          }
+          return null;
+        }
+      }
+    } catch (MalformedURLException e) { }
+    
     if (newUrl != null && !newUrl.equals(urlString)) {
       reprUrl = URLUtil.chooseRepr(reprUrl, newUrl, temp);
       url = new Text(newUrl);
@@ -621,7 +633,7 @@ public class FetcherThread extends Thread {
           // collect outlinks for subsequent db update
           Outlink[] links = parseData.getOutlinks();
           int outlinksToStore = Math.min(maxOutlinks, links.length);
-          if (ignoreExternalLinks) {
+          if (ignoreExternalLinks || ignoreInternalLinks) {
             URL originURL = new URL(url.toString());
             // based on domain?
             if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
@@ -648,7 +660,7 @@ public class FetcherThread extends Thread {
             String toUrl = links[i].getToUrl();
 
             toUrl = ParseOutputFormat.filterNormalize(url.toString(), toUrl,
-                origin, ignoreExternalLinks, ignoreExternalLinksMode, urlFilters, normalizers);
+                origin, ignoreInternalLinks, ignoreExternalLinks, ignoreExternalLinksMode, urlFilters, normalizers);
             if (toUrl == null) {
               continue;
             }

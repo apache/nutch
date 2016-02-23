@@ -10,6 +10,8 @@ in the release announcement and keep it on top in this CHANGES.txt for the Nutch
 
 Nutch Change Log
 
+* NUTCH-2221 Introduce db.ignore.internal.links to FetcherThread (markus)
+
 * NUTCH-2220 Rename db.* options used only by the linkdb to linkdb.* (markus)
 
 * NUTCH-2228 Plugin index-replace unit test broken on Java 8 (snagel via markus)

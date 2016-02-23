@@ -538,6 +538,16 @@
 </property>
 
 <property>
+  <name>db.ignore.internal.links</name>
+  <value>false</value>
+  <description>If true, outlinks leading from a page to internal hosts or domain
+  will be ignored. This is an effective way to limit the crawl to include
+  only initially injected hosts, without creating complex URLFilters.
+  See 'db.ignore.external.links.mode'.
+  </description>
+</property>
+
+<property>
   <name>db.ignore.external.links</name>
   <value>false</value>
   <description>If true, outlinks leading from a page to external hosts or domain
