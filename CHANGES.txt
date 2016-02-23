@@ -1,4 +1,16 @@
+Fellow committers, Nutch 1.12 contains a breaking change NUTCH-2220. Please use the note below and
+in the release announcement and keep it on top in this CHANGES.txt for the Nutch 1.12 release.
+
+* replace your old conf/nutch-default.xml with the conf/nutch-default.xml from Nutch 1.12 release
+* if you use LinkDB (e.g. invertlinks) and modified parameters db.max.inlinks and/or db.max.anchor.length
+  and/or db.ignore.internal.links, rename those parameters to linkdb.max.inlinks and
+  linkdb.max.anchor.length and linkdb.ignore.internal.links
+* db.ignore.internal.links and db.ignore.external.links now operate on the CrawlDB only
+* linkdb.ignore.internal.links and linkdb.ignore.external.links now operate on the LinkDB only
+
 Nutch Change Log
+
+* NUTCH-2220 Rename db.* options used only by the linkdb to linkdb.* (markus)
 
 * NUTCH-2228 Plugin index-replace unit test broken on Java 8 (snagel via markus)
 
