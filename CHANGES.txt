@@ -10,6 +10,8 @@ in the release announcement and keep it on top in this CHANGES.txt for the Nutch
 
 Nutch Change Log
 
+* NUTCH-2227 RegexParseFilter (markus)
+
 * NUTCH-2221 Introduce db.ignore.internal.links to FetcherThread (markus)
 
 * NUTCH-2220 Rename db.* options used only by the linkdb to linkdb.* (markus)

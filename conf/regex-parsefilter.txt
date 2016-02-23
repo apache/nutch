@@ -1,0 +1,8 @@
+# Example configuration file for parsefilter-regex
+#
+# Parse metadata field <name> is set to true if the HTML matches the regex. The
+# source can either be html or text. If source is html, the regex is applied to
+# the entire HTML tree. If source is text, the regex is applied to the
+# extracted text.
+#
+# format: <name>\t<source>\t<regex>\n
