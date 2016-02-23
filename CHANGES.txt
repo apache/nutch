@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-2228 Plugin index-replace unit test broken on Java 8 (snagel via markus)
+
 * NUTCH-2219 Criteria order to be configurable in DeduplicationJob (Ron van der Vegt via markus)
 
 * NUTCH-2218 Update CrawlComplete util to use Commons CLI (Joyce)
