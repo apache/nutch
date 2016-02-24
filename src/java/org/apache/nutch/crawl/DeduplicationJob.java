@@ -17,6 +17,8 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -193,8 +195,15 @@ public class DeduplicationJob extends NutchTool implements Tool {
               break;
             case "urlLength":
               // same time? keep the one which has the shortest URL
-              String urlExisting = existingDoc.getMetaData().get(urlKey).toString();
-              String urlnewDoc = newDoc.getMetaData().get(urlKey).toString();
+              String urlExisting;
+              String urlnewDoc;
+              try {
+                urlExisting = URLDecoder.decode(existingDoc.getMetaData().get(urlKey).toString(), "UTF8");
+                urlnewDoc = URLDecoder.decode(newDoc.getMetaData().get(urlKey).toString(), "UTF8");
+              } catch (UnsupportedEncodingException e) {
+                LOG.error("Error decoding: " + urlKey);
+                throw new IOException("UnsupportedEncodingException for " + urlKey);
+              }
               if (urlExisting.length() < urlnewDoc.length()) {
                 // mark new one as duplicate
                 writeOutAsDuplicate(newDoc, output, reporter);
