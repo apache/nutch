@@ -70,6 +70,7 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.lang.time.DateUtils;
 
 /**
  * Read utility for the CrawlDB.
@@ -522,6 +523,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
   public static class CrawlDbDumpMapper implements
       Mapper<Text, CrawlDatum, Text, CrawlDatum> {
+    Pattern datePattern = Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z");
     Pattern pattern = null;
     Matcher matcher = null;
     String status = null;
@@ -534,12 +536,30 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       }
       status = job.get("status", null);
       retry = job.getInt("retry", -1);
-
+      String exprStr = job.get("expr", null);
+      
       if (job.get("expr", null) != null) {
-        JexlEngine jexl = new JexlEngine();
-        jexl.setSilent(true);
-        jexl.setStrict(true);
-        expr = jexl.createExpression(job.get("expr", null));
+        try {
+          // Translate any date object into a long, dates must be specified as 20-03-2016T00:00:00Z
+          Matcher matcher = datePattern.matcher(exprStr);
+          if (matcher.find()) {
+            String date = matcher.group();
+            
+            // Parse the thing and get epoch!
+            Date parsedDate = DateUtils.parseDateStrictly(date, new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"});
+            long time = parsedDate.getTime();
+            
+            // Replace in the original expression
+            exprStr = exprStr.replace(date, Long.toString(time));
+          }
+          
+          JexlEngine jexl = new JexlEngine();
+          jexl.setSilent(true);
+          jexl.setStrict(true);
+          expr = jexl.createExpression(exprStr);
+        } catch (Exception e) {
+          LOG.error(e.getMessage());
+        }
       }
     }
 
