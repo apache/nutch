@@ -10,6 +10,8 @@ in the release announcement and keep it on top in this CHANGES.txt for the Nutch
 
 Nutch Change Log
 
+* NUTCH-2231 Jexl support in generator job (markus)
+
 * NUTCH-2232 DeduplicationJob should decode URL's before length is compared (Ron van der Vegt via markus)
 
 * NUTCH-2229 Allow Jexl expressions on CrawlDatum's fixed attributes (markus)

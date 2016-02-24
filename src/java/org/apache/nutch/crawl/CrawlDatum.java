@@ -534,7 +534,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       jcontext.set("interval", new Integer(getFetchInterval()));
       jcontext.set("score", getScore());
       jcontext.set("signature", StringUtil.toHexString(getSignature()));
-      
+            
       // Set metadata variables
       for (Map.Entry<Writable, Writable> entry : getMetaData().entrySet()) {
         Object value = entry.getValue();
@@ -553,15 +553,11 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
         
         if (value instanceof Text) {
           Text tvalue = (Text)value;
-          Text tkey = (Text)entry.getKey();
-          
-          try {
-            Float number = Float.parseFloat(tvalue.toString());
-            jcontext.set(tkey.toString(), number);
-          } catch (Exception e) {}
+          Text tkey = (Text)entry.getKey();     
+          jcontext.set(tkey.toString().replace("-", "_"), tvalue.toString());
         }
       }
-            
+                  
       try {
         if (Boolean.TRUE.equals(expr.evaluate(jcontext))) {
           return true;

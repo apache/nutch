@@ -65,6 +65,7 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.util.JexlUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
@@ -508,8 +509,10 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       job.set("regex", regex);
     if (retry != null)
       job.setInt("retry", retry);
-    if (expr != null)
+    if (expr != null) {
       job.set("expr", expr);
+      LOG.info("CrawlDb db: expr: " + expr);
+    }
 
     job.setMapperClass(CrawlDbDumpMapper.class);
     job.setOutputKeyClass(Text.class);
@@ -523,7 +526,6 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
   public static class CrawlDbDumpMapper implements
       Mapper<Text, CrawlDatum, Text, CrawlDatum> {
-    Pattern datePattern = Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z");
     Pattern pattern = null;
     Matcher matcher = null;
     String status = null;
@@ -536,30 +538,9 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       }
       status = job.get("status", null);
       retry = job.getInt("retry", -1);
-      String exprStr = job.get("expr", null);
       
       if (job.get("expr", null) != null) {
-        try {
-          // Translate any date object into a long, dates must be specified as 20-03-2016T00:00:00Z
-          Matcher matcher = datePattern.matcher(exprStr);
-          if (matcher.find()) {
-            String date = matcher.group();
-            
-            // Parse the thing and get epoch!
-            Date parsedDate = DateUtils.parseDateStrictly(date, new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"});
-            long time = parsedDate.getTime();
-            
-            // Replace in the original expression
-            exprStr = exprStr.replace(date, Long.toString(time));
-          }
-          
-          JexlEngine jexl = new JexlEngine();
-          jexl.setSilent(true);
-          jexl.setStrict(true);
-          expr = jexl.createExpression(exprStr);
-        } catch (Exception e) {
-          LOG.error(e.getMessage());
-        }
+        expr = JexlUtil.parseExpression(job.get("expr", null));
       }
     }
 
