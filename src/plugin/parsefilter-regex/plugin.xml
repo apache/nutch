@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
  Licensed to the Apache Software Foundation (ASF) under one or more
  contributor license agreements.  See the NOTICE file distributed with
@@ -15,21 +15,28 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="scoring-similarity" default="jar-core">
+<plugin
+   id="parsefilter-regex"
+   name="Regex Parse Filter"
+   version="1.0.0"
+   provider-name="nutch.org">
 
-  <import file="../build-plugin.xml"/>
-	  <target name="deps-jar">
-	    <ant target="jar" inheritall="false" dir="../indexer-elastic" />
-	  </target>
-	  <!-- Add compilation dependencies to classpath -->
-	  <path id="plugin.deps">
-	    <fileset dir="${nutch.root}/build">
-	      <include name="**/indexer-elastic/*.jar" />
-	    </fileset>
-	  </path>
-  <!-- Deploy Unit test dependencies -->
-  <target name="deps-test">
-    <ant target="deploy" inheritall="false" dir="../nutch-extensionpoints"/>
-  </target>
+   <runtime>
+      <library name="parsefilter-regex.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
 
-</project>
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+   <extension id="org.apache.nutch.htmlparsefilter.regex"
+        name="Nutch Parser Filter" point="org.apache.nutch.parse.HtmlParseFilter">
+      <implementation id="RegexParseFilter" 
+                      class="org.apache.nutch.parsefilter.regex.RegexParseFilter">
+          <parameter name="file" value="regex-parsefilter.txt"/>
+      </implementation>
+   </extension>
+
+</plugin>

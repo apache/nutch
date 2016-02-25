@@ -33,12 +33,5 @@
   <publications>
     <!--get the artifact from our module name-->
     <artifact conf="master"/>
-  </publications>
-
-  <dependencies>
-    <dependency org="org.jdom" name="jdom" rev="1.1" conf="*->default"/>
-    <dependency org="jaxen" name="jaxen" rev="1.1.1" conf="*->master"/>
-    <dependency org="xerces" name="xercesImpl" rev="2.11.0" conf="*->master"/>
-  </dependencies>
-  
+  </publications>  
 </ivy-module>

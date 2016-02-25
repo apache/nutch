@@ -17,11 +17,14 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.Arrays;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -69,6 +72,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
   private final static Text urlKey = new Text("_URLTEMPKEY_");
   private final static String DEDUPLICATION_GROUP_MODE = "deduplication.group.mode";
+  private final static String DEDUPLICATION_COMPARE_ORDER = "deduplication.compare.order";
 
   public static class DBFilter implements
       Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum> {
@@ -128,6 +132,13 @@ public class DeduplicationJob extends NutchTool implements Tool {
   public static class DedupReducer implements
       Reducer<BytesWritable, CrawlDatum, Text, CrawlDatum> {
 
+    private String[] compareOrder;
+    
+    @Override
+    public void configure(JobConf arg0) {
+      compareOrder = arg0.get(DEDUPLICATION_COMPARE_ORDER).split(",");
+    }
+
     private void writeOutAsDuplicate(CrawlDatum datum,
         OutputCollector<Text, CrawlDatum> output, Reporter reporter)
         throws IOException {
@@ -144,6 +155,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
         throws IOException {
       CrawlDatum existingDoc = null;
 
+      outerloop:
       while (values.hasNext()) {
         if (existingDoc == null) {
           existingDoc = new CrawlDatum();
@@ -151,48 +163,63 @@ public class DeduplicationJob extends NutchTool implements Tool {
           continue;
         }
         CrawlDatum newDoc = values.next();
-        // compare based on score
-        if (existingDoc.getScore() < newDoc.getScore()) {
-          writeOutAsDuplicate(existingDoc, output, reporter);
-          existingDoc = new CrawlDatum();
-          existingDoc.set(newDoc);
-          continue;
-        } else if (existingDoc.getScore() > newDoc.getScore()) {
-          // mark new one as duplicate
-          writeOutAsDuplicate(newDoc, output, reporter);
-          continue;
-        }
-        // same score? delete the one which is oldest
-        if (existingDoc.getFetchTime() > newDoc.getFetchTime()) {
-          // mark new one as duplicate
-          writeOutAsDuplicate(newDoc, output, reporter);
-          continue;
-        } else if (existingDoc.getFetchTime() < newDoc.getFetchTime()) {
-          // mark existing one as duplicate
-          writeOutAsDuplicate(existingDoc, output, reporter);
-          existingDoc = new CrawlDatum();
-          existingDoc.set(newDoc);
-          continue;
-        }
-        // same time? keep the one which has the shortest URL
-        String urlExisting = existingDoc.getMetaData().get(urlKey).toString();
-        String urlnewDoc = newDoc.getMetaData().get(urlKey).toString();
-        if (urlExisting.length() < urlnewDoc.length()) {
-          // mark new one as duplicate
-          writeOutAsDuplicate(newDoc, output, reporter);
-          continue;
-        } else if (urlExisting.length() > urlnewDoc.length()) {
-          // mark existing one as duplicate
-          writeOutAsDuplicate(existingDoc, output, reporter);
-          existingDoc = new CrawlDatum();
-          existingDoc.set(newDoc);
-          continue;
-        }
-      }
-    }
 
-    @Override
-    public void configure(JobConf arg0) {
+        for (int i = 0; i < compareOrder.length; i++) {
+          switch (compareOrder[i]) {
+            case "score":
+              // compare based on score
+              if (existingDoc.getScore() < newDoc.getScore()) {
+                writeOutAsDuplicate(existingDoc, output, reporter);
+                existingDoc = new CrawlDatum();
+                existingDoc.set(newDoc);
+                continue outerloop;
+              } else if (existingDoc.getScore() > newDoc.getScore()) {
+                // mark new one as duplicate
+                writeOutAsDuplicate(newDoc, output, reporter);
+                continue outerloop;
+              }
+              break;
+            case "fetchTime":
+              // same score? delete the one which is oldest
+              if (existingDoc.getFetchTime() > newDoc.getFetchTime()) {
+                // mark new one as duplicate
+                writeOutAsDuplicate(newDoc, output, reporter);
+                continue outerloop;
+              } else if (existingDoc.getFetchTime() < newDoc.getFetchTime()) {
+                // mark existing one as duplicate
+                writeOutAsDuplicate(existingDoc, output, reporter);
+                existingDoc = new CrawlDatum();
+                existingDoc.set(newDoc);
+                continue outerloop;
+              }
+              break;
+            case "urlLength":
+              // same time? keep the one which has the shortest URL
+              String urlExisting;
+              String urlnewDoc;
+              try {
+                urlExisting = URLDecoder.decode(existingDoc.getMetaData().get(urlKey).toString(), "UTF8");
+                urlnewDoc = URLDecoder.decode(newDoc.getMetaData().get(urlKey).toString(), "UTF8");
+              } catch (UnsupportedEncodingException e) {
+                LOG.error("Error decoding: " + urlKey);
+                throw new IOException("UnsupportedEncodingException for " + urlKey);
+              }
+              if (urlExisting.length() < urlnewDoc.length()) {
+                // mark new one as duplicate
+                writeOutAsDuplicate(newDoc, output, reporter);
+                continue outerloop;
+              } else if (urlExisting.length() > urlnewDoc.length()) {
+                // mark existing one as duplicate
+                writeOutAsDuplicate(existingDoc, output, reporter);
+                existingDoc = new CrawlDatum();
+                existingDoc.set(newDoc);
+                continue outerloop;
+              }
+              break;
+          }
+        }
+
+      }
     }
 
     @Override
@@ -242,16 +269,27 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
   public int run(String[] args) throws IOException {
     if (args.length < 1) {
-      System.err.println("Usage: DeduplicationJob <crawldb> [-group <none|host|domain>]");
+      System.err.println("Usage: DeduplicationJob <crawldb> [-group <none|host|domain>] [-compareOrder <score>,<fetchTime>,<urlLength>]");
       return 1;
     }
 
     String group = "none";
     String crawldb = args[0];
-    
+    String compareOrder = "score,fetchTime,urlLength";
+
     for (int i = 1; i < args.length; i++) {
-      if (args[i].equals("-group"))
+      if (args[i].equals("-group")) 
         group = args[++i];
+      if (args[i].equals("-compareOrder")) {
+        compareOrder = args[++i];
+
+        if (compareOrder.indexOf("score") == -1 ||
+            compareOrder.indexOf("fetchTime") == -1 ||
+            compareOrder.indexOf("urlLength") == -1) {
+          System.err.println("DeduplicationJob: compareOrder must contain score, fetchTime and urlLength.");
+          return 1;
+        }
+      }
     }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -266,6 +304,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
     job.setJobName("Deduplication on " + crawldb);
     job.set(DEDUPLICATION_GROUP_MODE, group);
+    job.set(DEDUPLICATION_COMPARE_ORDER, compareOrder);
 
     FileInputFormat.addInputPath(job, new Path(crawldb, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);

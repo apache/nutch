@@ -96,6 +96,7 @@ public class ParseSegment extends NutchTool implements Tool,
       return;
     }
 
+    long start = System.currentTimeMillis();
     ParseResult parseResult = null;
     try {
       if (parseUtil == null)
@@ -111,8 +112,6 @@ public class ParseSegment extends NutchTool implements Tool,
       Text url = entry.getKey();
       Parse parse = entry.getValue();
       ParseStatus parseStatus = parse.getData().getStatus();
-
-      long start = System.currentTimeMillis();
 
       reporter.incrCounter("ParserStatus",
           ParseStatus.majorCodes[parseStatus.getMajorCode()], 1);

@@ -36,12 +36,11 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.tika" name="tika-parsers" rev="1.11" conf="*->default">
+    <dependency org="org.apache.tika" name="tika-parsers" rev="1.12" conf="*->default">
      <exclude org="org.apache.tika" name="tika-core" />
      <exclude org="org.apache.httpcomponents" name="httpclient" />
      <exclude org="org.apache.httpcomponents" name="httpcore" />
     </dependency>
-    <override module="rome" rev="0.9"/>
   </dependencies>
   
 </ivy-module>

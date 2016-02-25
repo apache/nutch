@@ -1,4 +1,46 @@
+Fellow committers, Nutch 1.12 contains a breaking change NUTCH-2220. Please use the note below and
+in the release announcement and keep it on top in this CHANGES.txt for the Nutch 1.12 release.
+
+* replace your old conf/nutch-default.xml with the conf/nutch-default.xml from Nutch 1.12 release
+* if you use LinkDB (e.g. invertlinks) and modified parameters db.max.inlinks and/or db.max.anchor.length
+  and/or db.ignore.internal.links, rename those parameters to linkdb.max.inlinks and
+  linkdb.max.anchor.length and linkdb.ignore.internal.links
+* db.ignore.internal.links and db.ignore.external.links now operate on the CrawlDB only
+* linkdb.ignore.internal.links and linkdb.ignore.external.links now operate on the LinkDB only
+
 Nutch Change Log
+
+* NUTCH-2231 Jexl support in generator job (markus)
+
+* NUTCH-2232 DeduplicationJob should decode URL's before length is compared (Ron van der Vegt via markus)
+
+* NUTCH-2229 Allow Jexl expressions on CrawlDatum's fixed attributes (markus)
+
+* NUTCH-2227 RegexParseFilter (markus)
+
+* NUTCH-2221 Introduce db.ignore.internal.links to FetcherThread (markus)
+
+* NUTCH-2220 Rename db.* options used only by the linkdb to linkdb.* (markus)
+
+* NUTCH-2228 Plugin index-replace unit test broken on Java 8 (snagel via markus)
+
+* NUTCH-2219 Criteria order to be configurable in DeduplicationJob (Ron van der Vegt via markus)
+
+* NUTCH-2218 Update CrawlComplete util to use Commons CLI (Joyce)
+
+* NUTCH-2223 Upgrade xercesImpl to 2.11.0 to fix hang on issue in tika mimetype detection (Tien Nguyen Manh via markus)
+
+* NUTCH-2224 Average bytes/second calculated incorrectly in fetcher (Tien Nguyen Manh via markus)
+
+* NUTCH-2225 Parsed time calculated incorrectly (Tien Nguyen Manh via markus)
+
+* NUTCH-961 Expose Tika's Boilerpipe support (Gabriele Kahlout, Vincent Slot, markus)
+
+* NUTCH-1233 Rely on Tika for outlink extraction (markus)
+
+* NUTCH-2210 Upgrade to Tika 1.12 (markus)
+
+* NUTCH-2209 Improved Tokenization for Similarity Scoring plugin (Sujen)
 
 * NUTCH-2211 Added filterchecker and normalizerchecker to bin/nutch script (markus)
 

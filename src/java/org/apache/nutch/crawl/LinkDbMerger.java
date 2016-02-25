@@ -55,7 +55,7 @@ import org.apache.nutch.util.TimingUtil;
  * </p>
  * <p>
  * If more than one LinkDb contains information about the same URL, all inlinks
- * are accumulated, but only at most <code>db.max.inlinks</code> inlinks will
+ * are accumulated, but only at most <code>linkdb.max.inlinks</code> inlinks will
  * ever be added.
  * </p>
  * <p>
@@ -104,7 +104,7 @@ public class LinkDbMerger extends Configured implements Tool,
   }
 
   public void configure(JobConf job) {
-    maxInlinks = job.getInt("db.max.inlinks", 10000);
+    maxInlinks = job.getInt("linkdb.max.inlinks", 10000);
   }
 
   public void close() throws IOException {

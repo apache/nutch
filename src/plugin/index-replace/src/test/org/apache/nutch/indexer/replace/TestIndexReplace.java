@@ -182,7 +182,7 @@ public class TestIndexReplace {
     String expectedKeywords = "Breathtaking, Riveting, Two Thumbs Up!";
     String expectedAuthor = "Peter Ciuffetti";
     // Contains: invalid pattern, invalid flags, incomplete property
-    String indexReplaceProperty = "  metatag.description=/this\\hplugin/this awesome plugin/\n"
+    String indexReplaceProperty = "  metatag.description=/this\\s+**plugin/this awesome plugin/\n"
         + "  metatag.keywords=/\\,/\\!/what\n" + " metatag.author=#notcomplete";
 
     Configuration conf = NutchConfiguration.create();

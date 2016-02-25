@@ -355,7 +355,9 @@ class DOMBuilder implements ContentHandler, LexicalHandler {
    */
   public void endElement(String ns, String localName, String name)
       throws org.xml.sax.SAXException {
-    m_elemStack.pop();
+    if (!m_elemStack.isEmpty()) {
+      m_elemStack.pop();
+    }
     m_currentNode = m_elemStack.isEmpty() ? null : (Node) m_elemStack.peek();
   }
 

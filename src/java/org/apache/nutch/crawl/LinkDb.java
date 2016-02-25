@@ -48,8 +48,8 @@ public class LinkDb extends NutchTool implements Tool,
 
   public static final Logger LOG = LoggerFactory.getLogger(LinkDb.class);
 
-  public static final String IGNORE_INTERNAL_LINKS = "db.ignore.internal.links";
-  public static final String IGNORE_EXTERNAL_LINKS = "db.ignore.external.links";
+  public static final String IGNORE_INTERNAL_LINKS = "linkdb.ignore.internal.links";
+  public static final String IGNORE_EXTERNAL_LINKS = "linkdb.ignore.external.links";
 
   public static final String CURRENT_NAME = "current";
   public static final String LOCK_NAME = ".locked";
@@ -68,7 +68,7 @@ public class LinkDb extends NutchTool implements Tool,
   }
 
   public void configure(JobConf job) {
-    maxAnchorLength = job.getInt("db.max.anchor.length", 100);
+    maxAnchorLength = job.getInt("linkdb.max.anchor.length", 100);
     ignoreInternalLinks = job.getBoolean(IGNORE_INTERNAL_LINKS, true);
     ignoreExternalLinks = job.getBoolean(IGNORE_EXTERNAL_LINKS, false);
 

@@ -521,29 +521,19 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     }
   }
   
-  public boolean evaluate(String expr) {
-    return evaluate(expr, true, true);
-  }
-  
-  public boolean evaluate(String expr, boolean silent, boolean strict) {
-    if (expr != null) {
-      // Create or retrieve a JexlEngine
-      JexlEngine jexl = new JexlEngine();
-      
-      jexl.setSilent(silent);
-      jexl.setStrict(strict);
-      
-      // Create an expression object and evaluate
-      return evaluate(jexl.createExpression(expr));
-    }
-    
-    return false;
-  }
-  
   public boolean evaluate(Expression expr) {
     if (expr != null) {
       // Create a context and add data
       JexlContext jcontext = new MapContext();
+      
+      // https://issues.apache.org/jira/browse/NUTCH-2229
+      jcontext.set("status", getStatusName(getStatus()));
+      jcontext.set("fetchTime", (long)(getFetchTime()));
+      jcontext.set("modifiedTime", (long)(getModifiedTime()));
+      jcontext.set("retries", getRetriesSinceFetch());
+      jcontext.set("interval", new Integer(getFetchInterval()));
+      jcontext.set("score", getScore());
+      jcontext.set("signature", StringUtil.toHexString(getSignature()));
             
       // Set metadata variables
       for (Map.Entry<Writable, Writable> entry : getMetaData().entrySet()) {
@@ -563,15 +553,11 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
         
         if (value instanceof Text) {
           Text tvalue = (Text)value;
-          Text tkey = (Text)entry.getKey();
-          
-          try {
-            Float number = Float.parseFloat(tvalue.toString());
-            jcontext.set(tkey.toString(), number);
-          } catch (Exception e) {}
+          Text tkey = (Text)entry.getKey();     
+          jcontext.set(tkey.toString().replace("-", "_"), tvalue.toString());
         }
       }
-      
+                  
       try {
         if (Boolean.TRUE.equals(expr.evaluate(jcontext))) {
           return true;

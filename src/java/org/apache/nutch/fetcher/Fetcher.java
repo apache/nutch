@@ -138,7 +138,7 @@ public class Fetcher extends NutchTool implements Tool,
     Long elapsed = new Long((System.currentTimeMillis() - start) / 1000);
 
     float avgPagesSec = (float) pages.get() / elapsed.floatValue();
-    long avgBytesSec = (bytes.get() / 125l) / elapsed.longValue();
+    long avgBytesSec = (bytes.get() / 128l) / elapsed.longValue();
 
     status.append(activeThreads).append(" threads (").append(spinWaiting.get())
         .append(" waiting), ");
@@ -148,7 +148,7 @@ public class Fetcher extends NutchTool implements Tool,
     status.append(String.format("%.2f", avgPagesSec)).append(" pages/s (");
     status.append(pagesLastSec).append(" last sec), ");
     status.append(avgBytesSec).append(" kbits/s (")
-        .append((bytesLastSec / 125)).append(" last sec)");
+        .append((bytesLastSec / 128)).append(" last sec)");
 
     reporter.setStatus(status.toString());
   }

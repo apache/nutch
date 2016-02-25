@@ -22,11 +22,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
 import org.apache.nutch.util.URLUtil;
+import org.apache.tika.sax.Link;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -57,6 +60,7 @@ public class DOMContentUtils {
   }
 
   private HashMap<String, LinkParams> linkParams = new HashMap<String, LinkParams>();
+  private HashSet<String> ignoredTags = new HashSet<String>();
   private Configuration conf;
 
   public DOMContentUtils(Configuration conf) {
@@ -85,6 +89,7 @@ public class DOMContentUtils {
     // remove unwanted link tags from the linkParams map
     String[] ignoreTags = conf.getStrings("parser.html.outlinks.ignore_tags");
     for (int i = 0; ignoreTags != null && i < ignoreTags.length; i++) {
+      ignoredTags.add(ignoreTags[i].toLowerCase());
       if (!forceTags.contains(ignoreTags[i]))
         linkParams.remove(ignoreTags[i]);
     }
@@ -244,7 +249,7 @@ public class DOMContentUtils {
     }
     return true;
   }
-
+  
   // this only covers a few cases of empty links that are symptomatic
   // of nekohtml's DOM-fixup process...
   private boolean shouldThrowAwayLink(Node node, NodeList children,
@@ -365,5 +370,33 @@ public class DOMContentUtils {
       }
     }
   }
+  
+  // This one is used by NUTCH-1918
+  public void getOutlinks(URL base, ArrayList<Outlink> outlinks, List<Link> tikaExtractedOutlinks) {
+    String target = null;
+    String anchor = null;
+    boolean noFollow = false;
 
+    for (Link link : tikaExtractedOutlinks) {
+      target = link.getUri();
+      noFollow = (link.getRel().toLowerCase().equals("nofollow")) ? true : false;
+      anchor = link.getText();
+
+      if (!ignoredTags.contains(link.getType())) {
+        if (target != null && !noFollow) {
+          try {
+            URL url = URLUtil.resolveURL(base, target);
+            
+            // clean the anchor
+            anchor = anchor.replaceAll("\\s+", " ");
+            anchor = anchor.trim();
+            
+            outlinks.add(new Outlink(url.toString(), anchor));
+          } catch (MalformedURLException e) {
+            // don't care
+          }
+        }
+      }
+    }
+  }
 }

@@ -65,11 +65,13 @@ import org.apache.hadoop.mapred.lib.IdentityReducer;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.util.JexlUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.lang.time.DateUtils;
 
 /**
  * Read utility for the CrawlDB.
@@ -507,8 +509,10 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       job.set("regex", regex);
     if (retry != null)
       job.setInt("retry", retry);
-    if (expr != null)
+    if (expr != null) {
       job.set("expr", expr);
+      LOG.info("CrawlDb db: expr: " + expr);
+    }
 
     job.setMapperClass(CrawlDbDumpMapper.class);
     job.setOutputKeyClass(Text.class);
@@ -534,12 +538,9 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       }
       status = job.get("status", null);
       retry = job.getInt("retry", -1);
-
+      
       if (job.get("expr", null) != null) {
-        JexlEngine jexl = new JexlEngine();
-        jexl.setSilent(true);
-        jexl.setStrict(true);
-        expr = jexl.createExpression(job.get("expr", null));
+        expr = JexlUtil.parseExpression(job.get("expr", null));
       }
     }
 
