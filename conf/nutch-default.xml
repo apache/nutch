@@ -876,6 +876,19 @@
   </description>
 </property>
 
+<!-- tika properties -->
+
+<property>
+  <name>tika.boilerpipe</name>
+  <value>false</value>
+</property>
+<property>
+  <name>tika.boilerpipe.extractor</name>
+  <value>ArticleExtractor</value>
+</property>
+
+
+
 <!-- mime properties -->
 
 <!--
