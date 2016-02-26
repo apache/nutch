@@ -37,9 +37,11 @@ import org.apache.tika.parser.CompositeParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.html.HtmlMapper;
+import org.apache.tika.parser.html.BoilerpipeContentHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
+import org.xml.sax.ContentHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -80,6 +82,9 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   @Override
   public Parse getParse(String url, WebPage page) {
 
+    boolean useBoilerpipe = getConf().getBoolean("tika.boilerpipe", false); 
+    String boilerpipeExtractorName = getConf().get("tika.boilerpipe.extractor", "ArticleExtractor");
+
     String baseUrl = TableUtil.toString(page.getBaseUrl());
     URL base;
     try {
@@ -109,7 +114,18 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     HTMLDocumentImpl doc = new HTMLDocumentImpl();
     doc.setErrorChecking(false);
     DocumentFragment root = doc.createDocumentFragment();
-    DOMBuilder domhandler = new DOMBuilder(doc, root);
+   // DOMBuilder domhandler = new DOMBuilder(doc, root);
+    ContentHandler domHandler;
+    // Check whether to use Tika's BoilerplateContentHandler
+    if (useBoilerpipe) {
+        LOG.debug("Using Tikas's Boilerpipe with Extractor: " + boilerpipeExtractorName);
+        BoilerpipeContentHandler bpHandler = new BoilerpipeContentHandler((ContentHandler)new DOMBuilder(doc, root), BoilerpipeExtractorRepository.getExtractor(boilerpipeExtractorName));
+        bpHandler.setIncludeMarkup(true);
+        domHandler = (ContentHandler)bpHandler;
+    } else {
+        domHandler = new DOMBuilder(doc, root);
+    }
+    
     ParseContext context = new ParseContext();
     if (HTMLMapper != null)
       context.set(HtmlMapper.class, HTMLMapper);
@@ -118,7 +134,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     tikamd.set(Metadata.CONTENT_TYPE, mimeType);
     try {
       parser.parse(new ByteArrayInputStream(raw.array(), raw.arrayOffset()
-          + raw.position(), raw.remaining()), domhandler, tikamd, context);
+          + raw.position(), raw.remaining()), (ContentHandler)domHandler, tikamd, context);
     } catch (Exception e) {
       LOG.error("Error parsing " + url, e);
       return ParseStatusUtils.getEmptyParse(e, getConf());
@@ -152,6 +168,21 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       utils.getTitle(sb, root); // extract title
       title = sb.toString().trim();
     }
+
+    // Warning: very nasty
+    // Parse again without BP to get all outlinks
+    if (useBoilerpipe) {
+        root = doc.createDocumentFragment();
+        domHandler = new DOMBuilder(doc, root);
+        try {
+            parser.parse(new ByteArrayInputStream(raw.array(), raw.arrayOffset() + raw.position(), raw.remaining()), (ContentHandler)domHandler, tikamd, context);
+        } catch (Exception e) {
+	    LOG.error("Error parsing "+url,e);
+	    return ParseStatusUtils.getEmptyParse(e, getConf());
+        }
+    }
+    // END NASTY STUFF
+    
 
     if (!metaTags.getNoFollow()) { // okay to follow links
       ArrayList<Outlink> l = new ArrayList<Outlink>(); // extract outlinks
