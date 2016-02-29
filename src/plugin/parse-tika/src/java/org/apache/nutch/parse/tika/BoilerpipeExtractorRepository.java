@@ -19,15 +19,15 @@ package org.apache.nutch.parse.tika;
 import java.lang.ClassLoader;
 import java.lang.InstantiationException;
 import java.util.WeakHashMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.tika.parser.html.BoilerpipeContentHandler;
 import de.l3s.boilerpipe.BoilerpipeExtractor;
 import de.l3s.boilerpipe.extractors.*;
 
 class BoilerpipeExtractorRepository {
 
-    public static final Log LOG = LogFactory.getLog(BoilerpipeExtractorRepository.class);
+	public static final Logger LOG = LoggerFactory.getLogger(BoilerpipeExtractorRepository.class);
     public static final WeakHashMap<String, BoilerpipeExtractor> extractorRepository = new WeakHashMap<String, BoilerpipeExtractor>();
  
     /**
@@ -48,11 +48,11 @@ class BoilerpipeExtractorRepository {
           extractorRepository.put(boilerpipeExtractorName, (BoilerpipeExtractor)extractorClass.newInstance());
 
         } catch (ClassNotFoundException e) {
-          LOG.error("BoilerpipeExtractor " + boilerpipeExtractorName + " not found!");
+          LOG.error("BoilerpipeExtractor {} not found!", boilerpipeExtractorName);
         } catch (InstantiationException e) {
-          LOG.error("Could not instantiate " + boilerpipeExtractorName);
+          LOG.error("Could not instantiate {}!", boilerpipeExtractorName);
         } catch (Exception e) {
-          LOG.error(e);
+          LOG.error("Error due to the {}!",boilerpipeExtractorName, e);
         }
       }
 

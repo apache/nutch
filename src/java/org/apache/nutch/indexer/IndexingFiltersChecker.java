@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Reads and parses a URL and run the indexers on it. Displays the fields
- * obtained and the first 100 characters of their value
+ * obtained and all the characters of their value
  * 
  * Tested with e.g. ./nutch org.apache.nutch.indexer.IndexingFiltersChecker
  * http://www.lemonde.fr
@@ -145,8 +145,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       if (values != null) {
         for (Object value : values) {
           String str = value.toString();
-          int minText = Math.min(100, str.length());
-          System.out.println(fname + " :\t" + str.substring(0, minText));
+          System.out.println(fname + " :\t" + str);
         }
       }
     }

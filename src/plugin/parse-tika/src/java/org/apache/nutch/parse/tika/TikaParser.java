@@ -106,19 +106,17 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
           message, getConf());
     }
 
-    LOG.debug("Using Tika parser " + parser.getClass().getName()
-        + " for mime-type " + mimeType);
+    LOG.debug("Using Tika parser {} for mime-type {}.", parser.getClass().getName(), mimeType);
 
     Metadata tikamd = new Metadata();
 
     HTMLDocumentImpl doc = new HTMLDocumentImpl();
     doc.setErrorChecking(false);
     DocumentFragment root = doc.createDocumentFragment();
-   // DOMBuilder domhandler = new DOMBuilder(doc, root);
     ContentHandler domHandler;
     // Check whether to use Tika's BoilerplateContentHandler
     if (useBoilerpipe) {
-        LOG.debug("Using Tikas's Boilerpipe with Extractor: " + boilerpipeExtractorName);
+        LOG.debug("Using Tikas's Boilerpipe with Extractor: {}.", boilerpipeExtractorName);
         BoilerpipeContentHandler bpHandler = new BoilerpipeContentHandler((ContentHandler)new DOMBuilder(doc, root), BoilerpipeExtractorRepository.getExtractor(boilerpipeExtractorName));
         bpHandler.setIncludeMarkup(true);
         domHandler = (ContentHandler)bpHandler;
@@ -136,7 +134,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       parser.parse(new ByteArrayInputStream(raw.array(), raw.arrayOffset()
           + raw.position(), raw.remaining()), (ContentHandler)domHandler, tikamd, context);
     } catch (Exception e) {
-      LOG.error("Error parsing " + url, e);
+      LOG.error("Error parsing {}.", url, e);
       return ParseStatusUtils.getEmptyParse(e, getConf());
     }
 
@@ -169,19 +167,18 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       title = sb.toString().trim();
     }
 
-    // Warning: very nasty
-    // Parse again without BP to get all outlinks
+    // Parse again without boilerpipe to get all outlinks
+    // TODO avoid this second parsing
     if (useBoilerpipe) {
         root = doc.createDocumentFragment();
         domHandler = new DOMBuilder(doc, root);
         try {
             parser.parse(new ByteArrayInputStream(raw.array(), raw.arrayOffset() + raw.position(), raw.remaining()), (ContentHandler)domHandler, tikamd, context);
         } catch (Exception e) {
-	    LOG.error("Error parsing "+url,e);
+	    LOG.error("Error parsing {}.", url, e);
 	    return ParseStatusUtils.getEmptyParse(e, getConf());
         }
     }
-    // END NASTY STUFF
     
 
     if (!metaTags.getNoFollow()) { // okay to follow links
