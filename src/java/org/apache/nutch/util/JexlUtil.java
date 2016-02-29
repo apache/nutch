@@ -47,6 +47,8 @@ public class JexlUtil {
    * @return parsed Jexl expression or null in case of parse error
    */
   public static Expression parseExpression(String expr) {
+    if (expr == null) return null;
+    
     try {
       // Translate any date object into a long, dates must be specified as 20-03-2016T00:00:00Z
       Matcher matcher = datePattern.matcher(expr);
