@@ -126,7 +126,7 @@ public class BasicIndexingFilter implements IndexingFilter {
 
     // add timestamp when fetched, for deduplication
     String tstamp = null;
-    if(page.getPrevFetchTime() != null) {
+    if(page.getPrevFetchTime() != 0) {
       tstamp = DateUtil.getThreadLocalDateFormat().format(new Date(page.getPrevFetchTime())); 
     } else {
     tstamp = DateUtil.getThreadLocalDateFormat().format(new Date(page.getFetchTime()));
