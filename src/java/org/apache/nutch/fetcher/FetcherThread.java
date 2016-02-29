@@ -37,6 +37,7 @@ import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.net.URLExemptionFilters;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -74,6 +75,7 @@ public class FetcherThread extends Thread {
 
   private Configuration conf;
   private URLFilters urlFilters;
+  private URLExemptionFilters urlExemptionFilters;
   private ScoringFilters scfilters;
   private ParseUtil parseUtil;
   private URLNormalizers normalizers;
@@ -139,6 +141,7 @@ public class FetcherThread extends Thread {
     this.setName("FetcherThread"); // use an informative name
     this.conf = conf;
     this.urlFilters = new URLFilters(conf);
+    this.urlExemptionFilters = new URLExemptionFilters(conf);
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
     this.skipTruncated = conf.getBoolean(ParseSegment.SKIP_TRUNCATED, true);
@@ -660,7 +663,8 @@ public class FetcherThread extends Thread {
             String toUrl = links[i].getToUrl();
 
             toUrl = ParseOutputFormat.filterNormalize(url.toString(), toUrl,
-                origin, ignoreInternalLinks, ignoreExternalLinks, ignoreExternalLinksMode, urlFilters, normalizers);
+                origin, ignoreInternalLinks, ignoreExternalLinks, ignoreExternalLinksMode,
+                    urlFilters, urlExemptionFilters,  normalizers);
             if (toUrl == null) {
               continue;
             }

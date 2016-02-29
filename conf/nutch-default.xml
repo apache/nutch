@@ -564,6 +564,14 @@
 </property>
 
  <property>
+  <name>db.ignore.external.exemptions.file</name>
+  <value>db-ignore-external-exemptions.txt</value>
+  <description>
+    This file contains exemption rules used by 'urlfiter-ignoreexempt' plugin
+  </description>
+</property>
+
+<property>
   <name>db.injector.overwrite</name>
   <value>false</value>
   <description>Whether existing records in the CrawlDB will be overwritten
