@@ -10,6 +10,8 @@ in the release announcement and keep it on top in this CHANGES.txt for the Nutch
 
 Nutch Change Log
 
+* NUTCH-2213 CommonCrawlDataDumper saves gzipped body in extracted form (jnioche via mattmann)
+
 * NUTCH-2144 Added an extension point and a plugin to accept external links (Thamme Gowda N. via mattmann)
 
 * NUTCH-1712 Use MultipleInputs in Injector to make it a single mapreduce job (tejasp, snagel)
