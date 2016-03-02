@@ -112,7 +112,7 @@ public class OPICScoringFilter implements ScoringFilter {
   /** Copy the value from Content metadata under Fetcher.SCORE_KEY to parseData. */
   public void passScoreAfterParsing(Text url, Content content, Parse parse) {
     parse.getData().getContentMeta()
-        .set(Nutch.SCORE_KEY, content.getMetadata().get(Nutch.SCORE_KEY));
+    .set(Nutch.SCORE_KEY, content.getMetadata().get(Nutch.SCORE_KEY));
   }
 
   /**
@@ -167,7 +167,11 @@ public class OPICScoringFilter implements ScoringFilter {
   /** Dampen the boost value by scorePower. */
   public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
-      throws ScoringFilterException {
-    return (float) Math.pow(dbDatum.getScore(), scorePower) * initScore;
+          throws ScoringFilterException {
+    if (dbDatum != null) {
+      return (float) Math.pow(dbDatum.getScore(), scorePower) * initScore;
+    } else {
+      return (float) initScore;
+    }
   }
 }

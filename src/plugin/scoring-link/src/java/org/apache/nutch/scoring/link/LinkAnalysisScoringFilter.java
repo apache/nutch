@@ -63,8 +63,12 @@ public class LinkAnalysisScoringFilter implements ScoringFilter {
 
   public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
-      throws ScoringFilterException {
-    return (normalizedScore * dbDatum.getScore());
+          throws ScoringFilterException {
+    if (dbDatum != null) {
+      return (normalizedScore * dbDatum.getScore());
+    } else {
+      return initScore;
+    }
   }
 
   public void initialScore(Text url, CrawlDatum datum)
@@ -79,7 +83,7 @@ public class LinkAnalysisScoringFilter implements ScoringFilter {
   public void passScoreAfterParsing(Text url, Content content, Parse parse)
       throws ScoringFilterException {
     parse.getData().getContentMeta()
-        .set(Nutch.SCORE_KEY, content.getMetadata().get(Nutch.SCORE_KEY));
+    .set(Nutch.SCORE_KEY, content.getMetadata().get(Nutch.SCORE_KEY));
   }
 
   public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content)

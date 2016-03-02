@@ -333,8 +333,11 @@ public class FileDumper {
         "output directory (which will be created) to host the raw data")
     .create("outputDir");
     @SuppressWarnings("static-access")
-    Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
-    .withDescription("the segment(s) to use").create("segment");
+    Option segOpt = OptionBuilder
+    .withArgName("segment")
+    .hasArgs()
+    .withDescription(
+        "the segment(s) to use").create("segment");
     @SuppressWarnings("static-access")
     Option mimeOpt = OptionBuilder
     .withArgName("mimetype")

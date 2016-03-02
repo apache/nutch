@@ -37,6 +37,9 @@ public class NutchIndexAction implements Writable {
   public NutchDocument doc = null;
   public byte action = ADD;
 
+  public NutchIndexAction() {
+  }
+  
   public NutchIndexAction(NutchDocument doc, byte action) {
     this.doc = doc;
     this.action = action;

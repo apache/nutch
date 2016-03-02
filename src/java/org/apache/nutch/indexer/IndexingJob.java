@@ -28,6 +28,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.conf.Configuration;
@@ -155,43 +161,146 @@ public class IndexingJob extends NutchTool implements Tool {
             counter.getName());
       }
       long end = System.currentTimeMillis();
-      LOG.info("Indexer: finished at " + sdf.format(end) + ", elapsed: "
-          + TimingUtil.elapsedTime(start, end));
+      LOG.info("Indexer: finished at {}, elapsed: {}", sdf.format(end),
+          TimingUtil.elapsedTime(start, end));
     } finally {
       FileSystem.get(job).delete(tmp, true);
     }
   }
 
   public int run(String[] args) throws Exception {
-    if (args.length < 2) {
-      System.err
-      //.println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
-      .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize] [-addBinaryContent] [-base64]");
-      IndexWriters writers = new IndexWriters(getConf());
-      System.err.println(writers.describe());
-      return -1;
-    }
+    // boolean options
+    Option helpOpt = new Option("h", "help", false, "show this help message");
+    // argument options
+    @SuppressWarnings("static-access")
+    Option crawldbOpt = OptionBuilder
+    .withArgName("crawldb")
+    .hasArg()
+    .withDescription(
+        "a crawldb directory to use with this tool (optional)")
+    .create("crawldb");
+    @SuppressWarnings("static-access")
+    Option linkdbOpt = OptionBuilder
+    .withArgName("linkdb")
+    .hasArg()
+    .withDescription(
+        "a linkdb directory to use with this tool (optional)")
+    .create("linkdb");
+    @SuppressWarnings("static-access")
+    Option paramsOpt = OptionBuilder
+    .withArgName("params")
+    .hasArg()
+    .withDescription(
+        "key value parameters to be used with this tool e.g. k1=v1&k2=v2... (optional)")
+    .create("params");
+    @SuppressWarnings("static-access")
+    Option segOpt = OptionBuilder
+    .withArgName("segment")
+    .hasArgs()
+    .withDescription("the segment(s) to use (either this or --segmentDir is mandatory)")
+    .create("segment");
+    @SuppressWarnings("static-access")
+    Option segmentDirOpt = OptionBuilder
+    .withArgName("segmentDir")
+    .hasArg()
+    .withDescription(
+        "directory containing one or more segments to be used with this tool "
+            + "(either this or --segment is mandatory)")
+    .create("segmentDir");
+    @SuppressWarnings("static-access")
+    Option noCommitOpt = OptionBuilder
+    .withArgName("noCommit")
+    .withDescription(
+        "do the commits once and for all the reducers in one go (optional)")
+    .create("noCommit");
+    @SuppressWarnings("static-access")
+    Option deleteGoneOpt = OptionBuilder
+    .withArgName("deleteGone")
+    .withDescription(
+        "delete gone documents e.g. documents which no longer exist at the particular resource (optional)")
+    .create("deleteGone");
+    @SuppressWarnings("static-access")
+    Option filterOpt = OptionBuilder
+    .withArgName("filter")
+    .withDescription(
+        "filter documents (optional)")
+    .create("filter");
+    @SuppressWarnings("static-access")
+    Option normalizeOpt = OptionBuilder
+    .withArgName("normalize")
+    .withDescription(
+        "normalize documents (optional)")
+    .create("normalize");
+    @SuppressWarnings("static-access")
+    Option addBinaryContentOpt = OptionBuilder
+    .withArgName("addBinaryContent")
+    .withDescription(
+        "add the raw content of the document to the indexing job (optional)")
+    .create("addBinaryContent");
+    @SuppressWarnings("static-access")
+    Option base64Opt = OptionBuilder
+    .withArgName("base64")
+    .withDescription(
+        "if raw content is added, base64 encode it (optional)")
+    .create("base64");
 
-    final Path crawlDb = new Path(args[0]);
-    Path linkDb = null;
+    Options options = new Options();
+    options.addOption(helpOpt);
+    options.addOption(crawldbOpt);
+    options.addOption(linkdbOpt);
+    options.addOption(segOpt);
+    options.addOption(paramsOpt);
+    options.addOption(segmentDirOpt);
+    options.addOption(noCommitOpt);
+    options.addOption(deleteGoneOpt);
+    options.addOption(filterOpt);
+    options.addOption(normalizeOpt);
+    options.addOption(addBinaryContentOpt);
+    options.addOption(base64Opt);
 
-    final List<Path> segments = new ArrayList<Path>();
-    String params = null;
+    GnuParser parser = new GnuParser();
+    CommandLine cmd = null;
+    try {
+      cmd = parser.parse(options, args);
+      // if 'help' is present OR one of 'segmentDir' or 'segment' is NOT present then print help
+      if (cmd.hasOption("help") || (!cmd.hasOption("segmentDir")
+          && (!cmd.hasOption("segment")))) {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp(getClass().getSimpleName(), options, true);
+        IndexWriters writers = new IndexWriters(getConf());
+        LOG.error(writers.describe());
+        return -1;
+      }
 
-    boolean noCommit = false;
-    boolean deleteGone = false;
-    boolean filter = false;
-    boolean normalize = false;
-    boolean addBinaryContent = false;
-    boolean base64 = false;
-
-    for (int i = 1; i < args.length; i++) {
+      Path crawlDb = null;
+      Path linkDb = null;
+      final List<Path> segments = new ArrayList<Path>();
+      String params = null;
+      boolean noCommit = false;
+      boolean deleteGone = false;
+      boolean filter = false;
+      boolean normalize = false;
+      boolean addBinaryContent = false;
+      boolean base64 = false;
       FileSystem fs = null;
       Path dir = null;
-      if (args[i].equals("-linkdb")) {
-        linkDb = new Path(args[++i]);
-      } else if (args[i].equals("-dir")) {
-        dir = new Path(args[++i]);
+      if (cmd.hasOption("crawldb")) {
+        crawlDb = new Path(cmd.getOptionValue("crawldb"));
+      }
+      if (cmd.hasOption("linkdb")) {
+        linkDb = new Path(cmd.getOptionValue("linkdb"));
+      }
+      if (cmd.hasOption("params")) {
+        params = cmd.getOptionValue("params");
+      }
+      if (cmd.hasOption("segment")) {
+        dir = new Path(cmd.getOptionValue("segment"));
+        fs = dir.getFileSystem(getConf());
+        if (SegmentChecker.isIndexable(dir,fs)) {
+          segments.add(dir);
+        }
+      } else if (cmd.hasOption("segmentDir")) {
+        dir = new Path(cmd.getOptionValue("segmentDir"));
         fs = dir.getFileSystem(getConf());
         FileStatus[] fstats = fs.listStatus(dir,
             HadoopFSUtil.getPassDirectoriesFilter(fs));
@@ -201,35 +310,34 @@ public class IndexingJob extends NutchTool implements Tool {
             segments.add(p);
           }
         }
-      } else if (args[i].equals("-noCommit")) {
-        noCommit = true;
-      } else if (args[i].equals("-deleteGone")) {
-        deleteGone = true;
-      } else if (args[i].equals("-filter")) {
-        filter = true;
-      } else if (args[i].equals("-normalize")) {
-        normalize = true;
-      } else if (args[i].equals("-addBinaryContent")) {
-        addBinaryContent = true;
-      } else if (args[i].equals("-base64")) {
-        base64 = true;
-      } else if (args[i].equals("-params")) {
-        params = args[++i];
-      } else {
-        dir = new Path(args[i]);
-        fs = dir.getFileSystem(getConf());
-        if (SegmentChecker.isIndexable(dir,fs)) {
-          segments.add(dir);
-        }
       }
-    }
-
-    try {
-      index(crawlDb, linkDb, segments, noCommit, deleteGone, params, filter, normalize, addBinaryContent, base64);
-      return 0;
-    } catch (final Exception e) {
-      LOG.error("Indexer: {}", StringUtils.stringifyException(e));
-      return -1;
+      if (cmd.hasOption("noCommit")) {
+        noCommit = true;
+      }
+      if (cmd.hasOption("deleteGone")) {
+        deleteGone = true;
+      }
+      if (cmd.hasOption("filter")) {
+        filter = true;
+      }
+      if (cmd.hasOption("normalize")) {
+        normalize = true;
+      }
+      if (cmd.hasOption("addBinaryContent")) {
+        addBinaryContent = true;
+      }
+      if (cmd.hasOption("base64")) {
+        base64 = true;
+      }
+      try {
+        index(crawlDb, linkDb, segments, noCommit, deleteGone, params, filter, normalize, addBinaryContent, base64);
+        return 0;
+      } catch (final Exception e) {
+        LOG.error("Indexer: {}", StringUtils.stringifyException(e));
+        return -1;
+      }
+    } finally {
+      //do nothing
     }
   }
 
@@ -241,6 +349,7 @@ public class IndexingJob extends NutchTool implements Tool {
 
 
   //Used for REST API
+  @SuppressWarnings("unchecked")
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
     boolean noCommit = false;
