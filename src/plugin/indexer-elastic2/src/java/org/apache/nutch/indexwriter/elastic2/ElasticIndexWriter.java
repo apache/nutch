@@ -97,7 +97,7 @@ public class ElasticIndexWriter implements IndexWriter {
 
     if (StringUtils.isNotBlank(clusterName))
       settingsBuilder.put("cluster.name", clusterName);
-
+    System.out.println(clusterName);
     // Set the cluster name and build the settings
     Settings settings = settingsBuilder.build();
 
