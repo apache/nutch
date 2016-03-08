@@ -25,6 +25,7 @@
           http://ibiblio.lsu.edu/main/pub/packages/maven2
           http://www.ibiblio.net/pub/packages/maven2
   -->
+  <!-- begin of repositories -->
   <property name="oss.sonatype.org" 
     value="http://oss.sonatype.org/content/repositories/releases/" 
     override="false"/>
@@ -34,10 +35,18 @@
   <property name="repository.apache.org"
     value="https://repository.apache.org/content/repositories/snapshots/"
     override="false"/>
+  <property name="breda.informatik.uni-mannheim.de"
+    value="https://breda.informatik.uni-mannheim.de/nexus/content/groups/public/"
+    override="false"/>
+  <!-- end of repositories -->
+
+  <!-- begin of patterns -->
   <property name="maven2.pattern"
     value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier])"/>
   <property name="maven2.pattern.ext"
     value="${maven2.pattern}.[ext]"/>
+  <!-- end of patterns -->
+
   <!-- pull in the local repository -->
   <include url="${ivy.default.conf.dir}/ivyconf-local.xml"/>
   <settings defaultResolver="default"/>
@@ -59,11 +68,17 @@
       pattern="${maven2.pattern.ext}"
       m2compatible="true"
       />
+    <ibiblio name="lski"
+      root="${breda.informatik.uni-mannheim.de}"
+      pattern="${maven2.pattern.ext}"
+      m2compatible="true"
+      />
     <chain name="default" dual="true">
       <resolver ref="local"/>
       <resolver ref="maven2"/>
       <resolver ref="apache-snapshot"/>
       <resolver ref="sonatype"/>
+      <resolver ref="lski"/>
     </chain>
     <chain name="internal">
       <resolver ref="local"/>
@@ -75,6 +90,7 @@
       <resolver ref="maven2"/>
       <resolver ref="apache-snapshot"/>
       <resolver ref="sonatype"/>
+      <resolver ref="lski"/>
     </chain>
   </resolvers>
   <modules>

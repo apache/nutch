@@ -26,6 +26,7 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
+     <ant dir="anthelion" target="deploy"/>
      <ant dir="creativecommons" target="deploy"/>
      <ant dir="feed" target="deploy"/>
      <ant dir="headings" target="deploy"/>
@@ -56,6 +57,7 @@
      <ant dir="lib-selenium" target="deploy"/>
      <ant dir="protocol-selenium" target="deploy" />
      <ant dir="protocol-interactiveselenium" target="deploy" />
+     <ant dir="parse-anth" target="deploy"/>
      <ant dir="parse-ext" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
@@ -95,6 +97,7 @@
   <!-- ====================================================== -->
   <target name="test">
     <parallel threadCount="2">
+     <ant dir="anthelion" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="index-basic" target="test"/>
      <ant dir="index-anchor" target="test"/>
@@ -111,6 +114,7 @@
      <ant dir="protocol-httpclient" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
      <ant dir="feed" target="test"/>
+     <ant dir="parse-anth" target="test"/>
      <ant dir="parse-html" target="test"/>
      <ant dir="parse-metatags" target="test"/>
      <ant dir="parse-swf" target="test"/>
@@ -141,6 +145,7 @@
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->
   <target name="clean">
+    <ant dir="anthelion" target="clean"/>
     <ant dir="creativecommons" target="clean"/>
     <ant dir="feed" target="clean"/>
     <ant dir="headings" target="clean"/>
@@ -173,6 +178,7 @@
     <ant dir="lib-selenium" target="clean"/>
     <ant dir="protocol-selenium" target="clean" />
     <ant dir="protocol-interactiveselenium" target="clean" />
+    <ant dir="parse-anth" target="clean"/>
     <ant dir="parse-ext" target="clean"/>
     <ant dir="parse-js" target="clean"/>
     <ant dir="parse-html" target="clean"/>

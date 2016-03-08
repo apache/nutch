@@ -1,0 +1,7 @@
+library	version	licence	URL
+moa	2012.08	GNU General Public License	http://moa.cms.waikato.ac.nz/
+weka-package	2012.08	Gnu General Public license	http://www.cs.waikato.ac.nz/ml/weka/
+fastutil	6.5.7	 Apache License 2.0	http://fastutil.di.unimi.it/
+sizeofag	1.0.0	LGPL 3	https://code.google.com/p/sizeofag/
+commons-math	2.2	GNU Lesser General Public License 3.0	http://commons.apache.org/proper/commons-math/javadocs/api-2.2/index.html
+dwslib	1.1-SNAPSHOT	Creative Commons Attribution-NonCommercial 4.0 International License	https://github.com/dwslab/dwslib

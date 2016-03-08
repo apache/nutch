@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<plugin
+   id="anthelion"
+   name="Anthelion focused crawler plugin"
+   version="1.0.0"
+   provider-name="yahoo">
+
+   <runtime>
+      <library name="anthelion.jar">
+         <export name="*"/>
+      </library>
+      <library name="commons-math-2.2.jar"/>
+      <library name="dwslib-1.0.jar"/>
+      <library name="fastutil-7.0.11.jar"/>
+      <library name="guava-12.0.jar"/>
+      <library name="java-cup-11b-2015.03.26.jar"/>
+      <library name="java-cup-11b-runtime-2015.03.26.jar"/>
+      <library name="jsr305-1.3.9.jar"/>
+      <library name="moa-2014.11.jar"/>
+      <library name="opencsv-2.3.jar"/>
+      <library name="pentaho-package-manager-1.0.11.jar"/>
+      <library name="sizeofag-1.0.0.jar"/>
+      <library name="slf4j-api-1.7.4.jar"/>
+      <library name="virtjdbc4-6.4.jar"/>
+      <library name="weka-dev-3.7.13.jar"/>
+      <library name="weka-package-2014.04.jar"/>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+   <extension id="org.apache.nutch.anthelion.parsing.WdcParser"
+              name="Anth Parser"
+              point="org.apache.nutch.parse.Parser">
+
+      <implementation id="org.apache.nutch.anthelion.parsing.WdcParser"
+                      class="org.apache.nutch.anthelion.parsing.WdcParser">
+        <parameter name="contentType" value="text/html|application/xhtml+xml"/>
+        <parameter name="pathSuffix" value=""/>
+      </implementation>
+
+   </extension>
+   
+     <extension id="org.apache.nutch.anthelion.indexing.TripleExt"
+       name="Triples Extractor anthelion"
+       point="org.apache.nutch.indexer.IndexingFilter">
+     <implementation id="indexing-anthelion"
+         class="org.apache.nutch.anthelion.indexing.TripleExtractor"/>
+   </extension>
+   
+  <extension id="org.apache.nutch.anthelion.scoring.Anthelion"
+       name="Triples Extractor anthelion"
+       point="org.apache.nutch.scoring.ScoringFilter">
+     <implementation id="scoring-anthelion"
+         class="org.apache.nutch.anthelion.scoring.AnthelionScoringFilter"/>
+   </extension>
+
+</plugin>
