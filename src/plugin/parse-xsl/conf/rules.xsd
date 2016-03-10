@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:rules="http://www.example.org/rules/"
+	targetNamespace="http://www.example.org/rules/">
+
+	<!-- Root element -->
+	<element name="rules">
+		<complexType>
+			<sequence maxOccurs="unbounded" minOccurs="1">
+				<element name="rule" type="rules:TRule"></element>
+			</sequence>
+			<attribute name="filterUrlsWithNoRule" type="boolean" use="optional" default="true"></attribute>
+		</complexType>
+	</element>
+
+	<complexType name="TRule">
+		<sequence maxOccurs="1" minOccurs="1">
+			<element name="transformer" type="rules:TTransformer"></element>
+		</sequence>
+		<attribute name="matches" type="string" use="required"></attribute>
+	</complexType>
+
+	<complexType name="TTransformer">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="file" type="string" use="required"></attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+</schema>
