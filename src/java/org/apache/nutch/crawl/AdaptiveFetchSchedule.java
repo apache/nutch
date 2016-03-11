@@ -116,6 +116,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       switch (state) {
       case FetchSchedule.STATUS_MODIFIED:
         interval *= (1.0f - DEC_RATE);
+        modifiedTime = fetchTime;
         break;
       case FetchSchedule.STATUS_NOTMODIFIED:
         interval *= (1.0f + INC_RATE);

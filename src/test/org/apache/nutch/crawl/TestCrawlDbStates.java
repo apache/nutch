@@ -300,6 +300,8 @@ public class TestCrawlDbStates {
      * time the document was fetched first (at all or after it has been changed)
      */
     protected long firstFetchTime;
+    /** elapsed duration */
+    protected long elapsedDuration = 0;
     /** state in CrawlDb before the last fetch */
     protected byte previousDbState;
     /** signature in CrawlDb of previous fetch */
@@ -386,12 +388,7 @@ public class TestCrawlDbStates {
 
     // test modified time
     private boolean checkModifiedTime(CrawlDatum result, long modifiedTime) {
-      if (result.getModifiedTime() == 0) {
-        LOG.error("modified time not set (TODO: not set by DefaultFetchSchedule)");
-        // TODO: return false (but DefaultFetchSchedule does not set modified
-        // time, see NUTCH-933)
-        return true;
-      } else if (modifiedTime == result.getModifiedTime()) {
+      if (modifiedTime == result.getModifiedTime()) {
         return true;
       }
       LOG.error("wrong modified time: " + new Date(result.getModifiedTime())
@@ -403,13 +400,15 @@ public class TestCrawlDbStates {
     protected CrawlDatum fetch(CrawlDatum datum, long currentTime) {
       lastFetchTime = currFetchTime;
       currFetchTime = currentTime;
+      if (lastFetchTime > 0)
+        elapsedDuration += (currFetchTime - lastFetchTime);
       previousDbState = datum.getStatus();
       lastSignature = datum.getSignature();
       datum = super.fetch(datum, currentTime);
       if (firstFetchTime == 0) {
         firstFetchTime = currFetchTime;
-      } else if ((currFetchTime - firstFetchTime) > (duration / 2)) {
-        // simulate a modification after "one year"
+      } else if (elapsedDuration < (duration / 2)) {
+        // simulate frequent modifications in the first "year"
         changeContent();
         firstFetchTime = currFetchTime;
       }
