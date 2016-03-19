@@ -16,34 +16,35 @@
  */
 package org.apache.nutch.protocol.selenium;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.safari.SafariDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.io.TemporaryFilesystem;
-
-import com.opera.core.systems.OperaDriver;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.String;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxBinary;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.io.TemporaryFilesystem;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.safari.SafariDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opera.core.systems.OperaDriver;
 
 public class HttpWebClient {
 
@@ -58,6 +59,7 @@ public class HttpWebClient {
       profile.setPreference("permissions.default.stylesheet", 2);
       profile.setPreference("permissions.default.image", 2);
       profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", "false");
+      profile.setPreference(FirefoxProfile.ALLOWED_HOSTS_PREFERENCE, "localhost");
       WebDriver driver = new FirefoxDriver(profile);
       return driver;
     };
@@ -72,7 +74,19 @@ public class HttpWebClient {
         String driverType  = conf.get("selenium.driver", "firefox");
         switch (driverType) {
           case "firefox":
-            driver = new FirefoxDriver();
+        	String allowedHost = conf.get("selenium.firefox.allowed.hosts", "localhost");
+        	long firefoxBinaryTimeout = conf.getLong("selenium.firefox.binary.timeout", 45);
+        	boolean enableFlashPlayer = conf.getBoolean("selenium.firefox.enable.flash", false);
+        	int loadImage = conf.getInt("selenium.firefox.load.image", 1);
+        	int loadStylesheet = conf.getInt("selenium.firefox.load.stylesheet", 1);
+		    FirefoxProfile profile = new FirefoxProfile();
+		    FirefoxBinary binary = new FirefoxBinary();
+		    profile.setPreference(FirefoxProfile.ALLOWED_HOSTS_PREFERENCE, allowedHost);
+		    profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", enableFlashPlayer);
+		    profile.setPreference("permissions.default.stylesheet", loadStylesheet);
+	      	profile.setPreference("permissions.default.image", loadImage);
+		    binary.setTimeout(TimeUnit.SECONDS.toMillis(firefoxBinaryTimeout));
+            driver = new FirefoxDriver(binary, profile);
             break;
           case "chrome":
             driver = new ChromeDriver();
@@ -112,11 +126,16 @@ public class HttpWebClient {
         }
         LOG.debug("Selenium {} WebDriver selected.", driverType);
   
+        driver.manage().timeouts().pageLoadTimeout(pageLoadWait, TimeUnit.SECONDS);
         driver.get(url);
-        new WebDriverWait(driver, pageLoadWait);
       } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+			if(e instanceof TimeoutException) {
+				LOG.debug("Selenium WebDriver: Timeout Exception: Capturing whatever loaded so far...");
+				return driver;
+			}
+			cleanUpDriver(driver);
+		    throw new RuntimeException(e);
+	    } 
 
       return driver;
   }
@@ -132,6 +151,7 @@ public class HttpWebClient {
   public static void cleanUpDriver(WebDriver driver) {
       if (driver != null) {
           try {
+	      driver.close();
               driver.quit();
               TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
           } catch (Exception e) {

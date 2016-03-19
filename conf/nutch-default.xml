@@ -1953,6 +1953,56 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
  </description>
 </property>
 
+<!-- selenium firefox configuration; 
+     applies to protocol-selenium and protocol-interactiveselenium plugins -->
+<property>
+  <name>selenium.firefox.allowed.hosts</name>
+  <value>localhost</value>
+  <description>A String value representing the allowed hosts preference
+  according to the operating system hosts file (Example - /etc/hosts in Unix). 
+  Currently this option exist for - 'firefox' </description>
+</property>
+
+<property>
+  <name>selenium.firefox.binary.timeout</name>
+  <value>45</value>
+  <description>A Long value representing the timeout value
+  for firefox to be available for command execution. The value is in seconds. 
+  Currently this option exist for - 'firefox' </description>
+</property>
+
+<property>
+  <name>selenium.firefox.enable.flash</name>
+  <value>false</value>
+  <description>A Boolean value representing if flash should
+  be enabled or disabled. The default value is disabled. 
+  Currently this option exist for - 'firefox' </description>
+</property>
+
+<property>
+  <name>selenium.firefox.load.image</name>
+  <value>1</value>
+  <description>An Integer value representing the restriction on
+  loading images. The default value is no restriction i.e. load all images.
+  Other options are:
+  1: Load all images, regardless of origin
+  2: Block all images
+  3: Prevent third-party images from loading 
+  Currently this option exist for - 'firefox' </description>
+</property>
+
+<property>
+  <name>selenium.firefox.load.stylesheet</name>
+  <value>1</value>
+  <description>An Integer value representing the restriction on
+  loading stylesheet. The default value is no restriction i.e. load 
+  all stylesheet.
+  Other options are:
+  1: Load all stylesheet
+  2: Block all stylesheet
+  Currently this option exist for - 'firefox' </description>
+</property>
+
 <!-- lib-selenium configuration -->
 <property>
   <name>libselenium.page.load.delay</name>
