@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch 2.4 Development
 
+ * NUTCH-961 GitHub-92 Add the boilerpipe parsing adapted from NUTCH-961 (Jeremie Bourseaux <jeremie.bourseau@xilopix.com> via mattmann)
+
  * GitHub-94 Fix the issue of the bad timestamp. (Jeremie Bourseaux <jeremie.bourseau@xilopix.com> via mattmann)
 
  * NUTCH-1314 Impose a limit on the length of outlink target urls (ferdy, lewismc, tejasp, Canan Girgin, Tien Nguyen Manh)
