@@ -876,6 +876,24 @@
   </description>
 </property>
 
+<!-- tika properties -->
+
+<property>
+  <name>tika.boilerpipe</name>
+  <value>false</value>
+  <description>Define if the parser tika uses boilerpipe or not. This property needs to activate the parse-tika in the plugin.includes property.
+  </description>
+</property>
+
+<property>
+  <name>tika.boilerpipe.extractor</name>
+  <value>ArticleExtractor</value>
+  <description>Define what algorithm boilerpipe uses.
+  </description>
+</property>
+
+
+
 <!-- mime properties -->
 
 <!--
