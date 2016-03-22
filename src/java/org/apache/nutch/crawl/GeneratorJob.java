@@ -240,9 +240,17 @@ public class GeneratorJob extends NutchTool implements Tool {
 
   /**
    * Mark URLs ready for fetching.
-   * 
-   * @throws ClassNotFoundException
-   * @throws InterruptedException
+   * @param topN
+   *          top threshold for maximum number of URLs permitted in a batch
+   * @param curTime
+   *          the current time in milliseconds
+   * @param filter
+   *          optional filtering of URLs within the generated batch
+   * @param norm
+   *          optional normalization of URls within the generated batch
+   * @param sitemap
+   *          flag indicating whether a URL is a sitemap and hence processed accordingly
+   * @throws Exception
    * */
   public String generate(long topN, long curTime, boolean filter, boolean norm,
       boolean sitemap) throws Exception {

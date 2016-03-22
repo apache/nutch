@@ -22,4 +22,11 @@
   <description>Default in-memory datastore class for temp test data.</description>
 </property>
 
+<property>
+  <name>db.fetch.interval.default</name>
+  <value>1</value>
+  <description>The default number of seconds between re-fetches of a page (30 days).
+  </description>
+</property>
+
 </configuration>
