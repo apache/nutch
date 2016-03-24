@@ -1442,6 +1442,12 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     </description>
 </property>
 
+ <property>
+  <name>scoring.similarity.ngrams</name>
+  <value>1</value>
+  <description>Specifies the 'n' in ngrams</description>
+</property>
+
 <property>
     <name>cosine.goldstandard.file</name>
     <value>goldstandard.txt</value>
