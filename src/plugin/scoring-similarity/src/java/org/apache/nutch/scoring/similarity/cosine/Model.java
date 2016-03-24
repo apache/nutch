@@ -68,6 +68,11 @@ public class Model {
         }
         LOG.info("Loaded custom stopwords from {}",conf.get("scoring.similarity.stopword.file"));
       }
+
+      //Check if user has specified n for ngram cosine model
+      int ngram = conf.getInt("scoring.similarity.ngrams", 1);
+      LOG.info("Value of ngram: {}",ngram);
+
       // TODO : Allow for corpus of documents to be provided as gold standard. 
       String line;
       StringBuilder sb = new StringBuilder();
@@ -75,7 +80,7 @@ public class Model {
       while ((line = br.readLine()) != null) {
         sb.append(line);
       }
-      DocVector goldStandard = createDocVector(sb.toString());
+      DocVector goldStandard = createDocVector(sb.toString(), ngram);
       if(goldStandard!=null)
         docVectors.add(goldStandard);
       else {
@@ -97,15 +102,21 @@ public class Model {
    * Used to create a DocVector from given String text. Used during the parse stage of the crawl 
    * cycle to create a DocVector of the currently parsed page from the parseText attribute value
    * @param content
+   * @param ngram
    */
-  public static DocVector createDocVector(String content) {
+  public static DocVector createDocVector(String content, int ngram) {
     LuceneTokenizer tokenizer;
-    if(stopWords!=null) {
-      tokenizer = new LuceneTokenizer(content, TokenizerType.CLASSIC, stopWords, true, 
+    
+    if(ngram > 1){
+      LOG.info("Using Ngram Cosine Model, user specified ngram value : {}", ngram);
+      tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, StemFilterType.PORTERSTEM_FILTER, ngram);
+    }
+    else if(stopWords!=null) {
+      tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, stopWords, true, 
           StemFilterType.PORTERSTEM_FILTER);
     }
     else {
-      tokenizer = new LuceneTokenizer(content, TokenizerType.CLASSIC, true, 
+      tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, true, 
           StemFilterType.PORTERSTEM_FILTER);
     }
     TokenStream tStream = tokenizer.getTokenStream();
@@ -115,6 +126,7 @@ public class Model {
       tStream.reset();
       while(tStream.incrementToken()) {
         String term = charTermAttribute.toString();
+        LOG.debug(term);
         if(termVector.containsKey(term)) {
           int count = termVector.get(term);
           count++;
