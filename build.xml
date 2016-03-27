@@ -189,6 +189,7 @@
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
+      <packageset dir="${plugins.dir}/lib-htmlunit/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
       <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
@@ -203,6 +204,7 @@
       <packageset dir="${plugins.dir}/parsefilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
       <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-htmlunit/src/java"/>
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
       <packageset dir="${plugins.dir}/protocol-interactiveselenium/src/java"/>
@@ -629,6 +631,7 @@
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
+      <packageset dir="${plugins.dir}/lib-htmlunit/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
       <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
@@ -643,6 +646,7 @@
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
       <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-htmlunit/src/java"/>
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
       <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
@@ -1033,6 +1037,7 @@
         <source path="${plugins.dir}/index-static/src/test/" />
         <source path="${plugins.dir}/language-identifier/src/java/" />
         <source path="${plugins.dir}/language-identifier/src/test/" />
+        <source path="${plugins.dir}/lib-htmlunit/src/java/" />
         <source path="${plugins.dir}/lib-http/src/java/" />
         <source path="${plugins.dir}/lib-http/src/test/" />
         <source path="${plugins.dir}/lib-selenium/src/java/" />
@@ -1057,6 +1062,7 @@
         <source path="${plugins.dir}/protocol-file/src/java/" />
         <source path="${plugins.dir}/protocol-file/src/test/" />
         <source path="${plugins.dir}/protocol-ftp/src/java/" />
+        <source path="${plugins.dir}/protocol-htmlunit/src/java"/>
         <source path="${plugins.dir}/protocol-httpclient/src/java/" />
         <source path="${plugins.dir}/protocol-httpclient/src/test/" />
         <source path="${plugins.dir}/protocol-http/src/java/" />
