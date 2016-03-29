@@ -64,11 +64,11 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
       client.getOptions().setThrowExceptionOnScriptError(false);
       if(enableRedirect)
         client.addWebWindowListener(new HtmlUnitWebWindowListener(maxRedirects));
-	return client;
+	  return client;
   }
   
   public static WebDriver getDriverForPage(String url, Configuration conf) {
-    long pageLoadTimout = conf.getLong("htmlunit.page.load.delay", 3);
+    long pageLoadTimout = conf.getLong("page.load.delay", 3);
     enableJavascript = conf.getBoolean("htmlunit.enable.javascript", true);
     enableCss = conf.getBoolean("htmlunit.enable.css", false);
     javascriptTimeout = conf.getLong("htmlunit.javascript.timeout", 3500);
@@ -84,8 +84,8 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
       driver.get(url);
      } catch(Exception e) {
        if(e instanceof TimeoutException) {
-	 LOG.debug("HtmlUnit WebDriver: Timeout Exception: Capturing whatever loaded so far...");
-	 return driver;
+	       LOG.debug("HtmlUnit WebDriver: Timeout Exception: Capturing whatever loaded so far...");
+	       return driver;
      }
      cleanUpDriver(driver);
      throw new RuntimeException(e);
@@ -96,19 +96,19 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
 
   public static String getHTMLContent(WebDriver driver, Configuration conf) {
     try {
-      if (conf.getBoolean("htmlunit.take.screenshot", false))
-      takeScreenshot(driver, conf);
+      if (conf.getBoolean("take.screenshot", false))
+        takeScreenshot(driver, conf);
 		  
       String innerHtml = "";
       if(enableJavascript) {
-	WebElement body = driver.findElement(By.tagName("body"));
-	innerHtml = (String)((JavascriptExecutor)driver).executeScript("return arguments[0].innerHTML;", body); 
+	      WebElement body = driver.findElement(By.tagName("body"));
+	      innerHtml = (String)((JavascriptExecutor)driver).executeScript("return arguments[0].innerHTML;", body); 
       }
       else
-	innerHtml = driver.getPageSource().replaceAll("&amp;", "&");
+	      innerHtml = driver.getPageSource().replaceAll("&amp;", "&");
       return innerHtml;
     } catch(Exception e) {
-	TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
+	    TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
     	cleanUpDriver(driver);
     	throw new RuntimeException(e);
     } 
@@ -141,23 +141,23 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
     WebDriver driver = getDriverForPage(url, conf);
 
     try {
-      if (conf.getBoolean("htmlunit.take.screenshot", false))
-	takeScreenshot(driver, conf);
+      if (conf.getBoolean("take.screenshot", false))
+	      takeScreenshot(driver, conf);
 
       String innerHtml = "";
       if(enableJavascript) {
-	WebElement body = driver.findElement(By.tagName("body"));
-    	innerHtml = (String)((JavascriptExecutor)driver).executeScript("return arguments[0].innerHTML;", body); 
+	      WebElement body = driver.findElement(By.tagName("body"));
+    	  innerHtml = (String)((JavascriptExecutor)driver).executeScript("return arguments[0].innerHTML;", body); 
       }
       else
-    	innerHtml = driver.getPageSource().replaceAll("&amp;", "&");
+    	  innerHtml = driver.getPageSource().replaceAll("&amp;", "&");
       return innerHtml;
 
     } catch (Exception e) {
-	TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
-        throw new RuntimeException(e);
+	    TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
+      throw new RuntimeException(e);
     } finally {
-        cleanUpDriver(driver);
+      cleanUpDriver(driver);
     }
   }
 
@@ -167,8 +167,8 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
       File srcFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
       LOG.debug("In-memory screenshot taken of: {}", url);
       FileSystem fs = FileSystem.get(conf);
-      if (conf.get("htmlunit.screenshot.location") != null) {
-    	Path screenshotPath = new Path(conf.get("htmlunit.screenshot.location") + "/" + srcFile.getName());
+      if (conf.get("screenshot.location") != null) {
+    	  Path screenshotPath = new Path(conf.get("screenshot.location") + "/" + srcFile.getName());
         OutputStream os = null;
         if (!fs.exists(screenshotPath)) {
           LOG.debug("No existing screenshot already exists... creating new file at {} {}.", screenshotPath, srcFile.getName());
@@ -179,7 +179,7 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
         LOG.debug("Screenshot for {} successfully saved to: {} {}", url, screenshotPath, srcFile.getName()); 
       } else {
         LOG.warn("Screenshot for {} not saved to HDFS (subsequently disgarded) as value for "
-            + "'htmlunit.screenshot.location' is absent from nutch-site.xml.", url);
+            + "'screenshot.location' is absent from nutch-site.xml.", url);
       }
     } catch (Exception e) {
     	cleanUpDriver(driver);

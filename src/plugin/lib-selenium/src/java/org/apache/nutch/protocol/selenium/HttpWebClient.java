@@ -68,7 +68,7 @@ public class HttpWebClient {
   public static WebDriver getDriverForPage(String url, Configuration conf) {
       WebDriver driver = null;
       DesiredCapabilities capabilities = null;
-      long pageLoadWait = conf.getLong("libselenium.page.load.delay", 3);
+      long pageLoadWait = conf.getLong("page.load.delay", 3);
 
       try {
         String driverType  = conf.get("selenium.driver", "firefox");
@@ -129,11 +129,11 @@ public class HttpWebClient {
         driver.manage().timeouts().pageLoadTimeout(pageLoadWait, TimeUnit.SECONDS);
         driver.get(url);
       } catch (Exception e) {
-			if(e instanceof TimeoutException) {
-				LOG.debug("Selenium WebDriver: Timeout Exception: Capturing whatever loaded so far...");
-				return driver;
-			}
-			cleanUpDriver(driver);
+			  if(e instanceof TimeoutException) {
+          LOG.debug("Selenium WebDriver: Timeout Exception: Capturing whatever loaded so far...");
+          return driver;
+			  }
+			  cleanUpDriver(driver);
 		    throw new RuntimeException(e);
 	    } 
 
@@ -141,7 +141,7 @@ public class HttpWebClient {
   }
 
   public static String getHTMLContent(WebDriver driver, Configuration conf) {
-      if (conf.getBoolean("selenium.take.screenshot", false)) {
+      if (conf.getBoolean("take.screenshot", false)) {
         takeScreenshot(driver, conf);
       }
 
@@ -149,15 +149,15 @@ public class HttpWebClient {
   }
 
   public static void cleanUpDriver(WebDriver driver) {
-      if (driver != null) {
-          try {
+    if (driver != null) {
+      try {
 	      driver.close();
-              driver.quit();
-              TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
-          } catch (Exception e) {
-              throw new RuntimeException(e);
-          }
+        driver.quit();
+        TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
       }
+    }
   }
 
   /**
@@ -175,7 +175,7 @@ public class HttpWebClient {
     WebDriver driver = getDriverForPage(url, conf);
 
     try {
-      if (conf.getBoolean("selenium.take.screenshot", false)) {
+      if (conf.getBoolean("take.screenshot", false)) {
         takeScreenshot(driver, conf);
       }
 
@@ -201,8 +201,8 @@ public class HttpWebClient {
       File srcFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
       LOG.debug("In-memory screenshot taken of: {}", url);
       FileSystem fs = FileSystem.get(conf);
-      Path screenshotPath = new Path(conf.get("selenium.screenshot.location") + "/" + srcFile.getName());
-      if (screenshotPath != null) {
+      if (conf.get("screenshot.location") != null) {
+        Path screenshotPath = new Path(conf.get("screenshot.location") + "/" + srcFile.getName());
         OutputStream os = null;
         if (!fs.exists(screenshotPath)) {
           LOG.debug("No existing screenshot already exists... creating new file at {} {}.", screenshotPath, srcFile.getName());
@@ -213,9 +213,10 @@ public class HttpWebClient {
         LOG.debug("Screenshot for {} successfully saved to: {} {}", url, screenshotPath, srcFile.getName()); 
       } else {
         LOG.warn("Screenshot for {} not saved to HDFS (subsequently disgarded) as value for "
-            + "'selenium.screenshot.location' is absent from nutch-site.xml.", url);
+            + "'screenshot.location' is absent from nutch-site.xml.", url);
       }
     } catch (Exception e) {
+      cleanUpDriver(driver);
       throw new RuntimeException(e);
     }
   }

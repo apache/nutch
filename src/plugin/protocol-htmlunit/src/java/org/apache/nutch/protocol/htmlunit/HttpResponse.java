@@ -38,10 +38,6 @@ import org.apache.nutch.protocol.http.api.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * An HTTP response.
- *
- */
 public class HttpResponse implements Response {
 
   private static final Logger LOG = LoggerFactory.getLogger(HttpResponse.class);
@@ -61,7 +57,7 @@ public class HttpResponse implements Response {
     this.http = http;
     this.url = url;
 
-    LOG.info("fetching " + url);
+    LOG.info("fetching {}", url);
     
     String path = "".equals(url.getFile()) ? "/" : url.getFile();
 

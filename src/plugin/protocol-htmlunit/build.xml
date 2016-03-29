@@ -43,11 +43,4 @@
     </copy>
   </target>
 
-  <!-- for junit test -->
-  <!--
-  <mkdir dir="${build.test}/data" />
-  <copy todir="${build.test}/data">
-    <fileset dir="jsp"/>
-  </copy>-->
-
 </project>
