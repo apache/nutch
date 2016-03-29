@@ -344,7 +344,8 @@ public class HttpResponse implements Response {
 
   @Override
   public int getCode() {
-	// TODO Auto-generated method stub
-	return code;
+  // TODO Auto-generated method stub
+  return code;
   }
 }
+

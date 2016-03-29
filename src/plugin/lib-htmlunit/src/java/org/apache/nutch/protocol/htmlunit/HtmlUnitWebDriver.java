@@ -51,79 +51,79 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
   private static int maxRedirects;
   
   public HtmlUnitWebDriver() {
-	super(enableJavascript);
+    super(enableJavascript);
   }
   
   @Override
   protected WebClient modifyWebClient(WebClient client) {
-	  client.getOptions().setJavaScriptEnabled(enableJavascript);
-	  client.getOptions().setCssEnabled(enableCss);
-	  client.getOptions().setRedirectEnabled(enableRedirect);
-	  if(enableJavascript)
-		  client.setJavaScriptTimeout(javascriptTimeout);
-	  client.getOptions().setThrowExceptionOnScriptError(false);
-	  if(enableRedirect)
-		  client.addWebWindowListener(new HtmlUnitWebWindowListener(maxRedirects));
-	  return client;
+    client.getOptions().setJavaScriptEnabled(enableJavascript);
+    client.getOptions().setCssEnabled(enableCss);
+    client.getOptions().setRedirectEnabled(enableRedirect);
+    if(enableJavascript)
+      client.setJavaScriptTimeout(javascriptTimeout);
+      client.getOptions().setThrowExceptionOnScriptError(false);
+      if(enableRedirect)
+        client.addWebWindowListener(new HtmlUnitWebWindowListener(maxRedirects));
+	return client;
   }
   
   public static WebDriver getDriverForPage(String url, Configuration conf) {
-	  long pageLoadTimout = conf.getLong("htmlunit.page.load.delay", 3);
-	  enableJavascript = conf.getBoolean("htmlunit.enable.javascript", true);
-	  enableCss = conf.getBoolean("htmlunit.enable.css", false);
-	  javascriptTimeout = conf.getLong("htmlunit.javascript.timeout", 3500);
-	  int redirects = Integer.parseInt(conf.get("http.redirect.max", "0"));
-	  enableRedirect = redirects <= 0 ? false : true;
-	  maxRedirects = redirects;
+    long pageLoadTimout = conf.getLong("htmlunit.page.load.delay", 3);
+    enableJavascript = conf.getBoolean("htmlunit.enable.javascript", true);
+    enableCss = conf.getBoolean("htmlunit.enable.css", false);
+    javascriptTimeout = conf.getLong("htmlunit.javascript.timeout", 3500);
+    int redirects = Integer.parseInt(conf.get("http.redirect.max", "0"));
+    enableRedirect = redirects <= 0 ? false : true;
+    maxRedirects = redirects;
 	  
-	  WebDriver driver = null;
+    WebDriver driver = null;
 	  
-	  try {
-		  driver = new HtmlUnitWebDriver();
-		  driver.manage().timeouts().pageLoadTimeout(pageLoadTimout, TimeUnit.SECONDS);
-		  driver.get(url);
-	  } catch(Exception e) {
-		  if(e instanceof TimeoutException) {
-				LOG.debug("HtmlUnit WebDriver: Timeout Exception: Capturing whatever loaded so far...");
-				return driver;
-			}
-			cleanUpDriver(driver);
-		    throw new RuntimeException(e);
-	  }
+    try {
+      driver = new HtmlUnitWebDriver();
+      driver.manage().timeouts().pageLoadTimeout(pageLoadTimout, TimeUnit.SECONDS);
+      driver.get(url);
+     } catch(Exception e) {
+       if(e instanceof TimeoutException) {
+	 LOG.debug("HtmlUnit WebDriver: Timeout Exception: Capturing whatever loaded so far...");
+	 return driver;
+     }
+     cleanUpDriver(driver);
+     throw new RuntimeException(e);
+    }
 
-      return driver;
+    return driver;
   }
 
   public static String getHTMLContent(WebDriver driver, Configuration conf) {
-      try {
-		  if (conf.getBoolean("htmlunit.take.screenshot", false))
-	    	  takeScreenshot(driver, conf);
+    try {
+      if (conf.getBoolean("htmlunit.take.screenshot", false))
+      takeScreenshot(driver, conf);
 		  
-		  String innerHtml = "";
-	      if(enableJavascript) {
-	    	  WebElement body = driver.findElement(By.tagName("body"));
-	    	  innerHtml = (String)((JavascriptExecutor)driver).executeScript("return arguments[0].innerHTML;", body); 
-	      }
-	      else
-	    	  innerHtml = driver.getPageSource().replaceAll("&amp;", "&");
-	      return innerHtml;
-      } catch(Exception e) {
-    	  TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
-    	  cleanUpDriver(driver);
-    	  throw new RuntimeException(e);
-      } 
+      String innerHtml = "";
+      if(enableJavascript) {
+	WebElement body = driver.findElement(By.tagName("body"));
+	innerHtml = (String)((JavascriptExecutor)driver).executeScript("return arguments[0].innerHTML;", body); 
+      }
+      else
+	innerHtml = driver.getPageSource().replaceAll("&amp;", "&");
+      return innerHtml;
+    } catch(Exception e) {
+	TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
+    	cleanUpDriver(driver);
+    	throw new RuntimeException(e);
+    } 
   }
 
   public static void cleanUpDriver(WebDriver driver) {
-      if (driver != null) {
-          try {
-        	  driver.close();
-              driver.quit();
-              TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
-          } catch (Exception e) {
-              throw new RuntimeException(e);
-          }
+    if (driver != null) {
+      try {
+        driver.close();
+        driver.quit();
+        TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
       }
+    }
   }
 
   /**
@@ -142,23 +142,22 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
 
     try {
       if (conf.getBoolean("htmlunit.take.screenshot", false))
-    	  takeScreenshot(driver, conf);
+	takeScreenshot(driver, conf);
 
-      
       String innerHtml = "";
       if(enableJavascript) {
-    	  WebElement body = driver.findElement(By.tagName("body"));
-    	  innerHtml = (String)((JavascriptExecutor)driver).executeScript("return arguments[0].innerHTML;", body); 
+	WebElement body = driver.findElement(By.tagName("body"));
+    	innerHtml = (String)((JavascriptExecutor)driver).executeScript("return arguments[0].innerHTML;", body); 
       }
       else
-    	  innerHtml = driver.getPageSource().replaceAll("&amp;", "&");
+    	innerHtml = driver.getPageSource().replaceAll("&amp;", "&");
       return innerHtml;
 
     } catch (Exception e) {
-	      TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
-	      throw new RuntimeException(e);
+	TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
+        throw new RuntimeException(e);
     } finally {
-    	cleanUpDriver(driver);
+        cleanUpDriver(driver);
     }
   }
 
