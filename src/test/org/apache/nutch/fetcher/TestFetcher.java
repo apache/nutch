@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.fs.Path;
+import org.apache.nutch.crawl.DbUpdaterJob;
 import org.apache.nutch.crawl.GeneratorJob;
 import org.apache.nutch.crawl.InjectorJob;
 import org.apache.nutch.crawl.URLWebPage;
+import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.parse.ParserJob;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.storage.Mark;
@@ -34,21 +37,23 @@ import org.apache.nutch.util.AbstractNutchTest;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.CrawlTestUtil;
 import org.mortbay.jetty.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import crawlercommons.robots.BaseRobotRules;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Basic fetcher test 1. generate seedlist 2. inject 3. generate 3. fetch 4.
- * Verify contents
- * 
+ * Various fetcher tests which test fetching, refetching, sitemap fetching
+ * sitemap detection and the basic verification of a agent name check. 
  */
 public class TestFetcher extends AbstractNutchTest {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractNutchTest.class);
 
   final static Path testdir = new Path("build/test/fetch-test");
   Path urlPath;
@@ -58,6 +63,7 @@ public class TestFetcher extends AbstractNutchTest {
   @Before
   public void setUp() throws Exception {
     super.setUp();
+    conf.setBoolean(FetcherJob.PARSE_KEY, true);
     urlPath = new Path(testdir, "urls");
     server = CrawlTestUtil.getServer(conf.getInt("content.server.port", 50000),
         "build/test/data/fetch-test-site");
@@ -117,7 +123,6 @@ public class TestFetcher extends AbstractNutchTest {
 
     // fetch
     time = System.currentTimeMillis();
-    conf.setBoolean(FetcherJob.PARSE_KEY, true);
     FetcherJob fetcher = new FetcherJob(conf);
     fetcher.fetch(batchId, 1, false, -1);
 
@@ -151,6 +156,68 @@ public class TestFetcher extends AbstractNutchTest {
     // verify that correct pages were handled
     assertTrue(handledurls.containsAll(normalUrls));
     assertTrue(normalUrls.containsAll(handledurls));
+  }
+
+  /**
+   * Tests a refetch of a URL. This process consists of two consecutive
+   * inject, generate, fetch, parse then update cycles. The test configuration
+   * is defined such that <code>db.fetch.interval.default</code> is set to 
+   * a very low value (indicating that the URL should be fetched again immediately).
+   * In addition, configuration tests that relevant 
+   * {@link org.apache.nutch.metadata.Metadata} is present and the values consistent 
+   * and therefore not overwritten.
+   * @see https://issues.apache.org/jira/browse/NUTCH-2222
+   * @throws Exception
+   */
+  @Test
+  public void testReFetch() throws Exception {
+
+    // generate seedlist
+    ArrayList<String> urls = new ArrayList<String>();
+    // inject
+    addUrl(urls, "index.html");
+    CrawlTestUtil.generateSeedList(fs, urlPath, urls);
+
+    InjectorJob injector = new InjectorJob(conf);
+    injector.inject(urlPath);
+
+    // crawl 1 
+    long time = System.currentTimeMillis();
+    GeneratorJob g = new GeneratorJob(conf);
+    String batchId = g.generate(Long.MAX_VALUE, time, false, false, false);
+    FetcherJob fetcher = new FetcherJob(conf);
+    fetcher.fetch(Nutch.ALL_BATCH_ID_STR, 1, false, -1);
+    ParserJob parser = new ParserJob(conf);
+    parser.parse(Nutch.ALL_BATCH_ID_STR, true, true);
+    URLWebPage up = CrawlTestUtil.readContents(webPageStore, Mark.FETCH_MARK, (String[]) null).get(0);
+    assertEquals(urls.size(), 1);
+    int countMetaDatasFetch1 = up.getDatum().getMetadata().size();
+    DbUpdaterJob updateter = new DbUpdaterJob(conf);
+    updateter.run(new String[]{Nutch.ALL_BATCH_ID_STR});
+
+
+    Thread.sleep(10000);
+
+    // crawl 2
+    CrawlTestUtil.generateSeedList(fs, urlPath, urls);
+    injector = new InjectorJob(conf);
+    injector.inject(urlPath);
+    g = new GeneratorJob(conf);
+    time = System.currentTimeMillis();
+    batchId = g.generate(Long.MAX_VALUE, time, false, false, false); 
+    fetcher = new FetcherJob(conf);
+    fetcher.fetch(Nutch.ALL_BATCH_ID_STR, 1, false, -1);
+    parser = new ParserJob(conf);
+    parser.parse(Nutch.ALL_BATCH_ID_STR, true, true);
+    updateter = new DbUpdaterJob(conf);
+    updateter.run(new String[]{Nutch.ALL_BATCH_ID_STR});
+    up = CrawlTestUtil.readContents(webPageStore, null, (String[]) null).get(0);
+    assertEquals(urls.size(), 1);
+    int countMetaDatasFetch2 = up.getDatum().getMetadata().size();
+
+    LOG.info("countMetaDatas Fetch1 : {}",  countMetaDatasFetch1);
+    LOG.info("countMetaDatas Fetch2 : {}",  countMetaDatasFetch2);
+    assertEquals(countMetaDatasFetch1, countMetaDatasFetch2);
   }
 
   /**
@@ -201,7 +268,6 @@ public class TestFetcher extends AbstractNutchTest {
     //    generate for only sitemap
     g.generate(Long.MAX_VALUE, time, false, false, true);
 
-    conf.setBoolean(FetcherJob.PARSE_KEY, true);
     FetcherJob fetcher = new FetcherJob(conf);
 
     // for only sitemap fetch
@@ -265,7 +331,6 @@ public class TestFetcher extends AbstractNutchTest {
 
     g.generate(Long.MAX_VALUE, time, false, false, false);
 
-    conf.setBoolean(FetcherJob.PARSE_KEY, true);
     FetcherJob fetcher = new FetcherJob(conf);
 
     // for only sitemap fetch
@@ -287,6 +352,10 @@ public class TestFetcher extends AbstractNutchTest {
     }
   }
 
+  /** 
+   * Maps a webpage to the local Jetty server address so that it can 
+   * be fetched as part of an arraylist
+   */
   private void addUrl(ArrayList<String> urls, String page) {
     urls.add("http://127.0.0.1:" + server.getConnectors()[0].getPort() + "/"
         + page);
@@ -299,7 +368,6 @@ public class TestFetcher extends AbstractNutchTest {
     conf.set("http.agent.name", "");
 
     try {
-      conf.setBoolean(FetcherJob.PARSE_KEY, true);
       FetcherJob fetcher = new FetcherJob(conf);
       fetcher.checkConfiguration();
     } catch (IllegalArgumentException iae) {
