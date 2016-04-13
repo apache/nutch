@@ -149,9 +149,8 @@ public class ElasticIndexWriter implements IndexWriter {
     bulkDocs++;
 
     if (bulkDocs >= maxBulkDocs || bulkLength >= maxBulkLength) {
-      LOG.info("Processing bulk request [docs = " + bulkDocs + ", length = "
-          + bulkLength + ", total docs = " + indexedDocs
-          + ", last doc in bulk = '" + id + "']");
+      LOG.info("Processing bulk request [docs = {}, length = {}, total docs = {}" 
+        + ", last doc in bulk = '{}']", bulkDocs, bulkLength, indexedDocs, id );
       // Flush the bulk of indexing requests
       createNewBulk = true;
       commit();
@@ -197,8 +196,8 @@ public class ElasticIndexWriter implements IndexWriter {
         }
       }
       long msWaited = System.currentTimeMillis() - beforeWait;
-      LOG.info("Previous took in ms " + actionGet.getTookInMillis()
-          + ", including wait " + msWaited);
+      LOG.info("Previous took in ms {}, including wait {}", 
+        actionGet.getTookInMillis(), msWaited);
       execute = null;
     }
     if (bulk != null) {
@@ -219,8 +218,8 @@ public class ElasticIndexWriter implements IndexWriter {
   @Override
   public void close() throws IOException {
     // Flush pending requests
-    LOG.info("Processing remaining requests [docs = " + bulkDocs
-        + ", length = " + bulkLength + ", total docs = " + indexedDocs + "]");
+    LOG.info("Processing remaining requests [docs = {}, length = {}, total docs = {}]"
+      , bulkDocs, bulkLength, indexedDocs);
     createNewBulk = false;
     commit();
     // flush one more time to finalize the last bulk
