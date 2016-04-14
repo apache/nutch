@@ -21,6 +21,7 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 /**
@@ -30,7 +31,7 @@ import java.io.IOException;
  * @author gtotaro
  *
  */
-public interface CommonCrawlFormat {
+public interface CommonCrawlFormat extends Closeable {
 
   /**
    *
