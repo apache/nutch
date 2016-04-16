@@ -1888,7 +1888,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <description>
     A String value representing the flavour of Selenium 
     WebDriver() to use. Currently the following options
-    exist - 'firefox', 'chrome', 'safari', 'opera' and 'remote'.
+    exist - 'firefox', 'chrome', 'safari', 'opera', 'phantomjs' and 'remote'.
     If 'remote' is used it is essential to also set correct properties for
     'selenium.hub.port', 'selenium.hub.path', 'selenium.hub.host',
     'selenium.hub.protocol', 'selenium.grid.driver' and 'selenium.grid.binary'.
@@ -1948,7 +1948,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <value>firefox</value>
   <description>A String value representing the flavour of Selenium 
     WebDriver() used on the selenium grid. Currently the following options
-    exist - 'firefox' </description>
+    exist - 'firefox', 'phantomjs' </description>
 </property>
 
 <property>
