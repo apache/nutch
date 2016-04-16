@@ -42,6 +42,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,7 @@ public class HttpWebClient {
       profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", "false");
       profile.setPreference(FirefoxProfile.ALLOWED_HOSTS_PREFERENCE, "localhost");
       WebDriver driver = new FirefoxDriver(profile);
-      return driver;
+      return driver;          
     };
   };
 
@@ -122,7 +123,7 @@ public class HttpWebClient {
                 capabilities = DesiredCapabilities.phantomjs();
                 capabilities.setBrowserName("phantomjs");
                 capabilities.setJavascriptEnabled(true);
-                capabilities.setCapability("phantomjs_binary",seleniumGridBinary);
+                capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY,seleniumGridBinary);
                 driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), capabilities);
                 break;
               default:
@@ -130,6 +131,7 @@ public class HttpWebClient {
                 driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), DesiredCapabilities.firefox());
                 break;
             }
+            break;
           default:
             LOG.error("The Selenium WebDriver choice {} is not available... defaulting to FirefoxDriver().", driverType);
             driver = new FirefoxDriver();
@@ -184,7 +186,7 @@ public class HttpWebClient {
    */
   public static String getHtmlPage(String url, Configuration conf) {
     WebDriver driver = getDriverForPage(url, conf);
-
+    
     try {
       if (conf.getBoolean("selenium.take.screenshot", false)) {
         takeScreenshot(driver, conf);
