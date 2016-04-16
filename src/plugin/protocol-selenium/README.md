@@ -195,7 +195,14 @@ ant runtime
 
 ## Part 3: Common Pitfalls
 
-* Be sure your browser version and selenium version are compatible 
+* Be sure your browser version and selenium version are compatible (See list in 'Tested configurations' section below) 
 * Be sure to start the Xvfb window then start selenium (not a necessary step for PhantomJS)
 * Disconnecting and reconnect nodes after a hub config change has proven useful in our tests. 
 * Be sure that each browser session deallocates its webdriver resource independently of any other tests running on other broswers (check out driver.quit() and driver.close()). 
+
+### Tested configurations 
+
+* Firefox 31.4.0 and Selenium 2.48.2
+* PhantomJS 2.1.1 and Selenium 2.48.2
+* PhantomJS 2.1.1 and Selenium 2.53.0
+
