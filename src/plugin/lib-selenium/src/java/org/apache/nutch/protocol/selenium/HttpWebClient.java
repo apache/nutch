@@ -41,6 +41,7 @@ import org.openqa.selenium.io.TemporaryFilesystem;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,18 +75,18 @@ public class HttpWebClient {
         String driverType  = conf.get("selenium.driver", "firefox");
         switch (driverType) {
           case "firefox":
-        	String allowedHost = conf.get("selenium.firefox.allowed.hosts", "localhost");
-        	long firefoxBinaryTimeout = conf.getLong("selenium.firefox.binary.timeout", 45);
-        	boolean enableFlashPlayer = conf.getBoolean("selenium.firefox.enable.flash", false);
-        	int loadImage = conf.getInt("selenium.firefox.load.image", 1);
-        	int loadStylesheet = conf.getInt("selenium.firefox.load.stylesheet", 1);
-		    FirefoxProfile profile = new FirefoxProfile();
-		    FirefoxBinary binary = new FirefoxBinary();
-		    profile.setPreference(FirefoxProfile.ALLOWED_HOSTS_PREFERENCE, allowedHost);
-		    profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", enableFlashPlayer);
-		    profile.setPreference("permissions.default.stylesheet", loadStylesheet);
-	      	profile.setPreference("permissions.default.image", loadImage);
-		    binary.setTimeout(TimeUnit.SECONDS.toMillis(firefoxBinaryTimeout));
+          	String allowedHost = conf.get("selenium.firefox.allowed.hosts", "localhost");
+          	long firefoxBinaryTimeout = conf.getLong("selenium.firefox.binary.timeout", 45);
+          	boolean enableFlashPlayer = conf.getBoolean("selenium.firefox.enable.flash", false);
+          	int loadImage = conf.getInt("selenium.firefox.load.image", 1);
+          	int loadStylesheet = conf.getInt("selenium.firefox.load.stylesheet", 1);
+    		    FirefoxProfile profile = new FirefoxProfile();
+    		    FirefoxBinary binary = new FirefoxBinary();
+    		    profile.setPreference(FirefoxProfile.ALLOWED_HOSTS_PREFERENCE, allowedHost);
+    		    profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", enableFlashPlayer);
+    		    profile.setPreference("permissions.default.stylesheet", loadStylesheet);
+  	      	profile.setPreference("permissions.default.image", loadImage);
+    		    binary.setTimeout(TimeUnit.SECONDS.toMillis(firefoxBinaryTimeout));
             driver = new FirefoxDriver(binary, profile);
             break;
           case "chrome":
@@ -96,6 +97,9 @@ public class HttpWebClient {
             break;
           case "opera":
             driver = new OperaDriver();
+            break;
+          case "phantomjs":
+            driver = new PhantomJSDriver();
             break;
           case "remote":
             String seleniumHubHost = conf.get("selenium.hub.host", "localhost");
@@ -112,6 +116,13 @@ public class HttpWebClient {
                 capabilities.setJavascriptEnabled(true);
                 capabilities.setCapability("firefox_binary",seleniumGridBinary);
                 System.setProperty("webdriver.reap_profile", "false");
+                driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), capabilities);
+                break;
+              case "phantomjs":
+                capabilities = DesiredCapabilities.phantomjs();
+                capabilities.setBrowserName("phantomjs");
+                capabilities.setJavascriptEnabled(true);
+                capabilities.setCapability("phantomjs_binary",seleniumGridBinary);
                 driver = new RemoteWebDriver(new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath), capabilities);
                 break;
               default:
