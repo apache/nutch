@@ -18,24 +18,30 @@ There are essentially two ways in which Nutch can be used with Selenium.
 
 ### A) Setting up Selenium (local mode)
 
- * Ensure that you have Firefox installed. More info about the package @ [launchpad](https://launchpad.net/ubuntu/trusty/+source/firefox)
+ * Ensure that you have your prefered browser installed. Currently Chrome, Safari, Opera, PhantomJS and Firefox are supported. Here there example of installing Firefox is provided. More info about the package @ [launchpad](https://launchpad.net/ubuntu/trusty/+source/firefox)
 ```
 sudo apt-get install firefox
 ```
+
  * Install Xvfb and its associates
+
+This step is not necessary for the PhantomJs broswer and may not be needed for all browsers.
+
 ```
 sudo apt-get install xorg synaptic xvfb gtk2-engines-pixbuf xfonts-cyrillic xfonts-100dpi \
     xfonts-75dpi xfonts-base xfonts-scalable freeglut3-dev dbus-x11 openbox x11-xserver-utils \
     libxrender1 cabextract
 ```
+
  * Set a display for Xvfb, so that firefox believes a display is connected
+ 
 ```
 sudo /usr/bin/Xvfb :11 -screen 0 1024x768x24 &
 sudo export DISPLAY=:11
 ```
 ### B) Setting up a Selenium Grid 
 
-Using the Selenium Grid will allow you to parallelize the job by facilitating access of several instances of browsers whether on one machine or on several machines. Note that grid facilitates heterogeneity with regards to browser types used. However, these steps have been tested using a homogenous firefox Selenium Grid. 
+Using the Selenium Grid will allow you to parallelize the job by facilitating access of several instances of browsers whether on one machine or on several machines. Note that grid facilitates heterogeneity with regards to browser types used. However, these steps have been tested using a homogenous Selenium Grid with Firefox and PhantomJS browsers. 
 
  * Download the [Selenium Standalone Server](http://www.seleniumhq.org/download/) and follow the installation instructions.
  
@@ -95,7 +101,7 @@ Using the Selenium Grid will allow you to parallelize the job by facilitating ac
   <description>
     A String value representing the flavour of Selenium 
     WebDriver() to use. Currently the following options
-    exist - 'firefox', 'chrome', 'safari', 'opera' and 'remote'.
+    exist - 'firefox', 'chrome', 'safari', 'opera', 'phantomJS', and 'remote'.
     If 'remote' is used it is essential to also set correct properties for
     'selenium.hub.port', 'selenium.hub.path', 'selenium.hub.host' and
     'selenium.hub.protocol'.
@@ -155,7 +161,7 @@ Using the Selenium Grid will allow you to parallelize the job by facilitating ac
   <value>firefox</value>
   <description>A String value representing the flavour of Selenium 
     WebDriver() used on the selenium grid. Currently the following options
-    exist - 'firefox' </description>
+    exist - 'firefox' or 'phantomJS' </description>
 </property>
 
 <property>
@@ -190,6 +196,6 @@ ant runtime
 ## Part 3: Common Pitfalls
 
 * Be sure your browser version and selenium version are compatible 
-* Be sure to start the Xvfb window then start selenium
+* Be sure to start the Xvfb window then start selenium (not a necessary step for PhantomJS)
 * Disconnecting and reconnect nodes after a hub config change has proven useful in our tests. 
 * Be sure that each browser session deallocates its webdriver resource independently of any other tests running on other broswers (check out driver.quit() and driver.close()). 
