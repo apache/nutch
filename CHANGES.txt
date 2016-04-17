@@ -14,6 +14,8 @@ Nutch Change Log
 
 * NUTCH-2245 Developed the NGram Model on the existing Unigram Cosine Similarity Model (bhavyasanghavi via sujen)
 
+* NUTCH-2191 Add HtmlUnit plugin in Nutch. (karanjeets and markus17 via mattmann)
+
 * NUTCH-2241 Unstable Selenium plugin in Nutch. Fixed bugs and enhanced configuration (karanjeets via mattmann)
 
 * NUTCH-2213 CommonCrawlDataDumper saves gzipped body in extracted form (jnioche via mattmann)

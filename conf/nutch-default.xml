@@ -1880,6 +1880,71 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<!-- plugin properties that applies to lib-selenium, protocol-selenium,
+     protocol-interactiveselenium, lib-htmlunit, protocol-htmlunit -->
+
+<property>
+  <name>page.load.delay</name>
+  <value>3</value>
+  <description>
+    The delay in seconds to use when loading a page with htmlunit or selenium. 
+  </description>
+</property>
+
+<property>
+  <name>take.screenshot</name>
+  <value>false</value>
+  <description>
+    Boolean property determining whether the protocol-htmlunit
+    WebDriver should capture a screenshot of the URL. If set to
+    true remember to define the 'screenshot.location'
+    property as this determines the location screenshots should be
+    persisted to on HDFS. If that property is not set, screenshots
+    are simply discarded.
+  </description>
+</property>
+
+<property>
+  <name>screenshot.location</name>
+  <value></value>
+  <description>
+    The location on disk where a URL screenshot should be saved
+    to if the 'take.screenshot' property is set to true.
+    By default this is null, in this case screenshots held in memory
+    are simply discarded.
+  </description>
+</property>
+
+<!-- lib-htmlunit plugin properties; applies to protocol-htmlunit -->
+
+<property>
+  <name>htmlunit.enable.javascript</name>
+  <value>true</value>
+  <description>
+    A Boolean value representing if javascript should
+    be enabled or disabled when using htmlunit. The default value is enabled. 
+  </description>
+</property>
+
+<property>
+  <name>htmlunit.javascript.timeout</name>
+  <value>3500</value>
+  <description>
+    The timeout in milliseconds when loading javascript with lib-htmlunit. This
+    setting is used by protocol-htmlunit since they depending on 
+    lib-htmlunit for fetching.
+  </description>
+</property>
+
+<property>
+  <name>htmlunit.enable.css</name>
+  <value>false</value>
+  <description>
+    A Boolean value representing if CSS should
+    be enabled or disabled when using htmlunit. The default value is disabled.
+  </description>
+</property>
+
 <!-- protocol-selenium plugin properties -->
 
 <property>
@@ -1892,30 +1957,6 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     If 'remote' is used it is essential to also set correct properties for
     'selenium.hub.port', 'selenium.hub.path', 'selenium.hub.host',
     'selenium.hub.protocol', 'selenium.grid.driver' and 'selenium.grid.binary'.
-  </description>
-</property>
-
-<property>
-  <name>selenium.take.screenshot</name>
-  <value>false</value>
-  <description>
-    Boolean property determining whether the protocol-selenium
-    WebDriver should capture a screenshot of the URL. If set to
-    true remember to define the 'selenium.screenshot.location' 
-    property as this determines the location screenshots should be 
-    persisted to on HDFS. If that property is not set, screenshots
-    are simply discarded.
-  </description>
-</property>
-
-<property>
-  <name>selenium.screenshot.location</name>
-  <value></value>
-  <description>
-    The location on disk where a URL screenshot should be saved
-    to if the 'selenium.take.screenshot' property is set to true.
-    By default this is null, in this case screenshots held in memory
-    are simply discarded.
   </description>
 </property>
 
@@ -2007,17 +2048,6 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   1: Load all stylesheet
   2: Block all stylesheet
   Currently this option exist for - 'firefox' </description>
-</property>
-
-<!-- lib-selenium configuration -->
-<property>
-  <name>libselenium.page.load.delay</name>
-  <value>3</value>
-  <description>
-    The delay in seconds to use when loading a page with lib-selenium. This
-    setting is used by protocol-selenium and protocol-interactiveselenium
-    since they depending on lib-selenium for fetching.
-  </description>
 </property>
 
 <!-- protocol-interactiveselenium configuration -->
