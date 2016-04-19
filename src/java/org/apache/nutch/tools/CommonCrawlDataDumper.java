@@ -33,8 +33,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -355,13 +357,13 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
             String mimeType = new Tika().detect(content.getContent());
             // Maps file to JSON-based structure
 
-          List<String> inUrls = null;
+          Set<String> inUrls = null; ///may be there are duplicates, so using set
           if (linkDbReader != null) {
             int max = 5000;     //just in case there are too many urls!
             Inlinks inlinks = linkDbReader.getInlinks((Text) key);
             if (inlinks != null) {
               Iterator<Inlink> iterator = inlinks.iterator();
-              inUrls = new ArrayList<>();
+              inUrls = new LinkedHashSet<>();
               while (max >= 0 && iterator.hasNext()){
                 inUrls.add(iterator.next().getFromUrl());
                 max--;
@@ -371,7 +373,9 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
           //TODO: Make this Jackson Format implementation reusable
           try (CommonCrawlFormat format = CommonCrawlFormatFactory
                   .getCommonCrawlFormat(warc ? "WARC" : "JACKSON", nutchConfig, config)) {
-            format.setInLinks(inUrls);
+            if (inUrls != null) {
+              format.setInLinks(new ArrayList<>(inUrls));
+            }
             jsonData = format.getJsonData(url, content, metadata);
           }
 
