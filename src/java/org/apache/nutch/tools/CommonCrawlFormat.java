@@ -23,6 +23,7 @@ import org.apache.nutch.protocol.Content;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Interface for all CommonCrawl formatter. It provides the signature for the
@@ -63,6 +64,20 @@ public interface CommonCrawlFormat extends Closeable {
    */
   public String getJsonData(String url, Content content, Metadata metadata,
       ParseData parseData) throws IOException;
+
+
+  /**
+   * sets inlinks of this document
+   * @param inlinks list of inlinks
+     */
+  void setInLinks(List<String> inLinks);
+
+
+    /**
+     * gets set of inlinks
+     * @return gets inlinks of this document
+     */
+  List<String> getInLinks();
 
   /**
    * Optional method that could be implemented if the actual format needs some

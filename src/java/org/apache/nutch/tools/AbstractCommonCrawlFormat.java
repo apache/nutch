@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.text.ParseException;
+import java.util.List;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
@@ -61,6 +62,8 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 	protected boolean reverseKey;
 
 	protected String reverseKeyValue;
+
+	protected List<String> inLinks;
 
 	public AbstractCommonCrawlFormat(String url, Content content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
 		this.url = url;
@@ -158,6 +161,13 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 			// imported
 			writeKeyValue("imported", getImported());
 
+			if (getInLinks() != null){
+				startArray("inlinks", false, true);
+				for (String link : getInLinks()) {
+					writeArrayValue(link);
+				}
+				closeArray("inlinks", false, true);
+			}
 			closeObject(null);
 
 			return generateJson();
@@ -287,6 +297,14 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 
 	protected String getResponseContentType() {
 		return ifNullString(metadata.get("Content-Type"));
+	}
+
+	public List<String> getInLinks() {
+		return inLinks;
+	}
+
+	public void setInLinks(List<String> inLinks) {
+		this.inLinks = inLinks;
 	}
 
 	protected String getResponseDate() {
