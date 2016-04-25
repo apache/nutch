@@ -10,6 +10,8 @@ in the release announcement and keep it on top in this CHANGES.txt for the Nutch
 
 Nutch Change Log
 
+* NUTCH-2254 Indexer: character set issue with -addBinaryContent and -base64 (Federico Bonelli, snagel)
+
 * NUTCH-2250 CommonCrawlDumper : Invalid format and skipped parts (Thamme Gowda N.,lewismc via mattmann)
 
 * NUTCH-2245 Developed the NGram Model on the existing Unigram Cosine Similarity Model (bhavyasanghavi via sujen)

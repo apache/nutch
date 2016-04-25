@@ -350,14 +350,14 @@ public class IndexerMapReduce extends Configured implements
     }
 
     if (content != null) {
-      // Get the original unencoded content
-      String binary = new String(content.getContent());
-
-      // optionally encode as base64
+      // Add the original binary content
+      String binary;
       if (base64) {
-        binary = Base64.encodeBase64String(StringUtils.getBytesUtf8(binary));
+        // optionally encode as base64
+        binary = Base64.encodeBase64String(content.getContent());
+      } else {
+        binary = new String(content.getContent());
       }
-
       doc.add("binaryContent", binary);
     }
 
