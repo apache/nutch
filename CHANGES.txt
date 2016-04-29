@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch 2.4 Development
 
+ * NUTCH-2256 Inconsistent log level (songwanging via snagel)
+
  * NUTCH-961 GitHub-92 Add the boilerpipe parsing adapted from NUTCH-961 (Jeremie Bourseaux <jeremie.bourseau@xilopix.com> via mattmann)
 
  * GitHub-94 Fix the issue of the bad timestamp. (Jeremie Bourseaux <jeremie.bourseau@xilopix.com> via mattmann)

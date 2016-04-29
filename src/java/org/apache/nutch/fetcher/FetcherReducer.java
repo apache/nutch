@@ -522,7 +522,7 @@ public class FetcherReducer extends
                     .getFetchItemQueue(fit.queueID);
                 fiq.crawlDelay = rules.getCrawlDelay();
                 if (LOG.isDebugEnabled()) {
-                  LOG.info("Crawl delay for queue: " + fit.queueID
+                  LOG.debug("Crawl delay for queue: " + fit.queueID
                       + " is set to " + fiq.crawlDelay
                       + " as per robots.txt. url: " + fit.url);
                 }
