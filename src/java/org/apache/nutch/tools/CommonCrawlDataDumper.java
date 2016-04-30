@@ -182,7 +182,8 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(CommonCrawlDataDumper.class.getName());
-
+  private static final int MAX_INLINKS = 5000;
+  
   private CommonCrawlConfig config = null;
 
   // Gzip initialization
@@ -253,7 +254,8 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
     //get all paths
     List<Path> parts = new ArrayList<>();
     RemoteIterator<LocatedFileStatus> files = fs.listFiles(segmentRootPath, true);
-    String partPattern = ".*" + File.separator + Content.DIR_NAME + File.separator + "part-[0-9]{5}" + File.separator + "data";
+    String partPattern = ".*" + File.separator + Content.DIR_NAME
+        + File.separator + "part-[0-9]{5}" + File.separator + "data";
     while (files.hasNext()) {
       LocatedFileStatus next = files.next();
       if (next.isFile()) {
@@ -269,7 +271,8 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
       linkDbReader = new LinkDbReader(fs.getConf(), new Path(linkdb.toString()));
     }
     if (parts == null || parts.size() == 0) {
-      LOG.error( "No segment directories found in [ {}] ", segmentRootDir.getAbsolutePath());
+      LOG.error( "No segment directories found in {} ",
+          segmentRootDir.getAbsolutePath());
       System.exit(1);
     }
     LOG.info("Found {} segment parts", parts.size());
@@ -357,27 +360,25 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
             String mimeType = new Tika().detect(content.getContent());
             // Maps file to JSON-based structure
 
-          Set<String> inUrls = null; ///may be there are duplicates, so using set
-          if (linkDbReader != null) {
-            int max = 5000;     //just in case there are too many urls!
-            Inlinks inlinks = linkDbReader.getInlinks((Text) key);
-            if (inlinks != null) {
-              Iterator<Inlink> iterator = inlinks.iterator();
-              inUrls = new LinkedHashSet<>();
-              while (max >= 0 && iterator.hasNext()){
-                inUrls.add(iterator.next().getFromUrl());
-                max--;
+            Set<String> inUrls = null; //there may be duplicates, so using set
+            if (linkDbReader != null) {
+              Inlinks inlinks = linkDbReader.getInlinks((Text) key);
+              if (inlinks != null) {
+                Iterator<Inlink> iterator = inlinks.iterator();
+                inUrls = new LinkedHashSet<>();
+                while (inUrls.size() <= MAX_INLINKS && iterator.hasNext()){
+                  inUrls.add(iterator.next().getFromUrl());
+                }
               }
             }
-          }
-          //TODO: Make this Jackson Format implementation reusable
-          try (CommonCrawlFormat format = CommonCrawlFormatFactory
-                  .getCommonCrawlFormat(warc ? "WARC" : "JACKSON", nutchConfig, config)) {
-            if (inUrls != null) {
-              format.setInLinks(new ArrayList<>(inUrls));
+            //TODO: Make this Jackson Format implementation reusable
+            try (CommonCrawlFormat format = CommonCrawlFormatFactory
+                .getCommonCrawlFormat(warc ? "WARC" : "JACKSON", nutchConfig, config)) {
+              if (inUrls != null) {
+                format.setInLinks(new ArrayList<>(inUrls));
+              }
+              jsonData = format.getJsonData(url, content, metadata);
             }
-            jsonData = format.getJsonData(url, content, metadata);
-          }
 
             collectStats(typeCounts, mimeType);
             // collects statistics for the given mimetypes

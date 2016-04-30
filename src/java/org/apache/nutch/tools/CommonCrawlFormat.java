@@ -68,15 +68,15 @@ public interface CommonCrawlFormat extends Closeable {
 
   /**
    * sets inlinks of this document
-   * @param inlinks list of inlinks
-     */
+   * @param inLinks list of inlinks
+   */
   void setInLinks(List<String> inLinks);
 
 
-    /**
-     * gets set of inlinks
-     * @return gets inlinks of this document
-     */
+  /**
+   * gets set of inlinks
+   * @return gets inlinks of this document
+   */
   List<String> getInLinks();
 
   /**

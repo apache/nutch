@@ -79,7 +79,7 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 	}
 
 	public String getJsonData(String url, Content content, Metadata metadata)
-      throws IOException {
+			throws IOException {
 		this.url = url;
 		this.content = content;
 		this.metadata = metadata;
@@ -90,7 +90,7 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
 	public String getJsonData(String url, Content content, Metadata metadata,
 			ParseData parseData) throws IOException {
 
-    // override of this is required in the actual formats
+		// override of this is required in the actual formats
 		throw new NotImplementedException();
 	}
 
