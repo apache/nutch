@@ -32,8 +32,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -58,13 +61,16 @@ import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.crawl.Inlink;
+import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.crawl.LinkDbReader;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.segment.SegmentReader;
 import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
 //Tika imports
@@ -176,7 +182,8 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(CommonCrawlDataDumper.class.getName());
-
+  private static final int MAX_INLINKS = 5000;
+  
   private CommonCrawlConfig config = null;
 
   // Gzip initialization
@@ -222,13 +229,14 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
    * @param outputDir      the directory you wish to dump the raw content to. This
    *                       directory will be created.
    * @param segmentRootDir a directory containing one or more segments.
+   * @param linkdb         Path to linkdb.
    * @param gzip           a boolean flag indicating whether the CBOR content should also
    *                       be gzipped.
    * @param epochFilename  if {@code true}, output files will be names using the epoch time (in milliseconds).
    * @param extension      a file extension to use with output documents.
    * @throws Exception if any exception occurs.
    */
-  public void dump(File outputDir, File segmentRootDir, boolean gzip,
+  public void dump(File outputDir, File segmentRootDir, File linkdb, boolean gzip,
       String[] mimeTypes, boolean epochFilename, String extension, boolean warc)
       throws Exception {
     if (gzip) {
@@ -246,7 +254,8 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
     //get all paths
     List<Path> parts = new ArrayList<>();
     RemoteIterator<LocatedFileStatus> files = fs.listFiles(segmentRootPath, true);
-    String partPattern = ".*" + File.separator + Content.DIR_NAME + File.separator + "part-[0-9]{5}" + File.separator + "data";
+    String partPattern = ".*" + File.separator + Content.DIR_NAME
+        + File.separator + "part-[0-9]{5}" + File.separator + "data";
     while (files.hasNext()) {
       LocatedFileStatus next = files.next();
       if (next.isFile()) {
@@ -257,8 +266,13 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
       }
     }
 
+    LinkDbReader linkDbReader = null;
+    if (linkdb != null) {
+      linkDbReader = new LinkDbReader(fs.getConf(), new Path(linkdb.toString()));
+    }
     if (parts == null || parts.size() == 0) {
-      LOG.error( "No segment directories found in [ {}] ", segmentRootDir.getAbsolutePath());
+      LOG.error( "No segment directories found in {} ",
+          segmentRootDir.getAbsolutePath());
       System.exit(1);
     }
     LOG.info("Found {} segment parts", parts.size());
@@ -346,9 +360,23 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
             String mimeType = new Tika().detect(content.getContent());
             // Maps file to JSON-based structure
 
+            Set<String> inUrls = null; //there may be duplicates, so using set
+            if (linkDbReader != null) {
+              Inlinks inlinks = linkDbReader.getInlinks((Text) key);
+              if (inlinks != null) {
+                Iterator<Inlink> iterator = inlinks.iterator();
+                inUrls = new LinkedHashSet<>();
+                while (inUrls.size() <= MAX_INLINKS && iterator.hasNext()){
+                  inUrls.add(iterator.next().getFromUrl());
+                }
+              }
+            }
             //TODO: Make this Jackson Format implementation reusable
             try (CommonCrawlFormat format = CommonCrawlFormatFactory
                 .getCommonCrawlFormat(warc ? "WARC" : "JACKSON", nutchConfig, config)) {
+              if (inUrls != null) {
+                format.setInLinks(new ArrayList<>(inUrls));
+              }
               jsonData = format.getJsonData(url, content, metadata);
             }
 
@@ -587,6 +615,10 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
         .withType(Number.class)
         .withDescription("an optional file size in bytes for the WARC file(s)")
         .create("warcSize");
+    Option linkDbOpt = OptionBuilder.withArgName("linkdb").hasArg(true)
+        .withDescription("an optional linkdb parameter to include inlinks in dump files")
+        .isRequired(false)
+        .create("linkdb");
 
     // create the options
     Options options = new Options();
@@ -606,6 +638,7 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
     options.addOption(reverseKeyOpt);
     options.addOption(extensionOpt);
     options.addOption(sizeOpt);
+    options.addOption(linkDbOpt);
 
     CommandLineParser parser = new GnuParser();
     try {
@@ -635,6 +668,8 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
       if (line.getParsedOptionValue("warcSize") != null) {
         warcSize = (Long) line.getParsedOptionValue("warcSize");
       }
+      String linkdbPath = line.getOptionValue("linkdb");
+      File linkdb = linkdbPath == null ? null : new File(linkdbPath);
 
       CommonCrawlConfig config = new CommonCrawlConfig();
       config.setKeyPrefix(keyPrefix);
@@ -655,7 +690,7 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
 
       CommonCrawlDataDumper dumper = new CommonCrawlDataDumper(config);
 
-      dumper.dump(outputDir, segmentRootDir, gzip, mimeTypes, epochFilename,
+      dumper.dump(outputDir, segmentRootDir, linkdb, gzip, mimeTypes, epochFilename,
           extension, warc);
 
     } catch (Exception e) {
