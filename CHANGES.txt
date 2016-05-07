@@ -10,6 +10,8 @@ in the release announcement and keep it on top in this CHANGES.txt for the Nutch
 
 Nutch Change Log
 
+* GitHub-106 Option to include inlinks in commonscrawl dump (thammegowda via mattmann)
+
 * NUTCH-2256 Inconsistent log level (songwanging via snagel)
 
 * NUTCH-2254 Indexer: character set issue with -addBinaryContent and -base64 (Federico Bonelli, snagel)
