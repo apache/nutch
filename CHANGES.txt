@@ -10,6 +10,8 @@ in the release announcement and keep it on top in this CHANGES.txt for the Nutch
 
 Nutch Change Log
 
+* NUTCH-2252 Allow phantomjs as a browser for selenium options (Kim Whitehall via mattmann)
+
 * GitHub-106 Option to include inlinks in commonscrawl dump (thammegowda via mattmann)
 
 * NUTCH-2256 Inconsistent log level (songwanging via snagel)
