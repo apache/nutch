@@ -203,7 +203,6 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
    *             the gzip option may be provided.
    * @throws Exception
    */
-  @SuppressWarnings("static-access")
   public static void main(String[] args) throws Exception {
     Configuration conf = NutchConfiguration.create();
     int res = ToolRunner.run(conf, new CommonCrawlDataDumper(), args);
@@ -573,6 +572,7 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
   public int run(String[] args) throws Exception {
     Option helpOpt = new Option("h", "help", false, "show this help message.");
     // argument options
+    @SuppressWarnings("static-access")
     Option outputOpt = OptionBuilder.withArgName("outputDir").hasArg()
         .withDescription(
             "output directory (which will be created) to host the CBOR data.")
@@ -580,41 +580,52 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
     // WARC format
     Option warcOpt = new Option("warc", "export to a WARC file");
 
+    @SuppressWarnings("static-access")
     Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
         .withDescription("the segment or directory containing segments to use").create("segment");
     // create mimetype and gzip options
+    @SuppressWarnings("static-access")
     Option mimeOpt = OptionBuilder.isRequired(false).withArgName("mimetype")
         .hasArgs().withDescription(
             "an optional list of mimetypes to dump, excluding all others. Defaults to all.")
         .create("mimetype");
+    @SuppressWarnings("static-access")
     Option gzipOpt = OptionBuilder.withArgName("gzip").hasArg(false)
         .withDescription(
             "an optional flag indicating whether to additionally gzip the data.")
         .create("gzip");
+    @SuppressWarnings("static-access")
     Option keyPrefixOpt = OptionBuilder.withArgName("keyPrefix").hasArg(true)
         .withDescription("an optional prefix for key in the output format.")
         .create("keyPrefix");
+    @SuppressWarnings("static-access")
     Option simpleDateFormatOpt = OptionBuilder.withArgName("SimpleDateFormat")
         .hasArg(false).withDescription(
             "an optional format for timestamp in GMT epoch milliseconds.")
         .create("SimpleDateFormat");
+    @SuppressWarnings("static-access")
     Option epochFilenameOpt = OptionBuilder.withArgName("epochFilename")
         .hasArg(false)
         .withDescription("an optional format for output filename.")
         .create("epochFilename");
+    @SuppressWarnings("static-access")
     Option jsonArrayOpt = OptionBuilder.withArgName("jsonArray").hasArg(false)
         .withDescription("an optional format for JSON output.")
         .create("jsonArray");
+    @SuppressWarnings("static-access")
     Option reverseKeyOpt = OptionBuilder.withArgName("reverseKey").hasArg(false)
         .withDescription("an optional format for key value in JSON output.")
         .create("reverseKey");
+    @SuppressWarnings("static-access")
     Option extensionOpt = OptionBuilder.withArgName("extension").hasArg(true)
         .withDescription("an optional file extension for output documents.")
         .create("extension");
+    @SuppressWarnings("static-access")
     Option sizeOpt = OptionBuilder.withArgName("warcSize").hasArg(true)
         .withType(Number.class)
         .withDescription("an optional file size in bytes for the WARC file(s)")
         .create("warcSize");
+    @SuppressWarnings("static-access")
     Option linkDbOpt = OptionBuilder.withArgName("linkdb").hasArg(true)
         .withDescription("an optional linkdb parameter to include inlinks in dump files")
         .isRequired(false)
