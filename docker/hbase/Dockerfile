@@ -73,7 +73,7 @@ RUN tar xvfz /root/hbase-0.98.8-hadoop2-bin.tar.gz -C /opt && \
 # link binaries, create logs directory
 RUN ln -s /opt/hbase-0.98.8-hadoop2 /opt/hbase &&  mkdir /opt/hbase/logs && \
   chown -R hduser:hadoop /opt/hbase/logs && \
-  mkdir /opt/nutch/logs && chown -R hduser:hadoop /opt/nutch/log
+  mkdir /opt/nutch/logs && chown -R hduser:hadoop /opt/nutch/logs
 
  # Deploy and setup file permissions
 RUN mv /root/nutch-sources /opt/apache-nutch-2.x && \
