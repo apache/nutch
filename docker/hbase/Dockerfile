@@ -72,8 +72,7 @@ RUN tar xvfz /root/hbase-0.98.8-hadoop2-bin.tar.gz -C /opt && \
 
 # link binaries, create logs directory
 RUN ln -s /opt/hbase-0.98.8-hadoop2 /opt/hbase &&  mkdir /opt/hbase/logs && \
-  chown -R hduser:hadoop /opt/hbase/logs && \
-  mkdir /opt/nutch/logs && chown -R hduser:hadoop /opt/nutch/logs
+  chown -R hduser:hadoop /opt/hbase/logs
 
  # Deploy and setup file permissions
 RUN mv /root/nutch-sources /opt/apache-nutch-2.x && \
@@ -101,7 +100,8 @@ RUN echo 'gora.datastore.default=org.apache.gora.hbase.store.HBaseStore' >> /opt
 RUN vim -c 'g/name="gora-hbase"/+1d' -c 'x' $NUTCH_ROOT/ivy/ivy.xml
 RUN vim -c 'g/name="gora-hbase"/-1d' -c 'x' $NUTCH_ROOT/ivy/ivy.xml
 RUN cd $NUTCH_ROOT && ant runtime
-RUN ln -s /opt/apache-nutch-2.x/runtime/local /opt/nutch
+RUN ln -s /opt/apache-nutch-2.x/runtime/local /opt/nutch && \
+   mkdir -p /opt/nutch/logs && chown -R hduser:hadoop /opt/nutch/logs
 ENV NUTCH_HOME /opt/nutch
 ENV HADOOP_HOME /opt/hadoop
 ENV NUTCHSERVER_PORT 8899
