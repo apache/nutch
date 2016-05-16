@@ -60,6 +60,7 @@
      <ant dir="protocol-interactiveselenium" target="deploy" />
      <ant dir="parse-ext" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
+     <ant dir="parse-css" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-metatags" target="deploy"/>
      <ant dir="parse-swf" target="deploy"/>
@@ -113,6 +114,7 @@
      <ant dir="protocol-httpclient" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
      <ant dir="feed" target="test"/>
+     <ant dir="parse-css" target="test"/>
      <ant dir="parse-html" target="test"/>
      <ant dir="parse-metatags" target="test"/>
      <ant dir="parse-swf" target="test"/>
@@ -179,6 +181,7 @@
     <ant dir="protocol-interactiveselenium" target="clean" />
     <ant dir="parse-ext" target="clean"/>
     <ant dir="parse-js" target="clean"/>
+    <ant dir="parse-css" target="clean"/>
     <ant dir="parse-html" target="clean"/>
     <ant dir="parse-metatags" target="clean"/>
     <ant dir="parse-swf" target="clean"/>
