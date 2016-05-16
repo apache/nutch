@@ -94,8 +94,8 @@ RUN mv /tmp/hadoop-etc/* /opt/hadoop/etc/hadoop
 RUN mv /tmp/hbase-etc/* /opt/hbase/conf/
 RUN mv /tmp/nutch-etc/* /opt/apache-nutch-2.x/conf/
 
-ENV JAVA_HOME /usr/lib/jvm/java-7-oracle
-ENV NUTCH_ROOT /opt/apache-nutch-2.x
+ENV JAVA_HOME="/usr/lib/jvm/java-7-oracle" \
+  NUTCH_ROOT="/opt/apache-nutch-2.x"
 RUN echo 'gora.datastore.default=org.apache.gora.hbase.store.HBaseStore' >> $NUTCH_ROOT/conf/gora.properties
 RUN vim -c 'g/name="gora-hbase"/+1d' -c 'x' $NUTCH_ROOT/ivy/ivy.xml
 RUN vim -c 'g/name="gora-hbase"/-1d' -c 'x' $NUTCH_ROOT/ivy/ivy.xml
