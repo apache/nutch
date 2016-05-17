@@ -69,6 +69,7 @@
       <resolver ref="maven2"/>
       <resolver ref="sonatype"/>
       <resolver ref="apache-snapshot"/>
+      <resolver ref="restlet"/>
     </chain>
     <chain name="internal">
       <resolver ref="local"/>
