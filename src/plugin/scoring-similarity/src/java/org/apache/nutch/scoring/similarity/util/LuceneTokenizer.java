@@ -94,12 +94,13 @@ public class LuceneTokenizer {
    * @param content - The text to tokenize
    * @param tokenizer - the type of tokenizer to use CLASSIC or DEFAULT 
    * @param stemFilterType - Type of stemming to perform
-   * @param ngram - Value of ngram for tokenizing
+   * @param mingram - Value of mingram for tokenizing
+   * @param maxgram - Value of maxgram for tokenizing
    */
-  public LuceneTokenizer(String content, TokenizerType tokenizer, StemFilterType stemFilterType, int ngram) {
+  public LuceneTokenizer(String content, TokenizerType tokenizer, StemFilterType stemFilterType, int mingram, int maxgram) {
     this.tokenizer = tokenizer;
     this.stemFilterType = stemFilterType;
-    tokenStream = createNGramTokenStream(content,ngram);
+    tokenStream = createNGramTokenStream(content, mingram, maxgram);
   }
   
   private TokenStream createTokenStream(String content) {
@@ -124,11 +125,11 @@ public class LuceneTokenizer {
     return tokenStream;
   }
 
-  private TokenStream createNGramTokenStream(String content, int ngram) {
+  private TokenStream createNGramTokenStream(String content, int mingram, int maxgram) {
     tokenStream = new StandardTokenizer(new StringReader(content));
     tokenStream = new LowerCaseFilter(tokenStream);
     tokenStream = applyStemmer(stemFilterType);
-    ShingleFilter shingleFilter = new ShingleFilter(tokenStream, ngram, ngram);
+    ShingleFilter shingleFilter = new ShingleFilter(tokenStream, mingram, maxgram);
     shingleFilter.setOutputUnigrams(false);
     tokenStream = (TokenStream)shingleFilter;
     return tokenStream;

@@ -1444,8 +1444,10 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 
  <property>
   <name>scoring.similarity.ngrams</name>
-  <value>1</value>
-  <description>Specifies the 'n' in ngrams</description>
+  <value>1,1</value>
+  <description>Specifies the min 'n' and max 'n' in ngrams as comma-separated.
+    If one value is specified as 'n', it will be used for both the min 'n' and max 'n' in ngrams.
+  </description>
 </property>
 
 <property>

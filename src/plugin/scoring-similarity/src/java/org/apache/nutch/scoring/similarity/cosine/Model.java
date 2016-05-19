@@ -69,9 +69,10 @@ public class Model {
         LOG.info("Loaded custom stopwords from {}",conf.get("scoring.similarity.stopword.file"));
       }
 
-      //Check if user has specified n for ngram cosine model
-      int ngram = conf.getInt("scoring.similarity.ngrams", 1);
-      LOG.info("Value of ngram: {}",ngram);
+      int[] ngramArr = retrieveNgrams(conf);
+      int mingram = ngramArr[0];
+      int maxgram = ngramArr[1];
+      LOG.info("Value of mingram: {} maxgram: {}", mingram, maxgram);
 
       // TODO : Allow for corpus of documents to be provided as gold standard. 
       String line;
@@ -80,7 +81,7 @@ public class Model {
       while ((line = br.readLine()) != null) {
         sb.append(line);
       }
-      DocVector goldStandard = createDocVector(sb.toString(), ngram);
+      DocVector goldStandard = createDocVector(sb.toString(), mingram, maxgram);
       if(goldStandard!=null)
         docVectors.add(goldStandard);
       else {
@@ -101,15 +102,20 @@ public class Model {
   /**
    * Used to create a DocVector from given String text. Used during the parse stage of the crawl 
    * cycle to create a DocVector of the currently parsed page from the parseText attribute value
-   * @param content
-   * @param ngram
+   * @param content The text to tokenize
+   * @param mingram Value of mingram for tokenizing
+   * @param maxgram Value of maxgram for tokenizing
    */
-  public static DocVector createDocVector(String content, int ngram) {
+  public static DocVector createDocVector(String content, int mingram, int maxgram) {
     LuceneTokenizer tokenizer;
-    
-    if(ngram > 1){
-      LOG.info("Using Ngram Cosine Model, user specified ngram value : {}", ngram);
-      tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, StemFilterType.PORTERSTEM_FILTER, ngram);
+
+    if(mingram > 1 && maxgram > 1){
+      LOG.info("Using Ngram Cosine Model, user specified mingram value : {} maxgram value : {}", mingram, maxgram);
+      tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, StemFilterType.PORTERSTEM_FILTER, mingram, maxgram);
+    } else if (mingram > 1) {
+      maxgram = mingram;
+      LOG.info("Using Ngram Cosine Model, user specified mingram value : {} maxgram value : {}", mingram, maxgram);
+      tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, StemFilterType.PORTERSTEM_FILTER, mingram, maxgram);
     }
     else if(stopWords!=null) {
       tokenizer = new LuceneTokenizer(content, TokenizerType.STANDARD, stopWords, true, 
@@ -158,5 +164,27 @@ public class Model {
     }
     // Returning the max score amongst all documents in the corpus
     return maxScore;
+  }
+
+  /**
+   * Retrieves mingram and maxgram from configuration
+   * @param conf Configuration to retrieve mingram and maxgram
+   * @return ngram array as mingram at first index and maxgram at second index
+     */
+  public static int[] retrieveNgrams(Configuration conf){
+    int[] ngramArr = new int[2];
+    //Check if user has specified mingram or ngram for ngram cosine model
+    String[] ngramStr = conf.getStrings("scoring.similarity.ngrams", "1,1");
+    //mingram
+    ngramArr[0] = Integer.parseInt(ngramStr[0]);
+    int maxgram;
+    if (ngramStr.length > 1) {
+      //maxgram
+      ngramArr[1] = Integer.parseInt(ngramStr[1]);
+    } else {
+      //maxgram
+      ngramArr[1] = ngramArr[0];
+    }
+    return ngramArr;
   }
 }

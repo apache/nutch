@@ -53,8 +53,10 @@ public class CosineSimilarity implements SimilarityModel{
       }
       String metatags = parse.getData().getParseMeta().get("metatag.keyword");
       String metaDescription = parse.getData().getParseMeta().get("metatag.description");
-      int ngram = conf.getInt("scoring.similarity.ngrams", 1);
-      DocVector docVector = Model.createDocVector(parse.getText()+metaDescription+metatags, ngram);
+      int[] ngramArr = Model.retrieveNgrams(conf);
+      int mingram = ngramArr[0];
+      int maxgram = ngramArr[1];
+      DocVector docVector = Model.createDocVector(parse.getText()+metaDescription+metatags, mingram, maxgram);
       if(docVector!=null){
         score = Model.computeCosineSimilarity(docVector);
         LOG.info("Setting score of {} to {}",url, score);
