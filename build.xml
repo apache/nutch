@@ -636,7 +636,9 @@
       <packageset dir="${plugins.dir}/urlnormalizer-regex/src/java"/>
 
    <link href="${javadoc.link.java}" />
-   <link href="${javadoc.link.lucene}" />
+   <link href="${javadoc.link.lucene.core}" />
+   <link href="${javadoc.link.lucene.analyzers-common}" />
+   <link href="${javadoc.link.solr-solrj}" />
    <link href="${javadoc.link.hadoop}" />
 
    <classpath refid="classpath" />
