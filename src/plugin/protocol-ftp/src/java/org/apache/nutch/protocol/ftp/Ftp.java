@@ -36,7 +36,7 @@ import org.apache.nutch.protocol.ProtocolStatus;
 import crawlercommons.robots.BaseRobotRules;
 
 import java.net.URL;
-
+import java.util.List;
 import java.io.IOException;
 
 /**
@@ -257,11 +257,14 @@ public class Ftp implements Protocol {
   /**
    * Get the robots rules for a given url
    */
-  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
-    return robots.getRobotRulesSet(this, url);
+  @Override
+  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum,
+      List<Content> robotsTxtContent) {
+    return robots.getRobotRulesSet(this, url, robotsTxtContent);
   }
 
   public int getBufferSize() {
     return BUFFER_SIZE;
   }
+
 }

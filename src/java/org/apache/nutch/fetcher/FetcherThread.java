@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -129,6 +130,8 @@ public class FetcherThread extends Thread {
 
   private AtomicLong bytes;
   
+  private List<Content> robotsTxtContent = null;
+
   //Used by the REST service
   private FetchNode fetchNode;
   private boolean reportToNutchServer;
@@ -188,6 +191,9 @@ public class FetcherThread extends Thread {
         "fetcher.follow.outlinks.num.links", 4);
     outlinksDepthDivisor = conf.getInt(
         "fetcher.follow.outlinks.depth.divisor", 2);
+    if (conf.getBoolean("fetcher.store.robotstxt", false)) {
+      robotsTxtContent = new LinkedList<Content>();
+    }
   }
 
   @SuppressWarnings("fallthrough")
@@ -256,7 +262,16 @@ public class FetcherThread extends Thread {
             redirecting = false;
             Protocol protocol = this.protocolFactory.getProtocol(fit.url
                 .toString());
-            BaseRobotRules rules = protocol.getRobotRules(fit.url, fit.datum);
+            BaseRobotRules rules = protocol.getRobotRules(fit.url, fit.datum, robotsTxtContent);
+            if (robotsTxtContent != null) {
+              for (Content robotsTxt : robotsTxtContent) {
+                LOG.debug("fetched and stored robots.txt {}",
+                    robotsTxt.getUrl());
+                output.collect(new Text(robotsTxt.getUrl()),
+                    new NutchWritable(robotsTxt));
+              }
+              robotsTxtContent.clear();
+            }
             if (!rules.isAllowed(fit.u.toString())) {
               // unblock
               ((FetchItemQueues) fetchQueues).finishFetchItem(fit, true);
