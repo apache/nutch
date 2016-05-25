@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-        <dependency org="org.elasticsearch" name="elasticsearch" rev="1.4.1"
+        <dependency org="org.elasticsearch" name="elasticsearch" rev="2.3.3"
                     conf="*->default"/>
   </dependencies>
   

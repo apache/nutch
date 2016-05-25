@@ -36,6 +36,7 @@
   </publications>
 
   <dependencies>
+    <dependency org="org.apache.lucene" name="lucene-analyzers-common" rev="5.5.0" conf="*->default"/>
   </dependencies>
   
 </ivy-module>

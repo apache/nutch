@@ -234,8 +234,10 @@
       <packageset dir="${plugins.dir}/urlnormalizer-slash/src/java"/>
 
       <link href="${javadoc.link.java}"/>
-      <link href="${javadoc.link.lucene}"/>
       <link href="${javadoc.link.hadoop}"/>
+      <link href="${javadoc.link.lucene.core}"/>
+      <link href="${javadoc.link.lucene.analyzers-common}"/>
+      <link href="${javadoc.link.solr-solrj}"/>
       
       <classpath refid="classpath"/>
     	<classpath>
@@ -675,8 +677,10 @@
       <packageset dir="${plugins.dir}/urlnormalizer-slash/src/java"/>
 
       <link href="${javadoc.link.java}"/>
-      <link href="${javadoc.link.lucene}"/>
       <link href="${javadoc.link.hadoop}"/>
+      <link href="${javadoc.link.lucene.core}"/>
+      <link href="${javadoc.link.lucene.analyzers-common}"/>
+      <link href="${javadoc.link.solr-solrj}"/>
       
       <classpath refid="classpath"/>
     	<classpath>

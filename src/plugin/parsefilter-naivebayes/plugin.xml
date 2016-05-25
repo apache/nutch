@@ -31,8 +31,8 @@
       <library name="guava-14.0.1.jar"/>
       <library name="jackson-core-asl-1.9.12.jar"/>
       <library name="jackson-mapper-asl-1.9.12.jar"/>
-      <library name="lucene-analyzers-common-4.10.2.jar"/>
-      <library name="lucene-core-4.10.2.jar"/>
+      <library name="lucene-analyzers-common-5.5.0.jar"/>
+      <library name="lucene-core-5.5.0.jar"/>
       <library name="mahout-core-0.9.jar"/>
       <library name="mahout-math-0.10.1.jar"/>
       <library name="slf4j-api-1.7.12.jar"/>
