@@ -1,5 +1,8 @@
 Nutch Change Log
 
+Nutch 1.12 Release 28/05/2016 (dd/mm/yyyy)
+Release Report: https://s.apache.org/nutch1.12
+
 Comments
 
 Fellow committers, Nutch 1.12 contains a breaking change NUTCH-2220. Please use the note below and
