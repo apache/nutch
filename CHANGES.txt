@@ -1,3 +1,7 @@
+Nutch Change Log
+
+Comments
+
 Fellow committers, Nutch 1.12 contains a breaking change NUTCH-2220. Please use the note below and
 in the release announcement and keep it on top in this CHANGES.txt for the Nutch 1.12 release.
 
@@ -8,103 +12,63 @@ in the release announcement and keep it on top in this CHANGES.txt for the Nutch
 * db.ignore.internal.links and db.ignore.external.links now operate on the CrawlDB only
 * linkdb.ignore.internal.links and linkdb.ignore.external.links now operate on the LinkDB only
 
-Nutch Change Log
+Sub-task
 
-* NUTCH-2248 CSS Parser Plugin (Joseph Naegele via mattmann)
+    [NUTCH-2250] - CommonCrawlDumper : Invalid format + skipped parts
 
-* NUTCH-2252 Allow phantomjs as a browser for selenium options (Kim Whitehall via mattmann)
+Bug
 
-* GitHub-106 Option to include inlinks in commonscrawl dump (thammegowda via mattmann)
+    [NUTCH-2042] - parse-html increase chunk size used to detect charset
+    [NUTCH-2180] - FileDumper dumps data, but breaks midway on corrupt segments
+    [NUTCH-2189] - Domain filter must deactivate if no rules are present
+    [NUTCH-2203] - Suffix URL filter can't handle trailing/leading whitespaces
+    [NUTCH-2206] - Provide example scoring.similarity.stopword.file
+    [NUTCH-2213] - CommonCrawlDataDumper saves gzipped body in extracted form
+    [NUTCH-2223] - Upgrade xercesImpl to 2.11.0 to fix hang on issue in tika mimetype detection
+    [NUTCH-2224] - Average bytes/second calculated incorrectly in fetcher
+    [NUTCH-2225] - Parsed time calculated incorrectly
+    [NUTCH-2228] - Plugin index-replace unit test broken on Java 8
+    [NUTCH-2232] - DeduplicationJob should decode URL's before length is compared
+    [NUTCH-2241] - Unstable Selenium plugin in Nutch. Fixed bugs and enhanced configuration
+    [NUTCH-2256] - Inconsistent log level practice
 
-* NUTCH-2256 Inconsistent log level (songwanging via snagel)
+Improvement
 
-* NUTCH-2254 Indexer: character set issue with -addBinaryContent and -base64 (Federico Bonelli, snagel)
+    [NUTCH-1233] - Rely on Tika for outlink extraction
+    [NUTCH-1712] - Use MultipleInputs in Injector to make it a single mapreduce job
+    [NUTCH-2172] - index-more: document format of contenttype-mapping.txt
+    [NUTCH-2178] - DeduplicationJob to optionally group on host or domain
+    [NUTCH-2182] - Make reverseUrlDirs file dumper option hash the URL for consistency
+    [NUTCH-2183] - Improvement to SegmentChecker for skipping non-segments present in segments directory
+    [NUTCH-2187] - Change FileDumper SHAs to all uppercase
+    [NUTCH-2195] - IndexingFilterChecker to optionally follow N redirects
+    [NUTCH-2196] - IndexingFilterChecker to optionally normalize
+    [NUTCH-2197] - Add solr5 solrcloud indexer support
+    [NUTCH-2204] - Remove junit lib from runtime
+    [NUTCH-2218] - Switch CrawlCompletion arg parsing to Commons CLI
+    [NUTCH-2221] - Introduce db.ignore.internal.links to FetcherThread
+    [NUTCH-2229] - Allow Jexl expressions on CrawlDatum's fixed attributes
+    [NUTCH-2231] - Jexl support in generator job
+    [NUTCH-2252] - Allow phantomjs as a browser for selenium options
+    [NUTCH-2263] - Support for mingram and maxgram at Unigram Cosine Similarity Model
 
-* NUTCH-2250 CommonCrawlDumper : Invalid format and skipped parts (Thamme Gowda N.,lewismc via mattmann)
+New Feature
 
-* NUTCH-2245 Developed the NGram Model on the existing Unigram Cosine Similarity Model (bhavyasanghavi via sujen)
+    [NUTCH-961] - Expose Tika's boilerpipe support
+    [NUTCH-1325] - HostDB for Nutch
+    [NUTCH-2144] - Plugin to override db.ignore.external to exempt interesting external domain URLs
+    [NUTCH-2190] - Protocol normalizer
+    [NUTCH-2191] - Add protocol-htmlunit
+    [NUTCH-2194] - Run IndexingFilterChecker as simple Telnet server
+    [NUTCH-2219] - Criteria order to be configurable in DeduplicationJob
+    [NUTCH-2227] - RegexParseFilter
+    [NUTCH-2245] - Developed the NGram Model on the existing Unigram Cosine Similarity Model
 
-* NUTCH-2191 Add HtmlUnit plugin in Nutch. (karanjeets and markus17 via mattmann)
+Task
 
-* NUTCH-2241 Unstable Selenium plugin in Nutch. Fixed bugs and enhanced configuration (karanjeets via mattmann)
-
-* NUTCH-2213 CommonCrawlDataDumper saves gzipped body in extracted form (jnioche via mattmann)
-
-* NUTCH-2144 Added an extension point and a plugin to accept external links (Thamme Gowda N. via mattmann)
-
-* NUTCH-1712 Use MultipleInputs in Injector to make it a single mapreduce job (tejasp, snagel)
-
-* NUTCH-2231 Jexl support in generator job (markus)
-
-* NUTCH-2232 DeduplicationJob should decode URL's before length is compared (Ron van der Vegt via markus)
-
-* NUTCH-2229 Allow Jexl expressions on CrawlDatum's fixed attributes (markus)
-
-* NUTCH-2227 RegexParseFilter (markus)
-
-* NUTCH-2221 Introduce db.ignore.internal.links to FetcherThread (markus)
-
-* NUTCH-2220 Rename db.* options used only by the linkdb to linkdb.* (markus)
-
-* NUTCH-2228 Plugin index-replace unit test broken on Java 8 (snagel via markus)
-
-* NUTCH-2219 Criteria order to be configurable in DeduplicationJob (Ron van der Vegt via markus)
-
-* NUTCH-2218 Update CrawlComplete util to use Commons CLI (Joyce)
-
-* NUTCH-2223 Upgrade xercesImpl to 2.11.0 to fix hang on issue in tika mimetype detection (Tien Nguyen Manh via markus)
-
-* NUTCH-2224 Average bytes/second calculated incorrectly in fetcher (Tien Nguyen Manh via markus)
-
-* NUTCH-2225 Parsed time calculated incorrectly (Tien Nguyen Manh via markus)
-
-* NUTCH-961 Expose Tika's Boilerpipe support (Gabriele Kahlout, Vincent Slot, markus)
-
-* NUTCH-1233 Rely on Tika for outlink extraction (markus)
-
-* NUTCH-2210 Upgrade to Tika 1.12 (markus)
-
-* NUTCH-2209 Improved Tokenization for Similarity Scoring plugin (Sujen)
-
-* NUTCH-2211 Added filterchecker and normalizerchecker to bin/nutch script (markus)
-
-* NUTCH-2197 Add Solr 5 cloud indexer support (Jurian Broertjes via markus)
-
-* NUTCH-2206 Provide example scoring.similarity.stopword.file (sujen)
-
-* NUTCH-2204 Remove junit lib from runtime (snagel)
-
-* NUTCH-2201 Remove loops program from webgraph package (markus)
-
-* NUTCH-1325 HostDB for Nutch (Gui Forget, markus, tejasp)
-
-* NUTCH-2203 Suffix URL filter can't handle trailing/leading whitespaces (Jurian Broertjes via markus)
-
-* NUTCH-2194 Run IndexingFilterChecker as simple Telnet server (markus)
-
-* NUTCH-2196 IndexingFilterChecker to optionally normalize (markus)
-
-* NUTCH-2195 IndexingFilterChecker to optionally follow N redirects (markus)
-
-* NUTCH-2190 Protocol normalizer (markus)
-
-* NUTCH-1838 Host and domain based regex and automaton filtering (markus)
-
-* NUTCH-2178 DeduplicationJob to optionally group on host or domain (markus)
-
-* NUTCH-1449 Optionally delete documents skipped by IndexingFilters (markus)
-
-* NUTCH-2189 Domain filter must deactivate if no rules are present (markus)
-
-* NUTCH-2182 Make reverseUrlDirs file dumper option hash the URL for consistency (joyce)
-
-* NUTCH-2183 Improvement to SegmentChecker for skipping non-segments present in segments directory (lewismc)
-
-* NUTCH-2180 FileDumper skips Corrupt Segments (Harshavardhan Manjunatha via lewismc)
-
-* NUTCH-2042 parse-html increase chunk size used to detect charset (snagel)
-
-* NUTCH-2172 index-more: document format of contenttype-mapping.txt (Nicola Tonellotto, snagel)
+    [NUTCH-2201] - Remove loops program from webgraph package
+    [NUTCH-2211] - Filter and normalizer checkers missing in bin/nutch
+    [NUTCH-2220] - Rename db.* options used only by the linkdb to linkdb.*
 
 Nutch 1.11 Release 03/12/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch11
