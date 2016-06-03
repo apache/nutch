@@ -37,6 +37,7 @@ Bug
 
 Improvement
 
+    [NUTCH-2272] - Index checker server to optionally keep client connection open
     [NUTCH-1233] - Rely on Tika for outlink extraction
     [NUTCH-1712] - Use MultipleInputs in Injector to make it a single mapreduce job
     [NUTCH-2172] - index-more: document format of contenttype-mapping.txt

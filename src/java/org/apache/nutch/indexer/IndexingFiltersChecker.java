@@ -69,6 +69,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
   protected URLNormalizers normalizers = null;
   protected boolean dumpText = false;
   protected boolean followRedirects = false;
+  protected boolean keepClientCnxOpen = false;
   // used to simulate the metadata propagated from injection
   protected HashMap<String, String> metadata = new HashMap<String, String>();
   protected int tcpPort = -1;
@@ -82,7 +83,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
 
   public int run(String[] args) throws Exception {
     String url = null;
-    String usage = "Usage: IndexingFiltersChecker [-normalize] [-followRedirects] [-dumpText] [-md key=value] [-listen <port>] <url>";
+    String usage = "Usage: IndexingFiltersChecker [-normalize] [-followRedirects] [-dumpText] [-md key=value] [-listen <port>] [-keepClientCnxOpen]";
 
     if (args.length == 0) {
       System.err.println(usage);
@@ -96,6 +97,8 @@ public class IndexingFiltersChecker extends Configured implements Tool {
         tcpPort = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-followRedirects")) {
         followRedirects = true;
+      } else if (args[i].equals("-keepClientCnxOpen")) {
+        keepClientCnxOpen = true;
       } else if (args[i].equals("-dumpText")) {
         dumpText = true;
       } else if (args[i].equals("-md")) {
@@ -164,7 +167,23 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       LOG.info(client.toString());
     }
 
-    public void run(){
+    public void run() {
+      if (keepClientCnxOpen) {
+        while (true) { // keep connection open until closes
+          readWrite();
+        }
+      } else {
+        readWrite();
+        
+        try { // close ourselves
+          client.close();
+        } catch (Exception e){
+          LOG.error(e.toString());
+        }
+      }
+    }
+    
+    protected void readWrite() {
       String line;
       BufferedReader in = null;
       PrintWriter out = null;
@@ -185,14 +204,6 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       }catch (Exception e) {
         LOG.error("Read/Write failed: " + e);
       }
-      
-      try {
-        client.close();
-      } catch (Exception e){
-        LOG.error(e.toString());
-      }
-      
-      return;
     }
   }
     
@@ -331,6 +342,8 @@ public class IndexingFiltersChecker extends Configured implements Tool {
         }
       }
     }
+    
+    output.append("\n"); // For readability if keepClientCnxOpen
 
     if (getConf().getBoolean("doIndex", false) && doc != null) {
       IndexWriters writers = new IndexWriters(getConf());
