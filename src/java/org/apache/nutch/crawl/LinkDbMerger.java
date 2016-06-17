@@ -123,7 +123,7 @@ public class LinkDbMerger extends Configured implements Tool,
       FileInputFormat.addInputPath(job, new Path(dbs[i], LinkDb.CURRENT_NAME));
     }
     JobClient.runJob(job);
-    FileSystem fs = FileSystem.get(getConf());
+    FileSystem fs = output.getFileSystem(getConf());
     fs.mkdirs(output);
     fs.rename(FileOutputFormat.getOutputPath(job), new Path(output,
         LinkDb.CURRENT_NAME));

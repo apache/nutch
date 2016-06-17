@@ -248,8 +248,8 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
     Map<String, Integer> filteredCounts = new HashMap<>();
 
     Configuration nutchConfig = NutchConfiguration.create();
-    final FileSystem fs = FileSystem.get(nutchConfig);
     Path segmentRootPath = new Path(segmentRootDir.toString());
+    FileSystem fs = segmentRootPath.getFileSystem(nutchConfig);
 
     //get all paths
     List<Path> parts = new ArrayList<>();
@@ -268,7 +268,7 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
 
     LinkDbReader linkDbReader = null;
     if (linkdb != null) {
-      linkDbReader = new LinkDbReader(fs.getConf(), new Path(linkdb.toString()));
+      linkDbReader = new LinkDbReader(nutchConfig, new Path(linkdb.toString()));
     }
     if (parts == null || parts.size() == 0) {
       LOG.error( "No segment directories found in {} ",

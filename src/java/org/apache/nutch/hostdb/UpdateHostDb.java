@@ -102,7 +102,7 @@ public class UpdateHostDb extends Configured implements Tool {
       throw new Exception("urlnormalizer-host must not be enabled");
     }
 
-    FileSystem fs = FileSystem.get(job);
+    FileSystem fs = hostDb.getFileSystem(job);
     Path old = new Path(hostDb, "old");
     Path current = new Path(hostDb, "current");
     Path tempHostDb = new Path(hostDb, "hostdb-"

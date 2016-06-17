@@ -398,7 +398,7 @@ public class IndexerMapReduce extends Configured implements
     if (linkDb != null) {
       Path currentLinkDb = new Path(linkDb, LinkDb.CURRENT_NAME);
       try {
-        if (FileSystem.get(job).exists(currentLinkDb)) {
+        if (currentLinkDb.getFileSystem(job).exists(currentLinkDb)) {
           FileInputFormat.addInputPath(job, currentLinkDb);
         } else {
           LOG.warn("Ignoring linkDb for indexing, no linkDb found in path: {}",

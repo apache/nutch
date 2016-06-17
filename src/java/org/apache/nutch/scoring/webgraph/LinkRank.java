@@ -575,7 +575,7 @@ public class LinkRank extends Configured implements Tool {
     // upddated into the nodedb
     Path linkRank = new Path(webGraphDb, "linkrank");
     Configuration conf = getConf();
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = linkRank.getFileSystem(conf);
 
     // create the linkrank directory if needed
     if (!fs.exists(linkRank)) {

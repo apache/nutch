@@ -19,6 +19,7 @@ package org.apache.nutch.util;
 
 import java.io.IOException;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
@@ -60,6 +61,27 @@ public class LockUtil {
   }
 
   /**
+   * Create a lock file.
+   *
+   * @param conf
+   *          configuration to find the {@link FileSystem} {@link lockFile}
+   *          belongs to
+   * @param lockFile
+   *          name of the lock file
+   * @param accept
+   *          if true, and the target file exists, consider it valid. If false
+   *          and the target file exists, throw an IOException.
+   * @throws IOException
+   *           if accept is false, and the target file already exists, or if
+   *           it's a directory.
+   */
+  public static void createLockFile(Configuration conf, Path lockFile, boolean accept)
+      throws IOException {
+    FileSystem fs = lockFile.getFileSystem(conf);
+    createLockFile(fs, lockFile, accept);
+  }
+
+  /**
    * Remove lock file. NOTE: applications enforce the semantics of this file -
    * this method simply removes any file with a given name.
    * 
@@ -81,4 +103,25 @@ public class LockUtil {
           + " exists but is a directory!");
     return fs.delete(lockFile, false);
   }
+
+  /**
+   * Remove lock file. NOTE: applications enforce the semantics of this file -
+   * this method simply removes any file with a given name.
+   *
+   * @param conf
+   *          configuration to find the {@link FileSystem} {@link lockFile}
+   *          belongs to
+   * @param lockFile
+   *          lock file name
+   * @return false, if the lock file doesn't exist. True, if it existed and was
+   *         successfully removed.
+   * @throws IOException
+   *           if lock file exists but it is a directory.
+   */
+  public static boolean removeLockFile(Configuration conf, Path lockFile)
+      throws IOException {
+    FileSystem fs = lockFile.getFileSystem(conf);
+    return removeLockFile(fs, lockFile);
+  }
+
 }

@@ -203,11 +203,11 @@ public class ParseSegment extends NutchTool implements Tool,
   }
 
   public void parse(Path segment) throws IOException {
-     if (SegmentChecker.isParsed(segment, FileSystem.get(getConf()))) {
-	  LOG.warn("Segment: " + segment
-	  + " already parsed!! Skipped parsing this segment!!"); // NUTCH-1854
-          return;
-      }
+    if (SegmentChecker.isParsed(segment, segment.getFileSystem(getConf()))) {
+      LOG.warn("Segment: " + segment
+          + " already parsed!! Skipped parsing this segment!!"); // NUTCH-1854
+      return;
+    }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();

@@ -167,7 +167,7 @@ public class LinkDb extends NutchTool implements Tool,
 
   public void invert(Path linkDb, final Path segmentsDir, boolean normalize,
       boolean filter, boolean force) throws IOException {
-    final FileSystem fs = FileSystem.get(getConf());
+    FileSystem fs = segmentsDir.getFileSystem(getConf());
     FileStatus[] files = fs.listStatus(segmentsDir,
         HadoopFSUtil.getPassDirectoriesFilter(fs));
     invert(linkDb, HadoopFSUtil.getPaths(files), normalize, filter, force);
@@ -177,7 +177,7 @@ public class LinkDb extends NutchTool implements Tool,
       boolean filter, boolean force) throws IOException {
     JobConf job = LinkDb.createJob(getConf(), linkDb, normalize, filter);
     Path lock = new Path(linkDb, LOCK_NAME);
-    FileSystem fs = FileSystem.get(getConf());
+    FileSystem fs = linkDb.getFileSystem(getConf());
     LockUtil.createLockFile(fs, lock, force);
     Path currentLinkDb = new Path(linkDb, CURRENT_NAME);
 
@@ -256,7 +256,7 @@ public class LinkDb extends NutchTool implements Tool,
     // if we don't run the mergeJob, perform normalization/filtering now
     if (normalize || filter) {
       try {
-        FileSystem fs = FileSystem.get(config);
+        FileSystem fs = linkDb.getFileSystem(config);
         if (!fs.exists(linkDb)) {
           job.setBoolean(LinkDbFilter.URL_FILTERING, filter);
           job.setBoolean(LinkDbFilter.URL_NORMALIZING, normalize);
@@ -278,7 +278,7 @@ public class LinkDb extends NutchTool implements Tool,
 
   public static void install(JobConf job, Path linkDb) throws IOException {
     Path newLinkDb = FileOutputFormat.getOutputPath(job);
-    FileSystem fs = new JobClient(job).getFs();
+    FileSystem fs = linkDb.getFileSystem(job);
     Path old = new Path(linkDb, "old");
     Path current = new Path(linkDb, CURRENT_NAME);
     if (fs.exists(current)) {
@@ -312,7 +312,6 @@ public class LinkDb extends NutchTool implements Tool,
       System.err.println("\t-noFilter\tdon't apply URLFilters to link URLs");
       return -1;
     }
-    final FileSystem fs = FileSystem.get(getConf());
     Path db = new Path(args[0]);
     ArrayList<Path> segs = new ArrayList<>();
     boolean filter = true;
@@ -320,7 +319,9 @@ public class LinkDb extends NutchTool implements Tool,
     boolean force = false;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
-        FileStatus[] paths = fs.listStatus(new Path(args[++i]),
+        Path segDir = new Path(args[++i]);
+        FileSystem fs = segDir.getFileSystem(getConf());
+        FileStatus[] paths = fs.listStatus(segDir,
             HadoopFSUtil.getPassDirectoriesFilter(fs));
         segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
       } else if (args[i].equalsIgnoreCase("-noNormalize")) {
@@ -379,7 +380,6 @@ public class LinkDb extends NutchTool implements Tool,
     }
 
     Path segmentsDir;
-    final FileSystem fs = FileSystem.get(getConf());
     if(args.containsKey(Nutch.ARG_SEGMENTDIR)) {
       Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
       if(segDir instanceof Path) {
@@ -388,6 +388,7 @@ public class LinkDb extends NutchTool implements Tool,
       else {
         segmentsDir = new Path(segDir.toString());
       }
+      FileSystem fs = segmentsDir.getFileSystem(getConf());
       FileStatus[] paths = fs.listStatus(segmentsDir,
           HadoopFSUtil.getPassDirectoriesFilter(fs));
       segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));

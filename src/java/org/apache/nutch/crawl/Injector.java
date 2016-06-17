@@ -347,7 +347,7 @@ public class Injector extends NutchTool implements Tool {
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
 
     // create all the required paths
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = crawlDb.getFileSystem(conf);
     Path current = new Path(crawlDb, CrawlDb.CURRENT_NAME);
     if (!fs.exists(current))
       fs.mkdirs(current);
