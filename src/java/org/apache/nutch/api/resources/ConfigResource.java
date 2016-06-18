@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -52,6 +53,7 @@ public class ConfigResource extends AbstractResource {
 
   @GET
   @Path("/{configId}/{propertyId}")
+  @Produces(MediaType.TEXT_PLAIN)
   public String getProperty(@PathParam("configId") String configId,
       @PathParam("propertyId") String propertyId) {
     return configManager.getAsMap(configId).get(propertyId);
@@ -66,6 +68,7 @@ public class ConfigResource extends AbstractResource {
   @POST
   @Path("/{configId}")
   @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.TEXT_PLAIN)
   public String createConfig(NutchConfig newConfig) {
     if (newConfig == null) {
       throw new WebApplicationException(Response.status(Status.BAD_REQUEST)

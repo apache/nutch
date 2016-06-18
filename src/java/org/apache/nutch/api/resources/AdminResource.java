@@ -23,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.nutch.api.model.response.NutchStatus;
 import org.apache.nutch.api.model.response.JobInfo.State;
@@ -52,6 +54,7 @@ public class AdminResource extends AbstractResource {
 
   @GET
   @Path("/stop")
+  @Produces(MediaType.TEXT_PLAIN)
   public String stop(@QueryParam("force") boolean force) {
     if (!server.canStop(force)) {
       LOG.info("Command 'stop' denied due to unfinished jobs");
