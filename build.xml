@@ -285,6 +285,31 @@
   </artifact:mvn>
  </target>
 
+    <!-- ================================================================== -->
+    <!-- Generate REST API Documentation with Miredot                       -->
+    <!-- ================================================================== -->
+ <target name="restdocs" description="--> generate REST API Documentation with Miredot">
+
+    <!-- generate a pom file -->
+   <ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml" templatefile="ivy/mvn.template">
+     <mapping conf="default" scope="compile"/>
+     <mapping conf="runtime" scope="runtime"/>
+   </ivy:makepom>
+
+   <!--artifact:dependencies pathId="dependency.classpath">
+     <dependency groupId="log4j" artifactId="log4j" version="1.2.15" >
+       <exclusion groupId="javax.jms" artifactId="jms" />
+       <exclusion groupId="com.sun.jdmk" artifactId="jmxtools" />
+       <exclusion groupId="com.sun.jmx" artifactId="jmxri" />
+     </dependency>
+   </artifact:dependencies-->
+
+   <artifact:mvn>
+    <arg value="test"/>
+    <arg value="-e"/>
+   </artifact:mvn>
+ </target>
+
  <!-- ================================================================== -->
  <!-- Make job jar -->
  <!-- ================================================================== -->
