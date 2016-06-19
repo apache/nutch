@@ -45,10 +45,13 @@ import org.apache.nutch.api.resources.JobResource;
 import org.apache.nutch.api.resources.SeedResource;
 import org.restlet.Component;
 import org.restlet.Context;
+import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
 import org.restlet.ext.jaxrs.JaxRsApplication;
 import org.restlet.resource.ClientResource;
+import org.restlet.security.ChallengeAuthenticator;
+import org.restlet.security.MapVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,8 +111,28 @@ public class NutchServer extends Application {
     application.setStatusService(new ErrorStatusService());
     childContext.getAttributes().put(NUTCH_SERVER, this);
 
-    // Attach the application.
-    component.getDefaultHost().attach(application);
+    boolean isSecure = configManager.get(ConfigResource.DEFAULT).getBoolean("restapi.auth", false);
+
+    if (!isSecure) {
+      // Attach the application.
+      component.getDefaultHost().attach(application);
+      return;
+    }
+
+    // Guard the restlet with BASIC authentication.
+    ChallengeAuthenticator guard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC, "testRealm");
+    // Instantiates a Verifier of identifier/secret couples based on a simple Map.
+    MapVerifier mapVerifier = new MapVerifier();
+
+    // Load a single static login/secret pair.
+    String username = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.username", "login");
+    String password = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.password", "secret");
+
+    mapVerifier.getLocalSecrets().put(username, password.toCharArray());
+    guard.setVerifier(mapVerifier);
+    guard.setNext(application);
+
+    component.getDefaultHost().attach(guard);
   }
 
   @Override
