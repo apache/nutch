@@ -69,6 +69,7 @@ import org.apache.nutch.util.JexlUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.lang.time.DateUtils;
@@ -195,9 +196,10 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       output.collect(new Text("status " + value.getStatus()), COUNT_1);
       output
           .collect(new Text("retry " + value.getRetriesSinceFetch()), COUNT_1);
-      output.collect(new Text("s"), new LongWritable(
+      output.collect(new Text("sc"), new LongWritable(
           (long) (value.getScore() * 1000.0)));
-      output.collect(new Text("f"), new LongWritable(value.getFetchTime()));
+      output.collect(new Text("ft"), new LongWritable(value.getFetchTime()));
+      output.collect(new Text("fi"), new LongWritable(value.getFetchInterval()));
       if (sort) {
         URL u = new URL(key.toString());
         String host = u.getHost();
@@ -244,10 +246,8 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         throws IOException {
       val.set(0L);
       String k = key.toString();
-      if (k.equals("s")) {
-        reduceMinMaxTotal("sc", values, output, reporter);
-      } else if (k.equals("f")) {
-        reduceMinMaxTotal("ft", values, output, reporter);
+      if (k.equals("sc") || k.equals("ft") || k.equals("fi")) {
+        reduceMinMaxTotal(k, values, output, reporter);
       } else {
         while (values.hasNext()) {
           LongWritable cnt = values.next();
@@ -286,7 +286,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           cnt.set(cnt.get() + val.get());
         }
         output.collect(key, cnt);
-      } else if (k.equals("scx") || k.equals("ftx")) {
+      } else if (k.equals("scx") || k.equals("ftx") || k.equals("fix")) {
         LongWritable cnt = new LongWritable(Long.MIN_VALUE);
         while (values.hasNext()) {
           LongWritable val = values.next();
@@ -294,7 +294,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
             cnt.set(val.get());
         }
         output.collect(key, cnt);
-      } else if (k.equals("scn") || k.equals("ftn")) {
+      } else if (k.equals("scn") || k.equals("ftn") || k.equals("fin")) {
         LongWritable cnt = new LongWritable(Long.MAX_VALUE);
         while (values.hasNext()) {
           LongWritable val = values.next();
@@ -302,7 +302,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
             cnt.set(val.get());
         }
         output.collect(key, cnt);
-      } else if (k.equals("sct") || k.equals("ftt")) {
+      } else if (k.equals("sct") || k.equals("ftt") || k.equals("fit")) {
         LongWritable cnt = new LongWritable();
         while (values.hasNext()) {
           LongWritable val = values.next();
@@ -402,16 +402,16 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 			  LongWritable val = stats.get(k);
 			  if (val == null) {
 				  val = new LongWritable();
-				  if (k.equals("scx") || k.equals("ftx"))
+				  if (k.equals("scx") || k.equals("ftx") || k.equals("fix"))
 					  val.set(Long.MIN_VALUE);
-				  if (k.equals("scn") || k.equals("ftn"))
+				  if (k.equals("scn") || k.equals("ftn") || k.equals("fin"))
 					  val.set(Long.MAX_VALUE);
 				  stats.put(k, val);
 			  }
-			  if (k.equals("scx") || k.equals("ftx")) {
+			  if (k.equals("scx") || k.equals("ftx") || k.equals("fix")) {
 				  if (val.get() < value.get())
 					  val.set(value.get());
-			  } else if (k.equals("scn") || k.equals("ftn")) {
+			  } else if (k.equals("scn") || k.equals("ftn") || k.equals("fin")) {
 				  if (val.get() > value.get())
 					  val.set(value.get());
 			  } else {
@@ -455,6 +455,15 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         } else if (k.equals("ftt")) {
           LOG.info("avg of fetch times:\t"
               + new Date(val.get() / totalCnt.get()));
+        } else if (k.equals("fin")) {
+          LOG.info("shortest fetch interval:\t{}",
+              TimingUtil.secondsToDaysHMS(val.get()));
+        } else if (k.equals("fix")) {
+          LOG.info("longest fetch interval:\t{}",
+              TimingUtil.secondsToDaysHMS(val.get()));
+        } else if (k.equals("fit")) {
+          LOG.info("avg fetch interval:\t{}",
+              TimingUtil.secondsToDaysHMS(val.get() / totalCnt.get()));
         } else if (k.startsWith("status")) {
           String[] st = k.split(" ");
           int code = Integer.parseInt(st[1]);
