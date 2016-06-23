@@ -198,8 +198,12 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           .collect(new Text("retry " + value.getRetriesSinceFetch()), COUNT_1);
       output.collect(new Text("sc"), new LongWritable(
           (long) (value.getScore() * 1000.0)));
-      output.collect(new Text("ft"), new LongWritable(value.getFetchTime()));
-      output.collect(new Text("fi"), new LongWritable(value.getFetchInterval()));
+      // fetch time (in minutes to prevent from overflows when summing up)
+      output.collect(new Text("ft"),
+          new LongWritable(value.getFetchTime() / (1000 * 60)));
+      // fetch interval (in seconds)
+      output.collect(new Text("fi"),
+          new LongWritable(value.getFetchInterval()));
       if (sort) {
         URL u = new URL(key.toString());
         String host = u.getHost();
@@ -449,12 +453,12 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           LOG.info("avg score:\t"
               + (float) ((((double) val.get()) / totalCnt.get()) / 1000.0));
         } else if (k.equals("ftn")) {
-          LOG.info("earliest fetch time:\t" + new Date(val.get()));
+          LOG.info("earliest fetch time:\t" + new Date(1000 * 60 * val.get()));
         } else if (k.equals("ftx")) {
-          LOG.info("latest fetch time:\t" + new Date(val.get()));
+          LOG.info("latest fetch time:\t" + new Date(1000 * 60 * val.get()));
         } else if (k.equals("ftt")) {
           LOG.info("avg of fetch times:\t"
-              + new Date(val.get() / totalCnt.get()));
+              + new Date(1000 * 60 * (val.get() / totalCnt.get())));
         } else if (k.equals("fin")) {
           LOG.info("shortest fetch interval:\t{}",
               TimingUtil.secondsToDaysHMS(val.get()));
