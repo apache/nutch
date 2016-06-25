@@ -88,7 +88,12 @@ public class NutchServer extends Application {
    * well as the logging granularity. If the latter option is not provided via
    * {@link org.apache.nutch.api.NutchServer#main(String[])} then it defaults to
    * 'INFO' however best attempts should always be made to specify a logging
-   * level.
+   * level.<br>
+   * {@link org.apache.nutch.api.NutchServer} can be run as secure. restapi.auth property
+   * should be set to true at <code>nutch-site.xml</code> to enable HTTP basic authentication
+   * for communicating with RESTAPI.
+   * Use the restapi.auth.username and restapi.auth.auth.password properties to configure
+   * your credentials.
    */
   public NutchServer() {
     configManager = new RAMConfManager();
