@@ -22,5 +22,6 @@ package org.apache.nutch.api.security;
 public enum AuthenticationTypeEnum {
     BASIC,
     DIGEST,
+    SSL,
     NONE
 }

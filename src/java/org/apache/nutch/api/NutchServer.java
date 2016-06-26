@@ -46,6 +46,7 @@ import org.apache.nutch.api.resources.SeedResource;
 import org.apache.nutch.api.security.AuthenticationTypeEnum;
 import org.restlet.Component;
 import org.restlet.Context;
+import org.restlet.Server;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
@@ -54,6 +55,7 @@ import org.restlet.resource.ClientResource;
 import org.restlet.security.ChallengeAuthenticator;
 import org.restlet.ext.crypto.DigestAuthenticator;
 import org.restlet.security.MapVerifier;
+import org.restlet.util.Series;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,10 +94,13 @@ public class NutchServer extends Application {
    * 'INFO' however best attempts should always be made to specify a logging
    * level.<br>
    * {@link org.apache.nutch.api.NutchServer} can be run as secure. restapi.auth property
-   * should be set to BASIC or DIGEST at <code>nutch-site.xml</code> to enable HTTP basic authentication
-   * or digest authentication when communicating with RESTAPI.
-   * Use restapi.auth.username and restapi.auth.auth.password properties at <code>nutch-site.xml</code> to configure
-   * credentials when security is enabled with restapi.auth property.
+   * should be set to BASIC, DIGEST or SSL at <code>nutch-site.xml</code> to enable HTTP basic authentication,
+   * digest authentication or SSL when communicating with RESTAPI.
+   * Set restapi.auth.username and restapi.auth.auth.password properties at <code>nutch-site.xml</code> to configure
+   * credentials when BASIC or DIGEST authentication is used.
+   * Set restapi.auth.ssl.storepath, restapi.auth.ssl.storepass and restapi.auth.ssl.keypass when SSL is used.
+   *
+   * @see org.apache.nutch.api.security.AuthenticationTypeEnum
    */
   public NutchServer() {
     configManager = new RAMConfManager();
@@ -109,8 +114,34 @@ public class NutchServer extends Application {
     component = new Component();
     component.getLogger().setLevel(Level.parse(logLevel));
 
-    // Add a new HTTP server listening on defined port.
-    component.getServers().add(Protocol.HTTP, port);
+    AuthenticationTypeEnum authenticationType = configManager.get(ConfigResource.DEFAULT)
+            .getEnum("restapi.auth", AuthenticationTypeEnum.NONE);
+
+    if (authenticationType == AuthenticationTypeEnum.SSL) {
+      // Add a new HTTPS server listening on defined port.
+      Server server = component.getServers().add(Protocol.HTTPS, port);
+
+      Series parameters = server.getContext().getParameters();
+      parameters.add("sslContextFactory", "org.restlet.engine.ssl.DefaultSslContextFactory");
+
+      String keyStorePath = configManager.get(ConfigResource.DEFAULT)
+              .get("restapi.auth.ssl.storepath", "etc/nutch-ssl.keystore.jks");
+      parameters.add("keyStorePath", keyStorePath);
+
+      String keyStorePassword = configManager.get(ConfigResource.DEFAULT)
+              .get("restapi.auth.ssl.storepass", "password");
+      parameters.add("keyStorePassword", keyStorePassword);
+
+      String keyPassword = configManager.get(ConfigResource.DEFAULT)
+              .get("restapi.auth.ssl.keypass", "password");
+      parameters.add("keyPassword", keyPassword);
+
+      parameters.add("keyStoreType", "JKS");
+      LOG.info("SSL Authentication is set for NutchServer");
+    } else {
+      // Add a new HTTP server listening on defined port.
+      component.getServers().add(Protocol.HTTP, port);
+    }
 
     Context childContext = component.getContext().createChildContext();
     JaxRsApplication application = new JaxRsApplication(childContext);
@@ -118,41 +149,35 @@ public class NutchServer extends Application {
     application.setStatusService(new ErrorStatusService());
     childContext.getAttributes().put(NUTCH_SERVER, this);
 
-    AuthenticationTypeEnum authenticationType = configManager.get(ConfigResource.DEFAULT)
-            .getEnum("restapi.auth", AuthenticationTypeEnum.NONE);
-
-    if (authenticationType == AuthenticationTypeEnum.NONE) {
-      // Attach the application without security
+    if (authenticationType == AuthenticationTypeEnum.NONE || authenticationType == AuthenticationTypeEnum.SSL ) {
       component.getDefaultHost().attach(application);
       return;
     }
 
-    MapVerifier mapVerifier = new MapVerifier();
-
     String username = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.username", "admin");
     String password = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.password", "nutch");
 
+    MapVerifier mapVerifier = new MapVerifier();
     mapVerifier.getLocalSecrets().put(username, password.toCharArray());
 
     if (authenticationType == AuthenticationTypeEnum.BASIC) {
-      ChallengeAuthenticator guard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC, "testRealm");
-
+      ChallengeAuthenticator guard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC, "Nutch REST API Realm");
       guard.setVerifier(mapVerifier);
+      LOG.info("BASIC Authentication is set for NutchServer");
       guard.setNext(application);
       // Attach the application with HTTP basic authentication security
-      component.getDefaultHost().attach(guard);
+      component.getDefaultHost().attachDefault(guard);
       return;
     }
 
     if (authenticationType == AuthenticationTypeEnum.DIGEST) {
       DigestAuthenticator guard = new DigestAuthenticator(null, "Nutch REST API Realm", "NutchSecretKey");
-
       guard.setWrappedVerifier(mapVerifier);
+      LOG.info("Digest Authentication is set for NutchServer");
       guard.setNext(application);
       // Attach the application with digest authentication security
       component.getDefaultHost().attachDefault(guard);
     }
-
   }
 
   @Override
