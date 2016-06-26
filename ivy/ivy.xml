@@ -79,6 +79,7 @@
     <dependency org="org.restlet.jse" name="org.restlet" rev="2.2.3" conf="*->default" />
     <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.2.3" conf="*->default" />
     <dependency org="org.restlet.jse" name="org.restlet.ext.jaxrs" rev="2.2.3" conf="*->default" />
+    <dependency org="org.restlet.jee" name="org.restlet.ext.crypto" rev="2.2.3" conf="*->default" />
 
     <!--artifacts needed for testing -->
     <dependency org="junit" name="junit" rev="4.11" conf="*->default" />
