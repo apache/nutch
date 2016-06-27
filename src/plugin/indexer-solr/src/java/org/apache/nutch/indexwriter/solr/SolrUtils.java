@@ -22,6 +22,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.http.impl.client.SystemDefaultHttpClient;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -60,7 +61,8 @@ public class SolrUtils {
   }
 
   public static CloudSolrClient getCloudSolrClient(String url) throws MalformedURLException {
-    CloudSolrClient sc = new CloudSolrClient(url.replace('|', ','));
+    SystemDefaultHttpClient httpClient = new SystemDefaultHttpClient();
+    CloudSolrClient sc = new CloudSolrClient(url.replace('|', ','), httpClient);
     sc.setParallelUpdates(true);
     sc.connect();
     return sc;
