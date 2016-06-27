@@ -19,6 +19,7 @@ package org.apache.nutch.api.resources;
 import java.util.Collection;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -63,6 +64,7 @@ public class JobResource extends AbstractResource {
   @POST
   @Path(value = "/create")
   @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.TEXT_PLAIN)
   public String create(JobConfig config) {
     if (config == null) {
       throwBadRequestException("Job configuration is required!");
