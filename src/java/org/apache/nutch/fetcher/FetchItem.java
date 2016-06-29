@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 /**
- * This class described the item to be fetched.
+ * This class describes the item to be fetched.
  */
 public class FetchItem {
 
