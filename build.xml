@@ -1032,6 +1032,7 @@
         <source path="${plugins.dir}/indexer-dummy/src/java/" />
         <source path="${plugins.dir}/indexer-solr/src/java/" />
         <source path="${plugins.dir}/indexer-elastic/src/java/" />
+        <source path="${plugins.dir}/indexer-elastic/src/test/" />
         <source path="${plugins.dir}/index-metadata/src/java/" />
         <source path="${plugins.dir}/index-more/src/java/" />
         <source path="${plugins.dir}/index-more/src/test/" />

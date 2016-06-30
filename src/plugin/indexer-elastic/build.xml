@@ -19,4 +19,17 @@
 
   <import file="../build-plugin.xml" />
 
+  <!-- Add compilation dependencies to classpath -->
+  <path id="plugin.deps">
+    <pathelement location="${build.dir}/test/conf"/>
+  </path>
+
+  <!-- Deploy Unit test dependencies -->
+  <target name="deps-test">
+    <copy toDir="${build.test}">
+      <fileset dir="${src.test}" excludes="**/*.java"/>
+    </copy>
+  </target>
+
+
 </project>

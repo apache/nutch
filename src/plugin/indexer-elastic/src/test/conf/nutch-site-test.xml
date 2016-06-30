@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<configuration>
+
+<property>
+  <name>http.agent.name</name>
+  <value>Nutch-Test</value>
+  <description></description>
+</property>
+
+
+<!-- Elasticsearch properties -->
+
+<property>
+  <name>elastic.host</name>
+  <value>localhost</value>
+  <description>The hostname to send documents to using TransportClient. Either host
+  and port must be defined or cluster.</description>
+</property>
+
+<property>
+  <name>elastic.port</name>
+  <value>9300</value>
+  <description>The port to connect to using TransportClient.</description>
+</property>
+
+<property>
+  <name>elastic.cluster</name>
+  <value>nutch</value>
+  <description>The cluster name to discover. Either host and port must be defined
+  or cluster.</description>
+</property>
+
+<property>
+  <name>elastic.index</name>
+  <value>nutch</value>
+  <description>Default index to send documents to.</description>
+</property>
+
+</configuration>

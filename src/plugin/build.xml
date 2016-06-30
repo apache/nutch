@@ -106,6 +106,7 @@
      <ant dir="index-replace" target="test"/>
      <ant dir="index-links" target="test"/>
      <ant dir="mimetype-filter" target="test"/>
+     <ant dir="indexer-elastic" target="test"/>
      <ant dir="language-identifier" target="test"/>
      <ant dir="lib-http" target="test"/>
      <ant dir="protocol-file" target="test"/>

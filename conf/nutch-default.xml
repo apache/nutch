@@ -1812,8 +1812,8 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 <property>
   <name>elastic.host</name>
   <value></value>
-  <description>The hostname to send documents to using TransportClient. Either host
-  and port must be defined or cluster.</description>
+  <description>Comma-separated list of hostnames to send documents to using
+  TransportClient. Either host and port must be defined or cluster.</description>
 </property>
 
 <property> 
@@ -1845,6 +1845,27 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>elastic.max.bulk.size</name>
   <value>2500500</value> 
   <description>Maximum size of the bulk in bytes.</description>
+</property>
+
+<property>
+  <name>elastic.exponential.backoff.millis</name>
+  <value>100</value>
+  <description>Initial delay for the BulkProcessor's exponential backoff policy.
+  </description>
+</property>
+
+<property>
+  <name>elastic.exponential.backoff.retries</name>
+  <value>10</value>
+  <description>Number of times the BulkProcessor's exponential backoff policy
+  should retry bulk operations.</description>
+</property>
+
+<property>
+  <name>elastic.bulk.close.timeout</name>
+  <value>600</value>
+  <description>Number of seconds allowed for the BulkProcessor to complete its
+  last operation.</description>
 </property>
 
 <!-- subcollection properties -->
