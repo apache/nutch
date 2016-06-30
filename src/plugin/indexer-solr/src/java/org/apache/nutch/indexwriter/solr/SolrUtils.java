@@ -32,6 +32,7 @@ import java.net.MalformedURLException;
 public class SolrUtils {
 
   public static Logger LOG = LoggerFactory.getLogger(SolrUtils.class);
+  private static HttpClient HTTP_CLIENT = new SystemDefaultHttpClient();
 
   /**
    *
@@ -52,7 +53,7 @@ public class SolrUtils {
       }
     } else {
       for (int i = 0; i < urls.length; i++) {
-        SolrClient sc = new HttpSolrClient(urls[i]);
+        SolrClient sc = new HttpSolrClient(urls[i], HTTP_CLIENT);
         solrClients.add(sc);
       }
     }
@@ -61,15 +62,14 @@ public class SolrUtils {
   }
 
   public static CloudSolrClient getCloudSolrClient(String url) throws MalformedURLException {
-    SystemDefaultHttpClient httpClient = new SystemDefaultHttpClient();
-    CloudSolrClient sc = new CloudSolrClient(url.replace('|', ','), httpClient);
+    CloudSolrClient sc = new CloudSolrClient(url.replace('|', ','), HTTP_CLIENT);
     sc.setParallelUpdates(true);
     sc.connect();
     return sc;
   }
 
   public static SolrClient getHttpSolrClient(String url) throws MalformedURLException {
-    SolrClient sc =new HttpSolrClient(url);
+    SolrClient sc =new HttpSolrClient(url, HTTP_CLIENT);
     return sc;
   }
   
