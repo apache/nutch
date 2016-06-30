@@ -19,10 +19,13 @@ package org.apache.nutch.indexwriter.elastic;
 public interface ElasticConstants {
   public static final String ELASTIC_PREFIX = "elastic.";
 
-  public static final String HOST = ELASTIC_PREFIX + "host";
+  public static final String HOSTS = ELASTIC_PREFIX + "host";
   public static final String PORT = ELASTIC_PREFIX + "port";
   public static final String CLUSTER = ELASTIC_PREFIX + "cluster";
   public static final String INDEX = ELASTIC_PREFIX + "index";
   public static final String MAX_BULK_DOCS = ELASTIC_PREFIX + "max.bulk.docs";
   public static final String MAX_BULK_LENGTH = ELASTIC_PREFIX + "max.bulk.size";
+  public static final String EXPONENTIAL_BACKOFF_MILLIS = ELASTIC_PREFIX + "exponential.backoff.millis";
+  public static final String EXPONENTIAL_BACKOFF_RETRIES = ELASTIC_PREFIX + "exponential.backoff.retries";
+  public static final String BULK_CLOSE_TIMEOUT = ELASTIC_PREFIX + "bulk.close.timeout";
 }
