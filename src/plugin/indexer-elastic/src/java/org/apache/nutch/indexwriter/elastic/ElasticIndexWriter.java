@@ -21,6 +21,7 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,9 +39,8 @@ import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.ImmutableSettings.Builder;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
 import org.slf4j.Logger;
@@ -79,8 +79,7 @@ public class ElasticIndexWriter implements IndexWriter {
     host = job.get(ElasticConstants.HOST);
     port = job.getInt(ElasticConstants.PORT, 9300);
 
-    Builder settingsBuilder = ImmutableSettings.settingsBuilder().classLoader(
-        Settings.class.getClassLoader());
+    Builder settingsBuilder = Settings.builder();
 
     BufferedReader reader = new BufferedReader(
         job.getConfResourceAsReader("elasticsearch.conf"));
@@ -106,8 +105,10 @@ public class ElasticIndexWriter implements IndexWriter {
 
     // Prefer TransportClient
     if (host != null && port > 1) {
-      client = new TransportClient(settings)
-          .addTransportAddress(new InetSocketTransportAddress(host, port));
+      TransportClient transportClient = TransportClient.builder()
+          .settings(settings).build()
+          .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
+      client = transportClient;
     } else if (clusterName != null) {
       node = nodeBuilder().settings(settings).client(true).node();
       client = node.client();
@@ -141,8 +142,10 @@ public class ElasticIndexWriter implements IndexWriter {
           bulkLength += value.toString().length();
         }
       } else {
-        source.put(fieldName, doc.getFieldValue(fieldName));
-        bulkLength += doc.getFieldValue(fieldName).toString().length();
+        if (doc.getFieldValue(fieldName) != null) {
+          source.put(fieldName, doc.getFieldValue(fieldName));
+          bulkLength += doc.getFieldValue(fieldName).toString().length();
+        }
       }
     }
     request.setSource(source);

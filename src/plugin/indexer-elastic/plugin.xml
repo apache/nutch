@@ -22,25 +22,39 @@
     <library name="indexer-elastic.jar">
       <export name="*" />
     </library>
-    
-    <library name="elasticsearch-1.4.1.jar"/>
-    <library name="lucene-analyzers-common-4.10.2.jar"/>
-    <library name="lucene-codecs-4.10.2.jar"/>
-    <library name="lucene-core-4.10.2.jar"/>
-    <library name="lucene-grouping-4.10.2.jar"/>
-    <library name="lucene-highlighter-4.10.2.jar"/>
-    <library name="lucene-join-4.10.2.jar"/>
-    <library name="lucene-memory-4.10.2.jar"/>
-    <library name="lucene-misc-4.10.2.jar"/>
-    <library name="lucene-queries-4.10.2.jar"/>
-    <library name="lucene-queryparser-4.10.2.jar"/>
-    <library name="lucene-sandbox-4.10.2.jar"/>
-    <library name="lucene-spatial-4.10.2.jar"/>
-    <library name="lucene-suggest-4.10.2.jar"/>
-    <library name="spatial4j-0.4.1.jar"/>
-    <library name="antlr-runtime-3.5.jar"/>
-    <library name="asm-4.1"/>
-    <library name="asm-commons-4.1.jar"/>
+    <library name="elasticsearch-2.3.3.jar"/>
+    <library name="commons-cli-1.3.1.jar"/>
+    <library name="compress-lzf-1.0.2.jar"/>
+    <library name="guava-18.0.jar"/>
+    <library name="HdrHistogram-2.1.6.jar"/>
+    <library name="hppc-0.7.1.jar"/>
+    <library name="indexer-elastic.jar"/>
+    <library name="jackson-core-2.6.6.jar"/>
+    <library name="jackson-dataformat-cbor-2.6.6.jar"/>
+    <library name="jackson-dataformat-smile-2.6.6.jar"/>
+    <library name="jackson-dataformat-yaml-2.6.6.jar"/>
+    <library name="joda-convert-1.2.jar"/>
+    <library name="joda-time-2.8.2.jar"/>
+    <library name="jsr166e-1.1.0.jar"/>
+    <library name="lucene-analyzers-common-5.5.0.jar"/>
+    <library name="lucene-backward-codecs-5.5.0.jar"/>
+    <library name="lucene-core-5.5.0.jar"/>
+    <library name="lucene-grouping-5.5.0.jar"/>
+    <library name="lucene-highlighter-5.5.0.jar"/>
+    <library name="lucene-join-5.5.0.jar"/>
+    <library name="lucene-memory-5.5.0.jar"/>
+    <library name="lucene-misc-5.5.0.jar"/>
+    <library name="lucene-queries-5.5.0.jar"/>
+    <library name="lucene-queryparser-5.5.0.jar"/>
+    <library name="lucene-sandbox-5.5.0.jar"/>
+    <library name="lucene-spatial-5.5.0.jar"/>
+    <library name="lucene-spatial3d-5.5.0.jar"/>
+    <library name="lucene-suggest-5.5.0.jar"/>
+    <library name="netty-3.10.5.Final.jar"/>
+    <library name="securesm-1.0.jar"/>
+    <library name="snakeyaml-1.15.jar"/>
+    <library name="spatial4j-0.5.jar"/>
+    <library name="t-digest-3.0.jar"/>
   </runtime>
 
   <requires>
