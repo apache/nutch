@@ -97,7 +97,7 @@
 
 		<!--artifacts needed for testing -->
 		<dependency org="junit" name="junit" rev="4.11" conf="test->default" />
-		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default" maven:classifier="hadoop2">
+		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">
 			<artifact name="mrunit" maven:classifier="hadoop2" />
 			<exclude org="log4j" module="log4j" />
 		</dependency>
