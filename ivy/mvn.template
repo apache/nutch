@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+			<?xml version="1.0"?>
 <!--
  Licensed to the Apache Software Foundation (ASF) under one or more
  contributor license agreements.  See the NOTICE file distributed with
@@ -93,6 +93,11 @@
       <id>snagel</id>
       <name>Sebastian Nagel</name>
       <email>snagel@apache.org</email>
+    </developer>
+    <developer>
+      <id>thammegowda</id>
+      <name>Thamme Gowda</name>
+      <email>thammegowda@apache.org</email>
     </developer>
   </developers>
 
