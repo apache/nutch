@@ -183,9 +183,7 @@ public class HtmlParser implements Parser {
     HTMLMetaProcessor.getMetaTags(metaTags, root, base);
 
     // populate Nutch metadata with HTML meta directives
-    for (String name : metaTags.getGeneralTags().names()) {
-      metadata.add(name, metaTags.getGeneralTags().get(name));
-    }
+    metadata.addAll(metaTags.getGeneralTags());
 
     if (LOG.isTraceEnabled()) {
       LOG.trace("Meta tags for " + base + ": " + metaTags.toString());

@@ -40,8 +40,8 @@ public class TestHtmlParser {
   private static final String encodingTestBody = "<ul>\n  <li>français\n  <li>español\n  <li>русский язык\n  <li>čeština\n  <li>ελληνικά\n</ul>";
   private static final String encodingTestContent = "<title>"
       + encodingTestKeywords + "</title>\n"
-      + "<meta name=\"keywords\" content=\"" + encodingTestKeywords
-      + "</meta>\n" + "</head>\n<body>" + encodingTestBody + "</body>\n</html>";
+      + "<meta name=\"keywords\" content=\"" + encodingTestKeywords + "\" />\n"
+      + "</head>\n<body>" + encodingTestBody + "</body>\n</html>";
 
   private static String[][] encodingTestPages = {
       {
@@ -113,10 +113,9 @@ public class TestHtmlParser {
         Assert.assertTrue(keyword + " not found in text (" + name + ")",
             text.contains(keyword));
       }
-      if (keywords != null) {
-        Assert.assertEquals("Keywords not extracted properly (" + name + ")",
-            encodingTestKeywords, keywords);
-      }
+      Assert.assertNotNull("No keywords extracted", keywords);
+      Assert.assertEquals("Keywords not extracted properly (" + name + ")",
+          encodingTestKeywords, keywords);
     }
   }
 
