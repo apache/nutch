@@ -118,39 +118,29 @@ public class NutchServer extends Application {
     application.setStatusService(new ErrorStatusService());
     childContext.getAttributes().put(NUTCH_SERVER, this);
 
-    AuthenticationTypeEnum authenticationType = configManager.get(ConfigResource.DEFAULT)
-            .getEnum("restapi.auth", AuthenticationTypeEnum.NONE);
+    AuthenticationTypeEnum authenticationType = configManager.get(ConfigResource.DEFAULT).getEnum("restapi.auth", AuthenticationTypeEnum.NONE);
 
-    if (authenticationType == AuthenticationTypeEnum.NONE) {
-      // Attach the application without security
-      component.getDefaultHost().attach(application);
-      return;
-    }
-
-    MapVerifier mapVerifier = new MapVerifier();
-
-    String username = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.username", "admin");
-    String password = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.password", "nutch");
-
-    mapVerifier.getLocalSecrets().put(username, password.toCharArray());
-
-    if (authenticationType == AuthenticationTypeEnum.BASIC) {
-      ChallengeAuthenticator guard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC, "testRealm");
-
-      guard.setVerifier(mapVerifier);
-      guard.setNext(application);
-      // Attach the application with HTTP basic authentication security
-      component.getDefaultHost().attach(guard);
-      return;
-    }
-
-    if (authenticationType == AuthenticationTypeEnum.DIGEST) {
-      DigestAuthenticator guard = new DigestAuthenticator(null, "Nutch REST API Realm", "NutchSecretKey");
-
-      guard.setWrappedVerifier(mapVerifier);
-      guard.setNext(application);
-      // Attach the application with digest authentication security
-      component.getDefaultHost().attachDefault(guard);
+    switch (authenticationType) {
+      case NONE:
+        // Attach the application without security
+        component.getDefaultHost().attach(application);
+        break;
+      case BASIC:
+        ChallengeAuthenticator challengeGuard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC, "testRealm");
+        challengeGuard.setVerifier(retrieveServerCredentials());
+        challengeGuard.setNext(application);
+        // Attach the application with HTTP basic authentication security
+        component.getDefaultHost().attach(challengeGuard);
+        break;
+      case DIGEST:
+        DigestAuthenticator digestGuard = new DigestAuthenticator(null, "Nutch REST API Realm", "NutchSecretKey");
+        digestGuard.setWrappedVerifier(retrieveServerCredentials());
+        digestGuard.setNext(application);
+        // Attach the application with digest authentication security
+        component.getDefaultHost().attachDefault(digestGuard);
+        break;
+      default:
+        throw new IllegalStateException("Unsupported Server Security Type!");
     }
 
   }
@@ -325,5 +315,15 @@ public class NutchServer extends Application {
     OptionBuilder.withArgName("port number");
     options.addOption(OptionBuilder.create(CMD_PORT));
     return options;
+  }
+
+  private MapVerifier retrieveServerCredentials() {
+    MapVerifier mapVerifier = new MapVerifier();
+
+    String username = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.username", "admin");
+    String password = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.password", "nutch");
+    mapVerifier.getLocalSecrets().put(username, password.toCharArray());
+
+    return mapVerifier;
   }
 }
