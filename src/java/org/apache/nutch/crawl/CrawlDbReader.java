@@ -69,6 +69,7 @@ import org.apache.nutch.util.JexlUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.lang.time.DateUtils;
@@ -195,8 +196,14 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       output.collect(new Text("status " + value.getStatus()), COUNT_1);
       output
           .collect(new Text("retry " + value.getRetriesSinceFetch()), COUNT_1);
-      output.collect(new Text("s"), new LongWritable(
+      output.collect(new Text("sc"), new LongWritable(
           (long) (value.getScore() * 1000.0)));
+      // fetch time (in minutes to prevent from overflows when summing up)
+      output.collect(new Text("ft"),
+          new LongWritable(value.getFetchTime() / (1000 * 60)));
+      // fetch interval (in seconds)
+      output.collect(new Text("fi"),
+          new LongWritable(value.getFetchInterval()));
       if (sort) {
         URL u = new URL(key.toString());
         String host = u.getHost();
@@ -219,32 +226,38 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     public void close() {
     }
 
+    private void reduceMinMaxTotal(String keyPrefix, Iterator<LongWritable> values,
+        OutputCollector<Text, LongWritable> output, Reporter reporter)
+        throws IOException {
+      long total = 0;
+      long min = Long.MAX_VALUE;
+      long max = Long.MIN_VALUE;
+      while (values.hasNext()) {
+        LongWritable cnt = values.next();
+        if (cnt.get() < min)
+          min = cnt.get();
+        if (cnt.get() > max)
+          max = cnt.get();
+        total += cnt.get();
+      }
+      output.collect(new Text(keyPrefix+"n"), new LongWritable(min));
+      output.collect(new Text(keyPrefix+"x"), new LongWritable(max));
+      output.collect(new Text(keyPrefix+"t"), new LongWritable(total));
+    }
+    
     public void reduce(Text key, Iterator<LongWritable> values,
         OutputCollector<Text, LongWritable> output, Reporter reporter)
         throws IOException {
       val.set(0L);
       String k = key.toString();
-      if (!k.equals("s")) {
+      if (k.equals("sc") || k.equals("ft") || k.equals("fi")) {
+        reduceMinMaxTotal(k, values, output, reporter);
+      } else {
         while (values.hasNext()) {
           LongWritable cnt = values.next();
           val.set(val.get() + cnt.get());
         }
         output.collect(key, val);
-      } else {
-        long total = 0;
-        long min = Long.MAX_VALUE;
-        long max = Long.MIN_VALUE;
-        while (values.hasNext()) {
-          LongWritable cnt = values.next();
-          if (cnt.get() < min)
-            min = cnt.get();
-          if (cnt.get() > max)
-            max = cnt.get();
-          total += cnt.get();
-        }
-        output.collect(new Text("scn"), new LongWritable(min));
-        output.collect(new Text("scx"), new LongWritable(max));
-        output.collect(new Text("sct"), new LongWritable(total));
       }
     }
   }
@@ -277,7 +290,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           cnt.set(cnt.get() + val.get());
         }
         output.collect(key, cnt);
-      } else if (k.equals("scx")) {
+      } else if (k.equals("scx") || k.equals("ftx") || k.equals("fix")) {
         LongWritable cnt = new LongWritable(Long.MIN_VALUE);
         while (values.hasNext()) {
           LongWritable val = values.next();
@@ -285,7 +298,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
             cnt.set(val.get());
         }
         output.collect(key, cnt);
-      } else if (k.equals("scn")) {
+      } else if (k.equals("scn") || k.equals("ftn") || k.equals("fin")) {
         LongWritable cnt = new LongWritable(Long.MAX_VALUE);
         while (values.hasNext()) {
           LongWritable val = values.next();
@@ -293,7 +306,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
             cnt.set(val.get());
         }
         output.collect(key, cnt);
-      } else if (k.equals("sct")) {
+      } else if (k.equals("sct") || k.equals("ftt") || k.equals("fit")) {
         LongWritable cnt = new LongWritable();
         while (values.hasNext()) {
           LongWritable val = values.next();
@@ -393,16 +406,16 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 			  LongWritable val = stats.get(k);
 			  if (val == null) {
 				  val = new LongWritable();
-				  if (k.equals("scx"))
+				  if (k.equals("scx") || k.equals("ftx") || k.equals("fix"))
 					  val.set(Long.MIN_VALUE);
-				  if (k.equals("scn"))
+				  if (k.equals("scn") || k.equals("ftn") || k.equals("fin"))
 					  val.set(Long.MAX_VALUE);
 				  stats.put(k, val);
 			  }
-			  if (k.equals("scx")) {
+			  if (k.equals("scx") || k.equals("ftx") || k.equals("fix")) {
 				  if (val.get() < value.get())
 					  val.set(value.get());
-			  } else if (k.equals("scn")) {
+			  } else if (k.equals("scn") || k.equals("ftn") || k.equals("fin")) {
 				  if (val.get() > value.get())
 					  val.set(value.get());
 			  } else {
@@ -439,6 +452,22 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         } else if (k.equals("sct")) {
           LOG.info("avg score:\t"
               + (float) ((((double) val.get()) / totalCnt.get()) / 1000.0));
+        } else if (k.equals("ftn")) {
+          LOG.info("earliest fetch time:\t" + new Date(1000 * 60 * val.get()));
+        } else if (k.equals("ftx")) {
+          LOG.info("latest fetch time:\t" + new Date(1000 * 60 * val.get()));
+        } else if (k.equals("ftt")) {
+          LOG.info("avg of fetch times:\t"
+              + new Date(1000 * 60 * (val.get() / totalCnt.get())));
+        } else if (k.equals("fin")) {
+          LOG.info("shortest fetch interval:\t{}",
+              TimingUtil.secondsToDaysHMS(val.get()));
+        } else if (k.equals("fix")) {
+          LOG.info("longest fetch interval:\t{}",
+              TimingUtil.secondsToDaysHMS(val.get()));
+        } else if (k.equals("fit")) {
+          LOG.info("avg fetch interval:\t{}",
+              TimingUtil.secondsToDaysHMS(val.get() / totalCnt.get()));
         } else if (k.startsWith("status")) {
           String[] st = k.split(" ");
           int code = Integer.parseInt(st[1]);
@@ -732,11 +761,12 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     return 0;
   }
   
-    public static void main(String[] args) throws Exception {
-        int result = ToolRunner.run(NutchConfiguration.create(),
-                new CrawlDbReader(), args);
-        System.exit(result);
-        }
+  public static void main(String[] args) throws Exception {
+    int result = ToolRunner.run(NutchConfiguration.create(),
+        new CrawlDbReader(), args);
+    System.exit(result);
+  }
+
   public Object query(Map<String, String> args, Configuration conf, String type, String crawlId) throws Exception {
  
 
@@ -759,7 +789,6 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         String k = entry.getKey();
         LongWritable val = entry.getValue();
         if (k.equals("scn")) {
-
           results.put("minScore", String.valueOf((val.get() / 1000.0f)));
         } else if (k.equals("scx")) {
           results.put("maxScore", String.valueOf((val.get() / 1000.0f)));
@@ -854,5 +883,5 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       return results;
     }
     return results;
-    }
+  }
 }
