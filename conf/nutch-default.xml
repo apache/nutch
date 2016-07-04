@@ -1450,14 +1450,16 @@
   <value>login</value>
   <description>
     Username for HTTP basic authentication. restapi.auth should be true to use this property.
+    "login" is used for username as default.
   </description>
 </property>
 
 <property>
   <name>restapi.auth.password</name>
-  <value>secret1</value>
+  <value>secret</value>
   <description>
     Password for HTTP basic authentication. restapi.auth should be true to use this property.
+    "secret" is used for password as default.
   </description>
 </property>
 
