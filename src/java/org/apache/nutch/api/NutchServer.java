@@ -43,12 +43,17 @@ import org.apache.nutch.api.resources.ConfigResource;
 import org.apache.nutch.api.resources.DbResource;
 import org.apache.nutch.api.resources.JobResource;
 import org.apache.nutch.api.resources.SeedResource;
+import org.apache.nutch.api.security.AuthenticationTypeEnum;
 import org.restlet.Component;
 import org.restlet.Context;
+import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
 import org.restlet.ext.jaxrs.JaxRsApplication;
 import org.restlet.resource.ClientResource;
+import org.restlet.security.ChallengeAuthenticator;
+import org.restlet.ext.crypto.DigestAuthenticator;
+import org.restlet.security.MapVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +90,12 @@ public class NutchServer extends Application {
    * well as the logging granularity. If the latter option is not provided via
    * {@link org.apache.nutch.api.NutchServer#main(String[])} then it defaults to
    * 'INFO' however best attempts should always be made to specify a logging
-   * level.
+   * level.<br>
+   * {@link org.apache.nutch.api.NutchServer} can be run as secure. restapi.auth property
+   * should be set to BASIC or DIGEST at <code>nutch-site.xml</code> to enable HTTP basic authentication
+   * or digest authentication when communicating with RESTAPI.
+   * Use restapi.auth.username and restapi.auth.auth.password properties at <code>nutch-site.xml</code> to configure
+   * credentials when security is enabled with restapi.auth property.
    */
   public NutchServer() {
     configManager = new RAMConfManager();
@@ -108,8 +118,41 @@ public class NutchServer extends Application {
     application.setStatusService(new ErrorStatusService());
     childContext.getAttributes().put(NUTCH_SERVER, this);
 
-    // Attach the application.
-    component.getDefaultHost().attach(application);
+    AuthenticationTypeEnum authenticationType = configManager.get(ConfigResource.DEFAULT)
+            .getEnum("restapi.auth", AuthenticationTypeEnum.NONE);
+
+    if (authenticationType == AuthenticationTypeEnum.NONE) {
+      // Attach the application without security
+      component.getDefaultHost().attach(application);
+      return;
+    }
+
+    MapVerifier mapVerifier = new MapVerifier();
+
+    String username = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.username", "admin");
+    String password = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.password", "nutch");
+
+    mapVerifier.getLocalSecrets().put(username, password.toCharArray());
+
+    if (authenticationType == AuthenticationTypeEnum.BASIC) {
+      ChallengeAuthenticator guard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC, "testRealm");
+
+      guard.setVerifier(mapVerifier);
+      guard.setNext(application);
+      // Attach the application with HTTP basic authentication security
+      component.getDefaultHost().attach(guard);
+      return;
+    }
+
+    if (authenticationType == AuthenticationTypeEnum.DIGEST) {
+      DigestAuthenticator guard = new DigestAuthenticator(null, "Nutch REST API Realm", "NutchSecretKey");
+
+      guard.setWrappedVerifier(mapVerifier);
+      guard.setNext(application);
+      // Attach the application with digest authentication security
+      component.getDefaultHost().attachDefault(guard);
+    }
+
   }
 
   @Override

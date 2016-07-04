@@ -1435,4 +1435,33 @@
   </description>
 </property>
 
+<property>
+  <name>restapi.auth</name>
+  <value>NONE</value>
+  <description>
+    Configures authentication type for communicating with RESTAPI. Valid values are BASIC, DIGEST and NONE.
+    When no authentication type is defined NONE will be used as default which does not provide security.
+    Use the restapi.auth.username and restapi.auth.auth.password properties to configure
+    your credentials if security is used.
+  </description>
+</property>
+
+<property>
+  <name>restapi.auth.username</name>
+  <value>admin</value>
+  <description>
+    Username for REST API authentication. restapi.auth property should be set to a valid authentication type use this property.
+    "nutch" is used for username as default.
+  </description>
+</property>
+
+<property>
+  <name>restapi.auth.password</name>
+  <value>nutch</value>
+  <description>
+    Password for REST API authentication. restapi.auth property should be set to a valid authentication type use this property.
+    "nutch" is used for password as default.
+  </description>
+</property>
+
 </configuration>
