@@ -76,10 +76,9 @@
     <dependency org="com.google.guava" name="guava" rev="11.0.2" />
     <dependency org="com.google.code.crawler-commons" name="crawler-commons" rev="0.5" />
     
-    <dependency org="org.restlet.jse" name="org.restlet" rev="2.3.7" conf="*->default" />
-    <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.3.7" conf="*->default" />
-    <dependency org="org.restlet.jse" name="org.restlet.ext.jaxrs" rev="2.3.7" conf="*->default" />
-    <dependency org="org.restlet.jee" name="org.restlet.ext.crypto" rev="2.3.7" conf="*->default" />
+    <dependency org="org.restlet.jse" name="org.restlet" rev="2.2.3" conf="*->default" />
+    <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.2.3" conf="*->default" />
+    <dependency org="org.restlet.jse" name="org.restlet.ext.jaxrs" rev="2.2.3" conf="*->default" />
 
     <!--artifacts needed for testing -->
     <dependency org="junit" name="junit" rev="4.11" conf="*->default" />
