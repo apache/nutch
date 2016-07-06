@@ -1435,4 +1435,32 @@
   </description>
 </property>
 
+<property>
+  <name>restapi.auth</name>
+  <value>false</value>
+  <description>
+    Whether to enable HTTP basic authentication for communicating with RESTAPI.
+    Use the restapi.auth.username and restapi.auth.password properties to configure
+    your credentials.
+  </description>
+</property>
+
+<property>
+  <name>restapi.auth.username</name>
+  <value>login</value>
+  <description>
+    Username for HTTP basic authentication. restapi.auth should be true to use this property.
+    "login" is used for username as default.
+  </description>
+</property>
+
+<property>
+  <name>restapi.auth.password</name>
+  <value>secret</value>
+  <description>
+    Password for HTTP basic authentication. restapi.auth should be true to use this property.
+    "secret" is used for password as default.
+  </description>
+</property>
+
 </configuration>
