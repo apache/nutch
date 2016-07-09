@@ -1437,29 +1437,57 @@
 
 <property>
   <name>restapi.auth</name>
-  <value>false</value>
+  <value>NONE</value>
   <description>
-    Whether to enable HTTP basic authentication for communicating with RESTAPI.
-    Use the restapi.auth.username and restapi.auth.password properties to configure
-    your credentials.
+    Configures authentication type for communicating with RESTAPI. Valid values are BASIC, DIGEST, SSL and NONE.
+    When no authentication type is defined NONE will be used as default which does not provide security.
+    Use the restapi.auth.username and restapi.auth.auth.password properties to configure
+    your credentials if security is used.
   </description>
 </property>
 
 <property>
   <name>restapi.auth.username</name>
-  <value>login</value>
+  <value>admin</value>
   <description>
-    Username for HTTP basic authentication. restapi.auth should be true to use this property.
-    "login" is used for username as default.
+    Username for REST API authentication. restapi.auth property should be set to either BASIC or DIGEST to use this property.
+    "nutch" is used for username as default.
   </description>
 </property>
 
 <property>
   <name>restapi.auth.password</name>
-  <value>secret</value>
+  <value>nutch</value>
   <description>
-    Password for HTTP basic authentication. restapi.auth should be true to use this property.
-    "secret" is used for password as default.
+    Password for REST API authentication. restapi.auth property should be set to either BASIC or DIGEST to use this property.
+    "nutch" is used for password as default.
+  </description>
+</property>
+
+<property>
+  <name>restapi.auth.ssl.storepath</name>
+  <value>etc/nutch-ssl.keystore.jks</value>
+  <description>
+    Key store path for jks file. restapi.auth property should be set to SSL to use this property.
+    etc/nutch-ssl.keystore.jks is used for restapi.auth.ssl.storepath as default.
+  </description>
+</property>
+
+<property>
+  <name>restapi.auth.ssl.storepass</name>
+  <value>password</value>
+  <description>
+    Key store path for jks file. restapi.auth property should be set to SSL to use this property.
+    "password" is used for restapi.auth.ssl.storepass as default.
+  </description>
+</property>
+
+<property>
+  <name>restapi.auth.ssl.keypass</name>
+  <value>password</value>
+  <description>
+    Key store path for jks file. restapi.auth property should be set to SSL to use this property.
+    "password" is used for restapi.auth.ssl.keypass as default.
   </description>
 </property>
 
