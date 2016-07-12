@@ -31,9 +31,12 @@ import java.util.Set;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -115,6 +118,11 @@ public class HttpFormAuthentication {
       // Entity enclosing requests cannot be redirected without user
       // intervention
       setLoginHeader(post);
+      
+      // NUTCH-2280
+      LOGGER.debug("FormAuth: set cookie policy");
+      this.setCookieParams(authConfigurer, post.getParams());
+            
       post.addParameters(params.toArray(new NameValuePair[0]));
       int rspCode = client.executeMethod(post);
       if (LOGGER.isDebugEnabled()) {
@@ -134,6 +142,26 @@ public class HttpFormAuthentication {
         post.releaseConnection();
       }
     }
+  }
+  
+  /**
+   * @throws NoSuchFieldException
+   * @throws SecurityException
+   * @throws IllegalArgumentException
+   * @throws IllegalAccessException
+   */
+  private void setCookieParams(HttpFormAuthConfigurer formConfigurer,
+		  HttpMethodParams params)
+  		throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+  	// NUTCH-2280 - set the HttpClient cookie policy
+        if (formConfigurer.getCookiePolicy() != null) {
+      	  String policy = formConfigurer.getCookiePolicy();
+      	  Object p = FieldUtils.readDeclaredStaticField(CookiePolicy.class, policy);
+      	  if(null != p) {
+      		  LOGGER.debug("reflection of cookie value: " + p.toString());
+      		  params.setParameter(HttpMethodParams.COOKIE_POLICY, p);
+      	  }
+        }
   }
 
   private void setLoginHeader(PostMethod post) {
