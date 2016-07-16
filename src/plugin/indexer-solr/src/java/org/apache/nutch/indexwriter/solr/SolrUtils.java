@@ -22,7 +22,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.http.impl.client.SystemDefaultHttpClient;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -32,7 +31,6 @@ import java.net.MalformedURLException;
 public class SolrUtils {
 
   public static Logger LOG = LoggerFactory.getLogger(SolrUtils.class);
-  private static HttpClient HTTP_CLIENT = new SystemDefaultHttpClient();
 
   /**
    *
@@ -53,7 +51,7 @@ public class SolrUtils {
       }
     } else {
       for (int i = 0; i < urls.length; i++) {
-        SolrClient sc = new HttpSolrClient(urls[i], HTTP_CLIENT);
+        SolrClient sc = new HttpSolrClient(urls[i]);
         solrClients.add(sc);
       }
     }
@@ -62,14 +60,14 @@ public class SolrUtils {
   }
 
   public static CloudSolrClient getCloudSolrClient(String url) throws MalformedURLException {
-    CloudSolrClient sc = new CloudSolrClient(url.replace('|', ','), HTTP_CLIENT);
+    CloudSolrClient sc = new CloudSolrClient(url.replace('|', ','));
     sc.setParallelUpdates(true);
     sc.connect();
     return sc;
   }
 
   public static SolrClient getHttpSolrClient(String url) throws MalformedURLException {
-    SolrClient sc =new HttpSolrClient(url, HTTP_CLIENT);
+    SolrClient sc =new HttpSolrClient(url);
     return sc;
   }
   
