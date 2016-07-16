@@ -1,0 +1,164 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.nutch</groupId>
+        <artifactId>nutch-parent</artifactId>
+        <version>1.13-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>nutch-plugins</artifactId>
+    <packaging>pom</packaging>
+
+    <name>nutch-plugins</name>
+    <url>http://nutch.apache.org</url>
+
+    <modules>
+        <!--<module>indexer-solr</module>-->
+        <module>creativecommons</module>
+        <module>feed</module>
+        <module>headings</module>
+        <module>index-anchor</module>
+        <module>index-basic</module>
+        <module>index-geoip</module>
+        <module>index-links</module>
+        <module>index-metadata</module>
+        <module>index-more</module>
+        <module>index-replace</module>
+        <module>index-static</module>
+        <module>indexer-cloudsearch</module>
+        <module>indexer-dummy</module>
+        <module>indexer-elastic</module>
+        <module>indexer-solr</module>
+        <module>language-identifier</module>
+        <module>lib-htmlunit</module>
+        <module>lib-http</module>
+        <module>lib-nekohtml</module>
+        <module>lib-regex-filter</module>
+        <module>lib-selenium</module>
+        <module>lib-xml</module>
+        <module>microformats-reltag</module>
+        <module>mimetype-filter</module>
+        <module>nutch-extensionpoints</module>
+        <module>parse-ext</module>
+        <module>parse-html</module>
+        <module>parse-js</module>
+        <module>parse-metatags</module>
+        <module>parse-replace</module>
+        <module>parse-swf</module>
+        <module>parse-tika</module>
+        <module>parse-zip</module>
+        <module>parsefilter-naivebayes</module>
+        <module>parsefilter-regex</module>
+        <module>plugin</module>
+        <module>protocol-file</module>
+        <module>protocol-ftp</module>
+        <module>protocol-htmlunit</module>
+        <module>protocol-http</module>
+        <module>protocol-httpclient</module>
+        <module>protocol-interactiveselenium</module>
+        <module>protocol-selenium</module>
+        <module>scoring-depth</module>
+        <module>scoring-link</module>
+        <module>scoring-opic</module>
+        <module>scoring-similarity</module>
+        <module>subcollection</module>
+        <module>tld</module>
+        <module>urlfilter-automaton</module>
+        <module>urlfilter-domain</module>
+        <module>urlfilter-domainblacklist</module>
+        <module>urlfilter-ignoreexempt</module>
+        <module>urlfilter-prefix</module>
+        <module>urlfilter-regex</module>
+        <module>urlfilter-suffix</module>
+        <module>urlfilter-validator</module>
+        <module>urlmeta</module>
+        <module>urlnormalizer-ajax</module>
+        <module>urlnormalizer-basic</module>
+        <module>urlnormalizer-host</module>
+        <module>urlnormalizer-pass</module>
+        <module>urlnormalizer-protocol</module>
+        <module>urlnormalizer-querystring</module>
+        <module>urlnormalizer-regex</module>
+        <module>urlnormalizer-slash</module>
+    </modules>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Note : an additional level is for the child modules (defined ahead in hierarchy)-->
+        <dir.root>..${file.separator}..${file.separator}</dir.root>
+        <libs.dir>${dir.local.plugins}${file.separator}${project.artifactId}</libs.dir>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.nutch</groupId>
+            <artifactId>nutch-core</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.nutch</groupId>
+            <artifactId>nutch-core</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${libs.dir}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}</directory>
+                                    <include>${build.finalName}.jar</include>
+                                </resource>
+                                <resource>
+                                    <directory>${project.basedir}</directory>
+                                    <include>plugin.xml</include>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.19.1</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
