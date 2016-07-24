@@ -31,9 +31,12 @@ import java.util.Set;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -48,8 +51,7 @@ public class HttpFormAuthentication {
 
   static {
     defaultLoginHeaders.put("User-Agent", "Mozilla/5.0");
-    defaultLoginHeaders
-    .put("Accept",
+    defaultLoginHeaders.put("Accept",
         "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
     defaultLoginHeaders.put("Accept-Language", "en-US,en;q=0.5");
     defaultLoginHeaders.put("Connection", "keep-alive");
@@ -76,15 +78,12 @@ public class HttpFormAuthentication {
       Set<String> removedFormFields) {
     this.authConfigurer.setLoginUrl(loginUrl);
     this.authConfigurer.setLoginFormId(loginForm);
-    this.authConfigurer
-    .setLoginPostData(loginPostData == null ? new HashMap<String, String>()
-        : loginPostData);
-    this.authConfigurer
-    .setAdditionalPostHeaders(additionalPostHeaders == null ? new HashMap<String, String>()
-        : additionalPostHeaders);
-    this.authConfigurer
-    .setRemovedFormFields(removedFormFields == null ? new HashSet<String>()
-        : removedFormFields);
+    this.authConfigurer.setLoginPostData(
+        loginPostData == null ? new HashMap<String, String>() : loginPostData);
+    this.authConfigurer.setAdditionalPostHeaders(additionalPostHeaders == null
+        ? new HashMap<String, String>() : additionalPostHeaders);
+    this.authConfigurer.setRemovedFormFields(
+        removedFormFields == null ? new HashSet<String>() : removedFormFields);
     this.client = new HttpClient();
   }
 
@@ -115,6 +114,11 @@ public class HttpFormAuthentication {
       // Entity enclosing requests cannot be redirected without user
       // intervention
       setLoginHeader(post);
+
+      // NUTCH-2280
+      LOGGER.debug("FormAuth: set cookie policy");
+      this.setCookieParams(authConfigurer, post.getParams());
+
       post.addParameters(params.toArray(new NameValuePair[0]));
       int rspCode = client.executeMethod(post);
       if (LOGGER.isDebugEnabled()) {
@@ -132,6 +136,35 @@ public class HttpFormAuthentication {
     } finally {
       if (post != null) {
         post.releaseConnection();
+      }
+    }
+  }
+
+  /**
+   * NUTCH-2280 Set the cookie policy value from httpclient-auth.xml for the
+   * Post httpClient action.
+   * 
+   * @param fromConfigurer
+   *          - the httpclient-auth.xml values
+   * 
+   * @param params
+   *          - the HttpMethodParams from the current httpclient instance
+   * 
+   * @throws NoSuchFieldException
+   * @throws SecurityException
+   * @throws IllegalArgumentException
+   * @throws IllegalAccessException
+   */
+  private void setCookieParams(HttpFormAuthConfigurer formConfigurer,
+      HttpMethodParams params) throws NoSuchFieldException, SecurityException,
+      IllegalArgumentException, IllegalAccessException {
+    // NUTCH-2280 - set the HttpClient cookie policy
+    if (formConfigurer.getCookiePolicy() != null) {
+      String policy = formConfigurer.getCookiePolicy();
+      Object p = FieldUtils.readDeclaredStaticField(CookiePolicy.class, policy);
+      if (null != p) {
+        LOGGER.debug("reflection of cookie value: " + p.toString());
+        params.setParameter(HttpMethodParams.COOKIE_POLICY, p);
       }
     }
   }
@@ -176,12 +209,13 @@ public class HttpFormAuthentication {
     if (loginform == null) {
       LOGGER.debug("No form element found with 'id' = {}, trying 'name'.",
           authConfigurer.getLoginFormId());
-      loginform = doc.select("form[name="+ authConfigurer.getLoginFormId() + "]").first();
+      loginform = doc
+          .select("form[name=" + authConfigurer.getLoginFormId() + "]").first();
       if (loginform == null) {
         LOGGER.debug("No form element found with 'name' = {}",
             authConfigurer.getLoginFormId());
-        throw new IllegalArgumentException("No form exists: "
-            + authConfigurer.getLoginFormId());
+        throw new IllegalArgumentException(
+            "No form exists: " + authConfigurer.getLoginFormId());
       }
     }
     Elements inputElements = loginform.getElementsByTag("input");
