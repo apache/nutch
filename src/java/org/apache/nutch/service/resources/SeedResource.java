@@ -24,8 +24,10 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -35,6 +37,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.service.model.request.SeedList;
 import org.apache.nutch.service.model.request.SeedUrl;
 import org.slf4j.Logger;
@@ -47,6 +50,23 @@ public class SeedResource extends AbstractResource {
   private static final Logger log = LoggerFactory
       .getLogger(AdminResource.class);
 
+  /**
+   * Gets the list of seedFiles already created 
+   * @return
+   */
+  @GET
+  @Path("/")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getSeedLists() {
+    Map<String, SeedList> seeds = NutchServer.getInstance().getSeedManager().getSeeds();
+    if(seeds!=null) {
+      return Response.ok(seeds).build();
+    }
+    else {
+      return Response.ok().build();
+    }
+  }
+  
   /**
    * Method creates seed list file and returns temporary directory path
    * @param seedList
@@ -70,8 +90,11 @@ public class SeedResource extends AbstractResource {
         writeUrl(writer, seedUrl);
       }
     }
-
-    return Response.ok().entity(seedFile.getParent()).build();
+    String seedFilePath = seedFile.getParent();
+    seedList.setSeedFilePath(seedFilePath);
+    NutchServer.getInstance().getSeedManager().
+          setSeedList(seedList.getName(), seedList);
+    return Response.ok().entity(seedFilePath).build();
   }
 
   private void writeUrl(BufferedWriter writer, SeedUrl seedUrl) {

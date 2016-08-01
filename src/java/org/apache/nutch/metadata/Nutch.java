@@ -84,6 +84,8 @@ public interface Nutch {
 	public static final String CRAWL_ID_KEY = "storage.crawl.id";
 	/** Argument key to specify location of the seed url dir for the REST endpoints **/
 	public static final String ARG_SEEDDIR = "url_dir";
+	/** Argument key to specify name of a seed list for the REST endpoints **/
+	public static final String ARG_SEEDNAME = "seedName";
 	/** Argument key to specify the location of crawldb for the REST endpoints **/
 	public static final String ARG_CRAWLDB = "crawldb";
 	/** Argument key to specify the location of linkdb for the REST endpoints **/

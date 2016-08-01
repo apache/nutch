@@ -29,6 +29,8 @@ public class SeedList implements Serializable {
   private Long id;
 
   private String name;
+  private String seedFilePath;
+
 
   @JsonManagedReference
   private Collection<SeedUrl> seedUrls;
@@ -55,6 +57,14 @@ public class SeedList implements Serializable {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getSeedFilePath() {
+    return seedFilePath;
+  }
+
+  public void setSeedFilePath(String seedFilePath) {
+    this.seedFilePath = seedFilePath;
   }
 
   @JsonIgnore

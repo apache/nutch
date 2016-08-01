@@ -41,6 +41,7 @@ import org.apache.nutch.fetcher.FetchNodeDb;
 import org.apache.nutch.service.impl.ConfManagerImpl;
 import org.apache.nutch.service.impl.JobFactory;
 import org.apache.nutch.service.impl.JobManagerImpl;
+import org.apache.nutch.service.impl.SeedManagerImpl;
 import org.apache.nutch.service.impl.NutchServerPoolExecutor;
 import org.apache.nutch.service.model.response.JobInfo;
 import org.apache.nutch.service.model.response.JobInfo.State;
@@ -74,6 +75,7 @@ public class NutchServer {
   private boolean running;
   private ConfManager configManager;
   private JobManager jobManager;
+  private SeedManager seedManager;
   private JAXRSServerFactoryBean sf; 
 
   private static FetchNodeDb fetchNodeDb;
@@ -86,6 +88,7 @@ public class NutchServer {
 
   private NutchServer() {
     configManager = new ConfManagerImpl();
+    seedManager = new SeedManagerImpl();
     BlockingQueue<Runnable> runnables = Queues.newArrayBlockingQueue(JOB_CAPACITY);
     NutchServerPoolExecutor executor = new NutchServerPoolExecutor(10, JOB_CAPACITY, 1, TimeUnit.HOURS, runnables);
     jobManager = new JobManagerImpl(new JobFactory(), configManager, executor);
@@ -148,6 +151,10 @@ public class NutchServer {
 
   public JobManager getJobManager() {
     return jobManager;
+  }
+  
+  public SeedManager getSeedManager() {
+    return seedManager;
   }
 
   public FetchNodeDb getFetchNodeDb(){
