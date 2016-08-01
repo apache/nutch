@@ -41,6 +41,7 @@ import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.LockUtil;
+import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
@@ -477,11 +478,28 @@ public class Injector extends NutchTool implements Tool {
    */
   public Map<String, Object> run(Map<String, Object> args, String crawlId)
       throws Exception {
-    if (args.size() < 1) {
-      throw new IllegalArgumentException("Required arguments <url_dir>");
+    if(args.size()<1){
+      throw new IllegalArgumentException("Required arguments <url_dir> or <seedName>");
+    }
+    Path input;
+    Object path = null;
+    if(args.containsKey(Nutch.ARG_SEEDDIR)) {
+      path = args.get(Nutch.ARG_SEEDDIR);
+    }
+    else if(args.containsKey(Nutch.ARG_SEEDNAME)) {
+      path = NutchServer.getInstance().getSeedManager().
+          getSeedList((String)args.get(Nutch.ARG_SEEDNAME)).getSeedFilePath();
+    }
+    else {
+      throw new IllegalArgumentException("Required arguments <url_dir> or <seedName>");
+    }
+    if(path instanceof Path) {
+      input = (Path) path;
+    }
+    else {
+      input = new Path(path.toString());
     }
     Map<String, Object> results = new HashMap<String, Object>();
-
     Path crawlDb;
     if (args.containsKey(Nutch.ARG_CRAWLDB)) {
       Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
@@ -493,15 +511,6 @@ public class Injector extends NutchTool implements Tool {
     } else {
       crawlDb = new Path(crawlId + "/crawldb");
     }
-
-    Path input;
-    Object path = args.get(Nutch.ARG_SEEDDIR);
-    if (path instanceof Path) {
-      input = (Path) path;
-    } else {
-      input = new Path(path.toString());
-    }
-
     inject(crawlDb, input);
     results.put(Nutch.VAL_RESULT, Integer.toString(0));
     return results;

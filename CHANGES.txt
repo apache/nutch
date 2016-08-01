@@ -69,6 +69,7 @@ New Feature
 
 Task
 
+    [NUTCH-2246] - Refactor /seed endpoint for backward compatibility
     [NUTCH-2201] - Remove loops program from webgraph package
     [NUTCH-2211] - Filter and normalizer checkers missing in bin/nutch
     [NUTCH-2220] - Rename db.* options used only by the linkdb to linkdb.*
