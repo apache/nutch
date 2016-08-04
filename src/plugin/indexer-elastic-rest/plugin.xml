@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<plugin id="indexer-elastic-rest" name="ElasticRestIndexWriter" version="1.0.0"
+        provider-name="nutch.apache.org">
+
+    <runtime>
+        <library name="indexer-elastic-rest.jar">
+            <export name="*"/>
+        </library>
+
+        <library name="commons-codec-1.9.jar"/>
+        <library name="commons-lang3-3.4.jar"/>
+        <library name="commons-logging-1.2.jar"/>
+        <library name="gson-2.6.2.jar"/>
+        <library name="guava-19.0.jar"/>
+        <library name="httpasyncclient-4.1.1.jar"/>
+        <library name="httpclient-4.5.2.jar"/>
+        <library name="httpcore-4.4.4.jar"/>
+        <library name="httpcore-nio-4.4.4.jar"/>
+        <library name="jest-2.0.3.jar"/>
+        <library name="jest-common-2.0.3.jar"/>
+        <library name="slf4j-api-1.7.21.jar"/>
+
+    </runtime>
+
+    <requires>
+        <import plugin="nutch-extensionpoints"/>
+    </requires>
+
+    <extension id="org.apache.nutch.indexer.elasticrest"
+               name="Elasticsearch Rest Index Writer"
+               point="org.apache.nutch.indexer.IndexWriter">
+        <implementation id="ElasticRestIndexWriter"
+                        class="org.apache.nutch.indexwriter.elasticrest.ElasticRestIndexWriter"/>
+    </extension>
+
+</plugin>

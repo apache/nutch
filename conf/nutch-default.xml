@@ -1868,6 +1868,78 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   last operation.</description>
 </property>
 
+<!--elasticsearch rest properties-->
+<property>
+    <name>elastic.rest.host</name>
+    <value></value>
+    <description>The hostname to send documents to using Elasticsearch Jest. Both host
+        and port must be defined</description>
+</property>
+
+<property>
+    <name>elastic.rest.port</name>
+    <value></value>
+    <description>The port to connect to using Elasticsearch Jest.</description>
+</property>
+
+<property>
+    <name>elastic.rest.index</name>
+    <value>nutch</value>
+    <description>Default index to send documents to.</description>
+</property>
+
+<property>
+    <name>elastic.rest.type</name>
+    <value>doc</value>
+    <description>Default type to send documents to.</description>
+</property>
+
+<property>
+    <name>elastic.rest.max.bulk.docs</name>
+    <value>250</value>
+    <description>Maximum size of the bulk in number of documents.</description>
+</property>
+
+<property>
+    <name>elastic.rest.max.bulk.size</name>
+    <value>26214400</value>
+    <description>Maximum size of the bulk in bytes.</description>
+</property>
+
+<property>
+    <name>elastic.rest.https</name>
+    <value>false</value>
+    <description>
+        "true" to enable https, "false" to disable https
+        If you've disabled http access (by forcing https), be sure to
+        set this to true, otherwise you might get "connection reset by peer".
+    </description>
+</property>
+
+<property>
+    <name>elastic.rest.user</name>
+    <value></value>
+    <description>Username for auth credentials (only used when https is enabled)</description>
+</property>
+
+<property>
+    <name>elastic.rest.password</name>
+    <value></value>
+    <description>Password for auth credentials (only used when https is enabled)</description>
+</property>
+
+<property>
+    <name>elastic.rest.trustallhostnames</name>
+    <value>false</value>
+    <description>
+        "true" to trust elasticsearch server's certificate even if its listed domain name does not
+        match the domain they are hosted on
+        "false" to check if the elasticsearch server's certificate's listed domain is the same domain
+        that it is hosted on, and if it doesn't, then fail to index
+        (only used when https is enabled)
+    </description>
+</property>
+
 <!-- subcollection properties -->
 
 <property>
