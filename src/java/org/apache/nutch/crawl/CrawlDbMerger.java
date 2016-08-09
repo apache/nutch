@@ -147,8 +147,8 @@ public class CrawlDbMerger extends Configured implements Tool {
 
   public static JobConf createMergeJob(Configuration conf, Path output,
       boolean normalize, boolean filter) {
-    Path newCrawlDb = new Path("crawldb-merge-"
-        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+    Path newCrawlDb = new Path(output,
+        "merge-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(conf);
     job.setJobName("crawldb merge " + output);

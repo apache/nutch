@@ -243,8 +243,8 @@ public class LinkDb extends NutchTool implements Tool,
 
   private static JobConf createJob(Configuration config, Path linkDb,
       boolean normalize, boolean filter) {
-    Path newLinkDb = new Path("linkdb-"
-        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+    Path newLinkDb = new Path(linkDb,
+        Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
     job.setJobName("linkdb " + linkDb);

@@ -624,8 +624,8 @@ public class Generator extends NutchTool implements Tool {
 
     if (getConf().getBoolean(GENERATE_UPDATE_CRAWLDB, false)) {
       // update the db from tempDir
-      Path tempDir2 = new Path(getConf().get("mapred.temp.dir", ".")
-          + "/generate-temp-" + java.util.UUID.randomUUID().toString());
+      Path tempDir2 = new Path(dbDir,
+          "generate-temp-" + java.util.UUID.randomUUID().toString());
 
       job = new NutchJob(getConf());
       job.setJobName("generate: updatedb " + dbDir);
