@@ -209,10 +209,6 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
       feeder.setTimeLimit(timelimit);
     feeder.start();
 
-    // set non-blocking & no-robots mode for HTTP protocol plugins.
-    getConf().setBoolean(Protocol.CHECK_BLOCKING, false);
-    getConf().setBoolean(Protocol.CHECK_ROBOTS, false);
-
     for (int i = 0; i < threadCount; i++) { // spawn threads
       FetcherThread t = new FetcherThread(getConf(), getActiveThreads(), fetchQueues, 
           feeder, spinWaiting, lastRequestStart, reporter, errors, segmentName,
