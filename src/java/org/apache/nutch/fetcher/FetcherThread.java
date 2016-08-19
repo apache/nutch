@@ -264,12 +264,7 @@ public class FetcherThread extends Thread {
                 .toString());
             BaseRobotRules rules = protocol.getRobotRules(fit.url, fit.datum, robotsTxtContent);
             if (robotsTxtContent != null) {
-              for (Content robotsTxt : robotsTxtContent) {
-                LOG.debug("fetched and stored robots.txt {}",
-                    robotsTxt.getUrl());
-                output.collect(new Text(robotsTxt.getUrl()),
-                    new NutchWritable(robotsTxt));
-              }
+              outputRobotsTxt(robotsTxtContent);
               robotsTxtContent.clear();
             }
             if (!rules.isAllowed(fit.u.toString())) {
@@ -758,6 +753,19 @@ public class FetcherThread extends Thread {
     return null;
   }
   
+  private void outputRobotsTxt(List<Content> robotsTxtContent) {
+    for (Content robotsTxt : robotsTxtContent) {
+      LOG.debug("fetched and stored robots.txt {}",
+          robotsTxt.getUrl());
+      try {
+        output.collect(new Text(robotsTxt.getUrl()),
+            new NutchWritable(robotsTxt));
+      } catch (IOException e) {
+        LOG.error("fetcher caught: {}", e.toString());
+      }
+    }
+  }
+
   private void updateStatus(int bytesInPage) throws IOException {
     pages.incrementAndGet();
     bytes.addAndGet(bytesInPage);
