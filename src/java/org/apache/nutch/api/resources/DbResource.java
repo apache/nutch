@@ -23,20 +23,27 @@ import java.util.WeakHashMap;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 
 import org.apache.nutch.api.impl.db.DbReader;
 import org.apache.nutch.api.model.request.DbFilter;
 import org.apache.nutch.api.model.response.DbQueryResult;
+import org.apache.nutch.api.security.SecurityUtil;
 
 @Path("/db")
 public class DbResource extends AbstractResource {
 
   private Map<String, DbReader> readers = new WeakHashMap<String, DbReader>();
 
+  @Context
+  SecurityContext securityContext;
+
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   public DbQueryResult runQuery(DbFilter filter) {
+    SecurityUtil.allowOnlyAdmin(securityContext);
     if (filter == null) {
       throwBadRequestException("Filter cannot be null!");
     }

@@ -29,13 +29,16 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.SecurityContext;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.nutch.api.model.request.SeedList;
 import org.apache.nutch.api.model.request.SeedUrl;
+import org.apache.nutch.api.security.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,18 +46,21 @@ import com.google.common.io.Files;
 
 @Path("/seed")
 public class SeedResource extends AbstractResource {
-  private static final Logger log = LoggerFactory
-      .getLogger(AdminResource.class);
+  private static final Logger log = LoggerFactory.getLogger(SeedResource.class);
+
+  @Context
+  SecurityContext securityContext;
 
   @POST
   @Path("/create")
   @Consumes(MediaType.APPLICATION_JSON)
   /**
-   * Method creates seed list file and returns temorary directory path
+   * Method creates seed list file and returns temporary directory path
    * @param seedList
    * @return
    */
   public String createSeedFile(SeedList seedList) {
+    SecurityUtil.allowOnlyAdmin(securityContext);
     if (seedList == null) {
       throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
           .entity("Seed list cannot be empty!").build());

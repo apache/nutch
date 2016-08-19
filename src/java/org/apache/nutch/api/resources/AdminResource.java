@@ -22,12 +22,17 @@ import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
+
 
 import org.apache.nutch.api.model.response.NutchStatus;
 import org.apache.nutch.api.model.response.JobInfo.State;
+import org.apache.nutch.api.security.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +44,14 @@ public class AdminResource extends AbstractResource {
   private static final Logger LOG = LoggerFactory
       .getLogger(AdminResource.class);
 
+  @Context
+  SecurityContext securityContext;
+
   @GET
   @Path("/")
-  public NutchStatus getNutchStatus() {
+  public NutchStatus getNutchStatus(@Context HttpHeaders headers) {
+    SecurityUtil.allowOnlyAdmin(securityContext);
     NutchStatus status = new NutchStatus();
-
     status.setStartDate(new Date(server.getStarted()));
     status.setConfiguration(configManager.list());
     status.setJobs(jobManager.list(null, State.ANY));
@@ -56,6 +64,7 @@ public class AdminResource extends AbstractResource {
   @Path("/stop")
   @Produces(MediaType.TEXT_PLAIN)
   public String stop(@QueryParam("force") boolean force) {
+    SecurityUtil.allowOnlyAdmin(securityContext);
     if (!server.canStop(force)) {
       LOG.info("Command 'stop' denied due to unfinished jobs");
       return "Can't stop now. There are jobs running. Try force option.";
@@ -66,6 +75,7 @@ public class AdminResource extends AbstractResource {
   }
 
   private void scheduleServerStop() {
+    SecurityUtil.allowOnlyAdmin(securityContext);
     LOG.info("Server shutdown scheduled in {} seconds", DELAY_SEC);
     Thread thread = new Thread() {
       public void run() {

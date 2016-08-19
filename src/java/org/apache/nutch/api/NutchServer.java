@@ -44,6 +44,7 @@ import org.apache.nutch.api.resources.DbResource;
 import org.apache.nutch.api.resources.JobResource;
 import org.apache.nutch.api.resources.SeedResource;
 import org.apache.nutch.api.security.AuthenticationTypeEnum;
+import org.apache.nutch.api.security.SecurityUtil;
 import org.restlet.Component;
 import org.restlet.Context;
 import org.restlet.Server;
@@ -52,9 +53,10 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
 import org.restlet.ext.jaxrs.JaxRsApplication;
 import org.restlet.resource.ClientResource;
-import org.restlet.security.ChallengeAuthenticator;
 import org.restlet.ext.crypto.DigestAuthenticator;
-import org.restlet.security.MapVerifier;
+import org.restlet.security.ChallengeAuthenticator;
+import org.restlet.security.LocalVerifier;
+import org.restlet.security.MemoryRealm;
 import org.restlet.util.Series;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,6 +149,7 @@ public class NutchServer extends Application {
     application.add(this);
     application.setStatusService(new ErrorStatusService());
     childContext.getAttributes().put(NUTCH_SERVER, this);
+    application.setRoles(SecurityUtil.getRoles(application));
 
     switch (authenticationType) {
       case NONE:
@@ -155,19 +158,27 @@ public class NutchServer extends Application {
         break;
       case BASIC:
         ChallengeAuthenticator challengeGuard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC, "Nutch REST API Realm");
-        challengeGuard.setVerifier(retrieveServerCredentials());
+        //Create in-memory users with roles
+        MemoryRealm basicAuthRealm = SecurityUtil.constructRealm(application, configManager);
+        //Attach verifier to check authentication and enroler to determine roles
+        challengeGuard.setVerifier(basicAuthRealm.getVerifier());
+        challengeGuard.setEnroler(basicAuthRealm.getEnroler());
         challengeGuard.setNext(application);
         // Attach the application with HTTP basic authentication security
         component.getDefaultHost().attach(challengeGuard);
         break;
       case DIGEST:
         DigestAuthenticator digestGuard = new DigestAuthenticator(null, "Nutch REST API Realm", "NutchSecretKey");
-        digestGuard.setWrappedVerifier(retrieveServerCredentials());
+        //Create in-memory users with roles
+        MemoryRealm digestAuthRealm = SecurityUtil.constructRealm(application, configManager);
+        digestGuard.setWrappedVerifier((LocalVerifier) digestAuthRealm.getVerifier());
+        digestGuard.setEnroler(digestAuthRealm.getEnroler());
         digestGuard.setNext(application);
         // Attach the application with digest authentication security
         component.getDefaultHost().attachDefault(digestGuard);
         break;
       default:
+        LOG.error("Unsupported Server Security Type!");
         throw new IllegalStateException("Unsupported Server Security Type!");
     }
 
@@ -345,13 +356,4 @@ public class NutchServer extends Application {
     return options;
   }
 
-  private MapVerifier retrieveServerCredentials() {
-    MapVerifier mapVerifier = new MapVerifier();
-
-    String username = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.username", "admin");
-    String password = configManager.get(ConfigResource.DEFAULT).get("restapi.auth.password", "nutch");
-    mapVerifier.getLocalSecrets().put(username, password.toCharArray());
-
-    return mapVerifier;
-  }
 }

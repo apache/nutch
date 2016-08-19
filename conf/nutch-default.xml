@@ -1447,20 +1447,12 @@
 </property>
 
 <property>
-  <name>restapi.auth.username</name>
-  <value>admin</value>
+  <name>restapi.auth.users</name>
+  <value>admin|admin|admin,user|user|user</value>
   <description>
-    Username for REST API authentication. restapi.auth property should be set to either BASIC or DIGEST to use this property.
-    "admin" is used for username as default.
-  </description>
-</property>
-
-<property>
-  <name>restapi.auth.password</name>
-  <value>nutch</value>
-  <description>
-    Password for REST API authentication. restapi.auth property should be set to either BASIC or DIGEST to use this property.
-    "nutch" is used for password as default.
+    Username, password and role combination for REST API authentication/authorization. restapi.auth property should be set to either BASIC or DIGEST to use this property.
+    Username, password and role should be delimited by pipe character (|) Every user should be separated with comma character (,). i.e. admin|admin|admin,user|user|user.
+    Default is admin|admin|admin,user|user|user
   </description>
 </property>
 

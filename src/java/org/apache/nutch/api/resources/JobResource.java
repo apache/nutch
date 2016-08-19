@@ -25,14 +25,20 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 
 import org.apache.nutch.api.model.request.JobConfig;
 import org.apache.nutch.api.model.response.JobInfo;
 import org.apache.nutch.api.model.response.JobInfo.State;
+import org.apache.nutch.api.security.SecurityUtil;
 
 @Path(value = "/job")
 public class JobResource extends AbstractResource {
+
+  @Context
+  SecurityContext securityContext;
 
   @GET
   @Path(value = "/")
@@ -66,6 +72,7 @@ public class JobResource extends AbstractResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.TEXT_PLAIN)
   public String create(JobConfig config) {
+    SecurityUtil.allowOnlyAdmin(securityContext);
     if (config == null) {
       throwBadRequestException("Job configuration is required!");
     }
