@@ -192,7 +192,11 @@ public class FetcherThread extends Thread {
     outlinksDepthDivisor = conf.getInt(
         "fetcher.follow.outlinks.depth.divisor", 2);
     if (conf.getBoolean("fetcher.store.robotstxt", false)) {
-      robotsTxtContent = new LinkedList<Content>();
+      if (storingContent) {
+        robotsTxtContent = new LinkedList<Content>();
+      } else {
+        LOG.warn("Ignoring fetcher.store.robotstxt because not storing content (fetcher.store.content)!");
+      }
     }
   }
 
