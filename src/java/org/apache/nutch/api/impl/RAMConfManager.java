@@ -33,19 +33,44 @@ import org.apache.nutch.util.NutchConfiguration;
 
 import com.google.common.collect.Maps;
 
+/**
+ * Configuration manager which holds a map of {@link Configuration} type configurations and ids.
+ */
 public class RAMConfManager implements ConfManager {
   private Map<String, Configuration> configurations = Maps.newConcurrentMap();
 
   private AtomicInteger newConfigId = new AtomicInteger();
 
+  /**
+   * Public constructor which creates a default configuration with id of {@link ConfigResource#DEFAULT}.
+   */
   public RAMConfManager() {
     configurations.put(ConfigResource.DEFAULT, NutchConfiguration.create());
   }
 
+  /**
+   * Public constructor which accepts a configuration id and {@link Configuration} type configuration.
+   */
+  public RAMConfManager(String confId, Configuration configuration) {
+    configurations.put(confId, configuration);
+  }
+
+  /**
+   * Lists configuration keys.
+   *
+   * @return Set of configuration keys
+   */
   public Set<String> list() {
     return configurations.keySet();
   }
 
+  /**
+   * Returns configuration map for give configuration id.
+   *
+   * @param confId Configuration id.
+   * @return Configuration for given configuration id.
+   * {@link ConfigResource#DEFAULT} is used if given configuration id is null.
+   */
   public Configuration get(String confId) {
     if (confId == null) {
       return configurations.get(ConfigResource.DEFAULT);
@@ -53,6 +78,13 @@ public class RAMConfManager implements ConfManager {
     return configurations.get(confId);
   }
 
+  /**
+   * Returns configuration map for give configuration id.
+   * An empty map is returned if a configuration could not be retrieved for given configuration id.
+   *
+   * @param confId Configuration id
+   * @return map of configurations
+   */
   public Map<String, String> getAsMap(String confId) {
     Configuration configuration = configurations.get(confId);
     if (configuration == null) {
@@ -68,6 +100,13 @@ public class RAMConfManager implements ConfManager {
     return configMap;
   }
 
+  /**
+   * Sets a property for the configuration which has given configuration id.
+   *
+   * @param confId Configuration id
+   * @param propName property name to set
+   * @param propValue property value to set
+   */
   public void setProperty(String confId, String propName, String propValue) {
     if (!configurations.containsKey(confId)) {
       throw new IllegalArgumentException("Unknown configId '" + confId + "'");
@@ -76,10 +115,23 @@ public class RAMConfManager implements ConfManager {
     conf.set(propName, propValue);
   }
 
+  /**
+   * Deletes configuration for given configuration id.
+   *
+   * @param confId Configuration id
+   */
   public void delete(String confId) {
     configurations.remove(confId);
   }
 
+  /**
+   * Creates hadoop configuration for given Nutch configuration.
+   * Checks whether it can create a Nutch configuration or not before it creates.
+   * Throws {@link IllegalArgumentException} if can not pass {{@link #canCreate(NutchConfig)}}.
+   *
+   * @param nutchConfig Nutch configuration
+   * @return created configuration id
+   */
   @Override
   public String create(NutchConfig nutchConfig) {
     if (StringUtils.isBlank(nutchConfig.getConfigId())) {
@@ -94,6 +146,14 @@ public class RAMConfManager implements ConfManager {
     return nutchConfig.getConfigId();
   }
 
+  /**
+   * Checks can create a Nutch configuration or not.
+   *
+   * @param nutchConfig Nutch configuration
+   * @return True if forcing is enabled at Nutch configuration.
+   * Otherwise makes a check based on whether there is an existing configuration at configuration set
+   * with same configuration id of given Nutch configuration.
+   */
   private boolean canCreate(NutchConfig nutchConfig) {
     if (nutchConfig.isForce()) {
       return true;
@@ -104,6 +164,11 @@ public class RAMConfManager implements ConfManager {
     return false;
   }
 
+  /**
+   * Creates a Hadoop configuration from given Nutch configuration.
+   *
+   * @param nutchConfig Nutch configuration.
+   */
   private void createHadoopConfig(NutchConfig nutchConfig) {
     Configuration conf = NutchConfiguration.create();
     configurations.put(nutchConfig.getConfigId(), conf);
