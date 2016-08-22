@@ -982,6 +982,16 @@
    fetcher.bandwidth.target. Defaults to 30 and must be at least 1.</description>
 </property>
 
+<property>
+  <name>fetcher.store.robotstxt</name>
+  <value>false</value>
+  <description>If true (and fetcher.store.content is also true),
+  fetcher will store the robots.txt response content and status for
+  debugging or archival purposes. The robots.txt is added to the
+  content/ folder of the fetched segment.
+  </description>
+</property>
+
 <!-- moreindexingfilter plugin properties -->
 
 <property>

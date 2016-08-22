@@ -21,10 +21,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
-import java.util.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 // Logging imports
@@ -518,7 +519,6 @@ public abstract class HttpBase implements Protocol {
   }
 
   protected static void main(HttpBase http, String[] args) throws Exception {
-    boolean verbose = false;
     String url = null;
 
     String usage = "Usage: Http [-verbose] [-timeout N] url";
@@ -532,7 +532,6 @@ public abstract class HttpBase implements Protocol {
       if (args[i].equals("-timeout")) { // found -timeout option
         http.timeout = Integer.parseInt(args[++i]) * 1000;
       } else if (args[i].equals("-verbose")) { // found -verbose option
-        verbose = true;
       } else if (i != args.length - 1) {
         System.err.println(usage);
         System.exit(-1);
@@ -540,10 +539,6 @@ public abstract class HttpBase implements Protocol {
         // root is required parameter
         url = args[i];
     }
-
-    // if (verbose) {
-    // LOGGER.setLevel(Level.FINE);
-    // }
 
     ProtocolOutput out = http
         .getProtocolOutput(new Text(url), new CrawlDatum());
@@ -563,8 +558,10 @@ public abstract class HttpBase implements Protocol {
   protected abstract Response getResponse(URL url, CrawlDatum datum,
       boolean followRedirects) throws ProtocolException, IOException;
 
-  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
-    return robots.getRobotRulesSet(this, url);
+  @Override
+  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum,
+      List<Content> robotsTxtContent) {
+    return robots.getRobotRulesSet(this, url, robotsTxtContent);
   }
   
   /**
@@ -572,14 +569,14 @@ public abstract class HttpBase implements Protocol {
    * @param input String[]
    * @return a new HashMap
    */
-  private HashMap arrayToMap(String[]input){
-    if (input==null ||input.length==0) {
-      return new HashMap();
+  private HashMap<String, String> arrayToMap(String[] input) {
+    if (input == null || input.length == 0) {
+      return new HashMap<String, String>();
     }
-    HashMap hm=new HashMap();
-    for (int i=0;i<input.length;i++){
-      if (!"".equals(input[i].trim())){
-        hm.put(input[i],input[i]);
+    HashMap<String, String> hm = new HashMap<>();
+    for (int i = 0; i < input.length; i++) {
+      if (!"".equals(input[i].trim())) {
+        hm.put(input[i], input[i]);
       }
     }
     return hm;

@@ -17,6 +17,8 @@
 
 package org.apache.nutch.protocol;
 
+import java.util.List;
+
 // Hadoop imports
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.io.Text;
@@ -38,13 +40,21 @@ public interface Protocol extends Pluggable, Configurable {
   ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum);
 
   /**
-   * Retrieve robot rules applicable for this url.
-   * 
+   * Retrieve robot rules applicable for this URL.
+   *
    * @param url
-   *          url to check
+   *          URL to check
    * @param datum
    *          page datum
-   * @return robot rules (specific for this url or default), never null
+   * @param robotsTxtContent
+   *          container to store responses when fetching the robots.txt file for
+   *          debugging or archival purposes. Instead of a robots.txt file, it
+   *          may include redirects or an error page (404, etc.). Response
+   *          {@link Content} is appended to the passed list. If null is passed
+   *          nothing is stored.
+   * @return robot rules (specific for this URL or default), never null
    */
-  BaseRobotRules getRobotRules(Text url, CrawlDatum datum);
+  BaseRobotRules getRobotRules(Text url, CrawlDatum datum,
+      List<Content> robotsTxtContent);
+
 }

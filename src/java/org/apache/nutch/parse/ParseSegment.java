@@ -84,11 +84,14 @@ public class ParseSegment extends NutchTool implements Tool,
       key = newKey;
     }
 
-    int status = Integer.parseInt(content.getMetadata().get(
-        Nutch.FETCH_STATUS_KEY));
-    if (status != CrawlDatum.STATUS_FETCH_SUCCESS) {
+    String fetchStatus = content.getMetadata().get(Nutch.FETCH_STATUS_KEY);
+    if (fetchStatus == null) {
+      // no fetch status, skip document
+      LOG.debug("Skipping {} as content has no fetch status", key);
+      return;
+    } else if (Integer.parseInt(fetchStatus) != CrawlDatum.STATUS_FETCH_SUCCESS) {
       // content not fetched successfully, skip document
-      LOG.debug("Skipping " + key + " as content is not fetched successfully");
+      LOG.debug("Skipping {} as content is not fetched successfully", key);
       return;
     }
 
