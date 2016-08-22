@@ -573,7 +573,7 @@ public abstract class HttpBase implements Protocol {
     if (input == null || input.length == 0) {
       return new HashMap<String, String>();
     }
-    HashMap<String, String> hm = new HashMap<String, String>();
+    HashMap<String, String> hm = new HashMap<>();
     for (int i = 0; i < input.length; i++) {
       if (!"".equals(input[i].trim())) {
         hm.put(input[i], input[i]);
