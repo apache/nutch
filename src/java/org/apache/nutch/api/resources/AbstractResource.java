@@ -27,20 +27,34 @@ import org.apache.nutch.api.JobManager;
 import org.apache.nutch.api.NutchServer;
 import org.restlet.Context;
 
+/**
+ * Abstract base class for {@link NutchServer} REST APIs.
+ */
 @Produces({ MediaType.APPLICATION_JSON })
 public abstract class AbstractResource {
 
   protected ConfManager configManager;
   protected JobManager jobManager;
+  protected String activeConfId;
   protected NutchServer server;
 
+  /**
+   * Constructor method for {@link AbstractResource}
+   * Retrieves {@link org.apache.nutch.api.NutchServer} information from {@link org.restlet.Context}
+   */
   public AbstractResource() {
     server = (NutchServer) Context.getCurrent().getAttributes()
         .get(NutchServer.NUTCH_SERVER);
     configManager = server.getConfMgr();
     jobManager = server.getJobMgr();
+    activeConfId = server.getActiveConfId();
   }
 
+  /**
+   * Throws HTTP 400 Bad Request Exception with given message
+   *
+   * @param message message to be placed at exception
+   */
   protected void throwBadRequestException(String message) {
     throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
         .entity(message).build());
