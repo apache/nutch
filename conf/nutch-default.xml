@@ -624,6 +624,13 @@
   updatedb will generate identical fetchlists.</description>
 </property>
 
+<property>
+  <name>generate.min.score</name>
+  <value>0.0</value>
+  <description>Select only entries with a score larger than
+  generate.min.score.</description>
+</property>
+
 <!-- urlpartitioner properties -->
 <property>
   <name>partition.url.mode</name>

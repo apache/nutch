@@ -44,6 +44,7 @@ GoraMapper<String, WebPage, SelectorEntry, WebPage> {
   private long curTime;
   private SelectorEntry entry = new SelectorEntry();
   private int maxDistance;
+  private float scoreThreshold;
 
   @Override
   public void map(String reversedUrl, WebPage page, Context context)
@@ -101,6 +102,11 @@ GoraMapper<String, WebPage, SelectorEntry, WebPage> {
     } catch (ScoringFilterException e) {
       // ignore
     }
+
+    // consider only entries with a score superior to the threshold
+    if (scoreThreshold != Float.NaN && score < scoreThreshold)
+      return;
+
     entry.set(url, score);
     context.write(entry, page);
   }
@@ -123,5 +129,6 @@ GoraMapper<String, WebPage, SelectorEntry, WebPage> {
         System.currentTimeMillis());
     schedule = FetchScheduleFactory.getFetchSchedule(conf);
     scoringFilters = new ScoringFilters(conf);
+    scoreThreshold = conf.getFloat(GeneratorJob.GENERATOR_MIN_SCORE, Float.NaN);
   }
 }
