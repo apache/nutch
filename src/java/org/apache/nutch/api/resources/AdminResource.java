@@ -56,6 +56,7 @@ public class AdminResource extends AbstractResource {
     status.setConfiguration(configManager.list());
     status.setJobs(jobManager.list(null, State.ANY));
     status.setRunningJobs(jobManager.list(null, State.RUNNING));
+    status.setActiveConfId(activeConfId);
 
     return status;
   }

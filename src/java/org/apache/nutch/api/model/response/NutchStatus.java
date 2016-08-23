@@ -24,42 +24,107 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.nutch.api.model.response.JobInfo.State;
 
+/**
+ * Information object for status of {@link org.apache.nutch.api.NutchServer}.
+ * Gives information about when server is started, its configurations, jobs, running jobs
+ * and active configuration id.
+ *
+ * @see org.apache.nutch.api.NutchServer
+ */
 public class NutchStatus {
   private Date startDate;
   private Set<String> configuration;
   private Collection<JobInfo> jobs;
   private Collection<JobInfo> runningJobs;
+  private String activeConfId;
 
+  /**
+   * Gets start date of the {@link org.apache.nutch.api.NutchServer}
+   *
+   * @return start date of the server
+   */
   public Date getStartDate() {
     return startDate;
   }
 
+  /**
+   * Sets start date of the {@link org.apache.nutch.api.NutchServer}
+   *
+   * @param startDate start date
+   */
   public void setStartDate(Date startDate) {
     this.startDate = startDate;
   }
 
+  /**
+   * Gets configuration ids
+   *
+   * @return configuration ids
+   */
   public Set<String> getConfiguration() {
     return configuration;
   }
 
+  /**
+   * Sets configuration ids
+   *
+   * @param configuration configuration ids
+   */
   public void setConfiguration(Set<String> configuration) {
     this.configuration = configuration;
   }
 
+  /**
+   * Gets jobs
+   *
+   * @return jobs
+   */
   public Collection<JobInfo> getJobs() {
     return jobs;
   }
 
+  /**
+   * Sets jobs
+   * @param jobs jobs
+   */
   public void setJobs(Collection<JobInfo> jobs) {
     this.jobs = jobs;
   }
 
+  /**
+   * Gets running jobs
+   *
+   * @return running jobs
+   */
   public Collection<JobInfo> getRunningJobs() {
     return purgeFinishedFailedJobs(runningJobs);
   }
 
+  /**
+   * Sets running jobs
+   *
+   * @param runningJobs running jobs
+   */
   public void setRunningJobs(Collection<JobInfo> runningJobs) {
     this.runningJobs = runningJobs;
+  }
+
+  /**
+   * Gets active configuration id
+   *
+   * @return active configuration id
+   */
+  public String getActiveConfId() {
+    return activeConfId;
+  }
+
+  /**
+   * Sets active configuration id
+   *
+   * @param activeConfId active configuration id
+   */
+  public void setActiveConfId(String activeConfId) {
+    this.activeConfId = activeConfId;
   }
 
   private Collection<JobInfo> purgeFinishedFailedJobs(
