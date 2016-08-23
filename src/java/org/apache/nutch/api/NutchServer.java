@@ -85,6 +85,8 @@ public class NutchServer extends Application {
   private Component component;
   private ConfManager configManager;
   private JobManager jobMgr;
+  private String activeConfId;
+
   private long started;
 
   private boolean running;
@@ -105,7 +107,47 @@ public class NutchServer extends Application {
    * @see org.apache.nutch.api.security.AuthenticationTypeEnum
    */
   public NutchServer() {
-    configManager = new RAMConfManager();
+    this(new RAMConfManager());
+  }
+
+  /**
+   * Public constructor which accepts {@link RAMConfManager} RAM configuration manager and the port we wish to run the server on as
+   * well as the logging granularity. If the latter option is not provided via
+   * {@link org.apache.nutch.api.NutchServer#main(String[])} then it defaults to
+   * 'INFO' however best attempts should always be made to specify a logging
+   * level.&lt;br&gt;
+   * {@link org.apache.nutch.api.NutchServer} can be run as secure. restapi.auth property
+   * should be set to BASIC, DIGEST or SSL at &lt;code&gt;nutch-site.xml&lt;/code&gt; to enable HTTP basic authentication,
+   * digest authentication or SSL when communicating with RESTAPI.
+   * Set restapi.auth.username and restapi.auth.password properties at &lt;code&gt;nutch-site.xml&lt;/code&gt; to configure
+   * credentials when BASIC or DIGEST authentication is used.
+   * Set restapi.auth.ssl.storepath, restapi.auth.ssl.storepass and restapi.auth.ssl.keypass when SSL is used.
+   *
+   * @see org.apache.nutch.api.security.AuthenticationTypeEnum
+   */
+  public NutchServer(RAMConfManager ramConfManager) {
+    this(ramConfManager, ConfigResource.DEFAULT);
+  }
+
+  /**
+   * Public constructor which accepts {@link RAMConfManager} RAM configuration manager, a configuration id to use from
+   * RAM configuration manager and the port we wish to run the server on as
+   * well as the logging granularity. If the latter option is not provided via
+   * {@link org.apache.nutch.api.NutchServer#main(String[])} then it defaults to
+   * 'INFO' however best attempts should always be made to specify a logging
+   * level.&lt;br&gt;
+   * {@link org.apache.nutch.api.NutchServer} can be run as secure. restapi.auth property
+   * should be set to BASIC, DIGEST or SSL at &lt;code&gt;nutch-site.xml&lt;/code&gt; to enable HTTP basic authentication,
+   * digest authentication or SSL when communicating with RESTAPI.
+   * Set restapi.auth.username and restapi.auth.password properties at &lt;code&gt;nutch-site.xml&lt;/code&gt; to configure
+   * credentials when BASIC or DIGEST authentication is used.
+   * Set restapi.auth.ssl.storepath, restapi.auth.ssl.storepass and restapi.auth.ssl.keypass when SSL is used.
+   *
+   * @see org.apache.nutch.api.security.AuthenticationTypeEnum
+   */
+  public NutchServer(RAMConfManager ramConfManager, String confId) {
+    configManager = ramConfManager;
+    activeConfId = confId;
     BlockingQueue<Runnable> runnables = Queues
         .newArrayBlockingQueue(JOB_CAPACITY);
     NutchServerPoolExecutor executor = new NutchServerPoolExecutor(10,
@@ -116,7 +158,7 @@ public class NutchServer extends Application {
     component = new Component();
     component.getLogger().setLevel(Level.parse(logLevel));
 
-    AuthenticationTypeEnum authenticationType = configManager.get(ConfigResource.DEFAULT).getEnum("restapi.auth", AuthenticationTypeEnum.NONE);
+    AuthenticationTypeEnum authenticationType = configManager.get(activeConfId).getEnum("restapi.auth", AuthenticationTypeEnum.NONE);
 
     if (authenticationType == AuthenticationTypeEnum.SSL) {
       // Add a new HTTPS server listening on defined port.
@@ -125,15 +167,15 @@ public class NutchServer extends Application {
       Series parameters = server.getContext().getParameters();
       parameters.add("sslContextFactory", "org.restlet.engine.ssl.DefaultSslContextFactory");
 
-      String keyStorePath = configManager.get(ConfigResource.DEFAULT)
+      String keyStorePath = configManager.get(activeConfId)
               .get("restapi.auth.ssl.storepath", "etc/nutch-ssl.keystore.jks");
       parameters.add("keyStorePath", keyStorePath);
 
-      String keyStorePassword = configManager.get(ConfigResource.DEFAULT)
+      String keyStorePassword = configManager.get(activeConfId)
               .get("restapi.auth.ssl.storepass", "password");
       parameters.add("keyStorePassword", keyStorePassword);
 
-      String keyPassword = configManager.get(ConfigResource.DEFAULT)
+      String keyPassword = configManager.get(activeConfId)
               .get("restapi.auth.ssl.keypass", "password");
       parameters.add("keyPassword", keyPassword);
 
@@ -159,7 +201,7 @@ public class NutchServer extends Application {
       case BASIC:
         ChallengeAuthenticator challengeGuard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC, "Nutch REST API Realm");
         //Create in-memory users with roles
-        MemoryRealm basicAuthRealm = SecurityUtil.constructRealm(application, configManager);
+        MemoryRealm basicAuthRealm = SecurityUtil.constructRealm(application, configManager, confId);
         //Attach verifier to check authentication and enroler to determine roles
         challengeGuard.setVerifier(basicAuthRealm.getVerifier());
         challengeGuard.setEnroler(basicAuthRealm.getEnroler());
@@ -170,7 +212,7 @@ public class NutchServer extends Application {
       case DIGEST:
         DigestAuthenticator digestGuard = new DigestAuthenticator(null, "Nutch REST API Realm", "NutchSecretKey");
         //Create in-memory users with roles
-        MemoryRealm digestAuthRealm = SecurityUtil.constructRealm(application, configManager);
+        MemoryRealm digestAuthRealm = SecurityUtil.constructRealm(application, configManager, confId);
         digestGuard.setWrappedVerifier((LocalVerifier) digestAuthRealm.getVerifier());
         digestGuard.setEnroler(digestAuthRealm.getEnroler());
         digestGuard.setNext(application);
@@ -184,6 +226,14 @@ public class NutchServer extends Application {
 
   }
 
+  /**
+   * Get a set of root resource and provider classes. The default lifecycle
+   * for resource class instances is per-request. The default lifecycle for
+   * providers is singleton.
+   *
+   * @return a set of root resource and provider classes. Returning null
+   * is equivalent to returning an empty set.
+   */
   @Override
   public Set<Class<?>> getClasses() {
     Set<Class<?>> resources = Sets.newHashSet();
@@ -195,12 +245,31 @@ public class NutchServer extends Application {
     return resources;
   }
 
+  /**
+   * Get configuration manager.
+   *
+   * @return configuration manager.
+   */
   public ConfManager getConfMgr() {
     return configManager;
   }
 
+  /**
+   * Get job manager.
+   *
+   * @return job manager.
+   */
   public JobManager getJobMgr() {
     return jobMgr;
+  }
+
+  /**
+   * Get id of active configuration.
+   *
+   * @return active configuration id.
+   */
+  public String getActiveConfId() {
+    return activeConfId;
   }
 
   public long getStarted() {
@@ -284,6 +353,12 @@ public class NutchServer extends Application {
     return true;
   }
 
+  /**
+   * Main method for NutchServer to run via command line.
+   *
+   * @param args  arguments for log level, stopping the Server and port.
+   * @throws Exception
+   */
   public static void main(String[] args) throws Exception {
     CommandLineParser parser = new PosixParser();
     Options options = createOptions();

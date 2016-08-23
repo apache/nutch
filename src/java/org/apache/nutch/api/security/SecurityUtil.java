@@ -66,12 +66,13 @@ public final class SecurityUtil {
    *
    * @param application {@link org.restlet.ext.jaxrs.JaxRsApplication }application
    * @param configManager {@link org.apache.nutch.api.ConfManager} type config manager
+   * @param confId Configuration id to use from {@link org.apache.nutch.api.ConfManager} type config manager
    * @return realm
    */
-  public static MemoryRealm constructRealm(JaxRsApplication application, ConfManager configManager){
+  public static MemoryRealm constructRealm(JaxRsApplication application, ConfManager configManager, String confId){
     MemoryRealm realm = new MemoryRealm();
     MapVerifier mapVerifier = new MapVerifier();
-    String[] users = configManager.get(ConfigResource.DEFAULT).getTrimmedStrings("restapi.auth.users", "admin|admin|admin,user|user|user");
+    String[] users = configManager.get(confId).getTrimmedStrings("restapi.auth.users", "admin|admin|admin,user|user|user");
     if (users.length <= 1) {
       throw new IllegalStateException("Check users definition of restapi.auth.users at nutch-site.xml ");
     }
