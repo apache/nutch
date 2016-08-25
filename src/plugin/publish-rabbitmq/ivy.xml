@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="com.rabbitmq" name="amqp-client" rev="3.5.5" conf="*->default" />
+    <dependency org="com.rabbitmq" name="amqp-client" rev="3.6.5" conf="*->default" />
   </dependencies>
   
 </ivy-module>

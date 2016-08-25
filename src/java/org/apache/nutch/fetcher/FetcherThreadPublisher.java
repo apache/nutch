@@ -32,7 +32,7 @@ public class FetcherThreadPublisher {
 
   /**
    * Configure all registered publishers
-   * @param conf
+   * @param conf {@link org.apache.hadoop.conf.Configuration Configuration} to be used
    */
   public FetcherThreadPublisher(Configuration conf) {
     LOG.info("Setting up publishers");
@@ -43,8 +43,8 @@ public class FetcherThreadPublisher {
 
   /**
    * Publish event to all registered publishers
-   * @param event
-   * @param conf
+   * @param event	{@link org.apache.nutch.fetcher.FetcherThreadEvent Event} to be published
+   * @param conf	{@link org.apache.hadoop.conf.Configuration Configuration} to be used
    */
   public void publish(FetcherThreadEvent event, Configuration conf) {
     if(publisher!=null) {

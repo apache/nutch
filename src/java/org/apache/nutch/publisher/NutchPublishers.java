@@ -27,9 +27,10 @@ public class NutchPublishers extends Configured implements NutchPublisher{
 
   private static final Logger LOG = LoggerFactory.getLogger(NutchPublishers.class);
   private NutchPublisher[] publishers;
+  private Configuration conf;
 
   public NutchPublishers(Configuration conf) {
-    // TODO Auto-generated constructor stub
+	this.conf = conf;
     this.publishers = (NutchPublisher[])PluginRepository.get(conf).
         getOrderedPlugins(NutchPublisher.class, 
             NutchPublisher.X_POINT_ID, "publisher.order");
@@ -37,34 +38,31 @@ public class NutchPublishers extends Configured implements NutchPublisher{
 
   @Override
   public boolean setConfig(Configuration conf) {
-    // TODO Auto-generated method stub
     boolean success = false;
     try {
       for(int i=0; i<this.publishers.length; i++) {
         success |= this.publishers[i].setConfig(conf);
         if(success)
-          LOG.info("Successfully loaded " + 
-              this.publishers[i].getClass().getName() +" publisher");
+          LOG.info("Successfully loaded {} publisher", 
+              this.publishers[i].getClass().getName());
       }
     }catch(Exception e) {
-      LOG.warn("Error while loading publishers : " + e.getMessage());
+      LOG.warn("Error while loading publishers : {}", e.getMessage());
     }
     if(!success) {
-      LOG.warn("Could not load any publishers out of " + 
-          this.publishers.length +" publishers");
+      LOG.warn("Could not load any publishers out of {} publishers",  
+          this.publishers.length);
     }
     return success;
   }
 
   @Override
   public void publish(Object event, Configuration conf) {
-    // TODO Auto-generated method stub
-
     for(int i=0; i<this.publishers.length; i++) {
       try{
         this.publishers[i].publish(event, conf);
       }catch(Exception e){
-        LOG.warn("Could not post event to " + 
+        LOG.warn("Could not post event to {}", 
             this.publishers[i].getClass().getName());
       }
     }
@@ -72,12 +70,11 @@ public class NutchPublishers extends Configured implements NutchPublisher{
 
   @Override
   public Configuration getConf() {
-    // TODO Auto-generated method stub
-    return null;
+    return conf;
   }
 
   @Override
   public void setConf(Configuration arg0) {
-    // TODO Auto-generated method stub
+	  
   }
 }

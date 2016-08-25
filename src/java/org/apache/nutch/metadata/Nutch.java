@@ -98,10 +98,14 @@ public interface Nutch {
 	/** Argument key to specify the location of individual segment for the REST endpoints **/
 	public static final String ARG_SEGMENT = "segment";
 	
-	/** Metadata used for the FetcherThreadEvent for publishing to subscribers*/
+	/** Title key in the Pub/Sub event metadata for the title of the parsed page*/
 	public static final String FETCH_EVENT_TITLE = "title";
+	/** Content-type key in the Pub/Sub event metadata for the content-type of the parsed page*/
 	public static final String FETCH_EVENT_CONTENTTYPE = "content-type";
+	/** Score key in the Pub/Sub event metadata for the score of the parsed page*/
 	public static final String FETCH_EVENT_SCORE = "score";
+	/** Fetch time key in the Pub/Sub event metadata for the fetch time of the parsed page*/
 	public static final String FETCH_EVENT_FETCHTIME = "fetchTime";
+	/** Content-lanueage key in the Pub/Sub event metadata for the content-language of the parsed page*/
 	public static final String FETCH_EVENT_CONTENTLANG = "content-language";
 }

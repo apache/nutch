@@ -31,7 +31,7 @@ public interface NutchPublisher extends Configurable, Pluggable {
 
   /**
    * Use implementation specific configurations
-   * @param conf
+   * @param conf	{@link org.apache.hadoop.conf.Configuration Configuration} to be used
    */
   public boolean setConfig(Configuration conf);
 

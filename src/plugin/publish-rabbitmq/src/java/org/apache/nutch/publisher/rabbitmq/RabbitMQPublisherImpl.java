@@ -39,7 +39,6 @@ public class RabbitMQPublisherImpl implements NutchPublisher{
 
   @Override
   public boolean setConfig(Configuration conf) {
-    // TODO Auto-generated method stub
     try{
     EXCHANGE_SERVER = conf.get("rabbitmq.exchange.server", "fetcher_log");
     EXCHANGE_TYPE = conf.get("rabbitmq.exchange.type", "fanout");
@@ -61,12 +60,10 @@ public class RabbitMQPublisherImpl implements NutchPublisher{
 
   @Override
   public void publish(Object event, Configuration conf) {
-    // TODO Auto-generated method stub
     String rountingKey = conf.get("rabbitmq.queue.routingkey", "");
     try {
       channel.basicPublish(EXCHANGE_SERVER, rountingKey, null, getJSONString(event).getBytes());
     } catch (Exception e) {
-      // TODO Auto-generated catch block
       LOG.error("Error occured while publishing - {}", StringUtils.stringifyException(e));
     }
   }
@@ -76,7 +73,6 @@ public class RabbitMQPublisherImpl implements NutchPublisher{
     try {
       return mapper.writeValueAsString(obj);
     } catch (JsonProcessingException e) {
-      // TODO Auto-generated catch block
       LOG.error("Error converting event object to JSON String - {}", StringUtils.stringifyException(e));
     }
     return null;
@@ -85,13 +81,11 @@ public class RabbitMQPublisherImpl implements NutchPublisher{
 
   @Override
   public void setConf(Configuration arg0) {
-    // TODO Auto-generated method stub
     
   }
 
   @Override
   public Configuration getConf() {
-    // TODO Auto-generated method stub
     return null;
   }
 
