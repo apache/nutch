@@ -27,7 +27,24 @@ import org.restlet.data.ChallengeScheme;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.FileNotFoundException;
+import java.net.URL;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Base class for Nutc REST API tests.
@@ -154,33 +171,89 @@ public abstract class AbstractNutchAPITestBase {
     return digestChallengeRequest;
   }
 
-  private void initializeSSLProperties() {
-    conf.set("restapi.auth.ssl.storepath", "src/test/nutch-ssl.keystore.jks");
+  private void initializeSSLProperties() throws FileNotFoundException {
+    conf.set("restapi.auth.ssl.storepath", getResourcePath("nutch-ssl.keystore.jks"));
     conf.set("restapi.auth.ssl.storepass", "password");
     conf.set("restapi.auth.ssl.keypass", "password");
   }
 
+  private void loadCertificate() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+    String testTrustKeyStorePath = getResourcePath("testTrustKeyStore");
+    File file = new File(testTrustKeyStorePath);
+    InputStream localCertIn = new FileInputStream(file);
+
+    char[] password = "testpassword".toCharArray();
+    KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+    ks.load(localCertIn, password);
+
+    localCertIn.close();
+
+    if (ks.containsAlias("nutch")) {
+      return;
+    }
+
+    String cerFilePath = getResourcePath("nutch.cer");
+
+    InputStream certIn = new FileInputStream(cerFilePath);
+    BufferedInputStream bis = new BufferedInputStream(certIn);
+    CertificateFactory cf = CertificateFactory.getInstance("X.509");
+
+    while (bis.available() > 0) {
+      Certificate cert = cf.generateCertificate(bis);
+      ks.setCertificateEntry("nutch", cert);
+    }
+
+    certIn.close();
+    OutputStream out = new FileOutputStream(file);
+    ks.store(out, password);
+    out.close();
+  }
+
   /**
-   * Starts the server with given authentication type
+   * Starts the server with given authentication type.
+   * Use {@link #startSSLServer()} for a {@link AuthenticationTypeEnum#SSL} authentication type server.
    *
    * @param authenticationType authentication type
    */
   public void startServer(AuthenticationTypeEnum authenticationType) {
     conf.set("restapi.auth", authenticationType.toString());
-    if(AuthenticationTypeEnum.SSL.equals(authenticationType)) {
-      initializeSSLProperties();
-    }
-
     RAMConfManager ramConfManager = new RAMConfManager(NutchConfiguration.getUUID(conf), conf);
     nutchServer = new NutchServer(ramConfManager, NutchConfiguration.getUUID(conf));
     nutchServer.start();
   }
 
   /**
-   * Stops server
+   * Starts the SSL server
+   *
+   */
+  public void startSSLServer() throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException {
+    conf.set("restapi.auth", AuthenticationTypeEnum.SSL.toString());
+    initializeSSLProperties();
+    loadCertificate();
+    startServer(AuthenticationTypeEnum.SSL);
+  }
+
+  /**
+   * Stops the server
    */
   public void stopServer() {
     nutchServer.stop(true);
+  }
+
+  protected String getResourcePath(String fileName) throws FileNotFoundException {
+    URL resourceFilePath = this.getClass().getClassLoader().getResource(fileName);
+    if (resourceFilePath == null) {
+      throw new FileNotFoundException("Resource could not found: " + fileName);
+    }
+    return resourceFilePath.getPath();
+  }
+
+  protected void rollbackSystemProperty(String key, String initialValue){
+    if (initialValue != null) {
+      System.setProperty(key, initialValue);
+    } else {
+      System.clearProperty(key);
+    }
   }
 
 }

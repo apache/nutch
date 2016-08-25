@@ -17,7 +17,6 @@
 package org.apache.nutch.api.security;
 
 import org.apache.nutch.api.ConfManager;
-import org.apache.nutch.api.resources.ConfigResource;
 import org.restlet.ext.jaxrs.JaxRsApplication;
 import org.restlet.security.MapVerifier;
 import org.restlet.security.MemoryRealm;
@@ -36,14 +35,14 @@ import java.util.List;
  * Utility class for security operations for NutchServer REST API.
  *
  */
-public final class SecurityUtil {
+public final class SecurityUtils {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SecurityUtil.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
 
   /**
    * Private constructor to prevent instantiation
    */
-  private SecurityUtil() {
+  private SecurityUtils() {
   }
 
   /**
@@ -73,7 +72,7 @@ public final class SecurityUtil {
     MemoryRealm realm = new MemoryRealm();
     MapVerifier mapVerifier = new MapVerifier();
     String[] users = configManager.get(confId).getTrimmedStrings("restapi.auth.users", "admin|admin|admin,user|user|user");
-    if (users.length <= 1) {
+    if (users.length < 1) {
       throw new IllegalStateException("Check users definition of restapi.auth.users at nutch-site.xml ");
     }
     for (String userconf : users) {

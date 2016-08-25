@@ -36,7 +36,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import org.apache.nutch.api.model.request.NutchConfig;
-import org.apache.nutch.api.security.SecurityUtil;
+import org.apache.nutch.api.security.SecurityUtils;
 
 @Path("/config")
 public class ConfigResource extends AbstractResource {
@@ -68,7 +68,7 @@ public class ConfigResource extends AbstractResource {
   @DELETE
   @Path("/{configId}")
   public void deleteConfig(@PathParam("configId") String configId) {
-    SecurityUtil.allowOnlyAdmin(securityContext);
+    SecurityUtils.allowOnlyAdmin(securityContext);
     configManager.delete(configId);
   }
 
@@ -77,7 +77,7 @@ public class ConfigResource extends AbstractResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.TEXT_PLAIN)
   public String createConfig(NutchConfig newConfig) {
-    SecurityUtil.allowOnlyAdmin(securityContext);
+    SecurityUtils.allowOnlyAdmin(securityContext);
     if (newConfig == null) {
       throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
           .entity("Nutch configuration cannot be empty!").build());
@@ -89,7 +89,7 @@ public class ConfigResource extends AbstractResource {
   @Path("/{config}/{property}")
   public Response update(@PathParam("config") String config,
       @PathParam("property") String property, @FormParam("value") String value) {
-    SecurityUtil.allowOnlyAdmin(securityContext);
+    SecurityUtils.allowOnlyAdmin(securityContext);
     if (value == null) {
       throwBadRequestException("Missing property value!");
     }

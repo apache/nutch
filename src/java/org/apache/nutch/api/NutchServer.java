@@ -44,7 +44,7 @@ import org.apache.nutch.api.resources.DbResource;
 import org.apache.nutch.api.resources.JobResource;
 import org.apache.nutch.api.resources.SeedResource;
 import org.apache.nutch.api.security.AuthenticationTypeEnum;
-import org.apache.nutch.api.security.SecurityUtil;
+import org.apache.nutch.api.security.SecurityUtils;
 import org.restlet.Component;
 import org.restlet.Context;
 import org.restlet.Server;
@@ -168,7 +168,7 @@ public class NutchServer extends Application {
       parameters.add("sslContextFactory", "org.restlet.engine.ssl.DefaultSslContextFactory");
 
       String keyStorePath = configManager.get(activeConfId)
-              .get("restapi.auth.ssl.storepath", "etc/nutch-ssl.keystore.jks");
+              .get("restapi.auth.ssl.storepath", "nutch-ssl.keystore.jks");
       parameters.add("keyStorePath", keyStorePath);
 
       String keyStorePassword = configManager.get(activeConfId)
@@ -191,7 +191,7 @@ public class NutchServer extends Application {
     application.add(this);
     application.setStatusService(new ErrorStatusService());
     childContext.getAttributes().put(NUTCH_SERVER, this);
-    application.setRoles(SecurityUtil.getRoles(application));
+    application.setRoles(SecurityUtils.getRoles(application));
 
     switch (authenticationType) {
       case NONE:
@@ -201,7 +201,7 @@ public class NutchServer extends Application {
       case BASIC:
         ChallengeAuthenticator challengeGuard = new ChallengeAuthenticator(null, ChallengeScheme.HTTP_BASIC, "Nutch REST API Realm");
         //Create in-memory users with roles
-        MemoryRealm basicAuthRealm = SecurityUtil.constructRealm(application, configManager, confId);
+        MemoryRealm basicAuthRealm = SecurityUtils.constructRealm(application, configManager, confId);
         //Attach verifier to check authentication and enroler to determine roles
         challengeGuard.setVerifier(basicAuthRealm.getVerifier());
         challengeGuard.setEnroler(basicAuthRealm.getEnroler());
@@ -212,7 +212,7 @@ public class NutchServer extends Application {
       case DIGEST:
         DigestAuthenticator digestGuard = new DigestAuthenticator(null, "Nutch REST API Realm", "NutchSecretKey");
         //Create in-memory users with roles
-        MemoryRealm digestAuthRealm = SecurityUtil.constructRealm(application, configManager, confId);
+        MemoryRealm digestAuthRealm = SecurityUtils.constructRealm(application, configManager, confId);
         digestGuard.setWrappedVerifier((LocalVerifier) digestAuthRealm.getVerifier());
         digestGuard.setEnroler(digestAuthRealm.getEnroler());
         digestGuard.setNext(application);

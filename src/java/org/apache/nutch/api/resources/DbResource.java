@@ -30,7 +30,7 @@ import javax.ws.rs.core.SecurityContext;
 import org.apache.nutch.api.impl.db.DbReader;
 import org.apache.nutch.api.model.request.DbFilter;
 import org.apache.nutch.api.model.response.DbQueryResult;
-import org.apache.nutch.api.security.SecurityUtil;
+import org.apache.nutch.api.security.SecurityUtils;
 
 @Path("/db")
 public class DbResource extends AbstractResource {
@@ -43,7 +43,7 @@ public class DbResource extends AbstractResource {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   public DbQueryResult runQuery(DbFilter filter) {
-    SecurityUtil.allowOnlyAdmin(securityContext);
+    SecurityUtils.allowOnlyAdmin(securityContext);
     if (filter == null) {
       throwBadRequestException("Filter cannot be null!");
     }

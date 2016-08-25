@@ -18,9 +18,13 @@ package org.apache.nutch.api;
 
 import org.apache.nutch.api.security.AuthenticationTypeEnum;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.restlet.data.ChallengeScheme;
+
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 /**
  * Test class for {@link org.apache.nutch.api.NutchServer}
@@ -71,21 +75,26 @@ public class TestNutchAPI extends AbstractNutchAPITestBase {
   }
 
   /**
-   * Test SSL for invalid username/password pair,
-   * authorized username/password pair and insufficient privileged username/password pair
+   * Test SSL connection
    */
-  @Ignore
   @Test
-  public void testSSL() {
-    startServer(AuthenticationTypeEnum.SSL);
-    //Check for an invalid username/password pair
-    testRequest(401, 8081, "xxx", "xxx");
+  public void testSSL() throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException {
+    startSSLServer();
 
-    //Check for an authorized username/password pair
-    testRequest(200, 8081, "admin", "admin");
+    String defaultTrustStore = System.getProperty("javax.net.ssl.trustStore");
+    String defaultTrustStoreType = System.getProperty("javax.net.ssl.trustStoreType");
+    String defaultTrustStorePassword = System.getProperty("javax.net.ssl.trustStorePassword");
 
-    //Check for an insufficient privileged username/password pair
-    testRequest(403, 8081, "user", "user");
+    System.setProperty("javax.net.ssl.trustStore" , getResourcePath("testTrustKeyStore"));
+    System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+    System.setProperty("javax.net.ssl.trustStorePassword", "testpassword");
+
+    testRequest(200, 8081);
+
+    rollbackSystemProperty("javax.net.ssl.trustStore", defaultTrustStore);
+    rollbackSystemProperty("javax.net.ssl.trustStoreType", defaultTrustStoreType);
+    rollbackSystemProperty("javax.net.ssl.trustStorePassword", defaultTrustStorePassword);
+
   }
 
   /**

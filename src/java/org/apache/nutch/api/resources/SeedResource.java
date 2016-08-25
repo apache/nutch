@@ -38,7 +38,7 @@ import javax.ws.rs.core.SecurityContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.nutch.api.model.request.SeedList;
 import org.apache.nutch.api.model.request.SeedUrl;
-import org.apache.nutch.api.security.SecurityUtil;
+import org.apache.nutch.api.security.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +60,7 @@ public class SeedResource extends AbstractResource {
    * @return
    */
   public String createSeedFile(SeedList seedList) {
-    SecurityUtil.allowOnlyAdmin(securityContext);
+    SecurityUtils.allowOnlyAdmin(securityContext);
     if (seedList == null) {
       throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
           .entity("Seed list cannot be empty!").build());

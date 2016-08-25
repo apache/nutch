@@ -1465,10 +1465,10 @@
 
 <property>
   <name>restapi.auth.ssl.storepath</name>
-  <value>etc/nutch-ssl.keystore.jks</value>
+  <value>nutch-ssl.keystore.jks</value>
   <description>
     Key store path for jks file. restapi.auth property should be set to SSL to use this property.
-    etc/nutch-ssl.keystore.jks is used for restapi.auth.ssl.storepath as default.
+    nutch-ssl.keystore.jks is used for restapi.auth.ssl.storepath as default.
   </description>
 </property>
 
