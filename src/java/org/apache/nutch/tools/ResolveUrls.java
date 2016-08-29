@@ -17,9 +17,10 @@
 package org.apache.nutch.tools;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -102,8 +103,7 @@ public class ResolveUrls {
       pool = Executors.newFixedThreadPool(numThreads);
 
       // read in the urls file and loop through each line, one url per line
-      BufferedReader buffRead = new BufferedReader(new FileReader(new File(
-          urlsFile)));
+      BufferedReader buffRead = new BufferedReader(new InputStreamReader(new FileInputStream(urlsFile), StandardCharsets.UTF_8));
       String urlStr = null;
       while ((urlStr = buffRead.readLine()) != null) {
 

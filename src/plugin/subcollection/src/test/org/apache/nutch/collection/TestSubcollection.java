@@ -19,6 +19,7 @@ package org.apache.nutch.collection;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collection;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -69,7 +70,7 @@ public class TestSubcollection {
     xml.append("</subcollection>");
     xml.append("</subcollections>");
 
-    InputStream is = new ByteArrayInputStream(xml.toString().getBytes());
+    InputStream is = new ByteArrayInputStream(xml.toString().getBytes(StandardCharsets.UTF_8));
 
     CollectionManager cm = new CollectionManager();
     cm.parse(is);

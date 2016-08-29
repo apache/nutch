@@ -18,6 +18,7 @@ package org.apache.nutch.indexer.html;
 
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -67,7 +68,7 @@ public class HtmlIndexingFilter implements IndexingFilter {
                 LOG.info("Html indexing for: " + url.toString());
             }
             ByteArrayInputStream arrayInputStream = new ByteArrayInputStream(raw.array(), raw.arrayOffset() + raw.position(), raw.remaining());
-            Scanner scanner = new Scanner(arrayInputStream);
+            Scanner scanner = new Scanner(arrayInputStream, StandardCharsets.UTF_8.name());
             scanner.useDelimiter("\\Z");//To read all scanner content in one String
             String data = "";
             if (scanner.hasNext()) {

@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -72,14 +73,14 @@ public class TestImageMetadata {
       ByteBuffer bbufW = page.getMetadata().get(new Utf8("width"));
       byte[] byteArrayW = new byte[bbufW.remaining()];
       bbufW.get(byteArrayW);
-      String width = new String(byteArrayW);
+      String width = new String(byteArrayW, StandardCharsets.UTF_8);
       assertEquals("121", width);
 
       // assert height
       ByteBuffer bbufH = page.getMetadata().get(new Utf8("height"));
       byte[] byteArrayH = new byte[bbufH.remaining()];
       bbufH.get(byteArrayH);
-      String height = new String(byteArrayH);
+      String height = new String(byteArrayH, StandardCharsets.UTF_8);
       assertEquals("48", height);
     }
   }

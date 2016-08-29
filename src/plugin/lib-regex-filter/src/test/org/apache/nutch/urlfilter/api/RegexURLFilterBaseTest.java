@@ -21,6 +21,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,8 +61,8 @@ public abstract class RegexURLFilterBaseTest {
 
   protected void bench(int loops, String file) {
     try {
-      bench(loops, new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
-          new FileReader(SAMPLES + SEPARATOR + file + ".urls"));
+      bench(loops, new InputStreamReader(new FileInputStream(SAMPLES + SEPARATOR + file + ".rules"), StandardCharsets.UTF_8),
+          new InputStreamReader(new FileInputStream(SAMPLES + SEPARATOR + file + ".urls"), StandardCharsets.UTF_8));
     } catch (Exception e) {
       fail(e.toString());
     }
@@ -81,8 +85,8 @@ public abstract class RegexURLFilterBaseTest {
 
   protected void test(String file) {
     try {
-      test(new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
-          new FileReader(SAMPLES + SEPARATOR + file + ".urls"));
+      test(new InputStreamReader(new FileInputStream(SAMPLES + SEPARATOR + file + ".rules"), StandardCharsets.UTF_8),
+          new InputStreamReader(new FileInputStream(SAMPLES + SEPARATOR + file + ".urls"), StandardCharsets.UTF_8));
     } catch (Exception e) {
       fail(e.toString());
     }

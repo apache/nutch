@@ -17,6 +17,7 @@
 package org.apache.nutch.api.impl;
 
 import java.text.MessageFormat;
+import java.util.Locale;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.api.model.request.JobConfig;
@@ -49,11 +50,11 @@ public class JobWorker implements Runnable {
 
   private String generateId() {
     if (jobConfig.getCrawlId() == null) {
-      return MessageFormat.format("{0}-{1}-{2}", jobConfig.getConfId(),
-          jobConfig.getType(), String.valueOf(hashCode()));
+      return new MessageFormat("{0}-{1}-{2}", Locale.ROOT)
+          .format(new Object[] {jobConfig.getConfId(), jobConfig.getType(), String.valueOf(hashCode())});
     }
-    return MessageFormat.format("{0}-{1}-{2}-{3}", jobConfig.getCrawlId(),
-        jobConfig.getConfId(), jobConfig.getType(), String.valueOf(hashCode()));
+    return new MessageFormat("{0}-{1}-{2}-{3}", Locale.ROOT)
+        .format(new Object[] {jobConfig.getCrawlId(), jobConfig.getConfId(), jobConfig.getType(), String.valueOf(hashCode())});
   }
 
   @Override

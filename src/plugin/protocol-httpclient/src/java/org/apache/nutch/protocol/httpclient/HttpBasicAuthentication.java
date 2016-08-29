@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.nio.charset.StandardCharsets;
 
 // Commons Codec imports
 import org.apache.commons.codec.binary.Base64;
@@ -92,9 +93,9 @@ public class HttpBasicAuthentication implements HttpAuthentication,
           + " is null");
     }
 
-    byte[] credBytes = (username + ":" + password).getBytes();
+    byte[] credBytes = (username + ":" + password).getBytes(StandardCharsets.UTF_8);
     credentials.add("Authorization: Basic "
-        + new String(Base64.encodeBase64(credBytes)));
+        + new String(Base64.encodeBase64(credBytes), StandardCharsets.UTF_8));
     if (LOG.isTraceEnabled()) {
       LOG.trace("Basic credentials: " + credentials);
     }

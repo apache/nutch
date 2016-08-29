@@ -28,6 +28,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -396,7 +397,7 @@ public class Bytes {
             || " `~!@#$%^&*()-_=+[]{}\\|;:'\",.<>/?".indexOf(ch) >= 0) {
           result.append(first.charAt(i));
         } else {
-          result.append(String.format("\\x%02X", ch));
+          result.append(String.format(Locale.ROOT, "\\x%02X", ch));
         }
       }
     } catch (UnsupportedEncodingException e) {

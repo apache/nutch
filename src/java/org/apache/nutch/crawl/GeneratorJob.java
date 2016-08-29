@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Collection;
+import java.util.Locale;
 
 import org.apache.hadoop.mapreduce.Job;
 import org.slf4j.Logger;
@@ -255,7 +256,7 @@ public class GeneratorJob extends NutchTool implements Tool {
   public String generate(long topN, long curTime, boolean filter, boolean norm,
       boolean sitemap) throws Exception {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
     long start = System.currentTimeMillis();
     LOG.info("GeneratorJob: starting at {}", sdf.format(start));
     LOG.info("GeneratorJob: Selecting best-scoring urls due for fetch.");

@@ -17,6 +17,8 @@
 
 package org.apache.nutch.protocol.http.api;
 
+import java.nio.charset.StandardCharsets;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,7 +82,7 @@ public class TestRobotRulesParser {
    */
   @Test
   public void testRobotsAgent() {
-    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(StandardCharsets.UTF_8),
         CONTENT_TYPE, SINGLE_AGENT);
 
     for (int counter = 0; counter < TEST_PATHS.length; counter++) {
@@ -91,7 +93,7 @@ public class TestRobotRulesParser {
           rules.isAllowed(TEST_PATHS[counter]) == RESULTS[counter]);
     }
 
-    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(StandardCharsets.UTF_8),
         CONTENT_TYPE, MULTIPLE_AGENTS);
 
     for (int counter = 0; counter < TEST_PATHS.length; counter++) {
@@ -112,13 +114,13 @@ public class TestRobotRulesParser {
   public void testCrawlDelay() {
     // for SINGLE_AGENT, the crawl delay of 10 sec ie. 10000 msec must be
     // returned by the parser
-    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(StandardCharsets.UTF_8),
         CONTENT_TYPE, SINGLE_AGENT);
     assertTrue("testing crawl delay for agent " + SINGLE_AGENT + " : ",
         (rules.getCrawlDelay() == 10000));
 
     // for UNKNOWN_AGENT, the default crawl delay must be returned.
-    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(StandardCharsets.UTF_8),
         CONTENT_TYPE, UNKNOWN_AGENT);
     assertTrue("testing crawl delay for agent " + UNKNOWN_AGENT + " : ",
         (rules.getCrawlDelay() == Long.MIN_VALUE));

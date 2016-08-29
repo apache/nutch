@@ -106,7 +106,7 @@ public class FetcherReducer extends
         LOG.warn("Cannot parse url: " + url, e);
         return null;
       }
-      final String proto = u.getProtocol().toLowerCase();
+      final String proto = u.getProtocol().toLowerCase(Locale.ROOT);
       String host;
       if (FetchItemQueues.QUEUE_MODE_IP.equalsIgnoreCase(queueMode)) {
         try {
@@ -131,7 +131,7 @@ public class FetcherReducer extends
           host = u.toExternalForm();
         }
       }
-      queueID = proto + "://" + host.toLowerCase();
+      queueID = proto + "://" + host.toLowerCase(Locale.ROOT);
       return new FetchItem(url, page, u, queueID);
     }
 
@@ -639,8 +639,8 @@ public class FetcherReducer extends
       }
 
       if (ignoreExternalLinks) {
-        String toHost = new URL(newUrl).getHost().toLowerCase();
-        String fromHost = new URL(url).getHost().toLowerCase();
+        String toHost = new URL(newUrl).getHost().toLowerCase(Locale.ROOT);
+        String fromHost = new URL(url).getHost().toLowerCase(Locale.ROOT);
         if (toHost == null || !toHost.equals(fromHost)) {
           // external links
           return;

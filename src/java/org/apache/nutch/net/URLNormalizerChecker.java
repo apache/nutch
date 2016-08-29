@@ -27,6 +27,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Checks one given normalizer or all normalizers.
@@ -66,7 +67,7 @@ public class URLNormalizerChecker {
 
     System.out.println("Checking URLNormalizer " + normalizerName);
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     String line;
     while ((line = in.readLine()) != null) {
       String out = normalizer.normalize(line, scope);
@@ -77,7 +78,7 @@ public class URLNormalizerChecker {
   private void checkAll(String scope) throws Exception {
     System.out.println("Checking combination of all URLNormalizers available");
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     String line;
     URLNormalizers normalizers = new URLNormalizers(conf, scope);
     while ((line = in.readLine()) != null) {

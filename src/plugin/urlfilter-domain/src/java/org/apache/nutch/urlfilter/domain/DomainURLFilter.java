@@ -21,8 +21,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.Locale;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -167,7 +171,7 @@ public class DomainURLFilter implements URLFilter {
     }
     try {
       if (reader == null) {
-        reader = new FileReader(file);
+        reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
       }
       readConfiguration(reader);
     } catch (IOException e) {
@@ -185,7 +189,7 @@ public class DomainURLFilter implements URLFilter {
 
       // match for suffix, domain, and host in that order. more general will
       // override more specific
-      String domain = URLUtil.getDomainName(url).toLowerCase().trim();
+      String domain = URLUtil.getDomainName(url).toLowerCase(Locale.ROOT).trim();
       String host = URLUtil.getHost(url);
       String suffix = null;
       DomainSuffix domainSuffix = URLUtil.getDomainSuffix(url);

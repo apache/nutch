@@ -39,6 +39,7 @@ import org.w3c.dom.Node;
 
 import java.lang.CharSequence;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -67,7 +68,7 @@ public class HTMLLanguageParser implements ParseFilter {
         String[] values = p.getProperty(key).split(",", -1);
         LANGUAGES_MAP.put(key, key);
         for (int i = 0; i < values.length; i++) {
-          LANGUAGES_MAP.put(values[i].trim().toLowerCase(), key);
+          LANGUAGES_MAP.put(values[i].trim().toLowerCase(Locale.ROOT), key);
         }
       }
     } catch (Exception e) {
@@ -115,7 +116,7 @@ public class HTMLLanguageParser implements ParseFilter {
 
     if (lang != null) {
       page.getMetadata().put(new Utf8(Metadata.LANGUAGE),
-          ByteBuffer.wrap(lang.getBytes()));
+          ByteBuffer.wrap(lang.getBytes(StandardCharsets.UTF_8)));
       return parse;
     }
 
@@ -255,7 +256,7 @@ public class HTMLLanguageParser implements ParseFilter {
                 Node attrnode = attrs.item(i);
                 if ("http-equiv".equalsIgnoreCase(attrnode.getNodeName())) {
                   if ("content-language".equals(attrnode.getNodeValue()
-                      .toLowerCase())) {
+                      .toLowerCase(Locale.ROOT))) {
                     Node valueattr = attrs.getNamedItem("content");
                     if (valueattr != null) {
                       httpEquiv = parseLanguage(valueattr.getNodeValue());
@@ -296,7 +297,7 @@ public class HTMLLanguageParser implements ParseFilter {
         code = langs[i].split("-")[0];
         code = code.split("_")[0];
         // Find the ISO 639 code
-        language = (String) LANGUAGES_MAP.get(code.toLowerCase());
+        language = (String) LANGUAGES_MAP.get(code.toLowerCase(Locale.ROOT));
         i++;
       }
 

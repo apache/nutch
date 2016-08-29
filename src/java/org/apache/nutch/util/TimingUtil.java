@@ -18,6 +18,7 @@
 package org.apache.nutch.util;
 
 import java.text.NumberFormat;
+import java.util.Locale;
 
 public class TimingUtil {
 
@@ -45,7 +46,7 @@ public class TimingUtil {
       start += TIME_FACTOR[i] * elapsedTime[i];
     }
 
-    NumberFormat nf = NumberFormat.getInstance();
+    NumberFormat nf = NumberFormat.getInstance(Locale.ROOT);
     nf.setMinimumIntegerDigits(2);
     StringBuffer buf = new StringBuffer();
     for (int i = 0; i < elapsedTime.length; i++) {

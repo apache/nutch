@@ -19,6 +19,7 @@ package org.apache.nutch.tools;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.*;
 
@@ -195,12 +196,12 @@ public class DmozParser {
               if (row != null) {
                 if (desc.length() > 0) {
                   row.getMetadata().put(new Utf8("_dmoz_desc_"),
-                      ByteBuffer.wrap(desc.toString().getBytes()));
+                      ByteBuffer.wrap(desc.toString().getBytes(StandardCharsets.UTF_8)));
                   desc.delete(0, desc.length());
                 }
                 if (title.length() > 0) {
                   row.getMetadata().put(new Utf8("_dmoz_title_"),
-                      ByteBuffer.wrap(title.toString().getBytes()));
+                      ByteBuffer.wrap(title.toString().getBytes(StandardCharsets.UTF_8)));
                   title.delete(0, title.length());
                 }
                 store.put(reversedUrl, row);

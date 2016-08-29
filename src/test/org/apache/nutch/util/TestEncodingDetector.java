@@ -24,6 +24,8 @@ import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 
@@ -59,7 +61,7 @@ public class TestEncodingDetector {
     detector.autoDetectClues(page, true);
     encoding = detector.guessEncoding(page, "windows-1252");
     // no information is available, so it should return default encoding
-    assertEquals("windows-1252", encoding.toLowerCase());
+    assertEquals("windows-1252", encoding.toLowerCase(Locale.ROOT));
 
     page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8("http://www.example.com/"));
@@ -71,7 +73,7 @@ public class TestEncodingDetector {
     detector = new EncodingDetector(conf);
     detector.autoDetectClues(page, true);
     encoding = detector.guessEncoding(page, "windows-1252");
-    assertEquals("utf-16", encoding.toLowerCase());
+    assertEquals("utf-16", encoding.toLowerCase(Locale.ROOT));
 
     page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8("http://www.example.com/"));
@@ -82,7 +84,7 @@ public class TestEncodingDetector {
     detector.autoDetectClues(page, true);
     detector.addClue("windows-1254", "sniffed");
     encoding = detector.guessEncoding(page, "windows-1252");
-    assertEquals("windows-1254", encoding.toLowerCase());
+    assertEquals("windows-1254", encoding.toLowerCase(Locale.ROOT));
 
     // enable autodetection
     conf.setInt(EncodingDetector.MIN_CONFIDENCE_KEY, 50);
@@ -91,13 +93,13 @@ public class TestEncodingDetector {
     page.setContentType(new Utf8("text/plain"));
     page.setContent(ByteBuffer.wrap(contentInOctets));
     page.getMetadata().put(new Utf8(Response.CONTENT_TYPE),
-        ByteBuffer.wrap("text/plain; charset=UTF-16".getBytes()));
+        ByteBuffer.wrap("text/plain; charset=UTF-16".getBytes(StandardCharsets.UTF_8)));
 
     detector = new EncodingDetector(conf);
     detector.autoDetectClues(page, true);
     detector.addClue("utf-32", "sniffed");
     encoding = detector.guessEncoding(page, "windows-1252");
-    assertEquals("utf-8", encoding.toLowerCase());
+    assertEquals("utf-8", encoding.toLowerCase(Locale.ROOT));
   }
 
 }

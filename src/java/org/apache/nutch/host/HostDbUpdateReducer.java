@@ -27,6 +27,7 @@ import org.apache.nutch.util.URLUtil;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 /**
@@ -78,10 +79,10 @@ public class HostDbUpdateReducer extends
     // output host data
     Host host = new Host();
     host.getMetadata().put(new Utf8("p"),
-        ByteBuffer.wrap(Integer.toString(numPages).getBytes()));
+        ByteBuffer.wrap(Integer.toString(numPages).getBytes(StandardCharsets.UTF_8)));
     if (numFetched > 0) {
       host.getMetadata().put(new Utf8("f"),
-          ByteBuffer.wrap(Integer.toString(numFetched).getBytes()));
+          ByteBuffer.wrap(Integer.toString(numFetched).getBytes(StandardCharsets.UTF_8)));
     }
     for (String inlink : inlinkCount.getKeys()) {
       host.getInlinks().put(new Utf8(inlink),

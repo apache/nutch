@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -516,7 +517,7 @@ public abstract class HttpBase implements Protocol {
       System.out.println("Content Length: "
           + content.getMetadata().get(Response.CONTENT_LENGTH));
       System.out.println("Content:");
-      String text = new String(content.getContent());
+      String text = new String(content.getContent(), StandardCharsets.UTF_8);
       System.out.println(text);
     }
   }

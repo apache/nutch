@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.avro.util.Utf8;
@@ -304,7 +305,7 @@ public class ParserJob extends NutchTool implements Tool {
       boolean sitemap)
           throws Exception {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
     long start = System.currentTimeMillis();
     LOG.info("ParserJob: starting at {}", sdf.format(start));
 

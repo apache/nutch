@@ -27,6 +27,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Checks one given filter or all filters.
@@ -71,7 +72,7 @@ public class URLFilterChecker {
 
     System.out.println("Checking URLFilter " + filterName);
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     String line;
     while ((line = in.readLine()) != null) {
       String out = filter.filter(line);
@@ -88,7 +89,7 @@ public class URLFilterChecker {
   private void checkAll() throws Exception {
     System.out.println("Checking combination of all URLFilters available");
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     String line;
     while ((line = in.readLine()) != null) {
       URLFilters filters = new URLFilters(this.conf);

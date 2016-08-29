@@ -19,9 +19,11 @@ package org.apache.nutch.protocol;
 
 // JDK imports
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
@@ -172,7 +174,7 @@ public abstract class RobotRulesParser implements Configurable {
       BaseRobotRules rules = robotParser.parseContent(argv[0], robotsBytes,
           "text/plain", argv[2]);
 
-      LineNumberReader testsIn = new LineNumberReader(new FileReader(argv[1]));
+      LineNumberReader testsIn = new LineNumberReader(new InputStreamReader(new FileInputStream(argv[1]), StandardCharsets.UTF_8));
       String testPath = testsIn.readLine().trim();
       while (testPath != null) {
         System.out.println((rules.isAllowed(testPath) ? "allowed"

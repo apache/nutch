@@ -18,6 +18,7 @@ package org.apache.nutch.tools.arc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 
 import org.slf4j.Logger;
@@ -269,7 +270,7 @@ public class ArcRecordReader implements RecordReader<Text, BytesWritable> {
         }
 
         // create the header and the raw content minus the header
-        String header = new String(content, 0, eol).trim();
+        String header = new String(content, 0, eol, StandardCharsets.UTF_8).trim();
         byte[] raw = new byte[(content.length - eol) - 1];
         System.arraycopy(content, eol + 1, raw, 0, raw.length);
 

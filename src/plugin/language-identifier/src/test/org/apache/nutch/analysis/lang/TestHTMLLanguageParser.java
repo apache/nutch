@@ -31,6 +31,7 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -107,7 +108,7 @@ public class TestHTMLLanguageParser {
       long total = 0;
       LanguageIdentifier identifier;
       BufferedReader in = new BufferedReader(new InputStreamReader(this
-          .getClass().getResourceAsStream("test-referencial.txt")));
+          .getClass().getResourceAsStream("test-referencial.txt"), StandardCharsets.UTF_8));
       String line = null;
       while ((line = in.readLine()) != null) {
         String[] tokens = line.split(";");
@@ -149,7 +150,7 @@ public class TestHTMLLanguageParser {
   private WebPage getPage(String text) {
     WebPage page = WebPage.newBuilder().build();
     page.setBaseUrl(BASE);
-    page.setContent(ByteBuffer.wrap(text.getBytes()));
+    page.setContent(ByteBuffer.wrap(text.getBytes(StandardCharsets.UTF_8)));
     page.setContentType(new Utf8("text/html"));
     page.getHeaders().put(EncodingDetector.CONTENT_TYPE_UTF8,
         new Utf8("text/html"));

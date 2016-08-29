@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Locale;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.scoring.ScoreDatum;
@@ -32,6 +33,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +57,11 @@ public class TestOPICScoringFilter {
   private final List<ScoreDatum> outlinkedScoreData = new ArrayList<ScoreDatum>();
   private static final int DEPTH = 3;
 
-  DecimalFormat df = new DecimalFormat("#.###");
+  DecimalFormat df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.ROOT);
+
+  {
+    df.applyPattern("#.###");
+  }
 
   private final String[] seedList = new String[] { "http://a.com",
       "http://b.com", "http://c.com", };

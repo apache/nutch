@@ -18,6 +18,7 @@ package org.apache.nutch.api.resources;
 
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.GET;
@@ -72,7 +73,7 @@ public class AdminResource extends AbstractResource {
     }
 
     scheduleServerStop();
-    return MessageFormat.format("Stopping in {0} seconds.", DELAY_SEC);
+    return new MessageFormat("Stopping in {0} seconds.", Locale.ROOT).format(DELAY_SEC);
   }
 
   private void scheduleServerStop() {

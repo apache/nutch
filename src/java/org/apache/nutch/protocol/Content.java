@@ -23,6 +23,7 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
@@ -265,7 +266,7 @@ public final class Content implements Writable {
     buffer.append("contentType: " + contentType + "\n");
     buffer.append("metadata: " + metadata + "\n");
     buffer.append("Content:\n");
-    buffer.append(new String(content)); // try default encoding
+    buffer.append(new String(content, StandardCharsets.UTF_8)); // try default encoding
 
     return buffer.toString();
 

@@ -18,6 +18,7 @@ package org.apache.nutch.webui.client.impl;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.nutch.webui.client.model.JobConfig;
@@ -68,9 +69,8 @@ public class RemoteCommand implements Serializable {
   public String toString() {
     String statusInfo = StringUtils.EMPTY;
     if (jobInfo != null) {
-      statusInfo = MessageFormat.format("{0}", jobInfo.getState());
+      statusInfo = new MessageFormat("{0}", Locale.ROOT).format(jobInfo.getState());
     }
-    return MessageFormat.format("{0} status: {1}", jobConfig.getType(),
-        statusInfo);
+    return new MessageFormat("{0} status: {1}", Locale.ROOT).format(new Object[] {jobConfig.getType(), statusInfo});
   }
 }

@@ -20,16 +20,12 @@ package org.apache.nutch.net.urlnormalizer.basic;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.regex.Pattern;
-
-
-
-
-
-
+import java.util.Locale;
 
 // Commons Logging imports
 import org.slf4j.Logger;
@@ -83,7 +79,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         || "ftp".equals(protocol)) {
 
       if (host != null) {
-        String newHost = host.toLowerCase(); // lowercase host
+        String newHost = host.toLowerCase(Locale.ROOT); // lowercase host
         if (!host.equals(newHost)) {
           host = newHost;
           changed = true;
@@ -161,7 +157,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
       System.out.println("Scope: " + scope);
     }
     String line, normUrl;
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     while ((line = in.readLine()) != null) {
       try {
         normUrl = normalizer.normalize(line, scope);
