@@ -20,6 +20,7 @@ package org.apache.nutch.util.domain;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.gora.query.Query;
@@ -97,7 +98,7 @@ public class DomainStatistics extends Configured implements Tool {
       }
     }
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
     long start = System.currentTimeMillis();
     LOG.info("DomainStatistics: starting at " + sdf.format(start));
 

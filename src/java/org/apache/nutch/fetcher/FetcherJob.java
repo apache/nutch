@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Locale;
 import org.apache.avro.util.Utf8;
 import org.apache.gora.filter.FilterOp;
 import org.apache.gora.filter.MapFieldValueFilter;
@@ -278,7 +279,7 @@ public class FetcherJob extends NutchTool implements Tool {
   public int fetch(String batchId, int threads, boolean shouldResume,
       int numTasks, boolean stmDetect, boolean sitemap) throws Exception {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
     long start = System.currentTimeMillis();
     LOG.info("FetcherJob: starting at " + sdf.format(start));
 

@@ -35,6 +35,7 @@ package org.apache.nutch.tools.proxy;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -118,7 +119,7 @@ public class FakeHandler extends AbstractTestbedHandler {
       os.write(bytes);
       // record URI
       String p = "<p>URI: " + uri + "</p>\r\n";
-      os.write(p.getBytes());
+      os.write(p.getBytes(StandardCharsets.UTF_8));
       // fake some links
       String basePath;
       String baseDomain;
@@ -142,7 +143,7 @@ public class FakeHandler extends AbstractTestbedHandler {
           link += pageSeq.getAndIncrement() + ".html'>";
         }
         link += "outlink " + i + "</a></p>\r\n";
-        os.write(link.getBytes());
+        os.write(link.getBytes(StandardCharsets.UTF_8));
       }
       baseDomain = u.getHost();
       // chop off the TLD
@@ -160,15 +161,15 @@ public class FakeHandler extends AbstractTestbedHandler {
           link = "http://" + host + "/";
         }
         link = "<p><a href='" + link + "'>fake host " + host + "</a></p>\r\n";
-        os.write(link.getBytes());
+        os.write(link.getBytes(StandardCharsets.UTF_8));
       }
       // fake a link to the root URL
       link = "<p><a href='" + u.getScheme() + "://" + u.getHost();
       if (u.getPort() != 80 && u.getPort() != -1)
         link += ":" + u.getPort();
       link += "/'>site " + u.getHost() + "</a></p>\r\n";
-      os.write(link.getBytes());
-      os.write(testB.getBytes());
+      os.write(link.getBytes(StandardCharsets.UTF_8));
+      os.write(testB.getBytes(StandardCharsets.UTF_8));
       res.flushBuffer();
     } catch (IOException ioe) {
     }

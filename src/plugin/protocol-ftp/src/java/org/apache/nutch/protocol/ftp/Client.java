@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
@@ -330,7 +331,7 @@ public class Client extends FTP {
           + ((path == null) ? "" : path));
 
     BufferedReader reader = new BufferedReader(new InputStreamReader(
-        socket.getInputStream()));
+        socket.getInputStream(), StandardCharsets.UTF_8));
 
     // force-close data channel socket, when download limit is reached
     // boolean mandatory_close = false;

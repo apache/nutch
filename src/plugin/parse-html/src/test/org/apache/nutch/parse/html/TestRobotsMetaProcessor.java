@@ -20,6 +20,7 @@ package org.apache.nutch.parse.html;
 import org.apache.nutch.parse.HTMLMetaTags;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.URL;
 
 import org.cyberneko.html.parsers.*;
@@ -123,7 +124,7 @@ public class TestRobotsMetaProcessor {
     }
 
     for (int i = 0; i < tests.length; i++) {
-      byte[] bytes = tests[i].getBytes();
+      byte[] bytes = tests[i].getBytes(StandardCharsets.UTF_8);
 
       DocumentFragment node = new HTMLDocumentImpl().createDocumentFragment();
 

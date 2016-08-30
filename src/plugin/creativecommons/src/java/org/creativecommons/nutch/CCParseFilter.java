@@ -37,6 +37,7 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.nio.charset.StandardCharsets;
 
 /** Adds metadata identifying the Creative Commons license used, if any. */
 public class CCParseFilter implements ParseFilter {
@@ -87,9 +88,9 @@ public class CCParseFilter implements ParseFilter {
               + " of " + base);
         }
         page.getMetadata().put(new Utf8(CreativeCommons.LICENSE_URL),
-            ByteBuffer.wrap(licenseUrl.getBytes()));
+            ByteBuffer.wrap(licenseUrl.getBytes(StandardCharsets.UTF_8)));
         page.getMetadata().put(new Utf8(CreativeCommons.LICENSE_LOCATION),
-            ByteBuffer.wrap(licenseLocation.getBytes()));
+            ByteBuffer.wrap(licenseLocation.getBytes(StandardCharsets.UTF_8)));
       }
 
       if (walker.workType != null) {
@@ -97,7 +98,7 @@ public class CCParseFilter implements ParseFilter {
           LOG.debug("CC: found " + walker.workType + " in " + base);
         }
         page.getMetadata().put(new Utf8(CreativeCommons.WORK_TYPE),
-            ByteBuffer.wrap(walker.workType.getBytes()));
+            ByteBuffer.wrap(walker.workType.getBytes(StandardCharsets.UTF_8)));
       }
 
     }

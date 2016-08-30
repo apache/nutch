@@ -63,6 +63,35 @@
  </path>
 
  <!-- ====================================================== -->
+ <!-- Forbidden APIs Targets -->
+ <!-- ====================================================== -->
+
+ <!-- will be used by forbiddenapis -->
+ <path id="all-lib-classpath">
+   <fileset dir="${build.lib.dir}">
+     <include name="**/*.jar" />
+   </fileset>
+   <fileset dir="${runtime.dir}/local/lib">
+     <include name="**/*.jar" />
+   </fileset>
+   <fileset dir="${runtime.dir}/local/plugins">
+     <include name="**/*.jar" />
+   </fileset>
+ </path>
+
+ <!-- forbiddenapis target -->
+ <target name="precommit" depends="runtime, test">
+   <!-- forbiddenapis task definition -->
+   <taskdef name="forbiddenapis" classname="de.thetaphi.forbiddenapis.ant.AntTask" classpath="${build.lib.dir}/forbiddenapis-2.2.jar"/>
+
+   <forbiddenapis classpathref="all-lib-classpath" dir="${build.dir}" targetVersion="${javac.version}">
+     <bundledsignatures name="jdk-unsafe"/>
+     <bundledsignatures name="jdk-deprecated"/>
+     <bundledsignatures name="jdk-non-portable"/>
+   </forbiddenapis>
+ </target>
+
+ <!-- ====================================================== -->
  <!-- Stuff needed by all targets -->
  <!-- ====================================================== -->
  <target name="init" depends="ivy-init" description="--> stuff required by all targets">

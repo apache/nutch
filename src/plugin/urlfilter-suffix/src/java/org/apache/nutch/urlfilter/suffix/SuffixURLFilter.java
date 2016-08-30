@@ -33,11 +33,14 @@ import java.io.Reader;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -151,7 +154,7 @@ public class SuffixURLFilter implements URLFilter {
       return null;
     String _url;
     if (ignoreCase)
-      _url = url.toLowerCase();
+      _url = url.toLowerCase(Locale.ROOT);
     else
       _url = url;
     if (filterFromPath) {
@@ -225,7 +228,7 @@ public class SuffixURLFilter implements URLFilter {
     }
     if (ignore) {
       for (int i = 0; i < aSuffixes.size(); i++) {
-        aSuffixes.set(i, ((String) aSuffixes.get(i)).toLowerCase());
+        aSuffixes.set(i, ((String) aSuffixes.get(i)).toLowerCase(Locale.ROOT));
       }
     }
     suffixes = new SuffixStringMatcher(aSuffixes);
@@ -236,14 +239,14 @@ public class SuffixURLFilter implements URLFilter {
   public static void main(String args[]) throws IOException {
 
     SuffixURLFilter filter;
-    if (args.length >= 1)
-      filter = new SuffixURLFilter(new FileReader(args[0]));
-    else {
+    if (args.length >= 1) {
+      filter = new SuffixURLFilter(new InputStreamReader(new FileInputStream(args[0]), StandardCharsets.UTF_8));
+    } else {
       filter = new SuffixURLFilter();
       filter.setConf(NutchConfiguration.create());
     }
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     String line;
     while ((line = in.readLine()) != null) {
       String out = filter.filter(line);

@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -243,7 +245,7 @@ public class ParseUtil extends Configured {
           for (Map.Entry<String, String[]> metadata : metaDatas) {
             System.out.println();
             newRow.getMetadata().put(new Utf8(metadata.getKey()),
-                ByteBuffer.wrap(metadata.getValue()[0].getBytes()));
+                ByteBuffer.wrap(metadata.getValue()[0].getBytes(StandardCharsets.UTF_8)));
           }
 
           int changeFrequency = calculateFetchInterval(
@@ -362,7 +364,7 @@ public class ParseUtil extends Configured {
         String fromHost;
         if (ignoreExternalLinks) {
           try {
-            fromHost = new URL(url).getHost().toLowerCase();
+            fromHost = new URL(url).getHost().toLowerCase(Locale.ROOT);
           } catch (final MalformedURLException e) {
             fromHost = null;
           }
@@ -382,7 +384,7 @@ public class ParseUtil extends Configured {
           String toHost;
           if (ignoreExternalLinks) {
             try {
-              toHost = new URL(toUrl).getHost().toLowerCase();
+              toHost = new URL(toUrl).getHost().toLowerCase(Locale.ROOT);
             } catch (final MalformedURLException e) {
               toHost = null;
             }

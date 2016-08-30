@@ -20,8 +20,9 @@ package org.apache.nutch.plugin;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Properties;
@@ -259,7 +260,8 @@ public class TestPluginSystem {
    */
   private void createPluginManifest(int i, String pFolderPath)
       throws IOException {
-    FileWriter out = new FileWriter(pFolderPath + File.separator + "plugin.xml");
+    OutputStreamWriter osw = new OutputStreamWriter(
+        new FileOutputStream(pFolderPath + File.separator + "plugin.xml"), StandardCharsets.UTF_8);
     String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
         + "<!--this is just a simple plugin for testing issues.-->"
         + "<plugin id=\"org.apache.nutch.plugin."
@@ -278,9 +280,9 @@ public class TestPluginSystem {
         + "id=\"aExtensionId.\" class=\"org.apache.nutch.plugin.HelloWorldExtension\">"
         + "<parameter name=\"dummy-name\" value=\"a simple param value\"/>"
         + "</implementation></extension></plugin>";
-    out.write(xml);
-    out.flush();
-    out.close();
+    osw.write(xml);
+    osw.flush();
+    osw.close();
   }
 
   private String getParameterValue() {

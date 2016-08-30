@@ -21,6 +21,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.InputStreamReader;
+import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -205,8 +208,8 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       LOG.info("loading " + filename);
     }
     try {
-      FileReader reader = new FileReader(filename);
-      return readConfiguration(reader);
+      InputStreamReader isr = new InputStreamReader(new FileInputStream(filename), StandardCharsets.UTF_8);
+      return readConfiguration(isr);
     } catch (Exception e) {
       LOG.error("Error loading rules from '" + filename + "': " + e);
       return EMPTY_RULES;

@@ -22,6 +22,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -182,7 +183,7 @@ public class TestDOMContentUtils {
       DocumentFragment node = new HTMLDocumentImpl().createDocumentFragment();
       try {
         parser.parse(
-            new InputSource(new ByteArrayInputStream(testPages[i].getBytes())),
+            new InputSource(new ByteArrayInputStream(testPages[i].getBytes(StandardCharsets.UTF_8))),
             node);
         testBaseHrefURLs[i] = new URL(testBaseHrefs[i]);
       } catch (Exception e) {

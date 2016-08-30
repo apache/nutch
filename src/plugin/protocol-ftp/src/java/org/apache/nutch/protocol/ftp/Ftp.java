@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This class is a protocol plugin used for ftp: scheme. It creates
@@ -243,7 +244,7 @@ public class Ftp implements Protocol {
     System.err.println("Last-Modified: "
         + content.getMetadata().get(Response.LAST_MODIFIED));
     if (dumpContent) {
-      System.out.print(new String(content.getContent()));
+      System.out.print(new String(content.getContent(), StandardCharsets.UTF_8));
     }
 
     ftp = null;

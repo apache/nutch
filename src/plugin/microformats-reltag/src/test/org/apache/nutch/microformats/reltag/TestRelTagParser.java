@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
 
@@ -90,7 +91,7 @@ public class TestRelTagParser {
     ByteBuffer bbuf = page.getMetadata().get(new Utf8("Rel-Tag"));
     byte[] byteArray = new byte[bbuf.remaining()];
     bbuf.get(byteArray);
-    String s = new String(byteArray);
+    String s = new String(byteArray, StandardCharsets.UTF_8);
     // bbuf.flip();
     assertEquals("We expect 2 tab-separated rel-tag's extracted by the filter",
         expectedRelTags, s);

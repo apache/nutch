@@ -17,31 +17,17 @@
 
 package org.apache.nutch.parse;
 
-import org.apache.avro.util.Utf8;
-import org.apache.commons.io.IOUtils;
-import org.apache.nutch.crawl.InjectType;
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.net.URLFilterException;
-import org.apache.nutch.net.URLNormalizers;
-import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.ParseStatus;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.AbstractNutchTest;
-import org.apache.nutch.util.TableUtil;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.stubbing.Answer;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -77,7 +63,7 @@ public class TestSitemapParser extends AbstractNutchTest {
         + "<url>\n\t\t<loc>http://localhost/zzz4.html</loc>\n\t\t<lastmod>2015-06-10</lastmod>\n\t\t<changefreq>monthly</changefreq>\n\t\t<priority>0.8</priority>\n\t</url>\n\t"
         + "<url>\n\t\t<loc>http://localhost/zzz5.html</loc>\n\t\t<lastmod>2015-06-10</lastmod>\n\t\t<changefreq>monthly</changefreq>\n\t\t<priority>0.8</priority>\n\t</url>\n"
         + "</urlset>";
-    when(page.getContent()).thenReturn(ByteBuffer.wrap(content.getBytes()));
+    when(page.getContent()).thenReturn(ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8)));
     when(page.getContentType()).thenReturn("application/xml");
 
     NutchSitemapParser sParser = new NutchSitemapParser();
@@ -110,7 +96,7 @@ public class TestSitemapParser extends AbstractNutchTest {
         + "    </sitemap>\n"
         + "</sitemapindex>";
 
-    when(page.getContent()).thenReturn(ByteBuffer.wrap(content.getBytes()));
+    when(page.getContent()).thenReturn(ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8)));
     when(page.getContentType()).thenReturn("application/xml");
     when(page.getSitemaps()).thenReturn(new HashMap<CharSequence, CharSequence>());
 

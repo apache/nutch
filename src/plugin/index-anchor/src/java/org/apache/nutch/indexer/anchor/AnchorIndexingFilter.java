@@ -30,6 +30,7 @@ import java.lang.CharSequence;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Locale;
 
 /**
  * Indexing filter that offers an option to either index all inbound anchor text
@@ -97,7 +98,7 @@ public class AnchorIndexingFilter implements IndexingFilter {
       if (deduplicate) {
         if (set == null)
           set = new HashSet<String>();
-        String lcAnchor = anchor.toLowerCase();
+        String lcAnchor = anchor.toLowerCase(Locale.ROOT);
 
         // Check if already processed the current anchor
         if (!set.contains(lcAnchor)) {

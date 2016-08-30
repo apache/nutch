@@ -20,6 +20,7 @@ package org.apache.nutch.protocol.file;
 // JDK imports
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.net.URL;
 
 import org.apache.hadoop.conf.Configuration;
@@ -275,7 +276,7 @@ public class FileResponse {
 
     x.append("</pre></body></html>\n");
 
-    return new String(x).getBytes();
+    return new String(x).getBytes(StandardCharsets.UTF_8);
   }
 
 }

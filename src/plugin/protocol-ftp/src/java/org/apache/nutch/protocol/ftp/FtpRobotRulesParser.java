@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.Locale;
 
 /**
  * This class is used for parsing robots for urls belonging to FTP protocol. It
@@ -63,9 +64,9 @@ public class FtpRobotRulesParser extends RobotRulesParser {
    */
   public BaseRobotRules getRobotRulesSet(Protocol ftp, URL url) {
 
-    String protocol = url.getProtocol().toLowerCase(); // normalize to lower
+    String protocol = url.getProtocol().toLowerCase(Locale.ROOT); // normalize to lower
                                                        // case
-    String host = url.getHost().toLowerCase(); // normalize to lower case
+    String host = url.getHost().toLowerCase(Locale.ROOT); // normalize to lower case
 
     BaseRobotRules robotRules = (SimpleRobotRules) CACHE.get(protocol + ":"
         + host);

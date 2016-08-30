@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A simple class for detecting character encodings.
@@ -72,7 +73,7 @@ public class EncodingDetector {
     }
 
     public EncodingClue(String value, String source, int confidence) {
-      this.value = value.toLowerCase();
+      this.value = value.toLowerCase(Locale.ROOT);
       this.source = source;
       this.confidence = confidence;
     }
@@ -269,7 +270,7 @@ public class EncodingDetector {
           LOG.trace(baseUrl + ": Choosing encoding: " + charset
               + " with confidence " + clue.confidence);
         }
-        return resolveEncodingAlias(charset).toLowerCase();
+        return resolveEncodingAlias(charset).toLowerCase(Locale.ROOT);
       } else if (clue.confidence == NO_THRESHOLD && bestClue == defaultClue) {
         bestClue = clue;
       }
@@ -278,7 +279,7 @@ public class EncodingDetector {
     if (LOG.isTraceEnabled()) {
       LOG.trace(baseUrl + ": Choosing encoding: " + bestClue);
     }
-    return bestClue.value.toLowerCase();
+    return bestClue.value.toLowerCase(Locale.ROOT);
   }
 
   /** Clears all clues. */

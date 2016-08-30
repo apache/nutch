@@ -20,9 +20,10 @@ import static javax.ws.rs.core.Response.status;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 import javax.ws.rs.Consumes;
@@ -90,9 +91,7 @@ public class SeedResource extends AbstractResource {
 
   private BufferedWriter getWriter(File seedFile) {
     try {
-      return new BufferedWriter(new FileWriter(seedFile));
-    } catch (FileNotFoundException e) {
-      throw handleException(e);
+      return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(seedFile), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw handleException(e);
     }

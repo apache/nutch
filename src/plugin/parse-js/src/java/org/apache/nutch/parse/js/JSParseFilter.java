@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,7 +151,7 @@ public class JSParseFilter implements ParseFilter, Parser {
             links = getJSLinks(anode.getNodeValue(), "", base);
           } else if (anode.getNodeName().equalsIgnoreCase("href")) {
             String val = anode.getNodeValue();
-            if (val != null && val.toLowerCase().indexOf("javascript:") != -1) {
+            if (val != null && val.toLowerCase(Locale.ROOT).indexOf("javascript:") != -1) {
               links = getJSLinks(val, "", base);
             }
           }
@@ -178,7 +179,7 @@ public class JSParseFilter implements ParseFilter, Parser {
   public Parse getParse(String url, WebPage page) {
     String type = TableUtil.toString(page.getContentType());
     if (type != null && !type.trim().equals("")
-        && !type.toLowerCase().startsWith("application/x-javascript"))
+        && !type.toLowerCase(Locale.ROOT).startsWith("application/x-javascript"))
       return ParseStatusUtils.getEmptyParse(
           ParseStatusCodes.FAILED_INVALID_FORMAT, "Content not JavaScript: '"
               + type + "'", getConf());

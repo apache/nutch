@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -124,7 +125,7 @@ public class HostInjectorJob implements Tool {
         String keymd = keysIter.next();
         String valuemd = metadata.get(keymd);
         host.getMetadata().put(new Utf8(keymd),
-            ByteBuffer.wrap(valuemd.getBytes()));
+            ByteBuffer.wrap(valuemd.getBytes(StandardCharsets.UTF_8)));
       }
       String hostname;
       if (url.indexOf("://") > -1) {

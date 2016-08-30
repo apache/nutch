@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.avro.util.Utf8;
 import org.apache.commons.logging.Log;
@@ -83,7 +84,7 @@ public class MetaTagsParser implements ParseFilter {
         LOG.debug("Found meta tag: " + lcMetatag + "\t" + value);
       }
       metadata.put(new Utf8(PARSE_META_PREFIX + lcMetatag),
-          ByteBuffer.wrap(value.getBytes()));
+          ByteBuffer.wrap(value.getBytes(StandardCharsets.UTF_8)));
     }
   }
 

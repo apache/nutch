@@ -26,6 +26,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.*;
 
@@ -81,7 +82,7 @@ public class TestMoreIndexingFilter {
     filter.setConf(conf);
     WebPage page = WebPage.newBuilder().build();
     String url = "http://www.example.com/";
-    page.setContent(ByteBuffer.wrap("text".getBytes()));
+    page.setContent(ByteBuffer.wrap("text".getBytes(StandardCharsets.UTF_8)));
     page.setTitle(new Utf8("title"));
     page.getHeaders().put(EncodingDetector.CONTENT_TYPE_UTF8, new Utf8(source));
     NutchDocument doc = filter.filter(new NutchDocument(), url, page);

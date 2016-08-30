@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -114,7 +115,7 @@ public class FtpResponse {
       if (addr != null && conf.getBoolean("store.ip.address", false) == true) {
         String ipString = addr.getHostAddress(); // get the ip address
         page.getMetadata().put(new Utf8("_ip_"),
-            ByteBuffer.wrap(ipString.getBytes()));
+            ByteBuffer.wrap(ipString.getBytes(StandardCharsets.UTF_8)));
       }
 
       // idled too long, remote server or ourselves may have timed out,
@@ -521,7 +522,7 @@ public class FtpResponse {
 
     x.append("</pre></body></html>\n");
 
-    return new String(x).getBytes();
+    return new String(x).getBytes(StandardCharsets.UTF_8);
   }
 
 }

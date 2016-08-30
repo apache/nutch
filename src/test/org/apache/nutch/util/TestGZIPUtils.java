@@ -21,6 +21,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /** Unit tests for GZIPUtils methods. */
 public class TestGZIPUtils {
@@ -115,41 +116,41 @@ public class TestGZIPUtils {
 
   @Test
   public void testZipUnzip() {
-    byte[] testBytes = SHORT_TEST_STRING.getBytes();
+    byte[] testBytes = SHORT_TEST_STRING.getBytes(StandardCharsets.UTF_8);
     testZipUnzip(testBytes);
-    testBytes = LONGER_TEST_STRING.getBytes();
+    testBytes = LONGER_TEST_STRING.getBytes(StandardCharsets.UTF_8);
     testZipUnzip(testBytes);
-    testBytes = WEBPAGE.getBytes();
+    testBytes = WEBPAGE.getBytes(StandardCharsets.UTF_8);
     testZipUnzip(testBytes);
   }
 
   @Test
   public void testZipUnzipBestEffort() {
-    byte[] testBytes = SHORT_TEST_STRING.getBytes();
+    byte[] testBytes = SHORT_TEST_STRING.getBytes(StandardCharsets.UTF_8);
     testZipUnzipBestEffort(testBytes);
-    testBytes = LONGER_TEST_STRING.getBytes();
+    testBytes = LONGER_TEST_STRING.getBytes(StandardCharsets.UTF_8);
     testZipUnzipBestEffort(testBytes);
-    testBytes = WEBPAGE.getBytes();
+    testBytes = WEBPAGE.getBytes(StandardCharsets.UTF_8);
     testZipUnzipBestEffort(testBytes);
   }
 
   @Test
   public void testTruncation() {
-    byte[] testBytes = SHORT_TEST_STRING.getBytes();
+    byte[] testBytes = SHORT_TEST_STRING.getBytes(StandardCharsets.UTF_8);
     testTruncation(testBytes);
-    testBytes = LONGER_TEST_STRING.getBytes();
+    testBytes = LONGER_TEST_STRING.getBytes(StandardCharsets.UTF_8);
     testTruncation(testBytes);
-    testBytes = WEBPAGE.getBytes();
+    testBytes = WEBPAGE.getBytes(StandardCharsets.UTF_8);
     testTruncation(testBytes);
   }
 
   @Test
   public void testLimit() {
-    byte[] testBytes = SHORT_TEST_STRING.getBytes();
+    byte[] testBytes = SHORT_TEST_STRING.getBytes(StandardCharsets.UTF_8);
     testLimit(testBytes);
-    testBytes = LONGER_TEST_STRING.getBytes();
+    testBytes = LONGER_TEST_STRING.getBytes(StandardCharsets.UTF_8);
     testLimit(testBytes);
-    testBytes = WEBPAGE.getBytes();
+    testBytes = WEBPAGE.getBytes(StandardCharsets.UTF_8);
     testLimit(testBytes);
   }
 

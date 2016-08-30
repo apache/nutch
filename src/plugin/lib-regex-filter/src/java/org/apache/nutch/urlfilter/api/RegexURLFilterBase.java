@@ -22,8 +22,10 @@ import java.io.Reader;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -82,7 +84,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
    */
   public RegexURLFilterBase(File filename) throws IOException,
       IllegalArgumentException {
-    this(new FileReader(filename));
+    this(new InputStreamReader(new FileInputStream(filename), StandardCharsets.UTF_8));
   }
 
   /**
@@ -245,7 +247,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
   public static void main(RegexURLFilterBase filter, String args[])
       throws IOException, IllegalArgumentException {
 
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     String line;
     while ((line = in.readLine()) != null) {
       String out = filter.filter(line);

@@ -19,6 +19,7 @@ package org.apache.nutch.util;
 
 import java.net.MalformedURLException;
 import java.net.*;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.apache.nutch.util.domain.DomainSuffix;
@@ -386,7 +387,7 @@ public class URLUtil {
    */
   public static String getHost(String url) {
     try {
-      return new URL(url).getHost().toLowerCase();
+      return new URL(url).getHost().toLowerCase(Locale.ROOT);
     } catch (MalformedURLException e) {
       return null;
     }
@@ -404,7 +405,7 @@ public class URLUtil {
   public static String getPage(String url) {
     try {
       // get the full url, and replace the query string with and empty string
-      url = url.toLowerCase();
+      url = url.toLowerCase(Locale.ROOT);
       String queryStr = new URL(url).getQuery();
       return (queryStr != null) ? url.replace("?" + queryStr, "") : url;
     } catch (MalformedURLException e) {

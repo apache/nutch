@@ -36,6 +36,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -138,7 +139,7 @@ public class HttpResponse implements Response {
         String ipString = sockAddr.getAddress().getHostAddress(); // get the ip
                                                                   // address
         page.getMetadata().put(new Utf8("_ip_"),
-            ByteBuffer.wrap(ipString.getBytes()));
+            ByteBuffer.wrap(ipString.getBytes(StandardCharsets.UTF_8)));
       }
 
       // make request
@@ -182,7 +183,7 @@ public class HttpResponse implements Response {
       // }
       reqStr.append("\r\n");
 
-      byte[] reqBytes = reqStr.toString().getBytes();
+      byte[] reqBytes = reqStr.toString().getBytes(StandardCharsets.UTF_8);
 
       req.write(reqBytes);
       req.flush();

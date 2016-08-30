@@ -48,6 +48,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.Locale;
 
 public class TestMetaTagsParser {
 
@@ -129,7 +130,7 @@ public class TestMetaTagsParser {
         // Retrieves name, http-equiv and content attribues
         for (int i = 0; i < attrs.getLength(); i++) {
           Node attr = attrs.item(i);
-          String attrName = attr.getNodeName().toLowerCase();
+          String attrName = attr.getNodeName().toLowerCase(Locale.ROOT);
           if (attrName.equals("name")) {
             nameNode = attr;
           } else if (attrName.equals("http-equiv")) {
@@ -140,14 +141,14 @@ public class TestMetaTagsParser {
         }
         if (nameNode != null) {
           if (contentNode != null) {
-            String name = nameNode.getNodeValue().toLowerCase();
+            String name = nameNode.getNodeValue().toLowerCase(Locale.ROOT);
             metaTags.getGeneralTags().add(name, contentNode.getNodeValue());
           }
         }
 
         if (equivNode != null) {
           if (contentNode != null) {
-            String name = equivNode.getNodeValue().toLowerCase();
+            String name = equivNode.getNodeValue().toLowerCase(Locale.ROOT);
             String content = contentNode.getNodeValue();
             metaTags.getHttpEquivTags().setProperty(name, content);
           }

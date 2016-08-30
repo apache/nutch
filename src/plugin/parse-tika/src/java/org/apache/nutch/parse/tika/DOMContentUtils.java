@@ -22,6 +22,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.Outlink;
@@ -321,7 +323,7 @@ public class DOMContentUtils {
 
       if (nodeType == Node.ELEMENT_NODE) {
 
-        nodeName = nodeName.toLowerCase();
+        nodeName = nodeName.toLowerCase(Locale.ROOT);
         LinkParams params = (LinkParams) linkParams.get(nodeName);
         if (params != null) {
           if (!shouldThrowAwayLink(currentNode, children, childLen, params)) {

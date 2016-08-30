@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -210,7 +211,7 @@ public class DOMContentUtilsTest {
       // to add once available in Tika
       // context.set(HtmlMapper.class, IdentityHtmlMapper.INSTANCE);
       try {
-        parser.parse(new ByteArrayInputStream(testPages[i].getBytes()),
+        parser.parse(new ByteArrayInputStream(testPages[i].getBytes(StandardCharsets.UTF_8)),
             domhandler, tikamd, context);
         testBaseHrefURLs[i] = new URL(testBaseHrefs[i]);
       } catch (Exception e) {

@@ -20,6 +20,7 @@ package org.apache.nutch.protocol.sftp;
 //JDK imports
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -222,7 +223,7 @@ public class Sftp implements Protocol {
       metadata.set(Response.LOCATION, url.toExternalForm());
 
       Content content = new Content(url.toExternalForm(), url.toExternalForm(),
-          directoryList.getBytes(), "text/html", metadata, configuration);
+          directoryList.getBytes(StandardCharsets.UTF_8), "text/html", metadata, configuration);
       ProtocolOutput po = new ProtocolOutput(content);
       return po;
     } catch (SftpException e) {
