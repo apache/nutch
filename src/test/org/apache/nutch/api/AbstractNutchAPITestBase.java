@@ -141,7 +141,7 @@ public abstract class AbstractNutchAPITestBase {
     */
 
     if (ChallengeScheme.HTTP_DIGEST.equals(challengeScheme)) {
-      // User server's data to complete the challengeResponse object
+      // Use server's data to complete the challengeResponse object
       ChallengeRequest digestChallengeRequest = retrieveDigestChallengeRequest(resource);
       ChallengeResponse challengeResponse = new ChallengeResponse(digestChallengeRequest, resource.getResponse(),
           username, password.toCharArray());

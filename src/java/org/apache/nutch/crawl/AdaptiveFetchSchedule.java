@@ -46,10 +46,8 @@ import org.apache.nutch.storage.WebPage;
  * <p>
  * NOTE: values of DEC_FACTOR and INC_FACTOR higher than 0.4f may destabilize
  * the algorithm, so that the fetch interval either increases or decreases
- * infinitely, with little relevance to the page changes. Please use
- * {@link #main(String[])} method to test the values before applying them in a
- * production system.
- * </p>
+ * infinitely, with little relevance to the page changes.
+ *
  * 
  * @author Andrzej Bialecki
  */

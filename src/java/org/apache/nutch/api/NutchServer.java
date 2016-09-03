@@ -98,9 +98,9 @@ public class NutchServer extends Application {
    * 'INFO' however best attempts should always be made to specify a logging
    * level.&lt;br&gt;
    * {@link org.apache.nutch.api.NutchServer} can be run as secure. restapi.auth property
-   * should be set to BASIC, DIGEST or SSL at &lt;code&gt;nutch-site.xml&lt;/code&gt; to enable HTTP basic authentication,
+   * should be set to BASIC, DIGEST or SSL at <code>nutch-site.xml</code> to enable HTTP basic authentication,
    * digest authentication or SSL when communicating with RESTAPI.
-   * Set restapi.auth.username and restapi.auth.password properties at &lt;code&gt;nutch-site.xml&lt;/code&gt; to configure
+   * Set restapi.auth.username and restapi.auth.password properties at <code>nutch-site.xml</code> to configure
    * credentials when BASIC or DIGEST authentication is used.
    * Set restapi.auth.ssl.storepath, restapi.auth.ssl.storepass and restapi.auth.ssl.keypass when SSL is used.
    *
@@ -117,11 +117,13 @@ public class NutchServer extends Application {
    * 'INFO' however best attempts should always be made to specify a logging
    * level.&lt;br&gt;
    * {@link org.apache.nutch.api.NutchServer} can be run as secure. restapi.auth property
-   * should be set to BASIC, DIGEST or SSL at &lt;code&gt;nutch-site.xml&lt;/code&gt; to enable HTTP basic authentication,
+   * should be set to BASIC, DIGEST or SSL at <code>nutch-site.xml</code> to enable HTTP basic authentication,
    * digest authentication or SSL when communicating with RESTAPI.
-   * Set restapi.auth.username and restapi.auth.password properties at &lt;code&gt;nutch-site.xml&lt;/code&gt; to configure
+   * Set restapi.auth.username and restapi.auth.password properties at <code>nutch-site.xml</code> to configure
    * credentials when BASIC or DIGEST authentication is used.
    * Set restapi.auth.ssl.storepath, restapi.auth.ssl.storepass and restapi.auth.ssl.keypass when SSL is used.
+   *
+   * @param ramConfManager {@link RAMConfManager}
    *
    * @see org.apache.nutch.api.security.AuthenticationTypeEnum
    */
@@ -137,11 +139,14 @@ public class NutchServer extends Application {
    * 'INFO' however best attempts should always be made to specify a logging
    * level.&lt;br&gt;
    * {@link org.apache.nutch.api.NutchServer} can be run as secure. restapi.auth property
-   * should be set to BASIC, DIGEST or SSL at &lt;code&gt;nutch-site.xml&lt;/code&gt; to enable HTTP basic authentication,
+   * should be set to BASIC, DIGEST or SSL at <code>nutch-site.xml</code> to enable HTTP basic authentication,
    * digest authentication or SSL when communicating with RESTAPI.
-   * Set restapi.auth.username and restapi.auth.password properties at &lt;code&gt;nutch-site.xml&lt;/code&gt; to configure
+   * Set restapi.auth.username and restapi.auth.password properties at <code>nutch-site.xml</code> to configure
    * credentials when BASIC or DIGEST authentication is used.
    * Set restapi.auth.ssl.storepath, restapi.auth.ssl.storepass and restapi.auth.ssl.keypass when SSL is used.
+   *
+   * @param ramConfManager {@link RAMConfManager}
+   * @param confId active configuration id
    *
    * @see org.apache.nutch.api.security.AuthenticationTypeEnum
    */
@@ -305,7 +310,7 @@ public class NutchServer extends Application {
   /**
    * Safety and convenience method to determine whether or not it is safe to
    * shut down the server. We make this assertion by consulting the
-   * {@link org.apache.nutch.api.NutchApp#jobManager} for a list of jobs with
+   * {@link #getJobMgr()}  for a list of jobs with
    * {@link org.apache.nutch.api.model.response.JobInfo#state} equal to
    * 'RUNNING'.
    * 
@@ -356,8 +361,8 @@ public class NutchServer extends Application {
   /**
    * Main method for NutchServer to run via command line.
    *
-   * @param args  arguments for log level, stopping the Server and port.
-   * @throws Exception
+   * @param args arguments for log level, stopping the Server and port.
+   * @throws Exception exception
    */
   public static void main(String[] args) throws Exception {
     CommandLineParser parser = new PosixParser();

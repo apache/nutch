@@ -161,8 +161,8 @@ public class Http extends HttpBase {
    * 
    * @param url
    *          URL to be fetched
-   * @param datum
-   *          Crawl data
+   * @param page
+   *          {@link WebPage} object relative to the URL
    * @param redirect
    *          Follow redirects if and only if true
    * @return HTTP response

@@ -42,7 +42,7 @@ import static org.junit.Assert.assertEquals;
  * <li>Generates entries to fetch</li>
  * <li>Verifies that number of generated urls match, and finally </li>
  * <li>Verifies that highest scoring urls are generated.</li>
- * <ol>
+ * </ol>
  * 
  */
 public class TestGenerator extends AbstractNutchTest {

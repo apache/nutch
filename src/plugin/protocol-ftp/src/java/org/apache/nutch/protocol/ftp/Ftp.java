@@ -114,8 +114,8 @@ public class Ftp implements Protocol {
    * 
    * @param url
    *          Text containing the ftp url
-   * @param datum
-   *          The CrawlDatum object corresponding to the url
+   * @param page
+   *          {@link WebPage} object relative to the URL
    * 
    * @return {@link ProtocolOutput} object for the url
    */

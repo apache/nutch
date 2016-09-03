@@ -23,17 +23,16 @@ package org.apache.nutch.util.domain;
  * name of a host. The domain name of a host is defined to be the last part
  * before the domain suffix, w/o subdomain names. As an example the domain name
  * of <br>
- * <code> http://lucene.apache.org/ 
+ * <code> http://lucene.apache.org/
  * </code><br>
  * is <code> apache.org</code> <br>
  * This class holds three fields, <strong>domain</strong> field represents the
  * suffix (such as "co.uk") <strong>boost</strong> is a float for boosting score
  * of url's with this suffix <strong>status</strong> field represents domain's
- * status
+ * status. Check also domain-suffixes.xml
  * 
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
  * @see TopLevelDomain
- * @see domain-suffixes.xml
  */
 public class DomainSuffix {
 

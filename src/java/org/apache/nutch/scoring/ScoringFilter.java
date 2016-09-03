@@ -72,8 +72,8 @@ public interface ScoringFilter extends Configurable, FieldPluggable {
    * 
    * @param url
    *          url of the page
-   * @param datum
-   *          page row. Modifications will be persisted.
+   * @param page
+   *          {@link WebPage} object relative to the URL
    * @param initSort
    *          initial sort value, or a value from previous filters in chain
    */
@@ -85,13 +85,8 @@ public interface ScoringFilter extends Configurable, FieldPluggable {
    * 
    * @param fromUrl
    *          url of the source page
-   * @param row
-   *          page row
    * @param scoreData
-   *          A list of {@link OutlinkedScoreDatum}s for every outlink. These
-   *          {@link OutlinkedScoreDatum}s will be passed to
-   *          {@link #updateScore(String, OldWebTableRow, List)} for every
-   *          outlinked URL.
+   *          A list of {@link ScoreDatum}
    * @param allCount
    *          number of all collected outlinks from the source page
    * @throws ScoringFilterException
@@ -106,9 +101,9 @@ public interface ScoringFilter extends Configurable, FieldPluggable {
    * 
    * @param url
    *          url of the page
-   * @param page
-   * @param inlinked
-   *          list of {@link OutlinkedScoreDatum}s for all inlinks pointing to
+   * @param page {@link WebPage} object relative to the URL
+   * @param inlinkedScoreData
+   *          list of {@link ScoreDatum}s for all inlinks pointing to
    *          this URL.
    * @throws ScoringFilterException
    */
@@ -124,8 +119,6 @@ public interface ScoringFilter extends Configurable, FieldPluggable {
    *          document. NOTE: this already contains all information collected by
    *          indexing filters. Implementations may modify this instance, in
    *          order to store/remove some information.
-   * @param row
-   *          page row
    * @param initScore
    *          initial boost value for the Lucene document.
    * @return boost value for the Lucene document. This value is passed as an

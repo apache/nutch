@@ -97,7 +97,7 @@ public class DummySSLProtocolSocketFactory implements
    * create a new socket within the given limit of time. If socket constructor
    * does not return until the timeout expires, the controller terminates and
    * throws an {@link ConnectTimeoutException}
-   * </p>
+   *
    * 
    * @param host
    *          the host name/IP

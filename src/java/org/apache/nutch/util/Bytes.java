@@ -980,7 +980,7 @@ public class Bytes {
    *          left operand
    * @param right
    *          right operand
-   * @return 0 if equal, < 0 if left is less than right, etc.
+   * @return 0 if equal, &lt; 0 if left is less than right, etc.
    */
   public static int compareTo(final byte[] left, final byte[] right) {
     return compareTo(left, 0, left.length, right, 0, right.length);
@@ -1001,7 +1001,7 @@ public class Bytes {
    *          How much to compare from the left buffer
    * @param length2
    *          How much to compare from the right buffer
-   * @return 0 if equal, < 0 if left is less than right, etc.
+   * @return 0 if equal, &lt; 0 if left is less than right, etc.
    */
   public static int compareTo(byte[] buffer1, int offset1, int length1,
       byte[] buffer2, int offset2, int length2) {
@@ -1050,7 +1050,7 @@ public class Bytes {
    * @return Runs {@link WritableComparator#hashBytes(byte[], int)} on the
    *         passed in array. This method is what
    *         {@link org.apache.hadoop.io.Text} and
-   *         {@link ImmutableBytesWritable} use calculating hash code.
+   *         org.apache.hadoop.hbase.io.ImmutableBytesWritable use calculating hash code.
    */
   public static int hashCode(final byte[] b) {
     return hashCode(b, b.length);
@@ -1064,7 +1064,7 @@ public class Bytes {
    * @return Runs {@link WritableComparator#hashBytes(byte[], int)} on the
    *         passed in array. This method is what
    *         {@link org.apache.hadoop.io.Text} and
-   *         {@link ImmutableBytesWritable} use calculating hash code.
+   *         org.apache.hadoop.hbase.io.ImmutableBytesWritable use calculating hash code.
    */
   public static int hashCode(final byte[] b, final int length) {
     return WritableComparator.hashBytes(b, length);
@@ -1366,12 +1366,12 @@ public class Bytes {
    * given amount.
    * 
    * @param value
-   *          - array of bytes containing long (length <= SIZEOF_LONG)
+   *          - array of bytes containing long (length &lt;= SIZEOF_LONG)
    * @param amount
    *          value will be incremented on (deincremented if negative)
    * @return array of bytes containing incremented long (length == SIZEOF_LONG)
    * @throws IOException
-   *           - if value.length > SIZEOF_LONG
+   *           - if value.length &gt; SIZEOF_LONG
    */
   public static byte[] incrementBytes(byte[] value, long amount)
       throws IOException {

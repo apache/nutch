@@ -79,19 +79,17 @@ public class FetcherJob extends NutchTool implements Tool {
   /**
    * <p>
    * Mapper class for Fetcher.
-   * </p>
+   *
    * <p>
    * This class reads the random integer written by {@link GeneratorJob} as its
    * key while outputting the actual key and value arguments through a
    * {@link FetchEntry} instance.
-   * </p>
+   *
    * <p>
-   * This approach (combined with the use of {@link PartitionUrlByHost}) makes
-   * sure that Fetcher is still polite while also randomizing the key order. If
    * one host has a huge number of URLs in your table while other hosts have
    * not, {@link FetcherReducer} will not be stuck on one host but process URLs
    * from other hosts as well.
-   * </p>
+   *
    */
   public static class FetcherMapper extends
   GoraMapper<String, WebPage, IntWritable, FetchEntry> {
@@ -246,7 +244,7 @@ public class FetcherJob extends NutchTool implements Tool {
    *          number of threads per map task
    * @param shouldResume
    * @param numTasks
-   *          number of fetching tasks (reducers). If set to < 1 then use the
+   *          number of fetching tasks (reducers). If set to &lt; 1 then use the
    *          default, which is mapred.map.tasks.
    * @return 0 on success
    * @throws Exception
@@ -266,7 +264,7 @@ public class FetcherJob extends NutchTool implements Tool {
    *          number of threads per map task
    * @param shouldResume
    * @param numTasks
-   *          number of fetching tasks (reducers). If set to < 1 then use the
+   *          number of fetching tasks (reducers). If set to &lt; 1 then use the
    *          default, which is mapred.map.tasks.
    * @param stmDetect
    *          If set true, sitemap detection is run.

@@ -165,7 +165,11 @@ public class GeneratorJob extends NutchTool implements Tool {
     return fields;
   }
 
-  /** Generate a random batch id */
+  /**
+   * Generates a random batch id
+   *
+   * @return random batch id
+   */
   public static String randomBatchId() {
     long curTime = System.currentTimeMillis();
     int randomSeed = Math.abs(new Random().nextInt());
@@ -173,6 +177,13 @@ public class GeneratorJob extends NutchTool implements Tool {
     return batchId;
   }
 
+  /**
+   * Runs generator
+   *
+   * @param args map of arguments
+   * @return results
+   * @throws Exception
+   */
   public Map<String, Object> run(Map<String, Object> args) throws Exception {
     String batchId = (String) args.get(Nutch.ARG_BATCH);
     if (batchId == null) {
@@ -290,6 +301,13 @@ public class GeneratorJob extends NutchTool implements Tool {
     return batchId;
   }
 
+  /**
+   * Runs generator from commandline
+   *
+   * @param args arguments
+   * @return returns -1
+   * @throws Exception
+   */
   public int run(String[] args) throws Exception {
     if (args.length <= 0) {
       System.out

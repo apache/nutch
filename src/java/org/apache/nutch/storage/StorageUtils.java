@@ -82,7 +82,7 @@ public class StorageUtils {
   /**
    * Return the Persistent Gora class used to persist Nutch Web data.
    * 
-   * @param the
+   * @param conf
    *          Nutch configuration
    * @return the Gora DataStore persistent class
    * @throws ClassNotFoundException

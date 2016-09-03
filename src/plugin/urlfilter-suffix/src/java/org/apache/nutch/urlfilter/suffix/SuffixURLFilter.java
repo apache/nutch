@@ -68,22 +68,22 @@ import java.net.MalformedURLException;
  * The format of this config file is one URL suffix per line, with no preceding
  * whitespace. Order, in which suffixes are specified, doesn't matter. Blank
  * lines and comments (#) are allowed.
- * </p>
+ *
  * <p>
  * A single '+' or '-' sign not followed by any suffix must be used once, to
  * signify the mode this plugin operates in. An optional single 'I' can be
  * appended, to signify that suffix matches should be case-insensitive. The
  * default, if not specified, is to use case-sensitive matches, i.e. suffix
  * '.JPG' does not match '.jpg'.
- * </p>
+ *
  * <p>
  * NOTE: the format of this file is different from urlfilter-prefix, because
  * that plugin doesn't support allowed/prohibited prefixes (only supports
  * allowed prefixes). Please note that this plugin does not support regular
  * expressions, it only accepts literal suffixes. I.e. a suffix "+*.jpg" is most
  * probably wrong, you should use "+.jpg" instead.
- * </p>
- * <h4>Example 1</h4>
+ *
+ * <strong>Example 1</strong>
  * <p>
  * The configuration shown below will accept all URLs with '.html' or '.htm'
  * suffixes (case-sensitive - '.HTML' or '.HTM' will be rejected), and prohibit
@@ -101,8 +101,8 @@ import java.net.MalformedURLException;
  *  .htm
  * </pre>
  * 
- * </p>
- * <h4>Example 2</h4>
+ *
+ * <strong>Example 2</strong>
  * <p>
  * The configuration shown below will accept all URLs except common graphical
  * formats.
@@ -122,7 +122,7 @@ import java.net.MalformedURLException;
  *  .bmp
  * </pre>
  * 
- * </p>
+ *
  * 
  * @author Andrzej Bialecki
  */

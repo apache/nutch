@@ -49,7 +49,7 @@ import java.util.ArrayList;
  * 
  * <p>
  * The format of this file is one URL prefix per line.
- * </p>
+ *
  */
 public class PrefixURLFilter implements URLFilter {
 

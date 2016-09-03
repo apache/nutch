@@ -99,8 +99,8 @@ public class File implements Protocol {
    * 
    * @param url
    *          Text containing the url
-   * @param datum
-   *          The CrawlDatum object corresponding to the url
+   * @param page
+   *          {@link WebPage} object relative to the URL
    * 
    * @return {@link ProtocolOutput} object for the content of the file indicated
    *         by url

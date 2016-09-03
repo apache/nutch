@@ -201,7 +201,7 @@ public class CollectionManager extends Configured {
   /**
    * Save collections into file
    * 
-   * @throws Exception
+   * @throws IOException
    */
   public void save() throws IOException {
     try {

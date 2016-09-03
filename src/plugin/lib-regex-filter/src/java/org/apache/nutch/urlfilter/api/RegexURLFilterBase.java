@@ -44,19 +44,13 @@ import org.apache.nutch.net.*;
  * expressions.
  * 
  * <p>
- * The regular expressions rules are expressed in a file. The file of rules is
- * provided by each implementation using the
- * {@link #getRulesFile(Configuration)} method.
- * </p>
- * 
- * <p>
- * The format of this file is made of many rules (one per line):<br/>
+ * The format of this file is made of many rules (one per line):<br>
  * <code>
  * [+-]&lt;regex&gt;
- * </code><br/>
+ * </code><br>
  * where plus (<code>+</code>)means go ahead and index it and minus (
  * <code>-</code>)means no.
- * </p>
+ *
  */
 public abstract class RegexURLFilterBase implements URLFilter {
 

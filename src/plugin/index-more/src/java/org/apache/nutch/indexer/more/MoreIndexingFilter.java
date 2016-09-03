@@ -148,14 +148,14 @@ public class MoreIndexingFilter implements IndexingFilter {
    * primaryType and subType to field "type" as un-stored, indexed and
    * un-tokenized, so that search results can be confined by contentType or its
    * primaryType or its subType.
-   * </p>
+   *
    * <p>
    * For example, if contentType is application/vnd.ms-powerpoint, search can be
    * done with one of the following qualifiers
    * type:application/vnd.ms-powerpoint type:application type:vnd.ms-powerpoint
    * all case insensitive. The query filter is implemented in
    * {@link TypeQueryFilter}.
-   * </p>
+   *
    * 
    * @param doc
    * @param data

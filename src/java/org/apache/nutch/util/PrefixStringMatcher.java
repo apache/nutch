@@ -70,8 +70,8 @@ public class PrefixStringMatcher extends TrieStringMatcher {
   }
 
   /**
-   * Returns the shortest prefix of <code>input<code> that is matched,
-   * or <code>null<code> if no match exists.
+   * Returns the shortest prefix of <code>input</code> that is matched,
+   * or <code>null</code> if no match exists.
    */
   public String shortestMatch(String input) {
     TrieNode node = root;
@@ -86,8 +86,8 @@ public class PrefixStringMatcher extends TrieStringMatcher {
   }
 
   /**
-   * Returns the longest prefix of <code>input<code> that is matched,
-   * or <code>null<code> if no match exists.
+   * Returns the longest prefix of <code>input</code> that is matched,
+   * or <code>null</code> if no match exists.
    */
   public String longestMatch(String input) {
     TrieNode node = root;

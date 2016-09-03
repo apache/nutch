@@ -174,7 +174,7 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * supply a locator: if it does so, it must supply the locator to the
    * application by invoking this method before invoking any of the other
    * methods in the ContentHandler interface.
-   * </p>
+   *
    * 
    * <p>
    * The locator allows the application to determine the end position of any
@@ -183,13 +183,13 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * errors (such as character content that does not match an application's
    * business rules). The information returned by the locator is probably not
    * sufficient for use with a search engine.
-   * </p>
+   *
    * 
    * <p>
    * Note that the locator will return correct information only during the
    * invocation of the events in this interface. The application should not
    * attempt to use it at any other time.
-   * </p>
+   *
    * 
    * @param locator
    *          An object that can return the location of any SAX document event.
@@ -206,7 +206,7 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * <p>
    * The SAX parser will invoke this method only once, before any other methods
    * in this interface or in DTDHandler (except for setDocumentLocator).
-   * </p>
+   *
    */
   public void startDocument() throws org.xml.sax.SAXException {
 
@@ -221,7 +221,7 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * method invoked during the parse. The parser shall not invoke this method
    * until it has either abandoned parsing (because of an unrecoverable error)
    * or reached the end of input.
-   * </p>
+   *
    */
   public void endDocument() throws org.xml.sax.SAXException {
 
@@ -237,14 +237,14 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * startElement() event (even when the element is empty). All of the element's
    * content will be reported, in order, before the corresponding endElement()
    * event.
-   * </p>
+   *
    * 
    * <p>
    * If the element name has a namespace prefix, the prefix will still be
    * attached. Note that the attribute list provided will contain only
    * attributes with explicit values (specified or defaulted): #IMPLIED
    * attributes will be omitted.
-   * </p>
+   *
    * 
    * 
    * @param ns
@@ -328,12 +328,12 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * The SAX parser will invoke this method at the end of every element in the
    * XML document; there will be a corresponding startElement() event for every
    * endElement() event (even when the element is empty).
-   * </p>
+   *
    * 
    * <p>
    * If the element name has a namespace prefix, the prefix will still be
    * attached to the name.
-   * </p>
+   *
    * 
    * 
    * @param ns
@@ -371,18 +371,18 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * they may split it into several chunks; however, all of the characters in
    * any single event must come from the same external entity, so that the
    * Locator provides useful information.
-   * </p>
+   *
    * 
    * <p>
    * The application must not attempt to read from the array outside of the
    * specified range.
-   * </p>
+   *
    * 
    * <p>
    * Note that some parsers will report whitespace using the
    * ignorableWhitespace() method rather than this one (validating parsers must
    * do so).
-   * </p>
+   *
    * 
    * @param ch
    *          The characters from the XML document.
@@ -489,19 +489,19 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * whitespace (see the W3C XML 1.0 recommendation, section 2.10):
    * non-validating parsers may also use this method if they are capable of
    * parsing and using content models.
-   * </p>
+   *
    * 
    * <p>
    * SAX parsers may return all contiguous whitespace in a single chunk, or they
    * may split it into several chunks; however, all of the characters in any
    * single event must come from the same external entity, so that the Locator
    * provides useful information.
-   * </p>
+   *
    * 
    * <p>
    * The application must not attempt to read from the array outside of the
    * specified range.
-   * </p>
+   *
    * 
    * @param ch
    *          The characters from the XML document.
@@ -539,12 +539,12 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * The Parser will invoke this method once for each processing instruction
    * found: note that processing instructions may occur before or after the main
    * document element.
-   * </p>
+   *
    * 
    * <p>
    * A SAX parser should never report an XML declaration (XML 1.0, section 2.8)
    * or a text declaration (XML 1.0, section 4.3.1) using this method.
-   * </p>
+   *
    * 
    * @param target
    *          The processing instruction target.
@@ -608,18 +608,18 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * they may split it into several chunks; however, all of the characters in
    * any single event must come from the same external entity, so that the
    * Locator provides useful information.
-   * </p>
+   *
    * 
    * <p>
    * The application must not attempt to read from the array outside of the
    * specified range.
-   * </p>
+   *
    * 
    * <p>
    * Note that some parsers will report whitespace using the
    * ignorableWhitespace() method rather than this one (validating parsers must
    * do so).
-   * </p>
+   *
    * 
    * @param ch
    *          The characters from the XML document.
@@ -687,14 +687,14 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * processing: the SAX XML reader will automatically replace prefixes for
    * element and attribute names when the http://xml.org/sax/features/namespaces
    * feature is true (the default).
-   * </p>
+   *
    * 
    * <p>
    * There are cases, however, when applications need to use prefixes in
    * character data or in attribute values, where they cannot safely be expanded
    * automatically; the start/endPrefixMapping event supplies the information to
    * the application to expand prefixes in those contexts itself, if necessary.
-   * </p>
+   *
    * 
    * <p>
    * Note that start/endPrefixMapping events are not guaranteed to be properly
@@ -702,7 +702,7 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * before the corresponding startElement event, and all endPrefixMapping
    * events will occur after the corresponding endElement event, but their order
    * is not guaranteed.
-   * </p>
+   *
    * 
    * @param prefix
    *          The Namespace prefix being declared.
@@ -735,7 +735,7 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * See startPrefixMapping for details. This event will always occur after the
    * corresponding endElement event, but the order of endPrefixMapping events is
    * not otherwise guaranteed.
-   * </p>
+   *
    * 
    * @param prefix
    *          The prefix that was being mapping.
@@ -755,7 +755,7 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * DTD subset). All processors may skip external entities, depending on the
    * values of the http://xml.org/sax/features/external-general-entities and the
    * http://xml.org/sax/features/external-parameter-entities properties.
-   * </p>
+   *
    * 
    * @param name
    *          The name of the skipped entity. If it is a parameter entity, the

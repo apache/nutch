@@ -54,7 +54,7 @@ import org.apache.commons.net.ftp.FTPConnectionClosedException;
  * servers out there, when partial downloading is enforeced by closing data
  * channel socket on our client side, the server side immediately closes control
  * channel (socket). Our codes deal with such a bad behavior. (4) LIST is used
- * to obtain remote file attributes if possible. MDTM & SIZE would be nice, but
+ * to obtain remote file attributes if possible. MDTM &amp; SIZE would be nice, but
  * not as ubiquitously implemented as LIST. (5) Avoid using ABOR in single
  * thread? Do not use it at all.
  * 

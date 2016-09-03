@@ -65,8 +65,8 @@ public class SuffixStringMatcher extends TrieStringMatcher {
   }
 
   /**
-   * Returns the shortest suffix of <code>input<code> that is matched,
-   * or <code>null<code> if no match exists.
+   * Returns the shortest suffix of <code>input</code> that is matched,
+   * or <code>null</code> if no match exists.
    */
   public String shortestMatch(String input) {
     TrieNode node = root;
@@ -81,8 +81,8 @@ public class SuffixStringMatcher extends TrieStringMatcher {
   }
 
   /**
-   * Returns the longest suffix of <code>input<code> that is matched,
-   * or <code>null<code> if no match exists.
+   * Returns the longest suffix of <code>input</code> that is matched,
+   * or <code>null</code> if no match exists.
    */
   public String longestMatch(String input) {
     TrieNode node = root;

@@ -71,7 +71,8 @@ public class CrawlTestUtil {
   /**
    * Generate seedlist
    * 
-   * @see TestInjector
+   * @see org.apache.nutch.crawl.TestInjector
+   *
    * @throws IOException
    */
   public static void generateSeedList(FileSystem fs, Path urlPath,
@@ -148,11 +149,11 @@ public class CrawlTestUtil {
   }
 
   /**
-   * Generate Fetchlist.
+   * Generates Fetchlist
    *
    * @param numResults number of results to generate
    * @param config     Configuration to use
-   * @return path to generated batch
+   *
    * @throws IOException
    */
   public static void generateFetchlist(int numResults, Configuration config,

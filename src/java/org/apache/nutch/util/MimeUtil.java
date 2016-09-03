@@ -50,7 +50,7 @@ import org.apache.nutch.protocol.ProtocolOutput;
  *        substrate library, <a href="http://incubator.apache.org/tika/">Apache
  *        Tika</a>. Any mime handling code should be placed in this utility
  *        class, and hidden from the Nutch classes that rely on it.
- *        </p>
+ *
  */
 public final class MimeUtil {
 
@@ -229,7 +229,7 @@ public final class MimeUtil {
    * method.
    * 
    * @param url
-   *          A string representation of the document {@link URL} to sense the
+   *          A string representation of the document. URL to sense the
    *          {@link MimeType} for.
    * @return An appropriate {@link MimeType}, identified from the given Document
    *         url in string form.

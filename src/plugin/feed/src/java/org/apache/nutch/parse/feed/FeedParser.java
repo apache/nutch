@@ -64,7 +64,7 @@ import com.sun.syndication.io.SyndFeedInput;
  * <p>
  * A new RSS/ATOM Feed{@link Parser} that rapidly parses all referenced links
  * and content present in the feed.
- * </p>
+ *
  * 
  */
 public class FeedParser implements Parser {

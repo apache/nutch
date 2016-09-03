@@ -63,7 +63,7 @@ public class NutchJob extends Job {
    * Creates a new {@link NutchJob} with no particular {@link org.apache.hadoop.mapreduce.Cluster} and a 
    * given {@link org.apache.hadoop.conf.Configuration}.
    * 
-   * The <code>NutchJob</code> makes a copy of the <code>Configuration</code> so 
+   * The <code>NutchJob</code> makes a copy of the <code>Configuration</code> so
    * that any necessary internal modifications do not reflect on the incoming 
    * parameter.
    * 
@@ -87,7 +87,7 @@ public class NutchJob extends Job {
    * and a given jobName.
    * A Cluster will be created from the conf parameter only when it's needed.
    *
-   * The <code>NutchJob</code> makes a copy of the <code>Configuration</code> so 
+   * The <code>NutchJob</code> makes a copy of the <code>Configuration</code> so
    * that any necessary internal modifications do not reflect on the incoming 
    * parameter.
    * 

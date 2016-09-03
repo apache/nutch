@@ -59,7 +59,7 @@ public class TestRSSParser {
   /**
    * <p>
    * The test method: tests out the following 2 asserts:
-   * </p>
+   *
    * 
    * <ul>
    * <li>There are 3 outlinks read from the sample rss file</li>

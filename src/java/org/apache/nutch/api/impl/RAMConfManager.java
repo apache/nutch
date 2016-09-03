@@ -50,6 +50,9 @@ public class RAMConfManager implements ConfManager {
 
   /**
    * Public constructor which accepts a configuration id and {@link Configuration} type configuration.
+   *
+   * @param confId configuration id
+   * @param configuration configuration
    */
   public RAMConfManager(String confId, Configuration configuration) {
     configurations.put(confId, configuration);

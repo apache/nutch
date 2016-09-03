@@ -49,6 +49,7 @@ public interface FetchSchedule extends Configurable {
    * @param url
    *          URL of the page.
    * @param page
+   *          {@link WebPage} object relative to the URL
    */
   public void initializeSchedule(String url, WebPage page);
 
@@ -60,21 +61,16 @@ public interface FetchSchedule extends Configurable {
    * @param url
    *          url of the page
    * @param page
+   *          {@link WebPage} object relative to the URL
    * @param prevFetchTime
    *          previous value of fetch time, or -1 if not available
    * @param prevModifiedTime
    *          previous value of modifiedTime, or -1 if not available
    * @param fetchTime
-   *          the latest time, when the page was recently re-fetched. Most
-   *          FetchSchedule implementations should update the value in
-   * @param datum
-   *          to something greater than this value.
+   *          the latest time, when the page was recently re-fetched.
    * @param modifiedTime
    *          last time the content was modified. This information comes from
-   *          the protocol implementations, or is set to < 0 if not available.
-   *          Most FetchSchedule implementations should update the value in
-   * @param datum
-   *          to this value.
+   *          the protocol implementations, or is set to &lt; 0 if not available.
    * @param state
    *          if {@link #STATUS_MODIFIED}, then the content is considered to be
    *          "changed" before the <code>fetchTime</code>, if
@@ -90,13 +86,10 @@ public interface FetchSchedule extends Configurable {
 
   /**
    * This method specifies how to schedule refetching of pages marked as GONE.
-   * Default implementation increases fetchInterval by 50%, and if it exceeds
-   * the <code>maxInterval</code> it calls
-   * {@link #forceRefetch(Text, CrawlDatum, boolean)}.
-   * 
    * @param url
    *          URL of the page
    * @param page
+   *          {@link WebPage} object relative to the URL
    */
   public void setPageGoneSchedule(String url, WebPage page, long prevFetchTime,
       long prevModifiedTime, long fetchTime);
@@ -109,6 +102,7 @@ public interface FetchSchedule extends Configurable {
    * @param url
    *          URL of the page
    * @param page
+   *          {@link WebPage} object relative to the URL
    * @param prevFetchTime
    *          previous fetch time
    * @param prevModifiedTime
@@ -133,14 +127,8 @@ public interface FetchSchedule extends Configurable {
    * selection process based on scores. The default implementation checks
    * <code>fetchTime</code>, if it is higher than the
    * 
-   * @param curTime
-   *          it returns false, and true otherwise. It will also check that
-   *          fetchTime is not too remote (more than <code>maxInterval</code),
-   *          in which case it lowers the interval and returns true.
    * @param url
    *          URL of the page
-   * @param row
-   *          url's row
    * @param curTime
    *          reference time (usually set to the time when the fetchlist
    *          generation process was started).
@@ -155,7 +143,6 @@ public interface FetchSchedule extends Configurable {
    * 
    * @param url
    *          URL of the page
-   * @param page
    * @param asap
    *          if true, force refetch as soon as possible - this sets the
    *          fetchTime to now. If false, force refetch whenever the next fetch

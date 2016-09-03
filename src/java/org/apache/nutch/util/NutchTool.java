@@ -36,11 +36,19 @@ public abstract class NutchTool extends Configured {
 
   /**
    * Runs the tool, using a map of arguments. May return results, or null.
+   *
+   * @param args map of arguments
+   * @return results or null
+   * @throws Exception
    */
   public abstract Map<String, Object> run(Map<String, Object> args)
       throws Exception;
 
-  /** Returns relative progress of the tool, a float in range [0,1]. */
+  /**
+   * Returns relative progress of the tool, a float in range [0,1]
+   *
+   * @return relative progress of the tool, a float in range [0,1]
+   */
   public float getProgress() {
     float res = 0;
     if (currentJob != null) {
@@ -62,7 +70,11 @@ public abstract class NutchTool extends Configured {
     return res;
   }
 
-  /** Returns current status of the running tool. */
+  /**
+   * Returns current status of the running tool
+   *
+   * @return current status of the running tool
+   */
   public Map<String, Object> getStatus() {
     return status;
   }
@@ -72,6 +84,7 @@ public abstract class NutchTool extends Configured {
    * this, since by default it calls {@link #killJob()}.
    * 
    * @return true if succeeded, false otherwise
+   * @throws Exception
    */
   public boolean stopJob() throws Exception {
     return killJob();

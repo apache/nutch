@@ -33,7 +33,7 @@ import org.apache.nutch.storage.WebPage;
  * An implementation of a page signature. It calculates an MD5 hash of a plain
  * text "profile" of a page. In case there is no text, it calculates a hash
  * using the {@link MD5Signature}.
- * </p>
+ *
  * <p>
  * The algorithm to calculate a page "profile" takes the plain text version of a
  * page and performs the following steps:

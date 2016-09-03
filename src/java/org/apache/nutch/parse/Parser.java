@@ -34,7 +34,7 @@ public interface Parser extends FieldPluggable, Configurable {
   /**
    * <p>
    * This method parses content in WebPage instance
-   * </p>
+   *
    * 
    * @param url
    *          Page's URL

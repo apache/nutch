@@ -45,7 +45,7 @@ import java.util.Locale;
  * <li>Taking a set of clues and making a "best guess" as to the "real"
  * encoding.</li>
  * </ol>
- * </p>
+ *
  * 
  * <p>
  * A caller will often have some extra information about what the encoding might
@@ -56,7 +56,7 @@ import java.util.Locale;
  * <li>Run step (1) to generate a set of auto-detected clues;</li>
  * <li>Combine these clues with the caller-dependent "extra clues" available;</li>
  * <li>Run step (2) to guess what the most probable answer is.</li>
- * </p>
+ * </ul>
  */
 public class EncodingDetector {
 
@@ -211,9 +211,7 @@ public class EncodingDetector {
 
   /**
    * Guess the encoding with the previously specified list of clues.
-   * 
-   * @param row
-   *          URL's row
+   *
    * @param defaultValue
    *          Default encoding to return if no encoding can be detected with
    *          enough confidence. Note that this will <b>not</b> be normalized
@@ -340,7 +338,7 @@ public class EncodingDetector {
   /**
    * Parse the character encoding from the specified content type header. If the
    * content type is null, or there is no explicit character encoding,
-   * <code>null</code> is returned. <br />
+   * <code>null</code> is returned. <p>
    * This method was copied from org.apache.catalina.util.RequestUtil, which is
    * licensed under the Apache License, Version 2.0 (the "License").
    * 

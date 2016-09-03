@@ -113,7 +113,7 @@ public class DOMContentUtils {
 
   /**
    * This is a convinience method, equivalent to
-   * {@link #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
+   * {@link #getText(StringBuilder, Node, boolean)} which passes false as third argument
    * 
    */
   public void getText(StringBuilder sb, Node node) {

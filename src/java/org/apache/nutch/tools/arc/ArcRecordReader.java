@@ -38,21 +38,21 @@ import org.apache.hadoop.util.StringUtils;
  * <p>
  * The <code>ArchRecordReader</code> class provides a record reader which reads
  * records from arc files.
- * </p>
+ *
  * 
  * <p>
  * Arc files are essentially tars of gzips. Each record in an arc file is a
  * compressed gzip. Multiple records are concatenated together to form a
- * complete arc. For more information on the arc file format see {@link http
- * ://www.archive.org/web/researcher/ArcFileFormat.php}.
- * </p>
- * 
+ * complete arc. For more information on the arc file format see
+ * <a href="http://www.archive.org/web/researcher/ArcFileFormat.php">
+ *   http://www.archive.org/web/researcher/ArcFileFormat.php</a>.
+ *
  * <p>
  * Arc files are used by the internet archive and grub projects.
- * </p>
+ *
  * 
- * @see http://www.archive.org/
- * @see http://www.grub.org/
+ * @see <a href="http://www.archive.org/">http://www.archive.org/</a>
+ * @see <a href="http://www.grub.org/">http://www.grub.org/</a>
  */
 public class ArcRecordReader implements RecordReader<Text, BytesWritable> {
 
@@ -72,7 +72,7 @@ public class ArcRecordReader implements RecordReader<Text, BytesWritable> {
   /**
    * <p>
    * Returns true if the byte array passed matches the gzip header magic number.
-   * </p>
+   *
    * 
    * @param input
    *          The byte array to check.
@@ -174,7 +174,7 @@ public class ArcRecordReader implements RecordReader<Text, BytesWritable> {
    * Returns true if the next record in the split is read into the key and value
    * pair. The key will be the arc record header and the values will be the raw
    * content bytes of the arc record.
-   * </p>
+   *
    * 
    * @param key
    *          The record key

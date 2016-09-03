@@ -58,11 +58,11 @@ import org.xml.sax.InputSource;
  * This class uses the <tt>urlnormalizer.regex.file</tt> property. It should be
  * set to the file name of an xml file which should contain the patterns and
  * substitutions to be done on encountered URLs.
- * </p>
+ *
  * <p>
  * This class also supports different rules depending on the scope. Please see
  * the javadoc in {@link org.apache.nutch.net.URLNormalizers} for more details.
- * </p>
+ *
  * 
  * @author Luke Baker
  * @author Andrzej Bialecki

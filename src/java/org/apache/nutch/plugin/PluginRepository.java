@@ -59,8 +59,10 @@ public class PluginRepository {
       .getLogger(PluginRepository.class);
 
   /**
-   * @throws PluginRuntimeException
-   * @see java.lang.Object#Object()
+   * Pluging repository constructor
+   *
+   * @param conf Configuration
+   * @throws RuntimeException
    */
   public PluginRepository(Configuration conf) throws RuntimeException {
     fActivatedPlugins = new HashMap<String, Plugin>();

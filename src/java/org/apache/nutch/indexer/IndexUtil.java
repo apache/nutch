@@ -42,7 +42,7 @@ public class IndexUtil {
   }
 
   /**
-   * Index a {@link Webpage}, here we add the following fields:
+   * Index a {@link WebPage}, here we add the following fields:
    * <ol>
    * <li><tt>id</tt>: default uniqueKey for the {@link NutchDocument}.</li>
    * <li><tt>digest</tt>: Digest is used to identify pages (like unique ID) and
@@ -60,7 +60,7 @@ public class IndexUtil {
    * @param key
    *          The key of the page (reversed url).
    * @param page
-   *          The {@link Webpage}.
+   *          The {@link WebPage}.
    * @return The indexed document, or null if skipped by index filters.
    */
   public NutchDocument index(String key, WebPage page) {

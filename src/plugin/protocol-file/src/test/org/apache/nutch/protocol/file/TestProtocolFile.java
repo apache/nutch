@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
  * 
  *          <p>
  *          Unit tests for the {@link File}Protocol.
- *          </p>
+ *
  *          .
  */
 public class TestProtocolFile {

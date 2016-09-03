@@ -37,7 +37,7 @@ import org.apache.nutch.util.Bytes;
  * Indexer which can be configured to extract metadata from the crawldb, parse
  * metadata or content metadata. You can specify the properties "index.db",
  * "index.parse" or "index.content" who's values are comma-delimited
- * <value>key1,key2,key3</value>.
+ * &lt;value&gt;key1,key2,key3&lt;/value&gt;.
  */
 
 public class MetadataIndexer implements IndexingFilter {

@@ -25,13 +25,13 @@ import org.apache.nutch.net.URLFilter;
 /**
  * <p>
  * Validates URLs.
- * </p>
+ *
  * 
  * <p>
  * Originally based in on php script by Debbie Dyer, validation.php v1.2b, Date:
  * 03/07/02, http://javascript.internet.com. However, this validation now bears
  * little resemblance to the php original.
- * </p>
+ *
  * 
  * <pre>
  *   Example of usage:
@@ -47,7 +47,7 @@ import org.apache.nutch.net.URLFilter;
  * 
  * <p>
  * Based on UrlValidator code from Apache commons-validator.
- * </p>
+ *
  * 
  * @see <a href='http://www.ietf.org/rfc/rfc2396.txt' > Uniform Resource
  *      Identifiers (URI): Generic Syntax </a>
@@ -159,7 +159,7 @@ public class UrlValidator implements URLFilter {
   /**
    * <p>
    * Checks if a field has a valid url address.
-   * </p>
+   *
    * 
    * @param value
    *          The value validation is being performed on. A <code>null</code>
@@ -323,7 +323,7 @@ public class UrlValidator implements URLFilter {
    * <p>
    * Checks if the field isn't null and length of the field is greater than zero
    * not including whitespace.
-   * </p>
+   *
    * 
    * @param value
    *          The value validation is being performed on.

@@ -16,8 +16,7 @@
  */
 
 /**
- * Scoring filter used in conjunction with
- * {@link org.apache.nutch.scoring.webgraph.WebGraph}.
+ * Scoring filter
  */
 package org.apache.nutch.scoring.link;
 
