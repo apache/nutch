@@ -209,6 +209,7 @@
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
       <packageset dir="${plugins.dir}/protocol-interactiveselenium/src/java"/>
       <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
+      <packageset dir="${plugins.dir}/publish-rabbitmq/src/java"/>
       <packageset dir="${plugins.dir}/scoring-depth/src/java"/>
       <packageset dir="${plugins.dir}/scoring-similarity/src/java"/>
       <packageset dir="${plugins.dir}/scoring-link/src/java"/>
@@ -652,6 +653,7 @@
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
       <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
+      <packageset dir="${plugins.dir}/publish-rabbitmq/src/java"/>
       <packageset dir="${plugins.dir}/scoring-depth/src/java"/>
       <packageset dir="${plugins.dir}/scoring-similarity/src/java"/>
       <packageset dir="${plugins.dir}/scoring-link/src/java"/>
@@ -1073,6 +1075,7 @@
         <source path="${plugins.dir}/protocol-http/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/test/" />
         <source path="${plugins.dir}/protocol-selenium/src/java"/>
+        <source path="${plugins.dir}/publish-rabbitmq/src/java"/>
         <source path="${plugins.dir}/scoring-depth/src/java/" />
         <source path="${plugins.dir}/scoring-similarity/src/java/" />
         <source path="${plugins.dir}/scoring-link/src/java/" />
