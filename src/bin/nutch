@@ -159,7 +159,9 @@ if $local; then
   # local runtime
   # add plugins to classpath
   if [ -d "$NUTCH_HOME/plugins" ]; then
-     CLASSPATH="${NUTCH_HOME}:${CLASSPATH}"
+     for f in "$NUTCH_HOME/plugins"/*/*.jar; do
+      CLASSPATH="${CLASSPATH}:$f";
+    done
   fi
 fi
 
