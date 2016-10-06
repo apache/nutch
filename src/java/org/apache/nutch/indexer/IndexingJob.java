@@ -279,7 +279,6 @@ public class IndexingJob extends NutchTool implements Tool {
     } else {
         linkdb = new Path(crawlId+"/linkdb");
       }
-    }
 
     if(args.containsKey(Nutch.ARG_SEGMENTDIR)){
       isSegment = true;
