@@ -347,7 +347,7 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
               additionalThreads = (availableThreads < additionalThreads ? availableThreads
                   : additionalThreads);
               LOG.info("Has space for more threads ({} vs {} kbps) \t=> adding {} new threads",
-                  (bpsSinceLastCheck / 1000), (targetBandwidth / 1000), additionalThreads);
+                  new Object[]{(bpsSinceLastCheck / 1000), (targetBandwidth / 1000), additionalThreads});
               // activate new threads
               for (int i = 0; i < additionalThreads; i++) {
                 FetcherThread thread = new FetcherThread(getConf(), getActiveThreads(), fetchQueues, 
@@ -364,7 +364,7 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
             long excessBdw = bpsSinceLastCheck - targetBandwidth;
             int excessThreads = Math.round(excessBdw / averageBdwPerThread);
             LOG.info("Exceeding target bandwidth ({} vs {} kbps). \t=> excessThreads = {}",
-                bpsSinceLastCheck / 1000, (targetBandwidth / 1000), excessThreads);
+                new Object[]{bpsSinceLastCheck / 1000, (targetBandwidth / 1000), excessThreads});
             // keep at least one
             if (excessThreads >= fetcherThreads.size())
               excessThreads = 0;
