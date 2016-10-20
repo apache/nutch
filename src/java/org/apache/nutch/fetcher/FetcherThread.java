@@ -129,6 +129,8 @@ public class FetcherThread extends Thread {
 
   private boolean storingContent;
 
+  private boolean signatureWithoutParsing;
+
   private AtomicInteger pages;
 
   private AtomicLong bytes;
@@ -155,6 +157,7 @@ public class FetcherThread extends Thread {
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
     this.skipTruncated = conf.getBoolean(ParseSegment.SKIP_TRUNCATED, true);
+    this.signatureWithoutParsing = conf.getBoolean("fetcher.signature", false);
     this.protocolFactory = new ProtocolFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
     this.maxCrawlDelay = conf.getInt("fetcher.max.crawl.delay", 30) * 1000;
@@ -625,13 +628,9 @@ public class FetcherThread extends Thread {
               Thread.currentThread().getId(), key, e);
         }
       }
-      /*
-       * Note: Fetcher will only follow meta-redirects coming from the
-       * original URL.
-       */
-      if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
-        if (!skipTruncated
-            || (skipTruncated && !ParseSegment.isTruncated(content))) {
+
+      if (status == CrawlDatum.STATUS_FETCH_SUCCESS) {
+        if (parsing && !(skipTruncated && ParseSegment.isTruncated(content))) {
           try {
             parseResult = this.parseUtil.parse(content);
           } catch (Exception e) {
@@ -641,7 +640,7 @@ public class FetcherThread extends Thread {
           }
         }
 
-        if (parseResult == null) {
+        if (parseResult == null && (parsing || signatureWithoutParsing)) {
           byte[] signature = SignatureFactory.getSignature(conf)
               .calculate(content, new ParseStatus().getEmptyParse(conf));
           datum.setSignature(signature);
@@ -816,7 +815,8 @@ public class FetcherThread extends Thread {
       }
     }
 
-    // return parse status if it exits
+    // return parse status (of the "original" URL if the ParseResult contains
+    // multiple parses) which allows Fetcher to follow meta-redirects
     if (parseResult != null && !parseResult.isEmpty()) {
       Parse p = parseResult.get(content.getUrl());
       if (p != null) {
