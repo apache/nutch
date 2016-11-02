@@ -125,10 +125,10 @@ public class CleaningJob extends NutchTool implements Tool {
 
     @Override
     public void cleanup(Context context) throws IOException {
-      writers.close();
       if (numDeletes > 0 && commit) {
         writers.commit();
       }
+      writers.close();
       LOG.info("CleaningJob: deleted a total of " + numDeletes + " documents");
     }
   }
