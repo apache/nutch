@@ -119,11 +119,11 @@ public class CleaningJob implements Tool {
       // totalDeleted += numDeletes;
       // }
 
-      writers.close();
-
       if (totalDeleted > 0 && !noCommit) {
         writers.commit();
       }
+
+      writers.close();
 
       LOG.info("CleaningJob: deleted a total of " + totalDeleted + " documents");
     }
