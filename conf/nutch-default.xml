@@ -1890,7 +1890,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 
 <property>
   <name>rabbitmq.indexer.server.host</name>
-  <value></value>
+  <value>localhost</value>
   <description>
     Host on which the RabbitMQ server is running. Default "localhost".
   </description>
@@ -1898,13 +1898,41 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 
 <property>
   <name>rabbitmq.indexer.server.port</name>
+  <value>15672</value>
+  <description>
+    Port on which the RabbitMQ server is listening. Default "15672".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.virtualhost</name>
+  <value></value>
+  <description>
+    Virtual host
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.username</name>
+  <value>admin</value>
+  <description>
+    Username for RabbitMQ server. Default "admin"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.password</name>
+  <value>admin</value>
+  <description>
+    Password for RabbitMQ server. Default "admin"
+  </description>
 </property>
 
 <property>
   <name>rabbitmq.indexer.exchange.server</name>
   <value></value>
   <description>
-    Name for the exchange server to use. Default - "fetcher_log"
+    Name for the exchange server to use. Default "fetcher_log"
   </description>
 </property>
 
