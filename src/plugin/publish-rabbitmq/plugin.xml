@@ -21,11 +21,11 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-
    <runtime>
       <library name="publish-rabbitmq.jar">
          <export name="*"/>
       </library>
+      <library name="amqp-client-3.6.5.jar"/>
    </runtime>
 
    <requires>
