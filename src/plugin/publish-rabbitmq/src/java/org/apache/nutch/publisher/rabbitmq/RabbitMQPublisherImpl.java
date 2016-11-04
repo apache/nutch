@@ -51,18 +51,18 @@ public class RabbitMQPublisherImpl implements NutchPublisher{
   @Override
   public boolean setConfig(Configuration conf) {
     try {
-      EXCHANGE_SERVER = conf.get("rabbitmq.exchange.server", "fetcher_log");//
-      EXCHANGE_TYPE = conf.get("rabbitmq.exchange.type", "fanout");//
+      EXCHANGE_SERVER = conf.get("rabbitmq.exchange.server", "fetcher_log");
+      EXCHANGE_TYPE = conf.get("rabbitmq.exchange.type", "fanout");
 
-      HOST = conf.get("rabbitmq.host", "localhost");//
-      PORT = conf.getInt("rabbitmq.port", 15672);//
-      VIRTUAL_HOST = conf.get("rabbitmq.virtualhost", null);//
+      HOST = conf.get("rabbitmq.host", "localhost");
+      PORT = conf.getInt("rabbitmq.port", 15672);
+      VIRTUAL_HOST = conf.get("rabbitmq.virtualhost", null);
       USERNAME = conf.get("rabbitmq.username", null);
       PASSWORD = conf.get("rabbitmq.password", null);
 
-      QUEUE_NAME = conf.get("rabbitmq.queue.name", "fanout.queue");//
-      QUEUE_DURABLE = conf.getBoolean("rabbitmq.queue.durable", true);//
-      QUEUE_ROUTING_KEY = conf.get("rabbitmq.queue.routingkey", "fanout.key");//
+      QUEUE_NAME = conf.get("rabbitmq.queue.name", "fanout.queue");
+      QUEUE_DURABLE = conf.getBoolean("rabbitmq.queue.durable", true);
+      QUEUE_ROUTING_KEY = conf.get("rabbitmq.queue.routingkey", "fanout.key");
 
       ConnectionFactory factory = new ConnectionFactory();
       factory.setHost(HOST);
