@@ -55,7 +55,7 @@ public class RabbitMQPublisherImpl implements NutchPublisher{
       EXCHANGE_TYPE = conf.get("rabbitmq.exchange.type", "fanout");
 
       HOST = conf.get("rabbitmq.host", "localhost");
-      PORT = conf.getInt("rabbitmq.port", 15672);
+      PORT = conf.getInt("rabbitmq.port", 5672);
       VIRTUAL_HOST = conf.get("rabbitmq.virtualhost", null);
       USERNAME = conf.get("rabbitmq.username", null);
       PASSWORD = conf.get("rabbitmq.password", null);

@@ -2311,7 +2311,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>rabbitmq.port</name>
   <value></value>
   <description>
-    Port on which the RabbitMQ server is listening. Default "15672".
+    Port on which the RabbitMQ server is listening. Default "5672".
   </description>
 </property>
 
