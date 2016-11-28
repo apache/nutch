@@ -73,9 +73,8 @@ public class CrawlDb extends NutchTool implements Tool {
   public void update(Path crawlDb, Path[] segments, boolean normalize,
       boolean filter, boolean additionsAllowed, boolean force)
       throws IOException {
-    FileSystem fs = crawlDb.getFileSystem(getConf());
-    Path lock = new Path(crawlDb, LOCK_NAME);
-    LockUtil.createLockFile(fs, lock, force);
+    Path lock = lock(getConf(), crawlDb, force);
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
 
@@ -114,6 +113,7 @@ public class CrawlDb extends NutchTool implements Tool {
     try {
       JobClient.runJob(job);
     } catch (IOException e) {
+      FileSystem fs = crawlDb.getFileSystem(getConf());
       LockUtil.removeLockFile(fs, lock);
       Path outPath = FileOutputFormat.getOutputPath(job);
       if (fs.exists(outPath))
@@ -158,41 +158,41 @@ public class CrawlDb extends NutchTool implements Tool {
     return job;
   }
 
-  public static void install(JobConf job, Path crawlDb) throws IOException {
-    boolean preserveBackup = job.getBoolean("db.preserve.backup", true);
-
-    Path newCrawlDb = FileOutputFormat.getOutputPath(job);
-    FileSystem fs = crawlDb.getFileSystem(job);
-    Path old = new Path(crawlDb, "old");
-    Path current = new Path(crawlDb, CURRENT_NAME);
-    if (fs.exists(current)) {
-      if (fs.exists(old))
-        fs.delete(old, true);
-      fs.rename(current, old);
-    }
-    fs.mkdirs(crawlDb);
-    fs.rename(newCrawlDb, current);
-    if (!preserveBackup && fs.exists(old))
-      fs.delete(old, true);
+  public static Path lock(Configuration job, Path crawlDb, boolean force) throws IOException {
     Path lock = new Path(crawlDb, LOCK_NAME);
-    LockUtil.removeLockFile(fs, lock);
+    LockUtil.createLockFile(job, lock, force);
+    return lock;
   }
 
-  public static void install(Job job, Path crawlDb) throws IOException {
-    Configuration conf = job.getConfiguration();
+  private static void install(Configuration conf, Path crawlDb, Path tempCrawlDb)
+      throws IOException {
     boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
     FileSystem fs = crawlDb.getFileSystem(conf);
     Path old = new Path(crawlDb, "old");
     Path current = new Path(crawlDb, CURRENT_NAME);
-    Path tempCrawlDb = org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-        .getOutputPath(job);
-    FSUtils.replace(fs, old, current, true);
+    if (fs.exists(current)) {
+      FSUtils.replace(fs, old, current, true);
+    }
     FSUtils.replace(fs, current, tempCrawlDb, true);
     Path lock = new Path(crawlDb, LOCK_NAME);
     LockUtil.removeLockFile(fs, lock);
     if (!preserveBackup && fs.exists(old)) {
       fs.delete(old, true);
     }
+  }
+
+  // old MapReduce API
+  public static void install(JobConf job, Path crawlDb) throws IOException {
+    Path tempCrawlDb = FileOutputFormat.getOutputPath(job);
+    install(job, crawlDb, tempCrawlDb);
+  }
+
+  // new MapReduce API
+  public static void install(Job job, Path crawlDb) throws IOException {
+    Configuration conf = job.getConfiguration();
+    Path tempCrawlDb = org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+        .getOutputPath(job);
+    install(conf, crawlDb, tempCrawlDb);
   }
 
   public static void main(String[] args) throws Exception {

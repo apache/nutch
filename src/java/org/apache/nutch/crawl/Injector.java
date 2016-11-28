@@ -356,8 +356,7 @@ public class Injector extends NutchTool implements Tool {
         "crawldb-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     // lock an existing crawldb to prevent multiple simultaneous updates
-    Path lock = new Path(crawlDb, CrawlDb.LOCK_NAME);
-    LockUtil.createLockFile(fs, lock, false);
+    Path lock = CrawlDb.lock(conf, crawlDb, false);
 
     // configure job
     Job job = Job.getInstance(conf, "inject " + urlDir);
@@ -405,7 +404,7 @@ public class Injector extends NutchTool implements Tool {
       if (fs.exists(tempCrawlDb)) {
         fs.delete(tempCrawlDb, true);
       }
-      LockUtil.removeLockFile(fs, lock);
+      LockUtil.removeLockFile(conf, lock);
       throw e;
     }
   }

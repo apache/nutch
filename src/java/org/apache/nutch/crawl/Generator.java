@@ -534,8 +534,7 @@ public class Generator extends NutchTool implements Tool {
         + "/generate-temp-" + java.util.UUID.randomUUID().toString());
     FileSystem fs = tempDir.getFileSystem(getConf());
 
-    Path lock = new Path(dbDir, CrawlDb.LOCK_NAME);
-    LockUtil.createLockFile(getConf(), lock, force);
+    Path lock = CrawlDb.lock(getConf(), dbDir, force);
     
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();

@@ -35,6 +35,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.*;
+import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
@@ -122,6 +123,8 @@ public class CrawlDbMerger extends Configured implements Tool {
 
   public void merge(Path output, Path[] dbs, boolean normalize, boolean filter)
       throws Exception {
+    Path lock = CrawlDb.lock(getConf(), output, false);
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("CrawlDb merge: starting at " + sdf.format(start));
@@ -133,13 +136,17 @@ public class CrawlDbMerger extends Configured implements Tool {
       }
       FileInputFormat.addInputPath(job, new Path(dbs[i], CrawlDb.CURRENT_NAME));
     }
-    JobClient.runJob(job);
-    FileSystem fs = output.getFileSystem(getConf());
-    if (fs.exists(output))
-      fs.delete(output, true);
-    fs.mkdirs(output);
-    fs.rename(FileOutputFormat.getOutputPath(job), new Path(output,
-        CrawlDb.CURRENT_NAME));
+    try {
+      JobClient.runJob(job);
+      CrawlDb.install(job, output);
+    } catch (IOException e) {
+      LockUtil.removeLockFile(getConf(), lock);
+      Path outPath = FileOutputFormat.getOutputPath(job);
+      FileSystem fs = outPath.getFileSystem(getConf());
+      if (fs.exists(outPath))
+        fs.delete(outPath, true);
+      throw e;
+    }
     long end = System.currentTimeMillis();
     LOG.info("CrawlDb merge: finished at " + sdf.format(end) + ", elapsed: "
         + TimingUtil.elapsedTime(start, end));
