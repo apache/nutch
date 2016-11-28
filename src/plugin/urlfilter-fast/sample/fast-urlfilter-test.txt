@@ -1,0 +1,19 @@
+Host www.example.org
+  DenyPath ^/path/to/be/excluded
+  DenyPath ^/some/other/path/excluded
+
+# Deny everything from *.example.com and example.com
+Domain example.com
+  DenyPath .*
+
+Domain example.org
+  DenyPathQuery /resource/.*?action=exclude
+
+# exclude images from image server
+Host i.example.org
+  DenyPath (?i)\.jpe?g$
+
+# skip URLs with slash-delimited segment that repeats 3+ times, to break loops
+Domain .
+  DenyPath (/.+?)/.*?\1/.*?\1/
+
