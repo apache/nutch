@@ -622,11 +622,6 @@ public class SegmentReader extends Configured implements Tool,
       this.pa = pa;
       this.pd = pd;
       this.pt = pt;
-      try {
-        this.fs = FileSystem.get(getConf());
-      } catch (IOException e) {
-        LOG.error("IOException:", e);
-      }
 
       String input = args[1];
       if (input == null) {
