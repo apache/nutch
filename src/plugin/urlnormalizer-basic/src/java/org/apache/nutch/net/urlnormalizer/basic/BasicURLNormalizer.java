@@ -112,9 +112,13 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         || "ftp".equals(protocol)) {
 
       if (host != null) {
-        String newHost = host.toLowerCase(); // lowercase host
+        String newHost = host.toLowerCase(Locale.ROOT); // lowercase host
         if (!host.equals(newHost)) {
           host = newHost;
+          changed = true;
+        } else if (!url.getAuthority().equals(newHost)) {
+          // authority (http://<...>/) contains other elements (port, user,
+          // etc.) which will likely cause a change if left away
           changed = true;
         }
       }
@@ -247,7 +251,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         sb.append('%');
         
         // Get this byte's hexadecimal representation 
-        String hex = Integer.toHexString(b & 0xFF).toUpperCase();
+        String hex = Integer.toHexString(b & 0xFF).toUpperCase(Locale.ROOT);
         
         // Do we need to prepend a zero?
         if (hex.length() % 2 != 0 ) {
@@ -275,7 +279,8 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
       System.out.println("Scope: " + scope);
     }
     String line, normUrl;
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(
+        new InputStreamReader(System.in, utf8));
     while ((line = in.readLine()) != null) {
       try {
         normUrl = normalizer.normalize(line, scope);
