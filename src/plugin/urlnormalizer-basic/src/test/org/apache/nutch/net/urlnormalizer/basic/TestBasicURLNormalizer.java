@@ -116,6 +116,10 @@ public class TestBasicURLNormalizer {
     // check that port number is normalized
     normalizeTest("http://foo.com:80/index.html", "http://foo.com/index.html");
     normalizeTest("http://foo.com:81/", "http://foo.com:81/");
+    // check that empty port is removed
+    normalizeTest("http://example.com:/", "http://example.com/");
+    normalizeTest("https://example.com:/foobar.html",
+        "https://example.com/foobar.html");
 
     // check that null path is normalized
     normalizeTest("http://foo.com", "http://foo.com/");
@@ -127,7 +131,6 @@ public class TestBasicURLNormalizer {
     // normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
 
     // check that unnecessary "../" are removed
-
     normalizeTest("http://foo.com/aa/./foo.html", "http://foo.com/aa/foo.html");
     normalizeTest("http://foo.com/aa/../", "http://foo.com/");
     normalizeTest("http://foo.com/aa/bb/../", "http://foo.com/aa/");
