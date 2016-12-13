@@ -83,6 +83,10 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         if (!host.equals(newHost)) {
           host = newHost;
           changed = true;
+        } else if (!url.getAuthority().equals(newHost)) {
+          // authority (http://<...>/) contains other elements (port, user,
+          // etc.) which will likely cause a change if left away
+          changed = true;
         }
       }
 
