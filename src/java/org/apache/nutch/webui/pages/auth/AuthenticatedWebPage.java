@@ -14,20 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.webui.pages;
+package org.apache.nutch.webui.pages.auth;
 
-import org.apache.nutch.webui.pages.auth.SignInPage;
+/**
+ * Marker interface for secured pages.
+ */
+public interface AuthenticatedWebPage {
 
-import javax.servlet.http.HttpServletRequest;
-
-public class LogOutPage extends AbstractBasePage {
-
-  public LogOutPage() {
-    HttpServletRequest servletReq = (HttpServletRequest) getRequest().getContainerRequest();
-    // Invalidate session
-    servletReq.getSession().invalidate();
-    getSession().invalidate();
-    // Redirect to sign in page
-    setResponsePage(SignInPage.class);
-  }
 }

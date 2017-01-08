@@ -1490,4 +1490,15 @@
   </description>
 </property>
 
+  <property>
+    <name>webgui.auth.users</name>
+    <value>admin|admin,user|user</value>
+    <description>
+      Username, password combination for Web GUI  authentication.
+      Username and password should be delimited by pipe character (|)
+      Every user should be separated with comma character (,). i.e. admin|admin,user|user.
+      Default is admin|admin,user|user
+    </description>
+  </property>
+
 </configuration>

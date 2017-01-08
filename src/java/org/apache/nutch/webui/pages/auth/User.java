@@ -14,20 +14,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.webui.pages;
+package org.apache.nutch.webui.pages.auth;
 
-import org.apache.nutch.webui.pages.auth.SignInPage;
+import java.io.Serializable;
 
-import javax.servlet.http.HttpServletRequest;
+/**
+ * User bean for authentication.
+ */
+public class User implements Serializable {
 
-public class LogOutPage extends AbstractBasePage {
+  private String username;
+  private String password;
 
-  public LogOutPage() {
-    HttpServletRequest servletReq = (HttpServletRequest) getRequest().getContainerRequest();
-    // Invalidate session
-    servletReq.getSession().invalidate();
-    getSession().invalidate();
-    // Redirect to sign in page
-    setResponsePage(SignInPage.class);
+  public User() {
+
   }
+
+  public User(String username, String password) {
+    this.username = username;
+    this.password = password;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,20 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.webui.pages;
 
-import org.apache.nutch.webui.pages.auth.SignInPage;
+/**
+ * Contains authorization classes for Web UI
+ */
+package org.apache.nutch.webui.pages.auth;
 
-import javax.servlet.http.HttpServletRequest;
-
-public class LogOutPage extends AbstractBasePage {
-
-  public LogOutPage() {
-    HttpServletRequest servletReq = (HttpServletRequest) getRequest().getContainerRequest();
-    // Invalidate session
-    servletReq.getSession().invalidate();
-    getSession().invalidate();
-    // Redirect to sign in page
-    setResponsePage(SignInPage.class);
-  }
-}
