@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FetchItemQueue {
   
-  private static final Logger LOG = LoggerFactory.getLogger(FetchItemQueues.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FetchItemQueue.class);
 
   List<FetchItem> queue = Collections
       .synchronizedList(new LinkedList<FetchItem>());
