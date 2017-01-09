@@ -210,7 +210,7 @@ public class DmozParser {
 
             } catch (IOException e) {
               // TODO Auto-generated catch block
-              e.printStackTrace();
+              LOG.error("IOException occurred: ", e);
             }
           } else {
             System.out.println(curURL);

@@ -183,7 +183,7 @@ public abstract class RobotRulesParser implements Configurable {
       }
       testsIn.close();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("Exception occurred: ", e);
     }
   }
 }
