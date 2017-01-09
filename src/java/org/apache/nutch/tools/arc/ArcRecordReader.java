@@ -234,11 +234,11 @@ public class ArcRecordReader implements RecordReader<Text, BytesWritable> {
         ByteArrayOutputStream baos = null;
         int totalRead = 0;
 
+        GZIPInputStream zin = null;
         try {
-
           // read 4K of the gzip at a time putting into a byte array
           byte[] buffer = new byte[4096];
-          GZIPInputStream zin = new GZIPInputStream(in);
+          zin = new GZIPInputStream(in);
           int gzipRead = -1;
           baos = new ByteArrayOutputStream();
           while ((gzipRead = zin.read(buffer, 0, buffer.length)) != -1) {
@@ -255,6 +255,10 @@ public class ArcRecordReader implements RecordReader<Text, BytesWritable> {
             in.seek(startRead + 1);
           }
           continue;
+        } finally {
+          if (zin != null) {
+            zin.close();
+          }
         }
 
         // change the output stream to a byte array
