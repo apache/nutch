@@ -22,7 +22,6 @@ import static de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarComp
 import java.util.List;
 
 import org.apache.nutch.webui.model.NutchInstance;
-import org.apache.nutch.webui.pages.auth.AuthenticatedWebPage;
 import org.apache.nutch.webui.pages.crawls.CrawlsPage;
 import org.apache.nutch.webui.pages.instances.InstancesPage;
 import org.apache.nutch.webui.pages.menu.VerticalMenu;
@@ -57,7 +56,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarComponents;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarDropDownButton;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconType;
 
-public abstract class AbstractBasePage<T> extends GenericWebPage<T> implements AuthenticatedWebPage {
+public abstract class AbstractBasePage<T> extends GenericWebPage<T> {
   @SpringBean
   private NutchService service;
 

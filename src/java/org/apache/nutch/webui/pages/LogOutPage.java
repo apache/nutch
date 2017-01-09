@@ -16,18 +16,6 @@
  */
 package org.apache.nutch.webui.pages;
 
-import org.apache.nutch.webui.pages.auth.SignInPage;
-
-import javax.servlet.http.HttpServletRequest;
-
 public class LogOutPage extends AbstractBasePage {
 
-  public LogOutPage() {
-    HttpServletRequest servletReq = (HttpServletRequest) getRequest().getContainerRequest();
-    // Invalidate session
-    servletReq.getSession().invalidate();
-    getSession().invalidate();
-    // Redirect to sign in page
-    setResponsePage(SignInPage.class);
-  }
 }

@@ -155,7 +155,6 @@
 	
     <dependency org="org.apache.wicket" name="wicket-core" rev="6.16.0" conf="*->default" />
     <dependency org="org.apache.wicket" name="wicket-spring" rev="6.16.0" conf="*->default" />
-    <dependency org="org.apache.wicket" name="wicket-auth-roles" rev="6.16.0" conf="*->default" />
     <dependency org="de.agilecoders.wicket" name="wicket-bootstrap-core" rev="0.9.2" conf="*->default" />
     <dependency org="de.agilecoders.wicket" name="wicket-bootstrap-extensions" rev="0.9.2" conf="*->default" />
 
