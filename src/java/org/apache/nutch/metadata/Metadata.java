@@ -190,12 +190,11 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
       return false;
     }
 
-    Metadata other = null;
-    try {
-      other = (Metadata) o;
-    } catch (ClassCastException cce) {
+    if (this.getClass() != o.getClass()) {
       return false;
     }
+
+    Metadata other = (Metadata) o;
 
     if (other.size() != size()) {
       return false;
