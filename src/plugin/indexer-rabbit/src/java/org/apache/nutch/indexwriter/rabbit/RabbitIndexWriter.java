@@ -185,7 +185,7 @@ public class RabbitIndexWriter implements IndexWriter {
 
     public String describe() {
         return "RabbitIndexWriter\n" +
-                "\t" + RabbitMQConstants.SERVER_URL + " : URL of RabbitMQ server\n" +
+                "\t" + serverHost +  ":" + serverPort + " : URL of RabbitMQ server\n" +
                 "\t" + RabbitMQConstants.SERVER_VIRTUAL_HOST + " : Virtualhost name\n" +
                 "\t" + RabbitMQConstants.SERVER_USERNAME + " : Username for authentication\n" +
                 "\t" + RabbitMQConstants.SERVER_PASSWORD + " : Password for authentication\n" +

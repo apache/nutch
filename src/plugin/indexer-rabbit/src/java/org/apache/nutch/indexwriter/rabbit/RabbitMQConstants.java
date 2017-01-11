@@ -41,6 +41,4 @@ interface RabbitMQConstants {
 
 
     String COMMIT_SIZE = RABBIT_PREFIX + "commit.size";
-
-    String SERVER_URL = SERVER_HOST + ":" + SERVER_PORT;
 }

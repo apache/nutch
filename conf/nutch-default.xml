@@ -1898,9 +1898,9 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 
 <property>
   <name>rabbitmq.indexer.server.port</name>
-  <value>15672</value>
+  <value>5672</value>
   <description>
-    Port on which the RabbitMQ server is listening. Default "15672".
+    Port on which the RabbitMQ server is listening. Default "5672".
   </description>
 </property>
 
@@ -1908,7 +1908,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>rabbitmq.indexer.server.virtualhost</name>
   <value></value>
   <description>
-    Virtual host
+    Virtual Host where the exchange is and the user has access. Default "/".
   </description>
 </property>
 
@@ -1932,7 +1932,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>rabbitmq.indexer.exchange.server</name>
   <value></value>
   <description>
-    Name for the exchange server to use. Default "fetcher_log"
+    Name for the exchange server to use. Default "nutch.exchange"
   </description>
 </property>
 
@@ -1940,7 +1940,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>rabbitmq.indexer.exchange.type</name>
   <value></value>
   <description>
-    There are a few exchange types available: direct, topic, headers and fanout. Default "fanout".
+    Type of the exchange. Default "direct".
   </description>
 </property>
 
@@ -1948,8 +1948,15 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>rabbitmq.indexer.queue.durable</name>
   <value></value>
   <description>
-    Choose the type of Queue being used (ex - RabbitMQ, ActiveMq, Kafka, etc).
-    Currently there exists an implemtation for RabbitMQ producer.
+    Message durability into the queue. Default "true".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.queue.name</name>
+  <value></value>
+  <description>
+    Name of the queue where the messages will be sent. Default "nutch.queue"
   </description>
 </property>
 
@@ -1957,15 +1964,16 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>rabbitmq.indexer.queue.routingkey</name>
   <value></value>
   <description>
-    The routingKey used by publisher to publish messages to specific queues. If the exchange type is "fanout", then this property is ignored.
+    The routingKey used by indexer to publish messages to specific queues.
+    If the exchange type is "fanout", then this property is ignored. Default is "nutch.key"
   </description>
 </property>
 
 <property>
   <name>rabbitmq.indexer.commit.size</name>
-  <value></value>
+  <value>250</value>
   <description>
-    The routingKey used by publisher to publish messages to specific queues. If the exchange type is "fanout", then this property is ignored.
+    Amount of documents to send into each message. Default "250"
   </description>
 </property>
 
