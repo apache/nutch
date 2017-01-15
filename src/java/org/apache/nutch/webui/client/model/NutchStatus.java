@@ -27,6 +27,7 @@ public class NutchStatus implements Serializable {
   private Set<String> configuration;
   private Collection<JobInfo> jobs;
   private Collection<JobInfo> runningJobs;
+  private String activeConfId;
 
   public Date getStartDate() {
     return startDate;
@@ -58,5 +59,13 @@ public class NutchStatus implements Serializable {
 
   public void setRunningJobs(Collection<JobInfo> runningJobs) {
     this.runningJobs = runningJobs;
+  }
+
+  public String getActiveConfId() {
+    return activeConfId;
+  }
+
+  public void setActiveConfId(String activeConfId) {
+    this.activeConfId = activeConfId;
   }
 }
