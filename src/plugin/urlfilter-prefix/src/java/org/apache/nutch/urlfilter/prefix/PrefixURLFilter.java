@@ -19,6 +19,7 @@
 
 package org.apache.nutch.urlfilter.prefix;
 
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,7 @@ import java.util.ArrayList;
 public class PrefixURLFilter implements URLFilter {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(PrefixURLFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   // read in attribute "file" of this plugin.
   private static String attributeFile = null;

@@ -11,11 +11,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.solr.SolrConstants;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 
 public class SolrUtils {
 
-  public static Logger LOG = LoggerFactory.getLogger(SolrUtils.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static HttpSolrServer getHttpSolrServer(Configuration job)
       throws MalformedURLException {

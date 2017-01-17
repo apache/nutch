@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.protocol.file;
 
+import java.lang.invoke.MethodHandles;
 import crawlercommons.robots.BaseRobotRules;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
@@ -41,7 +42,8 @@ import java.util.HashSet;
  */
 public class File implements Protocol {
 
-  public static final Logger LOG = LoggerFactory.getLogger(File.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 

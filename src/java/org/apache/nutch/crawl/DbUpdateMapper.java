@@ -37,7 +37,8 @@ import org.apache.gora.mapreduce.GoraMapper;
 
 public class DbUpdateMapper extends
 GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
-  public static final Logger LOG = DbUpdaterJob.LOG;
+
+  private static final Logger LOG = DbUpdaterJob.LOG;
 
   private ScoringFilters scoringFilters;
 

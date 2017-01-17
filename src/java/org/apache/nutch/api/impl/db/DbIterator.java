@@ -17,6 +17,7 @@
 package org.apache.nutch.api.impl.db;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,7 +35,8 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;
 
 public class DbIterator extends UnmodifiableIterator<Map<String, Object>> {
-  private static final Logger LOG = LoggerFactory.getLogger(DbIterator.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Result<String, WebPage> result;
   private boolean hasNext;

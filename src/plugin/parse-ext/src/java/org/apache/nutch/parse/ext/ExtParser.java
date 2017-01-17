@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse.ext;
 
+import java.lang.invoke.MethodHandles;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
@@ -48,7 +49,8 @@ import java.nio.charset.Charset;
 
 public class ExtParser implements Parser {
 
-  public static final Logger LOG = LoggerFactory.getLogger("org.apache.nutch.parse.ext");
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   static final int BUFFER_SIZE = 4096;
 

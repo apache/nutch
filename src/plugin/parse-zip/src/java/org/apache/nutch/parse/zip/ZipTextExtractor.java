@@ -18,6 +18,7 @@
 package org.apache.nutch.parse.zip;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -42,8 +43,6 @@ import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.MimeUtil;
 
-
-
 /**
  *
  * @author Rohit Kulkarni & Ashish Vaidya
@@ -52,8 +51,9 @@ public class ZipTextExtractor {
   
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME;
-  
-  public static final Logger LOG = LoggerFactory.getLogger(ZipTextExtractor.class);
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
   

@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexwriter.solr;
 
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +35,8 @@ import org.apache.solr.common.SolrInputDocument;
 
 public class SolrIndexWriter implements IndexWriter {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(SolrIndexWriter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private HttpSolrServer solr;
   private SolrMappingReader solrMapping;

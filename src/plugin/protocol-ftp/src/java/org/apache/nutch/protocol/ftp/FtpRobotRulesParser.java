@@ -17,6 +17,7 @@
 
 package org.apache.nutch.protocol.ftp;
 
+import java.lang.invoke.MethodHandles;
 import crawlercommons.robots.BaseRobotRules;
 import crawlercommons.robots.SimpleRobotRules;
 import org.apache.hadoop.conf.Configuration;
@@ -39,8 +40,8 @@ import java.util.Locale;
 public class FtpRobotRulesParser extends RobotRulesParser {
 
   private static final String CONTENT_TYPE = "text/plain";
-  public static final Logger LOG = LoggerFactory
-      .getLogger(FtpRobotRulesParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   FtpRobotRulesParser() {
   }

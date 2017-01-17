@@ -19,6 +19,7 @@ package org.apache.nutch.indexer.solr;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -85,8 +86,8 @@ public class SolrDeleteDuplicates
     Reducer<Text, SolrDeleteDuplicates.SolrRecord, Text, SolrDeleteDuplicates.SolrRecord>
     implements Tool {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(SolrDeleteDuplicates.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String SOLR_GET_ALL_QUERY = SolrConstants.ID_FIELD
       + ":[* TO *]";

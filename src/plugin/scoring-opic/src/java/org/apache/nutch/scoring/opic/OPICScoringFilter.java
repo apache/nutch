@@ -17,6 +17,7 @@
 
 package org.apache.nutch.scoring.opic;
 
+import java.lang.invoke.MethodHandles;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.NutchDocument;
@@ -47,8 +48,8 @@ import java.util.Set;
  */
 public class OPICScoringFilter implements ScoringFilter {
 
-  private final static Logger LOG = LoggerFactory
-      .getLogger(OPICScoringFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private final static Utf8 CASH_KEY = new Utf8("_csh_");
 

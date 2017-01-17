@@ -45,8 +45,11 @@ import org.mortbay.jetty.handler.HandlerList;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.proxy.AsyncProxyServlet;
 
+import java.lang.invoke.MethodHandles;
+
 public class TestbedProxy {
-  private static final Logger LOG = LoggerFactory.getLogger(TestbedProxy.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * @param args

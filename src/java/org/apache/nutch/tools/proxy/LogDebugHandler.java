@@ -34,6 +34,7 @@ package org.apache.nutch.tools.proxy;
  */
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -49,7 +50,7 @@ import org.mortbay.jetty.Request;
 
 public class LogDebugHandler extends AbstractTestbedHandler implements Filter {
   private static final Logger LOG = LoggerFactory
-      .getLogger(LogDebugHandler.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
   public void handle(Request req, HttpServletResponse res, String target,

@@ -18,12 +18,11 @@ package org.apache.nutch.host;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.gora.store.DataStore;
 import org.apache.gora.util.GoraException;
 import org.apache.hadoop.conf.Configuration;
@@ -35,12 +34,15 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A caching wrapper for the host datastore.
  */
 public class HostDb implements Closeable {
-  public static final Log LOG = LogFactory.getLog(HostDb.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final class CacheHost {
     private final Host host;

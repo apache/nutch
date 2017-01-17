@@ -17,6 +17,7 @@
 package org.apache.nutch.parse;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,7 +38,8 @@ import org.apache.nutch.util.ObjectCache;
 /** Creates and caches {@link Parser} plugins. */
 public final class ParserFactory {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ParserFactory.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** Wildcard for default plugins. */
   public static final String DEFAULT_PLUGIN = "*";

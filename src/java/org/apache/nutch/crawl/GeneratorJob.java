@@ -19,6 +19,7 @@ package org.apache.nutch.crawl;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Map;
@@ -74,7 +75,8 @@ public class GeneratorJob extends NutchTool implements Tool {
     FIELDS.add(WebPage.Field.MARKERS);
   }
 
-  public static final Logger LOG = LoggerFactory.getLogger(GeneratorJob.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static class SelectorEntry implements
   WritableComparable<SelectorEntry> {

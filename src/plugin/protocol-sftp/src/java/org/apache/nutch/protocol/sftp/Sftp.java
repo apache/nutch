@@ -18,6 +18,7 @@
 package org.apache.nutch.protocol.sftp;
 
 //JDK imports
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -61,7 +62,8 @@ import org.slf4j.LoggerFactory;
  */
 public class Sftp implements Protocol {
 
-  private static final Logger logger = LoggerFactory.getLogger(Sftp.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static final Map<String, BlockingQueue<ChannelSftp>> channelSftpByHostMap = new Hashtable<String, BlockingQueue<ChannelSftp>>();
 
   private Configuration configuration;
@@ -97,7 +99,7 @@ public class Sftp implements Protocol {
         return po;
       }
     } catch (MalformedURLException e) {
-      logger.error("Bad URL String: " + urlStr, e);
+      LOG.error("Bad URL String: " + urlStr, e);
       return null;
     } catch (InterruptedException e) {
       return null;
@@ -106,14 +108,14 @@ public class Sftp implements Protocol {
     } catch (IOException e) {
       return null;
     } catch (Exception e) {
-      logger.error("Unknown Exception in getProtocolOutput()", e);
+      LOG.error("Unknown Exception in getProtocolOutput()", e);
       return null;
     } finally {
       if (channelSftp != null) {
         try {
           putChannelSftp(sUrl, channelSftp);
         } catch (InterruptedException e) {
-          logger.error("Cannot return ChannelSftp object to Queue", e);
+          LOG.error("Cannot return ChannelSftp object to Queue", e);
         }
       }
     }
@@ -130,7 +132,7 @@ public class Sftp implements Protocol {
       ChannelSftp cSftp = queue.take();
       return cSftp;
     } catch (InterruptedException e) {
-      logger
+      LOG
           .error("Wait for getChannelSftp() interrupted for host: " + host, e);
       throw e;
     }
@@ -147,7 +149,7 @@ public class Sftp implements Protocol {
     try {
       queue.put(cSftp);
     } catch (InterruptedException e) {
-      logger
+      LOG
           .error("Wait for putChannelSftp() interrupted for host: " + host, e);
       throw e;
     }
@@ -164,13 +166,13 @@ public class Sftp implements Protocol {
       bytes = new byte[size];
       iStream.read(bytes);
     } catch (SftpException e) {
-      logger
+      LOG
           .error(
               "SftpException in getFileProtocolOutput(), file: "
                   + url.getFile(), e);
       throw e;
     } catch (IOException e) {
-      logger.error(
+      LOG.error(
           "IOException in getFileProtocolOutput(), file: " + url.getFile(), e);
       throw e;
     } finally {
@@ -227,7 +229,7 @@ public class Sftp implements Protocol {
       ProtocolOutput po = new ProtocolOutput(content);
       return po;
     } catch (SftpException e) {
-      logger.error("SftpException in getDirectoryProtocolOutput()", e);
+      LOG.error("SftpException in getDirectoryProtocolOutput()", e);
       throw e;
     }
   }
@@ -268,7 +270,7 @@ public class Sftp implements Protocol {
       try {
         session = jsch.getSession(user, server, port);
       } catch (JSchException e) {
-        logger.error("Cannot create JSch session for user: " + user
+        LOG.error("Cannot create JSch session for user: " + user
             + ", host: " + server + ", port: " + port);
         return;
       }
@@ -285,7 +287,7 @@ public class Sftp implements Protocol {
         cSftp = (ChannelSftp) session.openChannel("sftp");
         cSftp.connect();
       } catch (JSchException e) {
-        logger.error("Cannot connect to JSch session for user: " + user
+        LOG.error("Cannot connect to JSch session for user: " + user
             + ", host: " + server + ", port: " + port);
         return;
       }
@@ -295,7 +297,7 @@ public class Sftp implements Protocol {
       try {
         queue.put(cSftp);
       } catch (InterruptedException e) {
-        logger.error("Interrupted during setConf()", e);
+        LOG.error("Interrupted during setConf()", e);
         return;
       }
       channelSftpByHostMap.put(server, queue);

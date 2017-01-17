@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.fetcher;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +54,8 @@ import static org.junit.Assert.*;
  */
 public class TestFetcher extends AbstractNutchTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractNutchTest.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   final static Path testdir = new Path("build/test/fetch-test");
   Path urlPath;

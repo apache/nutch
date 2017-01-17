@@ -17,6 +17,7 @@
 package org.apache.nutch.host;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -46,8 +47,9 @@ import org.slf4j.LoggerFactory;
 
 public class HostDbUpdateJob implements Tool {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(HostDbUpdateJob.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
   private Configuration conf;

@@ -44,7 +44,7 @@ GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
-  public static final Logger LOG = DbUpdaterJob.LOG;
+  private static final Logger LOG = DbUpdaterJob.LOG;
 
   private int retryMax;
   private boolean additionsAllowed;

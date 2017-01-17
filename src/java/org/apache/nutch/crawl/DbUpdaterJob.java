@@ -16,6 +16,7 @@
  ******************************************************************************/
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.HashSet;
@@ -46,7 +47,8 @@ import org.slf4j.LoggerFactory;
 
 public class DbUpdaterJob extends NutchTool implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(DbUpdaterJob.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 

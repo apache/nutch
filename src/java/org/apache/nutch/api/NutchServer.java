@@ -16,6 +16,7 @@
  ******************************************************************************/
 package org.apache.nutch.api;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -67,7 +68,8 @@ import com.google.common.collect.Sets;
 public class NutchServer extends Application {
   public static final String NUTCH_SERVER = "NUTCH_SERVER";
 
-  private static final Logger LOG = LoggerFactory.getLogger(NutchServer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String LOCALHOST = "localhost";
   private static final String DEFAULT_LOG_LEVEL = "INFO";

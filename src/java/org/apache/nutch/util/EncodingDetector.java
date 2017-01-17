@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -103,8 +104,8 @@ public class EncodingDetector {
     }
   }
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(EncodingDetector.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final int NO_THRESHOLD = -1;
 

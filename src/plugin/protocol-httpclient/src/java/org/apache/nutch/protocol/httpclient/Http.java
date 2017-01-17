@@ -17,6 +17,7 @@
 package org.apache.nutch.protocol.httpclient;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.io.InputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -67,7 +68,8 @@ import org.apache.nutch.util.NutchConfiguration;
  */
 public class Http extends HttpBase {
 
-  public static final Logger LOG = LoggerFactory.getLogger(Http.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
 

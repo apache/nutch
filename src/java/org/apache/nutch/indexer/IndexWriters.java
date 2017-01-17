@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
@@ -32,7 +33,8 @@ import org.slf4j.LoggerFactory;
 /** Creates and caches {@link IndexWriter} implementing plugins. */
 public class IndexWriters {
 
-  public final static Logger LOG = LoggerFactory.getLogger(IndexWriters.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private IndexWriter[] indexWriters;
 
