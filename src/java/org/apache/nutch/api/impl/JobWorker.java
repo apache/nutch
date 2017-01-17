@@ -16,6 +16,7 @@
  ******************************************************************************/
 package org.apache.nutch.api.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.text.MessageFormat;
 import java.util.Locale;
 
@@ -30,7 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JobWorker implements Runnable {
-  private static final Logger LOG = LoggerFactory.getLogger(JobWorker.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private NutchTool tool;
   private JobInfo jobInfo;
   private JobConfig jobConfig;

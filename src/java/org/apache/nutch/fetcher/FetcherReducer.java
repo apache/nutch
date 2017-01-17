@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class FetcherReducer extends
     GoraReducer<IntWritable, FetchEntry, String, WebPage> {
 
-  public static final Logger LOG = FetcherJob.LOG;
+  private static final Logger LOG = FetcherJob.LOG;
 
   private final AtomicInteger activeThreads = new AtomicInteger(0);
   private final AtomicInteger spinWaiting = new AtomicInteger(0);

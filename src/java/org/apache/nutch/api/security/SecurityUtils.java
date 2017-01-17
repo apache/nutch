@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,8 @@ import java.util.List;
  */
 public final class SecurityUtils {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SecurityUtils.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Private constructor to prevent instantiation

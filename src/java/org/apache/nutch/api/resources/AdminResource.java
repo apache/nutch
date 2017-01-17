@@ -16,6 +16,7 @@
  ******************************************************************************/
 package org.apache.nutch.api.resources;
 
+import java.lang.invoke.MethodHandles;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -43,7 +44,7 @@ public class AdminResource extends AbstractResource {
   private static final long DELAY_MILLIS = TimeUnit.SECONDS.toMillis(DELAY_SEC);
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(AdminResource.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   @Context
   SecurityContext securityContext;

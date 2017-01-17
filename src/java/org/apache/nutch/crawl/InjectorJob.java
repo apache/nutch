@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -62,8 +63,9 @@ import java.util.*;
  **/
 public class InjectorJob extends NutchTool implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(InjectorJob.class);
-
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+  
   private static final Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
   static {

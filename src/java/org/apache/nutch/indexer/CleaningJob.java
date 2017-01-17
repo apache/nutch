@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,7 +45,8 @@ import org.apache.nutch.util.ToolUtil;
 public class CleaningJob extends NutchTool implements Tool {
 
   public static final String ARG_COMMIT = "commit";
-  public static final Logger LOG = LoggerFactory.getLogger(CleaningJob.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration conf;
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();

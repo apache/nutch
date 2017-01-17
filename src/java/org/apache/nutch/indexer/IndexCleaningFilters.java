@@ -17,6 +17,7 @@
 
 package org.apache.nutch.indexer;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,8 +38,8 @@ public class IndexCleaningFilters {
 
   public static final String IndexCleaningFilter_ORDER = "IndexCleaningFilterhbase.order";
 
-  public final static Logger LOG = LoggerFactory
-      .getLogger(IndexCleaningFilters.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private IndexCleaningFilter[] indexcleaningFilters;
 

@@ -18,6 +18,7 @@
 package org.apache.nutch.parse.feed;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -57,8 +58,8 @@ public class TestFeedParser {
 
   private String[] sampleFiles = { "rsstest.rss" };
 
-  public static final Logger LOG = LoggerFactory.getLogger(TestFeedParser.class
-      .getName());
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Default Constructor.

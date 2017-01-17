@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse.html;
 
+import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -62,8 +63,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class HtmlParser implements Parser {
-  public static final Logger LOG = LoggerFactory
-      .getLogger("org.apache.nutch.parse.html");
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   // I used 1000 bytes at first, but found that some documents have
   // meta tag well past the first 1000 bytes.

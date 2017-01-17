@@ -17,6 +17,7 @@
 
 package org.apache.nutch.net.urlnormalizer.regex;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -42,7 +43,7 @@ import org.apache.nutch.util.NutchConfiguration;
 /** Unit tests for RegexUrlNormalizer. */
 public class TestRegexURLNormalizer {
   private static final Logger LOG = LoggerFactory
-      .getLogger(TestRegexURLNormalizer.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private RegexURLNormalizer normalizer;
   private Configuration conf;

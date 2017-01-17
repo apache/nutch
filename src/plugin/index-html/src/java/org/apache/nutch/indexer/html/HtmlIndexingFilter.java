@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexer.html;
 
+import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -34,13 +35,13 @@ import org.apache.nutch.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Add raw HTML content of a document to the index.
  */
 
 public class HtmlIndexingFilter implements IndexingFilter {
-    public static final Logger LOG = LoggerFactory.getLogger(HtmlIndexingFilter.class);
+    private static final Logger LOG = LoggerFactory
+        .getLogger(MethodHandles.lookup().lookupClass());
     private Configuration conf;
 
     /**

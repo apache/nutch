@@ -16,22 +16,24 @@
  ******************************************************************************/
 package org.apache.nutch.indexer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 /**
  * Utility to create an indexed document from a webpage.
  * 
  */
 public class IndexUtil {
-  private static final Log LOG = LogFactory.getLog(new Object() {
-  }.getClass().getEnclosingClass());
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private IndexingFilters filters;
   private ScoringFilters scoringFilters;

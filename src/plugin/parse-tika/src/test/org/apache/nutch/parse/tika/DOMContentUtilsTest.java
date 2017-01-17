@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse.tika;
 
+import java.lang.invoke.MethodHandles;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.CompositeParser;
 import org.junit.Test;
@@ -186,8 +187,8 @@ public class DOMContentUtilsTest {
   private static Configuration conf;
   private static DOMContentUtils utils = null;
 
-  public static final Logger Logger = LoggerFactory
-      .getLogger(DOMContentUtilsTest.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public DOMContentUtilsTest(String name) {
   }
@@ -279,13 +280,13 @@ public class DOMContentUtilsTest {
 
     while (st1.hasMoreTokens()) {
       if (!st2.hasMoreTokens()) {
-        Logger.info("st1+ '" + st1.nextToken() + "'");
+        LOG.info("st1+ '" + st1.nextToken() + "'");
         return false;
       }
       String st1Token = st1.nextToken();
       String st2Token = st2.nextToken();
       if (!st1Token.equals(st2Token)) {
-        Logger.info("st1:'" + st1Token + "' != st2:'" + st2Token + "'");
+        LOG.info("st1:'" + st1Token + "' != st2:'" + st2Token + "'");
         return false;
       }
     }

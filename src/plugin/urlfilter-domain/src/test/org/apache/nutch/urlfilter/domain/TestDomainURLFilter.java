@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.urlfilter.domain;
 
+import java.lang.invoke.MethodHandles;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -26,8 +27,8 @@ import org.apache.nutch.util.NutchConfiguration;
 
 public class TestDomainURLFilter {
 
-  protected static final Logger LOG = LoggerFactory
-      .getLogger(TestDomainURLFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");

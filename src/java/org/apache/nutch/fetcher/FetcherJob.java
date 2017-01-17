@@ -17,6 +17,7 @@
 package org.apache.nutch.fetcher;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.HashSet;
@@ -135,7 +136,8 @@ public class FetcherJob extends NutchTool implements Tool {
     }
   }
 
-  public static final Logger LOG = LoggerFactory.getLogger(FetcherJob.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public FetcherJob() {
 

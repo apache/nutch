@@ -17,6 +17,7 @@
 
 package org.apache.nutch.indexer;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -54,8 +55,8 @@ import org.slf4j.LoggerFactory;
 
 public class IndexingFiltersChecker extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(IndexingFiltersChecker.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public IndexingFiltersChecker() {
 

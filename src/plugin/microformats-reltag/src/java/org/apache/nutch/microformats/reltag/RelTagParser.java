@@ -17,6 +17,7 @@
 package org.apache.nutch.microformats.reltag;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
@@ -52,7 +53,8 @@ import org.w3c.dom.NodeList;
  */
 public class RelTagParser implements ParseFilter {
 
-  public static final Logger LOG = LoggerFactory.getLogger(RelTagParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public final static String REL_TAG = "Rel-Tag";
 

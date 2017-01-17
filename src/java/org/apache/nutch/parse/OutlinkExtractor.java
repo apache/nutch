@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
  */
 public class OutlinkExtractor {
   private static final Logger LOG = LoggerFactory
-      .getLogger(OutlinkExtractor.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Regex pattern to get URLs within a plain text.

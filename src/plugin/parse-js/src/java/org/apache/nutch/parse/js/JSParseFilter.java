@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.parse.js;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -64,7 +65,8 @@ import org.w3c.dom.NodeList;
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class JSParseFilter implements ParseFilter, Parser {
-  public static final Logger LOG = LoggerFactory.getLogger(JSParseFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final int MAX_TITLE_LEN = 80;
 

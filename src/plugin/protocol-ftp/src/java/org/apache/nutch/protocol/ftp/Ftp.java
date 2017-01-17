@@ -17,6 +17,7 @@
 
 package org.apache.nutch.protocol.ftp;
 
+import java.lang.invoke.MethodHandles;
 import crawlercommons.robots.BaseRobotRules;
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 import org.apache.hadoop.conf.Configuration;
@@ -43,7 +44,8 @@ import java.nio.charset.StandardCharsets;
  */
 public class Ftp implements Protocol {
 
-  public static final Logger LOG = LoggerFactory.getLogger(Ftp.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 

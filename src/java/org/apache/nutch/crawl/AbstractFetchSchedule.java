@@ -23,6 +23,7 @@ import org.apache.nutch.storage.WebPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ import java.util.Set;
 public abstract class AbstractFetchSchedule extends Configured implements
     FetchSchedule {
   private static final Logger LOG = LoggerFactory
-      .getLogger(AbstractFetchSchedule.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected int defaultInterval;
   protected int maxInterval;

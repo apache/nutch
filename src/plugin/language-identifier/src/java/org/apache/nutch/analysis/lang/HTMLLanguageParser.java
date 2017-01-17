@@ -18,6 +18,7 @@ package org.apache.nutch.analysis.lang;
 
 // JDK imports
 
+import java.lang.invoke.MethodHandles;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
@@ -48,8 +49,8 @@ import java.util.*;
  */
 public class HTMLLanguageParser implements ParseFilter {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(HTMLLanguageParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 

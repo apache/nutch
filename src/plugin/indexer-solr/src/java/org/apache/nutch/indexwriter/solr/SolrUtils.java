@@ -1,5 +1,6 @@
 package org.apache.nutch.indexwriter.solr;
 
+import java.lang.invoke.MethodHandles;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -14,7 +15,8 @@ import java.net.MalformedURLException;
 
 public class SolrUtils {
 
-  public static Logger LOG = LoggerFactory.getLogger(SolrUtils.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static HttpSolrServer getHttpSolrServer(Configuration job)
       throws MalformedURLException {
