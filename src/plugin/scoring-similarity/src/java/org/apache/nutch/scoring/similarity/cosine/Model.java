@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.scoring.similarity.cosine;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,8 +47,9 @@ import org.slf4j.LoggerFactory;
 public class Model {
 
   //Currently only one file, but in future could accept a corpus hence an ArrayList
-  public static ArrayList<DocVector> docVectors = new ArrayList<>(); 
-  private static final Logger LOG = LoggerFactory.getLogger(Model.class);
+  public static ArrayList<DocVector> docVectors = new ArrayList<>();
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   public static boolean isModelCreated = false;
   private static List<String> stopWords;
 

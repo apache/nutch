@@ -35,6 +35,7 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import crawlercommons.robots.BaseRobotRules;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.List;
 import java.io.IOException;
@@ -49,7 +50,8 @@ import java.io.IOException;
  */
 public class Ftp implements Protocol {
 
-  public static final Logger LOG = LoggerFactory.getLogger(Ftp.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final int BUFFER_SIZE = 16384; // 16*1024 = 16384
 

@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.webui.client.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,7 +35,8 @@ import com.google.common.collect.Lists;
  * 
  */
 public class CrawlingCycle {
-  private Logger log = LoggerFactory.getLogger(CrawlingCycle.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private CrawlingCycleListener listener;
   private RemoteCommandExecutor executor;
@@ -58,7 +60,7 @@ public class CrawlingCycle {
       JobInfo jobInfo = executor.executeRemoteJob(command);
       command.setJobInfo(jobInfo);
 
-      log.info("Executed remote command data: {}", command);
+      LOG.info("Executed remote command data: {}", command);
 
       if (jobInfo.getState() == State.FAILED) {
         listener.onCrawlError(crawl, jobInfo.getMsg());

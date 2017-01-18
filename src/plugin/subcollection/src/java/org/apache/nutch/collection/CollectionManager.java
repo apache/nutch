@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.collection;
 
+import java.lang.invoke.MethodHandles;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -47,7 +48,8 @@ public class CollectionManager extends Configured {
 
   public static final String DEFAULT_FILE_NAME = "subcollections.xml";
 
-  static final Logger LOG = LoggerFactory.getLogger(CollectionManager.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   transient Map<String, Subcollection> collectionMap = new HashMap<String, Subcollection>();
 

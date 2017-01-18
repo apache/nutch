@@ -19,6 +19,7 @@ package org.apache.nutch.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -62,7 +63,7 @@ import org.apache.commons.cli.MissingOptionException;
 public class CrawlCompletionStats extends Configured implements Tool {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(CrawlCompletionStats.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final int MODE_HOST = 1;
   private static final int MODE_DOMAIN = 2;

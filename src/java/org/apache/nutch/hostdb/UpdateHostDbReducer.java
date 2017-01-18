@@ -17,6 +17,7 @@
 package org.apache.nutch.hostdb;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
@@ -51,7 +52,8 @@ import org.slf4j.LoggerFactory;
 public class UpdateHostDbReducer
   implements Reducer<Text, NutchWritable, Text, HostDatum> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(UpdateHostDbReducer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   protected ResolverThread resolverThread = null;
   protected Integer numResolverThreads = 10;
   protected static Integer purgeFailedHostsThreshold = -1;

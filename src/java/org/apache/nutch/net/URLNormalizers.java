@@ -17,6 +17,7 @@
 
 package org.apache.nutch.net;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,8 +118,8 @@ public final class URLNormalizers {
   /** Scope used when indexing URLs. */
   public static final String SCOPE_INDEXER = "indexer";
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(URLNormalizers.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /* Empty extension list for caching purposes. */
   private final List<Extension> EMPTY_EXTENSION_LIST = Collections

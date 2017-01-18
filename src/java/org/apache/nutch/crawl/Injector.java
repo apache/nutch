@@ -50,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,7 +83,8 @@ import java.util.Random;
  * </p>
  **/
 public class Injector extends NutchTool implements Tool {
-  public static final Logger LOG = LoggerFactory.getLogger(Injector.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** metadata key reserved for setting a custom score for a specific URL */
   public static String nutchScoreMDName = "nutch.score";

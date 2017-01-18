@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -181,7 +182,7 @@ import com.ibm.icu.text.SimpleDateFormat;
 public class CommonCrawlDataDumper extends Configured implements Tool {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(CommonCrawlDataDumper.class.getName());
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static final int MAX_INLINKS = 5000;
   
   private CommonCrawlConfig config = null;

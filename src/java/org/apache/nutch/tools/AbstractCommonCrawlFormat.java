@@ -19,6 +19,7 @@ package org.apache.nutch.tools;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
@@ -43,7 +44,8 @@ import com.ibm.icu.text.SimpleDateFormat;
  *
  */
 public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
-  protected static final Logger LOG = LoggerFactory.getLogger(AbstractCommonCrawlFormat.class.getName());
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected String url;
 

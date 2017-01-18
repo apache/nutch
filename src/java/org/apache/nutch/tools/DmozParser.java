@@ -18,6 +18,7 @@
 package org.apache.nutch.tools;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.regex.*;
 
@@ -37,7 +38,8 @@ import org.apache.nutch.util.NutchConfiguration;
 
 /** Utility that converts DMOZ RDF into a flat file of URLs to be injected. */
 public class DmozParser {
-  public static final Logger LOG = LoggerFactory.getLogger(DmozParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   long pages = 0;
 

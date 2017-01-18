@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
@@ -50,7 +51,8 @@ import org.slf4j.LoggerFactory;
  */
 
 public class CleaningJob implements Tool {
-  public static final Logger LOG = LoggerFactory.getLogger(CleaningJob.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration conf;
 
   @Override

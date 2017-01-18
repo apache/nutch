@@ -24,6 +24,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +75,8 @@ import org.apache.nutch.util.NutchJob;
 public class SegmentReader extends Configured implements Tool,
     Reducer<Text, NutchWritable, Text, Text> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(SegmentReader.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   long recNo = 0L;
 

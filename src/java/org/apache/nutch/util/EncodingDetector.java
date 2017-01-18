@@ -20,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,8 +102,8 @@ public class EncodingDetector {
     }
   }
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(EncodingDetector.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final int NO_THRESHOLD = -1;
 

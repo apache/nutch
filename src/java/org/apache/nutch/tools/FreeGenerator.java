@@ -18,6 +18,7 @@
 package org.apache.nutch.tools;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,7 +61,7 @@ import org.apache.nutch.util.TimingUtil;
  */
 public class FreeGenerator extends Configured implements Tool {
   private static final Logger LOG = LoggerFactory
-      .getLogger(FreeGenerator.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String FILTER_KEY = "free.generator.filter";
   private static final String NORMALIZE_KEY = "free.generator.normalize";

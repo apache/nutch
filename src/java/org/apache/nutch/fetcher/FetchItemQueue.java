@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.fetcher;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,8 +33,9 @@ import org.slf4j.LoggerFactory;
  * progress and elapsed time between requests.
  */
 public class FetchItemQueue {
-  
-  private static final Logger LOG = LoggerFactory.getLogger(FetchItemQueues.class);
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   List<FetchItem> queue = Collections
       .synchronizedList(new LinkedList<FetchItem>());

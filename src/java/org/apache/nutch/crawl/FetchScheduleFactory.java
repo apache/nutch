@@ -22,11 +22,13 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.ObjectCache;
 
+import java.lang.invoke.MethodHandles;
+
 /** Creates and caches a {@link FetchSchedule} implementation. */
 public class FetchScheduleFactory {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(FetchScheduleFactory.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private FetchScheduleFactory() {
   } // no public ctor

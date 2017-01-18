@@ -17,6 +17,8 @@
 
 package org.apache.nutch.publisher.rabbitmq;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.publisher.NutchPublisher;
@@ -34,7 +36,8 @@ public class RabbitMQPublisherImpl implements NutchPublisher{
   private static String EXCHANGE_SERVER;
   private static String EXCHANGE_TYPE;
   private static String HOST;
-  private static final Logger LOG = LoggerFactory.getLogger(RabbitMQPublisherImpl.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static Channel channel;
 
   @Override

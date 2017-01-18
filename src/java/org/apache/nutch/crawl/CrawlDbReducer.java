@@ -17,6 +17,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,8 +38,8 @@ import org.apache.nutch.scoring.ScoringFilters;
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer implements
     Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(CrawlDbReducer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private int retryMax;
   private CrawlDatum result = new CrawlDatum();

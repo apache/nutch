@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse.html;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Map;
 import java.net.URL;
@@ -40,8 +41,8 @@ import org.apache.nutch.parse.*;
 import org.apache.nutch.util.*;
 
 public class HtmlParser implements Parser {
-  public static final Logger LOG = LoggerFactory
-      .getLogger("org.apache.nutch.parse.html");
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   // I used 1000 bytes at first, but found that some documents have
   // meta tag well past the first 1000 bytes.

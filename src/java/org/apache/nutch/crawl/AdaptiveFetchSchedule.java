@@ -27,6 +27,8 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
 /**
  * This class implements an adaptive re-fetch algorithm. This works as follows:
  * <ul>
@@ -63,8 +65,8 @@ import org.slf4j.LoggerFactory;
 public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
   // Loggg
-  public static final Logger LOG = LoggerFactory
-      .getLogger(AbstractFetchSchedule.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected float INC_RATE;
 

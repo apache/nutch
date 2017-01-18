@@ -29,6 +29,7 @@ import org.apache.nutch.plugin.PluginRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.io.Reader;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -126,7 +127,7 @@ import java.net.MalformedURLException;
 public class SuffixURLFilter implements URLFilter {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(SuffixURLFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   // read in attribute "file" of this plugin.
   private String attributeFile = null;

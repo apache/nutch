@@ -18,6 +18,7 @@ package org.apache.nutch.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URI;
@@ -51,8 +52,8 @@ public class PluginDescriptor {
   private ArrayList<URL> fNotExportedLibs = new ArrayList<URL>();
   private ArrayList<Extension> fExtensions = new ArrayList<Extension>();
   private PluginClassLoader fClassLoader;
-  public static final Logger LOG = LoggerFactory
-      .getLogger(PluginDescriptor.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration fConf;
 
   /**

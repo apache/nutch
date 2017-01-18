@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexwriter.solr;
 
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -52,8 +53,8 @@ import java.net.URLDecoder;
 
 public class SolrIndexWriter implements IndexWriter {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(SolrIndexWriter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private List<SolrClient> solrClients;
   private SolrMappingReader solrMapping;

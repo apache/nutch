@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.net.*;
 import java.util.*;
 import java.text.*;
@@ -59,7 +60,8 @@ import org.apache.nutch.util.URLUtil;
  **/
 public class Generator extends NutchTool implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(Generator.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String GENERATE_UPDATE_CRAWLDB = "generate.update.crawldb";
   public static final String GENERATOR_MIN_SCORE = "generate.min.score";

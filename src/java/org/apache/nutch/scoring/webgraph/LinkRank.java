@@ -19,6 +19,7 @@ package org.apache.nutch.scoring.webgraph;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -69,7 +70,8 @@ import org.apache.nutch.util.URLUtil;
 
 public class LinkRank extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(LinkRank.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static final String NUM_NODES = "_num_nodes_";
 
   /**

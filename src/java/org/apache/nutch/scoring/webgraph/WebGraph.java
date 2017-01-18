@@ -17,6 +17,7 @@
 package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -95,7 +96,8 @@ import org.apache.nutch.util.URLUtil;
  */
 public class WebGraph extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(WebGraph.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   public static final String LOCK_NAME = ".locked";
   public static final String INLINK_DIR = "inlinks";
   public static final String OUTLINK_DIR = "outlinks/current";

@@ -18,6 +18,7 @@ package org.apache.nutch.segment;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -127,7 +128,7 @@ public class SegmentMerger extends Configured implements Tool,
     Mapper<Text, MetaWrapper, Text, MetaWrapper>,
     Reducer<Text, MetaWrapper, Text, MetaWrapper> {
   private static final Logger LOG = LoggerFactory
-      .getLogger(SegmentMerger.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String SEGMENT_PART_KEY = "part";
   private static final String SEGMENT_SLICE_KEY = "slice";

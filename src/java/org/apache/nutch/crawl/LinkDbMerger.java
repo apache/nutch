@@ -17,6 +17,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -69,7 +70,8 @@ import org.apache.nutch.util.TimingUtil;
  */
 public class LinkDbMerger extends Configured implements Tool,
     Reducer<Text, Inlinks, Text, Inlinks> {
-  private static final Logger LOG = LoggerFactory.getLogger(LinkDbMerger.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private int maxInlinks;
 

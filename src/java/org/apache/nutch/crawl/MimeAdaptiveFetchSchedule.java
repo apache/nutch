@@ -20,6 +20,7 @@ package org.apache.nutch.crawl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -51,8 +52,8 @@ import org.slf4j.LoggerFactory;
  */
 public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
   // Loggg
-  public static final Logger LOG = LoggerFactory
-      .getLogger(MimeAdaptiveFetchSchedule.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   // Conf directives
   public static final String SCHEDULE_INC_RATE = "db.fetch.schedule.adaptive.inc_rate";

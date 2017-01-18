@@ -37,6 +37,7 @@ import org.apache.nutch.util.*;
 import org.apache.hadoop.fs.Path;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -46,7 +47,8 @@ public class ParseSegment extends NutchTool implements Tool,
     Mapper<WritableComparable<?>, Content, Text, ParseImpl>,
     Reducer<Text, Writable, Text, Writable> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ParseSegment.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String SKIP_TRUNCATED = "parser.skip.truncated";
 

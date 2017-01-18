@@ -17,6 +17,7 @@
 
 package org.apache.nutch.scoring.opic;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -50,8 +51,8 @@ import org.apache.nutch.scoring.ScoringFilterException;
  */
 public class OPICScoringFilter implements ScoringFilter {
 
-  private final static Logger LOG = LoggerFactory
-      .getLogger(OPICScoringFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
   private float scoreInjected;
