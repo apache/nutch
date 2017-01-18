@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.util;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +33,8 @@ import org.slf4j.LoggerFactory;
  */
 public class JexlUtil {
 
-  public static final Logger LOG = LoggerFactory.getLogger(JexlUtil.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * 

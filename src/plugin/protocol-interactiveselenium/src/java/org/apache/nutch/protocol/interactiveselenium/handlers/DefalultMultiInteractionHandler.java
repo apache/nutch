@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.protocol.interactiveselenium;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.hadoop.util.StringUtils;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -30,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class DefalultMultiInteractionHandler implements
     InteractiveSeleniumHandler {
   private static final Logger LOG = LoggerFactory
-      .getLogger(DefalultMultiInteractionHandler.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public String processDriver(WebDriver driver) {
     // loop and get multiple pages in this string

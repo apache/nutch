@@ -18,6 +18,7 @@ package org.apache.nutch.indexer;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +57,8 @@ import org.slf4j.LoggerFactory;
 
 public class IndexingJob extends NutchTool implements Tool {
 
-  public static Logger LOG = LoggerFactory.getLogger(IndexingJob.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public IndexingJob() {
     super(null);

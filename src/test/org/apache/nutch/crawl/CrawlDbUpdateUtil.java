@@ -17,6 +17,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class CrawlDbUpdateUtil<T extends Reducer<Text, CrawlDatum, Text, CrawlDatum>> {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(CrawlDbUpdateUtil.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private T reducer;
 

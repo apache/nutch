@@ -17,6 +17,7 @@
 
 package org.apache.nutch.service;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -58,7 +59,8 @@ import com.google.common.collect.Queues;
 
 public class NutchServer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NutchServer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String LOCALHOST = "localhost";
   private static final Integer DEFAULT_PORT = 8081;

@@ -58,6 +58,7 @@ import org.apache.nutch.util.PrefixStringMatcher;
 import org.apache.nutch.util.TrieStringMatcher;
 import org.apache.tika.Tika;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -75,7 +76,7 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
   public static final String MIMEFILTER_REGEX_FILE = "mimetype.filter.file";
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(MimeTypeIndexingFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private MimeUtil MIME;
   private Tika tika = new Tika();

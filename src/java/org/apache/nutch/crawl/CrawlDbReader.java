@@ -21,6 +21,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Closeable;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,7 +83,8 @@ import org.apache.commons.lang.time.DateUtils;
  */
 public class CrawlDbReader extends Configured implements Closeable, Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(CrawlDbReader.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private MapFile.Reader[] readers = null;
 

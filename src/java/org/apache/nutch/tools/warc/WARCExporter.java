@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -78,7 +79,8 @@ import com.martinkl.warc.mapred.WARCOutputFormat;
 
 public class WARCExporter extends Configured implements Tool {
 
-  public static Logger LOG = LoggerFactory.getLogger(WARCExporter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String CRLF = "\r\n";
   private static final byte[] CRLF_BYTES = { 13, 10 };

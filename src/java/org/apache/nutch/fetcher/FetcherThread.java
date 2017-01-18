@@ -17,6 +17,7 @@
 package org.apache.nutch.fetcher;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -72,8 +73,9 @@ import crawlercommons.robots.BaseRobotRules;
  * This class picks items from queues and fetches the pages.
  */
 public class FetcherThread extends Thread {
-  
-  private static final Logger LOG = LoggerFactory.getLogger(FetcherThread.class);
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
   private URLFilters urlFilters;

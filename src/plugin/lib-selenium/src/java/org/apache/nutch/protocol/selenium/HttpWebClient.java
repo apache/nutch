@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.protocol.selenium;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,7 +51,8 @@ import com.opera.core.systems.OperaDriver;
 
 public class HttpWebClient {
 
-  private static final Logger LOG = LoggerFactory.getLogger(HttpWebClient.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static ThreadLocal<WebDriver> threadWebDriver = new ThreadLocal<WebDriver>() {
 

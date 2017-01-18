@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.ByteArrayInputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -112,8 +113,8 @@ import org.slf4j.LoggerFactory;
  */
 public class FileDumper {
 
-  private static final Logger LOG = LoggerFactory.getLogger(FileDumper.class
-      .getName());
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Dumps the reverse engineered raw content from the provided segment

@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.protocol.interactiveselenium;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultClickAllAjaxLinksHandler implements InteractiveSeleniumHandler {
   private static final Logger LOG = LoggerFactory
-      .getLogger(DefaultClickAllAjaxLinksHandler.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public String processDriver(WebDriver driver) {
     

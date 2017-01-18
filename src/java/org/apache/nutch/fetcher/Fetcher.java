@@ -18,6 +18,7 @@ package org.apache.nutch.fetcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,7 +87,8 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
 
   public static final String PROTOCOL_REDIR = "protocol";
 
-  public static final Logger LOG = LoggerFactory.getLogger(Fetcher.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static class InputFormat extends
   SequenceFileInputFormat<Text, CrawlDatum> {

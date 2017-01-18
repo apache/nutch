@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.net.urlnormalizer.querystring;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class QuerystringURLNormalizer implements URLNormalizer {
   private Configuration conf;
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(QuerystringURLNormalizer.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public QuerystringURLNormalizer() {
   }

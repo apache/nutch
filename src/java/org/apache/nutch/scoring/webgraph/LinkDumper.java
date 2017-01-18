@@ -19,6 +19,7 @@ package org.apache.nutch.scoring.webgraph;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -72,7 +73,8 @@ import org.apache.nutch.util.TimingUtil;
  */
 public class LinkDumper extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(LinkDumper.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   public static final String DUMP_DIR = "linkdump";
 
   /**

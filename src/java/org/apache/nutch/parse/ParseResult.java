@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -42,7 +43,8 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
   private Map<Text, Parse> parseMap;
   private String originalUrl;
 
-  public static final Logger LOG = LoggerFactory.getLogger(ParseResult.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Create a container for parse results.

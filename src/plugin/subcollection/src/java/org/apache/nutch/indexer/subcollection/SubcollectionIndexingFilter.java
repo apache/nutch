@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.indexer.subcollection;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
@@ -72,8 +74,8 @@ public class SubcollectionIndexingFilter extends Configured implements
   /**
    * Logger
    */
-  public static final Logger LOG = LoggerFactory
-      .getLogger(SubcollectionIndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * "Mark" document to be a part of subcollection

@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.net.*;
@@ -46,7 +47,8 @@ import org.apache.nutch.util.TimingUtil;
 public class LinkDb extends NutchTool implements Tool,
     Mapper<Text, ParseData, Text, Inlinks> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(LinkDb.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String IGNORE_INTERNAL_LINKS = "linkdb.ignore.internal.links";
   public static final String IGNORE_EXTERNAL_LINKS = "linkdb.ignore.external.links";

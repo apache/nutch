@@ -17,6 +17,7 @@ package org.apache.nutch.tools.proxy;
  * limitations under the License.
  */
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,7 +39,8 @@ import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.proxy.AsyncProxyServlet;
 
 public class ProxyTestbed {
-  private static final Logger LOG = LoggerFactory.getLogger(ProxyTestbed.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * @param args

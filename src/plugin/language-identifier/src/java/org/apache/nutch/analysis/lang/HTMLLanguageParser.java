@@ -17,6 +17,7 @@
 package org.apache.nutch.analysis.lang;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,8 +42,8 @@ import org.w3c.dom.Node;
 
 public class HTMLLanguageParser implements HtmlParseFilter {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(HTMLLanguageParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private int detect = -1, identify = -1;
 

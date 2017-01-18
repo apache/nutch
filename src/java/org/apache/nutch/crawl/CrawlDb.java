@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -44,7 +45,8 @@ import org.apache.nutch.util.TimingUtil;
  * accordingly.
  */
 public class CrawlDb extends NutchTool implements Tool {
-  public static final Logger LOG = LoggerFactory.getLogger(CrawlDb.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
