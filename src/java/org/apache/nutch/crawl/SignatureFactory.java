@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 // Commons Logging imports
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ import org.apache.nutch.util.ObjectCache;
  */
 public class SignatureFactory {
   private static final Logger LOG = LoggerFactory
-      .getLogger(SignatureFactory.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private SignatureFactory() {
   } // no public ctor

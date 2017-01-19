@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.plugin;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -55,8 +56,8 @@ public class PluginRepository {
 
   private Configuration conf;
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(PluginRepository.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Pluging repository constructor

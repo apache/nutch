@@ -17,6 +17,7 @@
 
 package org.apache.nutch.indexer.basic;
 
+import java.lang.invoke.MethodHandles;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
@@ -45,8 +46,8 @@ import java.util.HashSet;
  * policy, if available tstamp - add timestamp when fetched, for deduplication
  */
 public class BasicIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(BasicIndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private int MAX_TITLE_LENGTH;
   private Configuration conf;

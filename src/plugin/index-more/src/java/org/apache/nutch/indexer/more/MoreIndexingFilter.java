@@ -1,5 +1,6 @@
 package org.apache.nutch.indexer.more;
 
+import java.lang.invoke.MethodHandles;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
@@ -43,8 +44,8 @@ import org.slf4j.LoggerFactory;
  */
 
 public class MoreIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(MoreIndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME;

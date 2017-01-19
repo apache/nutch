@@ -49,7 +49,7 @@ public class PluginManifestParser {
   private static final String ATTR_CLASS = "class";
   private static final String ATTR_ID = "id";
 
-  public static final Logger LOG = PluginRepository.LOG;
+  private static final Logger LOG = PluginRepository.LOG;
 
   private static final boolean WINDOWS = System.getProperty("os.name")
       .startsWith("Windows");

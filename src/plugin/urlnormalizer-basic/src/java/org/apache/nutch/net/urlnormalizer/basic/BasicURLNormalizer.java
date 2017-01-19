@@ -17,6 +17,7 @@
 
 package org.apache.nutch.net.urlnormalizer.basic;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -46,8 +47,8 @@ import org.apache.hadoop.conf.Configured;
  * </ul>
  */
 public class BasicURLNormalizer extends Configured implements URLNormalizer {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(BasicURLNormalizer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Pattern to detect whether a URL path could be normalized. Contains one of

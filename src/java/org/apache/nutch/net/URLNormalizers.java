@@ -17,6 +17,7 @@
 
 package org.apache.nutch.net;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,8 +116,8 @@ public final class URLNormalizers {
    */
   public static final String SCOPE_OUTLINK = "outlink";
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(URLNormalizers.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /* Empty extension list for caching purposes. */
   private final List<Extension> EMPTY_EXTENSION_LIST = Collections.emptyList();

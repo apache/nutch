@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.parse.tika;
 
+import java.lang.invoke.MethodHandles;
 import org.apache.avro.util.Utf8;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -62,7 +63,8 @@ import java.util.HashSet;
 
 public class TikaParser implements org.apache.nutch.parse.Parser {
 
-  public static final Logger LOG = LoggerFactory.getLogger(TikaParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 

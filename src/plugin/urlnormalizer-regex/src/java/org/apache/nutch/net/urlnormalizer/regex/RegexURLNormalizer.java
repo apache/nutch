@@ -17,6 +17,7 @@
 
 package org.apache.nutch.net.urlnormalizer.regex;
 
+import java.lang.invoke.MethodHandles;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -70,7 +71,7 @@ import org.xml.sax.InputSource;
 public class RegexURLNormalizer extends Configured implements URLNormalizer {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(RegexURLNormalizer.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Class which holds a compiled pattern and its corresponding substition

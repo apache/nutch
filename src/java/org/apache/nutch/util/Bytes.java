@@ -24,6 +24,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Comparator;
@@ -43,7 +44,8 @@ import org.apache.hadoop.io.WritableUtils;
  */
 public class Bytes {
 
-  private static final Logger LOG = LoggerFactory.getLogger(Bytes.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** When we encode strings, we always specify UTF8 encoding */
   public static final String UTF8_ENCODING = "UTF-8";

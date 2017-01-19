@@ -18,6 +18,7 @@ package org.apache.nutch.webui.client.impl;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,7 +41,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class RemoteCommandExecutor {
-  private Logger log = LoggerFactory.getLogger(RemoteCommandExecutor.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final int DEFAULT_TIMEOUT_SEC = 60;
   private Duration requestDelay = new Duration(500);
@@ -60,7 +62,7 @@ public class RemoteCommandExecutor {
           .submit(new JobStateChecker(jobId));
       return chekerFuture.get(getTimeout(command), TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      log.error("Remote command failed", e);
+      LOG.error("Remote command failed", e);
       JobInfo jobInfo = new JobInfo();
       jobInfo.setState(State.FAILED);
       jobInfo.setMsg(ExceptionUtils.getStackTrace(e));

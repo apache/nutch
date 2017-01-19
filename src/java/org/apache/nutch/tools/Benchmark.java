@@ -17,6 +17,7 @@
 package org.apache.nutch.tools;
 
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +44,8 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 public class Benchmark extends Configured implements Tool {
-  private static final Logger LOG = LoggerFactory.getLogger(Benchmark.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static void main(String[] args) throws Exception {
     Configuration conf = NutchConfiguration.create();

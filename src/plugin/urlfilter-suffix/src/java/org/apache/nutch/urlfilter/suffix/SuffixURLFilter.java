@@ -17,6 +17,7 @@
 
 package org.apache.nutch.urlfilter.suffix;
 
+import java.lang.invoke.MethodHandles;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.*;
 
@@ -129,7 +130,7 @@ import java.net.MalformedURLException;
 public class SuffixURLFilter implements URLFilter {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(SuffixURLFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   // read in attribute "file" of this plugin.
   private String attributeFile = null;

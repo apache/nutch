@@ -17,6 +17,7 @@
 package org.apache.nutch.parse;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -54,7 +55,8 @@ import org.apache.gora.mapreduce.GoraMapper;
 
 public class ParserJob extends NutchTool implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ParserJob.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String RESUME_KEY = "parse.job.resume";
   private static final String FORCE_KEY = "parse.job.force";

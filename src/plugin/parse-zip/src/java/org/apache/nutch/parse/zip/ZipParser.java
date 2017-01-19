@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse.zip;
 
+import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Properties;
@@ -41,7 +42,8 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class ZipParser implements Parser {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ZipParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration conf;
 
   /** Creates a new instance of ZipParser */

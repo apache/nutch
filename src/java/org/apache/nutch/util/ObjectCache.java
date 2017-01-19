@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.util;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 
@@ -25,7 +26,8 @@ import org.apache.hadoop.conf.Configuration;
 
 public class ObjectCache {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ObjectCache.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final WeakHashMap<Configuration, ObjectCache> CACHE = new WeakHashMap<Configuration, ObjectCache>();
 

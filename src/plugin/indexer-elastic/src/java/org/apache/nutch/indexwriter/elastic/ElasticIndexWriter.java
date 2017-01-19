@@ -19,6 +19,7 @@ package org.apache.nutch.indexwriter.elastic;
 
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -48,7 +49,8 @@ import org.slf4j.LoggerFactory;
 /**
  */
 public class ElasticIndexWriter implements IndexWriter {
-  public static Logger LOG = LoggerFactory.getLogger(ElasticIndexWriter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final int DEFAULT_MAX_BULK_DOCS = 250;
   private static final int DEFAULT_MAX_BULK_LENGTH = 2500500;

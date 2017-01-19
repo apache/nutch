@@ -31,6 +31,7 @@ import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Map;
@@ -66,7 +67,8 @@ import java.util.Map.Entry;
 
 public class ParserChecker implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ParserChecker.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration conf;
 
   public ParserChecker() {

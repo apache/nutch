@@ -17,6 +17,7 @@
 
 package org.apache.nutch.indexer.tld;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,8 +39,8 @@ import org.apache.nutch.util.domain.DomainSuffix;
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
  */
 public class TLDIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(TLDIndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
 

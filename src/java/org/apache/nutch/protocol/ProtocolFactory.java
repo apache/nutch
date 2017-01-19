@@ -17,6 +17,7 @@
 
 package org.apache.nutch.protocol;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -41,8 +42,8 @@ import org.apache.nutch.util.ObjectCache;
  */
 public class ProtocolFactory {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(ProtocolFactory.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private final ExtensionPoint extensionPoint;
 

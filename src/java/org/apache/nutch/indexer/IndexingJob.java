@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,7 +54,8 @@ import org.slf4j.LoggerFactory;
 
 public class IndexingJob extends NutchTool implements Tool {
 
-  public static Logger LOG = LoggerFactory.getLogger(IndexingJob.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 

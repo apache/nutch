@@ -47,7 +47,8 @@ import com.anotherbigidea.io.InStream;
  * @author Andrzej Bialecki
  */
 public class SWFParser implements Parser {
-  public static final Logger LOG = LoggerFactory.getLogger("org.apache.nutch.parse.swf");
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf = null;
 

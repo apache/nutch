@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
@@ -47,7 +48,8 @@ import com.google.common.io.Files;
 
 @Path("/seed")
 public class SeedResource extends AbstractResource {
-  private static final Logger log = LoggerFactory.getLogger(SeedResource.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   @Context
   SecurityContext securityContext;
@@ -106,7 +108,7 @@ public class SeedResource extends AbstractResource {
   }
 
   private RuntimeException handleException(Exception e) {
-    log.error("Cannot create seed file!", e);
+    LOG.error("Cannot create seed file!", e);
     return new WebApplicationException(status(Status.INTERNAL_SERVER_ERROR)
         .entity("Cannot create seed file!").build());
   }

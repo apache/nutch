@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.parse.tika;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.ClassLoader;
 import java.lang.InstantiationException;
 import java.util.WeakHashMap;
@@ -27,8 +28,9 @@ import de.l3s.boilerpipe.extractors.*;
 
 class BoilerpipeExtractorRepository {
 
-	public static final Logger LOG = LoggerFactory.getLogger(BoilerpipeExtractorRepository.class);
-    public static final WeakHashMap<String, BoilerpipeExtractor> extractorRepository = new WeakHashMap<String, BoilerpipeExtractor>();
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+  public static final WeakHashMap<String, BoilerpipeExtractor> extractorRepository = new WeakHashMap<String, BoilerpipeExtractor>();
  
     /**
      * Returns an instance of the specified extractor

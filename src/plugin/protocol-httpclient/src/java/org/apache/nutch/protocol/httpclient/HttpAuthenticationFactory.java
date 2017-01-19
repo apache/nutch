@@ -17,6 +17,7 @@
 package org.apache.nutch.protocol.httpclient;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -53,8 +54,8 @@ public class HttpAuthenticationFactory implements Configurable {
    */
   public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(HttpAuthenticationFactory.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static Map<?, ?> auths = new TreeMap<Object, Object>();
 

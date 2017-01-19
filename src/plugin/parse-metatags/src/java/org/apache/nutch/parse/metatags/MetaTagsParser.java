@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.parse.metatags;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -30,8 +31,8 @@ import java.util.Map.Entry;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
@@ -49,8 +50,8 @@ import org.w3c.dom.DocumentFragment;
  */
 public class MetaTagsParser implements ParseFilter {
 
-  private static final Log LOG = LogFactory.getLog(MetaTagsParser.class
-      .getName());
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
 

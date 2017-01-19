@@ -30,6 +30,7 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.lang.invoke.MethodHandles;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,7 +42,8 @@ import java.nio.charset.StandardCharsets;
 
 /** Adds metadata identifying the Creative Commons license used, if any. */
 public class CCParseFilter implements ParseFilter {
-  public static final Logger LOG = LoggerFactory.getLogger(CCParseFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** Walks DOM tree, looking for RDF in comments and licenses in anchors. */
   public static class Walker {

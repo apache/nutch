@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Hashtable;
@@ -48,8 +49,8 @@ import crawlercommons.robots.SimpleRobotRulesParser;
  */
 public abstract class RobotRulesParser implements Configurable {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(RobotRulesParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected static final Hashtable<String, BaseRobotRules> CACHE = new Hashtable<String, BaseRobotRules>();
 
