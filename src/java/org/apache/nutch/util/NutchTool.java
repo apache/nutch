@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.metadata.Nutch;
@@ -33,6 +35,7 @@ public abstract class NutchTool extends Configured {
   protected Job currentJob;
   protected int numJobs;
   protected int currentJobNum;
+  public static final Logger LOG = LoggerFactory.getLogger(NutchTool.class);
 
   /**
    * Runs the tool, using a map of arguments. May return results, or null.
@@ -55,10 +58,10 @@ public abstract class NutchTool extends Configured {
       try {
         res = (currentJob.mapProgress() + currentJob.reduceProgress()) / 2.0f;
       } catch (IOException e) {
-        e.printStackTrace();
+        LOG.error("IOException occurred: ", e);
         res = 0;
       } catch (IllegalStateException ile) {
-        ile.printStackTrace();
+        LOG.error("IllegalStateException occurred: ", ile);
         res = 0;
       }
     }
@@ -103,7 +106,7 @@ public abstract class NutchTool extends Configured {
         currentJob.killJob();
         return true;
       } catch (Exception e) {
-        e.printStackTrace();
+        LOG.error("Exception occurred: ", e);
         return false;
       }
     }

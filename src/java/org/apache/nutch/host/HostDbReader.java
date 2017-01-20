@@ -62,7 +62,7 @@ public class HostDbReader extends Configured implements Tool {
         System.out.println(hostName);
         System.out.println(host);
       } catch (Exception e) {
-        e.printStackTrace();
+        LOG.error("Exception occurred: ", e);
       }
     }
     result.close();

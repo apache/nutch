@@ -239,7 +239,7 @@ public class ParseUtil extends Configured {
           try {
             reversedUrl = TableUtil.reverseUrl(toUrl); // collect it
           } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LOG.error("MalformedURLException occurred: ", e);
           }
           WebPage newRow = WebPage.newBuilder().build();
           Set<Map.Entry<String, String[]>> metaDatas = outlinkMap.get(outlink)
@@ -264,9 +264,9 @@ public class ParseUtil extends Configured {
           try {
             context.write(reversedUrl, newRow);
           } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("IOException occurred: ", e);
           } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOG.error("InterruptedException occurred: ", e);
           }
         }
 

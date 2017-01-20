@@ -249,11 +249,12 @@ public class WebTableReader extends NutchTool implements Tool {
         System.out.println(getPageRepresentation(url, page, dumpContent,
             dumpHeaders, dumpLinks, dumpText));
       } catch (Exception e) {
-        e.printStackTrace();
+        LOG.error("Exception occurred: ", e);
       }
     }
-    if (!found)
-      System.out.println(key + " not found");
+    if (!found) {
+      LOG.info("{} not found", key);
+    }
     result.close();
     datastore.close();
   }
