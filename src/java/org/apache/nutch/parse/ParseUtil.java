@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -69,7 +70,8 @@ public class ParseUtil extends Configured {
     ALWAYS, HOURLY, DAILY, WEEKLY, MONTHLY, YEARLY, NEVER
   }
   /* our log stream */
-  public static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final int DEFAULT_MAX_PARSE_TIME = 30;
   private static final int DEFAULT_OUTLINKS_MAX_TARGET_LENGTH = 3000;
@@ -237,7 +239,7 @@ public class ParseUtil extends Configured {
           try {
             reversedUrl = TableUtil.reverseUrl(toUrl); // collect it
           } catch (MalformedURLException e) {
-            e.printStackTrace();
+            LOG.error("Failed to reverse URL {}: {}", toUrl, e.getMessage());
           }
           WebPage newRow = WebPage.newBuilder().build();
           Set<Map.Entry<String, String[]>> metaDatas = outlinkMap.get(outlink)
@@ -262,9 +264,9 @@ public class ParseUtil extends Configured {
           try {
             context.write(reversedUrl, newRow);
           } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(StringUtils.stringifyException(e));
           } catch (InterruptedException e) {
-            e.printStackTrace();
+            LOG.error(StringUtils.stringifyException(e));
           }
         }
 

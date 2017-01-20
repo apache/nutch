@@ -17,9 +17,8 @@
 package org.apache.nutch.host;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
 import org.apache.gora.store.DataStore;
@@ -31,13 +30,16 @@ import org.apache.nutch.storage.Host;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Display entries from the hostDB. Allows to verify that the storage is OK.
  **/
 
 public class HostDbReader extends Configured implements Tool {
-  public static final Log LOG = LogFactory.getLog(HostDbReader.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private void read(String key) throws ClassNotFoundException, IOException,
       Exception {
@@ -54,13 +56,14 @@ public class HostDbReader extends Configured implements Tool {
     Result<String, Host> result = datastore.execute(query);
 
     while (result.next()) {
+      String hostName = null;
       try {
-        String hostName = TableUtil.unreverseUrl(result.getKey());
+        hostName = TableUtil.unreverseUrl(result.getKey());
         Host host = result.get();
         System.out.println(hostName);
         System.out.println(host);
       } catch (Exception e) {
-        e.printStackTrace();
+        LOG.error("Failed to get host from hostname {}: {}", hostName, e.getMessage());
       }
     }
     result.close();
@@ -85,7 +88,7 @@ public class HostDbReader extends Configured implements Tool {
       read(key);
       return 0;
     } catch (Exception e) {
-      LOG.fatal("HostDBReader: " + StringUtils.stringifyException(e));
+      LOG.error("HostDBReader: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

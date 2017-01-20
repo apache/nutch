@@ -28,6 +28,7 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 
 // Commons Logging imports
+import org.apache.hadoop.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,7 +184,7 @@ public abstract class RobotRulesParser implements Configurable {
       }
       testsIn.close();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error(StringUtils.stringifyException(e));
     }
   }
 }

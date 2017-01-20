@@ -17,10 +17,14 @@
 package org.apache.nutch.parse;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import org.apache.hadoop.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import crawlercommons.sitemaps.*;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -34,6 +38,9 @@ public class NutchSitemapParser {
   private Configuration conf;
 
   private static Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   static {
     FIELDS.add(WebPage.Field.BASE_URL);
@@ -50,9 +57,9 @@ public class NutchSitemapParser {
           .parseSiteMap(contentType, page.getContent().array(),
               new URL(url));
     } catch (UnknownFormatException e) {
-      e.printStackTrace();
+      LOG.error(StringUtils.stringifyException(e));
     } catch (IOException e) {
-      e.printStackTrace();
+      LOG.error(StringUtils.stringifyException(e));
     }
     Map<Outlink, Metadata> outlinkMap = null;
     Iterator i$;
@@ -80,7 +87,7 @@ public class NutchSitemapParser {
               new Outlink(sitemapUrl.getUrl().toString(), "sitemap.outlink"),
               metadata);
         } catch (MalformedURLException e) {
-          e.printStackTrace();
+          LOG.error(StringUtils.stringifyException(e));
         }
       }
     }
