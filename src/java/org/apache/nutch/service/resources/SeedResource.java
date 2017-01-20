@@ -19,6 +19,7 @@ package org.apache.nutch.service.resources;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -105,6 +106,16 @@ public class SeedResource extends AbstractResource {
     if (CollectionUtils.isNotEmpty(seedUrls)) {
       for (SeedUrl seedUrl : seedUrls) {
         os.write(seedUrl.getUrl().getBytes());
+
+        Map<String,String> metadata = seedUrl.getMetadata();
+        Iterator<String> keyIterator = metadata.keySet().iterator();
+
+        while (keyIterator.hasNext()) {
+          String key = keyIterator.next();
+
+          os.write(String.format("\t%s=%s", key, metadata.get(key)).getBytes());
+        }
+
         os.write("\n".getBytes());
       }
     }
