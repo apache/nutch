@@ -400,7 +400,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 	  Text key = new Text();
 	  LongWritable value = new LongWritable();
 
-	  TreeMap<String, LongWritable> stats = new TreeMap<String, LongWritable>();
+	  TreeMap<String, LongWritable> stats = new TreeMap<>();
 	  for (int i = 0; i < readers.length; i++) {
 		  SequenceFile.Reader reader = readers[i];
 		  while (reader.next(key, value)) {
@@ -494,7 +494,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     CrawlDatum val = new CrawlDatum();
     openReaders(crawlDb, config);
     CrawlDatum res = (CrawlDatum) MapFileOutputFormat.getEntry(readers,
-        new HashPartitioner<Text, CrawlDatum>(), key, val);
+        new HashPartitioner<>(), key, val);
     return res;
   }
 
@@ -772,7 +772,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
   public Object query(Map<String, String> args, Configuration conf, String type, String crawlId) throws Exception {
  
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
     String crawlDb = crawlId + "/crawldb";
 
     if(type.equalsIgnoreCase("stats")){
@@ -785,7 +785,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       LongWritable totalCnt = stats.get("T");
       stats.remove("T");
       results.put("totalUrls", String.valueOf(totalCnt.get()));
-      Map<String, Object> statusMap = new HashMap<String, Object>();      
+      Map<String, Object> statusMap = new HashMap<>();
 
       for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
         String k = entry.getKey();
@@ -807,13 +807,13 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
               hostValues= (Map<String, String>) individualStatusInfo.get("hostValues");
             }
             else{
-              hostValues = new HashMap<String, String>();
+              hostValues = new HashMap<>();
               individualStatusInfo.put("hostValues", hostValues);
             }
             hostValues.put(st[2], String.valueOf(val));
           }
           else{
-            Map<String, Object> individualStatusInfo = new HashMap<String, Object>();
+            Map<String, Object> individualStatusInfo = new HashMap<>();
 
             individualStatusInfo.put("statusValue", CrawlDatum.getStatusName((byte) code));
             individualStatusInfo.put("count", String.valueOf(val));
@@ -874,7 +874,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       results.put("retryInterval", res.getFetchInterval());
       results.put("score", res.getScore());
       results.put("signature", StringUtil.toHexString(res.getSignature()));
-      Map<String, String> metadata = new HashMap<String, String>();
+      Map<String, String> metadata = new HashMap<>();
       if(res.getMetaData()!=null){
         for (Entry<Writable, Writable> e : res.getMetaData().entrySet()) {
           metadata.put(String.valueOf(e.getKey()), String.valueOf(e.getValue()));

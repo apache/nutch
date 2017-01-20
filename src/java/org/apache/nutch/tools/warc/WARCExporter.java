@@ -307,7 +307,7 @@ public class WARCExporter extends Configured implements Tool {
       return -1;
     }
 
-    final List<Path> segments = new ArrayList<Path>();
+    final List<Path> segments = new ArrayList<>();
 
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {

@@ -117,7 +117,7 @@ public class Generator extends NutchTool implements Tool {
     private long curTime;
     private long limit;
     private long count;
-    private HashMap<String, int[]> hostCounts = new HashMap<String, int[]>();
+    private HashMap<String, int[]> hostCounts = new HashMap<>();
     private int segCounts[];
     private int maxCount;
     private boolean byDomain = false;
@@ -597,7 +597,7 @@ public class Generator extends NutchTool implements Tool {
 
     // read the subdirectories generated in the temp
     // output and turn them into segments
-    List<Path> generatedSegments = new ArrayList<Path>();
+    List<Path> generatedSegments = new ArrayList<>();
 
     FileStatus[] status = fs.listStatus(tempDir);
     try {
@@ -777,7 +777,7 @@ public class Generator extends NutchTool implements Tool {
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
 
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;

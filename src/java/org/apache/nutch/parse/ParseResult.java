@@ -53,7 +53,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
    *          the original url from which all parse results have been obtained.
    */
   public ParseResult(String originalUrl) {
-    parseMap = new HashMap<Text, Parse>();
+    parseMap = new HashMap<>();
     this.originalUrl = originalUrl;
   }
 

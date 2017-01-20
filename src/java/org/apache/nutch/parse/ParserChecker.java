@@ -91,7 +91,7 @@ public class ParserChecker implements Tool {
     }
 
     // used to simulate the metadata propagated from injection
-    HashMap<String, String> metadata = new HashMap<String, String>();
+    HashMap<String, String> metadata = new HashMap<>();
 
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-forceAs")) {

@@ -35,7 +35,7 @@ public class DomainSuffixes {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private HashMap<String, DomainSuffix> domains = new HashMap<String, DomainSuffix>();
+  private HashMap<String, DomainSuffix> domains = new HashMap<>();
 
   private static DomainSuffixes instance;
 

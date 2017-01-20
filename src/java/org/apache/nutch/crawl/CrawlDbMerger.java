@@ -190,7 +190,7 @@ public class CrawlDbMerger extends Configured implements Tool {
       return -1;
     }
     Path output = new Path(args[0]);
-    ArrayList<Path> dbs = new ArrayList<Path>();
+    ArrayList<Path> dbs = new ArrayList<>();
     boolean filter = false;
     boolean normalize = false;
     FileSystem fs = FileSystem.get(getConf());

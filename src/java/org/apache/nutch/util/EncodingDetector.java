@@ -109,9 +109,9 @@ public class EncodingDetector {
 
   public static final String MIN_CONFIDENCE_KEY = "encodingdetector.charset.min.confidence";
 
-  private static final HashMap<String, String> ALIASES = new HashMap<String, String>();
+  private static final HashMap<String, String> ALIASES = new HashMap<>();
 
-  private static final HashSet<String> DETECTABLES = new HashSet<String>();
+  private static final HashSet<String> DETECTABLES = new HashSet<>();
 
   // CharsetDetector will die without a minimum amount of data.
   private static final int MIN_LENGTH = 4;
@@ -155,7 +155,7 @@ public class EncodingDetector {
   public EncodingDetector(Configuration conf) {
     minConfidence = conf.getInt(MIN_CONFIDENCE_KEY, -1);
     detector = new CharsetDetector();
-    clues = new ArrayList<EncodingClue>();
+    clues = new ArrayList<>();
   }
 
   public void autoDetectClues(Content content, boolean filter) {
@@ -273,8 +273,8 @@ public class EncodingDetector {
    * better heuristic.
    */
   private void findDisagreements(String url, List<EncodingClue> newClues) {
-    HashSet<String> valsSeen = new HashSet<String>();
-    HashSet<String> sourcesSeen = new HashSet<String>();
+    HashSet<String> valsSeen = new HashSet<>();
+    HashSet<String> sourcesSeen = new HashSet<>();
     boolean disagreement = false;
     for (int i = 0; i < newClues.size(); i++) {
       EncodingClue clue = newClues.get(i);

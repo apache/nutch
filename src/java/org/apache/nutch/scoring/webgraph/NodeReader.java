@@ -74,7 +74,7 @@ public class NodeReader extends Configured {
     Text key = new Text(url);
     Node node = new Node();
     MapFileOutputFormat.getEntry(nodeReaders,
-        new HashPartitioner<Text, Node>(), key, node);
+        new HashPartitioner<>(), key, node);
     System.out.println(url + ":");
     System.out.println("  inlink score: " + node.getInlinkScore());
     System.out.println("  outlink score: " + node.getOutlinkScore());

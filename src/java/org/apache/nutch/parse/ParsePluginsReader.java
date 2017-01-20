@@ -141,7 +141,7 @@ class ParsePluginsReader {
       // a separate list, and then insert them into the final list at the
       // order specified
       if (pluginList != null && pluginList.getLength() > 0) {
-        List<String> plugList = new ArrayList<String>(pluginList.getLength());
+        List<String> plugList = new ArrayList<>(pluginList.getLength());
 
         for (int j = 0; j < pluginList.getLength(); j++) {
           Element plugin = (Element) pluginList.item(j);
@@ -239,7 +239,7 @@ class ParsePluginsReader {
 
   private Map<String, String> getAliases(Element parsePluginsRoot) {
 
-    Map<String, String> aliases = new HashMap<String, String>();
+    Map<String, String> aliases = new HashMap<>();
     NodeList aliasRoot = parsePluginsRoot.getElementsByTagName("aliases");
 
     if (aliasRoot == null || (aliasRoot != null && aliasRoot.getLength() == 0)) {

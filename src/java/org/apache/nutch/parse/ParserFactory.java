@@ -126,7 +126,7 @@ public final class ParserFactory {
       throw new ParserNotFound(url, contentType);
     }
 
-    parsers = new Vector<Parser>(parserExts.size());
+    parsers = new Vector<>(parserExts.size());
     for (Iterator<Extension> i = parserExts.iterator(); i.hasNext();) {
       Extension ext = i.next();
       Parser p = null;
@@ -299,7 +299,7 @@ public final class ParserFactory {
   private List<Extension> matchExtensions(List<String> plugins,
       Extension[] extensions, String contentType) {
 
-    List<Extension> extList = new ArrayList<Extension>();
+    List<Extension> extList = new ArrayList<>();
     if (plugins != null) {
 
       for (String parsePluginId : plugins) {

@@ -287,10 +287,9 @@ public class DmozParser {
     // only appropriate XML-approved Text characters are received.
     // Any non-conforming characters are silently skipped.
     //
-    XMLCharFilter in = new XMLCharFilter(new BufferedReader(
+    try (XMLCharFilter in = new XMLCharFilter(new BufferedReader(
         new InputStreamReader(new BufferedInputStream(new FileInputStream(
-            dmozFile)), "UTF-8")));
-    try {
+            dmozFile)), "UTF-8")))) {
       InputSource is = new InputSource(in);
       reader.parse(is);
     } catch (Exception e) {
@@ -298,17 +297,13 @@ public class DmozParser {
         LOG.error(e.toString());
       }
       System.exit(0);
-    } finally {
-      in.close();
     }
   }
 
   private static void addTopicsFromFile(String topicFile, Vector<String> topics)
       throws IOException {
-    BufferedReader in = null;
-    try {
-      in = new BufferedReader(new InputStreamReader(new FileInputStream(
-          topicFile), "UTF-8"));
+    try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(
+        topicFile), "UTF-8"))) {
       String line = null;
       while ((line = in.readLine()) != null) {
         topics.addElement(new String(line));
@@ -318,8 +313,6 @@ public class DmozParser {
         LOG.error(e.toString());
       }
       System.exit(0);
-    } finally {
-      in.close();
     }
   }
 
@@ -344,11 +337,10 @@ public class DmozParser {
     String dmozFile = argv[0];
     boolean includeAdult = false;
     Pattern topicPattern = null;
-    Vector<String> topics = new Vector<String>();
+    Vector<String> topics = new Vector<>();
 
     Configuration conf = NutchConfiguration.create();
-    FileSystem fs = FileSystem.get(conf);
-    try {
+    try (FileSystem fs = FileSystem.get(conf)) {
       for (int i = 1; i < argv.length; i++) {
         if ("-includeAdultMaterial".equals(argv[i])) {
           includeAdult = true;
@@ -385,8 +377,6 @@ public class DmozParser {
       parser.parseDmozFile(new File(dmozFile), subsetDenom, includeAdult, skew,
           topicPattern);
 
-    } finally {
-      fs.close();
     }
   }
 
