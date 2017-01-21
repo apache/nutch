@@ -121,6 +121,14 @@ public class GeneratorJob extends NutchTool implements Tool {
 
     @Override
     public boolean equals(Object obj) {
+      if (obj == null) {
+        return false;
+      }
+
+      if (this.getClass() != obj.getClass()) {
+        return false;
+      }
+
       SelectorEntry other = (SelectorEntry) obj;
       if (!url.equals(other.url))
         return false;
