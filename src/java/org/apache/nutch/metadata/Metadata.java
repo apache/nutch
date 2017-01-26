@@ -190,7 +190,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
       return false;
     }
 
-    if (this.getClass() != o.getClass()) {
+    if (!Metadata.class.isAssignableFrom(o.getClass())) {
       return false;
     }
 
