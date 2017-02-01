@@ -112,7 +112,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     if ("http".equals(protocol) || "https".equals(protocol)
         || "ftp".equals(protocol)) {
 
-      if (host != null) {
+      if (host != null && url.getAuthority() != null) {
         String newHost = host.toLowerCase(Locale.ROOT); // lowercase host
         if (!host.equals(newHost)) {
           host = newHost;
@@ -122,6 +122,9 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
           // etc.) which will likely cause a change if left away
           changed = true;
         }
+      } else {
+        // no host or authority: recompose the URL from components
+        changed = true;
       }
 
       if (port == url.getDefaultPort()) { // uses default port
