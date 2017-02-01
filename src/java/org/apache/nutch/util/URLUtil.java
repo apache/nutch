@@ -473,7 +473,7 @@ public class URLUtil {
     try {
       System.out.println(URLUtil.getDomainName(new URL(url)));
     } catch (MalformedURLException ex) {
-      ex.printStackTrace();
+      System.err.println(ex.getMessage());
     }
   }
 }

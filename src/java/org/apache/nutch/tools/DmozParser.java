@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.regex.*;
 
 import javax.xml.parsers.*;
+
+import org.apache.hadoop.util.StringUtils;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import org.apache.xerces.util.XMLChar;
@@ -212,7 +214,7 @@ public class DmozParser {
 
             } catch (IOException e) {
               // TODO Auto-generated catch block
-              e.printStackTrace();
+              LOG.error(StringUtils.stringifyException(e));
             }
           } else {
             System.out.println(curURL);
