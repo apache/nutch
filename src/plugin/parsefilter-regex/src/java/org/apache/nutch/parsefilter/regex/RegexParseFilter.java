@@ -179,13 +179,17 @@ public class RegexParseFilter implements HtmlParseFilter {
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
         line = line.trim();
-        String[] parts = line.split("\t");
+        String[] parts = line.split("\\s");
 
-        String field = parts[0].trim();
-        String source = parts[1].trim();
-        String regex = parts[2].trim();
-        
-        rules.put(field, new RegexRule(source, regex));
+        if (parts.length == 3) {
+            String field = parts[0].trim();
+            String source = parts[1].trim();
+            String regex = parts[2].trim();
+            
+            rules.put(field, new RegexRule(source, regex));
+        } else {
+            LOG.info("RegexParseFilter rule is invalid. " + line);
+        }
       }
     }
   }
