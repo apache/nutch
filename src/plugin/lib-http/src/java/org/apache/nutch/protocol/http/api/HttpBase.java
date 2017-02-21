@@ -59,6 +59,8 @@ public abstract class HttpBase implements Protocol {
 
   public static final Text RESPONSE_TIME = new Text("_rs_");
 
+  public static final Text COOKIE = new Text("Cookie");
+  
   public static final int BUFFER_SIZE = 8 * 1024;
 
   private static final byte[] EMPTY_CONTENT = new byte[0];
@@ -124,7 +126,10 @@ public abstract class HttpBase implements Protocol {
   protected Set<String> tlsPreferredCipherSuites;
   
   /** Configuration directive for If-Modified-Since HTTP header */
-  public boolean enableIfModifiedsinceHeader = true;
+  protected boolean enableIfModifiedsinceHeader = true;
+  
+  /** Controls whether or not to set Cookie HTTP header based on CrawlDatum metadata */
+  protected boolean enableCookieHeader = true;
 
   /** Creates a new instance of HttpBase */
   public HttpBase() {
@@ -157,6 +162,7 @@ public abstract class HttpBase implements Protocol {
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);
     this.responseTime = conf.getBoolean("http.store.responsetime", true);
     this.enableIfModifiedsinceHeader = conf.getBoolean("http.enable.if.modified.since.header", true);
+    this.enableCookieHeader = conf.getBoolean("http.enable.cookie.header", true);
     this.robots.setConf(conf);
 
     // NUTCH-1941: read list of alternating agent names
@@ -369,6 +375,10 @@ public abstract class HttpBase implements Protocol {
   public boolean isIfModifiedSinceEnabled() {
     return enableIfModifiedsinceHeader;
   }
+  
+  public boolean isCookieEnabled() {
+    return enableCookieHeader;
+  }
 
   public int getMaxContent() {
     return maxContent;
@@ -458,6 +468,7 @@ public abstract class HttpBase implements Protocol {
       logger.info("http.agent = " + userAgent);
       logger.info("http.accept.language = " + acceptLanguage);
       logger.info("http.accept = " + accept);
+      logger.info("http.enable.cookie.header = " + isCookieEnabled());
     }
   }
 
