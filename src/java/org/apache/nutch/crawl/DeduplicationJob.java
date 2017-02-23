@@ -373,7 +373,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
     String[] arg = new String[1];
     String crawldb;
     if(args.containsKey(Nutch.ARG_CRAWLDB)) {

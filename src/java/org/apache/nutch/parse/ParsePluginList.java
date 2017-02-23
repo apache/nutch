@@ -43,8 +43,8 @@ class ParsePluginList {
    * Constructs a new ParsePluginList
    */
   ParsePluginList() {
-    fMimeTypeToPluginMap = new HashMap<String, List<String>>();
-    aliases = new HashMap<String, String>();
+    fMimeTypeToPluginMap = new HashMap<>();
+    aliases = new HashMap<>();
   }
 
   List<String> getPluginList(String mimeType) {

@@ -38,7 +38,7 @@ public class NodeReader implements NutchReader {
   @Override
   public List read(String path) throws FileNotFoundException {
     // TODO Auto-generated method stub
-    List<HashMap> rows=new ArrayList<HashMap>();
+    List<HashMap> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try{
@@ -73,7 +73,7 @@ public class NodeReader implements NutchReader {
 
   @Override
   public List head(String path, int nrows) throws FileNotFoundException {
-    List<HashMap> rows=new ArrayList<HashMap>();
+    List<HashMap> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try{
@@ -107,7 +107,7 @@ public class NodeReader implements NutchReader {
   @Override
   public List slice(String path, int start, int end)
       throws FileNotFoundException {
-    List<HashMap> rows=new ArrayList<HashMap>();
+    List<HashMap> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try{
@@ -171,7 +171,7 @@ public class NodeReader implements NutchReader {
   }
 
   private HashMap<String, String> getNodeRow(Writable key, Node value) {
-    HashMap<String, String> t_row = new HashMap<String, String>();
+    HashMap<String, String> t_row = new HashMap<>();
     t_row.put("key_url", key.toString());
     t_row.put("num_inlinks", String.valueOf(value.getNumInlinks()) );
     t_row.put("num_outlinks", String.valueOf(value.getNumOutlinks()) );

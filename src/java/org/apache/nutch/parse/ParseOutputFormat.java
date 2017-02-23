@@ -233,9 +233,9 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
 
         int validCount = 0;
         CrawlDatum adjust = null;
-        List<Entry<Text, CrawlDatum>> targets = new ArrayList<Entry<Text, CrawlDatum>>(
+        List<Entry<Text, CrawlDatum>> targets = new ArrayList<>(
             outlinksToStore);
-        List<Outlink> outlinkList = new ArrayList<Outlink>(outlinksToStore);
+        List<Outlink> outlinkList = new ArrayList<>(outlinksToStore);
         for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
           String toUrl = links[i].getToUrl();
 

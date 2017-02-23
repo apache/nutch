@@ -501,7 +501,7 @@ public class Injector extends NutchTool implements Tool {
     else {
       input = new Path(path.toString());
     }
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
     Path crawlDb;
     if (args.containsKey(Nutch.ARG_CRAWLDB)) {
       Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);

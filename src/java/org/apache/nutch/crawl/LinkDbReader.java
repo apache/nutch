@@ -48,7 +48,7 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private static final Partitioner<WritableComparable, Writable> PARTITIONER = new HashPartitioner<WritableComparable, Writable>();
+  private static final Partitioner<WritableComparable, Writable> PARTITIONER = new HashPartitioner<>();
 
   private FileSystem fs;
   private Path directory;

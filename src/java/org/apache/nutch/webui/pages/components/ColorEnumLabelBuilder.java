@@ -44,6 +44,6 @@ public class ColorEnumLabelBuilder<E extends Enum<E>> {
   }
 
   public ColorEnumLabel<E> build() {
-    return new ColorEnumLabel<E>(id, model, labelTypeMap);
+    return new ColorEnumLabel<>(id, model, labelTypeMap);
   }
 }

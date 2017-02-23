@@ -138,7 +138,7 @@ public class CrawlDbReducer implements
     // copy the content of the queue into a List
     // in reversed order
     int numLinks = linked.size();
-    List<CrawlDatum> linkList = new ArrayList<CrawlDatum>(numLinks);
+    List<CrawlDatum> linkList = new ArrayList<>(numLinks);
     for (int i = numLinks - 1; i >= 0; i--) {
       linkList.add(linked.pop());
     }

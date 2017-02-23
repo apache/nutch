@@ -274,7 +274,7 @@ public class ParseSegment extends NutchTool implements Tool,
    */
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
     Path segment;
     if(args.containsKey(Nutch.ARG_SEGMENT)) {
     	Object seg = args.get(Nutch.ARG_SEGMENT);
@@ -289,14 +289,11 @@ public class ParseSegment extends NutchTool implements Tool,
     	String segment_dir = crawlId+"/segments";
         File segmentsDir = new File(segment_dir);
         File[] segmentsList = segmentsDir.listFiles();  
-        Arrays.sort(segmentsList, new Comparator<File>(){
-          @Override
-          public int compare(File f1, File f2) {
-            if(f1.lastModified()>f2.lastModified())
-              return -1;
-            else
-              return 0;
-          }      
+        Arrays.sort(segmentsList, (f1, f2) -> {
+          if(f1.lastModified()>f2.lastModified())
+            return -1;
+          else
+            return 0;
         });
         segment = new Path(segmentsList[0].getPath());
     }

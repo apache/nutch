@@ -131,7 +131,7 @@ public class NutchServer {
   }
 
   private List<Class<?>> getClasses() {
-    List<Class<?>> resources = new ArrayList<Class<?>>();
+    List<Class<?>> resources = new ArrayList<>();
     resources.add(JobResource.class);
     resources.add(ConfigResource.class);
     resources.add(DbResource.class);
@@ -142,7 +142,7 @@ public class NutchServer {
   }
 
   private List<ResourceProvider> getResourceProviders() {
-    List<ResourceProvider> resourceProviders = new ArrayList<ResourceProvider>();
+    List<ResourceProvider> resourceProviders = new ArrayList<>();
     resourceProviders.add(new SingletonResourceProvider(getConfManager()));
     return resourceProviders;
   }

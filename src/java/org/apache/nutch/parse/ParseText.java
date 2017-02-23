@@ -99,8 +99,7 @@ public final class ParseText implements Writable {
 
     String[] remainingArgs = parser.getRemainingArgs();
 
-    FileSystem fs = FileSystem.get(conf);
-    try {
+    try (FileSystem fs = FileSystem.get(conf)) {
       int recno = Integer.parseInt(remainingArgs[0]);
       String segment = remainingArgs[1];
       String filename = new Path(segment, ParseText.DIR_NAME).toString();
@@ -112,8 +111,6 @@ public final class ParseText implements Writable {
       System.out.println("Retrieved " + recno + " from file " + filename);
       System.out.println(parseText);
       parseTexts.close();
-    } finally {
-      fs.close();
     }
   }
 }

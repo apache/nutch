@@ -103,7 +103,7 @@ public class LinkDumper extends Configured implements Tool {
       Text key = new Text(url);
       LinkNodes nodes = new LinkNodes();
       MapFileOutputFormat.getEntry(readers,
-          new HashPartitioner<Text, LinkNodes>(), key, nodes);
+          new HashPartitioner<>(), key, nodes);
 
       // print out the link nodes
       LinkNode[] linkNodesAr = nodes.getLinks();
@@ -245,7 +245,7 @@ public class LinkDumper extends Configured implements Tool {
         throws IOException {
 
       String fromUrl = key.toString();
-      List<LinkDatum> outlinks = new ArrayList<LinkDatum>();
+      List<LinkDatum> outlinks = new ArrayList<>();
       Node node = null;
       
       // loop through all values aggregating outlinks, saving node
@@ -297,7 +297,7 @@ public class LinkDumper extends Configured implements Tool {
         OutputCollector<Text, LinkNodes> output, Reporter reporter)
         throws IOException {
 
-      List<LinkNode> nodeList = new ArrayList<LinkNode>();
+      List<LinkNode> nodeList = new ArrayList<>();
       int numNodes = 0;
 
       while (values.hasNext()) {

@@ -283,9 +283,8 @@ public class SegmentReader extends Configured implements Tool,
   /** Appends two files and updates the Recno counter */
   private int append(FileSystem fs, Configuration conf, Path src,
       PrintWriter writer, int currentRecordNumber) throws IOException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(
-        fs.open(src)));
-    try {
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+        fs.open(src)))) {
       String line = reader.readLine();
       while (line != null) {
         if (line.startsWith("Recno:: ")) {
@@ -295,8 +294,6 @@ public class SegmentReader extends Configured implements Tool,
         line = reader.readLine();
       }
       return currentRecordNumber;
-    } finally {
-      reader.close();
     }
   }
 
@@ -308,7 +305,7 @@ public class SegmentReader extends Configured implements Tool,
   public void get(final Path segment, final Text key, Writer writer,
       final Map<String, List<Writable>> results) throws Exception {
     LOG.info("SegmentReader: get '" + key + "'");
-    ArrayList<Thread> threads = new ArrayList<Thread>();
+    ArrayList<Thread> threads = new ArrayList<>();
     if (co)
       threads.add(new Thread() {
         public void run() {
@@ -416,7 +413,7 @@ public class SegmentReader extends Configured implements Tool,
   private List<Writable> getMapRecords(Path dir, Text key) throws Exception {
     MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, dir,
         getConf());
-    ArrayList<Writable> res = new ArrayList<Writable>();
+    ArrayList<Writable> res = new ArrayList<>();
     Class<?> keyClass = readers[0].getKeyClass();
     Class<?> valueClass = readers[0].getValueClass();
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
@@ -441,7 +438,7 @@ public class SegmentReader extends Configured implements Tool,
   private List<Writable> getSeqRecords(Path dir, Text key) throws Exception {
     SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(
         getConf(), dir);
-    ArrayList<Writable> res = new ArrayList<Writable>();
+    ArrayList<Writable> res = new ArrayList<>();
     Class<?> keyClass = readers[0].getKeyClass();
     Class<?> valueClass = readers[0].getValueClass();
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
@@ -654,7 +651,7 @@ public class SegmentReader extends Configured implements Tool,
       dump(new Path(input), new Path(output));
       return 0;
     case MODE_LIST:
-      ArrayList<Path> dirs = new ArrayList<Path>();
+      ArrayList<Path> dirs = new ArrayList<>();
       for (int i = 1; i < args.length; i++) {
         if (args[i] == null)
           continue;
@@ -685,7 +682,7 @@ public class SegmentReader extends Configured implements Tool,
         return -1;
       }
       segmentReader.get(new Path(input), new Text(key), new OutputStreamWriter(
-          System.out, "UTF-8"), new HashMap<String, List<Writable>>());
+          System.out, "UTF-8"), new HashMap<>());
       return 0;
     default:
       System.err.println("Invalid operation: " + args[0]);

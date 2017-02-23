@@ -243,9 +243,9 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
       LOG.info("Gzipping CBOR data has been skipped");
     }
     // total file counts
-    Map<String, Integer> typeCounts = new HashMap<String, Integer>();
+    Map<String, Integer> typeCounts = new HashMap<>();
     // filtered file counters
-    Map<String, Integer> filteredCounts = new HashMap<String, Integer>();
+    Map<String, Integer> filteredCounts = new HashMap<>();
 
     Configuration nutchConfig = NutchConfiguration.create();
     final FileSystem fs = FileSystem.get(nutchConfig);
