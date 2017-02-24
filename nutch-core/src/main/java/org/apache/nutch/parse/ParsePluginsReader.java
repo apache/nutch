@@ -18,6 +18,7 @@ package org.apache.nutch.parse;
 
 // JDK imports
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,8 +53,8 @@ import org.apache.nutch.util.NutchConfiguration;
 class ParsePluginsReader {
 
   /* our log stream */
-  public static final Logger LOG = LoggerFactory
-      .getLogger(ParsePluginsReader.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** The property name of the parse-plugins location */
   private static final String PP_FILE_PROP = "parse.plugin.file";
@@ -140,7 +141,7 @@ class ParsePluginsReader {
       // a separate list, and then insert them into the final list at the
       // order specified
       if (pluginList != null && pluginList.getLength() > 0) {
-        List<String> plugList = new ArrayList<String>(pluginList.getLength());
+        List<String> plugList = new ArrayList<>(pluginList.getLength());
 
         for (int j = 0; j < pluginList.getLength(); j++) {
           Element plugin = (Element) pluginList.item(j);
@@ -238,7 +239,7 @@ class ParsePluginsReader {
 
   private Map<String, String> getAliases(Element parsePluginsRoot) {
 
-    Map<String, String> aliases = new HashMap<String, String>();
+    Map<String, String> aliases = new HashMap<>();
     NodeList aliasRoot = parsePluginsRoot.getElementsByTagName("aliases");
 
     if (aliasRoot == null || (aliasRoot != null && aliasRoot.getLength() == 0)) {

@@ -1,5 +1,7 @@
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
+
 import static org.apache.nutch.crawl.CrawlDatum.*;
 
 import org.apache.hadoop.conf.Configuration;
@@ -17,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class TODOTestCrawlDbStates extends TestCrawlDbStates {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(TODOTestCrawlDbStates.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * NUTCH-578: a fetch_retry should result in a db_gone if db.fetch.retry.max

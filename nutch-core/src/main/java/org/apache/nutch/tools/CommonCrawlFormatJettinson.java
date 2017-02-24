@@ -41,8 +41,8 @@ public class CommonCrawlFormatJettinson extends AbstractCommonCrawlFormat {
 	public CommonCrawlFormatJettinson(String url, Content content, Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
 		super(url, content, metadata, nutchConf, config);
 		
-		stackObjects = new ArrayDeque<JSONObject>();
-		stackArrays = new ArrayDeque<JSONArray>();
+		stackObjects = new ArrayDeque<>();
+		stackArrays = new ArrayDeque<>();
 	}
 	
 	@Override

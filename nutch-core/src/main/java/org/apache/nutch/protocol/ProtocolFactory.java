@@ -17,6 +17,7 @@
 
 package org.apache.nutch.protocol;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.MalformedURLException;
 
@@ -37,8 +38,8 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class ProtocolFactory {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(ProtocolFactory.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private ExtensionPoint extensionPoint;
 

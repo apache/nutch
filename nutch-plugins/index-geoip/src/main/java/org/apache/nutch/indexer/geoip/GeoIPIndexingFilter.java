@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexer.geoip;
 
+import java.lang.invoke.MethodHandles;
 import java.io.File;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
@@ -114,7 +115,7 @@ import com.maxmind.geoip2.WebServiceClient;
 public class GeoIPIndexingFilter implements IndexingFilter {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(GeoIPIndexingFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
 

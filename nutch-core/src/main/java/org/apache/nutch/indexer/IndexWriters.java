@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
@@ -33,7 +34,8 @@ import org.slf4j.LoggerFactory;
 /** Creates and caches {@link IndexWriter} implementing plugins. */
 public class IndexWriters {
 
-  public final static Logger LOG = LoggerFactory.getLogger(IndexWriters.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private IndexWriter[] indexWriters;
 
@@ -49,7 +51,7 @@ public class IndexWriters {
           if (point == null)
             throw new RuntimeException(IndexWriter.X_POINT_ID + " not found.");
           Extension[] extensions = point.getExtensions();
-          HashMap<String, IndexWriter> indexerMap = new HashMap<String, IndexWriter>();
+          HashMap<String, IndexWriter> indexerMap = new HashMap<>();
           for (int i = 0; i < extensions.length; i++) {
             Extension extension = extensions[i];
             IndexWriter writer = (IndexWriter) extension.getExtensionInstance();

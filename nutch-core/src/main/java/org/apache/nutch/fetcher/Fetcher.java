@@ -18,6 +18,7 @@ package org.apache.nutch.fetcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,7 +87,8 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
 
   public static final String PROTOCOL_REDIR = "protocol";
 
-  public static final Logger LOG = LoggerFactory.getLogger(Fetcher.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static class InputFormat extends
   SequenceFileInputFormat<Text, CrawlDatum> {
@@ -123,7 +125,7 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
   FetchItemQueues fetchQueues;
   QueueFeeder feeder;
 
-  LinkedList<FetcherThread> fetcherThreads = new LinkedList<FetcherThread>();
+  LinkedList<FetcherThread> fetcherThreads = new LinkedList<>();
 
   public Fetcher() {
     super(null);
@@ -208,10 +210,6 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
     if (timelimit != -1)
       feeder.setTimeLimit(timelimit);
     feeder.start();
-
-    // set non-blocking & no-robots mode for HTTP protocol plugins.
-    getConf().setBoolean(Protocol.CHECK_BLOCKING, false);
-    getConf().setBoolean(Protocol.CHECK_ROBOTS, false);
 
     for (int i = 0; i < threadCount; i++) { // spawn threads
       FetcherThread t = new FetcherThread(getConf(), getActiveThreads(), fetchQueues, 
@@ -351,7 +349,7 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
               additionalThreads = (availableThreads < additionalThreads ? availableThreads
                   : additionalThreads);
               LOG.info("Has space for more threads ({} vs {} kbps) \t=> adding {} new threads",
-                  (bpsSinceLastCheck / 1000), (targetBandwidth / 1000), additionalThreads);
+                  new Object[]{(bpsSinceLastCheck / 1000), (targetBandwidth / 1000), additionalThreads});
               // activate new threads
               for (int i = 0; i < additionalThreads; i++) {
                 FetcherThread thread = new FetcherThread(getConf(), getActiveThreads(), fetchQueues, 
@@ -368,7 +366,7 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
             long excessBdw = bpsSinceLastCheck - targetBandwidth;
             int excessThreads = Math.round(excessBdw / averageBdwPerThread);
             LOG.info("Exceeding target bandwidth ({} vs {} kbps). \t=> excessThreads = {}",
-                bpsSinceLastCheck / 1000, (targetBandwidth / 1000), excessThreads);
+                new Object[]{bpsSinceLastCheck / 1000, (targetBandwidth / 1000), excessThreads});
             // keep at least one
             if (excessThreads >= fetcherThreads.size())
               excessThreads = 0;
@@ -549,7 +547,7 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
 
     Path segment;
     if(args.containsKey(Nutch.ARG_SEGMENT)) {
@@ -565,14 +563,11 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
       String segment_dir = crawlId+"/segments";
       File segmentsDir = new File(segment_dir);
       File[] segmentsList = segmentsDir.listFiles();  
-      Arrays.sort(segmentsList, new Comparator<File>(){
-        @Override
-        public int compare(File f1, File f2) {
-          if(f1.lastModified()>f2.lastModified())
-            return -1;
-          else
-            return 0;
-        }      
+      Arrays.sort(segmentsList, (f1, f2) -> {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
       });
       segment = new Path(segmentsList[0].getPath());
     }

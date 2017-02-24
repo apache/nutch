@@ -28,13 +28,15 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.hadoop.io.Text;
 
+import java.lang.invoke.MethodHandles;
+
 /** Creates and caches {@link IndexingFilter} implementing plugins. */
 public class IndexingFilters {
 
   public static final String INDEXINGFILTER_ORDER = "indexingfilter.order";
 
-  public final static Logger LOG = LoggerFactory
-      .getLogger(IndexingFilters.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private IndexingFilter[] indexingFilters;
 

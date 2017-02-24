@@ -17,6 +17,7 @@
 package org.apache.nutch.urlfilter.api;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.io.File;
 import java.io.Reader;
 import java.io.FileReader;
@@ -63,8 +64,8 @@ import org.apache.nutch.util.URLUtil;
 public abstract class RegexURLFilterBase implements URLFilter {
 
   /** My logger */
-  private final static Logger LOG = LoggerFactory
-      .getLogger(RegexURLFilterBase.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** An array of applicable rules */
   private List<RegexRule> rules;

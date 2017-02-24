@@ -19,6 +19,7 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 
+import java.lang.invoke.MethodHandles;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,9 +45,10 @@ import java.io.Closeable;
 
 /** . */
 public class LinkDbReader extends Configured implements Tool, Closeable {
-  public static final Logger LOG = LoggerFactory.getLogger(LinkDbReader.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
-  private static final Partitioner<WritableComparable, Writable> PARTITIONER = new HashPartitioner<WritableComparable, Writable>();
+  private static final Partitioner<WritableComparable, Writable> PARTITIONER = new HashPartitioner<>();
 
   private FileSystem fs;
   private Path directory;

@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -44,7 +45,8 @@ import org.apache.nutch.util.TimingUtil;
  * accordingly.
  */
 public class CrawlDb extends NutchTool implements Tool {
-  public static final Logger LOG = LoggerFactory.getLogger(CrawlDb.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
@@ -224,7 +226,7 @@ public class CrawlDb extends NutchTool implements Tool {
         true);
     boolean force = false;
     final FileSystem fs = FileSystem.get(getConf());
-    HashSet<Path> dirs = new HashSet<Path>();
+    HashSet<Path> dirs = new HashSet<>();
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-normalize")) {
         normalize = true;
@@ -258,7 +260,7 @@ public class CrawlDb extends NutchTool implements Tool {
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
 
     boolean normalize = getConf().getBoolean(CrawlDbFilter.URL_NORMALIZING,
         false);
@@ -266,7 +268,7 @@ public class CrawlDb extends NutchTool implements Tool {
     boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED,
         true);
     boolean force = false;
-    HashSet<Path> dirs = new HashSet<Path>();
+    HashSet<Path> dirs = new HashSet<>();
 
     if (args.containsKey("normalize")) {
       normalize = true;
@@ -312,7 +314,7 @@ public class CrawlDb extends NutchTool implements Tool {
 
     else if(args.containsKey(Nutch.ARG_SEGMENT)) {
       Object segments = args.get(Nutch.ARG_SEGMENT);
-      ArrayList<String> segmentList = new ArrayList<String>();
+      ArrayList<String> segmentList = new ArrayList<>();
       if(segments instanceof ArrayList) {
         segmentList = (ArrayList<String>)segments;
       }
@@ -324,14 +326,11 @@ public class CrawlDb extends NutchTool implements Tool {
       String segment_dir = crawlId+"/segments";
       File dir = new File(segment_dir);
       File[] segmentsList = dir.listFiles();  
-      Arrays.sort(segmentsList, new Comparator<File>(){
-        @Override
-        public int compare(File f1, File f2) {
-          if(f1.lastModified()>f2.lastModified())
-            return -1;
-          else
-            return 0;
-        }      
+      Arrays.sort(segmentsList, (f1, f2) -> {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
       });
       dirs.add(new Path(segmentsList[0].getPath()));
     }

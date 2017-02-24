@@ -37,6 +37,7 @@ import org.apache.nutch.util.*;
 import org.apache.hadoop.fs.Path;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -46,7 +47,8 @@ public class ParseSegment extends NutchTool implements Tool,
     Mapper<WritableComparable<?>, Content, Text, ParseImpl>,
     Reducer<Text, Writable, Text, Writable> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ParseSegment.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String SKIP_TRUNCATED = "parser.skip.truncated";
 
@@ -84,11 +86,14 @@ public class ParseSegment extends NutchTool implements Tool,
       key = newKey;
     }
 
-    int status = Integer.parseInt(content.getMetadata().get(
-        Nutch.FETCH_STATUS_KEY));
-    if (status != CrawlDatum.STATUS_FETCH_SUCCESS) {
+    String fetchStatus = content.getMetadata().get(Nutch.FETCH_STATUS_KEY);
+    if (fetchStatus == null) {
+      // no fetch status, skip document
+      LOG.debug("Skipping {} as content has no fetch status", key);
+      return;
+    } else if (Integer.parseInt(fetchStatus) != CrawlDatum.STATUS_FETCH_SUCCESS) {
       // content not fetched successfully, skip document
-      LOG.debug("Skipping " + key + " as content is not fetched successfully");
+      LOG.debug("Skipping {} as content is not fetched successfully", key);
       return;
     }
 
@@ -269,7 +274,7 @@ public class ParseSegment extends NutchTool implements Tool,
    */
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
     Path segment;
     if(args.containsKey(Nutch.ARG_SEGMENT)) {
     	Object seg = args.get(Nutch.ARG_SEGMENT);
@@ -284,14 +289,11 @@ public class ParseSegment extends NutchTool implements Tool,
     	String segment_dir = crawlId+"/segments";
         File segmentsDir = new File(segment_dir);
         File[] segmentsList = segmentsDir.listFiles();  
-        Arrays.sort(segmentsList, new Comparator<File>(){
-          @Override
-          public int compare(File f1, File f2) {
-            if(f1.lastModified()>f2.lastModified())
-              return -1;
-            else
-              return 0;
-          }      
+        Arrays.sort(segmentsList, (f1, f2) -> {
+          if(f1.lastModified()>f2.lastModified())
+            return -1;
+          else
+            return 0;
         });
         segment = new Path(segmentsList[0].getPath());
     }

@@ -33,7 +33,7 @@ import org.apache.hadoop.io.*;
  */
 public class NutchField implements Writable {
   private float weight;
-  private List<Object> values = new ArrayList<Object>();
+  private List<Object> values = new ArrayList<>();
 
   public NutchField() {
   }
@@ -85,7 +85,7 @@ public class NutchField implements Writable {
   public void readFields(DataInput in) throws IOException {
     weight = in.readFloat();
     int count = in.readInt();
-    values = new ArrayList<Object>();
+    values = new ArrayList<>();
     for (int i = 0; i < count; i++) {
       String type = Text.readString(in);
 

@@ -17,16 +17,19 @@
 package org.apache.nutch.protocol.http.api;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
-import java.util.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
 // Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +59,8 @@ public abstract class HttpBase implements Protocol {
 
   public static final Text RESPONSE_TIME = new Text("_rs_");
 
+  public static final Text COOKIE = new Text("Cookie");
+  
   public static final int BUFFER_SIZE = 8 * 1024;
 
   private static final byte[] EMPTY_CONTENT = new byte[0];
@@ -93,10 +98,11 @@ public abstract class HttpBase implements Protocol {
   protected String accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
 
   /** The default logger */
-  private final static Logger LOGGER = LoggerFactory.getLogger(HttpBase.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** The specified logger */
-  private Logger logger = LOGGER;
+  private Logger logger = LOG;
 
   /** The nutch configuration */
   private Configuration conf = null;
@@ -120,7 +126,10 @@ public abstract class HttpBase implements Protocol {
   protected Set<String> tlsPreferredCipherSuites;
   
   /** Configuration directive for If-Modified-Since HTTP header */
-  public boolean enableIfModifiedsinceHeader = true;
+  protected boolean enableIfModifiedsinceHeader = true;
+  
+  /** Controls whether or not to set Cookie HTTP header based on CrawlDatum metadata */
+  protected boolean enableCookieHeader = true;
 
   /** Creates a new instance of HttpBase */
   public HttpBase() {
@@ -153,6 +162,7 @@ public abstract class HttpBase implements Protocol {
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);
     this.responseTime = conf.getBoolean("http.store.responsetime", true);
     this.enableIfModifiedsinceHeader = conf.getBoolean("http.enable.if.modified.since.header", true);
+    this.enableCookieHeader = conf.getBoolean("http.enable.cookie.header", true);
     this.robots.setConf(conf);
 
     // NUTCH-1941: read list of alternating agent names
@@ -365,6 +375,10 @@ public abstract class HttpBase implements Protocol {
   public boolean isIfModifiedSinceEnabled() {
     return enableIfModifiedsinceHeader;
   }
+  
+  public boolean isCookieEnabled() {
+    return enableCookieHeader;
+  }
 
   public int getMaxContent() {
     return maxContent;
@@ -407,8 +421,8 @@ public abstract class HttpBase implements Protocol {
 
     if ((agentName == null) || (agentName.trim().length() == 0)) {
       // TODO : NUTCH-258
-      if (LOGGER.isErrorEnabled()) {
-        LOGGER.error("No User-Agent string set (http.agent.name)!");
+      if (LOG.isErrorEnabled()) {
+        LOG.error("No User-Agent string set (http.agent.name)!");
       }
     }
 
@@ -454,14 +468,15 @@ public abstract class HttpBase implements Protocol {
       logger.info("http.agent = " + userAgent);
       logger.info("http.accept.language = " + acceptLanguage);
       logger.info("http.accept = " + accept);
+      logger.info("http.enable.cookie.header = " + isCookieEnabled());
     }
   }
 
   public byte[] processGzipEncoded(byte[] compressed, URL url)
       throws IOException {
 
-    if (LOGGER.isTraceEnabled()) {
-      LOGGER.trace("uncompressing....");
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("uncompressing....");
     }
 
     // content can be empty (i.e. redirection) in which case
@@ -479,8 +494,8 @@ public abstract class HttpBase implements Protocol {
     if (content == null)
       throw new IOException("unzipBestEffort returned null");
 
-    if (LOGGER.isTraceEnabled()) {
-      LOGGER.trace("fetched " + compressed.length
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("fetched " + compressed.length
           + " bytes of compressed content (expanded to " + content.length
           + " bytes) from " + url);
     }
@@ -495,8 +510,8 @@ public abstract class HttpBase implements Protocol {
     if (compressed.length == 0)
       return compressed;
 
-    if (LOGGER.isTraceEnabled()) {
-      LOGGER.trace("inflating....");
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("inflating....");
     }
 
     byte[] content;
@@ -509,8 +524,8 @@ public abstract class HttpBase implements Protocol {
     if (content == null)
       throw new IOException("inflateBestEffort returned null");
 
-    if (LOGGER.isTraceEnabled()) {
-      LOGGER.trace("fetched " + compressed.length
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("fetched " + compressed.length
           + " bytes of compressed content (expanded to " + content.length
           + " bytes) from " + url);
     }
@@ -518,7 +533,6 @@ public abstract class HttpBase implements Protocol {
   }
 
   protected static void main(HttpBase http, String[] args) throws Exception {
-    boolean verbose = false;
     String url = null;
 
     String usage = "Usage: Http [-verbose] [-timeout N] url";
@@ -532,7 +546,6 @@ public abstract class HttpBase implements Protocol {
       if (args[i].equals("-timeout")) { // found -timeout option
         http.timeout = Integer.parseInt(args[++i]) * 1000;
       } else if (args[i].equals("-verbose")) { // found -verbose option
-        verbose = true;
       } else if (i != args.length - 1) {
         System.err.println(usage);
         System.exit(-1);
@@ -540,10 +553,6 @@ public abstract class HttpBase implements Protocol {
         // root is required parameter
         url = args[i];
     }
-
-    // if (verbose) {
-    // LOGGER.setLevel(Level.FINE);
-    // }
 
     ProtocolOutput out = http
         .getProtocolOutput(new Text(url), new CrawlDatum());
@@ -563,8 +572,10 @@ public abstract class HttpBase implements Protocol {
   protected abstract Response getResponse(URL url, CrawlDatum datum,
       boolean followRedirects) throws ProtocolException, IOException;
 
-  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
-    return robots.getRobotRulesSet(this, url);
+  @Override
+  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum,
+      List<Content> robotsTxtContent) {
+    return robots.getRobotRulesSet(this, url, robotsTxtContent);
   }
   
   /**
@@ -572,14 +583,14 @@ public abstract class HttpBase implements Protocol {
    * @param input String[]
    * @return a new HashMap
    */
-  private HashMap arrayToMap(String[]input){
-    if (input==null ||input.length==0) {
-      return new HashMap();
+  private HashMap<String, String> arrayToMap(String[] input) {
+    if (input == null || input.length == 0) {
+      return new HashMap<String, String>();
     }
-    HashMap hm=new HashMap();
-    for (int i=0;i<input.length;i++){
-      if (!"".equals(input[i].trim())){
-        hm.put(input[i],input[i]);
+    HashMap<String, String> hm = new HashMap<>();
+    for (int i = 0; i < input.length; i++) {
+      if (!"".equals(input[i].trim())) {
+        hm.put(input[i], input[i]);
       }
     }
     return hm;

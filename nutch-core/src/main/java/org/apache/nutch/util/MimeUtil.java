@@ -21,6 +21,7 @@ package org.apache.nutch.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -66,8 +67,8 @@ public final class MimeUtil {
   private boolean mimeMagic;
 
   /* our log stream */
-  private static final Logger LOG = LoggerFactory.getLogger(MimeUtil.class
-      .getName());
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public MimeUtil(Configuration conf) {
     tika = new Tika();
@@ -193,11 +194,8 @@ public final class MimeUtil {
       tikaMeta.add(Metadata.CONTENT_TYPE,
           (cleanedMimeType != null ? cleanedMimeType : typeName));
       try {
-        InputStream stream = TikaInputStream.get(data);
-        try {
+        try (InputStream stream = TikaInputStream.get(data)) {
           magicType = mimeTypes.detect(stream, tikaMeta).toString();
-        } finally {
-          stream.close();
         }
       } catch (IOException ignore) {
       }

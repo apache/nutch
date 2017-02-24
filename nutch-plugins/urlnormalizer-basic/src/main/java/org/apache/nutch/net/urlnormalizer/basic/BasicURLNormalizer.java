@@ -17,6 +17,7 @@
 
 package org.apache.nutch.net.urlnormalizer.basic;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -46,8 +47,8 @@ import org.slf4j.LoggerFactory;
  * </ul>
  */
 public class BasicURLNormalizer extends Configured implements URLNormalizer {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(BasicURLNormalizer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Pattern to detect whether a URL path could be normalized. Contains one of
@@ -111,12 +112,19 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     if ("http".equals(protocol) || "https".equals(protocol)
         || "ftp".equals(protocol)) {
 
-      if (host != null) {
-        String newHost = host.toLowerCase(); // lowercase host
+      if (host != null && url.getAuthority() != null) {
+        String newHost = host.toLowerCase(Locale.ROOT); // lowercase host
         if (!host.equals(newHost)) {
           host = newHost;
           changed = true;
+        } else if (!url.getAuthority().equals(newHost)) {
+          // authority (http://<...>/) contains other elements (port, user,
+          // etc.) which will likely cause a change if left away
+          changed = true;
         }
+      } else {
+        // no host or authority: recompose the URL from components
+        changed = true;
       }
 
       if (port == url.getDefaultPort()) { // uses default port
@@ -247,7 +255,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         sb.append('%');
         
         // Get this byte's hexadecimal representation 
-        String hex = Integer.toHexString(b & 0xFF).toUpperCase();
+        String hex = Integer.toHexString(b & 0xFF).toUpperCase(Locale.ROOT);
         
         // Do we need to prepend a zero?
         if (hex.length() % 2 != 0 ) {
@@ -275,7 +283,8 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
       System.out.println("Scope: " + scope);
     }
     String line, normUrl;
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    BufferedReader in = new BufferedReader(
+        new InputStreamReader(System.in, utf8));
     while ((line = in.readLine()) != null) {
       try {
         normUrl = normalizer.normalize(line, scope);

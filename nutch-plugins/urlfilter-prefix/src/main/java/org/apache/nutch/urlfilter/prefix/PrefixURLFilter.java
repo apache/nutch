@@ -28,6 +28,7 @@ import org.apache.nutch.util.TrieStringMatcher;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 
+import java.lang.invoke.MethodHandles;
 import java.io.Reader;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -51,7 +52,7 @@ import java.util.ArrayList;
 public class PrefixURLFilter implements URLFilter {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(PrefixURLFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   // read in attribute "file" of this plugin.
   private static String attributeFile = null;

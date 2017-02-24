@@ -24,6 +24,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +60,8 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.parse.ParseData;
@@ -69,10 +72,11 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 /** Dump the content of a segment. */
-public class SegmentReader extends Configured implements
+public class SegmentReader extends Configured implements Tool,
     Reducer<Text, NutchWritable, Text, Text> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(SegmentReader.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   long recNo = 0L;
 
@@ -279,9 +283,8 @@ public class SegmentReader extends Configured implements
   /** Appends two files and updates the Recno counter */
   private int append(FileSystem fs, Configuration conf, Path src,
       PrintWriter writer, int currentRecordNumber) throws IOException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(
-        fs.open(src)));
-    try {
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+        fs.open(src)))) {
       String line = reader.readLine();
       while (line != null) {
         if (line.startsWith("Recno:: ")) {
@@ -291,8 +294,6 @@ public class SegmentReader extends Configured implements
         line = reader.readLine();
       }
       return currentRecordNumber;
-    } finally {
-      reader.close();
     }
   }
 
@@ -304,7 +305,7 @@ public class SegmentReader extends Configured implements
   public void get(final Path segment, final Text key, Writer writer,
       final Map<String, List<Writable>> results) throws Exception {
     LOG.info("SegmentReader: get '" + key + "'");
-    ArrayList<Thread> threads = new ArrayList<Thread>();
+    ArrayList<Thread> threads = new ArrayList<>();
     if (co)
       threads.add(new Thread() {
         public void run() {
@@ -412,7 +413,7 @@ public class SegmentReader extends Configured implements
   private List<Writable> getMapRecords(Path dir, Text key) throws Exception {
     MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, dir,
         getConf());
-    ArrayList<Writable> res = new ArrayList<Writable>();
+    ArrayList<Writable> res = new ArrayList<>();
     Class<?> keyClass = readers[0].getKeyClass();
     Class<?> valueClass = readers[0].getValueClass();
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
@@ -437,7 +438,7 @@ public class SegmentReader extends Configured implements
   private List<Writable> getSeqRecords(Path dir, Text key) throws Exception {
     SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(
         getConf(), dir);
-    ArrayList<Writable> res = new ArrayList<Writable>();
+    ArrayList<Writable> res = new ArrayList<>();
     Class<?> keyClass = readers[0].getKeyClass();
     Class<?> valueClass = readers[0].getValueClass();
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
@@ -574,10 +575,10 @@ public class SegmentReader extends Configured implements
 
   private static final int MODE_GET = 2;
 
-  public static void main(String[] args) throws Exception {
+  public int run(String[] args) throws Exception {
     if (args.length < 2) {
       usage();
-      return;
+      return -1;
     }
     int mode = -1;
     if (args[0].equals("-dump"))
@@ -622,22 +623,35 @@ public class SegmentReader extends Configured implements
     // collect required args
     switch (mode) {
     case MODE_DUMP:
+
+      this.co = co;
+      this.fe = fe;
+      this.ge = ge;
+      this.pa = pa;
+      this.pd = pd;
+      this.pt = pt;
+      try {
+        this.fs = FileSystem.get(getConf());
+      } catch (IOException e) {
+        LOG.error("IOException:", e);
+      }
+
       String input = args[1];
       if (input == null) {
         System.err.println("Missing required argument: <segment_dir>");
         usage();
-        return;
+        return -1;
       }
       String output = args.length > 2 ? args[2] : null;
       if (output == null) {
         System.err.println("Missing required argument: <output>");
         usage();
-        return;
+        return -1;
       }
-      segmentReader.dump(new Path(input), new Path(output));
-      return;
+      dump(new Path(input), new Path(output));
+      return 0;
     case MODE_LIST:
-      ArrayList<Path> dirs = new ArrayList<Path>();
+      ArrayList<Path> dirs = new ArrayList<>();
       for (int i = 1; i < args.length; i++) {
         if (args[i] == null)
           continue;
@@ -653,27 +667,27 @@ public class SegmentReader extends Configured implements
           dirs.add(new Path(args[i]));
       }
       segmentReader.list(dirs, new OutputStreamWriter(System.out, "UTF-8"));
-      return;
+      return 0;
     case MODE_GET:
       input = args[1];
       if (input == null) {
         System.err.println("Missing required argument: <segment_dir>");
         usage();
-        return;
+        return -1;
       }
       String key = args.length > 2 ? args[2] : null;
       if (key == null) {
         System.err.println("Missing required argument: <keyValue>");
         usage();
-        return;
+        return -1;
       }
       segmentReader.get(new Path(input), new Text(key), new OutputStreamWriter(
-          System.out, "UTF-8"), new HashMap<String, List<Writable>>());
-      return;
+          System.out, "UTF-8"), new HashMap<>());
+      return 0;
     default:
       System.err.println("Invalid operation: " + args[0]);
       usage();
-      return;
+      return -1;
     }
   }
 
@@ -715,5 +729,11 @@ public class SegmentReader extends Configured implements
     System.err.println("\t<keyValue>\tvalue of the key (url).");
     System.err
         .println("\t\tNote: put double-quotes around strings with spaces.");
+  }
+
+  public static void main(String[] args) throws Exception {
+    int result = ToolRunner.run(NutchConfiguration.create(),
+        new SegmentReader(), args);
+    System.exit(result);
   }
 }

@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,8 @@ public class CrawlDbFilter implements
 
   private String scope;
 
-  public static final Logger LOG = LoggerFactory.getLogger(CrawlDbFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public void configure(JobConf job) {
     urlFiltering = job.getBoolean(URL_FILTERING, false);

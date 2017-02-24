@@ -17,6 +17,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -35,7 +36,7 @@ import org.apache.nutch.util.URLUtil;
  */
 public class URLPartitioner implements Partitioner<Text, Writable> {
   private static final Logger LOG = LoggerFactory
-      .getLogger(URLPartitioner.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String PARTITION_MODE_KEY = "partition.url.mode";
 

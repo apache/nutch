@@ -18,6 +18,7 @@
 package org.apache.nutch.parse.zip;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -49,8 +50,8 @@ import org.apache.tika.Tika;
  */
 public class ZipTextExtractor {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(ZipTextExtractor.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
 

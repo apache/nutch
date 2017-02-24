@@ -17,6 +17,11 @@
 
 package org.apache.nutch.protocol;
 
+import java.text.ParseException;
+
+import org.apache.nutch.net.protocols.HttpDateFormat;
+import org.apache.nutch.net.protocols.Response;
+
 /**
  * Simple aggregate to pass from protocol plugins both content and protocol
  * status.
@@ -35,6 +40,15 @@ public class ProtocolOutput {
   public ProtocolOutput(Content content) {
     this.content = content;
     this.status = ProtocolStatus.STATUS_SUCCESS;
+    String lastModifiedDate = content.getMetadata().get(Response.LAST_MODIFIED);
+    if (lastModifiedDate != null) {
+      try {
+        long lastModified = HttpDateFormat.toLong(lastModifiedDate);
+        status.setLastModified(lastModified);
+      } catch (ParseException e) {
+        // last-modified still unset
+      }
+    }
   }
 
   public Content getContent() {

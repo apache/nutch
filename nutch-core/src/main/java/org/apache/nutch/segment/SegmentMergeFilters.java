@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.segment;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ import org.apache.nutch.protocol.Content;
  */
 public class SegmentMergeFilters {
   private static final Logger LOG = LoggerFactory
-      .getLogger(SegmentMergeFilters.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
   private SegmentMergeFilter[] filters;
 
   public SegmentMergeFilters(Configuration conf) {

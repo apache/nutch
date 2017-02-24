@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.fetcher;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,10 +34,11 @@ import org.slf4j.LoggerFactory;
  */
 public class FetchItemQueues {
 
-  private static final Logger LOG = LoggerFactory.getLogger(FetchItemQueues.class);
-  
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+
   public static final String DEFAULT_ID = "default";
-  Map<String, FetchItemQueue> queues = new HashMap<String, FetchItemQueue>();
+  Map<String, FetchItemQueue> queues = new HashMap<>();
   AtomicInteger totalSize = new AtomicInteger(0);
   int maxThreads;
   long crawlDelay;

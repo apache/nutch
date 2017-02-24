@@ -17,6 +17,7 @@
 package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Random;
@@ -65,7 +66,8 @@ public class ScoreUpdater extends Configured implements Tool,
     Mapper<Text, Writable, Text, ObjectWritable>,
     Reducer<Text, ObjectWritable, Text, CrawlDatum> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ScoreUpdater.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private JobConf conf;
   private float clearScore = 0.0f;

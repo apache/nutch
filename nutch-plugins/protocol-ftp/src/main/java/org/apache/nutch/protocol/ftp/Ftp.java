@@ -35,8 +35,9 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import crawlercommons.robots.BaseRobotRules;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
-
+import java.util.List;
 import java.io.IOException;
 
 /**
@@ -49,7 +50,8 @@ import java.io.IOException;
  */
 public class Ftp implements Protocol {
 
-  public static final Logger LOG = LoggerFactory.getLogger(Ftp.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final int BUFFER_SIZE = 16384; // 16*1024 = 16384
 
@@ -257,11 +259,14 @@ public class Ftp implements Protocol {
   /**
    * Get the robots rules for a given url
    */
-  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
-    return robots.getRobotRulesSet(this, url);
+  @Override
+  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum,
+      List<Content> robotsTxtContent) {
+    return robots.getRobotRulesSet(this, url, robotsTxtContent);
   }
 
   public int getBufferSize() {
     return BUFFER_SIZE;
   }
+
 }

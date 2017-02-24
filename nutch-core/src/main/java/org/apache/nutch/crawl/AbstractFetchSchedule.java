@@ -24,6 +24,8 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 
+import java.lang.invoke.MethodHandles;
+
 /**
  * This class provides common methods for implementations of
  * <code>FetchSchedule</code>.
@@ -33,7 +35,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 public abstract class AbstractFetchSchedule extends Configured implements
     FetchSchedule {
   private static final Logger LOG = LoggerFactory
-      .getLogger(AbstractFetchSchedule.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected int defaultInterval;
   protected int maxInterval;

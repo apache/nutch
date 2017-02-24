@@ -17,6 +17,7 @@
 package org.apache.nutch.segment;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.parse.ParseText;
@@ -35,8 +36,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SegmentChecker {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(SegmentChecker.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Check if the segment is indexable. May add new check methods here.

@@ -20,6 +20,7 @@ package org.apache.nutch.indexer;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.invoke.MethodHandles;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.InetSocketAddress;
@@ -71,11 +72,11 @@ public class IndexingFiltersChecker extends Configured implements Tool {
   protected boolean followRedirects = false;
   protected boolean keepClientCnxOpen = false;
   // used to simulate the metadata propagated from injection
-  protected HashMap<String, String> metadata = new HashMap<String, String>();
+  protected HashMap<String, String> metadata = new HashMap<>();
   protected int tcpPort = -1;
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(IndexingFiltersChecker.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public IndexingFiltersChecker() {
 

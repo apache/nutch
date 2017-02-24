@@ -45,7 +45,7 @@ public class Extension {
   public Extension(PluginDescriptor pDescriptor, String pExtensionPoint,
       String pId, String pExtensionClass, Configuration conf,
       PluginRepository pluginRepository) {
-    fAttributes = new HashMap<String, String>();
+    fAttributes = new HashMap<>();
     setDescriptor(pDescriptor);
     setExtensionPoint(pExtensionPoint);
     setId(pId);

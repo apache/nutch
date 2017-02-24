@@ -64,4 +64,8 @@
       id="org.apache.nutch.segment.SegmentMergeFilter"
       name="Nutch Segment Merge Filter"/>
 
+<extension-point
+      id="org.apache.nutch.publisher.NutchPublisher"
+      name="Nutch Publisher"/>
+
 </plugin>

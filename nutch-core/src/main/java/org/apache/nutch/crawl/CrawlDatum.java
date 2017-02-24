@@ -47,7 +47,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   private static final byte OLD_STATUS_FETCH_RETRY = 6;
   private static final byte OLD_STATUS_FETCH_GONE = 7;
 
-  private static HashMap<Byte, Byte> oldToNew = new HashMap<Byte, Byte>();
+  private static HashMap<Byte, Byte> oldToNew = new HashMap<>();
 
   /** Page was not fetched yet. */
   public static final byte STATUS_DB_UNFETCHED = 0x01;
@@ -91,7 +91,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   /** Page got metadata from a parser */
   public static final byte STATUS_PARSE_META = 0x44;
 
-  public static final HashMap<Byte, String> statNames = new HashMap<Byte, String>();
+  public static final HashMap<Byte, String> statNames = new HashMap<>();
   static {
     statNames.put(STATUS_DB_UNFETCHED, "db_unfetched");
     statNames.put(STATUS_DB_FETCHED, "db_fetched");
@@ -476,9 +476,9 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       // we already know that the current object is not null or empty
       return false;
     }
-    HashSet<Entry<Writable, Writable>> set1 = new HashSet<Entry<Writable, Writable>>(
+    HashSet<Entry<Writable, Writable>> set1 = new HashSet<>(
         metaData.entrySet());
-    HashSet<Entry<Writable, Writable>> set2 = new HashSet<Entry<Writable, Writable>>(
+    HashSet<Entry<Writable, Writable>> set2 = new HashSet<>(
         otherMetaData.entrySet());
     return set1.equals(set2);
   }

@@ -82,6 +82,9 @@
      <removedFormFields>
        <field name="ctl00$MainContent$LoginUser$RememberMe"/>
      </removedFormFields>
+     <loginCookie>
+       <policy>BROWSER_COMPATIBILITY</policy>
+     </loginCookie>
    </credentials>
  
  it is critical that the following fields are substituted:
@@ -98,6 +101,9 @@
     the field and password respectively
   * <field name="ctl00$MainContent$LoginUser$RememberMe"/>
     - form element attributes for which we wish to skip fields
+  * <policy> value from <loginCookie> is a constant value symbol from 
+    org.apache.commons.httpclient.cookie.CookiePolicy, like BROWSER_COMPATIBILITY,
+    DEFAULT, RFC_2109, etc.
  
  More information on HTTP POST can be located at
  https://wiki.apache.org/nutch/HttpPostAuthentication

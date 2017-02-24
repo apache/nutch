@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.net.*;
 import java.util.*;
 import java.text.*;
@@ -59,7 +60,8 @@ import org.apache.nutch.util.URLUtil;
  **/
 public class Generator extends NutchTool implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(Generator.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String GENERATE_UPDATE_CRAWLDB = "generate.update.crawldb";
   public static final String GENERATOR_MIN_SCORE = "generate.min.score";
@@ -115,7 +117,7 @@ public class Generator extends NutchTool implements Tool {
     private long curTime;
     private long limit;
     private long count;
-    private HashMap<String, int[]> hostCounts = new HashMap<String, int[]>();
+    private HashMap<String, int[]> hostCounts = new HashMap<>();
     private int segCounts[];
     private int maxCount;
     private boolean byDomain = false;
@@ -595,7 +597,7 @@ public class Generator extends NutchTool implements Tool {
 
     // read the subdirectories generated in the temp
     // output and turn them into segments
-    List<Path> generatedSegments = new ArrayList<Path>();
+    List<Path> generatedSegments = new ArrayList<>();
 
     FileStatus[] status = fs.listStatus(tempDir);
     try {
@@ -775,7 +777,7 @@ public class Generator extends NutchTool implements Tool {
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
 
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;

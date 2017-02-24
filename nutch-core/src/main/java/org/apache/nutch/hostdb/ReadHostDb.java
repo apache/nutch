@@ -17,6 +17,7 @@
 package org.apache.nutch.hostdb;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
@@ -56,7 +57,8 @@ import org.apache.commons.jexl2.MapContext;
  */
 public class ReadHostDb extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ReadHostDb.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String HOSTDB_DUMP_HOSTNAMES = "hostdb.dump.hostnames";
   public static final String HOSTDB_DUMP_HOMEPAGES = "hostdb.dump.homepages";
