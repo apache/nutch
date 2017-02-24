@@ -12,3 +12,7 @@ target/
 nutch-core/target
 nutch-plugins/target
 nutch-plugins/*/target
+
+# IntelliJ Idea
+.idea
+**.iml
