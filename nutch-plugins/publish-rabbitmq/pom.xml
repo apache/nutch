@@ -25,52 +25,28 @@
         <version>1.13-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>protocol-httpclient</artifactId>
+    <artifactId>publish-rabitmq</artifactId>
     <packaging>jar</packaging>
 
-    <name>protocol-httpclient</name>
+    <name>publish-rabitmq</name>
     <url>http://nutch.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <commons.lang3.version>3.5</commons.lang3.version>
-        <jsoup.version>1.8.1</jsoup.version>
-        <jetty.version>6.1.26</jetty.version>
-        <jsp.version>6.1.14</jsp.version>
+        <rabitmq.version>3.6.5</rabitmq.version>
+        <jackson.version>2.8.6</jackson.version>
     </properties>
+
     <dependencies>
         <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons.lang3.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.nutch</groupId>
-            <artifactId>lib-http</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.nutch</groupId>
-            <artifactId>lib-http</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId> org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId> org.mortbay.jetty</groupId>
-            <artifactId>jsp-2.1</artifactId>
-            <version>${jsp.version}</version>
-            <scope>test</scope>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>${rabitmq.version}</version>
         </dependency>
     </dependencies>
-
 </project>
