@@ -386,7 +386,7 @@ public abstract class HttpBase implements Protocol {
 
   public String getUserAgent() {
     if (userAgentNames!=null) {
-      return userAgentNames.get(ThreadLocalRandom.current().nextInt(userAgentNames.size()-1));
+      return userAgentNames.get(ThreadLocalRandom.current().nextInt(userAgentNames.size()));
     }
     return userAgent;
   }
