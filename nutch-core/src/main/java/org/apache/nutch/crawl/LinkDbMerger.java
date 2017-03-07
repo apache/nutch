@@ -183,7 +183,7 @@ public class LinkDbMerger extends Configured implements Tool,
       return -1;
     }
     Path output = new Path(args[0]);
-    ArrayList<Path> dbs = new ArrayList<Path>();
+    ArrayList<Path> dbs = new ArrayList<>();
     boolean normalize = false;
     boolean filter = false;
     for (int i = 1; i < args.length; i++) {

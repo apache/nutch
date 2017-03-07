@@ -49,7 +49,7 @@ public abstract class TrieStringMatcher {
     TrieNode(char nodeChar, boolean isTerminal) {
       this.nodeChar = nodeChar;
       this.terminal = isTerminal;
-      this.childrenList = new LinkedList<TrieNode>();
+      this.childrenList = new LinkedList<>();
     }
 
     /**
@@ -68,7 +68,7 @@ public abstract class TrieStringMatcher {
      */
     TrieNode getChildAddIfNotPresent(char nextChar, boolean isTerminal) {
       if (childrenList == null) {
-        childrenList = new LinkedList<TrieNode>();
+        childrenList = new LinkedList<>();
         childrenList.addAll(Arrays.asList(children));
         children = null;
       }

@@ -229,9 +229,8 @@ public final class ParseData extends VersionedWritable {
     GenericOptionsParser parser = new GenericOptionsParser(conf, opts, argv);
 
     String[] remainingArgs = parser.getRemainingArgs();
-    FileSystem fs = FileSystem.get(conf);
 
-    try {
+    try (FileSystem fs = FileSystem.get(conf)) {
       int recno = Integer.parseInt(remainingArgs[0]);
       String segment = remainingArgs[1];
 
@@ -247,8 +246,6 @@ public final class ParseData extends VersionedWritable {
       System.out.println(parseDatum);
 
       parses.close();
-    } finally {
-      fs.close();
     }
   }
 

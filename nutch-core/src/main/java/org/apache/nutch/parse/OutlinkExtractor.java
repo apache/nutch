@@ -90,7 +90,7 @@ public class OutlinkExtractor {
   public static Outlink[] getOutlinks(final String plainText, String anchor,
       Configuration conf) {
     long start = System.currentTimeMillis();
-    final List<Outlink> outlinks = new ArrayList<Outlink>();
+    final List<Outlink> outlinks = new ArrayList<>();
 
     try {
       final PatternCompiler cp = new Perl5Compiler();

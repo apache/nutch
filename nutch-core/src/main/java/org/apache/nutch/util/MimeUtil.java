@@ -194,11 +194,8 @@ public final class MimeUtil {
       tikaMeta.add(Metadata.CONTENT_TYPE,
           (cleanedMimeType != null ? cleanedMimeType : typeName));
       try {
-        InputStream stream = TikaInputStream.get(data);
-        try {
+        try (InputStream stream = TikaInputStream.get(data)) {
           magicType = mimeTypes.detect(stream, tikaMeta).toString();
-        } finally {
-          stream.close();
         }
       } catch (IOException ignore) {
       }

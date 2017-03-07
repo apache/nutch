@@ -38,7 +38,7 @@ public class FetchItemQueues {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String DEFAULT_ID = "default";
-  Map<String, FetchItemQueue> queues = new HashMap<String, FetchItemQueue>();
+  Map<String, FetchItemQueue> queues = new HashMap<>();
   AtomicInteger totalSize = new AtomicInteger(0);
   int maxThreads;
   long crawlDelay;

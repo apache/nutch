@@ -135,7 +135,7 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
    */
   private void readMimeFile(Reader mimeFile) throws IOException {
     // Instance of our mime/factor map
-    mimeMap = new HashMap<String, AdaptiveRate>();
+    mimeMap = new HashMap<>();
 
     // Open a reader
     BufferedReader reader = new BufferedReader(mimeFile);

@@ -181,7 +181,7 @@ public final class URLNormalizers {
       return EMPTY_NORMALIZERS;
     }
 
-    List<URLNormalizer> normalizers = new Vector<URLNormalizer>(
+    List<URLNormalizer> normalizers = new Vector<>(
         extensions.size());
 
     Iterator<Extension> it = extensions.iterator();
@@ -268,17 +268,17 @@ public final class URLNormalizers {
     Set<String> impls = null;
     if (scopelist != null && !scopelist.trim().equals("")) {
       String[] names = scopelist.split("\\s+");
-      impls = new HashSet<String>(Arrays.asList(names));
+      impls = new HashSet<>(Arrays.asList(names));
     }
     Extension[] extensions = this.extensionPoint.getExtensions();
-    HashMap<String, Extension> normalizerExtensions = new HashMap<String, Extension>();
+    HashMap<String, Extension> normalizerExtensions = new HashMap<>();
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
       if (impls != null && !impls.contains(extension.getClazz()))
         continue;
       normalizerExtensions.put(extension.getClazz(), extension);
     }
-    List<Extension> res = new ArrayList<Extension>();
+    List<Extension> res = new ArrayList<>();
     if (orders == null) {
       res.addAll(normalizerExtensions.values());
     } else {

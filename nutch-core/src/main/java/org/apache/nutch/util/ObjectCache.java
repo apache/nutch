@@ -29,12 +29,12 @@ public class ObjectCache {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private static final WeakHashMap<Configuration, ObjectCache> CACHE = new WeakHashMap<Configuration, ObjectCache>();
+  private static final WeakHashMap<Configuration, ObjectCache> CACHE = new WeakHashMap<>();
 
   private final HashMap<String, Object> objectMap;
 
   private ObjectCache() {
-    objectMap = new HashMap<String, Object>();
+    objectMap = new HashMap<>();
   }
 
   public synchronized static ObjectCache get(Configuration conf) {

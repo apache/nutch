@@ -314,7 +314,7 @@ public class LinkDb extends NutchTool implements Tool,
     }
     final FileSystem fs = FileSystem.get(getConf());
     Path db = new Path(args[0]);
-    ArrayList<Path> segs = new ArrayList<Path>();
+    ArrayList<Path> segs = new ArrayList<>();
     boolean filter = true;
     boolean normalize = true;
     boolean force = false;
@@ -347,7 +347,7 @@ public class LinkDb extends NutchTool implements Tool,
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
 
     Path linkdb;
     if(args.containsKey(Nutch.ARG_LINKDB)) {
@@ -364,7 +364,7 @@ public class LinkDb extends NutchTool implements Tool,
     }
 
 
-    ArrayList<Path> segs = new ArrayList<Path>();
+    ArrayList<Path> segs = new ArrayList<>();
     boolean filter = true;
     boolean normalize = true;
     boolean force = false;
@@ -394,7 +394,7 @@ public class LinkDb extends NutchTool implements Tool,
     }
     else if(args.containsKey(Nutch.ARG_SEGMENT)) {
       Object segments = args.get(Nutch.ARG_SEGMENT);
-      ArrayList<String> segmentList = new ArrayList<String>();
+      ArrayList<String> segmentList = new ArrayList<>();
       if(segments instanceof ArrayList) {
         segmentList = (ArrayList<String>)segments;
       }
@@ -406,14 +406,11 @@ public class LinkDb extends NutchTool implements Tool,
       String segment_dir = crawlId+"/segments";
       File dir = new File(segment_dir);
       File[] segmentsList = dir.listFiles();  
-      Arrays.sort(segmentsList, new Comparator<File>(){
-        @Override
-        public int compare(File f1, File f2) {
-          if(f1.lastModified()>f2.lastModified())
-            return -1;
-          else
-            return 0;
-        }      
+      Arrays.sort(segmentsList, (f1, f2) -> {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
       });
       segs.add(new Path(segmentsList[0].getPath()));
     }

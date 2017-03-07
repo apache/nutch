@@ -51,7 +51,7 @@ public class IndexWriters {
           if (point == null)
             throw new RuntimeException(IndexWriter.X_POINT_ID + " not found.");
           Extension[] extensions = point.getExtensions();
-          HashMap<String, IndexWriter> indexerMap = new HashMap<String, IndexWriter>();
+          HashMap<String, IndexWriter> indexerMap = new HashMap<>();
           for (int i = 0; i < extensions.length; i++) {
             Extension extension = extensions[i];
             IndexWriter writer = (IndexWriter) extension.getExtensionInstance();

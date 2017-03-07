@@ -72,7 +72,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
   protected boolean followRedirects = false;
   protected boolean keepClientCnxOpen = false;
   // used to simulate the metadata propagated from injection
-  protected HashMap<String, String> metadata = new HashMap<String, String>();
+  protected HashMap<String, String> metadata = new HashMap<>();
   protected int tcpPort = -1;
 
   private static final Logger LOG = LoggerFactory

@@ -45,7 +45,7 @@ import org.apache.nutch.util.ObjectCache;
  * loading.
  */
 public class PluginRepository {
-  private static final WeakHashMap<String, PluginRepository> CACHE = new WeakHashMap<String, PluginRepository>();
+  private static final WeakHashMap<String, PluginRepository> CACHE = new WeakHashMap<>();
 
   private boolean auto;
 
@@ -55,7 +55,7 @@ public class PluginRepository {
 
   private HashMap<String, Plugin> fActivatedPlugins;
 
-  private static final Map<String, Map<PluginClassLoader, Class>> CLASS_CACHE = new HashMap<String, Map<PluginClassLoader, Class>>();
+  private static final Map<String, Map<PluginClassLoader, Class>> CLASS_CACHE = new HashMap<>();
 
   private Configuration conf;
 
@@ -67,8 +67,8 @@ public class PluginRepository {
    * @see java.lang.Object#Object()
    */
   public PluginRepository(Configuration conf) throws RuntimeException {
-    fActivatedPlugins = new HashMap<String, Plugin>();
-    fExtensionPoints = new HashMap<String, ExtensionPoint>();
+    fActivatedPlugins = new HashMap<>();
+    fExtensionPoints = new HashMap<>();
     this.conf = new Configuration(conf);
     this.auto = conf.getBoolean("plugin.auto-activation", true);
     String[] pluginFolders = conf.getStrings("plugin.folders");
@@ -153,10 +153,10 @@ public class PluginRepository {
       CircularDependencyException {
 
     if (dependencies == null) {
-      dependencies = new HashMap<String, PluginDescriptor>();
+      dependencies = new HashMap<>();
     }
     if (branch == null) {
-      branch = new HashMap<String, PluginDescriptor>();
+      branch = new HashMap<>();
     }
     branch.put(plugin.getPluginId(), plugin);
 
@@ -182,8 +182,8 @@ public class PluginRepository {
   private Map<String, PluginDescriptor> getPluginCheckedDependencies(
       PluginDescriptor plugin, Map<String, PluginDescriptor> plugins)
       throws MissingDependencyException, CircularDependencyException {
-    Map<String, PluginDescriptor> dependencies = new HashMap<String, PluginDescriptor>();
-    Map<String, PluginDescriptor> branch = new HashMap<String, PluginDescriptor>();
+    Map<String, PluginDescriptor> dependencies = new HashMap<>();
+    Map<String, PluginDescriptor> branch = new HashMap<>();
     getPluginCheckedDependencies(plugin, plugins, dependencies, branch);
     return dependencies;
   }
@@ -200,7 +200,7 @@ public class PluginRepository {
     if (filtered == null) {
       return null;
     }
-    Map<String, PluginDescriptor> checked = new HashMap<String, PluginDescriptor>();
+    Map<String, PluginDescriptor> checked = new HashMap<>();
 
     for (PluginDescriptor plugin : filtered.values()) {
       try {
@@ -214,7 +214,7 @@ public class PluginRepository {
         LOG.warn(cde.getMessage());
       }
     }
-    return new ArrayList<PluginDescriptor>(checked.values());
+    return new ArrayList<>(checked.values());
   }
 
   /**
@@ -323,7 +323,7 @@ public class PluginRepository {
       throws ClassNotFoundException {
     Map<PluginClassLoader, Class> descMap = CLASS_CACHE.get(className);
     if (descMap == null) {
-      descMap = new HashMap<PluginClassLoader, Class>();
+      descMap = new HashMap<>();
       CLASS_CACHE.put(className, descMap);
     }
     PluginClassLoader loader = pDescriptor.getClassLoader();
@@ -371,7 +371,7 @@ public class PluginRepository {
   private Map<String, PluginDescriptor> filter(Pattern excludes,
       Pattern includes, Map<String, PluginDescriptor> plugins) {
 
-    Map<String, PluginDescriptor> map = new HashMap<String, PluginDescriptor>();
+    Map<String, PluginDescriptor> map = new HashMap<>();
 
     if (plugins == null) {
       return map;
@@ -423,7 +423,7 @@ public class PluginRepository {
 
     if (filters == null) {
       String order = conf.get(orderProperty);
-      List<String> orderOfFilters = new ArrayList<String>();
+      List<String> orderOfFilters = new ArrayList<>();
       boolean userDefinedOrder = false;
       if (order != null && !order.trim().isEmpty()) {
         orderOfFilters = Arrays.asList(order.trim().split("\\s+"));
@@ -436,7 +436,7 @@ public class PluginRepository {
         if (point == null)
           throw new RuntimeException(xPointId + " not found.");
         Extension[] extensions = point.getExtensions();
-        HashMap<String, Object> filterMap = new HashMap<String, Object>();
+        HashMap<String, Object> filterMap = new HashMap<>();
         for (int i = 0; i < extensions.length; i++) {
           Extension extension = extensions[i];
           Object filter = extension.getExtensionInstance();
@@ -446,7 +446,7 @@ public class PluginRepository {
               orderOfFilters.add(filter.getClass().getName());
           }
         }
-        List<Object> sorted = new ArrayList<Object>();
+        List<Object> sorted = new ArrayList<>();
         for (String orderedFilter : orderOfFilters) {
           Object f = filterMap.get(orderedFilter);
           if (f == null) {

@@ -143,19 +143,12 @@ public class FileDumper {
     if (mimeTypes == null)
       LOG.info("Accepting all mimetypes.");
     // total file counts
-    Map<String, Integer> typeCounts = new HashMap<String, Integer>();
+    Map<String, Integer> typeCounts = new HashMap<>();
     // filtered file counts
-    Map<String, Integer> filteredCounts = new HashMap<String, Integer>();
+    Map<String, Integer> filteredCounts = new HashMap<>();
     Configuration conf = NutchConfiguration.create();
-    FileSystem fs = FileSystem.get(conf);
     int fileCount = 0;
-    File[] segmentDirs = segmentRootDir.listFiles(new FileFilter() {
-
-      @Override
-      public boolean accept(File file) {
-        return file.canRead() && file.isDirectory();
-      }
-    });
+    File[] segmentDirs = segmentRootDir.listFiles(file -> file.canRead() && file.isDirectory());
     if (segmentDirs == null) {
       LOG.error("No segment directories found in ["
           + segmentRootDir.getAbsolutePath() + "]");
@@ -167,12 +160,7 @@ public class FileDumper {
       DataOutputStream doutputStream = null;
 
       File segmentDir = new File(segment.getAbsolutePath(), Content.DIR_NAME);
-      File[] partDirs = segmentDir.listFiles(new FileFilter() {
-        @Override
-        public boolean accept(File file) {
-          return file.canRead() && file.isDirectory();
-        }
-      });
+      File[] partDirs = segmentDir.listFiles(file -> file.canRead() && file.isDirectory());
 
       if (partDirs == null) {
         LOG.warn("Skipping Corrupt Segment: [{}]", segment.getAbsolutePath());
@@ -180,7 +168,7 @@ public class FileDumper {
       }
 
       for (File partDir : partDirs) {
-        try {
+        try (FileSystem fs = FileSystem.get(conf)) {
           String segmentPath = partDir + "/data";
           Path file = new Path(segmentPath);
           if (!new File(file.toString()).exists()) {
@@ -248,7 +236,7 @@ public class FileDumper {
 
                     String reversedURLPath = reversedURL[0] + "/" + DigestUtils.sha256Hex(url).toUpperCase();
                     outputFullPath = String.format("%s/%s", fullDir, reversedURLPath);
-                    
+
                     // We'll drop the trailing file name and create the nested structure if it doesn't already exist.
                     String[] splitPath = outputFullPath.split("/");
                     File fullOutputDir = new File(org.apache.commons.lang3.StringUtils.join(Arrays.copyOf(splitPath, splitPath.length - 1), "/"));
@@ -261,21 +249,19 @@ public class FileDumper {
                   }
 
                   File outputFile = new File(outputFullPath);
-                  
+
                   if (!outputFile.exists()) {
                     LOG.info("Writing: [" + outputFullPath + "]");
 
-                    // Modified to prevent FileNotFoundException (Invalid Argument) 
+                    // Modified to prevent FileNotFoundException (Invalid Argument)
                     FileOutputStream output = null;
                     try {
                       output = new FileOutputStream(outputFile);
                       IOUtils.write(content.getContent(), output);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                       LOG.warn("Write Error: [" + outputFullPath + "]");
                       e.printStackTrace();
-                    }
-                    finally {
+                    } finally {
                       if (output != null) {
                         output.flush();
                         try {
@@ -295,7 +281,6 @@ public class FileDumper {
           }
           reader.close();
         } finally {
-          fs.close();
           if (doutputStream != null) {
             try {
               doutputStream.close();

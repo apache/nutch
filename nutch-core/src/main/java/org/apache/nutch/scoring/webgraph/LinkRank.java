@@ -381,7 +381,7 @@ public class LinkRank extends Configured implements Tool {
         throws IOException {
 
       String fromUrl = key.toString();
-      List<LinkDatum> outlinks = new ArrayList<LinkDatum>();
+      List<LinkDatum> outlinks = new ArrayList<>();
       Node node = null;
 
       // aggregate outlinks, assign other values
@@ -479,8 +479,8 @@ public class LinkRank extends Configured implements Tool {
         throws IOException {
 
       String url = key.toString();
-      Set<String> domains = new HashSet<String>();
-      Set<String> pages = new HashSet<String>();
+      Set<String> domains = new HashSet<>();
+      Set<String> pages = new HashSet<>();
       Node node = null;
 
       // a page with zero inlinks has a score of rankOne

@@ -76,6 +76,7 @@
         <module>protocol-httpclient</module>
         <module>protocol-interactiveselenium</module>
         <module>protocol-selenium</module>
+        <module>publish-rabbitmq</module>
         <module>scoring-depth</module>
         <module>scoring-link</module>
         <module>scoring-opic</module>
