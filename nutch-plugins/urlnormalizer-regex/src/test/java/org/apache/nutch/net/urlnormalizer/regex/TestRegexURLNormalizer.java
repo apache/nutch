@@ -149,7 +149,7 @@ public class TestRegexURLNormalizer {
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
       System.err.println("TestRegexURLNormalizer [-bench <iter>] <scope>");
-      System.exit(-1);
+      throw new IllegalArgumentException("TestRegexURLNormalizer [-bench <iter>] <scope>");
     }
     boolean bench = false;
     int iter = -1;
@@ -163,11 +163,11 @@ public class TestRegexURLNormalizer {
     }
     if (scope == null) {
       System.err.println("Missing required scope name.");
-      System.exit(-1);
+      throw new IllegalArgumentException("Missing required scope name.");
     }
     if (bench && iter < 0) {
       System.err.println("Invalid number of iterations: " + iter);
-      System.exit(-1);
+      throw new IllegalArgumentException("Invalid number of iterations: " + iter);
     }
     TestRegexURLNormalizer test = new TestRegexURLNormalizer();
     NormalizedURL[] urls = (NormalizedURL[]) test.testData.get(scope);

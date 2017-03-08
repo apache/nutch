@@ -201,8 +201,7 @@ public class ReadHostDb extends Configured implements Tool {
   }
 
   public static void main(String args[]) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new ReadHostDb(), args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new ReadHostDb(), args);
   }
 
   public int run(String[] args) throws Exception {

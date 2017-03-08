@@ -732,8 +732,6 @@ public class SegmentReader extends Configured implements Tool,
   }
 
   public static void main(String[] args) throws Exception {
-    int result = ToolRunner.run(NutchConfiguration.create(),
-        new SegmentReader(), args);
-    System.exit(result);
+    ToolRunner.run(NutchConfiguration.create(), new SegmentReader(), args);
   }
 }

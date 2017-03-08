@@ -38,12 +38,12 @@
         <dependency>
             <groupId>org.apache.nutch</groupId>
             <artifactId>index-basic</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.nutch</groupId>
             <artifactId>index-metadata</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

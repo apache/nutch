@@ -195,8 +195,7 @@ public class CrawlDb extends NutchTool implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new CrawlDb(), args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new CrawlDb(), args);
   }
 
   public int run(String[] args) throws Exception {

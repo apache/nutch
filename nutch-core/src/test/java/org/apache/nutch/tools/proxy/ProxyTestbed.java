@@ -63,7 +63,7 @@ public class ProxyTestbed {
           .println("-delay\tdelay every response by nnn seconds. If delay is negative use a random value up to nnn");
       System.err
           .println("-fake\tif specified, requests to all unknown urls will succeed with fake content");
-      System.exit(-1);
+      throw new IllegalArgumentException();
     }
 
     Configuration conf = NutchConfiguration.create();
@@ -96,7 +96,7 @@ public class ProxyTestbed {
         segs.add(new Path(args[++i]));
       } else {
         LOG.error("Unknown argument: " + args[i]);
-        System.exit(-1);
+        throw new IllegalArgumentException("Unknown argument: " + args[i]);
       }
     }
 

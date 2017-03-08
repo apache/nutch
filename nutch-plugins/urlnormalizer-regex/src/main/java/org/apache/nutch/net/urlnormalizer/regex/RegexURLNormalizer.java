@@ -319,7 +319,6 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       System.out.println("Output url: '" + normalizer.normalize(args[0], scope)
           + "'");
     }
-    System.exit(0);
   }
 
 }

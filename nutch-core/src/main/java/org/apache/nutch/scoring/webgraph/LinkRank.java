@@ -636,8 +636,7 @@ public class LinkRank extends Configured implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new LinkRank(), args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new LinkRank(), args);
   }
 
   /**

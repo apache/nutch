@@ -205,8 +205,6 @@ public class CleaningJob implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    int result = ToolRunner.run(NutchConfiguration.create(), new CleaningJob(),
-        args);
-    System.exit(result);
+    ToolRunner.run(NutchConfiguration.create(), new CleaningJob(), args);
   }
 }

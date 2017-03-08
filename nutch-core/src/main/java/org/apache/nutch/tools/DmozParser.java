@@ -296,7 +296,7 @@ public class DmozParser {
       if (LOG.isErrorEnabled()) {
         LOG.error(e.toString());
       }
-      System.exit(0);
+      throw new RuntimeException(e);
     }
   }
 
@@ -312,7 +312,7 @@ public class DmozParser {
       if (LOG.isErrorEnabled()) {
         LOG.error(e.toString());
       }
-      System.exit(0);
+      throw new RuntimeException(e);
     }
   }
 

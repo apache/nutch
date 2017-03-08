@@ -237,9 +237,7 @@ public class ParseSegment extends NutchTool implements Tool,
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new ParseSegment(),
-        args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new ParseSegment(), args);
   }
 
   public int run(String[] args) throws Exception {
@@ -248,8 +246,7 @@ public class ParseSegment extends NutchTool implements Tool,
     String usage = "Usage: ParseSegment segment [-noFilter] [-noNormalize]";
 
     if (args.length == 0) {
-      System.err.println(usage);
-      System.exit(-1);
+      throw new IllegalArgumentException(usage);
     }
 
     if (args.length > 1) {

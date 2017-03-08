@@ -764,9 +764,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
   }
   
   public static void main(String[] args) throws Exception {
-    int result = ToolRunner.run(NutchConfiguration.create(),
-        new CrawlDbReader(), args);
-    System.exit(result);
+    ToolRunner.run(NutchConfiguration.create(), new CrawlDbReader(), args);
   }
 
   public Object query(Map<String, String> args, Configuration conf, String type, String crawlId) throws Exception {

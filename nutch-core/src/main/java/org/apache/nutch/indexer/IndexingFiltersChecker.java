@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.lang.invoke.MethodHandles;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -79,7 +80,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   public IndexingFiltersChecker() {
-
+    //default constructor
   }
 
   public int run(String[] args) throws Exception {
@@ -113,8 +114,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
           k = nextOne;
         metadata.put(k, v);
       } else if (i != args.length - 1) {
-        System.err.println(usage);
-        System.exit(-1);
+        throw new IllegalArgumentException(usage);
       } else {
         url =args[i];
       }
@@ -143,8 +143,8 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       server.bind(new InetSocketAddress(tcpPort));
       LOG.info(server.toString());
     } catch (Exception e) {
-      LOG.error("Could not listen on port " + tcpPort);
-      System.exit(-1);
+      LOG.error("Could not listen on port {}: {}" + tcpPort, e);
+      throw new BindException("Could not listen on port " + tcpPort);
     }
     
     while(true){
@@ -155,7 +155,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
         thread.start();
       } catch (Exception e) {
         LOG.error("Accept failed: " + tcpPort);
-        System.exit(-1);
+        throw new RuntimeException(e);
       }
     }
   }
@@ -193,7 +193,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
         in = new BufferedReader(new InputStreamReader(client.getInputStream()));
       } catch (Exception e) {
         LOG.error("in or out failed");
-        System.exit(-1);
+        throw new RuntimeException("in or out failed: ", e);
       }
 
       try{
@@ -365,8 +365,6 @@ public class IndexingFiltersChecker extends Configured implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    final int res = ToolRunner.run(NutchConfiguration.create(),
-        new IndexingFiltersChecker(), args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new IndexingFiltersChecker(), args);
   }
 }

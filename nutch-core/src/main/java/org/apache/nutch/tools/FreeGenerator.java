@@ -208,8 +208,6 @@ public class FreeGenerator extends Configured implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new FreeGenerator(),
-        args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new FreeGenerator(), args);
   }
 }

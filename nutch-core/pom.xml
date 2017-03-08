@@ -28,7 +28,7 @@
     <artifactId>nutch-core</artifactId>
     <packaging>jar</packaging>
 
-    <name>Apache Nutch</name>
+    <name>nutch-core</name>
     <description>Nutch is an open source web-search software.
         It builds on Hadoop, Tika and Solr, adding web-specifics,
         such as a crawler, a link-graph database etc.
@@ -489,7 +489,7 @@
                             <resources>
                                 <resource>
                                     <directory>${project.build.directory}</directory>
-                                    <include>${build.finalName}.jar</include>
+                                    <include>${project.build.finalName}.jar</include>
                                 </resource>
                                 <resource>
                                     <directory>${project.basedir}</directory>

@@ -492,8 +492,7 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
 
   /** Run the fetcher. */
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new Fetcher(), args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new Fetcher(), args);
   }
 
   public int run(String[] args) throws Exception {

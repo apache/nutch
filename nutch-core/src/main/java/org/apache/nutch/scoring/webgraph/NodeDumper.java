@@ -323,9 +323,7 @@ public class NodeDumper extends Configured implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new NodeDumper(),
-        args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new NodeDumper(), args);
   }
 
   /**

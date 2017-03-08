@@ -181,7 +181,7 @@ public class Ftp implements Protocol {
 
     if (args.length == 0) {
       System.err.println(usage);
-      System.exit(-1);
+      throw new IllegalArgumentException(usage);
     }
 
     for (int i = 0; i < args.length; i++) {
@@ -199,7 +199,7 @@ public class Ftp implements Protocol {
         dumpContent = true;
       } else if (i != args.length - 1) {
         System.err.println(usage);
-        System.exit(-1);
+        throw new IllegalArgumentException(usage);
       } else {
         urlString = args[i];
       }

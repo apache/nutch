@@ -164,9 +164,7 @@ public class LinkDbMerger extends Configured implements Tool,
    * @param args
    */
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new LinkDbMerger(),
-        args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new LinkDbMerger(), args);
   }
 
   public int run(String[] args) throws Exception {

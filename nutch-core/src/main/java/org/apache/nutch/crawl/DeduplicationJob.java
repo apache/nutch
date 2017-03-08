@@ -366,9 +366,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    int result = ToolRunner.run(NutchConfiguration.create(),
-        new DeduplicationJob(), args);
-    System.exit(result);
+    ToolRunner.run(NutchConfiguration.create(), new DeduplicationJob(), args);
   }
 
   @Override

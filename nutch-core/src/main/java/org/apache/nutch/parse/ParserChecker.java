@@ -111,7 +111,7 @@ public class ParserChecker implements Tool {
         metadata.put(k, v);
       } else if (i != args.length - 1) {
         LOG.error(usage);
-        System.exit(-1);
+        throw new IllegalArgumentException(usage);
       } else {
         url = URLUtil.toASCII(args[i]);
       }
@@ -264,9 +264,7 @@ public class ParserChecker implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new ParserChecker(),
-        args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new ParserChecker(), args);
   }
 
 }

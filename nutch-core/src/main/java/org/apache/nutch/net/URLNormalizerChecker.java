@@ -99,8 +99,7 @@ public class URLNormalizerChecker {
       } else if (args[i].equals("-scope")) {
         scope = args[++i];
       } else {
-        System.err.println(usage);
-        System.exit(-1);
+        throw new IllegalArgumentException(usage);
       }
     }
 
@@ -111,7 +110,5 @@ public class URLNormalizerChecker {
     } else {
       checker.checkAll(scope);
     }
-
-    System.exit(0);
   }
 }

@@ -786,9 +786,7 @@ public class SegmentMerger extends Configured implements Tool,
   }
 
   public static void main(String[] args) throws Exception {
-    int result = ToolRunner.run(NutchConfiguration.create(),
-        new SegmentMerger(), args);
-    System.exit(result);
+    ToolRunner.run(NutchConfiguration.create(), new SegmentMerger(), args);
   }
 
 }

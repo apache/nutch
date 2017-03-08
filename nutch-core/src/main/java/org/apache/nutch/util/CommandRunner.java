@@ -258,17 +258,14 @@ public class CommandRunner {
     String usage = "Usage: CommandRunner [-timeout timeoutSecs] commandPath filePath";
 
     if (args.length < 2) {
-      System.err.println(usage);
-      System.exit(-1);
+      throw new IllegalArgumentException(usage);
     }
 
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-timeout")) {
         timeout = Integer.parseInt(args[++i]);
-        ;
       } else if (i != args.length - 2) {
-        System.err.println(usage);
-        System.exit(-1);
+          throw new IllegalArgumentException(usage);
       } else {
         commandPath = args[i];
         filePath = args[++i];

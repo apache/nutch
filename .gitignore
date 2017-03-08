@@ -16,3 +16,8 @@ nutch-plugins/*/target
 # IntelliJ Idea
 .idea
 **.iml
+
+# Eclipse IDE
+*.settings
+*.project
+*.classpath

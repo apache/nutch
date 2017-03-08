@@ -228,6 +228,6 @@ public class NutchServer {
   }
 
   public void stop() {
-    System.exit(0);
+    Runtime.getRuntime().exit(0);
   }
 }

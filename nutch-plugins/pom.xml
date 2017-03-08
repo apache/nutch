@@ -32,7 +32,6 @@
     <url>http://nutch.apache.org</url>
 
     <modules>
-        <!--<module>indexer-solr</module>-->
         <module>creativecommons</module>
         <module>feed</module>
         <module>headings</module>
@@ -140,7 +139,7 @@
                             <resources>
                                 <resource>
                                     <directory>${project.build.directory}</directory>
-                                    <include>${build.finalName}.jar</include>
+                                    <include>${project.build.finalName}.jar</include>
                                 </resource>
                                 <resource>
                                     <directory>${project.basedir}</directory>

@@ -49,8 +49,7 @@ public class Benchmark extends Configured implements Tool {
 
   public static void main(String[] args) throws Exception {
     Configuration conf = NutchConfiguration.create();
-    int res = ToolRunner.run(conf, new Benchmark(), args);
-    System.exit(res);
+    ToolRunner.run(conf, new Benchmark(), args);
   }
 
   @SuppressWarnings("unused")

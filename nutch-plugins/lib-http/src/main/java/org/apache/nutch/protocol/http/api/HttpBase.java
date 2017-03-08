@@ -539,7 +539,7 @@ public abstract class HttpBase implements Protocol {
 
     if (args.length == 0) {
       System.err.println(usage);
-      System.exit(-1);
+      throw new IllegalArgumentException(usage);
     }
 
     for (int i = 0; i < args.length; i++) { // parse command line
@@ -547,8 +547,7 @@ public abstract class HttpBase implements Protocol {
         http.timeout = Integer.parseInt(args[++i]) * 1000;
       } else if (args[i].equals("-verbose")) { // found -verbose option
       } else if (i != args.length - 1) {
-        System.err.println(usage);
-        System.exit(-1);
+        throw new IllegalArgumentException(usage);
       } else
         // root is required parameter
         url = args[i];

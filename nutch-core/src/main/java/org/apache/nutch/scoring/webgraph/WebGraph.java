@@ -690,8 +690,7 @@ public class WebGraph extends Configured implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new WebGraph(), args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new WebGraph(), args);
   }
 
   /**

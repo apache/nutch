@@ -421,8 +421,7 @@ public abstract class RobotRulesParser implements Tool {
 
   public static void main(String[] args) throws Exception {
     Configuration conf = NutchConfiguration.create();
-    int res = ToolRunner.run(conf, new TestRobotRulesParser(conf), args);
-    System.exit(res);
+    ToolRunner.run(conf, new TestRobotRulesParser(conf), args);
   }
 
 }

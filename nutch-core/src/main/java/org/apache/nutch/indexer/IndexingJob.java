@@ -236,9 +236,7 @@ public class IndexingJob extends NutchTool implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    final int res = ToolRunner.run(NutchConfiguration.create(),
-        new IndexingJob(), args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new IndexingJob(), args);
   }
 
 

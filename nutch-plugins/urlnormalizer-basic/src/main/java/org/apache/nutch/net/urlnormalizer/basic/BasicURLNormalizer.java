@@ -293,7 +293,6 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         System.out.println("failed: " + line);
       }
     }
-    System.exit(0);
   }
 
 }

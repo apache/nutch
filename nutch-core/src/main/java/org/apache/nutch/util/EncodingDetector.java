@@ -347,7 +347,7 @@ public class EncodingDetector {
   public static void main(String[] args) throws IOException {
     if (args.length != 1) {
       System.err.println("Usage: EncodingDetector <file>");
-      System.exit(1);
+      throw new IllegalArgumentException("Usage: EncodingDetector <file>");
     }
 
     Configuration conf = NutchConfiguration.create();

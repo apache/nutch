@@ -110,14 +110,13 @@ public class URLFilterChecker {
 
     if (args.length == 0) {
       System.err.println(usage);
-      System.exit(-1);
+      throw new IllegalArgumentException(usage);
     }
 
     String filterName = null;
     if (args[0].equals("-filterName")) {
       if (args.length != 2) {
-        System.err.println(usage);
-        System.exit(-1);
+        throw new IllegalArgumentException(usage);
       }
       filterName = args[1];
     }
@@ -128,7 +127,5 @@ public class URLFilterChecker {
     } else {
       checker.checkAll();
     }
-
-    System.exit(0);
   }
 }

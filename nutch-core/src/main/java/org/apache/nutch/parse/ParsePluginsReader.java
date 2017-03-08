@@ -190,8 +190,7 @@ class ParsePluginsReader {
 
     if ((args.length != 0 && args.length != 2)
         || (args.length == 2 && !"--file".equals(args[0]))) {
-      System.err.println(usage);
-      System.exit(1);
+      throw new IllegalArgumentException(usage);
     }
 
     for (int i = 0; i < args.length; i++) {

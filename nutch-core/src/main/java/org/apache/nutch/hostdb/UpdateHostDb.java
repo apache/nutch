@@ -170,8 +170,7 @@ public class UpdateHostDb extends Configured implements Tool {
   }
 
   public static void main(String args[]) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new UpdateHostDb(), args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new UpdateHostDb(), args);
   }
 
   public int run(String[] args) throws Exception {

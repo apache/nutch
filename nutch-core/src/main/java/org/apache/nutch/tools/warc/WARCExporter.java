@@ -328,8 +328,6 @@ public class WARCExporter extends Configured implements Tool {
   }
 
   public static void main(String[] args) throws Exception {
-    final int res = ToolRunner.run(NutchConfiguration.create(),
-        new WARCExporter(), args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new WARCExporter(), args);
   }
 }

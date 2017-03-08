@@ -715,9 +715,7 @@ public class Generator extends NutchTool implements Tool {
    * Generate a fetchlist from the crawldb.
    */
   public static void main(String args[]) throws Exception {
-    int res = ToolRunner
-        .run(NutchConfiguration.create(), new Generator(), args);
-    System.exit(res);
+    ToolRunner.run(NutchConfiguration.create(), new Generator(), args);
   }
 
   public int run(String[] args) throws Exception {

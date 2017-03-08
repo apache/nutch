@@ -206,8 +206,7 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
    */
   public static void main(String[] args) throws Exception {
     Configuration conf = NutchConfiguration.create();
-    int res = ToolRunner.run(conf, new CommonCrawlDataDumper(), args);
-    System.exit(res);
+    ToolRunner.run(conf, new CommonCrawlDataDumper(), args);
   }
 
   /**
@@ -270,10 +269,11 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
     if (linkdb != null) {
       linkDbReader = new LinkDbReader(fs.getConf(), new Path(linkdb.toString()));
     }
-    if (parts == null || parts.size() == 0) {
-      LOG.error( "No segment directories found in {} ",
+    if (parts == null || parts.isEmpty()) {
+      LOG.error("No segment directories found in {} ",
           segmentRootDir.getAbsolutePath());
-      System.exit(1);
+      throw new IllegalArgumentException("No segment directories found in " +
+              segmentRootDir.getAbsolutePath());
     }
     LOG.info("Found {} segment parts", parts.size());
     if (gzip && !warc) {
@@ -283,9 +283,8 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
 
     for (Path segmentPart : parts) {
       LOG.info("Processing segment Part : [ {} ]", segmentPart);
-      try {
-        SequenceFile.Reader reader = new SequenceFile.Reader(nutchConfig,
-            SequenceFile.Reader.file(segmentPart));
+      try (SequenceFile.Reader reader = new SequenceFile.Reader(nutchConfig,
+              SequenceFile.Reader.file(segmentPart))){
 
         Writable key = (Writable) reader.getKeyClass().newInstance();
 

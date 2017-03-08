@@ -23,7 +23,6 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -198,7 +197,7 @@ public class FeedParser implements Parser {
   public static void main(String[] args) throws Exception {
     if (args.length != 1) {
       System.err.println("Usage: FeedParser <feed>");
-      System.exit(1);
+      throw new IllegalArgumentException("Usage: FeedParser <feed>"); 
     }
     String name = args[0];
     String url = "file:" + name;

@@ -121,7 +121,7 @@ public class ZipParser implements Parser {
   public static void main(String[] args) throws IOException {
     if (args.length < 1) {
       System.out.println("ZipParser <zip_file>");
-      System.exit(1);
+      throw new IllegalArgumentException("ZipParser <zip_file>");
     }
     File file = new File(args[0]);
     String url = "file:"+file.getCanonicalPath();
