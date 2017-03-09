@@ -68,7 +68,7 @@ public class OutlinkExtractor {
    * cases (postscript is a known example).
    * 
    * @param plainText
-   *          the plain text from wich URLs should be extracted.
+   *          the plain text from which URLs should be extracted.
    * 
    * @return Array of <code>Outlink</code>s within found in plainText
    */

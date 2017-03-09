@@ -111,10 +111,15 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4j.version>1.7.12</slf4j.version>
+    <slf4j.version>1.6.1</slf4j.version>
     <junit.version>4.12</junit.version>
+    <hadoop.version>2.7.2</hadoop.version>
+    <cxf.version>3.0.4</cxf.version>
+    <jackson.version>2.5.1</jackson.version>
+    <jetty.version>6.1.22</jetty.version>
     <dir.root>${project.parent.basedir}</dir.root>
     <libs.dir>${dir.local}${file.separator}lib</libs.dir>
+    <maven-surefire-plugin.argLine>-Xmx4096m -XX:MaxPermSize=768m -XX:+HeapDumpOnOutOfMemoryError</maven-surefire-plugin.argLine>
   </properties>
 
   <dependencies>
@@ -175,7 +180,7 @@
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
-      <version>2.4.0</version>
+      <version>${hadoop.version}</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>
@@ -202,24 +207,28 @@
           <groupId>ant</groupId>
           <artifactId>*</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>jdk.tools</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-hdfs</artifactId>
-      <version>2.4.0</version>
+      <version>${hadoop.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-mapreduce-client-core</artifactId>
-      <version>2.4.0</version>
+      <version>${hadoop.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-      <version>2.4.0</version>
+      <version>${hadoop.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -255,7 +264,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>16.0.1</version>
+      <version>18.0</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -273,55 +282,49 @@
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxws</artifactId>
-      <version>3.0.4</version>
+      <version>${cxf.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-      <version>3.0.4</version>
+      <version>${cxf.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-transports-http</artifactId>
-      <version>3.0.4</version>
+      <version>${cxf.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-transports-http-jetty</artifactId>
-      <version>3.0.4</version>
+      <version>${cxf.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
-      <version>3.0.4</version>
+      <version>${cxf.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.5.1</version>
+      <version>${jackson.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-cbor</artifactId>
-      <version>2.5.1</version>
+      <version>${jackson.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
-      <version>2.5.1</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-analyzers-common</artifactId>
-      <version>4.10.2</version>
+      <version>${jackson.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -366,20 +369,38 @@
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty-client</artifactId>
-      <version>6.1.22</version>
+      <version>${jetty.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty</artifactId>
-      <version>6.1.22</version>
+      <version>${jetty.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty-util</artifactId>
-      <version>6.1.22</version>
+      <version>${jetty.version}</version>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>tomcat</groupId>
+      <artifactId>jasper-runtime</artifactId>
+      <version>5.5.23</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>tomcat</groupId>
+      <artifactId>jasper-compiler</artifactId>
+      <version>5.5.23</version>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>ant</groupId>
+          <artifactId>ant</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -500,6 +521,8 @@
         <version>2.19.1</version>
         <configuration>
           <excludedGroups>org.apache.nutch.test.IntegrationTest</excludedGroups>
+          <reuseForks>false</reuseForks>
+          <argLine>${maven-surefire-plugin.argLine}</argLine>
         </configuration>
       </plugin>
       <plugin>

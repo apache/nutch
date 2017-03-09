@@ -1,0 +1,22 @@
+#
+# Mapping of detected content types (MIME types) to custom types (target types)
+# used by the plugin index-more when filling the index field `type'.
+#
+# Note: The mappings defined in this file are only active if the property
+# `moreIndexingFilter.mapMimeTypes' is true.
+#
+# Format (tab-separated plain text, comment lines start with `#'):
+#
+#  <target type> <TAB> <detected type1> [<TAB> <detected type2> ...]
+#
+# Examples (comment in to activate):
+#
+# map XHTML to HTML
+#text/html	application/xhtml+xml
+#
+# Map XHTML and HTML to a custom type "web page"
+#web page	text/html	application/xhtml+xml
+#
+# map various office document formats to a custom type "office document"
+#office document	application/vnd.oasis.opendocument.text	application/x-tika-msoffice	application/msword
+#

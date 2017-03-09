@@ -1,0 +1,102 @@
+# config file for urlfilter-suffix plugin
+
+# case-insensitive, allow unknown suffixes
++I
+
+# filter on URL path only
++P
+# comment out to filter on complete URL
+# but be aware that the pattern
+#    .com
+#  will then reject
+#    http://xyz.com
+#    http://xyz.com/search?q=foo.com
+#  while the pattern
+#    .mp3
+#  will not apply to (URLs will pass)
+#    http://xyz.com/music.mp3?q=abc
+
+### prohibit these
+# pictures
+.gif
+.jpg
+.jpeg
+.bmp
+.png
+.tif
+.tiff
+.ico
+.eps
+.ps
+.wmf
+.fpx
+.cur
+.ani
+.img
+.lwf
+.pcd
+.psp
+.psd
+.tga
+.xbm
+.xpm
+
+# web-formats
+.css
+
+# archives/packages
+.arj
+.arc
+.7z
+.cab
+.lzw
+.lha
+.lzh
+.zip
+.gz
+.tar
+.tgz
+.sit
+.rpm
+.deb
+.pkg
+
+# audio/video
+.mid
+.midi
+.rmi
+.mpeg
+.mpg
+.mpe
+.mp3
+.mp2
+.aac
+.mov
+.fla
+.flv
+.ra
+.ram
+.rm
+.rmv
+.wma
+.wmv
+.wav
+.wave
+.ogg
+.avi
+.au
+.snd
+
+# executables
+.exe
+.com
+
+# windows links
+.lnk
+
+# typo3-extensions
+.t3x
+
+# disc-images
+.iso
+.bin

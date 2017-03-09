@@ -5,6 +5,12 @@
 <configuration>
 
 <property>
+  <name>plugin.folders</name>
+  <value>/usr/local/nutch/nutch-plugins/parse-tika/target,/usr/local/nutch/nutch-plugins/protocol-http/target,/usr/local/nutch/nutch-plugins/urlfilter-suffix/target,/usr/local/nutch/nutch-plugins/scoring-opic/target,/usr/local/nutch/nutch-plugins/nutch-extensionpoints/target</value>
+  <description>Enable all plugins during unit testing.</description>
+</property>
+
+<property>
   <name>plugin.includes</name>
   <value>parse-tika|protocol-http|urlfilter-suffix|scoring-opic</value>
   <description>Enable required plugins.</description>
@@ -38,14 +44,14 @@
   <value>true</value>
 </property>
 
-<property>                                                                                                                                                   
-  <name>http.robots.agents</name>                                                                                                                            
-  <value>test-nutch,*</value>                                                                                                                                
-  <description>The agent strings we'll look for in robots.txt files,                                                                                         
-  comma-separated, in decreasing order of precedence. You should                                                                                             
-  put the value of http.agent.name as the first agent name, and keep the                                                                                     
-  default * at the end of the list. E.g.: BlurflDev,Blurfl,*                                                                                                 
-  </description>                                                                                                                                             
+<property>
+  <name>http.robots.agents</name>
+  <value>test-nutch,*</value>
+  <description>The agent strings we'll look for in robots.txt files,
+  comma-separated, in decreasing order of precedence. You should
+  put the value of http.agent.name as the first agent name, and keep the
+  default * at the end of the list. E.g.: BlurflDev,Blurfl,*
+  </description>
 </property>
 
 <property>

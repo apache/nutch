@@ -85,7 +85,7 @@ public class PluginManifestParser {
       }
       LOG.info("Plugins: looking in: " + directory.getAbsolutePath());
       for (File oneSubFolder : directory.listFiles()) {
-        if (oneSubFolder.isDirectory()) {
+        if (oneSubFolder.isDirectory() && oneSubFolder.getName().trim().contentEquals("classes")) {
           String manifestPath = oneSubFolder.getAbsolutePath() + File.separator
               + "plugin.xml";
           try {
