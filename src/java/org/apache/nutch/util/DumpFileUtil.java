@@ -26,11 +26,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 public class DumpFileUtil {
-    private static final Logger LOG = LoggerFactory.getLogger(DumpFileUtil.class
-            .getName());
+	private static final Logger LOG = LoggerFactory
+			.getLogger(MethodHandles.lookup().lookupClass());
 
     private final static String DIR_PATTERN = "%s/%s/%s";
     private final static String FILENAME_PATTERN = "%s_%s.%s";

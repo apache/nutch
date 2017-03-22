@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.urlfilter.domain;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -76,7 +77,7 @@ import org.apache.nutch.util.domain.DomainSuffix;
 public class DomainURLFilter implements URLFilter {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(DomainURLFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   // read in attribute "file" of this plugin.
   private static String attributeFile = null;

@@ -17,6 +17,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -60,7 +61,7 @@ import org.slf4j.LoggerFactory;
 public class TestCrawlDbStates {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(TestCrawlDbStates.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected static final byte[][] fetchDbStatusPairs = {
       { -1, STATUS_DB_UNFETCHED }, { STATUS_FETCH_SUCCESS, STATUS_DB_FETCHED },

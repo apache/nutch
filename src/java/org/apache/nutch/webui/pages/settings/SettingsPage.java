@@ -31,7 +31,7 @@ public class SettingsPage extends AbstractBasePage<Void> {
 
       @Override
       protected Iterator<IModel<NutchConfig>> getItemModels() {
-        return new CpmIteratorAdapter<NutchConfig>(
+        return new CpmIteratorAdapter<>(
             convertNutchConfig(nutchService.getNutchConfig(getCurrentInstance()
                 .getId())));
       }
@@ -47,7 +47,7 @@ public class SettingsPage extends AbstractBasePage<Void> {
   }
 
   private List<NutchConfig> convertNutchConfig(Map<String, String> map) {
-    List<NutchConfig> listNutchConfigs = new LinkedList<NutchConfig>();
+    List<NutchConfig> listNutchConfigs = new LinkedList<>();
     for (String key : map.keySet()) {
       NutchConfig conf = new NutchConfig();
       conf.setName(key);

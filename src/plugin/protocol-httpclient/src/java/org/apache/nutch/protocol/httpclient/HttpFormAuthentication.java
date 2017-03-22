@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.protocol.httpclient;
 
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
@@ -45,8 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpFormAuthentication {
-  private static final Logger LOGGER = LoggerFactory
-      .getLogger(HttpFormAuthentication.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static Map<String, String> defaultLoginHeaders = new HashMap<String, String>();
 
   static {
@@ -116,23 +117,23 @@ public class HttpFormAuthentication {
       setLoginHeader(post);
 
       // NUTCH-2280
-      LOGGER.debug("FormAuth: set cookie policy");
+      LOG.debug("FormAuth: set cookie policy");
       this.setCookieParams(authConfigurer, post.getParams());
 
       post.addParameters(params.toArray(new NameValuePair[0]));
       int rspCode = client.executeMethod(post);
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("rspCode: " + rspCode);
-        LOGGER.debug("\nSending 'POST' request to URL : " + url);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("rspCode: " + rspCode);
+        LOG.debug("\nSending 'POST' request to URL : " + url);
 
-        LOGGER.debug("Post parameters : " + params);
-        LOGGER.debug("Response Code : " + rspCode);
+        LOG.debug("Post parameters : " + params);
+        LOG.debug("Response Code : " + rspCode);
         for (Header header : post.getRequestHeaders()) {
-          LOGGER.debug("Response headers : " + header);
+          LOG.debug("Response headers : " + header);
         }
       }
       String rst = IOUtils.toString(post.getResponseBodyAsStream());
-      LOGGER.debug("login post result: " + rst);
+      LOG.debug("login post result: " + rst);
     } finally {
       if (post != null) {
         post.releaseConnection();
@@ -163,7 +164,7 @@ public class HttpFormAuthentication {
       String policy = formConfigurer.getCookiePolicy();
       Object p = FieldUtils.readDeclaredStaticField(CookiePolicy.class, policy);
       if (null != p) {
-        LOGGER.debug("reflection of cookie value: " + p.toString());
+        LOG.debug("reflection of cookie value: " + p.toString());
         params.setParameter(HttpMethodParams.COOKIE_POLICY, p);
       }
     }
@@ -207,12 +208,12 @@ public class HttpFormAuthentication {
     Document doc = Jsoup.parse(pageContent);
     Element loginform = doc.getElementById(authConfigurer.getLoginFormId());
     if (loginform == null) {
-      LOGGER.debug("No form element found with 'id' = {}, trying 'name'.",
+      LOG.debug("No form element found with 'id' = {}, trying 'name'.",
           authConfigurer.getLoginFormId());
       loginform = doc
           .select("form[name=" + authConfigurer.getLoginFormId() + "]").first();
       if (loginform == null) {
-        LOGGER.debug("No form element found with 'name' = {}",
+        LOG.debug("No form element found with 'name' = {}",
             authConfigurer.getLoginFormId());
         throw new IllegalArgumentException(
             "No form exists: " + authConfigurer.getLoginFormId());

@@ -19,6 +19,7 @@ package org.apache.nutch.util.domain;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -48,7 +49,7 @@ import org.apache.nutch.util.URLUtil;
 public class DomainStatistics extends Configured implements Tool {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(DomainStatistics.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final Text FETCHED_TEXT = new Text("FETCHED");
   private static final Text NOT_FETCHED_TEXT = new Text("NOT_FETCHED");

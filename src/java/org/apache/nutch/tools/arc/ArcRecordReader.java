@@ -18,6 +18,7 @@ package org.apache.nutch.tools.arc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.zip.GZIPInputStream;
 
 import org.slf4j.Logger;
@@ -54,8 +55,8 @@ import org.apache.hadoop.util.StringUtils;
  */
 public class ArcRecordReader implements RecordReader<Text, BytesWritable> {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(ArcRecordReader.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected Configuration conf;
   protected long splitStart = 0;

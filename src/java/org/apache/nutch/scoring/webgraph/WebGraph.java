@@ -17,6 +17,7 @@
 package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -95,7 +96,8 @@ import org.apache.nutch.util.URLUtil;
  */
 public class WebGraph extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(WebGraph.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   public static final String LOCK_NAME = ".locked";
   public static final String INLINK_DIR = "inlinks";
   public static final String OUTLINK_DIR = "outlinks/current";
@@ -280,7 +282,7 @@ public class WebGraph extends Configured implements Tool {
         ParseData data = (ParseData) value;
         long fetchTime = getFetchTime(data);
         Outlink[] outlinkAr = data.getOutlinks();
-        Map<String, String> outlinkMap = new LinkedHashMap<String, String>();
+        Map<String, String> outlinkMap = new LinkedHashMap<>();
 
         // normalize urls and put into map
         if (outlinkAr != null && outlinkAr.length > 0) {
@@ -329,7 +331,7 @@ public class WebGraph extends Configured implements Tool {
       // aggregate all outlinks, get the most recent timestamp for a fetch
       // which should be the timestamp for all of the most recent outlinks
       long mostRecent = 0L;
-      List<LinkDatum> outlinkList = new ArrayList<LinkDatum>();
+      List<LinkDatum> outlinkList = new ArrayList<>();
       while (values.hasNext()) {
         Writable value = values.next().get();
 
@@ -360,8 +362,8 @@ public class WebGraph extends Configured implements Tool {
       String host = URLUtil.getHost(url);
 
       // setup checking sets for domains and pages
-      Set<String> domains = new HashSet<String>();
-      Set<String> pages = new HashSet<String>();
+      Set<String> domains = new HashSet<>();
+      Set<String> pages = new HashSet<>();
 
       // loop through the link datums
       for (LinkDatum datum : outlinkList) {

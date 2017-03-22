@@ -37,6 +37,7 @@ import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.*;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ import org.apache.hadoop.util.Progressable;
 /* Parse content in a segment. */
 public class ParseOutputFormat implements OutputFormat<Text, Parse> {
   private static final Logger LOG = LoggerFactory
-      .getLogger(ParseOutputFormat.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
   private URLFilters filters;
   private URLExemptionFilters exemptionFilters;
   private URLNormalizers normalizers;
@@ -232,9 +233,9 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
 
         int validCount = 0;
         CrawlDatum adjust = null;
-        List<Entry<Text, CrawlDatum>> targets = new ArrayList<Entry<Text, CrawlDatum>>(
+        List<Entry<Text, CrawlDatum>> targets = new ArrayList<>(
             outlinksToStore);
-        List<Outlink> outlinkList = new ArrayList<Outlink>(outlinksToStore);
+        List<Outlink> outlinkList = new ArrayList<>(outlinksToStore);
         for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
           String toUrl = links[i].getToUrl();
 

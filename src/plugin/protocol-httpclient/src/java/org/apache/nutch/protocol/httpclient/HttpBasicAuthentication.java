@@ -17,6 +17,7 @@
 package org.apache.nutch.protocol.httpclient;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +46,8 @@ import org.apache.hadoop.conf.Configurable;
 public class HttpBasicAuthentication implements HttpAuthentication,
     Configurable {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(HttpBasicAuthentication.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static Pattern basic = Pattern
       .compile("[bB][aA][sS][iI][cC] [rR][eE][aA][lL][mM]=\"(\\w*)\"");

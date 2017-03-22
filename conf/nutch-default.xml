@@ -344,6 +344,14 @@
   </description>
 </property>
 
+<property>
+  <name>http.enable.cookie.header</name>
+  <value>true</value>
+  <description>Whether Nutch sends an HTTP Cookie header. The cookie value
+  is read from the CrawlDatum Cookie metadata field.
+  </description>
+</property>
+
 <!-- FTP properties -->
 
 <property>

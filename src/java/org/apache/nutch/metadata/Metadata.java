@@ -42,7 +42,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
    * Constructs a new, empty metadata.
    */
   public Metadata() {
-    metadata = new HashMap<String, String[]>();
+    metadata = new HashMap<>();
   }
 
   /**

@@ -17,6 +17,7 @@
 
 package org.apache.nutch.service;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -58,7 +59,8 @@ import com.google.common.collect.Queues;
 
 public class NutchServer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NutchServer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String LOCALHOST = "localhost";
   private static final Integer DEFAULT_PORT = 8081;
@@ -129,7 +131,7 @@ public class NutchServer {
   }
 
   private List<Class<?>> getClasses() {
-    List<Class<?>> resources = new ArrayList<Class<?>>();
+    List<Class<?>> resources = new ArrayList<>();
     resources.add(JobResource.class);
     resources.add(ConfigResource.class);
     resources.add(DbResource.class);
@@ -140,7 +142,7 @@ public class NutchServer {
   }
 
   private List<ResourceProvider> getResourceProviders() {
-    List<ResourceProvider> resourceProviders = new ArrayList<ResourceProvider>();
+    List<ResourceProvider> resourceProviders = new ArrayList<>();
     resourceProviders.add(new SingletonResourceProvider(getConfManager()));
     return resourceProviders;
   }

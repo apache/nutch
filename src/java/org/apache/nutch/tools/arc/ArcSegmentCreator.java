@@ -17,6 +17,7 @@
 package org.apache.nutch.tools.arc;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map.Entry;
@@ -75,8 +76,8 @@ import org.apache.nutch.util.TimingUtil;
 public class ArcSegmentCreator extends Configured implements Tool,
     Mapper<Text, BytesWritable, Text, NutchWritable> {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(ArcSegmentCreator.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   public static final String URL_VERSION = "arc.url.version";
   private JobConf jobConf;
   private URLFilters urlFilters;

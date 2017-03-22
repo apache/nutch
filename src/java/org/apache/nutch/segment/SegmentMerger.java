@@ -18,6 +18,7 @@ package org.apache.nutch.segment;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -127,7 +128,7 @@ public class SegmentMerger extends Configured implements Tool,
     Mapper<Text, MetaWrapper, Text, MetaWrapper>,
     Reducer<Text, MetaWrapper, Text, MetaWrapper> {
   private static final Logger LOG = LoggerFactory
-      .getLogger(SegmentMerger.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String SEGMENT_PART_KEY = "part";
   private static final String SEGMENT_SLICE_KEY = "slice";
@@ -177,7 +178,7 @@ public class SegmentMerger extends Configured implements Tool,
           // ignore
         }
       }
-      final SequenceFileRecordReader<Text, Writable> splitReader = new SequenceFileRecordReader<Text, Writable>(
+      final SequenceFileRecordReader<Text, Writable> splitReader = new SequenceFileRecordReader<>(
           job, (FileSplit) split);
 
       try {
@@ -225,7 +226,7 @@ public class SegmentMerger extends Configured implements Tool,
         MapFile.Writer pt_out = null;
         SequenceFile.Writer g_out = null;
         SequenceFile.Writer p_out = null;
-        HashMap<String, Closeable> sliceWriters = new HashMap<String, Closeable>();
+        HashMap<String, Closeable> sliceWriters = new HashMap<>();
         String segmentName = job.get("segment.merger.segmentName");
 
         public void write(Text key, MetaWrapper wrapper) throws IOException {
@@ -445,7 +446,7 @@ public class SegmentMerger extends Configured implements Tool,
     String lastCname = null;
     String lastPDname = null;
     String lastPTname = null;
-    TreeMap<String, ArrayList<CrawlDatum>> linked = new TreeMap<String, ArrayList<CrawlDatum>>();
+    TreeMap<String, ArrayList<CrawlDatum>> linked = new TreeMap<>();
     while (values.hasNext()) {
       MetaWrapper wrapper = values.next();
       Object o = wrapper.get();
@@ -502,7 +503,7 @@ public class SegmentMerger extends Configured implements Tool,
           // collect all LINKED values from the latest segment
           ArrayList<CrawlDatum> segLinked = linked.get(sp.segmentName);
           if (segLinked == null) {
-            segLinked = new ArrayList<CrawlDatum>();
+            segLinked = new ArrayList<>();
             linked.put(sp.segmentName, segLinked);
           }
           segLinked.add(val);
@@ -753,7 +754,7 @@ public class SegmentMerger extends Configured implements Tool,
     Configuration conf = NutchConfiguration.create();
     final FileSystem fs = FileSystem.get(conf);
     Path out = new Path(args[0]);
-    ArrayList<Path> segs = new ArrayList<Path>();
+    ArrayList<Path> segs = new ArrayList<>();
     long sliceSize = 0;
     boolean filter = false;
     boolean normalize = false;

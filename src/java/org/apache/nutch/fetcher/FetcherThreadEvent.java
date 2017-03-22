@@ -106,7 +106,7 @@ public class FetcherThreadEvent implements Serializable{
    */
   public void addEventData(String key, Object value) {
     if(eventData == null) {
-      eventData = new HashMap<String, Object>();
+      eventData = new HashMap<>();
     }
     eventData.put(key, value);
   }

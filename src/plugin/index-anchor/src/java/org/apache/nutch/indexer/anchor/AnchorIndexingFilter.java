@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexer.anchor;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 
 import org.apache.hadoop.conf.Configuration;
@@ -37,8 +38,8 @@ import org.slf4j.LoggerFactory;
  */
 public class AnchorIndexingFilter implements IndexingFilter {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(AnchorIndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration conf;
   private boolean deduplicate = false;
 

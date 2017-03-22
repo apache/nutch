@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Hashtable;
 
+import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
@@ -50,8 +51,8 @@ import java.nio.charset.Charset;
 
 public class ExtParser implements Parser {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger("org.apache.nutch.parse.ext");
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   static final int BUFFER_SIZE = 4096;
 

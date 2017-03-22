@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -57,8 +58,8 @@ public class IndexerMapReduce extends Configured implements
     Mapper<Text, Writable, Text, NutchWritable>,
     Reducer<Text, NutchWritable, Text, NutchIndexAction> {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(IndexerMapReduce.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String INDEXER_PARAMS = "indexer.additional.params";
   public static final String INDEXER_DELETE = "indexer.delete";

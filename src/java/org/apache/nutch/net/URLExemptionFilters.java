@@ -24,10 +24,13 @@ import org.apache.nutch.plugin.PluginRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
 /** Creates and caches {@link URLExemptionFilter} implementing plugins. */
 public class URLExemptionFilters {
 
-  private static final Logger LOG = LoggerFactory.getLogger(URLExemptionFilters.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private URLExemptionFilter[] filters;
 

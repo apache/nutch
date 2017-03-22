@@ -21,6 +21,8 @@ import org.apache.nutch.publisher.NutchPublishers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
+
 /**
  * This class handles the publishing of the events to the queue implementation. 
  *
@@ -28,7 +30,8 @@ import org.slf4j.LoggerFactory;
 public class FetcherThreadPublisher {
 
   private static NutchPublishers publisher;
-  private static final Logger LOG = LoggerFactory.getLogger(FetcherThreadPublisher.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Configure all registered publishers

@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parsefilter.regex;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.FileReader;
@@ -48,8 +49,9 @@ import org.w3c.dom.*;
  * extracted text, a configurable field is set to true.
  */
 public class RegexParseFilter implements HtmlParseFilter {
-  
-  private static final Logger LOG = LoggerFactory.getLogger(RegexParseFilter.class);
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static String attributeFile = null;
   private String regexFile = null;
   
@@ -177,13 +179,17 @@ public class RegexParseFilter implements HtmlParseFilter {
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
         line = line.trim();
-        String[] parts = line.split("\t");
+        String[] parts = line.split("\\s");
 
-        String field = parts[0].trim();
-        String source = parts[1].trim();
-        String regex = parts[2].trim();
-        
-        rules.put(field, new RegexRule(source, regex));
+        if (parts.length == 3) {
+            String field = parts[0].trim();
+            String source = parts[1].trim();
+            String regex = parts[2].trim();
+            
+            rules.put(field, new RegexRule(source, regex));
+        } else {
+            LOG.info("RegexParseFilter rule is invalid. " + line);
+        }
       }
     }
   }

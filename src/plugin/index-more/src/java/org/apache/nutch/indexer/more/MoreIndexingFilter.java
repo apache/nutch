@@ -42,6 +42,7 @@ import org.apache.hadoop.io.Writable;
 
 import java.text.ParseException;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Date;
@@ -68,8 +69,8 @@ import org.apache.commons.lang.time.DateUtils;
  */
 
 public class MoreIndexingFilter implements IndexingFilter {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(MoreIndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME;

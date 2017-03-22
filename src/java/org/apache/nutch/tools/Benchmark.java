@@ -71,9 +71,9 @@ public class Benchmark extends Configured implements Tool {
   }
 
   public static final class BenchmarkResults {
-    Map<String, Map<String, Long>> timings = new HashMap<String, Map<String, Long>>();
-    List<String> runs = new ArrayList<String>();
-    List<String> stages = new ArrayList<String>();
+    Map<String, Map<String, Long>> timings = new HashMap<>();
+    List<String> runs = new ArrayList<>();
+    List<String> stages = new ArrayList<>();
     int seeds, depth, threads;
     boolean delete;
     long topN;
@@ -89,7 +89,7 @@ public class Benchmark extends Configured implements Tool {
       }
       Map<String, Long> t = timings.get(stage);
       if (t == null) {
-        t = new HashMap<String, Long>();
+        t = new HashMap<>();
         timings.put(stage, t);
       }
       t.put(run, timing);

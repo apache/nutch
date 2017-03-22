@@ -26,8 +26,11 @@ import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
+
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
@@ -69,8 +72,8 @@ public class LinksIndexingFilter implements IndexingFilter {
   public final static String LINKS_INLINKS_HOST = "index.links.inlinks.host.ignore";
   public final static String LINKS_ONLY_HOSTS = "index.links.hosts.only";
 
-  public final static org.slf4j.Logger LOG = LoggerFactory
-      .getLogger(LinksIndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
   private boolean filterOutlinks;

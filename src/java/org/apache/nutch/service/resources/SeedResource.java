@@ -17,6 +17,7 @@
 package org.apache.nutch.service.resources;
 
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Map;
 
@@ -41,8 +42,8 @@ import org.slf4j.LoggerFactory;
 
 @Path("/seed")
 public class SeedResource extends AbstractResource {
-  private static final Logger log = LoggerFactory
-      .getLogger(AdminResource.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Gets the list of seedFiles already created 
@@ -84,7 +85,7 @@ public class SeedResource extends AbstractResource {
           setSeedList(seedList.getName(), seedList);
     return Response.ok().entity(seedFilePath).build();
     } catch (Exception e) {
-      log.warn("Error while creating seed : {}", e.getMessage());
+      LOG.warn("Error while creating seed : {}", e.getMessage());
     }
     return Response.serverError().build();
   }

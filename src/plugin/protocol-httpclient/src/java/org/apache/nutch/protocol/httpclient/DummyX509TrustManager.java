@@ -20,6 +20,7 @@
 
 package org.apache.nutch.protocol.httpclient;
 
+import java.lang.invoke.MethodHandles;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -37,7 +38,7 @@ public class DummyX509TrustManager implements X509TrustManager {
 
   /** Logger object for this class. */
   private static final Logger LOG = LoggerFactory
-      .getLogger(DummyX509TrustManager.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Constructor for DummyX509TrustManager.

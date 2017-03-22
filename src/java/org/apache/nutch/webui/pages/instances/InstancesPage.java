@@ -74,7 +74,7 @@ public class InstancesPage extends AbstractBasePage<Void> {
 
       @Override
       protected Iterator<IModel<NutchInstance>> getItemModels() {
-        return new CpmIteratorAdapter<NutchInstance>(
+        return new CpmIteratorAdapter<>(
             instanceService.getInstances());
       }
 
@@ -90,7 +90,7 @@ public class InstancesPage extends AbstractBasePage<Void> {
     return new AjaxLink<NutchInstance>("addInstance") {
       @Override
       public void onClick(AjaxRequestTarget target) {
-        instancePanel.setModel(new CompoundPropertyModel<NutchInstance>(
+        instancePanel.setModel(new CompoundPropertyModel<>(
             new NutchInstance()));
         target.add(instancePanel);
         instancePanel.appendShowDialogJavaScript(target);

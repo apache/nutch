@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -57,7 +58,7 @@ import org.apache.nutch.util.TimingUtil;
  */
 public class CrawlDbMerger extends Configured implements Tool {
   private static final Logger LOG = LoggerFactory
-      .getLogger(CrawlDbMerger.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static class Merger extends MapReduceBase implements
       Reducer<Text, CrawlDatum, Text, CrawlDatum> {
@@ -189,7 +190,7 @@ public class CrawlDbMerger extends Configured implements Tool {
       return -1;
     }
     Path output = new Path(args[0]);
-    ArrayList<Path> dbs = new ArrayList<Path>();
+    ArrayList<Path> dbs = new ArrayList<>();
     boolean filter = false;
     boolean normalize = false;
     FileSystem fs = FileSystem.get(getConf());

@@ -17,6 +17,7 @@
 package org.apache.nutch.service;
 
 import java.io.FileNotFoundException;
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -26,8 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public interface  NutchReader {
-  
-  public static final Logger LOG = LoggerFactory.getLogger(NutchReader.class);
+
+  static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   public static final Configuration conf = NutchConfiguration.create();
   
   public List read(String path) throws FileNotFoundException;
