@@ -57,6 +57,7 @@ import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.codehaus.jackson.map.ObjectMapper;
 /**
  * <p>
  * The file dumper tool enables one to reverse generate the raw content from
@@ -158,6 +159,7 @@ public class FileDumper {
     for (File segment : segmentDirs) {
       LOG.info("Processing segment: [" + segment.getAbsolutePath() + "]");
       DataOutputStream doutputStream = null;
+      Map<String, String> filenameToUrl = new HashMap<String, String>();
 
       File segmentDir = new File(segment.getAbsolutePath(), Content.DIR_NAME);
       File[] partDirs = segmentDir.listFiles(file -> file.canRead() && file.isDirectory());
@@ -247,7 +249,7 @@ public class FileDumper {
                   } else {
                     outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
                   }
-
+                  filenameToUrl.put(outputFullPath, url);
                   File outputFile = new File(outputFullPath);
 
                   if (!outputFile.exists()) {
@@ -289,6 +291,10 @@ public class FileDumper {
           }
         }
       }
+      //save filenameToUrl in a json file for each segment there is one mapping file 
+      String filenameToUrlFilePath = String.format("%s/%s_filenameToUrl.json", outputDir.getAbsolutePath(), segment.getName() );
+      new ObjectMapper().writeValue(new File(filenameToUrlFilePath), filenameToUrl);
+      
     }
     LOG.info("Dumper File Stats: "
         + DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));
