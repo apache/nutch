@@ -1,4 +1,52 @@
-Nutch Change Log
+# Nutch Change Log
+
+Nutch 1.13 Release 28/03/2017 (dd/mm/yyyy)
+Release Report: https://s.apache.org/wq3x
+
+Sub-task
+
+    [NUTCH-2246] - Refactor /seed endpoint for backward compatibility
+
+Bug
+
+    [NUTCH-1553] - Property 'indexer.delete.robots.noindex' not working when using parser-html.
+    [NUTCH-2242] - lastModified not always set
+    [NUTCH-2291] - Fix mrunit dependencies
+    [NUTCH-2337] - urlnormalizer-basic to strip empty port
+    [NUTCH-2345] - FetchItemQueue logs are logged with wrong class name
+    [NUTCH-2349] - urlnormalizer-basic NPE for ill-formed URL "http:/"
+    [NUTCH-2357] - Index metadata throw Exception because writable object cannot be cast to Text
+    [NUTCH-2359] - Parsefilter-regex raises IndexOutOfBoundsException when rules are ill-formed
+    [NUTCH-2364] - http.agent.rotate: IllegalArgumentException / last element of agent names ignored
+    [NUTCH-2366] - Deprecated Job constructor in hostdb/ReadHostDb.java
+
+Improvement
+
+    [NUTCH-1308] - Add main() to ZipParser
+    [NUTCH-2164] - Inconsistent 'Modified Time' in crawl db
+    [NUTCH-2234] - Upgrade to elasticsearch 2.3.3
+    [NUTCH-2236] - Upgrade to Hadoop 2.7.2
+    [NUTCH-2262] - Utilize parameterized logging notation across Fetcher
+    [NUTCH-2272] - Index checker server to optionally keep client connection open
+    [NUTCH-2286] - CrawlDbReader -stats to show fetch time and interval
+    [NUTCH-2287] - Indexer-elastic plugin should use Elasticsearch BulkProcessor and BackoffPolicy
+    [NUTCH-2299] - Remove obsolete properties protocol.plugin.check.*
+    [NUTCH-2300] - Fetcher to optionally save robots.txt
+    [NUTCH-2327] - Seeds injected in REST workflow must be ingested into HDFS
+    [NUTCH-2329] - Update Slf4j logging for Java 8 and upgrade miredot plugin version
+    [NUTCH-2336] - SegmentReader to implement Tool
+    [NUTCH-2352] - Log with Generic Class Name at Nutch 1.x
+    [NUTCH-2355] - Protocol plugins to set cookie if Cookie metadata field is present
+    [NUTCH-2367] - Get single record from HostDB
+
+New Feature
+
+    [NUTCH-2132] - Publisher/Subscriber model for Nutch to emit events
+
+Task
+
+    [NUTCH-2171] - Upgrade Nutch Trunk to Java 1.8
+
  
 Nutch 1.12 Release 28/05/2016 (dd/mm/yyyy)
 Release Report: https://s.apache.org/nutch1.12
