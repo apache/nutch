@@ -35,9 +35,9 @@
   </licenses>
 
   <scm>
-    <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/nutch.git</developerConnection>
-    <connection>scm:git:http://git-wip-us.apache.org/repos/asf/nutch.git</connection>
-    <url>https://git-wip-us.apache.org/repos/asf/nutch.git</url>
+    <developerConnection>scm:git:https://github.com/apache/nutch.git</developerConnection>
+    <connection>scm:git:http://github.com/apache/nutch.git</connection>
+    <url>https://github.com/apache/nutch.git</url>
   </scm>
 
   <pluginRepositories>
