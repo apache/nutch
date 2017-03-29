@@ -284,7 +284,7 @@
 
 	<!-- sign and deploy the main artifact -->
 	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
+		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
 		<arg value="-Durl=${maven-repository-url}" />
 		<arg value="-DrepositoryId=${maven-repository-id}" />
 		<arg value="-DpomFile=pom.xml" />
@@ -294,7 +294,7 @@
 
 	<!-- sign and deploy the sources artifact -->
 	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
+		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
 		<arg value="-Durl=${maven-repository-url}" />
 		<arg value="-DrepositoryId=${maven-repository-id}" />
 		<arg value="-DpomFile=pom.xml" />
@@ -305,7 +305,7 @@
 
 	<!-- sign and deploy the javadoc artifact -->
 	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
+		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
 		<arg value="-Durl=${maven-repository-url}" />
 		<arg value="-DrepositoryId=${maven-repository-id}" />
 		<arg value="-DpomFile=pom.xml" />
