@@ -861,8 +861,8 @@ public class FetcherReducer extends
       LOG.info("Fetcher: throughput threshold sequence: "
           + throughputThresholdSequence);
     }
-    long throughputThresholdTimeLimit = conf.getLong(
-        "fetcher.throughput.threshold.check.after", -1);
+    long throughputThresholdTimeLimit = System.currentTimeMillis() + (conf.getLong(
+        "fetcher.throughput.threshold.check.after", 5) * 60 * 1000);
 
     do { // wait for threads to exit
       pagesLastSec = pages.get();
