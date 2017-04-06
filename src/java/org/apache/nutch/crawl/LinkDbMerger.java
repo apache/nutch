@@ -123,7 +123,7 @@ public class LinkDbMerger extends Configured implements Tool,
       FileInputFormat.addInputPath(job, new Path(dbs[i], LinkDb.CURRENT_NAME));
     }
     JobClient.runJob(job);
-    FileSystem fs = FileSystem.get(getConf());
+    FileSystem fs = output.getFileSystem(getConf());
     fs.mkdirs(output);
     fs.rename(FileOutputFormat.getOutputPath(job), new Path(output,
         LinkDb.CURRENT_NAME));
@@ -135,8 +135,8 @@ public class LinkDbMerger extends Configured implements Tool,
 
   public static JobConf createMergeJob(Configuration config, Path linkDb,
       boolean normalize, boolean filter) {
-    Path newLinkDb = new Path("linkdb-merge-"
-        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+    Path newLinkDb = new Path(linkDb,
+        "merge-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
     job.setJobName("linkdb merge " + linkDb);

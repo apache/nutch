@@ -64,7 +64,7 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
   }
 
   public void init(Path directory) throws Exception {
-    this.fs = FileSystem.get(getConf());
+    this.fs = directory.getFileSystem(getConf());
     this.directory = directory;
   }
 

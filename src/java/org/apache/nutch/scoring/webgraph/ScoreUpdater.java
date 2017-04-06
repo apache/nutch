@@ -158,7 +158,6 @@ public class ScoreUpdater extends Configured implements Tool,
     LOG.info("ScoreUpdater: starting at " + sdf.format(start));
 
     Configuration conf = getConf();
-    FileSystem fs = FileSystem.get(conf);
 
     // create a temporary crawldb with the new scores
     LOG.info("Running crawldb update " + crawlDb);
@@ -188,6 +187,7 @@ public class ScoreUpdater extends Configured implements Tool,
       LOG.error(StringUtils.stringifyException(e));
 
       // remove the temp crawldb on error
+      FileSystem fs = newCrawlDb.getFileSystem(conf);
       if (fs.exists(newCrawlDb)) {
         fs.delete(newCrawlDb, true);
       }

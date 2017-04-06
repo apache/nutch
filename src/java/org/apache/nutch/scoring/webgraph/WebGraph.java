@@ -512,7 +512,7 @@ public class WebGraph extends Configured implements Tool {
     }
 
     Configuration conf = getConf();
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = webGraphDb.getFileSystem(conf);
 
     // lock an existing webgraphdb to prevent multiple simultaneous updates
     Path lock = new Path(webGraphDb, LOCK_NAME);
@@ -545,15 +545,16 @@ public class WebGraph extends Configured implements Tool {
     // get the parse data and crawl fetch data for all segments
     if (segments != null) {
       for (int i = 0; i < segments.length; i++) {
+        FileSystem sfs = segments[i].getFileSystem(conf);
         Path parseData = new Path(segments[i], ParseData.DIR_NAME);
-        if (fs.exists(parseData)) {
+        if (sfs.exists(parseData)) {
           LOG.info("OutlinkDb: adding input: " + parseData);
           FileInputFormat.addInputPath(outlinkJob, parseData);
         }
 
         if (deleteGone) {
           Path crawlFetch = new Path(segments[i], CrawlDatum.FETCH_DIR_NAME);
-          if (fs.exists(crawlFetch)) {
+          if (sfs.exists(crawlFetch)) {
             LOG.info("OutlinkDb: adding input: " + crawlFetch);
             FileInputFormat.addInputPath(outlinkJob, crawlFetch);
           }

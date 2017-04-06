@@ -93,8 +93,8 @@ public class LinkDumper extends Configured implements Tool {
 
       // open the readers for the linkdump directory
       Configuration conf = NutchConfiguration.create();
-      FileSystem fs = FileSystem.get(conf);
       Path webGraphDb = new Path(args[0]);
+      FileSystem fs = webGraphDb.getFileSystem(conf);
       String url = args[1];
       MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new Path(
           webGraphDb, DUMP_DIR), conf);
@@ -330,7 +330,7 @@ public class LinkDumper extends Configured implements Tool {
     long start = System.currentTimeMillis();
     LOG.info("NodeDumper: starting at " + sdf.format(start));
     Configuration conf = getConf();
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = webGraphDb.getFileSystem(conf);
 
     Path linkdump = new Path(webGraphDb, DUMP_DIR);
     Path nodeDb = new Path(webGraphDb, WebGraph.NODE_DIR);

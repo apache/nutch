@@ -160,7 +160,7 @@ public class IndexingJob extends NutchTool implements Tool {
       LOG.info("Indexer: finished at " + sdf.format(end) + ", elapsed: "
           + TimingUtil.elapsedTime(start, end));
     } finally {
-      FileSystem.get(job).delete(tmp, true);
+      tmp.getFileSystem(job).delete(tmp, true);
     }
   }
 

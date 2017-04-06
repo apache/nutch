@@ -192,7 +192,6 @@ public class FileDumper {
               extension = "html";
             }
 
-            String filename = baseName + "." + extension;
             ByteArrayInputStream bas = null;
             Boolean filter = false;
             try {

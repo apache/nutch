@@ -92,9 +92,9 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       throws IOException {
     if (readers != null)
       return;
-    FileSystem fs = FileSystem.get(config);
-    readers = MapFileOutputFormat.getReaders(fs, new Path(crawlDb,
-        CrawlDb.CURRENT_NAME), config);
+    Path crawlDbPath = new Path(crawlDb, CrawlDb.CURRENT_NAME);
+    FileSystem fs = crawlDbPath.getFileSystem(config);
+    readers = MapFileOutputFormat.getReaders(fs, crawlDbPath, config);
   }
 
   private void closeReaders() {
@@ -393,7 +393,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 	  JobClient.runJob(job);
 
 	  // reading the result
-	  FileSystem fileSystem = FileSystem.get(config);
+	  FileSystem fileSystem = tmpFolder.getFileSystem(config);
 	  SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(config,
 			  tmpFolder);
 
@@ -662,7 +662,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     job.setNumReduceTasks(1); // create a single file.
 
     JobClient.runJob(job);
-    FileSystem fs = FileSystem.get(config);
+    FileSystem fs = tempDir.getFileSystem(config);
     fs.delete(tempDir, true);
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb topN: done");
