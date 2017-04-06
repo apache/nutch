@@ -131,6 +131,13 @@
 		<!-- RabbitMQ dependencies -->
 		<dependency org="com.rabbitmq" name="amqp-client" rev="3.6.5" conf="*->default" />
 
+
+		<!--Added Because of Elasticsearch JEST client-->
+		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
+		<dependency org="org.apache.httpcomponents" name="httpcore-nio" rev="4.4.4"/>
+		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.4"/>
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.2"/>
+
 		<!--global exclusion -->
 		<exclude module="jmxtools" />
 		<exclude module="jms" />

@@ -41,6 +41,7 @@
      <ant dir="indexer-cloudsearch" target="deploy"/>
      <ant dir="indexer-dummy" target="deploy"/>
      <ant dir="indexer-elastic" target="deploy"/>
+     <ant dir="indexer-elastic-rest" target="deploy"/>
      <ant dir="indexer-solr" target="deploy"/>
      <ant dir="language-identifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
@@ -160,6 +161,7 @@
     <ant dir="indexer-cloudsearch" target="clean"/>
     <ant dir="indexer-dummy" target="clean"/>
     <ant dir="indexer-elastic" target="clean"/>
+    <ant dir="indexer-elastic-rest" target="clean"/>
     <ant dir="indexer-solr" target="clean"/>
     <ant dir="language-identifier" target="clean"/>
     <!-- <ant dir="lib-commons-httpclient" target="clean"/> -->
