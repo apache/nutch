@@ -36,8 +36,9 @@
   </publications>
 
   <dependencies>
-    <dependency org="rome" name="rome" rev="0.9" conf="*->master"/>
-    <dependency org="org.jdom" name="jdom" rev="1.1" conf="*->master"/>
+    <dependency org="com.rometools" name="rome" rev="1.5.1">
+      <exclude name="slf4j-api" />
+    </dependency>
   </dependencies>
   
 </ivy-module>
