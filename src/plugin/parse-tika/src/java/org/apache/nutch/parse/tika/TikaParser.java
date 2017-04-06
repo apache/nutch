@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.parse.tika;
 
+import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -60,7 +61,8 @@ import org.xml.sax.ContentHandler;
 
 public class TikaParser implements org.apache.nutch.parse.Parser {
 
-  public static final Logger LOG = LoggerFactory.getLogger(TikaParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
   private TikaConfig tikaConfig = null;

@@ -17,6 +17,7 @@
 package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
@@ -65,7 +66,8 @@ import org.apache.nutch.util.URLUtil;
  */
 public class NodeDumper extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(NodeDumper.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static enum DumpType {
     INLINKS, OUTLINKS, SCORES

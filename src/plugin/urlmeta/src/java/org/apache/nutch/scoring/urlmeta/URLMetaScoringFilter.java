@@ -17,6 +17,7 @@
 
 package org.apache.nutch.scoring.urlmeta;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Iterator;
@@ -44,7 +45,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
 public class URLMetaScoringFilter extends Configured implements ScoringFilter {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(URLMetaScoringFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static final String CONF_PROPERTY = "urlmeta.tags";
   private static String[] urlMetaTags;
   private Configuration conf;

@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -69,7 +70,8 @@ import org.apache.nutch.util.StringUtil;
 
 public class ParserChecker implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ParserChecker.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration conf;
 
   public ParserChecker() {
@@ -89,7 +91,7 @@ public class ParserChecker implements Tool {
     }
 
     // used to simulate the metadata propagated from injection
-    HashMap<String, String> metadata = new HashMap<String, String>();
+    HashMap<String, String> metadata = new HashMap<>();
 
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-forceAs")) {

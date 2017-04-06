@@ -17,6 +17,7 @@
 package org.apache.nutch.hostdb;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
@@ -51,7 +52,8 @@ import org.slf4j.LoggerFactory;
 public class UpdateHostDbReducer
   implements Reducer<Text, NutchWritable, Text, HostDatum> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(UpdateHostDbReducer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   protected ResolverThread resolverThread = null;
   protected Integer numResolverThreads = 10;
   protected static Integer purgeFailedHostsThreshold = -1;
@@ -67,7 +69,7 @@ public class UpdateHostDbReducer
   protected static Text[] numericFieldWritables;
   protected static Text[] stringFieldWritables;
   
-  protected BlockingQueue<Runnable> queue = new SynchronousQueue<Runnable>();
+  protected BlockingQueue<Runnable> queue = new SynchronousQueue<>();
   protected ThreadPoolExecutor executor = null;
 
   /**
@@ -116,11 +118,11 @@ public class UpdateHostDbReducer
   public void reduce(Text key, Iterator<NutchWritable> values,
     OutputCollector<Text,HostDatum> output, Reporter reporter) throws IOException {
 
-    Map<String,Map<String,Integer>> stringCounts = new HashMap<String,Map<String, Integer>>();
-    Map<String,Float> maximums = new HashMap<String,Float>();
-    Map<String,Float> sums = new HashMap<String,Float>(); // used to calc averages
-    Map<String,Integer> counts = new HashMap<String,Integer>(); // used to calc averages
-    Map<String,Float> minimums = new HashMap<String,Float>();
+    Map<String,Map<String,Integer>> stringCounts = new HashMap<>();
+    Map<String,Float> maximums = new HashMap<>();
+    Map<String,Float> sums = new HashMap<>(); // used to calc averages
+    Map<String,Integer> counts = new HashMap<>(); // used to calc averages
+    Map<String,Float> minimums = new HashMap<>();
     Map<String,TDigest> tdigests = new HashMap<String,TDigest>();
     
     HostDatum hostDatum = new HostDatum();
@@ -128,7 +130,7 @@ public class UpdateHostDbReducer
     
     if (stringFields != null) {
       for (int i = 0; i < stringFields.length; i++) {
-        stringCounts.put(stringFields[i], new HashMap<String,Integer>());
+        stringCounts.put(stringFields[i], new HashMap<>());
       }
     }
     

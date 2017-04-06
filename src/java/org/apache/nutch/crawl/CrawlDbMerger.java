@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -34,6 +35,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.*;
+import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
@@ -57,7 +59,7 @@ import org.apache.nutch.util.TimingUtil;
  */
 public class CrawlDbMerger extends Configured implements Tool {
   private static final Logger LOG = LoggerFactory
-      .getLogger(CrawlDbMerger.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static class Merger extends MapReduceBase implements
       Reducer<Text, CrawlDatum, Text, CrawlDatum> {
@@ -121,6 +123,8 @@ public class CrawlDbMerger extends Configured implements Tool {
 
   public void merge(Path output, Path[] dbs, boolean normalize, boolean filter)
       throws Exception {
+    Path lock = CrawlDb.lock(getConf(), output, false);
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("CrawlDb merge: starting at " + sdf.format(start));
@@ -132,13 +136,17 @@ public class CrawlDbMerger extends Configured implements Tool {
       }
       FileInputFormat.addInputPath(job, new Path(dbs[i], CrawlDb.CURRENT_NAME));
     }
-    JobClient.runJob(job);
-    FileSystem fs = FileSystem.get(getConf());
-    if (fs.exists(output))
-      fs.delete(output, true);
-    fs.mkdirs(output);
-    fs.rename(FileOutputFormat.getOutputPath(job), new Path(output,
-        CrawlDb.CURRENT_NAME));
+    try {
+      JobClient.runJob(job);
+      CrawlDb.install(job, output);
+    } catch (IOException e) {
+      LockUtil.removeLockFile(getConf(), lock);
+      Path outPath = FileOutputFormat.getOutputPath(job);
+      FileSystem fs = outPath.getFileSystem(getConf());
+      if (fs.exists(outPath))
+        fs.delete(outPath, true);
+      throw e;
+    }
     long end = System.currentTimeMillis();
     LOG.info("CrawlDb merge: finished at " + sdf.format(end) + ", elapsed: "
         + TimingUtil.elapsedTime(start, end));
@@ -146,8 +154,8 @@ public class CrawlDbMerger extends Configured implements Tool {
 
   public static JobConf createMergeJob(Configuration conf, Path output,
       boolean normalize, boolean filter) {
-    Path newCrawlDb = new Path("crawldb-merge-"
-        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+    Path newCrawlDb = new Path(output,
+        "merge-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(conf);
     job.setJobName("crawldb merge " + output);
@@ -189,10 +197,9 @@ public class CrawlDbMerger extends Configured implements Tool {
       return -1;
     }
     Path output = new Path(args[0]);
-    ArrayList<Path> dbs = new ArrayList<Path>();
+    ArrayList<Path> dbs = new ArrayList<>();
     boolean filter = false;
     boolean normalize = false;
-    FileSystem fs = FileSystem.get(getConf());
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-filter")) {
         filter = true;
@@ -202,6 +209,7 @@ public class CrawlDbMerger extends Configured implements Tool {
         continue;
       }
       final Path dbPath = new Path(args[i]);
+      FileSystem fs = dbPath.getFileSystem(getConf());
       if (fs.exists(dbPath))
         dbs.add(dbPath);
     }

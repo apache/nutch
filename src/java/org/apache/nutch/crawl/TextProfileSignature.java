@@ -73,7 +73,7 @@ public class TextProfileSignature extends Signature {
         "db.signature.text_profile.min_token_len", 2);
     float QUANT_RATE = getConf().getFloat(
         "db.signature.text_profile.quant_rate", 0.01f);
-    HashMap<String, Token> tokens = new HashMap<String, Token>();
+    HashMap<String, Token> tokens = new HashMap<>();
     String text = null;
     if (parse != null)
       text = parse.getText();
@@ -117,7 +117,7 @@ public class TextProfileSignature extends Signature {
         maxFreq = tok.cnt;
     }
     Iterator<Token> it = tokens.values().iterator();
-    ArrayList<Token> profile = new ArrayList<Token>();
+    ArrayList<Token> profile = new ArrayList<>();
     // calculate the QUANT value
     int QUANT = Math.round(maxFreq * QUANT_RATE);
     if (QUANT < 2) {
@@ -171,7 +171,7 @@ public class TextProfileSignature extends Signature {
   public static void main(String[] args) throws Exception {
     TextProfileSignature sig = new TextProfileSignature();
     sig.setConf(NutchConfiguration.create());
-    HashMap<String, byte[]> res = new HashMap<String, byte[]>();
+    HashMap<String, byte[]> res = new HashMap<>();
     File[] files = new File(args[0]).listFiles();
     for (int i = 0; i < files.length; i++) {
       FileInputStream fis = new FileInputStream(files[i]);

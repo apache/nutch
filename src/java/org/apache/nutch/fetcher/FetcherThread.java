@@ -17,6 +17,7 @@
 package org.apache.nutch.fetcher;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -72,8 +73,9 @@ import crawlercommons.robots.BaseRobotRules;
  * This class picks items from queues and fetches the pages.
  */
 public class FetcherThread extends Thread {
-  
-  private static final Logger LOG = LoggerFactory.getLogger(FetcherThread.class);
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
   private URLFilters urlFilters;
@@ -202,7 +204,7 @@ public class FetcherThread extends Thread {
         "fetcher.follow.outlinks.depth.divisor", 2);
     if (conf.getBoolean("fetcher.store.robotstxt", false)) {
       if (storingContent) {
-        robotsTxtContent = new LinkedList<Content>();
+        robotsTxtContent = new LinkedList<>();
       } else {
         LOG.warn("Ignoring fetcher.store.robotstxt because not storing content (fetcher.store.content)!");
       }
@@ -693,8 +695,8 @@ public class FetcherThread extends Thread {
           int validCount = 0;
 
           // Process all outlinks, normalize, filter and deduplicate
-          List<Outlink> outlinkList = new ArrayList<Outlink>(outlinksToStore);
-          HashSet<String> outlinks = new HashSet<String>(outlinksToStore);
+          List<Outlink> outlinkList = new ArrayList<>(outlinksToStore);
+          HashSet<String> outlinks = new HashSet<>(outlinksToStore);
           for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
             String toUrl = links[i].getToUrl();
 

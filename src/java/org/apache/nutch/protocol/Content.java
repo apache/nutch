@@ -265,9 +265,8 @@ public final class Content implements Writable {
     GenericOptionsParser parser = new GenericOptionsParser(conf, opts, argv);
 
     String[] remainingArgs = parser.getRemainingArgs();
-    FileSystem fs = FileSystem.get(conf);
 
-    try {
+    try (FileSystem fs = FileSystem.get(conf)) {
       int recno = Integer.parseInt(remainingArgs[0]);
       String segment = remainingArgs[1];
 
@@ -284,8 +283,6 @@ public final class Content implements Writable {
       System.out.println(content);
 
       contents.close();
-    } finally {
-      fs.close();
     }
   }
 

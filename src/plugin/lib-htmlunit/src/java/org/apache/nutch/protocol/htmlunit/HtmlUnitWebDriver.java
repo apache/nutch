@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.protocol.htmlunit;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,7 +44,8 @@ import com.gargoylesoftware.htmlunit.WebClient;
 
 public class HtmlUnitWebDriver extends HtmlUnitDriver {
 
-  private static final Logger LOG = LoggerFactory.getLogger(HtmlUnitWebDriver.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static boolean enableJavascript;
   private static boolean enableCss;
   private static boolean enableRedirect;

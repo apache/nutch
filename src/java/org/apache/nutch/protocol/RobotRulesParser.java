@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.LineNumberReader;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
@@ -60,10 +61,10 @@ import crawlercommons.robots.SimpleRobotRulesParser;
  */
 public abstract class RobotRulesParser implements Tool {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(RobotRulesParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
-  protected static final Hashtable<String, BaseRobotRules> CACHE = new Hashtable<String, BaseRobotRules>();
+  protected static final Hashtable<String, BaseRobotRules> CACHE = new Hashtable<>();
   
   /**
    * A {@link BaseRobotRules} object appropriate for use when the
@@ -85,7 +86,7 @@ public abstract class RobotRulesParser implements Tool {
   protected String agentNames;
 
   /** set of host names or IPs to be explicitly excluded from robots.txt checking */
-  protected Set<String> whiteList = new HashSet<String>();
+  protected Set<String> whiteList = new HashSet<>();
   
   /* Matcher user for efficiently matching URLs against a set of suffixes. */
   private SuffixStringMatcher matcher = null;
@@ -320,7 +321,7 @@ public abstract class RobotRulesParser implements Tool {
 
     List<Content> robotsTxtContent = null;
     if (getConf().getBoolean("fetcher.store.robotstxt", false)) {
-      robotsTxtContent = new LinkedList<Content>();
+      robotsTxtContent = new LinkedList<>();
     }
 
     try {

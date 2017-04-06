@@ -24,6 +24,7 @@ import org.apache.nutch.urlfilter.regex.RegexURLFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -59,8 +60,8 @@ public class ExemptionUrlFilter extends RegexURLFilter
 
   public static final String DB_IGNORE_EXTERNAL_EXEMPTIONS_FILE
       = "db.ignore.external.exemptions.file";
-  private static final Logger LOG =
-      LoggerFactory.getLogger(ExemptionUrlFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private List<Pattern> exemptions;
   private Configuration conf;

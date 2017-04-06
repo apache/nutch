@@ -35,7 +35,7 @@ public class CpmIteratorAdapter<T> extends ModelIteratorAdapter<T> {
 
   @Override
   protected IModel<T> model(T object) {
-    return new CompoundPropertyModel<T>(object);
+    return new CompoundPropertyModel<>(object);
   }
 
 }

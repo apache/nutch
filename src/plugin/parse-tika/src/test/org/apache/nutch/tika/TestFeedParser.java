@@ -17,6 +17,8 @@
 
 package org.apache.nutch.tika;
 
+import java.lang.invoke.MethodHandles;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -52,8 +54,8 @@ public class TestFeedParser {
 
   private String[] sampleFiles = { "rsstest.rss" };
 
-  public static final Logger LOG = LoggerFactory.getLogger(TestFeedParser.class
-      .getName());
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * <p>

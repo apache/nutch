@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.net.*;
 import java.util.*;
 import java.text.*;
@@ -59,7 +60,8 @@ import org.apache.nutch.util.URLUtil;
  **/
 public class Generator extends NutchTool implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(Generator.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String GENERATE_UPDATE_CRAWLDB = "generate.update.crawldb";
   public static final String GENERATOR_MIN_SCORE = "generate.min.score";
@@ -115,7 +117,7 @@ public class Generator extends NutchTool implements Tool {
     private long curTime;
     private long limit;
     private long count;
-    private HashMap<String, int[]> hostCounts = new HashMap<String, int[]>();
+    private HashMap<String, int[]> hostCounts = new HashMap<>();
     private int segCounts[];
     private int maxCount;
     private boolean byDomain = false;
@@ -530,10 +532,9 @@ public class Generator extends NutchTool implements Tool {
 
     Path tempDir = new Path(getConf().get("mapred.temp.dir", ".")
         + "/generate-temp-" + java.util.UUID.randomUUID().toString());
+    FileSystem fs = tempDir.getFileSystem(getConf());
 
-    Path lock = new Path(dbDir, CrawlDb.LOCK_NAME);
-    FileSystem fs = FileSystem.get(getConf());
-    LockUtil.createLockFile(fs, lock, force);
+    Path lock = CrawlDb.lock(getConf(), dbDir, force);
     
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -588,14 +589,14 @@ public class Generator extends NutchTool implements Tool {
     try {
       JobClient.runJob(job);
     } catch (IOException e) {
-      LockUtil.removeLockFile(fs, lock);
+      LockUtil.removeLockFile(getConf(), lock);
       fs.delete(tempDir, true);
       throw e;
     }
 
     // read the subdirectories generated in the temp
     // output and turn them into segments
-    List<Path> generatedSegments = new ArrayList<Path>();
+    List<Path> generatedSegments = new ArrayList<>();
 
     FileStatus[] status = fs.listStatus(tempDir);
     try {
@@ -604,7 +605,7 @@ public class Generator extends NutchTool implements Tool {
         if (!subfetchlist.getName().startsWith("fetchlist-"))
           continue;
         // start a new partition job for this segment
-        Path newSeg = partitionSegment(fs, segments, subfetchlist, numLists);
+        Path newSeg = partitionSegment(segments, subfetchlist, numLists);
         generatedSegments.add(newSeg);
       }
     } catch (Exception e) {
@@ -615,15 +616,15 @@ public class Generator extends NutchTool implements Tool {
 
     if (generatedSegments.size() == 0) {
       LOG.warn("Generator: 0 records selected for fetching, exiting ...");
-      LockUtil.removeLockFile(fs, lock);
+      LockUtil.removeLockFile(getConf(), lock);
       fs.delete(tempDir, true);
       return null;
     }
 
     if (getConf().getBoolean(GENERATE_UPDATE_CRAWLDB, false)) {
       // update the db from tempDir
-      Path tempDir2 = new Path(getConf().get("mapred.temp.dir", ".")
-          + "/generate-temp-" + java.util.UUID.randomUUID().toString());
+      Path tempDir2 = new Path(dbDir,
+          "generate-temp-" + java.util.UUID.randomUUID().toString());
 
       job = new NutchJob(getConf());
       job.setJobName("generate: updatedb " + dbDir);
@@ -644,7 +645,7 @@ public class Generator extends NutchTool implements Tool {
         JobClient.runJob(job);
         CrawlDb.install(job, dbDir);
       } catch (IOException e) {
-        LockUtil.removeLockFile(fs, lock);
+        LockUtil.removeLockFile(getConf(), lock);
         fs.delete(tempDir, true);
         fs.delete(tempDir2, true);
         throw e;
@@ -652,7 +653,7 @@ public class Generator extends NutchTool implements Tool {
       fs.delete(tempDir2, true);
     }
 
-    LockUtil.removeLockFile(fs, lock);
+    LockUtil.removeLockFile(getConf(), lock);
     fs.delete(tempDir, true);
 
     long end = System.currentTimeMillis();
@@ -663,8 +664,8 @@ public class Generator extends NutchTool implements Tool {
     return generatedSegments.toArray(patharray);
   }
 
-  private Path partitionSegment(FileSystem fs, Path segmentsDir, Path inputDir,
-      int numLists) throws IOException {
+  private Path partitionSegment(Path segmentsDir, Path inputDir, int numLists)
+      throws IOException {
     // invert again, partition by host/domain/IP, sort by url hash
     if (LOG.isInfoEnabled()) {
       LOG.info("Generator: Partitioning selected urls for politeness.");
@@ -775,7 +776,7 @@ public class Generator extends NutchTool implements Tool {
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
 
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;

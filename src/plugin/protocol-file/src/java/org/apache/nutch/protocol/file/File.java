@@ -17,6 +17,7 @@
 
 package org.apache.nutch.protocol.file;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.List;
 
@@ -48,7 +49,8 @@ import crawlercommons.robots.BaseRobotRules;
  */
 public class File implements Protocol {
 
-  public static final Logger LOG = LoggerFactory.getLogger(File.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   static final int MAX_REDIRECTS = 5;
 

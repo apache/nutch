@@ -27,7 +27,7 @@ public class FetchNodeDb {
   private static FetchNodeDb fetchNodeDbInstance = null;
   
   public FetchNodeDb(){    
-    fetchNodeDbMap = new ConcurrentHashMap<Integer, FetchNode>();
+    fetchNodeDbMap = new ConcurrentHashMap<>();
     index = 1;
   }
   

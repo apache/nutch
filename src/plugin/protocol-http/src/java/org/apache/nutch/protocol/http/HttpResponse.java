@@ -34,6 +34,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
@@ -58,7 +59,7 @@ public class HttpResponse implements Response {
   private Metadata headers = new SpellCheckedMetadata();
   // used for storing the http headers verbatim
   private StringBuffer httpHeaders;
-
+  
   protected enum Scheme {
     HTTP, HTTPS,
   }
@@ -195,6 +196,13 @@ public class HttpResponse implements Response {
       reqStr.append("Accept: ");
       reqStr.append(this.http.getAccept());
       reqStr.append("\r\n");
+      
+      if (http.isCookieEnabled() && datum.getMetaData().containsKey(http.COOKIE)) {
+        String cookie = ((Text)datum.getMetaData().get(http.COOKIE)).toString();
+        reqStr.append("Cookie: ");
+        reqStr.append(cookie);
+        reqStr.append("\r\n");
+      }
 
       if (http.isIfModifiedSinceEnabled() && datum.getModifiedTime() > 0) {
         reqStr.append("If-Modified-Since: " + HttpDateFormat
@@ -554,5 +562,4 @@ public class HttpResponse implements Response {
     in.unread(value);
     return value;
   }
-
 }

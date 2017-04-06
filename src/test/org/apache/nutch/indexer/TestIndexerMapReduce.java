@@ -17,6 +17,8 @@
 
 package org.apache.nutch.indexer;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.mrunit.ReduceDriver;
 import org.apache.hadoop.mrunit.types.Pair;
@@ -52,7 +54,7 @@ import org.apache.hadoop.conf.Configuration;
 public class TestIndexerMapReduce {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(TestIndexerMapReduce.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static String testUrl = "http://nutch.apache.org/";
   public static Text testUrlText = new Text(testUrl);

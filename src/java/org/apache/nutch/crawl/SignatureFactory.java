@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.ObjectCache;
 
+import java.lang.invoke.MethodHandles;
+
 /**
  * Factory class, which instantiates a Signature implementation according to the
  * current Configuration configuration. This newly created instance is cached in
@@ -34,7 +36,7 @@ import org.apache.nutch.util.ObjectCache;
  */
 public class SignatureFactory {
   private static final Logger LOG = LoggerFactory
-      .getLogger(SignatureFactory.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private SignatureFactory() {
   } // no public ctor

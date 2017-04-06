@@ -19,6 +19,7 @@ package org.apache.nutch.scoring.webgraph;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -69,7 +70,8 @@ import org.apache.nutch.util.URLUtil;
 
 public class LinkRank extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(LinkRank.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static final String NUM_NODES = "_num_nodes_";
 
   /**
@@ -379,7 +381,7 @@ public class LinkRank extends Configured implements Tool {
         throws IOException {
 
       String fromUrl = key.toString();
-      List<LinkDatum> outlinks = new ArrayList<LinkDatum>();
+      List<LinkDatum> outlinks = new ArrayList<>();
       Node node = null;
 
       // aggregate outlinks, assign other values
@@ -477,8 +479,8 @@ public class LinkRank extends Configured implements Tool {
         throws IOException {
 
       String url = key.toString();
-      Set<String> domains = new HashSet<String>();
-      Set<String> pages = new HashSet<String>();
+      Set<String> domains = new HashSet<>();
+      Set<String> pages = new HashSet<>();
       Node node = null;
 
       // a page with zero inlinks has a score of rankOne
@@ -573,7 +575,7 @@ public class LinkRank extends Configured implements Tool {
     // upddated into the nodedb
     Path linkRank = new Path(webGraphDb, "linkrank");
     Configuration conf = getConf();
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = linkRank.getFileSystem(conf);
 
     // create the linkrank directory if needed
     if (!fs.exists(linkRank)) {

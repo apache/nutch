@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -181,7 +182,7 @@ import com.ibm.icu.text.SimpleDateFormat;
 public class CommonCrawlDataDumper extends Configured implements Tool {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(CommonCrawlDataDumper.class.getName());
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static final int MAX_INLINKS = 5000;
   
   private CommonCrawlConfig config = null;
@@ -242,13 +243,13 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
       LOG.info("Gzipping CBOR data has been skipped");
     }
     // total file counts
-    Map<String, Integer> typeCounts = new HashMap<String, Integer>();
+    Map<String, Integer> typeCounts = new HashMap<>();
     // filtered file counters
-    Map<String, Integer> filteredCounts = new HashMap<String, Integer>();
+    Map<String, Integer> filteredCounts = new HashMap<>();
 
     Configuration nutchConfig = NutchConfiguration.create();
-    final FileSystem fs = FileSystem.get(nutchConfig);
     Path segmentRootPath = new Path(segmentRootDir.toString());
+    FileSystem fs = segmentRootPath.getFileSystem(nutchConfig);
 
     //get all paths
     List<Path> parts = new ArrayList<>();
@@ -267,7 +268,7 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
 
     LinkDbReader linkDbReader = null;
     if (linkdb != null) {
-      linkDbReader = new LinkDbReader(fs.getConf(), new Path(linkdb.toString()));
+      linkDbReader = new LinkDbReader(nutchConfig, new Path(linkdb.toString()));
     }
     if (parts == null || parts.size() == 0) {
       LOG.error( "No segment directories found in {} ",

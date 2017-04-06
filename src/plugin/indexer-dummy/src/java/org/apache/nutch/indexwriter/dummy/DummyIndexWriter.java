@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexwriter.dummy;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.FileWriter;
@@ -35,8 +36,8 @@ import org.slf4j.LoggerFactory;
  * and add.
  */
 public class DummyIndexWriter implements IndexWriter {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(DummyIndexWriter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration config;
   private Writer writer;
   private boolean delete = false;

@@ -17,6 +17,7 @@
 
 package org.apache.nutch.protocol.http.api;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.List;
 
@@ -39,8 +40,8 @@ import crawlercommons.robots.BaseRobotRules;
  */
 public class HttpRobotRulesParser extends RobotRulesParser {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(HttpRobotRulesParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   protected boolean allowForbidden = false;
 
   HttpRobotRulesParser() {

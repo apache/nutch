@@ -17,6 +17,7 @@
 package org.apache.nutch.hostdb;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 
 import org.apache.hadoop.io.FloatWritable;
@@ -46,8 +47,9 @@ import org.slf4j.LoggerFactory;
  */
 public class UpdateHostDbMapper
   implements Mapper<Text, Writable, Text, NutchWritable> {
-  
-  public static final Logger LOG = LoggerFactory.getLogger(UpdateHostDbMapper.class);
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   protected Text host = new Text();
   protected HostDatum hostDatum = null;
   protected CrawlDatum crawlDatum = null;
