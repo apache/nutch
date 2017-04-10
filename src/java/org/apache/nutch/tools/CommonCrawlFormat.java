@@ -35,9 +35,7 @@ import java.util.List;
 public interface CommonCrawlFormat extends Closeable {
 
   /**
-   *
-   * @param mapAll If {@code true} maps all metdata on the JSON structure.
-   * @return the JSON data
+   * @throws IOException
    */
   //public String getJsonData(boolean mapAll) throws IOException;
   public String getJsonData() throws IOException;

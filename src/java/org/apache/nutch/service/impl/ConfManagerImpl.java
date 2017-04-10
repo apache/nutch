@@ -86,7 +86,7 @@ public class ConfManagerImpl implements ConfManager {
 
   /**
    * Created a new configuration based on the values provided.
-   * @param NutchConfig
+   * @param nutchConfig
    * @return String - confId
    */
   public String create(NutchConfig nutchConfig) {

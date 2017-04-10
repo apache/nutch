@@ -61,7 +61,7 @@ public class LuceneTokenizer {
    * Creates a tokenizer based on param values
    * @param content - The text to tokenize
    * @param tokenizer - the type of tokenizer to use CLASSIC or DEFAULT 
-   * @param stopSet - Provide a set of user defined stop words
+   * @param stopWords - Provide a set of user defined stop words
    * @param addToDefault - If set to true, the stopSet words will be added to the Lucene default stop set.
    * If false, then only the user provided words will be used as the stop set
    * @param stemFilterType

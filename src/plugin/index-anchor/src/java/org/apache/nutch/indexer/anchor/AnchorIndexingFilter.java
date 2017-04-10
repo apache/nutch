@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Indexing filter that offers an option to either index all inbound anchor text
  * for a document or deduplicate anchors. Deduplication does have it's con's,
  * 
- * @see {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
+ * See {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
  */
 public class AnchorIndexingFilter implements IndexingFilter {
 

@@ -73,9 +73,7 @@ import org.apache.nutch.util.NutchJob;
 /**
  * This tool takes several segments and merges their data together. Only the
  * latest versions of data is retained.
- * <p>
  * Optionally, you can apply current URLFilters to remove prohibited URL-s.
- * </p>
  * <p>
  * Also, it's possible to slice the resulting segment into chunks of fixed size.
  * </p>
@@ -103,7 +101,6 @@ import org.apache.nutch.util.NutchJob;
  * However, this is NOT the same as de-duplication, which in addition removes
  * identical content found at different URL-s. In other words, running
  * DeleteDuplicates is still necessary.
- * </p>
  * <p>
  * For some types of data (especially ParseText) it's not possible to determine
  * which version is really older. Therefore the tool always uses segment names
@@ -120,7 +117,6 @@ import org.apache.nutch.util.NutchJob;
  * with the merged segment. Newly created merged segment(s) need to be indexed
  * afresh. This tool doesn't use existing indexes in any way, so if you plan to
  * merge segments you don't have to index them prior to merging.
- * 
  * 
  * @author Andrzej Bialecki
  */

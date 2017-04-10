@@ -75,7 +75,7 @@ public class UpdateHostDbReducer
   /**
     * Configures the thread pool and prestarts all resolver threads.
     *
-    * @param JobConf
+    * @param job
     */
   public void configure(JobConf job) {
     purgeFailedHostsThreshold = job.getInt(UpdateHostDb.HOSTDB_PURGE_FAILED_HOSTS_THRESHOLD, -1);
@@ -359,7 +359,7 @@ public class UpdateHostDbReducer
   /**
     * Determines whether a record should be checked.
     *
-    * @param HostDatum
+    * @param datum
     * @return boolean
     */
   protected boolean shouldCheck(HostDatum datum) {
@@ -385,7 +385,7 @@ public class UpdateHostDbReducer
   /**
     * Determines whether a record is eligible for recheck.
     *
-    * @param HostDatum
+    * @param datum
     * @return boolean
     */
   protected boolean isEligibleForCheck(HostDatum datum) {

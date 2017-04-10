@@ -207,7 +207,8 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
   /**
    * Main method for invoking this tool
    *
-   * @throws IOException, IndexingException
+   * @throws IOException
+   * @throws IndexingException
    */
   public static void main(String[] args) throws IOException, IndexingException {
     Option helpOpt = new Option("h", "help", false, "show this help message");

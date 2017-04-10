@@ -45,25 +45,25 @@ import java.util.Set;
  * as the URL being indexed use the following settings in your configuration
  * file:
  *
- * <property>
- *   <name>index.links.outlinks.host.ignore</name>
- *   <value>true</value>
- * </property>
+ * &lt;property&gt;
+ *   &lt;name&gt;index.links.outlinks.host.ignore&lt;/name&gt;
+ *   &lt;value&gt;true&lt;/value&gt;
+ * &lt;/property&gt;
  *
  * The same configuration is available for inlinks:
  *
- * <property>
- *   <name>index.links.inlinks.host.ignore</name>
- *   <value>true</value>
- * </property>
+ * &lt;property&gt;
+ *   &lt;name&gt;index.links.inlinks.host.ignore&lt;/name&gt;
+ *   &lt;value&gt;true&lt;/value&gt;
+ * &lt;/property&gt;
  *
  * To store only the host portion of each inlink URL or outlink URL add the
  * following to your configuration file.
  *
- * <property>
- *   <name>index.links.hosts.only</name>
- *   <value>false</value>
- * </property>
+ * &lt;property&gt;
+ *   &lt;name&gt;index.links.hosts.only&lt;/name&gt;
+ *   &lt;value&gt;false&lt;/value&gt;
+ * &lt;/property&gt;
  *
  */
 public class LinksIndexingFilter implements IndexingFilter {

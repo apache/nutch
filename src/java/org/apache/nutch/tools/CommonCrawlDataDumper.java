@@ -99,12 +99,12 @@ import com.ibm.icu.text.SimpleDateFormat;
  * the response body truncated for readability. This document must be encoded
  * using CBOR and should be compressed with gzip after encoding. The timestamped
  * URL key for these records' keys follows the same layout as the media file
- * directory structure, with underscores in place of directory separators. </li>
+ * directory structure, with underscores in place of directory separators.
  * </p>
  * <p>
  * Thus, the timestamped url key for the record is provided below followed by an
  * example record:
- * <p/>
+ * </p>
  * <pre>
  * {@code
  * com_somepage_33a3e36bbef59c2a5242c2ccee59239ab30d51f3_1411623696000
@@ -154,13 +154,11 @@ import com.ibm.icu.text.SimpleDateFormat;
  *     }
  *     }
  * </pre>
- * <p/>
  * <p>
  * Upon successful completion the tool displays a very convenient JSON snippet
  * detailing the mimetype classifications and the counts of documents which fall
  * into those classifications. An example is as follows:
  * </p>
- * <p/>
  * <pre>
  * {@code
  * INFO: File Types:

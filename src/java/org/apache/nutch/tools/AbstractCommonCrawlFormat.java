@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.ibm.icu.text.SimpleDateFormat;
 
 /**
- * Abstract class that implements {@see CommonCrawlFormat} interface. 
+ * Abstract class that implements { @see org.apache.nutch.tools.CommonCrawlFormat } interface. 
  *
  */
 public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {

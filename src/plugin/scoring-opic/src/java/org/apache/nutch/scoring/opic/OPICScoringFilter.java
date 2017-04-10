@@ -42,10 +42,9 @@ import org.apache.nutch.scoring.ScoringFilterException;
 
 /**
  * This plugin implements a variant of an Online Page Importance Computation
- * (OPIC) score, described in this paper: <a
- * href="http://www2003.org/cdrom/papers/refereed/p007/p7-abiteboul.html"/>
+ * (OPIC) score, described in this <a href="http://www2003.org/cdrom/papers/refereed/p007/p7-abiteboul.html">paper</a>:
  * Abiteboul, Serge and Preda, Mihai and Cobena, Gregory (2003), Adaptive
- * On-Line Page Importance Computation </a>.
+ * On-Line Page Importance Computation.
  * 
  * @author Andrzej Bialecki
  */

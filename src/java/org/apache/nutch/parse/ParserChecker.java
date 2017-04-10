@@ -58,7 +58,7 @@ import org.apache.nutch.util.StringUtil;
  * <li><tt>Outlinks</tt>: associated with the URL</li>
  * <li><tt>Content Metadata</tt>: such as <i>X-AspNet-Version</i>, <i>Date</i>,
  * <i>Content-length</i>, <i>servedBy</i>, <i>Content-Type</i>,
- * <i>Cache-Control</>, etc.</li>
+ * <i>Cache-Control</i>, etc.</li>
  * <li><tt>Parse Metadata</tt>: such as <i>CharEncodingForConversion</i>,
  * <i>OriginalCharEncoding</i>, <i>language</i>, etc.</li>
  * <li><tt>ParseText</tt>: The page parse text which varies in length depdnecing

@@ -40,7 +40,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
 /**
  * For documentation:
  * 
- * @see URLMetaIndexingFilter
+ * {@link org.apache.nutch.scoring.urlmeta}
  */
 public class URLMetaScoringFilter extends Configured implements ScoringFilter {
 

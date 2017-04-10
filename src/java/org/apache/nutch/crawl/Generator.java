@@ -172,7 +172,7 @@ public class Generator extends NutchTool implements Tool {
     public void close() {
     }
 
-    /** Select & invert subset due for fetch. */
+    /** Select and invert subset due for fetch. */
     public void map(Text key, CrawlDatum value,
         OutputCollector<FloatWritable, SelectorEntry> output, Reporter reporter)
         throws IOException {

@@ -64,12 +64,12 @@ import org.apache.nutch.util.domain.DomainSuffix;
  * but can be overridden using the:
  * 
  * <ul>
- * <ol>
+ * <li>
  * property "urlfilter.domainblacklist.file" in ./conf/nutch-*.xml, and
- * </ol>
- * <ol>
+ * </li>
+ * <li>
  * attribute "file" in plugin.xml of this plugin
- * </ol>
+ * </li>
  * </ul>
  * 
  * the attribute "file" has higher precedence if defined.
@@ -110,8 +110,6 @@ public class DomainBlacklistURLFilter implements URLFilter {
    * 
    * @param domainFile
    *          The domain file, overrides domainblacklist-urlfilter.text default.
-   * 
-   * @throws IOException
    */
   public DomainBlacklistURLFilter(String domainFile) {
     this.domainFile = domainFile;

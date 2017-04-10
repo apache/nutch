@@ -54,14 +54,14 @@ import org.apache.nutch.parse.Parse;
  * want them to be propagated and indexed, that is.
  * 
  * 1. As of Nutch 1.2, the property "plugin.includes" looks as follows:
- * <value>protocol-http|urlfilter-regex|parse-(text|html|js|tika|rss)|index
+ * &lt;value&gt;protocol-http|urlfilter-regex|parse-(text|html|js|tika|rss)|index
  * -(basic|anchor)|query-(basic|site|url)|response-(json|xml)|summary-basic
- * |scoring-opic|urlnormalizer-(pass|regex|basic)</value> You must change
+ * |scoring-opic|urlnormalizer-(pass|regex|basic)&lt;/value&gt; You must change
  * "index-(basic|anchor)" to "index-(basic|anchor|urlmeta)", in order to call
  * this plugin.
  * 
  * 2. You must also specify the property "urlmeta.tags", who's values are
- * comma-delimited <value>key1, key2, key3</value>
+ * comma-delimited &lt;value&gt;key1, key2, key3&lt;/value&gt;
  * 
  * TODO: It may be ideal to offer two separate properties, to specify what gets
  * indexed versus merely propagated.

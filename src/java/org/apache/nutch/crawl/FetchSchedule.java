@@ -81,7 +81,7 @@ public interface FetchSchedule extends Configurable {
    * 
    * @param modifiedTime
    *          last time the content was modified. This information comes from
-   *          the protocol implementations, or is set to < 0 if not available.
+   *          the protocol implementations, or is set to &lt; 0 if not available.
    *          Most FetchSchedule implementations should update the value in @see
    *          CrawlDatum to this value.
    * 
@@ -166,7 +166,7 @@ public interface FetchSchedule extends Configurable {
    * selection process based on scores. The default implementation checks
    * <code>fetchTime</code>, if it is higher than the curTime it returns false,
    * and true otherwise. It will also check that fetchTime is not too remote
-   * (more than <code>maxInterval</code), in which case it lowers the interval
+   * (more than <code>maxInterval</code>), in which case it lowers the interval
    * and returns true.
    * 
    * @param url

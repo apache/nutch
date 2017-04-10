@@ -51,10 +51,10 @@ import org.apache.nutch.util.URLUtil;
  * </p>
  * 
  * <p>
- * The format of this file is made of many rules (one per line):<br/>
+ * The format of this file is made of many rules (one per line):<br>
  * <code>
  * [+-]&lt;regex&gt;
- * </code><br/>
+ * </code><br>
  * where plus (<code>+</code>)means go ahead and index it and minus (
  * <code>-</code>)means no.
  * </p>
