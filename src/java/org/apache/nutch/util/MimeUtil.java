@@ -227,8 +227,8 @@ public final class MimeUtil {
    * method.
    * 
    * @param url
-   *          A string representation of the document {@link URL} to sense the
-   *          {@link MimeType} for.
+   *          A string representation of the document URL to sense the
+   *          {@link org.apache.tika.mime.MimeType MimeType} for.
    * @return An appropriate {@link MimeType}, identified from the given Document
    *         url in string form.
    */

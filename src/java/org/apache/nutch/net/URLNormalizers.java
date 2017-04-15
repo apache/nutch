@@ -56,8 +56,8 @@ import org.apache.nutch.util.ObjectCache;
  * <p>
  * You can define a set of contexts (or scopes) in which normalizers may be
  * called. Each scope can have its own list of normalizers (defined in
- * "urlnormalizer.scope.<scope_name>" property) and its own order (defined in
- * "urlnormalizer.order.<scope_name>" property). If any of these properties are
+ * "urlnormalizer.scope.&lt;scope_name&gt;" property) and its own order (defined in
+ * "urlnormalizer.order.&lt;scope_name&gt;" property). If any of these properties are
  * missing, default settings are used for the global scope.
  * </p>
  * <p>

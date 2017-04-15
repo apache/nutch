@@ -58,10 +58,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>
  * The file dumper tool enables one to reverse generate the raw content from
  * Nutch segment data directories.
- * </p>
  * <p>
  * The tool has a number of immediate uses:
  * <ol>
@@ -71,12 +69,10 @@ import org.slf4j.LoggerFactory;
  * metadata, this can be handy for providing a provenance trail for your crawl
  * data.</li>
  * </ol>
- * </p>
  * <p>
  * Upon successful completion the tool displays a very convenient JSON snippet
  * detailing the mimetype classifications and the counts of documents which fall
  * into those classifications. An example is as follows:
- * </p>
  * 
  * <pre>
  * {@code
@@ -109,7 +105,7 @@ import org.slf4j.LoggerFactory;
  * In the case above, the tool would have been run with the <b>-mimeType
  * image/png image/jpeg image/vnd.microsoft.icon video/quicktime image/gif</b>
  * flag and corresponding values activated.
- * 
+ * </p>
  */
 public class FileDumper {
 

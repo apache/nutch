@@ -78,12 +78,13 @@ public class HTMLLanguageParser implements HtmlParseFilter {
 
   /**
    * Scan the HTML document looking at possible indications of content language<br>
+   * <ul>
    * <li>1. html lang attribute
    * (http://www.w3.org/TR/REC-html40/struct/dirlang.html#h-8.1) <li>2. meta
    * dc.language
    * (http://dublincore.org/documents/2000/07/16/usageguide/qualified
    * -html.shtml#language) <li>3. meta http-equiv (content-language)
-   * (http://www.w3.org/TR/REC-html40/struct/global.html#h-7.4.4.2) <br>
+   * (http://www.w3.org/TR/REC-html40/struct/global.html#h-7.4.4.2) <br></ul>
    */
   public ParseResult filter(Content content, ParseResult parseResult,
       HTMLMetaTags metaTags, DocumentFragment doc) {

@@ -130,7 +130,7 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
 
   /**
    * Function for obtaining the HTML BODY using the selected
-   * {@link org.openqa.selenium.WebDriver}.
+   * <a href='https://seleniumhq.github.io/selenium/docs/api/java/org/openqa/selenium/WebDriver.html'>selenium webdriver</a>
    * There are a number of configuration properties within
    * <code>nutch-site.xml</code> which determine whether to
    * take screenshots of the rendered pages and persist them

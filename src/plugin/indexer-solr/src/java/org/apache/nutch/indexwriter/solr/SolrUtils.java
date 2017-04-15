@@ -37,7 +37,7 @@ public class SolrUtils {
   /**
    *
    *
-   * @param JobConf
+   * @param job
    * @return SolrClient
    */
   public static ArrayList<SolrClient> getSolrClients(JobConf job) throws MalformedURLException {

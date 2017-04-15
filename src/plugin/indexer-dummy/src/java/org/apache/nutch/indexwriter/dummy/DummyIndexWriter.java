@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * DummyIndexWriter. This pluggable indexer writes <action>\t<url>\n lines to a
+ * DummyIndexWriter. This pluggable indexer writes &lt;action&gt;\t&lt;url&gt;\n lines to a
  * plain text file for debugging purposes. Possible actions are delete, update
  * and add.
  */

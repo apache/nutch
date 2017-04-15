@@ -81,7 +81,7 @@ import java.net.MalformedURLException;
  * expressions, it only accepts literal suffixes. I.e. a suffix "+*.jpg" is most
  * probably wrong, you should use "+.jpg" instead.
  * </p>
- * <h4>Example 1</h4>
+ * <h3>Example 1</h3>
  * <p>
  * The configuration shown below will accept all URLs with '.html' or '.htm'
  * suffixes (case-sensitive - '.HTML' or '.HTM' will be rejected), and prohibit
@@ -99,7 +99,6 @@ import java.net.MalformedURLException;
  *  .htm
  * </pre>
  * 
- * </p>
  * <h4>Example 2</h4>
  * <p>
  * The configuration shown below will accept all URLs except common graphical
@@ -119,9 +118,7 @@ import java.net.MalformedURLException;
  *  .jpeg
  *  .bmp
  * </pre>
- * 
- * </p>
- * 
+ *  
  * @author Andrzej Bialecki
  */
 public class SuffixURLFilter implements URLFilter {

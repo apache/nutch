@@ -61,7 +61,6 @@ import java.util.Random;
  * CrawlDb. Useful for bootstrapping a Nutch crawl. The URL files contain one
  * URL per line, optionally followed by custom metadata separated by tabs with
  * the metadata key separated from the corresponding value by '='.
- * </p>
  * <p>
  * Note, that some metadata keys are reserved:
  * <dl>
@@ -73,14 +72,12 @@ import java.util.Random;
  * <dd>allows to set a custom fetch interval for a specific URL that is not
  * changed by AdaptiveFetchSchedule</dd>
  * </dl>
- * </p>
  * <p>
  * Example:
  * 
  * <pre>
  *  http://www.nutch.org/ \t nutch.score=10 \t nutch.fetchInterval=2592000 \t userType=open_source
  * </pre>
- * </p>
  **/
 public class Injector extends NutchTool implements Tool {
   private static final Logger LOG = LoggerFactory
@@ -278,13 +275,13 @@ public class Injector extends NutchTool implements Tool {
      * Merge the input records as per rules below :
      * 
      * <pre>
-     * 1. If there is ONLY new injected record ==> emit injected record
-     * 2. If there is ONLY old record          ==> emit existing record
+     * 1. If there is ONLY new injected record ==&gt; emit injected record
+     * 2. If there is ONLY old record          ==&gt; emit existing record
      * 3. If BOTH new and old records are present:
-     *    (a) If 'overwrite' is true           ==> emit injected record
+     *    (a) If 'overwrite' is true           ==&gt; emit injected record
      *    (b) If 'overwrite' is false :
-     *        (i)  If 'update' is false        ==> emit existing record
-     *        (ii) If 'update' is true         ==> update existing record and emit it
+     *        (i)  If 'update' is false        ==&gt; emit existing record
+     *        (ii) If 'update' is true         ==&gt; update existing record and emit it
      * </pre>
      * 
      * For more details @see NUTCH-1405

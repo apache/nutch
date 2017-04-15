@@ -24,20 +24,20 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.protocol.Content;
 
 /**
- * Factory class that creates new {@see CommonCrawlFormat} objects (a.k.a. formatter) that map crawled files to CommonCrawl format.   
+ * Factory class that creates new {@link org.apache.nutch.tools.CommonCrawlFormat CommonCrawlFormat} objects (a.k.a. formatter) that map crawled files to CommonCrawl format.   
  *
  */
 public class CommonCrawlFormatFactory {
 	
 	/**
-	 * Returns a new instance of a {@see CommonCrawlFormat} object specifying the type of formatter. 
+	 * Returns a new instance of a {@link org.apache.nutch.tools.CommonCrawlFormat CommonCrawlFormat} object specifying the type of formatter. 
 	 * @param formatType the type of formatter to be created.
 	 * @param url the url.
 	 * @param content the content.
 	 * @param metadata the metadata.
 	 * @param nutchConf the configuration.
 	 * @param config the CommonCrawl output configuration.
-	 * @return the new {@see CommonCrawlFormat} object.
+	 * @return the new {@link org.apache.nutch.tools.CommonCrawlFormat CommonCrawlFormat} object.
 	 * @throws IOException If any I/O error occurs.
 	 * @deprecated
 	 */

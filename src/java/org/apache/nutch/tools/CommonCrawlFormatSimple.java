@@ -24,7 +24,8 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.protocol.Content;
 
 /**
- * This class provides methods to map crawled data on JSON using a {@see StringBuilder} object. 
+ * This class provides methods to map crawled data on JSON using a StringBuilder object.
+ * @see <a href='https://docs.oracle.com/javase/7/docs/api/java/lang/StringBuilder.html'>StringBuilder</a> 
  *
  */
 public class CommonCrawlFormatSimple extends AbstractCommonCrawlFormat {

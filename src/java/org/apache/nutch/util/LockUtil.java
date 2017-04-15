@@ -64,7 +64,7 @@ public class LockUtil {
    * Create a lock file.
    *
    * @param conf
-   *          configuration to find the {@link FileSystem} {@link lockFile}
+   *          configuration to find the {@link org.apache.hadoop.fs.FileSystem FileSystem} lockFile
    *          belongs to
    * @param lockFile
    *          name of the lock file
@@ -109,7 +109,7 @@ public class LockUtil {
    * this method simply removes any file with a given name.
    *
    * @param conf
-   *          configuration to find the {@link FileSystem} {@link lockFile}
+   *          configuration to find the {@link org.apache.hadoop.fs.FileSystem FileSystem} lockFile
    *          belongs to
    * @param lockFile
    *          lock file name

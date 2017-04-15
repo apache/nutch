@@ -63,7 +63,7 @@ public class PluginRepository {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
-   * @throws PluginRuntimeException
+   * @throws RuntimeException
    * @see java.lang.Object#Object()
    */
   public PluginRepository(Configuration conf) throws RuntimeException {

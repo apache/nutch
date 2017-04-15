@@ -150,7 +150,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * Remove all results where status is not successful (as determined by
-   * </code>ParseStatus#isSuccess()</code>). Note that effects of this operation
+   * <code>ParseStatus#isSuccess()</code>). Note that effects of this operation
    * cannot be reversed.
    */
   public void filter() {
