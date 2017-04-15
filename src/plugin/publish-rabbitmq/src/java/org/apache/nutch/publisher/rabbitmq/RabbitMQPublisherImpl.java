@@ -36,7 +36,7 @@ public class RabbitMQPublisherImpl implements NutchPublisher{
   private static String EXCHANGE_SERVER;
   private static String EXCHANGE_TYPE;
 
-  private static String HOST
+  private static String HOST;
     
   private static int PORT;
   private static String VIRTUAL_HOST;
