@@ -43,6 +43,7 @@
      <ant dir="indexer-elastic" target="deploy"/>
      <ant dir="indexer-elastic-rest" target="deploy"/>
      <ant dir="indexer-solr" target="deploy"/>
+     <ant dir="indexer-rabbit" target="deploy"/>
      <ant dir="language-identifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-nekohtml" target="deploy"/>
@@ -163,6 +164,7 @@
     <ant dir="indexer-elastic" target="clean"/>
     <ant dir="indexer-elastic-rest" target="clean"/>
     <ant dir="indexer-solr" target="clean"/>
+    <ant dir="indexer-rabbit" target="clean"/>
     <ant dir="language-identifier" target="clean"/>
     <!-- <ant dir="lib-commons-httpclient" target="clean"/> -->
     <ant dir="lib-http" target="clean"/>

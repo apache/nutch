@@ -1894,6 +1894,95 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   last operation.</description>
 </property>
 
+<property>
+  <name>rabbitmq.indexer.server.host</name>
+  <value>localhost</value>
+  <description>
+    Host on which the RabbitMQ server is running. Default "localhost".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.port</name>
+  <value>5672</value>
+  <description>
+    Port on which the RabbitMQ server is listening. Default "5672".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.virtualhost</name>
+  <value></value>
+  <description>
+    Virtual Host where the exchange is and the user has access. Default "/".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.username</name>
+  <value>admin</value>
+  <description>
+    Username for RabbitMQ server. Default "admin"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.password</name>
+  <value>admin</value>
+  <description>
+    Password for RabbitMQ server. Default "admin"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.exchange.server</name>
+  <value></value>
+  <description>
+    Name for the exchange server to use. Default "nutch.exchange"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.exchange.type</name>
+  <value></value>
+  <description>
+    Type of the exchange. Default "direct".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.queue.durable</name>
+  <value></value>
+  <description>
+    Message durability into the queue. Default "true".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.queue.name</name>
+  <value></value>
+  <description>
+    Name of the queue where the messages will be sent. Default "nutch.queue"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.queue.routingkey</name>
+  <value></value>
+  <description>
+    The routingKey used by indexer to publish messages to specific queues.
+    If the exchange type is "fanout", then this property is ignored. Default is "nutch.key"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.commit.size</name>
+  <value>250</value>
+  <description>
+    Amount of documents to send into each message. Default "250"
+  </description>
+</property>
+
 <!--elasticsearch rest properties-->
 <property>
     <name>elastic.rest.host</name>
