@@ -2441,6 +2441,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     Currently there exists an implemtation for RabbitMQ producer. 
   </description>
 </property>
+
 <property>
   <name>publisher.order</name>
   <value></value>
@@ -2448,7 +2449,9 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     The order in which the publisher queues would be loaded
   </description>
 </property>
+
 <!-- RabbitMQ properties -->
+
 <property>
   <name>rabbitmq.exchange.server</name>
   <value></value>
@@ -2456,6 +2459,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     Name for the exchange server to use. Default - "fetcher_log"
   </description>
 </property>
+
 <property>
   <name>rabbitmq.exchange.type</name>
   <value></value>
@@ -2463,6 +2467,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     There are a few exchange types available: direct, topic, headers and fanout. Default "fanout".
   </description>
 </property>
+
 <property>
   <name>rabbitmq.host</name>
   <value></value>
@@ -2470,13 +2475,62 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     Host on which the RabbitMQ server is running. Default "localhost".
   </description>
 </property>
+
+<property>
+  <name>rabbitmq.port</name>
+  <value></value>
+  <description>
+    Port on which the RabbitMQ server is listening. Default "5672".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.virtualhost</name>
+  <value></value>
+  <description>
+    Default 'null'
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.username</name>
+  <value></value>
+  <description>
+    Default 'null'
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.password</name>
+  <value></value>
+  <description>
+    Default 'null'
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.queue.name</name>
+  <value></value>
+  <description>
+    Default 'fanout.queue'
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.queue.durable</name>
+  <value></value>
+  <description>
+    Default 'true'
+  </description>
+</property>
+
 <property>
   <name>rabbitmq.queue.routingkey</name>
   <value></value>
   <description>
-    The routingKey used by publisher to publish messages to specific queues. If the exchange type is "fanout", then this property is ignored. 
+    Default is 'fanout.key'
+    The routingKey used by publisher to publish messages to specific queues. If the exchange type is "fanout", then this property is ignored.
   </description>
 </property>
-
 
 </configuration>
