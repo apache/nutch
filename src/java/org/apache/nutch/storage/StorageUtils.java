@@ -139,7 +139,7 @@ public class StorageUtils {
     if (filter != null) {
       query.setFilter(filter);
     }
-    GoraMapper.initMapperJob(job, query, store, outKeyClass, outValueClass,
+    GoraMapper.initMapperJob(job, query, outKeyClass, outValueClass,
         mapperClass, partitionerClass, reuseObjects);
     GoraOutputFormat.setOutput(job, store, true);
   }

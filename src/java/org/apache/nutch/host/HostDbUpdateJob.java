@@ -105,7 +105,7 @@ public class HostDbUpdateJob implements Tool {
     query.setFields(StorageUtils.toStringArray(FIELDS)); // Note: pages without
                                                          // these fields are
                                                          // skipped
-    GoraMapper.initMapperJob(job, query, pageStore, Text.class, WebPage.class,
+    GoraMapper.initMapperJob(job, query, Text.class, WebPage.class,
         HostDbUpdateJob.Mapper.class, null, true);
 
     // === Reduce ===
