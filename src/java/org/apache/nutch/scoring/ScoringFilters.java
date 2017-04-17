@@ -81,6 +81,14 @@ public class ScoringFilters extends Configured implements ScoringFilter {
     }
   }
 
+  /** Calculate orphaned page score during CrawlDb.update(). */
+  public void orphanedScore(Text url, CrawlDatum datum)
+      throws ScoringFilterException {
+    for (int i = 0; i < this.filters.length; i++) {
+      this.filters[i].orphanedScore(url, datum);
+    }
+  }
+
   public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content)
       throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
