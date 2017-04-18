@@ -15,14 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Usage: crawl [-i|--index] [-D "key=value"] [-w|--wait] <Seed Dir> <Crawl Dir> <Num Rounds>
+# Usage: crawl [-i|--index] [-D "key=value"] [-w|--wait] [-s <Seed Dir>] <Crawl Dir> <Num Rounds>
 #    -i|--index      Indexes crawl results into a configured indexer
 #    -w|--wait       NUMBER[SUFFIX] Time to wait before generating a new segment when no URLs
 #                    are scheduled for fetching. Suffix can be: s for second,
 #                    m for minute, h for hour and d for day. If no suffix is
 #                    specified second is used by default.
 #    -D              A Java property to pass to Nutch calls
-#    Seed Dir        Directory in which to look for a seeds file
+#    -s              Path to seeds file(s)
 #    Crawl Dir       Directory where the crawl/link/segments dirs are saved
 #    Num Rounds      The number of rounds to run this crawl for
 #
@@ -56,6 +56,8 @@ function __to_seconds() {
   echo $SECONDS
 }
 
+SEEDDIR=""
+
 while [[ $# > 0 ]]
 do
     case $1 in
@@ -65,6 +67,10 @@ do
             ;;
         -D)
             JAVA_PROPERTIES="-D${2} ${JAVA_PROPERTIES}"
+            shift 2
+            ;;
+        -s)
+            SEEDDIR="${2}"
             shift 2
             ;;
         -w|--wait)
@@ -77,23 +83,22 @@ do
     esac
 done
 
-if [[ $# != 3 ]]; then
-    echo "Usage: crawl [-i|--index] [-D \"key=value\"] [-w|--wait] <Seed Dir> <Crawl Dir> <Num Rounds>"
+if [[ $# != 2 ]]; then
+    echo "Usage: crawl [-i|--index] [-D \"key=value\"] [-w|--wait] [-s <Seed Dir>] <Crawl Dir> <Num Rounds>"
     echo -e "\t-i|--index\tIndexes crawl results into a configured indexer"
     echo -e "\t-D\t\tA Java property to pass to Nutch calls"
     echo -e "\t-w|--wait\tNUMBER[SUFFIX] Time to wait before generating a new segment when no URLs"
     echo -e "\t\t\tare scheduled for fetching. Suffix can be: s for second,"
     echo -e "\t\t\tm for minute, h for hour and d for day. If no suffix is"
     echo -e "\t\t\tspecified second is used by default."
-    echo -e "\tSeed Dir\tDirectory in which to look for a seeds file"
+    echo -e "\t-s Seed Dir\tPath to seeds file(s)"
     echo -e "\tCrawl Dir\tDirectory where the crawl/link/segments dirs are saved"
     echo -e "\tNum Rounds\tThe number of rounds to run this crawl for"
     exit 1
 fi
 
-SEEDDIR="$1"
-CRAWL_PATH="$2"
-LIMIT="$3"
+CRAWL_PATH="$1"
+LIMIT="$2"
 
 # convert wait time to seconds for compatibility reasons
 if [ "$WAIT" != "-1" ]; then
@@ -162,11 +167,12 @@ function __bin_nutch {
     fi
 }
 
-
-
 # initial injection
-echo "Injecting seed URLs"
-__bin_nutch inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
+if [[ !  -z  $SEEDDIR  ]]
+then 
+  echo "Injecting seed URLs"
+  __bin_nutch inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
+fi
 
 # main loop : rounds of generate - fetch - parse - update
 for ((a=1; ; a++))
