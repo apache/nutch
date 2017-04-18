@@ -1,5 +1,16 @@
 # Nutch Change Log
 
+Nutch 1.14 Release (dd/mm/yyyy)
+
+Comments
+
+Fellow committers, Nutch 1.14 contains a breaking change NUTCH-2046. Please use the note below and
+in the release announcement and keep it on top in this CHANGES.txt for the Nutch 1.14 release.
+* the bin/crawl script now expects the path to the seed to be preceded by -s
+
+New Feature
+    [NUTCH-2046] -  The crawl script should be able to skip an initial injection
+
 Nutch 1.13 Release 28/03/2017 (dd/mm/yyyy)
 Release Report: https://s.apache.org/wq3x
 
