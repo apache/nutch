@@ -1353,6 +1353,44 @@
   </description>
 </property>
 
+<!-- hbase index properties -->
+
+<property>
+  <name>hbase.indexer.mapping.file</name>
+  <value>hbaseindex-mapping.xml</value>
+  <description>
+  Defines the name of the file that will be used getting hbase table name,
+  column-family definition as specified in the target hbase table schema
+  and mapping of internal nutch field names to hbase index fields
+  </description>
+</property>
+
+<property>
+  <name>hbase.indexer.zookeeper.quorum</name>
+  <value>localhost</value>
+  <description>
+  Comma separated list of servers in the ZooKeeper ensemble.
+  </description>
+</property>
+
+<property>
+  <name>hbase.indexer.zookeeper.property.clientPort</name>
+  <value>2181</value>
+  <description>
+  The port at which the clients will connect.
+  </description>
+</property>
+
+<property>
+  <name>hbase.indexer.commit.size</name>
+  <value>250</value>
+  <description>
+  Defines the number of documents to send to Hbase in a single write batch.
+  Decrease when handling very large documents to prevent Nutch from running
+  out of memory
+  </description>
+</property>
+
 <!-- storage properties -->
 
 <property>

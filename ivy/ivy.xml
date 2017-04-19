@@ -60,6 +60,8 @@
     <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="2.5.2" conf="*->default"/>
     <!-- End of Hadoop Dependencies -->
 
+    <dependency org="org.apache.hbase" name="hbase-common" rev="0.98.8-hadoop2" conf="*->default" />
+
     <dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
     <dependency org="org.apache.tika" name="tika-core" rev="1.10" />
     <dependency org="com.googlecode.juniversalchardet" name="juniversalchardet" rev="1.0.3"/>
