@@ -22,9 +22,8 @@
     <library name="indexer-hbase.jar">
       <export name="*" />
     </library>
-     <library name="geronimo-stax-api_1.0_spec-1.0.1.jar"/>
-     <library name="stax-api-1.0.1.jar"/>
-     <library name="wstx-asl-3.2.7.jar"/>
+    <library name="geronimo-stax-api_1.0_spec-1.0.1.jar"/>
+    <library name="stax-api-1.0.1.jar"/>
   </runtime>
 
   <requires>

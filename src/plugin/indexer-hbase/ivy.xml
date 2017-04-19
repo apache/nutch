@@ -33,5 +33,9 @@
   <publications>
     <artifact conf="master"/>
   </publications>
-  
+  <dependencies>
+    <dependency org="org.apache.hbase" name="hbase-common" rev="0.98.8-hadoop2"/>
+    <dependency org="org.apache.hbase" name="hbase-client" rev="0.98.8-hadoop2"/>
+    <exclude org="org.slf4j" module="slf4j-log4j12"/>
+  </dependencies>
 </ivy-module>
