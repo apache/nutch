@@ -19,4 +19,3 @@
  * Index writer plugin for <a href="https://hbase.apache.org/">Apache HBase</a>.
  */
 package org.apache.nutch.indexwriter.hbase;
-
