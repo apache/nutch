@@ -85,6 +85,9 @@ public abstract class HttpBase implements Protocol {
   /** The "Accept-Language" request header value. */
   protected String acceptLanguage = "en-us,en-gb,en;q=0.7,*;q=0.3";
 
+  /** The "Accept-Language" request header value. */
+  protected String acceptCharset = "utf-8,iso-8859-1;q=0.7,*;q=0.7";
+
   /** The "Accept" request header value. */
   protected String accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
 
@@ -141,8 +144,10 @@ public abstract class HttpBase implements Protocol {
     this.userAgent = getAgentString(conf.get("http.agent.name"),
         conf.get("http.agent.version"), conf.get("http.agent.description"),
         conf.get("http.agent.url"), conf.get("http.agent.email"));
-    this.acceptLanguage = conf.get("http.accept.language", acceptLanguage);
-    this.accept = conf.get("http.accept", accept);
+    this.acceptLanguage = conf.get("http.accept.language", acceptLanguage)
+        .trim();
+    this.acceptCharset = conf.get("http.accept.charset", accept).trim();
+    this.accept = conf.get("http.accept", accept).trim();
     this.mimeTypes = new MimeUtil(conf);
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);
     this.responseTime = conf.getBoolean("http.store.responsetime", true);
@@ -366,6 +371,10 @@ public abstract class HttpBase implements Protocol {
    */
   public String getAcceptLanguage() {
     return acceptLanguage;
+  }
+
+  public String getAcceptCharset() {
+    return acceptCharset;
   }
 
   public String getAccept() {
