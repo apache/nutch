@@ -17,31 +17,32 @@
 package org.apache.nutch.indexwriter.hbase;
 
 interface HBaseConstants {
-	static final String HBASE_PREFIX = "hbase.indexer.";
-	
-	static final String HBASE_MAPPING_FILE = HBASE_PREFIX + "mapping.file";
-	static final String HBASE_COMMIT_SIZE = HBASE_PREFIX + "commit.size";
-	static final String ZOOKEEPER_QUORUM = HBASE_PREFIX + "zookeeper.quorum";
-	static final String ZOOKEEPER_CLIENT_PORT = HBASE_PREFIX + "zookeeper.property.clientPort";
-	static final String COMMIT_SIZE = HBASE_PREFIX + "commit.size";
-	
-	static final String DEFAULT_MAPPING_FILE = "hbaseindex-mapping.xml";
-	static final String DEFAULT_ZOOKEEPER_QUORUM = "localhost";
-	static final int DEFAULT_ZOOKEEPER_CLIENT_PORT = 2181;
-	static final int DEFAULT_COMMIT_SIZE = 250;
-	
-	// Mapping file tags, attributes
-	static final String TAG_FIELD = "field";
-	static final String TAG_ROW = "row";
-	static final String TAG_TABLE = "table";
-	
-	static final String ATTR_NAME = "name";
-	static final String ATTR_DEST = "dest";
-	static final String ATTR_SRC = "source";
-	static final String ATTR_FAMILY = "family";
-	static final String ATTR_QUALIFIER = "qualifier";
-	
-	static final String DEFAULT_TABLE_NAME = "document";
-	static final String DEFAULT_COLUMN_FAMILY = "f";
-	static final String DEFAULT_ROW_KEY = "id";
+  static final String HBASE_PREFIX = "hbase.indexer.";
+
+  static final String HBASE_MAPPING_FILE = HBASE_PREFIX + "mapping.file";
+  static final String HBASE_COMMIT_SIZE = HBASE_PREFIX + "commit.size";
+  static final String ZOOKEEPER_QUORUM = HBASE_PREFIX + "zookeeper.quorum";
+  static final String ZOOKEEPER_CLIENT_PORT = HBASE_PREFIX
+      + "zookeeper.property.clientPort";
+  static final String COMMIT_SIZE = HBASE_PREFIX + "commit.size";
+
+  static final String DEFAULT_MAPPING_FILE = "hbaseindex-mapping.xml";
+  static final String DEFAULT_ZOOKEEPER_QUORUM = "localhost";
+  static final int DEFAULT_ZOOKEEPER_CLIENT_PORT = 2181;
+  static final int DEFAULT_COMMIT_SIZE = 250;
+
+  // Mapping file tags, attributes
+  static final String TAG_FIELD = "field";
+  static final String TAG_ROW = "row";
+  static final String TAG_TABLE = "table";
+
+  static final String ATTR_NAME = "name";
+  static final String ATTR_DEST = "dest";
+  static final String ATTR_SRC = "source";
+  static final String ATTR_FAMILY = "family";
+  static final String ATTR_QUALIFIER = "qualifier";
+
+  static final String DEFAULT_TABLE_NAME = "document";
+  static final String DEFAULT_COLUMN_FAMILY = "f";
+  static final String DEFAULT_ROW_KEY = "id";
 }

@@ -37,7 +37,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class HBaseMappingReader {
-  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
 
@@ -47,9 +48,11 @@ public class HBaseMappingReader {
   private String rowKey = HBaseConstants.DEFAULT_ROW_KEY;
   private String tableName = HBaseConstants.DEFAULT_TABLE_NAME;
 
-  public static synchronized HBaseMappingReader getInstance(Configuration conf) {
+  public static synchronized HBaseMappingReader getInstance(
+      Configuration conf) {
     ObjectCache cache = ObjectCache.get(conf);
-    HBaseMappingReader instance = (HBaseMappingReader) cache.getObject(HBaseMappingReader.class.getName());
+    HBaseMappingReader instance = (HBaseMappingReader) cache
+        .getObject(HBaseMappingReader.class.getName());
     if (instance == null) {
       instance = new HBaseMappingReader(conf);
       cache.setObject(HBaseMappingReader.class.getName(), instance);
@@ -63,8 +66,9 @@ public class HBaseMappingReader {
   }
 
   private void parseMapping() {
-    InputStream inputStream = conf
-        .getConfResourceAsInputStream(conf.get(HBaseConstants.HBASE_MAPPING_FILE, HBaseConstants.DEFAULT_MAPPING_FILE));
+    InputStream inputStream = conf.getConfResourceAsInputStream(
+        conf.get(HBaseConstants.HBASE_MAPPING_FILE,
+            HBaseConstants.DEFAULT_MAPPING_FILE));
     InputSource inputSource = new InputSource(inputStream);
 
     try {
@@ -73,50 +77,63 @@ public class HBaseMappingReader {
       Document document = builder.parse(inputSource);
       Element rootElement = document.getDocumentElement();
 
-      NodeList tableItems = rootElement.getElementsByTagName(HBaseConstants.TAG_TABLE);
+      NodeList tableItems = rootElement
+          .getElementsByTagName(HBaseConstants.TAG_TABLE);
       if (tableItems.getLength() == 0) {
-        LOG.warn("No table definition found in hbase index mapping, using default table name: '"
-            + HBaseConstants.DEFAULT_ROW_KEY + "'");
+        LOG.warn(
+            "No table definition found in hbase index mapping, using default table name: '"
+                + HBaseConstants.DEFAULT_ROW_KEY + "'");
       } else if (tableItems.getLength() > 1) {
-        LOG.warn("More than one table definition found in hbase index mapping, using default table name: '"
-            + HBaseConstants.DEFAULT_ROW_KEY + "'");
+        LOG.warn(
+            "More than one table definition found in hbase index mapping, using default table name: '"
+                + HBaseConstants.DEFAULT_ROW_KEY + "'");
       } else {
         Element tableElement = (Element) tableItems.item(0);
         tableName = tableElement.getAttribute(HBaseConstants.ATTR_NAME);
         if (tableName.isEmpty()) {
-          LOG.warn("Table name not found/empty in hbase index mapping, using default table name: '"
-              + HBaseConstants.DEFAULT_ROW_KEY + "'");
+          LOG.warn(
+              "Table name not found/empty in hbase index mapping, using default table name: '"
+                  + HBaseConstants.DEFAULT_ROW_KEY + "'");
           tableName = HBaseConstants.DEFAULT_TABLE_NAME;
         }
       }
 
-      NodeList fieldItems = rootElement.getElementsByTagName(HBaseConstants.TAG_FIELD);
+      NodeList fieldItems = rootElement
+          .getElementsByTagName(HBaseConstants.TAG_FIELD);
       for (int i = 0; i < fieldItems.getLength(); i++) {
         Element fieldElement = (Element) fieldItems.item(i);
         String src = fieldElement.getAttribute(HBaseConstants.ATTR_SRC);
-        String columnFamily = fieldElement.getAttribute(HBaseConstants.ATTR_FAMILY);
-        String qualifier = fieldElement.getAttribute(HBaseConstants.ATTR_QUALIFIER);
-        LOG.info("Field source: " + src + ", dest: " + fieldElement.getAttribute(HBaseConstants.ATTR_DEST)
+        String columnFamily = fieldElement
+            .getAttribute(HBaseConstants.ATTR_FAMILY);
+        String qualifier = fieldElement
+            .getAttribute(HBaseConstants.ATTR_QUALIFIER);
+        LOG.info("Field source: " + src + ", dest: "
+            + fieldElement.getAttribute(HBaseConstants.ATTR_DEST)
             + ", column-family: " + columnFamily + ", qualifier: " + qualifier);
 
-        keyMap.put(src, qualifier.isEmpty() ? fieldElement.getAttribute(HBaseConstants.ATTR_DEST) : qualifier);
+        keyMap.put(src, qualifier.isEmpty()
+            ? fieldElement.getAttribute(HBaseConstants.ATTR_DEST) : qualifier);
         if (!columnFamily.isEmpty()) {
           familyMap.put(src, columnFamily);
         }
       }
 
-      NodeList rowItems = rootElement.getElementsByTagName(HBaseConstants.TAG_ROW);
+      NodeList rowItems = rootElement
+          .getElementsByTagName(HBaseConstants.TAG_ROW);
       if (rowItems.getLength() > 1) {
-        LOG.warn("More than one row key definitions found in hbase index mapping, using default configuration '"
-            + HBaseConstants.DEFAULT_ROW_KEY + "'");
+        LOG.warn(
+            "More than one row key definitions found in hbase index mapping, using default configuration '"
+                + HBaseConstants.DEFAULT_ROW_KEY + "'");
       } else if (rowItems.getLength() == 0) {
-        LOG.warn("No row key definitions found in hbase index mapping, using default configuration '"
-            + HBaseConstants.DEFAULT_ROW_KEY + "'");
+        LOG.warn(
+            "No row key definitions found in hbase index mapping, using default configuration '"
+                + HBaseConstants.DEFAULT_ROW_KEY + "'");
       } else {
         rowKey = ((Element) rowItems.item(0)).getTextContent();
         if (rowKey.isEmpty()) {
-          LOG.warn("Row key is not found/empty in hbase index mapping, using default configuration '"
-              + HBaseConstants.DEFAULT_ROW_KEY + "'");
+          LOG.warn(
+              "Row key is not found/empty in hbase index mapping, using default configuration '"
+                  + HBaseConstants.DEFAULT_ROW_KEY + "'");
           rowKey = HBaseConstants.DEFAULT_ROW_KEY;
         }
       }
