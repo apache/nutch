@@ -110,7 +110,7 @@ public class HBaseIndexWriter implements IndexWriter {
       LOG.info(entry.getKey() + " => " + entry.getValue());
       Put put = new Put(rowKey);
       put.add(Bytes.toBytes(hbaseMapping.getFamily(entry.getKey())),
-          Bytes.toBytes(entry.getKey()),
+          Bytes.toBytes(hbaseMapping.getMappedKey(entry.getKey())),
           Bytes.toBytes(entry.getValue().toString()));
       puts.add(put);
     }
