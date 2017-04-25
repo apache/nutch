@@ -47,6 +47,7 @@ public class HBaseMappingReader {
 
   private String rowKey = HBaseConstants.DEFAULT_ROW_KEY;
   private String tableName = HBaseConstants.DEFAULT_TABLE_NAME;
+  private String defaultFamily = HBaseConstants.DEFAULT_COLUMN_FAMILY;
 
   public static synchronized HBaseMappingReader getInstance(
       Configuration conf) {
@@ -105,6 +106,9 @@ public class HBaseMappingReader {
         String src = fieldElement.getAttribute(HBaseConstants.ATTR_SRC);
         String columnFamily = fieldElement
             .getAttribute(HBaseConstants.ATTR_FAMILY);
+        if(defaultFamily == null) {
+          defaultFamily = columnFamily;
+        }
         String qualifier = fieldElement
             .getAttribute(HBaseConstants.ATTR_QUALIFIER);
         LOG.info("Field source: " + src + ", dest: "
@@ -166,7 +170,7 @@ public class HBaseMappingReader {
     if (familyMap.containsKey(key)) {
       return familyMap.get(key);
     }
-    return HBaseConstants.DEFAULT_COLUMN_FAMILY;
+    return defaultFamily;
   }
 
 }
