@@ -2529,7 +2529,33 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <value></value>
   <description>
     Default is 'fanout.key'
-    The routingKey used by publisher to publish messages to specific queues. If the exchange type is "fanout", then this property is ignored.
+    The routingKey used by publisher to publish messages to specific queues. 
+    If the exchange type is "fanout", then this property is ignored.
+  </description>
+</property>
+
+<property>
+  <name>sitemap.strict.parsing</name>
+  <value>true</value>
+  <description>
+    By default Sitemap parser rejects invalid urls. Setting this to false 
+    disables that.
+  </description>
+</property>
+
+<property>
+  <name>sitemap.url.filter</name>
+  <value>true</value>
+  <description>
+    Filter Sitemaps when processing them.
+  </description>
+</property>
+
+<property>
+  <name>sitemap.url.normalize</name>
+  <value>true</value>
+  <description>
+    Normalize Sitemaps when processing them.
   </description>
 </property>
 
