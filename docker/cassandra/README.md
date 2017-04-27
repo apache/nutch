@@ -5,7 +5,7 @@ This project contains 3 Docker containers running Apache Nutch 2.x configured wi
 
 This is project is fully operational but its still experimental, any feedback, suggestions should be directed to dev@nutch.apache.org and contribution(s) will be highly appreciated! 
 
-#Usage
+# Usage
 
 1. Build the images and start the containers " NOTE: for Mac OS running boot2docker, Please read the Notes section Below ". 
 
@@ -38,7 +38,7 @@ root@9ec43c388769:/opt/nutch# ./bin/crawl testUrls test_crawl 3
 
 
 ```
-##NOTES:
+## Notes
 
 Nutch 2.x Container name : NUTCH01
 
@@ -47,7 +47,7 @@ Cassandra Container name : CASS01
 Cassandra installed with OpsCenter
 
 
-##MAC OSx notes
+## MAC OSx Notes
 - you need to mount data folders to your VirtualMachine to be able to get persistent data every time you run this application.
 - You might need to install docker-enter for easier access to the containers
 
@@ -63,9 +63,9 @@ VBoxManage sharedfolder add boot2docker-vm -name home -hostpath ~/
 boot2docker up
 boot2docker ssh
 
-#mkdir /data
-#mount -t vboxsf -o uid=1000,gid=50 data /data
-#vi /etc/fstab
-#data            /data           vboxsf   rw,nodev,relatime    0 0
-#docker-enter
+# mkdir /data
+# mount -t vboxsf -o uid=1000,gid=50 data /data
+# vi /etc/fstab
+# data            /data           vboxsf   rw,nodev,relatime    0 0
+# docker-enter
 ```
