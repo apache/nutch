@@ -140,6 +140,7 @@ public class HBaseIndexWriter implements IndexWriter {
 
   @Override
   public void close() throws IOException {
+    commit();
     hTable.close();
     hBaseAdmin.close();
   }
