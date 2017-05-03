@@ -20,9 +20,11 @@
 	<!--
 		A hbase table named 'document' with column family 'f' is expected to exist. If not, below command from hbase shell will create the table
 
-		create 'document', {NAME => 'f', BLOOMFILTER => 'ROW', VERSIONS => '1', IN_MEMORY => 'false', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => org.apache.hadoop.hbase.HConstants::FOREVER, COMPRESSION => 'NONE', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE => '65536', REPLICATION_SCOPE => '0'}
+		> create 'document', {NAME => 'f', BLOOMFILTER => 'ROW', VERSIONS => '1', IN_MEMORY => 'false', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => org.apache.hadoop.hbase.HConstants::FOREVER, COMPRESSION => 'NONE', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE => '65536', REPLICATION_SCOPE => '0'}
+		
+		> enable 'document'
 
-		By default, the expected table name is 'document' with only one column family 'f'. Table with multple column-families can be used.
+		By default, the expected table name is 'document' with only one column family 'f'. Table with multiple column-families can be used.
 	-->
 	<table name="document" />
 
