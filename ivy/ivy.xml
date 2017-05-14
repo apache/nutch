@@ -134,6 +134,9 @@
     <!--
     <dependency org="org.apache.gora" name="gora-solr" rev="0.7" conf="*->default" />
     -->
+    <!--
+    <dependency org="org.apache.gora" name="gora-jcache" rev="0.7" conf="*->default" />
+    -->
     <!-- The gora-compiler is used within the 'ant generate-gora-src' target to compile
     the Gora .avsc files within ./src/gora 
     -->
