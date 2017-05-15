@@ -165,6 +165,8 @@ public class DOMContentUtils {
           if (sb.length() > 0)
             sb.append(' ');
           sb.append(text);
+        } else {
+          sb.append("\n");
         }
       }
     }
