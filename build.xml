@@ -659,6 +659,7 @@
       <packageset dir="${plugins.dir}/index-more/src/java"/>
       <!--<packageset dir="${plugins.dir}/indexer-elastic/src/java"/>-->
       <packageset dir="${plugins.dir}/indexer-elastic2/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-hbase/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
@@ -1023,6 +1024,7 @@
         <source path="${basedir}/src/plugin/indexer-solr/src/java/" />
       	<!--<source path="${basedir}/src/plugin/indexer-elastic/src/java/" />-->
       	<source path="${basedir}/src/plugin/indexer-elastic2/src/java/" />
+        <source path="${basedir}/src/plugin/indexer-hbase/src/java/" />
       	<source path="${basedir}/src/plugin/index-anchor/src/java/" />
         <source path="${basedir}/src/plugin/index-anchor/src/test/" />
         <source path="${basedir}/src/plugin/index-basic/src/java/" />
