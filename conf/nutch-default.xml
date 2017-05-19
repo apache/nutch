@@ -299,13 +299,25 @@
   <description>Value of the "Accept-Language" request header field.
   This allows selecting non-English language as default one to retrieve.
   It is a useful setting for search engines build for certain national group.
+  To send requests without "Accept-Language" header field, thi  property must
+  be configured to contain a space character because an empty property does
+  not overwrite the default.
   </description>
 </property>
 
 <property>
   <name>http.accept</name>
   <value>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</value>
-  <description>Value of the "Accept" request header field.
+  <description>Value of the "Accept" request header field. A space character
+  as value will cause that no "Accept" header field is sent in the request.
+  </description>
+</property>
+
+<property>
+  <name>http.accept.charset</name>
+  <value>utf-8,iso-8859-1;q=0.7,*;q=0.7</value>
+  <description>Value of the "Accept-Charset" request header field. A space character
+  as value will cause that no "Accept-Charset" header field is sent in the request.
   </description>
 </property>
 
