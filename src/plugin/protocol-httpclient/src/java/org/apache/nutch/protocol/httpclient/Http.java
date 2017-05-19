@@ -204,17 +204,16 @@ public class Http extends HttpBase {
 
     HostConfiguration hostConf = client.getHostConfiguration();
     ArrayList<Header> headers = new ArrayList<Header>();
-    // Set the User Agent in the header
-    //headers.add(new Header("User-Agent", userAgent)); //NUTCH-1941
-    // prefer English
-    headers.add(new Header("Accept-Language", "en-us,en-gb,en;q=0.7,*;q=0.3"));
-    // prefer UTF-8
-    headers.add(new Header("Accept-Charset", "utf-8,ISO-8859-1;q=0.7,*;q=0.7"));
-    // prefer understandable formats
-    headers
-        .add(new Header(
-            "Accept",
-            "text/html,application/xml;q=0.9,application/xhtml+xml,text/xml;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"));
+    // Note: some header fields (e.g., "User-Agent") are set per GET request
+    if (!acceptLanguage.isEmpty()) {
+      headers.add(new Header("Accept-Language", acceptLanguage));
+    }
+    if (!acceptCharset.isEmpty()) {
+      headers.add(new Header("Accept-Charset", acceptCharset));
+    }
+    if (!accept.isEmpty()) {
+      headers.add(new Header("Accept", accept));
+    }
     // accept gzipped content
     headers.add(new Header("Accept-Encoding", "x-gzip, gzip, deflate"));
     hostConf.getParams().setParameter("http.default-headers", headers);
