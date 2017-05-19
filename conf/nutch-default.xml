@@ -2534,29 +2534,4 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
-<property>
-  <name>sitemap.strict.parsing</name>
-  <value>true</value>
-  <description>
-    By default Sitemap parser rejects invalid urls. Setting this to false 
-    disables that.
-  </description>
-</property>
-
-<property>
-  <name>sitemap.url.filter</name>
-  <value>true</value>
-  <description>
-    Filter Sitemaps when processing them.
-  </description>
-</property>
-
-<property>
-  <name>sitemap.url.normalize</name>
-  <value>true</value>
-  <description>
-    Normalize Sitemaps when processing them.
-  </description>
-</property>
-
 </configuration>

@@ -136,8 +136,8 @@ public class SitemapProcessor extends Configured implements Tool {
             context.getCounter("Sitemap", "filtered_records").increment(1);
             return;
           }
-
-          BaseRobotRules rules = protocolFactory.getProtocol(url).getRobotRules(new Text(url), datum, new LinkedList<>());
+          // We may wish to use the robots.txt content as the third parameter for .getRobotRules
+          BaseRobotRules rules = protocolFactory.getProtocol(url).getRobotRules(new Text(url), datum, null);
           List<String> sitemaps = rules.getSitemaps();
           for(String sitemap: sitemaps) {
             context.getCounter("Sitemap", "sitemaps_from_hostdb").increment(1);
@@ -155,7 +155,7 @@ public class SitemapProcessor extends Configured implements Tool {
           generateSitemapUrlDatum(protocolFactory.getProtocol(url), url, context);
         }
       } catch (Exception e) {
-        LOG.warn("Exception for record " + key.toString() + " : " + StringUtils.stringifyException(e));
+        LOG.warn("Exception for record {} : {}", key.toString(), StringUtils.stringifyException(e));
       }
     }
 
@@ -182,7 +182,7 @@ public class SitemapProcessor extends Configured implements Tool {
         // If there were any problems fetching the sitemap, log the error and let it go. Not sure how often
         // sitemaps are redirected. In future we might have to handle redirects.
         context.getCounter("Sitemap", "failed_fetches").increment(1);
-        LOG.error("Error while fetching the sitemap. Status code: " + status.getCode() + " for " + url);
+        LOG.error("Error while fetching the sitemap. Status code: {} for {}", status.getCode(), url);
         return;
       }
 
@@ -197,7 +197,7 @@ public class SitemapProcessor extends Configured implements Tool {
             String key = filterNormalize(sitemapUrl.getUrl().toString());
             if (key != null) {
               CrawlDatum sitemapUrlDatum = new CrawlDatum();
-              sitemapUrlDatum.setStatus(CrawlDatum.STATUS_SITEMAP);
+              sitemapUrlDatum.setStatus(CrawlDatum.STATUS_INJECTED);
               sitemapUrlDatum.setScore((float) sitemapUrl.getPriority());
 
               if(sitemapUrl.getChangeFrequency() != null) {
@@ -245,7 +245,7 @@ public class SitemapProcessor extends Configured implements Tool {
       originalDatum = null;
 
       for (CrawlDatum curr: values) {
-        if(curr.getStatus() == CrawlDatum.STATUS_SITEMAP && sitemapDatum == null) {
+        if(curr.getStatus() == CrawlDatum.STATUS_INJECTED && sitemapDatum == null) {
           sitemapDatum = new CrawlDatum();
           sitemapDatum.set(curr);
         }
@@ -279,7 +279,7 @@ public class SitemapProcessor extends Configured implements Tool {
                       boolean normalize, int threads) throws Exception {
     long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("SitemapProcessor: Starting at " + sdf.format(start));
+      LOG.info("SitemapProcessor: Starting at {}", sdf.format(start));
     }
 
     FileSystem fs = FileSystem.get(getConf());
@@ -342,14 +342,14 @@ public class SitemapProcessor extends Configured implements Tool {
         long failedFetches = job.getCounters().findCounter("Sitemap", "failed_fetches").getValue();
         long newSitemapEntries = job.getCounters().findCounter("Sitemap", "new_sitemap_entries").getValue();
 
-        LOG.info("SitemapProcessor: Total records rejected by filters: " + filteredRecords);
-        LOG.info("SitemapProcessor: Total sitemaps from HostDb: " + fromHostDb);
-        LOG.info("SitemapProcessor: Total sitemaps from seed urls: " + fromSeeds);
-        LOG.info("SitemapProcessor: Total failed sitemap fetches: " + failedFetches);
-        LOG.info("SitemapProcessor: Total new sitemap entries added: " + newSitemapEntries);
+        LOG.info("SitemapProcessor: Total records rejected by filters: {}", filteredRecords);
+        LOG.info("SitemapProcessor: Total sitemaps from HostDb: {}", fromHostDb);
+        LOG.info("SitemapProcessor: Total sitemaps from seed urls: {}", fromSeeds);
+        LOG.info("SitemapProcessor: Total failed sitemap fetches: {}", failedFetches);
+        LOG.info("SitemapProcessor: Total new sitemap entries added: {}", newSitemapEntries);
 
         long end = System.currentTimeMillis();
-        LOG.info("SitemapProcessor: Finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+        LOG.info("SitemapProcessor: Finished at {}, elapsed: {}", sdf.format(end), TimingUtil.elapsedTime(start, end));
       }
     } catch (Exception e) {
       if (fs.exists(tempCrawlDb))
@@ -396,15 +396,15 @@ public class SitemapProcessor extends Configured implements Tool {
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-hostdb")) {
         hostDb = new Path(args[++i]);
-        LOG.info("SitemapProcessor: hostdb: " + hostDb);
+        LOG.info("SitemapProcessor: hostdb: {}", hostDb);
       }
       else if (args[i].equals("-sitemapUrls")) {
         urlDir = new Path(args[++i]);
-        LOG.info("SitemapProcessor: sitemap urls dir: " + urlDir);
+        LOG.info("SitemapProcessor: sitemap urls dir: {}", urlDir);
       }
       else if (args[i].equals("-threads")) {
         threads = Integer.valueOf(args[++i]);
-        LOG.info("SitemapProcessor: threads: " + threads);
+        LOG.info("SitemapProcessor: threads: {}", threads);
       }
       else if (args[i].equals("-noStrict")) {
         LOG.info("SitemapProcessor: 'strict' parsing disabled");
@@ -419,7 +419,7 @@ public class SitemapProcessor extends Configured implements Tool {
         normalize = false;
       }
       else {
-        LOG.info("SitemapProcessor: Found invalid argument \"" + args[i] + "\"\n");
+        LOG.info("SitemapProcessor: Found invalid argument \"{}\"\n", args[i]);
         usage();
         return -1;
       }
@@ -429,7 +429,7 @@ public class SitemapProcessor extends Configured implements Tool {
       sitemap(crawlDb, hostDb, urlDir, strict, filter, normalize, threads);
       return 0;
     } catch (Exception e) {
-      LOG.error("SitemapProcessor: " + StringUtils.stringifyException(e));
+      LOG.error("SitemapProcessor: {}", StringUtils.stringifyException(e));
       return -1;
     }
   }
