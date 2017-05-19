@@ -80,21 +80,22 @@ public class HBaseIndexWriter implements IndexWriter {
     try {
       hBaseAdmin = new HBaseAdmin(hbaseConfig);
     } catch (MasterNotRunningException ex) {
-      LOG.error(ex.toString());
+      LOG.error("{}", ex.toString());
       throw ex;
     } catch (ZooKeeperConnectionException ex) {
-      LOG.error(ex.toString());
+      LOG.error("{}", ex.toString());
       throw ex;
     }
 
     if (!hBaseAdmin.tableExists(hbaseMapping.getTableName())) {
-      String msg = "Table '" + hbaseMapping.getTableName()
-          + "' doesn't exist in hbase";
+      String msg = String.format("Table '%s' doesn't exist in HBase",
+          hbaseMapping.getTableName());
       LOG.error(msg);
       throw new RuntimeException(msg);
     }
     if (hBaseAdmin.isTableDisabled(hbaseMapping.getTableName())) {
-      String msg = "Table '" + hbaseMapping.getTableName() + "' is disabled";
+      String msg = String.format("Table '%s' is disabled",
+          hbaseMapping.getTableName());
       LOG.error(msg);
       throw new RuntimeException(msg);
     }
@@ -107,7 +108,7 @@ public class HBaseIndexWriter implements IndexWriter {
     byte[] rowKey = Bytes.toBytes(doc.getFieldValue(hbaseMapping.getRowKey()));
     while (entries.hasNext()) {
       Entry<String, List<String>> entry = entries.next();
-      LOG.info(entry.getKey() + " => " + entry.getValue());
+      LOG.info("{} => {}", entry.getKey(), entry.getValue());
       Put put = new Put(rowKey);
       put.add(Bytes.toBytes(hbaseMapping.getFamily(entry.getKey())),
           Bytes.toBytes(hbaseMapping.getMappedKey(entry.getKey())),

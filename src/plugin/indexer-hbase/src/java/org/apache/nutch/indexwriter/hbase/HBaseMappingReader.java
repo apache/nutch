@@ -82,19 +82,19 @@ public class HBaseMappingReader {
           .getElementsByTagName(HBaseConstants.TAG_TABLE);
       if (tableItems.getLength() == 0) {
         LOG.warn(
-            "No table definition found in hbase index mapping, using default table name: '"
-                + HBaseConstants.DEFAULT_ROW_KEY + "'");
+            "No table definition found in hbase index mapping, using default table name: '{}'",
+            HBaseConstants.DEFAULT_ROW_KEY);
       } else if (tableItems.getLength() > 1) {
         LOG.warn(
-            "More than one table definition found in hbase index mapping, using default table name: '"
-                + HBaseConstants.DEFAULT_ROW_KEY + "'");
+            "More than one table definition found in hbase index mapping, using default table name: '{}'",
+            HBaseConstants.DEFAULT_ROW_KEY);
       } else {
         Element tableElement = (Element) tableItems.item(0);
         tableName = tableElement.getAttribute(HBaseConstants.ATTR_NAME);
         if (tableName.isEmpty()) {
           LOG.warn(
-              "Table name not found/empty in hbase index mapping, using default table name: '"
-                  + HBaseConstants.DEFAULT_ROW_KEY + "'");
+              "Table name not found/empty in hbase index mapping, using default table name: '{}'",
+              HBaseConstants.DEFAULT_ROW_KEY);
           tableName = HBaseConstants.DEFAULT_TABLE_NAME;
         }
       }
@@ -106,15 +106,14 @@ public class HBaseMappingReader {
         String src = fieldElement.getAttribute(HBaseConstants.ATTR_SRC);
         String columnFamily = fieldElement
             .getAttribute(HBaseConstants.ATTR_FAMILY);
-        if(defaultFamily == null) {
+        if (defaultFamily == null) {
           defaultFamily = columnFamily;
         }
         String qualifier = fieldElement
             .getAttribute(HBaseConstants.ATTR_QUALIFIER);
-        LOG.info("Field source: " + src + ", dest: "
-            + fieldElement.getAttribute(HBaseConstants.ATTR_DEST)
-            + ", column-family: " + columnFamily + ", qualifier: " + qualifier);
-
+        LOG.info("Field source: {}, dest: {}, column-family: {}, qualifier: {}",
+            src, fieldElement.getAttribute(HBaseConstants.ATTR_DEST),
+            columnFamily, qualifier);
         keyMap.put(src, qualifier.isEmpty()
             ? fieldElement.getAttribute(HBaseConstants.ATTR_DEST) : qualifier);
         if (!columnFamily.isEmpty()) {
@@ -126,28 +125,28 @@ public class HBaseMappingReader {
           .getElementsByTagName(HBaseConstants.TAG_ROW);
       if (rowItems.getLength() > 1) {
         LOG.warn(
-            "More than one row key definitions found in hbase index mapping, using default configuration '"
-                + HBaseConstants.DEFAULT_ROW_KEY + "'");
+            "More than one row key definitions found in hbase index mapping, using default configuration '{}'",
+            HBaseConstants.DEFAULT_ROW_KEY);
       } else if (rowItems.getLength() == 0) {
         LOG.warn(
-            "No row key definitions found in hbase index mapping, using default configuration '"
-                + HBaseConstants.DEFAULT_ROW_KEY + "'");
+            "No row key definitions found in hbase index mapping, using default configuration '{}'",
+            HBaseConstants.DEFAULT_ROW_KEY);
       } else {
         rowKey = ((Element) rowItems.item(0)).getTextContent();
         if (rowKey.isEmpty()) {
           LOG.warn(
-              "Row key is not found/empty in hbase index mapping, using default configuration '"
-                  + HBaseConstants.DEFAULT_ROW_KEY + "'");
+              "Row key is not found/empty in hbase index mapping, using default configuration '{}'",
+              HBaseConstants.DEFAULT_ROW_KEY);
           rowKey = HBaseConstants.DEFAULT_ROW_KEY;
         }
       }
 
     } catch (SAXException ex) {
-      LOG.warn(ex.toString());
+      LOG.warn("{}", ex.toString());
     } catch (IOException ex) {
-      LOG.warn(ex.toString());
+      LOG.warn("{}", ex.toString());
     } catch (ParserConfigurationException ex) {
-      LOG.warn(ex.toString());
+      LOG.warn("{}", ex.toString());
     }
   }
 
