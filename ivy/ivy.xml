@@ -94,7 +94,7 @@
     <dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
     <dependency org="org.mockito" name="mockito-all" rev="1.9.5" conf="test->default"/>
     <dependency org="org.springframework" name="spring-test" rev="4.0.4.RELEASE" conf="test->default"/>
-  
+	
 
     <!--================-->
     <!-- Gora artifacts -->
@@ -148,11 +148,11 @@
     <dependency org="org.springframework" name="spring-web" rev="4.0.4.RELEASE" conf="*->default" />
 
     <dependency org="com.sun.jersey" name="jersey-client" rev="1.8" conf="*->default" />
-  
+	
     <dependency org="com.j256.ormlite" name="ormlite-jdbc" rev="4.48" conf="*->default" />
     <dependency org="com.h2database" name="h2" rev="1.4.180" conf="*->default" />
     <dependency org="org.eclipse.persistence" name="javax.persistence" rev="2.0.0" conf="*->default" />
-  
+	
     <dependency org="org.apache.wicket" name="wicket-core" rev="6.16.0" conf="*->default" />
     <dependency org="org.apache.wicket" name="wicket-spring" rev="6.16.0" conf="*->default" />
     <dependency org="org.apache.wicket" name="wicket-auth-roles" rev="6.16.0" conf="*->default" />
