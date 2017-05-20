@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 public class HBaseIndexWriter implements IndexWriter {
 
-  private static final Logger LOG = LoggerFactory
+  public static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration config;
@@ -108,7 +108,6 @@ public class HBaseIndexWriter implements IndexWriter {
     byte[] rowKey = Bytes.toBytes(doc.getFieldValue(hbaseMapping.getRowKey()));
     while (entries.hasNext()) {
       Entry<String, List<String>> entry = entries.next();
-      LOG.debug("{} => {}", entry.getKey(), entry.getValue());
       Put put = new Put(rowKey);
       put.add(Bytes.toBytes(hbaseMapping.getFamily(entry.getKey())),
           Bytes.toBytes(hbaseMapping.getMappedKey(entry.getKey())),
@@ -134,8 +133,11 @@ public class HBaseIndexWriter implements IndexWriter {
   @Override
   public void commit() throws IOException {
     if (!puts.isEmpty()) {
+      int documentCount = puts.size(); 
       hTable.put(puts);
       puts.clear();
+      LOG.info("Total {} {} added.", documentCount, 
+              (documentCount > 1 ? "documents are" : "document is"));
     }
   }
 
