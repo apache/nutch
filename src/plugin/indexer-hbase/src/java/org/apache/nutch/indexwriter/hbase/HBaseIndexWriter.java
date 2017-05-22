@@ -53,6 +53,7 @@ public class HBaseIndexWriter implements IndexWriter {
   private HBaseAdmin hBaseAdmin;
   private HTable hTable;
   private static List<Put> puts = new ArrayList<Put>();
+  private static long documentCount = 0L;
 
   @Override
   public Configuration getConf() {
@@ -114,6 +115,7 @@ public class HBaseIndexWriter implements IndexWriter {
           Bytes.toBytes(entry.getValue().toString()));
       puts.add(put);
     }
+    documentCount++;
     if (puts.size() >= batchSize) {
       commit();
     }
@@ -133,17 +135,18 @@ public class HBaseIndexWriter implements IndexWriter {
   @Override
   public void commit() throws IOException {
     if (!puts.isEmpty()) {
-      int documentCount = puts.size(); 
       hTable.put(puts);
       puts.clear();
-      LOG.info("Total {} {} added.", documentCount, 
-              (documentCount > 1 ? "documents are" : "document is"));
     }
   }
 
   @Override
   public void close() throws IOException {
     commit();
+    if(documentCount > 0L) {
+      LOG.info("Total {} {} added.", documentCount,
+          (documentCount > 1 ? "documents are" : "document is"));
+    }
     hTable.close();
     hBaseAdmin.close();
   }

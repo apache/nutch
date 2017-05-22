@@ -1395,7 +1395,7 @@
 
 <property>
   <name>hbase.indexer.commit.size</name>
-  <value>250</value>
+  <value>500</value>
   <description>
   Defines the number of documents to send to Hbase in a single write batch.
   Decrease when handling very large documents to prevent Nutch from running
