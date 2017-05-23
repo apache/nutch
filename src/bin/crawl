@@ -170,7 +170,7 @@ do
 
   if [ -n "$SOLRURL" ]; then
     echo "Indexing $CRAWL_ID on SOLR index -> $SOLRURL"
-    __bin_nutch index $commonOptions -D solr.server.url=$SOLRURL -all -crawlId "$CRAWL_ID"
+    __bin_nutch index $commonOptions -D solr.server.url=$SOLRURL $batchId -crawlId "$CRAWL_ID"
 
     echo "SOLR dedup -> $SOLRURL"
     __bin_nutch solrdedup $commonOptions $SOLRURL
