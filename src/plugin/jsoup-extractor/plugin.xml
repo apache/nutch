@@ -40,7 +40,7 @@
               point="org.apache.nutch.parse.ParseFilter">
 
       <implementation id="org.apache.nutch.jsoup.extractor.parse.JsoupHtmlParser"
-                      class="org.apache.nutch.parse.jsoup.JsoupHtmlParser">
+                      class="org.apache.nutch.jsoup.extractor.parse.JsoupHtmlParser">
         <parameter name="contentType" value="text/html|application/xhtml+xml"/>
         <parameter name="pathSuffix" value=""/>
       </implementation>

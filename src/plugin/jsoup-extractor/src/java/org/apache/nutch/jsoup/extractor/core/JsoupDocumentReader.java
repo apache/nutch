@@ -45,6 +45,8 @@ public class JsoupDocumentReader {
   
   public static Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
+  
+  private Configuration conf;
 
   private List<JsoupDocument> jsoupDocument = new ArrayList<JsoupDocument>();
   private Map<String, Normalizable> normalizerMap = new HashMap<>();
@@ -60,7 +62,10 @@ public class JsoupDocumentReader {
     return instance;
   }
 
-  public void parse(InputStream inputStream) {
+  private void parse() {
+    InputStream inputStream = null;
+    inputStream = conf.getConfResourceAsInputStream(
+        conf.get(JsoupExtractorConstants.JSOUP_DOC_PROPERTY_FILE, ""));
     InputSource inputSource = new InputSource(inputStream);
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -89,20 +94,8 @@ public class JsoupDocumentReader {
         .getElementsByTagName(JsoupExtractorConstants.TAG_NORMALIZER);
     for (int i = 0; i < nodelist.getLength(); i++) {
       Element node = (Element) nodelist.item(i);
-      NodeList nameList = node
-          .getElementsByTagName(JsoupExtractorConstants.TAG_NAME);
-      NodeList classList = node
-          .getElementsByTagName(JsoupExtractorConstants.TAG_CLASS);
-      if (nameList.getLength() != 0) {
-        LOG.warn("Invalid name attirbute for Normalizer");
-        continue;
-      }
-      if (classList.getLength() != 0) {
-        LOG.warn("Invalid class attirbute for Normalizer");
-        continue;
-      }
-      String name = nameList.item(0).getTextContent();
-      String className = classList.item(0).getTextContent();
+      String name = node.getAttribute(JsoupExtractorConstants.ATTR_NAME);
+      String className = node.getAttribute(JsoupExtractorConstants.ATTR_CLASS);
       try {
         Class<?> clazz = Class.forName(className);
         Normalizable normalizable = (Normalizable) Class
@@ -132,27 +125,22 @@ public class JsoupDocumentReader {
 
       for (int j = 0; j < fieldList.getLength(); j++) {
         Element field = (Element) documentList.item(i);
-        NodeList fieldDests = field
-            .getElementsByTagName(JsoupExtractorConstants.ATTR_DEST);
+        String name = field.getAttribute(JsoupExtractorConstants.ATTR_NAME);
         NodeList fieldCssSelectors = field
             .getElementsByTagName(JsoupExtractorConstants.TAG_CSS_SELECTOR);
         NodeList fieldAttrs = field
             .getElementsByTagName(JsoupExtractorConstants.TAG_ATTRIBUTE);
         NodeList fieldDefaultValues = field
             .getElementsByTagName(JsoupExtractorConstants.TAG_DEFAULT_VALUE);
-        String dest = "";
         String cssSelector = "";
         String attr = "";
-        if (fieldDests.getLength() > 0) {
-          dest = fieldDests.item(0).getTextContent();
-        }
         if (fieldCssSelectors.getLength() > 0) {
           cssSelector = fieldCssSelectors.item(0).getTextContent();
         }
         if (fieldAttrs.getLength() > 0) {
           attr = fieldAttrs.item(0).getTextContent();
         }
-        DocumentField documentField = new DocumentField(dest, cssSelector,
+        DocumentField documentField = new DocumentField(name, cssSelector,
             attr);
         String defaultValue = "";
         if (fieldDefaultValues.getLength() > 0) {
@@ -175,11 +163,8 @@ public class JsoupDocumentReader {
   }
 
   protected JsoupDocumentReader(Configuration conf) {
-    InputStream inputStream = null;
-    inputStream = conf.getConfResourceAsInputStream(
-        conf.get(JsoupExtractorConstants.JSOUP_DOC_PROPERTY_FILE, ""));
-
-    parse(inputStream);
+    this.conf = conf;
+    parse();
   }
 
   public List<JsoupDocument> getDocuments() {

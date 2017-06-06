@@ -66,7 +66,7 @@ public class JsoupHtmlParser implements ParseFilter {
           String fieldContent = getTextContent(document, field);
           if (fieldContent != null) {
             page.getMetadata().put(
-                new Utf8(field.getName().toLowerCase(Locale.ROOT)),
+                new Utf8(field.getName()),
                 ByteBuffer.wrap(fieldContent.getBytes()));
           }
         }
