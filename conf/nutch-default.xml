@@ -197,6 +197,14 @@
 </property>
 
 <property>
+  <name>http.min.render</name>
+  <value>1500</value>
+  <description>The default minimum amount of time a render-supporting fetcher should wait before returning page content,
+    in milliseconds. Should be lower than http.timeout, or unpredictable behaviour might occur.
+  </description>
+</property>
+
+<property>
   <name>http.max.delays</name>
   <value>100</value>
   <description>The number of times a thread will delay when trying to

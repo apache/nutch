@@ -65,6 +65,7 @@
      <ant dir="urlnormalizer-basic" target="deploy"/>
      <ant dir="urlnormalizer-pass" target="deploy"/>
      <ant dir="urlnormalizer-regex" target="deploy"/>
+     <ant dir="protocol-selenium" target="deploy" />
      <!--
      <ant dir="feed" target="deploy"/>
      <ant dir="parse-ext" target="deploy"/>
@@ -158,5 +159,6 @@
     <ant dir="urlnormalizer-basic" target="clean"/>
     <ant dir="urlnormalizer-pass" target="clean"/>
     <ant dir="urlnormalizer-regex" target="clean"/>
+    <ant dir="protocol-selenium" target="clean"/>
   </target>
 </project>
