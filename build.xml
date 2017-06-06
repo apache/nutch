@@ -204,6 +204,8 @@
       <packageset dir="${plugins.dir}/indexer-elastic/src/java"/>
       <packageset dir="${plugins.dir}/indexer-hbase/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
+      <packageset dir="${plugins.dir}/jsoup-extractor/src/java"/>
+      <packageset dir="${plugins.dir}/jsoup-extractor/src/test"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
@@ -662,6 +664,7 @@
       <packageset dir="${plugins.dir}/indexer-elastic2/src/java"/>
       <packageset dir="${plugins.dir}/indexer-hbase/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
+      <packageset dir="${plugins.dir}/jsoup-extractor/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
@@ -1034,6 +1037,8 @@
         <source path="${basedir}/src/plugin/index-metadata/src/java/" />
         <source path="${basedir}/src/plugin/index-more/src/java/" />
         <source path="${basedir}/src/plugin/index-more/src/test/" />
+        <source path="${basedir}/src/plugin/jsoup-extractor/src/java/" />
+        <source path="${basedir}/src/plugin/jsoup-extractor/src/test/" />
         <source path="${basedir}/src/plugin/language-identifier/src/java/" />
         <source path="${basedir}/src/plugin/language-identifier/src/test/" />
         <source path="${basedir}/src/plugin/lib-http/src/java/" />

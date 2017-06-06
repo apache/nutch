@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<normalizers>
+	<normalizer name="simpleNormalizer" class="org.apache.nutch.parse.jsoup.normalizer.SimpleStringNormalizer" />
+	<normalizer name="viewCountNormalizer" class="org.apache.nutch.parse.jsoup.extractor.ViewCountNormalizer" />
+</normalizers>
+
+<documents>
+	<document url-pattern="^https?://(?:www\.)?youtu(?:\.be/|be\.com/watch\?v=)(?:[a-zA-Z0-9_-]{11}).*$" >
+		<field name="title">
+			<css-selector>#eow-title</css-selector>
+			<default>A placeholder Title</default>
+			<normalizer>simpleNormalizer</normalizer>
+		</field>
+		<field name="description">
+			<css-selector>#watch-description-text p#eow-description</css-selector>
+		</field>
+		<field name="uploadTime">
+			<css-selector>.watch-time-text</css-selector>
+		</field>
+		<field name="likeCount">
+			<css-selector>.like-button-renderer-like-button.like-button-renderer-like-button-unclicked span.yt-uix-button-content</css-selector>
+		</field>
+		<field name="dislikeCount">
+			<css-selector>.like-button-renderer-dislike-button.like-button-renderer-dislike-button-unclicked span.yt-uix-button-content</css-selector>
+		</field>
+		<field name="viewCount">
+			<css-selector>.watch-view-count</css-selector>
+			<normalizer>viewCountNormalizer</normalizer>
+		</field>
+		<field name="subscriberCount">
+			<css-selector>.yt-subscriber-count</css-selector>
+		</field>
+		<field name="publisherName">
+			<css-selector>.yt-user-info a</css-selector>
+		</field>
+		<field name="publisherChannel">
+			<css-selector>.yt-user-info a</css-selector>
+			<attribute>abs:href</attribute>
+		</field>
+		<field name="publisherStatus">
+			<css-selector>.yt-user-info span</css-selector>
+			<attribute>aria-label</attribute>
+		</field>
+		<field name="category">
+			<css-selector>.watch-extras-section :nth-child(1) a</css-selector>
+		</field>
+	</document>
+
+	<!-- 
+	<document url-pattern="^https?:/(www\.)?gaana\.com/song/[^/]+/?$" >
+		<field name="title">
+			<css-selector>li[class=s_title][data-type=playSong] a[class=sng_c]</css-selector>
+			<default>A placeholder Title</default>
+		</field>
+		<field name="artist">
+			<css-selector>li[class=s_title][data-type=playSong] a[href^=/artist]</css-selector>
+		</field>
+		<field name="uploadTime">
+			<css-selector>.songdetails_col1 :nth-child(2) :nth-child(2)</css-selector>
+		</field>
+		<field name="duration">
+			<css-selector>.songdetails_col1 :nth-child(3) :nth-child(2)</css-selector>
+		</field>
+		<field name="language">
+			<css-selector>.songdetails_col1 :nth-child(4) :nth-child(2)</css-selector>
+		</field>
+	</document> 
+	-->
+
+</documents>

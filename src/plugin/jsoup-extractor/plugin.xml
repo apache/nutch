@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<plugin
+   id="jsoup-extractor"
+   name="Html Parse and Indexing Filter Plug-in based on Jsoup"
+   version="1.0.0"
+   provider-name="nutch.apache.org">
+
+   <runtime>
+      <library name="jsoup-extractor.jar">
+         <export name="*"/>
+      </library>
+      <library name="jsoup-1.10.2.jar"/>
+      <library name="geronimo-stax-api_1.0_spec-1.0.1.jar"/>
+      <library name="stax-api-1.0.1.jar"/>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+   <extension id="org.apache.nutch.jsoup.extractor.parse"
+              name="JsoupHtmlParser"
+              point="org.apache.nutch.parse.ParseFilter">
+
+      <implementation id="org.apache.nutch.jsoup.extractor.parse.JsoupHtmlParser"
+                      class="org.apache.nutch.parse.jsoup.JsoupHtmlParser">
+        <parameter name="contentType" value="text/html|application/xhtml+xml"/>
+        <parameter name="pathSuffix" value=""/>
+      </implementation>
+
+   </extension>
+
+   <extension id="org.apache.nutch.jsoup.extractor.indexer" name="JsoupIndexingFilter"
+       point="org.apache.nutch.indexer.IndexingFilter">
+     <implementation id="JsoupIndexingFilter"
+       class="org.apache.nutch.jsoup.extractor.indexer.JsoupIndexingFilter" />
+    </extension>
+
+</plugin>

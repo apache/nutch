@@ -1083,6 +1083,15 @@
   </description>
 </property>
 
+<!-- jsoup-extractor properties -->
+
+<property>
+  <name>jsoup.extractor.property.file</name>
+  <value>jsoup-extractor.xml</value>
+  <description>Name of the configuration file which will be used by jsoup-extractor plugin.  
+  </description>
+</property>
+
 <!--
 <property>
   <name>tika.htmlmapper.classname</name>
