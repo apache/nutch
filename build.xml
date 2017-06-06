@@ -16,7 +16,8 @@
  limitations under the License.
 -->
 
-<project name="${name}" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+<project name="${name}" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant"
+  xmlns:artifact="antlib:org.apache.maven.artifact.ant" xmlns:fa="antlib:de.thetaphi.forbiddenapis">
 
  <!-- Load all the default properties, and any the user wants -->
  <!-- to contribute (without having to type -D or edit this file -->
@@ -110,6 +111,9 @@
    <fileset dir="${conf.dir}" includes="**/*.template" />
    <mapper type="glob" from="*.template" to="*" />
   </copy>
+  <ivy:cachepath organisation="de.thetaphi" module="forbiddenapis" revision="2.0"
+    inline="true" pathid="classpath"/>
+  <taskdef uri="antlib:de.thetaphi.forbiddenapis" classpathref="classpath"/>
  </target>
 
  <!-- ====================================================== -->
@@ -118,15 +122,15 @@
  <target name="compile" depends="compile-core, compile-plugins" description="--> compile all Java files"/>
 
  <target name="compile-core" depends="init, resolve-default" description="--> compile core Java files only">
-  <javac 
-  	encoding="${build.encoding}" 
+  <javac
+  	encoding="${build.encoding}"
   	srcdir="${src.dir}"
-    includes="org/apache/nutch/**/*.java" 
+    includes="org/apache/nutch/**/*.java"
   	destdir="${build.classes}"
-    debug="${javac.debug}" 
-  	optimize="${javac.optimize}" 
+    debug="${javac.debug}"
+  	optimize="${javac.optimize}"
   	target="${javac.version}"
-    source="${javac.version}" 
+    source="${javac.version}"
   	deprecation="${javac.deprecation}">
    <compilerarg value="-Xlint:-path"/>
    <classpath refid="classpath" />
@@ -172,21 +176,21 @@
   <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
     <condition>
       <or>
-        <matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" /> 
-        <matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" /> 
+        <matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" />
+        <matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" />
         <equals arg1="${ant.java.version}" arg2="1.6" />
-        <equals arg1="${ant.java.version}" arg2="1.5" /> 
+        <equals arg1="${ant.java.version}" arg2="1.5" />
       </or>
     </condition>
   </fail>
 
   <!-- build the javadoc artifact -->
-  <javadoc 
-  	destdir="${release.dir}/javadoc" 
+  <javadoc
+  	destdir="${release.dir}/javadoc"
   	overview="${src.dir}/overview.html"
-    author="true" 
-  	version="true" 
-  	use="true" 
+    author="true"
+  	version="true"
+  	use="true"
   	windowtitle="${name} ${version} API"
     doctitle="${name} ${version} API"
     bottom="Copyright &amp;copy; ${year} The Apache Software Foundation">
@@ -347,15 +351,15 @@
  <!-- ================================================================== -->
  <target name="job" depends="compile" description="--> make nutch.job jar">
   <jar jarfile="${build.dir}/${final.name}.job">
-   <!-- 
-   If the build.classes has the nutch config files because the jar command 
-   command has run, exclude them. The conf directory has them. 
+   <!--
+   If the build.classes has the nutch config files because the jar command
+   command has run, exclude them. The conf directory has them.
    -->
    <zipfileset dir="${build.classes}" excludes="nutch-default.xml,nutch-site.xml" />
    <zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*" />
-   <!-- 
-   need to exclude hsqldb.jar due to a conflicting version already present 
-   in Hadoop/lib. 
+   <!--
+   need to exclude hsqldb.jar due to a conflicting version already present
+   in Hadoop/lib.
    -->
    <zipfileset dir="${build.lib.dir}" prefix="lib" includes="**/*.jar"
     excludes="jasper*.jar,jsp-*.jar,hadoop-*.jar,hbase*test*.jar,ant*jar,hsqldb*.jar,slf4j*.jar,log4j*.jar" />
@@ -405,15 +409,15 @@
  <!-- Compile test code -->
  <!-- ================================================================== -->
  <target name="compile-core-test" depends="compile-core, resolve-test" description="--> compile test code">
-  <javac 
-  	encoding="${build.encoding}" 
+  <javac
+  	encoding="${build.encoding}"
   	srcdir="${test.src.dir}"
-    includes="org/apache/nutch*/**/*.java" 
+    includes="org/apache/nutch*/**/*.java"
   	destdir="${test.build.classes}"
-    debug="${javac.debug}" 
-  	optimize="${javac.optimize}" 
+    debug="${javac.debug}"
+  	optimize="${javac.optimize}"
   	target="${javac.version}"
-    source="${javac.version}" 
+    source="${javac.version}"
   	deprecation="${javac.deprecation}">
    <compilerarg value="-Xlint:-path"/>
    <classpath refid="test.classpath" />
@@ -428,9 +432,9 @@
   <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
    <classpath refid="test.classpath" />
    <arg value="-fake" />
-   <!-- 
-   <arg value="-delay"/> 
-   <arg value="-200"/> 
+   <!--
+   <arg value="-delay"/>
+   <arg value="-200"/>
    -->
    <jvmarg line="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl" />
   </java>
@@ -463,24 +467,24 @@
 
   <delete dir="${test.build.data}" />
   <mkdir dir="${test.build.data}" />
-  <!-- 
-  copy resources needed in junit tests 
+  <!--
+  copy resources needed in junit tests
   -->
   <copy todir="${test.build.data}">
    <fileset dir="src/testresources" includes="**/*" />
   </copy>
-  <copy file="${test.src.dir}/nutch-site.xml" 
+  <copy file="${test.src.dir}/nutch-site.xml"
   	todir="${test.build.classes}" />
 
-  <copy file="${test.src.dir}/log4j.properties" 
+  <copy file="${test.src.dir}/log4j.properties"
   	todir="${test.build.classes}" />
-  	
-  <copy file="${test.src.dir}/gora.properties" 
+
+  <copy file="${test.src.dir}/gora.properties"
   	todir="${test.build.classes}" />
 
   <copy file="${test.src.dir}/crawl-tests.xml"
         todir="${test.build.classes}"/>
-        
+
   <copy file="${test.src.dir}/domain-urlfilter.txt"
         todir="${test.build.classes}"/>
 
@@ -495,7 +499,7 @@
    <classpath refid="test.classpath" />
    <formatter type="${test.junit.output.format}" />
    <batchtest todir="${test.build.dir}" unless="testcase">
-    <fileset dir="${test.src.dir}" 
+    <fileset dir="${test.src.dir}"
     	includes="**/Test*.java" excludes="**/${test.exclude}.java" />
    </batchtest>
    <batchtest todir="${test.build.dir}" if="testcase">
@@ -541,9 +545,9 @@
  <!-- target: publish-local =========================================== -->
  <target name="publish-local" depends="jar" description="--> publish this project in the local ivy repository">
   <ivy:publish artifactspattern="${build.dir}/[artifact]-${version}.[ext]"
-    resolver="local" 
-  	pubrevision="${version}" 
-  	pubdate="${now}" 
+    resolver="local"
+  	pubrevision="${version}"
+  	pubdate="${now}"
   	status="integration"
     forcedeliver="true" overwrite="true" />
   <echo message="project ${ant.project.name} published locally with version ${version}" />
@@ -595,19 +599,19 @@
    It could not be loaded from ${ivy.repo.url}
   </fail>
  </target>
-	
+
   <target name="compile-avro-schema" depends="resolve-default" description="--> compile the avro schema(s) in src/gora/*.avsc">
-    <typedef name="schema" 
+    <typedef name="schema"
   	         classname="org.apache.avro.specific.SchemaTask"
   	         classpathref="classpath" />
-    
+
   	<mkdir dir="${build.gora}" />
   	<schema destdir="${build.gora}">
   	  <fileset dir="./src/gora">
   	    <include name="**/*.avsc"/>
   	  </fileset>
   	</schema>
-  	
+
 	</target>
 
    <!-- ====================================================== -->
@@ -630,20 +634,20 @@
    <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
       <condition>
           <or>
-        	<matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" /> 
-			<matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" /> 
+        	<matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" />
+			<matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" />
             <equals arg1="${ant.java.version}" arg2="1.6" />
-			<equals arg1="${ant.java.version}" arg2="1.5" /> 
+			<equals arg1="${ant.java.version}" arg2="1.5" />
           </or>
       </condition>
    </fail>
   <mkdir dir="${build.javadoc}" />
-  <javadoc 
-  	overview="${src.dir}/overview.html" 
+  <javadoc
+  	overview="${src.dir}/overview.html"
   	destdir="${build.javadoc}"
-    author="true" 
-  	version="true" 
-  	use="true" 
+    author="true"
+  	version="true"
+  	use="true"
   	windowtitle="${name} ${version} API"
     doctitle="${name} ${version} API"
     bottom="Copyright &amp;copy; ${year} The Apache Software Foundation">
@@ -722,7 +726,7 @@
  </target>
 
  <target name="default-doc" description="--> generate default Nutch documentation">
-  <style basedir="${conf.dir}" destdir="${docs.dir}" 
+  <style basedir="${conf.dir}" destdir="${docs.dir}"
   	includes="nutch-default.xml" style="conf/nutch-conf.xsl" />
  </target>
 
@@ -784,7 +788,7 @@
     <copy todir="${bin.dist.version.dir}/lib" includeEmptyDirs="false">
       <fileset dir="runtime/local/lib"/>
     </copy>
-   
+
     <copy todir="${bin.dist.version.dir}/bin">
       <fileset dir="runtime/local/bin"/>
     </copy>
@@ -828,7 +832,7 @@
       </tarfileset>
     </tar>
   </target>
-  
+
   <!-- ================================================================== -->
   <!-- Make bin release tarball                                               -->
   <!-- ================================================================== -->
@@ -849,7 +853,7 @@
   <!-- Make src release zip                                               -->
   <!-- ================================================================== -->
   <target name="zip-src" depends="package-src" description="--> generate src.zip distribution package">
-   <zip compress="true" casesensitive="yes" 
+   <zip compress="true" casesensitive="yes"
      destfile="${src.dist.version.dir}.zip">
    <zipfileset dir="${src.dist.version.dir}" filemode="664" prefix="${final.name}">
        <exclude name="src/bin/*" />
@@ -865,7 +869,7 @@
   <!-- Make bin release zip                                               -->
   <!-- ================================================================== -->
   <target name="zip-bin" depends="package-bin" description="--> generate bin.zip distribution package">
-   <zip compress="true" casesensitive="yes" 
+   <zip compress="true" casesensitive="yes"
      destfile="${bin.dist.version.dir}.zip">
    <zipfileset dir="${bin.dist.version.dir}" filemode="664" prefix="${final.name}">
        <exclude name="bin/*" />
@@ -885,7 +889,7 @@
  <target name="clean" depends="clean-build, clean-lib, clean-dist, clean-runtime" description="--> clean the project" />
 
   <!-- target: clean-eclipse ============================================ -->
-  <target name="clean-eclipse" depends="clean-build, clean-lib, clean-dist" description="--> cleans the eclipse project"/> 
+  <target name="clean-eclipse" depends="clean-build, clean-lib, clean-dist" description="--> cleans the eclipse project"/>
 
  <!-- target: clean-local ============================================= -->
  <target name="clean-local" depends="" description="--> cleans the local repository for the current module">
@@ -962,7 +966,7 @@
   <sonar:sonar workDir="${base.dir}" key="org.apache.nutch:branch"
    version="2.0-SNAPSHOT" xmlns:sonar="antlib:org.sonar.ant" />
  </target>
- 
+
   <!-- ================================================================== -->
   <!-- Eclipse targets                                                    -->
   <!-- ================================================================== -->
@@ -973,12 +977,12 @@
       <include name="*.jar" />
       <exclude name="ant-eclipse-1.0-jvm1.2.jar" />
     </fileset>
-  	
+
   	<fileset dir="${build.plugins}" >
   	 	<include name="**/*.jar"/>
   	 </fileset>
   </path>
-  
+
   <!-- target: ant-eclipse-download   =================================== -->
   <target name="ant-eclipse-download" description="--> Downloads the ant-eclipse binary.">
     <get src="http://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
@@ -993,9 +997,9 @@
 
     <delete file="${build.dir}/ant-eclipse-1.0.bin.tar.bz2" />
   </target>
-  
+
   <!-- target: eclipse   ================================================ -->
-  <target name="eclipse" 
+  <target name="eclipse"
           depends="clean-eclipse,init,resolve-test,job,ant-eclipse-download"
           description="--> Create eclipse project files">
 
@@ -1003,23 +1007,23 @@
            <path path="${basedir}"/>
            <regexpmapper from="^.*/([^/]+)$$" to="\1" handledirsep="yes"/>
          </pathconvert>
-  
+
     <taskdef name="eclipse"
              classname="prantl.ant.eclipse.EclipseTask"
              classpath="${build.dir}/lib/ant-eclipse-1.0-jvm1.2.jar" />
     <eclipse updatealways="true">
       <project name="${eclipse.project}" />
       <classpath>
-        
+
         <library path="${conf.dir}" exported="false" />
         <library path="${basedir}/src/bin" exported="false" />
         <library pathref="eclipse.classpath" exported="false" />
-       
+
         <source path="${basedir}/src/java/" />
         <source path="${basedir}/src/test/" output="build/test/classes" />
         <source path="${basedir}/src/plugin/creativecommons/src/java/" />
         <source path="${basedir}/src/plugin/creativecommons/src/test/" />
-        <!-- feed is currently disabled 
+        <!-- feed is currently disabled
         <source path="${basedir}/src/plugin/feed/src/java/" />
         <source path="${basedir}/src/plugin/feed/src/test/" /> -->
         <source path="${basedir}/src/plugin/indexer-solr/src/java/" />
@@ -1042,7 +1046,7 @@
         <source path="${basedir}/src/plugin/lib-regex-filter/src/test/" />
         <source path="${basedir}/src/plugin/microformats-reltag/src/java/" />
         <source path="${basedir}/src/plugin/microformats-reltag/src/test/" />
-        <!-- parse-ext is currently disabled 
+        <!-- parse-ext is currently disabled
         <source path="${basedir}/src/plugin/parse-ext/src/java/" />
         <source path="${basedir}/src/plugin/parse-ext/src/test/" /> -->
         <source path="${basedir}/src/plugin/parse-html/src/java/" />
@@ -1051,7 +1055,7 @@
         <source path="${basedir}/src/plugin/parse-js/src/test/" />
         <source path="${basedir}/src/plugin/parse-metatags/src/java/" />
         <source path="${basedir}/src/plugin/parse-metatags/src/test/" />
-        <!-- parse-swf and parse-zip are currently disabled 
+        <!-- parse-swf and parse-zip are currently disabled
         <source path="${basedir}/src/plugin/parse-swf/src/java/" />
         <source path="${basedir}/src/plugin/parse-swf/src/test/" />
         <source path="${basedir}/src/plugin/parse-zip/src/java/" />
@@ -1096,4 +1100,11 @@
       </classpath>
     </eclipse>
   </target>
+
+  <target name="check-forbidden-apis" depends="compile">
+    <fa:forbiddenapis internalRuntimeForbidden="true" classpathref="classpath" dir="${build.dir}">
+      <bundledsignatures name="jdk-unsafe-${javac.version}"/>
+    </fa:forbiddenapis>
+  </target>
+
 </project>
