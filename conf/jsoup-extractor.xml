@@ -18,7 +18,7 @@
 
 <!-- 
 	Define your custom normalizer here. Any normalizer class 
-	must have to implement org.apache.nutch.jsoup.extractor.core.normalizer.Normalizable interface
+	must have to implement org.apache.nutch.core.jsoup.extractor.normalizer.Normalizable interface
 	Every normalizer must have a name and class attribute. See conf/jsoup-extractor-example.xml for example
 -->
 <normalizers>
