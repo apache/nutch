@@ -42,16 +42,17 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class JsoupDocumentReader {
-  
+
   public static Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
-  
+
   private Configuration conf;
 
   private List<JsoupDocument> jsoupDocuments = new ArrayList<JsoupDocument>();
   private Map<String, Normalizable> normalizerMap = new HashMap<>();
 
-  public static synchronized JsoupDocumentReader getInstance(Configuration conf) {
+  public static synchronized JsoupDocumentReader getInstance(
+      Configuration conf) {
     ObjectCache cache = ObjectCache.get(conf);
     JsoupDocumentReader instance = (JsoupDocumentReader) cache
         .getObject(JsoupDocumentReader.class.getName());
@@ -65,7 +66,8 @@ public class JsoupDocumentReader {
   private void parse() {
     InputStream inputStream = null;
     inputStream = conf.getConfResourceAsInputStream(
-        conf.get(JsoupExtractorConstants.JSOUP_DOC_PROPERTY_FILE, ""));
+        conf.get(JsoupExtractorConstants.JSOUP_DOC_PROPERTY_FILE,
+            JsoupExtractorConstants.JSOUP_DOC_DEFAULT_FILE));
     InputSource inputSource = new InputSource(inputStream);
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -97,18 +99,20 @@ public class JsoupDocumentReader {
       String name = node.getAttribute(JsoupExtractorConstants.ATTR_NAME);
       String className = node.getAttribute(JsoupExtractorConstants.ATTR_CLASS);
       try {
-        Normalizable normalizable = (Normalizable) Class.forName(className).newInstance();
+        Normalizable normalizable = (Normalizable) Class.forName(className)
+            .newInstance();
         normalizerMap.put(name, normalizable);
-        LOG.info("Normalizer name: {}, class: {}", name, normalizable.getClass().getName());
+        LOG.info("Normalizer name: {}, class: {}", name,
+            normalizable.getClass().getName());
       } catch (ClassNotFoundException ex) {
         LOG.warn(
             "Invalid class attribute for Normalizer: Class may not implement Normalizable interface: {}",
             ex.toString());
         continue;
-      } catch(InstantiationException ex) {
-        
-      } catch(IllegalAccessException ex) {
-        
+      } catch (InstantiationException ex) {
+
+      } catch (IllegalAccessException ex) {
+
       }
     }
   }

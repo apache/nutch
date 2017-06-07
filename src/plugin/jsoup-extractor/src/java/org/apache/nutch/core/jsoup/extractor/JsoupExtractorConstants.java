@@ -2,6 +2,7 @@ package org.apache.nutch.core.jsoup.extractor;
 
 public class JsoupExtractorConstants {
   public static final String JSOUP_DOC_PROPERTY_FILE = "jsoup.extractor.property.file";
+  public static final String JSOUP_DOC_DEFAULT_FILE = "jsoup-extractor.xml";
   public static final String TAG_DOCUMENT = "document";
   public static final String ATTR_URL_PATTERN = "url-pattern";
   public static final String TAG_FIELD_LIST = "fields";

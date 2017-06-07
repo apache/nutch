@@ -32,13 +32,14 @@ import java.util.Map.Entry;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.nutch.core.jsoup.extractor.JsoupExtractorConstants;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
 
-public class TestJsoupParser {
+public class TestJsoupHtmlParser {
   
   private static final String SAMPLE_CONF_FILE = "jsoup-extractor-example.xml";
   private static final String SAMPLE_URL = "https://www.youtube.com/watch?v=pzMpwW4ppRM";
@@ -46,8 +47,9 @@ public class TestJsoupParser {
   private static final String PUBLISHER = "LuceneSolrRevolution\t";
   
   @Test
-  public void parseJsoup() {
+  public void testJsoupHtmlParser() {
     Configuration conf = NutchConfiguration.create();
+    conf.set(JsoupExtractorConstants.JSOUP_DOC_PROPERTY_FILE, SAMPLE_CONF_FILE);
     InputStream inputStream = null;
     try {
       URL url = new URL(SAMPLE_URL);
@@ -70,6 +72,7 @@ public class TestJsoupParser {
       for(Entry<CharSequence, ByteBuffer> entry: page.getMetadata().entrySet()) {
         System.out.println(entry.getKey().toString() + " => " + Bytes.toString(entry.getValue().array()));
       }
+      
       assertEquals(Bytes.toString(page.getMetadata().get(new Utf8("title")).array()), TITLE);
       assertEquals(Bytes.toString(page.getMetadata().get(new Utf8("publisherName")).array()), PUBLISHER);
       

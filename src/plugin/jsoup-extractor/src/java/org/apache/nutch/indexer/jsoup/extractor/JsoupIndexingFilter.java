@@ -21,6 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.regex.Matcher;
 
+import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
@@ -54,7 +55,7 @@ public class JsoupIndexingFilter implements IndexingFilter {
         for (DocumentField documentField : jsoupDocument.getDocumentFields()) {
           String fieldName = documentField.getName();
           String fieldValue = Bytes
-              .toString(page.getMetadata().get(fieldName).array());
+              .toString(page.getMetadata().get(new Utf8(fieldName)).array());
           String[] values = fieldValue.split("\t");
           for (String eachValue : values) {
             doc.add(fieldName, eachValue);
