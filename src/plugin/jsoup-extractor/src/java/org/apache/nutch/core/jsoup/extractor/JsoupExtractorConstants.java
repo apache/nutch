@@ -1,4 +1,4 @@
-package org.apache.nutch.jsoup.extractor.core;
+package org.apache.nutch.core.jsoup.extractor;
 
 public class JsoupExtractorConstants {
   public static final String JSOUP_DOC_PROPERTY_FILE = "jsoup.extractor.property.file";

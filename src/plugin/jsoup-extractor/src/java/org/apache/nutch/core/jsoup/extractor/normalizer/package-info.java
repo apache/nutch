@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.jsoup.extractor.core.normalizer;
+/**
+ * Normalizers for jsoup-extractor
+ */
+package org.apache.nutch.core.jsoup.extractor.normalizer;
 
-public interface Normalizable {
-  public String normalize(String content);
-}

@@ -1,4 +1,4 @@
-package org.apache.nutch.jsoup.extractor.core.normalizer;
+package org.apache.nutch.core.jsoup.extractor.normalizer;
 
 public class SimpleStringNormalizer implements Normalizable {
   

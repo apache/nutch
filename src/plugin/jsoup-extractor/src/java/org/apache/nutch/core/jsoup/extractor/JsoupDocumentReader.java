@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.jsoup.extractor.core;
+package org.apache.nutch.core.jsoup.extractor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,8 +30,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.jsoup.extractor.core.JsoupDocument.DocumentField;
-import org.apache.nutch.jsoup.extractor.core.normalizer.Normalizable;
+import org.apache.nutch.core.jsoup.extractor.JsoupDocument.DocumentField;
+import org.apache.nutch.core.jsoup.extractor.normalizer.Normalizable;
 import org.apache.nutch.util.ObjectCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +101,7 @@ public class JsoupDocumentReader {
         Normalizable normalizable = (Normalizable) Class
             .forName(Normalizable.class.getName()).cast(clazz);
         normalizerMap.put(name, normalizable);
-        LOG.debug("Normalizer name: {}, class: {}", name, normalizable.getClass().getName());
+        LOG.info("Normalizer name: {}, class: {}", name, normalizable.getClass().getName());
       } catch (ClassNotFoundException ex) {
         LOG.warn(
             "Invalid class attribute for Normalizer: Class may not implement Normalizable interface: {}",
@@ -124,7 +124,7 @@ public class JsoupDocumentReader {
           .getElementsByTagName(JsoupExtractorConstants.TAG_FIELD);
 
       for (int j = 0; j < fieldList.getLength(); j++) {
-        Element field = (Element) documentList.item(i);
+        Element field = (Element) fieldList.item(j);
         String name = field.getAttribute(JsoupExtractorConstants.ATTR_NAME);
         NodeList fieldCssSelectors = field
             .getElementsByTagName(JsoupExtractorConstants.TAG_CSS_SELECTOR);
@@ -133,15 +133,14 @@ public class JsoupDocumentReader {
         NodeList fieldDefaultValues = field
             .getElementsByTagName(JsoupExtractorConstants.TAG_DEFAULT_VALUE);
         String cssSelector = "";
-        String attr = "";
         if (fieldCssSelectors.getLength() > 0) {
           cssSelector = fieldCssSelectors.item(0).getTextContent();
         }
+        DocumentField documentField = new DocumentField(name, cssSelector);
         if (fieldAttrs.getLength() > 0) {
-          attr = fieldAttrs.item(0).getTextContent();
+          String attr = fieldAttrs.item(0).getTextContent();
+          documentField.setAttribute(attr);
         }
-        DocumentField documentField = new DocumentField(name, cssSelector,
-            attr);
         String defaultValue = "";
         if (fieldDefaultValues.getLength() > 0) {
           defaultValue = fieldDefaultValues.item(0).getTextContent();
@@ -158,7 +157,7 @@ public class JsoupDocumentReader {
         }
         jsoupDocument.addField(documentField);
       }
-      LOG.debug("{}", jsoupDocument.toString());
+      LOG.info("{}", jsoupDocument.toString());
     }
   }
 

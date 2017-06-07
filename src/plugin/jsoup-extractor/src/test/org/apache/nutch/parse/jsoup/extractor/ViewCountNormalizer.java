@@ -1,6 +1,6 @@
 package org.apache.nutch.parse.jsoup.extractor;
 
-import org.apache.nutch.jsoup.extractor.core.normalizer.Normalizable;
+import org.apache.nutch.core.jsoup.extractor.normalizer.Normalizable;
 
 public class ViewCountNormalizer implements Normalizable {
 

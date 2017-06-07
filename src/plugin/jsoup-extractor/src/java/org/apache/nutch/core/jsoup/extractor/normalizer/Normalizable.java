@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-/**
- * Parse filter based on <a href="https://jsoup.org">Jsoup</a>
- */
-package org.apache.nutch.jsoup.extractor.parse;
+package org.apache.nutch.core.jsoup.extractor.normalizer;
 
+public interface Normalizable {
+  public String normalize(String content);
+}

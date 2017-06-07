@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.jsoup.extractor.parse;
+package org.apache.nutch.parse.jsoup.extractor;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
@@ -26,9 +26,9 @@ import java.util.regex.Matcher;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.jsoup.extractor.core.JsoupDocumentReader;
-import org.apache.nutch.jsoup.extractor.core.JsoupDocument;
-import org.apache.nutch.jsoup.extractor.core.JsoupDocument.DocumentField;
+import org.apache.nutch.core.jsoup.extractor.JsoupDocumentReader;
+import org.apache.nutch.core.jsoup.extractor.JsoupDocument;
+import org.apache.nutch.core.jsoup.extractor.JsoupDocument.DocumentField;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseFilter;

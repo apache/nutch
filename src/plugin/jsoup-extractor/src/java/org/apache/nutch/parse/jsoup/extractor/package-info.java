@@ -16,7 +16,7 @@
  */
 
 /**
- * core package of jsoup-extractor 
+ * Parse filter based on <a href="https://jsoup.org">Jsoup</a>
  */
-package org.apache.nutch.jsoup.extractor.core;
+package org.apache.nutch.parse.jsoup.extractor;
 

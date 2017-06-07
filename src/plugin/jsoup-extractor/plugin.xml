@@ -35,22 +35,22 @@
       <import plugin="nutch-extensionpoints"/>
    </requires>
 
-   <extension id="org.apache.nutch.jsoup.extractor.parse"
+   <extension id="org.apache.nutch.parse.jsoup.extractor"
               name="JsoupHtmlParser"
               point="org.apache.nutch.parse.ParseFilter">
 
-      <implementation id="org.apache.nutch.jsoup.extractor.parse.JsoupHtmlParser"
-                      class="org.apache.nutch.jsoup.extractor.parse.JsoupHtmlParser">
+      <implementation id="org.apache.nutch.parse.jsoup.extractor.JsoupHtmlParser"
+                      class="org.apache.nutch.parse.jsoup.extractor.JsoupHtmlParser">
         <parameter name="contentType" value="text/html|application/xhtml+xml"/>
         <parameter name="pathSuffix" value=""/>
       </implementation>
 
    </extension>
 
-   <extension id="org.apache.nutch.jsoup.extractor.indexer" name="JsoupIndexingFilter"
+   <extension id="org.apache.nutch.indexer.jsoup.extractor" name="JsoupIndexingFilter"
        point="org.apache.nutch.indexer.IndexingFilter">
      <implementation id="JsoupIndexingFilter"
-       class="org.apache.nutch.jsoup.extractor.indexer.JsoupIndexingFilter" />
+       class="org.apache.nutch.indexer.jsoup.extractor.JsoupIndexingFilter" />
     </extension>
 
 </plugin>

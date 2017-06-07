@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.jsoup.extractor.indexer;
+package org.apache.nutch.indexer.jsoup.extractor;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
@@ -25,9 +25,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.jsoup.extractor.core.JsoupDocumentReader;
-import org.apache.nutch.jsoup.extractor.core.JsoupDocument;
-import org.apache.nutch.jsoup.extractor.core.JsoupDocument.DocumentField;
+import org.apache.nutch.core.jsoup.extractor.JsoupDocumentReader;
+import org.apache.nutch.core.jsoup.extractor.JsoupDocument;
+import org.apache.nutch.core.jsoup.extractor.JsoupDocument.DocumentField;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.Bytes;

@@ -16,7 +16,7 @@
  */
 
 /**
- * Indexing filter for jsoup-extractor plugin
+ * core package of jsoup-extractor 
  */
-package org.apache.nutch.jsoup.extractor.indexer;
+package org.apache.nutch.core.jsoup.extractor;
 

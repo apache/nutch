@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.jsoup.extractor.core;
+package org.apache.nutch.core.jsoup.extractor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.nutch.jsoup.extractor.core.normalizer.Normalizable;
+import org.apache.nutch.core.jsoup.extractor.normalizer.Normalizable;
 
 public class JsoupDocument {
   
@@ -38,10 +38,9 @@ public class JsoupDocument {
     private String defaultValue = "";
     private Normalizable normalizer;
 
-    public DocumentField(String name, String cssSelector, String attribute) {
+    public DocumentField(String name, String cssSelector) {
       this.name = name;
       this.cssSelector = cssSelector;
-      this.attribute = attribute;
     }
 
     public String getName() {
@@ -52,6 +51,10 @@ public class JsoupDocument {
       return cssSelector;
     }
 
+    public void setAttribute(String attribute) {
+      this.attribute = attribute;
+    }
+    
     public String getAttribute() {
       return attribute;
     }
@@ -77,7 +80,9 @@ public class JsoupDocument {
       StringBuilder sb = new StringBuilder();
       sb.append("DocumentField Name: ").append(this.name);
       sb.append("\n\tCSS-selector: ").append(this.cssSelector);
-      sb.append("\n\tAttribute: ").append(this.attribute);
+      if(this.attribute != null) {
+        sb.append("\n\tAttribute: ").append(this.attribute);
+      }
       if(!this.defaultValue.isEmpty()) {
         sb.append("\n\tDefault value: ").append(this.defaultValue);
       }
