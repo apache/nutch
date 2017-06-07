@@ -48,7 +48,7 @@ public class JsoupDocumentReader {
   
   private Configuration conf;
 
-  private List<JsoupDocument> jsoupDocument = new ArrayList<JsoupDocument>();
+  private List<JsoupDocument> jsoupDocuments = new ArrayList<JsoupDocument>();
   private Map<String, Normalizable> normalizerMap = new HashMap<>();
 
   public static synchronized JsoupDocumentReader getInstance(Configuration conf) {
@@ -157,6 +157,7 @@ public class JsoupDocumentReader {
         }
         jsoupDocument.addField(documentField);
       }
+      jsoupDocuments.add(jsoupDocument);
       LOG.info("{}", jsoupDocument.toString());
     }
   }
@@ -167,6 +168,6 @@ public class JsoupDocumentReader {
   }
 
   public List<JsoupDocument> getDocuments() {
-    return jsoupDocument;
+    return jsoupDocuments;
   }
 }

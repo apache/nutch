@@ -53,10 +53,12 @@ public class JsoupHtmlParser implements ParseFilter {
   @Override
   public Parse filter(String url, WebPage page, Parse parse,
       HTMLMetaTags metaTags, DocumentFragment doc) {
-
+    LOG.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@ " + jsoupDocumentReader.getDocuments().size());
     for (JsoupDocument jsoupDocument : jsoupDocumentReader.getDocuments()) {
       Matcher matcher = jsoupDocument.getUrlPattern().matcher(url);
+      LOG.info("dhukse");
       if (matcher.matches()) {
+        LOG.info("##########################");
         String htmlContent = new String(page.getContent().array(),
             StandardCharsets.UTF_8);
         Document document = Jsoup.parse(htmlContent, url);

@@ -32,10 +32,8 @@ import java.util.Map.Entry;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseUtil;
-import org.apache.nutch.parse.ParserChecker;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
@@ -72,8 +70,8 @@ public class TestJsoupParser {
       for(Entry<CharSequence, ByteBuffer> entry: page.getMetadata().entrySet()) {
         System.out.println(entry.getKey().toString() + " => " + Bytes.toString(entry.getValue().array()));
       }
-      assertEquals(page.getMetadata().get("title"), TITLE);
-//      assertEquals(page.getMetadata().get("publisherName"), PUBLISHER);
+      assertEquals(Bytes.toString(page.getMetadata().get(new Utf8("title")).array()), TITLE);
+      assertEquals(Bytes.toString(page.getMetadata().get(new Utf8("publisherName")).array()), PUBLISHER);
       
     } catch (MalformedURLException ex) {
       ex.printStackTrace();
