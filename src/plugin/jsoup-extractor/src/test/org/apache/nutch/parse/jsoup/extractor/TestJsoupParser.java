@@ -42,8 +42,8 @@ public class TestJsoupParser {
   
   private static final String SAMPLE_CONF_FILE = "jsoup-extractor-example.xml";
   private static final String SAMPLE_URL = "https://www.youtube.com/watch?v=pzMpwW4ppRM";
-  private static final String TITLE = "Large scale crawling with Apache Nutch";
-  private static final String PUBLISHER = "LuceneSolrRevolution";
+  private static final String TITLE = "Large scale crawling with Apache Nutch\t";
+  private static final String PUBLISHER = "LuceneSolrRevolution\t";
   
   @Test
   public void parseJsoup() {

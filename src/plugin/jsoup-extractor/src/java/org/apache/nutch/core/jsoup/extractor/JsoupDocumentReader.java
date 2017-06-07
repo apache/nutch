@@ -97,9 +97,7 @@ public class JsoupDocumentReader {
       String name = node.getAttribute(JsoupExtractorConstants.ATTR_NAME);
       String className = node.getAttribute(JsoupExtractorConstants.ATTR_CLASS);
       try {
-        Class<?> clazz = Class.forName(className);
-        Normalizable normalizable = (Normalizable) Class
-            .forName(Normalizable.class.getName()).cast(clazz);
+        Normalizable normalizable = (Normalizable) Class.forName(className).newInstance();
         normalizerMap.put(name, normalizable);
         LOG.info("Normalizer name: {}, class: {}", name, normalizable.getClass().getName());
       } catch (ClassNotFoundException ex) {
@@ -107,6 +105,10 @@ public class JsoupDocumentReader {
             "Invalid class attribute for Normalizer: Class may not implement Normalizable interface: {}",
             ex.toString());
         continue;
+      } catch(InstantiationException ex) {
+        
+      } catch(IllegalAccessException ex) {
+        
       }
     }
   }

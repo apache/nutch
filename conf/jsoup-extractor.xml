@@ -17,8 +17,8 @@
 -->
 <extractor>
 	<normalizers>
-		<!-- <normalizer name="simpleNormalizer" class="org.apache.nutch.parse.jsoup.normalizer.SimpleStringNormalizer" />
-		<normalizer name="viewCountNormalizer" class="org.apache.nutch.parse.jsoup.extractor.ViewCountNormalizer" /> -->
+		<normalizer name="simpleNormalizer" class="org.apache.nutch.core.jsoup.extractor.normalizer.SimpleStringNormalizer" />
+		<normalizer name="viewCountNormalizer" class="org.apache.nutch.parse.jsoup.extractor.ViewCountNormalizer" />
 	</normalizers>
 
 	<documents>
@@ -26,7 +26,7 @@
 			<field name="title">
 				<css-selector>#eow-title</css-selector>
 				<default>A placeholder Title</default>
-				<!-- <normalizer>simpleNormalizer</normalizer> -->
+				<normalizer>simpleNormalizer</normalizer>
 			</field>
 			<field name="description">
 				<css-selector>#watch-description-text p#eow-description</css-selector>
@@ -42,7 +42,7 @@
 			</field>
 			<field name="viewCount">
 				<css-selector>.watch-view-count</css-selector>
-				<!-- <normalizer>viewCountNormalizer</normalizer> -->
+				<normalizer>viewCountNormalizer</normalizer>
 			</field>
 			<field name="subscriberCount">
 				<css-selector>.yt-subscriber-count</css-selector>
