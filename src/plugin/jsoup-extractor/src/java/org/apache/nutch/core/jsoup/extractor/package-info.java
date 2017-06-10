@@ -16,7 +16,7 @@
  */
 
 /**
- * core package of jsoup-extractor 
+ * core package of jsoup-extractor containing XML configuration parser, document structure 
  */
 package org.apache.nutch.core.jsoup.extractor;
 
