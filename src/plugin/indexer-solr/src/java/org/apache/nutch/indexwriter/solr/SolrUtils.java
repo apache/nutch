@@ -16,64 +16,27 @@
  */
 package org.apache.nutch.indexwriter.solr;
 
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import java.net.MalformedURLException;
 
-public class SolrUtils {
+class SolrUtils {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
-
-  /**
-   *
-   *
-   * @param job
-   * @return SolrClient
-   */
-  public static ArrayList<SolrClient> getSolrClients(JobConf job) throws MalformedURLException {
-    String[] urls = job.getStrings(SolrConstants.SERVER_URL);
-    String[] zkHostString = job.getStrings(SolrConstants.ZOOKEEPER_HOSTS);
-    ArrayList<SolrClient> solrClients = new ArrayList<SolrClient>();
-    
-    if (zkHostString != null && zkHostString.length > 0) {
-      for (int i = 0; i < zkHostString.length; i++) {
-        CloudSolrClient sc = getCloudSolrClient(zkHostString[i]);
-        sc.setDefaultCollection(job.get(SolrConstants.COLLECTION));
-        solrClients.add(sc);
-      }
-    } else {
-      for (int i = 0; i < urls.length; i++) {
-        SolrClient sc = new HttpSolrClient(urls[i]);
-        solrClients.add(sc);
-      }
-    }
-
-    return solrClients;
-  }
-
-  public static CloudSolrClient getCloudSolrClient(String url) throws MalformedURLException {
+  static CloudSolrClient getCloudSolrClient(String url) throws MalformedURLException {
     CloudSolrClient sc = new CloudSolrClient(url.replace('|', ','));
     sc.setParallelUpdates(true);
     sc.connect();
     return sc;
   }
 
-  public static SolrClient getHttpSolrClient(String url) throws MalformedURLException {
+  static SolrClient getHttpSolrClient(String url) throws MalformedURLException {
     SolrClient sc =new HttpSolrClient(url);
     return sc;
   }
   
-  public static String stripNonCharCodepoints(String input) {
+  static String stripNonCharCodepoints(String input) {
     StringBuilder retval = new StringBuilder();
     char ch;
 

@@ -164,6 +164,11 @@ public class ElasticRestIndexWriter implements IndexWriter {
   }
 
   @Override
+  public void open(Map<String, String> parameters) throws IOException {
+
+  }
+
+  @Override
   public void write(NutchDocument doc) throws IOException {
     String id = (String) doc.getFieldValue("id");
     String type = doc.getDocumentMeta().get("type");

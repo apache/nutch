@@ -100,6 +100,17 @@ public class ElasticIndexWriter implements IndexWriter {
       .build();
   }
 
+  /**
+   * Initializes the internal variables from a given index writer configuration.
+   *
+   * @param parameters Params from the index writer configuration.
+   * @throws IOException Some exception thrown by writer.
+   */
+  @Override
+  public void open(Map<String, String> parameters) throws IOException {
+
+  }
+
   /** Generates a TransportClient or NodeClient */
   protected Client makeClient(Configuration conf) throws IOException {
     String clusterName = conf.get(ElasticConstants.CLUSTER);

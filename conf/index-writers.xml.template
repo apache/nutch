@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<writers xmlns="http://lucene.apache.org/nutch"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://lucene.apache.org/nutch index-writers.xsd">
+
+  <writer id="indexer_solr_1" class="org.apache.nutch.indexwriter.solr.SolrIndexWriter">
+    <parameters>
+      <param name="type" value="http"/>
+      <param name="url" value="http://localhost:8983/solr/core_name"/>
+      <param name="commitSize" value="250"/>
+      <param name="commitIndex" value="true"/>
+      <param name="auth" value="false"/>
+      <param name="username" value="username"/>
+      <param name="password" value="password"/>
+    </parameters>
+    <mapping>
+      <copy>
+        <field source="content" dest="search"/>
+        <field source="title" dest="title,search"/>
+      </copy>
+      <rename>
+        <field source="metatag.description" dest="description"/>
+        <field source="metatag.keywords" dest="keywords"/>
+      </rename>
+      <remove>
+        <field source="segment"/>
+      </remove>
+    </mapping>
+  </writer>
+  <writer id="indexer_rabbit_1" class="org.apache.nutch.indexwriter.rabbit.RabbitIndexWriter">
+    <parameters>
+      <param name="server.host" value="localhost"/>
+      <param name="server.port" value="5672"/>
+      <param name="server.virtualhost" value="nutch"/>
+      <param name="server.username" value="admin"/>
+      <param name="server.password" value="admin"/>
+      <param name="exchange.server" value="nutch.exchange"/>
+      <param name="exchange.type" value="direct"/>
+      <param name="queue.name" value="nutch.queue"/>
+      <param name="queue.durable" value="true"/>
+      <param name="queue.routingkey" value="nutch.key"/>
+      <param name="commit.size" value="250"/>
+    </parameters>
+    <mapping>
+      <copy>
+        <field source="title" dest="title,search"/>
+      </copy>
+      <rename>
+        <field source="metatag.description" dest="description"/>
+        <field source="metatag.keywords" dest="keywords"/>
+      </rename>
+      <remove>
+        <field source="content"/>
+        <field source="segment"/>
+        <field source="boost"/>
+      </remove>
+    </mapping>
+  </writer>
+</writers>

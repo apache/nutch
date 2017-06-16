@@ -149,6 +149,11 @@ public class CloudSearchIndexWriter implements IndexWriter {
   }
 
   @Override
+  public void open(Map<String, String> parameters) throws IOException {
+
+  }
+
+  @Override
   public void delete(String url) throws IOException {
 
     try {

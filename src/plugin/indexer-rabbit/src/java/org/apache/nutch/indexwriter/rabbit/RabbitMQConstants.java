@@ -17,28 +17,26 @@
 package org.apache.nutch.indexwriter.rabbit;
 
 interface RabbitMQConstants {
-    String RABBIT_PREFIX = "rabbitmq.indexer";
 
-    String SERVER_HOST = RABBIT_PREFIX + "server.host";
+    String SERVER_HOST = "server.host";
 
-    String SERVER_PORT = RABBIT_PREFIX + "server.port";
+    String SERVER_PORT = "server.port";
 
-    String SERVER_VIRTUAL_HOST = RABBIT_PREFIX + "server.virtualhost";
+    String SERVER_VIRTUAL_HOST = "server.virtualhost";
 
-    String SERVER_USERNAME = RABBIT_PREFIX + "server.username";
+    String SERVER_USERNAME = "server.username";
 
-    String SERVER_PASSWORD = RABBIT_PREFIX + "server.password";
+    String SERVER_PASSWORD = "server.password";
 
-    String EXCHANGE_SERVER = RABBIT_PREFIX + "exchange.server";
+    String EXCHANGE_SERVER = "exchange.server";
 
-    String EXCHANGE_TYPE = RABBIT_PREFIX + "exchange.type";
+    String EXCHANGE_TYPE = "exchange.type";
 
-    String QUEUE_NAME = RABBIT_PREFIX + "queue.name";
+    String QUEUE_NAME = "queue.name";
 
-    String QUEUE_DURABLE = RABBIT_PREFIX + "queue.durable";
+    String QUEUE_DURABLE = "queue.durable";
 
-    String QUEUE_ROUTING_KEY = RABBIT_PREFIX + "queue.routingkey";
+    String QUEUE_ROUTING_KEY = "queue.routingkey";
 
-
-    String COMMIT_SIZE = RABBIT_PREFIX + "commit.size";
+    String COMMIT_SIZE = "commit.size";
 }

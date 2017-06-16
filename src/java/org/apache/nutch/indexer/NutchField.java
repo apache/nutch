@@ -31,9 +31,9 @@ import org.apache.hadoop.io.*;
  * This class represents a multi-valued field with a weight. Values are
  * arbitrary objects.
  */
-public class NutchField implements Writable {
+public class NutchField implements Writable, Cloneable {
   private float weight;
-  private List<Object> values = new ArrayList<>();
+  private ArrayList<Object> values = new ArrayList<>();
 
   public NutchField() {
   }
@@ -73,10 +73,10 @@ public class NutchField implements Writable {
   }
 
   @Override
-  public Object clone() throws CloneNotSupportedException {
+  public NutchField clone() throws CloneNotSupportedException {
     NutchField result = (NutchField) super.clone();
     result.weight = weight;
-    result.values = values;
+    result.values = (ArrayList<Object>) values.clone();
 
     return result;
   }

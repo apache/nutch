@@ -21,6 +21,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
@@ -44,6 +45,17 @@ public class DummyIndexWriter implements IndexWriter {
 
   public void open(JobConf job, String name) throws IOException {
     delete = job.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
+  }
+
+  /**
+   * Initializes the internal variables from a given index writer configuration.
+   *
+   * @param parameters Params from the index writer configuration.
+   * @throws IOException Some exception thrown by writer.
+   */
+  @Override
+  public void open(Map<String, String> parameters) throws IOException {
+    delete = config.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
   }
 
   @Override
