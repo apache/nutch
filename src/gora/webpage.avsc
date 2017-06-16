@@ -291,13 +291,13 @@
       "doc": "Sitemap urls in robot.txt",
       "default": {
 
-      },
-      {
+      }
+    },
+    {
         "name": "stmPriority",
         "type": "float",
         "doc": "",
         "default": 0
-      },
     }
   ]
 }

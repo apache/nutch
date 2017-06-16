@@ -110,7 +110,7 @@ public class DomainStatistics extends Configured implements Tool {
     Query<String, WebPage> query = store.newQuery();
     query.setFields(WebPage._ALL_FIELDS);
 
-    GoraMapper.initMapperJob(job, query, store, Text.class, LongWritable.class,
+    GoraMapper.initMapperJob(job, query, Text.class, LongWritable.class,
         DomainStatisticsMapper.class, null, true);
 
     FileOutputFormat.setOutputPath(job, new Path(outputDir));
