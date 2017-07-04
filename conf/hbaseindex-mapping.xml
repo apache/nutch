@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<mapping>
+	<!--
+		A hbase table named 'document' with column family 'f' is expected to exist. If not, below command from hbase shell will create the table
+
+		> create 'document', {NAME => 'f', BLOOMFILTER => 'ROW', VERSIONS => '1', IN_MEMORY => 'false', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => org.apache.hadoop.hbase.HConstants::FOREVER, COMPRESSION => 'NONE', MIN_VERSIONS => '0', BLOCKCACHE => 'true', BLOCKSIZE => '65536', REPLICATION_SCOPE => '0'}
+		
+		> enable 'document'
+
+		By default, the expected table name is 'document' with only one column family 'f'. Table with multiple column-families can be used.
+	-->
+	<table name="document" />
+
+	<!-- Simple mapping of fields created by Nutch IndexingFilters
+	     to fields defined (and expected) in Hbase table.
+
+         Any fields in NutchDocument that match a name defined
+         in field/@source will be renamed to the corresponding
+         field/@dest. Additionally, column family and qualifier
+         can be defined optionally.
+
+         If no field/@family is defined or empty, "f" will be used
+         If no field/@qualifier is defined or empty, field/@dest will be used
+         Same rules applied for fields which are not defined below
+
+         To add other values in field/@family, the table must have the family present in schema
+    -->
+	<fields>
+		<field dest="content" source="content" family="f" qualifier="cnt"/>
+		<field dest="title" source="title" family="f" qualifier="t"/>
+		<field dest="host" source="host" family="f" qualifier="h"/>
+		<field dest="batchId" source="batchId" family="f" qualifier="ba"/>
+		<field dest="boost" source="boost" family="f" qualifier="bo"/>
+		<field dest="digest" source="digest" family="f" qualifier="d"/>
+		<field dest="tstamp" source="tstamp" family="f" qualifier="ts"/>
+	</fields>
+
+	<!-- field name of NutchDocument used as row
+		This field must to be defined 
+	-->
+	<row>id</row>
+
+</mapping>

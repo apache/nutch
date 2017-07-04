@@ -249,11 +249,12 @@ public class WebTableReader extends NutchTool implements Tool {
         System.out.println(getPageRepresentation(url, page, dumpContent,
             dumpHeaders, dumpLinks, dumpText));
       } catch (Exception e) {
-        e.printStackTrace();
+        LOG.error(StringUtils.stringifyException(e));
       }
     }
-    if (!found)
-      System.out.println(key + " not found");
+    if (!found) {
+      LOG.info("{} not found", key);
+    }
     result.close();
     datastore.close();
   }
@@ -331,7 +332,7 @@ public class WebTableReader extends NutchTool implements Tool {
         WebPage._ALL_FIELDS.length);
     query.setFields(fields);
 
-    GoraMapper.initMapperJob(job, query, store, Text.class, Text.class,
+    GoraMapper.initMapperJob(job, query, Text.class, Text.class,
         WebTableRegexMapper.class, null, true);
 
     FileOutputFormat.setOutputPath(job, outFolder);
@@ -561,7 +562,7 @@ public class WebTableReader extends NutchTool implements Tool {
         WebPage._ALL_FIELDS.length);
     query.setFields(fields);
 
-    GoraMapper.initMapperJob(currentJob, query, store, Text.class,
+    GoraMapper.initMapperJob(currentJob, query, Text.class,
         LongWritable.class, WebTableStatMapper.class, null, true);
 
     currentJob.setCombinerClass(WebTableStatCombiner.class);

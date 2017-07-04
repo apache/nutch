@@ -299,13 +299,25 @@
   <description>Value of the "Accept-Language" request header field.
   This allows selecting non-English language as default one to retrieve.
   It is a useful setting for search engines build for certain national group.
+  To send requests without "Accept-Language" header field, thi  property must
+  be configured to contain a space character because an empty property does
+  not overwrite the default.
   </description>
 </property>
 
 <property>
   <name>http.accept</name>
   <value>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</value>
-  <description>Value of the "Accept" request header field.
+  <description>Value of the "Accept" request header field. A space character
+  as value will cause that no "Accept" header field is sent in the request.
+  </description>
+</property>
+
+<property>
+  <name>http.accept.charset</name>
+  <value>utf-8,iso-8859-1;q=0.7,*;q=0.7</value>
+  <description>Value of the "Accept-Charset" request header field. A space character
+  as value will cause that no "Accept-Charset" header field is sent in the request.
   </description>
 </property>
 
@@ -1350,6 +1362,44 @@
   The total length of all indexed text in a batch that will trigger a
   flush to elasticsearch, by checking after every document for excess 
   of this amount.
+  </description>
+</property>
+
+<!-- hbase index properties -->
+
+<property>
+  <name>hbase.indexer.mapping.file</name>
+  <value>hbaseindex-mapping.xml</value>
+  <description>
+  Defines the name of the file that will be used getting hbase table name,
+  column-family definition as specified in the target hbase table schema
+  and mapping of internal nutch field names to hbase index fields
+  </description>
+</property>
+
+<property>
+  <name>hbase.indexer.zookeeper.quorum</name>
+  <value>localhost</value>
+  <description>
+  Comma separated list of servers in the ZooKeeper ensemble.
+  </description>
+</property>
+
+<property>
+  <name>hbase.indexer.zookeeper.property.clientPort</name>
+  <value>2181</value>
+  <description>
+  The port at which the clients will connect.
+  </description>
+</property>
+
+<property>
+  <name>hbase.indexer.commit.size</name>
+  <value>500</value>
+  <description>
+  Defines the number of documents to send to Hbase in a single write batch.
+  Decrease when handling very large documents to prevent Nutch from running
+  out of memory
   </description>
 </property>
 

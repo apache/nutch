@@ -18,6 +18,11 @@ package org.apache.nutch.util;
 
 import java.io.DataInput;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+
+import org.apache.hadoop.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
@@ -32,6 +37,9 @@ public abstract class GenericWritableConfigurable extends GenericWritable
     implements Configurable {
 
   private Configuration conf;
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public Configuration getConf() {
     return conf;
@@ -48,7 +56,7 @@ public abstract class GenericWritableConfigurable extends GenericWritable
     try {
       set((Writable) clazz.newInstance());
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error(StringUtils.stringifyException(e));
       throw new IOException("Cannot initialize the class: " + clazz);
     }
     Writable w = get();

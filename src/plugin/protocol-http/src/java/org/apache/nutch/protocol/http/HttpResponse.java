@@ -161,9 +161,26 @@ public class HttpResponse implements Response {
 
       reqStr.append("Accept-Encoding: x-gzip, gzip\r\n");
 
-      reqStr.append("Accept: ");
-      reqStr.append(this.http.getAccept());
-      reqStr.append("\r\n");
+      String acceptLanguage = http.getAcceptLanguage();
+      if (!acceptLanguage.isEmpty()) {
+        reqStr.append("Accept-Language: ");
+        reqStr.append(acceptLanguage);
+        reqStr.append("\r\n");
+      }
+
+      String acceptCharset = http.getAcceptCharset();
+      if (!acceptCharset.isEmpty()) {
+        reqStr.append("Accept-Charset: ");
+        reqStr.append(acceptCharset);
+        reqStr.append("\r\n");
+      }
+
+      String accept = http.getAccept();
+      if (!accept.isEmpty()) {
+        reqStr.append("Accept: ");
+        reqStr.append(accept);
+        reqStr.append("\r\n");
+      }
 
       String userAgent = http.getUserAgent();
       if ((userAgent == null) || (userAgent.length() == 0)) {
@@ -279,10 +296,10 @@ public class HttpResponse implements Response {
         throw new HttpException("bad content length: " + contentLengthString);
       }
     }
-    if (http.getMaxContent() >= 0 && contentLength > http.getMaxContent()) // limit
-                                                                           // download
-                                                                           // size
+    if (http.getMaxContent() >= 0 && contentLength > http.getMaxContent()) {
+      // limit download size
       contentLength = http.getMaxContent();
+    }
 
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
     byte[] bytes = new byte[Http.BUFFER_SIZE];
@@ -313,7 +330,6 @@ public class HttpResponse implements Response {
    * @throws HttpException
    * @throws IOException
    */
-  @SuppressWarnings("unused")
   private void readChunkedContent(PushbackInputStream in, StringBuffer line)
       throws HttpException, IOException {
     boolean doneChunks = false;

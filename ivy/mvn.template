@@ -73,6 +73,11 @@
 			<email>fenglu@apache.org</email>
 		</developer>
 		<developer>
+          <id>kamaci</id>
+          <name>Furkan KAMACI</name>
+          <email>kamaci@apache.org</email>
+        </developer>
+		<developer>
 			<id>kiranch</id>
 			<name>Kiran Chitturi</name>
 			<email>kiranch@apache.org</email>
