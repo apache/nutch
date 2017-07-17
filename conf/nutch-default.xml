@@ -2541,8 +2541,59 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <value></value>
   <description>
     Default is 'fanout.key'
-    The routingKey used by publisher to publish messages to specific queues. If the exchange type is "fanout", then this property is ignored.
+    The routingKey used by publisher to publish messages to specific queues. 
+    If the exchange type is "fanout", then this property is ignored.
   </description>
 </property>
 
+<!-- sitemap properties -->
+
+<property>
+  <name>sitemap.strict.parsing</name>
+  <value>true</value>
+  <description>
+If true (default) the Sitemap parser rejects URLs not sharing the same
+    prefix with the sitemap: a sitemap `http://example.com/catalog/sitemap.xml'
+    may only contain URLs starting with `http://example.com/catalog/'.
+    All other URLs are skipped.  If false the parser will allow any URLs contained
+    in the sitemap.
+  </description>
+</property>
+
+<property>
+  <name>sitemap.url.filter</name>
+  <value>true</value>
+  <description>
+    Filter URLs from sitemaps.
+  </description>
+</property>
+
+<property>
+  <name>sitemap.url.normalize</name>
+  <value>true</value>
+  <description>
+    Normalize URLs from sitemaps.
+   </description>
+</property>
+
+<property>
+  <name>sitemap.url.default.sitemap.xml</name>
+  <value>true</value>
+  <description>
+    Always try &lt;host&gt;/sitemap.xml root even if no sitemap
+    is announced in /robots.txt.
+   </description>
+</property>
+
+<property>
+  <name>sitemap.url.overwrite.existing</name>
+  <value>false</value>
+  <description>
+    If true, the record's existing modified time, interval and score are
+    overwritten by the information in the sitemap. WARNING: overwriting
+    these values may have unexpected effects on what is crawled. Use this
+    only if you can trust the sitemap and if the values in the sitemap do
+    fit with your crawler configuration.
+   </description>
+</property>
 </configuration>
