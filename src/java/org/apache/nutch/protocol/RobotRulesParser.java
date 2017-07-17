@@ -133,7 +133,7 @@ public abstract class RobotRulesParser implements Tool {
 
     String[] confWhiteList = conf.getStrings("http.robot.rules.whitelist");
     if (confWhiteList == null) {
-      LOG.info("robots.txt whitelist not configured.");
+      LOG.debug("robots.txt whitelist not configured.");
     }
     else {
       for (int i = 0; i < confWhiteList.length; i++) {
@@ -146,7 +146,7 @@ public abstract class RobotRulesParser implements Tool {
       
       if (whiteList.size() > 0) {
         matcher = new SuffixStringMatcher(whiteList);
-        LOG.info("Whitelisted hosts: " + whiteList);
+        LOG.info("Whitelisted hosts: {}", whiteList);
       }
     }
   }

@@ -2541,8 +2541,53 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <value></value>
   <description>
     Default is 'fanout.key'
-    The routingKey used by publisher to publish messages to specific queues. If the exchange type is "fanout", then this property is ignored.
+    The routingKey used by publisher to publish messages to specific queues. 
+    If the exchange type is "fanout", then this property is ignored.
   </description>
 </property>
 
+<!-- sitemap properties -->
+
+<property>
+  <name>sitemap.strict.parsing</name>
+  <value>true</value>
+  <description>
+    By default Sitemap parser rejects invalid urls. Setting this to false 
+    disables that.
+  </description>
+</property>
+
+<property>
+  <name>sitemap.url.filter</name>
+  <value>true</value>
+  <description>
+    Filter Sitemaps when processing them.
+  </description>
+</property>
+
+<property>
+  <name>sitemap.url.normalize</name>
+  <value>true</value>
+  <description>
+    Normalize Sitemaps when processing them.
+   </description>
+</property>
+
+<property>
+  <name>sitemap.url.default.sitemap.xml</name>
+  <value>true</value>
+  <description>
+    Always try /sitemap.xml root even if no links where found in robotstxt.
+   </description>
+</property>
+
+<property>
+  <name>sitemap.url.overwrite.existing</name>
+  <value>false</value>
+  <description>
+    If true, the record's existing modified time, interval and score are
+    overwritten by the information in the sitemap. WARNING, this is a very,
+    very, very bad idea. You should not enable this.
+   </description>
+</property>
 </configuration>
