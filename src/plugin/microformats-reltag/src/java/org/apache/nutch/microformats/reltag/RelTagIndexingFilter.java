@@ -37,7 +37,7 @@ import org.apache.hadoop.conf.Configuration;
  * @author J&eacute;r&ocirc;me Charron
  */
 public class RelTagIndexingFilter implements IndexingFilter {
-  
+
   private Configuration conf;
 
   // Inherited JavaDoc

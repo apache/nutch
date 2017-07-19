@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.any23" name="apache-any23-core" rev="0.9.0" conf="*->default"/>
+    <dependency org="org.apache.any23" name="apache-any23-core" rev="2.0" conf="*->default"/>
   </dependencies>
-  
+
 </ivy-module>

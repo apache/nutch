@@ -1021,6 +1021,9 @@
         <source path="${basedir}/src/java/" />
         <source path="${basedir}/src/test/" output="build/test/classes" />
         
+        <source path="${plugins.dir}/any23/src/java/" />
+        <source path="${plugins.dir}/any23/src/test/" />
+        
         <source path="${plugins.dir}/creativecommons/src/java/" />
         <source path="${plugins.dir}/creativecommons/src/test/" />
         <source path="${plugins.dir}/feed/src/java/" />

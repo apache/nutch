@@ -101,6 +101,7 @@
   <!-- ====================================================== -->
   <target name="test">
     <parallel threadCount="2">
+     <ant dir="any23" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="index-basic" target="test"/>
      <ant dir="index-anchor" target="test"/>

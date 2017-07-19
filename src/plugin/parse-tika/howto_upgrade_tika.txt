@@ -1,4 +1,4 @@
-1. Upgrade Tika dependency in trunk/ivy/ivy.xml
+1. Upgrade Tika depencency in trunk/ivy/ivy.xml
 
 2. Upgrade Tika dependency in src/plugin/parse-tika/ivy.xml
 

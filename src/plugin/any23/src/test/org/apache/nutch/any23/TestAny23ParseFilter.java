@@ -107,7 +107,7 @@ public class TestAny23ParseFilter {
     bbuf.get(byteArray);
     String s = new String(byteArray);
     String[] triplesArray = s.split("\t");
+
     return triplesArray;
-    
   }
 }
