@@ -53,7 +53,7 @@ public class HeadingsParseFilter implements HtmlParseFilter {
       if (discoveredHeadings.size() > 0) {
         for (String heading : discoveredHeadings) {
           if (heading != null) {
-            heading.trim();
+            heading = heading.trim();
 
             if (heading.length() > 0) {
               parse.getData().getParseMeta().add(headings[i], heading);
