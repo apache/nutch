@@ -59,6 +59,8 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -175,16 +177,22 @@ public class ElasticRestIndexWriter implements IndexWriter {
 
     // Loop through all fields of this doc
     for (String fieldName : doc.getFieldNames()) {
-      if (doc.getField(fieldName).getValues().size() > 1) {
-        source.put(fieldName, doc.getFieldValue(fieldName));
+      Set<String> allFieldValues = new HashSet<String>();
+      for (Object value : doc.getField(fieldName).getValues()) {
+        allFieldValues.add(value.toString());
+      }
+      String[] fieldValues = allFieldValues.toArray(new String[allFieldValues.size()]);
+      if (fieldValues.length > 1) {
         // Loop through the values to keep track of the size of this
         // document
-        for (Object value : doc.getField(fieldName).getValues()) {
-          bulkLength += value.toString().length();
+        for (String value : fieldValues) {
+          bulkLength += value.length();
         }
-      } else {
-        source.put(fieldName, doc.getFieldValue(fieldName));
-        bulkLength += doc.getFieldValue(fieldName).toString().length();
+
+        source.put(fieldName, fieldValues);
+      } else if(fieldValues.length == 1) {
+        source.put(fieldName, fieldValues[0]);
+        bulkLength += fieldValues[0].length();
       }
     }
     Index indexRequest = new Index.Builder(source).index(defaultIndex)
