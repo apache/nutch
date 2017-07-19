@@ -52,8 +52,6 @@ public class HttpResponse implements Response {
   private Configuration conf;
   private HttpBase http;
   private URL url;
-  private String orig;
-  private String base;
   private byte[] content;
   private int code;
   private Metadata headers = new SpellCheckedMetadata();
@@ -78,8 +76,6 @@ public class HttpResponse implements Response {
 
     this.http = http;
     this.url = url;
-    this.orig = url.toString();
-    this.base = url.toString();
 
     Scheme scheme = null;
 
@@ -189,16 +185,31 @@ public class HttpResponse implements Response {
         reqStr.append("\r\n");
       }
 
-      reqStr.append("Accept-Language: ");
-      reqStr.append(this.http.getAcceptLanguage());
-      reqStr.append("\r\n");
+      String acceptLanguage = http.getAcceptLanguage();
+      if (!acceptLanguage.isEmpty()) {
+        reqStr.append("Accept-Language: ");
+        reqStr.append(acceptLanguage);
+        reqStr.append("\r\n");
+      }
 
-      reqStr.append("Accept: ");
-      reqStr.append(this.http.getAccept());
-      reqStr.append("\r\n");
-      
-      if (http.isCookieEnabled() && datum.getMetaData().containsKey(http.COOKIE)) {
-        String cookie = ((Text)datum.getMetaData().get(http.COOKIE)).toString();
+      String acceptCharset = http.getAcceptCharset();
+      if (!acceptCharset.isEmpty()) {
+        reqStr.append("Accept-Charset: ");
+        reqStr.append(acceptCharset);
+        reqStr.append("\r\n");
+      }
+
+      String accept = http.getAccept();
+      if (!accept.isEmpty()) {
+        reqStr.append("Accept: ");
+        reqStr.append(accept);
+        reqStr.append("\r\n");
+      }
+
+      if (http.isCookieEnabled()
+          && datum.getMetaData().containsKey(HttpBase.COOKIE)) {
+        String cookie = ((Text) datum.getMetaData().get(HttpBase.COOKIE))
+            .toString();
         reqStr.append("Cookie: ");
         reqStr.append(cookie);
         reqStr.append("\r\n");
@@ -321,11 +332,10 @@ public class HttpResponse implements Response {
         throw new HttpException("bad content length: " + contentLengthString);
       }
     }
-    if (http.getMaxContent() >= 0 && contentLength > http
-        .getMaxContent()) // limit
-      // download
-      // size
+    if (http.getMaxContent() >= 0 && contentLength > http.getMaxContent()) {
+      // limit the download size
       contentLength = http.getMaxContent();
+    }
 
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
     byte[] bytes = new byte[Http.BUFFER_SIZE];

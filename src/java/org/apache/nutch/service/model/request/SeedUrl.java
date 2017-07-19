@@ -17,6 +17,8 @@
 package org.apache.nutch.service.model.request;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,6 +31,8 @@ public class SeedUrl implements Serializable {
   private SeedList seedList;
 
   private String url;
+
+  private Map<String, String> metadata = new HashMap<>();
 
   public SeedUrl() {}
 
@@ -51,6 +55,10 @@ public class SeedUrl implements Serializable {
   public void setUrl(String url) {
     this.url = url;
   }
+
+  public Map<String,String> getMetadata() { return metadata; }
+
+  public void setMetadata(Map<String,String> metadata) { this.metadata = metadata; }
 
   @JsonIgnore
   public SeedList getSeedList() {
