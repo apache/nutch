@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.StringUtils;
@@ -137,7 +138,7 @@ public class ParserChecker implements Tool {
     Text turl = new Text(url);
     ProtocolOutput output = protocol.getProtocolOutput(turl, cd);
 
-    // If the configuration permits, handle redirects until we either run
+    // if the configuration permits, handle redirects until we either run
     // out of allowed redirects or we stop getting redirect statuses.
     int maxRedirects = conf.getInt("http.redirect.max", 0);
     int numRedirects = 0;
@@ -205,7 +206,7 @@ public class ParserChecker implements Tool {
       return (-1);
     }
 
-    // Calculate the signature
+    // calculate the signature
     byte[] signature = SignatureFactory.getSignature(getConf()).calculate(
         content, parseResult.get(new Text(url)));
 
