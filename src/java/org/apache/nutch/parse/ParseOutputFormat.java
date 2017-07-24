@@ -20,6 +20,7 @@ package org.apache.nutch.parse;
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
@@ -239,7 +240,7 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
         for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
           String toUrl = links[i].getToUrl();
 
-          // Only normalize and filter if fetcher.parse = false
+          // only normalize and filter if fetcher.parse = false
           if (!isParsing) {
             toUrl = ParseOutputFormat.filterNormalize(fromUrl, toUrl, origin,
                 ignoreInternalLinks, ignoreExternalLinks, ignoreExternalLinksMode, filters, exemptionFilters, normalizers);
@@ -269,7 +270,7 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
 
           targets.add(new SimpleEntry(targetUrl, target));
 
-          // OVerwrite URL in Outlink object with normalized URL (NUTCH-1174)
+          // overwrite URL in Outlink object with normalized URL (NUTCH-1174)
           links[i].setUrl(toUrl);
           outlinkList.add(links[i]);
           validCount++;
