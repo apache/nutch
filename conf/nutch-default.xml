@@ -774,6 +774,30 @@
   generate.min.interval. A value of -1 disables this check.</description>
 </property>
 
+<property>
+  <name>generate.hostdb</name>
+  <value></value>
+  <description>Path to HostDB, required for the generate.max.count.expr
+  and generate.fetch.delay.expr properties.
+  See https://issues.apache.org/jira/browse/NUTCH-2368</description>
+</property>
+
+<property>
+  <name>generate.fetch.delay.expr</name>
+  <value></value>
+  <description>Controls variable fetcher.server.delay via a Jexl expression and
+  HostDB information. It allows you to alter fetch delay based on HostDB data.
+  See https://issues.apache.org/jira/browse/NUTCH-2368</description>
+</property>
+
+<property>
+  <name>generate.max.count.expr</name>
+  <value></value>
+  <description>Controls variable generate.max.count via a Jexl expression and
+  HostDB information. It allows you to alter maxCount based on HostDB data.
+  See https://issues.apache.org/jira/browse/NUTCH-2368</description>
+</property>
+
 <!-- urlpartitioner properties -->
 
 <property>
