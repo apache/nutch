@@ -49,7 +49,7 @@ public class JsoupDocumentReader {
   private Configuration conf;
 
   private List<JsoupDocument> jsoupDocuments = new ArrayList<JsoupDocument>();
-  private Map<String, Normalizable> normalizerMap = new HashMap<>();
+  private Map<String, Normalizable> normalizerMap = new HashMap<String, Normalizable>();
 
   public static synchronized JsoupDocumentReader getInstance(
       Configuration conf) {

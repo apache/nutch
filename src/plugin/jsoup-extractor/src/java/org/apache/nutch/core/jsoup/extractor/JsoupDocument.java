@@ -25,7 +25,7 @@ import org.apache.nutch.core.jsoup.extractor.normalizer.Normalizable;
 public class JsoupDocument {
   
   private Pattern urlPattern;
-  private List<DocumentField> documentFields = new ArrayList<>();
+  private List<DocumentField> documentFields = new ArrayList<DocumentField>();
   
   public JsoupDocument(Pattern urlPattern) {
     this.urlPattern = urlPattern;
