@@ -36,6 +36,7 @@
      <!--<ant dir="indexer-elastic" target="deploy"/>-->
      <ant dir="indexer-elastic2" target="deploy"/>
      <ant dir="indexer-hbase" target="deploy"/>
+     <ant dir="jsoup-extractor" target="deploy"/>
      <ant dir="language-identifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-nekohtml" target="deploy"/>
@@ -86,6 +87,7 @@
      <ant dir="index-anchor" target="test"/>
      <ant dir="index-basic" target="test"/>
      <ant dir="index-more" target="test"/>
+     <ant dir="jsoup-extractor" target="test"/>
      <ant dir="language-identifier" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
      <ant dir="protocol-http" target="test"/>
@@ -126,6 +128,7 @@
     <!--<ant dir="indexer-elastic" target="clean"/>-->
     <ant dir="indexer-elastic2" target="clean"/>
     <ant dir="indexer-hbase" target="clean"/>
+    <ant dir="jsoup-extractor" target="clean"/>
     <ant dir="language-identifier" target="clean"/>
     <ant dir="lib-http" target="clean"/>
     <ant dir="lib-nekohtml" target="clean"/>

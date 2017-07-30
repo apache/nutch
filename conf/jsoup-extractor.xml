@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<!-- 
+	Define your custom normalizer here. Any normalizer class 
+	must have to implement org.apache.nutch.core.jsoup.extractor.normalizer.Normalizable interface
+	Every normalizer must have a name and class attribute. See conf/jsoup-extractor-example.xml for example
+-->
+<normalizers>
+	<normalizer name="simple-string-normalizer" class="org.apache.nutch.core.jsoup.extractor.normalizer.SimpleStringNormalizer" />
+</normalizers>
+
+<documents>
+	<!-- 
+		Every document must have url-pattern attribute which will contain the expected URL regex for filtering 
+	-->
+	<document url-pattern=".*" >
+		<!--
+			A <field> tag can have following properties:
+				1. attribute - 'name', contains the name of the field for indexing (mandatory).
+				2. tag - <css-selector>, contains the jsoup selector-syntax to find content using jsoup select() API (mandatory).
+				3. tag - <attribute>, contains the html attribute name to find content using jsoup attr() API along with select() API
+								      (optional, if <attribute> is defined, select(<css-selector>).attr(<attribute>) will be used to extract content, otherwise, select(<css-selector>).ownText() will be used)
+				4. tag - <default-value>, contains the default value in case nothing found after jsoup selection. This is optional
+				5. tag - <normalizer>, name of the normalizer class defined in <normalizers> section. This is optional.
+
+				See conf/jsoup-extractor-example.xml for example.
+		-->
+		<!--
+			Sample field example
+			<field name="title">
+				<css-selector>#eow-title</css-selector>
+				<default>A placeholder Title</default>
+				<normalizer>simpleNormalizer</normalizer>
+			</field>
+		-->
+	</document>
+</documents>
