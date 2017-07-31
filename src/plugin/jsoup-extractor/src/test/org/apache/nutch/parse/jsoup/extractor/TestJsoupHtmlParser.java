@@ -27,11 +27,11 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map.Entry;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.nutch.core.jsoup.extractor.JsoupExtractorConstants;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseUtil;
@@ -43,8 +43,8 @@ public class TestJsoupHtmlParser {
   
   private static final String SAMPLE_CONF_FILE = "jsoup-extractor-example.xml";
   private static final String SAMPLE_URL = "https://www.youtube.com/watch?v=pzMpwW4ppRM";
-  private static final String TITLE = "Large scale crawling with Apache Nutch\t";
-  private static final String PUBLISHER = "LuceneSolrRevolution\t";
+  private static final String TITLE = "Large scale crawling with Apache Nutch";
+  private static final String PUBLISHER = "LuceneSolrRevolution";
   
   @Test
   public void testJsoupHtmlParser() {
@@ -70,11 +70,11 @@ public class TestJsoupHtmlParser {
       parser.parse(SAMPLE_URL, page);
       
       for(Entry<CharSequence, ByteBuffer> entry: page.getMetadata().entrySet()) {
-        System.out.println(entry.getKey().toString() + " => " + Bytes.toString(entry.getValue().array()));
+         System.out.println(entry.getKey().toString() + " => " + new String(entry.getValue().array(), StandardCharsets.UTF_8));
       }
       
-      assertEquals(Bytes.toString(page.getMetadata().get(new Utf8("title")).array()), TITLE);
-      assertEquals(Bytes.toString(page.getMetadata().get(new Utf8("publisherName")).array()), PUBLISHER);
+      assertEquals(new String(page.getMetadata().get(new Utf8("title")).array(), StandardCharsets.UTF_8).replaceAll("\\t", ""), TITLE);
+      assertEquals(new String(page.getMetadata().get(new Utf8("publisherName")).array(), StandardCharsets.UTF_8).replaceAll("\\t", ""), PUBLISHER);
       
     } catch (MalformedURLException ex) {
       ex.printStackTrace();
