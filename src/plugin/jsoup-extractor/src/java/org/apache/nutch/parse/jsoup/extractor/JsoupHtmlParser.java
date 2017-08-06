@@ -85,7 +85,7 @@ public class JsoupHtmlParser implements ParseFilter {
         if (attributeKey != null && !attributeKey.isEmpty()) {
           content = element.attr(attributeKey);
         } else {
-          content = element.ownText();
+          content = element.text();
         }
         if(field.getNormalizer() != null) {
           content = field.getNormalizer().normalize(content);
@@ -94,7 +94,7 @@ public class JsoupHtmlParser implements ParseFilter {
         sb.append("\t");
       }
     }
-    if (sb.length() == "\t".length()) {
+    if (sb.length() == 0) {
       return field.getDefaultValue();
     }
     return sb.toString();

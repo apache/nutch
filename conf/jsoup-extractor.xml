@@ -15,39 +15,40 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-
-<!-- 
-	Define your custom normalizer here. Any normalizer class 
-	must have to implement org.apache.nutch.core.jsoup.extractor.normalizer.Normalizable interface
-	Every normalizer must have a name and class attribute. See conf/jsoup-extractor-example.xml for example
--->
-<normalizers>
-	<normalizer name="simple-string-normalizer" class="org.apache.nutch.core.jsoup.extractor.normalizer.SimpleStringNormalizer" />
-</normalizers>
-
-<documents>
+<extractor>
 	<!-- 
-		Every document must have url-pattern attribute which will contain the expected URL regex for filtering 
+		Define your custom normalizer here. Any normalizer class 
+		must have to implement org.apache.nutch.core.jsoup.extractor.normalizer.Normalizable interface
+		Every normalizer must have a name and class attribute. See conf/jsoup-extractor-example.xml for example
 	-->
-	<document url-pattern=".*" >
-		<!--
-			A <field> tag can have following properties:
-				1. attribute - 'name', contains the name of the field for indexing (mandatory).
-				2. tag - <css-selector>, contains the jsoup selector-syntax to find content using jsoup select() API (mandatory).
-				3. tag - <attribute>, contains the html attribute name to find content using jsoup attr() API along with select() API
-								      (optional, if <attribute> is defined, select(<css-selector>).attr(<attribute>) will be used to extract content, otherwise, select(<css-selector>).ownText() will be used)
-				4. tag - <default-value>, contains the default value in case nothing found after jsoup selection. This is optional
-				5. tag - <normalizer>, name of the normalizer class defined in <normalizers> section. This is optional.
+	<normalizers>
+		<normalizer name="simpleNormalizer" class="org.apache.nutch.core.jsoup.extractor.normalizer.SimpleStringNormalizer" />
+	</normalizers>
 
-				See conf/jsoup-extractor-example.xml for example.
+	<documents>
+		<!-- 
+			Every document must have url-pattern attribute which will contain the expected URL regex for filtering 
 		-->
-		<!--
-			Sample field example
-			<field name="title">
-				<css-selector>#eow-title</css-selector>
-				<default>A placeholder Title</default>
-				<normalizer>simpleNormalizer</normalizer>
-			</field>
-		-->
-	</document>
-</documents>
+		<document url-pattern=".*" >
+			<!--
+				A <field> tag can have following properties:
+					1. attribute - 'name', contains the name of the field for indexing (mandatory).
+					2. tag - <css-selector>, contains the jsoup selector-syntax to find content using jsoup select() API (mandatory).
+					3. tag - <attribute>, contains the html attribute name to find content using jsoup attr() API along with select() API
+									      (optional, if <attribute> is defined, select(<css-selector>).attr(<attribute>) will be used to extract content, otherwise, select(<css-selector>).ownText() will be used)
+					4. tag - <default-value>, contains the default value in case nothing found after jsoup selection. This is optional
+					5. tag - <normalizer>, name of the normalizer class defined in <normalizers> section. This is optional.
+
+					See conf/jsoup-extractor-example.xml for example.
+			-->
+			<!--
+				Sample field example
+				<field name="title">
+					<css-selector>#eow-title</css-selector>
+					<default-value>A placeholder Title</default-value>
+					<normalizer>simpleNormalizer</normalizer>
+				</field>
+			-->
+		</document>
+	</documents>
+</extractor>

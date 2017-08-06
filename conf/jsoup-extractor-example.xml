@@ -25,7 +25,7 @@
 		<document url-pattern="^https?://(?:www\.)?youtu(?:\.be/|be\.com/watch\?v=)(?:[a-zA-Z0-9_-]{11}).*$" >
 			<field name="title">
 				<css-selector>#eow-title</css-selector>
-				<default>A placeholder Title</default>
+				<default-value>A placeholder Title</default-value>
 				<normalizer>simpleNormalizer</normalizer>
 			</field>
 			<field name="description">
