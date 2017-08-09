@@ -17,12 +17,13 @@
 
 package org.apache.nutch.crawl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
@@ -184,8 +185,8 @@ public abstract class AbstractFetchSchedule extends Configured implements
    */
   public boolean shouldFetch(Text url, CrawlDatum datum, long curTime) {
     // pages are never truly GONE - we have to check them from time to time.
-    // pages with too long fetchInterval are adjusted so that they fit within
-    // maximum fetchInterval (segment retention period).
+    // pages with too long a fetchInterval are adjusted so that they fit within
+    // a maximum fetchInterval (segment retention period).
     if (datum.getFetchTime() - curTime > (long) maxInterval * 1000) {
       if (datum.getFetchInterval() > maxInterval) {
         datum.setFetchInterval(maxInterval * 0.9f);
