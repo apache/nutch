@@ -1679,6 +1679,26 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<property>
+  <name>scoring.adaptive.mark.orphan.after</name>
+   <value>518400</value>
+   <description>
+     Time span (in minutes) after which a page not seen anymore by inlink or
+     seed is marked as orpaned. Default = 518400 minutes = one year.
+   </description>
+</property>
+
+<property>
+  <name>scoring.adaptive.mark.gone.orphan.after</name>
+   <value>172800</value>
+   <description>
+     Time span (in minutes) after which a gone page not seen anymore
+     by inlink or seed is marked as orpaned. Also duplicates and unfetched pages
+     with a retry count >= 3 are considered as gone.
+     Default = 172800 minutes = four month.
+   </description>
+</property>
+
 <!-- language-identifier plugin properties -->
 
 <property>

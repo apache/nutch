@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -32,6 +33,8 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.FetchSchedule;
+import org.apache.nutch.crawl.FetchScheduleFactory;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.scoring.AbstractScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -68,6 +71,12 @@ import org.apache.nutch.scoring.ScoringFilterException;
  * fetched again while others are still waiting to be queued. It also allows to
  * adjust the probabilities that gone or not modified pages are refetched.
  * </p>
+ * 
+ * [TODO:experimental]
+ * 
+ * The plugin also includes heuristics to &quot;retire&quot; pages to status
+ * db_orphan if they fail to fetch or are duplicates and are not seen in seeds
+ * or via inlinks (cf. the plugin scoring-orphan).
  * 
  */
 public class AdaptiveScoringFilter extends AbstractScoringFilter {
@@ -106,9 +115,29 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
    */
   public static final String ADAPTIVE_INJECTED_BOOST = "scoring.adaptive.boost.injected";
 
-  /** (in minutes) */
+  /*
+   * Time span (in minutes) after which a page not seen anymore by inlink or
+   * seed is marked as orpaned.
+   */
+  public static final String ADAPTIVE_ORPHAN_TIME = "scoring.adaptive.mark.orphan.after";
+
+  /*
+   * Time span (in minutes) after which a &quot;gone&quot; page not seen anymore
+   * by inlink or seed is marked as orpaned. Also duplicates and unfetched pages
+   * with a retry count >= 3 are considered as &quot;gone&quot;.
+   */
+  public static final String ADAPTIVE_ORPHAN_TIME_GONE = "scoring.adaptive.mark.gone.orphan.after";
+
+  /**
+   * Time stamp (in minutes) when a page has been &quot;seen&quot; the last
+   * time, either as link or as seed URL.
+   */
   public static final String LAST_SEEN_TIME = "_lst_";
   public static final Text WRITABLE_LAST_SEEN_TIME = new Text(LAST_SEEN_TIME);
+
+  /**
+   * Time stamp (in minutes) when a page has been successfully fetched.
+   */
   public static final String SUCCESSFUL_FETCH_TIME = "_sft_";
   public static final Text WRITABLE_SUCCESSFUL_FETCH_TIME = new Text(SUCCESSFUL_FETCH_TIME);
 
@@ -127,6 +156,11 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   private float adaptiveBoostInjected;
 
   private Map<Byte, Float> statusSortMap = new TreeMap<Byte, Float>();
+
+  private FetchSchedule schedule;
+  int nowMinutes;
+  int orphanTimeGone;
+  int orphanTimeAny;
 
   public Configuration getConf() {
     return conf;
@@ -151,6 +185,16 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
       LOG.error("Failed to read adaptive scoring file {}: {}",
           adaptiveStatusSortFile, StringUtils.stringifyException(e));
     }
+
+    // orphan detection
+    schedule = FetchScheduleFactory.getFetchSchedule(conf);
+    nowMinutes = (int) (System.currentTimeMillis() / (60000));
+    int orphanTimeSpanAny = conf.getInt(ADAPTIVE_ORPHAN_TIME,
+        60 * 24 * 30 * 12);
+    orphanTimeAny = nowMinutes - orphanTimeSpanAny;
+    int orphanTimeSpanGone = conf.getInt(ADAPTIVE_ORPHAN_TIME_GONE,
+        60 * 24 * 30 * 4);
+    orphanTimeGone = nowMinutes - orphanTimeSpanGone;
   }
 
   private void readSortFile(Reader sortFileReader) throws IOException {
@@ -190,7 +234,6 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   /** Add injected timestamp to metadata */
   public void injectedScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
-    int nowMinutes = (int) (System.currentTimeMillis() / (60000));
     datum.getMetaData().put(WRITABLE_LAST_SEEN_TIME,
         new IntWritable(nowMinutes));
   }
@@ -228,6 +271,57 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
       }
     }
     return initSort;
+  }
+
+  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
+      List<CrawlDatum> inlinks) throws ScoringFilterException {
+
+    // Are there inlinks for this record?
+    if (inlinks.size() > 0) {
+      // Set the last time we have seen this link to the fetch time
+      int fetchTimeMinutes = (int) (schedule.calculateLastFetchTime(datum)
+          / 60000);
+      datum.getMetaData().put(WRITABLE_LAST_SEEN_TIME,
+          new IntWritable(fetchTimeMinutes));
+    } else {
+      orphanedScore(url, datum, old);
+    }
+  }
+
+  public void orphanedScore(Text url, CrawlDatum datum) {
+    orphanedScore(url, datum, null);
+  }
+
+  private void orphanedScore(Text url, CrawlDatum datum, CrawlDatum old) {
+    if (datum.getMetaData().containsKey(WRITABLE_LAST_SEEN_TIME)) {
+      IntWritable writable = (IntWritable) datum.getMetaData()
+          .get(WRITABLE_LAST_SEEN_TIME);
+      int lastSeenMinutes = writable.get();
+      if (lastSeenMinutes < this.orphanTimeGone) {
+        // keep in any case
+      } else if (lastSeenMinutes >= this.orphanTimeAny) {
+        datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
+      } else if (pageIsGone(datum)) {
+        datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
+      }
+    } else {
+      // (for a transition period) also mark pages as orphaned which failed to
+      // fetch a second time but have no "last seen" marker yet
+      if (old != null && pageIsGone(old) && pageIsGone(datum)) {
+        datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
+      }
+    }
+  }
+
+  private static boolean pageIsGone(CrawlDatum datum) {
+    byte status = datum.getStatus();
+    if (status == CrawlDatum.STATUS_DB_GONE
+        || status == CrawlDatum.STATUS_DB_DUPLICATE
+        || (status == CrawlDatum.STATUS_DB_UNFETCHED
+            && datum.getRetriesSinceFetch() >= 3)) {
+      return true;
+    }
+    return false;
   }
 
 }
