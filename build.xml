@@ -230,6 +230,7 @@
       <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-fast/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
@@ -726,6 +727,7 @@
       <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-fast/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
@@ -1173,6 +1175,7 @@
         <source path="${plugins.dir}/urlfilter-domain/src/test/" />
         <source path="${plugins.dir}/urlfilter-domainblacklist/src/java/" />
         <source path="${plugins.dir}/urlfilter-domainblacklist/src/test/" />
+        <source path="${plugins.dir}/urlfilter-fast/src/java"/>
         <source path="${plugins.dir}/urlfilter-ignoreexempt/src/java/" />
         <source path="${plugins.dir}/urlfilter-prefix/src/java/" />
         <source path="${plugins.dir}/urlfilter-prefix/src/test/" />
