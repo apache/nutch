@@ -1640,6 +1640,45 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<!-- scoring-adaptive -->
+
+<property>
+  <name>scoring.adaptive.factor.fetchtime</name>
+  <value>.01</value>
+  <description>
+    Generator sort value factor for pages to be (re)fetched based on the time
+    (in days) elapsed since the scheduled fetch time:
+        generator_sort_value += (factor * days_elapsed)
+  </description>
+</property>
+
+<property>
+  <name>scoring.adaptive.penalty.fetch_retry</name>
+  <value>.1</value>
+  <description>
+    Factor penalizing pages not successfully fetched for each failed fetch trial:
+        generator_sort_value -= (penalty * retries_since_fetch)
+  </description>
+</property>
+
+<property>
+  <name>scoring.adaptive.boost.injected</name>
+  <value>.2</value>
+  <description>
+   Boost recently injected URLs (injected within the last 7 days):
+	generator_sort_value += injected_boost
+  </description>
+</property>
+
+<property>
+  <name>scoring.adaptive.sort.by_status.file</name>
+  <value>adaptive-scoring.txt</value>
+  <description>
+    File containing generator sort values (penalize/boost) by CrawlDatum status.
+    See file / template for more information.
+  </description>
+</property>
+
 <!-- language-identifier plugin properties -->
 
 <property>

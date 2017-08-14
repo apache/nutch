@@ -76,6 +76,7 @@
     <ant dir="protocol-okhttp" target="deploy"/>
     <ant dir="protocol-selenium" target="deploy" />
     <ant dir="publish-rabbitmq" target="deploy"/>
+    <ant dir="scoring-adaptive" target="deploy"/>
     <ant dir="scoring-depth" target="deploy"/>
     <ant dir="scoring-link" target="deploy"/>
     <ant dir="scoring-opic" target="deploy"/>

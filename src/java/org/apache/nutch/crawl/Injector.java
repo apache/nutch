@@ -333,10 +333,14 @@ public class Injector extends NutchTool implements Tool {
         if (injectedSet && update) {
           // corresponds to rule (3.b.ii) in the method description
           old.putAllMetaData(injected);
-          old.setScore(injected.getScore() != scoreInjected
-              ? injected.getScore() : old.getScore());
-          old.setFetchInterval(injected.getFetchInterval() != interval
-              ? injected.getFetchInterval() : old.getFetchInterval());
+//          old.setScore(injected.getScore() != scoreInjected
+//              ? injected.getScore() : old.getScore());
+//          old.setFetchInterval(injected.getFetchInterval() != interval
+//              ? injected.getFetchInterval() : old.getFetchInterval());
+          // smoothly update score and interval
+          old.setScore((injected.getScore() + old.getScore()) / 2.0f);
+          old.setFetchInterval(
+              (injected.getFetchInterval() + old.getFetchInterval()) / 2);
         }
       }
       if (injectedSet && oldSet) {
