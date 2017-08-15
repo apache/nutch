@@ -27,7 +27,6 @@
       <library name="httpcore-4.4.1.jar"/>
       <library name="httpmime-4.4.1.jar"/>
       <library name="noggit-0.6.jar"/>
-      <library name="slf4j-api-1.7.7.jar"/>
       <library name="solr-solrj-5.5.0.jar"/>
       <library name="stax2-api-3.1.4.jar"/>
       <library name="woodstox-core-asl-4.4.1.jar"/>
