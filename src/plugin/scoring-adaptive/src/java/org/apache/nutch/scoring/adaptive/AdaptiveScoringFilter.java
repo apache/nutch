@@ -297,11 +297,15 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
       IntWritable writable = (IntWritable) datum.getMetaData()
           .get(WRITABLE_LAST_SEEN_TIME);
       int lastSeenMinutes = writable.get();
-      if (lastSeenMinutes < this.orphanTimeGone) {
+      if (lastSeenMinutes > this.orphanTimeGone) {
         // keep in any case
-      } else if (lastSeenMinutes >= this.orphanTimeAny) {
+        // (last seen time after mark-as-orphan-if-gone time)
+      } else if (lastSeenMinutes < this.orphanTimeAny) {
+        // (last seen time before mark-any-as-orphan time)
         datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
       } else if (pageIsGone(datum)) {
+        // (last seen time before mark-as-orphan-if-gone time
+        //  but after mark-any-as-orphan time)
         datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
       }
     } else {
