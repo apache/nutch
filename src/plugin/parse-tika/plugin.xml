@@ -98,7 +98,6 @@
        <library name="sis-referencing-0.5.jar"/>
        <library name="sis-storage-0.5.jar"/>
        <library name="sis-utility-0.5.jar"/>
-       <library name="slf4j-api-1.7.12.jar"/>
        <library name="tagsoup-1.2.1.jar"/>
        <library name="tika-parsers-1.10.jar"/>
        <library name="udunits-4.5.5.jar"/>
