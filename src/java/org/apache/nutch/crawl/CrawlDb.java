@@ -99,9 +99,13 @@ public class CrawlDb extends NutchTool implements Tool {
       FileSystem sfs = segments[i].getFileSystem(getConf());
       Path fetch = new Path(segments[i], CrawlDatum.FETCH_DIR_NAME);
       Path parse = new Path(segments[i], CrawlDatum.PARSE_DIR_NAME);
-      if (sfs.exists(fetch) && sfs.exists(parse)) {
+      if (sfs.exists(fetch)) {
         FileInputFormat.addInputPath(job, fetch);
-        FileInputFormat.addInputPath(job, parse);
+        if (sfs.exists(parse)) {
+          FileInputFormat.addInputPath(job, parse);
+        } else {
+          LOG.info(" - adding fetched but unparsed segment " + segments[i]);
+        }
       } else {
         LOG.info(" - skipping invalid segment " + segments[i]);
       }
