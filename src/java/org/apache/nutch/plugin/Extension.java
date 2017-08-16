@@ -134,7 +134,7 @@ public class Extension {
   }
 
   /**
-   * Return an instance of the extension implementatio. Before we create a
+   * Return an instance of the extension implementation. Before we create a
    * extension instance we startup the plugin if it is not already done. The
    * plugin instance and the extension instance use the same
    * <code>PluginClassLoader</code>. Each Plugin use its own classloader. The
@@ -153,7 +153,7 @@ public class Extension {
     synchronized (getId()) {
       try {
         PluginRepository pluginRepository = PluginRepository.get(conf);
-        Class extensionClazz = pluginRepository.getCachedClass(fDescriptor,
+        Class<?> extensionClazz = pluginRepository.getCachedClass(fDescriptor,
             getClazz());
         // lazy loading of Plugin in case there is no instance of the plugin
         // already.

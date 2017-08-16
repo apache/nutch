@@ -30,6 +30,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.core.jsoup.extractor.JsoupDocument.DocumentField;
 import org.apache.nutch.core.jsoup.extractor.normalizer.Normalizable;
 import org.apache.nutch.util.ObjectCache;
@@ -104,15 +105,11 @@ public class JsoupDocumentReader {
         normalizerMap.put(name, normalizable);
         LOG.info("Normalizer name: {}, class: {}", name,
             normalizable.getClass().getName());
-      } catch (ClassNotFoundException ex) {
-        LOG.warn(
+      } catch (ClassNotFoundException | InstantiationException
+          | IllegalAccessException | ClassCastException ex) {
+        LOG.error(
             "Invalid class attribute for Normalizer: Class may not implement Normalizable interface: {}",
-            ex.toString());
-        continue;
-      } catch (InstantiationException ex) {
-
-      } catch (IllegalAccessException ex) {
-
+            StringUtils.stringifyException(ex));
       }
     }
   }
