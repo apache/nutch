@@ -235,12 +235,16 @@ public class Injector extends NutchTool implements Tool {
         CrawlDatum datum = (CrawlDatum) value;
 
         // remove 404 urls
-        if (url404Purging && CrawlDatum.STATUS_DB_GONE == datum.getStatus())
+        if (url404Purging && CrawlDatum.STATUS_DB_GONE == datum.getStatus()) {
+          context.getCounter("injector", "urls_purged_404").increment(1);
           return;
+        }
 
         if (filterNormalizeAll) {
           String url = filterNormalize(key.toString());
-          if (url != null) {
+          if (url == null) {
+            context.getCounter("injector", "urls_purged_filter").increment(1);
+          } else {
             key.set(url);
             context.write(key, datum);
           }
@@ -411,6 +415,10 @@ public class Injector extends NutchTool implements Tool {
             .findCounter("injector", "urls_filtered").getValue();
         long urlsMerged = job.getCounters()
             .findCounter("injector", "urls_merged").getValue();
+        long urlsPurged404= job.getCounters()
+            .findCounter("injector", "urls_purged_404").getValue();
+        long urlsPurgedFilter= job.getCounters()
+            .findCounter("injector", "urls_purged_filter").getValue();
         LOG.info("Injector: Total urls rejected by filters: " + urlsFiltered);
         LOG.info(
             "Injector: Total urls injected after normalization and filtering: "
@@ -419,6 +427,15 @@ public class Injector extends NutchTool implements Tool {
             + urlsMerged);
         LOG.info("Injector: Total new urls injected: "
             + (urlsInjected - urlsMerged));
+        if (filterNormalizeAll) {
+          LOG.info("Injector: Total urls removed from CrawlDb by filters: {}",
+              urlsPurgedFilter);
+        }
+        if (conf.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false)) {
+          LOG.info(
+              "Injector: Total urls with status gone removed from CrawlDb (db.update.purge.404): {}",
+              urlsPurged404);
+        }
 
         long end = System.currentTimeMillis();
         LOG.info("Injector: finished at " + sdf.format(end) + ", elapsed: "
@@ -435,7 +452,7 @@ public class Injector extends NutchTool implements Tool {
 
   public void usage() {
     System.err.println(
-        "Usage: Injector <crawldb> <url_dir> [-overwrite|-update] [-noFilter] [-noNormalize] [-filterNormalizeAll]\n");
+        "Usage: Injector [-D...] <crawldb> <url_dir> [-overwrite|-update] [-noFilter] [-noNormalize] [-filterNormalizeAll]\n");
     System.err.println(
         "  <crawldb>\tPath to a crawldb directory. If not present, a new one would be created.");
     System.err.println(
@@ -467,7 +484,14 @@ public class Injector extends NutchTool implements Tool {
     System.err.println(
         " -nofilter \tDo not apply URL filters to injected URLs");
     System.err.println(
-        " -filterNormalizeAll\tNormalize and filter all URLs including the URLs of existing CrawlDb records");
+        " -filterNormalizeAll\n"
+        + "           \tNormalize and filter all URLs including the URLs of existing CrawlDb records");
+    System.err.println();
+    System.err.println(
+        " -D...     \tset or overwrite configuration property (property=value)");
+    System.err.println(
+        " -Ddb.update.purge.404=true\n"
+        + "           \tremove URLs with status gone (404) from CrawlDb");
   }
 
   public static void main(String[] args) throws Exception {
