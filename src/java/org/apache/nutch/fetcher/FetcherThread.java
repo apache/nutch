@@ -102,6 +102,9 @@ public class FetcherThread extends Thread {
   private int maxOutlinkDepthNumLinks;
   private boolean outlinksIgnoreExternal;
 
+  URLFilters urlFiltersForOutlinks;
+  URLNormalizers normalizersForOutlinks;
+
   private int outlinksDepthDivisor;
   private boolean skipTruncated;
 
@@ -150,7 +153,7 @@ public class FetcherThread extends Thread {
     this.setDaemon(true); // don't hang JVM on exit
     this.setName("FetcherThread"); // use an informative name
     this.conf = conf;
-   	this.urlFilters = new URLFilters(conf);
+    this.urlFilters = new URLFilters(conf);
     this.urlExemptionFilters = new URLExemptionFilters(conf);
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
@@ -171,6 +174,16 @@ public class FetcherThread extends Thread {
     this.storingContent = storingContent;
     this.pages = pages;
     this.bytes = bytes;
+
+    // NUTCH-2413 Apply filters and normalizers on outlinks
+    // when parsing only if configured
+    if (parsing) {
+      if (conf.getBoolean("parse.filter.urls", true))
+        this.urlFiltersForOutlinks = urlFilters;
+      if (conf.getBoolean("parse.normalize.urls", true))
+        this.normalizersForOutlinks = new URLNormalizers(conf,
+            URLNormalizers.SCOPE_OUTLINK);
+    }
 
     if((activatePublisher=conf.getBoolean("fetcher.publisher", false)))
       this.publisher = new FetcherThreadPublisher(conf);
@@ -468,9 +481,8 @@ public class FetcherThread extends Thread {
   private Text handleRedirect(Text url, CrawlDatum datum, String urlString,
       String newUrl, boolean temp, String redirType)
       throws MalformedURLException, URLFilterException {
-    
     newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
-		newUrl = urlFilters.filter(newUrl);
+    newUrl = urlFilters.filter(newUrl);
 
     try {
       String origHost = new URL(urlString).getHost().toLowerCase();
@@ -696,23 +708,15 @@ public class FetcherThread extends Thread {
           int validCount = 0;
 
           // Process all outlinks, normalize, filter and deduplicate
-          
-          // NUTCH-2413 Apply filters or normalizers only if configured
-          URLFilters urlFiltersForOutlinks = null;
-          if (conf.getBoolean("parse.filter.urls", true))
-            urlFiltersForOutlinks = urlFilters;
-          URLNormalizers normalizersForOutlinks = null;
-          if (conf.getBoolean("parse.normalize.urls", true))
-            normalizersForOutlinks = normalizers;
-          
           List<Outlink> outlinkList = new ArrayList<>(outlinksToStore);
           HashSet<String> outlinks = new HashSet<>(outlinksToStore);
           for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
             String toUrl = links[i].getToUrl();
-                      
+
             toUrl = ParseOutputFormat.filterNormalize(url.toString(), toUrl,
-                origin, ignoreInternalLinks, ignoreExternalLinks, ignoreExternalLinksMode,
-                urlFiltersForOutlinks, urlExemptionFilters,  normalizersForOutlinks);
+                origin, ignoreInternalLinks, ignoreExternalLinks,
+                ignoreExternalLinksMode, urlFiltersForOutlinks,
+                urlExemptionFilters, normalizersForOutlinks);
             if (toUrl == null) {
               continue;
             }
