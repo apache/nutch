@@ -150,7 +150,16 @@ public class FetcherThread extends Thread {
     this.setDaemon(true); // don't hang JVM on exit
     this.setName("FetcherThread"); // use an informative name
     this.conf = conf;
-    this.urlFilters = new URLFilters(conf);
+
+    if (conf.getBoolean("fetcher.parse", false)
+    		&& !conf.getBoolean("parse.filter.urls", true)) {
+    	// NUTCH-2413 We won't get the urlfilters if we are fetching+parsing and
+    	// parsing filters are disabled
+    	this.urlFilters = null;
+    } else {
+    	this.urlFilters = new URLFilters(conf);
+    }
+
     this.urlExemptionFilters = new URLExemptionFilters(conf);
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
@@ -469,7 +478,8 @@ public class FetcherThread extends Thread {
       String newUrl, boolean temp, String redirType)
       throws MalformedURLException, URLFilterException {
     newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
-    newUrl = urlFilters.filter(newUrl);
+		if (urlFilters!=null)
+			newUrl = urlFilters.filter(newUrl);
 
     try {
       String origHost = new URL(urlString).getHost().toLowerCase();
