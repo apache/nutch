@@ -150,16 +150,7 @@ public class FetcherThread extends Thread {
     this.setDaemon(true); // don't hang JVM on exit
     this.setName("FetcherThread"); // use an informative name
     this.conf = conf;
-
-    if (conf.getBoolean("fetcher.parse", false)
-    		&& !conf.getBoolean("parse.filter.urls", true)) {
-    	// NUTCH-2413 We won't get the urlfilters if we are fetching+parsing and
-    	// parsing filters are disabled
-    	this.urlFilters = null;
-    } else {
-    	this.urlFilters = new URLFilters(conf);
-    }
-
+   	this.urlFilters = new URLFilters(conf);
     this.urlExemptionFilters = new URLExemptionFilters(conf);
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
@@ -477,9 +468,9 @@ public class FetcherThread extends Thread {
   private Text handleRedirect(Text url, CrawlDatum datum, String urlString,
       String newUrl, boolean temp, String redirType)
       throws MalformedURLException, URLFilterException {
+    
     newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
-		if (urlFilters!=null)
-			newUrl = urlFilters.filter(newUrl);
+		newUrl = urlFilters.filter(newUrl);
 
     try {
       String origHost = new URL(urlString).getHost().toLowerCase();
@@ -705,14 +696,23 @@ public class FetcherThread extends Thread {
           int validCount = 0;
 
           // Process all outlinks, normalize, filter and deduplicate
+          
+          // NUTCH-2413 Apply filters or normalizers only if configured
+          URLFilters urlFiltersForOutlinks = null;
+          if (conf.getBoolean("parse.filter.urls", true))
+            urlFiltersForOutlinks = urlFilters;
+          URLNormalizers normalizersForOutlinks = null;
+          if (conf.getBoolean("parse.normalize.urls", true))
+            normalizersForOutlinks = normalizers;
+          
           List<Outlink> outlinkList = new ArrayList<>(outlinksToStore);
           HashSet<String> outlinks = new HashSet<>(outlinksToStore);
           for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
             String toUrl = links[i].getToUrl();
-
+                      
             toUrl = ParseOutputFormat.filterNormalize(url.toString(), toUrl,
                 origin, ignoreInternalLinks, ignoreExternalLinks, ignoreExternalLinksMode,
-                    urlFilters, urlExemptionFilters,  normalizers);
+                urlFiltersForOutlinks, urlExemptionFilters,  normalizersForOutlinks);
             if (toUrl == null) {
               continue;
             }
