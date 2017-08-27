@@ -27,6 +27,9 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 
+import java.util.HashSet;
+import java.util.Set;
+
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
@@ -49,6 +52,7 @@ import org.apache.hadoop.conf.Configuration;
 public class LanguageIndexingFilter implements IndexingFilter {
 
   private Configuration conf;
+  private Set<String> indexLangs;
 
   /**
    * Constructs a new Language Indexing Filter.
@@ -73,6 +77,10 @@ public class LanguageIndexingFilter implements IndexingFilter {
       lang = "unknown";
     }
 
+    if (!indexLangs.isEmpty() && !indexLangs.contains(lang)) {
+    	return null;
+    }
+    
     doc.add("lang", lang);
 
     return doc;
@@ -80,6 +88,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
+    indexLangs = new HashSet<>(conf.getStringCollection("lang.index.languages"));
   }
 
   public Configuration getConf() {

@@ -1566,6 +1566,16 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<property>
+  <name>lang.index.languages</name>
+  <value></value>
+  <description>If not empty, should be a comma separated list of language codes.
+  Only documents with one of these language codes will be indexed.
+  "unknown" is a valid language code, will match documents where language
+  detection failed.
+  </description>
+</property>
+
 <!-- index-static plugin properties -->
 
 <property>
