@@ -102,6 +102,9 @@ public class FetcherThread extends Thread {
   private int maxOutlinkDepthNumLinks;
   private boolean outlinksIgnoreExternal;
 
+  URLFilters urlFiltersForOutlinks;
+  URLNormalizers normalizersForOutlinks;
+
   private int outlinksDepthDivisor;
   private boolean skipTruncated;
 
@@ -171,6 +174,16 @@ public class FetcherThread extends Thread {
     this.storingContent = storingContent;
     this.pages = pages;
     this.bytes = bytes;
+
+    // NUTCH-2413 Apply filters and normalizers on outlinks
+    // when parsing only if configured
+    if (parsing) {
+      if (conf.getBoolean("parse.filter.urls", true))
+        this.urlFiltersForOutlinks = urlFilters;
+      if (conf.getBoolean("parse.normalize.urls", true))
+        this.normalizersForOutlinks = new URLNormalizers(conf,
+            URLNormalizers.SCOPE_OUTLINK);
+    }
 
     if((activatePublisher=conf.getBoolean("fetcher.publisher", false)))
       this.publisher = new FetcherThreadPublisher(conf);
@@ -701,8 +714,9 @@ public class FetcherThread extends Thread {
             String toUrl = links[i].getToUrl();
 
             toUrl = ParseOutputFormat.filterNormalize(url.toString(), toUrl,
-                origin, ignoreInternalLinks, ignoreExternalLinks, ignoreExternalLinksMode,
-                    urlFilters, urlExemptionFilters,  normalizers);
+                origin, ignoreInternalLinks, ignoreExternalLinks,
+                ignoreExternalLinksMode, urlFiltersForOutlinks,
+                urlExemptionFilters, normalizersForOutlinks);
             if (toUrl == null) {
               continue;
             }
