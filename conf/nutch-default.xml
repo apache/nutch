@@ -1566,6 +1566,16 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<!-- index-jexl-filter plugin properties -->
+
+<property>
+  <name>index.jexl.filter</name>
+  <value></value>
+  <description> A JEXL expression. If it evaluates to false,
+  the document will not be indexed.
+  </description>
+</property>
+
 <!-- index-static plugin properties -->
 
 <property>

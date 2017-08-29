@@ -1041,6 +1041,7 @@
         <source path="${plugins.dir}/indexer-elastic/src/java/" />
         <source path="${plugins.dir}/indexer-elastic/src/test/" />
         <source path="${plugins.dir}/indexer-elastic-rest/src/java/"/>
+        <source path="${plugins.dir}/index-jexl-filter/src/java/" />
         <source path="${plugins.dir}/index-metadata/src/java/" />
         <source path="${plugins.dir}/index-more/src/java/" />
         <source path="${plugins.dir}/index-more/src/test/" />
