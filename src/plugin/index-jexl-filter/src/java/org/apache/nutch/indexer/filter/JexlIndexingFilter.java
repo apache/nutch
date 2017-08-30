@@ -38,7 +38,6 @@ import org.apache.nutch.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * An {@link org.apache.nutch.indexer.IndexingFilter} that allows filtering of
  * documents based on a JEXL expression.
@@ -52,56 +51,64 @@ public class JexlIndexingFilter implements IndexingFilter {
 	private Expression expr;
 
 	@Override
-	public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {
-	    if (expr != null) {
-	        // Create a context and add data
-	        JexlContext jcontext = new MapContext();
-	        
-	        jcontext.set("status", CrawlDatum.getStatusName(datum.getStatus()));
-	        jcontext.set("fetchTime", (long)(datum.getFetchTime()));
-	        jcontext.set("modifiedTime", (long)(datum.getModifiedTime()));
-	        jcontext.set("retries", datum.getRetriesSinceFetch());
-	        jcontext.set("interval", new Integer(datum.getFetchInterval()));
-	        jcontext.set("score", datum.getScore());
-	        jcontext.set("signature", StringUtil.toHexString(datum.getSignature()));
-	        jcontext.set("url", url.toString());
-	        
-	        jcontext.set("text", parse.getText());
-	        jcontext.set("title", parse.getData().getTitle());
+	public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
+			throws IndexingException {
+		// Create a context and add data
+		JexlContext jcontext = new MapContext();
 
-	        JexlContext httpStatusContext = new MapContext();
-	        httpStatusContext.set("majorCode", parse.getData().getStatus().getMajorCode());
-	        httpStatusContext.set("minorCode", parse.getData().getStatus().getMinorCode());
-	        httpStatusContext.set("message", parse.getData().getStatus().getMessage());
-	        jcontext.set("httpStatus", httpStatusContext);
-	        
-	        jcontext.set("documentMeta", metadataToContext(doc.getDocumentMeta()));
-	        jcontext.set("contentMeta", metadataToContext(parse.getData().getContentMeta()));
-	        jcontext.set("parseMeta", metadataToContext(parse.getData().getParseMeta()));
-	        
-	        JexlContext context = new MapContext();
-	        for (Entry<String, NutchField> entry : doc) {
-	        	context.set(entry.getKey(), entry.getValue().getValues());
-	        }
-	        jcontext.set("doc", context);
-	                    
-			try {
-				if (Boolean.TRUE.equals(expr.evaluate(jcontext))) {
-					return doc;
-				}
-			} catch (Exception e) {
-				LOG.warn("Failed in evaluating JEXL {}", expr.getExpression(), e);
+		jcontext.set("status", CrawlDatum.getStatusName(datum.getStatus()));
+		jcontext.set("fetchTime", (long) (datum.getFetchTime()));
+		jcontext.set("modifiedTime", (long) (datum.getModifiedTime()));
+		jcontext.set("retries", datum.getRetriesSinceFetch());
+		jcontext.set("interval", new Integer(datum.getFetchInterval()));
+		jcontext.set("score", datum.getScore());
+		jcontext.set("signature", StringUtil.toHexString(datum.getSignature()));
+		jcontext.set("url", url.toString());
+
+		jcontext.set("text", parse.getText());
+		jcontext.set("title", parse.getData().getTitle());
+
+		JexlContext httpStatusContext = new MapContext();
+		httpStatusContext.set("majorCode", parse.getData().getStatus().getMajorCode());
+		httpStatusContext.set("minorCode", parse.getData().getStatus().getMinorCode());
+		httpStatusContext.set("message", parse.getData().getStatus().getMessage());
+		jcontext.set("httpStatus", httpStatusContext);
+
+		jcontext.set("documentMeta", metadataToContext(doc.getDocumentMeta()));
+		jcontext.set("contentMeta", metadataToContext(parse.getData().getContentMeta()));
+		jcontext.set("parseMeta", metadataToContext(parse.getData().getParseMeta()));
+
+		JexlContext context = new MapContext();
+		for (Entry<String, NutchField> entry : doc) {
+			context.set(entry.getKey(), entry.getValue().getValues());
+		}
+		jcontext.set("doc", context);
+
+		try {
+			if (Boolean.TRUE.equals(expr.evaluate(jcontext))) {
+				return doc;
 			}
-	        return null;
-	      }
-
-		return doc;
+		} catch (Exception e) {
+			LOG.warn("Failed evaluating JEXL {}", expr.getExpression(), e);
+		}
+		return null;
 	}
 
 	@Override
 	public void setConf(Configuration conf) {
 		this.conf = conf;
-		expr = JexlUtil.parseExpression(conf.get("index.jexl.filter"));
+		String str = conf.get("index.jexl.filter");
+		if (str == null) {
+			LOG.warn(
+					"The property index.jexl.filter must have a value when index-jexl-filter is used. You can use 'true' or 'false' to index all/none");
+			throw new RuntimeException(
+					"The property index.jexl.filter must have a value when index-jexl-filter is used. You can use 'true' or 'false' to index all/none");
+		}
+		expr = JexlUtil.parseExpression(str);
+		if (expr == null) {
+			LOG.warn("Failed parsing JEXL from index.jexl.filter: {}", str);
+			throw new RuntimeException("Failed parsing JEXL from index.jexl.filter");
+		}
 	}
 
 	@Override
