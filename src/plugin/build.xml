@@ -26,6 +26,7 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
+     <ant dir="any23" target="deploy"/>
      <ant dir="creativecommons" target="deploy"/>
      <ant dir="feed" target="deploy"/>
      <ant dir="headings" target="deploy"/>
@@ -100,6 +101,7 @@
   <!-- ====================================================== -->
   <target name="test">
     <parallel threadCount="2">
+     <ant dir="any23" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="index-basic" target="test"/>
      <ant dir="index-anchor" target="test"/>
@@ -147,6 +149,7 @@
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->
   <target name="clean">
+    <ant dir="any23" target="clean"/>
     <ant dir="creativecommons" target="clean"/>
     <ant dir="feed" target="clean"/>
     <ant dir="headings" target="clean"/>

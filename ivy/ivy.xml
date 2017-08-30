@@ -66,6 +66,7 @@
         <!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.apache.tika" name="tika-core" rev="1.12" />
+		<dependency org="org.apache.any23" name="apache-any23-core" rev="2.0"/>
 		<dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
 
 		<dependency org="xerces" name="xercesImpl" rev="2.11.0" />
