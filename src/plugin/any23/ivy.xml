@@ -18,27 +18,25 @@
 -->
 
 <ivy-module version="1.0">
-    <info organisation="org.apache.nutch" module="${ant.project.name}">
-        <license name="Apache 2.0"/>
-        <ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org"/>
-        <description>
-            Apache Nutch
-        </description>
-    </info>
+  <info organisation="org.apache.nutch" module="${ant.project.name}">
+    <license name="Apache 2.0"/>
+    <ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org"/>
+    <description>
+        Apache Nutch
+    </description>
+  </info>
 
-    <configurations>
-        <include file="../../..//ivy/ivy-configurations.xml"/>
-    </configurations>
+  <configurations>
+    <include file="../../..//ivy/ivy-configurations.xml"/>
+  </configurations>
 
-    <publications>
-        <!--get the artifact from our module name-->
-        <artifact conf="master"/>
-    </publications>
+  <publications>
+    <!--get the artifact from our module name-->
+    <artifact conf="master"/>
+  </publications>
 
-    <dependencies>
-
-        <!-- https://mvnrepository.com/artifact/io.searchbox/jest -->
-        <dependency org="io.searchbox" name="jest" rev="5.3.2" conf="*->default"/>
-    </dependencies>
+  <dependencies>
+    <dependency org="org.apache.any23" name="apache-any23-core" rev="2.0" conf="*->default"/>
+  </dependencies>
 
 </ivy-module>
