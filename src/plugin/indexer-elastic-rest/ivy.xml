@@ -36,8 +36,9 @@
     </publications>
 
     <dependencies>
+
         <!-- https://mvnrepository.com/artifact/io.searchbox/jest -->
-        <dependency org="io.searchbox" name="jest" rev="2.0.3" conf="*->default"/>
+        <dependency org="io.searchbox" name="jest" rev="5.3.2" conf="*->default"/>
     </dependencies>
 
 </ivy-module>
