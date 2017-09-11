@@ -96,7 +96,7 @@ public class DOMContentUtils {
    * <p>
    * 
    * If <code>abortOnNestedAnchors</code> is true, DOM traversal will be aborted
-   * and the <code>StringBuffer</code> will not contain any text encountered
+   * and the <code>StringBuilder</code> will not contain any text encountered
    * after a nested anchor is found.
    * 
    * <p>
@@ -155,9 +155,10 @@ public class DOMContentUtils {
         text = text.replaceAll("\\s+", " ");
         text = text.trim();
         if (text.length() > 0) {
-          if (sb.length() > 0)
-            sb.append(' ');
+          appendSpace(sb);
           sb.append(text);
+        } else {
+          appendParagraphSeparator(sb);
         }
       }
     }
@@ -166,9 +167,51 @@ public class DOMContentUtils {
   }
 
   /**
-   * This method takes a {@link StringBuffer} and a DOM {@link Node}, and will
+   * Conditionally append a paragraph/line break to StringBuilder unless last
+   * character a already indicates a paragraph break. Also remove trailing space
+   * before paragraph break.
+   *
+   * @param buffer
+   *          StringBuilder to append paragraph break
+   */
+  private void appendParagraphSeparator(StringBuilder buffer) {
+    if (buffer.length() == 0) {
+      return;
+    }
+    char lastChar = buffer.charAt(buffer.length() - 1);
+    if ('\n' != lastChar) {
+      // remove white space before paragraph break
+      while (lastChar == ' ') {
+        buffer.deleteCharAt(buffer.length() - 1);
+        lastChar = buffer.charAt(buffer.length() - 1);
+      }
+      if ('\n' != lastChar) {
+        buffer.append('\n');
+      }
+    }
+  }
+
+  /**
+   * Conditionally append a space to StringBuilder unless last character is a
+   * space or line/paragraph break.
+   *
+   * @param buffer
+   *          StringBuilder to append space
+   */
+  private void appendSpace(StringBuilder buffer) {
+    if (buffer.length() == 0) {
+      return;
+    }
+    char lastChar = buffer.charAt(buffer.length() - 1);
+    if (' ' != lastChar && '\n' != lastChar) {
+      buffer.append(' ');
+    }
+  }
+
+  /**
+   * This method takes a {@link StringBuilder} and a DOM {@link Node}, and will
    * append the content text found beneath the first <code>title</code> node to
-   * the <code>StringBuffer</code>.
+   * the <code>StringBuilder</code>.
    * 
    * @return true if a title node was found, false otherwise
    */
