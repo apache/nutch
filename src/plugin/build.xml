@@ -32,6 +32,7 @@
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-anchor" target="deploy"/>
      <ant dir="index-geoip" target="deploy"/>
+     <ant dir="index-jexl-filter" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
      <ant dir="index-replace" target="deploy"/>
      <ant dir="index-static" target="deploy"/>
@@ -153,6 +154,7 @@
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-geoip" target="clean"/>
+    <ant dir="index-jexl-filter" target="clean"/>
     <ant dir="index-more" target="clean"/>
     <ant dir="index-static" target="clean"/>
     <ant dir="index-replace" target="clean"/>

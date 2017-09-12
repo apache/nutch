@@ -1566,6 +1566,34 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<property>
+  <name>lang.index.languages</name>
+  <value></value>
+  <description>If not empty, should be a comma separated list of language codes.
+  Only documents with one of these language codes will be indexed.
+  "unknown" is a valid language code, will match documents where language
+  detection failed.
+  </description>
+</property>
+
+<!-- index-jexl-filter plugin properties -->
+
+<property>
+  <name>index.jexl.filter</name>
+  <value></value>
+  <description> A JEXL expression. If it evaluates to false,
+  the document will not be indexed.
+  Available primitives in the JEXL context:
+  * status, fetchTime, modifiedTime, retries, interval, score, signature, url, text, title
+  Available objects in the JEXL context:
+  * httpStatus - contains majorCode, minorCode, message
+  * documentMeta, contentMeta, parseMeta - contain all the Metadata properties.
+    each property value is always an array of Strings (so if you expect one value, use [0])
+  * doc - contains all the NutchFields from the NutchDocument.
+    each property value is always an array of Objects.
+  </description>
+</property>
+
 <!-- index-static plugin properties -->
 
 <property>
