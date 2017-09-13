@@ -30,7 +30,7 @@
         <xs:element name="writer" type="writerType" maxOccurs="unbounded" minOccurs="1">
           <xs:annotation>
             <xs:documentation>
-              Contains the all configuration of a particular index writer.
+              Contains all the configuration of a particular index writer.
             </xs:documentation>
           </xs:annotation>
         </xs:element>
@@ -42,7 +42,7 @@
       <xs:element type="parametersType" name="parameters" maxOccurs="1" minOccurs="1">
         <xs:annotation>
           <xs:documentation>
-            This tag contains the all parameters that will be passed to the index writer implementation.
+            This tag contains all the parameters that will be passed to the index writer implementation.
           </xs:documentation>
         </xs:annotation>
       </xs:element>

@@ -72,7 +72,7 @@ public class IndexWriters {
 
           HashMap<String, Extension> extensionMap = new HashMap<>();
           for (Extension extension : extensions) {
-            LOG.info("Index writer " + extension.getClazz() + " identified.");
+            LOG.info("Index writer {} identified.", extension.getClazz());
             extensionMap.putIfAbsent(extension.getClazz(), extension);
           }
 
@@ -167,7 +167,7 @@ public class IndexWriters {
 
       return mappedDocument;
     } catch (CloneNotSupportedException e) {
-      LOG.warn("An instance of class " + document.getClass().getName() + " can't be cloned.");
+      LOG.warn("An instance of class {} can't be cloned.", document.getClass().getName());
       return document;
     }
   }

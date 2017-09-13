@@ -110,16 +110,18 @@ public class SolrIndexWriter implements IndexWriter {
         break;
       case "concurrent":
         // TODO: 1/08/17 Implement this
-        break;
+        throw new UnsupportedOperationException("The type \"concurrent\" is not yet supported.");
       case "lb":
         // TODO: 1/08/17 Implement this
-        break;
+        throw new UnsupportedOperationException("The type \"lb\" is not yet supported.");
+      default:
+        throw new IllegalArgumentException("The type \"" + type + "\" is not supported.");
     }
 
     init(parameters);
   }
 
-  private void init(Map<String, String> properties) throws IOException {
+  private void init(Map<String, String> properties) {
     batchSize = Integer.parseInt(properties.getOrDefault(SolrConstants.COMMIT_SIZE, "1000"));
     delete = config.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
     // parse optional params

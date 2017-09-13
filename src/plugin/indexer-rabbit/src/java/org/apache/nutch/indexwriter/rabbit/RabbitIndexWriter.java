@@ -201,12 +201,13 @@ public class RabbitIndexWriter implements IndexWriter {
   }
 
   public String describe() {
-    return "RabbitIndexWriter\n" +
-            "\t" + RabbitMQConstants.SERVER_HOST + " : Host of RabbitMQ server\n" +
-            "\t" + RabbitMQConstants.SERVER_PORT + " : Port of RabbitMQ server\n" +
-            "\t" + RabbitMQConstants.SERVER_VIRTUAL_HOST + " : Virtualhost name\n" +
-            "\t" + RabbitMQConstants.SERVER_USERNAME + " : Username for authentication\n" +
-            "\t" + RabbitMQConstants.SERVER_PASSWORD + " : Password for authentication\n" +
-            "\t" + RabbitMQConstants.COMMIT_SIZE + " : Buffer size when sending to RabbitMQ (default 250)\n";
+    StringBuilder sb = new StringBuilder("RabbitIndexWriter\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_HOST).append(" : Host of RabbitMQ server\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_PORT).append(" : Port of RabbitMQ server\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_VIRTUAL_HOST).append(" : Virtualhost name\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_USERNAME).append(" : Username for authentication\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_PASSWORD).append(" : Password for authentication\n");
+    sb.append("\t").append(RabbitMQConstants.COMMIT_SIZE).append(" : Buffer size when sending to RabbitMQ (default 250)\n");
+    return sb.toString();
   }
 }
