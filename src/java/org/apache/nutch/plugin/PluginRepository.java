@@ -21,6 +21,9 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,8 +46,13 @@ import org.apache.nutch.util.ObjectCache;
  * descriptor represents all meta information about a plugin. So a plugin
  * instance will be created later when it is required, this allow lazy plugin
  * loading.
+ *
+ * As protocol-plugins need to be registered with the JVM as well, this
+ * class also acts as URLStreamHanderFactory that registers with the JVM and
+ * supports all the new protocols as if they were native. Details how the JVM
+ * creates URLs can be seen in the API documentation for the URL constructor.
  */
-public class PluginRepository {
+public class PluginRepository implements URLStreamHandlerFactory {
   private static final WeakHashMap<String, PluginRepository> CACHE = new WeakHashMap<>();
 
   private boolean auto;
@@ -93,6 +101,9 @@ public class PluginRepository {
       LOG.error(e.toString());
       throw new RuntimeException(e.getMessage());
     }
+	
+	registerURLStreamHandlerFactory();
+	
     displayStatus();
   }
 
@@ -520,5 +531,95 @@ public class PluginRepository {
     String[] subargs = new String[args.length - 2];
     System.arraycopy(args, 2, subargs, 0, subargs.length);
     m.invoke(null, new Object[] { subargs });
+  }
+
+  /** Registers this PluginRepository to be invoked whenever URLs have to be parsed.
+   * This allows to check the registered protocol plugins for uncommon protocols.
+   */
+  private void registerURLStreamHandlerFactory() {
+	URL.setURLStreamHandlerFactory(this);
+  }
+
+  /** Invoked whenever a java.net.URL needs to be instantiated.
+   * Tries to find a suitable extension and allow it to provide
+   * a URLStreamHandler. This is done by several attempts:
+   * <ul>
+   * <li>Find a protocol plugin that implements the desired protocol.
+   *     If found, instantiate it so eventually the plugin can install
+   *     a URLStreamHandler through a static hook.</li>
+   * <li>If the plugin specifies a URLStreamHandler in its <tt>plugin.xml</tt>,
+   *     return an instance of this URLStreamHandler. Example:
+   * <pre>
+   *  ...
+   *  &lt;implementation id="org.apache.nutch.protocol.foo.Foo" class="my.foo.Foo"&gt;
+   *      &lt;parameter name="protocolName" value="foo"/&gt;
+   *      &lt;parameter name="urlStreamHandler" value="my.foo.Handler"/&gt;
+   *  &lt;/implementation&gt;
+   *  ...
+   * </pre>
+   *     </li>
+   * <li>if all else fails, return null. This will fallback to the JVM's method
+   *     of evaluating the system property <tt>java.protocol.handler.pkgs</tt>.</li>
+   * </ul>
+   * @return the URLStreamHandler found, or null.
+   * @see java.net.URL
+   */
+  public URLStreamHandler createURLStreamHandler(String protocol) {
+    LOG.debug("createURLStreamHandler("+protocol+")");
+
+    if (fExtensionPoints != null) {
+		ExtensionPoint ep = fExtensionPoints.get("org.apache.nutch.protocol.Protocol");
+		if(ep != null) {
+			Extension[] extensions = ep.getExtensions();
+			for(Extension extension: extensions) {
+				String p = extension.getAttribute("protocolName");
+				LOG.trace("Found "+p);
+				if(p.equals(protocol)) {
+					LOG.debug("suitable "+p);
+
+					// instantiate the plugin. This allows it to execute a static hook, if present
+					// TODO: only do this if not done already
+					Object extinst = null;
+					try {
+						extinst = extension.getExtensionInstance();
+						LOG.debug("instantiated "+extinst.getClass().getName());
+					}
+					catch(Exception e) {
+						LOG.warn("Could not instantiate "+extension.getId(), e);
+					}
+
+					// return the handler here, if possible
+					String handlerClass = extension.getAttribute("urlStreamHandler");
+					LOG.debug("urlStreamHandler="+handlerClass);
+					if(handlerClass != null) {
+						// instantiate the handler and return it
+						ClassLoader cl = this.getClass().getClassLoader(); // the nutch classloader
+						LOG.trace("Using nutch classloader "+cl);
+						if(extinst != null) {
+							cl = extinst.getClass().getClassLoader();	// the extension's classloader
+							LOG.trace("Using extension classloader "+cl);
+						}
+						
+						try {
+							Class clazz = cl.loadClass(handlerClass);
+							return (URLStreamHandler)clazz.newInstance();
+						}
+						catch(Exception e) {
+							LOG.error("Could not instantiate protocol "+protocol+" handler class "+handlerClass+" defined by extension "+extension.getId(), e);
+							return null;
+						}
+					}
+
+					LOG.debug("suitable protocol extension found that did not declare a handler");
+					return null;
+				}
+			}
+			LOG.debug("No suitable protocol extensions registered");
+		} else {
+			LOG.debug("No protocol extensions registered?");
+		}
+    }
+
+	return null;
   }
 }
