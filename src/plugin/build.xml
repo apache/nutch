@@ -58,6 +58,7 @@
      <ant dir="lib-htmlunit" target="deploy"/>
      <ant dir="protocol-htmlunit" target="deploy" />
      <ant dir="lib-selenium" target="deploy"/>
+     <ant dir="protocol-foo" target="deploy" />
      <ant dir="protocol-selenium" target="deploy" />
      <ant dir="protocol-interactiveselenium" target="deploy" />
      <ant dir="parse-ext" target="deploy"/>
@@ -181,6 +182,7 @@
     <ant dir="lib-htmlunit" target="clean"/>
     <ant dir="protocol-htmlunit" target="clean" />
     <ant dir="lib-selenium" target="clean"/>
+    <ant dir="protocol-foo" target="clean" />
     <ant dir="protocol-selenium" target="clean" />
     <ant dir="protocol-interactiveselenium" target="clean" />
     <ant dir="parse-ext" target="clean"/>

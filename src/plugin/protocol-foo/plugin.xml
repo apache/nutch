@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="protocol-foo"
+   name="Foo Protocol Example Plug-in"
+   version="1.0.0"
+   provider-name="Hiran Chaudhuri">
+
+   <runtime>
+      <library name="protocol-foo.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+   <extension id="org.apache.nutch.protocol.foo"
+              name="FooProtocol"
+              point="org.apache.nutch.protocol.Protocol">
+
+      <implementation id="org.apache.nutch.protocol.foo.Foo"
+                      class="my.foo.Foo">
+        <parameter name="protocolName" value="foo"/>
+		<parameter name="urlStreamHandler" value="my.foo.Handler"/>
+      </implementation>
+      
+   </extension>
+
+</plugin>
