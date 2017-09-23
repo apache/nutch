@@ -30,6 +30,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.w3c.dom.Document;
@@ -49,7 +50,8 @@ public class PluginManifestParser {
   private static final String ATTR_CLASS = "class";
   private static final String ATTR_ID = "id";
 
-  public static final Logger LOG = PluginRepository.LOG;
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(PluginManifestParser.class);
 
   private static final boolean WINDOWS = System.getProperty("os.name")
       .startsWith("Windows");
