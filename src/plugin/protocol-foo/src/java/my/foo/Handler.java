@@ -6,7 +6,7 @@ import java.net.URLStreamHandler;
 
 public class Handler extends URLStreamHandler {
 
-	protected URLConnection openConnection(URL u) {
-		throw new UnsupportedOperationException("not yet implemented");
-	}
+  protected URLConnection openConnection(URL u) {
+    throw new UnsupportedOperationException("not yet implemented");
+  }
 }

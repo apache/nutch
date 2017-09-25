@@ -73,7 +73,8 @@ public class PluginManifestParser {
    *          folders to search plugins from
    * @return A {@link Map} of all found {@link PluginDescriptor}s.
    */
-  public Map<String, PluginDescriptor> parsePluginFolder(String[] pluginFolders) {
+  public Map<String, PluginDescriptor> parsePluginFolder(
+      String[] pluginFolders) {
     Map<String, PluginDescriptor> map = new HashMap<>();
 
     if (pluginFolders == null) {
@@ -160,8 +161,8 @@ public class PluginManifestParser {
    * @throws ParserConfigurationException
    * @throws DocumentException
    */
-  private Document parseXML(URL url) throws SAXException, IOException,
-      ParserConfigurationException {
+  private Document parseXML(URL url)
+      throws SAXException, IOException, ParserConfigurationException {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder = factory.newDocumentBuilder();
     return builder.parse(url.openStream());
@@ -222,8 +223,8 @@ public class PluginManifestParser {
    * @param pDescriptor
    * @throws MalformedURLException
    */
-  private void parseLibraries(Element pRootElement, PluginDescriptor pDescriptor)
-      throws MalformedURLException {
+  private void parseLibraries(Element pRootElement,
+      PluginDescriptor pDescriptor) throws MalformedURLException {
     NodeList nodelist = pRootElement.getElementsByTagName("runtime");
     if (nodelist.getLength() > 0) {
 
