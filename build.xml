@@ -23,7 +23,7 @@
   <property file="${basedir}/build.properties" />
   <property file="${basedir}/default.properties" />
   <property name="release.dir" value="${build.dir}/release"/>
-  
+
   <!-- define Maven coordinates, repository url and artifacts name etc -->
   <property name="groupId" value="org.apache.nutch" />
   <property name="artifactId" value="nutch" />
@@ -33,7 +33,7 @@
   <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
   <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
- 
+
   <!-- the normal classpath -->
   <path id="classpath">
     <pathelement location="${build.classes}"/>
@@ -92,8 +92,8 @@
   <target name="compile" depends="compile-core, compile-plugins" description="--> compile all Java files"/>
 
   <target name="compile-core" depends="init, resolve-default" description="--> compile core Java files only">
-    <javac 
-     encoding="${build.encoding}" 
+    <javac
+     encoding="${build.encoding}"
      srcdir="${src.dir}"
      includes="org/apache/nutch/**/*.java"
      destdir="${build.classes}"
@@ -109,7 +109,7 @@
       <fileset dir="${src.dir}" includes="**/*.html" />
       <fileset dir="${src.dir}" includes="**/*.css" />
       <fileset dir="${src.dir}" includes="**/*.properties" />
-    </copy>    
+    </copy>
   </target>
 
   <target name="compile-plugins" depends="init, resolve-default" description="--> compile plugins only">
@@ -137,28 +137,28 @@
   <!-- Make Maven Central Release                                         -->
   <!-- ================================================================== -->
   <!--                                                                    -->
-  <!-- ================================================================== -->  
+  <!-- ================================================================== -->
   <target name="release" depends="compile-core" description="--> generate the release distribution">
     <copy file="${conf.dir}/nutch-default.xml"
           todir="${build.classes}"/>
     <copy file="${conf.dir}/nutch-site.xml"
           todir="${build.classes}"/>
-          
-	<!-- build the main artifact -->
-	<jar jarfile="${maven-jar}" basedir="${build.classes}" />
-  	
+
+  <!-- build the main artifact -->
+  <jar jarfile="${maven-jar}" basedir="${build.classes}" />
+
     <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
       <condition>
-          <or>
-        	<matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" /> 
-			<matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" /> 
-            <equals arg1="${ant.java.version}" arg2="1.6" />
-			<equals arg1="${ant.java.version}" arg2="1.5" /> 
-          </or>
+        <or>
+          <matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" />
+          <matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" />
+          <equals arg1="${ant.java.version}" arg2="1.6" />
+          <equals arg1="${ant.java.version}" arg2="1.5" />
+        </or>
       </condition>
     </fail>
 
-	<!-- build the javadoc artifact -->
+    <!-- build the javadoc artifact -->
     <javadoc
       destdir="${release.dir}/javadoc"
       overview="${src.dir}/overview.html"
@@ -169,8 +169,8 @@
       doctitle="${name} ${version} API"
       bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
       >
-        <arg value="${javadoc.proxy.host}"/>
-        <arg value="${javadoc.proxy.port}"/>
+      <arg value="${javadoc.proxy.host}"/>
+      <arg value="${javadoc.proxy.port}"/>
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
@@ -178,24 +178,25 @@
       <packageset dir="${plugins.dir}/headings/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
+      <packageset dir="${plugins.dir}/index-geoip/src/java"/>
+      <packageset dir="${plugins.dir}/index-links/src/java"/>
       <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
-      <packageset dir="${plugins.dir}/index-geoip/src/java"/>
       <packageset dir="${plugins.dir}/index-replace/src/java"/>
       <packageset dir="${plugins.dir}/index-static/src/java"/>
-      <packageset dir="${plugins.dir}/index-links/src/java"/>
-      <packageset dir="${plugins.dir}/mimetype-filter/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-cloudsearch/src/java/" />
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
-      <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-elastic-rest/src/java/"/>
-      <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-htmlunit/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
-      <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
+      <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
+      <packageset dir="${plugins.dir}/mimetype-filter/src/java"/>
       <packageset dir="${plugins.dir}/parse-ext/src/java"/>
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
@@ -203,6 +204,7 @@
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
       <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
@@ -213,21 +215,21 @@
       <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
       <packageset dir="${plugins.dir}/publish-rabbitmq/src/java"/>
       <packageset dir="${plugins.dir}/scoring-depth/src/java"/>
-      <packageset dir="${plugins.dir}/scoring-similarity/src/java"/>
       <packageset dir="${plugins.dir}/scoring-link/src/java"/>
       <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-similarity/src/java"/>
       <packageset dir="${plugins.dir}/subcollection/src/java"/>
       <packageset dir="${plugins.dir}/tld/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-suffix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-validator/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
-      <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/urlmeta/src/java"/>
+      <packageset dir="${plugins.dir}/urlnormalizer-ajax/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-basic/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-host/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-pass/src/java"/>
@@ -241,14 +243,14 @@
       <link href="${javadoc.link.lucene.core}"/>
       <link href="${javadoc.link.lucene.analyzers-common}"/>
       <link href="${javadoc.link.solr-solrj}"/>
-      
+
       <classpath refid="classpath"/>
-    	<classpath>
-    		<fileset dir="${plugins.dir}" >
-    			<include name="**/*.jar"/>
-    		</fileset>
-    	</classpath>
-    	
+      <classpath>
+        <fileset dir="${plugins.dir}" >
+          <include name="**/*.jar"/>
+        </fileset>
+      </classpath>
+
       <group title="Core" packages="org.apache.nutch.*"/>
       <group title="Plugins API" packages="${plugins.api}"/>
       <group title="Protocol Plugins" packages="${plugins.protocol}"/>
@@ -257,64 +259,65 @@
       <group title="Scoring Plugins" packages="${plugins.scoring}"/>
       <group title="Parse Plugins" packages="${plugins.parse}"/>
       <group title="Parse Filter Plugins" packages="${plugins.parsefilter}"/>
+      <group title="Publisher Plugins" packages="${plugins.publisher}"/>
       <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
       <group title="Indexer Plugins" packages="${plugins.indexer}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
-    </javadoc>	
-	<jar jarfile="${maven-javadoc-jar}">
-		<fileset dir="${release.dir}/javadoc" />
-	</jar>
+    </javadoc>
+    <jar jarfile="${maven-javadoc-jar}">
+      <fileset dir="${release.dir}/javadoc" />
+    </jar>
 
-	<!-- build the sources artifact -->
-	<jar jarfile="${maven-sources-jar}">
-		<fileset dir="${src.dir}" />
-	</jar>
+    <!-- build the sources artifact -->
+    <jar jarfile="${maven-sources-jar}">
+      <fileset dir="${src.dir}" />
+    </jar>
   </target>
-  
+
   <!-- ================================================================== -->
   <!-- Deploy to Apache Nexus                                             -->
   <!-- ================================================================== -->
   <!--                                                                    -->
-  <!-- ================================================================== -->  
+  <!-- ================================================================== -->
   <target name="deploy" depends="release" description="--> deploy to Apache Nexus">
-	
-	<!-- generate a pom file -->
-	<ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml" templatefile="ivy/mvn.template">
-	   <mapping conf="default" scope="compile"/>
-	   <mapping conf="runtime" scope="runtime"/>
-	</ivy:makepom>
 
-	<!-- sign and deploy the main artifact -->
-	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
-		<arg value="-Durl=${maven-repository-url}" />
-		<arg value="-DrepositoryId=${maven-repository-id}" />
-		<arg value="-DpomFile=pom.xml" />
-		<arg value="-Dfile=${maven-jar}" />
-    <arg value="-Papache-release" />
-	</artifact:mvn>
+  <!-- generate a pom file -->
+  <ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml" templatefile="ivy/mvn.template">
+     <mapping conf="default" scope="compile"/>
+     <mapping conf="runtime" scope="runtime"/>
+  </ivy:makepom>
 
-	<!-- sign and deploy the sources artifact -->
-	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
-		<arg value="-Durl=${maven-repository-url}" />
-		<arg value="-DrepositoryId=${maven-repository-id}" />
-		<arg value="-DpomFile=pom.xml" />
-		<arg value="-Dfile=${maven-sources-jar}" />
-		<arg value="-Dclassifier=sources" />
+  <!-- sign and deploy the main artifact -->
+  <artifact:mvn>
+    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
+    <arg value="-Durl=${maven-repository-url}" />
+    <arg value="-DrepositoryId=${maven-repository-id}" />
+    <arg value="-DpomFile=pom.xml" />
+    <arg value="-Dfile=${maven-jar}" />
     <arg value="-Papache-release" />
-	</artifact:mvn>
+  </artifact:mvn>
 
-	<!-- sign and deploy the javadoc artifact -->
-	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
-		<arg value="-Durl=${maven-repository-url}" />
-		<arg value="-DrepositoryId=${maven-repository-id}" />
-		<arg value="-DpomFile=pom.xml" />
-		<arg value="-Dfile=${maven-javadoc-jar}" />
-		<arg value="-Dclassifier=javadoc" />
+  <!-- sign and deploy the sources artifact -->
+  <artifact:mvn>
+    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
+    <arg value="-Durl=${maven-repository-url}" />
+    <arg value="-DrepositoryId=${maven-repository-id}" />
+    <arg value="-DpomFile=pom.xml" />
+    <arg value="-Dfile=${maven-sources-jar}" />
+    <arg value="-Dclassifier=sources" />
     <arg value="-Papache-release" />
-	</artifact:mvn>
+  </artifact:mvn>
+
+  <!-- sign and deploy the javadoc artifact -->
+  <artifact:mvn>
+    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
+    <arg value="-Durl=${maven-repository-url}" />
+    <arg value="-DrepositoryId=${maven-repository-id}" />
+    <arg value="-DpomFile=pom.xml" />
+    <arg value="-Dfile=${maven-javadoc-jar}" />
+    <arg value="-Dclassifier=javadoc" />
+    <arg value="-Papache-release" />
+  </artifact:mvn>
   </target>
 
   <!-- ================================================================== -->
@@ -350,7 +353,7 @@
   <target name="job" depends="compile" description="--> make nutch.job jar">
     <jar jarfile="${build.dir}/${final.name}.job">
       <!-- If the build.classes has the nutch config files because the jar
-           command command has run, exclude them.  The conf directory has 
+           command command has run, exclude them.  The conf directory has
            them.
       -->
       <zipfileset dir="${build.classes}"
@@ -402,11 +405,11 @@
   </target>
 
   <!-- ================================================================== -->
-  <!-- Compile test code                                                  --> 
+  <!-- Compile test code                                                  -->
   <!-- ================================================================== -->
   <target name="compile-core-test" depends="init, resolve-test, compile-core" description="--> compile test code">
     <javac 
-     encoding="${build.encoding}" 
+     encoding="${build.encoding}"
      srcdir="${test.src.dir}"
      includes="org/apache/nutch/**/*.java"
      destdir="${test.build.classes}"
@@ -417,11 +420,11 @@
      deprecation="${javac.deprecation}">
       <compilerarg value="-Xlint:-path"/>
       <classpath refid="test.classpath"/>
-    </javac>    
+    </javac>
   </target>
 
   <!-- ================================================================== -->
-  <!-- Run Nutch proxy                                                    --> 
+  <!-- Run Nutch proxy                                                    -->
   <!-- ================================================================== -->
 
   <target name="proxy" depends="compile-core-test, job" description="--> run nutch proxy">
@@ -437,7 +440,7 @@
   </target>
 
   <!-- ================================================================== -->
-  <!-- Run Nutch benchmarking analysis                                    --> 
+  <!-- Run Nutch benchmarking analysis                                    -->
   <!-- ================================================================== -->
 
   <target name="benchmark" description="--> run nutch benchmarking analysis">
@@ -454,7 +457,7 @@
   </target>
 
   <!-- ================================================================== -->
-  <!-- Run unit tests                                                     --> 
+  <!-- Run unit tests                                                     -->
   <!-- ================================================================== -->
   <target name="test" depends="test-core, test-plugins" description="--> run JUnit tests"/>
 
@@ -462,7 +465,7 @@
 
     <delete dir="${test.build.data}"/>
     <mkdir dir="${test.build.data}"/>
-    <!-- 
+    <!--
      copy resources needed in junit tests
     -->
     <copy todir="${test.build.data}">
@@ -474,7 +477,7 @@
 
     <copy file="${test.src.dir}/crawl-tests.xml"
         todir="${test.build.classes}"/>
-        
+
     <copy file="${test.src.dir}/domain-urlfilter.txt"
         todir="${test.build.classes}"/>
 
@@ -485,7 +488,7 @@
       errorProperty="tests.failed" failureProperty="tests.failed" maxmemory="1000m">
       <sysproperty key="test.build.data" value="${test.build.data}"/>
       <sysproperty key="test.src.dir" value="${test.src.dir}"/>
-      <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/> 
+      <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
       <classpath refid="test.classpath"/>
       <formatter type="${test.junit.output.format}" />
       <batchtest todir="${test.build.dir}" unless="testcase">
@@ -499,7 +502,7 @@
 
     <fail if="tests.failed">Tests failed!</fail>
 
-  </target>   
+  </target>
 
   <target name="test-plugins" depends="resolve-test, compile" description="--> run plugin JUnit tests only">
     <ant dir="src/plugin" target="test" inheritAll="false"/>
@@ -534,7 +537,7 @@
 
   <!-- target: publish-local  =========================================== -->
   <target name="publish-local" depends="jar" description="--> publish this project in the local ivy repository">
-    <ivy:publish artifactspattern="${build.dir}/[artifact]-${version}.[ext]" 
+    <ivy:publish artifactspattern="${build.dir}/[artifact]-${version}.[ext]"
                     resolver="local"
                     pubrevision="${version}"
           pubdate="${now}"
@@ -597,12 +600,12 @@
   <target name="javadoc" depends="compile" description="--> generate Javadoc">
     <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
       <condition>
-          <or>
-        	<matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" /> 
-			<matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" /> 
-            <equals arg1="${ant.java.version}" arg2="1.6" />
-			<equals arg1="${ant.java.version}" arg2="1.5" /> 
-          </or>
+        <or>
+          <matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" />
+          <matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" />
+          <equals arg1="${ant.java.version}" arg2="1.6" />
+          <equals arg1="${ant.java.version}" arg2="1.5" />
+        </or>
       </condition>
     </fail>
     <mkdir dir="${build.javadoc}"/>
@@ -616,8 +619,8 @@
       doctitle="${name} ${version} API"
       bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
       >
-        <arg value="${javadoc.proxy.host}"/>
-        <arg value="${javadoc.proxy.port}"/>
+      <arg value="${javadoc.proxy.host}"/>
+      <arg value="${javadoc.proxy.port}"/>
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
@@ -626,54 +629,57 @@
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
+      <packageset dir="${plugins.dir}/index-links/src/java"/>
       <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
       <packageset dir="${plugins.dir}/index-replace/src/java"/>
       <packageset dir="${plugins.dir}/index-static/src/java"/>
-      <packageset dir="${plugins.dir}/index-links/src/java"/>
-      <packageset dir="${plugins.dir}/mimetype-filter/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-cloudsearch/src/java/" />
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
-      <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-elastic-rest/src/java/"/>
-      <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-htmlunit/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
-      <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
+      <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
+      <packageset dir="${plugins.dir}/mimetype-filter/src/java"/>
       <packageset dir="${plugins.dir}/parse-ext/src/java"/>
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
       <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
-      <packageset dir="${plugins.dir}/parsefilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
       <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
       <packageset dir="${plugins.dir}/protocol-htmlunit/src/java"/>
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-interactiveselenium/src/java"/>
       <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
       <packageset dir="${plugins.dir}/publish-rabbitmq/src/java"/>
       <packageset dir="${plugins.dir}/scoring-depth/src/java"/>
-      <packageset dir="${plugins.dir}/scoring-similarity/src/java"/>
       <packageset dir="${plugins.dir}/scoring-link/src/java"/>
       <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-similarity/src/java"/>
       <packageset dir="${plugins.dir}/subcollection/src/java"/>
       <packageset dir="${plugins.dir}/tld/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-suffix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-validator/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
-      <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/urlmeta/src/java"/>
+      <packageset dir="${plugins.dir}/urlnormalizer-ajax/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-basic/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-host/src/java"/>
       <packageset dir="${plugins.dir}/urlnormalizer-pass/src/java"/>
@@ -687,14 +693,14 @@
       <link href="${javadoc.link.lucene.core}"/>
       <link href="${javadoc.link.lucene.analyzers-common}"/>
       <link href="${javadoc.link.solr-solrj}"/>
-      
+
       <classpath refid="classpath"/>
-    	<classpath>
-    		<fileset dir="${plugins.dir}" >
-    			<include name="**/*.jar"/>
-    		</fileset>
-    	</classpath>
-    	
+      <classpath>
+        <fileset dir="${plugins.dir}" >
+          <include name="**/*.jar"/>
+        </fileset>
+      </classpath>
+
       <group title="Core" packages="org.apache.nutch.*"/>
       <group title="Plugins API" packages="${plugins.api}"/>
       <group title="Protocol Plugins" packages="${plugins.protocol}"/>
@@ -703,6 +709,7 @@
       <group title="Scoring Plugins" packages="${plugins.scoring}"/>
       <group title="Parse Plugins" packages="${plugins.parse}"/>
       <group title="Parse Filter Plugins" packages="${plugins.parsefilter}"/>
+      <group title="Publisher Plugins" packages="${plugins.publisher}"/>
       <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
       <group title="Indexer Plugins" packages="${plugins.indexer}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
@@ -710,8 +717,8 @@
     <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
     <copy file="${plugins.dir}/plugin.dtd"
           todir="${build.javadoc}/org/apache/nutch/plugin/doc-files"/>
-  </target>	
-	
+  </target>
+
   <target name="default-doc" description="--> generate default Nutch documentation">
     <style basedir="${conf.dir}" destdir="${docs.dir}"
            includes="nutch-default.xml" style="conf/nutch-conf.xsl"/>
@@ -733,7 +740,7 @@
     <copy todir="${src.dist.version.dir}/lib" includeEmptyDirs="false">
       <fileset dir="lib"/>
     </copy>
-   
+
     <copy todir="${src.dist.version.dir}/conf">
       <fileset dir="${conf.dir}" excludes="**/*.template"/>
     </copy>
@@ -775,7 +782,7 @@
     <copy todir="${bin.dist.version.dir}/lib" includeEmptyDirs="false">
       <fileset dir="runtime/local/lib"/>
     </copy>
-   
+
     <copy todir="${bin.dist.version.dir}/bin">
       <fileset dir="runtime/local/bin"/>
     </copy>
@@ -819,7 +826,7 @@
       </tarfileset>
     </tar>
   </target>
-  
+
   <!-- ================================================================== -->
   <!-- Make bin release tarball                                               -->
   <!-- ================================================================== -->
@@ -840,7 +847,7 @@
   <!-- Make src release zip                                               -->
   <!-- ================================================================== -->
   <target name="zip-src" depends="package-src" description="--> generate src.zip distribution package">
-   <zip compress="true" casesensitive="yes" 
+   <zip compress="true" casesensitive="yes"
      destfile="${src.dist.version.dir}.zip">
    <zipfileset dir="${src.dist.version.dir}" filemode="664" prefix="${final.name}">
        <exclude name="src/bin/*" />
@@ -856,7 +863,7 @@
   <!-- Make bin release zip                                               -->
   <!-- ================================================================== -->
   <target name="zip-bin" depends="package-bin" description="--> generate bin.zip distribution package">
-   <zip compress="true" casesensitive="yes" 
+   <zip compress="true" casesensitive="yes"
      destfile="${bin.dist.version.dir}.zip">
    <zipfileset dir="${bin.dist.version.dir}" filemode="664" prefix="${final.name}">
        <exclude name="bin/*" />
@@ -867,7 +874,7 @@
    </zipfileset>
    </zip>
   </target>
-	
+
   <!-- ================================================================== -->
   <!-- Clean.  Delete the build files, and their directories              -->
   <!-- ================================================================== -->
@@ -876,10 +883,10 @@
   <target name="clean" depends="clean-build, clean-lib, clean-dist, clean-runtime" description="--> clean the project" />
 
   <!-- target: clean-eclipse ============================================ -->
-  <target name="clean-eclipse" depends="clean-build, clean-lib, clean-dist" description="--> cleans the eclipse project"/> 
+  <target name="clean-eclipse" depends="clean-build, clean-lib, clean-dist" description="--> cleans the eclipse project"/>
 
   <!-- target: clean-local  ============================================= -->
-  <target name="clean-local" depends="" 
+  <target name="clean-local" depends=""
                 description="--> cleans the local repository for the current module">
     <delete dir="${ivy.local.default.root}/${ivy.organisation}/${ivy.module}"/>
   </target>
@@ -890,7 +897,7 @@
   </target>
   <!-- target: clean-default-lib  =============================================== -->
   <target name="clean-default-lib" description="--> clean the project libraries directory (dependencies)">
-	 <delete includeemptydirs="true" dir="${build.lib.dir}"/>
+   <delete includeemptydirs="true" dir="${build.lib.dir}"/>
   </target>
   <!-- target: clean-test-lib  =============================================== -->
   <target name="clean-test-lib" description="--> clean the project test libraries directory (dependencies)">
@@ -929,11 +936,11 @@
   </target>
 
   <target name="rat-sources" depends="rat-sources-typedef"
-	  description="--> runs RAT tasks over src/java">
+    description="--> runs RAT tasks over src/java">
     <rat:report xmlns:rat="antlib:org.apache.rat.anttasks">
       <fileset dir="src">
-      	<include name="java/**/*"/>
-      	<include name="plugin/**/src/**/*"/>
+        <include name="java/**/*"/>
+        <include name="plugin/**/src/**/*"/>
       </fileset>
     </rat:report>
   </target>
@@ -941,26 +948,26 @@
   <!-- ================================================================== -->
   <!-- SONAR targets                                                      -->
   <!-- ================================================================== -->
-  
+
   <!-- Define the Sonar task if this hasn't been done in a common script -->
   <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
     <classpath path="${ant.library.dir}"/>
     <classpath path="${mysql.library.dir}"/>
   </taskdef>
-  
+
   <!-- Add the target -->
   <target name="sonar" description="--> run SONAR analysis">
-    
+
     <!-- list of mandatory source directories (required) -->
     <property name="sonar.sources" value="${src.dir}"/>
- 
+
     <!-- list of properties (optional) -->
     <property name="sonar.projectName" value="Nutch Trunk 1.4 Sonar Analysis" />
     <property name="sonar.binaries" value="${build.dir}/classes" />
     <property name="sonar.binaries" value="${build.dir}/plugins" />
     <property name="sonar.tests" value="${test.src.dir}" />
 
-    <sonar:sonar workDir="${base.dir}" key="org.apache.nutch:trunk" 
+    <sonar:sonar workDir="${base.dir}" key="org.apache.nutch:trunk"
      version="1.4-SNAPSHOT" xmlns:sonar="antlib:org.sonar.ant"/>
   </target>
 
@@ -982,7 +989,7 @@
       <include name="*.jar" />
     </fileset>
   </path>
-  
+
   <!-- target: ant-eclipse-download   =================================== -->
   <target name="ant-eclipse-download" description="--> downloads the ant-eclipse binary.">
     <get src="http://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
@@ -997,17 +1004,17 @@
 
     <delete file="${build.dir}/ant-eclipse-1.0.bin.tar.bz2" />
   </target>
-  
+
   <!-- target: eclipse   ================================================ -->
-  <target name="eclipse" 
+  <target name="eclipse"
           depends="clean-eclipse,init,resolve-test,job,ant-eclipse-download"
           description="--> create eclipse project files">
 
-	     <pathconvert property="eclipse.project">
-	       <path path="${basedir}"/>
-	       <regexpmapper from="^.*/([^/]+)$$" to="\1" handledirsep="yes"/>
-	     </pathconvert>
-  
+    <pathconvert property="eclipse.project">
+      <path path="${basedir}"/>
+      <regexpmapper from="^.*/([^/]+)$$" to="\1" handledirsep="yes"/>
+    </pathconvert>
+
     <taskdef name="eclipse"
              classname="prantl.ant.eclipse.EclipseTask"
              classpath="${build.dir}/lib/ant-eclipse-1.0-jvm1.2.jar" />
@@ -1017,10 +1024,10 @@
         <library path="${conf.dir}" exported="false" />
         <library path="${basedir}/src/bin" exported="false" />
         <library pathref="eclipse.classpath" exported="false" />
-        
+
         <source path="${basedir}/src/java/" />
         <source path="${basedir}/src/test/" output="build/test/classes" />
-        
+
         <source path="${plugins.dir}/creativecommons/src/java/" />
         <source path="${plugins.dir}/creativecommons/src/test/" />
         <source path="${plugins.dir}/feed/src/java/" />
@@ -1033,14 +1040,6 @@
         <source path="${plugins.dir}/index-geoip/src/java/" />
         <source path="${plugins.dir}/index-links/src/java/" />
         <source path="${plugins.dir}/index-links/src/test/" />
-        <source path="${plugins.dir}/mimetype-filter/src/java/" />
-        <source path="${plugins.dir}/mimetype-filter/src/test/" />
-        <source path="${plugins.dir}/indexer-dummy/src/java/" />
-        <source path="${plugins.dir}/indexer-solr/src/java/" />
-        <source path="${plugins.dir}/indexer-rabbit/src/java/" />
-        <source path="${plugins.dir}/indexer-elastic/src/java/" />
-        <source path="${plugins.dir}/indexer-elastic/src/test/" />
-        <source path="${plugins.dir}/indexer-elastic-rest/src/java/"/>
         <source path="${plugins.dir}/index-metadata/src/java/" />
         <source path="${plugins.dir}/index-more/src/java/" />
         <source path="${plugins.dir}/index-more/src/test/" />
@@ -1048,15 +1047,24 @@
         <source path="${plugins.dir}/index-replace/src/test/" />
         <source path="${plugins.dir}/index-static/src/java/" />
         <source path="${plugins.dir}/index-static/src/test/" />
+        <source path="${plugins.dir}/indexer-cloudsearch/src/java/" />
+        <source path="${plugins.dir}/indexer-dummy/src/java/" />
+        <source path="${plugins.dir}/indexer-elastic-rest/src/java/"/>
+        <source path="${plugins.dir}/indexer-elastic/src/java/" />
+        <source path="${plugins.dir}/indexer-elastic/src/test/" />
+        <source path="${plugins.dir}/indexer-rabbit/src/java/" />
+        <source path="${plugins.dir}/indexer-solr/src/java/" />
         <source path="${plugins.dir}/language-identifier/src/java/" />
         <source path="${plugins.dir}/language-identifier/src/test/" />
         <source path="${plugins.dir}/lib-htmlunit/src/java/" />
         <source path="${plugins.dir}/lib-http/src/java/" />
         <source path="${plugins.dir}/lib-http/src/test/" />
-        <source path="${plugins.dir}/lib-selenium/src/java/" />
         <source path="${plugins.dir}/lib-regex-filter/src/java/" />
         <source path="${plugins.dir}/lib-regex-filter/src/test/" />
+        <source path="${plugins.dir}/lib-selenium/src/java/" />
         <source path="${plugins.dir}/microformats-reltag/src/java/" />
+        <source path="${plugins.dir}/mimetype-filter/src/java/" />
+        <source path="${plugins.dir}/mimetype-filter/src/test/" />
         <source path="${plugins.dir}/parse-ext/src/java/" />
         <source path="${plugins.dir}/parse-ext/src/test/" />
         <source path="${plugins.dir}/parse-html/src/java/" />
@@ -1064,48 +1072,56 @@
         <source path="${plugins.dir}/parse-js/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/test/" />
+        <source path="${plugins.dir}/parse-replace/src/java/" />
+        <source path="${plugins.dir}/parse-replace/src/test/" />
         <source path="${plugins.dir}/parse-swf/src/java/" />
         <source path="${plugins.dir}/parse-swf/src/test/" />
         <source path="${plugins.dir}/parse-tika/src/java/" />
         <source path="${plugins.dir}/parse-tika/src/test/" />
         <source path="${plugins.dir}/parse-zip/src/java/" />
         <source path="${plugins.dir}/parse-zip/src/test/" />
+        <source path="${plugins.dir}/parsefilter-naivebayes/src/java/" />
         <source path="${plugins.dir}/parsefilter-regex/src/java/" />
-        <source path="${plugins.dir}/parsefilter-regex/src/test/" />    
+        <source path="${plugins.dir}/parsefilter-regex/src/test/" />
         <source path="${plugins.dir}/protocol-file/src/java/" />
         <source path="${plugins.dir}/protocol-file/src/test/" />
         <source path="${plugins.dir}/protocol-ftp/src/java/" />
         <source path="${plugins.dir}/protocol-htmlunit/src/java"/>
-        <source path="${plugins.dir}/protocol-httpclient/src/java/" />
-        <source path="${plugins.dir}/protocol-httpclient/src/test/" />
+        <source path="${plugins.dir}/protocol-htmlunit/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/test/" />
+        <source path="${plugins.dir}/protocol-httpclient/src/java/" />
+        <source path="${plugins.dir}/protocol-httpclient/src/test/" />
+        <source path="${plugins.dir}/protocol-interactiveselenium/src/java/" />
         <source path="${plugins.dir}/protocol-selenium/src/java"/>
+        <source path="${plugins.dir}/protocol-selenium/src/java/" />
         <source path="${plugins.dir}/publish-rabbitmq/src/java"/>
+        <source path="${plugins.dir}/publish-rabbitmq/src/java/" />
         <source path="${plugins.dir}/scoring-depth/src/java/" />
-        <source path="${plugins.dir}/scoring-similarity/src/java/" />
         <source path="${plugins.dir}/scoring-link/src/java/" />
         <source path="${plugins.dir}/scoring-opic/src/java/" />
+        <source path="${plugins.dir}/scoring-similarity/src/java/" />
         <source path="${plugins.dir}/subcollection/src/java/" />
         <source path="${plugins.dir}/subcollection/src/test/" />
         <source path="${plugins.dir}/tld/src/java/" />
         <source path="${plugins.dir}/urlfilter-automaton/src/java/" />
         <source path="${plugins.dir}/urlfilter-automaton/src/test/" />
-        <source path="${plugins.dir}/urlfilter-domainblacklist/src/java/" />
-        <source path="${plugins.dir}/urlfilter-domainblacklist/src/test/" />
         <source path="${plugins.dir}/urlfilter-domain/src/java/" />
         <source path="${plugins.dir}/urlfilter-domain/src/test/" />
+        <source path="${plugins.dir}/urlfilter-domainblacklist/src/java/" />
+        <source path="${plugins.dir}/urlfilter-domainblacklist/src/test/" />
+        <source path="${plugins.dir}/urlfilter-ignoreexempt/src/java/" />
         <source path="${plugins.dir}/urlfilter-prefix/src/java/" />
+        <source path="${plugins.dir}/urlfilter-prefix/src/test/" />
         <source path="${plugins.dir}/urlfilter-regex/src/java/" />
         <source path="${plugins.dir}/urlfilter-regex/src/test/" />
         <source path="${plugins.dir}/urlfilter-suffix/src/java/" />
         <source path="${plugins.dir}/urlfilter-suffix/src/test/" />
         <source path="${plugins.dir}/urlfilter-validator/src/java/" />
         <source path="${plugins.dir}/urlfilter-validator/src/test/" />
-        <source path="${plugins.dir}/urlfilter-ignoreexempt/src/java/" />
-        <source path="${plugins.dir}/urlfilter-ignoreexempt/src/test/" />
-        <source path="${plugins.dir}/parsefilter-naivebayes/src/java/" />
         <source path="${plugins.dir}/urlmeta/src/java/" />
+        <source path="${plugins.dir}/urlnormalizer-ajax/src/java/" />
+        <source path="${plugins.dir}/urlnormalizer-ajax/src/test/" />
         <source path="${plugins.dir}/urlnormalizer-basic/src/java/" />
         <source path="${plugins.dir}/urlnormalizer-basic/src/test/" />
         <source path="${plugins.dir}/urlnormalizer-host/src/java/" />
@@ -1125,5 +1141,5 @@
       </classpath>
     </eclipse>
   </target>
-  
+
 </project>

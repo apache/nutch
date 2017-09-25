@@ -26,112 +26,116 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
-     <ant dir="creativecommons" target="deploy"/>
-     <ant dir="feed" target="deploy"/>
-     <ant dir="headings" target="deploy"/>
-     <ant dir="index-basic" target="deploy"/>
-     <ant dir="index-anchor" target="deploy"/>
-     <ant dir="index-geoip" target="deploy"/>
-     <ant dir="index-more" target="deploy"/>
-     <ant dir="index-replace" target="deploy"/>
-     <ant dir="index-static" target="deploy"/>
-     <ant dir="index-metadata" target="deploy"/>
-     <ant dir="index-links" target="deploy"/>
-     <ant dir="mimetype-filter" target="deploy"/>
-     <ant dir="indexer-cloudsearch" target="deploy"/>
-     <ant dir="indexer-dummy" target="deploy"/>
-     <ant dir="indexer-elastic" target="deploy"/>
-     <ant dir="indexer-elastic-rest" target="deploy"/>
-     <ant dir="indexer-solr" target="deploy"/>
-     <ant dir="indexer-rabbit" target="deploy"/>
-     <ant dir="language-identifier" target="deploy"/>
-     <ant dir="lib-http" target="deploy"/>
-     <ant dir="lib-nekohtml" target="deploy"/>
-     <ant dir="lib-regex-filter" target="deploy"/>
-     <ant dir="lib-xml" target="deploy"/>
-     <ant dir="microformats-reltag" target="deploy"/>
-     <ant dir="nutch-extensionpoints" target="deploy"/>
-     <ant dir="protocol-file" target="deploy"/>
-     <ant dir="protocol-ftp" target="deploy"/>
-     <ant dir="protocol-http" target="deploy"/>
-     <ant dir="protocol-httpclient" target="deploy"/>
-     <ant dir="lib-htmlunit" target="deploy"/>
-     <ant dir="protocol-htmlunit" target="deploy" />
-     <ant dir="lib-selenium" target="deploy"/>
-     <ant dir="protocol-selenium" target="deploy" />
-     <ant dir="protocol-interactiveselenium" target="deploy" />
-     <ant dir="parse-ext" target="deploy"/>
-     <ant dir="parse-js" target="deploy"/>
-     <ant dir="parse-html" target="deploy"/>
-     <ant dir="parse-metatags" target="deploy"/>
-     <ant dir="parse-swf" target="deploy"/>
-     <ant dir="parse-tika" target="deploy"/>
-     <ant dir="parse-zip" target="deploy"/>
-     <ant dir="publish-rabbitmq" target="deploy"/>
-     <ant dir="scoring-depth" target="deploy"/>
-     <ant dir="scoring-opic" target="deploy"/>
-     <ant dir="scoring-link" target="deploy"/>
-     <ant dir="scoring-similarity" target="deploy"/>
-     <ant dir="subcollection" target="deploy"/>
-     <ant dir="tld" target="deploy"/>
-     <ant dir="urlfilter-automaton" target="deploy"/>
-     <ant dir="urlfilter-domain" target="deploy" />
-     <ant dir="urlfilter-domainblacklist" target="deploy" />
-     <ant dir="urlfilter-prefix" target="deploy"/>
-     <ant dir="urlfilter-regex" target="deploy"/>
-     <ant dir="urlfilter-suffix" target="deploy"/>
-     <ant dir="urlfilter-validator" target="deploy"/>
-     <ant dir="urlfilter-ignoreexempt" target="deploy"/>
-     <ant dir="parsefilter-naivebayes" target="deploy"/>
-     <ant dir="parsefilter-regex" target="deploy"/>
-     <ant dir="urlmeta" target="deploy"/>
-     <ant dir="urlnormalizer-ajax" target="deploy"/>
-     <ant dir="urlnormalizer-basic" target="deploy"/>
-     <ant dir="urlnormalizer-host" target="deploy"/>
-     <ant dir="urlnormalizer-pass" target="deploy"/>
-     <ant dir="urlnormalizer-protocol" target="deploy"/>
-     <ant dir="urlnormalizer-querystring" target="deploy"/>
-     <ant dir="urlnormalizer-regex" target="deploy"/>
-     <ant dir="urlnormalizer-slash" target="deploy"/>
+    <!-- first build libs, other plugins depend on them -->
+    <ant dir="lib-htmlunit" target="deploy"/>
+    <ant dir="lib-http" target="deploy"/>
+    <ant dir="lib-nekohtml" target="deploy"/>
+    <ant dir="lib-regex-filter" target="deploy"/>
+    <ant dir="lib-selenium" target="deploy"/>
+    <ant dir="lib-xml" target="deploy"/>
+    <!-- real plugins -->
+    <ant dir="creativecommons" target="deploy"/>
+    <ant dir="feed" target="deploy"/>
+    <ant dir="headings" target="deploy"/>
+    <ant dir="index-anchor" target="deploy"/>
+    <ant dir="index-basic" target="deploy"/>
+    <ant dir="index-geoip" target="deploy"/>
+    <ant dir="index-links" target="deploy"/>
+    <ant dir="index-metadata" target="deploy"/>
+    <ant dir="index-more" target="deploy"/>
+    <ant dir="index-replace" target="deploy"/>
+    <ant dir="index-static" target="deploy"/>
+    <ant dir="indexer-cloudsearch" target="deploy"/>
+    <ant dir="indexer-dummy" target="deploy"/>
+    <ant dir="indexer-elastic" target="deploy"/>
+    <ant dir="indexer-elastic-rest" target="deploy"/>
+    <ant dir="indexer-rabbit" target="deploy"/>
+    <ant dir="indexer-solr" target="deploy"/>
+    <ant dir="language-identifier" target="deploy"/>
+    <ant dir="microformats-reltag" target="deploy"/>
+    <ant dir="mimetype-filter" target="deploy"/>
+    <ant dir="nutch-extensionpoints" target="deploy"/>
+    <ant dir="parse-ext" target="deploy"/>
+    <ant dir="parse-html" target="deploy"/>
+    <ant dir="parse-js" target="deploy"/>
+    <ant dir="parse-metatags" target="deploy"/>
+    <ant dir="parse-swf" target="deploy"/>
+    <ant dir="parse-tika" target="deploy"/>
+    <ant dir="parse-zip" target="deploy"/>
+    <ant dir="parsefilter-naivebayes" target="deploy"/>
+    <ant dir="parsefilter-regex" target="deploy"/>
+    <ant dir="protocol-file" target="deploy"/>
+    <ant dir="protocol-ftp" target="deploy"/>
+    <ant dir="protocol-htmlunit" target="deploy" />
+    <ant dir="protocol-http" target="deploy"/>
+    <ant dir="protocol-httpclient" target="deploy"/>
+    <ant dir="protocol-interactiveselenium" target="deploy" />
+    <ant dir="protocol-selenium" target="deploy" />
+    <ant dir="publish-rabbitmq" target="deploy"/>
+    <ant dir="scoring-depth" target="deploy"/>
+    <ant dir="scoring-link" target="deploy"/>
+    <ant dir="scoring-opic" target="deploy"/>
+    <ant dir="scoring-similarity" target="deploy"/>
+    <ant dir="subcollection" target="deploy"/>
+    <ant dir="tld" target="deploy"/>
+    <ant dir="urlfilter-automaton" target="deploy"/>
+    <ant dir="urlfilter-domain" target="deploy" />
+    <ant dir="urlfilter-domainblacklist" target="deploy" />
+    <ant dir="urlfilter-prefix" target="deploy"/>
+    <ant dir="urlfilter-regex" target="deploy"/>
+    <ant dir="urlfilter-suffix" target="deploy"/>
+    <ant dir="urlfilter-validator" target="deploy"/>
+    <!-- urlfilter-ignoreexempt depends on urlfilter-regex, must build after -->
+    <ant dir="urlfilter-ignoreexempt" target="deploy"/>
+    <ant dir="urlmeta" target="deploy"/>
+    <ant dir="urlnormalizer-ajax" target="deploy"/>
+    <ant dir="urlnormalizer-basic" target="deploy"/>
+    <ant dir="urlnormalizer-host" target="deploy"/>
+    <ant dir="urlnormalizer-pass" target="deploy"/>
+    <ant dir="urlnormalizer-protocol" target="deploy"/>
+    <ant dir="urlnormalizer-querystring" target="deploy"/>
+    <ant dir="urlnormalizer-regex" target="deploy"/>
+    <ant dir="urlnormalizer-slash" target="deploy"/>
   </target>
-
+  
   <!-- ====================================================== -->
   <!-- Test all of the plugins.                               -->
   <!-- ====================================================== -->
   <target name="test">
     <parallel threadCount="2">
      <ant dir="creativecommons" target="test"/>
-     <ant dir="index-basic" target="test"/>
+     <ant dir="feed" target="test"/>
      <ant dir="index-anchor" target="test"/>
-     <ant dir="index-geoip" target="test"/>
-     <ant dir="index-more" target="test"/>
-     <ant dir="index-static" target="test"/>
-     <ant dir="index-replace" target="test"/>
+     <ant dir="index-basic" target="test"/>
+     <!--ant dir="index-geoip" target="test"/-->
      <ant dir="index-links" target="test"/>
-     <ant dir="mimetype-filter" target="test"/>
+     <ant dir="index-more" target="test"/>
+     <ant dir="index-replace" target="test"/>
+     <ant dir="index-static" target="test"/>
      <ant dir="indexer-elastic" target="test"/>
      <ant dir="language-identifier" target="test"/>
      <ant dir="lib-http" target="test"/>
-     <ant dir="protocol-file" target="test"/>
-     <ant dir="protocol-http" target="test"/>
-     <ant dir="protocol-httpclient" target="test"/>
+     <ant dir="lib-regex-filter" target="test"/>
+     <ant dir="mimetype-filter" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
-     <ant dir="feed" target="test"/>
      <ant dir="parse-html" target="test"/>
      <ant dir="parse-metatags" target="test"/>
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-tika" target="test"/>
      <ant dir="parse-zip" target="test"/>
      <ant dir="parsefilter-regex" target="test"/>
+     <ant dir="protocol-file" target="test"/>
+     <ant dir="protocol-http" target="test"/>
+     <ant dir="protocol-httpclient" target="test"/>
      <ant dir="subcollection" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-domain" target="test"/>
      <ant dir="urlfilter-domainblacklist" target="test"/>
+     <!--ant dir="urlfilter-ignoreexempt" target="test"/-->
      <ant dir="urlfilter-prefix" target="test"/>
      <ant dir="urlfilter-regex" target="test"/>
      <ant dir="urlfilter-suffix" target="test"/>
      <ant dir="urlfilter-validator" target="test"/>
-     <ant dir="urlfilter-ignoreexempt" target="test"/>
      <ant dir="urlnormalizer-ajax" target="test"/>
      <ant dir="urlnormalizer-basic" target="test"/>
      <ant dir="urlnormalizer-host" target="test"/>
@@ -150,62 +154,61 @@
     <ant dir="creativecommons" target="clean"/>
     <ant dir="feed" target="clean"/>
     <ant dir="headings" target="clean"/>
-    <ant dir="index-basic" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
+    <ant dir="index-basic" target="clean"/>
     <ant dir="index-geoip" target="clean"/>
-    <ant dir="index-more" target="clean"/>
-    <ant dir="index-static" target="clean"/>
-    <ant dir="index-replace" target="clean"/>
-    <ant dir="index-metadata" target="clean"/>
     <ant dir="index-links" target="clean"/>
-    <ant dir="mimetype-filter" target="clean"/>
+    <ant dir="index-metadata" target="clean"/>
+    <ant dir="index-more" target="clean"/>
+    <ant dir="index-replace" target="clean"/>
+    <ant dir="index-static" target="clean"/>
     <ant dir="indexer-cloudsearch" target="clean"/>
     <ant dir="indexer-dummy" target="clean"/>
     <ant dir="indexer-elastic" target="clean"/>
     <ant dir="indexer-elastic-rest" target="clean"/>
-    <ant dir="indexer-solr" target="clean"/>
     <ant dir="indexer-rabbit" target="clean"/>
+    <ant dir="indexer-solr" target="clean"/>
     <ant dir="language-identifier" target="clean"/>
-    <!-- <ant dir="lib-commons-httpclient" target="clean"/> -->
+    <ant dir="lib-htmlunit" target="clean"/>
     <ant dir="lib-http" target="clean"/>
-    <!-- <ant dir="lib-lucene-analyzers" target="clean"/>-->
     <ant dir="lib-nekohtml" target="clean"/>
     <ant dir="lib-regex-filter" target="clean"/>
+    <ant dir="lib-selenium" target="clean"/>
     <ant dir="lib-xml" target="clean"/>
     <ant dir="microformats-reltag" target="clean"/>
+    <ant dir="mimetype-filter" target="clean"/>
     <ant dir="nutch-extensionpoints" target="clean"/>
-    <ant dir="protocol-file" target="clean"/>
-    <ant dir="protocol-ftp" target="clean"/>
-    <ant dir="protocol-http" target="clean"/>
-    <ant dir="protocol-httpclient" target="clean"/>
-    <ant dir="lib-htmlunit" target="clean"/>
-    <ant dir="protocol-htmlunit" target="clean" />
-    <ant dir="lib-selenium" target="clean"/>
-    <ant dir="protocol-selenium" target="clean" />
-    <ant dir="protocol-interactiveselenium" target="clean" />
     <ant dir="parse-ext" target="clean"/>
-    <ant dir="parse-js" target="clean"/>
     <ant dir="parse-html" target="clean"/>
+    <ant dir="parse-js" target="clean"/>
     <ant dir="parse-metatags" target="clean"/>
     <ant dir="parse-swf" target="clean"/>
     <ant dir="parse-tika" target="clean"/>
     <ant dir="parse-zip" target="clean"/>
+    <ant dir="parsefilter-naivebayes" target="clean" />
     <ant dir="parsefilter-regex" target="clean"/>
+    <ant dir="protocol-file" target="clean"/>
+    <ant dir="protocol-ftp" target="clean"/>
+    <ant dir="protocol-htmlunit" target="clean" />
+    <ant dir="protocol-http" target="clean"/>
+    <ant dir="protocol-httpclient" target="clean"/>
+    <ant dir="protocol-interactiveselenium" target="clean" />
+    <ant dir="protocol-selenium" target="clean" />
+    <ant dir="publish-rabbitmq" target="clean"/>
     <ant dir="scoring-depth" target="clean"/>
-    <ant dir="scoring-opic" target="clean"/>
     <ant dir="scoring-link" target="clean"/>
+    <ant dir="scoring-opic" target="clean"/>
     <ant dir="scoring-similarity" target="clean"/>
     <ant dir="subcollection" target="clean"/>
     <ant dir="tld" target="clean"/>
     <ant dir="urlfilter-automaton" target="clean"/>
     <ant dir="urlfilter-domain" target="clean" />
     <ant dir="urlfilter-domainblacklist" target="clean" />
+    <ant dir="urlfilter-ignoreexempt" target="clean"/>
     <ant dir="urlfilter-prefix" target="clean"/>
     <ant dir="urlfilter-regex" target="clean"/>
     <ant dir="urlfilter-suffix" target="clean"/>
     <ant dir="urlfilter-validator" target="clean"/>
-    <ant dir="urlfilter-ignoreexempt" target="clean"/>
-    <ant dir="parsefilter-naivebayes" target="clean" />
     <ant dir="urlmeta" target="clean"/>
     <ant dir="urlnormalizer-ajax" target="clean"/>
     <ant dir="urlnormalizer-basic" target="clean"/>
