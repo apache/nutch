@@ -1309,7 +1309,7 @@
 
 <property>
 	<name>parser.html.outlinks.htmlnode_metadata_name</name>
-	<value>htmlnode</value>
+	<value></value>
 	<description>if not empty, the source nodename of a found outlink will
 		be set in the metadata with this name into the outlink</description>
 </property>
