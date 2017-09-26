@@ -539,7 +539,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * protocols.
    */
   private void registerURLStreamHandlerFactory() {
-    URL.setURLStreamHandlerFactory(this);
+    org.apache.nutch.plugin.URLStreamHandlerFactory.getInstance().registerPluginRepository(this);
   }
 
   /**
