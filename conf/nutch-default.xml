@@ -1372,6 +1372,13 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>parser.store.text</name>
+  <value>true</value>
+  <description>If true (default value), parser will store parse text (parse_text directory within the segment).</description>
+</property>
+
+
 <!--
 <property>
   <name>tika.htmlmapper.classname</name>
