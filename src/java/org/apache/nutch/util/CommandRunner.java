@@ -112,7 +112,7 @@ public class CommandRunner {
     boolean _timedout = false;
     long end = System.currentTimeMillis() + _timeout * 1000;
 
-    //
+    
     try {
       if (_timeout == 0) {
         _barrier.await();
@@ -265,7 +265,6 @@ public class CommandRunner {
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-timeout")) {
         timeout = Integer.parseInt(args[++i]);
-        ;
       } else if (i != args.length - 2) {
         System.err.println(usage);
         System.exit(-1);
