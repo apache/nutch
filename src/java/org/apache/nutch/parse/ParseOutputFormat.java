@@ -111,10 +111,10 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
         "db.ignore.external.links", false);
     final String ignoreExternalLinksMode = job.get(
         "db.ignore.external.links.mode", "byHost");
-    //NUTCH-2435 - parameter "parser.store.text" allowing to choose whether to store 'parse_text' directory or not:
-    final boolean storeText = job.getBoolean(
-        "parser.store.text", true);
-    
+    // NUTCH-2435 - parameter "parser.store.text" allowing to choose whether to
+    // store 'parse_text' directory or not:
+    final boolean storeText = job.getBoolean("parser.store.text", true);
+
     int maxOutlinksPerPage = job.getInt("db.max.outlinks.per.page", 100);
     final boolean isParsing = job.getBoolean("fetcher.parse", true);
     final int maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
@@ -134,16 +134,19 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
     final MapFile.Writer textOut;
     if (storeText) {
       Option tKeyClassOpt = (Option) MapFile.Writer.keyClass(Text.class);
-      org.apache.hadoop.io.SequenceFile.Writer.Option tValClassOpt = SequenceFile.Writer.valueClass(ParseText.class);
-      org.apache.hadoop.io.SequenceFile.Writer.Option tProgressOpt = SequenceFile.Writer.progressable(progress);
-      org.apache.hadoop.io.SequenceFile.Writer.Option tCompOpt = SequenceFile.Writer.compression(CompressionType.RECORD);
-    
-      textOut = new MapFile.Writer(job, text,
-        tKeyClassOpt, tValClassOpt, tCompOpt, tProgressOpt);
+      org.apache.hadoop.io.SequenceFile.Writer.Option tValClassOpt = SequenceFile.Writer
+          .valueClass(ParseText.class);
+      org.apache.hadoop.io.SequenceFile.Writer.Option tProgressOpt = SequenceFile.Writer
+          .progressable(progress);
+      org.apache.hadoop.io.SequenceFile.Writer.Option tCompOpt = SequenceFile.Writer
+          .compression(CompressionType.RECORD);
+
+      textOut = new MapFile.Writer(job, text, tKeyClassOpt, tValClassOpt,
+          tCompOpt, tProgressOpt);
     } else {
-      textOut=null;
+      textOut = null;
     }
-    
+
     // dataOut Options
     Option dKeyClassOpt = (Option) MapFile.Writer.keyClass(Text.class);
     org.apache.hadoop.io.SequenceFile.Writer.Option dValClassOpt = SequenceFile.Writer.valueClass(ParseData.class);
@@ -170,7 +173,7 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
         String fromUrl = key.toString();
         // host or domain name of the source URL
         String origin = null;
-        if (textOut!=null) {
+        if (textOut != null) {
           textOut.append(key, new ParseText(parse.getText()));
         }
 
@@ -321,7 +324,8 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
       }
 
       public void close(Reporter reporter) throws IOException {
-        if (textOut!=null) textOut.close();
+        if (textOut != null)
+          textOut.close();
         dataOut.close();
         crawlOut.close();
       }
