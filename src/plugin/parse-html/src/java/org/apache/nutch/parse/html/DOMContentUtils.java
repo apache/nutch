@@ -436,15 +436,16 @@ public class DOMContentUtils {
               try {
 
                 URL url = URLUtil.resolveURL(base, target);
-                outlinks.add(new Outlink(url.toString(), linkText.toString()
-                    .trim()));
-										
-                // NUTCH-2433 - Keep the node name where the URL was found into 
+                Outlink outlink = new Outlink(url.toString(), linkText
+                    .toString().trim());
+                outlinks.add(outlink);
+
+                // NUTCH-2433 - Keep the node name where the URL was found into
                 // the outlink metadata
                 if (keepNodenames) {
                   MapWritable metadata = new MapWritable();
                   metadata.put(new Text(srcTagMetaName), new Text(nodeName));
-                  outlinks.get(outlinks.size() - 1).setMetadata(metadata);
+                  outlink.setMetadata(metadata);
                 }
 
               } catch (MalformedURLException e) {
