@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
 import org.apache.nutch.util.URLUtil;
@@ -42,6 +44,9 @@ import org.w3c.dom.NodeList;
  * 
  */
 public class DOMContentUtils {
+
+  private String srcTagMetaName;
+  private boolean keepNodenames;
 
   private static class LinkParams {
     private String elName;
@@ -93,6 +98,11 @@ public class DOMContentUtils {
       if (!forceTags.contains(ignoreTags[i]))
         linkParams.remove(ignoreTags[i]);
     }
+
+    // NUTCH-2433 - Should we keep the html node where the outlinks are found?
+    srcTagMetaName = this.conf
+        .get("parser.html.outlinks.htmlnode_metadata_name");
+    keepNodenames = (srcTagMetaName != null && srcTagMetaName.length() > 0);
   }
 
   /**
@@ -292,7 +302,7 @@ public class DOMContentUtils {
     }
     return true;
   }
-  
+
   // this only covers a few cases of empty links that are symptomatic
   // of nekohtml's DOM-fixup process...
   private boolean shouldThrowAwayLink(Node node, NodeList children,
@@ -400,8 +410,17 @@ public class DOMContentUtils {
               try {
 
                 URL url = URLUtil.resolveURL(base, target);
-                outlinks.add(new Outlink(url.toString(), linkText.toString()
-                    .trim()));
+                Outlink outlink = new Outlink(url.toString(), linkText
+                    .toString().trim());
+                outlinks.add(outlink);
+
+                // NUTCH-2433 - Keep the node name where the URL was found into
+                // the outlink metadata
+                if (keepNodenames) {
+                  MapWritable metadata = new MapWritable();
+                  metadata.put(new Text(srcTagMetaName), new Text(nodeName));
+                  outlink.setMetadata(metadata);
+                }
               } catch (MalformedURLException e) {
                 // don't care
               }
@@ -413,27 +432,29 @@ public class DOMContentUtils {
       }
     }
   }
-  
+
   // This one is used by NUTCH-1918
-  public void getOutlinks(URL base, ArrayList<Outlink> outlinks, List<Link> tikaExtractedOutlinks) {
+  public void getOutlinks(URL base, ArrayList<Outlink> outlinks,
+      List<Link> tikaExtractedOutlinks) {
     String target = null;
     String anchor = null;
     boolean noFollow = false;
 
     for (Link link : tikaExtractedOutlinks) {
       target = link.getUri();
-      noFollow = (link.getRel().toLowerCase().equals("nofollow")) ? true : false;
+      noFollow = (link.getRel().toLowerCase().equals("nofollow")) ? true
+          : false;
       anchor = link.getText();
 
       if (!ignoredTags.contains(link.getType())) {
         if (target != null && !noFollow) {
           try {
             URL url = URLUtil.resolveURL(base, target);
-            
+
             // clean the anchor
             anchor = anchor.replaceAll("\\s+", " ");
             anchor = anchor.trim();
-            
+
             outlinks.add(new Outlink(url.toString(), anchor));
           } catch (MalformedURLException e) {
             // don't care
