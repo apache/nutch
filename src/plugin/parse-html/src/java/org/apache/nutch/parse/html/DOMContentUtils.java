@@ -28,6 +28,8 @@ import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
 import org.apache.nutch.util.URLUtil;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.Text;
 
 import org.w3c.dom.*;
 
@@ -39,6 +41,9 @@ import org.w3c.dom.*;
  * 
  */
 public class DOMContentUtils {
+  
+  private String srcTagMetaName;
+  private boolean keepNodenames;
 
   public static class LinkParams {
     public String elName;
@@ -88,6 +93,11 @@ public class DOMContentUtils {
       if (!forceTags.contains(ignoreTags[i]))
         linkParams.remove(ignoreTags[i]);
     }
+    
+    //NUTCH-2433 - Should we keep the html node where the outlinks are found?
+    srcTagMetaName = this.conf
+        .get("parser.html.outlinks.htmlnode_metadata_name");
+    keepNodenames = (srcTagMetaName != null && srcTagMetaName.length() > 0);
   }
 
   /**
@@ -426,8 +436,18 @@ public class DOMContentUtils {
               try {
 
                 URL url = URLUtil.resolveURL(base, target);
-                outlinks.add(new Outlink(url.toString(), linkText.toString()
-                    .trim()));
+                Outlink outlink = new Outlink(url.toString(), linkText
+                    .toString().trim());
+                outlinks.add(outlink);
+
+                // NUTCH-2433 - Keep the node name where the URL was found into
+                // the outlink metadata
+                if (keepNodenames) {
+                  MapWritable metadata = new MapWritable();
+                  metadata.put(new Text(srcTagMetaName), new Text(nodeName));
+                  outlink.setMetadata(metadata);
+                }
+
               } catch (MalformedURLException e) {
                 // don't care
               }
