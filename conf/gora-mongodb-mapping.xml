@@ -44,7 +44,7 @@
         <field name="prevSignature" docfield="prevSignature" type="string"/>
         <!-- score fields -->
         <field name="score" docfield="score" type="int32"/>
-        <field name="stmPriority" family="stmPriority" type="int32"/>
+        <field name="stmPriority" docfield="stmPriority" type="int32"/>
         <field name="headers" docfield="headers" type="document"/>
         <field name="inlinks" docfield="inlinks" type="document"/>
         <field name="outlinks" docfield="outlinks" type="document"/>
