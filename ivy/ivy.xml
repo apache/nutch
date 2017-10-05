@@ -102,7 +102,7 @@
     <!-- N.B. To use Gora SNAPSHOT's merely replace the 'ref' value with the SNAPSHOT version 
     and add changing="true" alongside the dependency declaration. An example has been
     provided for the gora-core dependency as below -->
-    <dependency org="org.apache.gora" name="gora-core" rev="0.7" conf="*->default"/>
+    <dependency org="org.apache.gora" name="gora-core" rev="0.8" conf="*->default"/>
     
     <!-- Uncomment this to use SQL as Gora backend. It should be noted that the 
     gora-sql 0.1.1-incubating artifact is NOT compatable with gora-core 0.3. Users should 
@@ -116,32 +116,32 @@
     -->
     <!-- Uncomment this to use HBase as Gora backend. -->
     <!--     
-    <dependency org="org.apache.gora" name="gora-hbase" rev="0.7" conf="*->default" /> 
+    <dependency org="org.apache.gora" name="gora-hbase" rev="0.8" conf="*->default" /> 
     -->
     <!-- Uncomment this to use Accumulo as Gora backend. -->
     <!--
-    <dependency org="org.apache.gora" name="gora-accumulo" rev="0.7" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-accumulo" rev="0.8" conf="*->default" />
     -->
     <!-- Uncomment this to use Cassandra as Gora backend. -->
     <!-- 
-    <dependency org="org.apache.gora" name="gora-cassandra" rev="0.7" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-cassandra" rev="0.8" conf="*->default" />
     -->
     <!-- Uncomment this to use MongoDB as Gora backend. -->
     <!--
-    <dependency org="org.apache.gora" name="gora-mongodb" rev="0.7" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-mongodb" rev="0.8" conf="*->default" />
     -->    
     <!-- Uncomment this to use Solr as Gora backend. -->
     <!--
-    <dependency org="org.apache.gora" name="gora-solr" rev="0.7" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-solr" rev="0.8" conf="*->default" />
     -->
     <!--
-    <dependency org="org.apache.gora" name="gora-jcache" rev="0.7" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-jcache" rev="0.8" conf="*->default" />
     -->
     <!-- The gora-compiler is used within the 'ant generate-gora-src' target to compile
     the Gora .avsc files within ./src/gora 
     -->
-    <dependency org="org.apache.gora" name="gora-compiler-cli" rev="0.7" conf="*->default"/>
-    <dependency org="org.apache.gora" name="gora-compiler" rev="0.7" conf="*->default"/>
+    <dependency org="org.apache.gora" name="gora-compiler-cli" rev="0.8" conf="*->default"/>
+    <dependency org="org.apache.gora" name="gora-compiler" rev="0.8" conf="*->default"/>
 
     <!-- web app dependencies -->
 
