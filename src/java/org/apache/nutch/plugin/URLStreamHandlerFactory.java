@@ -51,7 +51,7 @@ public class URLStreamHandlerFactory
 
   @Override
   public URLStreamHandler createURLStreamHandler(String protocol) {
-    LOG.debug("createURLStreamHandler("+protocol+")");
+    LOG.debug("createURLStreamHandler({})", protocol);
     
     removeInvalidRefs();
     
@@ -80,6 +80,6 @@ public class URLStreamHandlerFactory
         prs.remove(ref);
       }
     }
-    LOG.debug("removed "+(copy.size()-prs.size())+" references, remaining "+prs.size());
+    LOG.debug("removed {} references, remaining {}", copy.size()-prs.size(), prs.size());
   }
 }

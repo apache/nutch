@@ -51,7 +51,7 @@ public class Foo implements Protocol {
    */
   @Override
   public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
-    LOG.debug("getProtocolOutput(" + url + ", " + datum + ")");
+    LOG.debug("getProtocolOutput({}, {})", url, datum);
 
     try {
       String urlstr = String.valueOf(url);
@@ -99,7 +99,7 @@ public class Foo implements Protocol {
         break;
       }
       default:
-        LOG.warn("Unknown url '" + url + "'. This dummy implementation only supports 'foo://example.com'");
+        LOG.warn("Unknown url '{}'. This dummy implementation only supports 'foo://example.com'", url);
         // all our default values are set for URLs that do not exist.
         break;
       }
@@ -110,7 +110,8 @@ public class Foo implements Protocol {
 
       return new ProtocolOutput(content, status);
     } catch (MalformedURLException mue) {
-      LOG.error("Could not retrieve " + url, mue);
+      LOG.error("Could not retrieve {}", url);
+      LOG.error("", mue);
       // clain STATUS_GONE to tell nutch to never ever re-request this URL
       return new ProtocolOutput(null, ProtocolStatus.STATUS_GONE);
     }
@@ -120,7 +121,7 @@ public class Foo implements Protocol {
   public BaseRobotRules getRobotRules(Text url, CrawlDatum datum,
       List<Content> robotsTxtContent) {
     LOG.debug(
-        "getRobotRules(" + url + ", " + datum + ", " + robotsTxtContent + ")");
+        "getRobotRules({}, {}, {})", url, datum, robotsTxtContent);
     return RobotRulesParser.EMPTY_RULES;
   }
 }

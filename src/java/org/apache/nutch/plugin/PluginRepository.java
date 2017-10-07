@@ -98,7 +98,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
     try {
       installExtensions(fRegisteredPlugins);
     } catch (PluginRuntimeException e) {
-      LOG.error(e.toString());
+      LOG.error("Could not install extensions.", e.toString());
       throw new RuntimeException(e.getMessage());
     }
 
@@ -131,7 +131,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
     for (PluginDescriptor plugin : plugins) {
       for (ExtensionPoint point : plugin.getExtenstionPoints()) {
         String xpId = point.getId();
-        LOG.debug("Adding extension point " + xpId);
+        LOG.debug("Adding extension point {}", xpId);
         fExtensionPoints.put(xpId, point);
       }
     }
@@ -347,14 +347,14 @@ public class PluginRepository implements URLStreamHandlerFactory {
   }
 
   private void displayStatus() {
-    LOG.info("Plugin Auto-activation mode: [" + this.auto + "]");
+    LOG.info("Plugin Auto-activation mode: [{}]", this.auto);
     LOG.info("Registered Plugins:");
 
     if ((fRegisteredPlugins == null) || (fRegisteredPlugins.size() == 0)) {
       LOG.info("\tNONE");
     } else {
       for (PluginDescriptor plugin : fRegisteredPlugins) {
-        LOG.info("\t" + plugin.getName() + " (" + plugin.getPluginId() + ")");
+        LOG.info("\t{} ({})", plugin.getName(), plugin.getPluginId());
       }
     }
 
@@ -363,7 +363,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
       LOG.info("\tNONE");
     } else {
       for (ExtensionPoint ep : fExtensionPoints.values()) {
-        LOG.info("\t" + ep.getName() + " (" + ep.getId() + ")");
+        LOG.info("\t ({})", ep.getName(), ep.getId());
       }
     }
   }
@@ -399,11 +399,11 @@ public class PluginRepository implements URLStreamHandlerFactory {
       }
 
       if (!includes.matcher(id).matches()) {
-        LOG.debug("not including: " + id);
+        LOG.debug("not including: {}", id);
         continue;
       }
       if (excludes.matcher(id).matches()) {
-        LOG.debug("excluding: " + id);
+        LOG.debug("excluding: {}", id);
         continue;
       }
       map.put(plugin.getPluginId(), plugin);
@@ -461,9 +461,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
         for (String orderedFilter : orderOfFilters) {
           Object f = filterMap.get(orderedFilter);
           if (f == null) {
-            LOG.error(clazz.getSimpleName() + " : " + orderedFilter
-                + " declared in configuration property " + orderProperty
-                + " but not found in an active plugin - ignoring.");
+            LOG.error("{} : {} declared in configuration property {} but not found in an active plugin - ignoring.", clazz.getSimpleName(), orderedFilter
+                , orderProperty);
             continue;
           }
           sorted.add(f);
@@ -472,8 +471,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
         for (int i = 0; i < sorted.size(); i++) {
           filter[i] = sorted.get(i);
           if (LOG.isTraceEnabled()) {
-            LOG.trace(clazz.getSimpleName() + " : filters[" + i + "] = "
-                + filter[i].getClass());
+            LOG.trace("{} : filters[{}] = {}", clazz.getSimpleName() , i,
+                filter[i].getClass());
           }
         }
         objectCache.setObject(clazz.getName(), filter);
@@ -571,7 +570,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @see java.net.URL
    */
   public URLStreamHandler createURLStreamHandler(String protocol) {
-    LOG.debug("createURLStreamHandler(" + protocol + ")");
+    LOG.debug("createURLStreamHandler({})", protocol);
 
     if (fExtensionPoints != null) {
       ExtensionPoint ep = fExtensionPoints
@@ -580,9 +579,9 @@ public class PluginRepository implements URLStreamHandlerFactory {
         Extension[] extensions = ep.getExtensions();
         for (Extension extension : extensions) {
           String p = extension.getAttribute("protocolName");
-          LOG.trace("Found " + p);
+          LOG.trace("Found {}", p);
           if (p.equals(protocol)) {
-            LOG.debug("suitable " + p);
+            LOG.debug("suitable {}", p);
 
             // instantiate the plugin. This allows it to execute a static hook,
             // if present
@@ -590,32 +589,30 @@ public class PluginRepository implements URLStreamHandlerFactory {
             Object extinst = null;
             try {
               extinst = extension.getExtensionInstance();
-              LOG.debug("instantiated " + extinst.getClass().getName());
+              LOG.debug("instantiated {}", extinst.getClass().getName());
             } catch (Exception e) {
-              LOG.warn("Could not instantiate " + extension.getId(), e);
+              LOG.warn("Could not instantiate {}", extension.getId(), e);
             }
 
             // return the handler here, if possible
             String handlerClass = extension.getAttribute("urlStreamHandler");
-            LOG.debug("urlStreamHandler=" + handlerClass);
+            LOG.debug("urlStreamHandler={}", handlerClass);
             if (handlerClass != null) {
               // instantiate the handler and return it
               ClassLoader cl = this.getClass().getClassLoader(); // the nutch
                                                                  // classloader
-              LOG.trace("Using nutch classloader " + cl);
+              LOG.trace("Using nutch classloader {}", cl);
               if (extinst != null) {
                 cl = extinst.getClass().getClassLoader(); // the extension's
                                                           // classloader
-                LOG.trace("Using extension classloader " + cl);
+                LOG.trace("Using extension classloader {}", cl);
               }
 
               try {
                 Class clazz = cl.loadClass(handlerClass);
                 return (URLStreamHandler) clazz.newInstance();
               } catch (Exception e) {
-                LOG.error("Could not instantiate protocol " + protocol
-                    + " handler class " + handlerClass
-                    + " defined by extension " + extension.getId(), e);
+                LOG.error("Could not instantiate protocol {} handler class {} defined by extension {}", protocol, handlerClass, extension.getId(), e);
                 return null;
               }
             }
