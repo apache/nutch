@@ -1,4 +1,4 @@
-package my.foo;
+package org.apache.nutch.protocol.foo;
 
 import java.net.URL;
 import java.net.URLConnection;

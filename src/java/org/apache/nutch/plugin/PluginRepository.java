@@ -554,9 +554,9 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * 
    * <pre>
    *  ...
-   *  &lt;implementation id="org.apache.nutch.protocol.foo.Foo" class="my.foo.Foo"&gt;
+   *  &lt;implementation id="org.apache.nutch.protocol.foo.Foo" class="org.apache.nutch.protocol.foo.Foo"&gt;
    *      &lt;parameter name="protocolName" value="foo"/&gt;
-   *      &lt;parameter name="urlStreamHandler" value="my.foo.Handler"/&gt;
+   *      &lt;parameter name="urlStreamHandler" value="org.apache.nutch.protocol.foo.Handler"/&gt;
    *  &lt;/implementation&gt;
    *  ...
    * </pre>
