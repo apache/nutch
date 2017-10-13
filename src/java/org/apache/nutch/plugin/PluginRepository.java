@@ -584,14 +584,14 @@ public class PluginRepository implements URLStreamHandlerFactory {
             LOG.debug("suitable {}", p);
 
             // instantiate the plugin. This allows it to execute a static hook,
-            // if present
-            // TODO: only do this if not done already
+            // if present. Extensions and PluginInstances are cached already, so we
+            // should not create too many instances
             Object extinst = null;
             try {
               extinst = extension.getExtensionInstance();
-              LOG.debug("instantiated {}", extinst.getClass().getName());
+              LOG.debug("found {}", extinst.getClass().getName());
             } catch (Exception e) {
-              LOG.warn("Could not instantiate {}", extension.getId(), e);
+              LOG.warn("Could not find {}", extension.getId(), e);
             }
 
             // return the handler here, if possible
