@@ -406,7 +406,7 @@ public abstract class HttpBase implements Protocol {
     StringBuffer buf = new StringBuffer();
 
     buf.append(agentName);
-    if (agentVersion != null) {
+    if (agentVersion != null && !agentVersion.trim().isEmpty()) {
       buf.append("/");
       buf.append(agentVersion);
     }
