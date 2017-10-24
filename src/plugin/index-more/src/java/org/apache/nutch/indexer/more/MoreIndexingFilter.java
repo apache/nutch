@@ -324,7 +324,7 @@ public class MoreIndexingFilter implements IndexingFilter {
 
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line.trim();
+        line = line.trim();
         parts = line.split("\t");
 
         // Must be at least two parts
