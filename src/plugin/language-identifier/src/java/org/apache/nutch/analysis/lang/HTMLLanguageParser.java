@@ -16,10 +16,12 @@
  */
 package org.apache.nutch.analysis.lang;
 
+import java.io.IOException;
 // JDK imports
 import java.lang.invoke.MethodHandles;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,13 +34,19 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NodeWalker;
-import org.apache.tika.language.LanguageIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+
+import com.optimaize.langdetect.DetectedLanguage;
+import com.optimaize.langdetect.LanguageDetector;
+import com.optimaize.langdetect.LanguageDetectorBuilder;
+import com.optimaize.langdetect.ngram.NgramExtractors;
+import com.optimaize.langdetect.profiles.LanguageProfile;
+import com.optimaize.langdetect.profiles.LanguageProfileReader;
 
 public class HTMLLanguageParser implements HtmlParseFilter {
 
@@ -50,6 +58,8 @@ public class HTMLLanguageParser implements HtmlParseFilter {
   private int contentMaxlength = -1;
 
   private boolean onlyCertain = false;
+
+  private LanguageDetector languageDetector;
 
   /* A static Map of ISO-639 language codes */
   private static Map<String, String> LANGUAGES_MAP = new HashMap<String, String>();
@@ -153,21 +163,19 @@ public class HTMLLanguageParser implements HtmlParseFilter {
     }
 
     // trim content?
-    String titleandcontent = text.toString();
-
-    if (this.contentMaxlength != -1
-        && titleandcontent.length() > this.contentMaxlength)
-      titleandcontent = titleandcontent.substring(0, contentMaxlength);
-
-    LanguageIdentifier identifier = new LanguageIdentifier(titleandcontent);
-
-    if (onlyCertain) {
-      if (identifier.isReasonablyCertain())
-        return identifier.getLanguage();
-      else
-        return null;
+    if (contentMaxlength != -1 && text.length() > contentMaxlength) {
+      text.setLength(contentMaxlength);
     }
-    return identifier.getLanguage();
+    List<DetectedLanguage> languages = languageDetector.getProbabilities(text);
+    if (languages.isEmpty()) {
+    	return null;
+    }
+    DetectedLanguage lang = languages.get(0);
+    if (onlyCertain && lang.getProbability()<0.9) {
+      return null;
+    }
+    return lang.getLocale().getLanguage();
+
   }
 
   // Check in the metadata whether the language has already been stored there
@@ -312,6 +320,14 @@ public class HTMLLanguageParser implements HtmlParseFilter {
       } else if (policy[i].equals("identify")) {
         identify = i;
       }
+    }
+    List<LanguageProfile> languageProfiles;
+    try {
+      languageProfiles = new LanguageProfileReader().readAllBuiltIn();
+      languageDetector = LanguageDetectorBuilder.create(NgramExtractors.standard()).withProfiles(languageProfiles).build();
+    } catch (IOException e) {
+      LOG.error("Failed loading language profiles", e);
+      throw new RuntimeException("Failed loading language profiles");
     }
   }
 
