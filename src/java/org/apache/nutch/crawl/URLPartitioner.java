@@ -67,7 +67,7 @@ public class URLPartitioner implements Partitioner<Text, Writable> {
   public int getPartition(Text key, Writable value, int numReduceTasks) {
     String urlString = key.toString();
     URL url = null;
-    int hashCode;
+    int hashCode = 0;
     try {
       urlString = normalizers.normalize(urlString,
           URLNormalizers.SCOPE_PARTITION);
