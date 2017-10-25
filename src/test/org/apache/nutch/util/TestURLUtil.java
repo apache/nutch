@@ -71,6 +71,11 @@ public class TestURLUtil {
     // test non-ascii
     url = new URL("http://www.example.商業.tw");
     Assert.assertEquals("example.商業.tw", URLUtil.getDomainName(url));
+
+    // test URL without host/authority
+    url = new URL("file:/path/index.html");
+    Assert.assertNotNull(URLUtil.getDomainName(url));
+    Assert.assertEquals("", URLUtil.getDomainName(url));
   }
 
   @Test
