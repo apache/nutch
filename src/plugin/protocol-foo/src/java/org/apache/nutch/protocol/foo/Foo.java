@@ -92,6 +92,20 @@ public class Foo implements Protocol {
         status = ProtocolStatus.STATUS_SUCCESS;
         break;
       }
+      case "foo://example.com/": {
+        String time = HttpDateFormat.toString(System.currentTimeMillis());
+        contentType = "text/html";
+        StringBuffer sb = new StringBuffer();
+        sb.append("<html><head>");
+        sb.append("<title>Index of /</title></head>\n");
+        sb.append("<body><h1>Index of /</h1><pre>\n");
+        sb.append("<a href='a/" + "'>a/</a>\t"+ time + "\t-\n"); // add directory
+        sb.append("<a href='a.txt'>a.txt</a>\t" + time + "\t" + 0 + "\n"); // add file
+        sb.append("</pre></html></body>");
+        bytes = sb.toString().getBytes();
+        status = ProtocolStatus.STATUS_SUCCESS;
+        break;
+      }
       case "foo://example.com/a/": {
         String time = HttpDateFormat.toString(System.currentTimeMillis());
         contentType = "text/html";
