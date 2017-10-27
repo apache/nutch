@@ -252,6 +252,8 @@ public class FtpResponse {
       }
 
       this.content = null;
+      
+      path = java.net.URLDecoder.decode(path, "UTF-8");
 
       if (path.endsWith("/")) {
         getDirAsHttpResponse(path, datum.getModifiedTime());
