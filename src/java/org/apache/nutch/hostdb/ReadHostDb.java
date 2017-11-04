@@ -202,8 +202,17 @@ public class ReadHostDb extends Configured implements Tool {
     job.setNumReduceTasks(0);
 
     try {
-      job.waitForCompletion(true);
-    } catch (Exception e) {
+      boolean success = job.waitForCompletion(true);
+      if(!success){
+        String message = "ReadHostDb job did not succeed, job status: "
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        // throw exception so that calling routine can exit with error
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("ReadHostDb job failed", e);
       throw e;
     }
 
