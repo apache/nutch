@@ -414,7 +414,16 @@ public class Injector extends NutchTool implements Tool {
 
     try {
       // run the job
-      job.waitForCompletion(true);
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Injector job did not succeed, job status: "
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        cleanupAfterFailure(tempCrawlDb, lock, fs);
+        // throw exception so that calling routine can exit with error
+        throw new RuntimeException(message);
+      }
 
       // save output and perform cleanup
       CrawlDb.install(job, crawlDb);
@@ -452,11 +461,21 @@ public class Injector extends NutchTool implements Tool {
         LOG.info("Injector: finished at " + sdf.format(end) + ", elapsed: "
             + TimingUtil.elapsedTime(start, end));
       }
-    } catch (IOException e) {
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("Injector job failed", e);
+      cleanupAfterFailure(tempCrawlDb, lock, fs);
+      throw e;
+    }
+  }
+
+  public void cleanupAfterFailure(Path tempCrawlDb, Path lock, FileSystem fs)
+         throws IOException {
+    try{
       if (fs.exists(tempCrawlDb)) {
-        fs.delete(tempCrawlDb, true);
+          fs.delete(tempCrawlDb, true);
       }
-      LockUtil.removeLockFile(conf, lock);
+      LockUtil.removeLockFile(fs, lock);
+    } catch(IOException e) {
       throw e;
     }
   }

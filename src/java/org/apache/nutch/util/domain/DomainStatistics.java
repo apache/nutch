@@ -140,8 +140,17 @@ public class DomainStatistics extends Configured implements Tool {
     job.setNumReduceTasks(numOfReducers);
 
     try {
-      job.waitForCompletion(true);
-    } catch (Exception e) {
+      boolean success = job.waitForCompletion(true);
+      if(!success){
+        String message = "Injector job did not succeed, job status: "
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        // throw exception so that calling routine can exit with error
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error(jobName + " job failed", e);
       throw e;
     }
 
