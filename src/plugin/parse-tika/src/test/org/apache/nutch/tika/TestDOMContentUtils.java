@@ -130,7 +130,11 @@ public class TestDOMContentUtils {
       new String("<html><head><title> title </title>" + "</head><body>"
           + "<a href=\"g\">anchor1</a>" + "<a href=\"g?y#s\">anchor2</a>"
           + "<a href=\"?y=1\">anchor3</a>" + "<a href=\"?y=1#s\">anchor4</a>"
-          + "<a href=\"?y=1;somethingelse\">anchor5</a>" + "</body></html>"), };
+          + "<a href=\"?y=1;somethingelse\">anchor5</a>" + "</body></html>"),
+      new String("<html><head><title> </title>" + "</head><body> "
+          + "<video width=\"320\" height=\"240\" controls> "
+          + "<source src=\"movie.mp4\" type=\"video/mp4\">"
+          + "</video>" + "</body></html>"), };
 
   private static int SKIP = 9;
 
@@ -140,7 +144,7 @@ public class TestDOMContentUtils {
       "http://www.nutch.org/maps/", "http://www.nutch.org/whitespace/",
       "http://www.nutch.org//", "http://www.nutch.org/",
       "http://www.nutch.org/", "http://www.nutch.org/",
-      "http://www.nutch.org/;something" };
+      "http://www.nutch.org/;something", "http://www.nutch.org/" };
 
   private static final DocumentFragment testDOMs[] = new DocumentFragment[testPages.length];
 
@@ -160,11 +164,11 @@ public class TestDOMContentUtils {
           + "one two two three three four put some text here and there. "
           + "End this madness ! . . . .", "ignore ignore", "test1 test2",
       "test1 test2", "title anchor1 anchor2 anchor3",
-      "title anchor1 anchor2 anchor3 anchor4 anchor5" };
+      "title anchor1 anchor2 anchor3 anchor4 anchor5", "" };
 
   private static final String[] answerTitle = { "title", "title", "",
       "my title", "my title", "my title", "my title", "", "", "", "title",
-      "title" };
+      "title", "" };
 
   // note: should be in page-order
   private static Outlink[][] answerOutlinks;
@@ -225,7 +229,8 @@ public class TestDOMContentUtils {
             new Outlink("http://www.nutch.org/;something?y=1", "anchor3"),
             new Outlink("http://www.nutch.org/;something?y=1#s", "anchor4"),
             new Outlink("http://www.nutch.org/;something?y=1;somethingelse",
-                "anchor5") } };
+                "anchor5") },
+        { new Outlink("http://www.nutch.org/movie.mp4", "") } };
 
   }
 
