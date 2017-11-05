@@ -65,6 +65,7 @@
     <ant dir="parsefilter-naivebayes" target="deploy"/>
     <ant dir="parsefilter-regex" target="deploy"/>
     <ant dir="protocol-file" target="deploy"/>
+    <ant dir="protocol-foo" target="deploy" />
     <ant dir="protocol-ftp" target="deploy"/>
     <ant dir="protocol-htmlunit" target="deploy" />
     <ant dir="protocol-http" target="deploy"/>
@@ -190,6 +191,7 @@
     <ant dir="parsefilter-naivebayes" target="clean" />
     <ant dir="parsefilter-regex" target="clean"/>
     <ant dir="protocol-file" target="clean"/>
+    <ant dir="protocol-foo" target="clean" />
     <ant dir="protocol-ftp" target="clean"/>
     <ant dir="protocol-htmlunit" target="clean" />
     <ant dir="protocol-http" target="clean"/>

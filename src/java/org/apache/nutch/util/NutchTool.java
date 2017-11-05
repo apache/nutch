@@ -26,6 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.plugin.PluginRepository;
 
 public abstract class NutchTool extends Configured {
 
@@ -48,6 +49,14 @@ public abstract class NutchTool extends Configured {
 
   public NutchTool(){
     super(null);
+  }
+  
+  @Override
+  public void setConf(Configuration conf) {
+    super.setConf(conf);
+    if(conf != null) {
+      PluginRepository.get(conf);
+    }
   }
 
   /** Returns relative progress of the tool, a float in range [0,1]. */
