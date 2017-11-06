@@ -203,7 +203,7 @@ public class ReadHostDb extends Configured implements Tool {
 
     try {
       boolean success = job.waitForCompletion(true);
-      if(!success){
+      if (!success) {
         String message = "ReadHostDb job did not succeed, job status: "
             + job.getStatus().getState() + ", reason: "
             + job.getStatus().getFailureInfo();

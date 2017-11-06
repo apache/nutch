@@ -359,14 +359,14 @@ public class SitemapProcessor extends Configured implements Tool {
 
     try {
       boolean success = job.waitForCompletion(true);
-      if(!success){
-        String message = "SitemapProcessor_" + crawldb.toString() + " job did not succeed, job status: "
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+      if (!success) {
+        String message = "SitemapProcessor_" + crawldb.toString()
+            + " job did not succeed, job status: " + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         cleanupAfterFailure(tempCrawlDb, lock, fs);
         // throw exception so that calling routine can exit with error
-        throw new RuntimeException(message); 
+        throw new RuntimeException(message);
       }
 
       boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
@@ -402,13 +402,13 @@ public class SitemapProcessor extends Configured implements Tool {
   }
 
   public void cleanupAfterFailure(Path tempCrawlDb, Path lock, FileSystem fs)
-         throws IOException {
-    try{
+      throws IOException {
+    try {
       if (fs.exists(tempCrawlDb)) {
-          fs.delete(tempCrawlDb, true);
+        fs.delete(tempCrawlDb, true);
       }
       LockUtil.removeLockFile(fs, lock);
-    } catch(IOException e) {
+    } catch (IOException e) {
       throw e;
     }
   }

@@ -469,13 +469,13 @@ public class Injector extends NutchTool implements Tool {
   }
 
   public void cleanupAfterFailure(Path tempCrawlDb, Path lock, FileSystem fs)
-         throws IOException {
-    try{
+      throws IOException {
+    try {
       if (fs.exists(tempCrawlDb)) {
-          fs.delete(tempCrawlDb, true);
+        fs.delete(tempCrawlDb, true);
       }
       LockUtil.removeLockFile(fs, lock);
-    } catch(IOException e) {
+    } catch (IOException e) {
       throw e;
     }
   }
