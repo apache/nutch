@@ -179,11 +179,16 @@ public class Generator extends NutchTool implements Tool {
       segCounts = new int[maxNumSegments];
       
       if (job.get(GENERATOR_HOSTDB) != null) {
+        maxCountExpr = JexlUtil.parseExpression(job.get(GENERATOR_MAX_COUNT_EXPR, null));
+        fetchDelayExpr = JexlUtil.parseExpression(job.get(GENERATOR_FETCH_DELAY_EXPR, null));
+      }
+    }
+    
+    public void open() {
+      if (conf.get(GENERATOR_HOSTDB) != null) {
         try {
-          Path path = new Path(job.get(GENERATOR_HOSTDB), "current");
-          hostdbReaders = SequenceFileOutputFormat.getReaders(job, path);
-          maxCountExpr = JexlUtil.parseExpression(job.get(GENERATOR_MAX_COUNT_EXPR, null));
-          fetchDelayExpr = JexlUtil.parseExpression(job.get(GENERATOR_FETCH_DELAY_EXPR, null));
+          Path path = new Path(conf.get(GENERATOR_HOSTDB), "current");
+          hostdbReaders = SequenceFileOutputFormat.getReaders(conf, path);
         } catch (IOException e) {
           LOG.error("Error reading HostDB because {}", e.getMessage());
         }
@@ -287,14 +292,17 @@ public class Generator extends NutchTool implements Tool {
       Text key = new Text();
       HostDatum value = new HostDatum();
       
+      open();
       for (int i = 0; i < hostdbReaders.length; i++) {
         while (hostdbReaders[i].next(key, value)) {
           if (host.equals(key.toString())) {
+            close();
             return value;
           }
         }
       }
       
+      close();
       return null;
     }
     
