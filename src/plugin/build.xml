@@ -76,6 +76,7 @@
     <ant dir="scoring-depth" target="deploy"/>
     <ant dir="scoring-link" target="deploy"/>
     <ant dir="scoring-opic" target="deploy"/>
+    <ant dir="scoring-orphan" target="deploy"/>
     <ant dir="scoring-similarity" target="deploy"/>
     <ant dir="subcollection" target="deploy"/>
     <ant dir="tld" target="deploy"/>
@@ -128,6 +129,7 @@
      <ant dir="protocol-file" target="test"/>
      <ant dir="protocol-http" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
+     <ant dir="scoring-orphan" target="test"/>
      <ant dir="subcollection" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-domain" target="test"/>
@@ -200,6 +202,7 @@
     <ant dir="scoring-depth" target="clean"/>
     <ant dir="scoring-link" target="clean"/>
     <ant dir="scoring-opic" target="clean"/>
+    <ant dir="scoring-orphan" target="clean"/>
     <ant dir="scoring-similarity" target="clean"/>
     <ant dir="subcollection" target="clean"/>
     <ant dir="tld" target="clean"/>

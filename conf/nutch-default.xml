@@ -538,6 +538,16 @@
 </property>
 
 <property>
+  <name>db.update.purge.orphans</name>
+  <value>false</value>
+  <description>If true, updatedb will permanently delete URL's marked
+  as orphan from the CrawlDb. The plugin scoring-orphan needs to be
+  activated to get records marked as orphan. See the plugin's options
+  elsewhere in this document.
+  </description>
+</property>
+
+<property>
     <name>db.url.normalizers</name>
     <value>false</value>
     <description>Normalize urls when updating crawldb</description>
@@ -1379,6 +1389,13 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>parser.store.text</name>
+  <value>true</value>
+  <description>If true (default value), parser will store parse text (parse_text directory within the segment).</description>
+</property>
+
+
 <!--
 <property>
   <name>tika.htmlmapper.classname</name>
@@ -1533,6 +1550,24 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     <description>Name of the stopword text file. The user can specify a custom list of stop words 
       in a text file. Each new stopword should be on a new line.
     </description>
+</property>
+
+<!-- scoring filter orphan properties -->
+
+<property>
+  <name>scoring.orphan.mark.gone.after</name>
+  <value>2592000</value>
+  <description>Time in seconds after which orphaned
+  pages are marked as gone. Default is 30 days.
+  </description>
+</property>
+
+<property>
+  <name>scoring.orphan.mark.orphan.after</name>
+  <value>3456000</value>
+  <description>Time in seconds after which orphaned
+  pages are marked as gone. Default is 40 days.
+  </description>
 </property>
 
 <!-- language-identifier plugin properties -->
