@@ -164,7 +164,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    *          newly discovered page. If not null, filters should use score
    *          values from this parameter as the starting values - the
    *          <code>datum</code> parameter may contain values that are no longer
-   *          valid, if other updates occured between generation and this
+   *          valid, if other updates occurred between generation and this
    *          update.
    * @param datum
    *          the new datum, with the original score saved at the time when
@@ -177,6 +177,20 @@ public interface ScoringFilter extends Configurable, Pluggable {
    */
   public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
       List<CrawlDatum> inlinked) throws ScoringFilterException;
+
+  /**
+   * This method may change the score or status of CrawlDatum during CrawlDb
+   * update, when the URL is neither fetched nor has any inlinks.
+   *
+   * @param url
+   *          URL of the page
+   * @param datum
+   *          CrawlDatum for page
+   * @throws ScoringFilterException
+   */
+  public default void orphanedScore(Text url, CrawlDatum datum)
+      throws ScoringFilterException {
+  }
 
   /**
    * This method calculates a Lucene document boost.

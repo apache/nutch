@@ -90,6 +90,7 @@ public class DOMContentUtils {
     linkParams.put("script", new LinkParams("script", "src", 0));
     linkParams.put("link", new LinkParams("link", "href", 0));
     linkParams.put("img", new LinkParams("img", "src", 0));
+    linkParams.put("source", new LinkParams("source", "src", 0));
 
     // remove unwanted link tags from the linkParams map
     String[] ignoreTags = conf.getStrings("parser.html.outlinks.ignore_tags");

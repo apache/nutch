@@ -63,23 +63,27 @@ public class URLPartitioner implements Partitioner<Text, Writable> {
   public void close() {
   }
 
-  /** Hash by domain name. */
+  /** Hash by host or domain name or IP address. */
   public int getPartition(Text key, Writable value, int numReduceTasks) {
     String urlString = key.toString();
     URL url = null;
-    int hashCode = urlString.hashCode();
+    int hashCode = 0;
     try {
       urlString = normalizers.normalize(urlString,
           URLNormalizers.SCOPE_PARTITION);
       url = new URL(urlString);
-      hashCode = url.getHost().hashCode();
     } catch (MalformedURLException e) {
       LOG.warn("Malformed URL: '" + urlString + "'");
     }
 
-    if (mode.equals(PARTITION_MODE_DOMAIN) && url != null)
+    if (url == null) {
+      // failed to parse URL, must take URL string as fall-back
+      hashCode = urlString.hashCode();
+    } else if (mode.equals(PARTITION_MODE_HOST)) {
+      hashCode = url.getHost().hashCode();
+    } else if (mode.equals(PARTITION_MODE_DOMAIN)) {
       hashCode = URLUtil.getDomainName(url).hashCode();
-    else if (mode.equals(PARTITION_MODE_IP)) {
+    } else if (mode.equals(PARTITION_MODE_IP)) {
       try {
         InetAddress address = InetAddress.getByName(url.getHost());
         hashCode = address.getHostAddress().hashCode();
