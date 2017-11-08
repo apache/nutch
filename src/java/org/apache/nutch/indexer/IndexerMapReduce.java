@@ -261,14 +261,14 @@ public class IndexerMapReduce extends Configured implements
     }
 
     // Whether to delete pages marked as duplicates
-    if (delete && dbDatum!=null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
+    if (delete && dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
       reporter.incrCounter("IndexerStatus", "deleted (duplicates)", 1);
       output.collect(key, DELETE_ACTION);
       return;
     }
 
     // Whether to skip DB_NOTMODIFIED pages
-    if (skip && dbDatum!=null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
+    if (skip && dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
       reporter.incrCounter("IndexerStatus", "skipped (not modified)", 1);
       return;
     }
@@ -308,25 +308,25 @@ public class IndexerMapReduce extends Configured implements
     doc.add("boost", Float.toString(boost));
 
     try {
-      if (dbDatum!=null) {
-	      // Indexing filters may also be interested in the signature
-	      fetchDatum.setSignature(dbDatum.getSignature());
-	      
-	      // extract information from dbDatum and pass it to
-	      // fetchDatum so that indexing filters can use it
-	      final Text url = (Text) dbDatum.getMetaData().get(
-	          Nutch.WRITABLE_REPR_URL_KEY);
-	      if (url != null) {
-	        // Representation URL also needs normalization and filtering.
-	        // If repr URL is excluded by filters we still accept this document
-	        // but represented by its primary URL ("key") which has passed URL
-	        // filters.
-	        String urlString = filterUrl(normalizeUrl(url.toString()));
-	        if (urlString != null) {
-	          url.set(urlString);
-	          fetchDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY, url);
-	        }
-	      }
+      if (dbDatum != null) {
+        // Indexing filters may also be interested in the signature
+        fetchDatum.setSignature(dbDatum.getSignature());
+        
+        // extract information from dbDatum and pass it to
+        // fetchDatum so that indexing filters can use it
+        final Text url = (Text) dbDatum.getMetaData().get(
+            Nutch.WRITABLE_REPR_URL_KEY);
+        if (url != null) {
+          // Representation URL also needs normalization and filtering.
+          // If repr URL is excluded by filters we still accept this document
+          // but represented by its primary URL ("key") which has passed URL
+          // filters.
+          String urlString = filterUrl(normalizeUrl(url.toString()));
+          if (urlString != null) {
+            url.set(urlString);
+            fetchDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY, url);
+          }
+        }
       }
       // run indexing filters
       doc = this.filters.filter(doc, parse, key, fetchDatum, inlinks);
