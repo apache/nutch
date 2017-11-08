@@ -238,16 +238,16 @@ public class IndexerMapReduce extends Configured implements
     }
 
     // Whether to delete GONE or REDIRECTS
-    if (delete) {
-      if (fetchDatum != null && fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE
+    if (delete && fetchDatum != null) {
+      if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE
           || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_GONE) {
         reporter.incrCounter("IndexerStatus", "deleted (gone)", 1);
         output.collect(key, DELETE_ACTION);
         return;
       }
 
-      if (fetchDatum != null && fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM
-          || fetchDatum != null && fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP
+      if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM
+          || fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP
           || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM
           || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
         reporter.incrCounter("IndexerStatus", "deleted (redirects)", 1);
