@@ -171,6 +171,12 @@ public class TestBasicURLNormalizer {
     normalizeTest("http:////", "http:/");
     normalizeTest("http:///////", "http:/");
   }
+  
+  @Test
+  public void testCurlyBraces() throws Exception {
+    // check that leading and trailing spaces are removed
+    normalizeTest("http://foo.com/{{stuff}} ", "http://foo.com/%7B%7Bstuff%7D%7D");
+  }
 
   private void normalizeTest(String weird, String normal) throws Exception {
     Assert.assertEquals("normalizing: " + weird, normal,

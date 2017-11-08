@@ -17,6 +17,8 @@
 package org.apache.nutch.webui.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,6 +45,9 @@ public class SeedUrl implements Serializable {
   @Column
   private String url;
 
+  @Column
+  private Map<String, String> metadata = new HashMap<>();
+
   public Long getId() {
     return id;
   }
@@ -58,6 +63,10 @@ public class SeedUrl implements Serializable {
   public void setUrl(String url) {
     this.url = url;
   }
+
+  public Map<String,String> getMetadata() { return metadata; }
+
+  public void setMetadata(Map<String,String> metadata) { this.metadata = metadata; }
 
   @JsonIgnore
   public SeedList getSeedList() {

@@ -16,7 +16,8 @@
  */
 
 /**
- * Parse filter to allow pattern replacements on parsed metadata.
+ * Scoring filter to modify score or status of orphaned pages (no inlinks found
+ * for a configurable amount of time).
  */
-package org.apache.nutch.parse.replace;
+package org.apache.nutch.scoring.orphan;
 

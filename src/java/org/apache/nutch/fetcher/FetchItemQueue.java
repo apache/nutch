@@ -22,8 +22,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +50,14 @@ public class FetchItemQueue {
   long minCrawlDelay;
   int maxThreads;
   Configuration conf;
-
+  Text cookie;
+  Text variableFetchDelayKey = new Text("_variableFetchDelay_");
+  boolean variableFetchDelaySet = false;
+  // keep track of duplicates if fetcher.follow.outlinks.depth > 0. Some urls may 
+  // not get followed due to hash collisions. Hashing is used to reduce memory
+  // usage.
+  Set<Integer> alreadyFetched = new HashSet<>();
+  
   public FetchItemQueue(Configuration conf, int maxThreads, long crawlDelay,
       long minCrawlDelay) {
     this.conf = conf;
@@ -85,6 +96,19 @@ public class FetchItemQueue {
   public void addFetchItem(FetchItem it) {
     if (it == null)
       return;
+
+    // Check for variable crawl delay
+    if (it.datum.getMetaData().containsKey(variableFetchDelayKey)) {
+      if (!variableFetchDelaySet) {
+        variableFetchDelaySet = true;
+        crawlDelay = ((LongWritable)(it.datum.getMetaData().get(variableFetchDelayKey))).get();
+        minCrawlDelay = ((LongWritable)(it.datum.getMetaData().get(variableFetchDelayKey))).get();
+        setEndTime(System.currentTimeMillis() - crawlDelay);
+      }
+      
+      // Remove it!
+      it.datum.getMetaData().remove(variableFetchDelayKey);
+    }
     queue.add(it);
   }
 
@@ -112,6 +136,14 @@ public class FetchItemQueue {
           e);
     }
     return it;
+  }
+  
+  public void setCookie(Text cookie) {
+    this.cookie = cookie;
+  }
+  
+  public Text getCookie() {
+    return cookie;
   }
 
   public synchronized void dump() {

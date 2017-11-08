@@ -37,9 +37,10 @@
 
   <dependencies>
     <dependency org="org.apache.tika" name="tika-parsers" rev="1.12" conf="*->default">
-     <exclude org="org.apache.tika" name="tika-core" />
-     <exclude org="org.apache.httpcomponents" name="httpclient" />
-     <exclude org="org.apache.httpcomponents" name="httpcore" />
+      <exclude org="org.apache.tika" name="tika-core" />
+      <exclude org="org.apache.httpcomponents" name="httpclient" />
+      <exclude org="org.apache.httpcomponents" name="httpcore" />
+      <exclude org="org.slf4j" name="slf4j-log4j12" />
     </dependency>
   </dependencies>
   

@@ -313,13 +313,25 @@
   <description>Value of the "Accept-Language" request header field.
   This allows selecting non-English language as default one to retrieve.
   It is a useful setting for search engines build for certain national group.
+  To send requests without "Accept-Language" header field, thi  property must
+  be configured to contain a space character because an empty property does
+  not overwrite the default.
   </description>
 </property>
 
 <property>
   <name>http.accept</name>
   <value>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</value>
-  <description>Value of the "Accept" request header field.
+  <description>Value of the "Accept" request header field. A space character
+  as value will cause that no "Accept" header field is sent in the request.
+  </description>
+</property>
+
+<property>
+  <name>http.accept.charset</name>
+  <value>utf-8,iso-8859-1;q=0.7,*;q=0.7</value>
+  <description>Value of the "Accept-Charset" request header field. A space character
+  as value will cause that no "Accept-Charset" header field is sent in the request.
   </description>
 </property>
 
@@ -522,6 +534,16 @@
   <value>false</value>
   <description>If true, updatedb will add purge records with status DB_GONE
   from the CrawlDB.
+  </description>
+</property>
+
+<property>
+  <name>db.update.purge.orphans</name>
+  <value>false</value>
+  <description>If true, updatedb will permanently delete URL's marked
+  as orphan from the CrawlDb. The plugin scoring-orphan needs to be
+  activated to get records marked as orphan. See the plugin's options
+  elsewhere in this document.
   </description>
 </property>
 
@@ -760,6 +782,30 @@
   <value>-1</value>
   <description>Select only entries with a retry interval lower than
   generate.min.interval. A value of -1 disables this check.</description>
+</property>
+
+<property>
+  <name>generate.hostdb</name>
+  <value></value>
+  <description>Path to HostDB, required for the generate.max.count.expr
+  and generate.fetch.delay.expr properties.
+  See https://issues.apache.org/jira/browse/NUTCH-2368</description>
+</property>
+
+<property>
+  <name>generate.fetch.delay.expr</name>
+  <value></value>
+  <description>Controls variable fetcher.server.delay via a Jexl expression and
+  HostDB information. It allows you to alter fetch delay based on HostDB data.
+  See https://issues.apache.org/jira/browse/NUTCH-2368</description>
+</property>
+
+<property>
+  <name>generate.max.count.expr</name>
+  <value></value>
+  <description>Controls variable generate.max.count via a Jexl expression and
+  HostDB information. It allows you to alter maxCount based on HostDB data.
+  See https://issues.apache.org/jira/browse/NUTCH-2368</description>
 </property>
 
 <!-- urlpartitioner properties -->
@@ -1272,6 +1318,13 @@
 </property>
 
 <property>
+	<name>parser.html.outlinks.htmlnode_metadata_name</name>
+	<value></value>
+	<description>if not empty, the source nodename of a found outlink will
+		be set in the metadata with this name into the outlink</description>
+</property>
+
+<property>
   <name>htmlparsefilter.order</name>
   <value></value>
   <description>The order by which HTMLParse filters are applied.
@@ -1335,6 +1388,13 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   property is activated due to extremely high levels of CPU which parsing can sometimes take.  
   </description>
 </property>
+
+<property>
+  <name>parser.store.text</name>
+  <value>true</value>
+  <description>If true (default value), parser will store parse text (parse_text directory within the segment).</description>
+</property>
+
 
 <!--
 <property>
@@ -1490,6 +1550,24 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     <description>Name of the stopword text file. The user can specify a custom list of stop words 
       in a text file. Each new stopword should be on a new line.
     </description>
+</property>
+
+<!-- scoring filter orphan properties -->
+
+<property>
+  <name>scoring.orphan.mark.gone.after</name>
+  <value>2592000</value>
+  <description>Time in seconds after which orphaned
+  pages are marked as gone. Default is 30 days.
+  </description>
+</property>
+
+<property>
+  <name>scoring.orphan.mark.orphan.after</name>
+  <value>3456000</value>
+  <description>Time in seconds after which orphaned
+  pages are marked as gone. Default is 40 days.
+  </description>
 </property>
 
 <!-- language-identifier plugin properties -->

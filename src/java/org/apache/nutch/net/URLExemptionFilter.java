@@ -17,7 +17,7 @@
 
 package org.apache.nutch.net;
 
-//Hadoop
+// Hadoop
 import org.apache.hadoop.conf.Configurable;
 // Nutch
 import org.apache.nutch.plugin.Pluggable;
