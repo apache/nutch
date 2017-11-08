@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
+import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -75,29 +76,7 @@ public class ElasticIndexWriter implements IndexWriter {
 
   @Override
   public void open(JobConf job, String name) throws IOException {
-    bulkCloseTimeout = job.getLong(ElasticConstants.BULK_CLOSE_TIMEOUT,
-        DEFAULT_BULK_CLOSE_TIMEOUT);
-    defaultIndex = job.get(ElasticConstants.INDEX, DEFAULT_INDEX);
-
-    int maxBulkDocs = job.getInt(ElasticConstants.MAX_BULK_DOCS,
-        DEFAULT_MAX_BULK_DOCS);
-    int maxBulkLength = job.getInt(ElasticConstants.MAX_BULK_LENGTH,
-        DEFAULT_MAX_BULK_LENGTH);
-    int expBackoffMillis = job.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
-        DEFAULT_EXP_BACKOFF_MILLIS);
-    int expBackoffRetries = job.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
-        DEFAULT_EXP_BACKOFF_RETRIES);
-
-    client = makeClient(job);
-
-    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}", maxBulkDocs, maxBulkLength);
-    bulkProcessor = BulkProcessor.builder(client, bulkProcessorListener())
-      .setBulkActions(maxBulkDocs)
-      .setBulkSize(new ByteSizeValue(maxBulkLength, ByteSizeUnit.BYTES))
-      .setConcurrentRequests(1)
-      .setBackoffPolicy(BackoffPolicy.exponentialBackoff(
-          TimeValue.timeValueMillis(expBackoffMillis), expBackoffRetries))
-      .build();
+    //Implementation not required
   }
 
   /**
@@ -107,26 +86,52 @@ public class ElasticIndexWriter implements IndexWriter {
    * @throws IOException Some exception thrown by writer.
    */
   @Override
-  public void open(Map<String, String> parameters) throws IOException {
+  public void open(IndexWriterParams parameters) throws IOException {
+    String cluster = parameters.get(ElasticConstants.CLUSTER);
+    String hosts = parameters.get(ElasticConstants.HOSTS);
 
+    if (StringUtils.isBlank(cluster) && StringUtils.isBlank(hosts)) {
+      String message = "Missing elastic.cluster and elastic.host. At least one of them should be set in index-writers.xml ";
+      message += "\n" + describe();
+      LOG.error(message);
+      throw new RuntimeException(message);
+    }
+
+    bulkCloseTimeout = parameters.getLong(ElasticConstants.BULK_CLOSE_TIMEOUT, DEFAULT_BULK_CLOSE_TIMEOUT);
+    defaultIndex = parameters.get(ElasticConstants.INDEX, DEFAULT_INDEX);
+
+    int maxBulkDocs = parameters.getInt(ElasticConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
+    int maxBulkLength = parameters.getInt(ElasticConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
+    int expBackoffMillis = parameters.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS, DEFAULT_EXP_BACKOFF_MILLIS);
+    int expBackoffRetries = parameters.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES, DEFAULT_EXP_BACKOFF_RETRIES);
+
+    makeClient(parameters);
+
+    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}", maxBulkDocs, maxBulkLength);
+    bulkProcessor = BulkProcessor.builder(client, bulkProcessorListener())
+            .setBulkActions(maxBulkDocs)
+            .setBulkSize(new ByteSizeValue(maxBulkLength, ByteSizeUnit.BYTES))
+            .setConcurrentRequests(1)
+            .setBackoffPolicy(BackoffPolicy.exponentialBackoff(
+                    TimeValue.timeValueMillis(expBackoffMillis), expBackoffRetries))
+            .build();
   }
 
   /** Generates a TransportClient or NodeClient */
-  protected Client makeClient(Configuration conf) throws IOException {
-    String clusterName = conf.get(ElasticConstants.CLUSTER);
-    String[] hosts = conf.getStrings(ElasticConstants.HOSTS);
-    int port = conf.getInt(ElasticConstants.PORT, DEFAULT_PORT);
+  protected void makeClient(IndexWriterParams parameters) throws IOException {
+    String clusterName = parameters.get(ElasticConstants.CLUSTER);
+    String[] hosts = parameters.getStrings(ElasticConstants.HOSTS);
+    int port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
 
     Settings.Builder settingsBuilder = Settings.settingsBuilder();
 
     BufferedReader reader = new BufferedReader(
-        conf.getConfResourceAsReader("elasticsearch.conf"));
+            config.getConfResourceAsReader("elasticsearch.conf"));
     String line;
-    String parts[];
+    String[] parts;
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line.trim();
-        parts = line.split("=");
+        parts = line.trim().split("=");
 
         if (parts.length == 2) {
           settingsBuilder.put(parts[0].trim(), parts[1].trim());
@@ -135,25 +140,23 @@ public class ElasticIndexWriter implements IndexWriter {
     }
 
     // Set the cluster name and build the settings
-    if (StringUtils.isNotBlank(clusterName))
+    if (StringUtils.isNotBlank(clusterName)) {
       settingsBuilder.put("cluster.name", clusterName);
+    }
 
     Settings settings = settingsBuilder.build();
-
-    Client client = null;
 
     // Prefer TransportClient
     if (hosts != null && port > 1) {
       TransportClient transportClient = TransportClient.builder().settings(settings).build();
-      for (String host: hosts)
+      for (String host: hosts) {
         transportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
+      }
       client = transportClient;
     } else if (clusterName != null) {
       node = nodeBuilder().settings(settings).client(true).node();
       client = node.client();
     }
-
-    return client;
   }
 
   /** Generates a default BulkProcessor.Listener */
@@ -256,15 +259,6 @@ public class ElasticIndexWriter implements IndexWriter {
   @Override
   public void setConf(Configuration conf) {
     config = conf;
-    String cluster = conf.get(ElasticConstants.CLUSTER);
-    String hosts = conf.get(ElasticConstants.HOSTS);
-
-    if (StringUtils.isBlank(cluster) && StringUtils.isBlank(hosts)) {
-      String message = "Missing elastic.cluster and elastic.host. At least one of them should be set in nutch-site.xml ";
-      message += "\n" + describe();
-      LOG.error(message);
-      throw new RuntimeException(message);
-    }
   }
 
   @Override

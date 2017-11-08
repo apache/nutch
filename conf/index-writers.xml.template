@@ -72,4 +72,69 @@
       </remove>
     </mapping>
   </writer>
+  <writer id="indexer_dummy_1" class="org.apache.nutch.indexwriter.dummy.DummyIndexWriter">
+    <parameters>
+      <param name="delete" value="false"/>
+      <param name="path" value="/"/>
+    </parameters>
+    <mapping>
+      <copy />
+      <rename />
+      <remove />
+    </mapping>
+  </writer>
+  <writer id="indexer_elastic_1" class="org.apache.nutch.indexwriter.elastic.ElasticIndexWriter">
+    <parameters>
+      <param name="host" value=""/>
+      <param name="port" value="9300"/>
+      <param name="cluster" value=""/>
+      <param name="index" value="nutch"/>
+      <param name="max.bulk.docs" value="250"/>
+      <param name="max.bulk.size" value="2500500"/>
+      <param name="exponential.backoff.millis" value="100"/>
+      <param name="exponential.backoff.retries" value="10"/>
+      <param name="bulk.close.timeout" value="600"/>
+    </parameters>
+    <mapping>
+      <copy>
+        <field source="title" dest="title,search"/>
+      </copy>
+      <rename />
+      <remove />
+    </mapping>
+  </writer>
+  <writer id="indexer_elastic_rest_1" class="org.apache.nutch.indexwriter.elasticrest.ElasticRestIndexWriter">
+    <parameters>
+      <param name="host" value=""/>
+      <param name="port" value="9200"/>
+      <param name="index" value="nutch"/>
+      <param name="max.bulk.docs" value="250"/>
+      <param name="max.bulk.size" value="2500500"/>
+      <param name="user" value="user"/>
+      <param name="password" value="password"/>
+      <param name="type" value="doc"/>
+      <param name="https" value="false"/>
+      <param name="trustallhostnames" value="false"/>
+    </parameters>
+    <mapping>
+      <copy>
+        <field source="title" dest="search"/>
+      </copy>
+      <rename />
+      <remove />
+    </mapping>
+  </writer>
+  <writer id="indexer_cloud_search_1" class="org.apache.nutch.indexwriter.elasticrest.ElasticRestIndexWriter">
+    <parameters>
+      <param name="endpoint" value=""/>
+      <param name="region" value=""/>
+      <param name="batch.dump" value="false"/>
+      <param name="batch.maxSize" value="-1"/>
+    </parameters>
+    <mapping>
+      <copy />
+      <rename />
+      <remove />
+    </mapping>
+  </writer>
 </writers>

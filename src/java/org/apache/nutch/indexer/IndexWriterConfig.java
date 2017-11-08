@@ -29,14 +29,14 @@ public class IndexWriterConfig {
 
   private String clazz;
 
-  private Map<String, String> params;
+  private IndexWriterParams params;
 
   private Map<MappingReader.Actions, Map<String, List<String>>> mapping;
 
   private IndexWriterConfig(String id, String clazz, Map<String, String> params, Map<MappingReader.Actions, Map<String, List<String>>> mapping) {
     this.id = id;
     this.clazz = clazz;
-    this.params = params;
+    this.params = new IndexWriterParams(params);
     this.mapping = mapping;
   }
 
@@ -64,7 +64,7 @@ public class IndexWriterConfig {
     return clazz;
   }
 
-  Map<String, String> getParams() {
+  IndexWriterParams getParams() {
     return params;
   }
 

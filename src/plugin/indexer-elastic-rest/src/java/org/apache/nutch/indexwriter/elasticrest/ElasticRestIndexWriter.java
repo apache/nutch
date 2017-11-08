@@ -42,6 +42,7 @@ import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.nutch.indexer.IndexWriter;
+import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,26 +98,37 @@ public class ElasticRestIndexWriter implements IndexWriter {
 
   @Override
   public void open(JobConf job, String name) throws IOException {
+    //Implementation not required
+  }
 
-    host = job.get(ElasticRestConstants.HOST);
-    port = job.getInt(ElasticRestConstants.PORT, 9200);
-    user = job.get(ElasticRestConstants.USER);
-    password = job.get(ElasticRestConstants.PASSWORD);
-    https = job.getBoolean(ElasticRestConstants.HTTPS, false);
-    trustAllHostnames = job.getBoolean(ElasticRestConstants.HOSTNAME_TRUST, false);
+  @Override
+  public void open(IndexWriterParams parameters) throws IOException {
+    host = parameters.get(ElasticRestConstants.HOST);
+    if (StringUtils.isBlank(host)) {
+      String message = "Missing host. It should be set in index-writers.xml";
+      message += "\n" + describe();
+      LOG.error(message);
+      throw new RuntimeException(message);
+    }
+
+    port = parameters.getInt(ElasticRestConstants.PORT, 9200);
+    user = parameters.get(ElasticRestConstants.USER);
+    password = parameters.get(ElasticRestConstants.PASSWORD);
+    https = parameters.getBoolean(ElasticRestConstants.HTTPS, false);
+    trustAllHostnames = parameters.getBoolean(ElasticRestConstants.HOSTNAME_TRUST, false);
 
     // trust ALL certificates
     SSLContext sslContext = null;
     try {
       sslContext = new SSLContextBuilder()
-          .loadTrustMaterial(new TrustStrategy() {
-            public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-              return true;
-            }
-          }).build();
+              .loadTrustMaterial(new TrustStrategy() {
+                public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+                  return true;
+                }
+              }).build();
     } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
       LOG.error("Failed to instantiate sslcontext object: \n{}",
-          ExceptionUtils.getStackTrace(e));
+              ExceptionUtils.getStackTrace(e));
       throw new SecurityException();
     }
 
@@ -136,15 +148,15 @@ public class ElasticRestIndexWriter implements IndexWriter {
 
     if (host != null && port > 1) {
       HttpClientConfig.Builder builder = new HttpClientConfig.Builder(
-          urlOfElasticsearchNode.toString()).multiThreaded(true)
+              urlOfElasticsearchNode.toString()).multiThreaded(true)
               .connTimeout(300000).readTimeout(300000);
       if (https) {
         if (user != null && password != null) {
           builder.defaultCredentials(user, password);
         }
         builder.defaultSchemeForDiscoveredNodes("https")
-            .sslSocketFactory(sslSocketFactory) // this only affects sync calls
-            .httpsIOSessionStrategy(httpsIOSessionStrategy); // this only affects async calls
+                .sslSocketFactory(sslSocketFactory) // this only affects sync calls
+                .httpsIOSessionStrategy(httpsIOSessionStrategy); // this only affects async calls
       }
       jestClientFactory.setHttpClientConfig(builder.build());
     } else {
@@ -153,19 +165,13 @@ public class ElasticRestIndexWriter implements IndexWriter {
 
     client = jestClientFactory.getObject();
 
-    defaultIndex = job.get(ElasticRestConstants.INDEX, "nutch");
-    defaultType = job.get(ElasticRestConstants.TYPE, "doc");
+    defaultIndex = parameters.get(ElasticRestConstants.INDEX, "nutch");
+    defaultType = parameters.get(ElasticRestConstants.TYPE, "doc");
 
-    maxBulkDocs = job.getInt(ElasticRestConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
-    maxBulkLength = job.getInt(ElasticRestConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
+    maxBulkDocs = parameters.getInt(ElasticRestConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
+    maxBulkLength = parameters.getInt(ElasticRestConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
 
     bulkBuilder = new Bulk.Builder().defaultIndex(defaultIndex).defaultType(defaultType);
-
-  }
-
-  @Override
-  public void open(Map<String, String> parameters) throws IOException {
-
   }
 
   @Override
@@ -316,15 +322,6 @@ public class ElasticRestIndexWriter implements IndexWriter {
   @Override
   public void setConf(Configuration conf) {
     config = conf;
-    String host = conf.get(ElasticRestConstants.HOST);
-    String port = conf.get(ElasticRestConstants.PORT);
-
-    if (StringUtils.isBlank(host) && StringUtils.isBlank(port)) {
-      String message = "Missing elastic.rest.host and elastic.rest.port. At least one of them should be set in nutch-site.xml ";
-      message += "\n" + describe();
-      LOG.error(message);
-      throw new RuntimeException(message);
-    }
   }
 
   @Override

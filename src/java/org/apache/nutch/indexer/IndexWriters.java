@@ -147,8 +147,11 @@ public class IndexWriters {
         //Checking whether the field to copy exists or not
         if (mappedDocument.getField(key) != null) {
           for (String field : value) {
-            for (Object val : mappedDocument.getField(key).getValues()) {
-              mappedDocument.add(field, val);
+            //To avoid duplicate the values
+            if (!key.equals(field)) {
+              for (Object val : mappedDocument.getField(key).getValues()) {
+                mappedDocument.add(field, val);
+              }
             }
           }
         }

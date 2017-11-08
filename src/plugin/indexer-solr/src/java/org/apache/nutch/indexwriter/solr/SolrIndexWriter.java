@@ -19,10 +19,7 @@ package org.apache.nutch.indexwriter.solr;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.nutch.indexer.IndexWriter;
-import org.apache.nutch.indexer.IndexerMapReduce;
-import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.NutchField;
+import org.apache.nutch.indexer.*;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -82,10 +79,10 @@ public class SolrIndexWriter implements IndexWriter {
    * @throws IOException Some exception thrown by writer.
    */
   @Override
-  public void open(Map<String, String> parameters) throws IOException {
-    String type = parameters.getOrDefault("type", "http");
+  public void open(IndexWriterParams parameters) throws IOException {
+    String type = parameters.get("type", "http");
 
-    String[] urls = StringUtils.getStrings(parameters.get("url"));
+    String[] urls = parameters.getStrings("url");
 
     if (urls == null) {
       String message = "Missing SOLR URL.\n" + describe();
@@ -121,7 +118,7 @@ public class SolrIndexWriter implements IndexWriter {
     init(parameters);
   }
 
-  private void init(Map<String, String> properties) {
+  private void init(IndexWriterParams properties) {
     batchSize = Integer.parseInt(properties.getOrDefault(SolrConstants.COMMIT_SIZE, "1000"));
     delete = config.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
     // parse optional params

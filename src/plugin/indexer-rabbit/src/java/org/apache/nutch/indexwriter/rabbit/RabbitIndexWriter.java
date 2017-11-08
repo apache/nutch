@@ -22,6 +22,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 
 import org.apache.hadoop.mapred.JobConf;
@@ -84,22 +85,22 @@ public class RabbitIndexWriter implements IndexWriter {
    * @throws IOException Some exception thrown by writer.
    */
   @Override
-  public void open(Map<String, String> parameters) throws IOException {
-    serverHost = parameters.getOrDefault(RabbitMQConstants.SERVER_HOST, "localhost");
-    serverPort = Integer.parseInt(parameters.getOrDefault(RabbitMQConstants.SERVER_PORT, "5672"));
-    serverVirtualHost = parameters.getOrDefault(RabbitMQConstants.SERVER_VIRTUAL_HOST, null);
+  public void open(IndexWriterParams parameters) throws IOException {
+    serverHost = parameters.get(RabbitMQConstants.SERVER_HOST, "localhost");
+    serverPort = parameters.getInt(RabbitMQConstants.SERVER_PORT, 5672);
+    serverVirtualHost = parameters.get(RabbitMQConstants.SERVER_VIRTUAL_HOST, null);
 
-    serverUsername = parameters.getOrDefault(RabbitMQConstants.SERVER_USERNAME, "admin");
-    serverPassword = parameters.getOrDefault(RabbitMQConstants.SERVER_PASSWORD, "admin");
+    serverUsername = parameters.get(RabbitMQConstants.SERVER_USERNAME, "admin");
+    serverPassword = parameters.get(RabbitMQConstants.SERVER_PASSWORD, "admin");
 
-    exchangeServer = parameters.getOrDefault(RabbitMQConstants.EXCHANGE_SERVER, "nutch.exchange");
-    exchangeType = parameters.getOrDefault(RabbitMQConstants.EXCHANGE_TYPE, "direct");
+    exchangeServer = parameters.get(RabbitMQConstants.EXCHANGE_SERVER, "nutch.exchange");
+    exchangeType = parameters.get(RabbitMQConstants.EXCHANGE_TYPE, "direct");
 
-    queueName = parameters.getOrDefault(RabbitMQConstants.QUEUE_NAME, "nutch.queue");
-    queueDurable = Boolean.parseBoolean(parameters.getOrDefault(RabbitMQConstants.QUEUE_DURABLE, "true"));
-    queueRoutingKey = parameters.getOrDefault(RabbitMQConstants.QUEUE_ROUTING_KEY, "nutch.key");
+    queueName = parameters.get(RabbitMQConstants.QUEUE_NAME, "nutch.queue");
+    queueDurable = parameters.getBoolean(RabbitMQConstants.QUEUE_DURABLE, true);
+    queueRoutingKey = parameters.get(RabbitMQConstants.QUEUE_ROUTING_KEY, "nutch.key");
 
-    commitSize = Integer.parseInt(parameters.getOrDefault(RabbitMQConstants.COMMIT_SIZE, "250"));
+    commitSize = parameters.getInt(RabbitMQConstants.COMMIT_SIZE, 250);
 
     ConnectionFactory factory = new ConnectionFactory();
     factory.setHost(serverHost);

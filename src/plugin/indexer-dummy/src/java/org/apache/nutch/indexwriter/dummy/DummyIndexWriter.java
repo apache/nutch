@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
+import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.IndexerMapReduce;
 import org.apache.nutch.indexer.NutchDocument;
 import org.slf4j.Logger;
@@ -43,8 +44,9 @@ public class DummyIndexWriter implements IndexWriter {
   private Writer writer;
   private boolean delete = false;
 
+  @Override
   public void open(JobConf job, String name) throws IOException {
-    delete = job.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
+    //Implementation not required
   }
 
   /**
@@ -54,8 +56,21 @@ public class DummyIndexWriter implements IndexWriter {
    * @throws IOException Some exception thrown by writer.
    */
   @Override
-  public void open(Map<String, String> parameters) throws IOException {
-    delete = config.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
+  public void open(IndexWriterParams parameters) throws IOException {
+    delete = parameters.getBoolean(DummyConstants.DELETE, false);
+
+    String path = parameters.get(DummyConstants.PATH, "/");
+    if (path == null) {
+      String message = "Missing path.";
+      message += "\n" + describe();
+      LOG.error(message);
+      throw new RuntimeException(message);
+    }
+
+    try {
+      writer = new BufferedWriter(new FileWriter(path));
+    } catch (IOException ignored) {
+    }
   }
 
   @Override
@@ -93,18 +108,6 @@ public class DummyIndexWriter implements IndexWriter {
   @Override
   public void setConf(Configuration conf) {
     config = conf;
-    String path = conf.get("dummy.path");
-    if (path == null) {
-      String message = "Missing path. Should be set via -Ddummy.path";
-      message += "\n" + describe();
-      LOG.error(message);
-      throw new RuntimeException(message);
-    }
-
-    try {
-      writer = new BufferedWriter(new FileWriter(conf.get("dummy.path")));
-    } catch (IOException e) {
-    }
   }
 
   public String describe() {

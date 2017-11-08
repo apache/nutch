@@ -38,7 +38,7 @@ public interface IndexWriter extends Pluggable, Configurable {
    * @param parameters Params from the index writer configuration.
    * @throws IOException Some exception thrown by writer.
    */
-  void open(Map<String, String> parameters) throws IOException;
+  void open(IndexWriterParams parameters) throws IOException;
 
   public void write(NutchDocument doc) throws IOException;
 
