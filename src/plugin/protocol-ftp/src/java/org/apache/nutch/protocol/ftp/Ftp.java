@@ -36,6 +36,7 @@ import org.apache.nutch.protocol.ProtocolStatus;
 import crawlercommons.robots.BaseRobotRules;
 
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.io.IOException;
@@ -142,7 +143,16 @@ public class Ftp implements Protocol {
         } else if (code >= 300 && code < 400) { // handle redirect
           if (redirects == MAX_REDIRECTS)
             throw new FtpException("Too many redirects: " + url);
-          u = new URL(response.getHeader("Location"));
+          
+          String loc = response.getHeader("Location");
+          try {
+            u = new URL(u, loc);
+          }
+          catch(MalformedURLException mue) {
+            LOG.error("Could not create redirectURL for {} with {}", url, loc);
+            throw mue;
+          }
+          
           redirects++;
           if (LOG.isTraceEnabled()) {
             LOG.trace("redirect to " + u);
@@ -152,6 +162,7 @@ public class Ftp implements Protocol {
         }
       }
     } catch (Exception e) {
+      LOG.error("Could not get protocol output for {}", url, e);
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
