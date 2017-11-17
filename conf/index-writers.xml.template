@@ -22,7 +22,8 @@
   <writer id="indexer_solr_1" class="org.apache.nutch.indexwriter.solr.SolrIndexWriter">
     <parameters>
       <param name="type" value="http"/>
-      <param name="url" value="http://localhost:8983/solr/core_name"/>
+      <!-- Solr URL (default core name is "nutch" but you may change it): -->
+      <param name="url" value="http://localhost:8983/solr/nutch"/>
       <param name="commitSize" value="250"/>
       <param name="commitIndex" value="true"/>
       <param name="auth" value="false"/>
@@ -31,8 +32,8 @@
     </parameters>
     <mapping>
       <copy>
-        <field source="content" dest="search"/>
-        <field source="title" dest="title,search"/>
+        <!-- <field source="content" dest="search"/> -->
+        <!-- <field source="title" dest="title,search"/> -->
       </copy>
       <rename>
         <field source="metatag.description" dest="description"/>
@@ -75,7 +76,7 @@
   <writer id="indexer_dummy_1" class="org.apache.nutch.indexwriter.dummy.DummyIndexWriter">
     <parameters>
       <param name="delete" value="false"/>
-      <param name="path" value="/"/>
+      <param name="path" value="./dummy-index.txt"/>
     </parameters>
     <mapping>
       <copy />
