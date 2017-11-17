@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.IndexerMapReduce;
@@ -67,9 +68,17 @@ public class DummyIndexWriter implements IndexWriter {
       throw new RuntimeException(message);
     }
 
+    if (writer != null) {
+      LOG.warn("Dummy index file already open for writing");
+      return;
+    }
+
     try {
+      LOG.debug("Opening dummy index file {}", path);
       writer = new BufferedWriter(new FileWriter(path));
-    } catch (IOException ignored) {
+    } catch (IOException ex) {
+      LOG.error("Failed to open index file {}: {}", path,
+          StringUtils.stringifyException(ex));
     }
   }
 
@@ -91,6 +100,7 @@ public class DummyIndexWriter implements IndexWriter {
   }
 
   public void close() throws IOException {
+    LOG.debug("Closing dummy index file");
     writer.flush();
     writer.close();
   }
@@ -113,7 +123,9 @@ public class DummyIndexWriter implements IndexWriter {
   public String describe() {
     StringBuffer sb = new StringBuffer("DummyIndexWriter\n");
     sb.append("\t").append(
-        "dummy.path : Path of the file to write to (mandatory)\n");
+        "path : Path of the file to write to (mandatory)\n");
+    sb.append("\t").append(
+        "delete : write deletions to dummy index file\n");
     return sb.toString();
   }
 }
