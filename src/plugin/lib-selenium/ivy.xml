@@ -22,7 +22,7 @@
     <license name="Apache 2.0"/>
     <ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org"/>
     <description>
-        Apache Nutch
+      Apache Nutch
     </description>
   </info>
 
@@ -37,16 +37,12 @@
 
   <dependencies>
     <!-- begin selenium dependencies -->
-    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="2.48.2" />
-    
-    <dependency org="com.opera" name="operadriver" rev="1.5">
+    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="3.7.1" />
+    <dependency org="com.codeborne" name="phantomjsdriver" rev="1.4.0" >
       <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
-    </dependency>
-    <dependency org="com.codeborne" name="phantomjsdriver" rev="1.2.1" >
-      <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
-      <exclude org="org.seleniumhq.selenium" name="selenium-java" />
+      <exclude org="org.seleniumhq.selenium" name="selenium-api" />
     </dependency>
     <!-- end selenium dependencies -->
   </dependencies>
-  
+
 </ivy-module>

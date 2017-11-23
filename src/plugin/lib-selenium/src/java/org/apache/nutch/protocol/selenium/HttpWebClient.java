@@ -37,6 +37,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.io.TemporaryFilesystem;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -46,9 +47,8 @@ import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.opera.core.systems.OperaDriver;
-
+import org.openqa.selenium.opera.OperaDriver;
+import org.openqa.selenium.opera.OperaOptions;
 public class HttpWebClient {
 
   private static final Logger LOG = LoggerFactory
@@ -59,12 +59,14 @@ public class HttpWebClient {
     @Override
     protected WebDriver initialValue()
     {
+      FirefoxOptions options = new FirefoxOptions();
       FirefoxProfile profile = new FirefoxProfile();
       profile.setPreference("permissions.default.stylesheet", 2);
       profile.setPreference("permissions.default.image", 2);
       profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", "false");
       profile.setPreference(FirefoxProfile.ALLOWED_HOSTS_PREFERENCE, "localhost");
-      WebDriver driver = new FirefoxDriver(profile);
+      options.setProfile(profile);
+      WebDriver driver = new FirefoxDriver(options);
       return driver;          
     };
   };
@@ -81,16 +83,23 @@ public class HttpWebClient {
           	String allowedHost = conf.get("selenium.firefox.allowed.hosts", "localhost");
           	long firefoxBinaryTimeout = conf.getLong("selenium.firefox.binary.timeout", 45);
           	boolean enableFlashPlayer = conf.getBoolean("selenium.firefox.enable.flash", false);
+            boolean headless = conf.getBoolean("selenium.firefox.headless", false);
           	int loadImage = conf.getInt("selenium.firefox.load.image", 1);
           	int loadStylesheet = conf.getInt("selenium.firefox.load.stylesheet", 1);
-    		    FirefoxProfile profile = new FirefoxProfile();
-    		    FirefoxBinary binary = new FirefoxBinary();
-    		    profile.setPreference(FirefoxProfile.ALLOWED_HOSTS_PREFERENCE, allowedHost);
-    		    profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", enableFlashPlayer);
-    		    profile.setPreference("permissions.default.stylesheet", loadStylesheet);
-  	      	profile.setPreference("permissions.default.image", loadImage);
-    		    binary.setTimeout(TimeUnit.SECONDS.toMillis(firefoxBinaryTimeout));
-            driver = new FirefoxDriver(binary, profile);
+            FirefoxOptions options = new FirefoxOptions();
+            FirefoxProfile profile = new FirefoxProfile();
+            FirefoxBinary binary = new FirefoxBinary();
+            if(headless) {
+              binary.addCommandLineOptions("--headless");
+            }
+            profile.setPreference(FirefoxProfile.ALLOWED_HOSTS_PREFERENCE, allowedHost);
+            profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", enableFlashPlayer);
+            profile.setPreference("permissions.default.stylesheet", loadStylesheet);
+            profile.setPreference("permissions.default.image", loadImage);
+            binary.setTimeout(TimeUnit.SECONDS.toMillis(firefoxBinaryTimeout));
+            options.setProfile(profile);
+            options.setBinary(binary);
+            driver = new FirefoxDriver(options);
             break;
           case "chrome":
             driver = new ChromeDriver();
@@ -166,7 +175,7 @@ public class HttpWebClient {
   public static void cleanUpDriver(WebDriver driver) {
     if (driver != null) {
       try {
-	      driver.close();
+//	      driver.close();
         driver.quit();
         TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
       } catch (Exception e) {
