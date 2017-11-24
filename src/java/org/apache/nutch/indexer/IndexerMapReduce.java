@@ -63,6 +63,7 @@ public class IndexerMapReduce extends Configured implements
 
   public static final String INDEXER_PARAMS = "indexer.additional.params";
   public static final String INDEXER_DELETE = "indexer.delete";
+  public static final String INDEXER_NO_COMMIT = "indexer.nocommit";
   public static final String INDEXER_DELETE_ROBOTS_NOINDEX = "indexer.delete.robots.noindex";
   public static final String INDEXER_DELETE_SKIPPED = "indexer.delete.skipped.by.indexingfilter";
   public static final String INDEXER_SKIP_NOTMODIFIED = "indexer.skip.notmodified";

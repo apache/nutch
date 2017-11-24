@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.Text;
@@ -25,9 +26,14 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.Progressable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IndexerOutputFormat extends
     FileOutputFormat<Text, NutchIndexAction> {
+
+  private static final Logger LOG = LoggerFactory
+          .getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
   public RecordWriter<Text, NutchIndexAction> getRecordWriter(
@@ -35,12 +41,17 @@ public class IndexerOutputFormat extends
       throws IOException {
 
     final IndexWriters writers = new IndexWriters(job);
+    LOG.info(writers.describe());
 
     writers.open(job, name);
 
     return new RecordWriter<Text, NutchIndexAction>() {
 
       public void close(Reporter reporter) throws IOException {
+        boolean noCommit = job.getBoolean(IndexerMapReduce.INDEXER_NO_COMMIT, false);
+        if (!noCommit) {
+          writers.commit();
+        }
         writers.close();
       }
 

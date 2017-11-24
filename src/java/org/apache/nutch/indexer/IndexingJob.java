@@ -102,7 +102,6 @@ public class IndexingJob extends NutchTool implements Tool {
       boolean filter, boolean normalize, boolean addBinaryContent,
       boolean base64) throws IOException {
 
-
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("Indexer: starting at {}", sdf.format(start));
@@ -119,9 +118,7 @@ public class IndexingJob extends NutchTool implements Tool {
       } else {
         LOG.info("Indexer: adding binary content");
       }
-    }        
-    IndexWriters writers = new IndexWriters(getConf());
-    LOG.info(writers.describe());
+    }
 
     IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job, addBinaryContent);
 
@@ -132,6 +129,7 @@ public class IndexingJob extends NutchTool implements Tool {
     job.setBoolean(IndexerMapReduce.URL_FILTERING, filter);
     job.setBoolean(IndexerMapReduce.URL_NORMALIZING, normalize);
     job.setBoolean(IndexerMapReduce.INDEXER_BINARY_AS_BASE64, base64);
+    job.setBoolean(IndexerMapReduce.INDEXER_NO_COMMIT, noCommit);
 
     if (params != null) {
       job.set(IndexerMapReduce.INDEXER_PARAMS, params);
@@ -145,11 +143,6 @@ public class IndexingJob extends NutchTool implements Tool {
     FileOutputFormat.setOutputPath(job, tmp);
     try {
       RunningJob indexJob = JobClient.runJob(job);
-      // do the commits once and for all the reducers in one go
-      if (!noCommit) {
-        writers.open(job, "commit");
-        writers.commit();
-      }
       LOG.info("Indexer: number of documents indexed, deleted, or skipped:");
       for (Counter counter : indexJob.getCounters().getGroup("IndexerStatus")) {
         LOG.info("Indexer: {}  {}",

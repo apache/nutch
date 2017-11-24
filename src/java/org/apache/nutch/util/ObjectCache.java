@@ -29,7 +29,7 @@ public class ObjectCache {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private static final WeakHashMap<Configuration, ObjectCache> CACHE = new WeakHashMap<>();
+  private static final WeakHashMap<String, ObjectCache> CACHE = new WeakHashMap<>();
 
   private final HashMap<String, Object> objectMap;
 
@@ -38,12 +38,12 @@ public class ObjectCache {
   }
 
   public synchronized static ObjectCache get(Configuration conf) {
-    ObjectCache objectCache = CACHE.get(conf);
+    ObjectCache objectCache = CACHE.get(NutchConfiguration.getUUID(conf));
     if (objectCache == null) {
       LOG.debug("No object cache found for conf=" + conf
           + ", instantiating a new object cache");
       objectCache = new ObjectCache();
-      CACHE.put(conf, objectCache);
+      CACHE.put(NutchConfiguration.getUUID(conf), objectCache);
     }
     return objectCache;
   }
