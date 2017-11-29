@@ -275,15 +275,23 @@ public class ParseSegment extends NutchTool implements Tool,
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
     Map<String, Object> results = new HashMap<>();
-    Path segment;
-    if(args.containsKey(Nutch.ARG_SEGMENT)) {
-    	Object seg = args.get(Nutch.ARG_SEGMENT);
-    	if(seg instanceof Path) {
-    		segment = (Path) seg;
-    	}
-    	else {
-    		segment = new Path(seg.toString());
-    	}
+    Path segment = null;
+    if(args.containsKey(Nutch.ARG_SEGMENTS)) {
+    	Object seg = args.get(Nutch.ARG_SEGMENTS);
+           if(seg instanceof Path) {
+             segment = (Path) seg;
+           }
+          else if(seg instanceof String){
+             segment = new Path(seg.toString());
+           }
+          else if(seg instanceof ArrayList) {
+        	  String[] segmentsArray = (String[])seg;
+        	  segment = new Path(segmentsArray[0].toString());
+        	  
+        	  if(segmentsArray.length > 1){
+        		  LOG.warn("Only the first segment of segments array is used.");
+        	  }
+          }
     }
     else {
     	String segment_dir = crawlId+"/segments";

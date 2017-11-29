@@ -96,7 +96,7 @@ public interface Nutch {
 	 * Similar to the -dir command in the bin/nutch script **/
 	public static final String ARG_SEGMENTDIR = "segment_dir";
 	/** Argument key to specify the location of individual segment for the REST endpoints **/
-	public static final String ARG_SEGMENT = "segment";
+	public static final String ARG_SEGMENTS = "segment";
 	
 	/** Title key in the Pub/Sub event metadata for the title of the parsed page*/
 	public static final String FETCH_EVENT_TITLE = "title";

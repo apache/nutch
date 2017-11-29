@@ -306,16 +306,18 @@ public class IndexingJob extends NutchTool implements Tool {
       }     
     }
 
-    if(args.containsKey(Nutch.ARG_SEGMENT)){
-      isSegment = true;
-      Object seg = args.get(Nutch.ARG_SEGMENT);
-      ArrayList<String> segmentList = new ArrayList<>();
-      if(seg instanceof ArrayList) {
-        segmentList = (ArrayList<String>)seg;
-      }
-      for(String segment: segmentList) {
-        segments.add(new Path(segment));
-      }
+    if(args.containsKey(Nutch.ARG_SEGMENTS)){
+       isSegment = true;
+       Object seg = args.get(Nutch.ARG_SEGMENTS);
+       ArrayList<String> segmentList = new ArrayList<String>(); 	      
+          if(segments instanceof ArrayList) {
+        	  segmentList = (ArrayList<String>)seg;
+          } else if(segments instanceof Path){
+    	    	  segmentList.add(seg.toString());
+    	  }    
+    	  for(String segment: segmentList) {
+    	         segments.add(new Path(segment));
+    	}
     }
 
     if(!isSegment){
