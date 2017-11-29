@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.protocol.interactiveselenium;
+package org.apache.nutch.protocol.interactiveselenium.handlers;
 
 // JDK imports
 import java.lang.invoke.MethodHandles;
@@ -27,7 +27,7 @@ import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.nutch.protocol.interactiveselenium.HttpResponse;
+import org.apache.nutch.protocol.interactiveselenium.handlers.HttpResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.protocol.interactiveselenium;
+package org.apache.nutch.protocol.interactiveselenium.headers;
 
 // JDK imports
 import java.io.BufferedInputStream;
@@ -39,6 +39,7 @@ import org.apache.nutch.protocol.http.api.HttpBase;
 import org.openqa.selenium.WebDriver;
 
 import org.apache.nutch.protocol.selenium.HttpWebClient;
+import org.apache.nutch.protocol.interactiveselenium.handlers.InteractiveSeleniumHandler;
 
 /* Most of this code was borrowed from protocol-htmlunit; which in turn borrowed it from protocol-httpclient */
 
