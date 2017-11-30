@@ -1074,8 +1074,6 @@
         <source path="${plugins.dir}/parse-js/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/test/" />
-        <source path="${plugins.dir}/parse-replace/src/java/" />
-        <source path="${plugins.dir}/parse-replace/src/test/" />
         <source path="${plugins.dir}/parse-swf/src/java/" />
         <source path="${plugins.dir}/parse-swf/src/test/" />
         <source path="${plugins.dir}/parse-tika/src/java/" />
@@ -1088,7 +1086,6 @@
         <source path="${plugins.dir}/protocol-file/src/java/" />
         <source path="${plugins.dir}/protocol-file/src/test/" />
         <source path="${plugins.dir}/protocol-ftp/src/java/" />
-        <source path="${plugins.dir}/protocol-htmlunit/src/java"/>
         <source path="${plugins.dir}/protocol-htmlunit/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/test/" />
@@ -1096,9 +1093,7 @@
         <source path="${plugins.dir}/protocol-httpclient/src/test/" />
         <source path="${plugins.dir}/protocol-interactiveselenium/src/java/" />
         <source path="${plugins.dir}/protocol-selenium/src/java"/>
-        <source path="${plugins.dir}/protocol-selenium/src/java/" />
         <source path="${plugins.dir}/publish-rabbitmq/src/java"/>
-        <source path="${plugins.dir}/publish-rabbitmq/src/java/" />
         <source path="${plugins.dir}/scoring-depth/src/java/" />
         <source path="${plugins.dir}/scoring-link/src/java/" />
         <source path="${plugins.dir}/scoring-opic/src/java/" />
