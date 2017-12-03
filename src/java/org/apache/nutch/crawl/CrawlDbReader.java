@@ -511,7 +511,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
   public void processDumpJob(String crawlDb, String output,
       JobConf config, String format, String regex, String status,
-      Integer retry, String expr) throws IOException {
+      Integer retry, String expr, Float sample) throws IOException {
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb dump: starting");
       LOG.info("CrawlDb db: " + crawlDb);
@@ -544,6 +544,8 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       job.set("expr", expr);
       LOG.info("CrawlDb db: expr: " + expr);
     }
+    if (sample != null)
+      job.setFloat("sample", sample);
 
     job.setMapperClass(CrawlDbDumpMapper.class);
     job.setOutputKeyClass(Text.class);
@@ -562,6 +564,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     String status = null;
     Integer retry = null;
     Expression expr = null;
+    float sample;
 
     public void configure(JobConf job) {
       if (job.get("regex", null) != null) {
@@ -573,6 +576,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       if (job.get("expr", null) != null) {
         expr = JexlUtil.parseExpression(job.get("expr", null));
       }
+      sample = job.getFloat("sample", 1);
     }
 
     public void close() {
@@ -582,6 +586,10 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         OutputCollector<Text, CrawlDatum> output, Reporter reporter)
         throws IOException {
 
+      // check sample
+      if (sample < 1 && Math.random() > sample) {
+        return;
+      }
       // check retry
       if (retry != -1) {
         if (value.getRetriesSinceFetch() < retry) {
@@ -693,6 +701,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       System.err
           .println("\t\t[-status <status>]\tfilter records by CrawlDatum status");
       System.err.println("\t\t[-expr <expr>]\tJexl expression to evaluate for this record");
+      System.err.println("\t\t[-sample <fraction>]\tOnly process a random sample with this ratio");
       System.err
           .println("\t-url <url>\tprint information on <url> to System.out");
       System.err
@@ -720,6 +729,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         Integer retry = null;
         String status = null;
         String expr = null;
+        Float sample = null;
         for (int j = i + 1; j < args.length; j++) {
           if (args[j].equals("-format")) {
             format = args[++j];
@@ -741,8 +751,12 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
             expr = args[++j];
             i=i+2;
           }
+          if (args[j].equals("-sample")) {
+            sample = Float.parseFloat(args[++j]);
+            i = i + 2;
+          }
         }
-        dbr.processDumpJob(crawlDb, param, job, format, regex, status, retry, expr);
+        dbr.processDumpJob(crawlDb, param, job, format, regex, status, retry, expr, sample);
       } else if (args[i].equals("-url")) {
         param = args[++i];
         dbr.readUrl(crawlDb, param, job);
@@ -833,6 +847,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       Integer retry = null;
       String status = null;
       String expr = null;
+      Float sample = null;
       if (args.containsKey("format")) {
         format = args.get("format");
       }
@@ -848,7 +863,10 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       if (args.containsKey("expr")) {
         expr = args.get("expr");
       }
-      processDumpJob(crawlDb, output, new NutchJob(conf), format, regex, status, retry, expr);
+      if (args.containsKey("sample")) {
+    	  sample = Float.parseFloat(args.get("sample"));
+        }
+      processDumpJob(crawlDb, output, new NutchJob(conf), format, regex, status, retry, expr, sample);
       File dumpFile = new File(output+"/part-00000");
       return dumpFile;		  
     }

@@ -155,7 +155,16 @@ public class CrawlDbReducer implements
 
     // still no new data - record only unchanged old data, if exists, and return
     if (!fetchSet) {
-      if (oldSet) {// at this point at least "old" should be present
+      if (oldSet) { // at this point at least "old" should be present
+        // set score for orphaned pages (not fetched in the current cycle and
+        // with no inlinks)
+        try {
+          scfilters.orphanedScore(key, old);
+        } catch (ScoringFilterException e) {
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Couldn't update orphaned score, key={}: {}", key, e);
+          }
+        }
         output.collect(key, old);
         reporter.getCounter("CrawlDB status",
             CrawlDatum.getStatusName(old.getStatus())).increment(1);
@@ -312,7 +321,7 @@ public class CrawlDbReducer implements
       scfilters.updateDbScore(key, oldSet ? old : null, result, linkList);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't update score, key=" + key + ": " + e);
+        LOG.warn("Couldn't update score, key={}: {}", key, e);
       }
     }
     // remove generation time, if any

@@ -114,7 +114,7 @@ public class ElasticIndexWriter implements IndexWriter {
     String parts[];
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line.trim();
+        line = line.trim();
         parts = line.split("=");
 
         if (parts.length == 2) {

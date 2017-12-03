@@ -51,6 +51,7 @@ public class CrawlDb extends NutchTool implements Tool {
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
   public static final String CRAWLDB_PURGE_404 = "db.update.purge.404";
+  public static final String CRAWLDB_PURGE_ORPHANS = "db.update.purge.orphans";
 
   public static final String CURRENT_NAME = "current";
 

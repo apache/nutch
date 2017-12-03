@@ -86,6 +86,7 @@ public class DOMContentUtils {
     linkParams.put("script", new LinkParams("script", "src", 0));
     linkParams.put("link", new LinkParams("link", "href", 0));
     linkParams.put("img", new LinkParams("img", "src", 0));
+    linkParams.put("source", new LinkParams("source", "src", 0));
 
     // remove unwanted link tags from the linkParams map
     String[] ignoreTags = conf.getStrings("parser.html.outlinks.ignore_tags");
@@ -436,15 +437,16 @@ public class DOMContentUtils {
               try {
 
                 URL url = URLUtil.resolveURL(base, target);
-                outlinks.add(new Outlink(url.toString(), linkText.toString()
-                    .trim()));
-										
-                // NUTCH-2433 - Keep the node name where the URL was found into 
+                Outlink outlink = new Outlink(url.toString(), linkText
+                    .toString().trim());
+                outlinks.add(outlink);
+
+                // NUTCH-2433 - Keep the node name where the URL was found into
                 // the outlink metadata
                 if (keepNodenames) {
                   MapWritable metadata = new MapWritable();
                   metadata.put(new Text(srcTagMetaName), new Text(nodeName));
-                  outlinks.get(outlinks.size() - 1).setMetadata(metadata);
+                  outlink.setMetadata(metadata);
                 }
 
               } catch (MalformedURLException e) {
