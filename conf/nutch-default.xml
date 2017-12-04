@@ -1699,6 +1699,15 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
    </description>
 </property>
 
+<property>
+  <name>scoring.adaptive.mark.orphan.last.seen.default.date</name>
+  <value>2017-07-15T00:00:00</value>
+  <description>
+    Date when a page is considered to be seen last time by default (as
+    fall-back) if there is no last seen time tracked in the CrawlDatum.
+   </description>
+</property>
+
 <!-- language-identifier plugin properties -->
 
 <property>

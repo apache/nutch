@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -128,6 +130,12 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
    */
   public static final String ADAPTIVE_ORPHAN_TIME_GONE = "scoring.adaptive.mark.gone.orphan.after";
 
+  /*
+   * Date when a page is considered to be seen last time by default / as
+   * fall-back if there is no last seen time tracked in the CrawlDatum.
+   */
+  public static final String ADAPTIVE_ORPHAN_TIME_LAST_SEEN_DEFAULT = "scoring.adaptive.mark.orphan.last.seen.default.date";
+
   /**
    * Time stamp (in minutes) when a page has been &quot;seen&quot; the last
    * time, either as link or as seed URL.
@@ -161,6 +169,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   int nowMinutes;
   int orphanTimeGone;
   int orphanTimeAny;
+  int orphanTimeLastSeenDefault;
 
   public Configuration getConf() {
     return conf;
@@ -195,6 +204,9 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     int orphanTimeSpanGone = conf.getInt(ADAPTIVE_ORPHAN_TIME_GONE,
         60 * 24 * 30 * 4);
     orphanTimeGone = nowMinutes - orphanTimeSpanGone;
+    String lastSeenDefaultDate = conf.get(ADAPTIVE_ORPHAN_TIME_LAST_SEEN_DEFAULT, "2017-07-15T00:00:00");
+    orphanTimeLastSeenDefault = (int) LocalDateTime.parse(lastSeenDefaultDate)
+        .toEpochSecond(ZoneOffset.UTC) / 60;
   }
 
   private void readSortFile(Reader sortFileReader) throws IOException {
@@ -293,27 +305,22 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   }
 
   private void orphanedScore(Text url, CrawlDatum datum, CrawlDatum old) {
+    int lastSeenMinutes = orphanTimeLastSeenDefault;
     if (datum.getMetaData().containsKey(WRITABLE_LAST_SEEN_TIME)) {
       IntWritable writable = (IntWritable) datum.getMetaData()
           .get(WRITABLE_LAST_SEEN_TIME);
-      int lastSeenMinutes = writable.get();
-      if (lastSeenMinutes > this.orphanTimeGone) {
-        // keep in any case
-        // (last seen time after mark-as-orphan-if-gone time)
-      } else if (lastSeenMinutes < this.orphanTimeAny) {
-        // (last seen time before mark-any-as-orphan time)
-        datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
-      } else if (pageIsGone(datum)) {
-        // (last seen time before mark-as-orphan-if-gone time
-        //  but after mark-any-as-orphan time)
-        datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
-      }
-    } else {
-      // (for a transition period) also mark pages as orphaned which failed to
-      // fetch a second time but have no "last seen" marker yet
-      if (old != null && pageIsGone(old) && pageIsGone(datum)) {
-        datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
-      }
+      lastSeenMinutes = writable.get();
+    }
+    if (lastSeenMinutes > this.orphanTimeGone) {
+      // keep in any case
+      // (last seen time after mark-as-orphan-if-gone time)
+    } else if (lastSeenMinutes < this.orphanTimeAny) {
+      // (last seen time before mark-any-as-orphan time)
+      datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
+    } else if (pageIsGone(datum)) {
+      // (last seen time before mark-as-orphan-if-gone time
+      //  but after mark-any-as-orphan time)
+      datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
     }
   }
 
