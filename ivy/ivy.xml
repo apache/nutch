@@ -47,11 +47,11 @@
 		<dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="*->master" />
 		<dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" conf="*->master" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.10" conf="*->default" />
-        <dependency org="org.apache.commons" name="commons-compress" rev="1.9" conf="*->default" />
-        <dependency org="org.apache.commons" name="commons-jexl" rev="2.1.1" />
-        <dependency org="com.tdunning" name="t-digest" rev="3.1" />
-            
-        <!-- Hadoop Dependencies -->
+		<dependency org="org.apache.commons" name="commons-compress" rev="1.9" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-jexl" rev="2.1.1" />
+		<dependency org="com.tdunning" name="t-digest" rev="3.2" />
+
+		<!-- Hadoop Dependencies -->
 		<dependency org="org.apache.hadoop" name="hadoop-common" rev="2.7.2" conf="*->default">
 			<exclude org="hsqldb" name="hsqldb" />
 			<exclude org="net.sf.kosmosfs" name="kfs" />
