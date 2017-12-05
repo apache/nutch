@@ -136,6 +136,8 @@ public class IndexingJob extends NutchTool implements Tool {
 
   @Override
   public Map<String, Object> run(Map<String, Object> args) throws Exception {
+    LOG.info("IndexingJob: starting");
+
     String batchId = (String) args.get(Nutch.ARG_BATCH);
 
     Configuration conf = getConf();
@@ -155,6 +157,15 @@ public class IndexingJob extends NutchTool implements Tool {
 
     job.waitForCompletion(true);
     ToolUtil.recordJobStatus(null, job, results);
+
+    IndexWriters writers = new IndexWriters(getConf());
+    LOG.info(writers.describe());
+
+    writers.open(getConf());
+    if (getConf().getBoolean(SolrConstants.COMMIT_INDEX, true)) {
+      writers.commit();
+    }
+    LOG.info("IndexingJob: done.");
     return results;
   }
 
@@ -172,24 +183,6 @@ public class IndexingJob extends NutchTool implements Tool {
     return filter;
   }
 
-  public void index(String batchId) throws Exception {
-    LOG.info("IndexingJob: starting");
-
-    run(ToolUtil.toArgMap(Nutch.ARG_BATCH, batchId));
-    // NOW PASSED ON THE COMMAND LINE AS A HADOOP PARAM
-    // do the commits once and for all the reducers in one go
-    // getConf().set(SolrConstants.SERVER_URL,solrUrl);
-
-    IndexWriters writers = new IndexWriters(getConf());
-    LOG.info(writers.describe());
-
-    writers.open(getConf());
-    if (getConf().getBoolean(SolrConstants.COMMIT_INDEX, true)) {
-      writers.commit();
-    }
-    LOG.info("IndexingJob: done.");
-  }
-
   public int run(String[] args) throws Exception {
     if (args.length < 1) {
       System.err
@@ -201,7 +194,7 @@ public class IndexingJob extends NutchTool implements Tool {
       getConf().set(Nutch.CRAWL_ID_KEY, args[2]);
     }
     try {
-      index(args[0]);
+      run(ToolUtil.toArgMap(Nutch.ARG_BATCH, args[0]));
       return 0;
     } catch (final Exception e) {
       LOG.error("SolrIndexerJob: " + StringUtils.stringifyException(e));
