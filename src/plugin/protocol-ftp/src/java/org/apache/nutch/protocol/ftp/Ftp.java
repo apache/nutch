@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -139,7 +140,17 @@ public class Ftp implements Protocol {
         } else if (code >= 300 && code < 400) { // handle redirect
           if (redirects == MAX_REDIRECTS)
             throw new FtpException("Too many redirects: " + url);
-          u = new URL(response.getHeader("Location"));
+          
+          String loc = response.getHeader("Location");
+          try {
+            u = new URL(u, loc);
+          } catch (MalformedURLException mue) {
+            LOG.error("Could not create redirectURL for {} with {}", url, loc);
+            ProtocolStatus ps = ProtocolStatusUtils.makeStatus(
+                ProtocolStatusCodes.EXCEPTION, mue.toString());
+            return new ProtocolOutput(null, ps);
+          }
+          
           redirects++;
           if (LOG.isTraceEnabled()) {
             LOG.trace("redirect to " + u);
@@ -149,6 +160,8 @@ public class Ftp implements Protocol {
         }
       }
     } catch (Exception e) {
+      LOG.error("Could not get protocol output for {}: {}", url,
+          e.getMessage());
       ProtocolStatus ps = ProtocolStatusUtils.makeStatus(
           ProtocolStatusCodes.EXCEPTION, e.toString());
       return new ProtocolOutput(null, ps);
