@@ -147,10 +147,9 @@ public class Ftp implements Protocol {
           String loc = response.getHeader("Location");
           try {
             u = new URL(u, loc);
-          }
-          catch(MalformedURLException mue) {
+          } catch (MalformedURLException mue) {
             LOG.error("Could not create redirectURL for {} with {}", url, loc);
-            throw mue;
+            return new ProtocolOutput(null, new ProtocolStatus(mue));
           }
           
           redirects++;
@@ -162,7 +161,8 @@ public class Ftp implements Protocol {
         }
       }
     } catch (Exception e) {
-      LOG.error("Could not get protocol output for {}", url, e);
+      LOG.error("Could not get protocol output for {}: {}", url,
+          e.getMessage());
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
