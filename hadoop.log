@@ -1,0 +1,1125 @@
+2017-12-08 09:52:44,626 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-08 09:52:44,915 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:853)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:1097)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:1046)
+
+2017-12-08 09:53:00,456 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-08 09:53:00,671 INFO  crawl.Generator - Generator: starting at 2017-12-08 09:53:00
+2017-12-08 09:53:00,671 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-08 09:53:00,671 INFO  crawl.Generator - Generator: filtering: true
+2017-12-08 09:53:00,671 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-08 09:53:00,677 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-08 09:53:01,080 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 09:53:02,291 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 09:53:02,292 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 09:53:02,292 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 09:53:02,376 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-08 09:53:02,976 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 09:53:02,976 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 09:53:02,976 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 15:06:36,967 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-08 15:06:37,348 INFO  crawl.Generator - Generator: starting at 2017-12-08 15:06:37
+2017-12-08 15:06:37,348 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-08 15:06:37,348 INFO  crawl.Generator - Generator: filtering: true
+2017-12-08 15:06:37,348 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-08 15:06:37,358 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-08 15:06:38,021 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 15:06:54,944 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 15:06:54,945 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 15:06:54,945 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 15:06:55,072 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-08 15:06:55,914 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 15:06:55,915 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 15:06:55,915 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 15:23:12,379 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-08 15:23:13,162 INFO  crawl.Generator - Generator: starting at 2017-12-08 15:23:13
+2017-12-08 15:23:13,162 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-08 15:23:13,162 INFO  crawl.Generator - Generator: filtering: true
+2017-12-08 15:23:13,162 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-08 15:23:13,176 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-08 15:23:13,731 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 15:23:15,806 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 15:23:15,807 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 15:23:15,807 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 15:23:15,912 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-08 15:23:16,720 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 15:23:16,720 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 15:23:16,721 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 15:24:35,345 INFO  crawl.Generator - Generator: variable maxCount: 15 for null
+2017-12-08 15:25:03,008 INFO  regex.RegexURLNormalizer - can't find rules for scope 'generate_host_count', using default
+2017-12-08 15:43:50,254 INFO  crawl.Generator - Generator: variable maxCount: 15 for null
+2017-12-08 15:44:17,757 INFO  crawl.Generator - Generator: variable maxCount: 15 for null
+2017-12-08 15:44:18,173 INFO  crawl.Generator - Generator: variable maxCount: 15 for null
+2017-12-08 15:44:18,382 INFO  crawl.Generator - Generator: variable maxCount: 15 for null
+2017-12-08 15:44:18,645 INFO  crawl.Generator - Generator: variable maxCount: 15 for null
+2017-12-08 15:44:18,885 INFO  crawl.Generator - Generator: variable maxCount: 15 for null
+2017-12-08 15:45:58,957 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-08 15:45:59,293 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:867)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:1111)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:1060)
+
+2017-12-08 15:46:10,223 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-08 15:46:10,581 INFO  crawl.Generator - Generator: starting at 2017-12-08 15:46:10
+2017-12-08 15:46:10,582 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-08 15:46:10,583 INFO  crawl.Generator - Generator: filtering: true
+2017-12-08 15:46:10,583 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-08 15:46:10,593 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-08 15:46:11,064 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 15:46:12,822 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 15:46:12,823 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 15:46:12,823 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 15:46:12,945 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-08 15:46:13,579 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 15:46:13,587 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 15:46:13,588 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 15:46:18,748 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:46:48,054 INFO  regex.RegexURLNormalizer - can't find rules for scope 'generate_host_count', using default
+2017-12-08 15:47:02,569 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,570 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.apache.org
+2017-12-08 15:47:02,570 INFO  crawl.Generator - Generator: variable maxCount: 15 for plus.google.com
+2017-12-08 15:47:02,571 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,573 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:02,575 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,575 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,576 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:02,577 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,578 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,579 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,584 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,587 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,588 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,594 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,599 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,600 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,600 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:02,601 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:02,601 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:17,743 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:26,622 INFO  crawl.Generator - Host or domain www.bbc.com has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 15:47:30,879 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,703 INFO  crawl.Generator - Generator: variable maxCount: 15 for shop.bbc.com
+2017-12-08 15:47:34,704 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,704 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,705 INFO  crawl.Generator - Generator: variable maxCount: 15 for search.bbc.co.uk
+2017-12-08 15:47:34,705 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,706 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,707 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,707 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,707 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,707 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,708 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,708 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,709 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,712 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,713 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,716 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,720 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,723 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,724 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,725 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,726 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:34,726 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,728 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:34,729 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:34,729 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,732 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,734 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,735 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,738 INFO  crawl.Generator - Generator: variable maxCount: 15 for fig.bbc.co.uk
+2017-12-08 15:47:34,739 INFO  crawl.Generator - Generator: variable maxCount: 15 for m.files.bbci.co.uk
+2017-12-08 15:47:34,740 INFO  crawl.Generator - Generator: variable maxCount: 15 for ichef.bbci.co.uk
+2017-12-08 15:47:34,741 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,742 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:34,742 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,743 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,744 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,744 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,745 INFO  crawl.Generator - Generator: variable maxCount: 15 for meta.wikimedia.org
+2017-12-08 15:47:34,745 INFO  crawl.Generator - Generator: variable maxCount: 15 for login.wikimedia.org
+2017-12-08 15:47:34,748 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,750 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,751 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,752 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,753 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:34,753 INFO  crawl.Generator - Host or domain en.wikipedia.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 15:47:36,351 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,351 INFO  crawl.Generator - Generator: variable maxCount: 15 for account.bbc.com
+2017-12-08 15:47:36,351 INFO  crawl.Generator - Generator: variable maxCount: 15 for plus.google.com
+2017-12-08 15:47:36,352 INFO  crawl.Generator - Generator: variable maxCount: 15 for ichef.bbci.co.uk
+2017-12-08 15:47:36,352 INFO  crawl.Generator - Generator: variable maxCount: 15 for ssl.bbc.co.uk
+2017-12-08 15:47:36,352 INFO  crawl.Generator - Generator: variable maxCount: 15 for c.go-mpulse.net
+2017-12-08 15:47:36,353 INFO  crawl.Generator - Generator: variable maxCount: 15 for sa.bbc.co.uk
+2017-12-08 15:47:36,353 INFO  crawl.Generator - Generator: variable maxCount: 15 for ichef-1.bbci.co.uk
+2017-12-08 15:47:36,353 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,353 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,354 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,354 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,354 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,354 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,354 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,355 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,355 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,355 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,356 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,356 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,357 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,357 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,357 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,357 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,358 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,358 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,358 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,358 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,358 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,358 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,359 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,359 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,359 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,359 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,359 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,360 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,360 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,360 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,360 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,360 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,361 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:36,361 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:36,361 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,362 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,362 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,362 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,362 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:36,362 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,363 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:36,363 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,363 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,363 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,363 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,364 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:36,364 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,364 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,364 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,365 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,365 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,365 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,369 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,369 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,369 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,369 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,370 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,370 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,371 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,371 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,371 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,371 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,372 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,372 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,376 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,376 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,377 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,377 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,377 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,378 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,378 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,378 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,379 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,379 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,379 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,379 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,379 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,380 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,380 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,380 INFO  crawl.Generator - Generator: variable maxCount: 15 for wikimediafoundation.org
+2017-12-08 15:47:36,380 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,380 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,381 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,381 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,381 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,381 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,381 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,382 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,382 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,382 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,382 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,382 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,386 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,391 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,391 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,392 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,392 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,393 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,393 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,394 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,395 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,395 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,396 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,397 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,401 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,403 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,407 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,408 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,408 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,408 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,408 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:36,409 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,409 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,409 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,409 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,409 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,410 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,414 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,415 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,415 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,416 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,418 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,419 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,419 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,419 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,419 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,420 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,421 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,421 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,422 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,423 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:36,423 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,424 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.creativecommons.org
+2017-12-08 15:47:36,425 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.creativecommons.org
+2017-12-08 15:47:36,427 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,427 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,430 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,432 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,432 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,432 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,433 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,437 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,438 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,440 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,440 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,441 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,441 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,442 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,443 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,443 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.wikidata.org
+2017-12-08 15:47:36,444 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,445 INFO  crawl.Generator - Generator: variable maxCount: 15 for wikimediafoundation.org
+2017-12-08 15:47:36,445 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,445 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,445 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,446 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,446 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,449 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,454 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,455 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,456 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,457 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,463 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,463 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,463 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,464 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,464 INFO  crawl.Generator - Generator: variable maxCount: 15 for freedomdefined.org
+2017-12-08 15:47:36,464 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,465 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.creativecommons.org
+2017-12-08 15:47:36,465 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,465 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,465 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,466 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,466 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,466 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,467 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,467 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,467 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,467 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,467 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,468 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,474 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,474 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,482 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,483 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,483 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:36,483 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,483 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,484 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:36,484 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,484 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,484 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,484 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,484 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,485 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,485 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,485 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,485 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,485 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,485 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,490 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,490 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.wikimediafoundation.org
+2017-12-08 15:47:36,490 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.mediawiki.org
+2017-12-08 15:47:36,490 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.mediawiki.org
+2017-12-08 15:47:36,491 INFO  crawl.Generator - Generator: variable maxCount: 15 for wikimediafoundation.org
+2017-12-08 15:47:36,491 INFO  crawl.Generator - Generator: variable maxCount: 15 for wikimediafoundation.org
+2017-12-08 15:47:36,492 INFO  crawl.Generator - Generator: variable maxCount: 15 for wikimediafoundation.org
+2017-12-08 15:47:36,492 INFO  crawl.Generator - Generator: variable maxCount: 15 for shop.wikimedia.org
+2017-12-08 15:47:36,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,494 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,494 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,495 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,495 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,495 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,495 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,495 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,498 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,499 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:36,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,504 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,504 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:36,504 INFO  crawl.Generator - Host or domain creativecommons.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 15:47:37,414 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,415 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,415 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,415 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,415 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,418 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,419 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,419 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,421 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,424 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,424 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,427 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,427 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,427 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,427 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,427 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,427 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,427 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,428 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,429 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,429 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,430 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,430 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.creativecommons.org
+2017-12-08 15:47:37,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.creativecommons.org
+2017-12-08 15:47:37,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.facebook.com
+2017-12-08 15:47:37,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,431 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,432 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,432 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,435 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,436 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,436 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.creativecommons.org
+2017-12-08 15:47:37,436 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,436 INFO  crawl.Generator - Generator: variable maxCount: 15 for twitter.com
+2017-12-08 15:47:37,437 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,437 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,437 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-08 15:47:37,437 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,437 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,437 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,437 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,438 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,438 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,438 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,444 INFO  crawl.Generator - Generator: variable maxCount: 15 for upload.wikimedia.org
+2017-12-08 15:47:37,444 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,445 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,445 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,445 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,445 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,445 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,446 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,446 INFO  crawl.Generator - Generator: variable maxCount: 15 for upload.wikimedia.org
+2017-12-08 15:47:37,446 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,446 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,446 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,446 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,447 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,447 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,447 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,447 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,447 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,447 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,449 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,451 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,453 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,453 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,453 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,454 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,454 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,454 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,454 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,454 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,454 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,455 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,456 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,456 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,457 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,458 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,458 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,458 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,458 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,458 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,459 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,459 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,459 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,459 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,459 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,459 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,460 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,460 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,460 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,460 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,460 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,461 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,461 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,461 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,461 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,461 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,461 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,462 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,462 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,462 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,463 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,463 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,463 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,463 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,464 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,464 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,464 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,464 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,464 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,465 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,465 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,465 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,465 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,466 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,466 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,467 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,468 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,468 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,469 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,469 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,469 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,470 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,471 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,471 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,471 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,471 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,471 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,471 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,472 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,472 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,472 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,473 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,473 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,473 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,473 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,473 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,474 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,474 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,474 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,474 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,474 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,474 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,475 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,476 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,477 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,478 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,479 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,479 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,479 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,479 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,479 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,479 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,479 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,480 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,480 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,480 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,480 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,480 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,480 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,481 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,481 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,481 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,481 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,481 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,481 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,482 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,482 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,482 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,482 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,482 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,483 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,483 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,483 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,484 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,485 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,485 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,485 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,485 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,486 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,487 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,488 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,489 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,490 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,490 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,490 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,490 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,490 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,491 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,491 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,491 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,491 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,491 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,491 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,492 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,492 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,492 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,492 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,492 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,492 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,493 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,494 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,494 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,494 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,494 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,494 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,494 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,494 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,495 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,495 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,495 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,495 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,495 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,496 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,497 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,497 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,497 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,497 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,497 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,497 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,498 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,498 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,498 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,498 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,498 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,498 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,498 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,499 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,499 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,499 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,499 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,499 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,500 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,501 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,502 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,503 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,503 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,503 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,503 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,503 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,503 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,503 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,504 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,504 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,504 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,504 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,504 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,504 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,505 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,505 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,505 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,505 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,505 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,505 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,505 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,506 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,506 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,506 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,506 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,506 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,506 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,507 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,507 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,507 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,507 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,507 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,507 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,507 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,508 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,508 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,508 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,508 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,508 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,508 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,509 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,509 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,509 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,509 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,509 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,509 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,509 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,510 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,510 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,510 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,510 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,510 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,510 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,511 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,511 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,511 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,511 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,511 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,511 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,512 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,512 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,512 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,512 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,512 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.wikidata.org
+2017-12-08 15:47:37,513 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,513 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,513 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,513 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,514 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,514 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,514 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,514 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,514 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,515 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,515 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,515 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,515 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,515 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,516 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,516 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,516 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,516 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,517 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,517 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,517 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,517 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,517 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,517 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,518 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,518 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,518 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,518 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,519 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,519 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,519 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,519 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,519 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,520 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,520 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,520 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,520 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,520 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,521 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,521 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,521 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,521 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,521 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,522 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,522 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,522 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,522 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,522 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,523 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,523 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,523 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,523 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,523 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,524 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,524 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,524 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,524 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,524 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,525 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,525 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,525 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,525 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,526 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,526 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,526 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,526 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,527 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,527 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,527 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,527 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,527 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,528 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,528 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,528 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,528 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,528 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,529 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,529 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,529 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,529 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,529 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,529 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,530 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,530 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,530 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,530 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,530 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,531 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,531 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,531 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,531 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,531 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,532 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,532 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,532 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,532 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,533 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,533 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,535 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,536 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,537 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,537 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,538 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,538 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,538 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,538 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,538 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,539 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,539 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,539 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,539 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,539 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,540 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,540 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,540 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,540 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,541 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,541 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,541 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,541 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,542 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,542 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,542 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,542 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,542 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,543 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,543 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,543 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,543 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,543 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,544 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,544 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,544 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,544 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,544 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,545 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,545 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,545 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,545 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,545 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,546 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,546 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,546 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,547 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,547 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,547 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,547 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:37,548 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,548 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,548 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,549 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,549 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,549 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,550 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,550 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,550 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,550 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,551 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,551 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,551 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,552 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wiktionary.org
+2017-12-08 15:47:37,552 INFO  crawl.Generator - Host or domain en.wiktionary.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 15:47:38,006 INFO  crawl.Generator - Generator: variable maxCount: 15 for meta.wikimedia.org
+2017-12-08 15:47:38,007 INFO  crawl.Generator - Generator: variable maxCount: 15 for tools.wmflabs.org
+2017-12-08 15:47:38,008 INFO  crawl.Generator - Generator: variable maxCount: 15 for tools.wmflabs.org
+2017-12-08 15:47:38,009 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,009 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,009 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,009 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,010 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,010 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,010 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,010 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,011 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,011 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,011 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,011 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,011 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,012 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,012 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,012 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,012 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,013 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,013 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,013 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,013 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,014 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,014 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-08 15:47:38,014 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:38,015 INFO  crawl.Generator - Generator: variable maxCount: 15 for login.wikimedia.org
+2017-12-08 15:47:38,015 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:38,015 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:38,016 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbceurope.com
+2017-12-08 15:47:38,016 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:38,016 INFO  crawl.Generator - Generator: variable maxCount: 15 for meta.wikimedia.org
+2017-12-08 15:47:38,017 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:38,018 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:38,018 INFO  crawl.Generator - Host or domain www.bbc.co.uk has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 15:47:40,526 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,527 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,527 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,527 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,528 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,528 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,528 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,528 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,529 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,529 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:40,530 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,530 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-08 15:47:40,531 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:40,531 INFO  crawl.Generator - Generator: variable maxCount: 15 for shop.bbc.com
+2017-12-08 15:47:40,532 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-08 15:47:41,048 INFO  crawl.Generator - Generator: Partitioning selected urls for politeness.
+2017-12-08 15:47:42,049 INFO  crawl.Generator - Generator: segment: /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/segments/20171208154742
+2017-12-08 15:47:42,078 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 15:47:43,478 INFO  crawl.Generator - Generator: finished at 2017-12-08 15:47:43, elapsed: 00:01:32
+2017-12-08 16:14:48,650 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-08 16:14:48,961 INFO  crawl.Generator - Generator: starting at 2017-12-08 16:14:48
+2017-12-08 16:14:48,961 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-08 16:14:48,961 INFO  crawl.Generator - Generator: filtering: true
+2017-12-08 16:14:48,961 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-08 16:14:48,968 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-08 16:14:49,423 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 16:14:51,014 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 16:14:51,015 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 16:14:51,015 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 16:14:51,619 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 16:14:51,619 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 16:14:51,619 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 16:14:51,630 INFO  regex.RegexURLNormalizer - can't find rules for scope 'generate_host_count', using default
+2017-12-08 16:14:51,680 INFO  crawl.Generator - Host or domain www.bbc.com has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:14:51,687 INFO  crawl.Generator - Host or domain en.wikipedia.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:14:51,715 INFO  crawl.Generator - Host or domain creativecommons.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:14:51,758 INFO  crawl.Generator - Host or domain en.wiktionary.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:14:51,761 INFO  crawl.Generator - Host or domain www.bbc.co.uk has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:14:52,208 INFO  crawl.Generator - Generator: Partitioning selected urls for politeness.
+2017-12-08 16:14:53,209 INFO  crawl.Generator - Generator: segment: /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/segments/20171208161453
+2017-12-08 16:14:53,232 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 16:14:54,625 INFO  crawl.Generator - Generator: finished at 2017-12-08 16:14:54, elapsed: 00:00:05
+2017-12-08 16:16:10,614 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-08 16:16:10,993 INFO  crawl.Generator - Generator: starting at 2017-12-08 16:16:10
+2017-12-08 16:16:10,994 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-08 16:16:10,994 INFO  crawl.Generator - Generator: filtering: true
+2017-12-08 16:16:10,994 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-08 16:16:11,002 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-08 16:17:03,049 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 16:17:04,748 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 16:17:04,749 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 16:17:04,749 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 16:17:29,059 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 16:17:29,059 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 16:17:29,059 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 16:18:02,224 INFO  regex.RegexURLNormalizer - can't find rules for scope 'generate_host_count', using default
+2017-12-08 16:18:10,063 INFO  crawl.Generator - Host or domain www.bbc.com has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:18:14,919 INFO  crawl.Generator - Host or domain en.wikipedia.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:18:15,268 INFO  crawl.Generator - Host or domain creativecommons.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:18:15,510 INFO  crawl.Generator - Host or domain en.wiktionary.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:18:15,849 INFO  crawl.Generator - Host or domain www.bbc.co.uk has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:18:19,065 INFO  crawl.Generator - Generator: Partitioning selected urls for politeness.
+2017-12-08 16:18:20,066 INFO  crawl.Generator - Generator: segment: /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/segments/20171208161820
+2017-12-08 16:18:20,092 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 16:18:21,472 INFO  crawl.Generator - Generator: finished at 2017-12-08 16:18:21, elapsed: 00:02:10
+2017-12-08 16:18:51,137 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-08 16:18:51,495 INFO  crawl.Generator - Generator: starting at 2017-12-08 16:18:51
+2017-12-08 16:18:51,496 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-08 16:18:51,497 INFO  crawl.Generator - Generator: filtering: true
+2017-12-08 16:18:51,497 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-08 16:18:51,505 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-08 16:18:52,136 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 16:18:53,935 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 16:18:53,936 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 16:18:53,936 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 16:18:54,690 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-08 16:18:54,690 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-08 16:18:54,691 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-08 16:29:44,227 INFO  regex.RegexURLNormalizer - can't find rules for scope 'generate_host_count', using default
+2017-12-08 16:29:47,083 INFO  crawl.Generator - Host or domain www.bbc.com has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:29:47,092 INFO  crawl.Generator - Host or domain en.wikipedia.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:29:47,136 INFO  crawl.Generator - Host or domain creativecommons.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:29:47,187 INFO  crawl.Generator - Host or domain en.wiktionary.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:29:47,194 INFO  crawl.Generator - Host or domain www.bbc.co.uk has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-08 16:29:47,682 INFO  crawl.Generator - Generator: Partitioning selected urls for politeness.
+2017-12-08 16:29:48,683 INFO  crawl.Generator - Generator: segment: /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/segments/20171208162948
+2017-12-08 16:29:48,712 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-08 16:29:50,105 INFO  crawl.Generator - Generator: finished at 2017-12-08 16:29:50, elapsed: 00:10:58

@@ -1,0 +1,250 @@
+2017-12-07 11:19:41,467 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 11:19:41,741 INFO  crawl.Generator - Generator: starting at 2017-12-07 11:19:41
+2017-12-07 11:19:41,741 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 11:19:41,741 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 11:19:41,741 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 11:19:41,746 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 11:19:42,087 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 11:19:43,459 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 11:19:43,459 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 11:19:43,459 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 11:19:43,551 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 11:19:44,224 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 11:19:44,224 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 11:19:44,224 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 11:19:44,875 WARN  crawl.Generator - Generator: 0 records selected for fetching, exiting ...
+2017-12-07 14:04:21,787 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 14:04:22,798 INFO  crawl.Generator - Generator: starting at 2017-12-07 14:04:22
+2017-12-07 14:04:22,799 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 14:04:22,799 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 14:04:22,800 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 14:04:22,834 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 14:04:24,001 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 14:04:27,785 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 14:04:27,792 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 14:04:27,792 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 14:04:28,019 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 14:04:29,376 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 14:04:29,377 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 14:04:29,381 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 14:04:29,953 WARN  crawl.Generator - Generator: 0 records selected for fetching, exiting ...
+2017-12-07 14:07:56,528 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 14:07:56,840 INFO  crawl.Generator - Generator: starting at 2017-12-07 14:07:56
+2017-12-07 14:07:56,840 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 14:07:56,840 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 14:07:56,840 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 14:07:56,847 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 14:07:57,327 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 14:07:59,137 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 14:07:59,137 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 14:07:59,138 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 14:07:59,263 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 14:07:59,977 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 14:07:59,977 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 14:07:59,977 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 14:13:43,154 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 14:13:43,589 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:853)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:1097)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:1046)
+
+2017-12-07 14:14:23,846 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 14:14:24,482 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:853)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:1097)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:1046)
+
+2017-12-07 14:14:48,817 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 14:14:49,238 INFO  crawl.Generator - Generator: starting at 2017-12-07 14:14:49
+2017-12-07 14:14:49,238 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 14:14:49,238 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 14:14:49,238 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 14:14:49,247 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 14:14:49,794 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 14:14:51,665 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 14:14:51,666 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 14:14:51,666 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 14:14:51,808 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 14:28:33,388 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 14:28:33,800 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:853)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:1097)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:1046)
+
+2017-12-07 14:28:47,528 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 14:28:47,891 INFO  crawl.Generator - Generator: starting at 2017-12-07 14:28:47
+2017-12-07 14:28:47,891 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 14:28:47,891 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 14:28:47,891 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 14:28:47,908 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 14:28:48,743 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 14:28:50,594 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 14:28:50,595 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 14:28:50,595 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 14:28:50,733 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 15:17:43,914 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 15:17:44,581 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:853)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:1097)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:1046)
+
+2017-12-07 15:29:27,556 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 15:29:28,300 INFO  crawl.Generator - Generator: starting at 2017-12-07 15:29:28
+2017-12-07 15:29:28,301 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 15:29:28,301 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 15:29:28,301 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 15:29:28,317 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 15:29:29,480 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 15:29:33,046 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 15:29:33,046 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 15:29:33,046 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 15:29:33,214 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 15:30:10,329 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 15:30:10,329 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 15:30:10,329 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 15:38:18,214 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 15:38:19,264 INFO  crawl.Generator - Generator: starting at 2017-12-07 15:38:19
+2017-12-07 15:38:19,264 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 15:38:19,264 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 15:38:19,265 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 15:38:19,286 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 15:38:20,581 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 15:38:24,019 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 15:38:24,020 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 15:38:24,021 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 15:38:24,207 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 15:38:25,748 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 15:38:25,749 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 15:38:25,749 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 15:50:00,581 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 15:50:01,558 INFO  crawl.Generator - Generator: starting at 2017-12-07 15:50:01
+2017-12-07 15:50:01,558 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 15:50:01,558 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 15:50:01,558 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 15:50:01,573 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 15:50:03,365 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 15:50:07,883 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 15:50:07,887 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 15:50:07,887 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 15:50:08,503 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 15:56:17,202 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 15:56:17,962 INFO  crawl.Generator - Generator: starting at 2017-12-07 15:56:17
+2017-12-07 15:56:17,963 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 15:56:17,963 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 15:56:17,963 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 15:56:17,977 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 15:56:19,317 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 15:56:22,639 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 15:56:22,640 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 15:56:22,640 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 15:56:22,973 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 15:59:18,923 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 15:59:18,939 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 15:59:18,941 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 15:59:19,840 WARN  crawl.Generator - Generator: 0 records selected for fetching, exiting ...
+2017-12-07 15:59:53,842 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 15:59:54,582 INFO  crawl.Generator - Generator: starting at 2017-12-07 15:59:54
+2017-12-07 15:59:54,582 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 15:59:54,582 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 15:59:54,582 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 15:59:54,608 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 15:59:55,644 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 15:59:58,994 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 15:59:58,995 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 15:59:58,995 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 15:59:59,202 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 16:00:07,789 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 16:00:07,844 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 16:00:07,844 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 16:06:06,660 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 16:06:07,451 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:853)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:1097)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:1046)
+
+2017-12-07 16:10:50,288 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 16:10:54,552 INFO  crawl.Generator - Generator: starting at 2017-12-07 16:10:54
+2017-12-07 16:10:54,557 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 16:10:54,557 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 16:10:54,557 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 16:10:54,579 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 16:10:59,335 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 16:11:18,031 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 16:11:18,035 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 16:11:19,141 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 16:11:20,834 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 16:11:54,833 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 16:11:54,837 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 16:11:54,838 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 16:16:54,659 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 16:16:54,924 INFO  crawl.Generator - Generator: starting at 2017-12-07 16:16:54
+2017-12-07 16:16:54,924 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 16:16:54,924 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 16:16:54,924 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 16:16:54,935 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 16:16:55,255 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 16:16:56,342 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 16:16:56,342 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 16:16:56,342 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 16:16:56,430 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 16:16:56,823 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 16:16:56,823 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 16:16:56,823 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 16:23:00,747 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 16:23:00,948 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:853)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:1097)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:1046)
+
+2017-12-07 16:23:18,173 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 16:23:18,446 INFO  crawl.Generator - Generator: starting at 2017-12-07 16:23:18
+2017-12-07 16:23:18,447 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 16:23:18,447 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 16:23:18,447 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 16:23:18,452 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 16:23:18,717 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 16:23:19,572 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 16:23:19,573 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 16:23:19,573 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 16:23:19,642 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 16:23:20,058 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 16:23:20,059 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 16:23:20,059 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 17:00:59,799 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-07 17:01:00,197 INFO  crawl.Generator - Generator: starting at 2017-12-07 17:01:00
+2017-12-07 17:01:00,198 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-07 17:01:00,198 INFO  crawl.Generator - Generator: filtering: true
+2017-12-07 17:01:00,198 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-07 17:01:00,208 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-07 17:01:00,759 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-07 17:01:02,581 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 17:01:02,582 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 17:01:02,582 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-07 17:01:02,703 INFO  regex.RegexURLNormalizer - can't find rules for scope 'partition', using default
+2017-12-07 17:10:44,718 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-07 17:10:44,718 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-07 17:10:44,719 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000

@@ -1,0 +1,690 @@
+2017-12-01 13:58:43,936 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 13:58:44,152 INFO  crawl.Generator - Generator: starting at 2017-12-01 13:58:44
+2017-12-01 13:58:44,153 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 13:58:44,153 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 13:58:44,153 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 13:58:44,163 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 13:58:44,477 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 13:58:45,651 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 13:58:45,652 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 13:58:45,652 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 14:23:52,141 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 14:23:52,330 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:671)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:910)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:859)
+
+2017-12-01 14:24:49,978 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 14:24:50,263 INFO  crawl.Generator - Generator: starting at 2017-12-01 14:24:50
+2017-12-01 14:24:50,263 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 14:24:50,263 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 14:24:50,263 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 14:24:50,278 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 14:24:50,670 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 14:24:52,014 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 14:24:52,014 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 14:24:52,014 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 14:26:16,674 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 14:26:16,674 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 14:26:16,674 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 14:26:16,703 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,704 INFO  regex.RegexURLNormalizer - can't find rules for scope 'generate_host_count', using default
+2017-12-01 14:26:16,733 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:26:16,735 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.apache.org
+2017-12-01 14:26:16,750 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,752 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,754 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:26:16,756 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,758 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:26:16,760 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:26:16,760 INFO  crawl.Generator - Host or domain www.bbc.com has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:26:16,763 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,766 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:26:16,768 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:26:16,770 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,772 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:26:16,774 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:26:16,776 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,776 INFO  crawl.Generator - Host or domain en.wikipedia.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:26:16,778 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:26:16,780 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,782 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,786 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:26:16,789 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:26:16,790 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,791 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,795 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,798 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:26:16,800 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,804 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,807 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:26:16,808 INFO  crawl.Generator - Host or domain creativecommons.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:26:16,812 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:26:16,830 INFO  crawl.Generator - Host or domain en.wiktionary.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:26:16,832 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:26:16,832 INFO  crawl.Generator - Host or domain www.bbc.co.uk has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:26:17,547 INFO  crawl.Generator - Generator: Partitioning selected urls for politeness.
+2017-12-01 14:43:52,390 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 14:43:52,828 INFO  crawl.Generator - Generator: starting at 2017-12-01 14:43:52
+2017-12-01 14:43:52,828 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 14:43:52,828 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 14:43:52,828 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 14:43:52,843 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 14:43:53,377 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 14:43:55,088 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 14:43:55,089 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 14:43:55,089 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 14:43:55,763 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 14:43:55,764 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 14:43:55,765 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 14:43:55,838 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:55,842 INFO  regex.RegexURLNormalizer - can't find rules for scope 'generate_host_count', using default
+2017-12-01 14:43:55,900 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:43:55,902 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.apache.org
+2017-12-01 14:43:55,921 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:55,925 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:55,928 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:43:55,931 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:55,934 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:43:55,938 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:43:55,939 INFO  crawl.Generator - Host or domain www.bbc.com has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:43:55,942 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:55,946 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:43:55,953 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:43:55,955 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:55,963 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:43:55,966 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:43:55,972 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:55,972 INFO  crawl.Generator - Host or domain en.wikipedia.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:43:55,975 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:43:55,979 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:55,983 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:55,998 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:43:56,004 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:43:56,012 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:56,016 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:56,025 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:56,030 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:43:56,036 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:56,051 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:56,059 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:43:56,060 INFO  crawl.Generator - Host or domain creativecommons.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:43:56,063 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:43:56,080 INFO  crawl.Generator - Host or domain en.wiktionary.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:43:56,082 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:43:56,084 INFO  crawl.Generator - Host or domain www.bbc.co.uk has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:43:56,203 INFO  crawl.Generator - Generator: Partitioning selected urls for politeness.
+2017-12-01 14:44:39,681 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 14:44:40,054 INFO  crawl.Generator - Generator: starting at 2017-12-01 14:44:40
+2017-12-01 14:44:40,054 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 14:44:40,054 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 14:44:40,054 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 14:44:40,067 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 14:44:40,539 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 14:44:42,183 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 14:44:42,183 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 14:44:42,183 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 14:44:42,857 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 14:44:42,857 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 14:44:42,857 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 14:44:42,899 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:42,902 INFO  regex.RegexURLNormalizer - can't find rules for scope 'generate_host_count', using default
+2017-12-01 14:44:42,959 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:44:42,965 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.apache.org
+2017-12-01 14:44:42,986 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:42,991 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:42,994 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:44:42,998 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,007 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:44:43,011 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:44:43,013 INFO  crawl.Generator - Host or domain www.bbc.com has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:44:43,016 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,020 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:44:43,024 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:44:43,029 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,033 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:44:43,035 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:44:43,040 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,040 INFO  crawl.Generator - Host or domain en.wikipedia.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:44:43,044 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:44:43,047 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,050 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,062 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:44:43,068 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:44:43,075 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,078 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,087 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,091 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:44:43,096 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,108 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,117 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:44:43,117 INFO  crawl.Generator - Host or domain creativecommons.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:44:43,127 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:44:43,147 INFO  crawl.Generator - Host or domain en.wiktionary.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:44:43,149 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:44:43,150 INFO  crawl.Generator - Host or domain www.bbc.co.uk has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:44:43,423 INFO  crawl.Generator - Generator: Partitioning selected urls for politeness.
+2017-12-01 14:44:59,740 INFO  crawl.Generator - Generator: segment: /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/segments/20171201144459
+2017-12-01 14:45:15,715 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 14:45:16,127 INFO  crawl.Generator - Generator: starting at 2017-12-01 14:45:16
+2017-12-01 14:45:16,127 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 14:45:16,127 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 14:45:16,127 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 14:45:16,136 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 14:45:16,656 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 14:45:18,056 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 14:45:18,057 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 14:45:18,057 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 14:45:18,837 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 14:45:18,838 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 14:45:18,838 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 14:45:18,881 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:18,883 INFO  regex.RegexURLNormalizer - can't find rules for scope 'generate_host_count', using default
+2017-12-01 14:45:18,927 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:45:18,934 INFO  crawl.Generator - Generator: variable maxCount: 15 for wiki.apache.org
+2017-12-01 14:45:18,955 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:18,962 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:18,965 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:45:18,969 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:18,971 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:45:18,973 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:45:18,975 INFO  crawl.Generator - Host or domain www.bbc.com has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:45:18,979 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:18,983 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:45:18,987 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:45:18,990 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:18,993 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:45:19,004 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:45:19,011 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:19,016 INFO  crawl.Generator - Host or domain en.wikipedia.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:45:19,019 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:45:19,031 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:19,035 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:19,049 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.com
+2017-12-01 14:45:19,054 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:45:19,060 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:19,064 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:19,078 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:19,083 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:45:19,092 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:19,102 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:19,105 INFO  crawl.Generator - Generator: variable maxCount: 15 for creativecommons.org
+2017-12-01 14:45:19,106 INFO  crawl.Generator - Host or domain creativecommons.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:45:19,111 INFO  crawl.Generator - Generator: variable maxCount: 15 for en.wikipedia.org
+2017-12-01 14:45:19,129 INFO  crawl.Generator - Host or domain en.wiktionary.org has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:45:19,132 INFO  crawl.Generator - Generator: variable maxCount: 15 for www.bbc.co.uk
+2017-12-01 14:45:19,133 INFO  crawl.Generator - Host or domain www.bbc.co.uk has more than 15 URLs for all 1 segments. Additional URLs won't be included in the fetchlist.
+2017-12-01 14:45:19,398 INFO  crawl.Generator - Generator: Partitioning selected urls for politeness.
+2017-12-01 14:46:47,712 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 14:46:48,082 INFO  crawl.Generator - Generator: starting at 2017-12-01 14:46:48
+2017-12-01 14:46:48,082 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 14:46:48,082 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 14:46:48,082 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 14:46:48,102 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:04:27,217 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:04:27,528 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:673)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:914)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:863)
+
+2017-12-01 15:04:42,469 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:04:42,837 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:04:42
+2017-12-01 15:04:42,837 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:04:42,837 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:04:42,837 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:04:42,847 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:04:43,316 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:04:43,426 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:735)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:914)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:863)
+
+2017-12-01 15:06:32,567 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:06:32,934 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:06:32
+2017-12-01 15:06:32,934 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:06:32,935 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:06:32,935 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:06:32,947 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:07:20,614 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:07:20,966 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:673)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:914)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:863)
+
+2017-12-01 15:07:42,166 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:07:42,543 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:07:42
+2017-12-01 15:07:42,543 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:07:42,544 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:07:42,544 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:07:42,554 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:07:48,572 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:07:48,673 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:735)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:914)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:863)
+
+2017-12-01 15:08:24,348 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:08:24,738 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:08:24
+2017-12-01 15:08:24,738 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:08:24,738 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:08:24,738 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:08:24,746 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:09:00,322 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:09:05,595 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:735)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:914)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:863)
+
+2017-12-01 15:12:33,181 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:12:33,543 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:12:33
+2017-12-01 15:12:33,544 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:12:33,544 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:12:33,544 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:12:33,551 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:12:37,462 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:12:39,035 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 15:12:39,036 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 15:12:39,036 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 15:13:03,658 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:13:04,022 ERROR crawl.Generator - Generator: java.io.IOException: lock file /home/cloudera/Documents/Nutch/NutchFiles/Output/database1/crawldb/.locked already exists.
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:51)
+	at org.apache.nutch.util.LockUtil.createLockFile(LockUtil.java:81)
+	at org.apache.nutch.crawl.CrawlDb.lock(CrawlDb.java:168)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:673)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:914)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:863)
+
+2017-12-01 15:13:14,382 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:13:14,743 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:13:14
+2017-12-01 15:13:14,744 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:13:14,744 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:13:14,744 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:13:14,755 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:14:49,227 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:14:50,860 INFO  crawl.FetchScheduleFactory - Using FetchSchedule impl: org.apache.nutch.crawl.DefaultFetchSchedule
+2017-12-01 15:14:50,861 INFO  crawl.AbstractFetchSchedule - defaultInterval=2592000
+2017-12-01 15:14:50,861 INFO  crawl.AbstractFetchSchedule - maxInterval=7776000
+2017-12-01 15:15:20,500 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:15:20,889 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:15:20
+2017-12-01 15:15:20,890 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:15:20,890 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:15:20,890 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:15:20,901 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:15:25,667 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:15:25,752 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:735)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:914)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:863)
+
+2017-12-01 15:17:07,794 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:17:08,123 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:17:08
+2017-12-01 15:17:08,123 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:17:08,123 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:17:08,123 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:17:08,134 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:17:13,240 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:17:13,321 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:735)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:914)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:863)
+
+2017-12-01 15:31:43,742 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:31:44,127 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:31:44
+2017-12-01 15:31:44,127 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:31:44,127 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:31:44,128 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:31:44,142 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:31:47,963 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:31:48,114 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:761)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:940)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:889)
+
+2017-12-01 15:32:16,585 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:32:16,972 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:32:16
+2017-12-01 15:32:16,972 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:32:16,972 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:32:16,972 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:32:16,983 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:32:24,450 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:32:24,556 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:761)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:940)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:889)
+
+2017-12-01 15:33:31,965 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:33:32,375 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:33:32
+2017-12-01 15:33:32,376 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:33:32,376 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:33:32,376 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:33:32,388 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:33:37,989 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:33:38,057 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:761)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:940)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:889)
+
+2017-12-01 15:41:20,721 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 15:41:21,108 INFO  crawl.Generator - Generator: starting at 2017-12-01 15:41:21
+2017-12-01 15:41:21,108 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 15:41:21,108 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 15:41:21,108 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 15:41:36,034 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 15:43:23,488 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 15:43:26,874 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:761)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:940)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:889)
+
+2017-12-01 16:03:49,011 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 16:03:49,505 INFO  crawl.Generator - Generator: starting at 2017-12-01 16:03:49
+2017-12-01 16:03:49,505 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 16:03:49,505 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 16:03:49,505 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 16:03:49,518 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 16:03:50,096 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 16:03:50,182 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:761)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:940)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:889)
+
+2017-12-01 16:17:43,959 WARN  util.NativeCodeLoader - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2017-12-01 16:18:32,233 INFO  crawl.Generator - Generator: starting at 2017-12-01 16:18:28
+2017-12-01 16:18:35,688 INFO  crawl.Generator - Generator: Selecting best-scoring urls due for fetch.
+2017-12-01 16:19:01,577 INFO  crawl.Generator - Generator: filtering: true
+2017-12-01 16:19:03,161 INFO  crawl.Generator - Generator: normalizing: true
+2017-12-01 16:21:44,944 INFO  crawl.Generator - Generator: running in local mode, generating exactly one partition.
+2017-12-01 16:23:14,082 WARN  mapreduce.JobResourceUploader - No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+2017-12-01 16:23:16,499 ERROR crawl.Generator - Generator: java.io.FileNotFoundException: File file:/home/cloudera/Documents/Nutch/NutchFiles/Output/database1/hostdb/current/data does not exist
+	at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileStatus(RawLocalFileSystem.java:609)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:822)
+	at org.apache.hadoop.fs.RawLocalFileSystem.getFileStatus(RawLocalFileSystem.java:599)
+	at org.apache.hadoop.fs.FilterFileSystem.getFileStatus(FilterFileSystem.java:421)
+	at org.apache.hadoop.mapred.SequenceFileInputFormat.listStatus(SequenceFileInputFormat.java:52)
+	at org.apache.hadoop.mapred.FileInputFormat.getSplits(FileInputFormat.java:315)
+	at org.apache.hadoop.mapred.lib.DelegatingInputFormat.getSplits(DelegatingInputFormat.java:107)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeOldSplits(JobSubmitter.java:329)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:320)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:196)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1290)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1287)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1287)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:575)
+	at org.apache.hadoop.mapred.JobClient$1.run(JobClient.java:570)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1657)
+	at org.apache.hadoop.mapred.JobClient.submitJobInternal(JobClient.java:570)
+	at org.apache.hadoop.mapred.JobClient.submitJob(JobClient.java:561)
+	at org.apache.hadoop.mapred.JobClient.runJob(JobClient.java:862)
+	at org.apache.nutch.crawl.Generator.generate(Generator.java:760)
+	at org.apache.nutch.crawl.Generator.run(Generator.java:939)
+	at org.apache.hadoop.util.ToolRunner.run(ToolRunner.java:70)
+	at org.apache.nutch.crawl.Generator.main(Generator.java:888)
+
