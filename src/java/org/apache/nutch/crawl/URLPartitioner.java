@@ -62,36 +62,35 @@ public class URLPartitioner implements Partitioner<Text, Writable> {
 
   public void close() {
   }
-
+  
+  public String getNormalizedURLRoot(Text key){
+	  URLNormalizers normalizers = this.normalizers;
+	  String rootMode = mode;
+	  
+	  String urlString = key.toString();
+	  URL url = null;
+	    try {
+	      urlString = URLUtil.normalizeURL(urlString, normalizers);
+	      url = new URL(urlString);
+	    } catch (MalformedURLException e) {
+	      LOG.warn("Malformed URL: '" + urlString + "'");
+	      return urlString;
+	    }
+	  
+		try{
+			urlString = URLUtil.getUrlRootByMode(url, mode);
+		}
+		catch (UnknownHostException e) {
+	        Generator.LOG.info("Couldn't find IP for host: " + url.getHost());
+	    }
+		return urlString;
+  }
+  
   /** Hash by host or domain name or IP address. */
   public int getPartition(Text key, Writable value, int numReduceTasks) {
     String urlString = key.toString();
     URL url = null;
-    int hashCode = 0;
-    try {
-      urlString = normalizers.normalize(urlString,
-          URLNormalizers.SCOPE_PARTITION);
-      url = new URL(urlString);
-    } catch (MalformedURLException e) {
-      LOG.warn("Malformed URL: '" + urlString + "'");
-    }
-
-    if (url == null) {
-      // failed to parse URL, must take URL string as fall-back
-      hashCode = urlString.hashCode();
-    } else if (mode.equals(PARTITION_MODE_HOST)) {
-      hashCode = url.getHost().hashCode();
-    } else if (mode.equals(PARTITION_MODE_DOMAIN)) {
-      hashCode = URLUtil.getDomainName(url).hashCode();
-    } else if (mode.equals(PARTITION_MODE_IP)) {
-      try {
-        InetAddress address = InetAddress.getByName(url.getHost());
-        hashCode = address.getHostAddress().hashCode();
-      } catch (UnknownHostException e) {
-        Generator.LOG.info("Couldn't find IP for host: " + url.getHost());
-      }
-    }
-
+    int hashCode = getNormalizedURLRoot(key).hashCode();
     // make hosts wind up in different partitions on different runs
     hashCode ^= seed;
 

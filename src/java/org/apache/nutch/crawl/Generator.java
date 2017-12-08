@@ -29,9 +29,11 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapred.lib.MultipleInputs;
 import org.apache.hadoop.mapred.lib.MultipleSequenceFileOutputFormat;
 import org.apache.hadoop.util.*;
 import org.apache.hadoop.fs.FileStatus;
@@ -88,23 +90,27 @@ public class Generator extends NutchTool implements Tool {
     public Text url;
     public CrawlDatum datum;
     public IntWritable segnum;
+    public HostDatum hostdatum;
 
     public SelectorEntry() {
       url = new Text();
       datum = new CrawlDatum();
       segnum = new IntWritable(0);
+      hostdatum = new HostDatum();
     }
 
     public void readFields(DataInput in) throws IOException {
       url.readFields(in);
       datum.readFields(in);
       segnum.readFields(in);
+      hostdatum.readFields(in);
     }
 
     public void write(DataOutput out) throws IOException {
       url.write(out);
       datum.write(out);
       segnum.write(out);
+      hostdatum.write(out);
     }
 
     public String toString() {
@@ -113,20 +119,157 @@ public class Generator extends NutchTool implements Tool {
     }
   }
 
+  public static class HostDbReaderMapper implements Mapper<Text, HostDatum, FloatTextPair, SelectorEntry>
+  {
+	@Override
+	public void configure(JobConf conf) {
+		// TODO Auto-generated method stub	
+	}
+
+	@Override
+	public void close() throws IOException {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void map(Text hostname, HostDatum value,
+			OutputCollector<FloatTextPair, SelectorEntry> output, Reporter reporter)
+			throws IOException {
+	    SelectorEntry hostDataSelector = new SelectorEntry();
+	    hostDataSelector.hostdatum = value;
+
+	    // setup small/big score on the output to distinguish between hostdatum mapper and data mapper.
+	    output.collect(new FloatTextPair(new FloatWritable(-Float.MAX_VALUE),hostname), hostDataSelector);
+	    
+	}  
+  }
+  
+  public static class FloatTextPair implements WritableComparable<FloatTextPair>{  
+	  	public FloatWritable first;
+		public Text second;
+		
+		public  FloatTextPair(){
+		    this.first=new FloatWritable();
+		    this.second=new Text();
+		}
+		
+		public FloatTextPair(FloatWritable first, Text second) {
+		    //super();
+		    this.first = first;
+		    this.second = second;
+		}
+		public FloatTextPair(float first,String second){
+		    this.first=new FloatWritable(first);
+		    this.second=new Text(second);
+		}
+		
+		public FloatWritable getFirst() {
+		    return first;
+		}
+		
+		public void setFirst(FloatWritable first) {
+		    this.first = first;
+		}
+		
+		public Text getSecond() {
+		    return second;
+		}
+		
+		public void setSecond(Text second) {
+		    this.second = second;
+		}
+		public void set(FloatWritable first,Text second){
+		    this.first=first;
+		    this.second=second;
+		}
+		
+		@Override
+		public int hashCode() {
+		    // TODO Auto-generated method stub
+		    return first.hashCode()*163+second.hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+		    // TODO Auto-generated method stub
+		    if(obj instanceof FloatTextPair){
+		        FloatTextPair tp=(FloatTextPair)obj;
+		        return first.equals(tp.getFirst())&&second.equals(tp.getSecond());
+		    }
+		    return false;
+		}
+		
+		@Override
+		public String toString() {
+		    return first+"\t"+second;
+		}
+		
+		@Override
+		public void readFields(DataInput in) throws IOException {
+		    first.readFields(in);
+		    second.readFields(in);
+		}
+		
+		@Override
+		public void write(DataOutput out) throws IOException {
+		    first.write(out);
+		    second.write(out);
+		}		
+		
+		@Override
+		public int compareTo(FloatTextPair tp) {
+		    int cmp=first.compareTo(tp.getFirst());
+		    if(cmp!=0)
+		        return cmp;
+		    return second.compareTo(tp.getSecond());
+		    
+		}
+		
+	}
+  //The comparator is made to "merge" hostdb data and crawldd data. See  NUTCH-2455
+  //TODO : Implement RawComparator
+  public static class ScoreHostKeyComparator extends WritableComparator {
+	    protected ScoreHostKeyComparator() {
+	        super(FloatTextPair.class, true);
+	    }
+
+	    @Override
+	    public int compare(WritableComparable w1, WritableComparable w2) {
+	    	FloatTextPair key1 = (FloatTextPair) w1;
+	    	FloatTextPair key2 = (FloatTextPair) w2;     
+	    	
+	    	Boolean iskey1HostDatum = key1.second.getLength() > 0;
+	    	Boolean iskey2HostDatum = key2.second.getLength() > 0;
+	    		    	
+	    	if(iskey1HostDatum  && iskey2HostDatum){
+	    		return key1.second.compareTo(key2.second);
+	    	} else {
+	    		if(iskey1HostDatum == iskey2HostDatum){
+	    			return -1 * key1.first.compareTo(key2.first);
+	    		}
+	    		else if(iskey1HostDatum){
+		    		return -1;
+		    	} else {
+		    		return 1;
+		    	}	
+	    	}
+	    }
+  }
+  
   /** Selects entries due for fetch. */
   public static class Selector implements
-      Mapper<Text, CrawlDatum, FloatWritable, SelectorEntry>,
-      Partitioner<FloatWritable, Writable>,
-      Reducer<FloatWritable, SelectorEntry, FloatWritable, SelectorEntry> {
+      Mapper<Text, CrawlDatum, FloatTextPair, SelectorEntry>,
+      Partitioner<FloatTextPair, Writable>,
+      Reducer<FloatTextPair, SelectorEntry, FloatWritable, SelectorEntry> {
     private LongWritable genTime = new LongWritable(System.currentTimeMillis());
     private long curTime;
     private long limit;
     private long count;
-    private HashMap<String, int[]> hostCounts = new HashMap<>();
+    private HashMap<String, MutablePair<HostDatum, int[]>> hostDomainCounts = new HashMap<>();
     private int segCounts[];
     private int maxCount;
     private boolean byDomain = false;
-    private Partitioner<Text, Writable> partitioner = new URLPartitioner();
+    private URLPartitioner partitioner = new URLPartitioner();
     private URLFilters filters;
     private URLNormalizers normalizers;
     private ScoringFilters scfilters;
@@ -184,34 +327,15 @@ public class Generator extends NutchTool implements Tool {
       }
     }
     
-    public void open() {
-      if (conf.get(GENERATOR_HOSTDB) != null) {
-        try {
-          Path path = new Path(conf.get(GENERATOR_HOSTDB), "current");
-          hostdbReaders = SequenceFileOutputFormat.getReaders(conf, path);
-        } catch (IOException e) {
-          LOG.error("Error reading HostDB because {}", e.getMessage());
-        }
-      }
-    }
-
+    @Override
     public void close() {
-      if (hostdbReaders != null) {
-        try {
-          for (int i = 0; i < hostdbReaders.length; i++) {
-            hostdbReaders[i].close();
-          }
-        } catch (IOException e) {
-          LOG.error("Error closing HostDB because {}", e.getMessage());
-        }
-      }
     }
-
     /** Select and invert subset due for fetch. */
     public void map(Text key, CrawlDatum value,
-        OutputCollector<FloatWritable, SelectorEntry> output, Reporter reporter)
+        OutputCollector<FloatTextPair, SelectorEntry> output, Reporter reporter)
         throws IOException {
       Text url = key;
+      
       if (filter) {
         // If filtering is on don't generate URLs that don't pass
         // URLFilters
@@ -278,34 +402,17 @@ public class Generator extends NutchTool implements Tool {
       crawlDatum.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
       entry.datum = crawlDatum;
       entry.url = key;
-      output.collect(sortValue, entry); // invert for sort by score
+    
+      output.collect(new FloatTextPair(sortValue,new Text()), entry); // invert for sort by score
     }
 
     /** Partition by host / domain or IP. */
-    public int getPartition(FloatWritable key, Writable value,
+   public int getPartition(FloatTextPair key, Writable value,
         int numReduceTasks) {
-      return partitioner.getPartition(((SelectorEntry) value).url, key,
+      return partitioner.getPartition(((SelectorEntry) value).url, key.getSecond(),
           numReduceTasks);
-    }
-    
-    private HostDatum getHostDatum(String host) throws Exception {
-      Text key = new Text();
-      HostDatum value = new HostDatum();
-      
-      open();
-      for (int i = 0; i < hostdbReaders.length; i++) {
-        while (hostdbReaders[i].next(key, value)) {
-          if (host.equals(key.toString())) {
-            close();
-            return value;
-          }
-        }
-      }
-      
-      close();
-      return null;
-    }
-    
+    } 
+
     private JexlContext createContext(HostDatum datum) {
       JexlContext context = new MapContext();
       context.set("dnsFailures", datum.getDnsFailures());
@@ -345,47 +452,74 @@ public class Generator extends NutchTool implements Tool {
     }
 
     /** Collect until limit is reached. */
-    public void reduce(FloatWritable key, Iterator<SelectorEntry> values,
+    public void reduce(FloatTextPair key, Iterator<SelectorEntry> values,
         OutputCollector<FloatWritable, SelectorEntry> output, Reporter reporter)
         throws IOException {
-        
+    
       String hostname = null;
-      HostDatum host = null;
       LongWritable variableFetchDelayWritable = null; // in millis
       Text variableFetchDelayKey = new Text("_variableFetchDelay_");
       int maxCount = this.maxCount;
+      int[] hostDomainCount = null;
+      HostDatum hostDatum = null;
+      
       while (values.hasNext()) {
         SelectorEntry entry = values.next();
         Text url = entry.url;
         String urlString = url.toString();
         URL u = null;
+        String hostorDomainName = null;
         
-        // Do this only once per queue
-        if (host == null) {
-          try {
-            hostname = URLUtil.getHost(urlString);
-            host = getHostDatum(hostname);
-          } catch (Exception e) {}
-          
-          // Got it?
-          if (host == null) {
-            // Didn't work, prevent future lookups
-            host = new HostDatum();
-          } else {
-            if (maxCountExpr != null) {
-              long variableMaxCount = Math.round((double)maxCountExpr.evaluate(createContext(host)));
-              LOG.info("Generator: variable maxCount: {} for {}", variableMaxCount, hostname);
-              maxCount = (int)variableMaxCount;
-            }
-            
-            if (fetchDelayExpr != null) {
-              long variableFetchDelay = Math.round((double)fetchDelayExpr.evaluate(createContext(host)));
-              LOG.info("Generator: variable fetchDelay: {} ms for {}", variableFetchDelay, hostname);
-              variableFetchDelayWritable = new LongWritable(variableFetchDelay);              
-            }
+        //Extract hostdatum 
+        if(key.second.getLength() > 0)
+        {
+        	hostDatum = entry.hostdatum;
+        	MutablePair<HostDatum, int[]> hostDataPair = new MutablePair<HostDatum, int[]>(hostDatum, new int []{1,0});
+        	hostDomainCounts.put(key.second.toString(), hostDataPair);
+        } else //Process normal input with pre-filled in hostdatum in hostCounts
+        {
+         try {
+              u = new URL(urlString);
+              
+              if (byDomain) {
+                  hostorDomainName = URLUtil.getUrlRootByMode(u,URLPartitioner.PARTITION_MODE_DOMAIN).toLowerCase();
+                } else {
+                  hostorDomainName = URLUtil.getUrlRootByMode(u,URLPartitioner.PARTITION_MODE_HOST).toLowerCase();
+              }
+              
+              MutablePair<HostDatum, int[]> hostDomainCountPair = hostDomainCounts.get(hostorDomainName);
+      
+               if(hostDomainCountPair == null){ 
+                  hostDomainCount = new int[] { 1, 0 };
+                  hostDomainCountPair = new MutablePair<HostDatum, int[]>(null, hostDomainCount);
+                  hostDomainCounts.put(hostorDomainName, hostDomainCountPair);
+               }
+               else{
+              	  hostDomainCount = hostDomainCountPair.getRight();
+               }
+             
+              //Check hostdb expressions only for host, ignore domains
+               if(!byDomain)
+            	hostDatum = hostDomainCountPair.getLeft();
+                
+                if (hostDatum != null) {
+                  if (maxCountExpr != null) {
+                    long variableMaxCount = Math.round((double)maxCountExpr.evaluate(createContext(hostDatum)));
+                    LOG.info("Generator: variable maxCount: {} for {}", variableMaxCount, hostorDomainName);
+                    maxCount = (int)variableMaxCount;
+                  }
+                  
+                  if (fetchDelayExpr != null) {
+                    long variableFetchDelay = Math.round((double)fetchDelayExpr.evaluate(createContext(hostDatum)));
+                    LOG.info("Generator: variable fetchDelay: {} ms for {}", variableFetchDelay, hostorDomainName);
+                    variableFetchDelayWritable = new LongWritable(variableFetchDelay);              
+                  }
+                }
+              }
+          catch (Exception e) {
+        	  LOG.info("Exception while doing host/domain extraction", e.toString());
           }
-        }
-        
+              
         // Got a non-zero variable fetch delay? Add it to the datum's metadata
         if (variableFetchDelayWritable != null) {
           entry.datum.getMetaData().put(variableFetchDelayKey, variableFetchDelayWritable);
@@ -400,19 +534,14 @@ public class Generator extends NutchTool implements Tool {
             break;
         }
 
-        String hostordomain = null;
+    
 
         try {
           if (normalise && normalizers != null) {
             urlString = normalizers.normalize(urlString,
                 URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
           }
-          u = new URL(urlString);
-          if (byDomain) {
-            hostordomain = URLUtil.getDomainName(u);
-          } else {
-            hostordomain = new URL(urlString).getHost();
-          }
+
         } catch (Exception e) {
           LOG.warn("Malformed URL: '" + urlString + "', skipping ("
               + StringUtils.stringifyException(e) + ")");
@@ -420,36 +549,28 @@ public class Generator extends NutchTool implements Tool {
           continue;
         }
 
-        hostordomain = hostordomain.toLowerCase();
-
         // only filter if we are counting hosts or domains
         if (maxCount > 0) {
-          int[] hostCount = hostCounts.get(hostordomain);
-          if (hostCount == null) {
-            hostCount = new int[] { 1, 0 };
-            hostCounts.put(hostordomain, hostCount);
-          }
-
           // increment hostCount
-          hostCount[1]++;
+          hostDomainCount[1]++;
 
           // check if topN reached, select next segment if it is
-          while (segCounts[hostCount[0] - 1] >= limit
-              && hostCount[0] < maxNumSegments) {
-            hostCount[0]++;
-            hostCount[1] = 0;
+          while (segCounts[hostDomainCount[0] - 1] >= limit
+              && hostDomainCount[0] < maxNumSegments) {
+            hostDomainCount[0]++;
+            hostDomainCount[1] = 0;
           }
 
           // reached the limit of allowed URLs per host / domain
           // see if we can put it in the next segment?
-          if (hostCount[1] >= maxCount) {
-            if (hostCount[0] < maxNumSegments) {
-              hostCount[0]++;
-              hostCount[1] = 0;
+          if (hostDomainCount[1] >= maxCount) {
+            if (hostDomainCount[0] < maxNumSegments) {
+              hostDomainCount[0]++;
+              hostDomainCount[1] = 0;
             } else {
-              if (hostCount[1] == maxCount + 1 && LOG.isInfoEnabled()) {
+              if (hostDomainCount[1] == maxCount + 1 && LOG.isInfoEnabled()) {
                 LOG.info("Host or domain "
-                    + hostordomain
+                    + hostorDomainName
                     + " has more than "
                     + maxCount
                     + " URLs for all "
@@ -460,21 +581,23 @@ public class Generator extends NutchTool implements Tool {
               continue;
             }
           }
-          entry.segnum = new IntWritable(hostCount[0]);
-          segCounts[hostCount[0] - 1]++;
+          entry.segnum = new IntWritable(hostDomainCount[0]);
+          segCounts[hostDomainCount[0] - 1]++;
         } else {
           entry.segnum = new IntWritable(currentsegmentnum);
           segCounts[currentsegmentnum - 1]++;
         }
 
-        output.collect(key, entry);
+         output.collect(key.first, entry);
 
         // Count is incremented only when we keep the URL
         // maxCount may cause us to skip it.
         count++;
       }
+      }
     }
   }
+  
 
   // Allows the reducers to generate one subfile per
   public static class GeneratorOutputFormat extends
@@ -485,15 +608,6 @@ public class Generator extends NutchTool implements Tool {
       return "fetchlist-" + value.segnum.toString() + "/" + name;
     }
 
-  }
-
-  public static class DecreasingFloatComparator extends
-      FloatWritable.Comparator {
-
-    /** Compares two FloatWritables decreasing. */
-    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-      return super.compare(b2, s2, l2, b1, s1, l1);
-    }
   }
 
   public static class SelectorInverseMapper extends MapReduceBase implements
@@ -710,18 +824,18 @@ public class Generator extends NutchTool implements Tool {
     }
     if (hostdb != null) {
       job.set(GENERATOR_HOSTDB, hostdb);
+  	  MultipleInputs.addInputPath(job,new Path(hostdb, "current"), SequenceFileInputFormat.class, HostDbReaderMapper.class);
     }
-    FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
-    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setMapOutputKeyClass(FloatTextPair.class);
+    MultipleInputs.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME), SequenceFileInputFormat.class, Selector.class);
 
-    job.setMapperClass(Selector.class);
+    job.setOutputKeyComparatorClass(ScoreHostKeyComparator.class);
     job.setPartitionerClass(Selector.class);
     job.setReducerClass(Selector.class);
-
+    
     FileOutputFormat.setOutputPath(job, tempDir);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
-    job.setOutputKeyComparatorClass(DecreasingFloatComparator.class);
     job.setOutputValueClass(SelectorEntry.class);
     job.setOutputFormat(GeneratorOutputFormat.class);
 
@@ -774,6 +888,7 @@ public class Generator extends NutchTool implements Tool {
       }
       FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
       job.setInputFormat(SequenceFileInputFormat.class);
+
       job.setMapperClass(CrawlDbUpdater.class);
       job.setReducerClass(CrawlDbUpdater.class);
       job.setOutputFormat(MapFileOutputFormat.class);
@@ -821,7 +936,6 @@ public class Generator extends NutchTool implements Tool {
 
     FileInputFormat.addInputPath(job, inputDir);
     job.setInputFormat(SequenceFileInputFormat.class);
-
     job.setMapperClass(SelectorInverseMapper.class);
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(SelectorEntry.class);
@@ -1001,3 +1115,4 @@ public class Generator extends NutchTool implements Tool {
     return results;
   }
 }
+  
