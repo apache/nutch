@@ -203,11 +203,15 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       output.collect(new Text("retry " + value.getRetriesSinceFetch()),
           COUNT_1);
 
-      NutchWritable score = new NutchWritable(
-          new FloatWritable(value.getScore()));
-      output.collect(new Text("sc"), score);
-      output.collect(new Text("sct"), score);
-      output.collect(new Text("scd"), score);
+      if (Float.isNaN(value.getScore())) {
+        output.collect(new Text("scNaN"), COUNT_1);
+      } else {
+        NutchWritable score = new NutchWritable(
+            new FloatWritable(value.getScore()));
+        output.collect(new Text("sc"), score);
+        output.collect(new Text("sct"), score);
+        output.collect(new Text("scd"), score);
+      }
 
       // fetch time (in minutes to prevent from overflows when summing up)
       NutchWritable fetchTime = new NutchWritable(
@@ -287,7 +291,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           cnt += value;
         }
         output.collect(key, new NutchWritable(new FloatWritable(cnt)));
-      } else if (k.equals("scd") || k.equals("ftd") || k.equals("fid")) {
+      } else if (k.equals("scd")) {
         MergingDigest tdigest = null;
         while (values.hasNext()) {
           Writable value = values.next().get();
@@ -301,10 +305,13 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
               tdigest.add(tdig);
             }
           } else if (value instanceof FloatWritable) {
-            if (tdigest == null) {
-              tdigest = (MergingDigest) TDigest.createMergingDigest(100.0);
+            float val = ((FloatWritable) value).get();
+            if (!Float.isNaN(val)) {
+              if (tdigest == null) {
+                tdigest = (MergingDigest) TDigest.createMergingDigest(100.0);
+              }
+              tdigest.add(val);
             }
-            tdigest.add(((FloatWritable) value).get());
           }
         }
         ByteBuffer tdigestBytes = ByteBuffer.allocate(tdigest.smallByteSize());
@@ -521,6 +528,8 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           LOG.info("max score:\t" + fvalue);
         } else if (k.equals("sct")) {
           LOG.info("avg score:\t" + (fvalue / totalCnt.get()));
+        } else if (k.equals("scNaN")) {
+          LOG.info("score == NaN:\t" + value);
         } else if (k.equals("ftn")) {
           LOG.info("earliest fetch time:\t" + new Date(1000 * 60 * value));
         } else if (k.equals("ftx")) {
