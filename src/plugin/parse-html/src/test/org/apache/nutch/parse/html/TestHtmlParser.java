@@ -19,10 +19,12 @@ package org.apache.nutch.parse.html;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.html.HtmlParser;
+import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
@@ -78,17 +80,26 @@ public class TestHtmlParser {
       { "HTML5, utf-16, BOM", "utf-16",
           "\ufeff<!DOCTYPE html>\n<html>\n<head>\n" + encodingTestContent } };
 
+  private static final String resolveBaseUrlTestContent = //
+      "<html>\\n<head>\n" + //
+      "  <title>Test Resolve Base URLs (NUTCH-2478)</title>\n" + //
+      "  <base href=\"//www.example.com/\">\n" + //
+      "</head>\n<body>\n" + //
+      "  <a href=\"index.html\">outlink</a>\n" + //
+      "</body>\n</html>";
+
   private Configuration conf;
   private Parser parser;
 
   public TestHtmlParser() {
     conf = NutchConfiguration.create();
+    conf.set("plugin.includes", "parse-html");
     parser = new HtmlParser();
     parser.setConf(conf);
   }
 
   protected Parse parse(byte[] contentBytes) {
-    String dummyUrl = "http://dummy.url/";
+    String dummyUrl = "http://example.com/";
     return parser.getParse(
         new Content(dummyUrl, dummyUrl, contentBytes, "text/html",
             new Metadata(), conf)).get(dummyUrl);
@@ -118,6 +129,19 @@ public class TestHtmlParser {
       Assert.assertEquals("Keywords not extracted properly (" + name + ")",
           encodingTestKeywords, keywords);
     }
+  }
+
+  @Test
+  public void testResolveBaseUrl() {
+    byte[] contentBytes = resolveBaseUrlTestContent
+        .getBytes(StandardCharsets.UTF_8);
+    // parse using http://example.com/ as "fetch" URL
+    Parse parse = parse(contentBytes);
+    LOG.info(parse.getData().toString());
+    Outlink[] outlinks = parse.getData().getOutlinks();
+    Assert.assertEquals(1, outlinks.length);
+    Assert.assertEquals("http://www.example.com/index.html",
+        outlinks[0].getToUrl());
   }
 
 }
