@@ -170,7 +170,12 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 
     if (!metaTags.getNoFollow()) { // okay to follow links
       ArrayList<Outlink> l = new ArrayList<Outlink>(); // extract outlinks
-      URL baseTag = utils.getBase(root);
+      URL baseTag = null;
+      try {
+        baseTag = new URL(base, utils.getBase(root));
+      } catch (MalformedURLException e) {
+        baseTag = base;
+      }
       if (LOG.isTraceEnabled()) {
         LOG.trace("Getting links...");
       }
@@ -179,7 +184,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       //utils.getOutlinks(baseTag != null ? baseTag : base, l, root);
       // Get outlinks from Tika
       List<Link> tikaExtractedOutlinks = linkContentHandler.getLinks();
-      utils.getOutlinks(baseTag != null ? baseTag : base, l, tikaExtractedOutlinks);
+      utils.getOutlinks(baseTag, l, root);
       outlinks = l.toArray(new Outlink[l.size()]);
       if (LOG.isTraceEnabled()) {
         LOG.trace("found " + outlinks.length + " outlinks in "

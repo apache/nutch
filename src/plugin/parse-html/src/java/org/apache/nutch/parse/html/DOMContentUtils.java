@@ -254,7 +254,7 @@ public class DOMContentUtils {
   }
 
   /** If Node contains a BASE tag then it's HREF is returned. */
-  public URL getBase(Node node) {
+  public String getBase(Node node) {
 
     NodeWalker walker = new NodeWalker(node);
 
@@ -276,10 +276,7 @@ public class DOMContentUtils {
           for (int i = 0; i < attrs.getLength(); i++) {
             Node attr = attrs.item(i);
             if ("href".equalsIgnoreCase(attr.getNodeName())) {
-              try {
-                return new URL(attr.getNodeValue());
-              } catch (MalformedURLException e) {
-              }
+              return attr.getNodeValue();
             }
           }
         }
