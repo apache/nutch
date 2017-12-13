@@ -32,7 +32,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
@@ -48,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -58,11 +56,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 /**
  */
@@ -80,7 +76,6 @@ public class ElasticRestIndexWriter implements IndexWriter {
   private Configuration config;
 
   private Bulk.Builder bulkBuilder;
-  private Future<HttpResponse> execute;
   private int port = -1;
   private String host = null;
   private Boolean https = null;
@@ -96,6 +91,8 @@ public class ElasticRestIndexWriter implements IndexWriter {
   private boolean createNewBulk = false;
   private long millis;
   private BasicFuture<JestResult> basicFuture = null;
+  
+  private String[] languages = null;
 
   @Override
   public void open(JobConf job, String name) throws IOException {
@@ -106,6 +103,7 @@ public class ElasticRestIndexWriter implements IndexWriter {
     password = job.get(ElasticRestConstants.PASSWORD);
     https = job.getBoolean(ElasticRestConstants.HTTPS, false);
     trustAllHostnames = job.getBoolean(ElasticRestConstants.HOSTNAME_TRUST, false);
+    languages = job.getStrings(ElasticRestConstants.LANGUAGES);
 
     // trust ALL certificates
     SSLContext sslContext = null;
@@ -195,7 +193,26 @@ public class ElasticRestIndexWriter implements IndexWriter {
         bulkLength += fieldValues[0].length();
       }
     }
-    Index indexRequest = new Index.Builder(source).index(defaultIndex)
+    
+    String index;
+    if (languages != null && languages.length > 0) {
+      String language = (String) doc.getFieldValue("lang");
+      boolean exists = false;
+      for (String lang : languages) {
+        if (lang.equals(language)) {
+          exists = true;
+          break;
+        }
+      }
+      if (exists) {
+        index = defaultIndex + "_" + language;
+      } else {
+        index = defaultIndex + "_others";
+      }
+    } else {
+      index = defaultIndex;
+    }
+    Index indexRequest = new Index.Builder(source).index(index)
         .type(type).id(id).build();
 
     // Add this indexing request to a bulk request
@@ -217,13 +234,21 @@ public class ElasticRestIndexWriter implements IndexWriter {
   @Override
   public void delete(String key) throws IOException {
     try {
-      client.execute(new Delete.Builder(key).index(defaultIndex)
-          .type(defaultType).build());
+      if (languages != null && languages.length > 0) {
+    	Bulk.Builder bulkBuilder = new Bulk.Builder().defaultType(defaultType);
+    	for (String lang : languages) {    		  
+    	  bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_" + lang).build());
+    	}
+    	bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_others").build());
+    	client.execute(bulkBuilder.build());
+      } else {
+    	client.execute(new Delete.Builder(key).index(defaultIndex)
+    	    .type(defaultType).build());
+      }
     } catch (IOException e) {
       LOG.error(ExceptionUtils.getStackTrace(e));
       throw e;
     }
-
   }
 
   @Override
