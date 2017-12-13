@@ -96,6 +96,7 @@
  <!-- ====================================================== -->
  <target name="init" depends="ivy-init" description="--> stuff required by all targets">
   <mkdir dir="${build.dir}" />
+  <mkdir dir="${build.lib.dir}" />
   <mkdir dir="${build.classes}" />
   <mkdir dir="${release.dir}" />
 
