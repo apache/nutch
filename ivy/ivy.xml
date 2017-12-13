@@ -99,44 +99,54 @@
     <!--================-->
     <!-- Gora artifacts -->
     <!--================-->
-    <!-- N.B. To use Gora SNAPSHOT's merely replace the 'ref' value with the SNAPSHOT version 
-    and add changing="true" alongside the dependency declaration. An example has been
-    provided for the gora-core dependency as below -->
+    <!-- N.B. To use Gora SNAPSHOT's, replace the 'ref' value with the SNAPSHOT version 
+    and add changing="true" alongside the dependency declaration.-->
     <dependency org="org.apache.gora" name="gora-core" rev="0.8" conf="*->default"/>
-    
-    <!-- Uncomment this to use SQL as Gora backend. It should be noted that the 
-    gora-sql 0.1.1-incubating artifact is NOT compatable with gora-core 0.3. Users should 
-    downgrade to gora-core 0.2.1 in order to use SQL as a backend however this is not suggested. -->
-    <!--
-    <dependency org="org.apache.gora" name="gora-sql" rev="0.1.1-incubating" conf="*->default" />
-    -->
-    <!-- Uncomment this to use MySQL as database with SQL as Gora store. -->
-    <!--
-    <dependency org="mysql" name="mysql-connector-java" rev="5.1.18" conf="*->default"/> 
-    -->
-    <!-- Uncomment this to use HBase as Gora backend. -->
-    <!--     
-    <dependency org="org.apache.gora" name="gora-hbase" rev="0.8" conf="*->default" /> 
-    -->
     <!-- Uncomment this to use Accumulo as Gora backend. -->
+    <!--     
+    <dependency org="org.apache.gora" name="gora-accumulo" rev="0.8" conf="*->default" /> 
+    -->
+    <!-- Uncomment this to use Aerospike as Gora backend. -->
     <!--
-    <dependency org="org.apache.gora" name="gora-accumulo" rev="0.8" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-aerospike" rev="0.8" conf="*->default" />
     -->
     <!-- Uncomment this to use Cassandra as Gora backend. -->
     <!-- 
     <dependency org="org.apache.gora" name="gora-cassandra" rev="0.8" conf="*->default" />
     -->
+    <!-- Uncomment this to use Couchdb as Gora backend. -->
+    <!-- 
+    <dependency org="org.apache.gora" name="gora-couchdb" rev="0.8" conf="*->default" />
+    -->
+    <!-- Uncomment this to use Amazon Dynamodb as Gora backend. -->
+    <!-- 
+    <dependency org="org.apache.gora" name="gora-dynamodb" rev="0.8" conf="*->default" />
+    -->
+    <!-- Uncomment this to use HBase as Gora backend. -->
+    <!--     
+    <dependency org="org.apache.gora" name="gora-hbase" rev="0.8" conf="*->default" /> 
+    -->
+    <!-- Uncomment this to use Infinispan as Gora backend. -->
+    <!--     
+    <dependency org="org.apache.gora" name="gora-infinispan" rev="0.8" conf="*->default" /> 
+    -->
+    <!-- Uncomment this to use jcache as Gora backend. -->
+    <!--
+    <dependency org="org.apache.gora" name="gora-jcache" rev="0.8" conf="*->default" />
+    -->
     <!-- Uncomment this to use MongoDB as Gora backend. -->
     <!--
     <dependency org="org.apache.gora" name="gora-mongodb" rev="0.8" conf="*->default" />
-    -->    
+    -->   
+    <!-- Uncomment this to use OrientDB as Gora backend. -->
+    <!--
+    <dependency org="org.apache.gora" name="gora-orientdb" rev="0.8" conf="*->default" />
+    -->  
     <!-- Uncomment this to use Solr as Gora backend. -->
     <!--
     <dependency org="org.apache.gora" name="gora-solr" rev="0.8" conf="*->default" />
     -->
-    <!--
-    <dependency org="org.apache.gora" name="gora-jcache" rev="0.8" conf="*->default" />
-    -->
+
     <!-- The gora-compiler is used within the 'ant generate-gora-src' target to compile
     the Gora .avsc files within ./src/gora 
     -->
