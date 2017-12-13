@@ -319,18 +319,18 @@ public class CrawlDb extends NutchTool implements Tool {
       dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
     }
     else if(args.containsKey(Nutch.ARG_SEGMENTS)) {
-    	Object segments = args.get(Nutch.ARG_SEGMENTS);
-    	ArrayList<String> segmentList = new ArrayList<String>();      
-    	  if(segments instanceof ArrayList) {
-    		  segmentList = (ArrayList<String>)segments;
-    	    }
-    	  else if(segments instanceof Path){
-    	    	  segmentList.add(segments.toString());
-    	      }
+      Object segments = args.get(Nutch.ARG_SEGMENTS);
+      ArrayList<String> segmentList = new ArrayList<String>();      
+      if(segments instanceof ArrayList) {
+    	segmentList = (ArrayList<String>)segments;
+      }
+      else if(segments instanceof Path){
+    	segmentList.add(segments.toString());
+      }
     	      
-    	  for(String segment: segmentList) {
-    	         dirs.add(new Path(segment));
-    	  }
+      for(String segment: segmentList) {
+        dirs.add(new Path(segment));
+      }
     }
     else {
       String segment_dir = crawlId+"/segments";

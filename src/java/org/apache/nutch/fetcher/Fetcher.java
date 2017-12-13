@@ -551,21 +551,21 @@ MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
 
     Path segment = null;
     if(args.containsKey(Nutch.ARG_SEGMENTS)) {
-    	Object seg = args.get(Nutch.ARG_SEGMENTS);
-           if(seg instanceof Path) {
-             segment = (Path) seg;
-           }
-          else if(seg instanceof String){
-             segment = new Path(seg.toString());
-           }
-          else if(seg instanceof ArrayList) {
-        	  String[] segmentsArray = (String[])seg;
-        	  segment = new Path(segmentsArray[0].toString());
+      Object seg = args.get(Nutch.ARG_SEGMENTS);
+      if(seg instanceof Path) {
+        segment = (Path) seg;
+      }
+      else if(seg instanceof String){
+        segment = new Path(seg.toString());
+      }
+      else if(seg instanceof ArrayList) {
+        String[] segmentsArray = (String[])seg;
+        segment = new Path(segmentsArray[0].toString());
         	  
-        	  if(segmentsArray.length > 1){
-        		  LOG.warn("Only the first segment of segments array is used.");
-        	  }
-          }
+        if(segmentsArray.length > 1){
+       	  LOG.warn("Only the first segment of segments array is used.");
+        }
+      }
     }
     else {
       String segment_dir = crawlId+"/segments";
