@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.Closeable;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,10 +38,15 @@ import java.util.TreeMap;
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.tdunning.math.stats.MergingDigest;
+import com.tdunning.math.stats.TDigest;
+
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.MapFile;
@@ -72,8 +78,6 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.lang.time.DateUtils;
 
 /**
  * Read utility for the CrawlDB.
@@ -179,9 +183,9 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     }
   }
 
-  public static class CrawlDbStatMapper implements
-      Mapper<Text, CrawlDatum, Text, LongWritable> {
-    LongWritable COUNT_1 = new LongWritable(1);
+  public static class CrawlDbStatMapper
+      implements Mapper<Text, CrawlDatum, Text, NutchWritable> {
+    NutchWritable COUNT_1 = new NutchWritable(new LongWritable(1));
     private boolean sort = false;
 
     public void configure(JobConf job) {
@@ -192,20 +196,20 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     }
 
     public void map(Text key, CrawlDatum value,
-        OutputCollector<Text, LongWritable> output, Reporter reporter)
+        OutputCollector<Text, NutchWritable> output, Reporter reporter)
         throws IOException {
       output.collect(new Text("T"), COUNT_1);
       output.collect(new Text("status " + value.getStatus()), COUNT_1);
-      output
-          .collect(new Text("retry " + value.getRetriesSinceFetch()), COUNT_1);
-      output.collect(new Text("sc"), new LongWritable(
-          (long) (value.getScore() * 1000.0)));
+      output.collect(new Text("retry " + value.getRetriesSinceFetch()),
+          COUNT_1);
+      output.collect(new Text("sc"), new NutchWritable(
+          new FloatWritable(value.getScore())));
       // fetch time (in minutes to prevent from overflows when summing up)
-      output.collect(new Text("ft"),
-          new LongWritable(value.getFetchTime() / (1000 * 60)));
+      output.collect(new Text("ft"), new NutchWritable(
+          new LongWritable(value.getFetchTime() / (1000 * 60))));
       // fetch interval (in seconds)
       output.collect(new Text("fi"),
-          new LongWritable(value.getFetchInterval()));
+          new NutchWritable(new LongWritable(value.getFetchInterval())));
       if (sort) {
         URL u = new URL(key.toString());
         String host = u.getHost();
@@ -216,7 +220,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
   }
 
   public static class CrawlDbStatCombiner implements
-      Reducer<Text, LongWritable, Text, LongWritable> {
+      Reducer<Text, NutchWritable, Text, NutchWritable> {
     LongWritable val = new LongWritable();
 
     public CrawlDbStatCombiner() {
@@ -228,52 +232,85 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     public void close() {
     }
 
-    private void reduceMinMaxTotal(String keyPrefix, Iterator<LongWritable> values,
-        OutputCollector<Text, LongWritable> output, Reporter reporter)
+    private void reduceMinMaxTotal(String keyPrefix, Iterator<NutchWritable> values,
+        OutputCollector<Text, NutchWritable> output, Reporter reporter)
         throws IOException {
       long total = 0;
       long min = Long.MAX_VALUE;
       long max = Long.MIN_VALUE;
       while (values.hasNext()) {
-        LongWritable cnt = values.next();
-        if (cnt.get() < min)
-          min = cnt.get();
-        if (cnt.get() > max)
-          max = cnt.get();
-        total += cnt.get();
+        long cnt = ((LongWritable) values.next().get()).get();
+        if (cnt < min)
+          min = cnt;
+        if (cnt > max)
+          max = cnt;
+        total += cnt;
       }
-      output.collect(new Text(keyPrefix+"n"), new LongWritable(min));
-      output.collect(new Text(keyPrefix+"x"), new LongWritable(max));
-      output.collect(new Text(keyPrefix+"t"), new LongWritable(total));
+      output.collect(new Text(keyPrefix + "n"),
+          new NutchWritable(new LongWritable(min)));
+      output.collect(new Text(keyPrefix + "x"),
+          new NutchWritable(new LongWritable(max)));
+      output.collect(new Text(keyPrefix + "t"),
+          new NutchWritable(new LongWritable(total)));
     }
     
-    public void reduce(Text key, Iterator<LongWritable> values,
-        OutputCollector<Text, LongWritable> output, Reporter reporter)
+    private void reduceMinMaxTotalFloat(String keyPrefix, Iterator<NutchWritable> values,
+        OutputCollector<Text, NutchWritable> output, Reporter reporter)
+        throws IOException {
+      double total = 0;
+      float min = Float.MAX_VALUE;
+      float max = Float.MIN_VALUE;
+      TDigest tdigest = TDigest.createMergingDigest(100.0);
+      while (values.hasNext()) {
+        float val = ((FloatWritable) values.next().get()).get();
+        tdigest.add(val);
+        if (val < min)
+          min = val;
+        if (val > max)
+          max = val;
+        total += val;
+      }
+      output.collect(new Text(keyPrefix + "n"),
+          new NutchWritable(new FloatWritable(min)));
+      output.collect(new Text(keyPrefix + "x"),
+          new NutchWritable(new FloatWritable(max)));
+      output.collect(new Text(keyPrefix + "t"),
+          new NutchWritable(new FloatWritable((float) total)));
+      ByteBuffer tdigestBytes = ByteBuffer.allocate(tdigest.smallByteSize());
+      tdigest.asSmallBytes(tdigestBytes);
+      output.collect(new Text(keyPrefix + "d"),
+          new NutchWritable(new BytesWritable(tdigestBytes.array())));
+    }
+
+    public void reduce(Text key, Iterator<NutchWritable> values,
+        OutputCollector<Text, NutchWritable> output, Reporter reporter)
         throws IOException {
       val.set(0L);
       String k = key.toString();
-      if (k.equals("sc") || k.equals("ft") || k.equals("fi")) {
+      if (k.equals("sc")) {
+        reduceMinMaxTotalFloat(k, values, output, reporter);
+      } else if (k.equals("ft") || k.equals("fi")) {
         reduceMinMaxTotal(k, values, output, reporter);
       } else {
         while (values.hasNext()) {
-          LongWritable cnt = values.next();
+          LongWritable cnt = (LongWritable) values.next().get();
           val.set(val.get() + cnt.get());
         }
-        output.collect(key, val);
+        output.collect(key, new NutchWritable(val));
       }
     }
   }
 
   public static class CrawlDbStatReducer implements
-      Reducer<Text, LongWritable, Text, LongWritable> {
+      Reducer<Text, NutchWritable, Text, NutchWritable> {
     public void configure(JobConf job) {
     }
 
     public void close() {
     }
 
-    public void reduce(Text key, Iterator<LongWritable> values,
-        OutputCollector<Text, LongWritable> output, Reporter reporter)
+    public void reduce(Text key, Iterator<NutchWritable> values,
+        OutputCollector<Text, NutchWritable> output, Reporter reporter)
         throws IOException {
 
       String k = key.toString();
@@ -281,40 +318,79 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         // sum all values for this key
         long sum = 0;
         while (values.hasNext()) {
-          sum += values.next().get();
+          Writable value = values.next().get();
+          sum += ((LongWritable) value).get();
         }
         // output sum
-        output.collect(key, new LongWritable(sum));
+        output.collect(key, new NutchWritable(new LongWritable(sum)));
       } else if (k.startsWith("status") || k.startsWith("retry")) {
         LongWritable cnt = new LongWritable();
         while (values.hasNext()) {
-          LongWritable val = values.next();
+          LongWritable val = (LongWritable) values.next().get();
           cnt.set(cnt.get() + val.get());
         }
-        output.collect(key, cnt);
-      } else if (k.equals("scx") || k.equals("ftx") || k.equals("fix")) {
+        output.collect(key, new NutchWritable(cnt));
+      } else if (k.equals("scx")) {
+        FloatWritable max = new FloatWritable(Float.MIN_VALUE);
+        while (values.hasNext()) {
+          FloatWritable val = (FloatWritable) values.next().get();
+          if (max.get() < val.get())
+            max.set(val.get());
+        }
+        output.collect(key, new NutchWritable(max));
+      } else if (k.equals("ftx") || k.equals("fix")) {
         LongWritable cnt = new LongWritable(Long.MIN_VALUE);
         while (values.hasNext()) {
-          LongWritable val = values.next();
+          LongWritable val = (LongWritable) values.next().get();
           if (cnt.get() < val.get())
             cnt.set(val.get());
         }
-        output.collect(key, cnt);
-      } else if (k.equals("scn") || k.equals("ftn") || k.equals("fin")) {
+        output.collect(key, new NutchWritable(cnt));
+      } else if (k.equals("scn")) {
+        FloatWritable min = new FloatWritable(Float.MAX_VALUE);
+        while (values.hasNext()) {
+          FloatWritable val = (FloatWritable) values.next().get();
+          if (min.get() > val.get())
+            min.set(val.get());
+        }
+        output.collect(key, new NutchWritable(min));
+      } else if (k.equals("ftn") || k.equals("fin")) {
         LongWritable cnt = new LongWritable(Long.MAX_VALUE);
         while (values.hasNext()) {
-          LongWritable val = values.next();
+          LongWritable val = (LongWritable) values.next().get();
           if (cnt.get() > val.get())
             cnt.set(val.get());
         }
-        output.collect(key, cnt);
-      } else if (k.equals("sct") || k.equals("ftt") || k.equals("fit")) {
-        LongWritable cnt = new LongWritable();
+        output.collect(key, new NutchWritable(cnt));
+      } else if (k.equals("sct")) {
+        FloatWritable cnt = new FloatWritable();
         while (values.hasNext()) {
-          LongWritable val = values.next();
+          FloatWritable val = (FloatWritable) values.next().get();
           cnt.set(cnt.get() + val.get());
         }
-        output.collect(key, cnt);
+        output.collect(key, new NutchWritable(cnt));
+      } else if (k.equals("ftt") || k.equals("fit")) {
+        LongWritable cnt = new LongWritable();
+        while (values.hasNext()) {
+          LongWritable val = (LongWritable) values.next().get();
+          cnt.set(cnt.get() + val.get());
+        }
+        output.collect(key, new NutchWritable(cnt));
+      } else if (k.equals("scd") || k.equals("ftd") || k.equals("fid")) {
+        MergingDigest tdigest = null;
+        while (values.hasNext()) {
+          byte[] bytes = ((BytesWritable) values.next().get()).getBytes();
+          MergingDigest tdig = MergingDigest.fromBytes(ByteBuffer.wrap(bytes));
+          if (tdigest == null) {
+            tdigest = tdig;
+          } else {
+            tdigest.add(tdig);
+          }
+        }
+        ByteBuffer tdigestBytes = ByteBuffer.allocate(tdigest.smallByteSize());
+        tdigest.asSmallBytes(tdigestBytes);
+        output.collect(key,
+            new NutchWritable(new BytesWritable(tdigestBytes.array())));
       }
     }
   }
@@ -368,7 +444,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     closeReaders();
   }
 
-  private TreeMap<String, LongWritable> processStatJobHelper(String crawlDb, Configuration config, boolean sort) throws IOException{
+  private TreeMap<String, Writable> processStatJobHelper(String crawlDb, Configuration config, boolean sort) throws IOException{
 	  Path tmpFolder = new Path(crawlDb, "stat_tmp" + System.currentTimeMillis());
 
 	  JobConf job = new NutchJob(config);
@@ -385,7 +461,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 	  FileOutputFormat.setOutputPath(job, tmpFolder);
 	  job.setOutputFormat(SequenceFileOutputFormat.class);
 	  job.setOutputKeyClass(Text.class);
-	  job.setOutputValueClass(LongWritable.class);
+	  job.setOutputValueClass(NutchWritable.class);
 
 	  // https://issues.apache.org/jira/browse/NUTCH-1029
 	  job.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
@@ -398,30 +474,57 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 			  tmpFolder);
 
 	  Text key = new Text();
-	  LongWritable value = new LongWritable();
+	  NutchWritable value = new NutchWritable();
 
-	  TreeMap<String, LongWritable> stats = new TreeMap<>();
+	  TreeMap<String, Writable> stats = new TreeMap<>();
 	  for (int i = 0; i < readers.length; i++) {
 		  SequenceFile.Reader reader = readers[i];
 		  while (reader.next(key, value)) {
 			  String k = key.toString();
-			  LongWritable val = stats.get(k);
+			  Writable val = stats.get(k);
 			  if (val == null) {
-				  val = new LongWritable();
-				  if (k.equals("scx") || k.equals("ftx") || k.equals("fix"))
-					  val.set(Long.MIN_VALUE);
-				  if (k.equals("scn") || k.equals("ftn") || k.equals("fin"))
-					  val.set(Long.MAX_VALUE);
-				  stats.put(k, val);
+			    stats.put(k, value.get());
+			    continue;
 			  }
-			  if (k.equals("scx") || k.equals("ftx") || k.equals("fix")) {
-				  if (val.get() < value.get())
-					  val.set(value.get());
-			  } else if (k.equals("scn") || k.equals("ftn") || k.equals("fin")) {
-				  if (val.get() > value.get())
-					  val.set(value.get());
-			  } else {
-				  val.set(val.get() + value.get());
+			  if (k.equals("scx")) {
+			    FloatWritable fvalue = (FloatWritable) value.get();
+			    if (((FloatWritable) val).get() < fvalue.get())
+			      ((FloatWritable) val).set(fvalue.get());
+        } else if (k.equals("ftx") || k.equals("fix")) {
+          LongWritable lvalue = (LongWritable) value.get();
+          if (((LongWritable) val).get() < lvalue.get())
+            ((LongWritable) val).set(lvalue.get());
+        } else if (k.equals("scn")) {
+          FloatWritable fvalue = (FloatWritable) value.get();
+          if (((FloatWritable) val).get() > fvalue.get())
+            ((FloatWritable) val).set(fvalue.get());
+			  } else if (k.equals("ftn") || k.equals("fin")) {
+          LongWritable lvalue = (LongWritable) value.get();
+				  if (((LongWritable) val).get() > lvalue.get())
+				    ((LongWritable) val).set(lvalue.get());
+			  } else if (k.equals("sct")) {
+          FloatWritable fvalue = (FloatWritable) value.get();
+          ((FloatWritable) val)
+              .set(((FloatWritable) val).get() + fvalue.get());
+        } else if (k.equals("scd") || k.equals("ftd") || k.equals("fid")) {
+          MergingDigest tdigest = null;
+          MergingDigest tdig = MergingDigest.fromBytes(
+              ByteBuffer.wrap(((BytesWritable) value.get()).getBytes()));
+          if (val instanceof BytesWritable) {
+            tdigest = MergingDigest.fromBytes(
+                ByteBuffer.wrap(((BytesWritable) val).getBytes()));
+            tdigest.add(tdig);
+          } else {
+            tdigest = tdig;
+          }
+          ByteBuffer tdigestBytes = ByteBuffer
+              .allocate(tdigest.smallByteSize());
+          tdigest.asSmallBytes(tdigestBytes);
+          stats.put(k, new BytesWritable(tdigestBytes.array()));
+        } else {
+          LongWritable lvalue = (LongWritable) value.get();
+          ((LongWritable) val)
+              .set(((LongWritable) val).get() + lvalue.get());
 			  }
 		  }
 		  reader.close();
@@ -437,39 +540,48 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb statistics start: " + crawlDb);
     }
-    TreeMap<String, LongWritable> stats = processStatJobHelper(crawlDb, config, sort);
+    TreeMap<String, Writable> stats = processStatJobHelper(crawlDb, config, sort);
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Statistics for CrawlDb: " + crawlDb);
-      LongWritable totalCnt = stats.get("T");
+      LongWritable totalCnt = ((LongWritable) stats.get("T"));
       stats.remove("T");
       LOG.info("TOTAL urls:\t" + totalCnt.get());
-      for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
+      for (Map.Entry<String, Writable> entry : stats.entrySet()) {
         String k = entry.getKey();
-        LongWritable val = entry.getValue();
+        long value = 0;
+        double fvalue = 0.0;
+        byte[] bytesValue = null;
+        Writable val = entry.getValue();
+        if (val instanceof LongWritable) {
+          value = ((LongWritable) val).get();
+        } else if (val instanceof FloatWritable) {
+          fvalue = ((FloatWritable) val).get();
+        } else if (val instanceof BytesWritable) {
+          bytesValue = ((BytesWritable) val).getBytes();
+        }
         if (k.equals("scn")) {
-          LOG.info("min score:\t" + (val.get() / 1000.0f));
+          LOG.info("min score:\t" + fvalue);
         } else if (k.equals("scx")) {
-          LOG.info("max score:\t" + (val.get() / 1000.0f));
+          LOG.info("max score:\t" + fvalue);
         } else if (k.equals("sct")) {
-          LOG.info("avg score:\t"
-              + (float) ((((double) val.get()) / totalCnt.get()) / 1000.0));
+          LOG.info("avg score:\t" + (fvalue / totalCnt.get()));
         } else if (k.equals("ftn")) {
-          LOG.info("earliest fetch time:\t" + new Date(1000 * 60 * val.get()));
+          LOG.info("earliest fetch time:\t" + new Date(1000 * 60 * value));
         } else if (k.equals("ftx")) {
-          LOG.info("latest fetch time:\t" + new Date(1000 * 60 * val.get()));
+          LOG.info("latest fetch time:\t" + new Date(1000 * 60 * value));
         } else if (k.equals("ftt")) {
           LOG.info("avg of fetch times:\t"
-              + new Date(1000 * 60 * (val.get() / totalCnt.get())));
+              + new Date(1000 * 60 * (value / totalCnt.get())));
         } else if (k.equals("fin")) {
           LOG.info("shortest fetch interval:\t{}",
-              TimingUtil.secondsToDaysHMS(val.get()));
+              TimingUtil.secondsToDaysHMS(value));
         } else if (k.equals("fix")) {
           LOG.info("longest fetch interval:\t{}",
-              TimingUtil.secondsToDaysHMS(val.get()));
+              TimingUtil.secondsToDaysHMS(value));
         } else if (k.equals("fit")) {
           LOG.info("avg fetch interval:\t{}",
-              TimingUtil.secondsToDaysHMS(val.get() / totalCnt.get()));
+              TimingUtil.secondsToDaysHMS(value / totalCnt.get()));
         } else if (k.startsWith("status")) {
           String[] st = k.split(" ");
           int code = Integer.parseInt(st[1]);
@@ -478,8 +590,19 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           else
             LOG.info(st[0] + " " + code + " ("
                 + CrawlDatum.getStatusName((byte) code) + "):\t" + val);
-        } else
+        } else if (k.equals("scd")) {
+          MergingDigest tdigest = MergingDigest
+              .fromBytes(ByteBuffer.wrap(bytesValue));
+          if (k.startsWith("sc")) {
+            double quantiles[] = { .01, .05, .1, .2, .25, .3, .4, .5, .6, .7,
+                .75, .8, .9, .95, .99 };
+            for (double q : quantiles) {
+              LOG.info("score quantile {}:\t{}", q, tdigest.quantile(q));
+            }
+          }
+        } else {
           LOG.info(k + ":\t" + val);
+        }
       }
     }
     if (LOG.isInfoEnabled()) {
@@ -784,7 +907,6 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
   }
 
   public Object query(Map<String, String> args, Configuration conf, String type, String crawlId) throws Exception {
- 
 
     Map<String, Object> results = new HashMap<>();
     String crawlDb = crawlId + "/crawldb";
@@ -795,21 +917,29 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         if(args.get("sort").equalsIgnoreCase("true"))
           sort = true;
       }
-      TreeMap<String , LongWritable> stats = processStatJobHelper(crawlDb, NutchConfiguration.create(), sort);
-      LongWritable totalCnt = stats.get("T");
+      TreeMap<String , Writable> stats = processStatJobHelper(crawlDb, NutchConfiguration.create(), sort);
+      LongWritable totalCnt = (LongWritable) stats.get("T");
       stats.remove("T");
       results.put("totalUrls", String.valueOf(totalCnt.get()));
       Map<String, Object> statusMap = new HashMap<>();
 
-      for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
+      for (Map.Entry<String, Writable> entry : stats.entrySet()) {
         String k = entry.getKey();
-        LongWritable val = entry.getValue();
+        long val = 0L;
+        double fval = 0.0;
+        if (entry.getValue() instanceof LongWritable) {
+          val = ((LongWritable) entry.getValue()).get();
+        } else if (entry.getValue() instanceof FloatWritable) {
+          fval = ((FloatWritable) entry.getValue()).get();
+        } else if (entry.getValue() instanceof BytesWritable) {
+          continue;
+        }
         if (k.equals("scn")) {
-          results.put("minScore", String.valueOf((val.get() / 1000.0f)));
+          results.put("minScore", String.valueOf(fval));
         } else if (k.equals("scx")) {
-          results.put("maxScore", String.valueOf((val.get() / 1000.0f)));
+          results.put("maxScore", String.valueOf(fval));
         } else if (k.equals("sct")) {
-          results.put("avgScore", String.valueOf((float) ((((double) val.get()) / totalCnt.get()) / 1000.0)));
+          results.put("avgScore", String.valueOf((fval / totalCnt.get())));
         } else if (k.startsWith("status")) {
           String[] st = k.split(" ");
           int code = Integer.parseInt(st[1]);
@@ -825,8 +955,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
               individualStatusInfo.put("hostValues", hostValues);
             }
             hostValues.put(st[2], String.valueOf(val));
-          }
-          else{
+          } else {
             Map<String, Object> individualStatusInfo = new HashMap<>();
 
             individualStatusInfo.put("statusValue", CrawlDatum.getStatusName((byte) code));
@@ -834,8 +963,9 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
             statusMap.put(String.valueOf(code), individualStatusInfo);
           }
-        } else
-          results.put(k, String.valueOf(val));			  
+        } else {
+          results.put(k, String.valueOf(val));
+        }
       }
       results.put("status", statusMap);
       return results;
