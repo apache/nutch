@@ -38,6 +38,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -342,7 +343,8 @@ public class CommonCrawlDataDumper extends Configured implements Tool {
                   .createFileName(md5Ofurl, baseName, extensionName);
               outputFullPath = String.format("%s/%s", fullDir, filename);
 
-              String[] fullPathLevels = fullDir.split(File.separator);
+              String[] fullPathLevels = fullDir
+                  .split(Pattern.quote(File.separator));
               String firstLevelDirName = fullPathLevels[fullPathLevels.length
                   - 2];
               String secondLevelDirName = fullPathLevels[fullPathLevels.length

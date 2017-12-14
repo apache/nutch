@@ -61,7 +61,10 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   public static final byte STATUS_DB_REDIR_PERM = 0x05;
   /** Page was successfully fetched and found not modified. */
   public static final byte STATUS_DB_NOTMODIFIED = 0x06;
+  /** Page was marked as being a duplicate of another page */
   public static final byte STATUS_DB_DUPLICATE = 0x07;
+  /** Page was marked as orphan, e.g. has no inlinks anymore */
+  public static final byte STATUS_DB_ORPHAN = 0x08;
 
   /** Maximum value of DB-related status. */
   public static final byte STATUS_DB_MAX = 0x1f;
@@ -100,6 +103,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     statNames.put(STATUS_DB_REDIR_PERM, "db_redir_perm");
     statNames.put(STATUS_DB_NOTMODIFIED, "db_notmodified");
     statNames.put(STATUS_DB_DUPLICATE, "db_duplicate");
+    statNames.put(STATUS_DB_ORPHAN, "db_orphan");
     statNames.put(STATUS_SIGNATURE, "signature");
     statNames.put(STATUS_INJECTED, "injected");
     statNames.put(STATUS_LINKED, "linked");

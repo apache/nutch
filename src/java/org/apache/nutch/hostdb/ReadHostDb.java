@@ -62,6 +62,7 @@ public class ReadHostDb extends Configured implements Tool {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
+  public static final String HOSTDB_DUMP_HEADER = "hostdb.dump.field.header";
   public static final String HOSTDB_DUMP_HOSTNAMES = "hostdb.dump.hostnames";
   public static final String HOSTDB_DUMP_HOMEPAGES = "hostdb.dump.homepages";
   public static final String HOSTDB_FILTER_EXPRESSION = "hostdb.filter.expression";
@@ -69,12 +70,14 @@ public class ReadHostDb extends Configured implements Tool {
   static class ReadHostDbMapper extends Mapper<Text, HostDatum, Text, Text> {
     protected boolean dumpHostnames = false;
     protected boolean dumpHomepages = false;
+    protected boolean fieldHeader = true;
     protected Text emptyText = new Text();
     protected Expression expr = null;
 
     public void setup(Context context) {
       dumpHomepages = context.getConfiguration().getBoolean(HOSTDB_DUMP_HOMEPAGES, false);
       dumpHostnames = context.getConfiguration().getBoolean(HOSTDB_DUMP_HOSTNAMES, false);
+      fieldHeader = context.getConfiguration().getBoolean(HOSTDB_DUMP_HEADER, true);
       String expr = context.getConfiguration().get(HOSTDB_FILTER_EXPRESSION);
       if (expr != null) {
         // Create or retrieve a JexlEngine
@@ -89,7 +92,12 @@ public class ReadHostDb extends Configured implements Tool {
       }
     }
 
-    public void map(Text key, HostDatum datum, Context context) throws IOException, InterruptedException {     
+    public void map(Text key, HostDatum datum, Context context) throws IOException, InterruptedException {
+      if (fieldHeader && !dumpHomepages && !dumpHostnames) {
+        context.write(new Text("hostname"), new Text("unfetched\tfetched\tgone\tredirTemp\tredirPerm\tredirSum\tok\tnumRecords\tdnsFail\tcnxFail\tsumFail\tscore\tlastCheck\thomepage\tmetadata"));
+        fieldHeader = false;
+      }
+      
       if (expr != null) {
         // Create a context and add data
         JexlContext jcontext = new MapContext();
@@ -194,8 +202,17 @@ public class ReadHostDb extends Configured implements Tool {
     job.setNumReduceTasks(0);
 
     try {
-      job.waitForCompletion(true);
-    } catch (Exception e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "ReadHostDb job did not succeed, job status: "
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        // throw exception so that calling routine can exit with error
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("ReadHostDb job failed", e);
       throw e;
     }
 

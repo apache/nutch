@@ -90,8 +90,9 @@ public class URLFilterChecker {
 
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String line;
+    URLFilters filters = new URLFilters(this.conf);
+
     while ((line = in.readLine()) != null) {
-      URLFilters filters = new URLFilters(this.conf);
       String out = filters.filter(line);
       if (out != null) {
         System.out.print("+");

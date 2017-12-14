@@ -76,7 +76,7 @@ public class HostURLNormalizer implements URLNormalizer {
 
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line.trim();
+        line = line.trim();
         delimiterIndex = line.indexOf(" ");
 
         host = line.substring(0, delimiterIndex);

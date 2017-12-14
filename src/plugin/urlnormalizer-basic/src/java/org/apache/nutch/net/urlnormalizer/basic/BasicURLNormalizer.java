@@ -250,7 +250,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     // Traverse over all bytes in this URL
     for (byte b: path.getBytes(utf8)) {
       // Is this a control character?
-      if (b < 33 || b == 91 || b == 93) {
+      if (b < 0x21 || b == 0x5B || b == 0x5D || b == 0x7B || b == 0x7D) {
         // Start escape sequence 
         sb.append('%');
         

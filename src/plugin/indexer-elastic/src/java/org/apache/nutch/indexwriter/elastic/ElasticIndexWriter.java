@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -32,6 +33,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
@@ -114,7 +116,7 @@ public class ElasticIndexWriter implements IndexWriter {
     String parts[];
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line.trim();
+        line = line.trim();
         parts = line.split("=");
 
         if (parts.length == 2) {
@@ -174,9 +176,13 @@ public class ElasticIndexWriter implements IndexWriter {
 
     // Add each field of this doc to the index source
     Map<String, Object> source = new HashMap<String, Object>();
-    for (String fieldName : doc.getFieldNames()) {
-      if (doc.getFieldValue(fieldName) != null) {
-        source.put(fieldName, doc.getFieldValue(fieldName));
+    for (final Map.Entry<String, NutchField> e : doc) {
+      final List<Object> values = e.getValue().getValues();
+
+      if (values.size() > 1) {
+        source.put(e.getKey(), values);
+      } else {
+        source.put(e.getKey(), values.get(0));
       }
     }
 

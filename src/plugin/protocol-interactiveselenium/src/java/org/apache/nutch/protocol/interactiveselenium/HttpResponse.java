@@ -39,7 +39,7 @@ import org.apache.nutch.protocol.http.api.HttpBase;
 import org.openqa.selenium.WebDriver;
 
 import org.apache.nutch.protocol.selenium.HttpWebClient;
-
+import org.apache.nutch.protocol.interactiveselenium.handlers.InteractiveSeleniumHandler;
 /* Most of this code was borrowed from protocol-htmlunit; which in turn borrowed it from protocol-httpclient */
 
 public class HttpResponse implements Response {

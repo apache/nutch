@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
@@ -51,6 +53,10 @@ public class FetchItemQueue {
   Text cookie;
   Text variableFetchDelayKey = new Text("_variableFetchDelay_");
   boolean variableFetchDelaySet = false;
+  // keep track of duplicates if fetcher.follow.outlinks.depth > 0. Some urls may 
+  // not get followed due to hash collisions. Hashing is used to reduce memory
+  // usage.
+  Set<Integer> alreadyFetched = new HashSet<>();
   
   public FetchItemQueue(Configuration conf, int maxThreads, long crawlDelay,
       long minCrawlDelay) {
