@@ -235,15 +235,15 @@ public class ElasticRestIndexWriter implements IndexWriter {
   public void delete(String key) throws IOException {
     try {
       if (languages != null && languages.length > 0) {
-    	Bulk.Builder bulkBuilder = new Bulk.Builder().defaultType(defaultType);
-    	for (String lang : languages) {    		  
-    	  bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_" + lang).build());
-    	}
-    	bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_others").build());
-    	client.execute(bulkBuilder.build());
+        Bulk.Builder bulkBuilder = new Bulk.Builder().defaultType(defaultType);
+        for (String lang : languages) {          
+          bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_" + lang).build());
+        }
+        bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_others").build());
+        client.execute(bulkBuilder.build());
       } else {
-    	client.execute(new Delete.Builder(key).index(defaultIndex)
-    	    .type(defaultType).build());
+        client.execute(new Delete.Builder(key).index(defaultIndex)
+          .type(defaultType).build());
       }
     } catch (IOException e) {
       LOG.error(ExceptionUtils.getStackTrace(e));
