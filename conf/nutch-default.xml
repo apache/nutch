@@ -2136,11 +2136,11 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 </property>
 
 <property>
-	<name>elastic.rest.sink</name>
-	<value>others</value>
-	<description>
-		Default value is `others`. Is used only if `elastic.rest.languages` is defined to build the index name where to store documents with unsupported languages (i.e. ${elastic.rest.index}${elastic.rest.separator}${elastic.rest.sink}).
-	</description>
+    <name>elastic.rest.sink</name>
+    <value>others</value>
+    <description>
+        Default value is `others`. Is used only if `elastic.rest.languages` is defined to build the index name where to store documents with unsupported languages (i.e. ${elastic.rest.index}${elastic.rest.separator}${elastic.rest.sink}).
+    </description>
 </property>
 
 <property>
