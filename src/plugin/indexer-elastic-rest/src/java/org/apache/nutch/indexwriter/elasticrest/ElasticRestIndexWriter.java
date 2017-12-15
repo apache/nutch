@@ -237,9 +237,9 @@ public class ElasticRestIndexWriter implements IndexWriter {
       if (languages != null && languages.length > 0) {
         Bulk.Builder bulkBuilder = new Bulk.Builder().defaultType(defaultType);
         for (String lang : languages) {          
-          bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_" + lang).build());
+          bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_" + lang).type(defaultType).build());
         }
-        bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_others").build());
+        bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_others").type(defaultType).build());
         client.execute(bulkBuilder.build());
       } else {
         client.execute(new Delete.Builder(key).index(defaultIndex)
