@@ -207,11 +207,14 @@ public class HtmlParser implements Parser {
 
     if (!metaTags.getNoFollow()) { // okay to follow links
       ArrayList<Outlink> l = new ArrayList<Outlink>(); // extract outlinks
-      URL baseTag = null;
-      try {
-        baseTag = new URL(base, utils.getBase(root));
-      } catch (MalformedURLException e) {
-        baseTag = base;
+      URL baseTag = base;
+      String baseTagHref = utils.getBase(root);
+      if (baseTagHref != null) {
+        try {
+          baseTag = new URL(base, baseTagHref);
+        } catch (MalformedURLException e) {
+          baseTag = base;
+        }
       }
       if (LOG.isTraceEnabled()) {
         LOG.trace("Getting links...");
