@@ -1407,6 +1407,12 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 -->
 
 <property>
+ <name>tika.config.file</name>
+ <value>tika-config.xml</value>
+ <description>Nutch-specific Tika config file</description>
+</property>
+
+<property>
   <name>tika.uppercase.element.names</name>
   <value>true</value>
   <description>Determines whether TikaParser should uppercase the element name while generating the DOM
