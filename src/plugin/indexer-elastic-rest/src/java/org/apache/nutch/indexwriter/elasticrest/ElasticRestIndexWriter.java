@@ -67,7 +67,9 @@ public class ElasticRestIndexWriter implements IndexWriter {
       .getLogger(ElasticRestIndexWriter.class);
 
   private static final int DEFAULT_MAX_BULK_DOCS = 250;
-  private static final int DEFAULT_MAX_BULK_LENGTH = 2500500;
+  private static final int DEFAULT_MAX_BULK_LENGTH = 2500500;  
+  private static final String DEFAULT_SEPARATOR = "_";
+  private static final String DEFAULT_SINK = "others";
 
   private JestClient client;
   private String defaultIndex;
@@ -93,6 +95,8 @@ public class ElasticRestIndexWriter implements IndexWriter {
   private BasicFuture<JestResult> basicFuture = null;
   
   private String[] languages = null;
+  private String separator = null;
+  private String sink = null;
 
   @Override
   public void open(JobConf job, String name) throws IOException {
@@ -104,6 +108,8 @@ public class ElasticRestIndexWriter implements IndexWriter {
     https = job.getBoolean(ElasticRestConstants.HTTPS, false);
     trustAllHostnames = job.getBoolean(ElasticRestConstants.HOSTNAME_TRUST, false);
     languages = job.getStrings(ElasticRestConstants.LANGUAGES);
+    separator = job.get(ElasticRestConstants.SEPARATOR, DEFAULT_SEPARATOR);
+    sink = job.get(ElasticRestConstants.SINK, DEFAULT_SINK);
 
     // trust ALL certificates
     SSLContext sslContext = null;
@@ -205,9 +211,9 @@ public class ElasticRestIndexWriter implements IndexWriter {
         }
       }
       if (exists) {
-        index = defaultIndex + "_" + language;
+        index = getLanguageIndexName(language);
       } else {
-        index = defaultIndex + "_others";
+        index = getSinkIndexName();
       }
     } else {
       index = defaultIndex;
@@ -237,9 +243,9 @@ public class ElasticRestIndexWriter implements IndexWriter {
       if (languages != null && languages.length > 0) {
         Bulk.Builder bulkBuilder = new Bulk.Builder().defaultType(defaultType);
         for (String lang : languages) {          
-          bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_" + lang).type(defaultType).build());
+          bulkBuilder.addAction(new Delete.Builder(key).index(getLanguageIndexName(lang)).type(defaultType).build());
         }
-        bulkBuilder.addAction(new Delete.Builder(key).index(defaultIndex + "_others").type(defaultType).build());
+        bulkBuilder.addAction(new Delete.Builder(key).index(getSinkIndexName()).type(defaultType).build());
         client.execute(bulkBuilder.build());
       } else {
         client.execute(new Delete.Builder(key).index(defaultIndex)
@@ -358,5 +364,17 @@ public class ElasticRestIndexWriter implements IndexWriter {
   @Override
   public Configuration getConf() {
     return config;
+  }
+
+  private String getLanguageIndexName(String lang) {
+    return getComposedIndexName(defaultIndex, lang);
+  }
+  
+  private String getSinkIndexName() {
+    return getComposedIndexName(defaultIndex, sink);
+  }
+  
+  private String getComposedIndexName(String prefix, String postfix) {
+    return prefix + separator + postfix;
   }
 }
