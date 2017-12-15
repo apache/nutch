@@ -36,10 +36,12 @@
   </publications>
 
   <dependencies>
-    <dependency org="com.maxmind.geoip2" name="geoip2" rev="2.3.1" >
+    <dependency org="com.maxmind.geoip2" name="geoip2" rev="2.10.0" >
       <!-- Exlude due to classpath issues -->
       <exclude org="org.apache.httpcomponents" name="httpclient" />
       <exclude org="org.apache.httpcomponents" name="httpcore" />
+      <exclude org="commons-codec" name="commons-codec" />
+      <exclude org="commons-logging" name="commons-logging" />
     </dependency>
   </dependencies>
   
