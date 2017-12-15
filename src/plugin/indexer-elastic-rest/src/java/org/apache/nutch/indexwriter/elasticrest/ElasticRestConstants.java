@@ -31,7 +31,7 @@ public interface ElasticRestConstants {
   public static final String HTTPS = ELASTIC_PREFIX + "https";
   public static final String HOSTNAME_TRUST = ELASTIC_PREFIX + "trustallhostnames";
   
-  public static final String LANGUAGES = ELASTIC_PREFIX + "languages";
-  public static final String SEPARATOR = ELASTIC_PREFIX + "separator";
-  public static final String SINK = ELASTIC_PREFIX + "sink";
+  public static final String LANGUAGES = INDEX + ".languages";
+  public static final String SEPARATOR = INDEX + ".separator";
+  public static final String SINK = INDEX + ".sink";
 }
