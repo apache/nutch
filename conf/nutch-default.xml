@@ -2098,6 +2098,34 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 </property>
 
 <property>
+    <name>elastic.rest.index.languages</name>
+    <value></value>
+    <description>
+        A list of strings denoting the supported languages (e.g. `en,de,fr,it`).
+        If this value is empty all documents will be sent to index ${elastic.rest.index}.
+        If not empty the Rest client will distribute documents in different indices based on their `lang` property.
+        Indices are named with the following schema: ${elastic.rest.index}${elastic.rest.index.separator}${lang} (e.g. `nutch_de`).
+        Entries with an unsupported `lang` value will be added to index ${elastic.rest.index}${elastic.rest.index.separator}${elastic.rest.index.sink} (e.g. `nutch_others`).
+    </description>
+</property>
+
+<property>
+    <name>elastic.rest.index.separator</name>
+    <value>_</value>
+    <description>
+        Default value is `_`. Is used only if `elastic.rest.index.languages` is defined to build the index name (i.e. ${elastic.rest.index}${elastic.rest.index.separator}${lang}). 
+    </description>
+</property>
+
+<property>
+    <name>elastic.rest.index.sink</name>
+    <value>others</value>
+    <description>
+        Default value is `others`. Is used only if `elastic.rest.index.languages` is defined to build the index name where to store documents with unsupported languages (i.e. ${elastic.rest.index}${elastic.rest.index.separator}${elastic.rest.index.sink}).
+    </description>
+</property>
+
+<property>
     <name>elastic.rest.type</name>
     <value>doc</value>
     <description>Default type to send documents to.</description>
