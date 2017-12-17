@@ -700,7 +700,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       
       // check expr
       if (expr != null) {
-        if (!value.evaluate(expr)) {
+        if (!value.evaluate(expr, key.toString())) {
           return;
         }
       }
