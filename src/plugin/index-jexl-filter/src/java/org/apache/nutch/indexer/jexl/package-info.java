@@ -21,9 +21,9 @@
   * <li>status, fetchTime, modifiedTime, retries, interval, score, signature, url, text, title</li></ul>
  * <p>Available objects in the JEXL context:<ul>
  * <li>httpStatus - contains majorCode, minorCode, message</li>
- * <li>documentMeta, contentMeta, parseMeta - contain all the Metadata properties.<br/>
+ * <li>documentMeta, contentMeta, parseMeta - contain all the Metadata properties.<br>
  *   Each property value is always an array of Strings (so if you expect one value, use [0])</li>
- * <li>doc - contains all the NutchFields from the NutchDocument.<br/>
+ * <li>doc - contains all the NutchFields from the NutchDocument.<br>
  *   Each property value is always an array of Objects.</li></ul>
  * 
  */
