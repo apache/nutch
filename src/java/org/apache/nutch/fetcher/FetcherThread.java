@@ -484,69 +484,72 @@ public class FetcherThread extends Thread {
     newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
     newUrl = urlFilters.filter(newUrl);
 
-    try {
-      String origHost = new URL(urlString).getHost().toLowerCase();
-      String newHost = new URL(newUrl).getHost().toLowerCase();
-      if (ignoreExternalLinks) {
-        if (!origHost.equals(newHost)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(" - ignoring redirect " + redirType + " from "
-                + urlString + " to " + newUrl
-                + " because external links are ignored");
+    if (newUrl == null || newUrl.equals(urlString)) {
+      LOG.debug(" - {} redirect skipped: {}", redirType,
+          (newUrl != null ? "to same url" : "filtered"));
+      return null;
+    }
+
+    if (ignoreExternalLinks || ignoreInternalLinks) {
+      try {
+        URL origUrl = new URL(urlString);
+        URL redirUrl = new URL(newUrl);
+        if (ignoreExternalLinks) {
+          String origHostOrDomain, newHostOrDomain;
+          if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
+            origHostOrDomain = URLUtil.getDomainName(origUrl).toLowerCase();
+            newHostOrDomain = URLUtil.getDomainName(redirUrl).toLowerCase();
+          } else {
+            // byHost
+            origHostOrDomain = origUrl.getHost().toLowerCase();
+            newHostOrDomain = redirUrl.getHost().toLowerCase();
           }
-          return null;
-        }
-      }
-      
-      if (ignoreInternalLinks) {
-        if (origHost.equals(newHost)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(" - ignoring redirect " + redirType + " from "
-                + urlString + " to " + newUrl
-                + " because internal links are ignored");
+          if (!origHostOrDomain.equals(newHostOrDomain)) {
+            LOG.debug(
+                " - ignoring redirect {} from {} to {} because external links are ignored",
+                redirType, urlString, newUrl);
+            return null;
           }
-          return null;
         }
-      }
-    } catch (MalformedURLException e) { }
-    
-    if (newUrl != null && !newUrl.equals(urlString)) {
-      reprUrl = URLUtil.chooseRepr(reprUrl, newUrl, temp);
-      url = new Text(newUrl);
-      if (maxRedirect > 0) {
-        redirecting = true;
-        redirectCount++;
-        if (LOG.isDebugEnabled()) {
-          LOG.debug(" - " + redirType + " redirect to " + url
-              + " (fetching now)");
+
+        if (ignoreInternalLinks) {
+          String origHost = origUrl.getHost().toLowerCase();
+          String newHost = redirUrl.getHost().toLowerCase();
+          if (origHost.equals(newHost)) {
+            LOG.debug(
+                " - ignoring redirect {} from {} to {} because internal links are ignored",
+                redirType, urlString, newUrl);
+            return null;
+          }
         }
-        return url;
-      } else {
-        CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_LINKED,
-            datum.getFetchInterval(), datum.getScore());
-        // transfer existing metadata
-        newDatum.getMetaData().putAll(datum.getMetaData());
-        try {
-          scfilters.initialScore(url, newDatum);
-        } catch (ScoringFilterException e) {
-          e.printStackTrace();
-        }
-        if (reprUrl != null) {
-          newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
-              new Text(reprUrl));
-        }
-        output(url, newDatum, null, null, CrawlDatum.STATUS_LINKED);
-        if (LOG.isDebugEnabled()) {
-          LOG.debug(" - " + redirType + " redirect to " + url
-              + " (fetching later)");
-        }
+      } catch (MalformedURLException e) {
         return null;
       }
+    }
+
+    reprUrl = URLUtil.chooseRepr(reprUrl, newUrl, temp);
+    url = new Text(newUrl);
+    if (maxRedirect > 0) {
+      redirecting = true;
+      redirectCount++;
+      LOG.debug(" - {} redirect to {} (fetching now)", redirType, url);
+      return url;
     } else {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(" - " + redirType + " redirect skipped: "
-            + (newUrl != null ? "to same url" : "filtered"));
+      CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_LINKED,
+          datum.getFetchInterval(), datum.getScore());
+      // transfer existing metadata
+      newDatum.getMetaData().putAll(datum.getMetaData());
+      try {
+        scfilters.initialScore(url, newDatum);
+      } catch (ScoringFilterException e) {
+        e.printStackTrace();
       }
+      if (reprUrl != null) {
+        newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
+            new Text(reprUrl));
+      }
+      output(url, newDatum, null, null, CrawlDatum.STATUS_LINKED);
+      LOG.debug(" - {} redirect to {} (fetching later)", redirType, url);
       return null;
     }
   }
