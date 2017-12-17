@@ -38,8 +38,12 @@ public class URLNormalizerChecker extends AbstractChecker {
   URLNormalizers normalizers;
 
   public int run(String[] args) throws Exception {
-    usage = "Usage: URLNormalizerChecker [-normalizer <normalizerName>] [-scope <scope>] (-stdin | -listen <port> [-keepClientCnxOpen])"
-        + "\n\tscope can be one of: default,partition,generate_host_count,fetcher,crawldb,linkdb,inject,outlink\n";
+    usage = "Usage: URLNormalizerChecker [-Dproperty=value]... [-normalizer <normalizerName>] [-scope <scope>] (-stdin | -listen <port> [-keepClientCnxOpen])\n"
+        + "\n  -normalizer\tURL normalizer plugin (eg. urlnormalizer-basic) to check,"
+        + "\n             \t(if not given all configured URL normalizers are applied)"
+        + "\n  -scope     \tone of: default,partition,generate_host_count,fetcher,crawldb,linkdb,inject,outlink"
+        + "\n  -stdin     \ttool reads a list of URLs from stdin, one URL per line"
+        + "\n  -listen <port>\trun tool as Telnet server listening on <port>\n";
 
     // Print help when no args given
     if (args.length < 1) {
@@ -56,7 +60,7 @@ public class URLNormalizerChecker extends AbstractChecker {
       } else if ((numConsumed = super.parseArgs(args, i)) > 0) {
         i += numConsumed - 1;
       } else {
-        System.err.println("ERR: Not a recognized argument: " + args[i]);
+        System.err.println("ERROR: Not a recognized argument: " + args[i]);
         System.err.println(usage);
         System.exit(-1);
       }
