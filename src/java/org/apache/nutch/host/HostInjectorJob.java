@@ -119,7 +119,7 @@ public class HostInjectorJob implements Tool {
       }
 
       // now add the metadata
-      Host host = new Host();
+      Host host = Host.newBuilder().build();
 
       Iterator<String> keysIter = metadata.keySet().iterator();
       while (keysIter.hasNext()) {
