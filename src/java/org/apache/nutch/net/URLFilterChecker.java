@@ -39,8 +39,11 @@ public class URLFilterChecker extends AbstractChecker {
   private URLFilters filters = null;
 
   public int run(String[] args) throws Exception {
-    usage = "Usage: URLFilterChecker [-filterName filterName] (-stdin | -listen <port> [-keepClientCnxOpen]) \n"
-        + "\n\tTool takes a list of URLs, one per line.\n";
+    usage = "Usage: URLFilterChecker [-Dproperty=value]... [-filterName filterName] (-stdin | -listen <port> [-keepClientCnxOpen]) \n"
+        + "\n  -filterName\tURL filter plugin name (eg. urlfilter-regex) to check,"
+        + "\n             \t(if not given all configured URL filters are applied)"
+        + "\n  -stdin     \ttool reads a list of URLs from stdin, one URL per line"
+        + "\n  -listen <port>\trun tool as Telnet server listening on <port>\n";
 
     // Print help when no args given
     if (args.length < 1) {
@@ -55,7 +58,7 @@ public class URLFilterChecker extends AbstractChecker {
       } else if ((numConsumed = super.parseArgs(args, i)) > 0) {
         i += numConsumed - 1;
       } else {
-        System.err.println("ERR: Not a recognized argument: " + args[i]);
+        System.err.println("ERROR: Not a recognized argument: " + args[i]);
         System.err.println(usage);
         System.exit(-1);
       }
