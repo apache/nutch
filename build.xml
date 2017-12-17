@@ -179,6 +179,7 @@
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
+      <packageset dir="${plugins.dir}/index-jexl-filter/src/java"/>
       <packageset dir="${plugins.dir}/index-links/src/java"/>
       <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
@@ -630,6 +631,7 @@
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
+      <packageset dir="${plugins.dir}/index-jexl-filter/src/java"/>
       <packageset dir="${plugins.dir}/index-links/src/java"/>
       <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
@@ -1040,10 +1042,10 @@
         <source path="${plugins.dir}/index-basic/src/java/" />
         <source path="${plugins.dir}/index-basic/src/test/" />
         <source path="${plugins.dir}/index-geoip/src/java/" />
-        <source path="${plugins.dir}/index-links/src/java/" />
-        <source path="${plugins.dir}/index-links/src/test/" />
         <source path="${plugins.dir}/index-jexl-filter/src/java/" />
         <source path="${plugins.dir}/index-jexl-filter/src/test/" />
+        <source path="${plugins.dir}/index-links/src/java/" />
+        <source path="${plugins.dir}/index-links/src/test/" />
         <source path="${plugins.dir}/index-metadata/src/java/" />
         <source path="${plugins.dir}/index-more/src/java/" />
         <source path="${plugins.dir}/index-more/src/test/" />

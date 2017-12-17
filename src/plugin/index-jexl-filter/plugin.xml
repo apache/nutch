@@ -27,11 +27,11 @@
       </library>
    </runtime>
 
-    <extension id="org.apache.nutch.indexer.filter"
+    <extension id="org.apache.nutch.indexer.jexl"
                name="Nutch JEXL filter"
                point="org.apache.nutch.indexer.IndexingFilter">
         <implementation id="JexlIndexingFilter"
-                        class="org.apache.nutch.indexer.filter.JexlIndexingFilter"/>
+                        class="org.apache.nutch.indexer.jexl.JexlIndexingFilter"/>
     </extension>
 
 </plugin>
