@@ -92,6 +92,7 @@ public class FetcherThread extends Thread {
   private int redirectCount;
   private boolean ignoreInternalLinks;
   private boolean ignoreExternalLinks;
+  private boolean ignoreAlsoRedirects;
   private String ignoreExternalLinksMode;
 
   // Used by fetcher.follow.outlinks.depth in parse
@@ -207,6 +208,7 @@ public class FetcherThread extends Thread {
     interval = conf.getInt("db.fetch.interval.default", 2592000);
     ignoreInternalLinks = conf.getBoolean("db.ignore.internal.links", false);
     ignoreExternalLinks = conf.getBoolean("db.ignore.external.links", false);
+    ignoreAlsoRedirects = conf.getBoolean("db.ignore.also.redirects", true);
     ignoreExternalLinksMode = conf.get("db.ignore.external.links.mode", "byHost");
     maxOutlinkDepth = conf.getInt("fetcher.follow.outlinks.depth", -1);
     outlinksIgnoreExternal = conf.getBoolean(
@@ -490,7 +492,7 @@ public class FetcherThread extends Thread {
       return null;
     }
 
-    if (ignoreExternalLinks || ignoreInternalLinks) {
+    if (ignoreAlsoRedirects && (ignoreExternalLinks || ignoreInternalLinks)) {
       try {
         URL origUrl = new URL(urlString);
         URL redirUrl = new URL(newUrl);
