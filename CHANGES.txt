@@ -1,15 +1,104 @@
 # Nutch Change Log
 
-Nutch 1.14 Release (dd/mm/yyyy)
+Nutch 1.14 Release 18/12/2017 (dd/mm/yyyy)
 
 Comments
 
-Fellow committers, Nutch 1.14 contains a breaking change NUTCH-2046. Please use the note below and
-in the release announcement and keep it on top in this CHANGES.txt for the Nutch 1.14 release.
-* the bin/crawl script now expects the path to the seed to be preceded by -s
+Breaking Changes
+
+    - the bin/crawl script now expects the path to the seed to be preceded by -s  (NUTCH-2046)
+
+Bug
+
+    [NUTCH-2071] - A parser failure on a single document may fail crawling job
+    [NUTCH-2235] - Classpath discrepancy with protocol-selenium in deploy mode
+    [NUTCH-2269] - Clean not working after crawl
+    [NUTCH-2295] - Nutch master docker container broken
+    [NUTCH-2297] - CrawlDbReader -stats wrong values for earliest fetch time and shortest interval
+    [NUTCH-2316] - Library conflict with Parser-Tika Plugin and Lib Folder
+    [NUTCH-2317] - Plugin jars don't get added to classpath while running in local
+    [NUTCH-2322] - URL not available for Jexl operations
+    [NUTCH-2354] - Upgrade Hadoop dependencies to 2.7.4
+    [NUTCH-2365] - HTTP Redirects to SubDomains don't get crawled if db.ignore.external.links.mode == byDomain
+    [NUTCH-2371] - Injector to support noFilter and noNormalize
+    [NUTCH-2372] - Javadocs build failing.
+    [NUTCH-2386] - BasicURLNormalizer does not encode curly braces
+    [NUTCH-2391] - Spurious Duplications for MD5
+    [NUTCH-2394] - Possible bugs in the source code
+    [NUTCH-2398] - Fetcher saving redirected robots.txt under redirect target URL
+    [NUTCH-2399] - indexer-elastic does not index multi-value fields (only the first value is indexed)
+    [NUTCH-2401] - headings plugin does not trim values
+    [NUTCH-2403] - Nutch Selenium: Wrong documentation about PhantomJS
+    [NUTCH-2413] - Parsing fetcher to respect property "parse.filter.urls"
+    [NUTCH-2420] - Bug in variable generate.max.count and fetcher.server.delay
+    [NUTCH-2436] - Remove empty comment, and redundant semicolon from CommandRunner
+    [NUTCH-2442] - Injector to stop if job fails to avoid loss of CrawlDb
+    [NUTCH-2444] - HostDB CSV dumper to emit field header by default
+    [NUTCH-2446] - URLFiltersCheck fix
+    [NUTCH-2448] - Allow Sending an empty http.agent.version
+    [NUTCH-2451] - protocol-ftp to resolve relative URL when following redirects
+    [NUTCH-2452] - Problem retrieving encoded URLs via FTP?
+    [NUTCH-2456] - Allow to index pages/URLs not contained in CrawlDb
+    [NUTCH-2458] - TikaParser doesn't work with tika-config.xml set
+    [NUTCH-2464] - Plugin headings: Headers That Contain HTML Elements Are Not Parsed
+    [NUTCH-2465] - Broken Eclipse project. Classpaths and interactiveselenium should be fixed.
+    [NUTCH-2472] - Sitemap processor does not honour db.ignore.external.links
+    [NUTCH-2473] - Elasticsearch REST Indexer broken due to wrong depenency
+    [NUTCH-2474] - CrawlDbReader -stats fails with ClassCastException
+    [NUTCH-2478] - // is not a valid base URL
+    [NUTCH-2483] - Remove/replace indirect dependencies to org.json
+
+Improvement
+
+    [NUTCH-1763] - Improving comments on the Injector Class
+    [NUTCH-2034] - CrawlDB filtered documents counter.
+    [NUTCH-2035] - Regex filter using case sensitive rules.
+    [NUTCH-2046] - The crawl script should be able to skip an initial injection.
+    [NUTCH-2135] - Ant Eclipse build does not include protocol-interactiveselenium
+    [NUTCH-2193] - Upgrade feed parser plugin to use rome 1.5
+    [NUTCH-2216] - db.ignore.*.links to optionally follow internal redirects
+    [NUTCH-2281] - Support non-default FileSystem
+    [NUTCH-2296] - Elasticsearch Indexing Over Rest
+    [NUTCH-2320] - URLFilterChecker to run as TCP Telnet service
+    [NUTCH-2335] - Injector not to filter and normalize existing URLs in CrawlDb
+    [NUTCH-2362] - Upgrade MaxMind GeoIP version in index-geoip
+    [NUTCH-2368] - Variable generate.max.count and fetcher.server.delay
+    [NUTCH-2370] - FileDumper: save JSON mapping file -> URL
+    [NUTCH-2376] - Improve configurability of HTTP Accept* header fields
+    [NUTCH-2378] - ChildFirst plugin classloader
+    [NUTCH-2380] - indexer-elastic version upgrade to 5.3.0
+    [NUTCH-2397] - Parser to add paragraph line breaks
+    [NUTCH-2400] - Solr 6.6.0 compatibility
+    [NUTCH-2406] - Sum up constants, make minor changes
+    [NUTCH-2408] - CrawlDb: allow update from unparsed segments
+    [NUTCH-2409] - Injector: complete command-line help and counters
+    [NUTCH-2414] - Allow LanguageIndexingFilter to actually filter documents by language.
+    [NUTCH-2430] - Complete plugin build configuration
+    [NUTCH-2431] - URLFilterchecker to implement Tool-interface
+    [NUTCH-2439] - Upgrade to Apache Tika 1.17
+    [NUTCH-2443] - Extract links from the video tag with the parse-html plugin
+    [NUTCH-2445] - Fetcher following outlinks to keep track of already fetched items
+    [NUTCH-2463] - Enable sampling CrawlDB
+    [NUTCH-2468] - should filter out invalid URLs by default
+    [NUTCH-2470] - CrawlDbReader -stats to show quantiles of score
+    [NUTCH-2477] - Refactor *Checker classes to use base class for common code
+    [NUTCH-2480] - Upgrade crawler-commons dependency to 0.9
 
 New Feature
-    [NUTCH-2046] -  The crawl script should be able to skip an initial injection
+
+    [NUTCH-1465] - Support sitemaps in Nutch
+    [NUTCH-1932] - Automatically remove orphaned pages
+    [NUTCH-2333] - Indexer for RabbitMQ
+    [NUTCH-2338] - URLNormalizerChecker to run as TCP Telnet service
+    [NUTCH-2415] - Create a JEXL based IndexingFilter
+    [NUTCH-2433] - Html Parser: keep htmltag where the outlinks are found
+    [NUTCH-2435] - New configuration allowing to choose whether to store 'parse_text' directory or not.
+    [NUTCH-2484] - Extend indexer-elastic-rest to support languages
+
+Task
+
+    [NUTCH-2181] - Add Webpage for 3rd Party Connectors/Libraries to Apache Nutch
+
 
 Nutch 1.13 Release 28/03/2017 (dd/mm/yyyy)
 Release Report: https://s.apache.org/wq3x
