@@ -362,7 +362,6 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
       if (ignoreExternalLinks) {
         if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
           String toDomain = URLUtil.getDomainName(targetURL).toLowerCase();
-          //FIXME: toDomain will never be null, correct?
           if (toDomain == null || !toDomain.equals(origin)) {
             return null; // skip it
           }
@@ -379,15 +378,16 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
       if (ignoreInternalLinks) {
         if ("bydomain".equalsIgnoreCase(ignoreExternalLinksMode)) {
           String toDomain = URLUtil.getDomainName(targetURL).toLowerCase();
-          //FIXME: toDomain will never be null, correct?
           if (toDomain == null || toDomain.equals(origin)) {
             return null; // skip it
           }
         } else {
           String toHost = targetURL.getHost().toLowerCase();
-          //FIXME: toDomain will never be null, correct?
           if (toHost == null || toHost.equals(origin)) {
-            return null; // skip it
+            if (exemptionFilters == null // check if it is exempted?
+                || !exemptionFilters.isExempted(fromUrl, toUrl)) {
+              return null; ///skip it, This external url is not exempted.
+            }
           }
         }
       }
