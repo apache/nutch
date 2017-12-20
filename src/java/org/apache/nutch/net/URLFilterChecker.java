@@ -21,8 +21,9 @@ import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 
-import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.ToolRunner;
 
+import org.apache.nutch.util.AbstractChecker;
 import org.apache.nutch.util.NutchConfiguration;
 
 import java.io.BufferedReader;
@@ -33,102 +34,63 @@ import java.io.InputStreamReader;
  * 
  * @author John Xing
  */
-public class URLFilterChecker {
+public class URLFilterChecker extends AbstractChecker {
 
-  private Configuration conf;
+  private URLFilters filters = null;
 
-  public URLFilterChecker(Configuration conf) {
-    this.conf = conf;
-  }
+  public int run(String[] args) throws Exception {
+    usage = "Usage: URLFilterChecker [-Dproperty=value]... [-filterName filterName] (-stdin | -listen <port> [-keepClientCnxOpen]) \n"
+        + "\n  -filterName\tURL filter plugin name (eg. urlfilter-regex) to check,"
+        + "\n             \t(if not given all configured URL filters are applied)"
+        + "\n  -stdin     \ttool reads a list of URLs from stdin, one URL per line"
+        + "\n  -listen <port>\trun tool as Telnet server listening on <port>\n";
 
-  private void checkOne(String filterName) throws Exception {
-    URLFilter filter = null;
-
-    ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(
-        URLFilter.X_POINT_ID);
-
-    if (point == null)
-      throw new RuntimeException(URLFilter.X_POINT_ID + " not found.");
-
-    Extension[] extensions = point.getExtensions();
-
-    for (int i = 0; i < extensions.length; i++) {
-      Extension extension = extensions[i];
-      filter = (URLFilter) extension.getExtensionInstance();
-      if (filter.getClass().getName().equals(filterName)) {
-        break;
-      } else {
-        filter = null;
-      }
-    }
-
-    if (filter == null)
-      throw new RuntimeException("Filter " + filterName + " not found.");
-
-    // jerome : should we keep this behavior?
-    // if (LogFormatter.hasLoggedSevere())
-    // throw new RuntimeException("Severe error encountered.");
-
-    System.out.println("Checking URLFilter " + filterName);
-
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-    String line;
-    while ((line = in.readLine()) != null) {
-      String out = filter.filter(line);
-      if (out != null) {
-        System.out.print("+");
-        System.out.println(out);
-      } else {
-        System.out.print("-");
-        System.out.println(line);
-      }
-    }
-  }
-
-  private void checkAll() throws Exception {
-    System.out.println("Checking combination of all URLFilters available");
-
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-    String line;
-    while ((line = in.readLine()) != null) {
-      URLFilters filters = new URLFilters(this.conf);
-      String out = filters.filter(line);
-      if (out != null) {
-        System.out.print("+");
-        System.out.println(out);
-      } else {
-        System.out.print("-");
-        System.out.println(line);
-      }
-    }
-  }
-
-  public static void main(String[] args) throws Exception {
-
-    String usage = "Usage: URLFilterChecker (-filterName filterName | -allCombined) \n"
-        + "Tool takes a list of URLs, one per line, passed via STDIN.\n";
-
-    if (args.length == 0) {
+    // Print help when no args given
+    if (args.length < 1) {
       System.err.println(usage);
       System.exit(-1);
     }
 
-    String filterName = null;
-    if (args[0].equals("-filterName")) {
-      if (args.length != 2) {
+    int numConsumed;
+    for (int i = 0; i < args.length; i++) {
+      if (args[i].equals("-filterName")) {
+        getConf().set("plugin.includes", args[++i]);
+      } else if ((numConsumed = super.parseArgs(args, i)) > 0) {
+        i += numConsumed - 1;
+      } else {
+        System.err.println("ERROR: Not a recognized argument: " + args[i]);
         System.err.println(usage);
         System.exit(-1);
       }
-      filterName = args[1];
     }
 
-    URLFilterChecker checker = new URLFilterChecker(NutchConfiguration.create());
-    if (filterName != null) {
-      checker.checkOne(filterName);
+    // Print active filter list
+    filters = new URLFilters(getConf());
+    System.out.print("Checking combination of these URLFilters: ");
+    for (URLFilter filter : filters.getFilters()) {
+      System.out.print(filter.getClass().getSimpleName() + " ");
+    }
+    System.out.println("");
+
+    // Start listening
+    return super.run();
+  }
+
+  protected int process(String line, StringBuilder output) throws Exception {
+    String out = filters.filter(line);
+    if (out != null) {
+      output.append("+");
+      output.append(out);
     } else {
-      checker.checkAll();
+      output.append("-");
+      output.append(line);
     }
+    return 0;
+  }
 
-    System.exit(0);
+  public static void main(String[] args) throws Exception {
+    final int res = ToolRunner.run(NutchConfiguration.create(),
+        new URLFilterChecker(), args);
+    System.exit(res);
   }
 }

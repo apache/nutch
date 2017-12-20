@@ -64,14 +64,16 @@ public class TestCrawlDbStates {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   protected static final byte[][] fetchDbStatusPairs = {
-      { -1, STATUS_DB_UNFETCHED }, { STATUS_FETCH_SUCCESS, STATUS_DB_FETCHED },
+      { -1, STATUS_DB_UNFETCHED }, // no fetch status counter-part
+      { STATUS_FETCH_SUCCESS, STATUS_DB_FETCHED },
       { STATUS_FETCH_GONE, STATUS_DB_GONE },
       { STATUS_FETCH_REDIR_TEMP, STATUS_DB_REDIR_TEMP },
       { STATUS_FETCH_REDIR_PERM, STATUS_DB_REDIR_PERM },
       { STATUS_FETCH_NOTMODIFIED, STATUS_DB_NOTMODIFIED },
-      { STATUS_FETCH_RETRY, -1 }, // fetch_retry does not have a CrawlDb
-                                  // counter-part
-      { -1, STATUS_DB_DUPLICATE }, };
+      // fetch_retry does not have a CrawlDb counter-part
+      { STATUS_FETCH_RETRY, -1 },
+      // no fetch status counter-part for duplicates and orphans
+      { -1, STATUS_DB_DUPLICATE }, { -1, STATUS_DB_ORPHAN } };
 
   /** tested {@link FetchSchedule} implementations */
   protected String[] schedules = { "DefaultFetchSchedule",

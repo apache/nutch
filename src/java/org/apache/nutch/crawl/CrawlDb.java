@@ -51,6 +51,7 @@ public class CrawlDb extends NutchTool implements Tool {
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
   public static final String CRAWLDB_PURGE_404 = "db.update.purge.404";
+  public static final String CRAWLDB_PURGE_ORPHANS = "db.update.purge.orphans";
 
   public static final String CURRENT_NAME = "current";
 
@@ -114,8 +115,9 @@ public class CrawlDb extends NutchTool implements Tool {
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb update: Merging segment data into db.");
     }
+    RunningJob crawlDBJob = null;
     try {
-      JobClient.runJob(job);
+      crawlDBJob = JobClient.runJob(job);
     } catch (IOException e) {
       FileSystem fs = crawlDb.getFileSystem(getConf());
       LockUtil.removeLockFile(fs, lock);
@@ -126,6 +128,15 @@ public class CrawlDb extends NutchTool implements Tool {
     }
 
     CrawlDb.install(job, crawlDb);
+
+    if (filter) {
+      long urlsFiltered = crawlDBJob.getCounters()
+          .findCounter("CrawlDB filter", "URLs filtered").getValue();
+      LOG.info(
+          "CrawlDb update: Total number of existing URLs in CrawlDb rejected by URL filters: {}",
+          urlsFiltered);
+    }
+
     long end = System.currentTimeMillis();
     LOG.info("CrawlDb update: finished at " + sdf.format(end) + ", elapsed: "
         + TimingUtil.elapsedTime(start, end));

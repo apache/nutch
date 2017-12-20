@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.protocol.interactiveselenium;
+package org.apache.nutch.protocol.interactiveselenium.handlers;
 
 import org.openqa.selenium.WebDriver;
 

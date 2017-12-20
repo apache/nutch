@@ -31,7 +31,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.xerces.parsers.DOMParser;
+import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -101,6 +103,13 @@ public class DomUtil {
       LOG.error("Error: ", e2);
     } catch (TransformerException ex) {
       LOG.error("Error: ", ex);
+    }
+  }
+
+  public static void saveDom(OutputStream os, DocumentFragment doc) {
+    NodeList docChildren = doc.getChildNodes();
+    for (int i = 0; i < docChildren.getLength(); i++) {
+      saveDom(os, (Element) docChildren.item(i));
     }
   }
 }
