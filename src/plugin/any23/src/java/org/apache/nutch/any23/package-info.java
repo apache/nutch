@@ -14,8 +14,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * @author lewismc
- *
- */
 package org.apache.nutch.any23;
