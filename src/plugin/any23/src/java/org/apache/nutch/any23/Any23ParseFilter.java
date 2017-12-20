@@ -20,7 +20,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.Collections;
 
 import org.apache.any23.Any23;
 import org.apache.any23.writer.BenchmarkTripleHandler;
@@ -29,7 +31,10 @@ import org.apache.any23.writer.TripleHandler;
 import org.apache.any23.writer.TripleHandlerException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.parse.*;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.HtmlParseFilter;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,14 +44,7 @@ import org.w3c.dom.DocumentFragment;
  * <p>This implementation of {@link org.apache.nutch.parse.HtmlParseFilter}
  * uses the <a href="http://any23.apache.org">Apache Any23</a> library
  * for parsing and extracting structured data in RDF format from a
- * variety of Web documents. Currently it supports the following
- * input formats:</p>
- * <ol><li>RDF/XML, Turtle, Notation 3</li>
- * <li>RDFa with RDFa1.1 prefix mechanism</li>
- * <li>Microformats: Adr, Geo, hCalendar, hCard, hListing, hResume, hReview,
- * License, XFN and Species</li>
- * <li>HTML5 Microdata: (such as Schema.org)</li>
- * <li>CSV: Comma Separated Values with separator autodetection.</li></ol>.
+ * variety of Web documents. The supported formats can be found at <a href="http://any23.apache.org">Apache Any23</a>.
  * <p>In this implementation triples are written as Notation3 e.g.
  * <code><http://www.bbc.co.uk/news/scotland/> <http://iptc.org/std/rNews/2011-10-07#datePublished> "2014/03/31 13:53:03"@en-gb .</code>
  * and triples are identified within output triple streams by the presence of '\n'.
@@ -68,7 +66,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
   /** Constant identifier used as a Key for writing and reading
    * triples to and from the metadata Map field.
    */
-  public final static String ANY23_TRIPLES = "Any23-Triples";
+  private final static String ANY23_TRIPLES = "Any23-Triples";
 
   private static class Any23Parser {
 
@@ -89,7 +87,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
      * Maintains a {@link java.util.Set} containing the triples
      * @return a {@link java.util.Set} of triples.
      */
-    public Set<String> getTriples() {
+    private Set<String> getTriples() {
       return triples;
     }
 
@@ -117,18 +115,10 @@ public class Any23ParseFilter implements HtmlParseFilter {
     }
   }
 
-  /**
-   * @see org.apache.hadoop.conf.Configurable#getConf()
-   */
-  @Override
   public Configuration getConf() {
     return this.conf;
   }
 
-  /**
-   * @see org.apache.hadoop.conf.Configurable#setConf(org.apache.hadoop.conf.Configuration)
-   */
-  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
@@ -139,7 +129,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
   @Override
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
 
-    Any23Parser parser = null;
+    Any23Parser parser;
     try {
       String htmlContent = new String(content.getContent(), Charset.forName("UTF-8"));
       parser = new Any23Parser(content.getUrl(), htmlContent);
