@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.parse.html;
+package org.apache.nutch.tika;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.parse.html.HtmlParser;
+import org.apache.nutch.parse.tika.TikaParser;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
@@ -93,8 +93,8 @@ public class TestHtmlParser {
 
   public TestHtmlParser() {
     conf = NutchConfiguration.create();
-    conf.set("plugin.includes", "parse-html");
-    parser = new HtmlParser();
+    conf.set("plugin.includes", "parse-tika");
+    parser = new TikaParser();
     parser.setConf(conf);
   }
 
