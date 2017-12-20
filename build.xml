@@ -173,6 +173,7 @@
       <arg value="${javadoc.proxy.port}"/>
 
       <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/any23/src/java/" />
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
@@ -625,6 +626,7 @@
       <arg value="${javadoc.proxy.port}"/>
 
       <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/any23/src/java/" />
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
@@ -1031,6 +1033,7 @@
 
         <source path="${basedir}/src/java/" />
         <source path="${basedir}/src/test/" output="build/test/classes" />
+
         <source path="${plugins.dir}/any23/src/java/" />
         <source path="${plugins.dir}/any23/src/test/" />
         <source path="${plugins.dir}/creativecommons/src/java/" />
