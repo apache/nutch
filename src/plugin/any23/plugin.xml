@@ -25,8 +25,8 @@
     <library name="any23.jar">
       <export name="*"/>
     </library>
-    <library name="apache-any23-core-2.0.jar"/>
-    <library name="apache-any23-api-2.0.jar"/>
+    <library name="apache-any23-core-2.1.jar"/>
+    <library name="apache-any23-api-2.1.jar"/>
     <library name="slf4j-api-1.7.5.jar"/>
   </runtime>
 

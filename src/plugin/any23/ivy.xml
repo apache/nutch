@@ -27,7 +27,7 @@
   </info>
 
   <configurations>
-    <include file="../../..//ivy/ivy-configurations.xml"/>
+    <include file="../../../ivy/ivy-configurations.xml"/>
   </configurations>
 
   <publications>
@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.any23" name="apache-any23-core" rev="2.0" conf="*->default"/>
+    <dependency org="org.apache.any23" name="apache-any23-core" rev="2.1" conf="*->default"/>
   </dependencies>
 
 </ivy-module>
