@@ -78,13 +78,9 @@ GoraMapper<String, WebPage, SelectorEntry, WebPage> {
       if ((sitemap && !URLFilters.isSitemap(page)) || !sitemap && URLFilters
           .isSitemap(page))
         return;
-    } catch (URLFilterException e) {
+    } catch (URLFilterException | MalformedURLException e) {
       GeneratorJob.LOG
-      .warn("Couldn't filter url: {} ({})", url, e.getMessage());
-      return;
-    } catch (MalformedURLException e) {
-      GeneratorJob.LOG
-      .warn("Couldn't filter url: {} ({})", url, e.getMessage());
+      .warn("Couldn't filter url: {} ({})", url, e);
       return;
     }
 

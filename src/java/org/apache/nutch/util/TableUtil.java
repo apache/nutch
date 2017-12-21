@@ -92,10 +92,8 @@ public class TableUtil {
       pathBegin = reversedUrl.length();
     String sub = reversedUrl.substring(0, pathBegin);
 
-    String[] splits = StringUtils.splitPreserveAllTokens(sub, ':'); // {<reversed
-                                                                    // host>,
-                                                                    // <port>,
-                                                                    // <protocol>}
+    // {<reversed host>, <port>, <protocol>}
+    String[] splits = StringUtils.splitPreserveAllTokens(sub, ':');
 
     buf.append(splits[1]); // add protocol
     buf.append("://");
@@ -155,7 +153,7 @@ public class TableUtil {
    * @return string-ifed Utf8 object or null if Utf8 instance is null
    */
   public static String toString(CharSequence utf8) {
-    return (utf8 == null ? null : StringUtil.cleanField(utf8.toString()));
+    return utf8 == null ? null : StringUtil.cleanField(utf8.toString());
   }
 
 }

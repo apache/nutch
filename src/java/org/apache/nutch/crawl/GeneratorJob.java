@@ -66,7 +66,7 @@ public class GeneratorJob extends NutchTool implements Tool {
   public static final String BATCH_ID = "generate.batch.id";
   public static final String GENERATE_COUNT = "generate.count";
 
-  private static final Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+  private static final Set<WebPage.Field> FIELDS = new HashSet<>();
 
   static {
     FIELDS.add(WebPage.Field.FETCH_TIME);
@@ -85,6 +85,7 @@ public class GeneratorJob extends NutchTool implements Tool {
     float score;
 
     public SelectorEntry() {
+      //default constructor
     }
 
     public SelectorEntry(String url, float score) {
@@ -92,11 +93,13 @@ public class GeneratorJob extends NutchTool implements Tool {
       this.score = score;
     }
 
+    @Override
     public void readFields(DataInput in) throws IOException {
       url = Text.readString(in);
       score = in.readFloat();
     }
 
+    @Override
     public void write(DataOutput out) throws IOException {
       Text.writeString(out, url);
       out.writeFloat(score);
@@ -161,7 +164,7 @@ public class GeneratorJob extends NutchTool implements Tool {
   }
 
   public GeneratorJob() {
-
+    //default constructor
   }
 
   public GeneratorJob(Configuration conf) {
@@ -169,7 +172,7 @@ public class GeneratorJob extends NutchTool implements Tool {
   }
 
   public Collection<WebPage.Field> getFields(Job job) {
-    Collection<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
+    Collection<WebPage.Field> fields = new HashSet<>(FIELDS);
     fields.addAll(FetchScheduleFactory.getFetchSchedule(job.getConfiguration())
         .getFields());
     return fields;
@@ -183,8 +186,7 @@ public class GeneratorJob extends NutchTool implements Tool {
   public static String randomBatchId() {
     long curTime = System.currentTimeMillis();
     int randomSeed = Math.abs(new Random().nextInt());
-    String batchId = (curTime / 1000) + "-" + randomSeed;
-    return batchId;
+    return (curTime / 1000) + "-" + randomSeed;
   }
 
   /**
@@ -194,6 +196,7 @@ public class GeneratorJob extends NutchTool implements Tool {
    * @return results
    * @throws Exception
    */
+  @Override
   public Map<String, Object> run(Map<String, Object> args) throws Exception {
     String batchId = (String) args.get(Nutch.ARG_BATCH);
     if (batchId == null) {
@@ -342,8 +345,10 @@ public class GeneratorJob extends NutchTool implements Tool {
       return -1;
     }
 
-    long curTime = System.currentTimeMillis(), topN = Long.MAX_VALUE;
-    boolean filter = true, norm = true;
+    long curTime = System.currentTimeMillis();
+    long topN = Long.MAX_VALUE;
+    boolean filter = true;
+    boolean norm = true;
     boolean sitemap = false;
 
     for (int i = 0; i < args.length; i++) {
@@ -376,7 +381,7 @@ public class GeneratorJob extends NutchTool implements Tool {
     }
   }
 
-  public static void main(String args[]) throws Exception {
+  public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(NutchConfiguration.create(), new GeneratorJob(),
         args);
     System.exit(res);

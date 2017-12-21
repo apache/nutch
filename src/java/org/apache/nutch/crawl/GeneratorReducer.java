@@ -45,7 +45,7 @@ public class GeneratorReducer extends
   private long maxCount;
   protected static long count = 0;
   private boolean byDomain = false;
-  private Map<String, Integer> hostCountMap = new HashMap<String, Integer>();
+  private Map<String, Integer> hostCountMap = new HashMap<>();
   private Utf8 batchId;
 
   @Override
