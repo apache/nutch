@@ -1435,14 +1435,6 @@
   org.apache.gora.accumulo.store.AccumuloStore
     Gora class for storing data in Apache Accumulo.
   
-  org.apache.gora.avro.store.AvroStore
-    Gora class for storing data in Apache Avro.
-    
-  org.apache.gora.avro.store.DataFileAvroStore
-    Gora class for storing data in Apache Avro. DataFileAvroStore is 
-    a file based store which uses Avro's DataFile{Writer,Reader}'s as a backend.
-    This datastore supports mapreduce.
-    
   org.apache.gora.memory.store.MemStore
     Gora class for storing data in a Memory based implementation for tests.
 
