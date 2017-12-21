@@ -54,7 +54,6 @@ import org.w3c.dom.DocumentFragment;
  * interface, we will most likely need to identify an alternative data characteristic
  * which we can use to split triples streams.</p>
  * <p>
- *
  */
 public class Any23ParseFilter implements HtmlParseFilter {
 
@@ -66,7 +65,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
   /** Constant identifier used as a Key for writing and reading
    * triples to and from the metadata Map field.
    */
-  private final static String ANY23_TRIPLES = "Any23-Triples";
+  public final static String ANY23_TRIPLES = "Any23-Triples";
 
   private static class Any23Parser {
 
