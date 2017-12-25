@@ -33,3 +33,9 @@
 
 # allow only documents with a text/html mimetype
 text/html
+text/xml
+application/xml
+application/pdf
+application/rtf
+application/vnd.ms-excel
+application/msword
