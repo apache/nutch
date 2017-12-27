@@ -65,7 +65,6 @@ public class URLPartitioner implements Partitioner<Text, Writable> {
   
   public String getNormalizedURLRoot(Text key){
 	  URLNormalizers normalizers = this.normalizers;
-	  String rootMode = mode;
 	  
 	  String urlString = key.toString();
 	  URL url = null;
@@ -86,11 +85,19 @@ public class URLPartitioner implements Partitioner<Text, Writable> {
 		return urlString;
   }
   
+  
   /** Hash by host or domain name or IP address. */
   public int getPartition(Text key, Writable value, int numReduceTasks) {
-    String urlString = key.toString();
-    URL url = null;
-    int hashCode = getNormalizedURLRoot(key).hashCode();
+	String partitionKey;
+	
+	if(key.toString().isEmpty()){
+		partitionKey = value.toString();
+	} else
+	{
+		partitionKey = getNormalizedURLRoot(key);
+	}
+	
+	int hashCode = partitionKey.hashCode();
     // make hosts wind up in different partitions on different runs
     hashCode ^= seed;
 

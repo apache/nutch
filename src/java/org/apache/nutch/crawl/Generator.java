@@ -226,7 +226,7 @@ public class Generator extends NutchTool implements Tool {
 		}
 		
 	}
-  //The comparator is made to "merge" hostdb data and crawldd data. See  NUTCH-2455
+  //The comparator is made to "merge" hostdb data and crawldb data. See  NUTCH-2455
   //TODO : Implement RawComparator
   public static class ScoreHostKeyComparator extends WritableComparator {
 	    protected ScoreHostKeyComparator() {
@@ -456,7 +456,6 @@ public class Generator extends NutchTool implements Tool {
         OutputCollector<FloatWritable, SelectorEntry> output, Reporter reporter)
         throws IOException {
     
-      String hostname = null;
       LongWritable variableFetchDelayWritable = null; // in millis
       Text variableFetchDelayKey = new Text("_variableFetchDelay_");
       int maxCount = this.maxCount;
@@ -832,7 +831,7 @@ public class Generator extends NutchTool implements Tool {
     job.setOutputKeyComparatorClass(ScoreHostKeyComparator.class);
     job.setPartitionerClass(Selector.class);
     job.setReducerClass(Selector.class);
-    
+   
     FileOutputFormat.setOutputPath(job, tempDir);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
