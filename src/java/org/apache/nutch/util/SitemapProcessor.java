@@ -213,6 +213,7 @@ public class SitemapProcessor extends Configured implements Tool {
       AbstractSiteMap asm = parser.parseSiteMap(content.getContentType(), content.getContent(), new URL(url));
 
       if(asm instanceof SiteMap) {
+        LOG.info("Parsing sitemap file: {}", asm.getUrl().toString());
         SiteMap sm = (SiteMap) asm;
         Collection<SiteMapURL> sitemapUrls = sm.getSiteMapUrls();
         for(SiteMapURL sitemapUrl: sitemapUrls) {
@@ -252,10 +253,13 @@ public class SitemapProcessor extends Configured implements Tool {
         SiteMapIndex index = (SiteMapIndex) asm;
         Collection<AbstractSiteMap> sitemapUrls = index.getSitemaps();
 
+        if (sitemapUrls.isEmpty()) {
+          return;
+        }
+
+        LOG.info("Parsing sitemap index file: {}", index.getUrl().toString());
         for(AbstractSiteMap sitemap: sitemapUrls) {
-          if(sitemap.isIndex()) {
-            generateSitemapUrlDatum(protocol, sitemap.getUrl().toString(), context);
-          }
+          generateSitemapUrlDatum(protocol, sitemap.getUrl().toString(), context);
         }
       }
     }
