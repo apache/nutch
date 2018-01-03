@@ -73,6 +73,10 @@ do
             SEEDDIR="${2}"
             shift 2
             ;;
+        -sm)
+            SITEMAPDIR="${2}"
+            shift 2
+            ;;
         -w|--wait)
             WAIT="${2}"
             shift 2
@@ -84,16 +88,17 @@ do
 done
 
 if [[ $# != 2 ]]; then
-    echo "Usage: crawl [-i|--index] [-D \"key=value\"] [-w|--wait] [-s <Seed Dir>] <Crawl Dir> <Num Rounds>"
+    echo "Usage: crawl [-i|--index] [-D \"key=value\"] [-w|--wait] [-s <SeedDir>] [-sm <SitemapDir>] <CrawlDir> <NumRounds>"
     echo -e "\t-i|--index\tIndexes crawl results into a configured indexer"
     echo -e "\t-D\t\tA Java property to pass to Nutch calls"
     echo -e "\t-w|--wait\tNUMBER[SUFFIX] Time to wait before generating a new segment when no URLs"
     echo -e "\t\t\tare scheduled for fetching. Suffix can be: s for second,"
     echo -e "\t\t\tm for minute, h for hour and d for day. If no suffix is"
     echo -e "\t\t\tspecified second is used by default."
-    echo -e "\t-s Seed Dir\tPath to seeds file(s)"
-    echo -e "\tCrawl Dir\tDirectory where the crawl/link/segments dirs are saved"
-    echo -e "\tNum Rounds\tThe number of rounds to run this crawl for"
+    echo -e "\t-s SeedDir\tPath to seeds file(s)"
+    echo -e "\t-sm SitemapDir\tPath to sitemap URL file(s)"
+    echo -e "\tCrawlDir\tDirectory where the crawl/host/link/segments dirs are saved"
+    echo -e "\tNumRounds\tThe number of rounds to run this crawl for"
     exit 1
 fi
 
@@ -168,19 +173,23 @@ function __bin_nutch {
 }
 
 # initial injection
-if [[ !  -z  $SEEDDIR  ]]
-then 
+if [[ !  -z  $SEEDDIR  ]]; then
   echo "Injecting seed URLs"
   __bin_nutch inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
+fi
+
+# sitemap processing based on sitemap definition file(s)
+if [[ ! -z $SITEMAPDIR ]]; then
+  echo "Processing sitemaps defined in $SITEMAPDIR"
+  __bin_nutch sitemap "$CRAWL_PATH/crawldb" -sitemapUrls "$SITEMAPDIR" -threads $numThreads
 fi
 
 # main loop : rounds of generate - fetch - parse - update
 for ((a=1; ; a++))
 do
-  if [ -e ".STOP" ]
-  then
-   echo "STOP file found - escaping loop"
-   break
+  if [ -e ".STOP" ]; then
+    echo "STOP file found - escaping loop"
+    break
   fi
 
   if [ $LIMIT -ne -1 ]; then
@@ -191,6 +200,18 @@ do
     echo `date` ": Iteration $a of $LIMIT"
   else
     echo `date` ": Iteration $a"
+  fi
+
+  # create / update HostDB
+  if [[ -d "$CRAWL_PATH"/crawldb ]]; then
+    echo "Updating HostDB"
+    __bin_nutch updatehostdb -crawldb "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb
+  fi
+
+  # sitemap processing based on HostDB
+  if [[ -d "$CRAWL_PATH"/hostdb ]]; then
+    echo "Processing sitemaps based on hosts in HostDB"
+    __bin_nutch sitemap "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $numThreads
   fi
 
   echo "Generating a new segment"
