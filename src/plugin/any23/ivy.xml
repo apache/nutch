@@ -36,7 +36,19 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.any23" name="apache-any23-core" rev="2.1" conf="*->default"/>
+    <dependency org="org.apache.any23" name="apache-any23" rev="2.1" conf="*->default">
+      <artifact name="apache-any23" type="pom" ext="pom"/>
+      <exclude org="org.apache.tika" name="tika-core" />
+      <exclude org="org.apache.tika" name="tika-parsers" />
+      <exclude org="org.apache.poi" name="poi" />
+      <exclude org="org.apache.poi" name="poi-ooxml" />
+      <exclude org="org.apache.poi" name="poi-ooxml-schemas" />
+      <exclude org="org.apache.poi" name="poi-scratchpad" />
+      <exclude org="commons-lang" name="commons-lang" />
+      <exclude org="org.slf4j" name="slf4j-log4j12" />
+      <exclude org="org.slf4j" name="slf4j-api" />
+      <exclude org="xerces" name="xercesImpl" />
+    </dependency>
   </dependencies>
 
 </ivy-module>
