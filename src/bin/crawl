@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Usage: crawl [-i|--index] [-D "key=value"] [-w|--wait] [-s <Seed Dir>] <Crawl Dir> <Num Rounds>
+# Usage: crawl [-i|--index] [-D "key=value"] [-w|--wait] [-s <SeedDir>] [-sm <SitemapDir>] <CrawlDir> <NumRounds>
 #    -i|--index      Indexes crawl results into a configured indexer
 #    -w|--wait       NUMBER[SUFFIX] Time to wait before generating a new segment when no URLs
 #                    are scheduled for fetching. Suffix can be: s for second,
@@ -23,8 +23,9 @@
 #                    specified second is used by default.
 #    -D              A Java property to pass to Nutch calls
 #    -s              Path to seeds file(s)
-#    Crawl Dir       Directory where the crawl/link/segments dirs are saved
-#    Num Rounds      The number of rounds to run this crawl for
+#    -sm             Path to sitemap URL file(s)
+#    CrawlDir        Directory where the crawl/link/segments dirs are saved
+#    NumRounds       The number of rounds to run this crawl for
 #
 #
 # UNLIKE THE NUTCH ALL-IN-ONE-CRAWL COMMAND THIS SCRIPT DOES THE LINK INVERSION AND
