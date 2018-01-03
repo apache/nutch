@@ -25,6 +25,11 @@ import java.util.TreeSet;
 import java.util.Collections;
 
 import org.apache.any23.Any23;
+import org.apache.any23.ExtractionReport;
+import org.apache.any23.configuration.DefaultConfiguration;
+import org.apache.any23.extractor.ExtractionParameters;
+import org.apache.any23.source.DocumentSource;
+import org.apache.any23.source.StringDocumentSource;
 import org.apache.any23.writer.BenchmarkTripleHandler;
 import org.apache.any23.writer.NTriplesWriter;
 import org.apache.any23.writer.TripleHandler;
@@ -62,19 +67,22 @@ public class Any23ParseFilter implements HtmlParseFilter {
 
   private Configuration conf = null;
 
-  /** Constant identifier used as a Key for writing and reading
+  /**
+   * Constant identifier used as a Key for writing and reading
    * triples to and from the metadata Map field.
    */
   public final static String ANY23_TRIPLES = "Any23-Triples";
+
+  public static final String ANY_23_EXTRACTORS_CONF = "any23.extractors";
 
   private static class Any23Parser {
 
     Set<String> triples = null;
 
-    Any23Parser(String url, String htmlContent) throws TripleHandlerException {
+    Any23Parser(String url, String htmlContent, String... extractorNames) throws TripleHandlerException {
       triples = new TreeSet<String>();
       try {
-        parse(url, htmlContent);
+        parse(url, htmlContent, extractorNames);
       } catch (URISyntaxException e) {
         throw new RuntimeException(e.getReason());
       } catch (IOException e) {
@@ -90,13 +98,19 @@ public class Any23ParseFilter implements HtmlParseFilter {
       return triples;
     }
 
-    private void parse(String url, String htmlContent) throws URISyntaxException, IOException, TripleHandlerException {
-      Any23 any23 = new Any23();
+    private void parse(String url, String htmlContent, String... extractorNames) throws URISyntaxException, IOException, TripleHandlerException {
+      Any23 any23 = new Any23(extractorNames);
+      any23.setMIMETypeDetector(null);
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       TripleHandler tHandler = new NTriplesWriter(baos);
       BenchmarkTripleHandler bHandler = new BenchmarkTripleHandler(tHandler);
+      DocumentSource source = new StringDocumentSource(htmlContent, url);
+      ExtractionParameters parameters = new ExtractionParameters(DefaultConfiguration.copy(), ExtractionParameters.ValidationMode.None);
       try {
-        any23.extract(htmlContent, url, "text/HTML", "UTF-8", bHandler);
+        ExtractionReport report = any23.extract(parameters, source, bHandler, "UTF-8");
+        LOG.debug("Any23 ExtractionReport: " + report.getDetectedMimeType());
+        LOG.debug("Any23 ExtractionReport: " + report.getMatchingExtractors());
+        LOG.debug("Any23 ExtractionReport: " + report.getValidationReport());
       } catch (Exception e) {
         e.printStackTrace();
       } finally {
@@ -104,7 +118,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
         bHandler.close();
       }
       //This merely prints out a report of the Any23 extraction.
-      LOG.info("Any23 report: " + bHandler.report());
+      LOG.debug("Any23 BenchmarkTripleHandler.report: " + bHandler.report());
       String n3 = baos.toString("UTF-8");
       // we split the triples stream by the occurrence of
       // '\n' as this is a distinguishing feature of NTriples
@@ -127,11 +141,12 @@ public class Any23ParseFilter implements HtmlParseFilter {
    */
   @Override
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
+    String[] extractorNames = conf.getStrings(ANY_23_EXTRACTORS_CONF,"html-head-meta");
 
     Any23Parser parser;
     try {
       String htmlContent = new String(content.getContent(), Charset.forName("UTF-8"));
-      parser = new Any23Parser(content.getUrl(), htmlContent);
+      parser = new Any23Parser(content.getUrl(), htmlContent, extractorNames);
     } catch (TripleHandlerException e) {
       throw new RuntimeException("Error running Any23 parser: " + e.getMessage());
     }
