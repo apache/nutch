@@ -15,11 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Usage: crawl [options] <CrawlDir> <NumRounds>
+# Usage: crawl [options] <crawl_dir> <num_rounds>
 #
 # Arguments:
-#   <CrawlDir>                            Directory where the crawl/host/link/segments dirs are saved
-#   <NumRounds>                           The number of rounds to run this crawl for
+#   <crawl_dir>                           Directory where the crawl/host/link/segments dirs are saved
+#   <num_rounds>                          The number of rounds to run this crawl for
 #
 # Options:
 #   -i|--index                            Indexes crawl results into a configured indexer
@@ -124,11 +124,11 @@ do
 done
 
 if [[ $# != 2 ]]; then
-    echo "Usage: crawl [options] <CrawlDir> <NumRounds>"
+    echo "Usage: crawl [options] <crawl_dir> <num_rounds>"
     echo -e ""
     echo -e "Arguments:"
-    echo -e "  <CrawlDir>\t\t\t\tDirectory where the crawl/host/link/segments dirs are saved"
-    echo -e "  <NumRounds>\t\t\t\tThe number of rounds to run this crawl for"
+    echo -e "  <crawl_dir>\t\t\t\tDirectory where the crawl/host/link/segments dirs are saved"
+    echo -e "  <num_rounds>\t\t\t\tThe number of rounds to run this crawl for"
     echo -e ""
     echo -e "Options:"
     echo -e "  -i|--index\t\t\t\tIndexes crawl results into a configured indexer"
