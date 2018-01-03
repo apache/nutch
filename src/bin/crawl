@@ -15,25 +15,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Usage: crawl [-i|--index] [-D "key=value"] [-w|--wait] [-s <SeedDir>] [-sm <SitemapDir>] <CrawlDir> <NumRounds>
-#    -i|--index      Indexes crawl results into a configured indexer
-#    -w|--wait       NUMBER[SUFFIX] Time to wait before generating a new segment when no URLs
-#                    are scheduled for fetching. Suffix can be: s for second,
-#                    m for minute, h for hour and d for day. If no suffix is
-#                    specified second is used by default.
-#    -D              A Java property to pass to Nutch calls
-#    -s              Path to seeds file(s)
-#    -sm             Path to sitemap URL file(s)
-#    CrawlDir        Directory where the crawl/link/segments dirs are saved
-#    NumRounds       The number of rounds to run this crawl for
+# Usage: crawl [options] <CrawlDir> <NumRounds>
+#
+# Arguments:
+#   <CrawlDir>                            Directory where the crawl/host/link/segments dirs are saved
+#   <NumRounds>                           The number of rounds to run this crawl for
+#
+# Options:
+#   -i|--index                            Indexes crawl results into a configured indexer
+#   -D                                    A Java property to pass to Nutch calls
+#   -w|--wait <NUMBER[SUFFIX]>            Time to wait before generating a new segment when no URLs
+#                                         are scheduled for fetching. Suffix can be: s for second,
+#                                         m for minute, h for hour and d for day. If no suffix is
+#                                         specified second is used by default. [default: -1]
+#   -s <seed_dir>                         Path to seeds file(s)
+#   -sm <sitemap_dir>                     Path to sitemap URL file(s)
+#   --num-slaves <num_slaves>             Number of slave nodes [default: 1]
+#                                         Note: This can only be set when running in distribution mode
+#   --num-tasks <num_tasks>               Number of reducer tasks [default: 2]
+#   --size-fetchlist <size_fetchlist>     Number of URLs to fetch in one iteration [default: 50000]
+#   --time-limit-fetch <time_limit_fetch> Number of minutes allocated to the fetching [default: 180]
+#   --num-threads <num_threads>           Number of threads for fetching / sitemap processing [default: 50]
 #
 #
 # UNLIKE THE NUTCH ALL-IN-ONE-CRAWL COMMAND THIS SCRIPT DOES THE LINK INVERSION AND
 # INDEXING FOR EACH SEGMENT
-
-INDEXFLAG=false
-JAVA_PROPERTIES=""
-WAIT=-1 # don't wait if there are no URLs to fetch
 
 function __to_seconds() {
   NUMBER=$(echo $1 | tr -dc '0-9')
@@ -57,7 +63,16 @@ function __to_seconds() {
   echo $SECONDS
 }
 
+# default values
+INDEXFLAG=false
+JAVA_PROPERTIES=""
+WAIT=-1 # don't wait if there are no URLs to fetch
 SEEDDIR=""
+NUM_SLAVES=1
+NUM_TASKS=2
+SIZE_FETCHLIST=50000
+TIME_LIMIT_FETCH=180
+NUM_THREADS=50
 
 while [[ $# > 0 ]]
 do
@@ -82,6 +97,26 @@ do
             WAIT="${2}"
             shift 2
             ;;
+        --num-slaves)
+            NUM_SLAVES="${2}"
+            shift 2
+            ;;
+        --num-tasks)
+            NUM_TASKS="${2}"
+            shift 2
+            ;;
+        --size-fetchlist)
+            SIZE_FETCHLIST="${2}"
+            shift 2
+            ;;
+        --time-limit-fetch)
+            TIME_LIMIT_FETCH="${2}"
+            shift 2
+            ;;
+        --num-threads)
+            NUM_THREADS="${2}"
+            shift 2
+            ;;
         *)
             break
             ;;
@@ -89,17 +124,28 @@ do
 done
 
 if [[ $# != 2 ]]; then
-    echo "Usage: crawl [-i|--index] [-D \"key=value\"] [-w|--wait] [-s <SeedDir>] [-sm <SitemapDir>] <CrawlDir> <NumRounds>"
-    echo -e "\t-i|--index\tIndexes crawl results into a configured indexer"
-    echo -e "\t-D\t\tA Java property to pass to Nutch calls"
-    echo -e "\t-w|--wait\tNUMBER[SUFFIX] Time to wait before generating a new segment when no URLs"
-    echo -e "\t\t\tare scheduled for fetching. Suffix can be: s for second,"
-    echo -e "\t\t\tm for minute, h for hour and d for day. If no suffix is"
-    echo -e "\t\t\tspecified second is used by default."
-    echo -e "\t-s SeedDir\tPath to seeds file(s)"
-    echo -e "\t-sm SitemapDir\tPath to sitemap URL file(s)"
-    echo -e "\tCrawlDir\tDirectory where the crawl/host/link/segments dirs are saved"
-    echo -e "\tNumRounds\tThe number of rounds to run this crawl for"
+    echo "Usage: crawl [options] <CrawlDir> <NumRounds>"
+    echo -e ""
+    echo -e "Arguments:"
+    echo -e "  <CrawlDir>\t\t\t\tDirectory where the crawl/host/link/segments dirs are saved"
+    echo -e "  <NumRounds>\t\t\t\tThe number of rounds to run this crawl for"
+    echo -e ""
+    echo -e "Options:"
+    echo -e "  -i|--index\t\t\t\tIndexes crawl results into a configured indexer"
+    echo -e "  -D\t\t\t\t\tA Java property to pass to Nutch calls"
+    echo -e "  -w|--wait <NUMBER[SUFFIX]>\t\tTime to wait before generating a new segment when no URLs"
+    echo -e "  \t\t\t\t\tare scheduled for fetching. Suffix can be: s for second,"
+    echo -e "  \t\t\t\t\tm for minute, h for hour and d for day. If no suffix is"
+    echo -e "  \t\t\t\t\tspecified second is used by default. [default: -1]"
+    echo -e "  -s <seed_dir>\t\t\t\tPath to seeds file(s)"
+    echo -e "  -sm <sitemap_dir>\t\t\tPath to sitemap URL file(s)"
+    echo -e "  --num-slaves <num_slaves>\t\tNumber of slave nodes [default: 1]"
+    echo -e "  \t\t\t\t\tNote: This can only be set when running in distribution mode"
+    echo -e "  --num-tasks <num_tasks>\t\tNumber of reducer tasks [default: 2]"
+    echo -e "  --size-fetchlist <size_fetchlist>\tNumber of URLs to fetch in one iteration [default: 50000]"
+    echo -e "  --time-limit-fetch <time_limit_fetch>\tNumber of minutes allocated to the fetching [default: 180]"
+    echo -e "  --num-threads <num_threads>\t\tNumber of threads for fetching / sitemap processing [default: 50]"
+
     exit 1
 fi
 
@@ -112,29 +158,6 @@ if [ "$WAIT" != "-1" ]; then
   echo "Time to wait (--wait) = $WAIT sec."
 fi
 
-#############################################
-# MODIFY THE PARAMETERS BELOW TO YOUR NEEDS #
-#############################################
-
-# set the number of slaves nodes
-numSlaves=1
-
-# and the total number of available tasks
-# sets Hadoop parameter "mapreduce.job.reduces"
-numTasks=`expr $numSlaves \* 2`
-
-# number of urls to fetch in one iteration
-# 250K per task?
-sizeFetchlist=`expr $numSlaves \* 50000`
-
-# time limit for feching
-timeLimitFetch=180
-
-# num threads for fetching
-numThreads=50
-
-#############################################
-
 bin="`dirname "$0"`"
 bin="`cd "$bin"; pwd`"
 
@@ -143,10 +166,13 @@ mode=local
 if [ -f "${bin}"/../*nutch*.job ]; then
     mode=distributed
 fi
+if [[ "$mode" = "local" ]]; then
+  NUM_SLAVES=1
+fi
 
 # note that some of the options listed here could be set in the
 # corresponding hadoop site xml param file
-commonOptions="-D mapreduce.job.reduces=$numTasks -D mapred.child.java.opts=-Xmx1000m -D mapreduce.reduce.speculative=false -D mapreduce.map.speculative=false -D mapreduce.map.output.compress=true"
+commonOptions="-D mapreduce.job.reduces=$NUM_TASKS -D mapred.child.java.opts=-Xmx1000m -D mapreduce.reduce.speculative=false -D mapreduce.map.speculative=false -D mapreduce.map.output.compress=true"
 
  # check that hadoop can be found on the path
 if [ $mode = "distributed" ]; then
@@ -174,7 +200,7 @@ function __bin_nutch {
 }
 
 # initial injection
-if [[ !  -z  $SEEDDIR  ]]; then
+if [[ ! -z $SEEDDIR  ]]; then
   echo "Injecting seed URLs"
   __bin_nutch inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
 fi
@@ -182,7 +208,7 @@ fi
 # sitemap processing based on sitemap definition file(s)
 if [[ ! -z $SITEMAPDIR ]]; then
   echo "Processing sitemaps defined in $SITEMAPDIR"
-  __bin_nutch sitemap "$CRAWL_PATH/crawldb" -sitemapUrls "$SITEMAPDIR" -threads $numThreads
+  __bin_nutch sitemap "$CRAWL_PATH/crawldb" -sitemapUrls "$SITEMAPDIR" -threads $NUM_THREADS
 fi
 
 # main loop : rounds of generate - fetch - parse - update
@@ -212,11 +238,11 @@ do
   # sitemap processing based on HostDB
   if [[ -d "$CRAWL_PATH"/hostdb ]]; then
     echo "Processing sitemaps based on hosts in HostDB"
-    __bin_nutch sitemap "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $numThreads
+    __bin_nutch sitemap "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $NUM_THREADS
   fi
 
   echo "Generating a new segment"
-  generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter)
+  generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_SLAVES -noFilter)
   echo "$bin/nutch generate ${generate_args[@]}"
   $bin/nutch generate "${generate_args[@]}"
   RETCODE=$?
@@ -254,7 +280,7 @@ do
 
   # fetching the segment
   echo "Fetching : $SEGMENT"
-  __bin_nutch fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch "$CRAWL_PATH"/segments/$SEGMENT -noParsing -threads $numThreads
+  __bin_nutch fetch $commonOptions -D fetcher.timelimit.mins=$TIME_LIMIT_FETCH "$CRAWL_PATH"/segments/$SEGMENT -noParsing -threads $NUM_THREADS
 
   # parsing the segment
   echo "Parsing : $SEGMENT"
