@@ -44,10 +44,6 @@
       <exclude org="org.slf4j" name="slf4j-api" />
       <exclude org="commons-lang" name="commons-lang" />
       <exclude org="com.google.protobuf" name="protobuf-java" />
-      <exclude org="org.apache.poi" name="poi" />
-      <exclude org="org.apache.poi" name="poi-ooxml" />
-      <exclude org="org.apache.poi" name="poi-ooxml-schemas" />
-      <exclude org="org.apache.poi" name="poi-scratchpad" />
     </dependency>
   </dependencies>
   
