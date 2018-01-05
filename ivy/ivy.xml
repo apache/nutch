@@ -66,13 +66,6 @@
 		<!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.apache.tika" name="tika-core" rev="1.17" />
-		<dependency org="net.sourceforge.owlapi" name="owlapi-api" rev="5.1.0" />
-		<dependency org="net.sourceforge.owlapi" name="owlapi-impl" rev="5.1.0" />
-		<dependency org="net.sourceforge.owlapi" name="owlapi-rio" rev="5.1.0" />
-		<dependency org="net.sourceforge.owlapi" name="owlapi-parsers" rev="5.1.0" />
-		<dependency org="net.sourceforge.owlapi" name="owlapi-apibinding" rev="5.1.0" />
-		<dependency org="org.apache.commons" name="commons-rdf-api" rev="0.5.0"/>
-		<dependency org="org.apache.any23" name="apache-any23-core" rev="2.1"/>
 		<dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
 
 		<dependency org="xerces" name="xercesImpl" rev="2.11.0" />

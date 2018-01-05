@@ -37,6 +37,9 @@
   <property name="any23.svn.apache.org"
     value="http://svn.apache.org/repos/asf/any23/repo-ext/"
     override="false"/>
+  <property name="ebi.ac.uk"
+    value="https://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/"
+    override="false"/>
   <property name="maven2.pattern"
     value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier])"/>
   <property name="maven2.pattern.ext"
@@ -50,7 +53,12 @@
       pattern="${maven2.pattern.ext}"
       m2compatible="true"
       />
-    <ibiblio name="any23-repository-external"
+    <ibiblio name="ebi"
+      root="${ebi.ac.uk}"
+      pattern="${maven2.pattern.ext}"
+      m2compatible="true"
+      />
+    <ibiblio name="any23-svn-repository"
       root="${any23.svn.apache.org}"
       m2compatible="true"
       changingMatcher="regexp"
@@ -74,7 +82,8 @@
       <resolver ref="maven2"/>
       <resolver ref="apache-snapshot"/>
       <resolver ref="sonatype"/>
-      <resolver ref="any23-repository-external"/>
+      <resolver ref="any23-svn-repository"/>
+      <resolver ref="ebi"/>
     </chain>
     <chain name="internal">
       <resolver ref="local"/>
@@ -86,7 +95,8 @@
       <resolver ref="maven2"/>
       <resolver ref="apache-snapshot"/>
       <resolver ref="sonatype"/>
-      <resolver ref="any23-repository-external"/>
+      <resolver ref="any23-svn-repository"/>
+      <resolver ref="ebi"/>
     </chain>
   </resolvers>
   <modules>

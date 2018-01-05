@@ -27,7 +27,11 @@
     </library>
     <library name="annotations-12.0.jar"/>
     <library name="aopalliance-1.0.jar"/>
-    <library name="apache-any23-2.1.jar"/>
+    <library name="apache-any23-api-2.1.jar"/>
+    <library name="apache-any23-core-2.1.jar"/>
+    <library name="apache-any23-csvutils-2.1.jar"/>
+    <library name="apache-any23-encoding-2.1.jar"/>
+    <library name="apache-any23-mime-2.1.jar"/>
     <library name="asm-5.0.4.jar"/>
     <library name="bcmail-jdk15on-1.54.jar"/>
     <library name="bcpkix-jdk15on-1.54.jar"/>
@@ -44,8 +48,8 @@
     <library name="commons-exec-1.3.jar"/>
     <library name="commons-httpclient-3.1.jar"/>
     <library name="commons-io-2.4.jar"/>
-    <library name="commons-lang-2.6.jar"/>
-    <library name="commons-logging-1.1.3.jar"/>
+    <library name="commons-logging-1.0.4.jar"/>
+    <library name="commons-rdf-api-0.5.0.jar"/>
     <library name="commons-vfs2-2.0.jar"/>
     <library name="curvesapi-1.04.jar"/>
     <library name="cxf-core-3.0.12.jar"/>
@@ -120,7 +124,6 @@
     <library name="pdfbox-debugger-2.0.6.jar"/>
     <library name="pdfbox-tools-2.0.6.jar"/>
     <library name="plexus-utils-1.5.6.jar"/>
-    <library name="plugin.xml"/>
     <library name="poi-3.16.jar"/>
     <library name="poi-ooxml-3.16.jar"/>
     <library name="poi-ooxml-schemas-3.16.jar"/>
@@ -176,13 +179,14 @@
     <library name="snakeyaml-1.17.jar"/>
     <library name="stax2-api-3.1.4.jar"/>
     <library name="tagsoup-1.2.1.jar"/>
+    <library name="tika-core-1.15.jar"/>
     <library name="tika-langdetect-1.13.jar"/>
+    <library name="tika-parsers-1.15.jar"/>
     <library name="trove4j-3.0.3.jar"/>
     <library name="udunits-4.5.5.jar"/>
     <library name="vorbis-java-core-0.8.jar"/>
     <library name="vorbis-java-tika-0.8.jar"/>
     <library name="woodstox-core-asl-4.4.1.jar"/>
-    <library name="xercesImpl-2.10.0.jar"/>
     <library name="xml-apis-1.4.01.jar"/>
     <library name="xmlbeans-2.6.0.jar"/>
     <library name="xmlschema-core-2.2.1.jar"/>
