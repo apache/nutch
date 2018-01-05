@@ -16,8 +16,7 @@
  */
 package org.apache.nutch.any23;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Set;
@@ -25,11 +24,7 @@ import java.util.TreeSet;
 import java.util.Collections;
 
 import org.apache.any23.Any23;
-import org.apache.any23.ExtractionReport;
-import org.apache.any23.configuration.DefaultConfiguration;
-import org.apache.any23.extractor.ExtractionParameters;
-import org.apache.any23.source.DocumentSource;
-import org.apache.any23.source.StringDocumentSource;
+import org.apache.any23.extractor.ExtractionException;
 import org.apache.any23.writer.BenchmarkTripleHandler;
 import org.apache.any23.writer.NTriplesWriter;
 import org.apache.any23.writer.TripleHandler;
@@ -41,9 +36,14 @@ import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
+import org.ccil.cowan.tagsoup.XMLWriter;
+import org.ccil.cowan.tagsoup.jaxp.SAXParserImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  * <p>This implementation of {@link org.apache.nutch.parse.HtmlParseFilter}
@@ -101,30 +101,41 @@ public class Any23ParseFilter implements HtmlParseFilter {
     private void parse(String url, String htmlContent, String... extractorNames) throws URISyntaxException, IOException, TripleHandlerException {
       Any23 any23 = new Any23(extractorNames);
       any23.setMIMETypeDetector(null);
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      TripleHandler tHandler = new NTriplesWriter(baos);
-      BenchmarkTripleHandler bHandler = new BenchmarkTripleHandler(tHandler);
-      DocumentSource source = new StringDocumentSource(htmlContent, url);
-      ExtractionParameters parameters = new ExtractionParameters(DefaultConfiguration.copy(), ExtractionParameters.ValidationMode.None);
+
       try {
-        ExtractionReport report = any23.extract(parameters, source, bHandler, "UTF-8");
-        LOG.debug("Any23 ExtractionReport: " + report.getDetectedMimeType());
-        LOG.debug("Any23 ExtractionReport: " + report.getMatchingExtractors());
-        LOG.debug("Any23 ExtractionReport: " + report.getValidationReport());
-      } catch (Exception e) {
-        e.printStackTrace();
-      } finally {
-        tHandler.close();
-        bHandler.close();
+
+        // Fix input to avoid extraction error (https://github.com/semarglproject/semargl/issues/37#issuecomment-69381281)
+        XMLReader reader = SAXParserImpl.newInstance(null).getXMLReader();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        XMLWriter writer = new XMLWriter(new OutputStreamWriter(baos));
+        reader.setContentHandler(writer);
+        reader.parse(new InputSource(new StringReader(htmlContent)));
+        String input = new String(baos.toByteArray(), Charset.forName("UTF-8"));
+
+        baos = new ByteArrayOutputStream();
+        TripleHandler tHandler = new NTriplesWriter(baos);
+        BenchmarkTripleHandler bHandler = new BenchmarkTripleHandler(tHandler);
+        try {
+          any23.extract(input, url, "text/html","UTF-8", bHandler);
+        } catch (IOException e) {
+          LOG.error("Error while reading the source", e);
+        } catch (ExtractionException e) {
+          LOG.error("Error while extracting structured data", e);
+        } finally {
+          tHandler.close();
+          bHandler.close();
+        }
+
+        LOG.debug("Any23 BenchmarkTripleHandler.report: " + bHandler.report());
+
+        String n3 = baos.toString("UTF-8");
+        String[] triplesStrings = n3.split("\n");
+        Collections.addAll(triples, triplesStrings);
+      } catch (SAXException e) {
+        LOG.error("Unexpected SAXException", e);
+      } catch (IOException e) {
+        LOG.error("Unexpected IOException", e);
       }
-      //This merely prints out a report of the Any23 extraction.
-      LOG.debug("Any23 BenchmarkTripleHandler.report: " + bHandler.report());
-      String n3 = baos.toString("UTF-8");
-      // we split the triples stream by the occurrence of
-      // '\n' as this is a distinguishing feature of NTriples
-      // output serialization in Any23.
-      String[] triplesStrings = n3.split("\n");
-      Collections.addAll(triples, triplesStrings);
     }
   }
 
