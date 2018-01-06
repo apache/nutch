@@ -52,17 +52,15 @@
 		<dependency org="com.tdunning" name="t-digest" rev="3.2" />
 		
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-common" rev="2.7.4" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-client" rev="2.6.0-cdh5.13.1" conf="*->default">
 			<exclude org="hsqldb" name="hsqldb" />
 			<exclude org="net.sf.kosmosfs" name="kfs" />
 			<exclude org="net.java.dev.jets3t" name="jets3t" />
 			<exclude org="org.eclipse.jdt" name="core" />
 			<exclude org="org.mortbay.jetty" name="jsp-*" />
+			<exclude org="org.mortbay.jetty" name="jetty-util" />
 			<exclude org="ant" name="ant" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.7.4" conf="*->default"/>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="2.7.4" conf="*->default"/>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="2.7.4" conf="*->default"/>
 		<!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.apache.tika" name="tika-core" rev="1.18" />
@@ -75,6 +73,9 @@
 		<dependency org="com.google.guava" name="guava" rev="25.0-jre" />
 
 		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="0.10" />
+
+		<!-- jetty is required by NutchServer -->
+		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" />
 
 		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0" />
 		
