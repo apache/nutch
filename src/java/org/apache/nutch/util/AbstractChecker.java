@@ -136,13 +136,13 @@ public abstract class AbstractChecker extends Configured implements Tool {
             readWrite();
           }
         } catch(Exception e) {
-          LOG.error("Read/Write failed: " + e);
+          LOG.error("Read/Write failed: ", e);
         }
       } else {
         try {
           readWrite();
         } catch(Exception e) {
-          LOG.error("Read/Write failed: " + e);
+          LOG.error("Read/Write failed: ", e);
         }
         
         try { // close ourselves
@@ -162,8 +162,10 @@ public abstract class AbstractChecker extends Configured implements Tool {
 
       line = in.readLine();
       StringBuilder output = new StringBuilder();
-      process(line, output);
-      
+      if (line != null && line.trim().length() > 1) {
+        process(line, output);
+      }
+
       client.getOutputStream().write(output.toString().getBytes(StandardCharsets.UTF_8));
     }
   }
