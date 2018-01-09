@@ -63,6 +63,37 @@ function __to_seconds() {
   echo $SECONDS
 }
 
+function __print_usage {
+  echo "Usage: crawl [options] <crawl_dir> <num_rounds>"
+  echo -e ""
+  echo -e "Arguments:"
+  echo -e "  <crawl_dir>\t\t\t\tDirectory where the crawl/host/link/segments dirs are saved"
+  echo -e "  <num_rounds>\t\t\t\tThe number of rounds to run this crawl for"
+  echo -e ""
+  echo -e "Options:"
+  echo -e "  -i|--index\t\t\t\tIndexes crawl results into a configured indexer"
+  echo -e "  -D\t\t\t\t\tA Java property to pass to Nutch calls"
+  echo -e "  -w|--wait <NUMBER[SUFFIX]>\t\tTime to wait before generating a new segment when no URLs"
+  echo -e "  \t\t\t\t\tare scheduled for fetching. Suffix can be: s for second,"
+  echo -e "  \t\t\t\t\tm for minute, h for hour and d for day. If no suffix is"
+  echo -e "  \t\t\t\t\tspecified second is used by default. [default: -1]"
+  echo -e "  -s <seed_dir>\t\t\t\tPath to seeds file(s)"
+  echo -e "  -sm <sitemap_dir>\t\t\tPath to sitemap URL file(s)"
+  echo -e "  --num-slaves <num_slaves>\t\tNumber of slave nodes [default: 1]"
+  echo -e "  \t\t\t\t\tNote: This can only be set when running in distribution mode"
+  echo -e "  --num-tasks <num_tasks>\t\tNumber of reducer tasks [default: 2]"
+  echo -e "  --size-fetchlist <size_fetchlist>\tNumber of URLs to fetch in one iteration [default: 50000]"
+  echo -e "  --time-limit-fetch <time_limit_fetch>\tNumber of minutes allocated to the fetching [default: 180]"
+  echo -e "  --num-threads <num_threads>\t\tNumber of threads for fetching / sitemap processing [default: 50]"
+  echo -e "  --sitemaps-from-hostdb <frequency>\tWhether and how often to process sitemaps based on HostDB."
+  echo -e "  \t\t\t\t\tSupported values are:"
+  echo -e "  \t\t\t\t\t  - never [default]"
+  echo -e "  \t\t\t\t\t  - always (processing takes place in every iteration)"
+  echo -e "  \t\t\t\t\t  - once (processing only takes place in the first iteration)"
+
+  exit 1
+}
+
 # default values
 INDEXFLAG=false
 JAVA_PROPERTIES=""
@@ -73,6 +104,7 @@ NUM_TASKS=2 # 2 x NUM_SLAVES
 SIZE_FETCHLIST=50000 # 25K x NUM_TASKS
 TIME_LIMIT_FETCH=180
 NUM_THREADS=50
+SITEMAPS_FROM_HOSTDB_FREQUENCY=never
 
 while [[ $# > 0 ]]
 do
@@ -117,36 +149,24 @@ do
             NUM_THREADS="${2}"
             shift 2
             ;;
+        --sitemaps-from-hostdb)
+            SITEMAPS_FROM_HOSTDB_FREQUENCY="${2}"
+            shift 2
+            ;;
         *)
             break
             ;;
     esac
 done
 
-if [[ $# != 2 ]]; then
-    echo "Usage: crawl [options] <crawl_dir> <num_rounds>"
-    echo -e ""
-    echo -e "Arguments:"
-    echo -e "  <crawl_dir>\t\t\t\tDirectory where the crawl/host/link/segments dirs are saved"
-    echo -e "  <num_rounds>\t\t\t\tThe number of rounds to run this crawl for"
-    echo -e ""
-    echo -e "Options:"
-    echo -e "  -i|--index\t\t\t\tIndexes crawl results into a configured indexer"
-    echo -e "  -D\t\t\t\t\tA Java property to pass to Nutch calls"
-    echo -e "  -w|--wait <NUMBER[SUFFIX]>\t\tTime to wait before generating a new segment when no URLs"
-    echo -e "  \t\t\t\t\tare scheduled for fetching. Suffix can be: s for second,"
-    echo -e "  \t\t\t\t\tm for minute, h for hour and d for day. If no suffix is"
-    echo -e "  \t\t\t\t\tspecified second is used by default. [default: -1]"
-    echo -e "  -s <seed_dir>\t\t\t\tPath to seeds file(s)"
-    echo -e "  -sm <sitemap_dir>\t\t\tPath to sitemap URL file(s)"
-    echo -e "  --num-slaves <num_slaves>\t\tNumber of slave nodes [default: 1]"
-    echo -e "  \t\t\t\t\tNote: This can only be set when running in distribution mode"
-    echo -e "  --num-tasks <num_tasks>\t\tNumber of reducer tasks [default: 2]"
-    echo -e "  --size-fetchlist <size_fetchlist>\tNumber of URLs to fetch in one iteration [default: 50000]"
-    echo -e "  --time-limit-fetch <time_limit_fetch>\tNumber of minutes allocated to the fetching [default: 180]"
-    echo -e "  --num-threads <num_threads>\t\tNumber of threads for fetching / sitemap processing [default: 50]"
+if [[ ! "$SITEMAPS_FROM_HOSTDB_FREQUENCY" =~ ^(never|always|once)$ ]]; then
+  echo "Error: --sitemaps-from-hostdb <frequency> has to be one of never, always, once."
+  echo -e ""
+  __print_usage
+fi
 
-    exit 1
+if [[ $# != 2 ]]; then
+  __print_usage
 fi
 
 CRAWL_PATH="$1"
@@ -164,7 +184,7 @@ bin="`cd "$bin"; pwd`"
 # determines whether mode based on presence of job file
 mode=local
 if [ -f "${bin}"/../*nutch*.job ]; then
-    mode=distributed
+  mode=distributed
 fi
 if [[ "$mode" = "local" ]]; then
   NUM_SLAVES=1
@@ -199,6 +219,13 @@ function __bin_nutch {
     fi
 }
 
+function __update_hostdb {
+  if [[ -d "$CRAWL_PATH"/crawldb ]]; then
+    echo "Updating HostDB"
+    __bin_nutch updatehostdb -crawldb "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb
+  fi
+}
+
 # initial injection
 if [[ ! -z $SEEDDIR  ]]; then
   echo "Injecting seed URLs"
@@ -229,16 +256,15 @@ do
     echo `date` ": Iteration $a"
   fi
 
-  # create / update HostDB
-  if [[ -d "$CRAWL_PATH"/crawldb ]]; then
-    echo "Updating HostDB"
-    __bin_nutch updatehostdb -crawldb "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb
-  fi
+  if [[ "$SITEMAPS_FROM_HOSTDB_FREQUENCY" = "always" || ("$SITEMAPS_FROM_HOSTDB_FREQUENCY" = "once" && $a -eq 1) ]]; then
+    # create / update HostDB on first run
+    [[ $a -eq 1 ]] && __update_hostdb
 
-  # sitemap processing based on HostDB
-  if [[ -d "$CRAWL_PATH"/hostdb ]]; then
-    echo "Processing sitemaps based on hosts in HostDB"
-    __bin_nutch sitemap "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $NUM_THREADS
+    # sitemap processing based on HostDB
+    if [[ -d "$CRAWL_PATH"/hostdb ]]; then
+      echo "Processing sitemaps based on hosts in HostDB"
+      __bin_nutch sitemap "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $NUM_THREADS
+    fi
   fi
 
   echo "Generating a new segment"
@@ -310,6 +336,8 @@ do
   else
       echo "Skipping indexing ..."
   fi
+
+  __update_hostdb
 
   #######################################################
   # The following commands fall into WebGraph territory
