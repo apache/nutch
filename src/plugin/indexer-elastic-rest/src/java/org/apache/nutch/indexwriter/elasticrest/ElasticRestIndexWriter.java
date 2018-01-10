@@ -57,6 +57,7 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -168,6 +169,18 @@ public class ElasticRestIndexWriter implements IndexWriter {
     bulkBuilder = new Bulk.Builder().defaultIndex(defaultIndex).defaultType(defaultType);
 
   }
+  
+  private static Object normalizeValue(Object value) {
+    if (value == null) {
+      return null;
+    }
+    
+    if (value instanceof Map) {
+      return value;
+    }
+
+    return value.toString();
+  }
 
   @Override
   public void write(NutchDocument doc) throws IOException {
@@ -181,22 +194,19 @@ public class ElasticRestIndexWriter implements IndexWriter {
 
     // Loop through all fields of this doc
     for (String fieldName : doc.getFieldNames()) {
-      Set<String> allFieldValues = new HashSet<String>();
-      for (Object value : doc.getField(fieldName).getValues()) {
-        allFieldValues.add(value.toString());
-      }
-      String[] fieldValues = allFieldValues.toArray(new String[allFieldValues.size()]);
-      if (fieldValues.length > 1) {
+      List<Object> fieldValues = doc.getField(fieldName).getValues();
+      
+      if (fieldValues.size() > 1) {
         // Loop through the values to keep track of the size of this
         // document
-        for (String value : fieldValues) {
-          bulkLength += value.length();
+        for (Object value : fieldValues) {
+          bulkLength += value.toString().length();
         }
 
-        source.put(fieldName, fieldValues);
-      } else if(fieldValues.length == 1) {
-        source.put(fieldName, fieldValues[0]);
-        bulkLength += fieldValues[0].length();
+        source.put(fieldName, fieldValues.stream().map(ElasticRestIndexWriter::normalizeValue).toArray());
+      } else if(fieldValues.size() == 1) {
+        source.put(fieldName, fieldValues.get(0));
+        bulkLength += fieldValues.get(0).toString().length();
       }
     }
     

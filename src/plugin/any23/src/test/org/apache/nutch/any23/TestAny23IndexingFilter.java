@@ -18,18 +18,24 @@ package org.apache.nutch.any23;
 
 import static org.junit.Assert.*;
 
-import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.avro.util.Utf8;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestAny23IndexingFilter {
-
   @Test
   public void testAny23TriplesFields() throws Exception {
     Configuration conf = NutchConfiguration.create();
@@ -37,18 +43,41 @@ public class TestAny23IndexingFilter {
     filter.setConf(conf);
     Assert.assertNotNull(filter);
     NutchDocument doc = new NutchDocument();
-    WebPage page = new WebPage();
-    byte[] bytes = new byte[10];
-    ByteBuffer bbuf = ByteBuffer.wrap(bytes);
-    page.putToMetadata(new Utf8(Any23ParseFilter.ANY23_TRIPLES), bbuf);
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "The Foo Page",
+        new Outlink[] { }, new Metadata());
+    ParseImpl parse = new ParseImpl("test page", parseData);
+    String[] triples = new String[]{
+        "<http://dbpedia.org/resource/Z\u00FCrich> <http://www.w3.org/2002/07/owl#sameAs> <http://rdf.freebase.com/ns/m.08966> .",
+        "<http://dbpedia.org/resource/Z\u00FCrich> <http://dbpedia.org/property/yearHumidity> \"77\" .",
+        "<http://dbpedia.org/resource/Z\u00FCrich> <http://www.w3.org/2000/01/rdf-schema#label> \"Zurique\"@pt ."
+    };
+    for (String triple : triples) {      
+      parse.getData().getParseMeta().add(Any23ParseFilter.ANY23_TRIPLES, triple);
+    }    
     try {
-      filter.filter(doc, "http://nutch.apache.org/", page);
+      doc = filter.filter(doc, parse, new Text("http://nutch.apache.org/"), new CrawlDatum(), new Inlinks());
     } catch (Exception e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
-    Assert.assertNotNull(doc);
-    Assert.assertTrue("check for 'triple' field", doc.getFieldNames().contains("triple"));
-  }
+    List<Object> docTriples = doc.getField(Any23IndexingFilter.STRUCTURED_DATA).getValues();
+    Assert.assertEquals(docTriples.size(), triples.length);
 
+    Object triple = docTriples.get(0);
+    Assert.assertTrue(triple instanceof Map<?, ?>);
+    @SuppressWarnings("unchecked")
+    Map<String, String> structuredData = (Map<String, String>) triple;
+    Assert.assertEquals(structuredData.get("node"), "<http://dbpedia.org/resource/Z\u00FCrich>");
+    Assert.assertEquals(structuredData.get("key"), "<http://www.w3.org/2002/07/owl#sameAs>");
+    Assert.assertEquals(structuredData.get("short_key"), "sameAs");
+    Assert.assertEquals(structuredData.get("value"), "<http://rdf.freebase.com/ns/m.08966>");
+    
+    triple = docTriples.get(1);
+    Assert.assertTrue(triple instanceof Map<?, ?>);
+    structuredData = (Map<String, String>) triple;
+    Assert.assertEquals(structuredData.get("node"), "<http://dbpedia.org/resource/Z\u00FCrich>");
+    Assert.assertEquals(structuredData.get("key"), "<http://dbpedia.org/property/yearHumidity>");
+    Assert.assertEquals(structuredData.get("short_key"), "yearHumidity");
+    Assert.assertEquals(structuredData.get("value"), "\"77\"");
+  }
 }

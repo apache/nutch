@@ -103,7 +103,6 @@ public class Any23ParseFilter implements HtmlParseFilter {
       any23.setMIMETypeDetector(null);
 
       try {
-
         // Fix input to avoid extraction error (https://github.com/semarglproject/semargl/issues/37#issuecomment-69381281)
         XMLReader reader = SAXParserImpl.newInstance(null).getXMLReader();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -162,17 +161,13 @@ public class Any23ParseFilter implements HtmlParseFilter {
       throw new RuntimeException("Error running Any23 parser: " + e.getMessage());
     }
     Set<String> triples = parser.getTriples();
-    // can't store multiple values in page metadata -> separate by tabs
-    StringBuilder sb = new StringBuilder();
 
     Parse parse = parseResult.get(content.getUrl());
     Metadata metadata = parse.getData().getParseMeta();
 
     for (String triple : triples) {
-      sb.append(triple);
-      sb.append("\t");
+      metadata.add(ANY23_TRIPLES, triple);
     }
-    metadata.add(ANY23_TRIPLES, sb.toString());
 
     return parseResult;
   }

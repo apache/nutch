@@ -16,6 +16,11 @@
  */
 package org.apache.nutch.any23;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -24,6 +29,8 @@ import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Parse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>This implementation of {@link org.apache.nutch.indexer.IndexingFilter}
@@ -32,6 +39,11 @@ import org.apache.nutch.parse.Parse;
  * @see {@link org.apache.nutch.any23.Any23ParseFilter}.
  */
 public class Any23IndexingFilter implements IndexingFilter {
+
+  /** Logging instance */
+  public static final Logger LOG = LoggerFactory.getLogger(Any23IndexingFilter.class);
+  
+  public static final String STRUCTURED_DATA = "structured_data";
 
   private Configuration conf;
 
@@ -73,15 +85,33 @@ public class Any23IndexingFilter implements IndexingFilter {
    */
   @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {
-    // Check if some Triples are found, possibly put there by Any23ParseFilter
     String[] metadata = parse.getData().getParseMeta().getValues(Any23ParseFilter.ANY23_TRIPLES);
 
-    if (metadata != null && metadata.length >= 1) {
-      String[] triples = metadata[0].split("\t");
-      for (String triple : triples) {
-        doc.add("triple", triple);
+    if (metadata != null) {
+      for (String triple : metadata) {
+        Pattern pattern = Pattern.compile("^([^ ]+) ([^ ]+) (.+) \\.");
+        Matcher matcher = pattern.matcher(triple);
+        if (matcher.find()) {
+          Map<String, String> map = new HashMap<>();
+          map.put("node", matcher.group(1));
+          map.put("key", matcher.group(2));
+          map.put("short_key", keyToShortKey(matcher.group(2)));
+          map.put("value", matcher.group(3));
+          doc.add("structured_data", map);
+        } else {
+          LOG.warn("Unsupported triple format " + triple);
+        }
       }
     }
     return doc;
+  }
+  
+  private String keyToShortKey(String key) {
+    if (key.startsWith("<") && key.endsWith(">")) {
+      key = key.substring(1, key.length() - 1);
+    }
+    String[] keyParts = key.split("/");
+    String[] keySubParts = keyParts[keyParts.length - 1].split("#");
+    return keySubParts[keySubParts.length - 1];
   }
 }

@@ -21,14 +21,25 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParserNotFound;
-import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
@@ -51,15 +62,16 @@ public class TestAny23ParseFilter {
   
   private String file2 = "microdata_basic.html";
 
-  private static final int EXPECTED_TRIPLES_1 = 117;
+  private static final int EXPECTED_TRIPLES_1 = 79;
   
-  private static final int EXPECTED_TRIPLES_2 = 40;
+  private static final int EXPECTED_TRIPLES_2 = 39;
   
   @Before
   public void setUp() {
     this.conf = NutchConfiguration.create();
     conf.set("file.content.limit", "-1");
     conf.set("parser.timeout", "-1");
+    conf.set(Any23ParseFilter.ANY_23_EXTRACTORS_CONF, "html-embedded-jsonld,html-head-icbm,html-head-links,html-head-meta,html-head-title,html-mf-adr,html-mf-geo,html-mf-hcalendar,html-mf-hcard,html-mf-hlisting,html-mf-hrecipe,html-mf-hresume,html-mf-hreview,html-mf-hreview-aggregate,html-mf-license,html-mf-species,html-mf-xfn,html-microdata,html-rdfa11,html-xpath");
   }
 
   @Test
@@ -87,27 +99,18 @@ public class TestAny23ParseFilter {
         EXPECTED_TRIPLES_2, triplesArray.length);
   }
   
-  public String[] extract(String urlString, File file) throws IOException, ParserNotFound, ParseException {
-    @SuppressWarnings("unused")
-    Parse parse;
-    byte[] bytes = new byte[(int) file.length()];
-    DataInputStream in = new DataInputStream(new FileInputStream(file));
-    in.readFully(bytes);
-    in.close();
-
-    WebPage page = new WebPage();
-    page.setBaseUrl(new Utf8(urlString));
-    page.setContent(ByteBuffer.wrap(bytes));
-    MimeUtil mimeutil = new MimeUtil(conf);
-    String mtype = mimeutil.getMimeType(file);
-    page.setContentType(new Utf8(mtype));
-    parse = new ParseUtil(conf).parse(urlString, page);
-    ByteBuffer bbuf = page.getFromMetadata(new Utf8("Any23-Triples"));
-    byte[] byteArray = new byte[bbuf.remaining()];
-    bbuf.get(byteArray);
-    String s = new String(byteArray);
-    String[] triplesArray = s.split("\t");
-
-    return triplesArray;
+  public String[] extract(String urlString, File file) {
+    try {
+      System.out.println(urlString);
+      Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
+      Content content = protocol.getProtocolOutput(new Text(urlString),
+          new CrawlDatum()).getContent();
+      Parse parse = new ParseUtil(conf).parse(content).get(content.getUrl());
+      return parse.getData().getParseMeta().getValues(Any23ParseFilter.ANY23_TRIPLES);
+    } catch (Exception e) {
+      e.printStackTrace();
+      Assert.fail(e.toString());
+    }
+    return null;
   }
 }
