@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.any23;
 
-import static org.junit.Assert.*;
-
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +56,7 @@ public class TestAny23IndexingFilter {
       doc = filter.filter(doc, parse, new Text("http://nutch.apache.org/"), new CrawlDatum(), new Inlinks());
     } catch (Exception e) {
       e.printStackTrace();
-      fail(e.getMessage());
+      Assert.fail(e.getMessage());
     }
     List<Object> docTriples = doc.getField(Any23IndexingFilter.STRUCTURED_DATA).getValues();
     Assert.assertEquals(docTriples.size(), triples.length);
