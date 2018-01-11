@@ -16,7 +16,10 @@
  */
 package org.apache.nutch.any23;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Set;
