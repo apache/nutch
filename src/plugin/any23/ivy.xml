@@ -36,7 +36,6 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.semanticweb.owlapi" name="owlapi" rev="3.2.4" conf="*->default"/>
     <dependency org="org.apache.commons" name="commons-rdf-api" rev="0.5.0" />
     <dependency org="org.apache.any23" name="apache-any23-core" rev="2.1" conf="*->default">
       <exclude org="org.apache.commons" name="commons-lang" />
