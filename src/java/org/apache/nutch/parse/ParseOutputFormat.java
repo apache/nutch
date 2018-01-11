@@ -79,16 +79,18 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
     }
   }
 
-  public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
+  public void checkOutputSpecs(FileSystem ignored, JobConf job)
+      throws IOException {
     Path out = FileOutputFormat.getOutputPath(job);
     if ((out == null) && (job.getNumReduceTasks() != 0)) {
       throw new InvalidJobConfException("Output directory not set in JobConf.");
     }
-    if (fs == null) {
-      fs = out.getFileSystem(job);
+
+    if (out != null) {
+      FileSystem fs = out.getFileSystem(job);
+      if (fs.exists(new Path(out, CrawlDatum.PARSE_DIR_NAME)))
+        throw new IOException("Segment already parsed!");
     }
-    if (fs.exists(new Path(out, CrawlDatum.PARSE_DIR_NAME)))
-      throw new IOException("Segment already parsed!");
   }
 
   public RecordWriter<Text, Parse> getRecordWriter(FileSystem fs, JobConf job,
