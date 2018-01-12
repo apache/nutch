@@ -167,7 +167,6 @@ public class IndexingJob extends NutchTool implements Tool {
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err
-      //.println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
       .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize] [-addBinaryContent] [-base64]");
       IndexWriters writers = new IndexWriters(getConf());
       System.err.println(writers.describe());
