@@ -17,13 +17,12 @@
 
 package org.apache.nutch.indexwriter.elastic;
 
-import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
-
 import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +32,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
@@ -47,6 +47,8 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
+import org.elasticsearch.transport.client.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +125,7 @@ public class ElasticIndexWriter implements IndexWriter {
     String[] hosts = parameters.getStrings(ElasticConstants.HOSTS);
     int port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
 
-    Settings.Builder settingsBuilder = Settings.settingsBuilder();
+    Settings.Builder settingsBuilder = Settings.builder();
 
     BufferedReader reader = new BufferedReader(
             config.getConfResourceAsReader("elasticsearch.conf"));
@@ -148,13 +150,14 @@ public class ElasticIndexWriter implements IndexWriter {
 
     // Prefer TransportClient
     if (hosts != null && port > 1) {
-      TransportClient transportClient = TransportClient.builder().settings(settings).build();
-      for (String host: hosts) {
+      TransportClient transportClient = new PreBuiltTransportClient(settings);
+
+      for (String host: hosts)
         transportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
       }
       client = transportClient;
     } else if (clusterName != null) {
-      node = nodeBuilder().settings(settings).client(true).node();
+      node = new Node(settings);
       client = node.client();
     }
   }
@@ -188,9 +191,13 @@ public class ElasticIndexWriter implements IndexWriter {
 
     // Add each field of this doc to the index source
     Map<String, Object> source = new HashMap<String, Object>();
-    for (String fieldName : doc.getFieldNames()) {
-      if (doc.getFieldValue(fieldName) != null) {
-        source.put(fieldName, doc.getFieldValue(fieldName));
+    for (final Map.Entry<String, NutchField> e : doc) {
+      final List<Object> values = e.getValue().getValues();
+
+      if (values.size() > 1) {
+        source.put(e.getKey(), values);
+      } else {
+        source.put(e.getKey(), values.get(0));
       }
     }
 

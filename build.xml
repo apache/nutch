@@ -173,12 +173,14 @@
       <arg value="${javadoc.proxy.port}"/>
 
       <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/any23/src/java/" />
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
+      <packageset dir="${plugins.dir}/index-jexl-filter/src/java"/>
       <packageset dir="${plugins.dir}/index-links/src/java"/>
       <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
@@ -624,12 +626,14 @@
       <arg value="${javadoc.proxy.port}"/>
 
       <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/any23/src/java/" />
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
+      <packageset dir="${plugins.dir}/index-jexl-filter/src/java"/>
       <packageset dir="${plugins.dir}/index-links/src/java"/>
       <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
@@ -1030,6 +1034,8 @@
         <source path="${basedir}/src/java/" />
         <source path="${basedir}/src/test/" output="build/test/classes" />
 
+        <source path="${plugins.dir}/any23/src/java/" />
+        <source path="${plugins.dir}/any23/src/test/" />
         <source path="${plugins.dir}/creativecommons/src/java/" />
         <source path="${plugins.dir}/creativecommons/src/test/" />
         <source path="${plugins.dir}/feed/src/java/" />
@@ -1040,6 +1046,8 @@
         <source path="${plugins.dir}/index-basic/src/java/" />
         <source path="${plugins.dir}/index-basic/src/test/" />
         <source path="${plugins.dir}/index-geoip/src/java/" />
+        <source path="${plugins.dir}/index-jexl-filter/src/java/" />
+        <source path="${plugins.dir}/index-jexl-filter/src/test/" />
         <source path="${plugins.dir}/index-links/src/java/" />
         <source path="${plugins.dir}/index-links/src/test/" />
         <source path="${plugins.dir}/index-metadata/src/java/" />
@@ -1074,8 +1082,6 @@
         <source path="${plugins.dir}/parse-js/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/test/" />
-        <source path="${plugins.dir}/parse-replace/src/java/" />
-        <source path="${plugins.dir}/parse-replace/src/test/" />
         <source path="${plugins.dir}/parse-swf/src/java/" />
         <source path="${plugins.dir}/parse-swf/src/test/" />
         <source path="${plugins.dir}/parse-tika/src/java/" />
@@ -1088,7 +1094,6 @@
         <source path="${plugins.dir}/protocol-file/src/java/" />
         <source path="${plugins.dir}/protocol-file/src/test/" />
         <source path="${plugins.dir}/protocol-ftp/src/java/" />
-        <source path="${plugins.dir}/protocol-htmlunit/src/java"/>
         <source path="${plugins.dir}/protocol-htmlunit/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/test/" />
@@ -1096,9 +1101,7 @@
         <source path="${plugins.dir}/protocol-httpclient/src/test/" />
         <source path="${plugins.dir}/protocol-interactiveselenium/src/java/" />
         <source path="${plugins.dir}/protocol-selenium/src/java"/>
-        <source path="${plugins.dir}/protocol-selenium/src/java/" />
         <source path="${plugins.dir}/publish-rabbitmq/src/java"/>
-        <source path="${plugins.dir}/publish-rabbitmq/src/java/" />
         <source path="${plugins.dir}/scoring-depth/src/java/" />
         <source path="${plugins.dir}/scoring-link/src/java/" />
         <source path="${plugins.dir}/scoring-opic/src/java/" />

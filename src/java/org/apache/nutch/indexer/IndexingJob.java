@@ -264,7 +264,6 @@ public class IndexingJob extends NutchTool implements Tool {
     List<Path> segments = new ArrayList<>();
 
     if(args.containsKey(Nutch.ARG_LINKDB)){
-      if(args.containsKey(Nutch.ARG_LINKDB)) {
         Object path = args.get(Nutch.ARG_LINKDB);
         if(path instanceof Path) {
           linkdb = (Path) path;
@@ -272,11 +271,9 @@ public class IndexingJob extends NutchTool implements Tool {
         else {
           linkdb = new Path(path.toString());
         }
-      }
-      else {
+    } else {
         linkdb = new Path(crawlId+"/linkdb");
       }
-    }
 
     if(args.containsKey(Nutch.ARG_SEGMENTDIR)){
       isSegment = true;

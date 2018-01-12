@@ -108,12 +108,13 @@ public class HeadingsParseFilter implements HtmlParseFilter {
    */
   protected static String getNodeValue(Node node) {
     StringBuilder buffer = new StringBuilder();
+    NodeWalker walker = new NodeWalker(node);
 
-    NodeList children = node.getChildNodes();
+    while (walker.hasNext()) {
+      final Node n = walker.nextNode();
 
-    for (int i = 0; i < children.getLength(); i++) {
-      if (children.item(i).getNodeType() == Node.TEXT_NODE) {
-        buffer.append(children.item(i).getNodeValue());
+      if (n.getNodeType() == Node.TEXT_NODE) {
+        buffer.append(n.getNodeValue());
       }
     }
 

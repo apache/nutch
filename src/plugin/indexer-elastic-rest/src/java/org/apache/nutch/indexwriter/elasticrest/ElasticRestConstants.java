@@ -28,4 +28,8 @@ public interface ElasticRestConstants {
   public static final String TYPE = "type";
   public static final String HTTPS = "https";
   public static final String HOSTNAME_TRUST = "trustallhostnames";
+  
+  public static final String LANGUAGES = INDEX + ".languages";
+  public static final String SEPARATOR = INDEX + ".separator";
+  public static final String SINK = INDEX + ".sink";
 }
