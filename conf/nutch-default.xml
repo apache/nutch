@@ -2117,8 +2117,10 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 <property>
     <name>elastic.rest.host</name>
     <value></value>
-    <description>The hostname to send documents to using Elasticsearch Jest. Both host
-        and port must be defined</description>
+    <description>
+      The hostname or a list of comma separated hostnames to send documents to
+      using Elasticsearch Jest. Both host and port must be defined.
+    </description>
 </property>
 
 <property>
