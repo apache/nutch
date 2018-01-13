@@ -368,7 +368,7 @@ public class ElasticRestIndexWriter implements IndexWriter {
     String port = conf.get(ElasticRestConstants.PORT);
 
     if (hosts == null || hosts.length == 0 || StringUtils.isBlank(port)) {
-      String message = "Missing elastic.rest.host and elastic.rest.port. At least one of them should be set in nutch-site.xml ";
+      String message = "No hosts or port specified. Please set the host and port in nutch-site.xml";
       message += "\n" + describe();
       LOG.error(message);
       throw new RuntimeException(message);
