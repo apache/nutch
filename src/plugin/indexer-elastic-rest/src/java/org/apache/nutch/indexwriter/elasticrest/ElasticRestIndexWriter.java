@@ -57,10 +57,12 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  */
@@ -179,7 +181,7 @@ public class ElasticRestIndexWriter implements IndexWriter {
       return null;
     }
     
-    if (value instanceof Map) {
+    if (value instanceof Map || value instanceof Date) {
       return value;
     }
 
@@ -198,19 +200,21 @@ public class ElasticRestIndexWriter implements IndexWriter {
 
     // Loop through all fields of this doc
     for (String fieldName : doc.getFieldNames()) {
-      List<Object> fieldValues = doc.getField(fieldName).getValues();
+      Set<Object> allFieldValues = new LinkedHashSet<>(doc.getField(fieldName).getValues());
       
-      if (fieldValues.size() > 1) {
-        // Loop through the values to keep track of the size of this
-        // document
-        for (Object value : fieldValues) {
+      if (allFieldValues.size() > 1) {
+        Object[] normalizedFieldValues = allFieldValues.stream().map(ElasticRestIndexWriter::normalizeValue).toArray();
+
+        // Loop through the values to keep track of the size of this document
+        for (Object value : normalizedFieldValues) {
           bulkLength += value.toString().length();
         }
 
-        source.put(fieldName, fieldValues.stream().map(ElasticRestIndexWriter::normalizeValue).toArray());
-      } else if(fieldValues.size() == 1) {
-        source.put(fieldName, fieldValues.get(0));
-        bulkLength += fieldValues.get(0).toString().length();
+        source.put(fieldName, normalizedFieldValues);
+      } else if(allFieldValues.size() == 1) {
+        Object normalizedFieldValue = normalizeValue(allFieldValues.iterator().next());
+        source.put(fieldName, normalizedFieldValue);
+        bulkLength += normalizedFieldValue.toString().length();
       }
     }
     
