@@ -18,25 +18,26 @@
 package org.apache.nutch.crawl;
 
 import java.lang.invoke.MethodHandles;
-import java.net.InetAddress;
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.Partitioner;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Partition urls by host, domain name or IP depending on the value of the
  * parameter 'partition.url.mode' which can be 'byHost', 'byDomain' or 'byIP'
  */
 public class URLPartitioner implements Partitioner<Text, Writable> {
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles
+      .lookup().lookupClass());
 
   public static final String PARTITION_MODE_KEY = "partition.url.mode";
 
@@ -62,42 +63,39 @@ public class URLPartitioner implements Partitioner<Text, Writable> {
 
   public void close() {
   }
-  
-  public String getNormalizedURLRoot(Text key){
-	  URLNormalizers normalizers = this.normalizers;
-	  
-	  String urlString = key.toString();
-	  URL url = null;
-	    try {
-	      urlString = URLUtil.normalizeURL(urlString, normalizers);
-	      url = new URL(urlString);
-	    } catch (MalformedURLException e) {
-	      LOG.warn("Malformed URL: '" + urlString + "'");
-	      return urlString;
-	    }
-	  
-		try{
-			urlString = URLUtil.getUrlRootByMode(url, mode);
-		}
-		catch (UnknownHostException e) {
-	        Generator.LOG.info("Couldn't find IP for host: " + url.getHost());
-	    }
-		return urlString;
+
+  public String getNormalizedURLRoot(Text key) {
+    URLNormalizers normalizers = this.normalizers;
+
+    String urlString = key.toString();
+    URL url = null;
+    try {
+      urlString = URLUtil.normalizeURL(urlString, normalizers);
+      url = new URL(urlString);
+    } catch (MalformedURLException e) {
+      LOG.warn("Malformed URL: '" + urlString + "'");
+      return urlString;
+    }
+
+    try {
+      urlString = URLUtil.getUrlRootByMode(url, mode);
+    } catch (UnknownHostException e) {
+      Generator.LOG.info("Couldn't find IP for host: " + url.getHost());
+    }
+    return urlString;
   }
-  
-  
+
   /** Hash by host or domain name or IP address. */
   public int getPartition(Text key, Writable value, int numReduceTasks) {
-	String partitionKey;
-	
-	if(key.toString().isEmpty()){
-		partitionKey = value.toString();
-	} else
-	{
-		partitionKey = getNormalizedURLRoot(key);
-	}
-	
-	int hashCode = partitionKey.hashCode();
+    String partitionKey;
+
+    if (key.toString().isEmpty()) {
+      partitionKey = value.toString();
+    } else {
+      partitionKey = getNormalizedURLRoot(key);
+    }
+
+    int hashCode = partitionKey.hashCode();
     // make hosts wind up in different partitions on different runs
     hashCode ^= seed;
 
