@@ -28,6 +28,7 @@ import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.ActionResponse;
+import org.elasticsearch.action.DocWriteRequest.OpType;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -35,13 +36,14 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.support.AbstractClient;
-import org.elasticsearch.client.support.Headers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.EsRejectedExecutionException;
+import org.elasticsearch.index.shard.ShardId;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import java.util.UUID;
 
 public class TestElasticIndexWriter {
 
@@ -63,10 +65,9 @@ public class TestElasticIndexWriter {
 
     Settings settings = Settings.builder().build();
     ThreadPool threadPool = new ThreadPool(settings);
-    Headers headers = new Headers(settings);
 
     // customize the ES client to simulate responses from an ES cluster
-    client = new AbstractClient(settings, threadPool, headers) {
+    client = new AbstractClient(settings, threadPool) {
       @Override
       public void close() { }
 
@@ -84,14 +85,14 @@ public class TestElasticIndexWriter {
           }
 
           // respond with a failure
-          BulkItemResponse failed = new BulkItemResponse(0, "index",
+          BulkItemResponse failed = new BulkItemResponse(0, OpType.INDEX,
               new BulkItemResponse.Failure("nutch", "index", "failure0",
                   new EsRejectedExecutionException("saturated")));
           response = new BulkResponse(new BulkItemResponse[]{failed}, 0);
         } else {
           // respond successfully
-          BulkItemResponse success = new BulkItemResponse(0, "index",
-              new IndexResponse("nutch", "index", "index0", 0, true));
+          BulkItemResponse success = new BulkItemResponse(0, OpType.INDEX,
+              new IndexResponse(new ShardId("nutch", UUID.randomUUID().toString(), 0), "index", "index0", 0, true));
           response = new BulkResponse(new BulkItemResponse[]{success}, 0);
         }
 

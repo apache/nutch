@@ -164,7 +164,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-1.14-SNAPSHOT</value>
+  <value>Nutch-1.15-SNAPSHOT</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -572,7 +572,7 @@
   <value>false</value>
   <description>If true, outlinks leading from a page to internal hosts or domain
   will be ignored. This is an effective way to limit the crawl to include
-  only initially injected hosts, without creating complex URLFilters.
+  only initially injected hosts or domains, without creating complex URLFilters.
   See 'db.ignore.external.links.mode'.
   </description>
 </property>
@@ -582,8 +582,18 @@
   <value>false</value>
   <description>If true, outlinks leading from a page to external hosts or domain
   will be ignored. This is an effective way to limit the crawl to include
-  only initially injected hosts, without creating complex URLFilters.
+  only initially injected hosts or domains, without creating complex URLFilters.
   See 'db.ignore.external.links.mode'.
+  </description>
+</property>
+
+<property>
+  <name>db.ignore.also.redirects</name>
+  <value>true</value>
+  <description>If true, the fetcher checks redirects the same way as
+  links when ignoring internal or external links. Set to false to
+  follow redirects despite the values for db.ignore.external.links and
+  db.ignore.internal.links.
   </description>
 </property>
 
@@ -1054,6 +1064,14 @@
 	Publisher implementation specific properties</description>
 </property> 
 
+<!--  any23 plugin properties -->
+
+<property>
+    <name>any23.extractors</name>
+    <value>html-microdata</value>
+    <description>Comma-separated list of Any23 extractors (a list of extractors is available here: http://any23.apache.org/getting-started.html)</description>
+</property>
+
 <!-- moreindexingfilter plugin properties -->
 
 <property>
@@ -1225,7 +1243,7 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
+  <value>protocol-http|urlfilter-(regex|validator)|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By
@@ -1405,6 +1423,12 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 -->
+
+<property>
+ <name>tika.config.file</name>
+ <value>tika-config.xml</value>
+ <description>Nutch-specific Tika config file</description>
+</property>
 
 <property>
   <name>tika.uppercase.element.names</name>
@@ -1605,6 +1629,34 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <description>If set to true with lang.extraction.policy containing identify,
   the language code returned by Tika will be assigned to the document ONLY
   if it is deemed certain by Tika.
+  </description>
+</property>
+
+<property>
+  <name>lang.index.languages</name>
+  <value></value>
+  <description>If not empty, should be a comma separated list of language codes.
+  Only documents with one of these language codes will be indexed.
+  "unknown" is a valid language code, will match documents where language
+  detection failed.
+  </description>
+</property>
+
+<!-- index-jexl-filter plugin properties -->
+
+<property>
+  <name>index.jexl.filter</name>
+  <value></value>
+  <description> A JEXL expression. If it evaluates to false,
+  the document will not be indexed.
+  Available primitives in the JEXL context:
+  * status, fetchTime, modifiedTime, retries, interval, score, signature, url, text, title
+  Available objects in the JEXL context:
+  * httpStatus - contains majorCode, minorCode, message
+  * documentMeta, contentMeta, parseMeta - contain all the Metadata properties.
+    each property value is always an array of Strings (so if you expect one value, use [0])
+  * doc - contains all the NutchFields from the NutchDocument.
+    each property value is always an array of Objects.
   </description>
 </property>
 
@@ -2079,6 +2131,34 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     <name>elastic.rest.index</name>
     <value>nutch</value>
     <description>Default index to send documents to.</description>
+</property>
+
+<property>
+    <name>elastic.rest.index.languages</name>
+    <value></value>
+    <description>
+        A list of strings denoting the supported languages (e.g. `en,de,fr,it`).
+        If this value is empty all documents will be sent to index ${elastic.rest.index}.
+        If not empty the Rest client will distribute documents in different indices based on their `lang` property.
+        Indices are named with the following schema: ${elastic.rest.index}${elastic.rest.index.separator}${lang} (e.g. `nutch_de`).
+        Entries with an unsupported `lang` value will be added to index ${elastic.rest.index}${elastic.rest.index.separator}${elastic.rest.index.sink} (e.g. `nutch_others`).
+    </description>
+</property>
+
+<property>
+    <name>elastic.rest.index.separator</name>
+    <value>_</value>
+    <description>
+        Default value is `_`. Is used only if `elastic.rest.index.languages` is defined to build the index name (i.e. ${elastic.rest.index}${elastic.rest.index.separator}${lang}). 
+    </description>
+</property>
+
+<property>
+    <name>elastic.rest.index.sink</name>
+    <value>others</value>
+    <description>
+        Default value is `others`. Is used only if `elastic.rest.index.languages` is defined to build the index name where to store documents with unsupported languages (i.e. ${elastic.rest.index}${elastic.rest.index.separator}${elastic.rest.index.sink}).
+    </description>
 </property>
 
 <property>

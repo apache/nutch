@@ -31,6 +31,10 @@ public class URLFilters {
         URLFilter.class, URLFilter.X_POINT_ID, URLFILTER_ORDER);
   }
 
+  public URLFilter[] getFilters() {
+    return this.filters;
+  }
+
   /** Run all defined filters. Assume logical AND. */
   public String filter(String urlString) throws URLFilterException {
     for (int i = 0; i < this.filters.length; i++) {

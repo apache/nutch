@@ -376,7 +376,7 @@ public class Generator extends NutchTool implements Tool {
       
       // check expr
       if (expr != null) {
-        if (!crawlDatum.evaluate(expr)) {
+        if (!crawlDatum.evaluate(expr, key.toString())) {
           return;
         }
       }
@@ -1042,8 +1042,9 @@ public class Generator extends NutchTool implements Tool {
     boolean force = false;
     int maxNumSegments = 1;
     String expr = null;
-
+    String hostdb = null;
     Path crawlDb;
+    
     if(args.containsKey(Nutch.ARG_CRAWLDB)) {
       Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
       if(crawldbPath instanceof Path) {
@@ -1069,6 +1070,9 @@ public class Generator extends NutchTool implements Tool {
     }
     else {
       segmentsDir = new Path(crawlId+"/segments");
+    }
+    if (args.containsKey(Nutch.ARG_HOSTDB)) {
+      	hostdb = (String)args.get(Nutch.ARG_HOSTDB);
     }
     
     if (args.containsKey("expr")) {
@@ -1099,7 +1103,7 @@ public class Generator extends NutchTool implements Tool {
 
     try {
       Path[] segs = generate(crawlDb, segmentsDir, numFetchers, topN, curTime,
-          filter, norm, force, maxNumSegments, expr);
+          filter, norm, force, maxNumSegments, expr, hostdb);
       if (segs == null){
         results.put(Nutch.VAL_RESULT, Integer.toString(1));
         return results;
