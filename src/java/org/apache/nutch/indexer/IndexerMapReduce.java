@@ -238,9 +238,9 @@ public class IndexerMapReduce extends Configured implements
     }
 
     // Whether to delete GONE or REDIRECTS
-    if (delete && fetchDatum != null && dbDatum != null) {
+    if (delete && fetchDatum != null) {
       if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE
-          || dbDatum.getStatus() == CrawlDatum.STATUS_DB_GONE) {
+          || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_GONE) {
         reporter.incrCounter("IndexerStatus", "deleted (gone)", 1);
         output.collect(key, DELETE_ACTION);
         return;
@@ -248,28 +248,27 @@ public class IndexerMapReduce extends Configured implements
 
       if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM
           || fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP
-          || dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM
-          || dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
+          || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM
+          || dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
         reporter.incrCounter("IndexerStatus", "deleted (redirects)", 1);
         output.collect(key, DELETE_ACTION);
         return;
       }
     }
 
-    if (fetchDatum == null || dbDatum == null || parseText == null
-        || parseData == null) {
+    if (fetchDatum == null || parseText == null || parseData == null) {
       return; // only have inlinks
     }
 
     // Whether to delete pages marked as duplicates
-    if (delete && dbDatum.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
+    if (delete && dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
       reporter.incrCounter("IndexerStatus", "deleted (duplicates)", 1);
       output.collect(key, DELETE_ACTION);
       return;
     }
 
     // Whether to skip DB_NOTMODIFIED pages
-    if (skip && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
+    if (skip && dbDatum != null && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
       reporter.incrCounter("IndexerStatus", "skipped (not modified)", 1);
       return;
     }
@@ -309,22 +308,24 @@ public class IndexerMapReduce extends Configured implements
     doc.add("boost", Float.toString(boost));
 
     try {
-      // Indexing filters may also be interested in the signature
-      fetchDatum.setSignature(dbDatum.getSignature());
-      
-      // extract information from dbDatum and pass it to
-      // fetchDatum so that indexing filters can use it
-      final Text url = (Text) dbDatum.getMetaData().get(
-          Nutch.WRITABLE_REPR_URL_KEY);
-      if (url != null) {
-        // Representation URL also needs normalization and filtering.
-        // If repr URL is excluded by filters we still accept this document
-        // but represented by its primary URL ("key") which has passed URL
-        // filters.
-        String urlString = filterUrl(normalizeUrl(url.toString()));
-        if (urlString != null) {
-          url.set(urlString);
-          fetchDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY, url);
+      if (dbDatum != null) {
+        // Indexing filters may also be interested in the signature
+        fetchDatum.setSignature(dbDatum.getSignature());
+        
+        // extract information from dbDatum and pass it to
+        // fetchDatum so that indexing filters can use it
+        final Text url = (Text) dbDatum.getMetaData().get(
+            Nutch.WRITABLE_REPR_URL_KEY);
+        if (url != null) {
+          // Representation URL also needs normalization and filtering.
+          // If repr URL is excluded by filters we still accept this document
+          // but represented by its primary URL ("key") which has passed URL
+          // filters.
+          String urlString = filterUrl(normalizeUrl(url.toString()));
+          if (urlString != null) {
+            url.set(urlString);
+            fetchDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY, url);
+          }
         }
       }
       // run indexing filters

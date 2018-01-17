@@ -111,7 +111,10 @@ public class CrawlDbFilter implements
         url = null;
       }
     }
-    if (url != null) { // if it passes
+    if (url == null) {
+      reporter.getCounter("CrawlDB filter", "URLs filtered").increment(1);
+    } else {
+      // URL has passed filters
       newKey.set(url); // collect it
       output.collect(newKey, value);
     }

@@ -171,7 +171,7 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
   private void readConfiguration(Reader reader) throws IOException {
     BufferedReader in = new BufferedReader(reader);
     String line;
-    List rules = new ArrayList();
+    List<String> rules = new ArrayList<String>();
 
     while (null != (line = in.readLine())) {
       if (line.length() == 0) {

@@ -96,6 +96,8 @@ public interface Nutch {
 	public static final String ARG_SEGMENTDIR = "segment_dir";
 	/** Argument key to specify the location of individual segment or list of segments for the REST endpoints. The behavior differs for diffirent endpoints: CrawlDb, LinkDb and Indexing Jobs take list of segments, Fetcher and Parse segment take one segment **/
 	public static final String ARG_SEGMENTS = "segment";
+	/** Argument key to specify the location of hostdb for the REST endpoints **/
+	public static final String ARG_HOSTDB = "hostdb";
 	/** Title key in the Pub/Sub event metadata for the title of the parsed page*/
 	public static final String FETCH_EVENT_TITLE = "title";
 	/** Content-type key in the Pub/Sub event metadata for the content-type of the parsed page*/
