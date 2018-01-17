@@ -19,14 +19,20 @@ package org.apache.nutch.hostdb;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.HashMap;
-import java.util.Map;
 
+import javafx.util.Pair;
+
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.MapContext;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -36,24 +42,22 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.StringUtils;
-
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
-
-import com.tdunning.math.stats.TDigest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.tdunning.math.stats.TDigest;
 
 /**
  *
  *
  */
-public class UpdateHostDbReducer
-  implements Reducer<Text, NutchWritable, Text, HostDatum> {
+public class UpdateHostDbReducer implements
+    Reducer<Text, NutchWritable, Text, HostDatum> {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles
+      .lookup().lookupClass());
   protected ResolverThread resolverThread = null;
   protected Integer numResolverThreads = 10;
   protected static Integer purgeFailedHostsThreshold = -1;
@@ -68,18 +72,23 @@ public class UpdateHostDbReducer
   protected static int[] percentiles;
   protected static Text[] numericFieldWritables;
   protected static Text[] stringFieldWritables;
-  
+
   protected BlockingQueue<Runnable> queue = new SynchronousQueue<>();
   protected ThreadPoolExecutor executor = null;
 
+  protected String stringDeltaExpression = null;
+  protected Expression deltaExpression = null;
+
   /**
-    * Configures the thread pool and prestarts all resolver threads.
-    *
-    * @param job
-    */
+   * Configures the thread pool and prestarts all resolver threads.
+   *
+   * @param job
+   */
   public void configure(JobConf job) {
-    purgeFailedHostsThreshold = job.getInt(UpdateHostDb.HOSTDB_PURGE_FAILED_HOSTS_THRESHOLD, -1);
-    numResolverThreads = job.getInt(UpdateHostDb.HOSTDB_NUM_RESOLVER_THREADS, 10);
+    purgeFailedHostsThreshold = job.getInt(
+        UpdateHostDb.HOSTDB_PURGE_FAILED_HOSTS_THRESHOLD, -1);
+    numResolverThreads = job.getInt(UpdateHostDb.HOSTDB_NUM_RESOLVER_THREADS,
+        10);
     recheckInterval = job.getInt(UpdateHostDb.HOSTDB_RECHECK_INTERVAL, 86400) * 1000;
     checkFailed = job.getBoolean(UpdateHostDb.HOSTDB_CHECK_FAILED, false);
     checkNew = job.getBoolean(UpdateHostDb.HOSTDB_CHECK_NEW, false);
@@ -88,7 +97,7 @@ public class UpdateHostDbReducer
     numericFields = job.getStrings(UpdateHostDb.HOSTDB_NUMERIC_FIELDS);
     stringFields = job.getStrings(UpdateHostDb.HOSTDB_STRING_FIELDS);
     percentiles = job.getInts(UpdateHostDb.HOSTDB_PERCENTILES);
-    
+
     // What fields do we need to collect metadata from
     if (numericFields != null) {
       numericFieldWritables = new Text[numericFields.length];
@@ -96,7 +105,7 @@ public class UpdateHostDbReducer
         numericFieldWritables[i] = new Text(numericFields[i]);
       }
     }
-    
+
     if (stringFields != null) {
       stringFieldWritables = new Text[stringFields.length];
       for (int i = 0; i < stringFields.length; i++) {
@@ -104,79 +113,112 @@ public class UpdateHostDbReducer
       }
     }
 
+    stringDeltaExpression = job
+        .get(UpdateHostDb.HOSTDB_UPDATEDB_DELTA_EXPRESSION);
+    if (!org.apache.commons.lang3.StringUtils.isEmpty(stringDeltaExpression)) {
+      // Create or retrieve a JexlEngine
+      JexlEngine jexl = new JexlEngine();
+
+      // Dont't be silent and be strict
+      jexl.setSilent(true);
+      jexl.setStrict(true);
+
+      // Create an expression object
+      this.deltaExpression = jexl.createExpression(stringDeltaExpression);
+    }
+
     // Initialize the thread pool with our queue
     executor = new ThreadPoolExecutor(numResolverThreads, numResolverThreads,
-      5, TimeUnit.SECONDS, queue);
+        5, TimeUnit.SECONDS, queue);
 
     // Run all threads in the pool
     executor.prestartAllCoreThreads();
+  }
+
+  public Pair<String, Integer> evaluateDeltaExpression(
+      HostDatum currentHostDatum, HostDatum previousHostDatum) {
+    Pair<String, Integer> results = null;
+
+    JexlContext jcontext = new MapContext();
+    jcontext.set("currentHostDatum", currentHostDatum);
+    jcontext.set("previousHostDatum", previousHostDatum);
+    try {
+      results = (Pair<String, Integer>) deltaExpression.evaluate(jcontext);
+      return results;
+    } catch (Exception e) {
+      LOG.info("Evaluate delta expression exception: " + e.toString());
+    }
+    return results;
   }
 
   /**
     *
     */
   public void reduce(Text key, Iterator<NutchWritable> values,
-    OutputCollector<Text,HostDatum> output, Reporter reporter) throws IOException {
+      OutputCollector<Text, HostDatum> output, Reporter reporter)
+      throws IOException {
 
-    Map<String,Map<String,Integer>> stringCounts = new HashMap<>();
-    Map<String,Float> maximums = new HashMap<>();
-    Map<String,Float> sums = new HashMap<>(); // used to calc averages
-    Map<String,Integer> counts = new HashMap<>(); // used to calc averages
-    Map<String,Float> minimums = new HashMap<>();
-    Map<String,TDigest> tdigests = new HashMap<String,TDigest>();
-    
+    Map<String, Map<String, Integer>> stringCounts = new HashMap<>();
+    Map<String, Float> maximums = new HashMap<>();
+    Map<String, Float> sums = new HashMap<>(); // used to calc averages
+    Map<String, Integer> counts = new HashMap<>(); // used to calc averages
+    Map<String, Float> minimums = new HashMap<>();
+    Map<String, TDigest> tdigests = new HashMap<String, TDigest>();
+
     HostDatum hostDatum = new HostDatum();
+    HostDatum histrocialHostDatum = null;
     float score = 0;
-    
+
     if (stringFields != null) {
       for (int i = 0; i < stringFields.length; i++) {
         stringCounts.put(stringFields[i], new HashMap<>());
       }
     }
-    
+
     // Loop through all values until we find a non-empty HostDatum or use
     // an empty if this is a new host for the host db
     while (values.hasNext()) {
       Writable value = values.next().get();
-      
+
       // Count crawl datum status's and collect metadata from fields
       if (value instanceof CrawlDatum) {
-        CrawlDatum buffer = (CrawlDatum)value;
-        
+        CrawlDatum buffer = (CrawlDatum) value;
+
         // Set the correct status field
         switch (buffer.getStatus()) {
-          case CrawlDatum.STATUS_DB_UNFETCHED:
-            hostDatum.setUnfetched(hostDatum.getUnfetched() + 1);
-            break;
+        case CrawlDatum.STATUS_DB_UNFETCHED:
+          hostDatum.setUnfetched(hostDatum.getUnfetched() + 1);
+          break;
 
-          case CrawlDatum.STATUS_DB_FETCHED:
-            hostDatum.setFetched(hostDatum.getFetched() + 1);
-            break;
+        case CrawlDatum.STATUS_DB_FETCHED:
+          hostDatum.setFetched(hostDatum.getFetched() + 1);
+          break;
 
-          case CrawlDatum.STATUS_DB_GONE:
-            hostDatum.setGone(hostDatum.getGone() + 1);
-            break;
+        case CrawlDatum.STATUS_DB_GONE:
+          hostDatum.setGone(hostDatum.getGone() + 1);
+          break;
 
-          case CrawlDatum.STATUS_DB_REDIR_TEMP:
-            hostDatum.setRedirTemp(hostDatum.getRedirTemp() + 1);
-            break;
+        case CrawlDatum.STATUS_DB_REDIR_TEMP:
+          hostDatum.setRedirTemp(hostDatum.getRedirTemp() + 1);
+          break;
 
-          case CrawlDatum.STATUS_DB_REDIR_PERM:
-            hostDatum.setRedirPerm(hostDatum.getRedirPerm() + 1);
-            break;
+        case CrawlDatum.STATUS_DB_REDIR_PERM:
+          hostDatum.setRedirPerm(hostDatum.getRedirPerm() + 1);
+          break;
 
-          case CrawlDatum.STATUS_DB_NOTMODIFIED:
-            hostDatum.setNotModified(hostDatum.getNotModified() + 1);
-            break;
+        case CrawlDatum.STATUS_DB_NOTMODIFIED:
+          hostDatum.setNotModified(hostDatum.getNotModified() + 1);
+          break;
         }
-        
+
         // Record connection failures
         if (buffer.getRetriesSinceFetch() != 0) {
           hostDatum.incConnectionFailures();
         }
-        
+
         // Only gather metadata statistics for proper fetched pages
-        if (buffer.getStatus() == CrawlDatum.STATUS_DB_FETCHED || buffer.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {            
+        if (buffer.getStatus() == CrawlDatum.STATUS_DB_FETCHED
+            || buffer.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
           // Deal with the string fields
           if (stringFields != null) {
             for (int i = 0; i < stringFields.length; i++) {
@@ -185,15 +227,19 @@ public class UpdateHostDbReducer
                 // Get it!
                 String metadataValue = null;
                 try {
-                  metadataValue = buffer.getMetaData().get(stringFieldWritables[i]).toString();
+                  metadataValue = buffer.getMetaData()
+                      .get(stringFieldWritables[i]).toString();
                 } catch (Exception e) {
-                  LOG.error("Metadata field " + stringFields[i] + " is probably not a numeric value");
+                  LOG.error("Metadata field " + stringFields[i]
+                      + " is probably not a numeric value");
                 }
-              
+
                 // Does the value exist?
-                if (stringCounts.get(stringFields[i]).containsKey(metadataValue)) {
+                if (stringCounts.get(stringFields[i])
+                    .containsKey(metadataValue)) {
                   // Yes, increment it
-                  stringCounts.get(stringFields[i]).put(metadataValue, stringCounts.get(stringFields[i]).get(metadataValue) + 1);
+                  stringCounts.get(stringFields[i]).put(metadataValue,
+                      stringCounts.get(stringFields[i]).get(metadataValue) + 1);
                 } else {
                   // Create it!
                   stringCounts.get(stringFields[i]).put(metadataValue, 1);
@@ -201,7 +247,7 @@ public class UpdateHostDbReducer
               }
             }
           }
-          
+
           // Deal with the numeric fields
           if (numericFields != null) {
             for (int i = 0; i < numericFields.length; i++) {
@@ -209,18 +255,19 @@ public class UpdateHostDbReducer
               if (buffer.getMetaData().get(numericFieldWritables[i]) != null) {
                 try {
                   // Get it!
-                  Float metadataValue = Float.parseFloat(buffer.getMetaData().get(numericFieldWritables[i]).toString());
-                  
+                  Float metadataValue = Float.parseFloat(buffer.getMetaData()
+                      .get(numericFieldWritables[i]).toString());
+
                   // Does the median value exist?
                   if (tdigests.containsKey(numericFields[i])) {
                     tdigests.get(numericFields[i]).add(metadataValue);
                   } else {
                     // Create it!
                     TDigest tdigest = TDigest.createDigest(100);
-                    tdigest.add((double)metadataValue);
+                    tdigest.add((double) metadataValue);
                     tdigests.put(numericFields[i], tdigest);
                   }
-                
+
                   // Does the minimum value exist?
                   if (minimums.containsKey(numericFields[i])) {
                     // Write if this is lower than existing value
@@ -231,7 +278,7 @@ public class UpdateHostDbReducer
                     // Create it!
                     minimums.put(numericFields[i], metadataValue);
                   }
-                  
+
                   // Does the maximum value exist?
                   if (maximums.containsKey(numericFields[i])) {
                     // Write if this is lower than existing value
@@ -242,29 +289,43 @@ public class UpdateHostDbReducer
                     // Create it!
                     maximums.put(numericFields[i], metadataValue);
                   }
-                  
+
                   // Sum it up!
                   if (sums.containsKey(numericFields[i])) {
                     // Increment
-                    sums.put(numericFields[i], sums.get(numericFields[i]) + metadataValue);
-                    counts.put(numericFields[i], counts.get(numericFields[i]) + 1);
+                    sums.put(numericFields[i], sums.get(numericFields[i])
+                        + metadataValue);
+                    counts.put(numericFields[i],
+                        counts.get(numericFields[i]) + 1);
                   } else {
                     // Create it!
                     sums.put(numericFields[i], metadataValue);
                     counts.put(numericFields[i], 1);
                   }
                 } catch (Exception e) {
-                  LOG.error(e.getMessage() + " when processing values for " + key.toString());
+                  LOG.error(e.getMessage() + " when processing values for "
+                      + key.toString());
                 }
               }
             }
           }
         }
       }
-      
-      // 
+
+      //
       if (value instanceof HostDatum) {
-        HostDatum buffer = (HostDatum)value;
+        HostDatum buffer = (HostDatum) value;
+
+        if (!org.apache.commons.lang3.StringUtils
+            .isEmpty(stringDeltaExpression)) {
+          try {
+            histrocialHostDatum = (HostDatum) buffer.clone();
+          } catch (CloneNotSupportedException e) {
+            histrocialHostDatum = null;
+          } finally {
+            buffer.resetStatistics();
+          }
+        }
 
         // Check homepage URL
         if (buffer.hasHomepageUrl()) {
@@ -285,7 +346,7 @@ public class UpdateHostDbReducer
         if (buffer.getConnectionFailures() > 0) {
           hostDatum.setConnectionFailures(buffer.getConnectionFailures());
         }
-        
+
         // Check metadata
         if (!buffer.getMetaData().isEmpty()) {
           hostDatum.setMetaData(buffer.getMetaData());
@@ -299,7 +360,7 @@ public class UpdateHostDbReducer
 
       // Check for the score
       if (value instanceof FloatWritable) {
-        FloatWritable buffer = (FloatWritable)value;
+        FloatWritable buffer = (FloatWritable) value;
         score = buffer.get();
       }
     }
@@ -308,35 +369,56 @@ public class UpdateHostDbReducer
     if (score > 0) {
       hostDatum.setScore(score);
     }
-    
+
     // Set metadata
-    for (Map.Entry<String, Map<String,Integer>> entry : stringCounts.entrySet()) {
-      for (Map.Entry<String,Integer> subEntry : entry.getValue().entrySet()) {
-        hostDatum.getMetaData().put(new Text(entry.getKey() + "." + subEntry.getKey()), new IntWritable(subEntry.getValue()));
+    if (deltaExpression != null) {
+      Pair<String, Integer> deltaExpressionResultPair = evaluateDeltaExpression(
+          hostDatum, histrocialHostDatum);
+
+      if (deltaExpressionResultPair != null) {
+        hostDatum.getMetaData().put(
+            new Text(deltaExpressionResultPair.getKey()),
+            new IntWritable(deltaExpressionResultPair.getValue()));
+      }
+    }
+
+    for (Map.Entry<String, Map<String, Integer>> entry : stringCounts
+        .entrySet()) {
+      for (Map.Entry<String, Integer> subEntry : entry.getValue().entrySet()) {
+        hostDatum.getMetaData().put(
+            new Text(entry.getKey() + "." + subEntry.getKey()),
+            new IntWritable(subEntry.getValue()));
       }
     }
     for (Map.Entry<String, Float> entry : maximums.entrySet()) {
-      hostDatum.getMetaData().put(new Text("max." + entry.getKey()), new FloatWritable(entry.getValue()));
+      hostDatum.getMetaData().put(new Text("max." + entry.getKey()),
+          new FloatWritable(entry.getValue()));
     }
     for (Map.Entry<String, Float> entry : sums.entrySet()) {
-      hostDatum.getMetaData().put(new Text("avg." + entry.getKey()), new FloatWritable(entry.getValue() / counts.get(entry.getKey())));
+      hostDatum.getMetaData().put(new Text("avg." + entry.getKey()),
+          new FloatWritable(entry.getValue() / counts.get(entry.getKey())));
     }
     for (Map.Entry<String, TDigest> entry : tdigests.entrySet()) {
       // Emit all percentiles
       for (int i = 0; i < percentiles.length; i++) {
-        hostDatum.getMetaData().put(new Text("pct" + Integer.toString(percentiles[i]) + "." + entry.getKey()), new FloatWritable((float)entry.getValue().quantile(0.5)));
+        hostDatum.getMetaData().put(
+            new Text("pct" + Integer.toString(percentiles[i]) + "."
+                + entry.getKey()),
+            new FloatWritable((float) entry.getValue().quantile(0.5)));
       }
-    }      
-    for (Map.Entry<String, Float> entry : minimums.entrySet()) {
-      hostDatum.getMetaData().put(new Text("min." + entry.getKey()), new FloatWritable(entry.getValue()));
     }
-    
+    for (Map.Entry<String, Float> entry : minimums.entrySet()) {
+      hostDatum.getMetaData().put(new Text("min." + entry.getKey()),
+          new FloatWritable(entry.getValue()));
+    }
+
     reporter.incrCounter("UpdateHostDb", "total_hosts", 1);
 
     // See if this record is to be checked
     if (shouldCheck(hostDatum)) {
       // Make an entry
-      resolverThread = new ResolverThread(key.toString(), hostDatum, output, reporter, purgeFailedHostsThreshold);
+      resolverThread = new ResolverThread(key.toString(), hostDatum, output,
+          reporter, purgeFailedHostsThreshold);
 
       // Add the entry to the queue (blocking)
       try {
@@ -357,11 +439,11 @@ public class UpdateHostDbReducer
   }
 
   /**
-    * Determines whether a record should be checked.
-    *
-    * @param datum
-    * @return boolean
-    */
+   * Determines whether a record should be checked.
+   *
+   * @param datum
+   * @return boolean
+   */
   protected boolean shouldCheck(HostDatum datum) {
     // Whether a new record is to be checked
     if (checkNew && datum.isEmpty()) {
@@ -383,15 +465,16 @@ public class UpdateHostDbReducer
   }
 
   /**
-    * Determines whether a record is eligible for recheck.
-    *
-    * @param datum
-    * @return boolean
-    */
+   * Determines whether a record is eligible for recheck.
+   *
+   * @param datum
+   * @return boolean
+   */
   protected boolean isEligibleForCheck(HostDatum datum) {
     // Whether an existing host, known or unknown, if forced to be rechecked
-    if (force || datum.getLastCheck().getTime() +
-      (recheckInterval * datum.getDnsFailures() + 1) > now) {
+    if (force
+        || datum.getLastCheck().getTime()
+            + (recheckInterval * datum.getDnsFailures() + 1) > now) {
       return true;
     }
 
@@ -399,8 +482,8 @@ public class UpdateHostDbReducer
   }
 
   /**
-    * Shut down all running threads and wait for completion.
-    */
+   * Shut down all running threads and wait for completion.
+   */
   public void close() {
     LOG.info("UpdateHostDb: feeder finished, waiting for shutdown");
 
@@ -414,7 +497,8 @@ public class UpdateHostDbReducer
       try {
         // Wait for the executor to shut down completely
         if (!executor.isTerminated()) {
-          LOG.info("UpdateHostDb: resolver threads waiting: " + Integer.toString(executor.getPoolSize()));
+          LOG.info("UpdateHostDb: resolver threads waiting: "
+              + Integer.toString(executor.getPoolSize()));
           Thread.sleep(1000);
         } else {
           // All is well, get out
