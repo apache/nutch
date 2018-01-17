@@ -377,16 +377,13 @@ public class Generator extends NutchTool implements Tool {
               LOG.info("Generator: variable maxCount: {} for {}", variableMaxCount, hostname);
               maxCount = (int)variableMaxCount;
             }
+            
             if (fetchDelayExpr != null) {
               long variableFetchDelay = Math.round((double)fetchDelayExpr.evaluate(createContext(host)));
               LOG.info("Generator: variable fetchDelay: {} ms for {}", variableFetchDelay, hostname);
               variableFetchDelayWritable = new LongWritable(variableFetchDelay);              
             }
           }
-        }
-        
-        if(maxCount == 0){ 
-        	continue; 
         }
         
         // Got a non-zero variable fetch delay? Add it to the datum's metadata
