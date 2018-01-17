@@ -121,9 +121,9 @@ public class ElasticRestIndexWriter implements IndexWriter {
     https = parameters.getBoolean(ElasticRestConstants.HTTPS, false);
     trustAllHostnames = parameters.getBoolean(ElasticRestConstants.HOSTNAME_TRUST, false);
 
-    languages = job.getStrings(ElasticRestConstants.LANGUAGES);
-    separator = job.get(ElasticRestConstants.SEPARATOR, DEFAULT_SEPARATOR);
-    sink = job.get(ElasticRestConstants.SINK, DEFAULT_SINK);
+    languages = parameters.getStrings(ElasticRestConstants.LANGUAGES);
+    separator = parameters.get(ElasticRestConstants.SEPARATOR, DEFAULT_SEPARATOR);
+    sink = parameters.get(ElasticRestConstants.SINK, DEFAULT_SINK);
 
     // trust ALL certificates
     SSLContext sslContext = null;

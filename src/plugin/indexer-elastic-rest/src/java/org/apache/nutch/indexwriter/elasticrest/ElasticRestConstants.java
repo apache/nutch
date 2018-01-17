@@ -29,7 +29,7 @@ public interface ElasticRestConstants {
   public static final String HTTPS = "https";
   public static final String HOSTNAME_TRUST = "trustallhostnames";
   
-  public static final String LANGUAGES = INDEX + ".languages";
-  public static final String SEPARATOR = INDEX + ".separator";
-  public static final String SINK = INDEX + ".sink";
+  public static final String LANGUAGES = "languages";
+  public static final String SEPARATOR = "separator";
+  public static final String SINK = "sink";
 }

@@ -154,7 +154,6 @@ public class ElasticIndexWriter implements IndexWriter {
 
       for (String host: hosts)
         transportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
-      }
       client = transportClient;
     } else if (clusterName != null) {
       node = new Node(settings);

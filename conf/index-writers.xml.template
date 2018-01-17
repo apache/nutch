@@ -116,6 +116,9 @@
       <param name="type" value="doc"/>
       <param name="https" value="false"/>
       <param name="trustallhostnames" value="false"/>
+      <param name="languages" value=""/>
+      <param name="separator" value="_"/>
+      <param name="sink" value="others"/>
     </parameters>
     <mapping>
       <copy>
