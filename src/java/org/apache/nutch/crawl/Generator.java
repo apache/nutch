@@ -42,7 +42,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -320,7 +319,6 @@ public class Generator extends NutchTool implements Tool {
     private int maxNumSegments = 1;
     private Expression expr = null;
     private int currentsegmentnum = 1;
-    private SequenceFile.Reader[] hostdbReaders = null;
     private Expression maxCountExpr = null;
     private Expression fetchDelayExpr = null;
     private JobConf conf = null;
@@ -517,7 +515,7 @@ public class Generator extends NutchTool implements Tool {
           MutablePair<HostDatum, int[]> hostDataPair = new MutablePair<HostDatum, int[]>(
               hostDatum, new int[] { 1, 0 });
           hostDomainCounts.put(key.second.toString(), hostDataPair);
-        } else // Process normal input with pre-filled in hostdatum in
+        } else // Process normal input with pre-filled in hostdatum in //
                // hostCounts
         {
           try {
@@ -566,10 +564,14 @@ public class Generator extends NutchTool implements Tool {
               }
             }
           } catch (Exception e) {
-            LOG.info("Exception while doing host/domain extraction",
+            LOG.info(
+                "Exception while doing host/domain extraction and expressions evaluation",
                 e.toString());
           }
 
+          if (maxCount == 0) {
+            continue;
+          }
           // Got a non-zero variable fetch delay? Add it to the datum's metadata
           if (variableFetchDelayWritable != null) {
             entry.datum.getMetaData().put(variableFetchDelayKey,

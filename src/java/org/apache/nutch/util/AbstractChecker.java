@@ -131,11 +131,17 @@ public abstract class AbstractChecker extends Configured implements Tool {
 
     public void run() {
       if (keepClientCnxOpen) {
-        while (true) { // keep connection open until closes
-          readWrite();
+        try {
+          while (readWrite()) {} // keep connection open until it closes
+        } catch(Exception e) {
+          LOG.error("Read/Write failed: ", e);
         }
       } else {
-        readWrite();
+        try {
+          readWrite();
+        } catch(Exception e) {
+          LOG.error("Read/Write failed: ", e);
+        }
         
         try { // close ourselves
           client.close();
@@ -145,27 +151,25 @@ public abstract class AbstractChecker extends Configured implements Tool {
       }
     }
     
-    protected void readWrite() {
+    protected boolean readWrite() throws Exception {
       String line;
       BufferedReader in = null;
       PrintWriter out = null;
       
-      try {
-        in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-      } catch (Exception e) {
-        LOG.error("in or out failed");
-        System.exit(-1);
+      in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+
+      line = in.readLine();
+      if (line == null) {
+        // End of stream
+        return false;
       }
 
-      try {
-        line = in.readLine();
+      if (line.trim().length() > 1) {
         StringBuilder output = new StringBuilder();
         process(line, output);
-        
         client.getOutputStream().write(output.toString().getBytes(StandardCharsets.UTF_8));
-      } catch (Exception e) {
-        LOG.error("Read/Write failed: " + e);
       }
+      return true;
     }
   }
 }
