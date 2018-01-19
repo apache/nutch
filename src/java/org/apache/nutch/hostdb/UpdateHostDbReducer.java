@@ -135,15 +135,15 @@ public class UpdateHostDbReducer implements
     executor.prestartAllCoreThreads();
   }
 
-  public Pair<String, Integer> evaluateDeltaExpression(
+  public Pair<String, Object> evaluateDeltaExpression(
       HostDatum currentHostDatum, HostDatum previousHostDatum) {
-    Pair<String, Integer> results = null;
+    Pair<String, Object> results = null;
 
     JexlContext jcontext = new MapContext();
     jcontext.set("currentHostDatum", currentHostDatum);
     jcontext.set("previousHostDatum", previousHostDatum);
     try {
-      results = (Pair<String, Integer>) deltaExpression.evaluate(jcontext);
+      results = (Pair<String, Object>) deltaExpression.evaluate(jcontext);
       return results;
     } catch (Exception e) {
       LOG.info("Evaluate delta expression exception: " + e.toString());
@@ -372,13 +372,27 @@ public class UpdateHostDbReducer implements
 
     // Set metadata
     if (deltaExpression != null) {
-      Pair<String, Integer> deltaExpressionResultPair = evaluateDeltaExpression(
+      Pair<String, Object> deltaExpressionResultPair = evaluateDeltaExpression(
           hostDatum, histrocialHostDatum);
 
-      if (deltaExpressionResultPair != null) {
-        hostDatum.getMetaData().put(
-            new Text(deltaExpressionResultPair.getKey()),
-            new IntWritable(deltaExpressionResultPair.getValue()));
+      try {
+        if (deltaExpressionResultPair != null) {
+          Object deltaExpressionResultPairValue = deltaExpressionResultPair
+              .getValue();
+          if (deltaExpressionResultPairValue instanceof Number) {
+            hostDatum.getMetaData().put(
+                new Text(deltaExpressionResultPair.getKey()),
+                new FloatWritable(((Number) deltaExpressionResultPair
+                    .getValue()).floatValue()));
+          } else {
+            hostDatum.getMetaData().put(
+                new Text(deltaExpressionResultPair.getKey()),
+                new Text(deltaExpressionResultPair.getValue().toString()));
+          }
+        }
+      } catch (Exception e) {
+        LOG.info("Exception of deltaExpression results convertion. The key should be a string, the value is either string or float : "
+            + e.getMessage());
       }
     }
 
