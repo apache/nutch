@@ -96,7 +96,6 @@ function __print_usage {
 
 # default values
 INDEXFLAG=false
-JAVA_PROPERTIES=""
 WAIT=-1 # don't wait if there are no URLs to fetch
 SEEDDIR=""
 NUM_SLAVES=1
@@ -105,6 +104,11 @@ SIZE_FETCHLIST=50000 # 25K x NUM_TASKS
 TIME_LIMIT_FETCH=180
 NUM_THREADS=50
 SITEMAPS_FROM_HOSTDB_FREQUENCY=never
+JAVA_OPTS="-Xmx1000m"
+if [[ -n "$NUTCH_HEAPSIZE" ]]; then
+  JAVA_OPTS="-Xmx""$NUTCH_HEAPSIZE""m"
+fi
+JAVA_PROPERTIES="-D mapred.child.java.opts=$JAVA_OPTS"
 
 while [[ $# > 0 ]]
 do
@@ -192,7 +196,7 @@ fi
 
 # note that some of the options listed here could be set in the
 # corresponding hadoop site xml param file
-commonOptions="-D mapreduce.job.reduces=$NUM_TASKS -D mapred.child.java.opts=-Xmx1000m -D mapreduce.reduce.speculative=false -D mapreduce.map.speculative=false -D mapreduce.map.output.compress=true"
+commonOptions="-D mapreduce.job.reduces=$NUM_TASKS -D mapreduce.reduce.speculative=false -D mapreduce.map.speculative=false -D mapreduce.map.output.compress=true $JAVA_PROPERTIES"
 
  # check that hadoop can be found on the path
 if [ $mode = "distributed" ]; then
@@ -222,20 +226,20 @@ function __bin_nutch {
 function __update_hostdb {
   if [[ -d "$CRAWL_PATH"/crawldb ]]; then
     echo "Updating HostDB"
-    __bin_nutch updatehostdb -crawldb "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb
+    __bin_nutch updatehostdb "$JAVA_PROPERTIES" -crawldb "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb
   fi
 }
 
 # initial injection
 if [[ ! -z $SEEDDIR  ]]; then
   echo "Injecting seed URLs"
-  __bin_nutch inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
+  __bin_nutch inject "$JAVA_PROPERTIES" "$CRAWL_PATH"/crawldb "$SEEDDIR"
 fi
 
 # sitemap processing based on sitemap definition file(s)
 if [[ ! -z $SITEMAPDIR ]]; then
   echo "Processing sitemaps defined in $SITEMAPDIR"
-  __bin_nutch sitemap "$CRAWL_PATH/crawldb" -sitemapUrls "$SITEMAPDIR" -threads $NUM_THREADS
+  __bin_nutch sitemap "$JAVA_PROPERTIES" "$CRAWL_PATH/crawldb" -sitemapUrls "$SITEMAPDIR" -threads $NUM_THREADS
 fi
 
 # main loop : rounds of generate - fetch - parse - update
@@ -263,7 +267,7 @@ do
     # sitemap processing based on HostDB
     if [[ -d "$CRAWL_PATH"/hostdb ]]; then
       echo "Processing sitemaps based on hosts in HostDB"
-      __bin_nutch sitemap "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $NUM_THREADS
+      __bin_nutch sitemap "$JAVA_PROPERTIES" "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $NUM_THREADS
     fi
   fi
 
@@ -322,10 +326,10 @@ do
 # note that the link inversion - indexing routine can be done within the main loop
 # on a per segment basis
   echo "Link inversion"
-  __bin_nutch invertlinks "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
+  __bin_nutch invertlinks $JAVA_PROPERTIES "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
 
   echo "Dedup on crawldb"
-  __bin_nutch dedup "$CRAWL_PATH"/crawldb
+  __bin_nutch dedup $JAVA_PROPERTIES "$CRAWL_PATH"/crawldb
 
   if $INDEXFLAG; then
       echo "Indexing $SEGMENT to index"
