@@ -157,7 +157,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
   @Override
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
     String[] extractorNames = conf.getStrings(ANY_23_EXTRACTORS_CONF, "html-head-meta");
-    String[] supportedContentTypes = conf.getStrings(ANY_23_CONTENT_TYPES_CONF, null);
+    String[] supportedContentTypes = conf.getStrings(ANY_23_CONTENT_TYPES_CONF, "text/html", "application/xhtml+xml");
     String contentType = content.getContentType();
     if (supportedContentTypes != null && !Arrays.asList(supportedContentTypes).contains(contentType)) {
       LOG.debug("Ignoring document at {} because it has an unsupported Content-Type {}", content.getUrl(), contentType);
