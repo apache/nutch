@@ -96,6 +96,7 @@ function __print_usage {
 
 # default values
 INDEXFLAG=false
+JAVA_PROPERTIES=""
 WAIT=-1 # don't wait if there are no URLs to fetch
 SEEDDIR=""
 NUM_SLAVES=1
@@ -104,11 +105,10 @@ SIZE_FETCHLIST=50000 # 25K x NUM_TASKS
 TIME_LIMIT_FETCH=180
 NUM_THREADS=50
 SITEMAPS_FROM_HOSTDB_FREQUENCY=never
-JAVA_OPTS="-Xmx1000m"
+NUTCH_HEAP_MB=2000
 if [[ -n "$NUTCH_HEAPSIZE" ]]; then
-  JAVA_OPTS="-Xmx""$NUTCH_HEAPSIZE""m"
+  NUTCH_HEAP_MB="$NUTCH_HEAPSIZE"
 fi
-JAVA_PROPERTIES="-D mapred.child.java.opts=$JAVA_OPTS"
 
 while [[ $# > 0 ]]
 do
@@ -175,6 +175,8 @@ fi
 
 CRAWL_PATH="$1"
 LIMIT="$2"
+JAVA_CHILD_HEAP_MB=`expr "$NUTCH_HEAP_MB" / "$NUM_TASKS"`
+JAVA_PROPERTIES="-D mapred.child.java.opts=-Xmx""$JAVA_CHILD_HEAP_MB""m $JAVA_PROPERTIES"
 
 # convert wait time to seconds for compatibility reasons
 if [ "$WAIT" != "-1" ]; then
