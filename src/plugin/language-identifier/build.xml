@@ -20,10 +20,6 @@
   <import file="../build-plugin.xml"/>
 
   <target name="init-plugin">
-    <echo>Copying language profiles</echo>
-    <copy todir="${build.classes}">
-      <fileset dir="${src.dir}" includes="**/*.ngp, **/*.properties"/>
-    </copy>
     <echo>Copying test files</echo>
     <copy todir="${build.test}">
       <fileset dir="${src.test}" includes="**/*.test, **/*.txt"/>
