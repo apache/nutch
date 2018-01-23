@@ -411,7 +411,7 @@
   <!-- Compile test code                                                  -->
   <!-- ================================================================== -->
   <target name="compile-core-test" depends="init, resolve-test, compile-core" description="--> compile test code">
-    <javac 
+    <javac
      encoding="${build.encoding}"
      srcdir="${test.src.dir}"
      includes="org/apache/nutch/**/*.java"
@@ -509,6 +509,10 @@
 
   <target name="test-plugins" depends="resolve-test, compile" description="--> run plugin JUnit tests only">
     <ant dir="src/plugin" target="test" inheritAll="false"/>
+  </target>
+
+  <target name="test-plugin" depends="resolve-test, compile" description="--> run a single plugin's JUnit tests">
+    <ant dir="src/plugin" target="test-single" inheritAll="false"/>
   </target>
 
   <target name="nightly" depends="test, tar-src, zip-src" description="--> run the nightly target build">
