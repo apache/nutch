@@ -72,16 +72,12 @@ public class TestAny23ParseFilter {
     conf.set("file.content.limit", "-1");
     conf.set("parser.timeout", "-1");
     conf.set(Any23ParseFilter.ANY_23_EXTRACTORS_CONF, "html-embedded-jsonld,html-head-icbm,html-head-links,html-head-meta,html-head-title,html-mf-adr,html-mf-geo,html-mf-hcalendar,html-mf-hcard,html-mf-hlisting,html-mf-hrecipe,html-mf-hresume,html-mf-hreview,html-mf-hreview-aggregate,html-mf-license,html-mf-species,html-mf-xfn,html-microdata,html-rdfa11,html-xpath");
+    conf.set(Any23ParseFilter.ANY_23_CONTENT_TYPES_CONF, "text/html");
   }
 
   @Test
   public void testExtractTriplesFromHTML() throws IOException, ParserNotFound, ParseException {
-
-    String urlString = "file:" + sampleDir + fileSeparator + file1;
-
-    File file = new File(sampleDir + fileSeparator + file1);
-    
-    String[] triplesArray = extract(urlString, file);
+    String[] triplesArray = getTriples(file1);
     
     Assert.assertEquals("We expect 117 tab-separated triples extracted by the filter", 
         EXPECTED_TRIPLES_1, triplesArray.length);
@@ -89,22 +85,27 @@ public class TestAny23ParseFilter {
 
   @Test
   public void extractMicroDataFromHTML() throws ParserNotFound, IOException, ParseException {
-    String urlString = "file:" + sampleDir + fileSeparator + file2;
-
-    File file = new File(sampleDir + fileSeparator + file2);
-    
-    String[] triplesArray = extract(urlString, file);
+    String[] triplesArray = getTriples(file2);
     
     Assert.assertEquals("We expect 40 tab-separated triples extracted by the filter", 
         EXPECTED_TRIPLES_2, triplesArray.length);
   }
+
+  @Test
+  public void ignoreUnsupported() throws ParserNotFound, IOException, ParseException {
+    String[] triplesArray = getTriples(file1, "application/pdf");
+
+    Assert.assertEquals("We expect no triples extracted by the filter since content-type should be ignored",
+            0, triplesArray.length);
+  }
   
-  public String[] extract(String urlString, File file) {
+  public String[] extract(String urlString, File file, String contentType) {
     try {
       System.out.println(urlString);
       Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
       Content content = protocol.getProtocolOutput(new Text(urlString),
           new CrawlDatum()).getContent();
+      content.setContentType(contentType);
       Parse parse = new ParseUtil(conf).parse(content).get(content.getUrl());
       return parse.getData().getParseMeta().getValues(Any23ParseFilter.ANY23_TRIPLES);
     } catch (Exception e) {
@@ -112,5 +113,17 @@ public class TestAny23ParseFilter {
       Assert.fail(e.toString());
     }
     return null;
+  }
+
+  private String[] getTriples(String fileName) {
+    return getTriples(fileName, "text/html");
+  }
+
+  private String[] getTriples(String fileName, String contentType) {
+    String urlString = "file:" + sampleDir + fileSeparator + fileName;
+
+    File file = new File(sampleDir + fileSeparator + fileName);
+
+    return extract(urlString, file, contentType);
   }
 }
