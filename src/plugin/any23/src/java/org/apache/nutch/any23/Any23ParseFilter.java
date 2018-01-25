@@ -25,6 +25,7 @@ import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Collections;
+import java.util.Arrays;
 
 import org.apache.any23.Any23;
 import org.apache.any23.extractor.ExtractionException;
@@ -77,15 +78,16 @@ public class Any23ParseFilter implements HtmlParseFilter {
   public final static String ANY23_TRIPLES = "Any23-Triples";
 
   public static final String ANY_23_EXTRACTORS_CONF = "any23.extractors";
+  public static final String ANY_23_CONTENT_TYPES_CONF = "any23.content_types";
 
   private static class Any23Parser {
 
     Set<String> triples = null;
 
-    Any23Parser(String url, String htmlContent, String... extractorNames) throws TripleHandlerException {
+    Any23Parser(String url, String htmlContent, String contentType, String... extractorNames) throws TripleHandlerException {
       triples = new TreeSet<String>();
       try {
-        parse(url, htmlContent, extractorNames);
+        parse(url, htmlContent, contentType, extractorNames);
       } catch (URISyntaxException e) {
         throw new RuntimeException(e.getReason());
       } catch (IOException e) {
@@ -101,7 +103,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
       return triples;
     }
 
-    private void parse(String url, String htmlContent, String... extractorNames) throws URISyntaxException, IOException, TripleHandlerException {
+    private void parse(String url, String htmlContent, String contentType, String... extractorNames) throws URISyntaxException, IOException, TripleHandlerException {
       Any23 any23 = new Any23(extractorNames);
       any23.setMIMETypeDetector(null);
 
@@ -118,7 +120,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
         TripleHandler tHandler = new NTriplesWriter(baos);
         BenchmarkTripleHandler bHandler = new BenchmarkTripleHandler(tHandler);
         try {
-          any23.extract(input, url, "text/html","UTF-8", bHandler);
+          any23.extract(input, url, contentType, "UTF-8", bHandler);
         } catch (IOException e) {
           LOG.error("Error while reading the source", e);
         } catch (ExtractionException e) {
@@ -154,12 +156,18 @@ public class Any23ParseFilter implements HtmlParseFilter {
    */
   @Override
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
-    String[] extractorNames = conf.getStrings(ANY_23_EXTRACTORS_CONF,"html-head-meta");
+    String[] extractorNames = conf.getStrings(ANY_23_EXTRACTORS_CONF, "html-head-meta");
+    String[] supportedContentTypes = conf.getStrings(ANY_23_CONTENT_TYPES_CONF, "text/html", "application/xhtml+xml");
+    String contentType = content.getContentType();
+    if (supportedContentTypes != null && !Arrays.asList(supportedContentTypes).contains(contentType)) {
+      LOG.debug("Ignoring document at {} because it has an unsupported Content-Type {}", content.getUrl(), contentType);
+      return parseResult;
+    }
 
     Any23Parser parser;
     try {
       String htmlContent = new String(content.getContent(), Charset.forName("UTF-8"));
-      parser = new Any23Parser(content.getUrl(), htmlContent, extractorNames);
+      parser = new Any23Parser(content.getUrl(), htmlContent, contentType, extractorNames);
     } catch (TripleHandlerException e) {
       throw new RuntimeException("Error running Any23 parser: " + e.getMessage());
     }
@@ -175,4 +183,3 @@ public class Any23ParseFilter implements HtmlParseFilter {
     return parseResult;
   }
 }
-

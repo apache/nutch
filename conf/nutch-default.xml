@@ -1072,6 +1072,12 @@
     <description>Comma-separated list of Any23 extractors (a list of extractors is available here: http://any23.apache.org/getting-started.html)</description>
 </property>
 
+<property>
+    <name>any23.content_types</name>
+    <value>text/html,application/xhtml+xml</value>
+    <description>Comma-separated list of content-types onto which Any23 extractors should be applied (see http://www.iana.org/assignments/media-types/). If empty, all content-types are supported.</description>
+</property>
+
 <!-- moreindexingfilter plugin properties -->
 
 <property>
