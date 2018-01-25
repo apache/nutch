@@ -511,10 +511,14 @@ public class Generator extends NutchTool implements Tool {
 
         // Extract hostdatum
         if (key.second.getLength() > 0) {
-          hostDatum = entry.hostdatum;
-          MutablePair<HostDatum, int[]> hostDataPair = new MutablePair<HostDatum, int[]>(
-              hostDatum, new int[] { 1, 0 });
-          hostDomainCounts.put(key.second.toString(), hostDataPair);
+          try {
+            hostDomainCounts.put(key.second.toString(),
+                new MutablePair<HostDatum, int[]>(
+                    (HostDatum) hostDatum.clone(), new int[] { 1, 0 }));
+          } catch (Exception e) {
+            LOG.info("Exception while writng hostdb to hostDomainCounts",
+                e.toString());
+          }
         } else // Process normal input with pre-filled in hostdatum in //
                // hostCounts
         {
