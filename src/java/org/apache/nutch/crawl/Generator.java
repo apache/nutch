@@ -512,6 +512,7 @@ public class Generator extends NutchTool implements Tool {
         // Extract hostdatum
         if (key.second.getLength() > 0) {
           try {
+            hostDatum = entry.hostdatum;
             hostDomainCounts.put(key.second.toString(),
                 new MutablePair<HostDatum, int[]>(
                     (HostDatum) hostDatum.clone(), new int[] { 1, 0 }));
