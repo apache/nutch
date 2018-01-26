@@ -54,6 +54,7 @@ public class CrawlDbFilter extends
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
+
   public void setup(Mapper<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
     Configuration conf = context.getConfiguration();
     urlFiltering = conf.getBoolean(URL_FILTERING, false);

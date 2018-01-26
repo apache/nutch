@@ -402,7 +402,7 @@ public class Generator extends NutchTool implements Tool {
               }
             }
           }
-
+          
           // Got a non-zero variable fetch delay? Add it to the datum's metadata
           if (variableFetchDelayWritable != null) {
             entry.datum.getMetaData().put(variableFetchDelayKey, variableFetchDelayWritable);

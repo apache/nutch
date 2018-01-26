@@ -245,7 +245,6 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     public void reduce(Text key, Iterable<NutchWritable> values,
         Context context)
         throws IOException, InterruptedException {
-
       String k = key.toString();
       if (k.equals("T") || k.startsWith("status") || k.startsWith("retry")
           || k.equals("ftt") || k.equals("fit")) {
@@ -641,7 +640,6 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     }
     if (sample != null)
       config.setFloat("sample", sample);
-
     job.setMapperClass(CrawlDbDumpMapper.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);

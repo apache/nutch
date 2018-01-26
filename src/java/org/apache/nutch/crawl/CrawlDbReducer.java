@@ -159,6 +159,7 @@ public class CrawlDbReducer extends
     // still no new data - record only unchanged old data, if exists, and return
     if (!fetchSet) {
       if (oldSet) {// at this point at least "old" should be present
+
         // set score for orphaned pages (not fetched in the current cycle and
         // with no inlinks)
         try {
