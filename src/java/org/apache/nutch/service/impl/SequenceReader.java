@@ -42,7 +42,7 @@ public class SequenceReader implements NutchReader {
   @Override
   public List<List<String>> read(String path) throws FileNotFoundException {
     // TODO Auto-generated method stub
-    List<List<String>> rows=new ArrayList<List<String>>();
+    List<List<String>> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try {
@@ -53,7 +53,7 @@ public class SequenceReader implements NutchReader {
           (Writable)ReflectionUtils.newInstance(reader.getValueClass(), conf);
       
       while(reader.next(key, value)) {
-        List<String> row =new ArrayList<String>();
+        List<String> row = new ArrayList<>();
         row.add(key.toString());
         row.add(value.toString());
         rows.add(row);
@@ -76,7 +76,7 @@ public class SequenceReader implements NutchReader {
       throws FileNotFoundException {
     // TODO Auto-generated method stub
     
-    List<List<String>> rows=new ArrayList<List<String>>();
+    List<List<String>> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try {
@@ -88,7 +88,7 @@ public class SequenceReader implements NutchReader {
           (Writable)ReflectionUtils.newInstance(reader.getValueClass(), conf);
       int i = 0;
       while(reader.next(key, value) && i<nrows) {
-        List<String> row =new ArrayList<String>();
+        List<String> row = new ArrayList<>();
         row.add(key.toString());
         row.add(value.toString());
         rows.add(row);
@@ -109,7 +109,7 @@ public class SequenceReader implements NutchReader {
   @Override
   public List<List<String>> slice(String path, int start, int end) 
       throws FileNotFoundException {
-    List<List<String>> rows=new ArrayList<List<String>>();
+    List<List<String>> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try {
@@ -123,7 +123,7 @@ public class SequenceReader implements NutchReader {
       
       for(;i<start && reader.next(key, value);i++){} // increment to read start position
       while(reader.next(key, value) && i<end) {
-        List<String> row =new ArrayList<String>();
+        List<String> row = new ArrayList<>();
         row.add(key.toString());
         row.add(value.toString());
         rows.add(row);

@@ -18,6 +18,7 @@ package org.apache.nutch.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URI;
@@ -44,15 +45,15 @@ public class PluginDescriptor {
   private String fVersion;
   private String fName;
   private String fProviderName;
-  private HashMap<String, ResourceBundle> fMessages = new HashMap<String, ResourceBundle>();
-  private ArrayList<ExtensionPoint> fExtensionPoints = new ArrayList<ExtensionPoint>();
-  private ArrayList<String> fDependencies = new ArrayList<String>();
-  private ArrayList<URL> fExportedLibs = new ArrayList<URL>();
-  private ArrayList<URL> fNotExportedLibs = new ArrayList<URL>();
-  private ArrayList<Extension> fExtensions = new ArrayList<Extension>();
+  private HashMap<String, ResourceBundle> fMessages = new HashMap<>();
+  private ArrayList<ExtensionPoint> fExtensionPoints = new ArrayList<>();
+  private ArrayList<String> fDependencies = new ArrayList<>();
+  private ArrayList<URL> fExportedLibs = new ArrayList<>();
+  private ArrayList<URL> fNotExportedLibs = new ArrayList<>();
+  private ArrayList<Extension> fExtensions = new ArrayList<>();
   private PluginClassLoader fClassLoader;
-  public static final Logger LOG = LoggerFactory
-      .getLogger(PluginDescriptor.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration fConf;
 
   /**
@@ -281,7 +282,7 @@ public class PluginDescriptor {
   public PluginClassLoader getClassLoader() {
     if (fClassLoader != null)
       return fClassLoader;
-    ArrayList<URL> arrayList = new ArrayList<URL>();
+    ArrayList<URL> arrayList = new ArrayList<>();
     arrayList.addAll(fExportedLibs);
     arrayList.addAll(fNotExportedLibs);
     arrayList.addAll(getDependencyLibs());
@@ -304,7 +305,7 @@ public class PluginDescriptor {
    * @return Collection
    */
   private ArrayList<URL> getDependencyLibs() {
-    ArrayList<URL> list = new ArrayList<URL>();
+    ArrayList<URL> list = new ArrayList<>();
     collectLibs(list, this);
     return list;
   }

@@ -72,7 +72,7 @@ public class PluginManifestParser {
    * @return A {@link Map} of all found {@link PluginDescriptor}s.
    */
   public Map<String, PluginDescriptor> parsePluginFolder(String[] pluginFolders) {
-    Map<String, PluginDescriptor> map = new HashMap<String, PluginDescriptor>();
+    Map<String, PluginDescriptor> map = new HashMap<>();
 
     if (pluginFolders == null) {
       throw new IllegalArgumentException("plugin.folders is not defined");

@@ -19,6 +19,7 @@ package org.apache.nutch.scoring.webgraph;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -72,7 +73,8 @@ import org.apache.nutch.util.TimingUtil;
  */
 public class LinkDumper extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(LinkDumper.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   public static final String DUMP_DIR = "linkdump";
 
   /**
@@ -91,8 +93,8 @@ public class LinkDumper extends Configured implements Tool {
 
       // open the readers for the linkdump directory
       Configuration conf = NutchConfiguration.create();
-      FileSystem fs = FileSystem.get(conf);
       Path webGraphDb = new Path(args[0]);
+      FileSystem fs = webGraphDb.getFileSystem(conf);
       String url = args[1];
       MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new Path(
           webGraphDb, DUMP_DIR), conf);
@@ -101,7 +103,7 @@ public class LinkDumper extends Configured implements Tool {
       Text key = new Text(url);
       LinkNodes nodes = new LinkNodes();
       MapFileOutputFormat.getEntry(readers,
-          new HashPartitioner<Text, LinkNodes>(), key, nodes);
+          new HashPartitioner<>(), key, nodes);
 
       // print out the link nodes
       LinkNode[] linkNodesAr = nodes.getLinks();
@@ -243,7 +245,7 @@ public class LinkDumper extends Configured implements Tool {
         throws IOException {
 
       String fromUrl = key.toString();
-      List<LinkDatum> outlinks = new ArrayList<LinkDatum>();
+      List<LinkDatum> outlinks = new ArrayList<>();
       Node node = null;
       
       // loop through all values aggregating outlinks, saving node
@@ -295,7 +297,7 @@ public class LinkDumper extends Configured implements Tool {
         OutputCollector<Text, LinkNodes> output, Reporter reporter)
         throws IOException {
 
-      List<LinkNode> nodeList = new ArrayList<LinkNode>();
+      List<LinkNode> nodeList = new ArrayList<>();
       int numNodes = 0;
 
       while (values.hasNext()) {
@@ -328,7 +330,7 @@ public class LinkDumper extends Configured implements Tool {
     long start = System.currentTimeMillis();
     LOG.info("NodeDumper: starting at " + sdf.format(start));
     Configuration conf = getConf();
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = webGraphDb.getFileSystem(conf);
 
     Path linkdump = new Path(webGraphDb, DUMP_DIR);
     Path nodeDb = new Path(webGraphDb, WebGraph.NODE_DIR);

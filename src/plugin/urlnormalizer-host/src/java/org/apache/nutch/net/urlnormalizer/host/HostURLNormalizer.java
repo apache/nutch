@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.net.urlnormalizer.host;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class HostURLNormalizer implements URLNormalizer {
   private Configuration conf;
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(HostURLNormalizer.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static String attributeFile = null;
   private String hostsFile = null;
@@ -75,7 +76,7 @@ public class HostURLNormalizer implements URLNormalizer {
 
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line.trim();
+        line = line.trim();
         delimiterIndex = line.indexOf(" ");
 
         host = line.substring(0, delimiterIndex);

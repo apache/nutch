@@ -23,7 +23,7 @@ public class DbQuery {
 
   private String confId;
   private String type;
-  private Map<String, String> args = new HashMap<String, String>();
+  private Map<String, String> args = new HashMap<>();
   private String crawlId;
 
   public String getConfId() {

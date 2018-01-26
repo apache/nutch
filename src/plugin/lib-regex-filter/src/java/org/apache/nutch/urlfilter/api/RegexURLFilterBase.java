@@ -17,6 +17,7 @@
 package org.apache.nutch.urlfilter.api;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.io.File;
 import java.io.Reader;
 import java.io.FileReader;
@@ -50,10 +51,10 @@ import org.apache.nutch.util.URLUtil;
  * </p>
  * 
  * <p>
- * The format of this file is made of many rules (one per line):<br/>
+ * The format of this file is made of many rules (one per line):<br>
  * <code>
  * [+-]&lt;regex&gt;
- * </code><br/>
+ * </code><br>
  * where plus (<code>+</code>)means go ahead and index it and minus (
  * <code>-</code>)means no.
  * </p>
@@ -63,8 +64,8 @@ import org.apache.nutch.util.URLUtil;
 public abstract class RegexURLFilterBase implements URLFilter {
 
   /** My logger */
-  private final static Logger LOG = LoggerFactory
-      .getLogger(RegexURLFilterBase.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** An array of applicable rules */
   private List<RegexRule> rules;

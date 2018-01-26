@@ -17,6 +17,7 @@ package org.apache.nutch.tools.proxy;
  * limitations under the License.
  */
 
+import java.lang.invoke.MethodHandles;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -52,7 +53,7 @@ import org.mortbay.jetty.Request;
  */
 public class SegmentHandler extends AbstractTestbedHandler {
   private static final Logger LOG = LoggerFactory
-      .getLogger(SegmentHandler.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Segment seg;
 
   private static HashMap<Integer, Integer> protoCodes = new HashMap<Integer, Integer>();

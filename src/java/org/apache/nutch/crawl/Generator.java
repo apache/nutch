@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.net.*;
 import java.util.*;
 import java.text.*;
@@ -26,6 +27,8 @@ import java.text.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.MapContext;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
@@ -34,6 +37,7 @@ import org.apache.hadoop.util.*;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.nutch.hostdb.HostDatum;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
@@ -48,7 +52,6 @@ import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
-
 /**
  * Generates a subset of a crawl db to fetch. This version allows to generate
  * fetchlists for several segments in one go. Unlike in the initial version
@@ -59,7 +62,8 @@ import org.apache.nutch.util.URLUtil;
  **/
 public class Generator extends NutchTool implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(Generator.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String GENERATE_UPDATE_CRAWLDB = "generate.update.crawldb";
   public static final String GENERATOR_MIN_SCORE = "generate.min.score";
@@ -76,6 +80,9 @@ public class Generator extends NutchTool implements Tool {
   public static final String GENERATOR_DELAY = "crawl.gen.delay";
   public static final String GENERATOR_MAX_NUM_SEGMENTS = "generate.max.num.segments";
   public static final String GENERATOR_EXPR = "generate.expr";
+  public static final String GENERATOR_HOSTDB = "generate.hostdb";
+  public static final String GENERATOR_MAX_COUNT_EXPR = "generate.max.count.expr";
+  public static final String GENERATOR_FETCH_DELAY_EXPR = "generate.fetch.delay.expr";
 
   public static class SelectorEntry implements Writable {
     public Text url;
@@ -115,7 +122,7 @@ public class Generator extends NutchTool implements Tool {
     private long curTime;
     private long limit;
     private long count;
-    private HashMap<String, int[]> hostCounts = new HashMap<String, int[]>();
+    private HashMap<String, int[]> hostCounts = new HashMap<>();
     private int segCounts[];
     private int maxCount;
     private boolean byDomain = false;
@@ -135,8 +142,13 @@ public class Generator extends NutchTool implements Tool {
     private int maxNumSegments = 1;
     private Expression expr = null;
     private int currentsegmentnum = 1;
-
+    private SequenceFile.Reader[] hostdbReaders = null;
+    private Expression maxCountExpr = null;
+    private Expression fetchDelayExpr = null;
+    private JobConf conf = null;
+    
     public void configure(JobConf job) {
+      this.conf = job;
       curTime = job.getLong(GENERATOR_CUR_TIME, System.currentTimeMillis());
       limit = job.getLong(GENERATOR_TOP_N, Long.MAX_VALUE)
           / job.getNumReduceTasks();
@@ -165,12 +177,37 @@ public class Generator extends NutchTool implements Tool {
       expr = JexlUtil.parseExpression(job.get(GENERATOR_EXPR, null));
       maxNumSegments = job.getInt(GENERATOR_MAX_NUM_SEGMENTS, 1);
       segCounts = new int[maxNumSegments];
+      
+      if (job.get(GENERATOR_HOSTDB) != null) {
+        maxCountExpr = JexlUtil.parseExpression(job.get(GENERATOR_MAX_COUNT_EXPR, null));
+        fetchDelayExpr = JexlUtil.parseExpression(job.get(GENERATOR_FETCH_DELAY_EXPR, null));
+      }
+    }
+    
+    public void open() {
+      if (conf.get(GENERATOR_HOSTDB) != null) {
+        try {
+          Path path = new Path(conf.get(GENERATOR_HOSTDB), "current");
+          hostdbReaders = SequenceFileOutputFormat.getReaders(conf, path);
+        } catch (IOException e) {
+          LOG.error("Error reading HostDB because {}", e.getMessage());
+        }
+      }
     }
 
     public void close() {
+      if (hostdbReaders != null) {
+        try {
+          for (int i = 0; i < hostdbReaders.length; i++) {
+            hostdbReaders[i].close();
+          }
+        } catch (IOException e) {
+          LOG.error("Error closing HostDB because {}", e.getMessage());
+        }
+      }
     }
 
-    /** Select & invert subset due for fetch. */
+    /** Select and invert subset due for fetch. */
     public void map(Text key, CrawlDatum value,
         OutputCollector<FloatWritable, SelectorEntry> output, Reporter reporter)
         throws IOException {
@@ -215,7 +252,7 @@ public class Generator extends NutchTool implements Tool {
       
       // check expr
       if (expr != null) {
-        if (!crawlDatum.evaluate(expr)) {
+        if (!crawlDatum.evaluate(expr, key.toString())) {
           return;
         }
       }
@@ -250,13 +287,112 @@ public class Generator extends NutchTool implements Tool {
       return partitioner.getPartition(((SelectorEntry) value).url, key,
           numReduceTasks);
     }
+    
+    private HostDatum getHostDatum(String host) throws Exception {
+      Text key = new Text();
+      HostDatum value = new HostDatum();
+      
+      open();
+      for (int i = 0; i < hostdbReaders.length; i++) {
+        while (hostdbReaders[i].next(key, value)) {
+          if (host.equals(key.toString())) {
+            close();
+            return value;
+          }
+        }
+      }
+      
+      close();
+      return null;
+    }
+    
+    private JexlContext createContext(HostDatum datum) {
+      JexlContext context = new MapContext();
+      context.set("dnsFailures", datum.getDnsFailures());
+      context.set("connectionFailures", datum.getConnectionFailures());
+      context.set("unfetched", datum.getUnfetched());
+      context.set("fetched", datum.getFetched());
+      context.set("notModified", datum.getNotModified());
+      context.set("redirTemp", datum.getRedirTemp());
+      context.set("redirPerm", datum.getRedirPerm());
+      context.set("gone", datum.getGone());
+      context.set("conf", conf);
+      
+      // Set metadata variables
+      for (Map.Entry<Writable, Writable> entry : datum.getMetaData().entrySet()) {
+        Object value = entry.getValue();
+        
+        if (value instanceof FloatWritable) {
+          FloatWritable fvalue = (FloatWritable)value;
+          Text tkey = (Text)entry.getKey();
+          context.set(tkey.toString(), fvalue.get());
+        }
+        
+        if (value instanceof IntWritable) {
+          IntWritable ivalue = (IntWritable)value;
+          Text tkey = (Text)entry.getKey();
+          context.set(tkey.toString(), ivalue.get());
+        }
+        
+        if (value instanceof Text) {
+          Text tvalue = (Text)value;
+          Text tkey = (Text)entry.getKey();     
+          context.set(tkey.toString().replace("-", "_"), tvalue.toString());
+        }
+      }
+      
+      return context;
+    }
 
     /** Collect until limit is reached. */
     public void reduce(FloatWritable key, Iterator<SelectorEntry> values,
         OutputCollector<FloatWritable, SelectorEntry> output, Reporter reporter)
         throws IOException {
-
+        
+      String hostname = null;
+      HostDatum host = null;
+      LongWritable variableFetchDelayWritable = null; // in millis
+      Text variableFetchDelayKey = new Text("_variableFetchDelay_");
+      int maxCount = this.maxCount;
       while (values.hasNext()) {
+        SelectorEntry entry = values.next();
+        Text url = entry.url;
+        String urlString = url.toString();
+        URL u = null;
+        
+        // Do this only once per queue
+        if (host == null) {
+          try {
+            hostname = URLUtil.getHost(urlString);
+            host = getHostDatum(hostname);
+          } catch (Exception e) {}
+          
+          // Got it?
+          if (host == null) {
+            // Didn't work, prevent future lookups
+            host = new HostDatum();
+          } else {
+            if (maxCountExpr != null) {
+              long variableMaxCount = Math.round((double)maxCountExpr.evaluate(createContext(host)));
+              LOG.info("Generator: variable maxCount: {} for {}", variableMaxCount, hostname);
+              maxCount = (int)variableMaxCount;
+            }
+            if (fetchDelayExpr != null) {
+              long variableFetchDelay = Math.round((double)fetchDelayExpr.evaluate(createContext(host)));
+              LOG.info("Generator: variable fetchDelay: {} ms for {}", variableFetchDelay, hostname);
+              variableFetchDelayWritable = new LongWritable(variableFetchDelay);              
+            }
+          }
+        }
+        
+        if(maxCount == 0){ 
+        	continue; 
+        }
+        
+        // Got a non-zero variable fetch delay? Add it to the datum's metadata
+        if (variableFetchDelayWritable != null) {
+          entry.datum.getMetaData().put(variableFetchDelayKey, variableFetchDelayWritable);
+        }
 
         if (count == limit) {
           // do we have any segments left?
@@ -266,11 +402,6 @@ public class Generator extends NutchTool implements Tool {
           } else
             break;
         }
-
-        SelectorEntry entry = values.next();
-        Text url = entry.url;
-        String urlString = url.toString();
-        URL u = null;
 
         String hostordomain = null;
 
@@ -501,6 +632,13 @@ public class Generator extends NutchTool implements Tool {
     return generate(dbDir, segments, numLists, topN, curTime, filter, true,
         force, 1, null);
   }
+  
+  public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
+      long curTime, boolean filter, boolean norm, boolean force,
+      int maxNumSegments, String expr) throws IOException {
+    return generate(dbDir, segments, numLists, topN, curTime, filter, true,
+        force, 1, expr, null);
+  }
 
   /**
    * Generate fetchlists in one or more segments. Whether to filter URLs or not
@@ -526,14 +664,13 @@ public class Generator extends NutchTool implements Tool {
    */
   public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
       long curTime, boolean filter, boolean norm, boolean force,
-      int maxNumSegments, String expr) throws IOException {
+      int maxNumSegments, String expr, String hostdb) throws IOException {
 
     Path tempDir = new Path(getConf().get("mapred.temp.dir", ".")
         + "/generate-temp-" + java.util.UUID.randomUUID().toString());
+    FileSystem fs = tempDir.getFileSystem(getConf());
 
-    Path lock = new Path(dbDir, CrawlDb.LOCK_NAME);
-    FileSystem fs = FileSystem.get(getConf());
-    LockUtil.createLockFile(fs, lock, force);
+    Path lock = CrawlDb.lock(getConf(), dbDir, force);
     
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -542,10 +679,13 @@ public class Generator extends NutchTool implements Tool {
     LOG.info("Generator: filtering: " + filter);
     LOG.info("Generator: normalizing: " + norm);
     if (topN != Long.MAX_VALUE) {
-      LOG.info("Generator: topN: " + topN);
+      LOG.info("Generator: topN: {}", topN);
     }
     if (expr != null) {
-      LOG.info("Generator: expr: " + expr);
+      LOG.info("Generator: expr: {}", expr);
+    }
+    if (expr != null) {
+      LOG.info("Generator: hostdb: {}", hostdb);
     }
     
     // map to inverted subset due for fetch, sort by score
@@ -571,6 +711,9 @@ public class Generator extends NutchTool implements Tool {
     if (expr != null) {
       job.set(GENERATOR_EXPR, expr);
     }
+    if (hostdb != null) {
+      job.set(GENERATOR_HOSTDB, hostdb);
+    }
     FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
 
@@ -588,14 +731,14 @@ public class Generator extends NutchTool implements Tool {
     try {
       JobClient.runJob(job);
     } catch (IOException e) {
-      LockUtil.removeLockFile(fs, lock);
+      LockUtil.removeLockFile(getConf(), lock);
       fs.delete(tempDir, true);
       throw e;
     }
 
     // read the subdirectories generated in the temp
     // output and turn them into segments
-    List<Path> generatedSegments = new ArrayList<Path>();
+    List<Path> generatedSegments = new ArrayList<>();
 
     FileStatus[] status = fs.listStatus(tempDir);
     try {
@@ -604,7 +747,7 @@ public class Generator extends NutchTool implements Tool {
         if (!subfetchlist.getName().startsWith("fetchlist-"))
           continue;
         // start a new partition job for this segment
-        Path newSeg = partitionSegment(fs, segments, subfetchlist, numLists);
+        Path newSeg = partitionSegment(segments, subfetchlist, numLists);
         generatedSegments.add(newSeg);
       }
     } catch (Exception e) {
@@ -615,15 +758,15 @@ public class Generator extends NutchTool implements Tool {
 
     if (generatedSegments.size() == 0) {
       LOG.warn("Generator: 0 records selected for fetching, exiting ...");
-      LockUtil.removeLockFile(fs, lock);
+      LockUtil.removeLockFile(getConf(), lock);
       fs.delete(tempDir, true);
       return null;
     }
 
     if (getConf().getBoolean(GENERATE_UPDATE_CRAWLDB, false)) {
       // update the db from tempDir
-      Path tempDir2 = new Path(getConf().get("mapred.temp.dir", ".")
-          + "/generate-temp-" + java.util.UUID.randomUUID().toString());
+      Path tempDir2 = new Path(dbDir,
+          "generate-temp-" + java.util.UUID.randomUUID().toString());
 
       job = new NutchJob(getConf());
       job.setJobName("generate: updatedb " + dbDir);
@@ -644,7 +787,7 @@ public class Generator extends NutchTool implements Tool {
         JobClient.runJob(job);
         CrawlDb.install(job, dbDir);
       } catch (IOException e) {
-        LockUtil.removeLockFile(fs, lock);
+        LockUtil.removeLockFile(getConf(), lock);
         fs.delete(tempDir, true);
         fs.delete(tempDir2, true);
         throw e;
@@ -652,7 +795,7 @@ public class Generator extends NutchTool implements Tool {
       fs.delete(tempDir2, true);
     }
 
-    LockUtil.removeLockFile(fs, lock);
+    LockUtil.removeLockFile(getConf(), lock);
     fs.delete(tempDir, true);
 
     long end = System.currentTimeMillis();
@@ -663,8 +806,8 @@ public class Generator extends NutchTool implements Tool {
     return generatedSegments.toArray(patharray);
   }
 
-  private Path partitionSegment(FileSystem fs, Path segmentsDir, Path inputDir,
-      int numLists) throws IOException {
+  private Path partitionSegment(Path segmentsDir, Path inputDir, int numLists)
+      throws IOException {
     // invert again, partition by host/domain/IP, sort by url hash
     if (LOG.isInfoEnabled()) {
       LOG.info("Generator: Partitioning selected urls for politeness.");
@@ -727,6 +870,7 @@ public class Generator extends NutchTool implements Tool {
 
     Path dbDir = new Path(args[0]);
     Path segmentsDir = new Path(args[1]);
+    String hostdb = null;
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;
     int numFetchers = -1;
@@ -742,6 +886,9 @@ public class Generator extends NutchTool implements Tool {
         i++;
       } else if ("-numFetchers".equals(args[i])) {
         numFetchers = Integer.parseInt(args[i + 1]);
+        i++;
+      } else if ("-hostdb".equals(args[i])) {
+        hostdb = args[i + 1];
         i++;
       } else if ("-adddays".equals(args[i])) {
         long numDays = Integer.parseInt(args[i + 1]);
@@ -762,7 +909,7 @@ public class Generator extends NutchTool implements Tool {
 
     try {
       Path[] segs = generate(dbDir, segmentsDir, numFetchers, topN, curTime,
-          filter, norm, force, maxNumSegments, expr);
+          filter, norm, force, maxNumSegments, expr, hostdb);
       if (segs == null)
         return 1;
     } catch (Exception e) {
@@ -775,7 +922,7 @@ public class Generator extends NutchTool implements Tool {
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
 
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;
@@ -785,8 +932,9 @@ public class Generator extends NutchTool implements Tool {
     boolean force = false;
     int maxNumSegments = 1;
     String expr = null;
-
+    String hostdb = null;
     Path crawlDb;
+    
     if(args.containsKey(Nutch.ARG_CRAWLDB)) {
       Object crawldbPath = args.get(Nutch.ARG_CRAWLDB);
       if(crawldbPath instanceof Path) {
@@ -812,6 +960,9 @@ public class Generator extends NutchTool implements Tool {
     }
     else {
       segmentsDir = new Path(crawlId+"/segments");
+    }
+    if (args.containsKey(Nutch.ARG_HOSTDB)) {
+      	hostdb = (String)args.get(Nutch.ARG_HOSTDB);
     }
     
     if (args.containsKey("expr")) {
@@ -842,7 +993,7 @@ public class Generator extends NutchTool implements Tool {
 
     try {
       Path[] segs = generate(crawlDb, segmentsDir, numFetchers, topN, curTime,
-          filter, norm, force, maxNumSegments, expr);
+          filter, norm, force, maxNumSegments, expr, hostdb);
       if (segs == null){
         results.put(Nutch.VAL_RESULT, Integer.toString(1));
         return results;

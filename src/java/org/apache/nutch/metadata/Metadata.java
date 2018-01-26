@@ -42,7 +42,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
    * Constructs a new, empty metadata.
    */
   public Metadata() {
-    metadata = new HashMap<String, String[]>();
+    metadata = new HashMap<>();
   }
 
   /**
@@ -119,6 +119,31 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
       System.arraycopy(values, 0, newValues, 0, values.length);
       newValues[newValues.length - 1] = value;
       metadata.put(name, newValues);
+    }
+  }
+
+  /**
+   * Add all name/value mappings (merge two metadata mappings). If a name
+   * already exists in current metadata the values are added to existing values.
+   *
+   * @param metadata
+   *          other Metadata to be merged
+   */
+  public void addAll(Metadata metadata) {
+    for (String name : metadata.names()) {
+      String[] addValues = metadata.getValues(name);
+      if (addValues == null)
+        continue;
+      String[] oldValues = this.metadata.get(name);
+      if (oldValues == null) {
+        this.metadata.put(name, addValues);
+      } else {
+        String[] newValues = new String[oldValues.length + addValues.length];
+        System.arraycopy(oldValues, 0, newValues, 0, oldValues.length);
+        System.arraycopy(addValues, 0, newValues, oldValues.length,
+            addValues.length);
+        this.metadata.put(name, newValues);
+      }
     }
   }
 

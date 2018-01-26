@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexwriter.solr;
 
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -37,7 +38,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class SolrMappingReader {
-  public static Logger LOG = LoggerFactory.getLogger(SolrMappingReader.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
 

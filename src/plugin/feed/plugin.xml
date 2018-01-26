@@ -21,8 +21,9 @@
       <library name="feed.jar">
         <export name="*" />
       </library>
-      <library name="rome-0.9.jar" />
-      <library name="jdom-1.1.jar" />
+      <library name="rome-1.5.1.jar" />
+      <library name="rome-utils-1.5.1.jar" />
+      <library name="jdom-2.0.2.jar" />
     </runtime>
     
     <requires>

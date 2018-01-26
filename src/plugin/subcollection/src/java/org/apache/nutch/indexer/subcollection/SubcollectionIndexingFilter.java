@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.indexer.subcollection;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
@@ -49,12 +51,12 @@ public class SubcollectionIndexingFilter extends Configured implements
   }
 
   /**
-   * @param Configuration
-   *          conf
+   * @param conf
    */
   public void setConf(Configuration conf) {
     this.conf = conf;
     fieldName = conf.get("subcollection.default.fieldname", "subcollection");
+    metadataSource = conf.get("subcollection.metadata.source", "subcollection");
   }
 
   /**
@@ -68,12 +70,17 @@ public class SubcollectionIndexingFilter extends Configured implements
    * Doc field name
    */
   public static String fieldName = "subcollection";
+  
+  /**
+   * Metadata source field name
+   */
+  public static String metadataSource = "subcollection";
 
   /**
    * Logger
    */
-  public static final Logger LOG = LoggerFactory
-      .getLogger(SubcollectionIndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * "Mark" document to be a part of subcollection
@@ -94,6 +101,17 @@ public class SubcollectionIndexingFilter extends Configured implements
 
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
+    // Check for subcollection overrride in HTML metadata
+    String subcollection = parse.getData().getMeta(metadataSource);
+    if (subcollection != null) {
+      subcollection = subcollection.trim();
+      
+      if (subcollection.length() > 0) {
+        doc.add(fieldName, subcollection);
+        return doc;
+      }
+    }
+    
     String sUrl = url.toString();
     addSubCollectionField(doc, sUrl);
     return doc;

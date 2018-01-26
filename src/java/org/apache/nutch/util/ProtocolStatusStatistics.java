@@ -19,6 +19,7 @@ package org.apache.nutch.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ import org.apache.nutch.metadata.Nutch;
 public class ProtocolStatusStatistics extends Configured implements Tool {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(ProtocolStatusStatistics.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final Text UNFETCHED_TEXT = new Text("UNFETCHED");
 
@@ -121,8 +122,17 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
     job.setNumReduceTasks(numOfReducers);
 
     try {
-      job.waitForCompletion(true);
-    } catch (Exception e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = jobName + " job did not succeed, job status: "
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        // throw exception so that calling routine can exit with error
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error(jobName + " job failed", e);
       throw e;
     }
 

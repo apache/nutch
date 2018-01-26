@@ -41,7 +41,7 @@ public class SpellCheckedMetadata extends Metadata {
   /**
    * Normalized name to name mapping.
    */
-  private final static Map<String, String> NAMES_IDX = new HashMap<String, String>();
+  private final static Map<String, String> NAMES_IDX = new HashMap<>();
 
   /**
    * Array holding map keys.

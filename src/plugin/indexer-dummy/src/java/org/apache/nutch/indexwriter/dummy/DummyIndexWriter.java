@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexwriter.dummy;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.FileWriter;
@@ -30,13 +31,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * DummyIndexWriter. This pluggable indexer writes <action>\t<url>\n lines to a
+ * DummyIndexWriter. This pluggable indexer writes &lt;action&gt;\t&lt;url&gt;\n lines to a
  * plain text file for debugging purposes. Possible actions are delete, update
  * and add.
  */
 public class DummyIndexWriter implements IndexWriter {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(DummyIndexWriter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration config;
   private Writer writer;
   private boolean delete = false;

@@ -17,6 +17,7 @@
 
 package org.apache.nutch.net.urlnormalizer.ajax;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -38,7 +39,8 @@ import org.apache.hadoop.conf.Configuration;
  * ^(.*)\?.*_escaped_fragment_
  */
 public class AjaxURLNormalizer implements URLNormalizer {
-  public static final Logger LOG = LoggerFactory.getLogger(AjaxURLNormalizer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static String AJAX_URL_PART = "#!";
   public static String ESCAPED_URL_PART = "_escaped_fragment_=";

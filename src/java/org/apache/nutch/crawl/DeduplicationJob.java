@@ -18,6 +18,7 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -67,8 +68,8 @@ import org.slf4j.LoggerFactory;
  ***/
 public class DeduplicationJob extends NutchTool implements Tool {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(DeduplicationJob.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private final static Text urlKey = new Text("_URLTEMPKEY_");
   private final static String DEDUPLICATION_GROUP_MODE = "deduplication.group.mode";
@@ -354,7 +355,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     CrawlDb.install(mergeJob, dbPath);
 
     // clean up
-    FileSystem fs = FileSystem.get(getConf());
+    FileSystem fs = tempDir.getFileSystem(getConf());
     fs.delete(tempDir, true);
 
     long end = System.currentTimeMillis();
@@ -372,7 +373,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
     String[] arg = new String[1];
     String crawldb;
     if(args.containsKey(Nutch.ARG_CRAWLDB)) {

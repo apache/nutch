@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.segment;
 
+import java.lang.invoke.MethodHandles;
 import java.text.DecimalFormat;
 import java.util.Random;
 
@@ -58,7 +59,7 @@ public class TestSegmentMergerCrawlDatums {
   Random rnd;
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(TestSegmentMergerCrawlDatums.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   @Before
   public void setUp() throws Exception {

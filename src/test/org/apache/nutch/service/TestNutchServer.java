@@ -17,6 +17,7 @@
 
 package org.apache.nutch.service;
 
+import java.lang.invoke.MethodHandles;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -27,7 +28,8 @@ import org.slf4j.LoggerFactory;
 
 public class TestNutchServer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TestNutchServer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   NutchServer server = NutchServer.getInstance();
 
   private int port[] = {8081, 9999, 9100, 8900};

@@ -77,13 +77,14 @@ public interface Nutch {
 	public static final Text WRITABLE_FIXED_INTERVAL_KEY = new Text(
 			FIXED_INTERVAL_KEY);
 
-	
 	 /** For progress of job. Used by the Nutch REST service */
 	public static final String STAT_PROGRESS = "progress";
 	/**Used by Nutch REST service */
 	public static final String CRAWL_ID_KEY = "storage.crawl.id";
 	/** Argument key to specify location of the seed url dir for the REST endpoints **/
 	public static final String ARG_SEEDDIR = "url_dir";
+	/** Argument key to specify name of a seed list for the REST endpoints **/
+	public static final String ARG_SEEDNAME = "seedName";
 	/** Argument key to specify the location of crawldb for the REST endpoints **/
 	public static final String ARG_CRAWLDB = "crawldb";
 	/** Argument key to specify the location of linkdb for the REST endpoints **/
@@ -93,6 +94,18 @@ public interface Nutch {
 	/** Argument key to specify the location of a directory of segments for the REST endpoints.
 	 * Similar to the -dir command in the bin/nutch script **/
 	public static final String ARG_SEGMENTDIR = "segment_dir";
-	/** Argument key to specify the location of individual segment for the REST endpoints **/
-	public static final String ARG_SEGMENT = "segment";
+	/** Argument key to specify the location of individual segment or list of segments for the REST endpoints. The behavior differs for diffirent endpoints: CrawlDb, LinkDb and Indexing Jobs take list of segments, Fetcher and Parse segment take one segment **/
+	public static final String ARG_SEGMENTS = "segment";
+	/** Argument key to specify the location of hostdb for the REST endpoints **/
+	public static final String ARG_HOSTDB = "hostdb";
+	/** Title key in the Pub/Sub event metadata for the title of the parsed page*/
+	public static final String FETCH_EVENT_TITLE = "title";
+	/** Content-type key in the Pub/Sub event metadata for the content-type of the parsed page*/
+	public static final String FETCH_EVENT_CONTENTTYPE = "content-type";
+	/** Score key in the Pub/Sub event metadata for the score of the parsed page*/
+	public static final String FETCH_EVENT_SCORE = "score";
+	/** Fetch time key in the Pub/Sub event metadata for the fetch time of the parsed page*/
+	public static final String FETCH_EVENT_FETCHTIME = "fetchTime";
+	/** Content-lanueage key in the Pub/Sub event metadata for the content-language of the parsed page*/
+	public static final String FETCH_EVENT_CONTENTLANG = "content-language";
 }

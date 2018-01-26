@@ -26,7 +26,7 @@ public class FetchNodeDbInfo {
   private String url;
   private int status;
   private int numOfOutlinks;
-  private List<ChildNode> children = new ArrayList<ChildNode>();
+  private List<ChildNode> children = new ArrayList<>();
   
   
   public String getUrl() {

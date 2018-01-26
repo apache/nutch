@@ -64,7 +64,7 @@ public class FeedIndexingFilter implements IndexingFilter {
    * <li>FEED</li>
    * </ul>
    * 
-   * And sends them to the {@link Indexer} for indexing within the Nutch index.
+   * And sends them to the {@link org.apache.nutch.indexer Indexer} for indexing within the Nutch index.
    * 
    */
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,

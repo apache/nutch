@@ -17,6 +17,7 @@
 package org.apache.nutch.fetcher;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.RecordReader;
@@ -29,9 +30,9 @@ import org.slf4j.LoggerFactory;
  * are consumed by FetcherThread-s.
  */
 public class QueueFeeder extends Thread {
-  
-  private static final Logger LOG = LoggerFactory.getLogger(QueueFeeder.class);
 
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   
   private RecordReader<Text, CrawlDatum> reader;
   private FetchItemQueues queues;

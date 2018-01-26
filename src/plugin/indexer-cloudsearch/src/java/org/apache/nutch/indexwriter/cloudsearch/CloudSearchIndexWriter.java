@@ -17,6 +17,7 @@
 
 package org.apache.nutch.indexwriter.cloudsearch;
 
+import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -59,8 +60,8 @@ import com.amazonaws.util.json.JSONObject;
  * Writes documents to CloudSearch.
  */
 public class CloudSearchIndexWriter implements IndexWriter {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(CloudSearchIndexWriter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final int MAX_SIZE_BATCH_BYTES = 5242880;
   private static final int MAX_SIZE_DOC_BYTES = 1048576;

@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.protocol.interactiveselenium;
+package org.apache.nutch.protocol.interactiveselenium.handlers;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultClickAllAjaxLinksHandler implements InteractiveSeleniumHandler {
   private static final Logger LOG = LoggerFactory
-      .getLogger(DefaultClickAllAjaxLinksHandler.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public String processDriver(WebDriver driver) {
     

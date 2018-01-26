@@ -16,9 +16,10 @@
  */
 package org.apache.nutch.indexwriter.solr;
 
-
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.mapred.JobConf;
@@ -30,12 +31,13 @@ import java.net.MalformedURLException;
 
 public class SolrUtils {
 
-  public static Logger LOG = LoggerFactory.getLogger(SolrUtils.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    *
    *
-   * @param JobConf
+   * @param job
    * @return SolrClient
    */
   public static ArrayList<SolrClient> getSolrClients(JobConf job) throws MalformedURLException {

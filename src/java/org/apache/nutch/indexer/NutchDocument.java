@@ -44,7 +44,7 @@ public class NutchDocument implements Writable,
   private float weight;
 
   public NutchDocument() {
-    fields = new HashMap<String, NutchField>();
+    fields = new HashMap<>();
     documentMeta = new Metadata();
     weight = 1.0f;
   }

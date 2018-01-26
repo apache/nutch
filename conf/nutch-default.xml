@@ -164,7 +164,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-1.12-SNAPSHOT</value>
+  <value>Nutch-1.15-SNAPSHOT</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -313,13 +313,25 @@
   <description>Value of the "Accept-Language" request header field.
   This allows selecting non-English language as default one to retrieve.
   It is a useful setting for search engines build for certain national group.
+  To send requests without "Accept-Language" header field, thi  property must
+  be configured to contain a space character because an empty property does
+  not overwrite the default.
   </description>
 </property>
 
 <property>
   <name>http.accept</name>
   <value>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</value>
-  <description>Value of the "Accept" request header field.
+  <description>Value of the "Accept" request header field. A space character
+  as value will cause that no "Accept" header field is sent in the request.
+  </description>
+</property>
+
+<property>
+  <name>http.accept.charset</name>
+  <value>utf-8,iso-8859-1;q=0.7,*;q=0.7</value>
+  <description>Value of the "Accept-Charset" request header field. A space character
+  as value will cause that no "Accept-Charset" header field is sent in the request.
   </description>
 </property>
 
@@ -341,6 +353,14 @@
   Not-Modified header. URL's that are not downloaded are not passed through
   parse or indexing filters. If you regularly modify filters, you should force
   Nutch to also download unmodified pages by disabling this feature.
+  </description>
+</property>
+
+<property>
+  <name>http.enable.cookie.header</name>
+  <value>true</value>
+  <description>Whether Nutch sends an HTTP Cookie header. The cookie value
+  is read from the CrawlDatum Cookie metadata field.
   </description>
 </property>
 
@@ -518,6 +538,16 @@
 </property>
 
 <property>
+  <name>db.update.purge.orphans</name>
+  <value>false</value>
+  <description>If true, updatedb will permanently delete URL's marked
+  as orphan from the CrawlDb. The plugin scoring-orphan needs to be
+  activated to get records marked as orphan. See the plugin's options
+  elsewhere in this document.
+  </description>
+</property>
+
+<property>
     <name>db.url.normalizers</name>
     <value>false</value>
     <description>Normalize urls when updating crawldb</description>
@@ -542,7 +572,7 @@
   <value>false</value>
   <description>If true, outlinks leading from a page to internal hosts or domain
   will be ignored. This is an effective way to limit the crawl to include
-  only initially injected hosts, without creating complex URLFilters.
+  only initially injected hosts or domains, without creating complex URLFilters.
   See 'db.ignore.external.links.mode'.
   </description>
 </property>
@@ -552,8 +582,18 @@
   <value>false</value>
   <description>If true, outlinks leading from a page to external hosts or domain
   will be ignored. This is an effective way to limit the crawl to include
-  only initially injected hosts, without creating complex URLFilters.
+  only initially injected hosts or domains, without creating complex URLFilters.
   See 'db.ignore.external.links.mode'.
+  </description>
+</property>
+
+<property>
+  <name>db.ignore.also.redirects</name>
+  <value>true</value>
+  <description>If true, the fetcher checks redirects the same way as
+  links when ignoring internal or external links. Set to false to
+  follow redirects despite the values for db.ignore.external.links and
+  db.ignore.internal.links.
   </description>
 </property>
 
@@ -752,6 +792,30 @@
   <value>-1</value>
   <description>Select only entries with a retry interval lower than
   generate.min.interval. A value of -1 disables this check.</description>
+</property>
+
+<property>
+  <name>generate.hostdb</name>
+  <value></value>
+  <description>Path to HostDB, required for the generate.max.count.expr
+  and generate.fetch.delay.expr properties.
+  See https://issues.apache.org/jira/browse/NUTCH-2368</description>
+</property>
+
+<property>
+  <name>generate.fetch.delay.expr</name>
+  <value></value>
+  <description>Controls variable fetcher.server.delay via a Jexl expression and
+  HostDB information. It allows you to alter fetch delay based on HostDB data.
+  See https://issues.apache.org/jira/browse/NUTCH-2368</description>
+</property>
+
+<property>
+  <name>generate.max.count.expr</name>
+  <value></value>
+  <description>Controls variable generate.max.count via a Jexl expression and
+  HostDB information. It allows you to alter maxCount based on HostDB data.
+  See https://issues.apache.org/jira/browse/NUTCH-2368</description>
 </property>
 
 <!-- urlpartitioner properties -->
@@ -982,6 +1046,38 @@
    fetcher.bandwidth.target. Defaults to 30 and must be at least 1.</description>
 </property>
 
+<property>
+
+  <name>fetcher.store.robotstxt</name>
+  <value>false</value>
+  <description>If true (and fetcher.store.content is also true),
+  fetcher will store the robots.txt response content and status for
+  debugging or archival purposes. The robots.txt is added to the
+  content/ folder of the fetched segment.
+  </description>
+</property>
+
+<property>
+	<name>fetcher.publisher</name>
+	<value>false</value>
+	<description>Set this value to true if you want to use an implementation of the Publisher/Subscriber model. Make sure to set corresponding
+	Publisher implementation specific properties</description>
+</property> 
+
+<!--  any23 plugin properties -->
+
+<property>
+    <name>any23.extractors</name>
+    <value>html-microdata</value>
+    <description>Comma-separated list of Any23 extractors (a list of extractors is available here: http://any23.apache.org/getting-started.html)</description>
+</property>
+
+<property>
+    <name>any23.content_types</name>
+    <value>text/html,application/xhtml+xml</value>
+    <description>Comma-separated list of content-types onto which Any23 extractors should be applied (see http://www.iana.org/assignments/media-types/). If empty, all content-types are supported.</description>
+</property>
+
 <!-- moreindexingfilter plugin properties -->
 
 <property>
@@ -1153,7 +1249,7 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
+  <value>protocol-http|urlfilter-(regex|validator)|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By
@@ -1246,6 +1342,13 @@
 </property>
 
 <property>
+	<name>parser.html.outlinks.htmlnode_metadata_name</name>
+	<value></value>
+	<description>if not empty, the source nodename of a found outlink will
+		be set in the metadata with this name into the outlink</description>
+</property>
+
+<property>
   <name>htmlparsefilter.order</name>
   <value></value>
   <description>The order by which HTMLParse filters are applied.
@@ -1310,6 +1413,13 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>parser.store.text</name>
+  <value>true</value>
+  <description>If true (default value), parser will store parse text (parse_text directory within the segment).</description>
+</property>
+
+
 <!--
 <property>
   <name>tika.htmlmapper.classname</name>
@@ -1319,6 +1429,12 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 -->
+
+<property>
+ <name>tika.config.file</name>
+ <value>tika-config.xml</value>
+ <description>Nutch-specific Tika config file</description>
+</property>
 
 <property>
   <name>tika.uppercase.element.names</name>
@@ -1442,6 +1558,14 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     </description>
 </property>
 
+ <property>
+  <name>scoring.similarity.ngrams</name>
+  <value>1,1</value>
+  <description>Specifies the min 'n' and max 'n' in ngrams as comma-separated.
+    If one value is specified as 'n', it will be used for both the min 'n' and max 'n' in ngrams.
+  </description>
+</property>
+
 <property>
     <name>cosine.goldstandard.file</name>
     <value>goldstandard.txt</value>
@@ -1456,6 +1580,24 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     <description>Name of the stopword text file. The user can specify a custom list of stop words 
       in a text file. Each new stopword should be on a new line.
     </description>
+</property>
+
+<!-- scoring filter orphan properties -->
+
+<property>
+  <name>scoring.orphan.mark.gone.after</name>
+  <value>2592000</value>
+  <description>Time in seconds after which orphaned
+  pages are marked as gone. Default is 30 days.
+  </description>
+</property>
+
+<property>
+  <name>scoring.orphan.mark.orphan.after</name>
+  <value>3456000</value>
+  <description>Time in seconds after which orphaned
+  pages are marked as gone. Default is 40 days.
+  </description>
 </property>
 
 <!-- language-identifier plugin properties -->
@@ -1493,6 +1635,34 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <description>If set to true with lang.extraction.policy containing identify,
   the language code returned by Tika will be assigned to the document ONLY
   if it is deemed certain by Tika.
+  </description>
+</property>
+
+<property>
+  <name>lang.index.languages</name>
+  <value></value>
+  <description>If not empty, should be a comma separated list of language codes.
+  Only documents with one of these language codes will be indexed.
+  "unknown" is a valid language code, will match documents where language
+  detection failed.
+  </description>
+</property>
+
+<!-- index-jexl-filter plugin properties -->
+
+<property>
+  <name>index.jexl.filter</name>
+  <value></value>
+  <description> A JEXL expression. If it evaluates to false,
+  the document will not be indexed.
+  Available primitives in the JEXL context:
+  * status, fetchTime, modifiedTime, retries, interval, score, signature, url, text, title
+  Available objects in the JEXL context:
+  * httpStatus - contains majorCode, minorCode, message
+  * documentMeta, contentMeta, parseMeta - contain all the Metadata properties.
+    each property value is always an array of Strings (so if you expect one value, use [0])
+  * doc - contains all the NutchFields from the NutchDocument.
+    each property value is always an array of Objects.
   </description>
 </property>
 
@@ -1804,8 +1974,8 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 <property>
   <name>elastic.host</name>
   <value></value>
-  <description>The hostname to send documents to using TransportClient. Either host
-  and port must be defined or cluster.</description>
+  <description>Comma-separated list of hostnames to send documents to using
+  TransportClient. Either host and port must be defined or cluster.</description>
 </property>
 
 <property> 
@@ -1837,6 +2007,218 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>elastic.max.bulk.size</name>
   <value>2500500</value> 
   <description>Maximum size of the bulk in bytes.</description>
+</property>
+
+<property>
+  <name>elastic.exponential.backoff.millis</name>
+  <value>100</value>
+  <description>Initial delay for the BulkProcessor's exponential backoff policy.
+  </description>
+</property>
+
+<property>
+  <name>elastic.exponential.backoff.retries</name>
+  <value>10</value>
+  <description>Number of times the BulkProcessor's exponential backoff policy
+  should retry bulk operations.</description>
+</property>
+
+<property>
+  <name>elastic.bulk.close.timeout</name>
+  <value>600</value>
+  <description>Number of seconds allowed for the BulkProcessor to complete its
+  last operation.</description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.host</name>
+  <value>localhost</value>
+  <description>
+    Host on which the RabbitMQ server is running. Default "localhost".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.port</name>
+  <value>5672</value>
+  <description>
+    Port on which the RabbitMQ server is listening. Default "5672".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.virtualhost</name>
+  <value></value>
+  <description>
+    Virtual Host where the exchange is and the user has access. Default "/".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.username</name>
+  <value>admin</value>
+  <description>
+    Username for RabbitMQ server. Default "admin"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.server.password</name>
+  <value>admin</value>
+  <description>
+    Password for RabbitMQ server. Default "admin"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.exchange.server</name>
+  <value></value>
+  <description>
+    Name for the exchange server to use. Default "nutch.exchange"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.exchange.type</name>
+  <value></value>
+  <description>
+    Type of the exchange. Default "direct".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.queue.durable</name>
+  <value></value>
+  <description>
+    Message durability into the queue. Default "true".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.queue.name</name>
+  <value></value>
+  <description>
+    Name of the queue where the messages will be sent. Default "nutch.queue"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.queue.routingkey</name>
+  <value></value>
+  <description>
+    The routingKey used by indexer to publish messages to specific queues.
+    If the exchange type is "fanout", then this property is ignored. Default is "nutch.key"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.commit.size</name>
+  <value>250</value>
+  <description>
+    Amount of documents to send into each message. Default "250"
+  </description>
+</property>
+
+<!--elasticsearch rest properties-->
+<property>
+    <name>elastic.rest.host</name>
+    <value></value>
+    <description>
+      The hostname or a list of comma separated hostnames to send documents to
+      using Elasticsearch Jest. Both host and port must be defined.
+    </description>
+</property>
+
+<property>
+    <name>elastic.rest.port</name>
+    <value></value>
+    <description>The port to connect to using Elasticsearch Jest.</description>
+</property>
+
+<property>
+    <name>elastic.rest.index</name>
+    <value>nutch</value>
+    <description>Default index to send documents to.</description>
+</property>
+
+<property>
+    <name>elastic.rest.index.languages</name>
+    <value></value>
+    <description>
+        A list of strings denoting the supported languages (e.g. `en,de,fr,it`).
+        If this value is empty all documents will be sent to index ${elastic.rest.index}.
+        If not empty the Rest client will distribute documents in different indices based on their `lang` property.
+        Indices are named with the following schema: ${elastic.rest.index}${elastic.rest.index.separator}${lang} (e.g. `nutch_de`).
+        Entries with an unsupported `lang` value will be added to index ${elastic.rest.index}${elastic.rest.index.separator}${elastic.rest.index.sink} (e.g. `nutch_others`).
+    </description>
+</property>
+
+<property>
+    <name>elastic.rest.index.separator</name>
+    <value>_</value>
+    <description>
+        Default value is `_`. Is used only if `elastic.rest.index.languages` is defined to build the index name (i.e. ${elastic.rest.index}${elastic.rest.index.separator}${lang}). 
+    </description>
+</property>
+
+<property>
+    <name>elastic.rest.index.sink</name>
+    <value>others</value>
+    <description>
+        Default value is `others`. Is used only if `elastic.rest.index.languages` is defined to build the index name where to store documents with unsupported languages (i.e. ${elastic.rest.index}${elastic.rest.index.separator}${elastic.rest.index.sink}).
+    </description>
+</property>
+
+<property>
+    <name>elastic.rest.type</name>
+    <value>doc</value>
+    <description>Default type to send documents to.</description>
+</property>
+
+<property>
+    <name>elastic.rest.max.bulk.docs</name>
+    <value>250</value>
+    <description>Maximum size of the bulk in number of documents.</description>
+</property>
+
+<property>
+    <name>elastic.rest.max.bulk.size</name>
+    <value>26214400</value>
+    <description>Maximum size of the bulk in bytes.</description>
+</property>
+
+<property>
+    <name>elastic.rest.https</name>
+    <value>false</value>
+    <description>
+        "true" to enable https, "false" to disable https
+        If you've disabled http access (by forcing https), be sure to
+        set this to true, otherwise you might get "connection reset by peer".
+    </description>
+</property>
+
+<property>
+    <name>elastic.rest.user</name>
+    <value></value>
+    <description>Username for auth credentials (only used when https is enabled)</description>
+</property>
+
+<property>
+    <name>elastic.rest.password</name>
+    <value></value>
+    <description>Password for auth credentials (only used when https is enabled)</description>
+</property>
+
+<property>
+    <name>elastic.rest.trustallhostnames</name>
+    <value>false</value>
+    <description>
+        "true" to trust elasticsearch server's certificate even if its listed domain name does not
+        match the domain they are hosted on
+        "false" to check if the elasticsearch server's certificate's listed domain is the same domain
+        that it is hosted on, and if it doesn't, then fail to index
+        (only used when https is enabled)
+    </description>
 </property>
 
 <!-- subcollection properties -->
@@ -1874,6 +2256,71 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<!-- plugin properties that applies to lib-selenium, protocol-selenium,
+     protocol-interactiveselenium, lib-htmlunit, protocol-htmlunit -->
+
+<property>
+  <name>page.load.delay</name>
+  <value>3</value>
+  <description>
+    The delay in seconds to use when loading a page with htmlunit or selenium. 
+  </description>
+</property>
+
+<property>
+  <name>take.screenshot</name>
+  <value>false</value>
+  <description>
+    Boolean property determining whether the protocol-htmlunit
+    WebDriver should capture a screenshot of the URL. If set to
+    true remember to define the 'screenshot.location'
+    property as this determines the location screenshots should be
+    persisted to on HDFS. If that property is not set, screenshots
+    are simply discarded.
+  </description>
+</property>
+
+<property>
+  <name>screenshot.location</name>
+  <value></value>
+  <description>
+    The location on disk where a URL screenshot should be saved
+    to if the 'take.screenshot' property is set to true.
+    By default this is null, in this case screenshots held in memory
+    are simply discarded.
+  </description>
+</property>
+
+<!-- lib-htmlunit plugin properties; applies to protocol-htmlunit -->
+
+<property>
+  <name>htmlunit.enable.javascript</name>
+  <value>true</value>
+  <description>
+    A Boolean value representing if javascript should
+    be enabled or disabled when using htmlunit. The default value is enabled. 
+  </description>
+</property>
+
+<property>
+  <name>htmlunit.javascript.timeout</name>
+  <value>3500</value>
+  <description>
+    The timeout in milliseconds when loading javascript with lib-htmlunit. This
+    setting is used by protocol-htmlunit since they depending on 
+    lib-htmlunit for fetching.
+  </description>
+</property>
+
+<property>
+  <name>htmlunit.enable.css</name>
+  <value>false</value>
+  <description>
+    A Boolean value representing if CSS should
+    be enabled or disabled when using htmlunit. The default value is disabled.
+  </description>
+</property>
+
 <!-- protocol-selenium plugin properties -->
 
 <property>
@@ -1882,34 +2329,10 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <description>
     A String value representing the flavour of Selenium 
     WebDriver() to use. Currently the following options
-    exist - 'firefox', 'chrome', 'safari', 'opera' and 'remote'.
+    exist - 'firefox', 'chrome', 'safari', 'opera', 'phantomjs' and 'remote'.
     If 'remote' is used it is essential to also set correct properties for
     'selenium.hub.port', 'selenium.hub.path', 'selenium.hub.host',
     'selenium.hub.protocol', 'selenium.grid.driver' and 'selenium.grid.binary'.
-  </description>
-</property>
-
-<property>
-  <name>selenium.take.screenshot</name>
-  <value>false</value>
-  <description>
-    Boolean property determining whether the protocol-selenium
-    WebDriver should capture a screenshot of the URL. If set to
-    true remember to define the 'selenium.screenshot.location' 
-    property as this determines the location screenshots should be 
-    persisted to on HDFS. If that property is not set, screenshots
-    are simply discarded.
-  </description>
-</property>
-
-<property>
-  <name>selenium.screenshot.location</name>
-  <value></value>
-  <description>
-    The location on disk where a URL screenshot should be saved
-    to if the 'selenium.take.screenshot' property is set to true.
-    By default this is null, in this case screenshots held in memory
-    are simply discarded.
   </description>
 </property>
 
@@ -1942,7 +2365,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <value>firefox</value>
   <description>A String value representing the flavour of Selenium 
     WebDriver() used on the selenium grid. Currently the following options
-    exist - 'firefox' </description>
+    exist - 'firefox', 'phantomjs' </description>
 </property>
 
 <property>
@@ -1953,15 +2376,54 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
  </description>
 </property>
 
-<!-- lib-selenium configuration -->
+<!-- selenium firefox configuration; 
+     applies to protocol-selenium and protocol-interactiveselenium plugins -->
 <property>
-  <name>libselenium.page.load.delay</name>
-  <value>3</value>
-  <description>
-    The delay in seconds to use when loading a page with lib-selenium. This
-    setting is used by protocol-selenium and protocol-interactiveselenium
-    since they depending on lib-selenium for fetching.
-  </description>
+  <name>selenium.firefox.allowed.hosts</name>
+  <value>localhost</value>
+  <description>A String value representing the allowed hosts preference
+  according to the operating system hosts file (Example - /etc/hosts in Unix). 
+  Currently this option exist for - 'firefox' </description>
+</property>
+
+<property>
+  <name>selenium.firefox.binary.timeout</name>
+  <value>45</value>
+  <description>A Long value representing the timeout value
+  for firefox to be available for command execution. The value is in seconds. 
+  Currently this option exist for - 'firefox' </description>
+</property>
+
+<property>
+  <name>selenium.firefox.enable.flash</name>
+  <value>false</value>
+  <description>A Boolean value representing if flash should
+  be enabled or disabled. The default value is disabled. 
+  Currently this option exist for - 'firefox' </description>
+</property>
+
+<property>
+  <name>selenium.firefox.load.image</name>
+  <value>1</value>
+  <description>An Integer value representing the restriction on
+  loading images. The default value is no restriction i.e. load all images.
+  Other options are:
+  1: Load all images, regardless of origin
+  2: Block all images
+  3: Prevent third-party images from loading 
+  Currently this option exist for - 'firefox' </description>
+</property>
+
+<property>
+  <name>selenium.firefox.load.stylesheet</name>
+  <value>1</value>
+  <description>An Integer value representing the restriction on
+  loading stylesheet. The default value is no restriction i.e. load 
+  all stylesheet.
+  Other options are:
+  1: Load all stylesheet
+  2: Block all stylesheet
+  Currently this option exist for - 'firefox' </description>
 </property>
 
 <!-- protocol-interactiveselenium configuration -->
@@ -2134,4 +2596,158 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<!-- publisher properties 
+      Do not forget to add the name of your publisher implementation 
+      in plugin.includes ex- publish-rabbitmq -->
+<property>
+  <name>publisher.queue.type</name>
+  <value></value>
+  <description>
+    Choose the type of Queue being used (ex - RabbitMQ, ActiveMq, Kafka, etc). 
+    Currently there exists an implemtation for RabbitMQ producer. 
+  </description>
+</property>
+
+<property>
+  <name>publisher.order</name>
+  <value></value>
+  <description>
+    The order in which the publisher queues would be loaded
+  </description>
+</property>
+
+<!-- RabbitMQ properties -->
+
+<property>
+  <name>rabbitmq.exchange.server</name>
+  <value></value>
+  <description>
+    Name for the exchange server to use. Default - "fetcher_log"
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.exchange.type</name>
+  <value></value>
+  <description>
+    There are a few exchange types available: direct, topic, headers and fanout. Default "fanout".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.host</name>
+  <value></value>
+  <description>
+    Host on which the RabbitMQ server is running. Default "localhost".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.port</name>
+  <value></value>
+  <description>
+    Port on which the RabbitMQ server is listening. Default "5672".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.virtualhost</name>
+  <value></value>
+  <description>
+    Default 'null'
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.username</name>
+  <value></value>
+  <description>
+    Default 'null'
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.password</name>
+  <value></value>
+  <description>
+    Default 'null'
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.queue.name</name>
+  <value></value>
+  <description>
+    Default 'fanout.queue'
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.queue.durable</name>
+  <value></value>
+  <description>
+    Default 'true'
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.queue.routingkey</name>
+  <value></value>
+  <description>
+    Default is 'fanout.key'
+    The routingKey used by publisher to publish messages to specific queues. 
+    If the exchange type is "fanout", then this property is ignored.
+  </description>
+</property>
+
+<!-- sitemap properties -->
+
+<property>
+  <name>sitemap.strict.parsing</name>
+  <value>true</value>
+  <description>
+If true (default) the Sitemap parser rejects URLs not sharing the same
+    prefix with the sitemap: a sitemap `http://example.com/catalog/sitemap.xml'
+    may only contain URLs starting with `http://example.com/catalog/'.
+    All other URLs are skipped.  If false the parser will allow any URLs contained
+    in the sitemap.
+  </description>
+</property>
+
+<property>
+  <name>sitemap.url.filter</name>
+  <value>true</value>
+  <description>
+    Filter URLs from sitemaps.
+  </description>
+</property>
+
+<property>
+  <name>sitemap.url.normalize</name>
+  <value>true</value>
+  <description>
+    Normalize URLs from sitemaps.
+   </description>
+</property>
+
+<property>
+  <name>sitemap.url.default.sitemap.xml</name>
+  <value>true</value>
+  <description>
+    Always try &lt;host&gt;/sitemap.xml root even if no sitemap
+    is announced in /robots.txt.
+   </description>
+</property>
+
+<property>
+  <name>sitemap.url.overwrite.existing</name>
+  <value>false</value>
+  <description>
+    If true, the record's existing modified time, interval and score are
+    overwritten by the information in the sitemap. WARNING: overwriting
+    these values may have unexpected effects on what is crawled. Use this
+    only if you can trust the sitemap and if the values in the sitemap do
+    fit with your crawler configuration.
+   </description>
+</property>
 </configuration>

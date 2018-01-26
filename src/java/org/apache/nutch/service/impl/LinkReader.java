@@ -37,7 +37,7 @@ public class LinkReader implements NutchReader{
 
   @Override
   public List read(String path) throws FileNotFoundException {
-    List<HashMap> rows=new ArrayList<HashMap>();
+    List<HashMap> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try{
@@ -71,7 +71,7 @@ public class LinkReader implements NutchReader{
 
   @Override
   public List head(String path, int nrows) throws FileNotFoundException {
-    List<HashMap> rows=new ArrayList<HashMap>();
+    List<HashMap> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try{
@@ -105,7 +105,7 @@ public class LinkReader implements NutchReader{
   @Override
   public List slice(String path, int start, int end)
       throws FileNotFoundException {
-    List<HashMap> rows=new ArrayList<HashMap>();
+    List<HashMap> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try{
@@ -162,7 +162,7 @@ public class LinkReader implements NutchReader{
   }
 
   private HashMap<String, String> getLinksRow(Writable key, LinkDatum value) {
-    HashMap<String, String> t_row = new HashMap<String, String>();
+    HashMap<String, String> t_row = new HashMap<>();
     t_row.put("key_url", key.toString());
     t_row.put("url", value.getUrl());
     t_row.put("anchor", value.getAnchor());

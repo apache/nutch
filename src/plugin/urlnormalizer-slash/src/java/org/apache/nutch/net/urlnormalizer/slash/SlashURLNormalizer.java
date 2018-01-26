@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.net.urlnormalizer.slash;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -43,7 +44,8 @@ public class SlashURLNormalizer implements URLNormalizer {
 
   private Configuration conf;
 
-  private static final Logger LOG = LoggerFactory.getLogger(SlashURLNormalizer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final char QUESTION_MARK = '?';
   private static final char SLASH = '/';
@@ -75,7 +77,7 @@ public class SlashURLNormalizer implements URLNormalizer {
 
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line.trim();
+        line = line.trim();
         delimiterIndex = line.indexOf(" ");
         // try tabulator
         if (delimiterIndex == -1) {

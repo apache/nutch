@@ -17,6 +17,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -37,8 +38,8 @@ import org.apache.nutch.scoring.ScoringFilters;
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer implements
     Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-  public static final Logger LOG = LoggerFactory
-      .getLogger(CrawlDbReducer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private int retryMax;
   private CrawlDatum result = new CrawlDatum();
@@ -137,7 +138,7 @@ public class CrawlDbReducer implements
     // copy the content of the queue into a List
     // in reversed order
     int numLinks = linked.size();
-    List<CrawlDatum> linkList = new ArrayList<CrawlDatum>(numLinks);
+    List<CrawlDatum> linkList = new ArrayList<>(numLinks);
     for (int i = numLinks - 1; i >= 0; i--) {
       linkList.add(linked.pop());
     }
@@ -154,7 +155,16 @@ public class CrawlDbReducer implements
 
     // still no new data - record only unchanged old data, if exists, and return
     if (!fetchSet) {
-      if (oldSet) {// at this point at least "old" should be present
+      if (oldSet) { // at this point at least "old" should be present
+        // set score for orphaned pages (not fetched in the current cycle and
+        // with no inlinks)
+        try {
+          scfilters.orphanedScore(key, old);
+        } catch (ScoringFilterException e) {
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Couldn't update orphaned score, key={}: {}", key, e);
+          }
+        }
         output.collect(key, old);
         reporter.getCounter("CrawlDB status",
             CrawlDatum.getStatusName(old.getStatus())).increment(1);
@@ -311,7 +321,7 @@ public class CrawlDbReducer implements
       scfilters.updateDbScore(key, oldSet ? old : null, result, linkList);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't update score, key=" + key + ": " + e);
+        LOG.warn("Couldn't update score, key={}: {}", key, e);
       }
     }
     // remove generation time, if any

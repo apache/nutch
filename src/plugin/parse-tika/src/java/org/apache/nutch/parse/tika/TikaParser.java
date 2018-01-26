@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.parse.tika;
 
+import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -51,6 +52,7 @@ import org.apache.tika.sax.TeeContentHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Element;
 import org.xml.sax.ContentHandler;
 
 /**
@@ -60,7 +62,8 @@ import org.xml.sax.ContentHandler;
 
 public class TikaParser implements org.apache.nutch.parse.Parser {
 
-  public static final Logger LOG = LoggerFactory.getLogger(TikaParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
   private TikaConfig tikaConfig = null;
@@ -168,16 +171,24 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 
     if (!metaTags.getNoFollow()) { // okay to follow links
       ArrayList<Outlink> l = new ArrayList<Outlink>(); // extract outlinks
-      URL baseTag = utils.getBase(root);
+      URL baseTag = base;
+      String baseTagHref = tikamd.get("Content-Location");
+      if (baseTagHref != null) {
+        try {
+          baseTag = new URL(base, baseTagHref);
+        } catch (MalformedURLException e) {
+          LOG.trace("Invalid <base href=\"{}\">", baseTagHref);
+        }
+      }
       if (LOG.isTraceEnabled()) {
-        LOG.trace("Getting links...");
+        LOG.trace("Getting links (base URL = {}) ...", baseTag);
       }
       
       // pre-1233 outlink extraction
       //utils.getOutlinks(baseTag != null ? baseTag : base, l, root);
       // Get outlinks from Tika
       List<Link> tikaExtractedOutlinks = linkContentHandler.getLinks();
-      utils.getOutlinks(baseTag != null ? baseTag : base, l, tikaExtractedOutlinks);
+      utils.getOutlinks(baseTag, l, tikaExtractedOutlinks);
       outlinks = l.toArray(new Outlink[l.size()]);
       if (LOG.isTraceEnabled()) {
         LOG.trace("found " + outlinks.length + " outlinks in "
@@ -237,7 +248,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
         // see if a Tika config file can be found in the job file
         URL customTikaConfig = conf.getResource(customConfFile);
         if (customTikaConfig != null)
-          tikaConfig = new TikaConfig(customTikaConfig);
+          tikaConfig = new TikaConfig(customTikaConfig, this.getClass().getClassLoader());
       } catch (Exception e1) {
         String message = "Problem loading custom Tika configuration from "
             + customConfFile;

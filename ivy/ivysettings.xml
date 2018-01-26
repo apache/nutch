@@ -41,6 +41,9 @@
   <!-- end of repositories -->
 
   <!-- begin of patterns -->
+  <property name="any23.svn.apache.org"
+    value="http://svn.apache.org/repos/asf/any23/repo-ext/"
+    override="false"/>
   <property name="maven2.pattern"
     value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier])"/>
   <property name="maven2.pattern.ext"
@@ -55,6 +58,13 @@
       root="${repo.maven.org}"
       pattern="${maven2.pattern.ext}"
       m2compatible="true"
+      />
+    <ibiblio name="any23-svn-repository"
+      root="${any23.svn.apache.org}"
+      m2compatible="true"
+      changingMatcher="regexp"
+      changingPattern=".*SNAPSHOT.*"
+      checkmodified="true"
       />
     <ibiblio name="apache-snapshot"
       root="${repository.apache.org}"
@@ -79,6 +89,7 @@
       <resolver ref="apache-snapshot"/>
       <resolver ref="sonatype"/>
       <resolver ref="lski"/>
+      <resolver ref="any23-svn-repository"/>
     </chain>
     <chain name="internal">
       <resolver ref="local"/>
@@ -91,6 +102,7 @@
       <resolver ref="apache-snapshot"/>
       <resolver ref="sonatype"/>
       <resolver ref="lski"/>
+      <resolver ref="any23-svn-repository"/>
     </chain>
   </resolvers>
   <modules>

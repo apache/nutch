@@ -18,6 +18,7 @@
 package org.apache.nutch.util.domain;
 
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -32,9 +33,9 @@ import org.apache.hadoop.util.StringUtils;
  */
 public class DomainSuffixes {
   private static final Logger LOG = LoggerFactory
-      .getLogger(DomainSuffixes.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
-  private HashMap<String, DomainSuffix> domains = new HashMap<String, DomainSuffix>();
+  private HashMap<String, DomainSuffix> domains = new HashMap<>();
 
   private static DomainSuffixes instance;
 

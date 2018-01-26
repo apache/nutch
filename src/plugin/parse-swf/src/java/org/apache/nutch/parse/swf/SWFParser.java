@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse.swf;
 
+import java.lang.invoke.MethodHandles;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
@@ -44,8 +45,8 @@ import com.anotherbigidea.io.InStream;
  * distribution.
  */
 public class SWFParser implements Parser {
-  public static final Logger LOG = LoggerFactory
-      .getLogger("org.apache.nutch.parse.swf");
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf = null;
 

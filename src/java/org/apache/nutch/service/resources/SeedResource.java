@@ -16,37 +16,52 @@
  */
 package org.apache.nutch.service.resources;
 
-import static javax.ws.rs.core.Response.status;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.service.model.request.SeedList;
 import org.apache.nutch.service.model.request.SeedUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
 
 @Path("/seed")
 public class SeedResource extends AbstractResource {
-  private static final Logger log = LoggerFactory
-      .getLogger(AdminResource.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
+  /**
+   * Gets the list of seedFiles already created 
+   * @return
+   */
+  @GET
+  @Path("/")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getSeedLists() {
+    Map<String, SeedList> seeds = NutchServer.getInstance().getSeedManager().getSeeds();
+    if(seeds!=null) {
+      return Response.ok(seeds).build();
+    }
+    else {
+      return Response.ok().build();
+    }
+  }
+  
   /**
    * Method creates seed list file and returns temporary directory path
    * @param seedList
@@ -57,55 +72,43 @@ public class SeedResource extends AbstractResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.TEXT_PLAIN)
   public Response createSeedFile(SeedList seedList) {
+    try {
     if (seedList == null) {
       return Response.status(Status.BAD_REQUEST)
           .entity("Seed list cannot be empty!").build();
     }
-    File seedFile = createSeedFile();
-    BufferedWriter writer = getWriter(seedFile);
-
     Collection<SeedUrl> seedUrls = seedList.getSeedUrls();
-    if (CollectionUtils.isNotEmpty(seedUrls)) {
-      for (SeedUrl seedUrl : seedUrls) {
-        writeUrl(writer, seedUrl);
+    
+    String seedFilePath = writeToSeedFile(seedUrls);
+    seedList.setSeedFilePath(seedFilePath);
+    NutchServer.getInstance().getSeedManager().
+          setSeedList(seedList.getName(), seedList);
+    return Response.ok().entity(seedFilePath).build();
+    } catch (Exception e) {
+      LOG.warn("Error while creating seed : {}", e.getMessage());
+    }
+    return Response.serverError().build();
+  }
+
+  private String writeToSeedFile(Collection<SeedUrl> seedUrls) throws Exception {
+    String seedFilePath = "seedFiles/seed-" + System.currentTimeMillis();
+    org.apache.hadoop.fs.Path seedFolder = new org.apache.hadoop.fs.Path(seedFilePath);
+    FileSystem fs = FileSystem.get(new Configuration());
+    if(!fs.exists(seedFolder)) {
+      if(!fs.mkdirs(seedFolder)) {
+        throw new Exception("Could not create seed folder at : " + seedFolder);
       }
     }
-
-    return Response.ok().entity(seedFile.getParent()).build();
-  }
-
-  private void writeUrl(BufferedWriter writer, SeedUrl seedUrl) {
-    try {
-      writer.write(seedUrl.getUrl());
-      writer.newLine();
-      writer.flush();
-    } catch (IOException e) {
-      throw handleException(e);
+    String filename = seedFilePath + System.getProperty("file.separator") + "urls";
+    org.apache.hadoop.fs.Path seedPath = new org.apache.hadoop.fs.Path(filename);
+    OutputStream os = fs.create(seedPath);
+    if (CollectionUtils.isNotEmpty(seedUrls)) {
+      for (SeedUrl seedUrl : seedUrls) {
+        os.write(seedUrl.getUrl().getBytes());
+        os.write("\n".getBytes());
+      }
     }
+    os.close();
+    return seedPath.getParent().toString();
   }
-
-  private BufferedWriter getWriter(File seedFile) {
-    try {
-      return new BufferedWriter(new FileWriter(seedFile));
-    } catch (FileNotFoundException e) {
-      throw handleException(e);
-    } catch (IOException e) {
-      throw handleException(e);
-    }
-  }
-
-  private File createSeedFile() {
-    try {
-      return File.createTempFile("seed", ".txt", Files.createTempDir());
-    } catch (IOException e) {
-      throw handleException(e);
-    }
-  }
-
-  private RuntimeException handleException(Exception e) {
-    log.error("Cannot create seed file!", e);
-    return new WebApplicationException(status(Status.INTERNAL_SERVER_ERROR)
-        .entity("Cannot create seed file!").build());
-  }
-
 }

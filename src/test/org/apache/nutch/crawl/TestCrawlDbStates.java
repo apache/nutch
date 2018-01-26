@@ -17,6 +17,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -60,17 +61,19 @@ import org.slf4j.LoggerFactory;
 public class TestCrawlDbStates {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(TestCrawlDbStates.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected static final byte[][] fetchDbStatusPairs = {
-      { -1, STATUS_DB_UNFETCHED }, { STATUS_FETCH_SUCCESS, STATUS_DB_FETCHED },
+      { -1, STATUS_DB_UNFETCHED }, // no fetch status counter-part
+      { STATUS_FETCH_SUCCESS, STATUS_DB_FETCHED },
       { STATUS_FETCH_GONE, STATUS_DB_GONE },
       { STATUS_FETCH_REDIR_TEMP, STATUS_DB_REDIR_TEMP },
       { STATUS_FETCH_REDIR_PERM, STATUS_DB_REDIR_PERM },
       { STATUS_FETCH_NOTMODIFIED, STATUS_DB_NOTMODIFIED },
-      { STATUS_FETCH_RETRY, -1 }, // fetch_retry does not have a CrawlDb
-                                  // counter-part
-      { -1, STATUS_DB_DUPLICATE }, };
+      // fetch_retry does not have a CrawlDb counter-part
+      { STATUS_FETCH_RETRY, -1 },
+      // no fetch status counter-part for duplicates and orphans
+      { -1, STATUS_DB_DUPLICATE }, { -1, STATUS_DB_ORPHAN } };
 
   /** tested {@link FetchSchedule} implementations */
   protected String[] schedules = { "DefaultFetchSchedule",
@@ -300,6 +303,8 @@ public class TestCrawlDbStates {
      * time the document was fetched first (at all or after it has been changed)
      */
     protected long firstFetchTime;
+    /** elapsed duration */
+    protected long elapsedDuration = 0;
     /** state in CrawlDb before the last fetch */
     protected byte previousDbState;
     /** signature in CrawlDb of previous fetch */
@@ -386,12 +391,7 @@ public class TestCrawlDbStates {
 
     // test modified time
     private boolean checkModifiedTime(CrawlDatum result, long modifiedTime) {
-      if (result.getModifiedTime() == 0) {
-        LOG.error("modified time not set (TODO: not set by DefaultFetchSchedule)");
-        // TODO: return false (but DefaultFetchSchedule does not set modified
-        // time, see NUTCH-933)
-        return true;
-      } else if (modifiedTime == result.getModifiedTime()) {
+      if (modifiedTime == result.getModifiedTime()) {
         return true;
       }
       LOG.error("wrong modified time: " + new Date(result.getModifiedTime())
@@ -403,13 +403,15 @@ public class TestCrawlDbStates {
     protected CrawlDatum fetch(CrawlDatum datum, long currentTime) {
       lastFetchTime = currFetchTime;
       currFetchTime = currentTime;
+      if (lastFetchTime > 0)
+        elapsedDuration += (currFetchTime - lastFetchTime);
       previousDbState = datum.getStatus();
       lastSignature = datum.getSignature();
       datum = super.fetch(datum, currentTime);
       if (firstFetchTime == 0) {
         firstFetchTime = currFetchTime;
-      } else if ((currFetchTime - firstFetchTime) > (duration / 2)) {
-        // simulate a modification after "one year"
+      } else if (elapsedDuration < (duration / 2)) {
+        // simulate frequent modifications in the first "year"
         changeContent();
         firstFetchTime = currFetchTime;
       }

@@ -60,13 +60,13 @@ public class CrawlPanel extends Modal {
     notificationPanel.setOutputMarkupId(true);
     add(notificationPanel);
 
-    form = new BootstrapForm<Crawl>("crawlForm");
+    form = new BootstrapForm<>("crawlForm");
     form.add(new Label("crawlId"));
     form.add(new TextField<String>("crawlName").setRequired(true));
 
-    form.add(new DropDownChoice<Integer>("numberOfRounds", getNumbersOfRounds()));
-    form.add(new DropDownChoice<SeedList>("seedList",
-        seedListService.findAll(), new ChoiceRenderer<SeedList>("name"))
+    form.add(new DropDownChoice<>("numberOfRounds", getNumbersOfRounds()));
+    form.add(new DropDownChoice<>("seedList",
+        seedListService.findAll(), new ChoiceRenderer<>("name"))
         .setRequired(true));
 
     addButton(new AjaxSubmitLink("button", form) {

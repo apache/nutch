@@ -33,14 +33,20 @@ public class HttpFormAuthConfigurer {
    */
   private Map<String, String> additionalPostHeaders;
   /**
-   * If http post login returns redirect code: 301 or 302, 
-   * Http Client will automatically follow the redirect.
+   * If http post login returns redirect code: 301 or 302, Http Client will
+   * automatically follow the redirect.
    */
   private boolean loginRedirect;
   /**
    * Used when we need remove some form fields.
    */
   private Set<String> removedFormFields;
+
+  /**
+   * Use this cookie policy to set the HttpClient cookie policy. This value
+   * should be DEFAULT BROWSER_COMPATIBILITY NETSCAPE RFC_2109
+   */
+  private String cookiePolicy;
 
   public HttpFormAuthConfigurer() {
   }
@@ -102,5 +108,14 @@ public class HttpFormAuthConfigurer {
   public HttpFormAuthConfigurer setRemovedFormFields(
       Set<String> removedFormFields) {
     this.removedFormFields = removedFormFields;
-    return this; }
+    return this;
+  }
+
+  public void setCookiePolicy(String policy) {
+    this.cookiePolicy = policy;
+  }
+
+  public String getCookiePolicy() {
+    return this.cookiePolicy;
+  }
 }

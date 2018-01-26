@@ -17,12 +17,14 @@
 
 package org.apache.nutch.parse;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.StringUtils;
@@ -57,7 +59,7 @@ import org.apache.nutch.util.StringUtil;
  * <li><tt>Outlinks</tt>: associated with the URL</li>
  * <li><tt>Content Metadata</tt>: such as <i>X-AspNet-Version</i>, <i>Date</i>,
  * <i>Content-length</i>, <i>servedBy</i>, <i>Content-Type</i>,
- * <i>Cache-Control</>, etc.</li>
+ * <i>Cache-Control</i>, etc.</li>
  * <li><tt>Parse Metadata</tt>: such as <i>CharEncodingForConversion</i>,
  * <i>OriginalCharEncoding</i>, <i>language</i>, etc.</li>
  * <li><tt>ParseText</tt>: The page parse text which varies in length depdnecing
@@ -69,7 +71,8 @@ import org.apache.nutch.util.StringUtil;
 
 public class ParserChecker implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ParserChecker.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration conf;
 
   public ParserChecker() {
@@ -89,7 +92,7 @@ public class ParserChecker implements Tool {
     }
 
     // used to simulate the metadata propagated from injection
-    HashMap<String, String> metadata = new HashMap<String, String>();
+    HashMap<String, String> metadata = new HashMap<>();
 
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-forceAs")) {
@@ -135,7 +138,7 @@ public class ParserChecker implements Tool {
     Text turl = new Text(url);
     ProtocolOutput output = protocol.getProtocolOutput(turl, cd);
 
-    // If the configuration permits, handle redirects until we either run
+    // if the configuration permits, handle redirects until we either run
     // out of allowed redirects or we stop getting redirect statuses.
     int maxRedirects = conf.getInt("http.redirect.max", 0);
     int numRedirects = 0;
@@ -203,7 +206,7 @@ public class ParserChecker implements Tool {
       return (-1);
     }
 
-    // Calculate the signature
+    // calculate the signature
     byte[] signature = SignatureFactory.getSignature(getConf()).calculate(
         content, parseResult.get(new Text(url)));
 

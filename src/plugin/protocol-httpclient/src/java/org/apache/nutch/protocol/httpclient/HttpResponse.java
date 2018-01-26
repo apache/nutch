@@ -39,6 +39,7 @@ import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.http.api.HttpBase;
+import org.apache.hadoop.io.Text;
 
 /**
  * An HTTP response.
@@ -96,6 +97,12 @@ public class HttpResponse implements Response {
     // XXX the request body was sent the method is not retried, so there is
     // XXX little danger in retrying...
     // params.setParameter(HttpMethodParams.RETRY_HANDLER, null);
+    
+    if (http.isCookieEnabled() && datum.getMetaData().containsKey(http.COOKIE)) {
+      String cookie = ((Text)datum.getMetaData().get(http.COOKIE)).toString();
+      get.addRequestHeader("Cookie", cookie);
+    }
+    
     try {
       HttpClient client = Http.getClient();
       client.getParams().setParameter("http.useragent", http.getUserAgent()); // NUTCH-1941

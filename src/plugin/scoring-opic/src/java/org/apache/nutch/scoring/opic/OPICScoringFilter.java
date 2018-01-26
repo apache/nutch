@@ -17,6 +17,7 @@
 
 package org.apache.nutch.scoring.opic;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -41,17 +42,16 @@ import org.apache.nutch.scoring.ScoringFilterException;
 
 /**
  * This plugin implements a variant of an Online Page Importance Computation
- * (OPIC) score, described in this paper: <a
- * href="http://www2003.org/cdrom/papers/refereed/p007/p7-abiteboul.html"/>
+ * (OPIC) score, described in this <a href="http://www2003.org/cdrom/papers/refereed/p007/p7-abiteboul.html">paper</a>:
  * Abiteboul, Serge and Preda, Mihai and Cobena, Gregory (2003), Adaptive
- * On-Line Page Importance Computation </a>.
+ * On-Line Page Importance Computation.
  * 
  * @author Andrzej Bialecki
  */
 public class OPICScoringFilter implements ScoringFilter {
 
-  private final static Logger LOG = LoggerFactory
-      .getLogger(OPICScoringFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
   private float scoreInjected;

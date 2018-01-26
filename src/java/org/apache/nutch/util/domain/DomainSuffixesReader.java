@@ -19,6 +19,7 @@ package org.apache.nutch.util.domain;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -44,7 +45,7 @@ import org.xml.sax.SAXException;
 class DomainSuffixesReader {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(DomainSuffixesReader.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   void read(DomainSuffixes tldEntries, InputStream input) throws IOException {
     try {

@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.webui.service.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.net.ConnectException;
 import java.util.Collections;
 import java.util.Map;
@@ -36,8 +37,8 @@ import com.sun.jersey.api.client.ClientHandlerException;
 
 @Service
 public class NutchServiceImpl implements NutchService {
-  private static final Logger logger = LoggerFactory
-      .getLogger(NutchServiceImpl.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   @Resource
   private NutchClientFactory nutchClientFactory;
@@ -59,7 +60,7 @@ public class NutchServiceImpl implements NutchService {
         return ConnectionStatus.DISCONNECTED;
       }
 
-      logger.error("Cannot connect to nutch server!", e);
+      LOG.error("Cannot connect to nutch server!", e);
     }
     return null;
   }

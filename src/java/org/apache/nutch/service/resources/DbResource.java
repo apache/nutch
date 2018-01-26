@@ -77,7 +77,7 @@ public class DbResource extends AbstractResource {
   @GET
   @Path(value="/fetchdb")
   public List<FetchNodeDbInfo> fetchDb(@DefaultValue("0")@QueryParam("to")int to, @DefaultValue("0")@QueryParam("from")int from){
-    List<FetchNodeDbInfo> listOfFetchedNodes = new ArrayList<FetchNodeDbInfo>();
+    List<FetchNodeDbInfo> listOfFetchedNodes = new ArrayList<>();
     Map<Integer, FetchNode> fetchNodedbMap = FetchNodeDb.getInstance().getFetchNodeDb();
 
     if(to ==0 || to>fetchNodedbMap.size()){

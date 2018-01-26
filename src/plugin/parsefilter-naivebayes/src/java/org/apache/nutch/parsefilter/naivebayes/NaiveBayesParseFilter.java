@@ -30,6 +30,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
 
+import java.lang.invoke.MethodHandles;
 import java.io.Reader;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,7 +48,7 @@ import java.util.ArrayList;
 public class NaiveBayesParseFilter implements HtmlParseFilter {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(NaiveBayesParseFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String TRAINFILE_MODELFILTER = "parsefilter.naivebayes.trainfile";
   public static final String DICTFILE_MODELFILTER = "parsefilter.naivebayes.wordlist";

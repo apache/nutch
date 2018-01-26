@@ -17,6 +17,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -40,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class ContinuousCrawlTestUtil extends TestCase {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(ContinuousCrawlTestUtil.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected static Text dummyURL = new Text("http://nutch.apache.org/");
 

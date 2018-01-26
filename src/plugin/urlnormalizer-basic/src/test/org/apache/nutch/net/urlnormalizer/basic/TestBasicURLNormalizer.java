@@ -116,6 +116,10 @@ public class TestBasicURLNormalizer {
     // check that port number is normalized
     normalizeTest("http://foo.com:80/index.html", "http://foo.com/index.html");
     normalizeTest("http://foo.com:81/", "http://foo.com:81/");
+    // check that empty port is removed
+    normalizeTest("http://example.com:/", "http://example.com/");
+    normalizeTest("https://example.com:/foobar.html",
+        "https://example.com/foobar.html");
 
     // check that null path is normalized
     normalizeTest("http://foo.com", "http://foo.com/");
@@ -127,7 +131,6 @@ public class TestBasicURLNormalizer {
     // normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
 
     // check that unnecessary "../" are removed
-
     normalizeTest("http://foo.com/aa/./foo.html", "http://foo.com/aa/foo.html");
     normalizeTest("http://foo.com/aa/../", "http://foo.com/");
     normalizeTest("http://foo.com/aa/bb/../", "http://foo.com/aa/");
@@ -161,6 +164,18 @@ public class TestBasicURLNormalizer {
         "http://foo.com/aa/bb/foo.html");
     normalizeTest("http://foo.com/aa?referer=http://bar.com",
         "http://foo.com/aa?referer=http://bar.com");
+    // check for NPEs when normalizing URLs without host (authority)
+    normalizeTest("file:///foo/bar.txt", "file:///foo/bar.txt");
+    normalizeTest("ftp:/", "ftp:/");
+    normalizeTest("http:", "http:/");
+    normalizeTest("http:////", "http:/");
+    normalizeTest("http:///////", "http:/");
+  }
+  
+  @Test
+  public void testCurlyBraces() throws Exception {
+    // check that leading and trailing spaces are removed
+    normalizeTest("http://foo.com/{{stuff}} ", "http://foo.com/%7B%7Bstuff%7D%7D");
   }
 
   private void normalizeTest(String weird, String normal) throws Exception {

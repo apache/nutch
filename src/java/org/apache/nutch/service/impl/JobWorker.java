@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.service.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.text.MessageFormat;
 
 import org.apache.hadoop.conf.Configuration;
@@ -32,7 +33,8 @@ public class JobWorker implements Runnable{
 
   private JobInfo jobInfo;
   private JobConfig jobConfig;
-  private static final Logger LOG = LoggerFactory.getLogger(JobWorker.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private NutchTool tool;
 
   /**

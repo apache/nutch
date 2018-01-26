@@ -17,11 +17,14 @@
 
 package org.apache.nutch.protocol.ftp;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
@@ -40,8 +43,8 @@ import crawlercommons.robots.SimpleRobotRules;
 public class FtpRobotRulesParser extends RobotRulesParser {
 
   private static final String CONTENT_TYPE = "text/plain";
-  public static final Logger LOG = LoggerFactory
-      .getLogger(FtpRobotRulesParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   FtpRobotRulesParser() {
   }
@@ -60,10 +63,18 @@ public class FtpRobotRulesParser extends RobotRulesParser {
    *          The {@link Protocol} object
    * @param url
    *          URL
+   * @param robotsTxtContent
+   *          container to store responses when fetching the robots.txt file for
+   *          debugging or archival purposes. Instead of a robots.txt file, it
+   *          may include redirects or an error page (404, etc.). Response
+   *          {@link Content} is appended to the passed list. If null is passed
+   *          nothing is stored.
    * 
    * @return robotRules A {@link BaseRobotRules} object for the rules
    */
-  public BaseRobotRules getRobotRulesSet(Protocol ftp, URL url) {
+  @Override
+  public BaseRobotRules getRobotRulesSet(Protocol ftp, URL url,
+      List<Content> robotsTxtContent) {
 
     String protocol = url.getProtocol().toLowerCase(); // normalize to lower
                                                        // case
@@ -97,6 +108,10 @@ public class FtpRobotRulesParser extends RobotRulesParser {
             new CrawlDatum());
         ProtocolStatus status = output.getStatus();
 
+        if (robotsTxtContent != null) {
+          robotsTxtContent.add(output.getContent());
+        }
+
         if (status.getCode() == ProtocolStatus.SUCCESS) {
           robotRules = parseRules(url.toString(), output.getContent()
               .getContent(), CONTENT_TYPE, agentNames);
@@ -118,4 +133,5 @@ public class FtpRobotRulesParser extends RobotRulesParser {
 
     return robotRules;
   }
+
 }

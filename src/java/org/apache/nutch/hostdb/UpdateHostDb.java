@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.hostdb;
 
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Random;
 
@@ -61,7 +62,8 @@ import org.slf4j.LoggerFactory;
  */
 public class UpdateHostDb extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(UpdateHostDb.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   public static final String LOCK_NAME = ".locked";
 
   public static final String HOSTDB_PURGE_FAILED_HOSTS_THRESHOLD = "hostdb.purge.failed.hosts.threshold";
@@ -100,7 +102,7 @@ public class UpdateHostDb extends Configured implements Tool {
       throw new Exception("urlnormalizer-host must not be enabled");
     }
 
-    FileSystem fs = FileSystem.get(job);
+    FileSystem fs = hostDb.getFileSystem(job);
     Path old = new Path(hostDb, "old");
     Path current = new Path(hostDb, "current");
     Path tempHostDb = new Path(hostDb, "hostdb-"

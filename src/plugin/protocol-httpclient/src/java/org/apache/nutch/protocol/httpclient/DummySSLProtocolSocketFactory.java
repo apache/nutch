@@ -25,6 +25,7 @@
 
 package org.apache.nutch.protocol.httpclient;
 
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -46,7 +47,7 @@ public class DummySSLProtocolSocketFactory implements
 
   /** Logger object for this class. */
   private static final Logger LOG = LoggerFactory
-      .getLogger(DummySSLProtocolSocketFactory.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private SSLContext sslcontext = null;
 

@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.webui.service.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -41,7 +42,8 @@ import com.j256.ormlite.dao.Dao;
 
 @Service
 public class CrawlServiceImpl implements CrawlService, CrawlingCycleListener {
-  private Logger log = LoggerFactory.getLogger(CrawlServiceImpl.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   @Resource
   private Dao<Crawl, Long> crawlDao;
@@ -74,7 +76,7 @@ public class CrawlServiceImpl implements CrawlService, CrawlingCycleListener {
     } catch (Exception e) {
       crawl.setStatus(CrawlStatus.ERROR);
       saveCrawl(crawl);
-      log.error("exception occured", e);
+      LOG.error("exception occured", e);
     }
   }
 

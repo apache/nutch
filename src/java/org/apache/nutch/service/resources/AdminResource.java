@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.service.resources;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Date;
 
 import javax.ws.rs.GET;
@@ -32,7 +33,7 @@ public class AdminResource extends AbstractResource{
 
   private final int DELAY_SEC = 1;
   private static final Logger LOG = LoggerFactory
-      .getLogger(AdminResource.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * To get the status of the Nutch Server 

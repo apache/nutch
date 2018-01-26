@@ -17,6 +17,7 @@
 
 package org.apache.nutch.net;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
@@ -55,8 +57,8 @@ import org.apache.nutch.util.ObjectCache;
  * <p>
  * You can define a set of contexts (or scopes) in which normalizers may be
  * called. Each scope can have its own list of normalizers (defined in
- * "urlnormalizer.scope.<scope_name>" property) and its own order (defined in
- * "urlnormalizer.order.<scope_name>" property). If any of these properties are
+ * "urlnormalizer.scope.&lt;scope_name&gt;" property) and its own order (defined in
+ * "urlnormalizer.order.&lt;scope_name&gt;" property). If any of these properties are
  * missing, default settings are used for the global scope.
  * </p>
  * <p>
@@ -117,8 +119,8 @@ public final class URLNormalizers {
   /** Scope used when indexing URLs. */
   public static final String SCOPE_INDEXER = "indexer";
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(URLNormalizers.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /* Empty extension list for caching purposes. */
   private final List<Extension> EMPTY_EXTENSION_LIST = Collections
@@ -180,7 +182,7 @@ public final class URLNormalizers {
       return EMPTY_NORMALIZERS;
     }
 
-    List<URLNormalizer> normalizers = new Vector<URLNormalizer>(
+    List<URLNormalizer> normalizers = new Vector<>(
         extensions.size());
 
     Iterator<Extension> it = extensions.iterator();
@@ -267,17 +269,17 @@ public final class URLNormalizers {
     Set<String> impls = null;
     if (scopelist != null && !scopelist.trim().equals("")) {
       String[] names = scopelist.split("\\s+");
-      impls = new HashSet<String>(Arrays.asList(names));
+      impls = new HashSet<>(Arrays.asList(names));
     }
     Extension[] extensions = this.extensionPoint.getExtensions();
-    HashMap<String, Extension> normalizerExtensions = new HashMap<String, Extension>();
+    HashMap<String, Extension> normalizerExtensions = new HashMap<>();
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
       if (impls != null && !impls.contains(extension.getClazz()))
         continue;
       normalizerExtensions.put(extension.getClazz(), extension);
     }
-    List<Extension> res = new ArrayList<Extension>();
+    List<Extension> res = new ArrayList<>();
     if (orders == null) {
       res.addAll(normalizerExtensions.values());
     } else {

@@ -74,7 +74,7 @@ public class SeedPage extends AbstractBasePage<SeedList> {
   }
 
   public void initPage(IModel<SeedList> model) {
-    setModel(new CompoundPropertyModel<SeedList>(model));
+    setModel(new CompoundPropertyModel<>(model));
 
     addBaseForm();
     addSeedUrlsList();
@@ -101,7 +101,7 @@ public class SeedPage extends AbstractBasePage<SeedList> {
 
       @Override
       protected Iterator<IModel<SeedUrl>> getItemModels() {
-        return new CpmIteratorAdapter<SeedUrl>(getModelObject().getSeedUrls());
+        return new CpmIteratorAdapter<>(getModelObject().getSeedUrls());
       }
 
       @Override
@@ -122,7 +122,7 @@ public class SeedPage extends AbstractBasePage<SeedList> {
   }
 
   private void addUrlForm() {
-    urlForm = new Form<SeedUrl>("urlForm", CompoundPropertyModel.of(Model
+    urlForm = new Form<>("urlForm", CompoundPropertyModel.of(Model
         .of(new SeedUrl())));
     urlForm.setOutputMarkupId(true);
     urlForm.add(new TextField<String>("url"));

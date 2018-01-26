@@ -39,6 +39,10 @@ public class DefaultFetchSchedule extends AbstractFetchSchedule {
       datum.setFetchInterval(defaultInterval);
     }
     datum.setFetchTime(fetchTime + (long) datum.getFetchInterval() * 1000);
+    if (modifiedTime <= 0 || state == FetchSchedule.STATUS_MODIFIED) {
+      // Set modifiedTime to fetchTime on first successful fetch
+      modifiedTime = fetchTime;
+    }
     datum.setModifiedTime(modifiedTime);
     return datum;
   }

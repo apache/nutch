@@ -21,7 +21,9 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Interface for all CommonCrawl formatter. It provides the signature for the
@@ -30,12 +32,10 @@ import java.io.IOException;
  * @author gtotaro
  *
  */
-public interface CommonCrawlFormat {
+public interface CommonCrawlFormat extends Closeable {
 
   /**
-   *
-   * @param mapAll If {@code true} maps all metdata on the JSON structure.
-   * @return the JSON data
+   * @throws IOException
    */
   //public String getJsonData(boolean mapAll) throws IOException;
   public String getJsonData() throws IOException;
@@ -62,6 +62,20 @@ public interface CommonCrawlFormat {
    */
   public String getJsonData(String url, Content content, Metadata metadata,
       ParseData parseData) throws IOException;
+
+
+  /**
+   * sets inlinks of this document
+   * @param inLinks list of inlinks
+   */
+  void setInLinks(List<String> inLinks);
+
+
+  /**
+   * gets set of inlinks
+   * @return gets inlinks of this document
+   */
+  List<String> getInLinks();
 
   /**
    * Optional method that could be implemented if the actual format needs some

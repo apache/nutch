@@ -17,6 +17,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ import org.apache.hadoop.mrunit.types.Pair;
 public class CrawlDbUpdateTestDriver<T extends Reducer<Text, CrawlDatum, Text, CrawlDatum>> {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(CrawlDbUpdateTestDriver.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private ReduceDriver<Text, CrawlDatum, Text, CrawlDatum> reduceDriver;
   private T reducer;

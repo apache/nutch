@@ -17,6 +17,7 @@
 package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -95,7 +96,8 @@ import org.apache.nutch.util.URLUtil;
  */
 public class WebGraph extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(WebGraph.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   public static final String LOCK_NAME = ".locked";
   public static final String INLINK_DIR = "inlinks";
   public static final String OUTLINK_DIR = "outlinks/current";
@@ -280,7 +282,7 @@ public class WebGraph extends Configured implements Tool {
         ParseData data = (ParseData) value;
         long fetchTime = getFetchTime(data);
         Outlink[] outlinkAr = data.getOutlinks();
-        Map<String, String> outlinkMap = new LinkedHashMap<String, String>();
+        Map<String, String> outlinkMap = new LinkedHashMap<>();
 
         // normalize urls and put into map
         if (outlinkAr != null && outlinkAr.length > 0) {
@@ -329,7 +331,7 @@ public class WebGraph extends Configured implements Tool {
       // aggregate all outlinks, get the most recent timestamp for a fetch
       // which should be the timestamp for all of the most recent outlinks
       long mostRecent = 0L;
-      List<LinkDatum> outlinkList = new ArrayList<LinkDatum>();
+      List<LinkDatum> outlinkList = new ArrayList<>();
       while (values.hasNext()) {
         Writable value = values.next().get();
 
@@ -360,8 +362,8 @@ public class WebGraph extends Configured implements Tool {
       String host = URLUtil.getHost(url);
 
       // setup checking sets for domains and pages
-      Set<String> domains = new HashSet<String>();
-      Set<String> pages = new HashSet<String>();
+      Set<String> domains = new HashSet<>();
+      Set<String> pages = new HashSet<>();
 
       // loop through the link datums
       for (LinkDatum datum : outlinkList) {
@@ -510,7 +512,7 @@ public class WebGraph extends Configured implements Tool {
     }
 
     Configuration conf = getConf();
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = webGraphDb.getFileSystem(conf);
 
     // lock an existing webgraphdb to prevent multiple simultaneous updates
     Path lock = new Path(webGraphDb, LOCK_NAME);
@@ -543,15 +545,16 @@ public class WebGraph extends Configured implements Tool {
     // get the parse data and crawl fetch data for all segments
     if (segments != null) {
       for (int i = 0; i < segments.length; i++) {
+        FileSystem sfs = segments[i].getFileSystem(conf);
         Path parseData = new Path(segments[i], ParseData.DIR_NAME);
-        if (fs.exists(parseData)) {
+        if (sfs.exists(parseData)) {
           LOG.info("OutlinkDb: adding input: " + parseData);
           FileInputFormat.addInputPath(outlinkJob, parseData);
         }
 
         if (deleteGone) {
           Path crawlFetch = new Path(segments[i], CrawlDatum.FETCH_DIR_NAME);
-          if (fs.exists(crawlFetch)) {
+          if (sfs.exists(crawlFetch)) {
             LOG.info("OutlinkDb: adding input: " + crawlFetch);
             FileInputFormat.addInputPath(outlinkJob, crawlFetch);
           }

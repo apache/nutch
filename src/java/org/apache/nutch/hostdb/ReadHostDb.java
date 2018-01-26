@@ -17,6 +17,7 @@
 package org.apache.nutch.hostdb;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
@@ -29,9 +30,11 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -52,12 +55,14 @@ import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
 
 /**
- * @see http://commons.apache.org/proper/commons-jexl/reference/syntax.html
+ * @see <a href='http://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a>
  */
 public class ReadHostDb extends Configured implements Tool {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ReadHostDb.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
+  public static final String HOSTDB_DUMP_HEADER = "hostdb.dump.field.header";
   public static final String HOSTDB_DUMP_HOSTNAMES = "hostdb.dump.hostnames";
   public static final String HOSTDB_DUMP_HOMEPAGES = "hostdb.dump.homepages";
   public static final String HOSTDB_FILTER_EXPRESSION = "hostdb.filter.expression";
@@ -65,12 +70,14 @@ public class ReadHostDb extends Configured implements Tool {
   static class ReadHostDbMapper extends Mapper<Text, HostDatum, Text, Text> {
     protected boolean dumpHostnames = false;
     protected boolean dumpHomepages = false;
+    protected boolean fieldHeader = true;
     protected Text emptyText = new Text();
     protected Expression expr = null;
 
     public void setup(Context context) {
       dumpHomepages = context.getConfiguration().getBoolean(HOSTDB_DUMP_HOMEPAGES, false);
       dumpHostnames = context.getConfiguration().getBoolean(HOSTDB_DUMP_HOSTNAMES, false);
+      fieldHeader = context.getConfiguration().getBoolean(HOSTDB_DUMP_HEADER, true);
       String expr = context.getConfiguration().get(HOSTDB_FILTER_EXPRESSION);
       if (expr != null) {
         // Create or retrieve a JexlEngine
@@ -85,7 +92,12 @@ public class ReadHostDb extends Configured implements Tool {
       }
     }
 
-    public void map(Text key, HostDatum datum, Context context) throws IOException, InterruptedException {     
+    public void map(Text key, HostDatum datum, Context context) throws IOException, InterruptedException {
+      if (fieldHeader && !dumpHomepages && !dumpHostnames) {
+        context.write(new Text("hostname"), new Text("unfetched\tfetched\tgone\tredirTemp\tredirPerm\tredirSum\tok\tnumRecords\tdnsFail\tcnxFail\tsumFail\tscore\tlastCheck\thomepage\tmetadata"));
+        fieldHeader = false;
+      }
+      
       if (expr != null) {
         // Create a context and add data
         JexlContext jcontext = new MapContext();
@@ -171,7 +183,8 @@ public class ReadHostDb extends Configured implements Tool {
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
     conf.set("mapred.textoutputformat.separator", "\t");
     
-    Job job = new Job(conf, "ReadHostDb");
+    Job job = Job.getInstance(conf);
+    job.setJobName("ReadHostDb");
     job.setJarByClass(ReadHostDb.class);
 
     FileInputFormat.addInputPath(job, new Path(hostDb, "current"));
@@ -189,13 +202,45 @@ public class ReadHostDb extends Configured implements Tool {
     job.setNumReduceTasks(0);
 
     try {
-      job.waitForCompletion(true);
-    } catch (Exception e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "ReadHostDb job did not succeed, job status: "
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        // throw exception so that calling routine can exit with error
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("ReadHostDb job failed", e);
       throw e;
     }
 
     long end = System.currentTimeMillis();
     LOG.info("ReadHostDb: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+  }
+  
+  private void getHostDbRecord(Path hostDb, String host) throws Exception {
+    Configuration conf = getConf();
+    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(conf, hostDb);
+
+    Class<?> keyClass = readers[0].getKeyClass();
+    Class<?> valueClass = readers[0].getValueClass();
+    
+    if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
+      throw new IOException("Incompatible key (" + keyClass.getName() + ")");
+      
+    Text key = (Text) keyClass.newInstance();
+    HostDatum value = (HostDatum) valueClass.newInstance();
+    
+    for (int i = 0; i < readers.length; i++) {
+      while (readers[i].next(key, value)) {
+        if (host.equals(key.toString())) {
+          System.out.println(value.toString());
+        }
+      }
+      readers[i].close();
+    }    
   }
 
   public static void main(String args[]) throws Exception {
@@ -205,13 +250,14 @@ public class ReadHostDb extends Configured implements Tool {
 
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: ReadHostDb <hostdb> <output> [-dumpHomepages | -dumpHostnames | -expr <expr.>]");
+      System.err.println("Usage: ReadHostDb <hostdb> [-get <url>] [<output> [-dumpHomepages | -dumpHostnames | -expr <expr.>]]");
       return -1;
     }
 
     boolean dumpHomepages = false;
     boolean dumpHostnames = false;
     String expr = null;
+    String get = null;
 
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-dumpHomepages")) {
@@ -222,6 +268,11 @@ public class ReadHostDb extends Configured implements Tool {
         LOG.info("ReadHostDb: dumping hostnames");
         dumpHostnames = true;
       }
+      if (args[i].equals("-get")) {
+        get = args[i + 1];
+        LOG.info("ReadHostDb: get: "+ get);
+        i++;
+      }
       if (args[i].equals("-expr")) {
         expr = args[i + 1];
         LOG.info("ReadHostDb: evaluating expression: " + expr);
@@ -230,7 +281,11 @@ public class ReadHostDb extends Configured implements Tool {
     }
 
     try {
-      readHostDb(new Path(args[0]), new Path(args[1]), dumpHomepages, dumpHostnames, expr);
+      if (get != null) {
+        getHostDbRecord(new Path(args[0], "current"), get);
+      } else {
+        readHostDb(new Path(args[0]), new Path(args[1]), dumpHomepages, dumpHostnames, expr);
+      }
       return 0;
     } catch (Exception e) {
       LOG.error("ReadHostDb: " + StringUtils.stringifyException(e));

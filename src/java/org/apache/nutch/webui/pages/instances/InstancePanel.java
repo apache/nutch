@@ -32,7 +32,7 @@ public class InstancePanel extends Modal {
     notificationPanel.setOutputMarkupId(true);
     add(notificationPanel);
 
-    form = new BootstrapForm<NutchInstance>("instanceForm");
+    form = new BootstrapForm<>("instanceForm");
     form.add(new TextField<String>("name").setRequired(true));
     form.add(new TextField<String>("host").setRequired(true));
     form.add(new TextField<Integer>("port").setRequired(true));

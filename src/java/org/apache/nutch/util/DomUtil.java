@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -30,7 +31,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.xerces.parsers.DOMParser;
+import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -40,7 +43,8 @@ import org.slf4j.LoggerFactory;
 
 public class DomUtil {
 
-  private final static Logger LOG = LoggerFactory.getLogger(DomUtil.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Returns parsed dom tree or null if any error
@@ -99,6 +103,13 @@ public class DomUtil {
       LOG.error("Error: ", e2);
     } catch (TransformerException ex) {
       LOG.error("Error: ", ex);
+    }
+  }
+
+  public static void saveDom(OutputStream os, DocumentFragment doc) {
+    NodeList docChildren = doc.getChildNodes();
+    for (int i = 0; i < docChildren.getLength(); i++) {
+      saveDom(os, (Element) docChildren.item(i));
     }
   }
 }

@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -44,11 +45,13 @@ import org.apache.nutch.util.TimingUtil;
  * accordingly.
  */
 public class CrawlDb extends NutchTool implements Tool {
-  public static final Logger LOG = LoggerFactory.getLogger(CrawlDb.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
   public static final String CRAWLDB_PURGE_404 = "db.update.purge.404";
+  public static final String CRAWLDB_PURGE_ORPHANS = "db.update.purge.orphans";
 
   public static final String CURRENT_NAME = "current";
 
@@ -71,9 +74,8 @@ public class CrawlDb extends NutchTool implements Tool {
   public void update(Path crawlDb, Path[] segments, boolean normalize,
       boolean filter, boolean additionsAllowed, boolean force)
       throws IOException {
-    FileSystem fs = FileSystem.get(getConf());
-    Path lock = new Path(crawlDb, LOCK_NAME);
-    LockUtil.createLockFile(fs, lock, force);
+    Path lock = lock(getConf(), crawlDb, force);
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
 
@@ -95,11 +97,16 @@ public class CrawlDb extends NutchTool implements Tool {
     }
 
     for (int i = 0; i < segments.length; i++) {
+      FileSystem sfs = segments[i].getFileSystem(getConf());
       Path fetch = new Path(segments[i], CrawlDatum.FETCH_DIR_NAME);
       Path parse = new Path(segments[i], CrawlDatum.PARSE_DIR_NAME);
-      if (fs.exists(fetch) && fs.exists(parse)) {
+      if (sfs.exists(fetch)) {
         FileInputFormat.addInputPath(job, fetch);
-        FileInputFormat.addInputPath(job, parse);
+        if (sfs.exists(parse)) {
+          FileInputFormat.addInputPath(job, parse);
+        } else {
+          LOG.info(" - adding fetched but unparsed segment " + segments[i]);
+        }
       } else {
         LOG.info(" - skipping invalid segment " + segments[i]);
       }
@@ -108,9 +115,11 @@ public class CrawlDb extends NutchTool implements Tool {
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb update: Merging segment data into db.");
     }
+    RunningJob crawlDBJob = null;
     try {
-      JobClient.runJob(job);
+      crawlDBJob = JobClient.runJob(job);
     } catch (IOException e) {
+      FileSystem fs = crawlDb.getFileSystem(getConf());
       LockUtil.removeLockFile(fs, lock);
       Path outPath = FileOutputFormat.getOutputPath(job);
       if (fs.exists(outPath))
@@ -119,6 +128,15 @@ public class CrawlDb extends NutchTool implements Tool {
     }
 
     CrawlDb.install(job, crawlDb);
+
+    if (filter) {
+      long urlsFiltered = crawlDBJob.getCounters()
+          .findCounter("CrawlDB filter", "URLs filtered").getValue();
+      LOG.info(
+          "CrawlDb update: Total number of existing URLs in CrawlDb rejected by URL filters: {}",
+          urlsFiltered);
+    }
+
     long end = System.currentTimeMillis();
     LOG.info("CrawlDb update: finished at " + sdf.format(end) + ", elapsed: "
         + TimingUtil.elapsedTime(start, end));
@@ -136,7 +154,7 @@ public class CrawlDb extends NutchTool implements Tool {
     job.setJobName("crawldb " + crawlDb);
 
     Path current = new Path(crawlDb, CURRENT_NAME);
-    if (FileSystem.get(job).exists(current)) {
+    if (current.getFileSystem(job).exists(current)) {
       FileInputFormat.addInputPath(job, current);
     }
     job.setInputFormat(SequenceFileInputFormat.class);
@@ -155,41 +173,41 @@ public class CrawlDb extends NutchTool implements Tool {
     return job;
   }
 
-  public static void install(JobConf job, Path crawlDb) throws IOException {
-    boolean preserveBackup = job.getBoolean("db.preserve.backup", true);
+  public static Path lock(Configuration job, Path crawlDb, boolean force) throws IOException {
+    Path lock = new Path(crawlDb, LOCK_NAME);
+    LockUtil.createLockFile(job, lock, force);
+    return lock;
+  }
 
-    Path newCrawlDb = FileOutputFormat.getOutputPath(job);
-    FileSystem fs = new JobClient(job).getFs();
+  private static void install(Configuration conf, Path crawlDb, Path tempCrawlDb)
+      throws IOException {
+    boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
+    FileSystem fs = crawlDb.getFileSystem(conf);
     Path old = new Path(crawlDb, "old");
     Path current = new Path(crawlDb, CURRENT_NAME);
     if (fs.exists(current)) {
-      if (fs.exists(old))
-        fs.delete(old, true);
-      fs.rename(current, old);
+      FSUtils.replace(fs, old, current, true);
     }
-    fs.mkdirs(crawlDb);
-    fs.rename(newCrawlDb, current);
-    if (!preserveBackup && fs.exists(old))
-      fs.delete(old, true);
-    Path lock = new Path(crawlDb, LOCK_NAME);
-    LockUtil.removeLockFile(fs, lock);
-  }
-
-  public static void install(Job job, Path crawlDb) throws IOException {
-    Configuration conf = job.getConfiguration();
-    boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
-    FileSystem fs = FileSystem.get(conf);
-    Path old = new Path(crawlDb, "old");
-    Path current = new Path(crawlDb, CURRENT_NAME);
-    Path tempCrawlDb = org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
-        .getOutputPath(job);
-    FSUtils.replace(fs, old, current, true);
     FSUtils.replace(fs, current, tempCrawlDb, true);
     Path lock = new Path(crawlDb, LOCK_NAME);
     LockUtil.removeLockFile(fs, lock);
     if (!preserveBackup && fs.exists(old)) {
       fs.delete(old, true);
     }
+  }
+
+  // old MapReduce API
+  public static void install(JobConf job, Path crawlDb) throws IOException {
+    Path tempCrawlDb = FileOutputFormat.getOutputPath(job);
+    install(job, crawlDb, tempCrawlDb);
+  }
+
+  // new MapReduce API
+  public static void install(Job job, Path crawlDb) throws IOException {
+    Configuration conf = job.getConfiguration();
+    Path tempCrawlDb = org.apache.hadoop.mapreduce.lib.output.FileOutputFormat
+        .getOutputPath(job);
+    install(conf, crawlDb, tempCrawlDb);
   }
 
   public static void main(String[] args) throws Exception {
@@ -223,8 +241,7 @@ public class CrawlDb extends NutchTool implements Tool {
     boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED,
         true);
     boolean force = false;
-    final FileSystem fs = FileSystem.get(getConf());
-    HashSet<Path> dirs = new HashSet<Path>();
+    HashSet<Path> dirs = new HashSet<>();
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-normalize")) {
         normalize = true;
@@ -235,7 +252,9 @@ public class CrawlDb extends NutchTool implements Tool {
       } else if (args[i].equals("-noAdditions")) {
         additionsAllowed = false;
       } else if (args[i].equals("-dir")) {
-        FileStatus[] paths = fs.listStatus(new Path(args[++i]),
+        Path dirPath = new Path(args[++i]);
+        FileSystem fs = dirPath.getFileSystem(getConf());
+        FileStatus[] paths = fs.listStatus(dirPath,
             HadoopFSUtil.getPassDirectoriesFilter(fs));
         dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
       } else {
@@ -258,7 +277,7 @@ public class CrawlDb extends NutchTool implements Tool {
   @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
 
     boolean normalize = getConf().getBoolean(CrawlDbFilter.URL_NORMALIZING,
         false);
@@ -266,7 +285,7 @@ public class CrawlDb extends NutchTool implements Tool {
     boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED,
         true);
     boolean force = false;
-    HashSet<Path> dirs = new HashSet<Path>();
+    HashSet<Path> dirs = new HashSet<>();
 
     if (args.containsKey("normalize")) {
       normalize = true;
@@ -296,7 +315,6 @@ public class CrawlDb extends NutchTool implements Tool {
     }
 
     Path segmentsDir;
-    final FileSystem fs = FileSystem.get(getConf());
     if(args.containsKey(Nutch.ARG_SEGMENTDIR)) {
       Object segDir = args.get(Nutch.ARG_SEGMENTDIR);
       if(segDir instanceof Path) {
@@ -305,17 +323,21 @@ public class CrawlDb extends NutchTool implements Tool {
       else {
         segmentsDir = new Path(segDir.toString());
       }
+      FileSystem fs = segmentsDir.getFileSystem(getConf());
       FileStatus[] paths = fs.listStatus(segmentsDir,
           HadoopFSUtil.getPassDirectoriesFilter(fs));
       dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
     }
-
-    else if(args.containsKey(Nutch.ARG_SEGMENT)) {
-      Object segments = args.get(Nutch.ARG_SEGMENT);
-      ArrayList<String> segmentList = new ArrayList<String>();
+    else if(args.containsKey(Nutch.ARG_SEGMENTS)) {
+      Object segments = args.get(Nutch.ARG_SEGMENTS);
+      ArrayList<String> segmentList = new ArrayList<String>();      
       if(segments instanceof ArrayList) {
-        segmentList = (ArrayList<String>)segments;
+    	segmentList = (ArrayList<String>)segments;
       }
+      else if(segments instanceof Path){
+    	segmentList.add(segments.toString());
+      }
+    	      
       for(String segment: segmentList) {
         dirs.add(new Path(segment));
       }
@@ -324,14 +346,11 @@ public class CrawlDb extends NutchTool implements Tool {
       String segment_dir = crawlId+"/segments";
       File dir = new File(segment_dir);
       File[] segmentsList = dir.listFiles();  
-      Arrays.sort(segmentsList, new Comparator<File>(){
-        @Override
-        public int compare(File f1, File f2) {
-          if(f1.lastModified()>f2.lastModified())
-            return -1;
-          else
-            return 0;
-        }      
+      Arrays.sort(segmentsList, (f1, f2) -> {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
       });
       dirs.add(new Path(segmentsList[0].getPath()));
     }

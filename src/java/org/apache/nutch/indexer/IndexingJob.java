@@ -18,6 +18,7 @@ package org.apache.nutch.indexer;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +57,8 @@ import org.slf4j.LoggerFactory;
 
 public class IndexingJob extends NutchTool implements Tool {
 
-  public static Logger LOG = LoggerFactory.getLogger(IndexingJob.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public IndexingJob() {
     super(null);
@@ -158,7 +160,7 @@ public class IndexingJob extends NutchTool implements Tool {
       LOG.info("Indexer: finished at " + sdf.format(end) + ", elapsed: "
           + TimingUtil.elapsedTime(start, end));
     } finally {
-      FileSystem.get(job).delete(tmp, true);
+      tmp.getFileSystem(job).delete(tmp, true);
     }
   }
 
@@ -175,7 +177,7 @@ public class IndexingJob extends NutchTool implements Tool {
     final Path crawlDb = new Path(args[0]);
     Path linkDb = null;
 
-    final List<Path> segments = new ArrayList<Path>();
+    final List<Path> segments = new ArrayList<>();
     String params = null;
 
     boolean noCommit = false;
@@ -266,10 +268,9 @@ public class IndexingJob extends NutchTool implements Tool {
     }
 
     Path linkdb = null;
-    List<Path> segments = new ArrayList<Path>();
+    List<Path> segments = new ArrayList<>();
 
     if(args.containsKey(Nutch.ARG_LINKDB)){
-      if(args.containsKey(Nutch.ARG_LINKDB)) {
         Object path = args.get(Nutch.ARG_LINKDB);
         if(path instanceof Path) {
           linkdb = (Path) path;
@@ -277,11 +278,9 @@ public class IndexingJob extends NutchTool implements Tool {
         else {
           linkdb = new Path(path.toString());
         }
-      }
-      else {
+    } else {
         linkdb = new Path(crawlId+"/linkdb");
       }
-    }
 
     if(args.containsKey(Nutch.ARG_SEGMENTDIR)){
       isSegment = true;
@@ -304,15 +303,17 @@ public class IndexingJob extends NutchTool implements Tool {
       }     
     }
 
-    if(args.containsKey(Nutch.ARG_SEGMENT)){
-      isSegment = true;
-      Object seg = args.get(Nutch.ARG_SEGMENT);
-      ArrayList<String> segmentList = new ArrayList<String>();
-      if(seg instanceof ArrayList) {
-        segmentList = (ArrayList<String>)seg;
+    if(args.containsKey(Nutch.ARG_SEGMENTS)) {
+      Object segmentsFromArg = args.get(Nutch.ARG_SEGMENTS);
+      ArrayList<String> segmentList = new ArrayList<String>(); 
+      if(segmentsFromArg instanceof ArrayList) {
+    	segmentList = (ArrayList<String>)segmentsFromArg; }
+      else if(segmentsFromArg instanceof Path){
+        segmentList.add(segmentsFromArg.toString());
       }
+    	      
       for(String segment: segmentList) {
-        segments.add(new Path(segment));
+    	segments.add(new Path(segment));
       }
     }
 
@@ -320,14 +321,11 @@ public class IndexingJob extends NutchTool implements Tool {
       String segment_dir = crawlId+"/segments";
       File segmentsDir = new File(segment_dir);
       File[] segmentsList = segmentsDir.listFiles();  
-      Arrays.sort(segmentsList, new Comparator<File>(){
-        @Override
-        public int compare(File f1, File f2) {
-          if(f1.lastModified()>f2.lastModified())
-            return -1;
-          else
-            return 0;
-        }      
+      Arrays.sort(segmentsList, (f1, f2) -> {
+        if(f1.lastModified()>f2.lastModified())
+          return -1;
+        else
+          return 0;
       });
       Path segment = new Path(segmentsList[0].getPath());
       segments.add(segment);
@@ -351,7 +349,7 @@ public class IndexingJob extends NutchTool implements Tool {
     setConf(conf);
     index(crawlDb, linkdb, segments, noCommit, deleteGone, params, filter,
         normalize);
-    Map<String, Object> results = new HashMap<String, Object>();
+    Map<String, Object> results = new HashMap<>();
     results.put(Nutch.VAL_RESULT, 0);
     return results;
   }

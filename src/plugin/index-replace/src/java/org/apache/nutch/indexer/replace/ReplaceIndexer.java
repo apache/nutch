@@ -44,10 +44,10 @@ import org.apache.nutch.parse.Parse;
  * <code>plugin.includes</code>. Example:
  * 
  * <pre>
- *   &lt;property>
- *    &lt;name>plugin.includes&lt;/name>
- *    &lt;value>protocol-(http)|urlfilter-regex|parse-(html|tika|metatags)|index-(basic|anchor|metadata|replace)|urlnormalizer-(pass|regex|basic)|indexer-solr&lt;/value>
- *   &lt;/property>
+ *   &lt;property&gt;
+ *    &lt;name&gt;plugin.includes&lt;/name&gt;
+ *    &lt;value&gt;protocol-(http)|urlfilter-regex|parse-(html|tika|metatags)|index-(basic|anchor|metadata|replace)|urlnormalizer-(pass|regex|basic)|indexer-solr&lt;/value&gt;
+ *   &lt;/property&gt;
  * </pre>
  *
  * And then add the <code>index.replace.regexp</code> property to
@@ -59,13 +59,13 @@ import org.apache.nutch.parse.Parse;
  * </pre>
  * 
  * <pre>
- *   &lt;property>
- *    &lt;name>index.replace.regexp&lt;/name>
- *    &lt;value>
+ *   &lt;property&gt;
+ *    &lt;name&gt;index.replace.regexp&lt;/name&gt;
+ *    &lt;value&gt;
  *      hostmatch=.*\\.com
  *      title=/search/replace/2
- *    &lt;/value>
- *   &lt;/property>
+ *    &lt;/value&gt;
+ *   &lt;/property&gt;
  * </pre>
  * 
  * <code>hostmatch=</code> and <code>urlmatch=</code> lines indicate the match

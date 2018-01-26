@@ -46,7 +46,7 @@ public class TestZipParser {
 
   private String[] sampleFiles = { "test.zip" };
 
-  private String expectedText = "textfile.txt This is text file number 1 ";
+  private String expectedText = "textfile.txt This is text file number 1";
 
   @Test
   public void testIt() throws ProtocolException, ParseException {
@@ -64,7 +64,10 @@ public class TestZipParser {
           new CrawlDatum()).getContent();
       parse = new ParseUtil(conf).parseByExtensionId("parse-zip", content).get(
           content.getUrl());
-      Assert.assertTrue(parse.getText().equals(expectedText));
+      Assert.assertTrue(
+          "Extracted text does not start with <" + expectedText + ">: <"
+              + parse.getText() + ">",
+          parse.getText().startsWith(expectedText));
     }
   }
 

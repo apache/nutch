@@ -17,6 +17,7 @@
 package org.apache.nutch.urlfilter.api;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -39,8 +40,8 @@ import org.apache.nutch.net.URLFilter;
 public abstract class RegexURLFilterBaseTest {
 
   /** My logger */
-  protected static final Logger LOG = LoggerFactory
-      .getLogger(RegexURLFilterBaseTest.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");

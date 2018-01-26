@@ -17,6 +17,7 @@
 package org.apache.nutch.parse;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -41,7 +42,8 @@ import org.apache.nutch.util.ObjectCache;
 /** Creates and caches {@link Parser} plugins. */
 public final class ParserFactory {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ParserFactory.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** Wildcard for default plugins. */
   public static final String DEFAULT_PLUGIN = "*";
@@ -124,7 +126,7 @@ public final class ParserFactory {
       throw new ParserNotFound(url, contentType);
     }
 
-    parsers = new Vector<Parser>(parserExts.size());
+    parsers = new Vector<>(parserExts.size());
     for (Iterator<Extension> i = parserExts.iterator(); i.hasNext();) {
       Extension ext = i.next();
       Parser p = null;
@@ -297,7 +299,7 @@ public final class ParserFactory {
   private List<Extension> matchExtensions(List<String> plugins,
       Extension[] extensions, String contentType) {
 
-    List<Extension> extList = new ArrayList<Extension>();
+    List<Extension> extList = new ArrayList<>();
     if (plugins != null) {
 
       for (String parsePluginId : plugins) {

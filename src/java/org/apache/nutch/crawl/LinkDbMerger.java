@@ -17,6 +17,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -69,7 +70,8 @@ import org.apache.nutch.util.TimingUtil;
  */
 public class LinkDbMerger extends Configured implements Tool,
     Reducer<Text, Inlinks, Text, Inlinks> {
-  private static final Logger LOG = LoggerFactory.getLogger(LinkDbMerger.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private int maxInlinks;
 
@@ -121,7 +123,7 @@ public class LinkDbMerger extends Configured implements Tool,
       FileInputFormat.addInputPath(job, new Path(dbs[i], LinkDb.CURRENT_NAME));
     }
     JobClient.runJob(job);
-    FileSystem fs = FileSystem.get(getConf());
+    FileSystem fs = output.getFileSystem(getConf());
     fs.mkdirs(output);
     fs.rename(FileOutputFormat.getOutputPath(job), new Path(output,
         LinkDb.CURRENT_NAME));
@@ -133,8 +135,8 @@ public class LinkDbMerger extends Configured implements Tool,
 
   public static JobConf createMergeJob(Configuration config, Path linkDb,
       boolean normalize, boolean filter) {
-    Path newLinkDb = new Path("linkdb-merge-"
-        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+    Path newLinkDb = new Path(linkDb,
+        "merge-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
     job.setJobName("linkdb merge " + linkDb);
@@ -181,7 +183,7 @@ public class LinkDbMerger extends Configured implements Tool,
       return -1;
     }
     Path output = new Path(args[0]);
-    ArrayList<Path> dbs = new ArrayList<Path>();
+    ArrayList<Path> dbs = new ArrayList<>();
     boolean normalize = false;
     boolean filter = false;
     for (int i = 1; i < args.length; i++) {

@@ -17,7 +17,9 @@
 
 package org.apache.nutch.protocol.file;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +49,8 @@ import crawlercommons.robots.BaseRobotRules;
  */
 public class File implements Protocol {
 
-  public static final Logger LOG = LoggerFactory.getLogger(File.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   static final int MAX_REDIRECTS = 5;
 
@@ -161,11 +164,10 @@ public class File implements Protocol {
    */
   public static void main(String[] args) throws Exception {
     int maxContentLength = Integer.MIN_VALUE;
-    String logLevel = "info";
     boolean dumpContent = false;
     String urlString = null;
 
-    String usage = "Usage: File [-logLevel level] [-maxContentLength L] [-dumpContent] url";
+    String usage = "Usage: File [-maxContentLength L] [-dumpContent] url";
 
     if (args.length == 0) {
       System.err.println(usage);
@@ -173,9 +175,7 @@ public class File implements Protocol {
     }
 
     for (int i = 0; i < args.length; i++) {
-      if (args[i].equals("-logLevel")) {
-        logLevel = args[++i];
-      } else if (args[i].equals("-maxContentLength")) {
+      if (args[i].equals("-maxContentLength")) {
         maxContentLength = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-dumpContent")) {
         dumpContent = true;
@@ -222,7 +222,10 @@ public class File implements Protocol {
    * No robots parsing is done for file protocol. So this returns a set of empty
    * rules which will allow every url.
    */
-  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
+  @Override
+  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum,
+      List<Content> robotsTxtContent) {
     return RobotRulesParser.EMPTY_RULES;
   }
+
 }

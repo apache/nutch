@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.lang.invoke.MethodHandles;
 import java.io.*;
 import java.net.*;
 import javax.xml.parsers.*;
@@ -35,7 +36,8 @@ import org.w3c.dom.*;
 
 /** Adds metadata identifying the Creative Commons license used, if any. */
 public class CCParseFilter implements HtmlParseFilter {
-  public static final Logger LOG = LoggerFactory.getLogger(CCParseFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** Walks DOM tree, looking for RDF in comments and licenses in anchors. */
   public static class Walker {

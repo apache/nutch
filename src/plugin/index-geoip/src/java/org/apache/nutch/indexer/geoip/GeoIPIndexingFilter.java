@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexer.geoip;
 
+import java.lang.invoke.MethodHandles;
 import java.io.File;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
@@ -34,10 +35,8 @@ import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.WebServiceClient;
 
 /**
- * <p>
  * This plugin implements an indexing filter which takes advantage of the <a
  * href="https://github.com/maxmind/GeoIP2-java">GeoIP2-java API</a>.
- * </p>
  * <p>
  * The third party library distribution provides an API for the GeoIP2 <a
  * href="http://dev.maxmind.com/geoip/geoip2/web-services">Precision web
@@ -63,7 +62,6 @@ import com.maxmind.geoip2.WebServiceClient;
  * <li>Radius</li>
  * <li>User Type</li>
  * </ol>
- * </p>
  * 
  * <p>
  * Some of the services are documented at the <a
@@ -114,7 +112,7 @@ import com.maxmind.geoip2.WebServiceClient;
 public class GeoIPIndexingFilter implements IndexingFilter {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(GeoIPIndexingFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
 

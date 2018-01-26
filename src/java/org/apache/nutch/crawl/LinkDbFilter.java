@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 
 import org.slf4j.Logger;
@@ -53,7 +54,8 @@ public class LinkDbFilter implements Mapper<Text, Inlinks, Text, Inlinks> {
 
   private String scope;
 
-  public static final Logger LOG = LoggerFactory.getLogger(LinkDbFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Text newKey = new Text();
 

@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,29 +39,27 @@ import org.apache.nutch.net.URLNormalizers;
 public class CrawlDbFilter implements
     Mapper<Text, CrawlDatum, Text, CrawlDatum> {
   public static final String URL_FILTERING = "crawldb.url.filters";
-
   public static final String URL_NORMALIZING = "crawldb.url.normalizers";
-
   public static final String URL_NORMALIZING_SCOPE = "crawldb.url.normalizers.scope";
 
   private boolean urlFiltering;
-
   private boolean urlNormalizers;
 
   private boolean url404Purging;
-
+  private boolean purgeOrphans;
   private URLFilters filters;
-
   private URLNormalizers normalizers;
 
   private String scope;
 
-  public static final Logger LOG = LoggerFactory.getLogger(CrawlDbFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public void configure(JobConf job) {
     urlFiltering = job.getBoolean(URL_FILTERING, false);
     urlNormalizers = job.getBoolean(URL_NORMALIZING, false);
     url404Purging = job.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false);
+    purgeOrphans = job.getBoolean(CrawlDb.CRAWLDB_PURGE_ORPHANS, false);
 
     if (urlFiltering) {
       filters = new URLFilters(job);
@@ -85,7 +84,16 @@ public class CrawlDbFilter implements
     // https://issues.apache.org/jira/browse/NUTCH-1101 check status first,
     // cheaper than normalizing or filtering
     if (url404Purging && CrawlDatum.STATUS_DB_GONE == value.getStatus()) {
-      url = null;
+      reporter.getCounter("CrawlDB filter",
+        "Gone records removed").increment(1);
+      return;
+    }
+    // Whether to remove orphaned pages
+    // https://issues.apache.org/jira/browse/NUTCH-1932
+    if (purgeOrphans && CrawlDatum.STATUS_DB_ORPHAN == value.getStatus()) {
+      reporter.getCounter("CrawlDB filter",
+        "Orphan records removed").increment(1);
+      return;
     }
     if (url != null && urlNormalizers) {
       try {
@@ -103,7 +111,10 @@ public class CrawlDbFilter implements
         url = null;
       }
     }
-    if (url != null) { // if it passes
+    if (url == null) {
+      reporter.getCounter("CrawlDB filter", "URLs filtered").increment(1);
+    } else {
+      // URL has passed filters
       newKey.set(url); // collect it
       output.collect(newKey, value);
     }

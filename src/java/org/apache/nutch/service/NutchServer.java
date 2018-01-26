@@ -17,6 +17,7 @@
 
 package org.apache.nutch.service;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -41,6 +42,7 @@ import org.apache.nutch.fetcher.FetchNodeDb;
 import org.apache.nutch.service.impl.ConfManagerImpl;
 import org.apache.nutch.service.impl.JobFactory;
 import org.apache.nutch.service.impl.JobManagerImpl;
+import org.apache.nutch.service.impl.SeedManagerImpl;
 import org.apache.nutch.service.impl.NutchServerPoolExecutor;
 import org.apache.nutch.service.model.response.JobInfo;
 import org.apache.nutch.service.model.response.JobInfo.State;
@@ -57,7 +59,8 @@ import com.google.common.collect.Queues;
 
 public class NutchServer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NutchServer.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String LOCALHOST = "localhost";
   private static final Integer DEFAULT_PORT = 8081;
@@ -74,6 +77,7 @@ public class NutchServer {
   private boolean running;
   private ConfManager configManager;
   private JobManager jobManager;
+  private SeedManager seedManager;
   private JAXRSServerFactoryBean sf; 
 
   private static FetchNodeDb fetchNodeDb;
@@ -86,6 +90,7 @@ public class NutchServer {
 
   private NutchServer() {
     configManager = new ConfManagerImpl();
+    seedManager = new SeedManagerImpl();
     BlockingQueue<Runnable> runnables = Queues.newArrayBlockingQueue(JOB_CAPACITY);
     NutchServerPoolExecutor executor = new NutchServerPoolExecutor(10, JOB_CAPACITY, 1, TimeUnit.HOURS, runnables);
     jobManager = new JobManagerImpl(new JobFactory(), configManager, executor);
@@ -126,7 +131,7 @@ public class NutchServer {
   }
 
   private List<Class<?>> getClasses() {
-    List<Class<?>> resources = new ArrayList<Class<?>>();
+    List<Class<?>> resources = new ArrayList<>();
     resources.add(JobResource.class);
     resources.add(ConfigResource.class);
     resources.add(DbResource.class);
@@ -137,7 +142,7 @@ public class NutchServer {
   }
 
   private List<ResourceProvider> getResourceProviders() {
-    List<ResourceProvider> resourceProviders = new ArrayList<ResourceProvider>();
+    List<ResourceProvider> resourceProviders = new ArrayList<>();
     resourceProviders.add(new SingletonResourceProvider(getConfManager()));
     return resourceProviders;
   }
@@ -148,6 +153,10 @@ public class NutchServer {
 
   public JobManager getJobManager() {
     return jobManager;
+  }
+  
+  public SeedManager getSeedManager() {
+    return seedManager;
   }
 
   public FetchNodeDb getFetchNodeDb(){

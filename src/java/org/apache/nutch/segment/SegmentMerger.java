@@ -18,6 +18,7 @@ package org.apache.nutch.segment;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -72,9 +73,7 @@ import org.apache.nutch.util.NutchJob;
 /**
  * This tool takes several segments and merges their data together. Only the
  * latest versions of data is retained.
- * <p>
  * Optionally, you can apply current URLFilters to remove prohibited URL-s.
- * </p>
  * <p>
  * Also, it's possible to slice the resulting segment into chunks of fixed size.
  * </p>
@@ -102,7 +101,6 @@ import org.apache.nutch.util.NutchJob;
  * However, this is NOT the same as de-duplication, which in addition removes
  * identical content found at different URL-s. In other words, running
  * DeleteDuplicates is still necessary.
- * </p>
  * <p>
  * For some types of data (especially ParseText) it's not possible to determine
  * which version is really older. Therefore the tool always uses segment names
@@ -120,14 +118,13 @@ import org.apache.nutch.util.NutchJob;
  * afresh. This tool doesn't use existing indexes in any way, so if you plan to
  * merge segments you don't have to index them prior to merging.
  * 
- * 
  * @author Andrzej Bialecki
  */
 public class SegmentMerger extends Configured implements Tool,
     Mapper<Text, MetaWrapper, Text, MetaWrapper>,
     Reducer<Text, MetaWrapper, Text, MetaWrapper> {
   private static final Logger LOG = LoggerFactory
-      .getLogger(SegmentMerger.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String SEGMENT_PART_KEY = "part";
   private static final String SEGMENT_SLICE_KEY = "slice";
@@ -177,7 +174,7 @@ public class SegmentMerger extends Configured implements Tool,
           // ignore
         }
       }
-      final SequenceFileRecordReader<Text, Writable> splitReader = new SequenceFileRecordReader<Text, Writable>(
+      final SequenceFileRecordReader<Text, Writable> splitReader = new SequenceFileRecordReader<>(
           job, (FileSplit) split);
 
       try {
@@ -225,7 +222,7 @@ public class SegmentMerger extends Configured implements Tool,
         MapFile.Writer pt_out = null;
         SequenceFile.Writer g_out = null;
         SequenceFile.Writer p_out = null;
-        HashMap<String, Closeable> sliceWriters = new HashMap<String, Closeable>();
+        HashMap<String, Closeable> sliceWriters = new HashMap<>();
         String segmentName = job.get("segment.merger.segmentName");
 
         public void write(Text key, MetaWrapper wrapper) throws IOException {
@@ -445,7 +442,7 @@ public class SegmentMerger extends Configured implements Tool,
     String lastCname = null;
     String lastPDname = null;
     String lastPTname = null;
-    TreeMap<String, ArrayList<CrawlDatum>> linked = new TreeMap<String, ArrayList<CrawlDatum>>();
+    TreeMap<String, ArrayList<CrawlDatum>> linked = new TreeMap<>();
     while (values.hasNext()) {
       MetaWrapper wrapper = values.next();
       Object o = wrapper.get();
@@ -502,7 +499,7 @@ public class SegmentMerger extends Configured implements Tool,
           // collect all LINKED values from the latest segment
           ArrayList<CrawlDatum> segLinked = linked.get(sp.segmentName);
           if (segLinked == null) {
-            segLinked = new ArrayList<CrawlDatum>();
+            segLinked = new ArrayList<>();
             linked.put(sp.segmentName, segLinked);
           }
           segLinked.add(val);
@@ -626,7 +623,6 @@ public class SegmentMerger extends Configured implements Tool,
     job.setBoolean("segment.merger.normalizer", normalize);
     job.setLong("segment.merger.slice", slice);
     job.set("segment.merger.segmentName", segmentName);
-    FileSystem fs = FileSystem.get(getConf());
     // prepare the minimal common set of input dirs
     boolean g = true;
     boolean f = true;
@@ -643,6 +639,7 @@ public class SegmentMerger extends Configured implements Tool,
     boolean ppd = true;
     boolean ppt = true;
     for (int i = 0; i < segs.length; i++) {
+      FileSystem fs = segs[i].getFileSystem(job);
       if (!fs.exists(segs[i])) {
         if (LOG.isWarnEnabled()) {
           LOG.warn("Input dir " + segs[i] + " doesn't exist, skipping.");
@@ -751,15 +748,16 @@ public class SegmentMerger extends Configured implements Tool,
       return -1;
     }
     Configuration conf = NutchConfiguration.create();
-    final FileSystem fs = FileSystem.get(conf);
     Path out = new Path(args[0]);
-    ArrayList<Path> segs = new ArrayList<Path>();
+    ArrayList<Path> segs = new ArrayList<>();
     long sliceSize = 0;
     boolean filter = false;
     boolean normalize = false;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
-        FileStatus[] fstats = fs.listStatus(new Path(args[++i]),
+        Path dirPath = new Path(args[++i]);
+        FileSystem fs = dirPath.getFileSystem(conf);
+        FileStatus[] fstats = fs.listStatus(dirPath,
             HadoopFSUtil.getPassDirectoriesFilter(fs));
         Path[] files = HadoopFSUtil.getPaths(fstats);
         for (int j = 0; j < files.length; j++)

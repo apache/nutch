@@ -23,14 +23,15 @@ import java.util.Map.Entry;
 
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
 
 import org.apache.hadoop.io.*;
 import org.apache.nutch.util.*;
+import org.apache.nutch.protocol.ProtocolStatus;
 
 /* The crawl state of a url. */
 public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
+
   public static final String GENERATE_DIR_NAME = "crawl_generate";
   public static final String FETCH_DIR_NAME = "crawl_fetch";
   public static final String PARSE_DIR_NAME = "crawl_parse";
@@ -47,7 +48,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   private static final byte OLD_STATUS_FETCH_RETRY = 6;
   private static final byte OLD_STATUS_FETCH_GONE = 7;
 
-  private static HashMap<Byte, Byte> oldToNew = new HashMap<Byte, Byte>();
+  private static HashMap<Byte, Byte> oldToNew = new HashMap<>();
 
   /** Page was not fetched yet. */
   public static final byte STATUS_DB_UNFETCHED = 0x01;
@@ -61,7 +62,10 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   public static final byte STATUS_DB_REDIR_PERM = 0x05;
   /** Page was successfully fetched and found not modified. */
   public static final byte STATUS_DB_NOTMODIFIED = 0x06;
+  /** Page was marked as being a duplicate of another page */
   public static final byte STATUS_DB_DUPLICATE = 0x07;
+  /** Page was marked as orphan, e.g. has no inlinks anymore */
+  public static final byte STATUS_DB_ORPHAN = 0x08;
 
   /** Maximum value of DB-related status. */
   public static final byte STATUS_DB_MAX = 0x1f;
@@ -91,7 +95,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   /** Page got metadata from a parser */
   public static final byte STATUS_PARSE_META = 0x44;
 
-  public static final HashMap<Byte, String> statNames = new HashMap<Byte, String>();
+  public static final HashMap<Byte, String> statNames = new HashMap<>();
   static {
     statNames.put(STATUS_DB_UNFETCHED, "db_unfetched");
     statNames.put(STATUS_DB_FETCHED, "db_fetched");
@@ -100,6 +104,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     statNames.put(STATUS_DB_REDIR_PERM, "db_redir_perm");
     statNames.put(STATUS_DB_NOTMODIFIED, "db_notmodified");
     statNames.put(STATUS_DB_DUPLICATE, "db_duplicate");
+    statNames.put(STATUS_DB_ORPHAN, "db_orphan");
     statNames.put(STATUS_SIGNATURE, "signature");
     statNames.put(STATUS_INJECTED, "injected");
     statNames.put(STATUS_LINKED, "linked");
@@ -331,8 +336,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   }
 
   /** The number of bytes into a CrawlDatum that the score is stored. */
-  private static final int SCORE_OFFSET = 1 + 1 + 8 + 1 + 4;
-  private static final int SIG_OFFSET = SCORE_OFFSET + 4 + 8;
+  private static final int SCORE_OFFSET = 15;
+  private static final int SIG_OFFSET = SCORE_OFFSET + 12;
 
   public void write(DataOutput out) throws IOException {
     out.writeByte(CUR_VERSION); // store current version
@@ -412,16 +417,16 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       int status2 = b2[s2 + 1];
       if (status2 != status1)
         return status1 - status2;
-      long fetchTime1 = readLong(b1, s1 + 1 + 1);
-      long fetchTime2 = readLong(b2, s2 + 1 + 1);
+      long fetchTime1 = readLong(b1, s1 + 2);
+      long fetchTime2 = readLong(b2, s2 + 2);
       if (fetchTime2 != fetchTime1)
         return (fetchTime2 - fetchTime1) > 0 ? 1 : -1;
-      int retries1 = b1[s1 + 1 + 1 + 8];
-      int retries2 = b2[s2 + 1 + 1 + 8];
+      int retries1 = b1[s1 + 10];
+      int retries2 = b2[s2 + 10];
       if (retries2 != retries1)
         return retries2 - retries1;
-      int fetchInterval1 = readInt(b1, s1 + 1 + 1 + 8 + 1);
-      int fetchInterval2 = readInt(b2, s2 + 1 + 1 + 8 + 1);
+      int fetchInterval1 = readInt(b1, s1 + 11);
+      int fetchInterval2 = readInt(b2, s2 + 11);
       if (fetchInterval2 != fetchInterval1)
         return (fetchInterval2 - fetchInterval1) > 0 ? 1 : -1;
       long modifiedTime1 = readLong(b1, s1 + SCORE_OFFSET + 4);
@@ -476,9 +481,9 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       // we already know that the current object is not null or empty
       return false;
     }
-    HashSet<Entry<Writable, Writable>> set1 = new HashSet<Entry<Writable, Writable>>(
+    HashSet<Entry<Writable, Writable>> set1 = new HashSet<>(
         metaData.entrySet());
-    HashSet<Entry<Writable, Writable>> set2 = new HashSet<Entry<Writable, Writable>>(
+    HashSet<Entry<Writable, Writable>> set2 = new HashSet<>(
         otherMetaData.entrySet());
     return set1.equals(set2);
   }
@@ -521,12 +526,13 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     }
   }
   
-  public boolean evaluate(Expression expr) {
-    if (expr != null) {
+  public boolean evaluate(Expression expr, String url) {
+    if (expr != null && url != null) {
       // Create a context and add data
       JexlContext jcontext = new MapContext();
       
       // https://issues.apache.org/jira/browse/NUTCH-2229
+      jcontext.set("url", url);
       jcontext.set("status", getStatusName(getStatus()));
       jcontext.set("fetchTime", (long)(getFetchTime()));
       jcontext.set("modifiedTime", (long)(getModifiedTime()));
@@ -538,24 +544,28 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       // Set metadata variables
       for (Map.Entry<Writable, Writable> entry : getMetaData().entrySet()) {
         Object value = entry.getValue();
+        Text tkey = (Text)entry.getKey();
         
         if (value instanceof FloatWritable) {
           FloatWritable fvalue = (FloatWritable)value;
-          Text tkey = (Text)entry.getKey();
           jcontext.set(tkey.toString(), fvalue.get());
         }
         
         if (value instanceof IntWritable) {
           IntWritable ivalue = (IntWritable)value;
-          Text tkey = (Text)entry.getKey();
           jcontext.set(tkey.toString(), ivalue.get());
         }
         
         if (value instanceof Text) {
           Text tvalue = (Text)value;
-          Text tkey = (Text)entry.getKey();     
           jcontext.set(tkey.toString().replace("-", "_"), tvalue.toString());
         }
+        
+        if (value instanceof ProtocolStatus) {
+          ProtocolStatus pvalue = (ProtocolStatus)value;
+          jcontext.set(tkey.toString().replace("-", "_"), pvalue.toString());
+        }
+
       }
                   
       try {

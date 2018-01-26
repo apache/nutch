@@ -18,6 +18,7 @@ package org.apache.nutch.parse;
 
 // Commons Logging imports
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -42,7 +43,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 public class ParseUtil {
 
   /* our log stream */
-  public static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private ParserFactory parserFactory;
   /** Parser timeout set to 30 sec by default. Set -1 to deactivate **/
   private int maxParseTime = 30;

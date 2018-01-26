@@ -49,7 +49,7 @@ public class SeedListsPage extends AbstractBasePage<Void> {
 
       @Override
       protected Iterator<IModel<SeedList>> getItemModels() {
-        return new CpmIteratorAdapter<SeedList>(seedListService.findAll());
+        return new CpmIteratorAdapter<>(seedListService.findAll());
       }
 
       @Override
@@ -57,7 +57,7 @@ public class SeedListsPage extends AbstractBasePage<Void> {
         PageParameters params = new PageParameters();
         params.add("id", item.getModelObject().getId());
 
-        Link<Void> edit = new BookmarkablePageLink<Void>("edit",
+        Link<Void> edit = new BookmarkablePageLink<>("edit",
             SeedPage.class, params);
         edit.add(new Label("name"));
         item.add(edit);

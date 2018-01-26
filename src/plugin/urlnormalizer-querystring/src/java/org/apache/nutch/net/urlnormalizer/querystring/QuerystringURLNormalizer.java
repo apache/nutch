@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.net.urlnormalizer.querystring;
 
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import org.apache.nutch.util.URLUtil;
 /**
  * URL normalizer plugin for normalizing query strings but sorting query string
  * parameters. Not sorting query strings can lead to large amounts of duplicate
- * URL's such as ?a=x&b=y vs b=y&a=x.
+ * URL's such as ?a=x&amp;b=y vs b=y&amp;a=x.
  * 
  */
 public class QuerystringURLNormalizer implements URLNormalizer {
@@ -43,7 +44,7 @@ public class QuerystringURLNormalizer implements URLNormalizer {
   private Configuration conf;
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(QuerystringURLNormalizer.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public QuerystringURLNormalizer() {
   }

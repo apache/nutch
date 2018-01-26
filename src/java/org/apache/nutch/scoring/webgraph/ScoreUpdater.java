@@ -17,6 +17,7 @@
 package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Random;
@@ -65,7 +66,8 @@ public class ScoreUpdater extends Configured implements Tool,
     Mapper<Text, Writable, Text, ObjectWritable>,
     Reducer<Text, ObjectWritable, Text, CrawlDatum> {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ScoreUpdater.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private JobConf conf;
   private float clearScore = 0.0f;
@@ -156,7 +158,6 @@ public class ScoreUpdater extends Configured implements Tool,
     LOG.info("ScoreUpdater: starting at " + sdf.format(start));
 
     Configuration conf = getConf();
-    FileSystem fs = FileSystem.get(conf);
 
     // create a temporary crawldb with the new scores
     LOG.info("Running crawldb update " + crawlDb);
@@ -186,6 +187,7 @@ public class ScoreUpdater extends Configured implements Tool,
       LOG.error(StringUtils.stringifyException(e));
 
       // remove the temp crawldb on error
+      FileSystem fs = newCrawlDb.getFileSystem(conf);
       if (fs.exists(newCrawlDb)) {
         fs.delete(newCrawlDb, true);
       }

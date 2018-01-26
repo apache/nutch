@@ -19,6 +19,7 @@ package org.apache.nutch.util;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import java.util.zip.DeflaterOutputStream;
@@ -32,7 +33,8 @@ import org.slf4j.LoggerFactory;
  */
 public class DeflateUtils {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DeflateUtils.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private static final int EXPECTED_COMPRESSION_RATIO = 5;
   private static final int BUF_SIZE = 4096;
 

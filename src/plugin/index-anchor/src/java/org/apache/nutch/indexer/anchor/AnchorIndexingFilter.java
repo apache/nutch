@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexer.anchor;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 
 import org.apache.hadoop.conf.Configuration;
@@ -33,12 +34,12 @@ import org.slf4j.LoggerFactory;
  * Indexing filter that offers an option to either index all inbound anchor text
  * for a document or deduplicate anchors. Deduplication does have it's con's,
  * 
- * @see {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
+ * See {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
  */
 public class AnchorIndexingFilter implements IndexingFilter {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(AnchorIndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   private Configuration conf;
   private boolean deduplicate = false;
 

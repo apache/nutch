@@ -49,7 +49,7 @@ public abstract class TrieStringMatcher {
     TrieNode(char nodeChar, boolean isTerminal) {
       this.nodeChar = nodeChar;
       this.terminal = isTerminal;
-      this.childrenList = new LinkedList<TrieNode>();
+      this.childrenList = new LinkedList<>();
     }
 
     /**
@@ -68,7 +68,7 @@ public abstract class TrieStringMatcher {
      */
     TrieNode getChildAddIfNotPresent(char nextChar, boolean isTerminal) {
       if (childrenList == null) {
-        childrenList = new LinkedList<TrieNode>();
+        childrenList = new LinkedList<>();
         childrenList.addAll(Arrays.asList(children));
         children = null;
       }
@@ -186,15 +186,15 @@ public abstract class TrieStringMatcher {
   public abstract boolean matches(String input);
 
   /**
-   * Returns the shortest substring of <code>input<code> that is
-   * matched by a pattern in the trie, or <code>null<code> if no match
+   * Returns the shortest substring of <code>input</code> that is
+   * matched by a pattern in the trie, or <code>null</code> if no match
    * exists.
    */
   public abstract String shortestMatch(String input);
 
   /**
-   * Returns the longest substring of <code>input<code> that is
-   * matched by a pattern in the trie, or <code>null<code> if no match
+   * Returns the longest substring of <code>input</code> that is
+   * matched by a pattern in the trie, or <code>null</code> if no match
    * exists.
    */
   public abstract String longestMatch(String input);

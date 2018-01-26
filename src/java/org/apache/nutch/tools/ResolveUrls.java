@@ -19,6 +19,7 @@ package org.apache.nutch.tools;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,7 +47,8 @@ import org.apache.nutch.util.URLUtil;
  */
 public class ResolveUrls {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ResolveUrls.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private String urlsFile = null;
   private int numThreads = 100;

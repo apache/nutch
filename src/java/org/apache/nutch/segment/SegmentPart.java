@@ -53,7 +53,7 @@ public class SegmentPart {
    * 
    * @param split
    * @return A {@link SegmentPart} resultant from a {@link FileSplit}.
-   * @throws Exception
+   * @throws IOException
    */
   public static SegmentPart get(FileSplit split) throws IOException {
     return get(split.getPath().toString());

@@ -17,11 +17,14 @@
 
 package org.apache.nutch.parse.html;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.html.HtmlParser;
+import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
@@ -33,15 +36,15 @@ import org.slf4j.LoggerFactory;
 
 public class TestHtmlParser {
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(TestHtmlParser.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private static final String encodingTestKeywords = "français, español, русский язык, čeština, ελληνικά";
   private static final String encodingTestBody = "<ul>\n  <li>français\n  <li>español\n  <li>русский язык\n  <li>čeština\n  <li>ελληνικά\n</ul>";
   private static final String encodingTestContent = "<title>"
       + encodingTestKeywords + "</title>\n"
-      + "<meta name=\"keywords\" content=\"" + encodingTestKeywords
-      + "</meta>\n" + "</head>\n<body>" + encodingTestBody + "</body>\n</html>";
+      + "<meta name=\"keywords\" content=\"" + encodingTestKeywords + "\" />\n"
+      + "</head>\n<body>" + encodingTestBody + "</body>\n</html>";
 
   private static String[][] encodingTestPages = {
       {
@@ -77,17 +80,26 @@ public class TestHtmlParser {
       { "HTML5, utf-16, BOM", "utf-16",
           "\ufeff<!DOCTYPE html>\n<html>\n<head>\n" + encodingTestContent } };
 
+  private static final String resolveBaseUrlTestContent = //
+      "<html>\n<head>\n" + //
+      "  <title>Test Resolve Base URLs (NUTCH-2478)</title>\n" + //
+      "  <base href=\"//www.example.com/\">\n" + //
+      "</head>\n<body>\n" + //
+      "  <a href=\"index.html\">outlink</a>\n" + //
+      "</body>\n</html>";
+
   private Configuration conf;
   private Parser parser;
 
   public TestHtmlParser() {
     conf = NutchConfiguration.create();
+    conf.set("plugin.includes", "parse-html");
     parser = new HtmlParser();
     parser.setConf(conf);
   }
 
   protected Parse parse(byte[] contentBytes) {
-    String dummyUrl = "http://dummy.url/";
+    String dummyUrl = "http://example.com/";
     return parser.getParse(
         new Content(dummyUrl, dummyUrl, contentBytes, "text/html",
             new Metadata(), conf)).get(dummyUrl);
@@ -113,11 +125,23 @@ public class TestHtmlParser {
         Assert.assertTrue(keyword + " not found in text (" + name + ")",
             text.contains(keyword));
       }
-      if (keywords != null) {
-        Assert.assertEquals("Keywords not extracted properly (" + name + ")",
-            encodingTestKeywords, keywords);
-      }
+      Assert.assertNotNull("No keywords extracted", keywords);
+      Assert.assertEquals("Keywords not extracted properly (" + name + ")",
+          encodingTestKeywords, keywords);
     }
+  }
+
+  @Test
+  public void testResolveBaseUrl() {
+    byte[] contentBytes = resolveBaseUrlTestContent
+        .getBytes(StandardCharsets.UTF_8);
+    // parse using http://example.com/ as "fetch" URL
+    Parse parse = parse(contentBytes);
+    LOG.info(parse.getData().toString());
+    Outlink[] outlinks = parse.getData().getOutlinks();
+    Assert.assertEquals(1, outlinks.length);
+    Assert.assertEquals("http://www.example.com/index.html",
+        outlinks[0].getToUrl());
   }
 
 }

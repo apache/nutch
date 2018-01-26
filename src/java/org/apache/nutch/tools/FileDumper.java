@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.ByteArrayInputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,11 +57,10 @@ import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.codehaus.jackson.map.ObjectMapper;
 /**
- * <p>
  * The file dumper tool enables one to reverse generate the raw content from
  * Nutch segment data directories.
- * </p>
  * <p>
  * The tool has a number of immediate uses:
  * <ol>
@@ -70,12 +70,10 @@ import org.slf4j.LoggerFactory;
  * metadata, this can be handy for providing a provenance trail for your crawl
  * data.</li>
  * </ol>
- * </p>
  * <p>
  * Upon successful completion the tool displays a very convenient JSON snippet
  * detailing the mimetype classifications and the counts of documents which fall
  * into those classifications. An example is as follows:
- * </p>
  * 
  * <pre>
  * {@code
@@ -108,12 +106,12 @@ import org.slf4j.LoggerFactory;
  * In the case above, the tool would have been run with the <b>-mimeType
  * image/png image/jpeg image/vnd.microsoft.icon video/quicktime image/gif</b>
  * flag and corresponding values activated.
- * 
+ * </p>
  */
 public class FileDumper {
 
-  private static final Logger LOG = LoggerFactory.getLogger(FileDumper.class
-      .getName());
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Dumps the reverse engineered raw content from the provided segment
@@ -142,19 +140,12 @@ public class FileDumper {
     if (mimeTypes == null)
       LOG.info("Accepting all mimetypes.");
     // total file counts
-    Map<String, Integer> typeCounts = new HashMap<String, Integer>();
+    Map<String, Integer> typeCounts = new HashMap<>();
     // filtered file counts
-    Map<String, Integer> filteredCounts = new HashMap<String, Integer>();
+    Map<String, Integer> filteredCounts = new HashMap<>();
     Configuration conf = NutchConfiguration.create();
-    FileSystem fs = FileSystem.get(conf);
     int fileCount = 0;
-    File[] segmentDirs = segmentRootDir.listFiles(new FileFilter() {
-
-      @Override
-      public boolean accept(File file) {
-        return file.canRead() && file.isDirectory();
-      }
-    });
+    File[] segmentDirs = segmentRootDir.listFiles(file -> file.canRead() && file.isDirectory());
     if (segmentDirs == null) {
       LOG.error("No segment directories found in ["
           + segmentRootDir.getAbsolutePath() + "]");
@@ -164,14 +155,10 @@ public class FileDumper {
     for (File segment : segmentDirs) {
       LOG.info("Processing segment: [" + segment.getAbsolutePath() + "]");
       DataOutputStream doutputStream = null;
+      Map<String, String> filenameToUrl = new HashMap<String, String>();
 
       File segmentDir = new File(segment.getAbsolutePath(), Content.DIR_NAME);
-      File[] partDirs = segmentDir.listFiles(new FileFilter() {
-        @Override
-        public boolean accept(File file) {
-          return file.canRead() && file.isDirectory();
-        }
-      });
+      File[] partDirs = segmentDir.listFiles(file -> file.canRead() && file.isDirectory());
 
       if (partDirs == null) {
         LOG.warn("Skipping Corrupt Segment: [{}]", segment.getAbsolutePath());
@@ -179,7 +166,7 @@ public class FileDumper {
       }
 
       for (File partDir : partDirs) {
-        try {
+        try (FileSystem fs = FileSystem.get(conf)) {
           String segmentPath = partDir + "/data";
           Path file = new Path(segmentPath);
           if (!new File(file.toString()).exists()) {
@@ -203,7 +190,6 @@ public class FileDumper {
               extension = "html";
             }
 
-            String filename = baseName + "." + extension;
             ByteArrayInputStream bas = null;
             Boolean filter = false;
             try {
@@ -247,7 +233,7 @@ public class FileDumper {
 
                     String reversedURLPath = reversedURL[0] + "/" + DigestUtils.sha256Hex(url).toUpperCase();
                     outputFullPath = String.format("%s/%s", fullDir, reversedURLPath);
-                    
+
                     // We'll drop the trailing file name and create the nested structure if it doesn't already exist.
                     String[] splitPath = outputFullPath.split("/");
                     File fullOutputDir = new File(org.apache.commons.lang3.StringUtils.join(Arrays.copyOf(splitPath, splitPath.length - 1), "/"));
@@ -258,23 +244,21 @@ public class FileDumper {
                   } else {
                     outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
                   }
-
+                  filenameToUrl.put(outputFullPath, url);
                   File outputFile = new File(outputFullPath);
-                  
+
                   if (!outputFile.exists()) {
                     LOG.info("Writing: [" + outputFullPath + "]");
 
-                    // Modified to prevent FileNotFoundException (Invalid Argument) 
+                    // Modified to prevent FileNotFoundException (Invalid Argument)
                     FileOutputStream output = null;
                     try {
                       output = new FileOutputStream(outputFile);
                       IOUtils.write(content.getContent(), output);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                       LOG.warn("Write Error: [" + outputFullPath + "]");
                       e.printStackTrace();
-                    }
-                    finally {
+                    } finally {
                       if (output != null) {
                         output.flush();
                         try {
@@ -294,7 +278,6 @@ public class FileDumper {
           }
           reader.close();
         } finally {
-          fs.close();
           if (doutputStream != null) {
             try {
               doutputStream.close();
@@ -303,6 +286,10 @@ public class FileDumper {
           }
         }
       }
+      //save filenameToUrl in a json file for each segment there is one mapping file 
+      String filenameToUrlFilePath = String.format("%s/%s_filenameToUrl.json", outputDir.getAbsolutePath(), segment.getName() );
+      new ObjectMapper().writeValue(new File(filenameToUrlFilePath), filenameToUrl);
+      
     }
     LOG.info("Dumper File Stats: "
         + DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));

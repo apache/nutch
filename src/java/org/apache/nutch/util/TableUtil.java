@@ -33,7 +33,7 @@ public class TableUtil {
    * E.g. "http://bar.foo.com:8983/to/index.html?a=b" becomes
    * "com.foo.bar:8983:http/to/index.html?a=b".
    * 
-   * @param url
+   * @param urlString
    *          url to be reversed
    * @return Reversed url
    * @throws MalformedURLException
@@ -111,7 +111,7 @@ public class TableUtil {
 
   /**
    * Given a reversed url, returns the reversed host E.g
-   * "com.foo.bar:http:8983/to/index.html?a=b" -> "com.foo.bar"
+   * "com.foo.bar:http:8983/to/index.html?a=b" -&gt; "com.foo.bar"
    * 
    * @param reversedUrl
    *          Reversed url

@@ -58,7 +58,7 @@ public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
 
   public RecordWriter<Text, NutchWritable> getRecordWriter(final FileSystem fs,
       final JobConf job, final String name, final Progressable progress)
-      throws IOException {
+          throws IOException {
 
     Path out = FileOutputFormat.getOutputPath(job);
     final Path fetch = new Path(new Path(out, CrawlDatum.FETCH_DIR_NAME), name);
@@ -71,7 +71,7 @@ public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
     org.apache.hadoop.io.SequenceFile.Writer.Option fValClassOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
     org.apache.hadoop.io.SequenceFile.Writer.Option fProgressOpt = SequenceFile.Writer.progressable(progress);
     org.apache.hadoop.io.SequenceFile.Writer.Option fCompOpt = SequenceFile.Writer.compression(compType);
-    
+
     final MapFile.Writer fetchOut = new MapFile.Writer(job,
         fetch, fKeyClassOpt, fValClassOpt, fCompOpt, fProgressOpt);
 

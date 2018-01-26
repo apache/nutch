@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.urlfilter.domainblacklist;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -63,12 +64,12 @@ import org.apache.nutch.util.domain.DomainSuffix;
  * but can be overridden using the:
  * 
  * <ul>
- * <ol>
+ * <li>
  * property "urlfilter.domainblacklist.file" in ./conf/nutch-*.xml, and
- * </ol>
- * <ol>
+ * </li>
+ * <li>
  * attribute "file" in plugin.xml of this plugin
- * </ol>
+ * </li>
  * </ul>
  * 
  * the attribute "file" has higher precedence if defined.
@@ -76,7 +77,7 @@ import org.apache.nutch.util.domain.DomainSuffix;
 public class DomainBlacklistURLFilter implements URLFilter {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(DomainBlacklistURLFilter.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   // read in attribute "file" of this plugin.
   private static String attributeFile = null;
@@ -109,8 +110,6 @@ public class DomainBlacklistURLFilter implements URLFilter {
    * 
    * @param domainFile
    *          The domain file, overrides domainblacklist-urlfilter.text default.
-   * 
-   * @throws IOException
    */
   public DomainBlacklistURLFilter(String domainFile) {
     this.domainFile = domainFile;

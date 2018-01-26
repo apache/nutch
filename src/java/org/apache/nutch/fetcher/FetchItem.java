@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.fetcher;
 
+import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -27,11 +28,12 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 /**
- * This class described the item to be fetched.
+ * This class describes the item to be fetched.
  */
 public class FetchItem {
 
-  private static final Logger LOG = LoggerFactory.getLogger(FetchItem.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   int outlinkDepth = 0;
   String queueID;

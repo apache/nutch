@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.crawl;
 
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ import org.mortbay.jetty.handler.ResourceHandler;
 public class CrawlDBTestUtil {
 
   private static final Logger LOG = LoggerFactory
-      .getLogger(CrawlDBTestUtil.class);
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Creates synthetic crawldb

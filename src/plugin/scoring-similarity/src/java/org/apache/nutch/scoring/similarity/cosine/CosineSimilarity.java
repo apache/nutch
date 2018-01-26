@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.scoring.similarity.cosine;
 
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map.Entry;
@@ -34,9 +35,9 @@ import org.slf4j.LoggerFactory;
 
 public class CosineSimilarity implements SimilarityModel{
 
-  private Configuration conf; 
-  private final static Logger LOG = LoggerFactory
-      .getLogger(CosineSimilarity.class);
+  private Configuration conf;
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
   public void setConf(Configuration conf) {
@@ -53,7 +54,10 @@ public class CosineSimilarity implements SimilarityModel{
       }
       String metatags = parse.getData().getParseMeta().get("metatag.keyword");
       String metaDescription = parse.getData().getParseMeta().get("metatag.description");
-      DocVector docVector = Model.createDocVector(parse.getText()+metaDescription+metatags);
+      int[] ngramArr = Model.retrieveNgrams(conf);
+      int mingram = ngramArr[0];
+      int maxgram = ngramArr[1];
+      DocVector docVector = Model.createDocVector(parse.getText()+metaDescription+metatags, mingram, maxgram);
       if(docVector!=null){
         score = Model.computeCosineSimilarity(docVector);
         LOG.info("Setting score of {} to {}",url, score);

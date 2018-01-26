@@ -17,6 +17,7 @@
 package org.apache.nutch.hostdb;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 
 import org.apache.hadoop.io.FloatWritable;
@@ -46,8 +47,9 @@ import org.slf4j.LoggerFactory;
  */
 public class UpdateHostDbMapper
   implements Mapper<Text, Writable, Text, NutchWritable> {
-  
-  public static final Logger LOG = LoggerFactory.getLogger(UpdateHostDbMapper.class);
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   protected Text host = new Text();
   protected HostDatum hostDatum = null;
   protected CrawlDatum crawlDatum = null;
@@ -63,8 +65,7 @@ public class UpdateHostDbMapper
   public void close() {}
 
   /**
-   * @param JobConf
-   * @return void
+   * @param job
    */
   public void configure(JobConf job) {
     readingCrawlDb = job.getBoolean("hostdb.reading.crawldb", false);
@@ -80,7 +81,7 @@ public class UpdateHostDbMapper
   /**
    * Filters and or normalizes the input URL
    *
-   * @param String
+   * @param url
    * @return String
    */
   protected String filterNormalize(String url) {
@@ -108,11 +109,10 @@ public class UpdateHostDbMapper
     * Mapper ingesting records from the HostDB, CrawlDB and plaintext host
     * scores file. Statistics and scores are passed on.
     *
-    * @param Text key
-    * @param Writable value
-    * @param OutputCollector<Text,NutchWritable> output
-    * @param Reporter reporter
-    * @return void
+    * @param key
+    * @param value
+    * @param output
+    * @param reporter
     */
   public void map(Text key, Writable value,
     OutputCollector<Text,NutchWritable> output, Reporter reporter)

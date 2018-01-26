@@ -42,7 +42,6 @@ import org.apache.nutch.util.NutchConfiguration;
  */
 public class NodeReader extends Configured {
 
-  private FileSystem fs;
   private MapFile.Reader[] nodeReaders;
 
   public NodeReader() {
@@ -66,7 +65,7 @@ public class NodeReader extends Configured {
    */
   public void dumpUrl(Path webGraphDb, String url) throws IOException {
 
-    fs = FileSystem.get(getConf());
+    FileSystem fs = webGraphDb.getFileSystem(getConf());
     nodeReaders = MapFileOutputFormat.getReaders(fs, new Path(webGraphDb,
         WebGraph.NODE_DIR), getConf());
 
@@ -74,7 +73,7 @@ public class NodeReader extends Configured {
     Text key = new Text(url);
     Node node = new Node();
     MapFileOutputFormat.getEntry(nodeReaders,
-        new HashPartitioner<Text, Node>(), key, node);
+        new HashPartitioner<>(), key, node);
     System.out.println(url + ":");
     System.out.println("  inlink score: " + node.getInlinkScore());
     System.out.println("  outlink score: " + node.getOutlinkScore());

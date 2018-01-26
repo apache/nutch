@@ -44,7 +44,7 @@ public class ExtensionPoint {
     setId(pId);
     setName(pName);
     setSchema(pSchema);
-    fExtensions = new ArrayList<Extension>();
+    fExtensions = new ArrayList<>();
   }
 
   /**

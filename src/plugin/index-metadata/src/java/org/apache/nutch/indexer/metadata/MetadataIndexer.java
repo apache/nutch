@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingException;
@@ -34,7 +35,7 @@ import org.apache.nutch.parse.Parse;
  * Indexer which can be configured to extract metadata from the crawldb, parse
  * metadata or content metadata. You can specify the properties "index.db.md",
  * "index.parse.md" or "index.content.md" who's values are comma-delimited
- * <value>key1,key2,key3</value>.
+ * Example : key1,key2,key3.
  */
 public class MetadataIndexer implements IndexingFilter {
   private Configuration conf;
@@ -55,7 +56,7 @@ public class MetadataIndexer implements IndexingFilter {
     // add the fields from crawldb
     if (dbFieldnames != null) {
       for (String metatag : dbFieldnames) {
-        Text metadata = (Text) datum.getMetaData().get(new Text(metatag));
+        Writable metadata = datum.getMetaData().get(new Text(metatag));
         if (metadata != null)
           doc.add(metatag, metadata.toString());
       }

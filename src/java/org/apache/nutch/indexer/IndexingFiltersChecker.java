@@ -17,22 +17,14 @@
 
 package org.apache.nutch.indexer;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -51,6 +43,7 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.StringUtil;
+import org.apache.nutch.util.AbstractChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,36 +57,31 @@ import org.slf4j.LoggerFactory;
  * @author Julien Nioche
  **/
 
-public class IndexingFiltersChecker extends Configured implements Tool {
+public class IndexingFiltersChecker extends AbstractChecker {
 
   protected URLNormalizers normalizers = null;
   protected boolean dumpText = false;
   protected boolean followRedirects = false;
   // used to simulate the metadata propagated from injection
-  protected HashMap<String, String> metadata = new HashMap<String, String>();
-  protected int tcpPort = -1;
+  protected HashMap<String, String> metadata = new HashMap<>();
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger(IndexingFiltersChecker.class);
-
-  public IndexingFiltersChecker() {
-
-  }
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public int run(String[] args) throws Exception {
     String url = null;
-    String usage = "Usage: IndexingFiltersChecker [-normalize] [-followRedirects] [-dumpText] [-md key=value] [-listen <port>] <url>";
+    usage = "Usage: IndexingFiltersChecker [-normalize] [-followRedirects] [-dumpText] [-md key=value] (-stdin | -listen <port> [-keepClientCnxOpen])";
 
-    if (args.length == 0) {
+    // Print help when no args given
+    if (args.length < 1) {
       System.err.println(usage);
-      return -1;
+      System.exit(-1);
     }
 
+    int numConsumed;
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-normalize")) {
         normalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_DEFAULT);
-      } else if (args[i].equals("-listen")) {
-        tcpPort = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-followRedirects")) {
         followRedirects = true;
       } else if (args[i].equals("-dumpText")) {
@@ -108,96 +96,27 @@ public class IndexingFiltersChecker extends Configured implements Tool {
         } else
           k = nextOne;
         metadata.put(k, v);
+      } else if ((numConsumed = super.parseArgs(args, i)) > 0) {
+        i += numConsumed - 1;
       } else if (i != args.length - 1) {
+        System.err.println("ERR: Not a recognized argument: " + args[i]);
         System.err.println(usage);
         System.exit(-1);
       } else {
-        url =args[i];
+        url = args[i];
       }
     }
     
-    // In listening mode?
-    if (tcpPort == -1) {
-      // No, just fetch and display
-      StringBuilder output = new StringBuilder();
-      int ret = fetch(url, output);
-      System.out.println(output);
-      return ret;
+    if (url != null) {
+      return super.processSingle(url);
     } else {
-      // Listen on socket and start workers on incoming requests
-      listen();
-    }
-    
-    return 0;
-  }
-  
-  protected void listen() throws Exception {
-    ServerSocket server = null;
-
-    try{
-      server = new ServerSocket();
-      server.bind(new InetSocketAddress(tcpPort));
-      LOG.info(server.toString());
-    } catch (Exception e) {
-      LOG.error("Could not listen on port " + tcpPort);
-      System.exit(-1);
-    }
-    
-    while(true){
-      Worker worker;
-      try{
-        worker = new Worker(server.accept());
-        Thread thread = new Thread(worker);
-        thread.start();
-      } catch (Exception e) {
-        LOG.error("Accept failed: " + tcpPort);
-        System.exit(-1);
-      }
-    }
-  }
-  
-  private class Worker implements Runnable {
-    private Socket client;
-
-    Worker(Socket client) {
-      this.client = client;
-      LOG.info(client.toString());
-    }
-
-    public void run(){
-      String line;
-      BufferedReader in = null;
-      PrintWriter out = null;
-      
-      try{
-        in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-      } catch (Exception e) {
-        LOG.error("in or out failed");
-        System.exit(-1);
-      }
-
-      try{
-        line = in.readLine();        
-        StringBuilder output = new StringBuilder();
-        fetch(line, output);
-        
-        client.getOutputStream().write(output.toString().getBytes(Charset.forName("UTF-8")));
-      }catch (Exception e) {
-        LOG.error("Read/Write failed: " + e);
-      }
-      
-      try {
-        client.close();
-      } catch (Exception e){
-        LOG.error(e.toString());
-      }
-      
-      return;
+      // Start listening
+      return super.run();
     }
   }
     
   
-  protected int fetch(String url, StringBuilder output) throws Exception {
+  protected int process(String url, StringBuilder output) throws Exception {
     if (normalizers != null) {
       url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
     }
@@ -331,6 +250,8 @@ public class IndexingFiltersChecker extends Configured implements Tool {
         }
       }
     }
+    
+    output.append("\n"); // For readability if keepClientCnxOpen
 
     if (getConf().getBoolean("doIndex", false) && doc != null) {
       IndexWriters writers = new IndexWriters(getConf());

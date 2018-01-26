@@ -17,6 +17,7 @@
 package org.apache.nutch.protocol.selenium;
 
 // JDK imports
+import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.net.URL;
 import org.apache.hadoop.conf.Configuration;
@@ -33,7 +34,8 @@ import org.slf4j.LoggerFactory;
 
 public class Http extends HttpBase {
 
-  public static final Logger LOG = LoggerFactory.getLogger(Http.class);
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public Http() {
     super(LOG);

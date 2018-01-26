@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.hostdb;
 
+import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -32,7 +33,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ResolverThread implements Runnable {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ResolverThread.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected String host = null;
   protected HostDatum datum = null;
