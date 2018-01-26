@@ -77,7 +77,6 @@ public interface Nutch {
 	public static final Text WRITABLE_FIXED_INTERVAL_KEY = new Text(
 			FIXED_INTERVAL_KEY);
 
-	
 	 /** For progress of job. Used by the Nutch REST service */
 	public static final String STAT_PROGRESS = "progress";
 	/**Used by Nutch REST service */
@@ -95,9 +94,10 @@ public interface Nutch {
 	/** Argument key to specify the location of a directory of segments for the REST endpoints.
 	 * Similar to the -dir command in the bin/nutch script **/
 	public static final String ARG_SEGMENTDIR = "segment_dir";
-	/** Argument key to specify the location of individual segment for the REST endpoints **/
-	public static final String ARG_SEGMENT = "segment";
-	
+	/** Argument key to specify the location of individual segment or list of segments for the REST endpoints. The behavior differs for diffirent endpoints: CrawlDb, LinkDb and Indexing Jobs take list of segments, Fetcher and Parse segment take one segment **/
+	public static final String ARG_SEGMENTS = "segment";
+	/** Argument key to specify the location of hostdb for the REST endpoints **/
+	public static final String ARG_HOSTDB = "hostdb";
 	/** Title key in the Pub/Sub event metadata for the title of the parsed page*/
 	public static final String FETCH_EVENT_TITLE = "title";
 	/** Content-type key in the Pub/Sub event metadata for the content-type of the parsed page*/

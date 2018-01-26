@@ -19,7 +19,8 @@ package org.apache.nutch.indexer;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configurable;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.plugin.Pluggable;
 
@@ -27,7 +28,7 @@ public interface IndexWriter extends Pluggable, Configurable {
   /** The name of the extension point. */
   final static String X_POINT_ID = IndexWriter.class.getName();
 
-  public void open(JobConf job, String name) throws IOException;
+  public void open(Configuration conf, String name) throws IOException;
 
   public void write(NutchDocument doc) throws IOException;
 

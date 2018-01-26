@@ -77,7 +77,7 @@ public class SlashURLNormalizer implements URLNormalizer {
 
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line.trim();
+        line = line.trim();
         delimiterIndex = line.indexOf(" ");
         // try tabulator
         if (delimiterIndex == -1) {

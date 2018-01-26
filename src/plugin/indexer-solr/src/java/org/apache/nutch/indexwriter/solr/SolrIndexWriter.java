@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexerMapReduce;
 import org.apache.nutch.indexer.NutchDocument;
@@ -75,19 +74,19 @@ public class SolrIndexWriter implements IndexWriter {
   private int totalUpdates = 0;
   private boolean delete = false;
 
-  public void open(JobConf job, String name) throws IOException {
-    solrClients = SolrUtils.getSolrClients(job);
-    init(solrClients, job);
+  public void open(Configuration conf, String name) throws IOException {
+    solrClients = SolrUtils.getSolrClients(conf);
+    init(solrClients, conf);
   }
 
   // package protected for tests
-  void init(List<SolrClient> solrClients, JobConf job) throws IOException {
-    batchSize = job.getInt(SolrConstants.COMMIT_SIZE, 1000);
-    solrMapping = SolrMappingReader.getInstance(job);
-    delete = job.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
+  void init(List<SolrClient> solrClients, Configuration conf) throws IOException {
+    batchSize = conf.getInt(SolrConstants.COMMIT_SIZE, 1000);
+    solrMapping = SolrMappingReader.getInstance(conf);
+    delete = conf.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
     // parse optional params
     params = new ModifiableSolrParams();
-    String paramString = job.get(IndexerMapReduce.INDEXER_PARAMS);
+    String paramString = conf.get(IndexerMapReduce.INDEXER_PARAMS);
     if (paramString != null) {
       String[] values = paramString.split("&");
       for (String v : values) {

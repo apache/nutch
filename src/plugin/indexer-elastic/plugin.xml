@@ -22,38 +22,64 @@
     <library name="indexer-elastic.jar">
       <export name="*" />
     </library>
-    <library name="elasticsearch-2.3.3.jar"/>
-    <library name="commons-cli-1.3.1.jar"/>
-    <library name="compress-lzf-1.0.2.jar"/>
-    <library name="guava-18.0.jar"/>
+
+    <!-- DEPENDENCIES FOR: https://mvnrepository.com/artifact/org.elasticsearch.client/rest/5.3.0 -->
+    <library name="rest-5.3.0.jar"/>
+    <library name="commons-codec-1.10.jar"/>
+    <library name="commons-logging-1.1.3.jar"/>
+    <library name="httpasyncclient-4.1.2.jar"/>
+    <library name="httpclient-4.5.2.jar"/>
+    <library name="httpcore-4.4.5.jar"/>
+    <library name="httpcore-nio-4.4.5.jar"/>
+    <!-- ElasticSearch DEPENDENCIES-->
+    <library name="elasticsearch-5.3.0.jar"/>
+    <library name="compiler-0.9.3.jar"/>
     <library name="HdrHistogram-2.1.6.jar"/>
     <library name="hppc-0.7.1.jar"/>
-    <library name="jackson-core-2.6.6.jar"/>
-    <library name="jackson-dataformat-cbor-2.6.6.jar"/>
-    <library name="jackson-dataformat-smile-2.6.6.jar"/>
-    <library name="jackson-dataformat-yaml-2.6.6.jar"/>
-    <library name="joda-convert-1.2.jar"/>
-    <library name="joda-time-2.8.2.jar"/>
-    <library name="jsr166e-1.1.0.jar"/>
-    <library name="lucene-analyzers-common-5.5.0.jar"/>
-    <library name="lucene-backward-codecs-5.5.0.jar"/>
-    <library name="lucene-core-5.5.0.jar"/>
-    <library name="lucene-grouping-5.5.0.jar"/>
-    <library name="lucene-highlighter-5.5.0.jar"/>
-    <library name="lucene-join-5.5.0.jar"/>
-    <library name="lucene-memory-5.5.0.jar"/>
-    <library name="lucene-misc-5.5.0.jar"/>
-    <library name="lucene-queries-5.5.0.jar"/>
-    <library name="lucene-queryparser-5.5.0.jar"/>
-    <library name="lucene-sandbox-5.5.0.jar"/>
-    <library name="lucene-spatial-5.5.0.jar"/>
-    <library name="lucene-spatial3d-5.5.0.jar"/>
-    <library name="lucene-suggest-5.5.0.jar"/>
-    <library name="netty-3.10.5.Final.jar"/>
-    <library name="securesm-1.0.jar"/>
+    <library name="jackson-core-2.8.6.jar"/>
+    <library name="jackson-dataformat-cbor-2.8.6.jar"/>
+    <library name="jackson-dataformat-smile-2.8.6.jar"/>
+    <library name="jackson-dataformat-yaml-2.8.6.jar"/>
+    <library name="jna-4.2.2.jar"/>
+    <library name="joda-time-2.9.5.jar"/>
+    <library name="jopt-simple-5.0.2.jar"/>
+    <library name="log4j-api-2.7.jar"/>
+    <library name="log4j-core-2.7.jar"/>
+    <library name="lucene-analyzers-common-6.4.1.jar"/>
+    <library name="lucene-backward-codecs-6.4.1.jar"/>
+    <library name="lucene-core-6.4.1.jar"/>
+    <library name="lucene-grouping-6.4.1.jar"/>
+    <library name="lucene-highlighter-6.4.1.jar"/>
+    <library name="lucene-join-6.4.1.jar"/>
+    <library name="lucene-memory-6.4.1.jar"/>
+    <library name="lucene-misc-6.4.1.jar"/>
+    <library name="lucene-queries-6.4.1.jar"/>
+    <library name="lucene-queryparser-6.4.1.jar"/>
+    <library name="lucene-sandbox-6.4.1.jar"/>
+    <library name="lucene-spatial3d-6.4.1.jar"/>
+    <library name="lucene-spatial-6.4.1.jar"/>
+    <library name="lucene-spatial-extras-6.4.1.jar"/>
+    <library name="lucene-suggest-6.4.1.jar"/>
+    <library name="securesm-1.1.jar"/>
     <library name="snakeyaml-1.15.jar"/>
-    <library name="spatial4j-0.5.jar"/>
     <library name="t-digest-3.0.jar"/>
+
+    <!-- ElasticSearch Transport jar Deps-->
+    <library name="percolator-client-5.3.0.jar"/>
+    <library name="reindex-client-5.3.0.jar"/>
+    <library name="lang-mustache-client-5.3.0.jar"/>
+    <library name="transport-5.3.0.jar"/>
+    <library name="transport-netty3-client-5.3.0.jar"/>
+    <library name="transport-netty4-client-5.3.0.jar"/>
+    <library name="netty-all-4.1.7.Final.jar"/>
+    <library name="netty-3.10.6.Final.jar"/>
+    <library name="netty-buffer-4.1.7.Final.jar"/>
+    <library name="netty-codec-4.1.7.Final.jar"/>
+    <library name="netty-codec-http-4.1.7.Final.jar"/>
+    <library name="netty-common-4.1.7.Final.jar"/>
+    <library name="netty-handler-4.1.7.Final.jar"/>
+    <library name="netty-resolver-4.1.7.Final.jar"/>
+    <library name="netty-transport-4.1.7.Final.jar"/>
   </runtime>
 
   <requires>

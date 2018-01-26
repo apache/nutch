@@ -29,14 +29,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.PriorityQueue;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 
 /** Merge new page entries with existing entries. */
-public class CrawlDbReducer implements
+public class CrawlDbReducer extends
     Reducer<Text, CrawlDatum, Text, CrawlDatum> {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -49,22 +53,22 @@ public class CrawlDbReducer implements
   private int maxInterval;
   private FetchSchedule schedule;
 
-  public void configure(JobConf job) {
-    retryMax = job.getInt("db.fetch.retry.max", 3);
-    scfilters = new ScoringFilters(job);
-    additionsAllowed = job.getBoolean(CrawlDb.CRAWLDB_ADDITIONS_ALLOWED, true);
-    maxInterval = job.getInt("db.fetch.interval.max", 0);
-    schedule = FetchScheduleFactory.getFetchSchedule(job);
-    int maxLinks = job.getInt("db.update.max.inlinks", 10000);
+  public void setup(Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
+    Configuration conf = context.getConfiguration();
+    retryMax = conf.getInt("db.fetch.retry.max", 3);
+    scfilters = new ScoringFilters(conf);
+    additionsAllowed = conf.getBoolean(CrawlDb.CRAWLDB_ADDITIONS_ALLOWED, true);
+    maxInterval = conf.getInt("db.fetch.interval.max", 0);
+    schedule = FetchScheduleFactory.getFetchSchedule(conf);
+    int maxLinks = conf.getInt("db.update.max.inlinks", 10000);
     linked = new InlinkPriorityQueue(maxLinks);
   }
 
   public void close() {
   }
 
-  public void reduce(Text key, Iterator<CrawlDatum> values,
-      OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-      throws IOException {
+  public void reduce(Text key, Iterable<CrawlDatum> values,
+      Context context) throws IOException, InterruptedException {
 
     CrawlDatum fetch = new CrawlDatum();
     CrawlDatum old = new CrawlDatum();
@@ -76,9 +80,8 @@ public class CrawlDbReducer implements
     linked.clear();
     org.apache.hadoop.io.MapWritable metaFromParse = null;
 
-    while (values.hasNext()) {
-      CrawlDatum datum = values.next();
-      if (!multiple && values.hasNext())
+    for (CrawlDatum datum : values) {
+      if (!multiple)
         multiple = true;
       if (CrawlDatum.hasDbStatus(datum)) {
         if (!oldSet) {
@@ -156,8 +159,17 @@ public class CrawlDbReducer implements
     // still no new data - record only unchanged old data, if exists, and return
     if (!fetchSet) {
       if (oldSet) {// at this point at least "old" should be present
-        output.collect(key, old);
-        reporter.getCounter("CrawlDB status",
+        // set score for orphaned pages (not fetched in the current cycle and
+        // with no inlinks)
+        try {
+          scfilters.orphanedScore(key, old);
+        } catch (ScoringFilterException e) {
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Couldn't update orphaned score, key={}: {}", key, e);
+          }
+        }
+        context.write(key, old);
+        context.getCounter("CrawlDB status",
             CrawlDatum.getStatusName(old.getStatus())).increment(1);
       } else {
         LOG.warn("Missing fetch and old value, signature=" + signature);
@@ -312,13 +324,13 @@ public class CrawlDbReducer implements
       scfilters.updateDbScore(key, oldSet ? old : null, result, linkList);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't update score, key=" + key + ": " + e);
+        LOG.warn("Couldn't update score, key={}: {}", key, e);
       }
     }
     // remove generation time, if any
     result.getMetaData().remove(Nutch.WRITABLE_GENERATE_TIME_KEY);
-    output.collect(key, result);
-    reporter.getCounter("CrawlDB status",
+    context.write(key, result);
+    context.getCounter("CrawlDB status",
         CrawlDatum.getStatusName(result.getStatus())).increment(1);
   }
 

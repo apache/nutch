@@ -24,7 +24,6 @@ import com.rabbitmq.client.ConnectionFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.NutchDocument;
 
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
 
 import org.apache.nutch.indexer.NutchField;
@@ -87,7 +86,7 @@ public class RabbitIndexWriter implements IndexWriter {
     }
 
     @Override
-    public void open(JobConf JobConf, String name) throws IOException {
+    public void open(Configuration conf, String name) throws IOException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(serverHost);
         factory.setPort(serverPort);

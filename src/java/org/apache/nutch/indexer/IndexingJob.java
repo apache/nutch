@@ -35,11 +35,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Counters.Counter;
-import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -69,30 +67,33 @@ public class IndexingJob extends NutchTool implements Tool {
   }
 
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
-      boolean noCommit) throws IOException {
+      boolean noCommit) throws IOException, InterruptedException, ClassNotFoundException {
     index(crawlDb, linkDb, segments, noCommit, false, null);
   }
 
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
-      boolean noCommit, boolean deleteGone) throws IOException {
+      boolean noCommit, boolean deleteGone) 
+      throws IOException, InterruptedException, ClassNotFoundException {
     index(crawlDb, linkDb, segments, noCommit, deleteGone, null);
   }
 
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
-      boolean noCommit, boolean deleteGone, String params) throws IOException {
+      boolean noCommit, boolean deleteGone, String params) 
+      throws IOException, InterruptedException, ClassNotFoundException {
     index(crawlDb, linkDb, segments, noCommit, deleteGone, params, false, false);
   }
 
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
       boolean noCommit, boolean deleteGone, String params, boolean filter,
-      boolean normalize) throws IOException {
+      boolean normalize) throws IOException, InterruptedException, ClassNotFoundException {
     index(crawlDb, linkDb, segments, noCommit, deleteGone, params, false,
         false, false);
   }
 
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
       boolean noCommit, boolean deleteGone, String params,
-      boolean filter, boolean normalize, boolean addBinaryContent) throws IOException {
+      boolean filter, boolean normalize, boolean addBinaryContent) 
+      throws IOException, InterruptedException, ClassNotFoundException {
     index(crawlDb, linkDb, segments, noCommit, deleteGone, params, false,
         false, false, false);
   }
@@ -100,15 +101,16 @@ public class IndexingJob extends NutchTool implements Tool {
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
       boolean noCommit, boolean deleteGone, String params,
       boolean filter, boolean normalize, boolean addBinaryContent,
-      boolean base64) throws IOException {
+      boolean base64) throws IOException, InterruptedException, ClassNotFoundException {
 
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("Indexer: starting at {}", sdf.format(start));
 
-    final JobConf job = new NutchJob(getConf());
+    final Job job = NutchJob.getInstance(getConf());
     job.setJobName("Indexer");
+    Configuration conf = job.getConfiguration();
 
     LOG.info("Indexer: deleting gone documents: {}", deleteGone);
     LOG.info("Indexer: URL filtering: {}", filter);
@@ -128,13 +130,13 @@ public class IndexingJob extends NutchTool implements Tool {
     // NOW PASSED ON THE COMMAND LINE AS A HADOOP PARAM
     // job.set(SolrConstants.SERVER_URL, solrUrl);
 
-    job.setBoolean(IndexerMapReduce.INDEXER_DELETE, deleteGone);
-    job.setBoolean(IndexerMapReduce.URL_FILTERING, filter);
-    job.setBoolean(IndexerMapReduce.URL_NORMALIZING, normalize);
-    job.setBoolean(IndexerMapReduce.INDEXER_BINARY_AS_BASE64, base64);
+    conf.setBoolean(IndexerMapReduce.INDEXER_DELETE, deleteGone);
+    conf.setBoolean(IndexerMapReduce.URL_FILTERING, filter);
+    conf.setBoolean(IndexerMapReduce.URL_NORMALIZING, normalize);
+    conf.setBoolean(IndexerMapReduce.INDEXER_BINARY_AS_BASE64, base64);
 
     if (params != null) {
-      job.set(IndexerMapReduce.INDEXER_PARAMS, params);
+      conf.set(IndexerMapReduce.INDEXER_PARAMS, params);
     }
 
     job.setReduceSpeculativeExecution(false);
@@ -144,14 +146,19 @@ public class IndexingJob extends NutchTool implements Tool {
 
     FileOutputFormat.setOutputPath(job, tmp);
     try {
-      RunningJob indexJob = JobClient.runJob(job);
+      try{
+        int complete = job.waitForCompletion(true)?0:1;
+      } catch (InterruptedException | ClassNotFoundException e) {
+        LOG.error(StringUtils.stringifyException(e));
+        throw e;
+      }
       // do the commits once and for all the reducers in one go
       if (!noCommit) {
-        writers.open(job, "commit");
+        writers.open(conf, "commit");
         writers.commit();
       }
       LOG.info("Indexer: number of documents indexed, deleted, or skipped:");
-      for (Counter counter : indexJob.getCounters().getGroup("IndexerStatus")) {
+      for (Counter counter : job.getCounters().getGroup("IndexerStatus")) {
         LOG.info("Indexer: {}  {}",
             String.format(Locale.ROOT, "%6d", counter.getValue()),
             counter.getName());
@@ -160,7 +167,7 @@ public class IndexingJob extends NutchTool implements Tool {
       LOG.info("Indexer: finished at " + sdf.format(end) + ", elapsed: "
           + TimingUtil.elapsedTime(start, end));
     } finally {
-      tmp.getFileSystem(job).delete(tmp, true);
+      tmp.getFileSystem(conf).delete(tmp, true);
     }
   }
 
@@ -271,7 +278,6 @@ public class IndexingJob extends NutchTool implements Tool {
     List<Path> segments = new ArrayList<>();
 
     if(args.containsKey(Nutch.ARG_LINKDB)){
-      if(args.containsKey(Nutch.ARG_LINKDB)) {
         Object path = args.get(Nutch.ARG_LINKDB);
         if(path instanceof Path) {
           linkdb = (Path) path;
@@ -279,11 +285,9 @@ public class IndexingJob extends NutchTool implements Tool {
         else {
           linkdb = new Path(path.toString());
         }
-      }
-      else {
+    } else {
         linkdb = new Path(crawlId+"/linkdb");
       }
-    }
 
     if(args.containsKey(Nutch.ARG_SEGMENTDIR)){
       isSegment = true;
@@ -306,15 +310,17 @@ public class IndexingJob extends NutchTool implements Tool {
       }     
     }
 
-    if(args.containsKey(Nutch.ARG_SEGMENT)){
-      isSegment = true;
-      Object seg = args.get(Nutch.ARG_SEGMENT);
-      ArrayList<String> segmentList = new ArrayList<>();
-      if(seg instanceof ArrayList) {
-        segmentList = (ArrayList<String>)seg;
+    if(args.containsKey(Nutch.ARG_SEGMENTS)) {
+      Object segmentsFromArg = args.get(Nutch.ARG_SEGMENTS);
+      ArrayList<String> segmentList = new ArrayList<String>(); 
+      if(segmentsFromArg instanceof ArrayList) {
+    	segmentList = (ArrayList<String>)segmentsFromArg; }
+      else if(segmentsFromArg instanceof Path){
+        segmentList.add(segmentsFromArg.toString());
       }
+    	      
       for(String segment: segmentList) {
-        segments.add(new Path(segment));
+    	segments.add(new Path(segment));
       }
     }
 

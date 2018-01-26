@@ -23,7 +23,6 @@ import java.io.FileWriter;
 import java.io.Writer;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexerMapReduce;
 import org.apache.nutch.indexer.NutchDocument;
@@ -42,8 +41,8 @@ public class DummyIndexWriter implements IndexWriter {
   private Writer writer;
   private boolean delete = false;
 
-  public void open(JobConf job, String name) throws IOException {
-    delete = job.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
+  public void open(Configuration conf, String name) throws IOException {
+    delete = conf.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
   }
 
   @Override

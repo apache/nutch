@@ -20,7 +20,7 @@ package org.apache.nutch.indexwriter.elastic;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.util.NutchConfiguration;
 import org.elasticsearch.action.Action;
@@ -28,6 +28,7 @@ import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.ActionResponse;
+import org.elasticsearch.action.DocWriteRequest.OpType;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -35,13 +36,14 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.support.AbstractClient;
-import org.elasticsearch.client.support.Headers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.concurrent.EsRejectedExecutionException;
+import org.elasticsearch.index.shard.ShardId;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import java.util.UUID;
 
 public class TestElasticIndexWriter {
 
@@ -63,10 +65,9 @@ public class TestElasticIndexWriter {
 
     Settings settings = Settings.builder().build();
     ThreadPool threadPool = new ThreadPool(settings);
-    Headers headers = new Headers(settings);
 
     // customize the ES client to simulate responses from an ES cluster
-    client = new AbstractClient(settings, threadPool, headers) {
+    client = new AbstractClient(settings, threadPool) {
       @Override
       public void close() { }
 
@@ -84,14 +85,14 @@ public class TestElasticIndexWriter {
           }
 
           // respond with a failure
-          BulkItemResponse failed = new BulkItemResponse(0, "index",
+          BulkItemResponse failed = new BulkItemResponse(0, OpType.INDEX,
               new BulkItemResponse.Failure("nutch", "index", "failure0",
                   new EsRejectedExecutionException("saturated")));
           response = new BulkResponse(new BulkItemResponse[]{failed}, 0);
         } else {
           // respond successfully
-          BulkItemResponse success = new BulkItemResponse(0, "index",
-              new IndexResponse("nutch", "index", "index0", 0, true));
+          BulkItemResponse success = new BulkItemResponse(0, OpType.INDEX,
+              new IndexResponse(new ShardId("nutch", UUID.randomUUID().toString(), 0), "index", "index0", 0, true));
           response = new BulkResponse(new BulkItemResponse[]{success}, 0);
         }
 
@@ -131,10 +132,10 @@ public class TestElasticIndexWriter {
   public void testBulkMaxDocs() throws IOException {
     int numDocs = 10;
     conf.setInt(ElasticConstants.MAX_BULK_DOCS, numDocs);
-    JobConf job = new JobConf(conf);
+    Job job = Job.getInstance(conf);
 
     testIndexWriter.setConf(conf);
-    testIndexWriter.open(job, "name");
+    testIndexWriter.open(conf, "name");
 
     NutchDocument doc = new NutchDocument();
     doc.add("id", "http://www.example.com");
@@ -166,10 +167,10 @@ public class TestElasticIndexWriter {
     int numDocs = testMaxBulkLength / (key.length() + value.length());
 
     conf.setInt(ElasticConstants.MAX_BULK_LENGTH, testMaxBulkLength);
-    JobConf job = new JobConf(conf);
+    Job job = Job.getInstance(conf);
 
     testIndexWriter.setConf(conf);
-    testIndexWriter.open(job, "name");
+    testIndexWriter.open(conf, "name");
 
     NutchDocument doc = new NutchDocument();
     doc.add(key, value);
@@ -194,10 +195,10 @@ public class TestElasticIndexWriter {
     int numDocs = 10;
     conf.setInt(ElasticConstants.MAX_BULK_DOCS, numDocs);
 
-    JobConf job = new JobConf(conf);
+    Job job = Job.getInstance(conf);
 
     testIndexWriter.setConf(conf);
-    testIndexWriter.open(job, "name");
+    testIndexWriter.open(conf, "name");
 
     NutchDocument doc = new NutchDocument();
     doc.add("id", "http://www.example.com");

@@ -57,10 +57,11 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Injector takes a flat file of URLs and merges ("injects") these URLs into the
- * CrawlDb. Useful for bootstrapping a Nutch crawl. The URL files contain one
- * URL per line, optionally followed by custom metadata separated by tabs with
- * the metadata key separated from the corresponding value by '='.
+ * Injector takes a flat text file of URLs (or a folder containing text files)
+ * and merges ("injects") these URLs into the CrawlDb. Useful for bootstrapping
+ * a Nutch crawl. The URL files contain one URL per line, optionally followed by
+ * custom metadata separated by tabs with the metadata key separated from the
+ * corresponding value by '='.
  * <p>
  * Note, that some metadata keys are reserved:
  * <dl>
@@ -100,6 +101,16 @@ public class Injector extends NutchTool implements Tool {
    */
   public static String nutchFixedFetchIntervalMDName = "nutch.fetchInterval.fixed";
 
+  /**
+   * InjectMapper reads
+   * <ul>
+   * <li>the CrawlDb seeds are injected into</li>
+   * <li>the plain-text seed files and parses each line into the URL and
+   * metadata. Seed URLs are passed to the reducer with STATUS_INJECTED.</li>
+   * </ul>
+   * Depending on configuration and command-line parameters the URLs are normalized
+   * and filtered using the configured plugins.
+   */
   public static class InjectMapper
       extends Mapper<Text, Writable, Text, CrawlDatum> {
     public static final String URL_NORMALIZING_SCOPE = "crawldb.url.normalizers.scope";
@@ -163,7 +174,7 @@ public class Injector extends NutchTool implements Tool {
       for (String split : splits) {
         // find separation between name and value
         int indexEquals = split.indexOf(EQUAL_CHARACTER);
-        if (indexEquals == -1) // skip anything without a EQUAL_CHARACTER
+        if (indexEquals == -1) // skip anything without an = (EQUAL_CHARACTER)
           continue;
 
         String metaname = split.substring(0, indexEquals);
@@ -235,12 +246,16 @@ public class Injector extends NutchTool implements Tool {
         CrawlDatum datum = (CrawlDatum) value;
 
         // remove 404 urls
-        if (url404Purging && CrawlDatum.STATUS_DB_GONE == datum.getStatus())
+        if (url404Purging && CrawlDatum.STATUS_DB_GONE == datum.getStatus()) {
+          context.getCounter("injector", "urls_purged_404").increment(1);
           return;
+        }
 
         if (filterNormalizeAll) {
           String url = filterNormalize(key.toString());
-          if (url != null) {
+          if (url == null) {
+            context.getCounter("injector", "urls_purged_filter").increment(1);
+          } else {
             key.set(url);
             context.write(key, datum);
           }
@@ -272,7 +287,7 @@ public class Injector extends NutchTool implements Tool {
     }
 
     /**
-     * Merge the input records as per rules below :
+     * Merge the input records of one URL as per rules below :
      * 
      * <pre>
      * 1. If there is ONLY new injected record ==&gt; emit injected record
@@ -399,7 +414,16 @@ public class Injector extends NutchTool implements Tool {
 
     try {
       // run the job
-      job.waitForCompletion(true);
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Injector job did not succeed, job status: "
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        cleanupAfterFailure(tempCrawlDb, lock, fs);
+        // throw exception so that calling routine can exit with error
+        throw new RuntimeException(message);
+      }
 
       // save output and perform cleanup
       CrawlDb.install(job, crawlDb);
@@ -411,6 +435,10 @@ public class Injector extends NutchTool implements Tool {
             .findCounter("injector", "urls_filtered").getValue();
         long urlsMerged = job.getCounters()
             .findCounter("injector", "urls_merged").getValue();
+        long urlsPurged404= job.getCounters()
+            .findCounter("injector", "urls_purged_404").getValue();
+        long urlsPurgedFilter= job.getCounters()
+            .findCounter("injector", "urls_purged_filter").getValue();
         LOG.info("Injector: Total urls rejected by filters: " + urlsFiltered);
         LOG.info(
             "Injector: Total urls injected after normalization and filtering: "
@@ -419,29 +447,48 @@ public class Injector extends NutchTool implements Tool {
             + urlsMerged);
         LOG.info("Injector: Total new urls injected: "
             + (urlsInjected - urlsMerged));
+        if (filterNormalizeAll) {
+          LOG.info("Injector: Total urls removed from CrawlDb by filters: {}",
+              urlsPurgedFilter);
+        }
+        if (conf.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false)) {
+          LOG.info(
+              "Injector: Total urls with status gone removed from CrawlDb (db.update.purge.404): {}",
+              urlsPurged404);
+        }
 
         long end = System.currentTimeMillis();
         LOG.info("Injector: finished at " + sdf.format(end) + ", elapsed: "
             + TimingUtil.elapsedTime(start, end));
       }
-    } catch (IOException e) {
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("Injector job failed", e);
+      cleanupAfterFailure(tempCrawlDb, lock, fs);
+      throw e;
+    }
+  }
+
+  public void cleanupAfterFailure(Path tempCrawlDb, Path lock, FileSystem fs)
+      throws IOException {
+    try {
       if (fs.exists(tempCrawlDb)) {
         fs.delete(tempCrawlDb, true);
       }
-      LockUtil.removeLockFile(conf, lock);
+      LockUtil.removeLockFile(fs, lock);
+    } catch (IOException e) {
       throw e;
     }
   }
 
   public void usage() {
     System.err.println(
-        "Usage: Injector <crawldb> <url_dir> [-overwrite|-update] [-noFilter] [-noNormalize] [-filterNormalizeAll]\n");
+        "Usage: Injector [-D...] <crawldb> <url_dir> [-overwrite|-update] [-noFilter] [-noNormalize] [-filterNormalizeAll]\n");
     System.err.println(
         "  <crawldb>\tPath to a crawldb directory. If not present, a new one would be created.");
     System.err.println(
-        "  <url_dir>\tPath to directory with URL file(s) containing urls to be injected. A URL file");
+        "  <url_dir>\tPath to URL file or directory with URL file(s) containing URLs to be injected.");
     System.err.println(
-        "           \tshould have one URL per line, optionally followed by custom metadata.");
+        "           \tA URL file should have one URL per line, optionally followed by custom metadata.");
     System.err.println(
         "           \tBlank lines or lines starting with a '#' would be ignored. Custom metadata must");
     System.err
@@ -467,7 +514,14 @@ public class Injector extends NutchTool implements Tool {
     System.err.println(
         " -nofilter \tDo not apply URL filters to injected URLs");
     System.err.println(
-        " -filterNormalizeAll\tNormalize and filter all URLs including the URLs of existing CrawlDb records");
+        " -filterNormalizeAll\n"
+        + "           \tNormalize and filter all URLs including the URLs of existing CrawlDb records");
+    System.err.println();
+    System.err.println(
+        " -D...     \tset or overwrite configuration property (property=value)");
+    System.err.println(
+        " -Ddb.update.purge.404=true\n"
+        + "           \tremove URLs with status gone (404) from CrawlDb");
   }
 
   public static void main(String[] args) throws Exception {

@@ -213,6 +213,7 @@ public class SitemapProcessor extends Configured implements Tool {
       AbstractSiteMap asm = parser.parseSiteMap(content.getContentType(), content.getContent(), new URL(url));
 
       if(asm instanceof SiteMap) {
+        LOG.info("Parsing sitemap file: {}", asm.getUrl().toString());
         SiteMap sm = (SiteMap) asm;
         Collection<SiteMapURL> sitemapUrls = sm.getSiteMapUrls();
         for(SiteMapURL sitemapUrl: sitemapUrls) {
@@ -252,10 +253,13 @@ public class SitemapProcessor extends Configured implements Tool {
         SiteMapIndex index = (SiteMapIndex) asm;
         Collection<AbstractSiteMap> sitemapUrls = index.getSitemaps();
 
+        if (sitemapUrls.isEmpty()) {
+          return;
+        }
+
+        LOG.info("Parsing sitemap index file: {}", index.getUrl().toString());
         for(AbstractSiteMap sitemap: sitemapUrls) {
-          if(sitemap.isIndex()) {
-            generateSitemapUrlDatum(protocol, sitemap.getUrl().toString(), context);
-          }
+          generateSitemapUrlDatum(protocol, sitemap.getUrl().toString(), context);
         }
       }
     }
@@ -358,7 +362,16 @@ public class SitemapProcessor extends Configured implements Tool {
     job.setReducerClass(SitemapReducer.class);
 
     try {
-      job.waitForCompletion(true);
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "SitemapProcessor_" + crawldb.toString()
+            + " job did not succeed, job status: " + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        cleanupAfterFailure(tempCrawlDb, lock, fs);
+        // throw exception so that calling routine can exit with error
+        throw new RuntimeException(message);
+      }
 
       boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
       if (!preserveBackup && fs.exists(old))
@@ -385,11 +398,21 @@ public class SitemapProcessor extends Configured implements Tool {
         long end = System.currentTimeMillis();
         LOG.info("SitemapProcessor: Finished at {}, elapsed: {}", sdf.format(end), TimingUtil.elapsedTime(start, end));
       }
-    } catch (Exception e) {
-      if (fs.exists(tempCrawlDb))
-        fs.delete(tempCrawlDb, true);
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("SitemapProcessor_" + crawldb.toString(), e);
+      cleanupAfterFailure(tempCrawlDb, lock, fs);
+      throw e;
+    }
+  }
 
+  public void cleanupAfterFailure(Path tempCrawlDb, Path lock, FileSystem fs)
+      throws IOException {
+    try {
+      if (fs.exists(tempCrawlDb)) {
+        fs.delete(tempCrawlDb, true);
+      }
       LockUtil.removeLockFile(fs, lock);
+    } catch (IOException e) {
       throw e;
     }
   }

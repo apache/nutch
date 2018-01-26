@@ -17,21 +17,20 @@
 
 package org.apache.nutch.indexwriter.elastic;
 
-import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
-
 import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
@@ -46,6 +45,8 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
+import org.elasticsearch.transport.client.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,21 +75,21 @@ public class ElasticIndexWriter implements IndexWriter {
   private Configuration config;
 
   @Override
-  public void open(JobConf job, String name) throws IOException {
-    bulkCloseTimeout = job.getLong(ElasticConstants.BULK_CLOSE_TIMEOUT,
+  public void open(Configuration conf, String name) throws IOException {
+    bulkCloseTimeout = conf.getLong(ElasticConstants.BULK_CLOSE_TIMEOUT,
         DEFAULT_BULK_CLOSE_TIMEOUT);
-    defaultIndex = job.get(ElasticConstants.INDEX, DEFAULT_INDEX);
+    defaultIndex = conf.get(ElasticConstants.INDEX, DEFAULT_INDEX);
 
-    int maxBulkDocs = job.getInt(ElasticConstants.MAX_BULK_DOCS,
+    int maxBulkDocs = conf.getInt(ElasticConstants.MAX_BULK_DOCS,
         DEFAULT_MAX_BULK_DOCS);
-    int maxBulkLength = job.getInt(ElasticConstants.MAX_BULK_LENGTH,
+    int maxBulkLength = conf.getInt(ElasticConstants.MAX_BULK_LENGTH,
         DEFAULT_MAX_BULK_LENGTH);
-    int expBackoffMillis = job.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
+    int expBackoffMillis = conf.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
         DEFAULT_EXP_BACKOFF_MILLIS);
-    int expBackoffRetries = job.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
+    int expBackoffRetries = conf.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
         DEFAULT_EXP_BACKOFF_RETRIES);
 
-    client = makeClient(job);
+    client = makeClient(conf);
 
     LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}", maxBulkDocs, maxBulkLength);
     bulkProcessor = BulkProcessor.builder(client, bulkProcessorListener())
@@ -106,7 +107,7 @@ public class ElasticIndexWriter implements IndexWriter {
     String[] hosts = conf.getStrings(ElasticConstants.HOSTS);
     int port = conf.getInt(ElasticConstants.PORT, DEFAULT_PORT);
 
-    Settings.Builder settingsBuilder = Settings.settingsBuilder();
+    Settings.Builder settingsBuilder = Settings.builder();
 
     BufferedReader reader = new BufferedReader(
         conf.getConfResourceAsReader("elasticsearch.conf"));
@@ -114,7 +115,7 @@ public class ElasticIndexWriter implements IndexWriter {
     String parts[];
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line.trim();
+        line = line.trim();
         parts = line.split("=");
 
         if (parts.length == 2) {
@@ -133,12 +134,13 @@ public class ElasticIndexWriter implements IndexWriter {
 
     // Prefer TransportClient
     if (hosts != null && port > 1) {
-      TransportClient transportClient = TransportClient.builder().settings(settings).build();
+      TransportClient transportClient = new PreBuiltTransportClient(settings);
+
       for (String host: hosts)
         transportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
       client = transportClient;
     } else if (clusterName != null) {
-      node = nodeBuilder().settings(settings).client(true).node();
+      node = new Node(settings);
       client = node.client();
     }
 
@@ -174,9 +176,13 @@ public class ElasticIndexWriter implements IndexWriter {
 
     // Add each field of this doc to the index source
     Map<String, Object> source = new HashMap<String, Object>();
-    for (String fieldName : doc.getFieldNames()) {
-      if (doc.getFieldValue(fieldName) != null) {
-        source.put(fieldName, doc.getFieldValue(fieldName));
+    for (final Map.Entry<String, NutchField> e : doc) {
+      final List<Object> values = e.getValue().getValues();
+
+      if (values.size() > 1) {
+        source.put(e.getKey(), values);
+      } else {
+        source.put(e.getKey(), values.get(0));
       }
     }
 

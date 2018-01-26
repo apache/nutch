@@ -36,6 +36,7 @@
   </publications>
 
   <dependencies>
+    <dependency org="net.sourceforge.nekohtml" name="nekohtml" rev="1.9.19" conf="test->master"/>
   </dependencies>
   
 </ivy-module>

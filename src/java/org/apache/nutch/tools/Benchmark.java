@@ -32,7 +32,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.CrawlDbReader;
@@ -195,8 +195,8 @@ public class Benchmark extends Configured implements Tool {
     conf.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
     conf.set(Generator.GENERATOR_COUNT_MODE,
         Generator.GENERATOR_COUNT_VALUE_HOST);
-    JobConf job = new NutchJob(getConf());
-    FileSystem fs = FileSystem.get(job);
+    Job job = NutchJob.getInstance(getConf());
+    FileSystem fs = FileSystem.get(conf);
     Path dir = new Path(getConf().get("hadoop.tmp.dir"), "bench-"
         + System.currentTimeMillis());
     fs.mkdirs(dir);
@@ -248,7 +248,7 @@ public class Benchmark extends Configured implements Tool {
       fetcher.fetch(segs[0], threads); // fetch it
       delta = System.currentTimeMillis() - start;
       res.addTiming("fetch", i + "", delta);
-      if (!Fetcher.isParsing(job)) {
+      if (!Fetcher.isParsing(conf)) {
         start = System.currentTimeMillis();
         parseSegment.parse(segs[0]); // parse it, if needed
         delta = System.currentTimeMillis() - start;
@@ -277,7 +277,7 @@ public class Benchmark extends Configured implements Tool {
     }
     res.elapsed = System.currentTimeMillis() - res.elapsed;
     CrawlDbReader dbreader = new CrawlDbReader();
-    dbreader.processStatJob(crawlDb.toString(), job, false);
+    dbreader.processStatJob(crawlDb.toString(), conf, false);
     return res;
   }
 

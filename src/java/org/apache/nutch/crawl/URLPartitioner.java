@@ -26,15 +26,17 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.URLUtil;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 /**
  * Partition urls by host, domain name or IP depending on the value of the
  * parameter 'partition.url.mode' which can be 'byHost', 'byDomain' or 'byIP'
  */
-public class URLPartitioner implements Partitioner<Text, Writable> {
+public class URLPartitioner extends Partitioner<Text, Writable> {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -48,38 +50,43 @@ public class URLPartitioner implements Partitioner<Text, Writable> {
   private URLNormalizers normalizers;
   private String mode = PARTITION_MODE_HOST;
 
-  public void configure(JobConf job) {
-    seed = job.getInt("partition.url.seed", 0);
-    mode = job.get(PARTITION_MODE_KEY, PARTITION_MODE_HOST);
+  public void configure(Job job) {
+    Configuration conf = job.getConfiguration();
+    seed = conf.getInt("partition.url.seed", 0);
+    mode = conf.get(PARTITION_MODE_KEY, PARTITION_MODE_HOST);
     // check that the mode is known
     if (!mode.equals(PARTITION_MODE_IP) && !mode.equals(PARTITION_MODE_DOMAIN)
         && !mode.equals(PARTITION_MODE_HOST)) {
       LOG.error("Unknown partition mode : " + mode + " - forcing to byHost");
       mode = PARTITION_MODE_HOST;
     }
-    normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_PARTITION);
+    normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_PARTITION);
   }
 
   public void close() {
   }
 
-  /** Hash by domain name. */
+  /** Hash by host or domain name or IP address. */
   public int getPartition(Text key, Writable value, int numReduceTasks) {
     String urlString = key.toString();
     URL url = null;
-    int hashCode = urlString.hashCode();
+    int hashCode = 0;
     try {
       urlString = normalizers.normalize(urlString,
           URLNormalizers.SCOPE_PARTITION);
       url = new URL(urlString);
-      hashCode = url.getHost().hashCode();
     } catch (MalformedURLException e) {
       LOG.warn("Malformed URL: '" + urlString + "'");
     }
 
-    if (mode.equals(PARTITION_MODE_DOMAIN) && url != null)
+    if (url == null) {
+      // failed to parse URL, must take URL string as fall-back
+      hashCode = urlString.hashCode();
+    } else if (mode.equals(PARTITION_MODE_HOST)) {
+      hashCode = url.getHost().hashCode();
+    } else if (mode.equals(PARTITION_MODE_DOMAIN)) {
       hashCode = URLUtil.getDomainName(url).hashCode();
-    else if (mode.equals(PARTITION_MODE_IP)) {
+    } else if (mode.equals(PARTITION_MODE_IP)) {
       try {
         InetAddress address = InetAddress.getByName(url.getHost());
         hashCode = address.getHostAddress().hashCode();
