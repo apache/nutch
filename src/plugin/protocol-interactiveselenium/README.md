@@ -36,3 +36,12 @@ Only basic functionality is included in the DefaultHandler that comes with the p
 # Handler Info
 
 Handlers are called in the order that they're specified in the configuration. A "clean" driver is used for each handler so multiple handlers won't interfere with each other. Page content is appended together from each handler and returned for the request.
+
+
+# Using headless mode
+
+headless option is added recently for firefox and chrome (firefox version >= 55 , chrome version >= 59) .
+we used to rely on xvfb and its associates for running in headless mode, now that the option is available it's better that we use it.
+you can use this option by setting the selenium.firefox.headless to True, default value is false .
+this option is tested using firefox 57.0 , gecodriver 0.19.1 and selenium 3.7.1
+Currently this option exist for - 'firefox' .
