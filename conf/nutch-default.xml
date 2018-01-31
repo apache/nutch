@@ -2750,4 +2750,12 @@ If true (default) the Sitemap parser rejects URLs not sharing the same
     fit with your crawler configuration.
    </description>
 </property>
+
+<property>
+  <name>sitemap.redir.max</name>
+  <value>3</value>
+  <description>
+    Maximum number of redirects to follow.
+   </description>
+</property>
 </configuration>
