@@ -280,7 +280,7 @@
 <property>
   <name>http.proxy.exception.list</name>
   <value></value>
-  <description>A comma separated list of URL's and hosts that don't use the proxy 
+  <description>A comma separated list of hosts that don't use the proxy 
   (e.g. intranets). Example: www.apache.org</description>
 </property>
 
