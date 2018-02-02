@@ -124,6 +124,12 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   public static final String ADAPTIVE_ORPHAN_TIME = "scoring.adaptive.mark.orphan.after";
 
   /*
+   * Time span (in minutes) after which a &quot;redirected&quot; page not seen anymore
+   * by inlink or seed is marked as orpaned.
+   */
+  public static final String ADAPTIVE_ORPHAN_TIME_REDIRECT = "scoring.adaptive.mark.redirect.orphan.after";
+
+  /*
    * Time span (in minutes) after which a &quot;gone&quot; page not seen anymore
    * by inlink or seed is marked as orpaned. Also duplicates and unfetched pages
    * with a retry count >= 3 are considered as &quot;gone&quot;.
@@ -168,6 +174,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   private FetchSchedule schedule;
   int nowMinutes;
   int orphanTimeGone;
+  int orphanTimeRedirect;
   int orphanTimeAny;
   int orphanTimeLastSeenDefault;
 
@@ -201,12 +208,22 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     int orphanTimeSpanAny = conf.getInt(ADAPTIVE_ORPHAN_TIME,
         60 * 24 * 30 * 12);
     orphanTimeAny = nowMinutes - orphanTimeSpanAny;
+    int orphanTimeSpanRedirect = conf.getInt(ADAPTIVE_ORPHAN_TIME_REDIRECT,
+        60 * 24 * 30 * 4);
+    orphanTimeRedirect = nowMinutes - orphanTimeSpanRedirect;
     int orphanTimeSpanGone = conf.getInt(ADAPTIVE_ORPHAN_TIME_GONE,
         60 * 24 * 30 * 4);
     orphanTimeGone = nowMinutes - orphanTimeSpanGone;
-    String lastSeenDefaultDate = conf.get(ADAPTIVE_ORPHAN_TIME_LAST_SEEN_DEFAULT, "2017-07-15T00:00:00");
-    orphanTimeLastSeenDefault = (int) LocalDateTime.parse(lastSeenDefaultDate)
-        .toEpochSecond(ZoneOffset.UTC) / 60;
+    String lastSeenDefaultDate = conf
+        .get(ADAPTIVE_ORPHAN_TIME_LAST_SEEN_DEFAULT);
+    if (lastSeenDefaultDate != null) {
+      orphanTimeLastSeenDefault = (int) LocalDateTime.parse(lastSeenDefaultDate)
+          .toEpochSecond(ZoneOffset.UTC) / 60;
+    } else {
+      // choose a time that will never trigger that a page/CrawlDatum
+      // is marked as orphaned when it's last seen time is not given
+      orphanTimeLastSeenDefault = nowMinutes;
+    }
   }
 
   private void readSortFile(Reader sortFileReader) throws IOException {
@@ -278,7 +295,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
         // boost recently injected URLs
         // - status unfetched
         // - retry count == 0
-        // - scheduled fetch with the last 7 days
+        // - scheduled fetch within the last 7 days
         initSort += adaptiveBoostInjected;
       }
     }
@@ -311,16 +328,19 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
           .get(WRITABLE_LAST_SEEN_TIME);
       lastSeenMinutes = writable.get();
     }
-    if (lastSeenMinutes > this.orphanTimeGone) {
-      // keep in any case
-      // (last seen time after mark-as-orphan-if-gone time)
-    } else if (lastSeenMinutes < this.orphanTimeAny) {
-      // (last seen time before mark-any-as-orphan time)
+    if (lastSeenMinutes < orphanTimeAny) {
+      // last seen time before mark-any-as-orphan time)
       datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
+    } else if (pageIsRedirect(datum)) {
+      if (lastSeenMinutes < orphanTimeRedirect) {
+        // last seen time before mark-as-orphan-if-redirect time
+        datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
+      }
     } else if (pageIsGone(datum)) {
-      // (last seen time before mark-as-orphan-if-gone time
-      //  but after mark-any-as-orphan time)
-      datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
+      if (lastSeenMinutes < orphanTimeGone) {
+        // last seen time before mark-as-orphan-if-gone time
+        datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
+      }
     }
   }
 
@@ -330,6 +350,15 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
         || status == CrawlDatum.STATUS_DB_DUPLICATE
         || (status == CrawlDatum.STATUS_DB_UNFETCHED
             && datum.getRetriesSinceFetch() >= 3)) {
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean pageIsRedirect(CrawlDatum datum) {
+    byte status = datum.getStatus();
+    if (status == CrawlDatum.STATUS_DB_REDIR_PERM
+        || status == CrawlDatum.STATUS_DB_REDIR_TEMP) {
       return true;
     }
     return false;
