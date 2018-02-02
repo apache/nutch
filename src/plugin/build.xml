@@ -101,7 +101,6 @@
     <ant dir="urlnormalizer-querystring" target="deploy"/>
     <ant dir="urlnormalizer-regex" target="deploy"/>
     <ant dir="urlnormalizer-slash" target="deploy"/>
->>>>>>> master
   </target>
 
   <!-- ====================================================== -->

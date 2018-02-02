@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="nz.ac.waikato.cms.moa" name="moa" rev="2014.04" conf="*->default"/>
+    <dependency org="nz.ac.waikato.cms.moa" name="moa" rev="2014.04"/>
     <dependency org="de.uni_mannheim.informatik.dws" name="dwslib" rev="1.0" conf="*->default"/>
     <dependency org="nz.ac.waikato.cms.moa" name="weka-package" rev="2014.04" conf="*->default"/>
     <dependency org="it.unimi.dsi" name="fastutil" rev="7.0.11" conf="*->default"/>

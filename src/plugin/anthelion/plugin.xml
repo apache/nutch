@@ -32,7 +32,7 @@
       <library name="java-cup-11b-2015.03.26.jar"/>
       <library name="java-cup-11b-runtime-2015.03.26.jar"/>
       <library name="jsr305-1.3.9.jar"/>
-      <library name="moa-2014.11.jar"/>
+      <library name="moa-2014.04.jar"/>
       <library name="opencsv-2.3.jar"/>
       <library name="pentaho-package-manager-1.0.11.jar"/>
       <library name="sizeofag-1.0.0.jar"/>
