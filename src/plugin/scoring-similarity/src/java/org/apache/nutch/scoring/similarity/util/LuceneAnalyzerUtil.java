@@ -28,7 +28,7 @@ import org.apache.lucene.analysis.en.EnglishMinimalStemFilter;
 import org.apache.lucene.analysis.en.PorterStemFilter;
 import org.apache.lucene.analysis.standard.ClassicTokenizer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.analysis.CharArraySet;
 
 /**
  * Creates a custom analyzer based on user provided inputs
