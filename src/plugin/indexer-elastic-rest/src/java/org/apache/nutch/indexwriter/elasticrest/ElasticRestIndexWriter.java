@@ -54,11 +54,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -80,7 +82,7 @@ public class ElasticRestIndexWriter implements IndexWriter {
 
   private Bulk.Builder bulkBuilder;
   private int port = -1;
-  private String host = null;
+  private String[] hosts = null;
   private Boolean https = null;
   private String user = null;
   private String password = null;
@@ -102,7 +104,7 @@ public class ElasticRestIndexWriter implements IndexWriter {
   @Override
   public void open(JobConf job, String name) throws IOException {
 
-    host = job.get(ElasticRestConstants.HOST);
+    hosts = job.getStrings(ElasticRestConstants.HOST);
     port = job.getInt(ElasticRestConstants.PORT, 9200);
     user = job.get(ElasticRestConstants.USER);
     password = job.get(ElasticRestConstants.PASSWORD);
@@ -139,24 +141,27 @@ public class ElasticRestIndexWriter implements IndexWriter {
     SchemeIOSessionStrategy httpsIOSessionStrategy = new SSLIOSessionStrategy(sslContext, hostnameVerifier);
 
     JestClientFactory jestClientFactory = new JestClientFactory();
-    URL urlOfElasticsearchNode = new URL(https ? "https" : "http", host, port, "");
 
-    if (host != null && port > 1) {
-      HttpClientConfig.Builder builder = new HttpClientConfig.Builder(
-          urlOfElasticsearchNode.toString()).multiThreaded(true)
-              .connTimeout(300000).readTimeout(300000);
-      if (https) {
-        if (user != null && password != null) {
-          builder.defaultCredentials(user, password);
-        }
-        builder.defaultSchemeForDiscoveredNodes("https")
-            .sslSocketFactory(sslSocketFactory) // this only affects sync calls
-            .httpsIOSessionStrategy(httpsIOSessionStrategy); // this only affects async calls
-      }
-      jestClientFactory.setHttpClientConfig(builder.build());
-    } else {
-      throw new IllegalStateException("No host or port specified. Please set the host and port in nutch-site.xml");
+    if (hosts == null || hosts.length == 0 || port <= 1) {
+      throw new IllegalStateException("No hosts or port specified. Please set the host and port in nutch-site.xml");
     }
+
+    List<String> urlsOfElasticsearchNodes = new ArrayList<String>();
+    for (String host : hosts) {
+      urlsOfElasticsearchNodes.add(new URL(https ? "https" : "http", host, port, "").toString());
+    }
+    HttpClientConfig.Builder builder = new HttpClientConfig.Builder(
+            urlsOfElasticsearchNodes).multiThreaded(true)
+            .connTimeout(300000).readTimeout(300000);
+    if (https) {
+      if (user != null && password != null) {
+        builder.defaultCredentials(user, password);
+      }
+      builder.defaultSchemeForDiscoveredNodes("https")
+          .sslSocketFactory(sslSocketFactory) // this only affects sync calls
+          .httpsIOSessionStrategy(httpsIOSessionStrategy); // this only affects async calls
+    }
+    jestClientFactory.setHttpClientConfig(builder.build());
 
     client = jestClientFactory.getObject();
 
@@ -175,7 +180,7 @@ public class ElasticRestIndexWriter implements IndexWriter {
       return null;
     }
     
-    if (value instanceof Map) {
+    if (value instanceof Map || value instanceof Date) {
       return value;
     }
 
@@ -194,19 +199,21 @@ public class ElasticRestIndexWriter implements IndexWriter {
 
     // Loop through all fields of this doc
     for (String fieldName : doc.getFieldNames()) {
-      List<Object> fieldValues = doc.getField(fieldName).getValues();
+      Set<Object> allFieldValues = new LinkedHashSet<>(doc.getField(fieldName).getValues());
       
-      if (fieldValues.size() > 1) {
-        // Loop through the values to keep track of the size of this
-        // document
-        for (Object value : fieldValues) {
+      if (allFieldValues.size() > 1) {
+        Object[] normalizedFieldValues = allFieldValues.stream().map(ElasticRestIndexWriter::normalizeValue).toArray();
+
+        // Loop through the values to keep track of the size of this document
+        for (Object value : normalizedFieldValues) {
           bulkLength += value.toString().length();
         }
 
-        source.put(fieldName, fieldValues.stream().map(ElasticRestIndexWriter::normalizeValue).toArray());
-      } else if(fieldValues.size() == 1) {
-        source.put(fieldName, fieldValues.get(0));
-        bulkLength += fieldValues.get(0).toString().length();
+        source.put(fieldName, normalizedFieldValues);
+      } else if(allFieldValues.size() == 1) {
+        Object normalizedFieldValue = normalizeValue(allFieldValues.iterator().next());
+        source.put(fieldName, normalizedFieldValue);
+        bulkLength += normalizedFieldValue.toString().length();
       }
     }
     
@@ -360,11 +367,11 @@ public class ElasticRestIndexWriter implements IndexWriter {
   @Override
   public void setConf(Configuration conf) {
     config = conf;
-    String host = conf.get(ElasticRestConstants.HOST);
+    String[] hosts = conf.getStrings(ElasticRestConstants.HOST);
     String port = conf.get(ElasticRestConstants.PORT);
 
-    if (StringUtils.isBlank(host) && StringUtils.isBlank(port)) {
-      String message = "Missing elastic.rest.host and elastic.rest.port. At least one of them should be set in nutch-site.xml ";
+    if (hosts == null || hosts.length == 0 || StringUtils.isBlank(port)) {
+      String message = "No hosts or port specified. Please set the host and port in nutch-site.xml";
       message += "\n" + describe();
       LOG.error(message);
       throw new RuntimeException(message);

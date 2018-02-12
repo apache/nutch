@@ -280,7 +280,7 @@
 <property>
   <name>http.proxy.exception.list</name>
   <value></value>
-  <description>A comma separated list of URL's and hosts that don't use the proxy 
+  <description>A comma separated list of hosts that don't use the proxy 
   (e.g. intranets). Example: www.apache.org</description>
 </property>
 
@@ -1070,6 +1070,12 @@
     <name>any23.extractors</name>
     <value>html-microdata</value>
     <description>Comma-separated list of Any23 extractors (a list of extractors is available here: http://any23.apache.org/getting-started.html)</description>
+</property>
+
+<property>
+    <name>any23.content_types</name>
+    <value>text/html,application/xhtml+xml</value>
+    <description>Comma-separated list of content-types onto which Any23 extractors should be applied (see http://www.iana.org/assignments/media-types/). If empty, all content-types are supported.</description>
 </property>
 
 <!-- moreindexingfilter plugin properties -->
@@ -2117,8 +2123,10 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 <property>
     <name>elastic.rest.host</name>
     <value></value>
-    <description>The hostname to send documents to using Elasticsearch Jest. Both host
-        and port must be defined</description>
+    <description>
+      The hostname or a list of comma separated hostnames to send documents to
+      using Elasticsearch Jest. Both host and port must be defined.
+    </description>
 </property>
 
 <property>
@@ -2749,6 +2757,14 @@ If true (default) the Sitemap parser rejects URLs not sharing the same
     these values may have unexpected effects on what is crawled. Use this
     only if you can trust the sitemap and if the values in the sitemap do
     fit with your crawler configuration.
+   </description>
+</property>
+
+<property>
+  <name>sitemap.redir.max</name>
+  <value>3</value>
+  <description>
+    Maximum number of redirects to follow.
    </description>
 </property>
 </configuration>
