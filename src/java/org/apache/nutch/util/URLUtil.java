@@ -17,10 +17,16 @@
 
 package org.apache.nutch.util;
 
+import java.net.IDN;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.*;
+import java.net.URI;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
+import org.apache.nutch.crawl.URLPartitioner;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.domain.DomainSuffix;
 import org.apache.nutch.util.domain.DomainSuffixes;
 
@@ -253,7 +259,8 @@ public class URLUtil {
    * <p>
    * This method implements an extended version of the algorithm used by the
    * Yahoo! Slurp crawler described here:<br>
-   * <a href="http://help.yahoo.com/l/nz/yahooxtra/search/webcrawler/slurp-11.html"> How
+   * <a href=
+   * "http://help.yahoo.com/l/nz/yahooxtra/search/webcrawler/slurp-11.html"> How
    * does the Yahoo! webcrawler handle redirects?</a> <br>
    * <br>
    * <ul>
@@ -404,13 +411,36 @@ public class URLUtil {
    * @param url
    *          The url to check.
    * @return String The hostname for the url.
+   * @throws UnknownHostException
    */
   public static String getHost(String url) {
     try {
-      return new URL(url).getHost().toLowerCase();
+      return URLUtil.getUrlRootByMode(new URL(url),
+          URLPartitioner.PARTITION_MODE_HOST).toLowerCase();
     } catch (MalformedURLException e) {
       return null;
+    } catch (UnknownHostException e) {
+      return null;
     }
+  }
+
+  public static String normalizeURL(String urlString, URLNormalizers normalizers)
+      throws MalformedURLException {
+    return normalizers.normalize(urlString, URLNormalizers.SCOPE_PARTITION);
+  }
+
+  public static String getUrlRootByMode(URL url, String mode)
+      throws UnknownHostException {
+    String result = null;
+    if (mode.equals(URLPartitioner.PARTITION_MODE_HOST)) {
+      result = url.getHost();
+    } else if (mode.equals(URLPartitioner.PARTITION_MODE_DOMAIN)) {
+      result = URLUtil.getDomainName(url);
+    } else if (mode.equals(URLPartitioner.PARTITION_MODE_IP)) {
+      InetAddress address = InetAddress.getByName(url.getHost());
+      result = address.getHostAddress();
+    }
+    return result;
   }
 
   /**
