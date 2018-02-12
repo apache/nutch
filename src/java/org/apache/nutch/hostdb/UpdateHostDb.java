@@ -52,7 +52,6 @@ import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +77,7 @@ public class UpdateHostDb extends Configured implements Tool {
   public static final String HOSTDB_NUMERIC_FIELDS = "hostdb.numeric.fields";
   public static final String HOSTDB_STRING_FIELDS = "hostdb.string.fields";
   public static final String HOSTDB_PERCENTILES = "hostdb.percentiles";
+  public static final String HOSTDB_UPDATEDB_DELTA_EXPRESSION = "hostdb.deltaExpression";
   
   private void updateHostDb(Path hostDb, Path crawlDb, Path topHosts,
     boolean checkFailed, boolean checkNew, boolean checkKnown,

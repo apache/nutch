@@ -21,46 +21,41 @@ import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.MapContext;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TimingUtil;
-import org.apache.nutch.util.URLUtil;
-
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.MapContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @see <a href='http://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a>
+ * @see <a href=
+ *      'http://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a
+ *      >
  */
 public class ReadHostDb extends Configured implements Tool {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles
+      .lookup().lookupClass());
 
   public static final String HOSTDB_DUMP_HEADER = "hostdb.dump.field.header";
   public static final String HOSTDB_DUMP_HOSTNAMES = "hostdb.dump.hostnames";
@@ -75,33 +70,33 @@ public class ReadHostDb extends Configured implements Tool {
     protected Expression expr = null;
 
     public void setup(Context context) {
-      dumpHomepages = context.getConfiguration().getBoolean(HOSTDB_DUMP_HOMEPAGES, false);
-      dumpHostnames = context.getConfiguration().getBoolean(HOSTDB_DUMP_HOSTNAMES, false);
-      fieldHeader = context.getConfiguration().getBoolean(HOSTDB_DUMP_HEADER, true);
+      dumpHomepages = context.getConfiguration().getBoolean(
+          HOSTDB_DUMP_HOMEPAGES, false);
+      dumpHostnames = context.getConfiguration().getBoolean(
+          HOSTDB_DUMP_HOSTNAMES, false);
+      fieldHeader = context.getConfiguration().getBoolean(HOSTDB_DUMP_HEADER,
+          true);
       String expr = context.getConfiguration().get(HOSTDB_FILTER_EXPRESSION);
       if (expr != null) {
-        // Create or retrieve a JexlEngine
-        JexlEngine jexl = new JexlEngine();
-        
-        // Dont't be silent and be strict
-        jexl.setSilent(true);
-        jexl.setStrict(true);
-        
-        // Create an expression object
-        this.expr = jexl.createExpression(expr);
+        this.expr = org.apache.nutch.util.JexlUtil.parseExpression(expr);
       }
     }
 
-    public void map(Text key, HostDatum datum, Context context) throws IOException, InterruptedException {
+    public void map(Text key, HostDatum datum, Context context)
+        throws IOException, InterruptedException {
       if (fieldHeader && !dumpHomepages && !dumpHostnames) {
-        context.write(new Text("hostname"), new Text("unfetched\tfetched\tgone\tredirTemp\tredirPerm\tredirSum\tok\tnumRecords\tdnsFail\tcnxFail\tsumFail\tscore\tlastCheck\thomepage\tmetadata"));
+        context
+            .write(
+                new Text("hostname"),
+                new Text(
+                    "unfetched\tfetched\tgone\tredirTemp\tredirPerm\tredirSum\tok\tnumRecords\tdnsFail\tcnxFail\tsumFail\tscore\tlastCheck\thomepage\tmetadata"));
         fieldHeader = false;
       }
-      
+
       if (expr != null) {
         // Create a context and add data
         JexlContext jcontext = new MapContext();
-        
+
         // Set some fixed variables
         jcontext.set("unfetched", datum.getUnfetched());
         jcontext.set("fetched", datum.getFetched());
@@ -114,24 +109,25 @@ public class ReadHostDb extends Configured implements Tool {
         jcontext.set("numRecords", datum.numRecords());
         jcontext.set("dnsFailures", datum.getDnsFailures());
         jcontext.set("connectionFailures", datum.getConnectionFailures());
-        
+
         // Set metadata variables
-        for (Map.Entry<Writable, Writable> entry : datum.getMetaData().entrySet()) {
+        for (Map.Entry<Writable, Writable> entry : datum.getMetaData()
+            .entrySet()) {
           Object value = entry.getValue();
-          
+
           if (value instanceof FloatWritable) {
-            FloatWritable fvalue = (FloatWritable)value;
-            Text tkey = (Text)entry.getKey();
+            FloatWritable fvalue = (FloatWritable) value;
+            Text tkey = (Text) entry.getKey();
             jcontext.set(tkey.toString(), fvalue.get());
           }
-          
+
           if (value instanceof IntWritable) {
-            IntWritable ivalue = (IntWritable)value;
-            Text tkey = (Text)entry.getKey();
+            IntWritable ivalue = (IntWritable) value;
+            Text tkey = (Text) entry.getKey();
             jcontext.set(tkey.toString(), ivalue.get());
           }
         }
-        
+
         // Filter this record if evaluation did not pass
         try {
           if (!Boolean.TRUE.equals(expr.evaluate(jcontext))) {
@@ -141,35 +137,38 @@ public class ReadHostDb extends Configured implements Tool {
           LOG.info(e.toString() + " for " + key.toString());
         }
       }
-      
+
       if (dumpHomepages) {
         if (datum.hasHomepageUrl()) {
           context.write(new Text(datum.getHomepageUrl()), emptyText);
         }
         return;
       }
-      
+
       if (dumpHostnames) {
         context.write(key, emptyText);
         return;
       }
-      
+
       // Write anyway
       context.write(key, new Text(datum.toString()));
     }
   }
 
-  // Todo, reduce unknown hosts to single unknown domain if possible. Enable via configuration
+  // Todo, reduce unknown hosts to single unknown domain if possible. Enable via
+  // configuration
   // host_a.example.org,host_a.example.org ==> example.org
-//   static class ReadHostDbReducer extends Reduce<Text, Text, Text, Text> {
-//     public void setup(Context context) { }
-//
-//     public void reduce(Text domain, Iterable<Text> hosts, Context context) throws IOException, InterruptedException {
-//
-//     }
-//   }
+  // static class ReadHostDbReducer extends Reduce<Text, Text, Text, Text> {
+  // public void setup(Context context) { }
+  //
+  // public void reduce(Text domain, Iterable<Text> hosts, Context context)
+  // throws IOException, InterruptedException {
+  //
+  // }
+  // }
 
-  private void readHostDb(Path hostDb, Path output, boolean dumpHomepages, boolean dumpHostnames, String expr) throws Exception {
+  private void readHostDb(Path hostDb, Path output, boolean dumpHomepages,
+      boolean dumpHostnames, String expr) throws Exception {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("ReadHostDb: starting at " + sdf.format(start));
@@ -182,7 +181,7 @@ public class ReadHostDb extends Configured implements Tool {
     }
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
     conf.set("mapred.textoutputformat.separator", "\t");
-    
+
     Job job = Job.getInstance(conf);
     job.setJobName("ReadHostDb");
     job.setJarByClass(ReadHostDb.class);
@@ -217,22 +216,24 @@ public class ReadHostDb extends Configured implements Tool {
     }
 
     long end = System.currentTimeMillis();
-    LOG.info("ReadHostDb: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    LOG.info("ReadHostDb: finished at " + sdf.format(end) + ", elapsed: "
+        + TimingUtil.elapsedTime(start, end));
   }
-  
+
   private void getHostDbRecord(Path hostDb, String host) throws Exception {
     Configuration conf = getConf();
-    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(conf, hostDb);
+    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(conf,
+        hostDb);
 
     Class<?> keyClass = readers[0].getKeyClass();
     Class<?> valueClass = readers[0].getValueClass();
-    
+
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
       throw new IOException("Incompatible key (" + keyClass.getName() + ")");
-      
+
     Text key = (Text) keyClass.newInstance();
     HostDatum value = (HostDatum) valueClass.newInstance();
-    
+
     for (int i = 0; i < readers.length; i++) {
       while (readers[i].next(key, value)) {
         if (host.equals(key.toString())) {
@@ -240,17 +241,19 @@ public class ReadHostDb extends Configured implements Tool {
         }
       }
       readers[i].close();
-    }    
+    }
   }
 
   public static void main(String args[]) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new ReadHostDb(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new ReadHostDb(),
+        args);
     System.exit(res);
   }
 
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: ReadHostDb <hostdb> [-get <url>] [<output> [-dumpHomepages | -dumpHostnames | -expr <expr.>]]");
+      System.err
+          .println("Usage: ReadHostDb <hostdb> [-get <url>] [<output> [-dumpHomepages | -dumpHostnames | -expr <expr.>]]");
       return -1;
     }
 
@@ -270,7 +273,7 @@ public class ReadHostDb extends Configured implements Tool {
       }
       if (args[i].equals("-get")) {
         get = args[i + 1];
-        LOG.info("ReadHostDb: get: "+ get);
+        LOG.info("ReadHostDb: get: " + get);
         i++;
       }
       if (args[i].equals("-expr")) {
@@ -284,7 +287,8 @@ public class ReadHostDb extends Configured implements Tool {
       if (get != null) {
         getHostDbRecord(new Path(args[0], "current"), get);
       } else {
-        readHostDb(new Path(args[0]), new Path(args[1]), dumpHomepages, dumpHostnames, expr);
+        readHostDb(new Path(args[0]), new Path(args[1]), dumpHomepages,
+            dumpHostnames, expr);
       }
       return 0;
     } catch (Exception e) {

@@ -2596,6 +2596,15 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<property>
+  <name>hostdb.deltaExpression</name>
+  <value></value>
+  <description>
+    The expression for calculation of the delta statistics, the differences between of value of hostdb after update(currentHostDatum) and the value before(previousHostDatum). The return value in the KeyValuePair(String,Number) or KeyValuePair(String, String) format is written to the metadata of the hostdb.
+For example, {return new ("javafx.util.Pair","FetchedDelta", currentHostDatum.fetched - previousHostDatum.fetched);}
+  </description>
+</property>
+
 <!-- publisher properties 
       Do not forget to add the name of your publisher implementation 
       in plugin.includes ex- publish-rabbitmq -->
