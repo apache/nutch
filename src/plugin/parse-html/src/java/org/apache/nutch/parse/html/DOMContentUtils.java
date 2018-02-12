@@ -19,10 +19,7 @@ package org.apache.nutch.parse.html;
 
 import java.net.URL;
 import java.net.MalformedURLException;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Stack;
+import java.util.*;
 
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
@@ -102,10 +99,11 @@ public class DOMContentUtils {
   }
 
   /**
-   * This method takes a {@link StringBuffer} and a DOM {@link Node}, and will
+   * This method takes a {@link StringBuffer}, a DOM {@link Node}
+   * and an excluded element {@link Set}, and will
    * append all the content text found beneath the DOM node to the
-   * <code>StringBuffer</code>.
-   * 
+   * <code>StringBuffer</code> without the mentioned element names in the <code>Set</code>.
+   *
    * <p>
    * 
    * If <code>abortOnNestedAnchors</code> is true, DOM traversal will be aborted
@@ -116,9 +114,9 @@ public class DOMContentUtils {
    * 
    * @return true if nested anchors were found
    */
-  public boolean getText(StringBuffer sb, Node node,
-      boolean abortOnNestedAnchors) {
-    if (getTextHelper(sb, node, abortOnNestedAnchors, 0)) {
+  private boolean getText(StringBuffer sb, Node node,
+                          boolean abortOnNestedAnchors, Set<String> excludedElementNames) {
+    if (getTextHelper(sb, node, abortOnNestedAnchors, 0, excludedElementNames)) {
       return true;
     }
     return false;
@@ -126,25 +124,39 @@ public class DOMContentUtils {
 
   /**
    * This is a convinience method, equivalent to
-   * {@link #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
+   * {@link #getText(StringBuffer,Node,boolean, Set) getText(sb, node, false, excludedElementNames)}.
    * 
    */
-  public void getText(StringBuffer sb, Node node) {
-    getText(sb, node, false);
+  public void getText(StringBuffer sb, Node node, Set<String> excludedElementNames) {
+    getText(sb, node, false, excludedElementNames);
   }
 
   // returns true if abortOnNestedAnchors is true and we find nested
   // anchors
   private boolean getTextHelper(StringBuffer sb, Node node,
-      boolean abortOnNestedAnchors, int anchorDepth) {
+                                boolean abortOnNestedAnchors, int anchorDepth, Set<String> excludedElementNames) {
     boolean abort = false;
     NodeWalker walker = new NodeWalker(node);
+    Set<String> lcExcludedElementNames = new HashSet<>();
+    if (excludedElementNames != null) {
+      for (String excludedElementName : excludedElementNames) {
+        if (excludedElementName != null) {
+          lcExcludedElementNames.add(excludedElementName.toLowerCase());
+        }
+      }
+    }
 
     while (walker.hasNext()) {
 
       Node currentNode = walker.nextNode();
       String nodeName = currentNode.getNodeName();
       short nodeType = currentNode.getNodeType();
+
+      if (nodeName != null) {
+        if (lcExcludedElementNames.contains(nodeName.toLowerCase())) {
+          walker.skipChildren();
+        }
+      }
 
       if ("script".equalsIgnoreCase(nodeName)) {
         walker.skipChildren();
@@ -244,7 +256,7 @@ public class DOMContentUtils {
 
       if (nodeType == Node.ELEMENT_NODE) {
         if ("title".equalsIgnoreCase(nodeName)) {
-          getText(sb, currentNode);
+          getText(sb, currentNode, null);
           return true;
         }
       }
@@ -380,7 +392,7 @@ public class DOMContentUtils {
           if (!shouldThrowAwayLink(currentNode, children, childLen, params)) {
 
             StringBuffer linkText = new StringBuffer();
-            getText(linkText, currentNode, true);
+            getText(linkText, currentNode, true, null);
             if (linkText.toString().trim().length() == 0) {
               // try harder - use img alt if present
               NodeWalker subWalker = new NodeWalker(currentNode);

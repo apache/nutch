@@ -19,11 +19,7 @@ package org.apache.nutch.parse.tika;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.MapWritable;
@@ -49,10 +45,10 @@ public class DOMContentUtils {
   private boolean keepNodenames;
 
   private static class LinkParams {
+
     private String elName;
     private String attrName;
     private int childLen;
-
     private LinkParams(String elName, String attrName, int childLen) {
       this.elName = elName;
       this.attrName = attrName;
@@ -62,12 +58,12 @@ public class DOMContentUtils {
     public String toString() {
       return "LP[el=" + elName + ",attr=" + attrName + ",len=" + childLen + "]";
     }
-  }
 
+  }
   private HashMap<String, LinkParams> linkParams = new HashMap<String, LinkParams>();
+
   private HashSet<String> ignoredTags = new HashSet<String>();
   private Configuration conf;
-
   public DOMContentUtils(Configuration conf) {
     setConf(conf);
   }
@@ -107,23 +103,24 @@ public class DOMContentUtils {
   }
 
   /**
-   * This method takes a {@link StringBuffer} and a DOM {@link Node}, and will
+   * This method takes a {@link StringBuffer}, a DOM {@link Node}
+   * and an excluded element {@link Set}, and will
    * append all the content text found beneath the DOM node to the
-   * <code>StringBuffer</code>.
-   * 
+   * <code>StringBuffer</code> without the mentioned element names in the <code>Set</code>.
+   *
    * <p>
-   * 
+   *
    * If <code>abortOnNestedAnchors</code> is true, DOM traversal will be aborted
    * and the <code>StringBuffer</code> will not contain any text encountered
    * after a nested anchor is found.
-   * 
+   *
    * <p>
-   * 
+   *
    * @return true if nested anchors were found
    */
   private boolean getText(StringBuffer sb, Node node,
-      boolean abortOnNestedAnchors) {
-    if (getTextHelper(sb, node, abortOnNestedAnchors, 0)) {
+                          boolean abortOnNestedAnchors, Set<String> excludedElementNames) {
+    if (getTextHelper(sb, node, abortOnNestedAnchors, 0, excludedElementNames)) {
       return true;
     }
     return false;
@@ -131,25 +128,39 @@ public class DOMContentUtils {
 
   /**
    * This is a convinience method, equivalent to
-   * {@link #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
-   * 
+   * {@link #getText(StringBuffer, Node, boolean, Set) getText(sb, node, false, excludedElementNames)}.
+   *
    */
-  public void getText(StringBuffer sb, Node node) {
-    getText(sb, node, false);
+  public void getText(StringBuffer sb, Node node, Set<String> excludedElementNames) {
+    getText(sb, node, false, excludedElementNames);
   }
 
   // returns true if abortOnNestedAnchors is true and we find nested
   // anchors
   private boolean getTextHelper(StringBuffer sb, Node node,
-      boolean abortOnNestedAnchors, int anchorDepth) {
+                                boolean abortOnNestedAnchors, int anchorDepth, Set<String> excludedElementNames) {
     boolean abort = false;
     NodeWalker walker = new NodeWalker(node);
+    Set<String> lcExcludedElementNames = new HashSet<>();
+    if (excludedElementNames != null) {
+      for (String excludedElementName : excludedElementNames) {
+        if (excludedElementName != null) {
+          lcExcludedElementNames.add(excludedElementName.toLowerCase());
+        }
+      }
+    }
 
     while (walker.hasNext()) {
 
       Node currentNode = walker.nextNode();
       String nodeName = currentNode.getNodeName();
       short nodeType = currentNode.getNodeType();
+
+      if (nodeName != null) {
+        if (lcExcludedElementNames.contains(nodeName.toLowerCase())) {
+          walker.skipChildren();
+        }
+      }
 
       if ("script".equalsIgnoreCase(nodeName)) {
         walker.skipChildren();
@@ -230,7 +241,7 @@ public class DOMContentUtils {
    * This method takes a {@link StringBuffer} and a DOM {@link Node}, and will
    * append the content text found beneath the first <code>title</code> node to
    * the <code>StringBuffer</code>.
-   * 
+   *
    * @return true if a title node was found, false otherwise
    */
   public boolean getTitle(StringBuffer sb, Node node) {
@@ -249,7 +260,7 @@ public class DOMContentUtils {
 
       if (nodeType == Node.ELEMENT_NODE) {
         if ("title".equalsIgnoreCase(nodeName)) {
-          getText(sb, currentNode);
+          getText(sb, currentNode, null);
           return true;
         }
       }
@@ -385,7 +396,7 @@ public class DOMContentUtils {
           if (!shouldThrowAwayLink(currentNode, children, childLen, params)) {
 
             StringBuffer linkText = new StringBuffer();
-            getText(linkText, currentNode, true);
+            getText(linkText, currentNode, true, null);
 
             NamedNodeMap attrs = currentNode.getAttributes();
             String target = null;

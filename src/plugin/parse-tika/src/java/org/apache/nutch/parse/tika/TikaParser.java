@@ -20,9 +20,7 @@ import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -64,6 +62,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
+  public static final String ELEMENT_NAMES_SEPARATOR = ",";
 
   private Configuration conf;
   private TikaConfig tikaConfig = null;
@@ -76,9 +75,12 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   @SuppressWarnings("deprecation")
   public ParseResult getParse(Content content) {
     String mimeType = content.getContentType();
-    
+
     boolean useBoilerpipe = getConf().get("tika.extractor", "none").equals("boilerpipe");
     String boilerpipeExtractorName = getConf().get("tika.extractor.boilerpipe.algorithm", "ArticleExtractor");
+
+    String excludedElementNamesString = getConf().get("tika.content.exclude.element.names");
+    Set<String> excludedElementNames = excludedElementNamesString == null ? null : new HashSet<>(Arrays.asList(excludedElementNamesString.split(ELEMENT_NAMES_SEPARATOR)));
 
     URL base;
     try {
@@ -109,7 +111,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     DocumentFragment root = doc.createDocumentFragment();
 
     ContentHandler domHandler;
-    
+
     // Check whether to use Tika's BoilerplateContentHandler
     if (useBoilerpipe) {
       BoilerpipeContentHandler bpHandler = new BoilerpipeContentHandler((ContentHandler)new DOMBuilder(doc, root),
@@ -127,7 +129,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 
     ParseContext context = new ParseContext();
     TeeContentHandler teeContentHandler = new TeeContentHandler(domHandler, linkContentHandler);
-    
+
     if (HTMLMapper != null)
       context.set(HtmlMapper.class, HTMLMapper);
     tikamd.set(Metadata.CONTENT_TYPE, mimeType);
@@ -159,7 +161,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       if (LOG.isTraceEnabled()) {
         LOG.trace("Getting text...");
       }
-      utils.getText(sb, root); // extract text
+      utils.getText(sb, root, excludedElementNames); // extract text
       text = sb.toString();
       sb.setLength(0);
       if (LOG.isTraceEnabled()) {

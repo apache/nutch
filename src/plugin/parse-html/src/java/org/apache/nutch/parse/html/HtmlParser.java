@@ -18,8 +18,7 @@
 package org.apache.nutch.parse.html;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +48,7 @@ public class HtmlParser implements Parser {
   // (e.g. http://cn.promo.yahoo.com/customcare/music.html)
   // NUTCH-2042 (cf. TIKA-357): increased to 8 kB
   private static final int CHUNK_SIZE = 8192;
+  public static final String ELEMENT_NAMES_SEPARATOR = ",";
 
   // NUTCH-1006 Meta equiv with single quotes not accepted
   private static Pattern metaPattern = Pattern.compile(
@@ -132,6 +132,9 @@ public class HtmlParser implements Parser {
   public ParseResult getParse(Content content) {
     HTMLMetaTags metaTags = new HTMLMetaTags();
 
+    String excludedElementNamesString = getConf().get("html.content.exclude.element.names");
+    Set<String> excludedElementNames = excludedElementNamesString == null ? null : new HashSet<>(Arrays.asList(excludedElementNamesString.split(ELEMENT_NAMES_SEPARATOR)));
+
     URL base;
     try {
       base = new URL(content.getBaseUrl());
@@ -195,7 +198,7 @@ public class HtmlParser implements Parser {
       if (LOG.isTraceEnabled()) {
         LOG.trace("Getting text...");
       }
-      utils.getText(sb, root); // extract text
+      utils.getText(sb, root, excludedElementNames); // extract text
       text = sb.toString();
       sb.setLength(0);
       if (LOG.isTraceEnabled()) {
