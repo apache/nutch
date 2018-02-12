@@ -31,7 +31,6 @@ import javafx.util.Pair;
 
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
@@ -115,16 +114,10 @@ public class UpdateHostDbReducer implements
 
     stringDeltaExpression = job
         .get(UpdateHostDb.HOSTDB_UPDATEDB_DELTA_EXPRESSION);
+
     if (!org.apache.commons.lang3.StringUtils.isEmpty(stringDeltaExpression)) {
-      // Create or retrieve a JexlEngine
-      JexlEngine jexl = new JexlEngine();
-
-      // Dont't be silent and be strict
-      jexl.setSilent(true);
-      jexl.setStrict(true);
-
-      // Create an expression object
-      this.deltaExpression = jexl.createExpression(stringDeltaExpression);
+      this.deltaExpression = org.apache.nutch.util.JexlUtil
+          .parseExpression(stringDeltaExpression);
     }
 
     // Initialize the thread pool with our queue
