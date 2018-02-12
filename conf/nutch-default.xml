@@ -280,7 +280,7 @@
 <property>
   <name>http.proxy.exception.list</name>
   <value></value>
-  <description>A comma separated list of URL's and hosts that don't use the proxy 
+  <description>A comma separated list of hosts that don't use the proxy 
   (e.g. intranets). Example: www.apache.org</description>
 </property>
 
@@ -2748,6 +2748,14 @@ If true (default) the Sitemap parser rejects URLs not sharing the same
     these values may have unexpected effects on what is crawled. Use this
     only if you can trust the sitemap and if the values in the sitemap do
     fit with your crawler configuration.
+   </description>
+</property>
+
+<property>
+  <name>sitemap.redir.max</name>
+  <value>3</value>
+  <description>
+    Maximum number of redirects to follow.
    </description>
 </property>
 </configuration>

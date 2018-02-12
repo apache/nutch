@@ -91,13 +91,15 @@ public class SitemapProcessor extends Configured implements Tool {
   public static final String SITEMAP_URL_NORMALIZING = "sitemap.url.normalize";
   public static final String SITEMAP_ALWAYS_TRY_SITEMAPXML_ON_ROOT = "sitemap.url.default.sitemap.xml";
   public static final String SITEMAP_OVERWRITE_EXISTING = "sitemap.url.overwrite.existing";
-
+  public static final String SITEMAP_REDIR_MAX = "sitemap.redir.max";
+  
   private static class SitemapMapper extends Mapper<Text, Writable, Text, CrawlDatum> {
     private ProtocolFactory protocolFactory = null;
     private boolean strict = true;
     private boolean filter = true;
     private boolean normalize = true;
     private boolean tryDefaultSitemapXml = true;
+    private int maxRedir = 3;
     private URLFilters filters = null;
     private URLNormalizers normalizers = null;
     private CrawlDatum datum = new CrawlDatum();
@@ -110,6 +112,7 @@ public class SitemapProcessor extends Configured implements Tool {
       this.normalize = conf.getBoolean(SITEMAP_URL_NORMALIZING, true);
       this.strict = conf.getBoolean(SITEMAP_STRICT_PARSING, true);
       this.tryDefaultSitemapXml = conf.getBoolean(SITEMAP_ALWAYS_TRY_SITEMAPXML_ON_ROOT, true);
+      this.maxRedir = conf.getInt(SITEMAP_REDIR_MAX, 3);
       this.parser = new SiteMapParser(strict);
 
       if (filter) {
@@ -187,19 +190,21 @@ public class SitemapProcessor extends Configured implements Tool {
       ProtocolStatus status = output.getStatus();
       Content content = output.getContent();
 
-      // Following redirects http > https
-      if (!output.getStatus().isSuccess() && output.getStatus().isRedirect()) {
+      // Following redirects http > https and what else
+      int maxRedir = 3;
+      while (!output.getStatus().isSuccess() && output.getStatus().isRedirect() && maxRedir > 0) {
         String[] stuff = output.getStatus().getArgs();
-        url = stuff[0];
-
-        if (normalizers != null) {
-          url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
+        url = filterNormalize(stuff[0]);
+        
+        // get out!
+        if (url == null) {
+          break;
         }
-
-        // try again
         output = protocol.getProtocolOutput(new Text(url), datum);
         status = output.getStatus();
         content = output.getContent();
+        
+        maxRedir--;
       }
 
       if(status.getCode() != ProtocolStatus.SUCCESS) {
