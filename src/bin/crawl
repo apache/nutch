@@ -30,6 +30,10 @@
 #                                         specified second is used by default. [default: -1]
 #   -s <seed_dir>                         Path to seeds file(s)
 #   -sm <sitemap_dir>                     Path to sitemap URL file(s)
+#
+#   -hostdbupdate 			  Boolean indicator if we call hostdbupdate or not
+#   -hostdbgenerate 			  Boolean indicator if we use hostdb in generate or not
+#
 #   --num-slaves <num_slaves>             Number of slave nodes [default: 1]
 #                                         Note: This can only be set when running in distribution mode
 #   --num-tasks <num_tasks>               Number of reducer tasks [default: 2]
@@ -79,6 +83,8 @@ function __print_usage {
   echo -e "  \t\t\t\t\tspecified second is used by default. [default: -1]"
   echo -e "  -s <seed_dir>\t\t\t\tPath to seeds file(s)"
   echo -e "  -sm <sitemap_dir>\t\t\tPath to sitemap URL file(s)"
+  echo -e "  -hostdbupdate\t\t\t\tBoolean flag showing if we either update or not update hostdb for each round"
+  echo -e "  -hostdbgenerate\t\t\tBoolean flag showing if we use hostdb in generate or not"
   echo -e "  --num-slaves <num_slaves>\t\tNumber of slave nodes [default: 1]"
   echo -e "  \t\t\t\t\tNote: This can only be set when running in distribution mode"
   echo -e "  --num-tasks <num_tasks>\t\tNumber of reducer tasks [default: 2]"
@@ -96,6 +102,8 @@ function __print_usage {
 
 # default values
 INDEXFLAG=false
+HOSTDBUPDATE=false
+HOSTDBGENERATE=false
 JAVA_PROPERTIES=""
 WAIT=-1 # don't wait if there are no URLs to fetch
 SEEDDIR=""
@@ -152,6 +160,14 @@ do
         --sitemaps-from-hostdb)
             SITEMAPS_FROM_HOSTDB_FREQUENCY="${2}"
             shift 2
+            ;;
+        --hostdbupdate)
+            HOSTDBUPDATE=true
+            shift
+            ;;
+        --hostdbgenerate)
+            HOSTDBGENERATE=true
+            shift
             ;;
         *)
             break
@@ -267,8 +283,13 @@ do
     fi
   fi
 
-  echo "Generating a new segment"
-  generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_SLAVES -noFilter)
+  echo "Generating a new segment"  
+  if $HOSTDBGENERATE & $HOSTDBUPDATE; then
+   generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_SLAVES -noFilter -hostdb "$CRAWL_PATH"/hostdb)
+  else
+   generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_SLAVES -noFilter)
+  fi
+ 
   echo "$bin/nutch generate ${generate_args[@]}"
   $bin/nutch generate "${generate_args[@]}"
   RETCODE=$?
@@ -337,7 +358,9 @@ do
       echo "Skipping indexing ..."
   fi
 
+  if $HOSTDBUPDATE; then
   __update_hostdb
+  fi
 
   #######################################################
   # The following commands fall into WebGraph territory
