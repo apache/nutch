@@ -21,8 +21,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.util.StringUtils;
 
 import org.slf4j.Logger;
@@ -39,21 +38,19 @@ public class ResolverThread implements Runnable {
   protected String host = null;
   protected HostDatum datum = null;
   protected Text hostText = new Text();
-  protected OutputCollector<Text,HostDatum> output;
-  protected Reporter reporter;
+  protected Context context;
   protected int purgeFailedHostsThreshold;
 
   /**
    * Constructor.
    */
   public ResolverThread(String host, HostDatum datum,
-    OutputCollector<Text,HostDatum> output, Reporter reporter, int purgeFailedHostsThreshold) {
+    Context context, int purgeFailedHostsThreshold) {
 
     hostText.set(host);
     this.host = host;
     this.datum = datum;
-    this.output = output;
-    this.reporter = reporter;
+    this.context = context;
     this.purgeFailedHostsThreshold = purgeFailedHostsThreshold;
   }
 
@@ -67,30 +64,30 @@ public class ResolverThread implements Runnable {
       InetAddress inetAddr = InetAddress.getByName(host);
 
       if (datum.isEmpty()) {
-        reporter.incrCounter("UpdateHostDb", "new_known_host" ,1);
+        context.getCounter("UpdateHostDb", "new_known_host").increment(1);
         datum.setLastCheck();
         LOG.info(host + ": new_known_host " + datum);
       } else if (datum.getDnsFailures() > 0) {
-        reporter.incrCounter("UpdateHostDb", "rediscovered_host" ,1);
+        context.getCounter("UpdateHostDb", "rediscovered_host").increment(1);
         datum.setLastCheck();
         datum.setDnsFailures(0);
         LOG.info(host + ": rediscovered_host " + datum);
       } else {
-        reporter.incrCounter("UpdateHostDb", "existing_known_host", 1);
+        context.getCounter("UpdateHostDb", "existing_known_host").increment(1);
         datum.setLastCheck();
         LOG.info(host + ": existing_known_host " + datum);
       }
 
       // Write the host datum
-      output.collect(hostText, datum);
+      context.write(hostText, datum);
     } catch (UnknownHostException e) {
       try {
         // If the counter is empty we'll initialize with date = today and 1 failure
         if (datum.isEmpty()) {
           datum.setLastCheck();
           datum.setDnsFailures(1);
-          output.collect(hostText, datum);
-          reporter.incrCounter("UpdateHostDb", "new_unknown_host", 1);
+          context.write(hostText, datum);
+          context.getCounter("UpdateHostDb", "new_unknown_host").increment(1);
           LOG.info(host + ": new_unknown_host " + datum);
         } else {
           datum.setLastCheck();
@@ -100,17 +97,17 @@ public class ResolverThread implements Runnable {
           if (purgeFailedHostsThreshold == -1 ||
             purgeFailedHostsThreshold < datum.getDnsFailures()) {
 
-            output.collect(hostText, datum);
-            reporter.incrCounter("UpdateHostDb", "existing_unknown_host" ,1);
+            context.write(hostText, datum);
+            context.getCounter("UpdateHostDb", "existing_unknown_host").increment(1);
             LOG.info(host + ": existing_unknown_host " + datum);
           } else {
-            reporter.incrCounter("UpdateHostDb", "purged_unknown_host" ,1);
+            context.getCounter("UpdateHostDb", "purged_unknown_host").increment(1);
             LOG.info(host + ": purged_unknown_host " + datum);
           }
         }
 
-        reporter.incrCounter("UpdateHostDb",
-          Integer.toString(datum.numFailures()) + "_times_failed", 1);
+        context.getCounter("UpdateHostDb",
+          Integer.toString(datum.numFailures()) + "_times_failed").increment(1);
       } catch (Exception ioe) {
         LOG.warn(StringUtils.stringifyException(ioe));
       }
@@ -118,6 +115,6 @@ public class ResolverThread implements Runnable {
       LOG.warn(StringUtils.stringifyException(e));
     }
     
-    reporter.incrCounter("UpdateHostDb", "checked_hosts", 1);
+    context.getCounter("UpdateHostDb", "checked_hosts").increment(1);
   }
 }

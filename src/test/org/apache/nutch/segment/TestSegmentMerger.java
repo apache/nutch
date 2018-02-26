@@ -26,7 +26,7 @@ import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.After;
@@ -107,7 +107,7 @@ public class TestSegmentMerger {
     Path outSeg = stats[0].getPath();
     Text k = new Text();
     ParseText v = new ParseText();
-    MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new Path(
+    MapFile.Reader[] readers = MapFileOutputFormat.getReaders(new Path(
         outSeg, ParseText.DIR_NAME), conf);
     int cnt1 = 0, cnt2 = 0;
     for (MapFile.Reader r : readers) {

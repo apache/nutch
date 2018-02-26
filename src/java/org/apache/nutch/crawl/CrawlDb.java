@@ -28,8 +28,12 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.*;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.util.FSUtils;
@@ -65,7 +69,7 @@ public class CrawlDb extends NutchTool implements Tool {
   }
 
   public void update(Path crawlDb, Path[] segments, boolean normalize,
-      boolean filter) throws IOException {
+      boolean filter) throws IOException, InterruptedException, ClassNotFoundException {
     boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED,
         true);
     update(crawlDb, segments, normalize, filter, additionsAllowed, false);
@@ -73,18 +77,19 @@ public class CrawlDb extends NutchTool implements Tool {
 
   public void update(Path crawlDb, Path[] segments, boolean normalize,
       boolean filter, boolean additionsAllowed, boolean force)
-      throws IOException {
+      throws IOException, InterruptedException, ClassNotFoundException {
     Path lock = lock(getConf(), crawlDb, force);
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
 
-    JobConf job = CrawlDb.createJob(getConf(), crawlDb);
-    job.setBoolean(CRAWLDB_ADDITIONS_ALLOWED, additionsAllowed);
-    job.setBoolean(CrawlDbFilter.URL_FILTERING, filter);
-    job.setBoolean(CrawlDbFilter.URL_NORMALIZING, normalize);
+    Job job = CrawlDb.createJob(getConf(), crawlDb);
+    Configuration conf = job.getConfiguration();
+    conf.setBoolean(CRAWLDB_ADDITIONS_ALLOWED, additionsAllowed);
+    conf.setBoolean(CrawlDbFilter.URL_FILTERING, filter);
+    conf.setBoolean(CrawlDbFilter.URL_NORMALIZING, normalize);
 
-    boolean url404Purging = job.getBoolean(CRAWLDB_PURGE_404, false);
+    boolean url404Purging = conf.getBoolean(CRAWLDB_PURGE_404, false);
 
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb update: starting at " + sdf.format(start));
@@ -115,10 +120,10 @@ public class CrawlDb extends NutchTool implements Tool {
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb update: Merging segment data into db.");
     }
-    RunningJob crawlDBJob = null;
+
     try {
-      crawlDBJob = JobClient.runJob(job);
-    } catch (IOException e) {
+      int complete = job.waitForCompletion(true)?0:1;
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       FileSystem fs = crawlDb.getFileSystem(getConf());
       LockUtil.removeLockFile(fs, lock);
       Path outPath = FileOutputFormat.getOutputPath(job);
@@ -126,11 +131,12 @@ public class CrawlDb extends NutchTool implements Tool {
         fs.delete(outPath, true);
       throw e;
     }
+    
 
     CrawlDb.install(job, crawlDb);
 
     if (filter) {
-      long urlsFiltered = crawlDBJob.getCounters()
+      long urlsFiltered = job.getCounters()
           .findCounter("CrawlDB filter", "URLs filtered").getValue();
       LOG.info(
           "CrawlDb update: Total number of existing URLs in CrawlDb rejected by URL filters: {}",
@@ -145,30 +151,30 @@ public class CrawlDb extends NutchTool implements Tool {
   /*
    * Configure a new CrawlDb in a temp folder at crawlDb/<rand>
    */
-  public static JobConf createJob(Configuration config, Path crawlDb)
+  public static Job createJob(Configuration config, Path crawlDb)
       throws IOException {
     Path newCrawlDb = new Path(crawlDb, Integer.toString(new Random()
         .nextInt(Integer.MAX_VALUE)));
 
-    JobConf job = new NutchJob(config);
+    Job job = NutchJob.getInstance(config);
     job.setJobName("crawldb " + crawlDb);
 
     Path current = new Path(crawlDb, CURRENT_NAME);
-    if (current.getFileSystem(job).exists(current)) {
+    if (current.getFileSystem(job.getConfiguration()).exists(current)) {
       FileInputFormat.addInputPath(job, current);
     }
-    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
 
     job.setMapperClass(CrawlDbFilter.class);
     job.setReducerClass(CrawlDbReducer.class);
 
     FileOutputFormat.setOutputPath(job, newCrawlDb);
-    job.setOutputFormat(MapFileOutputFormat.class);
+    job.setOutputFormatClass(MapFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
 
     // https://issues.apache.org/jira/browse/NUTCH-1110
-    job.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    job.getConfiguration().setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
 
     return job;
   }
@@ -196,13 +202,7 @@ public class CrawlDb extends NutchTool implements Tool {
     }
   }
 
-  // old MapReduce API
-  public static void install(JobConf job, Path crawlDb) throws IOException {
-    Path tempCrawlDb = FileOutputFormat.getOutputPath(job);
-    install(job, crawlDb, tempCrawlDb);
-  }
 
-  // new MapReduce API
   public static void install(Job job, Path crawlDb) throws IOException {
     Configuration conf = job.getConfiguration();
     Path tempCrawlDb = org.apache.hadoop.mapreduce.lib.output.FileOutputFormat

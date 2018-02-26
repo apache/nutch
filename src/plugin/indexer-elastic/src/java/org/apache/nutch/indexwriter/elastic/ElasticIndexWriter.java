@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
@@ -76,21 +75,21 @@ public class ElasticIndexWriter implements IndexWriter {
   private Configuration config;
 
   @Override
-  public void open(JobConf job, String name) throws IOException {
-    bulkCloseTimeout = job.getLong(ElasticConstants.BULK_CLOSE_TIMEOUT,
+  public void open(Configuration conf, String name) throws IOException {
+    bulkCloseTimeout = conf.getLong(ElasticConstants.BULK_CLOSE_TIMEOUT,
         DEFAULT_BULK_CLOSE_TIMEOUT);
-    defaultIndex = job.get(ElasticConstants.INDEX, DEFAULT_INDEX);
+    defaultIndex = conf.get(ElasticConstants.INDEX, DEFAULT_INDEX);
 
-    int maxBulkDocs = job.getInt(ElasticConstants.MAX_BULK_DOCS,
+    int maxBulkDocs = conf.getInt(ElasticConstants.MAX_BULK_DOCS,
         DEFAULT_MAX_BULK_DOCS);
-    int maxBulkLength = job.getInt(ElasticConstants.MAX_BULK_LENGTH,
+    int maxBulkLength = conf.getInt(ElasticConstants.MAX_BULK_LENGTH,
         DEFAULT_MAX_BULK_LENGTH);
-    int expBackoffMillis = job.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
+    int expBackoffMillis = conf.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
         DEFAULT_EXP_BACKOFF_MILLIS);
-    int expBackoffRetries = job.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
+    int expBackoffRetries = conf.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
         DEFAULT_EXP_BACKOFF_RETRIES);
 
-    client = makeClient(job);
+    client = makeClient(conf);
 
     LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}", maxBulkDocs, maxBulkLength);
     bulkProcessor = BulkProcessor.builder(client, bulkProcessorListener())

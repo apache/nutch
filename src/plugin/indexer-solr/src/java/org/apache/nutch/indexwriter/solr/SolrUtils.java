@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -40,15 +40,15 @@ public class SolrUtils {
    * @param job
    * @return SolrClient
    */
-  public static ArrayList<SolrClient> getSolrClients(JobConf job) throws MalformedURLException {
-    String[] urls = job.getStrings(SolrConstants.SERVER_URL);
-    String[] zkHostString = job.getStrings(SolrConstants.ZOOKEEPER_HOSTS);
+  public static ArrayList<SolrClient> getSolrClients(Configuration conf) throws MalformedURLException {
+    String[] urls = conf.getStrings(SolrConstants.SERVER_URL);
+    String[] zkHostString = conf.getStrings(SolrConstants.ZOOKEEPER_HOSTS);
     ArrayList<SolrClient> solrClients = new ArrayList<SolrClient>();
     
     if (zkHostString != null && zkHostString.length > 0) {
       for (int i = 0; i < zkHostString.length; i++) {
         CloudSolrClient sc = getCloudSolrClient(zkHostString[i]);
-        sc.setDefaultCollection(job.get(SolrConstants.COLLECTION));
+        sc.setDefaultCollection(conf.get(SolrConstants.COLLECTION));
         solrClients.add(sc);
       }
     } else {

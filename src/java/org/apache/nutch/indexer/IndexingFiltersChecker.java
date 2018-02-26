@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -255,7 +255,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
 
     if (getConf().getBoolean("doIndex", false) && doc != null) {
       IndexWriters writers = new IndexWriters(getConf());
-      writers.open(new JobConf(getConf()), "IndexingFilterChecker");
+      writers.open(getConf(), "IndexingFilterChecker");
       writers.write(doc);
       writers.close();
     }

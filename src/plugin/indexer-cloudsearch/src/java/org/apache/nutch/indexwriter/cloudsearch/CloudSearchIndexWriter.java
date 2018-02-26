@@ -34,7 +34,6 @@ import java.util.Map.Entry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
@@ -86,14 +85,14 @@ public class CloudSearchIndexWriter implements IndexWriter {
   private String regionName;
 
   @Override
-  public void open(JobConf job, String name) throws IOException {
+  public void open(Configuration conf, String name) throws IOException {
     LOG.debug("CloudSearchIndexWriter.open() name={} ", name);
 
-    maxDocsInBatch = job.getInt(CloudSearchConstants.MAX_DOCS_BATCH, -1);
+    maxDocsInBatch = conf.getInt(CloudSearchConstants.MAX_DOCS_BATCH, -1);
 
     buffer = new StringBuffer(MAX_SIZE_BATCH_BYTES).append('[');
 
-    dumpBatchFilesToTemp = job.getBoolean(CloudSearchConstants.BATCH_DUMP,
+    dumpBatchFilesToTemp = conf.getBoolean(CloudSearchConstants.BATCH_DUMP,
         false);
 
     if (dumpBatchFilesToTemp) {
@@ -102,7 +101,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
       return;
     }
 
-    String endpoint = job.get(CloudSearchConstants.ENDPOINT);
+    String endpoint = conf.get(CloudSearchConstants.ENDPOINT);
 
     if (StringUtils.isBlank(endpoint)) {
       throw new RuntimeException("endpoint not set for CloudSearch");

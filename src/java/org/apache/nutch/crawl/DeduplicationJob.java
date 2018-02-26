@@ -31,18 +31,18 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.Counters.Group;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.RunningJob;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.mapreduce.CounterGroup;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -75,24 +75,22 @@ public class DeduplicationJob extends NutchTool implements Tool {
   private final static String DEDUPLICATION_GROUP_MODE = "deduplication.group.mode";
   private final static String DEDUPLICATION_COMPARE_ORDER = "deduplication.compare.order";
 
-  public static class DBFilter implements
+  public static class DBFilter extends
       Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum> {
       
     private String groupMode;
 
-    @Override
-    public void configure(JobConf arg0) {
+    public void setup(Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum>.Context context) {
+      Configuration arg0 = context.getConfiguration();
       groupMode = arg0.get(DEDUPLICATION_GROUP_MODE);
     }
 
-    @Override
     public void close() throws IOException {
     }
 
-    @Override
     public void map(Text key, CrawlDatum value,
-        OutputCollector<BytesWritable, CrawlDatum> output, Reporter reporter)
-        throws IOException {
+        Context context)
+        throws IOException, InterruptedException {
 
       if (value.getStatus() == CrawlDatum.STATUS_DB_FETCHED
           || value.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
@@ -125,58 +123,56 @@ public class DeduplicationJob extends NutchTool implements Tool {
         // add the URL as a temporary MD
         value.getMetaData().put(urlKey, key);
         // reduce on the signature optionall grouped on host or domain or not at all
-        output.collect(sig, value);
+        context.write(sig, value);
       }
     }
   }
 
-  public static class DedupReducer implements
+  public static class DedupReducer extends
       Reducer<BytesWritable, CrawlDatum, Text, CrawlDatum> {
 
     private String[] compareOrder;
     
-    @Override
-    public void configure(JobConf arg0) {
+    public void setup(Reducer<BytesWritable, CrawlDatum, Text, CrawlDatum>.Context context) {
+      Configuration arg0 = context.getConfiguration();
       compareOrder = arg0.get(DEDUPLICATION_COMPARE_ORDER).split(",");
     }
 
     private void writeOutAsDuplicate(CrawlDatum datum,
-        OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-        throws IOException {
+        Context context)
+        throws IOException, InterruptedException {
       datum.setStatus(CrawlDatum.STATUS_DB_DUPLICATE);
       Text key = (Text) datum.getMetaData().remove(urlKey);
-      reporter.incrCounter("DeduplicationJobStatus",
-          "Documents marked as duplicate", 1);
-      output.collect(key, datum);
+      context.getCounter("DeduplicationJobStatus",
+          "Documents marked as duplicate").increment(1);
+      context.write(key, datum);
     }
 
-    @Override
-    public void reduce(BytesWritable key, Iterator<CrawlDatum> values,
-        OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-        throws IOException {
+    public void reduce(BytesWritable key, Iterable<CrawlDatum> values,
+        Context context)
+        throws IOException, InterruptedException {
       CrawlDatum existingDoc = null;
 
       outerloop:
-      while (values.hasNext()) {
+      for (CrawlDatum newDoc : values) {
         if (existingDoc == null) {
           existingDoc = new CrawlDatum();
-          existingDoc.set(values.next());
+          existingDoc.set(newDoc);
           continue;
         }
-        CrawlDatum newDoc = values.next();
 
         for (int i = 0; i < compareOrder.length; i++) {
           switch (compareOrder[i]) {
             case "score":
               // compare based on score
               if (existingDoc.getScore() < newDoc.getScore()) {
-                writeOutAsDuplicate(existingDoc, output, reporter);
+                writeOutAsDuplicate(existingDoc, context);
                 existingDoc = new CrawlDatum();
                 existingDoc.set(newDoc);
                 continue outerloop;
               } else if (existingDoc.getScore() > newDoc.getScore()) {
                 // mark new one as duplicate
-                writeOutAsDuplicate(newDoc, output, reporter);
+                writeOutAsDuplicate(newDoc, context);
                 continue outerloop;
               }
               break;
@@ -184,11 +180,11 @@ public class DeduplicationJob extends NutchTool implements Tool {
               // same score? delete the one which is oldest
               if (existingDoc.getFetchTime() > newDoc.getFetchTime()) {
                 // mark new one as duplicate
-                writeOutAsDuplicate(newDoc, output, reporter);
+                writeOutAsDuplicate(newDoc, context);
                 continue outerloop;
               } else if (existingDoc.getFetchTime() < newDoc.getFetchTime()) {
                 // mark existing one as duplicate
-                writeOutAsDuplicate(existingDoc, output, reporter);
+                writeOutAsDuplicate(existingDoc, context);
                 existingDoc = new CrawlDatum();
                 existingDoc.set(newDoc);
                 continue outerloop;
@@ -207,11 +203,11 @@ public class DeduplicationJob extends NutchTool implements Tool {
               }
               if (urlExisting.length() < urlnewDoc.length()) {
                 // mark new one as duplicate
-                writeOutAsDuplicate(newDoc, output, reporter);
+                writeOutAsDuplicate(newDoc, context);
                 continue outerloop;
               } else if (urlExisting.length() > urlnewDoc.length()) {
                 // mark existing one as duplicate
-                writeOutAsDuplicate(existingDoc, output, reporter);
+                writeOutAsDuplicate(existingDoc, context);
                 existingDoc = new CrawlDatum();
                 existingDoc.set(newDoc);
                 continue outerloop;
@@ -223,17 +219,16 @@ public class DeduplicationJob extends NutchTool implements Tool {
       }
     }
 
-    @Override
     public void close() throws IOException {
 
     }
   }
 
   /** Combine multiple new entries for a url. */
-  public static class StatusUpdateReducer implements
+  public static class StatusUpdateReducer extends
       Reducer<Text, CrawlDatum, Text, CrawlDatum> {
 
-    public void configure(JobConf job) {
+    public void setup(Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
     }
 
     public void close() {
@@ -242,13 +237,12 @@ public class DeduplicationJob extends NutchTool implements Tool {
     private CrawlDatum old = new CrawlDatum();
     private CrawlDatum duplicate = new CrawlDatum();
 
-    public void reduce(Text key, Iterator<CrawlDatum> values,
-        OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-        throws IOException {
+    public void reduce(Text key, Iterable<CrawlDatum> values,
+        Context context)
+        throws IOException, InterruptedException {
       boolean duplicateSet = false;
 
-      while (values.hasNext()) {
-        CrawlDatum val = values.next();
+      for (CrawlDatum val : values) {
         if (val.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
           duplicate.set(val);
           duplicateSet = true;
@@ -259,12 +253,12 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
       // keep the duplicate if there is one
       if (duplicateSet) {
-        output.collect(key, duplicate);
+        context.write(key, duplicate);
         return;
       }
 
       // no duplicate? keep old one then
-      output.collect(key, old);
+      context.write(key, old);
     }
   }
 
@@ -297,21 +291,21 @@ public class DeduplicationJob extends NutchTool implements Tool {
     long start = System.currentTimeMillis();
     LOG.info("DeduplicationJob: starting at " + sdf.format(start));
 
-    Path tempDir = new Path(getConf().get("mapred.temp.dir", ".")
+    Path tempDir = new Path(getConf().get("mapreduce.cluster.temp.dir", ".")
         + "/dedup-temp-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    JobConf job = new NutchJob(getConf());
-
+    Job job = NutchJob.getInstance(getConf());
+    Configuration conf = job.getConfiguration();
     job.setJobName("Deduplication on " + crawldb);
-    job.set(DEDUPLICATION_GROUP_MODE, group);
-    job.set(DEDUPLICATION_COMPARE_ORDER, compareOrder);
+    conf.set(DEDUPLICATION_GROUP_MODE, group);
+    conf.set(DEDUPLICATION_COMPARE_ORDER, compareOrder);
 
     FileInputFormat.addInputPath(job, new Path(crawldb, CrawlDb.CURRENT_NAME));
-    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
 
     FileOutputFormat.setOutputPath(job, tempDir);
-    job.setOutputFormat(SequenceFileOutputFormat.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
     job.setMapOutputKeyClass(BytesWritable.class);
     job.setMapOutputValueClass(CrawlDatum.class);
@@ -323,10 +317,11 @@ public class DeduplicationJob extends NutchTool implements Tool {
     job.setReducerClass(DedupReducer.class);
 
     try {
-      RunningJob rj = JobClient.runJob(job);
-      Group g = rj.getCounters().getGroup("DeduplicationJobStatus");
+      int complete = job.waitForCompletion(true)?0:1;
+      CounterGroup g = job.getCounters().getGroup("DeduplicationJobStatus");
       if (g != null) {
-        long dups = g.getCounter("Documents marked as duplicate");
+        Counter counter = g.findCounter("Documents marked as duplicate");
+        long dups = counter.getValue();
         LOG.info("Deduplication: " + (int) dups
             + " documents marked as duplicates");
       }
@@ -341,12 +336,12 @@ public class DeduplicationJob extends NutchTool implements Tool {
     }
 
     Path dbPath = new Path(crawldb);
-    JobConf mergeJob = CrawlDb.createJob(getConf(), dbPath);
+    Job mergeJob = CrawlDb.createJob(getConf(), dbPath);
     FileInputFormat.addInputPath(mergeJob, tempDir);
     mergeJob.setReducerClass(StatusUpdateReducer.class);
 
     try {
-      JobClient.runJob(mergeJob);
+      int complete = job.waitForCompletion(true)?0:1;
     } catch (final Exception e) {
       LOG.error("DeduplicationMergeJob: " + StringUtils.stringifyException(e));
       return -1;

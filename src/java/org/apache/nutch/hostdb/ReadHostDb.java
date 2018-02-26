@@ -34,9 +34,9 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -48,6 +48,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
+import org.apache.nutch.util.SegmentReaderUtil;
 
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.Expression;
@@ -222,7 +223,7 @@ public class ReadHostDb extends Configured implements Tool {
   
   private void getHostDbRecord(Path hostDb, String host) throws Exception {
     Configuration conf = getConf();
-    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(conf, hostDb);
+    SequenceFile.Reader[] readers = SegmentReaderUtil.getReaders(hostDb, conf);
 
     Class<?> keyClass = readers[0].getKeyClass();
     Class<?> valueClass = readers[0].getValueClass();

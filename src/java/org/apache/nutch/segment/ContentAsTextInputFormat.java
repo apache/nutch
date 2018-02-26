@@ -21,12 +21,13 @@ import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileSplit;
-import org.apache.hadoop.mapred.InputSplit;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.RecordReader;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.SequenceFileRecordReader;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileRecordReader;
 import org.apache.nutch.protocol.Content;
 
 /**
@@ -37,7 +38,7 @@ import org.apache.nutch.protocol.Content;
 public class ContentAsTextInputFormat extends
     SequenceFileInputFormat<Text, Text> {
 
-  private static class ContentAsTextRecordReader implements
+  private static class ContentAsTextRecordReader extends
       RecordReader<Text, Text> {
 
     private final SequenceFileRecordReader<Text, Content> sequenceFileRecordReader;
@@ -47,25 +48,33 @@ public class ContentAsTextInputFormat extends
 
     public ContentAsTextRecordReader(Configuration conf, FileSplit split)
         throws IOException {
-      sequenceFileRecordReader = new SequenceFileRecordReader<>(
-          conf, split);
-      innerKey = sequenceFileRecordReader.createKey();
-      innerValue = sequenceFileRecordReader.createValue();
+      sequenceFileRecordReader = new SequenceFileRecordReader<Text, Content>();
+      innerKey = new Text();
+      innerValue = new Content();
     }
 
-    public Text createKey() {
+    public Text getCurrentValue(){
       return new Text();
     }
 
-    public Text createValue() {
+    public Text getCurrentKey(){
       return new Text();
     }
 
-    public synchronized boolean next(Text key, Text value) throws IOException {
+    public boolean nextKeyValue(){
+      return false;
+    }
+
+    public void initialize(InputSplit split, TaskAttemptContext context){
+
+    }
+
+    public synchronized boolean next(Text key, Text value) 
+        throws IOException, InterruptedException {
 
       // convert the content object to text
       Text tKey = key;
-      if (!sequenceFileRecordReader.next(innerKey, innerValue)) {
+      if (!sequenceFileRecordReader.nextKeyValue()) {
         return false;
       }
       tKey.set(innerKey.toString());
@@ -82,9 +91,9 @@ public class ContentAsTextInputFormat extends
       return sequenceFileRecordReader.getProgress();
     }
 
-    public synchronized long getPos() throws IOException {
+    /*public synchronized long getPos() throws IOException {
       return sequenceFileRecordReader.getPos();
-    }
+    }*/
 
     public synchronized void close() throws IOException {
       sequenceFileRecordReader.close();
@@ -96,9 +105,10 @@ public class ContentAsTextInputFormat extends
   }
 
   public RecordReader<Text, Text> getRecordReader(InputSplit split,
-      JobConf job, Reporter reporter) throws IOException {
+      Job job, Context context) throws IOException {
 
-    reporter.setStatus(split.toString());
-    return new ContentAsTextRecordReader(job, (FileSplit) split);
+    context.setStatus(split.toString());
+    Configuration conf = job.getConfiguration();
+    return new ContentAsTextRecordReader(conf, (FileSplit) split);
   }
 }
