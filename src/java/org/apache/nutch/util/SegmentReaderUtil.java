@@ -14,36 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.fetcher;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 
-public class FetchNodeDb {
+package org.apache.nutch.util;
 
-  private Map<Integer, FetchNode> fetchNodeDbMap;
-  private int index;
-  private static FetchNodeDb fetchNodeDbInstance = null;
+import java.util.Arrays;
+import java.io.IOException;
+
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.conf.Configuration;
+
+public class SegmentReaderUtil{
   
-  public FetchNodeDb(){    
-    fetchNodeDbMap = new ConcurrentHashMap<>();
-    index = 1;
-  }
-  
-  public static FetchNodeDb getInstance(){
-    
-    if(fetchNodeDbInstance == null){
-      fetchNodeDbInstance = new FetchNodeDb();
+  public static SequenceFile.Reader[] getReaders(Path dir, Configuration conf) throws IOException{
+    FileSystem fs = dir.getFileSystem(conf);
+    Path[] names = FileUtil.stat2Paths(fs.listStatus(dir));
+    Arrays.sort(names);
+    SequenceFile.Reader[] parts = new SequenceFile.Reader[names.length];
+    for (int i = 0; i < names.length; i++) {
+      parts[i] = new SequenceFile.Reader(conf, SequenceFile.Reader.file(names[i]));
     }
-    return fetchNodeDbInstance;
+    return parts;
   }
-  
-  public void put(String url, FetchNode fetchNode){
-    System.out.println("FetchNodeDb : putting node - " + fetchNode.hashCode());
-    fetchNodeDbMap.put(index++, fetchNode);    
-  }  
-  public Map<Integer, FetchNode> getFetchNodeDb(){
-    return fetchNodeDbMap;
-  }
+
 }

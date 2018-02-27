@@ -17,6 +17,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.crawl.CrawlDatum;
@@ -33,6 +33,10 @@ import static org.apache.nutch.crawl.CrawlDatum.*;
 
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Reducer.Context;
+import org.apache.hadoop.io.Text;
 
 import static org.junit.Assert.*;
 
@@ -81,7 +85,7 @@ public class TestCrawlDbStates {
 
   /** CrawlDatum as result of a link */
   protected final CrawlDatum linked = new CrawlDatum(STATUS_LINKED,
-      CrawlDBTestUtil.createConfiguration().getInt("db.fetch.interval.default",
+      CrawlDBTestUtil.createContext().getConfiguration().getInt("db.fetch.interval.default",
           2592000), 0.1f);
 
   /**
@@ -98,15 +102,21 @@ public class TestCrawlDbStates {
   @Test
   public void testCrawlDbStateTransitionMatrix() {
     LOG.info("Test CrawlDatum state transitions");
-    Configuration conf = CrawlDBTestUtil.createConfiguration();
-    CrawlDbUpdateUtil<CrawlDbReducer> updateDb = new CrawlDbUpdateUtil<CrawlDbReducer>(
-        new CrawlDbReducer(), conf);
+    Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context = CrawlDBTestUtil.createContext();
+    Configuration conf = context.getConfiguration();
+    CrawlDbUpdateUtil updateDb = null;
+    try {
+      updateDb = new CrawlDbUpdateUtil(
+          new CrawlDbReducer(), context);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     int retryMax = conf.getInt("db.fetch.retry.max", 3);
     for (String sched : schedules) {
       LOG.info("Testing state transitions with " + sched);
       conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
       FetchSchedule schedule = FetchScheduleFactory
-          .getFetchSchedule(new JobConf(conf));
+          .getFetchSchedule(conf);
       for (int i = 0; i < fetchDbStatusPairs.length; i++) {
         byte fromDbStatus = fetchDbStatusPairs[i][1];
         for (int j = 0; j < fetchDbStatusPairs.length; j++) {
@@ -197,7 +207,7 @@ public class TestCrawlDbStates {
   @Test
   public void testCrawlDbStatTransitionInject() {
     LOG.info("Test CrawlDatum states in Injector after inject");
-    Configuration conf = CrawlDBTestUtil.createConfiguration();
+    Configuration conf = CrawlDBTestUtil.createContext().getConfiguration();
     Injector.InjectReducer injector = new Injector.InjectReducer();
     CrawlDbUpdateTestDriver<Injector.InjectReducer> injectDriver =
         new CrawlDbUpdateTestDriver<Injector.InjectReducer>(injector, conf);
@@ -206,7 +216,7 @@ public class TestCrawlDbStates {
       LOG.info("Testing inject with " + sched);
       conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
       FetchSchedule schedule = FetchScheduleFactory
-          .getFetchSchedule(new JobConf(conf));
+          .getFetchSchedule(conf);
       List<CrawlDatum> values = new ArrayList<CrawlDatum>();
       for (int i = 0; i < fetchDbStatusPairs.length; i++) {
         byte fromDbStatus = fetchDbStatusPairs[i][1];
@@ -269,15 +279,20 @@ public class TestCrawlDbStates {
   @Test
   public void testCrawlDbReducerNotModified() {
     LOG.info("Test state notmodified");
-    Configuration conf = CrawlDBTestUtil.createConfiguration();
+    Context context = CrawlDBTestUtil.createContext();
+    Configuration conf = context.getConfiguration();;
     // test not modified detected by signature comparison
     for (String sched : schedules) {
       String desc = "test notmodified by signature comparison + " + sched;
       LOG.info(desc);
       conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
-      ContinuousCrawlTestUtil crawlUtil = new CrawlTestFetchNotModified(conf);
-      if (!crawlUtil.run(20)) {
-        fail("failed: " + desc);
+      ContinuousCrawlTestUtil crawlUtil = new CrawlTestFetchNotModified(context);
+      try {
+        if (!crawlUtil.run(20)) {
+          fail("failed: " + desc);
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
     // test not modified detected by HTTP 304
@@ -286,9 +301,13 @@ public class TestCrawlDbStates {
       LOG.info(desc);
       conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
       ContinuousCrawlTestUtil crawlUtil = new CrawlTestFetchNotModifiedHttp304(
-          conf);
-      if (!crawlUtil.run(20)) {
-        fail("failed: " + desc);
+          context);
+      try {
+        if (!crawlUtil.run(20)) {
+          fail("failed: " + desc);
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
   }
@@ -313,15 +332,16 @@ public class TestCrawlDbStates {
     private long maxFetchInterval;
     private FetchSchedule schedule;
 
-    CrawlTestFetchNotModified(Configuration conf) {
-      super(conf);
+    CrawlTestFetchNotModified(Reducer.Context context) {
+      super(context);
+      Configuration conf = context.getConfiguration();
       maxFetchInterval = conf.getLong("db.fetch.interval.max", 7776000); // default
                                                                          // = 90
                                                                          // days
       maxFetchInterval += (24 * 60 * 60); // but take one day more to avoid
                                           // false alarms
       maxFetchInterval *= 1000; // in milli-seconds
-      schedule = FetchScheduleFactory.getFetchSchedule(new JobConf(conf));
+      schedule = FetchScheduleFactory.getFetchSchedule(conf);
     }
 
     @Override
@@ -422,8 +442,8 @@ public class TestCrawlDbStates {
   protected class CrawlTestFetchNotModifiedHttp304 extends
       CrawlTestFetchNotModified {
 
-    CrawlTestFetchNotModifiedHttp304(Configuration conf) {
-      super(conf);
+    CrawlTestFetchNotModifiedHttp304(Context context) {
+      super(context);
     }
 
     @Override
@@ -468,8 +488,12 @@ public class TestCrawlDbStates {
     LOG.info("NUTCH-1245: test long running continuous crawl");
     ContinuousCrawlTestUtil crawlUtil = new ContinuousCrawlTestUtil(
         STATUS_FETCH_GONE, STATUS_DB_GONE);
-    if (!crawlUtil.run(20)) {
-      fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
+    try {
+      if (!crawlUtil.run(20)) {
+        fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
@@ -483,13 +507,18 @@ public class TestCrawlDbStates {
   @Test
   public void testCrawlDbReducerPageGoneSchedule2() {
     LOG.info("NUTCH-1245 (misconfiguration): test with db.fetch.interval.default > (1.5 * db.fetch.interval.max)");
-    Configuration conf = CrawlDBTestUtil.createConfiguration();
+    Context context = CrawlDBTestUtil.createContext();
+    Configuration conf = context.getConfiguration();
     int fetchIntervalMax = conf.getInt("db.fetch.interval.max", 0);
     conf.setInt("db.fetch.interval.default", 3 + (int) (fetchIntervalMax * 1.5));
-    ContinuousCrawlTestUtil crawlUtil = new ContinuousCrawlTestUtil(conf,
+    ContinuousCrawlTestUtil crawlUtil = new ContinuousCrawlTestUtil(context,
         STATUS_FETCH_GONE, STATUS_DB_GONE);
-    if (!crawlUtil.run(0)) {
-      fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
+    try {
+      if (!crawlUtil.run(0)) {
+        fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
@@ -504,13 +533,18 @@ public class TestCrawlDbStates {
   @Test
   public void testSignatureReset() {
     LOG.info("NUTCH-1422 must reset signature for redirects and similar states");
-    Configuration conf = CrawlDBTestUtil.createConfiguration();
+    Context context = CrawlDBTestUtil.createContext();
+    Configuration conf = context.getConfiguration();
     for (String sched : schedules) {
       LOG.info("Testing reset signature with " + sched);
       conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
-      ContinuousCrawlTestUtil crawlUtil = new CrawlTestSignatureReset(conf);
-      if (!crawlUtil.run(20)) {
-        fail("failed: signature not reset");
+      ContinuousCrawlTestUtil crawlUtil = new CrawlTestSignatureReset(context);
+      try {
+        if (!crawlUtil.run(20)) {
+          fail("failed: signature not reset");
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
   }
@@ -524,8 +558,8 @@ public class TestCrawlDbStates {
     int counter = 0;
     byte fetchState;
 
-    public CrawlTestSignatureReset(Configuration conf) {
-      super(conf);
+    public CrawlTestSignatureReset(Context context) {
+      super(context);
     }
 
     @Override

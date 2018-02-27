@@ -38,16 +38,14 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapFileOutputFormat;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -62,82 +60,86 @@ import org.apache.nutch.util.TimingUtil;
  * Any score that is not in the node database is set to the clear score in the
  * crawl database.
  */
-public class ScoreUpdater extends Configured implements Tool,
-    Mapper<Text, Writable, Text, ObjectWritable>,
-    Reducer<Text, ObjectWritable, Text, CrawlDatum> {
+public class ScoreUpdater extends Configured implements Tool{
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private JobConf conf;
-  private float clearScore = 0.0f;
-
-  public void configure(JobConf conf) {
-    this.conf = conf;
-    clearScore = conf.getFloat("link.score.updater.clear.score", 0.0f);
-  }
-
   /**
    * Changes input into ObjectWritables.
    */
-  public void map(Text key, Writable value,
-      OutputCollector<Text, ObjectWritable> output, Reporter reporter)
-      throws IOException {
+  public static class ScoreUpdaterMapper extends
+      Mapper<Text, Writable, Text, ObjectWritable> {
 
-    ObjectWritable objWrite = new ObjectWritable();
-    objWrite.set(value);
-    output.collect(key, objWrite);
+    @Override
+    public void map(Text key, Writable value,
+        Context context)
+        throws IOException, InterruptedException {
+
+      ObjectWritable objWrite = new ObjectWritable();
+      objWrite.set(value);
+      context.write(key, objWrite);
+    }
   }
 
   /**
    * Creates new CrawlDatum objects with the updated score from the NodeDb or
    * with a cleared score.
    */
-  public void reduce(Text key, Iterator<ObjectWritable> values,
-      OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-      throws IOException {
+  public static class ScoreUpdaterReducer extends 
+      Reducer<Text, ObjectWritable, Text, CrawlDatum> {
+    private float clearScore = 0.0f;
 
-    String url = key.toString();
-    Node node = null;
-    CrawlDatum datum = null;
-
-    // set the node and the crawl datum, should be one of each unless no node
-    // for url in the crawldb
-    while (values.hasNext()) {
-      ObjectWritable next = values.next();
-      Object value = next.get();
-      if (value instanceof Node) {
-        node = (Node) value;
-      } else if (value instanceof CrawlDatum) {
-        datum = (CrawlDatum) value;
-      }
+    @Override
+    public void setup(Reducer<Text, ObjectWritable, Text, CrawlDatum>.Context context) {
+      Configuration conf = context.getConfiguration();
+      clearScore = conf.getFloat("link.score.updater.clear.score", 0.0f);
     }
 
-    // datum should never be null, could happen if somehow the url was
-    // normalized or changed after being pulled from the crawldb
-    if (datum != null) {
+    @Override
+    public void reduce(Text key, Iterable<ObjectWritable> values,
+        Context context)
+        throws IOException, InterruptedException {
 
-      if (node != null) {
+      String url = key.toString();
+      Node node = null;
+      CrawlDatum datum = null;
 
-        // set the inlink score in the nodedb
-        float inlinkScore = node.getInlinkScore();
-        datum.setScore(inlinkScore);
-        LOG.debug(url + ": setting to score " + inlinkScore);
+      // set the node and the crawl datum, should be one of each unless no node
+      // for url in the crawldb
+      for (ObjectWritable next : values) {
+        Object value = next.get();
+        if (value instanceof Node) {
+          node = (Node) value;
+        } else if (value instanceof CrawlDatum) {
+          datum = (CrawlDatum) value;
+        }
+      }
+
+      // datum should never be null, could happen if somehow the url was
+      // normalized or changed after being pulled from the crawldb
+      if (datum != null) {
+
+        if (node != null) {
+
+          // set the inlink score in the nodedb
+          float inlinkScore = node.getInlinkScore();
+          datum.setScore(inlinkScore);
+          LOG.debug(url + ": setting to score " + inlinkScore);
+        } else {
+
+          // clear out the score in the crawldb
+          datum.setScore(clearScore);
+          LOG.debug(url + ": setting to clear score of " + clearScore);
+        }
+
+        context.write(key, datum);
       } else {
-
-        // clear out the score in the crawldb
-        datum.setScore(clearScore);
-        LOG.debug(url + ": setting to clear score of " + clearScore);
+        LOG.debug(url + ": no datum");
       }
-
-      output.collect(key, datum);
-    } else {
-      LOG.debug(url + ": no datum");
     }
   }
 
-  public void close() {
-  }
 
   /**
    * Updates the inlink score in the web graph node databsae into the crawl
@@ -151,7 +153,8 @@ public class ScoreUpdater extends Configured implements Tool,
    * @throws IOException
    *           If an error occurs while updating the scores.
    */
-  public void update(Path crawlDb, Path webGraphDb) throws IOException {
+  public void update(Path crawlDb, Path webGraphDb) throws IOException,
+      ClassNotFoundException, InterruptedException {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -167,23 +170,24 @@ public class ScoreUpdater extends Configured implements Tool,
         .nextInt(Integer.MAX_VALUE)));
 
     // run the updater job outputting to the temp crawl database
-    JobConf updater = new NutchJob(conf);
+    Job updater = NutchJob.getInstance(conf);
     updater.setJobName("Update CrawlDb from WebGraph");
     FileInputFormat.addInputPath(updater, crawlDbCurrent);
     FileInputFormat.addInputPath(updater, nodeDb);
     FileOutputFormat.setOutputPath(updater, newCrawlDb);
-    updater.setInputFormat(SequenceFileInputFormat.class);
-    updater.setMapperClass(ScoreUpdater.class);
-    updater.setReducerClass(ScoreUpdater.class);
+    updater.setInputFormatClass(SequenceFileInputFormat.class);
+    updater.setJarByClass(ScoreUpdater.class);
+    updater.setMapperClass(ScoreUpdater.ScoreUpdaterMapper.class);
+    updater.setReducerClass(ScoreUpdater.ScoreUpdaterReducer.class);
     updater.setMapOutputKeyClass(Text.class);
     updater.setMapOutputValueClass(ObjectWritable.class);
     updater.setOutputKeyClass(Text.class);
     updater.setOutputValueClass(CrawlDatum.class);
-    updater.setOutputFormat(MapFileOutputFormat.class);
+    updater.setOutputFormatClass(MapFileOutputFormat.class);
 
     try {
-      JobClient.runJob(updater);
-    } catch (IOException e) {
+      int complete = updater.waitForCompletion(true)?0:1;
+    } catch (IOException | ClassNotFoundException | InterruptedException e) {
       LOG.error(StringUtils.stringifyException(e));
 
       // remove the temp crawldb on error

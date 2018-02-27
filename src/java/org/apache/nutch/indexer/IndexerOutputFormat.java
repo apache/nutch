@@ -18,29 +18,29 @@ package org.apache.nutch.indexer;
 
 import java.io.IOException;
 
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.RecordWriter;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 public class IndexerOutputFormat extends
     FileOutputFormat<Text, NutchIndexAction> {
 
   @Override
   public RecordWriter<Text, NutchIndexAction> getRecordWriter(
-      FileSystem ignored, JobConf job, String name, Progressable progress)
-      throws IOException {
+      TaskAttemptContext context) throws IOException {
 
-    final IndexWriters writers = new IndexWriters(job);
+    Configuration conf = context.getConfiguration();
+    final IndexWriters writers = new IndexWriters(conf);
 
-    writers.open(job, name);
+    String name = context.getTaskAttemptID().toString();
+    writers.open(conf, name);
 
     return new RecordWriter<Text, NutchIndexAction>() {
 
-      public void close(Reporter reporter) throws IOException {
+      public void close(TaskAttemptContext context) throws IOException {
         writers.close();
       }
 

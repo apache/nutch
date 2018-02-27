@@ -21,7 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
@@ -71,10 +71,10 @@ public class IndexWriters {
     }
   }
 
-  public void open(JobConf job, String name) throws IOException {
+  public void open(Configuration conf, String name) throws IOException {
     for (int i = 0; i < this.indexWriters.length; i++) {
       try {
-        this.indexWriters[i].open(job, name);
+        this.indexWriters[i].open(conf, name);
       } catch (IOException ioe) {
         throw ioe;
       }

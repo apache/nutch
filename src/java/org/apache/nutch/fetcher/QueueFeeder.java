@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.RecordReader;
+import org.apache.hadoop.mapreduce.RecordReader;
+import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +35,14 @@ public class QueueFeeder extends Thread {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
   
-  private RecordReader<Text, CrawlDatum> reader;
+  private Context context;
   private FetchItemQueues queues;
   private int size;
   private long timelimit = -1;
 
-  public QueueFeeder(RecordReader<Text, CrawlDatum> reader,
+  public QueueFeeder(Context context,
       FetchItemQueues queues, int size) {
-    this.reader = reader;
+    this.context = context;
     this.queues = queues;
     this.size = size;
     this.setDaemon(true);
@@ -61,12 +62,13 @@ public class QueueFeeder extends Thread {
         // enough .. lets' simply
         // read all the entries from the input without processing them
         try {
-          Text url = new Text();
-          CrawlDatum datum = new CrawlDatum();
-          hasMore = reader.next(url, datum);
+          hasMore = context.nextKeyValue();
           timelimitcount++;
         } catch (IOException e) {
           LOG.error("QueueFeeder error reading input, record " + cnt, e);
+          return;
+        } catch (InterruptedException e) {
+          LOG.info("QueueFeeder interrupted, exception: "+e);
           return;
         }
         continue;
@@ -84,22 +86,22 @@ public class QueueFeeder extends Thread {
         LOG.debug("-feeding " + feed + " input urls ...");
         while (feed > 0 && hasMore) {
           try {
-            Text url = new Text();
-            CrawlDatum datum = new CrawlDatum();
-            hasMore = reader.next(url, datum);
+            hasMore = context.nextKeyValue();
             if (hasMore) {
-              queues.addFetchItem(url, datum);
+              queues.addFetchItem((Text)context.getCurrentKey(),(CrawlDatum)context.getCurrentValue());
               cnt++;
               feed--;
             }
           } catch (IOException e) {
             LOG.error("QueueFeeder error reading input, record " + cnt, e);
             return;
+          } catch (InterruptedException e) {
+            LOG.info("QueueFeeder interrupted, exception: "+e);
           }
         }
       }
     }
     LOG.info("QueueFeeder finished: total " + cnt
-        + " records + hit by time limit :" + timelimitcount);
+        + " records hit by time limit :" + timelimitcount);
   }
 }

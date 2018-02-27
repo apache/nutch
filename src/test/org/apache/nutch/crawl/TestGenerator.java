@@ -53,7 +53,7 @@ public class TestGenerator {
 
   @Before
   public void setUp() throws Exception {
-    conf = CrawlDBTestUtil.createConfiguration();
+    conf = CrawlDBTestUtil.createContext().getConfiguration();
     fs = FileSystem.get(conf);
     fs.delete(testdir, true);
   }
@@ -91,7 +91,7 @@ public class TestGenerator {
     Path generatedSegment = generateFetchlist(NUM_RESULTS, conf, false);
 
     Path fetchlist = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     ArrayList<URLCrawlDatum> l = readContents(fetchlist);
 
@@ -151,7 +151,7 @@ public class TestGenerator {
         myConfiguration, false);
 
     Path fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
@@ -164,7 +164,7 @@ public class TestGenerator {
         false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     fetchList = readContents(fetchlistPath);
 
@@ -177,7 +177,7 @@ public class TestGenerator {
         false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     fetchList = readContents(fetchlistPath);
 
@@ -210,7 +210,7 @@ public class TestGenerator {
         myConfiguration, false);
 
     Path fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
@@ -223,7 +223,7 @@ public class TestGenerator {
         false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     fetchList = readContents(fetchlistPath);
 
@@ -236,7 +236,7 @@ public class TestGenerator {
         false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     fetchList = readContents(fetchlistPath);
 
@@ -273,7 +273,7 @@ public class TestGenerator {
         false);
 
     Path fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
@@ -320,9 +320,11 @@ public class TestGenerator {
    *          Configuration to use
    * @return path to generated segment
    * @throws IOException
+   * @throws InterruptedException 
+   * @throws ClassNotFoundException 
    */
   private Path generateFetchlist(int numResults, Configuration config,
-      boolean filter) throws IOException {
+      boolean filter) throws IOException, ClassNotFoundException, InterruptedException {
     // generate segment
     Generator g = new Generator(config);
     Path[] generatedSegment = g.generate(dbDir, segmentsDir, -1, numResults,

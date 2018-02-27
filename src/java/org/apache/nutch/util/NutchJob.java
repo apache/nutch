@@ -17,14 +17,21 @@
 
 package org.apache.nutch.util;
 
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Job;
 
-/** A {@link JobConf} for Nutch jobs. */
-public class NutchJob extends JobConf {
+/** A {@link Job} for Nutch jobs. */
+public class NutchJob extends Job {
 
-  public NutchJob(Configuration conf) {
-    super(conf, NutchJob.class);
+  @SuppressWarnings("deprecation")
+  public NutchJob(Configuration conf, String jobName) throws IOException {
+    super(conf, jobName);
   }
+
+  public static Job getInstance(Configuration conf) throws IOException {
+    return Job.getInstance(conf);
+  } 
 
 }

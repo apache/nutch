@@ -24,7 +24,14 @@ import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.*;
 import org.apache.nutch.metadata.Metadata;
@@ -43,20 +50,12 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /* Parse content in a segment. */
-public class ParseSegment extends NutchTool implements Tool,
-    Mapper<WritableComparable<?>, Content, Text, ParseImpl>,
-    Reducer<Text, Writable, Text, Writable> {
+public class ParseSegment extends NutchTool implements Tool {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String SKIP_TRUNCATED = "parser.skip.truncated";
-
-  private ScoringFilters scfilters;
-
-  private ParseUtil parseUtil;
-
-  private boolean skipTruncated;
 
   public ParseSegment() {
     this(null);
@@ -66,91 +65,102 @@ public class ParseSegment extends NutchTool implements Tool,
     super(conf);
   }
 
-  public void configure(JobConf job) {
-    setConf(job);
-    this.scfilters = new ScoringFilters(job);
-    skipTruncated = job.getBoolean(SKIP_TRUNCATED, true);
-  }
+  public static class ParseSegmentMapper extends
+     Mapper<WritableComparable<?>, Content, Text, ParseImpl> {
 
-  public void close() {
-  }
+    private ParseUtil parseUtil;
+    private Text newKey = new Text();
+    private ScoringFilters scfilters;
+    private boolean skipTruncated;
 
-  private Text newKey = new Text();
-
-  public void map(WritableComparable<?> key, Content content,
-      OutputCollector<Text, ParseImpl> output, Reporter reporter)
-      throws IOException {
-    // convert on the fly from old UTF8 keys
-    if (key instanceof Text) {
-      newKey.set(key.toString());
-      key = newKey;
+    @Override
+    public void setup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context) {
+      Configuration conf = context.getConfiguration();
+      //setConf(conf);
+      scfilters = new ScoringFilters(conf);
+      skipTruncated = conf.getBoolean(SKIP_TRUNCATED, true);
     }
 
-    String fetchStatus = content.getMetadata().get(Nutch.FETCH_STATUS_KEY);
-    if (fetchStatus == null) {
-      // no fetch status, skip document
-      LOG.debug("Skipping {} as content has no fetch status", key);
-      return;
-    } else if (Integer.parseInt(fetchStatus) != CrawlDatum.STATUS_FETCH_SUCCESS) {
-      // content not fetched successfully, skip document
-      LOG.debug("Skipping {} as content is not fetched successfully", key);
-      return;
+    @Override
+    public void cleanup(Context context){
     }
 
-    if (skipTruncated && isTruncated(content)) {
-      return;
-    }
-
-    long start = System.currentTimeMillis();
-    ParseResult parseResult = null;
-    try {
-      if (parseUtil == null)
-        parseUtil = new ParseUtil(getConf());
-      parseResult = parseUtil.parse(content);
-    } catch (Exception e) {
-      LOG.warn("Error parsing: " + key + ": "
-          + StringUtils.stringifyException(e));
-      return;
-    }
-
-    for (Entry<Text, Parse> entry : parseResult) {
-      Text url = entry.getKey();
-      Parse parse = entry.getValue();
-      ParseStatus parseStatus = parse.getData().getStatus();
-
-      reporter.incrCounter("ParserStatus",
-          ParseStatus.majorCodes[parseStatus.getMajorCode()], 1);
-
-      if (!parseStatus.isSuccess()) {
-        LOG.warn("Error parsing: " + key + ": " + parseStatus);
-        parse = parseStatus.getEmptyParse(getConf());
+    @Override
+    public void map(WritableComparable<?> key, Content content,
+        Context context)
+        throws IOException, InterruptedException {
+      // convert on the fly from old UTF8 keys
+      if (key instanceof Text) {
+        newKey.set(key.toString());
+        key = newKey;
       }
 
-      // pass segment name to parse data
-      parse.getData().getContentMeta()
-          .set(Nutch.SEGMENT_NAME_KEY, getConf().get(Nutch.SEGMENT_NAME_KEY));
+      String fetchStatus = content.getMetadata().get(Nutch.FETCH_STATUS_KEY);
+      if (fetchStatus == null) {
+        // no fetch status, skip document
+        LOG.debug("Skipping {} as content has no fetch status", key);
+        return;
+      } else if (Integer.parseInt(fetchStatus) != CrawlDatum.STATUS_FETCH_SUCCESS) {
+        // content not fetched successfully, skip document
+        LOG.debug("Skipping {} as content is not fetched successfully", key);
+        return;
+      }
 
-      // compute the new signature
-      byte[] signature = SignatureFactory.getSignature(getConf()).calculate(
-          content, parse);
-      parse.getData().getContentMeta()
-          .set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
+      if (skipTruncated && isTruncated(content)) {
+        return;
+      }
 
+      long start = System.currentTimeMillis();
+      ParseResult parseResult = null;
       try {
-        scfilters.passScoreAfterParsing(url, content, parse);
-      } catch (ScoringFilterException e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Error passing score: " + url + ": " + e.getMessage());
-        }
+        if (parseUtil == null)
+          parseUtil = new ParseUtil(context.getConfiguration());
+        parseResult = parseUtil.parse(content);
+      } catch (Exception e) {
+        LOG.warn("Error parsing: " + key + ": "
+            + StringUtils.stringifyException(e));
+        return;
       }
 
-      long end = System.currentTimeMillis();
-      LOG.info("Parsed (" + Long.toString(end - start) + "ms):" + url);
+      for (Entry<Text, Parse> entry : parseResult) {
+        Text url = entry.getKey();
+        Parse parse = entry.getValue();
+        ParseStatus parseStatus = parse.getData().getStatus();
 
-      output.collect(
-          url,
-          new ParseImpl(new ParseText(parse.getText()), parse.getData(), parse
-              .isCanonical()));
+        context.getCounter("ParserStatus",
+            ParseStatus.majorCodes[parseStatus.getMajorCode()]).increment(1);
+
+        if (!parseStatus.isSuccess()) {
+          LOG.warn("Error parsing: " + key + ": " + parseStatus);
+          parse = parseStatus.getEmptyParse(context.getConfiguration());
+        }
+
+        // pass segment name to parse data
+        parse.getData().getContentMeta()
+            .set(Nutch.SEGMENT_NAME_KEY, context.getConfiguration().get(Nutch.SEGMENT_NAME_KEY));
+
+        // compute the new signature
+        byte[] signature = SignatureFactory.getSignature(context.getConfiguration()).calculate(
+            content, parse);
+        parse.getData().getContentMeta()
+            .set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
+
+        try {
+          scfilters.passScoreAfterParsing(url, content, parse);
+        } catch (ScoringFilterException e) {
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Error passing score: " + url + ": " + e.getMessage());
+          }
+        }
+
+        long end = System.currentTimeMillis();
+        LOG.info("Parsed (" + Long.toString(end - start) + "ms):" + url);
+
+        context.write(
+            url,
+            new ParseImpl(new ParseText(parse.getText()), parse.getData(), parse
+                .isCanonical()));
+      }
     }
   }
 
@@ -196,13 +206,20 @@ public class ParseSegment extends NutchTool implements Tool,
     return false;
   }
 
-  public void reduce(Text key, Iterator<Writable> values,
-      OutputCollector<Text, Writable> output, Reporter reporter)
-      throws IOException {
-    output.collect(key, values.next()); // collect first value
+  public static class ParseSegmentReducer extends
+     Reducer<Text, Writable, Text, Writable> {
+
+    @Override
+    public void reduce(Text key, Iterable<Writable> values,
+        Context context)
+        throws IOException, InterruptedException {
+      Iterator<Writable> values_iter = values.iterator();
+      context.write(key, values_iter.next()); // collect first value
+    }
   }
 
-  public void parse(Path segment) throws IOException {
+  public void parse(Path segment) throws IOException, 
+      InterruptedException, ClassNotFoundException {
     if (SegmentChecker.isParsed(segment, segment.getFileSystem(getConf()))) {
       LOG.warn("Segment: " + segment
           + " already parsed!! Skipped parsing this segment!!"); // NUTCH-1854
@@ -216,21 +233,29 @@ public class ParseSegment extends NutchTool implements Tool,
       LOG.info("ParseSegment: segment: " + segment);
     }
 
-    JobConf job = new NutchJob(getConf());
+    Job job = NutchJob.getInstance(getConf());
     job.setJobName("parse " + segment);
 
+    Configuration conf = job.getConfiguration();
     FileInputFormat.addInputPath(job, new Path(segment, Content.DIR_NAME));
-    job.set(Nutch.SEGMENT_NAME_KEY, segment.getName());
-    job.setInputFormat(SequenceFileInputFormat.class);
-    job.setMapperClass(ParseSegment.class);
-    job.setReducerClass(ParseSegment.class);
+    conf.set(Nutch.SEGMENT_NAME_KEY, segment.getName());
+    job.setInputFormatClass(SequenceFileInputFormat.class);
+    job.setJarByClass(ParseSegment.class);
+    job.setMapperClass(ParseSegment.ParseSegmentMapper.class);
+    job.setReducerClass(ParseSegment.ParseSegmentReducer.class);
 
     FileOutputFormat.setOutputPath(job, segment);
-    job.setOutputFormat(ParseOutputFormat.class);
+    job.setOutputFormatClass(ParseOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(ParseImpl.class);
 
-    JobClient.runJob(job);
+    try{
+      int complete = job.waitForCompletion(true)?0:1;
+    } catch (InterruptedException | ClassNotFoundException e) {
+      LOG.error(StringUtils.stringifyException(e));
+      throw e;
+    }
+
     long end = System.currentTimeMillis();
     LOG.info("ParseSegment: finished at " + sdf.format(end) + ", elapsed: "
         + TimingUtil.elapsedTime(start, end));
