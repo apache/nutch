@@ -191,7 +191,7 @@ public class SitemapProcessor extends Configured implements Tool {
       Content content = output.getContent();
 
       // Following redirects http > https and what else
-      int maxRedir = 3;
+      int maxRedir = this.maxRedir;
       while (!output.getStatus().isSuccess() && output.getStatus().isRedirect() && maxRedir > 0) {
         String[] stuff = output.getStatus().getArgs();
         url = filterNormalize(stuff[0]);
