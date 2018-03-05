@@ -161,7 +161,7 @@ public abstract class HttpBase implements Protocol {
         conf.get("http.agent.url"), conf.get("http.agent.email"));
     this.acceptLanguage = conf.get("http.accept.language", acceptLanguage)
         .trim();
-    this.acceptCharset = conf.get("http.accept.charset", accept).trim();
+    this.acceptCharset = conf.get("http.accept.charset", acceptCharset).trim();
     this.accept = conf.get("http.accept", accept).trim();
     // backward-compatible default setting
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);
