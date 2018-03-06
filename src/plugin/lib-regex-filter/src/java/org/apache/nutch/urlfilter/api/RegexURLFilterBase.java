@@ -69,6 +69,10 @@ public abstract class RegexURLFilterBase implements URLFilter {
 
   /** An array of applicable rules */
   private List<RegexRule> rules;
+  
+  protected List<RegexRule> getRules(){
+	return rules;  
+  }
 
   /** The current configuration */
   private Configuration conf;

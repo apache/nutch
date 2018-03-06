@@ -87,7 +87,7 @@ public abstract class RegexRule {
    *
    * @return this regex
    */
-  protected String regex() { return regex; }
+  public String regex() { return regex; }
 
   /**
    * Checks if a url matches this rule.
@@ -97,6 +97,15 @@ public abstract class RegexRule {
    * @return <code>true</code> if the specified url matches this rule, otherwise
    *         <code>false</code>.
    */
-  protected abstract boolean match(String url);
+  public abstract boolean match(String url);
 
+  /**
+   * Replace  if a url matches this rule.
+   * 
+   * @param url
+   *          is the url to check.
+   * @return <code>true</code> if the specified url matches this rule, otherwise
+   *         <code>false</code>.
+   */
+  public abstract String replace(String url, String replacement);
 }

@@ -227,6 +227,7 @@
       <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-ignoreexemptbidirectional/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-suffix/src/java"/>
@@ -684,6 +685,7 @@
       <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-ignoreexemptbidirectional/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-suffix/src/java"/>
@@ -1122,6 +1124,7 @@
         <source path="${plugins.dir}/urlfilter-domainblacklist/src/java/" />
         <source path="${plugins.dir}/urlfilter-domainblacklist/src/test/" />
         <source path="${plugins.dir}/urlfilter-ignoreexempt/src/java/" />
+        <source path="${plugins.dir}/urlfilter-ignoreexempt-bidirectional/src/java"/>
         <source path="${plugins.dir}/urlfilter-prefix/src/java/" />
         <source path="${plugins.dir}/urlfilter-prefix/src/test/" />
         <source path="${plugins.dir}/urlfilter-regex/src/java/" />
