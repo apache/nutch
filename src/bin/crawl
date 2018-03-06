@@ -31,8 +31,8 @@
 #   -s <seed_dir>                         Path to seeds file(s)
 #   -sm <sitemap_dir>                     Path to sitemap URL file(s)
 #
-#   --hostdbupdate 			  Boolean indicator if we call hostdbupdate or not
-#   --hostdbgenerate 			  Boolean indicator if we use hostdb in generate or not
+#   --hostdbupdate                        Boolean indicator if we call hostdbupdate or not
+#   --hostdbgenerate                      Boolean indicator if we use hostdb in generate or not
 #
 #   --num-slaves <num_slaves>             Number of slave nodes [default: 1]
 #                                         Note: This can only be set when running in distribution mode
@@ -235,14 +235,25 @@ function __bin_nutch {
     fi
 }
 
+#check if directory exists on locally or on hdfs
+function __directory_exists {
+  if [[ "$mode" == local  &&  -d "$1" ]]; then
+    return 0
+  elif [[ "$mode" == distributed ]] && hadoop fs -test -d "$1"; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 function __update_hostdb {
-  if [[ -d "$CRAWL_PATH"/crawldb ]]; then
+  if __directory_exists "$CRAWL_PATH"/crawldb; then
     echo "Updating HostDB"
     __bin_nutch updatehostdb -crawldb "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb
   fi
 }
 
-# initial injection
+#initial injection
 if [[ ! -z $SEEDDIR  ]]; then
   echo "Injecting seed URLs"
   __bin_nutch inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
@@ -277,19 +288,19 @@ do
     [[ $a -eq 1 ]] && __update_hostdb
 
     # sitemap processing based on HostDB
-    if [[ -d "$CRAWL_PATH"/hostdb ]]; then
+    if __directory_exists "$CRAWL_PATH"/hostdb; then
       echo "Processing sitemaps based on hosts in HostDB"
       __bin_nutch sitemap "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $NUM_THREADS
     fi
   fi
 
-  echo "Generating a new segment"  
-  if [[ "$HOSTDBGENERATE" = true  && -d "$CRAWL_PATH"/hostdb ]]; then
+  echo "Generating a new segment"
+  if [[ "$HOSTDBGENERATE" == "true" ]] && __directory_exists "$CRAWL_PATH"/hostdb; then
    generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_SLAVES -noFilter -hostdb "$CRAWL_PATH"/hostdb)
   else
    generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_SLAVES -noFilter)
   fi
- 
+
   echo "$bin/nutch generate ${generate_args[@]}"
   $bin/nutch generate "${generate_args[@]}"
   RETCODE=$?
@@ -358,6 +369,7 @@ do
       echo "Skipping indexing ..."
   fi
 
+  echo "HostDB update"
   if $HOSTDBUPDATE; then
   __update_hostdb
   fi
