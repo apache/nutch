@@ -22,7 +22,7 @@
    provider-name="nutch.org">
 
    <runtime>
-      <library name="urlfilter-ignoreexemptbidirectional.jar">
+      <library name="urlfilter-ignoreexempt-bidirectional.jar">
          <export name="*"/>
       </library>
    </runtime>
