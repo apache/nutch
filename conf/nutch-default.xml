@@ -1738,6 +1738,15 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<property>
+  <name>index.metadata.separator</name>
+  <value></value>
+  <description>
+   Separator to use if you want to index multiple values for a given field. Leave empty to
+   treat each value as a single value.
+  </description>
+</property>
+
 <!-- index-geoip plugin properties -->
 <property>
   <name>index.geoip.usage</name>
