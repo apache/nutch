@@ -22,14 +22,11 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Random;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexingJob;
@@ -44,6 +41,11 @@ import org.slf4j.LoggerFactory;
  * index as CSV or tab-separated plain text table. Format (encoding, separators,
  * etc.) is configurable by a couple of options, see output of
  * {@link #describe()}.
+ * 
+ * <p>
+ * Note: works only in local mode, to be used with index option
+ * <code>-noCommit</code>.
+ * </p>
  */
 public class CSVIndexWriter implements IndexWriter {
 
@@ -226,26 +228,24 @@ public class CSVIndexWriter implements IndexWriter {
 
   protected FSDataOutputStream csvout;
 
-  private Path csvFSOutFile;
   private Path csvLocalOutFile;
 
   @Override
-  public void open(JobConf job, String name) throws IOException {
-    fs = FileSystem.get(job);
+  public void open(Configuration conf, String name) throws IOException {
+    fs = FileSystem.get(conf);
     LOG.info("Writing output to {}", outputPath);
-    csvLocalOutFile = job.getLocalPath("tmp_" + System.currentTimeMillis() + "-"
-        + Integer.toString(new Random().nextInt()) + "/nutch.csv");
-    csvFSOutFile = new Path(outputPath, "nutch.csv");
-    if (fs.exists(csvFSOutFile)) {
-      // clean-up
-      LOG.warn("Removing existing output path {}", csvFSOutFile);
-      fs.delete(csvFSOutFile, true);
-      FileOutputFormat.setOutputPath(job, csvFSOutFile);
-      job.getOutputFormat().checkOutputSpecs(fs, job);
-
+    Path outputDir = new Path(outputPath);
+    fs = outputDir.getFileSystem(conf);
+    csvLocalOutFile = new Path(outputDir, "nutch.csv");
+    if (!fs.exists(outputDir)) {
+      fs.mkdirs(outputDir);
     }
-    Path file = fs.startLocalOutput(csvFSOutFile, csvLocalOutFile);
-    csvout = fs.create(file);
+    if (fs.exists(csvLocalOutFile)) {
+      // clean-up
+      LOG.warn("Removing existing output path {}", csvLocalOutFile);
+      fs.delete(csvLocalOutFile, true);
+    }
+    csvout = fs.create(csvLocalOutFile);
     if (withHeader) {
       for (int i = 0; i < fields.length; i++) {
         if (i > 0)
@@ -318,8 +318,7 @@ public class CSVIndexWriter implements IndexWriter {
   @Override
   public void close() throws IOException {
     csvout.close();
-    fs.completeLocalOutput(csvFSOutFile, csvLocalOutFile);
-    LOG.info("Finished CSV index in {}", csvFSOutFile);
+    LOG.info("Finished CSV index in {}", csvLocalOutFile);
   }
 
   /** (nothing to commit) */
@@ -421,11 +420,6 @@ public class CSVIndexWriter implements IndexWriter {
     final int res = ToolRunner.run(NutchConfiguration.create(),
             new IndexingJob(), args);
     System.exit(res);
-  }
-
-  @Override
-  public String describe() {
-    return getClass().getSimpleName() + description;
   }
 
 }

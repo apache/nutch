@@ -28,7 +28,6 @@ import java.util.Date;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
@@ -54,7 +53,7 @@ public class TestCSVIndexWriter {
     protected FileSystem.Statistics fsStats;
 
     @Override
-    public void open(JobConf job, String name) throws IOException {
+    public void open(Configuration conf, String name) throws IOException {
       byteBuffer = new ByteArrayOutputStream();
       fsStats = new FileSystem.Statistics("testCSVIndexWriter");
       csvout = new FSDataOutputStream(byteBuffer, fsStats);
@@ -88,7 +87,7 @@ public class TestCSVIndexWriter {
     }
     CSVByteArrayIndexWriter out = new CSVByteArrayIndexWriter();
     out.setConf(conf);
-    out.open(new JobConf(conf), "test");
+    out.open(conf, "test");
     for (NutchDocument doc : docs) {
       out.write(doc);
     }
