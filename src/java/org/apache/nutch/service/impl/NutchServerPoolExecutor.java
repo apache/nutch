@@ -30,8 +30,6 @@ import org.apache.nutch.service.model.response.JobInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 
-
-
 public class NutchServerPoolExecutor extends ThreadPoolExecutor{
 
   private Queue<JobWorker> workersHistory;

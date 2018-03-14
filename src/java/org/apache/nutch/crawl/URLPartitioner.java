@@ -25,9 +25,10 @@ import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.URLUtil;
 import org.apache.hadoop.mapreduce.Partitioner;

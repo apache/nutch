@@ -17,28 +17,43 @@
 
 package org.apache.nutch.parse.html;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
-import java.io.*;
-import java.util.regex.*;
 
-import org.cyberneko.html.parsers.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.w3c.dom.*;
-import org.apache.html.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.DocumentFragment;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.HtmlParseFilters;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseResult;
+import org.apache.nutch.parse.ParseStatus;
+import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
-import org.apache.hadoop.conf.*;
-import org.apache.nutch.parse.*;
-import org.apache.nutch.util.*;
+import org.apache.nutch.util.EncodingDetector;
+import org.apache.nutch.util.NutchConfiguration;
+import org.cyberneko.html.parsers.DOMFragmentParser;
 
 public class HtmlParser implements Parser {
   private static final Logger LOG = LoggerFactory
@@ -93,13 +108,13 @@ public class HtmlParser implements Parser {
     if (metaMatcher.find()) {
       Matcher charsetMatcher = charsetPattern.matcher(metaMatcher.group(1));
       if (charsetMatcher.find())
-        encoding = new String(charsetMatcher.group(1));
+        encoding = charsetMatcher.group(1);
     }
     if (encoding == null) {
       // check for HTML5 meta charset
       metaMatcher = charsetPatternHTML5.matcher(str);
       if (metaMatcher.find()) {
-        encoding = new String(metaMatcher.group(1));
+        encoding = metaMatcher.group(1);
       }
     }
     if (encoding == null) {
@@ -250,7 +265,7 @@ public class HtmlParser implements Parser {
   }
 
   private DocumentFragment parse(InputSource input) throws Exception {
-    if (parserImpl.equalsIgnoreCase("tagsoup"))
+    if ("tagsoup".equalsIgnoreCase(parserImpl))
       return parseTagSoup(input);
     else
       return parseNeko(input);
@@ -325,7 +340,6 @@ public class HtmlParser implements Parser {
   }
 
   public static void main(String[] args) throws Exception {
-    // LOG.setLevel(Level.FINE);
     String name = args[0];
     String url = "file:" + name;
     File file = new File(name);
@@ -344,6 +358,7 @@ public class HtmlParser implements Parser {
 
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.htmlParseFilters = new HtmlParseFilters(getConf());
@@ -355,6 +370,7 @@ public class HtmlParser implements Parser {
         Nutch.CACHING_FORBIDDEN_CONTENT);
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

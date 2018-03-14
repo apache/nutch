@@ -18,10 +18,8 @@
 package org.apache.nutch.tools;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
-import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.List;

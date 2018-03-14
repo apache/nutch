@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.plugin.Pluggable;
 

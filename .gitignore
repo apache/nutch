@@ -6,3 +6,8 @@ build/
 runtime/
 logs/
 /bin/
+.classpath
+.naivebayes-model.crc
+.project
+ivy/ivy-2.3.0.jar
+naivebayes-model

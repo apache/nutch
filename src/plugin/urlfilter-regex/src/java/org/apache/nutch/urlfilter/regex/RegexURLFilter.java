@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.urlfilter.regex;
 
-// JDK imports
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;

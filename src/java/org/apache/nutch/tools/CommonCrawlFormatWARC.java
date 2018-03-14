@@ -8,11 +8,9 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.ibm.icu.text.SimpleDateFormat;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -36,7 +34,7 @@ public class CommonCrawlFormatWARC extends AbstractCommonCrawlFormat {
   public static final String TEMPLATE = "${prefix}-${timestamp17}-${serialno}";
 
   private static final AtomicInteger SERIALNO = new AtomicInteger();
-  private final static UUIDGenerator GENERATOR = new UUIDGenerator();
+  private static final UUIDGenerator GENERATOR = new UUIDGenerator();
 
   private String outputDir = null;
   private ByteArrayOutputStream out;

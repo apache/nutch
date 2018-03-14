@@ -27,7 +27,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import java.util.List;
-//import java.util.LinkedList;
 
 import org.apache.commons.net.MalformedServerReplyException;
 

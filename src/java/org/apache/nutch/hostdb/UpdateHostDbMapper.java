@@ -19,17 +19,13 @@ package org.apache.nutch.hostdb;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
-
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;

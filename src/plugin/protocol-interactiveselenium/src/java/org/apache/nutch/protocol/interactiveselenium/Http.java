@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.protocol.interactiveselenium;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.net.URL;

@@ -35,7 +35,6 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
-import org.apache.nutch.util.URLUtil;
 
 /**
  * @author markus@openindex.io
@@ -57,9 +56,11 @@ public class SlashURLNormalizer implements URLNormalizer {
   
   // We record a map of hosts and boolean, the boolean denotes whether the host should
   // have slashes after URL paths. True means slash, false means remove the slash
-  private static final Map<String,Boolean> slashesMap = new HashMap<String,Boolean>();
+  private static final Map<String,Boolean> slashesMap = new HashMap<>();
 
-  public SlashURLNormalizer() {}
+  public SlashURLNormalizer() {
+    //default constructor
+  }
 
   public SlashURLNormalizer(String slashesFile) {
     this.slashesFile = slashesFile;

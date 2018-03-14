@@ -17,11 +17,18 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-import org.apache.hadoop.io.*;
+import org.apache.hadoop.io.Writable;
 
 /** A list of {@link Inlink}s. */
 public class Inlinks implements Writable {
@@ -64,7 +71,7 @@ public class Inlinks implements Writable {
   }
 
   public String toString() {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     buffer.append("Inlinks:\n");
     Iterator<Inlink> it = inlinks.iterator();
     while (it.hasNext()) {

@@ -19,7 +19,6 @@ package org.apache.nutch.fetcher;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public class FetchNodeDb {
 
   private Map<Integer, FetchNode> fetchNodeDbMap;

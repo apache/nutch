@@ -19,7 +19,6 @@ package org.apache.nutch.hostdb;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -32,9 +31,7 @@ import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.crawl.CrawlDatum;

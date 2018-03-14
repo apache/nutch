@@ -19,19 +19,20 @@ package org.apache.nutch.parse;
 
 import java.text.NumberFormat;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.hadoop.io.*;
+import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.MapFile.Writer.Option;
+import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.io.SequenceFile.Metadata;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.DefaultCodec;
 import org.apache.hadoop.util.Progressable;
-import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -48,17 +49,17 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.net.*;
+import org.apache.nutch.net.URLExemptionFilters;
+import org.apache.nutch.net.URLFilters;
+import org.apache.nutch.net.URLNormalizers;
 
-import java.io.*;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-
-import org.apache.hadoop.util.Progressable;
 
 /* Parse content in a segment. */
 public class ParseOutputFormat extends OutputFormat<Text, Parse> {

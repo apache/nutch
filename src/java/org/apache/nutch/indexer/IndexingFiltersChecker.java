@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;

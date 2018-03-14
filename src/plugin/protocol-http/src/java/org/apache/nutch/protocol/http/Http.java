@@ -16,19 +16,15 @@
  */
 package org.apache.nutch.protocol.http;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.net.URL;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
-// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;

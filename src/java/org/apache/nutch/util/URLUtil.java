@@ -17,8 +17,10 @@
 
 package org.apache.nutch.util;
 
+import java.net.IDN;
 import java.net.MalformedURLException;
-import java.net.*;
+import java.net.URI;
+import java.net.URL;
 import java.util.regex.Pattern;
 
 import org.apache.nutch.util.domain.DomainSuffix;

@@ -33,7 +33,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
-import org.apache.nutch.util.URLUtil;
 
 /**
  * URL normalizer for mapping hosts to their desired form. It takes a simple

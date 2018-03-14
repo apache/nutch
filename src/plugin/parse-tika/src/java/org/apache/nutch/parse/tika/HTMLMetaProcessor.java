@@ -20,7 +20,9 @@ package org.apache.nutch.parse.tika;
 import java.net.URL;
 
 import org.apache.nutch.parse.HTMLMetaTags;
-import org.w3c.dom.*;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Class for parsing META Directives from DOM trees. This class handles

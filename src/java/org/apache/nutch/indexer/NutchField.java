@@ -25,7 +25,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.hadoop.io.*;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 
 /**
  * This class represents a multi-valued field with a weight. Values are
@@ -36,6 +37,7 @@ public class NutchField implements Writable {
   private List<Object> values = new ArrayList<>();
 
   public NutchField() {
+    //default constructor
   }
 
   public NutchField(Object value) {
@@ -89,17 +91,17 @@ public class NutchField implements Writable {
     for (int i = 0; i < count; i++) {
       String type = Text.readString(in);
 
-      if (type.equals("java.lang.String")) {
+      if ("java.lang.String".equals(type)) {
         values.add(Text.readString(in));
-      } else if (type.equals("java.lang.Boolean")) {
+      } else if ("java.lang.Boolean".equals(type)) {
         values.add(in.readBoolean());
-      } else if (type.equals("java.lang.Integer")) {
+      } else if ("java.lang.Integer".equals(type)) {
         values.add(in.readInt());
-      } else if (type.equals("java.lang.Float")) {
+      } else if ("java.lang.Float".equals(type)) {
         values.add(in.readFloat());
-      } else if (type.equals("java.lang.Long")) {
+      } else if ("java.lang.Long".equals(type)) {
         values.add(in.readLong());
-      } else if (type.equals("java.util.Date")) {
+      } else if ("java.util.Date".equals(type)) {
         values.add(new Date(in.readLong()));
       }
     }
@@ -130,6 +132,7 @@ public class NutchField implements Writable {
     }
   }
 
+  @Override
   public String toString() {
     return values.toString();
   }

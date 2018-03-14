@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.slf4j.Logger;
