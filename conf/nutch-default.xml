@@ -720,6 +720,16 @@
   </description>
 </property>
 
+<property>
+  <name>db.stats.score.quantiles</name>
+  <value>.01,.05,.1,.2,.25,.3,.4,.5,.6,.7,.75,.8,.9,.95,.99</value>
+  <description>
+    Quantiles of the distribution of CrawlDatum scores shown in the
+    CrawlDb statistics (command `readdb -stats').  Comma-separated
+    list of floating point numbers.
+  </description>
+</property>
+
 <!-- linkdb properties -->
 
 <property>

@@ -24,8 +24,12 @@ import java.io.Closeable;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -507,6 +511,34 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
   public void processStatJob(String crawlDb, Configuration config, boolean sort)
       throws IOException, InterruptedException, ClassNotFoundException {
 
+    double quantiles[] = { .01, .05, .1, .2, .25, .3, .4, .5, .6, .7, .75, .8,
+        .9, .95, .99 };
+    if (config.get("db.stats.score.quantiles") != null) {
+      List<Double> qs = new ArrayList<>();
+      for (String s : config.getStrings("db.stats.score.quantiles")) {
+        try {
+          double d = Double.parseDouble(s);
+          if (d >= 0.0 && d <= 1.0) {
+            qs.add(d);
+          } else {
+            LOG.warn(
+                "Skipping quantile {} not in range in db.stats.score.quantiles: {}",
+                s);
+          }
+        } catch (NumberFormatException e) {
+          LOG.warn(
+              "Skipping bad floating point number {} in db.stats.score.quantiles: {}",
+              s, e.getMessage());
+        }
+        quantiles = new double[qs.size()];
+        int i = 0;
+        for (Double q : qs) {
+          quantiles[i++] = q;
+        }
+        Arrays.sort(quantiles);
+      }
+    }
+
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb statistics start: " + crawlDb);
     }
@@ -565,12 +597,8 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
         } else if (k.equals("scd")) {
           MergingDigest tdigest = MergingDigest
               .fromBytes(ByteBuffer.wrap(bytesValue));
-          if (k.startsWith("sc")) {
-            double quantiles[] = { .01, .05, .1, .2, .25, .3, .4, .5, .6, .7,
-                .75, .8, .9, .95, .99 };
-            for (double q : quantiles) {
-              LOG.info("score quantile {}:\t{}", q, tdigest.quantile(q));
-            }
+          for (double q : quantiles) {
+            LOG.info("score quantile {}:\t{}", q, tdigest.quantile(q));
           }
         } else {
           LOG.info(k + ":\t" + val);
