@@ -250,16 +250,16 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           || k.equals("ftt") || k.equals("fit")) {
         // sum all values for this key
         long sum = 0;
-        for (Writable value : values) {
-          sum += ((LongWritable) value).get();
+        for (NutchWritable value : values) {
+          sum += ((LongWritable) value.get()).get();
         }
         // output sum
         context.write(key, new NutchWritable(new LongWritable(sum)));
       } else if (k.equals("sc")) {
         float min = Float.MAX_VALUE;
         float max = Float.MIN_VALUE;
-        for (Writable temp_value : values) {
-          float value = ((FloatWritable) temp_value).get();
+        for (NutchWritable nvalue : values) {
+          float value = ((FloatWritable) nvalue.get()).get();
           if (max < value) {
             max = value;
           }
@@ -272,8 +272,8 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       } else if (k.equals("ft") || k.equals("fi")) {
         long min = Long.MAX_VALUE;
         long max = Long.MIN_VALUE;
-        for (Writable temp_value : values) {
-          long value = ((LongWritable) temp_value).get();
+        for (NutchWritable nvalue : values) {
+          long value = ((LongWritable) nvalue.get()).get();
           if (max < value) {
             max = value;
           }
@@ -285,14 +285,15 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         context.write(key, new NutchWritable(new LongWritable(max)));
       } else if (k.equals("sct")) {
         float cnt = 0.0f;
-        for (Writable temp_value : values) {
-          float value = ((FloatWritable) temp_value).get();
+        for (NutchWritable nvalue : values) {
+          float value = ((FloatWritable) nvalue.get()).get();
           cnt += value;
         }
         context.write(key, new NutchWritable(new FloatWritable(cnt)));
       } else if (k.equals("scd")) {
         MergingDigest tdigest = null;
-        for (Writable value : values) {
+        for (NutchWritable nvalue : values) {
+          Writable value = nvalue.get();
           if (value instanceof BytesWritable) {
             byte[] bytes = ((BytesWritable) value).getBytes();
             MergingDigest tdig = MergingDigest
