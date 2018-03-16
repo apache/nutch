@@ -613,7 +613,7 @@
 
  <property>
   <name>db.ignore.external.exemptions.bidirectional.file</name>
-  <value>db-ignore-external-exemptions-bidirectional.txt</value>
+  <value>db-ignore-external-exemptions-bidirectional.xml</value>
   <description>
     This file contains exemption rules used by 'urlfiter-ignoreexempt-bidirectional' plugin
   </description>

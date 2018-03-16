@@ -17,28 +17,26 @@
 package org.apache.nutch.urlfilter.api;
 
 // JDK imports
-import java.lang.invoke.MethodHandles;
-import java.io.File;
-import java.io.Reader;
-import java.io.FileReader;
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
-import java.util.List;
 import java.util.ArrayList;
-
-// Commons Logging imports
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-
 // Nutch imports
-import org.apache.nutch.net.*;
+import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.util.URLUtil;
+// Commons Logging imports
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generic {@link org.apache.nutch.net.URLFilter URL filter} based on regular
@@ -64,14 +62,14 @@ import org.apache.nutch.util.URLUtil;
 public abstract class RegexURLFilterBase implements URLFilter {
 
   /** My logger */
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles
+      .lookup().lookupClass());
 
   /** An array of applicable rules */
   private List<RegexRule> rules;
-  
-  protected List<RegexRule> getRules(){
-	return rules;  
+
+  protected List<RegexRule> getRules() {
+    return rules;
   }
 
   /** The current configuration */
@@ -130,20 +128,22 @@ public abstract class RegexURLFilterBase implements URLFilter {
    *          is the regular expression associated to this rule.
    */
   protected abstract RegexRule createRule(boolean sign, String regex);
-  
+
   /**
    * Creates a new {@link RegexRule}.
-   * @param 
-   *        sign of the regular expression.
-   *        A <code>true</code> value means that any URL matching this rule
-   *        must be included, whereas a <code>false</code>
-   *        value means that any URL matching this rule must be excluded.
+   * 
+   * @param sign
+   *          of the regular expression. A <code>true</code> value means that
+   *          any URL matching this rule must be included, whereas a
+   *          <code>false</code> value means that any URL matching this rule
+   *          must be excluded.
    * @param regex
-   *        is the regular expression associated to this rule.
+   *          is the regular expression associated to this rule.
    * @param hostOrDomain
-   *        the host or domain to which this regex belongs
+   *          the host or domain to which this regex belongs
    */
-  protected abstract RegexRule createRule(boolean sign, String regex, String hostOrDomain);
+  protected abstract RegexRule createRule(boolean sign, String regex,
+      String hostOrDomain);
 
   /**
    * Returns the name of the file of rules to use for a particular
@@ -165,31 +165,32 @@ public abstract class RegexURLFilterBase implements URLFilter {
   public String filter(String url) {
     String host = URLUtil.getHost(url);
     String domain = null;
-    
+
     try {
       domain = URLUtil.getDomainName(url);
     } catch (MalformedURLException e) {
       // shouldnt happen here right?
     }
-    
+
     if (LOG.isDebugEnabled()) {
       LOG.debug("URL belongs to host " + host + " and domain " + domain);
     }
 
     for (RegexRule rule : rules) {
       // Skip the skip for rules that don't share the same host and domain
-      if (rule.hostOrDomain() != null &&
-            !rule.hostOrDomain().equals(host) &&
-            !rule.hostOrDomain().equals(domain)) {
+      if (rule.hostOrDomain() != null && !rule.hostOrDomain().equals(host)
+          && !rule.hostOrDomain().equals(domain)) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping rule [" + rule.regex() + "] for host: " + rule.hostOrDomain());
+          LOG.debug("Skipping rule [" + rule.regex() + "] for host: "
+              + rule.hostOrDomain());
         }
 
         continue;
       }
-    
+
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Applying rule [" + rule.regex() + "] for host: " + host + " and domain " + domain);
+        LOG.debug("Applying rule [" + rule.regex() + "] for host: " + host
+            + " and domain " + domain);
       }
 
       if (rule.match(url)) {
@@ -254,7 +255,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
     List<RegexRule> rules = new ArrayList<RegexRule>();
     String line;
     String hostOrDomain = null;
-    
+
     while ((line = in.readLine()) != null) {
       if (line.length() == 0) {
         continue;
