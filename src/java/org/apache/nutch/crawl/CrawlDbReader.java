@@ -400,7 +400,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
           try {
             int complete = job.waitForCompletion(true)?0:1;
-          } catch (InterruptedException | ClassNotFoundException e) {
+          } catch (IOException | InterruptedException | ClassNotFoundException e) {
             LOG.error(StringUtils.stringifyException(e));
             throw e;
           }
