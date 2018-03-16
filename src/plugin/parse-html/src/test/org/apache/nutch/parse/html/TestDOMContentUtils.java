@@ -24,8 +24,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import org.cyberneko.html.parsers.*;
 import org.junit.Assert;
@@ -168,6 +167,40 @@ public class TestDOMContentUtils {
       "my title", "my title", "my title", "my title", "", "", "", "title",
       "title", "title", "" };
 
+  private static final Set<String>[] contentRemoveTags = new Set[]{
+          null,
+          Collections.singleton("title"),
+          Collections.singleton("title"),
+          Collections.singleton("title"),
+          Collections.singleton("title"),
+          new HashSet(Arrays.asList("title", "h1")),
+          Collections.singleton("title"),
+          Collections.singleton("title"),
+          Collections.singleton("title"),
+          Collections.singleton("title"),
+          Collections.singleton("title"),
+          Collections.singleton("title"),
+          Collections.singleton("title"),
+          null
+  };
+
+  private static final String[] answerContent = {
+          "title body anchor",
+          "body home bots",
+          "separate this from this",
+          "body home 1 2",
+          "",
+          "",
+          "Whitespace test whitespace test "
+                  + "This is a whitespace test . Newlines should appear as space too. "
+                  + "Tabs are spaces too. This is a break -> and the line after break . "
+                  + "one two three space here space there no space "
+                  + "one two two three three four put some text here and there. "
+                  + "End this madness ! . . . .", "ignore ignore", "test1 test2",
+          "test1 test2", "anchor1 anchor2 anchor3",
+          "anchor1 anchor2 anchor3 anchor4 anchor5", "", ""
+  };
+
   // note: should be in page-order
   private static Outlink[][] answerOutlinks;
 
@@ -265,7 +298,7 @@ public class TestDOMContentUtils {
       setup();
     for (int i = 0; i < testPages.length; i++) {
       StringBuffer sb = new StringBuffer();
-      utils.getText(sb, testDOMs[i]);
+      utils.getText(sb, testDOMs[i], null);
       String text = sb.toString();
       Assert.assertTrue(
           "expecting text: " + answerText[i]
@@ -292,7 +325,23 @@ public class TestDOMContentUtils {
   }
 
   @Test
-  public void testGetOutlinks() {
+  public void testGetContent() throws Exception {
+    if (testDOMs[0] == null)
+      setup();
+    for (int i = 0; i < testPages.length; i++) {
+      StringBuffer sb = new StringBuffer();
+      utils.getText(sb, testDOMs[i], contentRemoveTags[i]);
+      String text = sb.toString();
+      Assert.assertTrue(
+          "expecting text: " + answerContent[i]
+              + System.getProperty("line.separator")
+              + System.getProperty("line.separator") + "got text: " + text,
+          equalsIgnoreWhitespace(answerContent[i], text));
+    }
+  }
+
+  @Test
+  public void testGetOutlinks() throws Exception {
     if (testDOMs[0] == null)
       setup();
     for (int i = 0; i < testPages.length; i++) {
