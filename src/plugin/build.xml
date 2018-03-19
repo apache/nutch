@@ -34,6 +34,7 @@
     <ant dir="lib-selenium" target="deploy"/>
     <ant dir="lib-xml" target="deploy"/>
     <!-- real plugins -->
+    <ant dir="anthelion" target="deploy"/>
     <ant dir="any23" target="deploy"/>
     <ant dir="creativecommons" target="deploy"/>
     <ant dir="feed" target="deploy"/>
@@ -57,6 +58,7 @@
     <ant dir="microformats-reltag" target="deploy"/>
     <ant dir="mimetype-filter" target="deploy"/>
     <ant dir="nutch-extensionpoints" target="deploy"/>
+    <ant dir="parse-anth" target="deploy"/>
     <ant dir="parse-ext" target="deploy"/>
     <ant dir="parse-html" target="deploy"/>
     <ant dir="parse-js" target="deploy"/>
@@ -106,6 +108,7 @@
   <!-- ====================================================== -->
   <target name="test">
     <parallel threadCount="2">
+     <ant dir="anthelion" target="test"/>
      <ant dir="any23" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="feed" target="test"/>
@@ -122,6 +125,8 @@
      <ant dir="lib-regex-filter" target="test"/>
      <ant dir="mimetype-filter" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
+     <ant dir="feed" target="test"/>
+     <ant dir="parse-anth" target="test"/>
      <ant dir="parse-html" target="test"/>
      <ant dir="parse-metatags" target="test"/>
      <ant dir="parse-swf" target="test"/>
@@ -163,6 +168,7 @@
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->
   <target name="clean">
+    <ant dir="anthelion" target="clean"/>
     <ant dir="any23" target="clean"/>
     <ant dir="creativecommons" target="clean"/>
     <ant dir="feed" target="clean"/>
@@ -192,6 +198,14 @@
     <ant dir="microformats-reltag" target="clean"/>
     <ant dir="mimetype-filter" target="clean"/>
     <ant dir="nutch-extensionpoints" target="clean"/>
+    <ant dir="protocol-file" target="clean"/>
+    <ant dir="protocol-ftp" target="clean"/>
+    <ant dir="protocol-http" target="clean"/>
+    <ant dir="protocol-httpclient" target="clean"/>
+    <ant dir="lib-selenium" target="clean"/>
+    <ant dir="protocol-selenium" target="clean" />
+    <ant dir="protocol-interactiveselenium" target="clean" />
+    <ant dir="parse-anth" target="clean"/>
     <ant dir="parse-ext" target="clean"/>
     <ant dir="parse-html" target="clean"/>
     <ant dir="parse-js" target="clean"/>

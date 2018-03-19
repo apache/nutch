@@ -173,6 +173,7 @@
       <arg value="${javadoc.proxy.port}"/>
 
       <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/anthelion/src/java"/>
       <packageset dir="${plugins.dir}/any23/src/java/" />
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
@@ -199,6 +200,7 @@
       <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
       <packageset dir="${plugins.dir}/mimetype-filter/src/java"/>
+      <packageset dir="${plugins.dir}/parse-anth/src/java"/>
       <packageset dir="${plugins.dir}/parse-ext/src/java"/>
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
@@ -630,6 +632,7 @@
       <arg value="${javadoc.proxy.port}"/>
 
       <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/anthelion/src/java"/>
       <packageset dir="${plugins.dir}/any23/src/java/" />
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
@@ -656,6 +659,7 @@
       <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
       <packageset dir="${plugins.dir}/mimetype-filter/src/java"/>
+      <packageset dir="${plugins.dir}/parse-anth/src/java"/>
       <packageset dir="${plugins.dir}/parse-ext/src/java"/>
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
@@ -1037,7 +1041,7 @@
 
         <source path="${basedir}/src/java/" />
         <source path="${basedir}/src/test/" output="build/test/classes" />
-
+        <source path="${plugins.dir}/anthelion/src/java/" /> 
         <source path="${plugins.dir}/any23/src/java/" />
         <source path="${plugins.dir}/any23/src/test/" />
         <source path="${plugins.dir}/creativecommons/src/java/" />
@@ -1079,6 +1083,8 @@
         <source path="${plugins.dir}/microformats-reltag/src/java/" />
         <source path="${plugins.dir}/mimetype-filter/src/java/" />
         <source path="${plugins.dir}/mimetype-filter/src/test/" />
+        <source path="${plugins.dir}/parse-anth/src/java/" />
+        <source path="${plugins.dir}/parse-anth/src/test/" />
         <source path="${plugins.dir}/parse-ext/src/java/" />
         <source path="${plugins.dir}/parse-ext/src/test/" />
         <source path="${plugins.dir}/parse-html/src/java/" />
