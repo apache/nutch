@@ -548,15 +548,21 @@
 </property>
 
 <property>
-    <name>db.url.normalizers</name>
+    <name>crawldb.url.normalizers</name>
     <value>false</value>
-    <description>Normalize urls when updating crawldb</description>
+    <description>
+	!Temporary, can be overwritten with the command line!
+	Normalize urls when updating crawldb
+    </description>
 </property>
 
 <property>
-    <name>db.url.filters</name>
+    <name>crawldb.url.filters</name>
     <value>false</value>
-    <description>Filter urls when updating crawldb</description>
+    <description>
+	!Temporary, can be overwritten with the command line!
+	Filter urls when updating crawldb
+    </description>
 </property>
 
 <property>
