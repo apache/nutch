@@ -88,16 +88,6 @@ public class UpdateHostDb extends Configured implements Tool {
     job.setJarByClass(UpdateHostDb.class);
     job.setJobName("UpdateHostDb");
 
-    // Check whether the urlfilter-domainblacklist plugin is loaded
-    if (filter && new String("urlfilter-domainblacklist").matches(conf.get("plugin.includes"))) {
-      throw new Exception("domainblacklist-urlfilter must not be enabled");
-    }
-
-    // Check whether the urlnormalizer-host plugin is loaded
-    if (normalize && new String("urlnormalizer-host").matches(conf.get("plugin.includes"))) {
-      throw new Exception("urlnormalizer-host must not be enabled");
-    }
-
     FileSystem fs = hostDb.getFileSystem(conf);
     Path old = new Path(hostDb, "old");
     Path current = new Path(hostDb, "current");
