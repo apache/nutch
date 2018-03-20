@@ -88,10 +88,13 @@ public class IndexingJob extends NutchTool implements Tool {
           conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
       indexUtil = new IndexUtil(conf);
       commit = conf.getBoolean(SolrConstants.COMMIT_INDEX, true);
+      deduplicate = conf.getBoolean(Nutch.DEDUPLICATE, false);
       try {
         store = StorageUtils.createWebStore(conf, String.class, WebPage.class);
-        duplicateStore = StorageUtils.createWebStore(
-            conf, String.class, Duplicate.class);
+        if (deduplicate) {
+          duplicateStore = StorageUtils.createWebStore(
+              conf, String.class, Duplicate.class);
+        }
         writers = new IndexWriters(conf);
         writers.describe();
         writers.open(conf);
@@ -103,7 +106,9 @@ public class IndexingJob extends NutchTool implements Tool {
     protected void cleanup(Context context) throws IOException,
         InterruptedException {
       store.close();
-      duplicateStore.close();
+      if (deduplicate) {
+        duplicateStore.close();
+      }
       if (commit) {
         writers.commit();
       }
