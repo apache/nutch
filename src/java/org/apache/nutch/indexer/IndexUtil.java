@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 /**
  * Utility to create an indexed document from a webpage.
@@ -36,11 +37,13 @@ public class IndexUtil {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private IndexingFilters filters;
+  private DuplicateFilters duplicateFilters;
   private ScoringFilters scoringFilters;
 
   public IndexUtil(Configuration conf) {
     filters = new IndexingFilters(conf);
     scoringFilters = new ScoringFilters(conf);
+    duplicateFilters = new DuplicateFilters(conf);
   }
 
   /**
@@ -104,6 +107,10 @@ public class IndexUtil {
     doc.add("boost", Float.toString(boost));
 
     return doc;
+  }
+  
+  public boolean isOriginal(String url, List<CharSequence> duplicates) {
+    return duplicateFilters.isOriginal(url, duplicates);
   }
 
 }

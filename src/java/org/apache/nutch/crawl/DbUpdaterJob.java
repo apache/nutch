@@ -130,7 +130,7 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     return filter;
   }
 
-  private int updateTable(String crawlId, String batchId) throws Exception {
+  public int updateTable(String crawlId, String batchId) throws Exception {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
     long start = System.currentTimeMillis();

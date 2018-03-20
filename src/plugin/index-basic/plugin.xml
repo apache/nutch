@@ -32,11 +32,18 @@
       <import plugin="nutch-extensionpoints"/>
    </requires>
 
-   <extension id="org.apache.nutch.indexer.basic"
+   <extension id="org.apache.nutch.indexer.basic.filter"
               name="Nutch Basic Indexing Filter"
               point="org.apache.nutch.indexer.IndexingFilter">
       <implementation id="BasicIndexingFilter"
                       class="org.apache.nutch.indexer.basic.BasicIndexingFilter"/>
+   </extension>
+
+    <extension id="org.apache.nutch.indexer.basic.dedup"
+              name="Nutch Basic Duplicate Filter"
+              point="org.apache.nutch.indexer.DuplicateFilter">
+      <implementation id="BasicDuplicateFilter"
+                      class="org.apache.nutch.indexer.basic.BasicDuplicateFilter"/>
    </extension>
 
 </plugin>

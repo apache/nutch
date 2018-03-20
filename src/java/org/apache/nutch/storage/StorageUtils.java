@@ -41,8 +41,8 @@ import java.util.Iterator;
 public class StorageUtils {
 
   /**
-   * Creates a store for the given persistentClass. Currently supports Webpage
-   * and Host stores.
+   * Creates a store for the given persistentClass.
+   * Currently supports WebPage, Host, and Duplicate stores.
    * 
    * @param conf
    * @param keyClass
@@ -69,6 +69,9 @@ public class StorageUtils {
     } else if (Host.class.equals(persistentClass)) {
       schema = conf.get("storage.schema.host", "host");
       conf.set("preferred.schema.name", schemaPrefix + "host");
+    } else if (Duplicate.class.equals(persistentClass)) {
+    	schema = conf.get("storage.schema.duplicate", "duplicate");
+        conf.set("preferred.schema.name", schemaPrefix + "duplicate");
     } else {
       throw new UnsupportedOperationException(
           "Unable to create store for class " + persistentClass);

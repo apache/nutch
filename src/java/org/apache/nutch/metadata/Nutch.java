@@ -50,6 +50,8 @@ public interface Nutch {
   public static final String FETCH_TIME_KEY = "_ftk_";
 
   public static final String FETCH_STATUS_KEY = "_fst_";
+  
+  public static final String DEDUPLICATE = "nutch.index.deduplicate";
 
   /**
    * Sites may request that search engines don't provide access to cached
@@ -116,6 +118,8 @@ public interface Nutch {
   public static final String ARG_SITEMAP = "sitemap";
   /** Sitemap Detect as fetch . */
   public static final String ARG_SITEMAP_DETECT = "stmDetect";
+  /** Deduplicate as index. */
+  public static final String ARG_DEDUPLICATE = "deduplicate";
 
   // short constants for status / results fields
   /** Status / result message. */

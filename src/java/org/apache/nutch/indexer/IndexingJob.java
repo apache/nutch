@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.nutch.indexer;
 
 import java.io.IOException;
@@ -40,6 +41,7 @@ import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParseStatusCodes;
 import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.storage.Duplicate;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.ParseStatus;
 import org.apache.nutch.storage.StorageUtils;
@@ -72,8 +74,12 @@ public class IndexingJob extends NutchTool implements Tool {
       GoraMapper<String, WebPage, String, NutchDocument> {
     public IndexUtil indexUtil;
     public DataStore<String, WebPage> store;
+    public DataStore<String, Duplicate> duplicateStore;
+    public IndexWriters writers;
 
     protected Utf8 batchId;
+    protected boolean deduplicate;
+    protected boolean commit;
 
     @Override
     public void setup(Context context) throws IOException {
@@ -81,8 +87,14 @@ public class IndexingJob extends NutchTool implements Tool {
       batchId = new Utf8(
           conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
       indexUtil = new IndexUtil(conf);
+      commit = conf.getBoolean(SolrConstants.COMMIT_INDEX, true);
       try {
         store = StorageUtils.createWebStore(conf, String.class, WebPage.class);
+        duplicateStore = StorageUtils.createWebStore(
+            conf, String.class, Duplicate.class);
+        writers = new IndexWriters(conf);
+        writers.describe();
+        writers.open(conf);
       } catch (ClassNotFoundException e) {
         throw new IOException(e);
       }
@@ -91,6 +103,11 @@ public class IndexingJob extends NutchTool implements Tool {
     protected void cleanup(Context context) throws IOException,
         InterruptedException {
       store.close();
+      duplicateStore.close();
+      if (commit) {
+        writers.commit();
+      }
+      writers.close();
     };
 
     @Override
@@ -110,6 +127,22 @@ public class IndexingJob extends NutchTool implements Tool {
         }
         return;
       }
+      
+      if (deduplicate) {
+        Duplicate duplicate = duplicateStore.get(
+            new String(page.getSignature().array()));
+        if (!indexUtil.isOriginal(TableUtil.unreverseUrl(key),
+            duplicate.getURLs())) {
+          return;
+        } else {
+          for (CharSequence url : duplicate.getURLs()) {
+            String duplicateKey = TableUtil.reverseUrl(url.toString());
+            if (!key.equals(duplicateKey)) {
+              writers.delete(duplicateKey);
+            }
+          }
+        }
+      }
 
       NutchDocument doc = indexUtil.index(key, page);
       if (doc == null) {
@@ -122,6 +155,12 @@ public class IndexingJob extends NutchTool implements Tool {
       context.write(key, doc);
       context.getCounter("IndexerJob", "DocumentCount").increment(1);
     }
+  }
+  
+  public IndexingJob() {}
+
+  public IndexingJob(Configuration conf) {
+    setConf(conf);
   }
 
   private static Collection<WebPage.Field> getFields(Job job) {
@@ -139,9 +178,11 @@ public class IndexingJob extends NutchTool implements Tool {
     LOG.info("IndexingJob: starting");
 
     String batchId = (String) args.get(Nutch.ARG_BATCH);
+    boolean deduplicate = (boolean) args.get(Nutch.ARG_DEDUPLICATE);
 
     Configuration conf = getConf();
     conf.set(GeneratorJob.BATCH_ID, batchId);
+    conf.setBoolean(Nutch.DEDUPLICATE, deduplicate);
 
     Job job = NutchJob.getInstance(conf, "Indexer");
     // TODO: Figure out why this needs to be here
@@ -158,13 +199,6 @@ public class IndexingJob extends NutchTool implements Tool {
     job.waitForCompletion(true);
     ToolUtil.recordJobStatus(null, job, results);
 
-    IndexWriters writers = new IndexWriters(getConf());
-    LOG.info(writers.describe());
-
-    writers.open(getConf());
-    if (getConf().getBoolean(SolrConstants.COMMIT_INDEX, true)) {
-      writers.commit();
-    }
     LOG.info("IndexingJob: done.");
     return results;
   }
@@ -186,15 +220,20 @@ public class IndexingJob extends NutchTool implements Tool {
   public int run(String[] args) throws Exception {
     if (args.length < 1) {
       System.err
-          .println("Usage: IndexingJob (<batchId> | -all | -reindex) [-crawlId <id>]");
+          .println("Usage: IndexingJob (<batchId> | -all | -reindex) [-crawlId <id>] (-deduplicate)");
       return -1;
     }
+    
+    boolean deduplicate = false;
 
     if (args.length == 3 && "-crawlId".equals(args[1])) {
       getConf().set(Nutch.CRAWL_ID_KEY, args[2]);
     }
+    if (args.length >=3 && "-deduplicate".equals(args[args.length])) {
+      deduplicate = true;
+    }
     try {
-      run(ToolUtil.toArgMap(Nutch.ARG_BATCH, args[0]));
+      run(ToolUtil.toArgMap(Nutch.ARG_BATCH, args[0], Nutch.ARG_DEDUPLICATE, deduplicate));
       return 0;
     } catch (final Exception e) {
       LOG.error("SolrIndexerJob: " + StringUtils.stringifyException(e));
