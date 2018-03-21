@@ -78,7 +78,7 @@ public class BidirectionalExemptionUrlFilter extends Configured implements
   }
 
   public BidirectionalExemptionUrlFilter(Configuration conf) {
-    this.setConf(conf);
+    super(conf);
   }
 
   @Override
@@ -223,6 +223,7 @@ public class BidirectionalExemptionUrlFilter extends Configured implements
     if (conf == null) {
       return;
     }
+    super.setConf(conf);
     this.fileName = conf.get(DB_IGNORE_EXTERNAL_EXEMPTIONS_BIDIRECTIONAL_FILE);
     this.rules = readConfigurationFile();
   }
