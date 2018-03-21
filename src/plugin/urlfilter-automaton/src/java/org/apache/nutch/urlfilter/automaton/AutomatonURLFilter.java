@@ -22,12 +22,15 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.regex.PatternSyntaxException;
 
+
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+
 
 // Automaton imports
 import dk.brics.automaton.RegExp;
 import dk.brics.automaton.RunAutomaton;
+
 import org.apache.nutch.net.*;
 import org.apache.nutch.urlfilter.api.RegexRule;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
@@ -108,9 +111,15 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
       automaton = new RunAutomaton(new RegExp(regex, RegExp.ALL).toAutomaton());
     }
 
-    protected boolean match(String url) {
+    public boolean match(String url) {
       return automaton.run(url);
     }
+
+	@Override
+	public String replace(String url, String replacement) {
+		// TODO Auto-generated method stub
+		return null;
+	}
   }
 
 }

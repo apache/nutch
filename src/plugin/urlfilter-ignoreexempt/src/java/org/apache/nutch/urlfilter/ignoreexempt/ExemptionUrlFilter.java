@@ -21,6 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLExemptionFilter;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.urlfilter.regex.RegexURLFilter;
+import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

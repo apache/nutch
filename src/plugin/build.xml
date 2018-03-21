@@ -90,6 +90,7 @@
     <ant dir="urlfilter-validator" target="deploy"/>
     <!-- urlfilter-ignoreexempt depends on urlfilter-regex, must build after -->
     <ant dir="urlfilter-ignoreexempt" target="deploy"/>
+    <ant dir="urlfilter-ignoreexempt-bidirectional" target="deploy"/>
     <ant dir="urlmeta" target="deploy"/>
     <ant dir="urlnormalizer-ajax" target="deploy"/>
     <ant dir="urlnormalizer-basic" target="deploy"/>
@@ -220,6 +221,7 @@
     <ant dir="urlfilter-domain" target="clean" />
     <ant dir="urlfilter-domainblacklist" target="clean" />
     <ant dir="urlfilter-ignoreexempt" target="clean"/>
+    <ant dir="urlfilter-ignoreexempt-bidirectional" target="clean"/>
     <ant dir="urlfilter-prefix" target="clean"/>
     <ant dir="urlfilter-regex" target="clean"/>
     <ant dir="urlfilter-suffix" target="clean"/>
