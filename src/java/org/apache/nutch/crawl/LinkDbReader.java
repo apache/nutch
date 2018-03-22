@@ -43,6 +43,7 @@ import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.Configuration;
 
+import org.apache.nutch.util.AbstractChecker;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
@@ -52,7 +53,7 @@ import java.util.Iterator;
 import java.io.Closeable;
 
 /** . */
-public class LinkDbReader extends Configured implements Tool, Closeable {
+public class LinkDbReader extends AbstractChecker implements Closeable {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -171,6 +172,21 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
         + TimingUtil.elapsedTime(start, end));
   }
 
+  protected int process(String line, StringBuilder output) throws Exception {
+
+    Inlinks links = getInlinks(new Text(line));
+    if (links == null) {
+      output.append(" - no link information.");
+    } else {
+      Iterator<Inlink> it = links.iterator();
+      while (it.hasNext()) {
+        output.append(it.next().toString());
+      }
+    }
+    output.append("\n");
+    return 0;
+  }
+
   public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(NutchConfiguration.create(), new LinkDbReader(),
         args);
@@ -189,35 +205,40 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
           .println("\t-url <url>\tprint information about <url> to System.out");
       return -1;
     }
+
+    int numConsumed = 0;
+
     try {
-      if (args[1].equals("-dump")) {
-        String regex = null;
-        for (int i = 2; i < args.length; i++) {
-          if (args[i].equals("-regex")) {
-            regex = args[++i];
+      for (int i = 1; i < args.length; i++) {
+        if (args[i].equals("-dump")) {
+          String regex = null;
+          for (int j = i+1; j < args.length; j++) {
+            if (args[i].equals("-regex")) {
+              regex = args[++j];
+            }
           }
-        }
-        processDumpJob(args[0], args[2], regex);
-        return 0;
-      } else if (args[1].equals("-url")) {
-        init(new Path(args[0]));
-        Inlinks links = getInlinks(new Text(args[2]));
-        if (links == null) {
-          System.out.println(" - no link information.");
+          processDumpJob(args[0], args[i+1], regex);
+          return 0;
+        } else if (args[i].equals("-url")) {
+          init(new Path(args[0]));
+          return processSingle(args[++i]);
+        } else if ((numConsumed = super.parseArgs(args, i)) > 0) {
+          init(new Path(args[0]));
+          i += numConsumed - 1;
         } else {
-          Iterator<Inlink> it = links.iterator();
-          while (it.hasNext()) {
-            System.out.println(it.next().toString());
-          }
+          System.err.println("Error: wrong argument " + args[1]);
+          return -1;
         }
-        return 0;
-      } else {
-        System.err.println("Error: wrong argument " + args[1]);
-        return -1;
       }
     } catch (Exception e) {
       LOG.error("LinkDbReader: " + StringUtils.stringifyException(e));
       return -1;
     }
+
+    if (numConsumed > 0) {
+      // Start listening
+      return super.run();
+    }
+    return 0;
   }
 }
