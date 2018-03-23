@@ -210,7 +210,7 @@ public class DeduplicatorJob extends NutchTool implements Tool {
     if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
       LOG.info("DeduplicatorJob: deduplicating all");
     } else {
-      LOG.info("DeduplicatorJob: batchId: %s", batchId);
+      LOG.info("DeduplicatorJob: batchId: "+ batchId);
     }
     
     run(ToolUtil.toArgMap(Nutch.ARG_CRAWL, crawlId, Nutch.ARG_BATCH, batchId));
