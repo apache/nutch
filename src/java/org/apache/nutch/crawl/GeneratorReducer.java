@@ -43,7 +43,7 @@ public class GeneratorReducer extends
 
   private long limit;
   private long maxCount;
-  private long count = 0;
+  protected static long count = 0;
   private boolean byDomain = false;
   private Map<String, Integer> hostCountMap = new HashMap<>();
   private Utf8 batchId;
