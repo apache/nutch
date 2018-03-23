@@ -27,6 +27,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.nutch.crawl.DbUpdaterJob;
 import org.apache.nutch.crawl.GeneratorJob;
 import org.apache.nutch.crawl.InjectorJob;
+import org.apache.nutch.crawl.SitemapOperation;
 import org.apache.nutch.crawl.URLWebPage;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParserJob;
@@ -119,9 +120,9 @@ public class TestFetcher extends AbstractNutchTest {
     long time = System.currentTimeMillis();
     GeneratorJob g = new GeneratorJob(conf);
     //  generate for non sitemap
-    g.generate(Long.MAX_VALUE, time, false, false, false);
+    g.generate(Long.MAX_VALUE, time, false, false, SitemapOperation.NONE);
     //    generate for only sitemap
-    g.generate(Long.MAX_VALUE, time, false, false, true);
+    g.generate(Long.MAX_VALUE, time, false, false, SitemapOperation.ONLY);
 
     // fetch
     time = System.currentTimeMillis();
@@ -135,8 +136,7 @@ public class TestFetcher extends AbstractNutchTest {
         "fetcher.server.delay", 5));
     assertTrue(time > minimumTime);
 
-    List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore,
-        Mark.FETCH_MARK, (String[]) null);
+    List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore, Mark.FETCH_MARK);
     assertEquals(normalUrls.size(), pages.size());
     List<String> handledurls = new ArrayList<String>();
     for (URLWebPage up : pages) {
@@ -188,7 +188,7 @@ public class TestFetcher extends AbstractNutchTest {
     // crawl 1 
     long time = System.currentTimeMillis();
     GeneratorJob g = new GeneratorJob(conf);
-    String batchId = g.generate(Long.MAX_VALUE, time, false, false, false);
+    String batchId = g.generate(Long.MAX_VALUE, time, false, false, SitemapOperation.NONE);
     FetcherJob fetcher = new FetcherJob(conf);
     fetcher.fetch(Nutch.ALL_BATCH_ID_STR, 1, false, -1);
     ParserJob parser = new ParserJob(conf);
@@ -208,7 +208,7 @@ public class TestFetcher extends AbstractNutchTest {
     injector.inject(urlPath);
     g = new GeneratorJob(conf);
     time = System.currentTimeMillis();
-    batchId = g.generate(Long.MAX_VALUE, time, false, false, false); 
+    batchId = g.generate(Long.MAX_VALUE, time, false, false, SitemapOperation.NONE); 
     fetcher = new FetcherJob(conf);
     fetcher.fetch(Nutch.ALL_BATCH_ID_STR, 1, false, -1);
     parser = new ParserJob(conf);
@@ -268,14 +268,14 @@ public class TestFetcher extends AbstractNutchTest {
     GeneratorJob g = new GeneratorJob(conf);
 
     //    generate for non sitemap
-    g.generate(Long.MAX_VALUE, time, false, false, false);
+    g.generate(Long.MAX_VALUE, time, false, false, SitemapOperation.NONE);
     //    generate for only sitemap
-    g.generate(Long.MAX_VALUE, time, false, false, true);
+    g.generate(Long.MAX_VALUE, time, false, false, SitemapOperation.ONLY);
 
     FetcherJob fetcher = new FetcherJob(conf);
 
     // for only sitemap fetch
-    fetcher.fetch(batchId, 1, false, -1, false, true);
+    fetcher.fetch(batchId, 1, false, -1, false, SitemapOperation.ONLY);
 
     List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore,
         Mark.FETCH_MARK, (String[]) null);
@@ -333,12 +333,12 @@ public class TestFetcher extends AbstractNutchTest {
     long time = System.currentTimeMillis();
     GeneratorJob g = new GeneratorJob(conf);
 
-    g.generate(Long.MAX_VALUE, time, false, false, false);
+    g.generate(Long.MAX_VALUE, time, false, false, SitemapOperation.NONE);
 
     FetcherJob fetcher = new FetcherJob(conf);
 
     // for only sitemap fetch
-    fetcher.fetch(batchId, 1, false, -1, true, false);
+    fetcher.fetch(batchId, 1, false, -1, true, SitemapOperation.ALL);
 
     List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore,
         Mark.FETCH_MARK, (String[]) null);

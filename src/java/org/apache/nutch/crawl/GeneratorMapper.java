@@ -19,6 +19,7 @@ package org.apache.nutch.crawl;
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.GeneratorJob.SelectorEntry;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -38,7 +39,7 @@ GoraMapper<String, WebPage, SelectorEntry, WebPage> {
   private URLNormalizers normalizers;
   private boolean filter;
   private boolean normalise;
-  private boolean sitemap;
+  private SitemapOperation sitemap = SitemapOperation.NONE;
   private FetchSchedule schedule;
   private ScoringFilters scoringFilters;
   private long curTime;
@@ -75,9 +76,12 @@ GoraMapper<String, WebPage, SelectorEntry, WebPage> {
       }
       if (filter && filters.filter(url) == null)
         return;
-      if ((sitemap && !URLFilters.isSitemap(page)) || !sitemap && URLFilters
-          .isSitemap(page))
+      if (sitemap.equals(SitemapOperation.NONE) && URLFilters.isSitemap(page)) {
         return;
+      }
+      if (sitemap.equals(SitemapOperation.ONLY) && !URLFilters.isSitemap(page)) {
+        return;
+      }
     } catch (URLFilterException | MalformedURLException e) {
       GeneratorJob.LOG
       .warn("Couldn't filter url: {} ({})", url, e);
@@ -112,7 +116,12 @@ GoraMapper<String, WebPage, SelectorEntry, WebPage> {
     Configuration conf = context.getConfiguration();
     filter = conf.getBoolean(GeneratorJob.GENERATOR_FILTER, true);
     normalise = conf.getBoolean(GeneratorJob.GENERATOR_NORMALISE, true);
-    sitemap = conf.getBoolean(GeneratorJob.GENERATOR_SITEMAP, false);
+    if (conf.getBoolean(Nutch.ONLY_SITEMAP, false)) {
+      sitemap = SitemapOperation.ONLY;
+    }
+    if (conf.getBoolean(Nutch.ALL_SITEMAP, false)) {
+      sitemap = SitemapOperation.ALL;
+    }
     if (filter) {
       filters = new URLFilters(conf);
     }

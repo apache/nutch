@@ -35,6 +35,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.GeneratorJob;
+import org.apache.nutch.crawl.SitemapOperation;
 import org.apache.nutch.crawl.URLPartitioner.FetchEntryPartitioner;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;
@@ -64,7 +65,6 @@ public class FetcherJob extends NutchTool implements Tool {
   public static final Utf8 REDIRECT_DISCOVERED = new Utf8("___rdrdsc__");
 
   public static final String RESUME_KEY = "fetcher.job.resume";
-  public static final String SITEMAP = "fetcher.job.sitemap";
   public static final String SITEMAP_DETECT = "fetcher.job.sitemap.detect";
   public static final String PARSE_KEY = "fetcher.parse";
   public static final String THREADS_KEY = "fetcher.threads.fetch";
@@ -96,8 +96,7 @@ public class FetcherJob extends NutchTool implements Tool {
   GoraMapper<String, WebPage, IntWritable, FetchEntry> {
 
     private boolean shouldContinue;
-
-    private Utf8 batchId;
+    private SitemapOperation sitemap = SitemapOperation.NONE;
 
     private Random random = new Random();
 
@@ -105,8 +104,12 @@ public class FetcherJob extends NutchTool implements Tool {
     protected void setup(Context context) {
       Configuration conf = context.getConfiguration();
       shouldContinue = conf.getBoolean(RESUME_KEY, false);
-      batchId = new Utf8(
-          conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
+      if (conf.getBoolean(Nutch.ONLY_SITEMAP, false)) {
+        sitemap = SitemapOperation.ONLY;
+      }
+      if (conf.getBoolean(Nutch.ALL_SITEMAP, false)) {
+        sitemap = SitemapOperation.ALL;
+      }
     }
 
     @Override
@@ -126,11 +129,12 @@ public class FetcherJob extends NutchTool implements Tool {
         }
         return;
       }
-      boolean sitemap = context.getConfiguration().getBoolean(SITEMAP, false);
-
-      if ((sitemap && !URLFilters.isSitemap(page)) || !sitemap && URLFilters
-          .isSitemap(page))
+      if (sitemap.equals(SitemapOperation.NONE) && URLFilters.isSitemap(page)) {
         return;
+      }
+      if (sitemap.equals(SitemapOperation.ONLY) && !URLFilters.isSitemap(page)) {
+        return;
+      }
       context.write(new IntWritable(random.nextInt(65536)), new FetchEntry(
           context.getConfiguration(), key, page));
     }
@@ -168,7 +172,8 @@ public class FetcherJob extends NutchTool implements Tool {
     Boolean shouldResume = (Boolean) args.get(Nutch.ARG_RESUME);
     Integer numTasks = (Integer) args.get(Nutch.ARG_NUMTASKS);
     Boolean stmDetect = (Boolean) args.get(Nutch.ARG_SITEMAP_DETECT);
-    Boolean sitemap = (Boolean) args.get(Nutch.ARG_SITEMAP);
+    SitemapOperation sitemap = (SitemapOperation) args.get(Nutch.ARG_SITEMAP);
+    sitemap = sitemap == null ? SitemapOperation.NONE : sitemap;
 
     if (threads != null && threads > 0) {
       getConf().setInt(THREADS_KEY, threads);
@@ -183,8 +188,16 @@ public class FetcherJob extends NutchTool implements Tool {
     if (stmDetect != null) {
       getConf().setBoolean(SITEMAP_DETECT, stmDetect);
     }
-    if (sitemap != null) {
-      getConf().setBoolean(SITEMAP, sitemap);
+    switch (sitemap) {
+    case ONLY:
+      getConf().setBoolean(Nutch.ONLY_SITEMAP, true);
+      break;
+    case ALL:
+      getConf().setBoolean(Nutch.ALL_SITEMAP, true);
+      break;
+    case NONE:
+      getConf().setBoolean(Nutch.ONLY_SITEMAP, false);
+      getConf().setBoolean(Nutch.ALL_SITEMAP, false);
     }
 
     LOG.info("FetcherJob: threads: {}", getConf().getInt(THREADS_KEY, 10));
@@ -253,7 +266,7 @@ public class FetcherJob extends NutchTool implements Tool {
    */
   public int fetch(String batchId, int threads, boolean shouldResume,
       int numTasks) throws Exception {
-    return fetch(batchId, threads, shouldResume, numTasks, false, false);
+    return fetch(batchId, threads, shouldResume, numTasks, false, null);
   }
 
   /**
@@ -277,7 +290,7 @@ public class FetcherJob extends NutchTool implements Tool {
    * @throws Exception
    */
   public int fetch(String batchId, int threads, boolean shouldResume,
-      int numTasks, boolean stmDetect, boolean sitemap) throws Exception {
+      int numTasks, boolean stmDetect, SitemapOperation sitemap) throws Exception {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
     long start = System.currentTimeMillis();
@@ -317,17 +330,23 @@ public class FetcherJob extends NutchTool implements Tool {
   public int run(String[] args) throws Exception {
     int threads = -1;
     boolean shouldResume = false;
-    boolean stmRobot = false, sitemap = false;
+    boolean stmRobot = false;
+    SitemapOperation sitemap = SitemapOperation.NONE;
     String batchId;
 
-    String usage = "Usage: FetcherJob (<batchId> | -all) [-crawlId <id>] "
+    String usage = "Usage: FetcherJob (<batchId> | -all) [-crawlId <id>] [-sitemap <operation]"
         + "[-threads N] \n \t \t  [-resume] [-numTasks N]\n"
         + "    <batchId>     - crawl identifier returned by Generator, or -all for all \n \t \t    generated batchId-s\n"
         + "    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\n"
         + "    -threads N    - number of fetching threads per task\n"
         + "    -resume       - resume interrupted job\n"
         + "    -numTasks N   - if N > 0 then use this many reduce tasks for fetching \n \t \t    (default: mapred.map.tasks)"
-        + "    -sitemap      - only sitemap files are fetched, defaults to false"
+        + "    -sitemap <operation>  - Optional management of sitemap urls."
+        + "                     Potential <operation> values are 'only', 'all', and 'none'."
+        + "                     With 'only', only sitemaps will be fetched."
+        + "                     With 'all', both sitemaps and non-sitemaps will be fetched."
+        + "                     With 'none', only non-sitemaps will be fetched."
+        + "                     Defaults to 'none."
         + "    -stmDetect    - sitemap files are detected from robot.txt file";
 
     if (args.length == 0) {
@@ -352,7 +371,7 @@ public class FetcherJob extends NutchTool implements Tool {
       } else if ("-crawlId".equals(args[i])) {
         getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
       } else if ("-sitemap".equals(args[i])) {
-        sitemap = true;
+        sitemap = SitemapOperation.get(args[++i]);
       } else if ("-stmDetect".equals(args[i])) {
         stmRobot = true;
       } else {

@@ -22,7 +22,6 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlStatus;
 import org.apache.nutch.crawl.InjectType;
@@ -41,12 +40,13 @@ import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -197,17 +197,17 @@ public class ParseUtil extends Configured {
    * Parses given sitemap page and stores parsed content within page.
    *
    */
-  public void processSitemapParse(String url, WebPage page,
-      Mapper.Context context) {
+  public List<WebPage> processSitemapParse(String url, WebPage page) {
+    List<WebPage> newRows = new ArrayList<>();
     if (status(url, page)) {
-      return;
+      return newRows;
     }
 
     NutchSitemapParser sParser = new NutchSitemapParser();
     NutchSitemapParse nutchSitemapParse = sParser.getParse(url, page);
 
     if (nutchSitemapParse == null) {
-      return;
+      return newRows;
     }
 
     ParseStatus pstatus = nutchSitemapParse.getParseStatus();
@@ -228,20 +228,15 @@ public class ParseUtil extends Configured {
             toUrl = normalizers.normalize(toUrl, URLNormalizers.SCOPE_OUTLINK);
             toUrl = filters.filter(toUrl);
           } catch (MalformedURLException e2) {
-            return;
+            break;
           } catch (URLFilterException e) {
-            return;
+            break;
           }
           if (toUrl == null) {
-            return;
-          }
-          String reversedUrl = null;
-          try {
-            reversedUrl = TableUtil.reverseUrl(toUrl); // collect it
-          } catch (MalformedURLException e) {
-            LOG.error("Failed to reverse URL {}: {}", toUrl, e.getMessage());
+            break;
           }
           WebPage newRow = WebPage.newBuilder().build();
+          newRow.setBaseUrl(toUrl);
           Set<Map.Entry<String, String[]>> metaDatas = outlinkMap.get(outlink)
               .getMetaData();
           for (Map.Entry<String, String[]> metadata : metaDatas) {
@@ -261,19 +256,14 @@ public class ParseUtil extends Configured {
 
           Mark.INJECT_MARK.putMark(newRow, InjectType.SITEMAP_INJECT.getTypeString());
 
-          try {
-            context.write(reversedUrl, newRow);
-          } catch (IOException e) {
-            LOG.error(StringUtils.stringifyException(e));
-          } catch (InterruptedException e) {
-            LOG.error(StringUtils.stringifyException(e));
-          }
+          newRows.add(newRow);
         }
 
         parseMark(page);
       }
     }
-
+    
+    return newRows;
   }
 
   private int calculateFetchInterval(String changeFrequency) {

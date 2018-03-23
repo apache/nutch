@@ -685,7 +685,12 @@ public class FetcherReducer extends
       String key = TableUtil.reverseUrl(fit.url);
 
       if (parse) {
-        if (!skipTruncated
+        if (URLFilters.isSitemap(fit.page)) {
+          List<WebPage> newRows = parseUtil.processSitemapParse(fit.url, fit.page);
+          for (WebPage newRow : newRows) {
+            context.write(TableUtil.reverseUrl(newRow.getBaseUrl().toString()), newRow);
+          }
+        } else if (!skipTruncated
             || (skipTruncated && !ParserJob.isTruncated(fit.url, fit.page))) {
           parseUtil.process(key, fit.page);
         }
@@ -820,13 +825,7 @@ public class FetcherReducer extends
     parse = conf.getBoolean(FetcherJob.PARSE_KEY, false);
     storingContent = conf.getBoolean("fetcher.store.content", true);
     if (parse) {
-      boolean sitemap = conf.getBoolean(FetcherJob.SITEMAP, false);
-
-      if (sitemap) {
-        skipTruncated = false;
-      } else {
-        skipTruncated = conf.getBoolean(ParserJob.SKIP_TRUNCATED, true);
-      }
+      skipTruncated = conf.getBoolean(ParserJob.SKIP_TRUNCATED, true);
       parseUtil = new ParseUtil(conf);
     }
     LOG.info("Fetcher: threads: " + threadCount);

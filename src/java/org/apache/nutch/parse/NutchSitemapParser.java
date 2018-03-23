@@ -62,7 +62,6 @@ public class NutchSitemapParser {
       LOG.error(StringUtils.stringifyException(e));
     }
     Map<Outlink, Metadata> outlinkMap = null;
-    Iterator i$;
     if (siteMap.isIndex()) {
       Collection<AbstractSiteMap> links = ((SiteMapIndex) siteMap)
           .getSitemaps();

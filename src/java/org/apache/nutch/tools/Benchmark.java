@@ -230,7 +230,7 @@ public class Benchmark extends Configured implements Tool {
     for (i = 0; i < depth; i++) { // generate new batch
       start = System.currentTimeMillis();
       String batchId = generator.generate(topN, System.currentTimeMillis(),
-          false, false, false);
+          false, false, null);
       delta = System.currentTimeMillis() - start;
       res.addTiming("generate", i + "", delta);
       if (batchId == null) {

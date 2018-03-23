@@ -85,7 +85,7 @@ public class TestGenerator extends AbstractNutchTest {
     for (URLWebPage uwp : list) {
       webPageStore.put(TableUtil.reverseUrl(uwp.getUrl()), uwp.getDatum());
     }
-    CrawlTestUtil.generateFetchlist(NUM_RESULTS, conf, false, false);
+    CrawlTestUtil.generateFetchlist(NUM_RESULTS, conf, false, SitemapOperation.NONE);
 
     ArrayList<URLWebPage> l = CrawlTestUtil.readContents(webPageStore,
         Mark.GENERATE_MARK, FIELDS);
@@ -153,7 +153,7 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration.set(GeneratorJob.GENERATOR_COUNT_MODE,
         GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
     CrawlTestUtil.generateFetchlist(Integer.MAX_VALUE, myConfiguration, false,
-        false);
+        SitemapOperation.NONE);
 
     ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore,
         Mark.GENERATE_MARK, FIELDS);
@@ -164,7 +164,7 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration = new Configuration(conf);
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 2);
     CrawlTestUtil.generateFetchlist(Integer.MAX_VALUE, myConfiguration, false,
-        false);
+        SitemapOperation.NONE);
     fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK,
         FIELDS);
 
@@ -174,7 +174,7 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration = new Configuration(conf);
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 3);
     CrawlTestUtil.generateFetchlist(Integer.MAX_VALUE, myConfiguration, false,
-        false);
+        SitemapOperation.NONE);
     fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK,
         FIELDS);
 
@@ -212,7 +212,7 @@ public class TestGenerator extends AbstractNutchTest {
         GeneratorJob.GENERATOR_COUNT_VALUE_DOMAIN);
 
     CrawlTestUtil.generateFetchlist(Integer.MAX_VALUE, myConfiguration, false,
-        false);
+        SitemapOperation.NONE);
     ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore,
         Mark.GENERATE_MARK, FIELDS);
 
@@ -222,7 +222,7 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration = new Configuration(myConfiguration);
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 2);
     CrawlTestUtil.generateFetchlist(Integer.MAX_VALUE, myConfiguration, false,
-        false);
+        SitemapOperation.NONE);
     fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK,
         FIELDS);
 
@@ -232,7 +232,7 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration = new Configuration(myConfiguration);
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 3);
     CrawlTestUtil.generateFetchlist(Integer.MAX_VALUE, myConfiguration, false,
-        false);
+        SitemapOperation.NONE);
     fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK,
         FIELDS);
 
@@ -267,14 +267,14 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration.set("urlfilter.suffix.file", "filter-all.txt");
 
     CrawlTestUtil.generateFetchlist(Integer.MAX_VALUE, myConfiguration, true,
-        false);
+        SitemapOperation.NONE);
     ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore,
         Mark.GENERATE_MARK, FIELDS);
 
     assertEquals(0, fetchList.size());
 
     CrawlTestUtil.generateFetchlist(Integer.MAX_VALUE, myConfiguration, true,
-        false);
+        SitemapOperation.NONE);
     fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK,
         FIELDS);
 
@@ -285,7 +285,7 @@ public class TestGenerator extends AbstractNutchTest {
 
   @Test
   public void testGenerateOnlySitemap() throws Exception {
-    boolean sitemap = true;
+    SitemapOperation sitemap = SitemapOperation.ONLY;
     ArrayList<String> urls = new ArrayList<String>();
     for (int i = 0; i < 10; i++) {
       urls.add("http://zzz.com/" + i + ".html\tnutch.score=" + i
@@ -310,7 +310,7 @@ public class TestGenerator extends AbstractNutchTest {
    */
   @Test
   public void testGenerateNoneSitemap() throws Exception {
-    boolean sitemap = false;
+    SitemapOperation sitemap = SitemapOperation.NONE;
     ArrayList<String> urls = new ArrayList<String>();
     for (int i = 0; i < 10; i++) {
       urls.add("http://zzz.com/" + i + ".html\tnutch.score=" + i
@@ -330,7 +330,7 @@ public class TestGenerator extends AbstractNutchTest {
   }
 
   private ArrayList<URLWebPage> generateForSitemap(ArrayList<String> urls,
-      boolean sitemap) throws Exception {
+      SitemapOperation sitemap) throws Exception {
     Path urlPath = new Path(testdir, "urls");
     String batchId = "1234";
     conf.set(GeneratorJob.BATCH_ID, batchId);

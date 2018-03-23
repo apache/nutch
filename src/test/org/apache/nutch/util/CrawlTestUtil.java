@@ -24,6 +24,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.nutch.crawl.GeneratorJob;
+import org.apache.nutch.crawl.SitemapOperation;
 import org.apache.nutch.crawl.URLWebPage;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
@@ -157,7 +158,7 @@ public class CrawlTestUtil {
    * @throws IOException
    */
   public static void generateFetchlist(int numResults, Configuration config,
-      boolean filter, boolean sitemap) throws Exception {
+      boolean filter, SitemapOperation sitemap) throws Exception {
     // generate batch
     GeneratorJob g = new GeneratorJob();
     g.setConf(config);

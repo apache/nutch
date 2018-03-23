@@ -114,6 +114,8 @@ public interface Nutch {
   public static final String ARG_DEPTH = "depth";
   /** Sitemaps. */
   public static final String ARG_SITEMAP = "sitemap";
+  public static final String ONLY_SITEMAP = "nutch.process.sitemap.only";
+  public static final String ALL_SITEMAP = "nutch.process.sitemap.all";
   /** Sitemap Detect as fetch . */
   public static final String ARG_SITEMAP_DETECT = "stmDetect";
 

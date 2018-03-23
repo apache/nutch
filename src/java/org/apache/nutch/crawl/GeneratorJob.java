@@ -53,7 +53,6 @@ public class GeneratorJob extends NutchTool implements Tool {
   public static final String GENERATOR_MIN_SCORE = "generate.min.score";
   public static final String GENERATOR_FILTER = "generate.filter";
   public static final String GENERATOR_NORMALISE = "generate.normalise";
-  public static final String GENERATOR_SITEMAP = "generate.sitemap";
   public static final String GENERATOR_MAX_COUNT = "generate.max.count";
   public static final String GENERATOR_COUNT_MODE = "generate.count.mode";
   public static final String GENERATOR_COUNT_VALUE_DOMAIN = "domain";
@@ -217,7 +216,8 @@ public class GeneratorJob extends NutchTool implements Tool {
     }
     Boolean filter = (Boolean) args.get(Nutch.ARG_FILTER);
     Boolean norm = (Boolean) args.get(Nutch.ARG_NORMALIZE);
-    Boolean sitemap = (Boolean) args.get(Nutch.ARG_SITEMAP);
+    SitemapOperation sitemap = (SitemapOperation) args.get(Nutch.ARG_SITEMAP);
+    sitemap = sitemap == null ? SitemapOperation.NONE : sitemap;
 
     // map to inverted subset due for fetch, sort by score
     getConf().setLong(GENERATOR_CUR_TIME, curTime);
@@ -225,8 +225,17 @@ public class GeneratorJob extends NutchTool implements Tool {
       getConf().setLong(GENERATOR_TOP_N, topN);
     if (filter != null)
       getConf().setBoolean(GENERATOR_FILTER, filter);
-    if (sitemap != null)
-      getConf().setBoolean(GENERATOR_SITEMAP, sitemap);
+    switch (sitemap) {
+    case ONLY:
+      getConf().setBoolean(Nutch.ONLY_SITEMAP, true);
+      break;
+    case ALL:
+      getConf().setBoolean(Nutch.ALL_SITEMAP, true);
+      break;
+    case NONE:
+      getConf().setBoolean(Nutch.ONLY_SITEMAP, false);
+      getConf().setBoolean(Nutch.ALL_SITEMAP, false);
+    }
 
     getConf().setLong(Nutch.GENERATE_TIME_KEY, System.currentTimeMillis());
     if (norm != null)
@@ -278,7 +287,7 @@ public class GeneratorJob extends NutchTool implements Tool {
    * @throws Exception
    * */
   public String generate(long topN, long curTime, boolean filter, boolean norm,
-      boolean sitemap) throws Exception {
+      SitemapOperation sitemap) throws Exception {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
     long start = System.currentTimeMillis();
@@ -287,7 +296,7 @@ public class GeneratorJob extends NutchTool implements Tool {
     LOG.info("GeneratorJob: starting");
     LOG.info("GeneratorJob: filtering: {}", filter);
     LOG.info("GeneratorJob: normalizing: {}", norm);
-    if (sitemap) {
+    if (sitemap != null && !sitemap.equals(SitemapOperation.NONE)) {
       LOG.info("GeneratorJob: sitemap: {}", sitemap);
     }
     if (topN != Long.MAX_VALUE) {
@@ -324,22 +333,32 @@ public class GeneratorJob extends NutchTool implements Tool {
   public int run(String[] args) throws Exception {
     if (args.length <= 0) {
       System.out
-      .println("Usage: GeneratorJob [-topN N] [-crawlId id] [-noFilter] [-noNorm] [-adddays numDays] [-sitemap]");
+      .println("Usage: GeneratorJob [-topN N] [-crawlId id] [-noFilter] [-noNorm] [-adddays numDays] [-sitemap OP]");
       System.out
-      .println("    -topN <N>      - number of top URLs to be selected, default is Long.MAX_VALUE ");
+      .println("    -topN <N>             - number of top URLs to be selected, default is Long.MAX_VALUE ");
       System.out
-      .println("    -crawlId <id>  - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\");");
+      .println("    -crawlId <id>         - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\");");
       System.out
-      .println("    -noFilter      - do not activate the filter plugin to filter the url, default is true ");
+      .println("    -noFilter             - do not activate the filter plugin to filter the url, default is true ");
       System.out
-      .println("    -noNorm        - do not activate the normalizer plugin to normalize the url, default is true ");
+      .println("    -noNorm               - do not activate the normalizer plugin to normalize the url, default is true ");
       System.out
-      .println("    -adddays       - Adds numDays to the current time to facilitate crawling urls already");
-      System.out
-      .println("    -sitemap       - generate only sitemap url, default false");
+      .println("    -adddays              - Adds numDays to the current time to facilitate crawling urls already");
       System.out
       .println("                     fetched sooner then db.fetch.interval.default. Default value is 0.");
-      System.out.println("    -batchId       - the batch id ");
+      System.out
+      .println("    -sitemap <operation>  - Optional management of sitemap urls.");
+      System.out
+      .println("                     Potential <operation> values are 'only', 'all', and 'none'.");
+      System.out
+      .println("                     With 'only', the generated batch will only contain sitemaps.");
+      System.out
+      .println("                     With 'all', the generated batch will contain both sitemaps and non-sitemaps.");
+      System.out
+      .println("                     With 'none', the generated batch will contain only non-sitemaps.");
+      System.out
+      .println("                     Defaults to 'none.");
+      System.out.println("    -batchId              - the batch id ");
       System.out.println("----------------------");
       System.out.println("Please set the params.");
       return -1;
@@ -349,7 +368,7 @@ public class GeneratorJob extends NutchTool implements Tool {
     long topN = Long.MAX_VALUE;
     boolean filter = true;
     boolean norm = true;
-    boolean sitemap = false;
+    SitemapOperation sitemap = SitemapOperation.NONE;
 
     for (int i = 0; i < args.length; i++) {
       if ("-topN".equals(args[i])) {
@@ -361,7 +380,7 @@ public class GeneratorJob extends NutchTool implements Tool {
       } else if ("-crawlId".equals(args[i])) {
         getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
       } else if ("-sitemap".equals(args[i])) {
-        sitemap = true;
+        sitemap = SitemapOperation.get(args[++i]);
       } else if ("-adddays".equals(args[i])) {
         long numDays = Integer.parseInt(args[++i]);
         curTime += numDays * 1000L * 60 * 60 * 24;
