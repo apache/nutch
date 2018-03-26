@@ -213,6 +213,7 @@
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
       <!--packageset dir="${plugins.dir}/parse-ext/src/java"/-->
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
+      <packageset dir="${plugins.dir}/parse-sitemap/src/java"/>
       <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
       <!--packageset dir="${plugins.dir}/parse-swf/src/java"/-->
@@ -672,6 +673,7 @@
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
       <!--packageset dir="${plugins.dir}/parse-ext/src/java"/-->
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
+      <packageset dir="${plugins.dir}/parse-sitemap/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
       <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
       <!--packageset dir="${plugins.dir}/parse-swf/src/java"/-->
@@ -1053,6 +1055,8 @@
         <source path="${basedir}/src/plugin/parse-ext/src/test/" /> -->
         <source path="${basedir}/src/plugin/parse-html/src/java/" />
         <source path="${basedir}/src/plugin/parse-html/src/test/" />
+        <source path="${basedir}/src/parse-sitemap/src/java"/>
+        <source path="${basedir}/src/parse-sitemap/src/test"/>
         <source path="${basedir}/src/plugin/parse-js/src/java/" />
         <source path="${basedir}/src/plugin/parse-js/src/test/" />
         <source path="${basedir}/src/plugin/parse-metatags/src/java/" />

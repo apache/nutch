@@ -194,27 +194,34 @@ public class ParseUtil extends Configured {
   }
 
   /**
-   * Parses given sitemap page and stores parsed content within page.
-   *
+   * Parses given sitemap page and returns the list of new rows
+   * to add to the crawler store.
    */
   public List<WebPage> processSitemapParse(String url, WebPage page) {
     List<WebPage> newRows = new ArrayList<>();
     if (status(url, page)) {
       return newRows;
     }
+    
+    SitemapParse sitemapParse = null;
+    try {
+      for (SitemapParser parser : parserFactory.getSitemapParsers()) {
+        sitemapParse = parser.getParse(url, page);
+        if (sitemapParse != null && ParseStatusUtils.isSuccess(sitemapParse.getParseStatus())) {
+          break;
+        }
+      }
+    } catch (ParserNotFound e) {
+    }
 
-    NutchSitemapParser sParser = new NutchSitemapParser();
-    NutchSitemapParse nutchSitemapParse = sParser.getParse(url, page);
-
-    if (nutchSitemapParse == null) {
+    if (sitemapParse == null) {
       return newRows;
     }
 
-    ParseStatus pstatus = nutchSitemapParse.getParseStatus();
+    ParseStatus pstatus = sitemapParse.getParseStatus();
     page.setParseStatus(pstatus);
     if (ParseStatusUtils.isSuccess(pstatus)) {
-      final Map<Outlink, Metadata> outlinkMap = nutchSitemapParse
-          .getOutlinkMap();
+      final Map<Outlink, Metadata> outlinkMap = sitemapParse.getOutlinkMap();
       if (pstatus.getMinorCode() == ParseStatusCodes.SUCCESS_REDIRECT) {
         successRedirect(url, page, pstatus);
       } else if (outlinkMap != null) {

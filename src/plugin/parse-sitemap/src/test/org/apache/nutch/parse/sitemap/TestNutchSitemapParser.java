@@ -15,40 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.parse;
+package org.apache.nutch.parse.sitemap;
 
+import org.apache.nutch.parse.ParseStatusUtils;
+import org.apache.nutch.parse.SitemapParse;
 import org.apache.nutch.storage.ParseStatus;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.AbstractNutchTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-public class TestSitemapParser extends AbstractNutchTest {
-
-  @Mock
+public class TestNutchSitemapParser {
+  
   WebPage page;
 
-  @Override
   @Before
   public void setUp() throws Exception {
-    super.setUp();
-    page =mock(WebPage.class);
-  }
-
-  @Override
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
+    page = new WebPage();
   }
 
   @Test
@@ -63,11 +53,11 @@ public class TestSitemapParser extends AbstractNutchTest {
         + "<url>\n\t\t<loc>http://localhost/zzz4.html</loc>\n\t\t<lastmod>2015-06-10</lastmod>\n\t\t<changefreq>monthly</changefreq>\n\t\t<priority>0.8</priority>\n\t</url>\n\t"
         + "<url>\n\t\t<loc>http://localhost/zzz5.html</loc>\n\t\t<lastmod>2015-06-10</lastmod>\n\t\t<changefreq>monthly</changefreq>\n\t\t<priority>0.8</priority>\n\t</url>\n"
         + "</urlset>";
-    when(page.getContent()).thenReturn(ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8)));
-    when(page.getContentType()).thenReturn("application/xml");
+    page.setContent(ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8)));
+    page.setContentType("application/xml");
 
     NutchSitemapParser sParser = new NutchSitemapParser();
-    NutchSitemapParse nutchSitemapParse = sParser.getParse(sitemapUrl, page);
+    SitemapParse nutchSitemapParse = sParser.getParse(sitemapUrl, page);
 
     assertNotNull(nutchSitemapParse);
 
@@ -95,13 +85,13 @@ public class TestSitemapParser extends AbstractNutchTest {
         + "        <lastmod>2015-07-30</lastmod>\n"
         + "    </sitemap>\n"
         + "</sitemapindex>";
-
-    when(page.getContent()).thenReturn(ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8)));
-    when(page.getContentType()).thenReturn("application/xml");
-    when(page.getSitemaps()).thenReturn(new HashMap<CharSequence, CharSequence>());
+    
+    page.setContent(ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8)));
+    page.setContentType("application/xml");
+    page.setSitemaps(new HashMap<CharSequence, CharSequence>());
 
     NutchSitemapParser sParser = new NutchSitemapParser();
-    NutchSitemapParse nutchSitemapParse = sParser.getParse(sitemapUrl, page);
+    SitemapParse nutchSitemapParse = sParser.getParse(sitemapUrl, page);
 
     assertNotNull(nutchSitemapParse);
     assertNull(nutchSitemapParse.getOutlinkMap());

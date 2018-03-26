@@ -48,14 +48,20 @@ public final class ParserFactory {
   private final List<Extension> EMPTY_EXTENSION_LIST = new ArrayList<Extension>();
 
   private final Configuration conf;
+  
   private final ExtensionPoint extensionPoint;
   private ParsePluginList parsePluginList;
+  
+  private final ExtensionPoint sitemapExtensionPoint;
+  private List<SitemapParser> sitemapParsePluginList;
 
   public ParserFactory(Configuration conf) {
     this.conf = conf;
     ObjectCache objectCache = ObjectCache.get(conf);
     this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(
         Parser.X_POINT_ID);
+    this.sitemapExtensionPoint = PluginRepository.get(conf).getExtensionPoint(
+        SitemapParser.X_POINT_ID);
     this.parsePluginList = (ParsePluginList) objectCache
         .getObject(ParsePluginList.class.getName());
     if (this.parsePluginList == null) {
@@ -67,10 +73,31 @@ public final class ParserFactory {
     if (this.extensionPoint == null) {
       throw new RuntimeException("x point " + Parser.X_POINT_ID + " not found.");
     }
+    if (this.sitemapExtensionPoint == null) {
+      throw new RuntimeException("x point " + SitemapParser.X_POINT_ID + " not found.");
+    }
     if (this.parsePluginList == null) {
       throw new RuntimeException(
           "Parse Plugins preferences could not be loaded.");
     }
+    if (this.sitemapParsePluginList == null) {
+      try {
+        Extension[] extensions = sitemapExtensionPoint.getExtensions();
+        for (Extension extension : extensions) {
+          sitemapParsePluginList.add((SitemapParser) extension.getExtensionInstance());
+        }
+      } catch (PluginRuntimeException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+  
+  /**
+   * Function returns an array of all available {@link SitemapParser}s.
+   * @return An <code>Array</code> of all available {@link SitemapParser}s.
+   */
+  public SitemapParser[] getSitemapParsers() throws ParserNotFound {
+    return sitemapParsePluginList.toArray(new SitemapParser[sitemapParsePluginList.size()]);
   }
 
   /**

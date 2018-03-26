@@ -51,6 +51,7 @@
      <ant dir="protocol-sftp" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
+     <ant dir="parse-sitemap" target="deploy"/>
      <ant dir="parse-tika" target="deploy"/>
      <ant dir="parse-metatags" target="deploy"/>
      <ant dir="scoring-link" target="deploy"/>
@@ -82,6 +83,7 @@
      <ant dir="parse-tika" target="test"/>
      <ant dir="protocol-file" target="test"/>
      <ant dir="parse-html" target="test"/>
+     <ant dir="parse-sitemap" target="test"/>
      <ant dir="parse-js" target="test"/>
      <ant dir="parse-metatags" target="test"/>
      <ant dir="index-anchor" target="test"/>
@@ -139,6 +141,7 @@
     <ant dir="parse-ext" target="clean"/>
     <ant dir="parse-js" target="clean"/>
     <ant dir="parse-html" target="clean"/>
+    <ant dir="parse-sitemap" target="clean"/>
     <ant dir="parse-swf" target="clean"/>
     <ant dir="parse-tika" target="clean"/>
     <ant dir="parse-zip" target="clean"/>

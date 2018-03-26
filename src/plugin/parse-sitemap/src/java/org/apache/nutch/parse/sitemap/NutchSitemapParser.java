@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.parse;
+package org.apache.nutch.parse.sitemap;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -29,11 +29,17 @@ import crawlercommons.sitemaps.*;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.SitemapParse;
+import org.apache.nutch.parse.ParseStatusCodes;
+import org.apache.nutch.parse.ParseStatusUtils;
+import org.apache.nutch.parse.SitemapParser;
 
 import org.apache.nutch.storage.ParseStatus;
 import org.apache.nutch.storage.WebPage;
 
-public class NutchSitemapParser {
+public class NutchSitemapParser implements SitemapParser {
 
   private Configuration conf;
 
@@ -46,8 +52,8 @@ public class NutchSitemapParser {
     FIELDS.add(WebPage.Field.BASE_URL);
   }
 
-  public NutchSitemapParse getParse(String url, WebPage page) {
-    NutchSitemapParse nutchSitemapParse = null;
+  public SitemapParse getParse(String url, WebPage page) {
+    SitemapParse nutchSitemapParse = null;
     SiteMapParser parser = new SiteMapParser();
 
     AbstractSiteMap siteMap = null;
@@ -92,7 +98,7 @@ public class NutchSitemapParser {
     }
     ParseStatus status = ParseStatus.newBuilder().build();
     status.setMajorCode((int) ParseStatusCodes.SUCCESS);
-    nutchSitemapParse = new NutchSitemapParse(outlinkMap, status);
+    nutchSitemapParse = new SitemapParse(outlinkMap, status);
     return nutchSitemapParse;
   }
 
