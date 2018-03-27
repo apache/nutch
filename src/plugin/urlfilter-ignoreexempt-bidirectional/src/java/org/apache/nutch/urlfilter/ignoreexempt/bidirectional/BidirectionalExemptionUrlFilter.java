@@ -114,7 +114,7 @@ public class BidirectionalExemptionUrlFilter extends Configured implements
       LOG.info("loading " + this.fileName);
     }
     try {
-      FileReader reader = new FileReader(this.fileName);
+      Reader reader = getConf().getConfResourceAsReader(this.fileName);
       return readConfiguration(reader);
     } catch (Exception e) {
       LOG.error("Error loading rules from '" + this.fileName + "': " + e);
