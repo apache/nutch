@@ -8,4 +8,9 @@ logs/
 *.iml
 .idea
 .log
-
+*.class
+*.classpath
+*.project
+*.jar
+/bin/
+/dist/

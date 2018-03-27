@@ -142,7 +142,7 @@ public class IndexingJob extends NutchTool implements Tool {
             duplicate.getURLs())) {
           return;
         } else {
-          StringBuilder duplicates = new StringBuilder();
+          StringBuilder duplicates = new StringBuilder("");
           for (CharSequence url : duplicate.getURLs()) {
             String duplicateKey = TableUtil.reverseUrl(url.toString());
             if (!key.equals(duplicateKey)) {
