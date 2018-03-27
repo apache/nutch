@@ -19,6 +19,7 @@ package org.apache.nutch.indexer;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -68,6 +69,7 @@ public class IndexingJob extends NutchTool implements Tool {
     FIELDS.add(WebPage.Field.PARSE_STATUS);
     FIELDS.add(WebPage.Field.SCORE);
     FIELDS.add(WebPage.Field.MARKERS);
+    FIELDS.add(WebPage.Field.METADATA);
   }
 
   public static class IndexerMapper extends
@@ -140,12 +142,16 @@ public class IndexingJob extends NutchTool implements Tool {
             duplicate.getURLs())) {
           return;
         } else {
+          StringBuilder duplicates = new StringBuilder();
           for (CharSequence url : duplicate.getURLs()) {
             String duplicateKey = TableUtil.reverseUrl(url.toString());
             if (!key.equals(duplicateKey)) {
+              duplicates.append(url+";");
               writers.delete(duplicateKey);
             }
           }
+          // attach the duplicates to the page as metadata
+          page.getMetadata().put(Nutch.DUPLICATE_URLS_KEY, ByteBuffer.wrap(duplicates.toString().getBytes()));
         }
       }
 

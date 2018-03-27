@@ -51,6 +51,8 @@ public interface Nutch {
 
   public static final String FETCH_STATUS_KEY = "_fst_";
   
+  public static final String DUPLICATE_URLS_KEY = "_dup_";
+  
   public static final String DEDUPLICATE = "nutch.index.deduplicate";
 
   /**
