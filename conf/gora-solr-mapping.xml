@@ -59,5 +59,9 @@
         <field name="inlinks" column="inlinks" />
         <field name="outlinks" column="outlinks" />
     </class>
+
+    <class table="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
+      <field name="urls" column="urls"/>
+    </class>
 </gora-otd>
 

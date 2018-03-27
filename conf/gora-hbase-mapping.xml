@@ -99,5 +99,12 @@ http://gora.apache.org/current/gora-hbase.html
       <field name="inlinks" family="il"/>
       <field name="outlinks" family="ol"/>
     </class>
+
+    <table name="duplicate">
+      <family name="dup" maxVersions="1"/>
+    </table>
+    <class table="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
+      <field name="urls" family="dup"/>
+    </class>
     
 </gora-orm>

@@ -59,5 +59,9 @@
         <field name="inlinks" docfield="inlinks" type="document"/>
         <field name="outlinks" docfield="outlinks" type="document"/>
     </class>
+    
+    <class document="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
+      <field name="urls" docfield="urls" type="document"/>
+    </class>
 
 </gora-otd>

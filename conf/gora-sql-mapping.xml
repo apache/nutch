@@ -57,4 +57,9 @@ table="host">
   <field name="outlinks" column="outlinks"/>
 </class>
 
+<class table="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
+  <primarykey column="id" length="512"/>
+  <field name="urls" column="urls"/>
+</class>
+
 </gora-orm>

@@ -90,5 +90,12 @@
         <field name="inlinks" family="il" qualifier="il" ttl="0"/>
         <field name="outlinks" family="ol" qualifier="ol" ttl="0"/>
     </class>
+
+    <keyspace name="duplicate" cluster="Test Cluster" host="localhost:9160">
+      <family name="dup" gc_grace_seconds="0"/>
+    </keyspace>
+    <class keyspace="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
+      <field name="urls" family="dup" qualifier="urls" ttl="0"/>
+    </class>
     
 </gora-orm>
