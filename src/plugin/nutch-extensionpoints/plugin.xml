@@ -41,6 +41,10 @@
       name="Parse Filter"/>
 
 <extension-point
+      id="org.apache.nutch.parse.SitemapParser"
+      name="Sitemap Parser"/>
+
+<extension-point
       id="org.apache.nutch.protocol.Protocol"
       name="Nutch Protocol"/>
 
