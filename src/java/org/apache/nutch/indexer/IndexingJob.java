@@ -241,7 +241,7 @@ public class IndexingJob extends NutchTool implements Tool {
     if (args.length == 3 && "-crawlId".equals(args[1])) {
       getConf().set(Nutch.CRAWL_ID_KEY, args[2]);
     }
-    if (args.length >=3 && "-deduplicate".equals(args[args.length])) {
+    if ("-deduplicate".equals(args[args.length-1])) {
       deduplicate = true;
     }
     try {
