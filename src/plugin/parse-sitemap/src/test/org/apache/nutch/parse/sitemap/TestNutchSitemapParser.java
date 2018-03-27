@@ -38,7 +38,7 @@ public class TestNutchSitemapParser {
 
   @Before
   public void setUp() throws Exception {
-    page = new WebPage();
+    page = WebPage.newBuilder().build();
   }
 
   @Test
