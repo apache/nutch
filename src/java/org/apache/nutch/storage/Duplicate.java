@@ -33,7 +33,7 @@ import org.apache.gora.persistency.impl.PersistentBase;
 /** Duplicate represents a list of urls with matching digest values */
 public class Duplicate extends PersistentBase implements SpecificRecord, Persistent {
   public static final Schema SCHEMA$ = new Schema.Parser()
-      .parse("{\"type\":\"record\",\"name\":\"Duplicate\",\"namespace\":\"org.apache.nutch.storage\",\"doc\":\"A Duplicate is a data structure in Nutch representing crawl data for urls whose content is identical.\",\"fields\":[{\"name\":\"urls\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"doc\":\"The web pages with identical content.\"}]}");
+      .parse("{\"type\":\"record\",\"name\":\"Duplicate\",\"namespace\":\"org.apache.nutch.storage\",\"doc\":\"A Duplicate is a data structure in Nutch representing crawl data for urls whose content is identical.\",\"fields\":[{\"name\":\"urls\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"doc\":\"The web pages with identical content.\",\"default\":[]}]}");
 
   /** Enum containing all data bean's fields. */
   public static enum Field {

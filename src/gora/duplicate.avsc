@@ -1,0 +1,21 @@
+{
+  "name": "Duplicate",
+  "type": "record",
+  "namespace": "org.apache.nutch.storage",
+  "doc": "A Duplicate is a data structure in Nutch representing crawl data for urls whose content is identical.",
+  "fields": [
+    {
+      "name": "urls",
+      "type": {
+        "type": "array",
+        "items": "string"
+      },
+      "doc": "The web pages with identical content."
+      "default": [
+        
+      ]
+    }
+  ]
+}
+
+
