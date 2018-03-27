@@ -81,6 +81,7 @@ public final class ParserFactory {
           "Parse Plugins preferences could not be loaded.");
     }
     if (this.sitemapParsePluginList == null) {
+      this.sitemapParsePluginList = new ArrayList<>();
       try {
         Extension[] extensions = sitemapExtensionPoint.getExtensions();
         for (Extension extension : extensions) {
