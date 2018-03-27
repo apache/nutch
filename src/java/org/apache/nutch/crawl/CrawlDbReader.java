@@ -404,7 +404,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
           try {
             int complete = job.waitForCompletion(true)?0:1;
-          } catch (InterruptedException | ClassNotFoundException e) {
+          } catch (IOException | InterruptedException | ClassNotFoundException e) {
             LOG.error(StringUtils.stringifyException(e));
             throw e;
           }
