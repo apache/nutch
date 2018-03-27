@@ -33,6 +33,10 @@
       name="Nutch Index Cleaning Filter"/>
 
 <extension-point
+      id="org.apache.nutch.indexer.DuplicateFilter"
+      name="Nutch Deduplication Filter"/>
+
+<extension-point
       id="org.apache.nutch.parse.Parser"
       name="Nutch Content Parser"/>
  
