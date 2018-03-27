@@ -66,12 +66,13 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.nutch.util.AbstractChecker;
 import org.apache.nutch.util.JexlUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.SegmentReaderUtil;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TimingUtil;
-import org.apache.nutch.util.SegmentReaderUtil;
 import org.apache.commons.jexl2.Expression;
 
 /**
@@ -80,12 +81,14 @@ import org.apache.commons.jexl2.Expression;
  * @author Andrzej Bialecki
  * 
  */
-public class CrawlDbReader extends Configured implements Closeable, Tool {
+public class CrawlDbReader extends AbstractChecker implements Closeable {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private MapFile.Reader[] readers = null;
+
+  protected String crawlDb;
 
   private void openReaders(String crawlDb, Configuration config)
       throws IOException {
@@ -106,6 +109,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
       }
     }
+    readers = null;
   }
 
   public static class CrawlDatumCsvOutputFormat extends
@@ -589,15 +593,25 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     return res;
   }
 
-  public void readUrl(String crawlDb, String url, Configuration config)
+  protected int process(String line, StringBuilder output) throws Exception {
+    Job job = NutchJob.getInstance(getConf());
+    Configuration config = job.getConfiguration();
+    // Close readers, so we know we're not working on stale data
+    closeReaders();
+    readUrl(this.crawlDb, line, config, output);
+    return 0;
+  }
+
+  public void readUrl(String crawlDb, String url, Configuration config, StringBuilder output)
       throws IOException {
     CrawlDatum res = get(crawlDb, url, config);
-    System.out.println("URL: " + url);
+    output.append("URL: " + url + "\n");
     if (res != null) {
-      System.out.println(res);
+      output.append(res);
     } else {
-      System.out.println("not found");
+      output.append("not found");
     }
+    output.append("\n");
   }
 
   public void processDumpJob(String crawlDb, String output,
@@ -788,7 +802,8 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
   }
 
-  public int run(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+
+  public int run(String[] args) throws IOException, InterruptedException, ClassNotFoundException, Exception {
     @SuppressWarnings("resource")
     CrawlDbReader dbr = new CrawlDbReader();
 
@@ -823,8 +838,11 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     }
     String param = null;
     String crawlDb = args[0];
+    this.crawlDb = crawlDb;
+    int numConsumed = 0;
     Job job = NutchJob.getInstance(getConf());
     Configuration config = job.getConfiguration();
+
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-stats")) {
         boolean toSort = false;
@@ -870,7 +888,9 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         dbr.processDumpJob(crawlDb, param, config, format, regex, status, retry, expr, sample);
       } else if (args[i].equals("-url")) {
         param = args[++i];
-        dbr.readUrl(crawlDb, param, config);
+        StringBuilder output = new StringBuilder();
+        dbr.readUrl(crawlDb, param, config, output);
+        System.out.print(output);
       } else if (args[i].equals("-topN")) {
         param = args[++i];
         long topN = Long.parseLong(param);
@@ -880,10 +900,17 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           min = Float.parseFloat(args[++i]);
         }
         dbr.processTopNJob(crawlDb, topN, min, param, config);
+      } else if ((numConsumed = super.parseArgs(args, i)) > 0) {
+        i += numConsumed - 1;
       } else {
         System.err.println("\nError: wrong argument " + args[i]);
         return -1;
       }
+    }
+
+    if (numConsumed > 0) {
+      // Start listening
+      return super.run();
     }
     return 0;
   }
