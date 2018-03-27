@@ -151,9 +151,16 @@ public class SitemapProcessor extends Configured implements Tool {
           if (tryDefaultSitemapXml && sitemaps.size() == 0) {
             sitemaps.add(url + "sitemap.xml");
           }
-          for(String sitemap: sitemaps) {
+          for (String sitemap : sitemaps) {
             context.getCounter("Sitemap", "sitemaps_from_hostdb").increment(1);
-            generateSitemapUrlDatum(protocolFactory.getProtocol(sitemap), sitemap, context);
+            sitemap = filterNormalize(sitemap);
+            if (sitemap == null) {
+              context.getCounter("Sitemap", "filtered_sitemaps_from_hostdb")
+                  .increment(1);
+            } else {
+              generateSitemapUrlDatum(protocolFactory.getProtocol(sitemap),
+                  sitemap, context);
+            }
           }
         }
         else if (value instanceof Text) {
@@ -263,8 +270,11 @@ public class SitemapProcessor extends Configured implements Tool {
         }
 
         LOG.info("Parsing sitemap index file: {}", index.getUrl().toString());
-        for(AbstractSiteMap sitemap: sitemapUrls) {
-          generateSitemapUrlDatum(protocol, sitemap.getUrl().toString(), context);
+        for (AbstractSiteMap sitemap : sitemapUrls) {
+          String sitemapUrl = filterNormalize(sitemap.getUrl().toString());
+          if (sitemapUrl != null) {
+            generateSitemapUrlDatum(protocol, sitemapUrl, context);
+          }
         }
       }
     }
