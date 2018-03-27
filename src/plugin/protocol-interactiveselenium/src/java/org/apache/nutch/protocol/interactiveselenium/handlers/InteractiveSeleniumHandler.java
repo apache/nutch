@@ -21,5 +21,5 @@ import org.openqa.selenium.WebDriver;
 
 public interface InteractiveSeleniumHandler {
     public String processDriver(WebDriver driver);
-    public boolean shouldProcessURL(String URL);
+    public boolean shouldProcessURL(String url);
 }

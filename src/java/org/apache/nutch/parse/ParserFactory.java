@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.parse;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,14 +23,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
-// Nutch imports
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;

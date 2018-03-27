@@ -18,7 +18,6 @@
 package org.apache.nutch.parsefilter.naivebayes;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.io.InputStreamReader;

@@ -28,11 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -40,7 +43,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
-import org.apache.hadoop.util.*;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
@@ -63,7 +68,7 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
   private MapFile.Reader[] readers;
 
   public LinkDbReader() {
-
+    //default constructor
   }
 
   public LinkDbReader(Configuration conf, Path directory) throws Exception {
@@ -167,8 +172,8 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
     }
 
     long end = System.currentTimeMillis();
-    LOG.info("LinkDb dump: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    LOG.info("LinkDb dump: finished at {}, elapsed: {}",
+            sdf.format(end), TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args) throws Exception {

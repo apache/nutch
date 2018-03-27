@@ -18,11 +18,10 @@
 package org.apache.nutch.urlfilter.suffix;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.net.*;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.SuffixStringMatcher;
-
+import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 

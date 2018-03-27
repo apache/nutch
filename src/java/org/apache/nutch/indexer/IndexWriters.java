@@ -21,7 +21,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;

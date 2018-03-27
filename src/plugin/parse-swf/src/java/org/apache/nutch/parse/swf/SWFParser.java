@@ -18,24 +18,44 @@
 package org.apache.nutch.parse.swf;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Stack;
+import java.util.Vector;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.parse.*;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.OutlinkExtractor;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseResult;
+import org.apache.nutch.parse.ParseStatus;
+import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.anotherbigidea.flash.interfaces.*;
-import com.anotherbigidea.flash.readers.*;
-import com.anotherbigidea.flash.structs.*;
+import com.anotherbigidea.flash.interfaces.SWFActionBlock;
+import com.anotherbigidea.flash.interfaces.SWFActions;
+import com.anotherbigidea.flash.interfaces.SWFText;
+import com.anotherbigidea.flash.interfaces.SWFVectors;
+import com.anotherbigidea.flash.readers.SWFReader;
+import com.anotherbigidea.flash.readers.TagParser;
+import com.anotherbigidea.flash.structs.AlphaColor;
+import com.anotherbigidea.flash.structs.Color;
+import com.anotherbigidea.flash.structs.Matrix;
+import com.anotherbigidea.flash.structs.Rect;
 import com.anotherbigidea.flash.writers.SWFActionBlockImpl;
 import com.anotherbigidea.flash.writers.SWFTagTypesImpl;
 import com.anotherbigidea.io.InStream;
@@ -51,20 +71,24 @@ public class SWFParser implements Parser {
   private Configuration conf = null;
 
   public SWFParser() {
+    //default constructor
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public ParseResult getParse(Content content) {
 
     String text = null;
-    Vector<Outlink> outlinks = new Vector<Outlink>();
+    Vector<Outlink> outlinks = new Vector<>();
 
     try {
 
@@ -163,13 +187,13 @@ class ExtractText extends SWFTagTypesImpl {
    * character codes for the correspnding font glyphs (An empty array denotes a
    * System Font).
    */
-  protected HashMap<Integer, int[]> fontCodes = new HashMap<Integer, int[]>();
+  protected HashMap<Integer, int[]> fontCodes = new HashMap<>();
 
-  public ArrayList<String> strings = new ArrayList<String>();
+  public ArrayList<String> strings = new ArrayList<>();
 
-  public HashSet<String> actionStrings = new HashSet<String>();
+  public HashSet<String> actionStrings = new HashSet<>();
 
-  public ArrayList<String> urls = new ArrayList<String>();
+  public ArrayList<String> urls = new ArrayList<>();
 
   public ExtractText() {
     super(null);
@@ -204,7 +228,7 @@ class ExtractText extends SWFTagTypesImpl {
     int i = 0;
     Iterator<String> it = urls.iterator();
     while (it.hasNext()) {
-      res[i] = (String) it.next();
+      res[i] = it.next();
       i++;
     }
     return res;
@@ -239,7 +263,6 @@ class ExtractText extends SWFTagTypesImpl {
       int numGlyphs, int ascent, int descent, int leading, int[] codes,
       int[] advances, Rect[] bounds, int[] kernCodes1, int[] kernCodes2,
       int[] kernAdjustments) throws IOException {
-    // System.out.println("-defineFontInfo id=" + id + ", name=" + name);
     fontCodes.put(new Integer(id), (codes != null) ? codes : new int[0]);
 
     return null;
@@ -285,10 +308,12 @@ class ExtractText extends SWFTagTypesImpl {
 
     protected boolean firstY = true;
 
+    @Override
     public void font(int fontId, int textHeight) {
-      this.fontId = new Integer(fontId);
+      this.fontId = fontId;
     }
 
+    @Override
     public void setY(int y) {
       if (firstY)
         firstY = false;
@@ -303,8 +328,8 @@ class ExtractText extends SWFTagTypesImpl {
      * character, instead they adjust glyphAdvances. We don't handle it at all -
      * in such cases the text will be all glued together.
      */
+    @Override
     public void text(int[] glyphIndices, int[] glyphAdvances) {
-      // System.out.println("-text id=" + fontId);
       int[] codes = (int[]) fontCodes.get(fontId);
       if (codes == null) {
         // unknown font, better not guess
@@ -324,45 +349,32 @@ class ExtractText extends SWFTagTypesImpl {
         } else {
           chars[i] = (char) (codes[index]);
         }
-        // System.out.println("-ch[" + i + "]='" + chars[i] + "'(" +
-        // (int)chars[i] + ") +" + glyphAdvances[i]);
       }
       strings.add(new String(chars));
     }
 
+    @Override
     public void color(Color color) {
     }
 
+    @Override
     public void setX(int x) {
     }
 
+    @Override
     public void done() {
       strings.add("\n");
     }
   }
 
+  @Override
   public SWFActions tagDoAction() throws IOException {
-    // ActionTextWriter actions = new ActionTextWriter(new
-    // PrintWriter(System.out));
-    NutchSWFActions actions = new NutchSWFActions(actionStrings, urls);
-    return actions;
+    return new NutchSWFActions(actionStrings, urls);
   }
 
+  @Override
   public SWFActions tagDoInitAction(int arg0) throws IOException {
-    // ActionTextWriter actions = new ActionTextWriter(new
-    // PrintWriter(System.out));
-    NutchSWFActions actions = new NutchSWFActions(actionStrings, urls);
-    return actions;
-  }
-
-  public void tagGeneratorFont(byte[] arg0) throws IOException {
-    // TODO Auto-generated method stub
-    super.tagGeneratorFont(arg0);
-  }
-
-  public void tagGeneratorText(byte[] arg0) throws IOException {
-    // TODO Auto-generated method stub
-    super.tagGeneratorText(arg0);
+    return new NutchSWFActions(actionStrings, urls);
   }
 
 }
@@ -387,6 +399,7 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
     stack = new SmallStack(100, strings);
   }
 
+  @Override
   public void lookupTable(String[] values) throws IOException {
     for (int i = 0; i < values.length; i++) {
       if (!strings.contains(values[i]))
@@ -396,17 +409,17 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
     dict = values;
   }
 
+  @Override
   public void defineLocal() throws IOException {
     stack.pop();
     super.defineLocal();
   }
 
   public void getURL(int vars, int mode) {
-    // System.out.println("-getURL: vars=" + vars + ", mode=" + mode);
   }
 
+  @Override
   public void getURL(String url, String target) throws IOException {
-    // System.out.println("-getURL: url=" + url + ", target=" + target);
     stack.push(url);
     stack.push(target);
     strings.remove(url);
@@ -416,13 +429,12 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
   }
 
   public SWFActionBlock.TryCatchFinally _try(String var) throws IOException {
-    // stack.push(var);
     strings.remove(var);
     return super._try(var);
   }
 
+  @Override
   public void comment(String var) throws IOException {
-    // stack.push(var);
     strings.remove(var);
     super.comment(var);
   }

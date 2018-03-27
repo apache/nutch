@@ -37,7 +37,6 @@ public class NodeReader implements NutchReader {
 
   @Override
   public List read(String path) throws FileNotFoundException {
-    // TODO Auto-generated method stub
     List<HashMap> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;

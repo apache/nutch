@@ -40,13 +40,6 @@ import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.nutch.util.HadoopFSUtil;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.nutch.util.NutchConfiguration;
-
 // WORK AROUND FOR NOT REMOVING URL ENCODED URLS!!!
 import java.net.URLDecoder;
 

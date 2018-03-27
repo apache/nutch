@@ -22,31 +22,41 @@ import org.slf4j.LoggerFactory;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.segment.SegmentChecker;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.io.*;
+import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
+import org.apache.nutch.util.StringUtil;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.util.*;
-import org.apache.hadoop.conf.*;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.*;
+import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.nutch.util.*;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /* Parse content in a segment. */
@@ -76,7 +86,6 @@ public class ParseSegment extends NutchTool implements Tool {
     @Override
     public void setup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context) {
       Configuration conf = context.getConfiguration();
-      //setConf(conf);
       scfilters = new ScoringFilters(conf);
       skipTruncated = conf.getBoolean(SKIP_TRUNCATED, true);
     }
@@ -213,8 +222,8 @@ public class ParseSegment extends NutchTool implements Tool {
     public void reduce(Text key, Iterable<Writable> values,
         Context context)
         throws IOException, InterruptedException {
-      Iterator<Writable> values_iter = values.iterator();
-      context.write(key, values_iter.next()); // collect first value
+      Iterator<Writable> valuesIter = values.iterator();
+      context.write(key, valuesIter.next()); // collect first value
     }
   }
 
@@ -229,8 +238,8 @@ public class ParseSegment extends NutchTool implements Tool {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("ParseSegment: starting at " + sdf.format(start));
-      LOG.info("ParseSegment: segment: " + segment);
+      LOG.info("ParseSegment: starting at {}", sdf.format(start));
+      LOG.info("ParseSegment: segment: {}", segment);
     }
 
     Job job = NutchJob.getInstance(getConf());

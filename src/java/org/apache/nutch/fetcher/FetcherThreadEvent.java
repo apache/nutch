@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Outlink;
 
 /**

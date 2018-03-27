@@ -39,7 +39,6 @@ import org.apache.nutch.service.model.request.SeedUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @Path("/seed")
 public class SeedResource extends AbstractResource {
   private static final Logger LOG = LoggerFactory

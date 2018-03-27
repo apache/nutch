@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.protocol.selenium;
 
-// JDK imports
 import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.IOException;

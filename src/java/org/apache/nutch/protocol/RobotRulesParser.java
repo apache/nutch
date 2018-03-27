@@ -17,7 +17,6 @@
 
 package org.apache.nutch.protocol;
 
-// JDK imports
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -33,11 +32,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Nutch imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.StringUtils;

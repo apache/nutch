@@ -16,19 +16,15 @@
  */
 package org.apache.nutch.parse.tika;
 
-import java.lang.ClassLoader;
-import java.lang.InstantiationException;
 import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tika.parser.html.BoilerpipeContentHandler;
 import de.l3s.boilerpipe.BoilerpipeExtractor;
-import de.l3s.boilerpipe.extractors.*;
 
 class BoilerpipeExtractorRepository {
 
     public static final Log LOG = LogFactory.getLog(BoilerpipeExtractorRepository.class);
-    public static final HashMap<String, BoilerpipeExtractor> extractorRepository = new HashMap<String, BoilerpipeExtractor>();
+    public static final HashMap<String, BoilerpipeExtractor> extractorRepository = new HashMap<>();
  
     /**
      * Returns an instance of the specified extractor

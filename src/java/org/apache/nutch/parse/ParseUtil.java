@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.parse;
 
-// Commons Logging imports
-
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
