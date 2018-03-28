@@ -621,7 +621,8 @@
     <java classname="org.apache.gora.compiler.cli.GoraCompilerCLI">
      <classpath refid="classpath"/>
      <arg value="src/gora/webpage.avsc"/>
-     <!--arg value="src/gora/host.avsc"/-->
+     <arg value="src/gora/duplicate.avsc"/>
+     <arg value="src/gora/host.avsc"/>
      <arg value="${src.dir}"/>
     </java>
  </target>

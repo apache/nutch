@@ -72,7 +72,7 @@ public class DeduplicatorJob extends NutchTool implements Tool {
         Duplicate duplicate = Duplicate.newBuilder().build();
         List<CharSequence> urls = new ArrayList<>();
         urls.add(page.getBaseUrl());
-        duplicate.setURLs(urls);
+        duplicate.setUrls(urls);
         Text signature = new Text();
         signature.set(new String(page.getSignature().array()));
         context.write(signature, duplicate);
@@ -105,15 +105,15 @@ public class DeduplicatorJob extends NutchTool implements Tool {
       if (stored == null) {
         stored = Duplicate.newBuilder().build();
       }
-      List<CharSequence> urls = stored.getURLs();
+      List<CharSequence> urls = stored.getUrls();
       for (Duplicate duplicate : values) {
-        for (CharSequence url  : duplicate.getURLs()) {
+        for (CharSequence url  : duplicate.getUrls()) {
           if (!urls.contains(url)) {
             urls.add(url);
           }
         }
       }
-      stored.setURLs(urls);
+      stored.setUrls(urls);
       datastore.put(key.toString(), stored);
     }
   }

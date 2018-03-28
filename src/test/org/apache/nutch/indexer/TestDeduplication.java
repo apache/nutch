@@ -109,7 +109,7 @@ public class TestDeduplication extends AbstractNutchTest {
     assertTrue(results.next());
     Duplicate duplicate = results.get();
     assertFalse(results.next());
-    assertEquals(duplicate.getURLs().size(), 2);
+    assertEquals(duplicate.getUrls().size(), 2);
   }
 
   @Override

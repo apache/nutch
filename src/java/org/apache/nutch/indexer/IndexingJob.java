@@ -139,11 +139,11 @@ public class IndexingJob extends NutchTool implements Tool {
         Duplicate duplicate = duplicateStore.get(
             new String(page.getSignature().array()));
         if (!indexUtil.isOriginal(TableUtil.unreverseUrl(key),
-            duplicate.getURLs())) {
+            duplicate.getUrls())) {
           return;
         } else {
           StringBuilder duplicates = new StringBuilder("");
-          for (CharSequence url : duplicate.getURLs()) {
+          for (CharSequence url : duplicate.getUrls()) {
             String duplicateKey = TableUtil.reverseUrl(url.toString());
             if (!key.equals(duplicateKey)) {
               duplicates.append(url);

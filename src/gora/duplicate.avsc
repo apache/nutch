@@ -10,7 +10,7 @@
         "type": "array",
         "items": "string"
       },
-      "doc": "The web pages with identical content."
+      "doc": "The web pages with identical content.",
       "default": [
         
       ]
