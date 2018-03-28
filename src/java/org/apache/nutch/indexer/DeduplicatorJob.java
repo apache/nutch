@@ -106,9 +106,9 @@ public class DeduplicatorJob extends NutchTool implements Tool {
       }
       List<CharSequence> urls = stored.getUrls();
       List<WebPage> pages = new ArrayList<>();
-      for (WebPage duplicate : values) {
-        pages.add(duplicate);
-        CharSequence url = duplicate.getBaseUrl();
+      values.forEach(pages::add);
+      for (WebPage page : pages) {
+        CharSequence url = page.getBaseUrl();
         if (!urls.contains(url)) {
           urls.add(url);
         }
@@ -141,7 +141,7 @@ public class DeduplicatorJob extends NutchTool implements Tool {
     }
     
     batchId = args[0];
-    if (!batchId.equals("-all") && batchId.startsWith("-")) {
+    if (!"-all".equals(batchId) && batchId.startsWith("-")) {
       System.err.println(usage);
       return -1;
     }
