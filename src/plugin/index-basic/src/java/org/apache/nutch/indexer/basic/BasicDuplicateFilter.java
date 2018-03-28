@@ -53,7 +53,7 @@ public class BasicDuplicateFilter implements DuplicateFilter {
     } else if (originalPathSegmentCount > duplicatePathSegmentCount) {
       return true;
     } else {
-      if (url.length() < duplicate.length()) {
+      if (url.length() <= duplicate.length()) {
         return false;
       }
     }
