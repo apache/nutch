@@ -20,6 +20,7 @@ package org.apache.nutch.indexer;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configurable;
+import org.apache.nutch.storage.WebPage;
 
 /**
  * Extension point for duplicate indexing filtering. Permits one to determine (based on URL)
@@ -38,5 +39,5 @@ public interface DuplicateFilter extends Configurable {
    * @return the URL of the original page in the set of duplicates.
    * @throws IndexingException
    */
-  CharSequence filter(List<CharSequence> duplicates);
+  CharSequence filter(List<CharSequence> duplicates, Iterable<WebPage> webPages);
 }

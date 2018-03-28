@@ -28,6 +28,7 @@ import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.ObjectCache;
 
 /** Creates and caches {@link DuplicateFilter} implementing plugins. */
@@ -70,10 +71,10 @@ public class DuplicateFilters {
   }
 
   /** Run all defined filters. */
-  public CharSequence filter(List<CharSequence> duplicates) {
+  public CharSequence filter(List<CharSequence> duplicates, Iterable<WebPage> webPages) {
     CharSequence original;
     for (DuplicateFilter duplicateFilter : duplicateFilters) {
-      if ((original = duplicateFilter.filter(duplicates)) != null) {
+      if ((original = duplicateFilter.filter(duplicates, webPages)) != null) {
         return original;
       }
     }

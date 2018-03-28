@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.DuplicateFilter;
+import org.apache.nutch.storage.WebPage;
 
 public class BasicDuplicateFilter implements DuplicateFilter {
   private Configuration conf;
@@ -36,7 +37,7 @@ public class BasicDuplicateFilter implements DuplicateFilter {
   }
 
   @Override
-  public CharSequence filter(List<CharSequence> duplicates) {
+  public CharSequence filter(List<CharSequence> duplicates, Iterable<WebPage> webPages) {
     CharSequence original = null;
     for (CharSequence duplicate : duplicates) {
       if (isShorter(duplicate, original)) {
