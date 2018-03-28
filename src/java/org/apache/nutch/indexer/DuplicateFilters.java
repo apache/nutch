@@ -70,14 +70,15 @@ public class DuplicateFilters {
   }
 
   /** Run all defined filters. */
-  public boolean isOriginal(String url, List<CharSequence> duplicates) {
+  public CharSequence filter(List<CharSequence> duplicates) {
+    CharSequence original;
     for (DuplicateFilter duplicateFilter : duplicateFilters) {
-      if (!duplicateFilter.isOriginal(url, duplicates)) {
-        return false;
+      if ((original = duplicateFilter.filter(duplicates)) != null) {
+        return original;
       }
     }
 
-    return true;
+    return null;
   }
 
 }

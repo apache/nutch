@@ -109,8 +109,8 @@ public class IndexUtil {
     return doc;
   }
   
-  public boolean isOriginal(String url, List<CharSequence> duplicates) {
-    return duplicateFilters.isOriginal(url, duplicates);
+  public CharSequence getOriginal(List<CharSequence> duplicates) {
+    return duplicateFilters.filter(duplicates);
   }
 
 }

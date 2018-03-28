@@ -127,10 +127,10 @@ public class IndexingJob extends NutchTool implements Tool {
       }
 
       Utf8 mark = Mark.UPDATEDB_MARK.checkMark(page);
+      String url = TableUtil.unreverseUrl(key);
       if (mark == null) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping " + TableUtil.unreverseUrl(key)
-              + "; not updated on db yet");
+          LOG.debug("Skipping " + url + "; not updated on db yet");
         }
         return;
       }
@@ -138,15 +138,14 @@ public class IndexingJob extends NutchTool implements Tool {
       if (deduplicate) {
         Duplicate duplicate = duplicateStore.get(
             new String(page.getSignature().array()));
-        if (!indexUtil.isOriginal(TableUtil.unreverseUrl(key),
-            duplicate.getUrls())) {
+        if (duplicate.getOriginal() != null && !url.equals(duplicate.getOriginal())) {
           return;
         } else {
           StringBuilder duplicates = new StringBuilder("");
-          for (CharSequence url : duplicate.getUrls()) {
-            String duplicateKey = TableUtil.reverseUrl(url.toString());
+          for (CharSequence duplicateUrl : duplicate.getUrls()) {
+            String duplicateKey = TableUtil.reverseUrl(duplicateUrl.toString());
             if (!key.equals(duplicateKey)) {
-              duplicates.append(url);
+              duplicates.append(duplicateUrl);
               duplicates.append(Nutch.DUPLICATE_URLS_SPLITTER);
               writers.delete(duplicateKey);
             }

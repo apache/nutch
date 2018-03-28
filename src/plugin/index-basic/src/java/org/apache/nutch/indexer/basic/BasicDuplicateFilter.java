@@ -36,28 +36,32 @@ public class BasicDuplicateFilter implements DuplicateFilter {
   }
 
   @Override
-  public boolean isOriginal(String url, List<CharSequence> duplicates) {
+  public CharSequence filter(List<CharSequence> duplicates) {
+    CharSequence original = null;
     for (CharSequence duplicate : duplicates) {
-      if (isLonger(url, duplicate)) {
-        return false;
+      if (isShorter(duplicate, original)) {
+        original = duplicate;
       }
     }
-    return true;
+    return original;
   }
   
-  private boolean isLonger(String url, CharSequence duplicate) {
-    int originalPathSegmentCount = url.split("/").length;
-    int duplicatePathSegmentCount = duplicate.toString().split("/").length;
-    if (originalPathSegmentCount < duplicatePathSegmentCount) {
-      return false;
-    } else if (originalPathSegmentCount > duplicatePathSegmentCount) {
+  private boolean isShorter(CharSequence duplicate, CharSequence original) {
+    if (original == null) {
       return true;
+    }
+    int originalPathSegmentCount = original.toString().split("/").length;
+    int duplicatePathSegmentCount = duplicate.toString().split("/").length;
+    if (duplicatePathSegmentCount < originalPathSegmentCount) {
+      return true;
+    } else if (duplicatePathSegmentCount > originalPathSegmentCount) {
+      return false;
     } else {
-      if (url.length() <= duplicate.length()) {
-        return false;
+      if (duplicate.length() <= original.length()) {
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
 }

@@ -64,7 +64,7 @@ public class DeduplicatorJob extends NutchTool implements Tool {
     FIELDS.add(WebPage.Field.MARKERS);
   }
   
-  public static class DeduplicatorMapper extends GoraMapper<String, WebPage, Text, Duplicate> {
+  public static class DeduplicatorMapper extends GoraMapper<String, WebPage, Text, Text> {
     
     @Override
     protected void map(String key, WebPage page, Context context) throws IOException, InterruptedException {
@@ -75,18 +75,22 @@ public class DeduplicatorJob extends NutchTool implements Tool {
         duplicate.setUrls(urls);
         Text signature = new Text();
         signature.set(new String(page.getSignature().array()));
-        context.write(signature, duplicate);
+        Text url = new Text();
+        url.set(page.getBaseUrl().toString());
+        context.write(signature, url);
       }
     }
     
   }
   
-  public static class DeduplicatorReducer extends GoraReducer<Text, Duplicate, String, Duplicate> {
+  public static class DeduplicatorReducer extends GoraReducer<Text, Text, String, Duplicate> {
     public DataStore<String, Duplicate> datastore;
+    public IndexUtil indexUtil;
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
+      indexUtil = new IndexUtil(conf);
       try {
         datastore = StorageUtils.createWebStore(conf, String.class, Duplicate.class);
       } catch (ClassNotFoundException e) {
@@ -100,20 +104,20 @@ public class DeduplicatorJob extends NutchTool implements Tool {
     }
     
     @Override
-    protected void reduce(Text key, Iterable<Duplicate> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
       Duplicate stored = datastore.get(key.toString());
       if (stored == null) {
         stored = Duplicate.newBuilder().build();
       }
       List<CharSequence> urls = stored.getUrls();
-      for (Duplicate duplicate : values) {
-        for (CharSequence url  : duplicate.getUrls()) {
-          if (!urls.contains(url)) {
-            urls.add(url);
-          }
+      for (Text duplicate : values) {
+        CharSequence url = duplicate.toString();
+        if (!urls.contains(url)) {
+          urls.add(url);
         }
       }
       stored.setUrls(urls);
+      stored.setOriginal(indexUtil.getOriginal(urls));
       datastore.put(key.toString(), stored);
     }
   }
@@ -191,7 +195,7 @@ public class DeduplicatorJob extends NutchTool implements Tool {
     
     Filter<String, WebPage> batchIdFilter = getBatchIdFilter(batchId);
     
-    StorageUtils.initMapperJob(currentJob, fields, Text.class, Duplicate.class, DeduplicatorMapper.class, batchIdFilter);
+    StorageUtils.initMapperJob(currentJob, fields, Text.class, Text.class, DeduplicatorMapper.class, batchIdFilter);
     
     DataStore<String, Duplicate> duplicateWebPageStore = StorageUtils.createWebStore(getConf(), String.class, Duplicate.class);
     GoraReducer.initReducerJob(currentJob, duplicateWebPageStore, DeduplicatorReducer.class);

@@ -30,15 +30,13 @@ public interface DuplicateFilter extends Configurable {
   final static String X_POINT_ID = DuplicateFilter.class.getName();
 
   /**
-   * Determines whether the page represented by the given URL is the original
-   * page based on the list URLs with duplicate content.
+   * Determines which page represented is the original
+   * page based on the list of URLs with duplicate content.
    * 
-   * @param url
-   *          page URL
    * @param duplicates
    *          duplicate page URLs
-   * @return true if the page represented by the given URL is the original page.
+   * @return the URL of the original page in the set of duplicates.
    * @throws IndexingException
    */
-  boolean isOriginal(String url, List<CharSequence> duplicates);
+  CharSequence filter(List<CharSequence> duplicates);
 }

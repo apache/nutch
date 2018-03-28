@@ -19,11 +19,12 @@ package org.apache.nutch.storage;
 
 /** A Duplicate is a data structure in Nutch representing crawl data for urls whose content is identical. */
 public class Duplicate extends org.apache.gora.persistency.impl.PersistentBase implements org.apache.avro.specific.SpecificRecord, org.apache.gora.persistency.Persistent {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Duplicate\",\"namespace\":\"org.apache.nutch.storage\",\"doc\":\"A Duplicate is a data structure in Nutch representing crawl data for urls whose content is identical.\",\"fields\":[{\"name\":\"urls\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"doc\":\"The web pages with identical content.\",\"default\":[]}]}");
-  private static final long serialVersionUID = 7971980383643642679L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"Duplicate\",\"namespace\":\"org.apache.nutch.storage\",\"doc\":\"A Duplicate is a data structure in Nutch representing crawl data for urls whose content is identical.\",\"fields\":[{\"name\":\"urls\",\"type\":{\"type\":\"array\",\"items\":\"string\"},\"doc\":\"The web pages with identical content.\",\"default\":[]},{\"name\":\"original\",\"type\":[\"null\",\"string\"],\"doc\":\"The filtered original/non-duplicate url.\",\"default\":null}]}");
+  private static final long serialVersionUID = -6180047794099291765L;
   /** Enum containing all data bean's fields. */
   public static enum Field {
     URLS(0, "urls"),
+    ORIGINAL(1, "original"),
     ;
     /**
      * Field's index.
@@ -63,6 +64,7 @@ public class Duplicate extends org.apache.gora.persistency.impl.PersistentBase i
 
   public static final String[] _ALL_FIELDS = {
   "urls",
+  "original",
   };
 
   /**
@@ -75,11 +77,14 @@ public class Duplicate extends org.apache.gora.persistency.impl.PersistentBase i
 
   /** The web pages with identical content. */
   private java.util.List<java.lang.CharSequence> urls;
+  /** The filtered original/non-duplicate url. */
+  private java.lang.CharSequence original;
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call. 
   public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return urls;
+    case 1: return original;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -89,6 +94,7 @@ public class Duplicate extends org.apache.gora.persistency.impl.PersistentBase i
   public void put(int field$, java.lang.Object value) {
     switch (field$) {
     case 0: urls = (java.util.List<java.lang.CharSequence>)((value instanceof org.apache.gora.persistency.Dirtyable) ? value : new org.apache.gora.persistency.impl.DirtyListWrapper((java.util.List)value)); break;
+    case 1: original = (java.lang.CharSequence)(value); break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -115,6 +121,30 @@ public class Duplicate extends org.apache.gora.persistency.impl.PersistentBase i
    */
   public boolean isUrlsDirty() {
     return isDirty(0);
+  }
+
+  /**
+   * Gets the value of the 'original' field.
+   * The filtered original/non-duplicate url.   */
+  public java.lang.CharSequence getOriginal() {
+    return original;
+  }
+
+  /**
+   * Sets the value of the 'original' field.
+   * The filtered original/non-duplicate url.   * @param value the value to set.
+   */
+  public void setOriginal(java.lang.CharSequence value) {
+    this.original = value;
+    setDirty(1);
+  }
+  
+  /**
+   * Checks the dirty status of the 'original' field. A field is dirty if it represents a change that has not yet been written to the database.
+   * The filtered original/non-duplicate url.   * @param value the value to set.
+   */
+  public boolean isOriginalDirty() {
+    return isDirty(1);
   }
 
   /** Creates a new Duplicate RecordBuilder */
@@ -162,6 +192,7 @@ public class Duplicate extends org.apache.gora.persistency.impl.PersistentBase i
     implements org.apache.avro.data.RecordBuilder<Duplicate> {
 
     private java.util.List<java.lang.CharSequence> urls;
+    private java.lang.CharSequence original;
 
     /** Creates a new Builder */
     private Builder() {
@@ -179,6 +210,10 @@ public class Duplicate extends org.apache.gora.persistency.impl.PersistentBase i
       if (isValidValue(fields()[0], other.urls)) {
         this.urls = (java.util.List<java.lang.CharSequence>) data().deepCopy(fields()[0].schema(), other.urls);
         fieldSetFlags()[0] = true;
+      }
+      if (isValidValue(fields()[1], other.original)) {
+        this.original = (java.lang.CharSequence) data().deepCopy(fields()[1].schema(), other.original);
+        fieldSetFlags()[1] = true;
       }
     }
 
@@ -207,11 +242,37 @@ public class Duplicate extends org.apache.gora.persistency.impl.PersistentBase i
       return this;
     }
     
+    /** Gets the value of the 'original' field */
+    public java.lang.CharSequence getOriginal() {
+      return original;
+    }
+    
+    /** Sets the value of the 'original' field */
+    public org.apache.nutch.storage.Duplicate.Builder setOriginal(java.lang.CharSequence value) {
+      validate(fields()[1], value);
+      this.original = value;
+      fieldSetFlags()[1] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'original' field has been set */
+    public boolean hasOriginal() {
+      return fieldSetFlags()[1];
+    }
+    
+    /** Clears the value of the 'original' field */
+    public org.apache.nutch.storage.Duplicate.Builder clearOriginal() {
+      original = null;
+      fieldSetFlags()[1] = false;
+      return this;
+    }
+    
     @Override
     public Duplicate build() {
       try {
         Duplicate record = new Duplicate();
         record.urls = fieldSetFlags()[0] ? this.urls : (java.util.List<java.lang.CharSequence>) new org.apache.gora.persistency.impl.DirtyListWrapper((java.util.List)defaultValue(fields()[0]));
+        record.original = fieldSetFlags()[1] ? this.original : (java.lang.CharSequence) defaultValue(fields()[1]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);
@@ -253,6 +314,29 @@ public class Duplicate extends org.apache.gora.persistency.impl.PersistentBase i
 	   * The web pages with identical content.	   * @param value the value to set.
 	   */
 	  public boolean isUrlsDirty() {
+	    throw new java.lang.UnsupportedOperationException("IsDirty is not supported on tombstones");
+	  }
+	
+				  /**
+	   * Gets the value of the 'original' field.
+	   * The filtered original/non-duplicate url.	   */
+	  public java.lang.CharSequence getOriginal() {
+	    throw new java.lang.UnsupportedOperationException("Get is not supported on tombstones");
+	  }
+	
+	  /**
+	   * Sets the value of the 'original' field.
+	   * The filtered original/non-duplicate url.	   * @param value the value to set.
+	   */
+	  public void setOriginal(java.lang.CharSequence value) {
+	    throw new java.lang.UnsupportedOperationException("Set is not supported on tombstones");
+	  }
+	  
+	  /**
+	   * Checks the dirty status of the 'original' field. A field is dirty if it represents a change that has not yet been written to the database.
+	   * The filtered original/non-duplicate url.	   * @param value the value to set.
+	   */
+	  public boolean isOriginalDirty() {
 	    throw new java.lang.UnsupportedOperationException("IsDirty is not supported on tombstones");
 	  }
 	
