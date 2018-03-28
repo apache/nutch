@@ -90,6 +90,7 @@
     </table>
     <class table="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
       <field name="urls" family="dup" qualifier="urls"/>
+      <field name="original" family="dup" qualifier="org"/>
     </class>
     
 </gora-orm>

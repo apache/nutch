@@ -62,6 +62,7 @@
 
     <class table="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
       <field name="urls" column="urls"/>
+      <field name="original" column="original"/>
     </class>
 </gora-otd>
 

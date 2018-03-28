@@ -96,6 +96,7 @@
     </keyspace>
     <class keyspace="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
       <field name="urls" family="dup" qualifier="urls" ttl="0"/>
+      <field name="original" family="dup" qualifier="org" ttl="0"/>
     </class>
     
 </gora-orm>

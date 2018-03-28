@@ -62,6 +62,7 @@
     
     <class document="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
       <field name="urls" docfield="urls" type="document"/>
+      <field name="original" docfield="original" type="string"/>
     </class>
 
 </gora-otd>

@@ -70,10 +70,6 @@ public class DeduplicatorJob extends NutchTool implements Tool {
     @Override
     protected void map(String key, WebPage page, Context context) throws IOException, InterruptedException {
       if (page.getSignature() != null) {
-        Duplicate duplicate = Duplicate.newBuilder().build();
-        List<CharSequence> urls = new ArrayList<>();
-        urls.add(page.getBaseUrl());
-        duplicate.setUrls(urls);
         Text signature = new Text();
         signature.set(new String(page.getSignature().array()));
         context.write(signature, page);
@@ -109,14 +105,16 @@ public class DeduplicatorJob extends NutchTool implements Tool {
         stored = Duplicate.newBuilder().build();
       }
       List<CharSequence> urls = stored.getUrls();
+      List<WebPage> pages = new ArrayList<>();
       for (WebPage duplicate : values) {
+        pages.add(duplicate);
         CharSequence url = duplicate.getBaseUrl();
         if (!urls.contains(url)) {
           urls.add(url);
         }
       }
       stored.setUrls(urls);
-      stored.setOriginal(indexUtil.getOriginal(urls, values));
+      stored.setOriginal(indexUtil.getOriginal(urls, pages));
       datastore.put(key.toString(), stored);
     }
   }

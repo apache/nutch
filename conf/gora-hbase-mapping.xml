@@ -105,6 +105,7 @@ http://gora.apache.org/current/gora-hbase.html
     </table>
     <class table="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
       <field name="urls" family="dup"/>
+      <field name="original" family="dup"/>
     </class>
     
 </gora-orm>
