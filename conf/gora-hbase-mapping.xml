@@ -102,10 +102,11 @@ http://gora.apache.org/current/gora-hbase.html
 
     <table name="duplicate">
       <family name="dup" maxVersions="1"/>
+      <family name="org" maxVersions="1"/>
     </table>
     <class table="duplicate" keyClass="java.lang.String" name="org.apache.nutch.storage.Duplicate">
       <field name="urls" family="dup"/>
-      <field name="original" family="dup"/>
+      <field name="original" family="org"/>
     </class>
     
 </gora-orm>
