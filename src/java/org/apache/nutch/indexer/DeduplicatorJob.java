@@ -208,19 +208,19 @@ public class DeduplicatorJob extends NutchTool implements Tool {
   public int deduplicate(String crawlId, String batchId) throws Exception {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
-    LOG.info("DeduplicatorJob: starting at " + sdf.format(start));
+    LOG.info("DeduplicatorJob: starting at {}", sdf.format(start));
     
     if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
       LOG.info("DeduplicatorJob: deduplicating all");
     } else {
-      LOG.info("DeduplicatorJob: batchId: "+ batchId);
+      LOG.info("DeduplicatorJob: batchId: {}", batchId);
     }
     
     run(ToolUtil.toArgMap(Nutch.ARG_CRAWL, crawlId, Nutch.ARG_BATCH, batchId));
 
     long finish = System.currentTimeMillis();
-    LOG.info("DeduplicatorJob: finished at " + sdf.format(finish)
-        + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
+    LOG.info("DeduplicatorJob: finished at {}, time elapsed: {}",
+        sdf.format(finish), TimingUtil.elapsedTime(start, finish));
     return 0;
   }
   
