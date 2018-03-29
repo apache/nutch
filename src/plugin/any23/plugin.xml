@@ -50,6 +50,7 @@
       <library name="commons-io-2.4.jar"/>
       <library name="commons-lang-2.6.jar"/>
       <library name="commons-logging-1.2.jar"/>
+      <library name="commons-rdf-api-0.5.0.jar"/>
       <library name="curvesapi-1.04.jar"/>
       <library name="cxf-core-3.0.16.jar"/>
       <library name="cxf-rt-frontend-jaxrs-3.0.16.jar"/>

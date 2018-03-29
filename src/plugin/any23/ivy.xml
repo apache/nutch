@@ -43,6 +43,7 @@
       <exclude org="org.slf4j" name="slf4j-api" />
       <exclude org="xerces" />
     </dependency>
+    <dependency org="org.apache.commons" name="commons-rdf-api" rev="0.5.0" conf="*->default"/>
   </dependencies>
 
 </ivy-module>
