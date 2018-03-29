@@ -138,7 +138,7 @@ public class IndexingJob extends NutchTool implements Tool {
       if (deduplicate) {
         Duplicate duplicate = duplicateStore.get(
             new String(page.getSignature().array()));
-        if (duplicate.getOriginal() != null && !url.equals(duplicate.getOriginal())) {
+        if (duplicate.getOriginal() != null && !duplicate.getOriginal().toString().equals(url)) {
           return;
         } else {
           StringBuilder duplicates = new StringBuilder("");

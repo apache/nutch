@@ -109,8 +109,8 @@ public class IndexUtil {
     return doc;
   }
   
-  public CharSequence getOriginal(List<CharSequence> duplicates, Iterable<WebPage> webPages) {
-    return duplicateFilters.filter(duplicates, webPages);
+  public CharSequence getOriginal(CharSequence original, List<CharSequence> duplicates, Iterable<WebPage> webPages) {
+    return duplicateFilters.filter(original, duplicates, webPages);
   }
 
 }

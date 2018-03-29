@@ -54,6 +54,6 @@ public class TestBasicDuplicateFilter {
   
   @Test
   public void testShortestIsOriginal() throws Throwable {
-    assertEquals(filter.filter(duplicates, null), urls[3]);
+    assertEquals(filter.filter(null, duplicates, null), urls[3]);
   }
 }

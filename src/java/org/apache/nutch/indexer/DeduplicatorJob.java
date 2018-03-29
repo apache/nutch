@@ -105,16 +105,18 @@ public class DeduplicatorJob extends NutchTool implements Tool {
         stored = Duplicate.newBuilder().build();
       }
       List<CharSequence> urls = stored.getUrls();
+      CharSequence original = stored.getOriginal();
       List<WebPage> pages = new ArrayList<>();
-      values.forEach(pages::add);
-      for (WebPage page : pages) {
+      for (WebPage duplicate : values) {
+        WebPage page = WebPage.newBuilder(duplicate).build();
+        pages.add(page);
         CharSequence url = page.getBaseUrl();
         if (!urls.contains(url)) {
           urls.add(url);
         }
       }
       stored.setUrls(urls);
-      stored.setOriginal(indexUtil.getOriginal(urls, pages));
+      stored.setOriginal(indexUtil.getOriginal(original, urls, pages));
       datastore.put(key.toString(), stored);
     }
   }

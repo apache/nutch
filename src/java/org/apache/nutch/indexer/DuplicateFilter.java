@@ -34,10 +34,14 @@ public interface DuplicateFilter extends Configurable {
    * Determines which page represented is the original
    * page based on the list of URLs with duplicate content.
    * 
+   * @param original
+   *          the url of the page that was determined to be the original in the last iteration.
    * @param duplicates
    *          duplicate page URLs
+   * @param webPages
+   *          newly fetched and as yet un-indexed pages with duplicate content
    * @return the URL of the original page in the set of duplicates.
    * @throws IndexingException
    */
-  CharSequence filter(List<CharSequence> duplicates, Iterable<WebPage> webPages);
+  CharSequence filter(CharSequence original, List<CharSequence> duplicates, Iterable<WebPage> webPages);
 }

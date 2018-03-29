@@ -71,10 +71,9 @@ public class DuplicateFilters {
   }
 
   /** Run all defined filters. */
-  public CharSequence filter(List<CharSequence> duplicates, Iterable<WebPage> webPages) {
-    CharSequence original;
+  public CharSequence filter(CharSequence original, List<CharSequence> duplicates, Iterable<WebPage> webPages) {
     for (DuplicateFilter duplicateFilter : duplicateFilters) {
-      if ((original = duplicateFilter.filter(duplicates, webPages)) != null) {
+      if ((original = duplicateFilter.filter(original, duplicates, webPages)) != null) {
         return original;
       }
     }

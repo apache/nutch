@@ -37,8 +37,7 @@ public class BasicDuplicateFilter implements DuplicateFilter {
   }
 
   @Override
-  public CharSequence filter(List<CharSequence> duplicates, Iterable<WebPage> webPages) {
-    CharSequence original = null;
+  public CharSequence filter(CharSequence original, List<CharSequence> duplicates, Iterable<WebPage> webPages) {
     for (CharSequence duplicate : duplicates) {
       if (isShorter(duplicate, original)) {
         original = duplicate;
@@ -48,7 +47,7 @@ public class BasicDuplicateFilter implements DuplicateFilter {
   }
   
   private boolean isShorter(CharSequence duplicate, CharSequence original) {
-    if (original == null) {
+    if (original == null || original.toString().equals("")) {
       return true;
     }
     int originalPathSegmentCount = original.toString().split("/").length;
