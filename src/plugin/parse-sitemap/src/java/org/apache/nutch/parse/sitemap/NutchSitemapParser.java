@@ -26,14 +26,13 @@ import org.apache.hadoop.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import crawlercommons.sitemaps.*;
-import org.apache.avro.util.Utf8;
+import crawlercommons.sitemaps.SiteMapURL.ChangeFrequency;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.SitemapParse;
 import org.apache.nutch.parse.ParseStatusCodes;
-import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.parse.SitemapParser;
 
 import org.apache.nutch.storage.ParseStatus;
@@ -50,11 +49,18 @@ public class NutchSitemapParser implements SitemapParser {
 
   static {
     FIELDS.add(WebPage.Field.BASE_URL);
+    FIELDS.add(WebPage.Field.SITEMAPS);
+    FIELDS.add(WebPage.Field.MARKERS);
+    FIELDS.add(WebPage.Field.STM_PRIORITY);
+    FIELDS.add(WebPage.Field.MODIFIED_TIME);
+    FIELDS.add(WebPage.Field.FETCH_INTERVAL);
+    FIELDS.add(WebPage.Field.METADATA);
   }
 
   public SitemapParse getParse(String url, WebPage page) {
     SitemapParse nutchSitemapParse = null;
     SiteMapParser parser = new SiteMapParser();
+    Map<Outlink, Metadata> outlinkMap = new HashMap<Outlink, Metadata>();
 
     AbstractSiteMap siteMap = null;
     String contentType = page.getContentType().toString();
@@ -67,30 +73,36 @@ public class NutchSitemapParser implements SitemapParser {
     } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
     }
-    Map<Outlink, Metadata> outlinkMap = null;
+    
     if (siteMap.isIndex()) {
       Collection<AbstractSiteMap> links = ((SiteMapIndex) siteMap)
           .getSitemaps();
-      for (AbstractSiteMap siteMapIndex : links) {
-        page.getSitemaps().put(new Utf8(siteMapIndex.getUrl().toString()),
-            new Utf8("parser"));
+      for (AbstractSiteMap link : links) {
+        Metadata metadata = new Metadata();
+        metadata.add("sitemap", "true");
+        try {
+          outlinkMap.put(new Outlink(link.getUrl().toString(), "sitemap.outlink"), metadata);
+        } catch (MalformedURLException e) {
+          LOG.error(StringUtils.stringifyException(e));
+        }
       }
 
     } else {
       Collection<SiteMapURL> links = ((SiteMap) siteMap).getSiteMapUrls();
-      outlinkMap = new HashMap<Outlink, Metadata>();
 
       for (SiteMapURL sitemapUrl : links) {
         Metadata metadata = new Metadata();
-        metadata
-            .add("changeFrequency", sitemapUrl.getChangeFrequency().name());
-        metadata.add("lastModified", Long.toString(
-            sitemapUrl.getLastModified().getTime()));
+        ChangeFrequency changeFrequency = sitemapUrl.getChangeFrequency();
+        if (changeFrequency != null) {
+          metadata.add("changeFrequency", sitemapUrl.getChangeFrequency().name());
+        }
+        Date lastModified = sitemapUrl.getLastModified();
+        if (lastModified != null) {
+          metadata.add("lastModified", Long.toString(sitemapUrl.getLastModified().getTime()));
+        }
         metadata.add("priority", Double.toString(sitemapUrl.getPriority()));
         try {
-          outlinkMap.put(
-              new Outlink(sitemapUrl.getUrl().toString(), "sitemap.outlink"),
-              metadata);
+          outlinkMap.put(new Outlink(sitemapUrl.getUrl().toString(), "sitemap.outlink"), metadata);
         } catch (MalformedURLException e) {
           LOG.error(StringUtils.stringifyException(e));
         }

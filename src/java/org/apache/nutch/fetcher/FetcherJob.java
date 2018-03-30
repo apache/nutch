@@ -152,6 +152,8 @@ public class FetcherJob extends NutchTool implements Tool {
   }
 
   public Collection<WebPage.Field> getFields(Job job) {
+    Configuration conf = job.getConfiguration();
+    
     Collection<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
     if (job.getConfiguration().getBoolean(PARSE_KEY, false)) {
       ParserJob parserJob = new ParserJob();
@@ -160,6 +162,10 @@ public class FetcherJob extends NutchTool implements Tool {
     ProtocolFactory protocolFactory = new ProtocolFactory(
         job.getConfiguration());
     fields.addAll(protocolFactory.getFields());
+    
+    if (conf.getBoolean(PARSE_KEY, false)) {
+      fields.addAll(new ParserJob().getFields(job));
+    }
 
     return fields;
   }

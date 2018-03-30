@@ -249,6 +249,16 @@ public final class ParserFactory {
     }
     return columns;
   }
+  
+  public Collection<WebPage.Field> getSitemapFields() {
+    Set<WebPage.Field> columns = new HashSet<WebPage.Field>();
+    if (sitemapParsePluginList != null) {
+      for (SitemapParser parser : sitemapParsePluginList) {
+        columns.addAll(parser.getFields());
+      }
+    }
+    return columns;
+  }
 
   /**
    * Finds the best-suited parse plugin for a given contentType.

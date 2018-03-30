@@ -225,7 +225,7 @@ public class ParserJob extends NutchTool implements Tool {
     Collection<WebPage.Field> parsePluginFields = parserFactory.getFields();
     Collection<WebPage.Field> signaturePluginFields = SignatureFactory
         .getFields(conf);
-    Collection<WebPage.Field> htmlParsePluginFields = parseFilters.getFields();
+    Collection<WebPage.Field> parseFilterPluginFields = parseFilters.getFields();
 
     if (parsePluginFields != null) {
       fields.addAll(parsePluginFields);
@@ -233,8 +233,14 @@ public class ParserJob extends NutchTool implements Tool {
     if (signaturePluginFields != null) {
       fields.addAll(signaturePluginFields);
     }
-    if (htmlParsePluginFields != null) {
-      fields.addAll(htmlParsePluginFields);
+    if (parseFilterPluginFields != null) {
+      fields.addAll(parseFilterPluginFields);
+    }
+    if (conf.getBoolean(Nutch.ONLY_SITEMAP, false) || conf.getBoolean(Nutch.ALL_SITEMAP, false)) {
+      Collection<WebPage.Field> sitemapParsePluginFields = parserFactory.getSitemapFields();
+      if (sitemapParsePluginFields != null) {
+        fields.addAll(sitemapParsePluginFields);
+      }
     }
 
     return fields;

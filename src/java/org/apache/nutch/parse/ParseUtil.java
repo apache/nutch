@@ -77,6 +77,7 @@ public class ParseUtil extends Configured {
   private static final int DEFAULT_OUTLINKS_MAX_TARGET_LENGTH = 3000;
 
   private Configuration conf;
+  private int interval;
   private Signature sig;
   private URLFilters filters;
   private URLNormalizers normalizers;
@@ -105,6 +106,7 @@ public class ParseUtil extends Configured {
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
+    interval = conf.getInt("db.fetch.interval.default", 2592000);
     parserFactory = new ParserFactory(conf);
     maxTargetLength = conf.getInt("parser.html.outlinks.max.target.length", DEFAULT_OUTLINKS_MAX_TARGET_LENGTH);
     if (conf.getBoolean("parse.sitemap", false)) {
@@ -225,43 +227,60 @@ public class ParseUtil extends Configured {
       if (pstatus.getMinorCode() == ParseStatusCodes.SUCCESS_REDIRECT) {
         successRedirect(url, page, pstatus);
       } else if (outlinkMap != null) {
-        Set<Outlink> outlinks = outlinkMap.keySet();
         setSignature(page);
-
-        for (Outlink outlink : outlinks) {
+        
+        for (Map.Entry<Outlink, Metadata> entry : outlinkMap.entrySet()) {
+          Outlink outlink = entry.getKey();
+          Metadata metadata = entry.getValue();
+          
           String toUrl = outlink.getToUrl();
+          page.getOutlinks().put(new Utf8(toUrl), new Utf8(outlink.getAnchor()));
 
           try {
             toUrl = normalizers.normalize(toUrl, URLNormalizers.SCOPE_OUTLINK);
             toUrl = filters.filter(toUrl);
-          } catch (MalformedURLException e2) {
-            break;
-          } catch (URLFilterException e) {
-            break;
+            if (toUrl == null) {
+              continue;
+            }
+          } catch (MalformedURLException | URLFilterException e) {
+            continue;
           }
-          if (toUrl == null) {
-            break;
-          }
+          
           WebPage newRow = WebPage.newBuilder().build();
           newRow.setBaseUrl(toUrl);
-          Set<Map.Entry<String, String[]>> metaDatas = outlinkMap.get(outlink)
-              .getMetaData();
-          for (Map.Entry<String, String[]> metadata : metaDatas) {
-            System.out.println();
-            newRow.getMetadata().put(new Utf8(metadata.getKey()),
-                ByteBuffer.wrap(metadata.getValue()[0].getBytes(StandardCharsets.UTF_8)));
+          newRow.setFetchTime(System.currentTimeMillis());
+          
+          Set<Map.Entry<String, String[]>> metaMetadata = metadata.getMetaData();
+          
+          for (Map.Entry<String, String[]> metaEntry : metaMetadata) {
+            newRow.getMetadata().put(new Utf8(metaEntry.getKey()),
+                ByteBuffer.wrap(metaEntry.getValue()[0].getBytes(StandardCharsets.UTF_8)));
           }
-
-          int changeFrequency = calculateFetchInterval(
-              outlinkMap.get(outlink).get("changeFrequency"));
-          String modifiedTime = outlinkMap.get(outlink).get("lastModified");
-
-          newRow.setFetchInterval(changeFrequency);
-          newRow.setModifiedTime(Long.valueOf(modifiedTime));
-          newRow.setStmPriority(
-              Float.parseFloat(outlinkMap.get(outlink).get("priority")));
-
-          Mark.INJECT_MARK.putMark(newRow, InjectType.SITEMAP_INJECT.getTypeString());
+          
+          // if the link specified a change frequency, add it to the new row
+          String changeFrequency = metadata.get("changeFrequency");
+          if (changeFrequency != null) {;
+            newRow.setFetchInterval(calculateFetchInterval(changeFrequency));
+          } else {
+            newRow.setFetchInterval(interval);
+          }
+          // if the link specified a modified time, add it to the new row
+          String modifiedTime = metadata.get("lastModified");
+          if (modifiedTime != null) {
+            newRow.setModifiedTime(Long.valueOf(modifiedTime));
+          }
+          // if the link specified a priority, add it to the new row
+          String priority = metadata.get("priority");
+          if (priority != null) {
+            newRow.setStmPriority(Float.parseFloat(priority));
+          }
+          // if the link is another sitemap, mark it as such
+          String sitemap = metadata.get("sitemap");
+          if (sitemap != null) {
+            Mark.INJECT_MARK.putMark(newRow, InjectType.SITEMAP_INJECT.getTypeString());
+          }
+          
+          newRow.getSitemaps().put(new Utf8(url), new Utf8("parser"));
 
           newRows.add(newRow);
         }
