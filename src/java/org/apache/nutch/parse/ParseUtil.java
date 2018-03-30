@@ -44,12 +44,10 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -248,14 +246,6 @@ public class ParseUtil extends Configured {
           
           WebPage newRow = WebPage.newBuilder().build();
           newRow.setBaseUrl(toUrl);
-          newRow.setFetchTime(System.currentTimeMillis());
-          
-          Set<Map.Entry<String, String[]>> metaMetadata = metadata.getMetaData();
-          
-          for (Map.Entry<String, String[]> metaEntry : metaMetadata) {
-            newRow.getMetadata().put(new Utf8(metaEntry.getKey()),
-                ByteBuffer.wrap(metaEntry.getValue()[0].getBytes(StandardCharsets.UTF_8)));
-          }
           
           // if the link specified a change frequency, add it to the new row
           String changeFrequency = metadata.get("changeFrequency");
