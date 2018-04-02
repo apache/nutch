@@ -738,7 +738,19 @@ public class SegmentMerger extends Configured implements Tool{
 
     setConf(conf);
 
-    int complete = job.waitForCompletion(true)?0:1;
+    try {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "SegmentMerger job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("SegmentMerger job failed {}", e);
+      throw e;
+    }
   }
 
   /**

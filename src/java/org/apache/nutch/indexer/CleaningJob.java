@@ -162,7 +162,14 @@ public class CleaningJob implements Tool {
     conf.setBoolean(IndexerMapReduce.INDEXER_DELETE, true);
 
     try{
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CleaningJob did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
     } catch (InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;

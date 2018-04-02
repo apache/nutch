@@ -781,10 +781,18 @@ public class Generator extends NutchTool implements Tool {
     MultipleOutputs.addNamedOutput(job, "sequenceFiles", SequenceFileOutputFormat.class, FloatWritable.class, SelectorEntry.class);
 
     try {
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Generator job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+        throw new RuntimeException(message);
+      }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LockUtil.removeLockFile(getConf(), lock);
-      fs.delete(tempDir, true);
+      LOG.error("Generator job failed {}", e);
+      NutchJob.cleanupAfterFailure(tempDir, lock, fs);
       throw e;
     }
 
@@ -838,12 +846,21 @@ public class Generator extends NutchTool implements Tool {
       job.setOutputValueClass(CrawlDatum.class);
       FileOutputFormat.setOutputPath(job, tempDir2);
       try {
-        int complete = job.waitForCompletion(true)?0:1;
+        boolean success = job.waitForCompletion(true);
+        if (!success) {
+          String message = "Generator job did not succeed, job status:"
+              + job.getStatus().getState() + ", reason: "
+              + job.getStatus().getFailureInfo();
+          LOG.error(message);
+          NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+          NutchJob.cleanupAfterFailure(tempDir2, lock, fs);
+          throw new RuntimeException(message);
+        }
         CrawlDb.install(job, dbDir);
       } catch (IOException | InterruptedException | ClassNotFoundException e) {
-        LockUtil.removeLockFile(getConf(), lock);
-        fs.delete(tempDir, true);
-        fs.delete(tempDir2, true);
+        LOG.error("Generator job failed {}", e);
+        NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+        NutchJob.cleanupAfterFailure(tempDir2, lock, fs);
         throw e;
       }
 
@@ -894,8 +911,15 @@ public class Generator extends NutchTool implements Tool {
     job.setOutputValueClass(CrawlDatum.class);
     job.setSortComparatorClass(HashComparator.class);
     try {
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (InterruptedException | ClassNotFoundException e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Generator job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));  
       throw e;
     }

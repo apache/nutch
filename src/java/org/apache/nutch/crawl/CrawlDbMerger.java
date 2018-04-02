@@ -144,15 +144,23 @@ public class CrawlDbMerger extends Configured implements Tool {
       }
       FileInputFormat.addInputPath(job, new Path(dbs[i], CrawlDb.CURRENT_NAME));
     }
+
+    Path outPath = FileOutputFormat.getOutputPath(job);
+    FileSystem fs = outPath.getFileSystem(getConf());
     try {
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CrawlDbMerger job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(outPath, lock, fs);
+        throw new RuntimeException(message);
+      }
       CrawlDb.install(job, output);
-    } catch (IOException e) {
-      LockUtil.removeLockFile(getConf(), lock);
-      Path outPath = FileOutputFormat.getOutputPath(job);
-      FileSystem fs = outPath.getFileSystem(getConf());
-      if (fs.exists(outPath))
-        fs.delete(outPath, true);
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("CrawlDbMerge job failed {}", e);
+      NutchJob.cleanupAfterFailure(outPath, lock, fs);
       throw e;
     }
     long end = System.currentTimeMillis();

@@ -19,6 +19,8 @@ package org.apache.nutch.util;
 
 import java.io.IOException;
 
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 
@@ -33,5 +35,20 @@ public class NutchJob extends Job {
   public static Job getInstance(Configuration conf) throws IOException {
     return Job.getInstance(conf);
   } 
+
+  /*
+   * Clean up the file system in case of a job failure.
+   */
+  public static void cleanupAfterFailure(Path tempDir, Path lock, FileSystem fs)
+         throws IOException {
+    try {
+      if (fs.exists(tempDir)) {
+        fs.delete(tempDir, true);
+      }
+      LockUtil.removeLockFile(fs, lock);
+    } catch (IOException e) {
+      throw e;
+    }
+  }
 
 }
