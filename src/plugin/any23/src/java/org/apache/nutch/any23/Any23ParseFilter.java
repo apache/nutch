@@ -18,8 +18,6 @@ package org.apache.nutch.any23;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Set;
@@ -40,14 +38,9 @@ import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
-import org.ccil.cowan.tagsoup.XMLWriter;
-import org.ccil.cowan.tagsoup.jaxp.SAXParserImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 /**
  * <p>This implementation of {@link org.apache.nutch.parse.HtmlParseFilter}
@@ -75,7 +68,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
    * Constant identifier used as a Key for writing and reading
    * triples to and from the metadata Map field.
    */
-  public final static String ANY23_TRIPLES = "Any23-Triples";
+  public static final String ANY23_TRIPLES = "Any23-Triples";
 
   public static final String ANY_23_EXTRACTORS_CONF = "any23.extractors";
   public static final String ANY_23_CONTENT_TYPES_CONF = "any23.content_types";
@@ -85,10 +78,11 @@ public class Any23ParseFilter implements HtmlParseFilter {
     Set<String> triples = null;
 
     Any23Parser(String url, String htmlContent, String contentType, String... extractorNames) throws TripleHandlerException {
-      triples = new TreeSet<String>();
+      triples = new TreeSet<>();
       try {
         parse(url, htmlContent, contentType, extractorNames);
       } catch (URISyntaxException e) {
+        LOG.error("Error parsing URI: {}", url, e);
         throw new RuntimeException(e.getReason());
       } catch (IOException e) {
         e.printStackTrace();
@@ -106,21 +100,12 @@ public class Any23ParseFilter implements HtmlParseFilter {
     private void parse(String url, String htmlContent, String contentType, String... extractorNames) throws URISyntaxException, IOException, TripleHandlerException {
       Any23 any23 = new Any23(extractorNames);
       any23.setMIMETypeDetector(null);
-
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
       try {
-        // Fix input to avoid extraction error (https://github.com/semarglproject/semargl/issues/37#issuecomment-69381281)
-        XMLReader reader = SAXParserImpl.newInstance(null).getXMLReader();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        XMLWriter writer = new XMLWriter(new OutputStreamWriter(baos));
-        reader.setContentHandler(writer);
-        reader.parse(new InputSource(new StringReader(htmlContent)));
-        String input = new String(baos.toByteArray(), Charset.forName("UTF-8"));
-
-        baos = new ByteArrayOutputStream();
         TripleHandler tHandler = new NTriplesWriter(baos);
         BenchmarkTripleHandler bHandler = new BenchmarkTripleHandler(tHandler);
         try {
-          any23.extract(input, url, contentType, "UTF-8", bHandler);
+          any23.extract(htmlContent, url, contentType, "UTF-8", bHandler);
         } catch (IOException e) {
           LOG.error("Error while reading the source", e);
         } catch (ExtractionException e) {
@@ -135,18 +120,18 @@ public class Any23ParseFilter implements HtmlParseFilter {
         String n3 = baos.toString("UTF-8");
         String[] triplesStrings = n3.split("\n");
         Collections.addAll(triples, triplesStrings);
-      } catch (SAXException e) {
-        LOG.error("Unexpected SAXException", e);
       } catch (IOException e) {
         LOG.error("Unexpected IOException", e);
       }
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
