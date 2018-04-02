@@ -285,13 +285,20 @@ public class WARCExporter extends Configured implements Tool {
     job.setOutputValueClass(WARCWritable.class);
 
     try {
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "WARCExporter job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
       LOG.info(job.getCounters().toString());
       long end = System.currentTimeMillis();
       LOG.info("WARCExporter: finished at {}, elapsed: {}", sdf.format(end),
           TimingUtil.elapsedTime(start, end));
-    } catch (Exception e) {
-      LOG.error("Exception caught", e);
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("WARCExporter job failed {}", e);
       return -1;
     }
 

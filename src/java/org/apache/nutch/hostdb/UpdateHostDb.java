@@ -129,17 +129,23 @@ public class UpdateHostDb extends Configured implements Tool {
     conf.setClassLoader(Thread.currentThread().getContextClassLoader());
     
     try {
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "UpdateHostDb job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(tempHostDb, lock, fs);
+        throw new RuntimeException(message);
+      }
 
       FSUtils.replace(fs, old, current, true);
       FSUtils.replace(fs, current, tempHostDb, true);
 
       if (!preserveBackup && fs.exists(old)) fs.delete(old, true);
     } catch (Exception e) {
-      if (fs.exists(tempHostDb)) {
-        fs.delete(tempHostDb, true);
-      }
-      LockUtil.removeLockFile(fs, lock);
+      LOG.error("UpdateHostDb job failed {}", e);
+      NutchJob.cleanupAfterFailure(tempHostDb, lock, fs);
       throw e;
     }
 

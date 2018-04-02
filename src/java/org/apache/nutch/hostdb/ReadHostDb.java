@@ -208,7 +208,7 @@ public class ReadHostDb extends Configured implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("ReadHostDb job failed", e);
+      LOG.error("ReadHostDb job failed {}", e);
       throw e;
     }
 

@@ -312,8 +312,17 @@ public class DeduplicationJob extends NutchTool implements Tool {
     job.setMapperClass(DBFilter.class);
     job.setReducerClass(DedupReducer.class);
 
+    FileSystem fs = tempDir.getFileSystem(getConf());
     try {
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Crawl job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        fs.delete(tempDir, true);
+        throw new RuntimeException(message);
+      }
       CounterGroup g = job.getCounters().getGroup("DeduplicationJobStatus");
       if (g != null) {
         Counter counter = g.findCounter("Documents marked as duplicate");
@@ -321,8 +330,9 @@ public class DeduplicationJob extends NutchTool implements Tool {
         LOG.info("Deduplication: " + (int) dups
             + " documents marked as duplicates");
       }
-    } catch (final Exception e) {
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("DeduplicationJob: " + StringUtils.stringifyException(e));
+      fs.delete(tempDir, true);
       return -1;
     }
 
@@ -337,16 +347,24 @@ public class DeduplicationJob extends NutchTool implements Tool {
     mergeJob.setReducerClass(StatusUpdateReducer.class);
 
     try {
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (final Exception e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Crawl job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        fs.delete(tempDir, true);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("DeduplicationMergeJob: " + StringUtils.stringifyException(e));
+      fs.delete(tempDir, true);
       return -1;
     }
 
     CrawlDb.install(mergeJob, dbPath);
 
     // clean up
-    FileSystem fs = tempDir.getFileSystem(getConf());
     fs.delete(tempDir, true);
 
     long end = System.currentTimeMillis();

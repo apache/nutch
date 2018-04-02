@@ -52,6 +52,7 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.util.NutchJob;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -383,7 +384,7 @@ public class SitemapProcessor extends Configured implements Tool {
             + " job did not succeed, job status: " + job.getStatus().getState()
             + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
-        cleanupAfterFailure(tempCrawlDb, lock, fs);
+        NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
         // throw exception so that calling routine can exit with error
         throw new RuntimeException(message);
       }
@@ -415,19 +416,7 @@ public class SitemapProcessor extends Configured implements Tool {
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("SitemapProcessor_" + crawldb.toString(), e);
-      cleanupAfterFailure(tempCrawlDb, lock, fs);
-      throw e;
-    }
-  }
-
-  public void cleanupAfterFailure(Path tempCrawlDb, Path lock, FileSystem fs)
-      throws IOException {
-    try {
-      if (fs.exists(tempCrawlDb)) {
-        fs.delete(tempCrawlDb, true);
-      }
-      LockUtil.removeLockFile(fs, lock);
-    } catch (IOException e) {
+      NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
       throw e;
     }
   }

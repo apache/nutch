@@ -166,8 +166,15 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     job.setOutputValueClass(Inlinks.class);
 
     try{
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (InterruptedException | ClassNotFoundException e){
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "LinkDbRead job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e){
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
