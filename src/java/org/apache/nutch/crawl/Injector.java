@@ -44,6 +44,7 @@ import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchTool;
+import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 
 import org.slf4j.Logger;
@@ -420,7 +421,7 @@ public class Injector extends NutchTool implements Tool {
             + job.getStatus().getState() + ", reason: "
             + job.getStatus().getFailureInfo();
         LOG.error(message);
-        CrawlDb.cleanupAfterFailure(tempCrawlDb, lock, fs);
+        NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
         // throw exception so that calling routine can exit with error
         throw new RuntimeException(message);
       }
@@ -463,7 +464,7 @@ public class Injector extends NutchTool implements Tool {
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("Injector job failed", e);
-      CrawlDb.cleanupAfterFailure(tempCrawlDb, lock, fs);
+      NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
       throw e;
     }
   }
