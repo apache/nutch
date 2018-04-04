@@ -401,15 +401,23 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
 	  // https://issues.apache.org/jira/browse/NUTCH-1029
 	  config.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
-
+          FileSystem fileSystem = tmpFolder.getFileSystem(config);
           try {
-            int complete = job.waitForCompletion(true)?0:1;
-          } catch (InterruptedException | ClassNotFoundException e) {
+            boolean success = job.waitForCompletion(true);
+            if (!success) {
+              String message = "CrawlDbReader job did not succeed, job status:"
+                  + job.getStatus().getState() + ", reason: "
+                  + job.getStatus().getFailureInfo();
+              LOG.error(message);
+              fileSystem.delete(tmpFolder, true);
+              throw new RuntimeException(message);
+            }
+          } catch (IOException | InterruptedException | ClassNotFoundException e) {
             LOG.error(StringUtils.stringifyException(e));
+            fileSystem.delete(tmpFolder, true);
             throw e;
           }
 	  // reading the result
-	  FileSystem fileSystem = tmpFolder.getFileSystem(config);
           SequenceFile.Reader[] readers = SegmentReaderUtil.getReaders(tmpFolder, config);
 
 	  Text key = new Text();
@@ -684,8 +692,15 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     job.setOutputValueClass(CrawlDatum.class);
 
     try {
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (InterruptedException | ClassNotFoundException e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CrawlDbReader job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
@@ -788,11 +803,21 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     job.setOutputValueClass(Text.class);
 
     job.getConfiguration().setFloat("db.reader.topn.min", min);
-    
+   
+    FileSystem fs = tempDir.getFileSystem(config); 
     try{
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (InterruptedException | ClassNotFoundException e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CrawlDbReader job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        fs.delete(tempDir, true);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
+      fs.delete(tempDir, true);
       throw e;
     }
 
@@ -816,13 +841,21 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     job.setNumReduceTasks(1); // create a single file.
 
     try{
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (InterruptedException | ClassNotFoundException e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CrawlDbReader job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        fs.delete(tempDir, true);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
+      fs.delete(tempDir, true);
       throw e;
     }
 
-    FileSystem fs = tempDir.getFileSystem(config);
     fs.delete(tempDir, true);
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb topN: done");

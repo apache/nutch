@@ -40,9 +40,9 @@ import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
 
@@ -420,7 +420,7 @@ public class Injector extends NutchTool implements Tool {
             + job.getStatus().getState() + ", reason: "
             + job.getStatus().getFailureInfo();
         LOG.error(message);
-        cleanupAfterFailure(tempCrawlDb, lock, fs);
+        NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
         // throw exception so that calling routine can exit with error
         throw new RuntimeException(message);
       }
@@ -463,19 +463,7 @@ public class Injector extends NutchTool implements Tool {
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("Injector job failed", e);
-      cleanupAfterFailure(tempCrawlDb, lock, fs);
-      throw e;
-    }
-  }
-
-  public void cleanupAfterFailure(Path tempCrawlDb, Path lock, FileSystem fs)
-      throws IOException {
-    try {
-      if (fs.exists(tempCrawlDb)) {
-        fs.delete(tempCrawlDb, true);
-      }
-      LockUtil.removeLockFile(fs, lock);
-    } catch (IOException e) {
+      NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
       throw e;
     }
   }

@@ -129,17 +129,23 @@ public class CrawlDb extends NutchTool implements Tool {
       LOG.info("CrawlDb update: Merging segment data into db.");
     }
 
+    FileSystem fs = crawlDb.getFileSystem(getConf());
+    Path outPath = FileOutputFormat.getOutputPath(job);
     try {
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Crawl job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(outPath, lock, fs);
+        throw new RuntimeException(message);
+      }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      FileSystem fs = crawlDb.getFileSystem(getConf());
-      LockUtil.removeLockFile(fs, lock);
-      Path outPath = FileOutputFormat.getOutputPath(job);
-      if (fs.exists(outPath))
-        fs.delete(outPath, true);
+      LOG.error("Crawl job failed {}", e);
+      NutchJob.cleanupAfterFailure(outPath, lock, fs);
       throw e;
     }
-    
 
     CrawlDb.install(job, crawlDb);
 

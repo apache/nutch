@@ -201,8 +201,15 @@ public class FreeGenerator extends Configured implements Tool {
     FileOutputFormat.setOutputPath(job, new Path(args[1], new Path(segName,
         CrawlDatum.GENERATE_DIR_NAME)));
     try {
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (Exception e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "FreeGenerator job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("FAILED: " + StringUtils.stringifyException(e));
       return -1;
     }

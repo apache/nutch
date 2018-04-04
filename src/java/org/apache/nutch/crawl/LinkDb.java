@@ -228,8 +228,17 @@ public class LinkDb extends NutchTool implements Tool {
               ParseData.DIR_NAME));
     }
     try {
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (IOException | InterruptedException | ClassNotFoundException  e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "LinkDb job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        LockUtil.removeLockFile(fs, lock);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("LinkDb job failed {}", e);
       LockUtil.removeLockFile(fs, lock);
       throw e;
     }
@@ -244,10 +253,18 @@ public class LinkDb extends NutchTool implements Tool {
       FileInputFormat.addInputPath(job, currentLinkDb);
       FileInputFormat.addInputPath(job, newLinkDb);
       try {
-        int complete = job.waitForCompletion(true)?0:1;
-      } catch (IOException e) {
-        LockUtil.removeLockFile(fs, lock);
-        fs.delete(newLinkDb, true);
+        boolean success = job.waitForCompletion(true);
+        if (!success) {
+          String message = "LinkDb job did not succeed, job status:"
+              + job.getStatus().getState() + ", reason: "
+              + job.getStatus().getFailureInfo();
+          LOG.error(message);
+          NutchJob.cleanupAfterFailure(newLinkDb, lock, fs);
+          throw new RuntimeException(message);
+        }
+      } catch (IOException | InterruptedException | ClassNotFoundException e) {
+        LOG.error("LinkDb job failed {}", e);
+        NutchJob.cleanupAfterFailure(newLinkDb, lock, fs);
         throw e;
       }
       fs.delete(newLinkDb, true);
