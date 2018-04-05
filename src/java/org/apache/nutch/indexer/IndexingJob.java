@@ -138,20 +138,22 @@ public class IndexingJob extends NutchTool implements Tool {
       if (deduplicate) {
         Duplicate duplicate = duplicateStore.get(
             new String(page.getSignature().array()));
-        if (duplicate != null && duplicate.getOriginal() != null && !duplicate.getOriginal().toString().equals(url)) {
-          return;
-        } else {
-          StringBuilder duplicates = new StringBuilder("");
-          for (CharSequence duplicateUrl : duplicate.getUrls()) {
-            String duplicateKey = TableUtil.reverseUrl(duplicateUrl.toString());
-            if (!key.equals(duplicateKey)) {
-              duplicates.append(duplicateUrl);
-              duplicates.append(Nutch.DUPLICATE_URLS_SPLITTER);
-              writers.delete(duplicateKey);
+        if (duplicate != null) {
+          if (duplicate.getOriginal() != null && !duplicate.getOriginal().toString().equals(url)) {
+            return;
+          } else {
+            StringBuilder duplicates = new StringBuilder("");
+            for (CharSequence duplicateUrl : duplicate.getUrls()) {
+              String duplicateKey = TableUtil.reverseUrl(duplicateUrl.toString());
+              if (!key.equals(duplicateKey)) {
+                duplicates.append(duplicateUrl);
+                duplicates.append(Nutch.DUPLICATE_URLS_SPLITTER);
+                writers.delete(duplicateKey);
+              }
             }
+            // attach the duplicates to the page as metadata
+            page.getMetadata().put(Nutch.DUPLICATE_URLS_KEY, ByteBuffer.wrap(duplicates.toString().getBytes()));
           }
-          // attach the duplicates to the page as metadata
-          page.getMetadata().put(Nutch.DUPLICATE_URLS_KEY, ByteBuffer.wrap(duplicates.toString().getBytes()));
         }
       }
 
