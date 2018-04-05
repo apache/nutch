@@ -197,9 +197,11 @@ public class FetcherJob extends NutchTool implements Tool {
     switch (sitemap) {
     case ONLY:
       getConf().setBoolean(Nutch.ONLY_SITEMAP, true);
+      getConf().setBoolean(Nutch.ALL_SITEMAP, false);
       break;
     case ALL:
       getConf().setBoolean(Nutch.ALL_SITEMAP, true);
+      getConf().setBoolean(Nutch.ONLY_SITEMAP, false);
       break;
     case NONE:
       getConf().setBoolean(Nutch.ONLY_SITEMAP, false);

@@ -276,14 +276,17 @@ public class ParserJob extends NutchTool implements Tool {
     switch (sitemap) {
     case ONLY:
       getConf().setBoolean(Nutch.ONLY_SITEMAP, true);
+      getConf().setBoolean(Nutch.ALL_SITEMAP, false);
       break;
     case ALL:
       getConf().setBoolean(Nutch.ALL_SITEMAP, true);
+      getConf().setBoolean(Nutch.ONLY_SITEMAP, false);
       break;
     case NONE:
       getConf().setBoolean(Nutch.ONLY_SITEMAP, false);
       getConf().setBoolean(Nutch.ALL_SITEMAP, false);
     }
+    
     LOG.info("ParserJob: resuming:\t{}", getConf().getBoolean(RESUME_KEY, false));
     LOG.info("ParserJob: forced reparse:\t {}", getConf().getBoolean(FORCE_KEY, false));
     if (batchId == null || batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
