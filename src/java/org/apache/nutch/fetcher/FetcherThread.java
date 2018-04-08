@@ -386,6 +386,7 @@ public class FetcherThread extends Thread {
                     Fetcher.CONTENT_REDIR);
                 if (redirUrl != null) {
                   fit = queueRedirect(redirUrl, fit);
+                  url = fit.url;
                 }
               }
               break;
@@ -407,6 +408,7 @@ public class FetcherThread extends Thread {
                   newUrl, temp, Fetcher.PROTOCOL_REDIR);
               if (redirUrl != null) {
                 fit = queueRedirect(redirUrl, fit);
+                url = fit.url;
               } else {
                 // stop redirecting
                 redirecting = false;
