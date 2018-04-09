@@ -169,10 +169,12 @@ public class HttpResponse implements Response {
           content = http.processGzipEncoded(content, url);
           if (Http.LOG.isTraceEnabled())
             fetchTrace.append("; extracted to " + content.length + " bytes");
+          headers.remove(Response.CONTENT_LENGTH);
         } else if ("deflate".equals(contentEncoding)) {
           content = http.processDeflateEncoded(content, url);
           if (Http.LOG.isTraceEnabled())
             fetchTrace.append("; extracted to " + content.length + " bytes");
+          headers.remove(Response.CONTENT_LENGTH);
         }
       }
 
