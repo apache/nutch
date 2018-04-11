@@ -159,7 +159,7 @@ public class CrawlDbMerger extends Configured implements Tool {
       }
       CrawlDb.install(job, output);
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("CrawlDbMerge job failed {}", e);
+      LOG.error("CrawlDbMerge job failed: {}", e.getMessage());
       NutchJob.cleanupAfterFailure(outPath, lock, fs);
       throw e;
     }

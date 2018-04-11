@@ -144,7 +144,7 @@ public class UpdateHostDb extends Configured implements Tool {
 
       if (!preserveBackup && fs.exists(old)) fs.delete(old, true);
     } catch (Exception e) {
-      LOG.error("UpdateHostDb job failed {}", e);
+      LOG.error("UpdateHostDb job failed: {}", e.getMessage());
       NutchJob.cleanupAfterFailure(tempHostDb, lock, fs);
       throw e;
     }

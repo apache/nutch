@@ -791,7 +791,7 @@ public class Generator extends NutchTool implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("Generator job failed {}", e);
+      LOG.error("Generator job failed: {}", e.getMessage());
       NutchJob.cleanupAfterFailure(tempDir, lock, fs);
       throw e;
     }
@@ -858,7 +858,7 @@ public class Generator extends NutchTool implements Tool {
         }
         CrawlDb.install(job, dbDir);
       } catch (IOException | InterruptedException | ClassNotFoundException e) {
-        LOG.error("Generator job failed {}", e);
+        LOG.error("Generator job failed: {}", e.getMessage());
         NutchJob.cleanupAfterFailure(tempDir, lock, fs);
         NutchJob.cleanupAfterFailure(tempDir2, lock, fs);
         throw e;
