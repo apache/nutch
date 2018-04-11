@@ -28,8 +28,12 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.Tool;
-
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.protocol.ProtocolOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,4 +186,12 @@ public abstract class AbstractChecker extends Configured implements Tool {
       return true;
     }
   }
+
+  protected ProtocolOutput getProtocolOutput(String url, CrawlDatum datum) throws Exception {
+    ProtocolFactory factory = new ProtocolFactory(getConf());
+    Protocol protocol = factory.getProtocol(url);
+    Text turl = new Text(url);
+    return protocol.getProtocolOutput(turl, datum);
+  }
+
 }
