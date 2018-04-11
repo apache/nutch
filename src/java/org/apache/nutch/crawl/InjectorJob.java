@@ -21,6 +21,7 @@ import org.apache.gora.mapreduce.GoraOutputFormat;
 import org.apache.gora.persistency.Persistent;
 import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -227,7 +228,22 @@ public class InjectorJob extends NutchTool implements Tool {
     numJobs = 1;
     currentJobNum = 0;
     currentJob = NutchJob.getInstance(getConf(), "inject " + input);
-    FileInputFormat.addInputPath(currentJob, input);
+    FileStatus[] seedFiles = input.getFileSystem(getConf()).listStatus(input);
+    int numSeedFiles = 0;
+    for (FileStatus seedFile : seedFiles) {
+      if (seedFile.isFile()) {
+        FileInputFormat.addInputPath(currentJob, seedFile.getPath());
+        numSeedFiles++;
+        LOG.info("Injecting seed URL file {}", seedFile.getPath());
+      } else {
+        LOG.warn("Skipped non-file input in {}: {}", input,
+            seedFile.getPath());
+      }
+    }
+    if (numSeedFiles == 0) {
+      LOG.error("No seed files to inject found in {}", input);
+      return results;
+    }
     currentJob.setMapperClass(UrlMapper.class);
     currentJob.setMapOutputKeyClass(String.class);
     currentJob.setMapOutputValueClass(WebPage.class);
