@@ -307,7 +307,7 @@ public class LinkDb extends NutchTool implements Tool {
 
     FileOutputFormat.setOutputPath(job, newLinkDb);
     job.setOutputFormatClass(MapFileOutputFormat.class);
-    conf.setBoolean("mapred.output.compress", true);
+    conf.setBoolean("mapreduce.output.fileoutputformat.compress", true);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Inlinks.class);
 

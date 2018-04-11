@@ -433,7 +433,7 @@ public class SitemapProcessor extends Configured implements Tool {
     System.err.println("\t<crawldb>\t\tpath to crawldb where the sitemap urls would be injected");
     System.err.println("\t-hostdb <hostdb>\tpath of a hostdb. Sitemap(s) from these hosts would be downloaded");
     System.err.println("\t-sitemapUrls <url_dir>\tpath to sitemap urls directory");
-    System.err.println("\t-threads <threads>\tNumber of threads created per mapper to fetch sitemap urls");
+    System.err.println("\t-threads <threads>\tNumber of threads created per mapper to fetch sitemap urls (default: 8)");
     System.err.println("\t-force\t\t\tforce update even if CrawlDb appears to be locked (CAUTION advised)");
     System.err.println("\t-noStrict\t\tBy default Sitemap parser rejects invalid urls. '-noStrict' disables that.");
     System.err.println("\t-noFilter\t\tturn off URLFilters on urls (optional)");
@@ -452,7 +452,7 @@ public class SitemapProcessor extends Configured implements Tool {
     boolean strict = true;
     boolean filter = true;
     boolean normalize = true;
-    int threads = getConf().getInt("mapred.map.multithreadedrunner.threads", 8);
+    int threads = 8;
 
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-hostdb")) {
