@@ -96,6 +96,19 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
    */
   public static final String ADAPTIVE_FETCH_TIME_SORT_FACTOR = "scoring.adaptive.factor.fetchtime";
 
+  /**
+   * Generator sort value factor for pages to be (re)fetched based on the time
+   * (in days) elapsed since the time a URL has been seen as seed or link.
+   * URLs not seen since long are penalized by this factor (opposed to
+   * scoring.adaptive.factor.fetchtime which prefers pages not revisited
+   * for a longer period of time):
+   * 
+   * <pre>
+   * generator_sort_value -= (factor * days_since_last_seen)
+   * </pre>
+   */
+  public static final String ADAPTIVE_LAST_SEEN_TIME_SORT_FACTOR = "scoring.adaptive.factor.lastseentime";
+
   public static final String ADAPTIVE_STATUS_SORT_FACTOR_FILE = "scoring.adaptive.sort.by_status.file";
 
   /**
@@ -166,6 +179,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   private long curTime;
 
   private float adaptiveFetchTimeSort;
+  private float adaptiveLastSeenTimeSort;
   private float adaptiveFetchRetryPenalty;
   private float adaptiveBoostInjected;
 
@@ -188,6 +202,8 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
         System.currentTimeMillis());
     adaptiveFetchTimeSort = conf.getFloat(ADAPTIVE_FETCH_TIME_SORT_FACTOR,
         .01f);
+    adaptiveLastSeenTimeSort = conf.getFloat(ADAPTIVE_LAST_SEEN_TIME_SORT_FACTOR,
+        .005f);
     adaptiveFetchRetryPenalty = conf.getFloat(ADAPTIVE_FETCH_RETRY_PENALTY,
         .1f);
     adaptiveBoostInjected = conf.getFloat(ADAPTIVE_INJECTED_BOOST, .2f);
@@ -279,9 +295,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     long daysSinceScheduledFetch = (curTime - fetchTime) / 86400000;
     if (adaptiveFetchTimeSort > 0.0f) {
       // boost/penalize by time elapsed since the scheduled fetch time
-      float fetchTimeSort = (float) (adaptiveFetchTimeSort
-          * daysSinceScheduledFetch);
-      initSort += fetchTimeSort;
+      initSort += adaptiveFetchTimeSort * daysSinceScheduledFetch;
     }
     if (statusSortMap.containsKey(status)) {
       // boost/penalize by fetch status
@@ -297,6 +311,16 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
         // - retry count == 0
         // - scheduled fetch within the last 7 days
         initSort += adaptiveBoostInjected;
+      }
+    }
+    if (adaptiveLastSeenTimeSort > 0.0
+        && datum.getMetaData().containsKey(WRITABLE_LAST_SEEN_TIME)) {
+      IntWritable writable = (IntWritable) datum.getMetaData()
+          .get(WRITABLE_LAST_SEEN_TIME);
+      int lastSeenMinutes = writable.get();
+      int daysSinceLastSeen = (nowMinutes - lastSeenMinutes) / (60 * 24);
+      if (daysSinceLastSeen> 0) {
+        initSort -= adaptiveLastSeenTimeSort * daysSinceLastSeen;
       }
     }
     return initSort;

@@ -1653,6 +1653,19 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 </property>
 
 <property>
+  <name>scoring.adaptive.factor.lastseentime</name>
+  <value>.005</value>
+  <description>
+    Generator sort value factor for pages to be (re)fetched based on
+    the time (in days) elapsed since a URL has been seen as seed or
+    link.  URLs not seen since long are penalized by this factor
+    (opposed to scoring.adaptive.factor.fetchtime which prefers pages
+    not revisited for a longer period of time):
+        generator_sort_value -= (factor * days_since_last_seen)
+  </description>
+</property>
+
+<property>
   <name>scoring.adaptive.penalty.fetch_retry</name>
   <value>.1</value>
   <description>
