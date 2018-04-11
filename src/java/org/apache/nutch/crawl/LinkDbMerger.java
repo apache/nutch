@@ -132,7 +132,7 @@ public class LinkDbMerger extends Configured implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("LinkDbMerge job failed {}", e);
+      LOG.error("LinkDbMerge job failed: {}", e.getMessage());
       throw e;
     }
     FileSystem fs = output.getFileSystem(getConf());

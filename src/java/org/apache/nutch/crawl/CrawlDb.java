@@ -142,7 +142,7 @@ public class CrawlDb extends NutchTool implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("Crawl job failed {}", e);
+      LOG.error("Crawl job failed: {}", e.getMessage());
       NutchJob.cleanupAfterFailure(outPath, lock, fs);
       throw e;
     }

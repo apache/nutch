@@ -298,7 +298,7 @@ public class WARCExporter extends Configured implements Tool {
       LOG.info("WARCExporter: finished at {}, elapsed: {}", sdf.format(end),
           TimingUtil.elapsedTime(start, end));
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("WARCExporter job failed {}", e);
+      LOG.error("WARCExporter job failed: {}", e.getMessage());
       return -1;
     }
 

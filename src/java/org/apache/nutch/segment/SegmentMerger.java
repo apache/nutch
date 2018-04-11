@@ -748,7 +748,7 @@ public class SegmentMerger extends Configured implements Tool{
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("SegmentMerger job failed {}", e);
+      LOG.error("SegmentMerger job failed: {}", e.getMessage());
       throw e;
     }
   }

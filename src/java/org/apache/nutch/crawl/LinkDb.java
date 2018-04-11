@@ -238,7 +238,7 @@ public class LinkDb extends NutchTool implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("LinkDb job failed {}", e);
+      LOG.error("LinkDb job failed: {}", e.getMessage());
       LockUtil.removeLockFile(fs, lock);
       throw e;
     }
@@ -263,7 +263,7 @@ public class LinkDb extends NutchTool implements Tool {
           throw new RuntimeException(message);
         }
       } catch (IOException | InterruptedException | ClassNotFoundException e) {
-        LOG.error("LinkDb job failed {}", e);
+        LOG.error("LinkDb job failed: {}", e.getMessage());
         NutchJob.cleanupAfterFailure(newLinkDb, lock, fs);
         throw e;
       }
@@ -300,7 +300,7 @@ public class LinkDb extends NutchTool implements Tool {
           conf.setBoolean(LinkDbFilter.URL_NORMALIZING, normalize);
         }
       } catch (Exception e) {
-        LOG.warn("LinkDb createJob: {}", e);
+        LOG.warn("LinkDb createJob:: {}", e.getMessage());
       }
     }
     job.setReducerClass(LinkDbMerger.LinkDbMergeReducer.class);
