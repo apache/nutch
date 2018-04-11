@@ -134,7 +134,7 @@ public class CrawlDb extends NutchTool implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "Crawl job did not succeed, job status:"
+        String message = "CrawlDb update job did not succeed, job status:"
             + job.getStatus().getState() + ", reason: "
             + job.getStatus().getFailureInfo();
         LOG.error(message);
@@ -142,7 +142,7 @@ public class CrawlDb extends NutchTool implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("Crawl job failed: {}", e.getMessage());
+      LOG.error("CrawlDb update job failed: {}", e.getMessage());
       NutchJob.cleanupAfterFailure(outPath, lock, fs);
       throw e;
     }
