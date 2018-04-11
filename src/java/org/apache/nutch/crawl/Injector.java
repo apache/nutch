@@ -44,6 +44,7 @@ import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
+import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 
 import org.slf4j.Logger;
