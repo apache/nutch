@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.hadoop.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.jexl2.Expression;
@@ -138,9 +139,27 @@ public class Generator extends NutchTool implements Tool {
 
   /** Selects entries due for fetch. */
   public static class Selector extends
-      Partitioner<FloatWritable, Writable> {
+      Partitioner<FloatWritable, Writable> implements Configurable {
 
-    private static URLPartitioner partitioner = new URLPartitioner();
+    private final URLPartitioner partitioner = new URLPartitioner();
+
+    /** Partition by host / domain or IP. */
+    public int getPartition(FloatWritable key, Writable value,
+                            int numReduceTasks) {
+      return partitioner.getPartition(((SelectorEntry) value).url, key,
+              numReduceTasks);
+    }
+
+    @Override
+    public Configuration getConf() {
+      return partitioner.getConf();
+    }
+
+    @Override
+    public void setConf(Configuration conf) {
+      partitioner.setConf(conf);
+    }
+  }
 
     /** Select and invert subset due for fetch. */
 
@@ -165,11 +184,9 @@ public class Generator extends NutchTool implements Tool {
       @Override 
       public void setup(Mapper<Text, CrawlDatum, FloatWritable, SelectorEntry>.Context context) throws IOException{
         conf = context.getConfiguration();
-        Job job = Job.getInstance(conf);
         curTime = conf.getLong(GENERATOR_CUR_TIME, System.currentTimeMillis());
         filters = new URLFilters(conf);
         scfilters = new ScoringFilters(conf);
-        partitioner.configure(job);
         filter = conf.getBoolean(GENERATOR_FILTER, true);
         genDelay = conf.getLong(GENERATOR_DELAY, 7L) * 3600L * 24L * 1000L;
         long time = conf.getLong(Nutch.GENERATE_TIME_KEY, 0L);
@@ -257,12 +274,7 @@ public class Generator extends NutchTool implements Tool {
       }
     }
 
-    /** Partition by host / domain or IP. */
-    public int getPartition(FloatWritable key, Writable value,
-        int numReduceTasks) {
-      return partitioner.getPartition(((SelectorEntry) value).url, key,
-          numReduceTasks);
-    }
+
     
     /** Collect until limit is reached. */
     public static class SelectorReducer extends
@@ -532,7 +544,6 @@ public class Generator extends NutchTool implements Tool {
         return null;
       }
     }
-  }
 
   public static class DecreasingFloatComparator extends
       FloatWritable.Comparator {
@@ -606,20 +617,20 @@ public class Generator extends NutchTool implements Tool {
    * Update the CrawlDB so that the next generate won't include the same URLs.
    */
   public static class CrawlDbUpdater {
-    
+
     public static class CrawlDbUpdateMapper extends
-           Mapper<Text, CrawlDatum, Text, CrawlDatum> {
+            Mapper<Text, CrawlDatum, Text, CrawlDatum> {
       @Override
       public void map(Text key, CrawlDatum value,
-          Context context)
-          throws IOException, InterruptedException {
+                      Context context)
+              throws IOException, InterruptedException {
         context.write(key, value);
       }
     }
 
-    public static class CrawlDbUpdateReducer extends 
-           Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-      
+    public static class CrawlDbUpdateReducer extends
+            Reducer<Text, CrawlDatum, Text, CrawlDatum> {
+
       private CrawlDatum orig = new CrawlDatum();
       private LongWritable genTime = new LongWritable(0L);
       private long generateTime;
@@ -632,13 +643,13 @@ public class Generator extends NutchTool implements Tool {
 
       @Override
       public void reduce(Text key, Iterable<CrawlDatum> values,
-          Context context)
-          throws IOException, InterruptedException {
+                         Context context)
+              throws IOException, InterruptedException {
         genTime.set(0L);
         for (CrawlDatum val : values) {
           if (val.getMetaData().containsKey(Nutch.WRITABLE_GENERATE_TIME_KEY)) {
             LongWritable gt = (LongWritable) val.getMetaData().get(
-                Nutch.WRITABLE_GENERATE_TIME_KEY);
+                    Nutch.WRITABLE_GENERATE_TIME_KEY);
             genTime.set(gt.get());
             if (genTime.get() != generateTime) {
               orig.set(val);
@@ -770,9 +781,9 @@ public class Generator extends NutchTool implements Tool {
     job.setInputFormatClass(SequenceFileInputFormat.class);
 
     job.setJarByClass(Selector.class);
-    job.setMapperClass(Selector.SelectorMapper.class);
+    job.setMapperClass(SelectorMapper.class);
     job.setPartitionerClass(Selector.class);
-    job.setReducerClass(Selector.SelectorReducer.class);
+    job.setReducerClass(SelectorReducer.class);
 
     FileOutputFormat.setOutputPath(job, tempDir);
     job.setOutputKeyClass(FloatWritable.class);
