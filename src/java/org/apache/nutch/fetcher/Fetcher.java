@@ -109,7 +109,6 @@ public class Fetcher extends NutchTool implements Tool {
   SequenceFileInputFormat<Text, CrawlDatum> {
     /** Don't split inputs, to keep things polite. */
     public InputSplit[] getSplits(JobContext job, int nSplits) throws IOException {
-      Configuration conf = job.getConfiguration();
       List<FileStatus> files = listStatus(job);
       FileSplit[] splits = new FileSplit[files.size()];
       Iterator<FileStatus> iterator= files.listIterator();

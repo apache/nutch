@@ -67,8 +67,6 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
 
     Configuration conf = context.getConfiguration();
     String name = getUniqueFile(context, "part", "");
-    Path dir = FileOutputFormat.getOutputPath(context);
-    FileSystem fs = dir.getFileSystem(context.getConfiguration());
     Path out = FileOutputFormat.getOutputPath(context);
     final Path fetch = new Path(new Path(out, CrawlDatum.FETCH_DIR_NAME), name);
     final Path content = new Path(new Path(out, Content.DIR_NAME), name);
