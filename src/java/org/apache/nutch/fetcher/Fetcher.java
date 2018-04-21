@@ -228,7 +228,7 @@ public class Fetcher extends NutchTool implements Tool {
       }
 
       // select a timeout that avoids a task timeout
-      long timeout = conf.getInt("mapred.task.timeout", 10 * 60 * 1000)
+      long timeout = conf.getInt("mapreduce.task.timeout", 10 * 60 * 1000)
           / timeoutDivisor;
 
       // Used for threshold check, holds pages and bytes processed in the last

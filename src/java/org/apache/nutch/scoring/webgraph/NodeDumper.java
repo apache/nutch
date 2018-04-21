@@ -330,7 +330,7 @@ public class NodeDumper extends Configured implements Tool {
 
     // Set equals-sign as separator for Solr's ExternalFileField
     if (asEff) {
-      conf.set("mapred.textoutputformat.separator", "=");
+      conf.set("mapreduce.output.textoutputformat.separator", "=");
     }
 
     try {

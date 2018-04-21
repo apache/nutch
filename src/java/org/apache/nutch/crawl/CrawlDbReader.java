@@ -367,7 +367,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
     public void setup(Reducer<FloatWritable, Text, FloatWritable, Text>.Context context) {
       Configuration conf = context.getConfiguration();
-      topN = conf.getLong("db.reader.topn", 100) / Integer.parseInt(conf.get("mapred.job.reduces"));
+      topN = conf.getLong("db.reader.topn", 100) / Integer.parseInt(conf.get("mapreduce.job.reduces"));
     }
 
     public void close() {

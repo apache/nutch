@@ -177,7 +177,7 @@ public class ReadHostDb extends Configured implements Tool {
       conf.set(HOSTDB_FILTER_EXPRESSION, expr);
     }
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
-    conf.set("mapred.textoutputformat.separator", "\t");
+    conf.set("mapreduce.output.textoutputformat.separator", "\t");
     
     Job job = Job.getInstance(conf);
     job.setJobName("ReadHostDb");
