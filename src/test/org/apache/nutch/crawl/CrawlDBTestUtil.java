@@ -34,14 +34,11 @@ import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configuration.IntegerRanges;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.mapred.Counters;
 import org.apache.hadoop.mapred.Counters.Counter;
 import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -49,7 +46,6 @@ import org.apache.hadoop.mapreduce.OutputCommitter;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.security.Credentials;
 import org.mortbay.jetty.Server;
@@ -89,19 +85,6 @@ public class CrawlDBTestUtil {
       writer.append(new Text(row.url), row.datum);
     }
     writer.close();
-  }
-
-  /**
-   * For now we need to manually construct our Configuration, because we need to
-   * override the default one and it is currently not possible to use
-   * dynamically set values.
-   * 
-   * @return
-   * @deprecated Use {@link #createConfiguration()} instead
-   */
-  @Deprecated
-  public static Context create() {
-    return createContext();
   }
 
   /** {@link Context} to collect all values in a {@link List} */
@@ -377,12 +360,12 @@ public class CrawlDBTestUtil {
    * 
    * @return
    */
-  public static Context createContext() {
+  public static Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context createContext() {
     DummyContext context = new DummyContext();
     Configuration conf = context.getConfiguration();
     conf.addResource("nutch-default.xml");
     conf.addResource("crawl-tests.xml");
-    return (Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context)context;
+    return (Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context) context;
   }
 
   public static class URLCrawlDatum {
