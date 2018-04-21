@@ -87,6 +87,10 @@ public class QueueFeeder extends Thread {
           try {
             hasMore = context.nextKeyValue();
             if (hasMore) {
+              /*
+               * Need to copy key and value objects because MapReduce will reuse
+               * the original objects while the objects are stored in the queue.
+               */
               Text url = new Text((Text)context.getCurrentKey());
               CrawlDatum datum = new CrawlDatum();
               datum.set((CrawlDatum)context.getCurrentValue());
