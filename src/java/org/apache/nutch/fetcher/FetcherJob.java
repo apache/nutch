@@ -214,7 +214,7 @@ public class FetcherJob extends NutchTool implements Tool {
     StorageUtils.initReducerJob(currentJob, FetcherReducer.class);
     if (numTasks == null || numTasks < 1) {
       currentJob.setNumReduceTasks(currentJob.getConfiguration().getInt(
-          "mapred.map.tasks", currentJob.getNumReduceTasks()));
+          "mapreduce.job.maps", currentJob.getNumReduceTasks()));
     } else {
       currentJob.setNumReduceTasks(numTasks);
     }
@@ -247,7 +247,7 @@ public class FetcherJob extends NutchTool implements Tool {
    * @param shouldResume
    * @param numTasks
    *          number of fetching tasks (reducers). If set to &lt; 1 then use the
-   *          default, which is mapred.map.tasks.
+   *          default, which is mapreduce.job.maps.
    * @return 0 on success
    * @throws Exception
    */
@@ -267,7 +267,7 @@ public class FetcherJob extends NutchTool implements Tool {
    * @param shouldResume
    * @param numTasks
    *          number of fetching tasks (reducers). If set to &lt; 1 then use the
-   *          default, which is mapred.map.tasks.
+   *          default, which is mapreduce.job.maps.
    * @param stmDetect
    *          If set true, sitemap detection is run.
    * @param sitemap
@@ -326,7 +326,7 @@ public class FetcherJob extends NutchTool implements Tool {
         + "    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\n"
         + "    -threads N    - number of fetching threads per task\n"
         + "    -resume       - resume interrupted job\n"
-        + "    -numTasks N   - if N > 0 then use this many reduce tasks for fetching \n \t \t    (default: mapred.map.tasks)"
+        + "    -numTasks N   - if N > 0 then use this many reduce tasks for fetching \n \t \t    (default: mapreduce.job.maps)"
         + "    -sitemap      - only sitemap files are fetched, defaults to false"
         + "    -stmDetect    - sitemap files are detected from robot.txt file";
 
