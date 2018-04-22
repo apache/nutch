@@ -296,6 +296,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     job.setJobName("Deduplication on " + crawldb);
     conf.set(DEDUPLICATION_GROUP_MODE, group);
     conf.set(DEDUPLICATION_COMPARE_ORDER, compareOrder);
+    job.setJarByClass(DeduplicationJob.class);
 
     FileInputFormat.addInputPath(job, new Path(crawldb, CrawlDb.CURRENT_NAME));
     job.setInputFormatClass(SequenceFileInputFormat.class);

@@ -27,13 +27,9 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
@@ -44,7 +40,6 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.conf.Configuration;
 
@@ -57,14 +52,15 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.io.Closeable;
 
-/** . */
+/**
+ * Read utility for the LinkDb.
+ */
 public class LinkDbReader extends AbstractChecker implements Closeable {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private static final Partitioner<WritableComparable, Writable> PARTITIONER = new HashPartitioner<>();
+  private static final Partitioner<Text, Inlinks> PARTITIONER = new HashPartitioner<>();
 
-  private FileSystem fs;
   private Path directory;
   private MapFile.Reader[] readers;
 
@@ -78,7 +74,6 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
   }
 
   public void init(Path directory) throws Exception {
-    this.fs = directory.getFileSystem(getConf());
     this.directory = directory;
   }
 
@@ -149,8 +144,9 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
 
     Job job = NutchJob.getInstance(getConf());
     job.setJobName("read " + linkdb);
+    job.setJarByClass(LinkDbReader.class);
     
-    Configuration conf = job.getConfiguration();   
+    Configuration conf = job.getConfiguration();
  
     if (regex != null) {
       conf.set("linkdb.regex", regex);

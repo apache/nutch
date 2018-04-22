@@ -155,6 +155,7 @@ public class CleaningJob implements Tool {
     job.setMapOutputValueClass(Text.class);
     job.setMapperClass(DBFilter.class);
     job.setReducerClass(DeleterReducer.class);
+    job.setJarByClass(CleaningJob.class);
 
     job.setJobName("CleaningJob");
 
