@@ -336,7 +336,7 @@ public class SitemapProcessor extends Configured implements Tool {
       LOG.info("SitemapProcessor: Starting at {}", sdf.format(start));
     }
 
-    FileSystem fs = FileSystem.get(getConf());
+    FileSystem fs = crawldb.getFileSystem(getConf());
     Path old = new Path(crawldb, "old");
     Path current = new Path(crawldb, "current");
     Path tempCrawlDb = new Path(crawldb, "crawldb-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
