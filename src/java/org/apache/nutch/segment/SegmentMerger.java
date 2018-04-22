@@ -139,7 +139,6 @@ public class SegmentMerger extends Configured implements Tool{
                     throws IOException {
 
       context.setStatus(split.toString());
-      Configuration conf = context.getConfiguration();
 
       // find part name
       SegmentPart segmentPart;
@@ -213,7 +212,7 @@ public class SegmentMerger extends Configured implements Tool{
     public RecordWriter<Text, MetaWrapper> getRecordWriter(TaskAttemptContext context)
             throws IOException {
       Configuration conf = context.getConfiguration();
-      String name = context.getTaskAttemptID().toString();
+      String name = getUniqueFile(context, "part", "");
       Path dir = FileOutputFormat.getOutputPath(context);
       FileSystem fs = dir.getFileSystem(context.getConfiguration());
 

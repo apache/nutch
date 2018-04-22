@@ -34,7 +34,7 @@ public class IndexerOutputFormat extends
     Configuration conf = context.getConfiguration();
     final IndexWriters writers = new IndexWriters(conf);
 
-    String name = context.getTaskAttemptID().toString();
+    String name = getUniqueFile(context, "part", "");
     writers.open(conf, name);
 
     return new RecordWriter<Text, NutchIndexAction>() {
