@@ -167,6 +167,9 @@ public class OPICScoringFilter implements ScoringFilter {
   public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
       throws ScoringFilterException {
+    if (dbDatum == null) {
+      return initScore;
+    }
     return (float) Math.pow(dbDatum.getScore(), scorePower) * initScore;
   }
 }
