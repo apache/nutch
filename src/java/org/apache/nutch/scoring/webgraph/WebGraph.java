@@ -153,14 +153,6 @@ public class WebGraph extends Configured implements Tool {
     public static class OutlinkDbMapper extends
         Mapper<Text, Writable, Text, NutchWritable> {
 
-      // ignoring internal domains, internal hosts
-      private boolean ignoreDomain = true;
-      private boolean ignoreHost = true;
-
-      // limiting urls out to a page or to a domain
-      private boolean limitPages = true;
-      private boolean limitDomains = true;
-
       // using normalizers and/or filters
       private boolean normalize = false;
       private boolean filter = false;
@@ -230,10 +222,6 @@ public class WebGraph extends Configured implements Tool {
       public void setup(Mapper<Text, Writable, Text, NutchWritable>.Context context) {
         Configuration config = context.getConfiguration();
         conf = config;
-        ignoreHost = conf.getBoolean("link.ignore.internal.host", true);
-        ignoreDomain = conf.getBoolean("link.ignore.internal.domain", true);
-        limitPages = conf.getBoolean("link.ignore.limit.page", true);
-        limitDomains = conf.getBoolean("link.ignore.limit.domain", true);
 
         normalize = conf.getBoolean(URL_NORMALIZING, false);
         filter = conf.getBoolean(URL_FILTERING, false);
@@ -336,13 +324,7 @@ public class WebGraph extends Configured implements Tool {
       private boolean limitPages = true;
       private boolean limitDomains = true;
 
-      // using normalizers and/or filters
-      private boolean normalize = false;
-      private boolean filter = false;
-
       // url normalizers, filters and job configuration
-      private URLNormalizers urlNormalizers;
-      private URLFilters filters;
       private Configuration conf;
 
       /**
@@ -356,16 +338,6 @@ public class WebGraph extends Configured implements Tool {
         limitPages = conf.getBoolean("link.ignore.limit.page", true);
         limitDomains = conf.getBoolean("link.ignore.limit.domain", true);
         
-        normalize = conf.getBoolean(URL_NORMALIZING, false);
-        filter = conf.getBoolean(URL_FILTERING, false);
-
-        if (normalize) {
-          urlNormalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_DEFAULT);
-        }
-
-        if (filter) {
-          filters = new URLFilters(conf);
-        }
       }
    
       public void reduce(Text key, Iterable<NutchWritable> values,
@@ -376,7 +348,8 @@ public class WebGraph extends Configured implements Tool {
         // which should be the timestamp for all of the most recent outlinks
         long mostRecent = 0L;
         List<LinkDatum> outlinkList = new ArrayList<>();
-        for (Writable value : values) {
+        for (NutchWritable val : values) {
+          final Writable value = val.get();
 
           if (value instanceof LinkDatum) {
             // loop through, change out most recent timestamp if needed
@@ -447,9 +420,6 @@ public class WebGraph extends Configured implements Tool {
 
     private static long timestamp;
 
-    public void close() {
-    }
-
     /**
      * Inverts the Outlink LinkDatum objects into new LinkDatum objects with a
      * new system timestamp, type and to and from url switched.
@@ -487,9 +457,6 @@ public class WebGraph extends Configured implements Tool {
    * for each url and a score slot for analysis programs such as LinkRank.
    */
   private static class NodeDb extends Configured {
-
-    public void close() {
-    }
 
     /**
      * Counts the number of inlinks and outlinks for each url and sets a default
@@ -634,7 +601,15 @@ public class WebGraph extends Configured implements Tool {
     // run the outlinkdb job and replace any old outlinkdb with the new one
     try {
       LOG.info("OutlinkDb: running");
-      int complete = outlinkJob.waitForCompletion(true)?0:1;
+      boolean success = outlinkJob.waitForCompletion(true);
+      if (!success) {
+        String message = "OutlinkDb job did not succeed, job status:"
+            + outlinkJob.getStatus().getState() + ", reason: "
+            + outlinkJob.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(tempOutlinkDb, lock, fs);
+        throw new RuntimeException(message);
+      }
       LOG.info("OutlinkDb: installing " + outlinkDb);
       FSUtils.replace(fs, oldOutlinkDb, outlinkDb, true);
       FSUtils.replace(fs, outlinkDb, tempOutlinkDb, true);
@@ -642,13 +617,9 @@ public class WebGraph extends Configured implements Tool {
         fs.delete(oldOutlinkDb, true);
       LOG.info("OutlinkDb: finished");
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-
+      LOG.error("OutlinkDb failed:", e);
       // remove lock file and and temporary directory if an error occurs
-      LockUtil.removeLockFile(fs, lock);
-      if (fs.exists(tempOutlinkDb)) {
-        fs.delete(tempOutlinkDb, true);
-      }
-      LOG.error(StringUtils.stringifyException(e));
+      NutchJob.cleanupAfterFailure(tempOutlinkDb, lock, fs);
       throw e;
     }
 
@@ -677,18 +648,22 @@ public class WebGraph extends Configured implements Tool {
 
       // run the inlink and replace any old with new
       LOG.info("InlinkDb: running");
-      int complete = inlinkJob.waitForCompletion(true)?0:1;
+      boolean success = inlinkJob.waitForCompletion(true);
+      if (!success) {
+        String message = "InlinkDb job did not succeed, job status:"
+            + inlinkJob.getStatus().getState() + ", reason: "
+            + inlinkJob.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(tempInlinkDb, lock, fs);
+        throw new RuntimeException(message);
+      }
       LOG.info("InlinkDb: installing " + inlinkDb);
       FSUtils.replace(fs, inlinkDb, tempInlinkDb, true);
       LOG.info("InlinkDb: finished");
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-
+      LOG.error("InlinkDb failed:", e);
       // remove lock file and and temporary directory if an error occurs
-      LockUtil.removeLockFile(fs, lock);
-      if (fs.exists(tempInlinkDb)) {
-        fs.delete(tempInlinkDb, true);
-      }
-      LOG.error(StringUtils.stringifyException(e));
+      NutchJob.cleanupAfterFailure(tempInlinkDb, lock, fs);
       throw e;
     }
 
@@ -719,18 +694,23 @@ public class WebGraph extends Configured implements Tool {
 
       // run the node job and replace old nodedb with new
       LOG.info("NodeDb: running");
-      int complete = nodeJob.waitForCompletion(true)?0:1;
+      boolean success = nodeJob.waitForCompletion(true);
+      if (!success) {
+        String message = "NodeDb job did not succeed, job status:"
+            + nodeJob.getStatus().getState() + ", reason: "
+            + nodeJob.getStatus().getFailureInfo();
+        LOG.error(message);
+        // remove lock file and and temporary directory if an error occurs
+        NutchJob.cleanupAfterFailure(tempNodeDb, lock, fs);
+        throw new RuntimeException(message);
+      }
       LOG.info("NodeDb: installing " + nodeDb);
       FSUtils.replace(fs, nodeDb, tempNodeDb, true);
       LOG.info("NodeDb: finished");
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-
+      LOG.error("NodeDb failed:", e);
       // remove lock file and and temporary directory if an error occurs
-      LockUtil.removeLockFile(fs, lock);
-      if (fs.exists(tempNodeDb)) {
-        fs.delete(tempNodeDb, true);
-      }
-      LOG.error(StringUtils.stringifyException(e));
+      NutchJob.cleanupAfterFailure(tempNodeDb, lock, fs);
       throw e;
     }
 

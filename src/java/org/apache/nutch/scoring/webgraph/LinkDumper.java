@@ -88,7 +88,6 @@ public class LinkDumper extends Configured implements Tool {
       // open the readers for the linkdump directory
       Configuration conf = NutchConfiguration.create();
       Path webGraphDb = new Path(args[0]);
-      FileSystem fs = webGraphDb.getFileSystem(conf);
       String url = args[1];
       MapFile.Reader[] readers = MapFileOutputFormat.getReaders(new Path(
           webGraphDb, DUMP_DIR), conf);
@@ -351,10 +350,17 @@ public class LinkDumper extends Configured implements Tool {
 
     try {
       LOG.info("LinkDumper: running inverter");
-      int complete = inverter.waitForCompletion(true)?0:1;
+      boolean success = inverter.waitForCompletion(true);
+      if (!success) {
+        String message = "LinkDumper inverter job did not succeed, job status:"
+            + inverter.getStatus().getState() + ", reason: "
+            + inverter.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
       LOG.info("LinkDumper: finished inverter");
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("LinkDumper inverter job failed:", e);
       throw e;
     }
 
@@ -362,6 +368,7 @@ public class LinkDumper extends Configured implements Tool {
     Job merger = NutchJob.getInstance(conf);
     merger.setJobName("LinkDumper: merger");
     FileInputFormat.addInputPath(merger, tempInverted);
+    merger.setJarByClass(Merger.class);
     merger.setInputFormatClass(SequenceFileInputFormat.class);
     merger.setReducerClass(Merger.class);
     merger.setMapOutputKeyClass(Text.class);
@@ -373,10 +380,17 @@ public class LinkDumper extends Configured implements Tool {
 
     try {
       LOG.info("LinkDumper: running merger");
-      int complete = merger.waitForCompletion(true)?0:1;
+      boolean success = merger.waitForCompletion(true);
+      if (!success) {
+        String message = "LinkDumper merger job did not succeed, job status:"
+            + merger.getStatus().getState() + ", reason: "
+            + merger.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
       LOG.info("LinkDumper: finished merger");
     } catch (IOException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("LinkDumper merger job failed:", e);
       throw e;
     }
 
