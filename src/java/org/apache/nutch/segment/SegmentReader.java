@@ -526,7 +526,7 @@ public class SegmentReader extends Configured implements Tool {
       throws Exception {
     long cnt = 0L;
     Text key = new Text();
-    Text val = new Text();
+    CrawlDatum val = new CrawlDatum();
     FileSystem fs = segment.getFileSystem(getConf());
     
     if (ge) {
