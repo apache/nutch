@@ -134,7 +134,8 @@ public class UpdateHostDbReducer
     
     // Loop through all values until we find a non-empty HostDatum or use
     // an empty if this is a new host for the host db
-    for (Writable value : values) {
+    for (NutchWritable val : values) {
+      final Writable value = val.get(); // unwrap
       
       // Count crawl datum status's and collect metadata from fields
       if (value instanceof CrawlDatum) {
@@ -260,7 +261,7 @@ public class UpdateHostDbReducer
       }
       
       // 
-      if (value instanceof HostDatum) {
+      else if (value instanceof HostDatum) {
         HostDatum buffer = (HostDatum)value;
 
         // Check homepage URL
@@ -295,9 +296,11 @@ public class UpdateHostDbReducer
       }
 
       // Check for the score
-      if (value instanceof FloatWritable) {
+      else if (value instanceof FloatWritable) {
         FloatWritable buffer = (FloatWritable)value;
         score = buffer.get();
+      } else {
+        LOG.error("Class {} not handled", value.getClass());
       }
     }
 
