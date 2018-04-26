@@ -36,6 +36,7 @@ public class LinkAnalysisScoringFilter implements ScoringFilter {
 
   private Configuration conf;
   private float normalizedScore = 1.00f;
+  private float initialScore = 0.0f;
 
   public LinkAnalysisScoringFilter() {
 
@@ -64,12 +65,15 @@ public class LinkAnalysisScoringFilter implements ScoringFilter {
   public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
       throws ScoringFilterException {
+    if (dbDatum == null) {
+      return initScore;
+    }
     return (normalizedScore * dbDatum.getScore());
   }
 
   public void initialScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
-    datum.setScore(0.0f);
+    datum.setScore(initialScore);
   }
 
   public void injectedScore(Text url, CrawlDatum datum)
