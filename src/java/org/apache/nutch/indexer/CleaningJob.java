@@ -138,7 +138,7 @@ public class CleaningJob extends NutchTool implements Tool {
     getConf().setBoolean(ARG_COMMIT, (Boolean) args.get(ARG_COMMIT));
     currentJob = NutchJob.getInstance(getConf(), "CleaningJob");
     currentJob.getConfiguration().setClass(
-        "mapred.output.key.comparator.class", StringComparator.class,
+        "mapreduce.job.output.key.comparator.class", StringComparator.class,
         RawComparator.class);
 
     Collection<WebPage.Field> fields = getFields(currentJob);

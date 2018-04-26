@@ -145,7 +145,7 @@ public class IndexingJob extends NutchTool implements Tool {
 
     Job job = NutchJob.getInstance(conf, "Indexer");
     // TODO: Figure out why this needs to be here
-    job.getConfiguration().setClass("mapred.output.key.comparator.class",
+    job.getConfiguration().setClass("mapreduce.job.output.key.comparator.class",
         StringComparator.class, RawComparator.class);
 
     Collection<WebPage.Field> fields = getFields(job);

@@ -539,7 +539,7 @@ public class WebTableReader extends NutchTool implements Tool {
   // for now handles only -stat
   @Override
   public Map<String, Object> run(Map<String, Object> args) throws Exception {
-    Path tmpFolder = new Path(getConf().get("mapred.temp.dir", ".")
+    Path tmpFolder = new Path(getConf().get("mapreduce.cluster.temp.dir", ".")
         + "stat_tmp" + System.currentTimeMillis());
 
     numJobs = 1;
