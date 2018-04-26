@@ -52,7 +52,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -60,13 +59,13 @@ import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.LinkDbReader;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.SegmentReaderUtil;
 
 /** Dump the content of a segment. */
@@ -157,20 +156,9 @@ public class SegmentReader extends Configured implements Tool {
       this.pt = conf.getBoolean("segment.reader.pt", true);
     }
 
-  private Configuration createJobConf() throws IOException {
-    Job job = NutchJob.getInstance(getConf());
-    Configuration conf = job.getConfiguration();
-    conf.setBoolean("segment.reader.co", this.co);
-    conf.setBoolean("segment.reader.fe", this.fe);
-    conf.setBoolean("segment.reader.ge", this.ge);
-    conf.setBoolean("segment.reader.pa", this.pa);
-    conf.setBoolean("segment.reader.pd", this.pd);
-    conf.setBoolean("segment.reader.pt", this.pt);
-    return conf;
-  }
-
   public void close() {
   }
+
   public static class InputCompatReducer extends
       Reducer<Text, NutchWritable, Text, Text> {
 
@@ -231,6 +219,7 @@ public class SegmentReader extends Configured implements Tool {
     job.setInputFormatClass(SequenceFileInputFormat.class);
     job.setMapperClass(InputCompatMapper.class);
     job.setReducerClass(InputCompatReducer.class);
+    job.setJarByClass(SegmentReader.class);
 
     Path tempDir = new Path(conf.get("hadoop.tmp.dir", "/tmp") + "/segread-"
         + new java.util.Random().nextInt());
@@ -458,7 +447,7 @@ public class SegmentReader extends Configured implements Tool {
     Class<?> valueClass = readers[0].getValueClass();
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
       throw new IOException("Incompatible key (" + keyClass.getName() + ")");
-    WritableComparable aKey = (WritableComparable) keyClass.newInstance();
+    WritableComparable<?> aKey = (WritableComparable<?>) keyClass.newInstance();
     Writable value = (Writable) valueClass.newInstance();
     for (int i = 0; i < readers.length; i++) {
       while (readers[i].next(aKey, value)) {

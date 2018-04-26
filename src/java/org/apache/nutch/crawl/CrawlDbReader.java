@@ -389,6 +389,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 	  FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
 	  job.setInputFormatClass(SequenceFileInputFormat.class);
 
+	  job.setJarByClass(CrawlDbReader.class);
 	  job.setMapperClass(CrawlDbStatMapper.class);
 	  job.setCombinerClass(CrawlDbStatReducer.class);
 	  job.setReducerClass(CrawlDbStatReducer.class);
@@ -689,6 +690,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     job.setMapperClass(CrawlDbDumpMapper.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
+    job.setJarByClass(CrawlDbReader.class);
 
     try {
       boolean success = job.waitForCompletion(true);
@@ -793,6 +795,8 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     job.setJobName("topN prepare " + crawlDb);
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormatClass(SequenceFileInputFormat.class);
+
+    job.setJarByClass(CrawlDbReader.class);
     job.setMapperClass(CrawlDbTopNMapper.class);
     job.setReducerClass(Reducer.class);
 
@@ -831,6 +835,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     job.setInputFormatClass(SequenceFileInputFormat.class);
     job.setMapperClass(Mapper.class);
     job.setReducerClass(CrawlDbTopNReducer.class);
+    job.setJarByClass(CrawlDbReader.class);
 
     FileOutputFormat.setOutputPath(job, outFolder);
     job.setOutputFormatClass(TextOutputFormat.class);

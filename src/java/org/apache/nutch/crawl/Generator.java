@@ -848,10 +848,9 @@ public class Generator extends NutchTool implements Tool {
       }
       FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
       job.setInputFormatClass(SequenceFileInputFormat.class);
-      job.setJarByClass(CrawlDbUpdater.class);
       job.setMapperClass(CrawlDbUpdater.CrawlDbUpdateMapper.class);
       job.setReducerClass(CrawlDbUpdater.CrawlDbUpdateReducer.class);
-      //job.setJarByClass(CrawlDbUpdater.class);
+      job.setJarByClass(CrawlDbUpdater.class);
       job.setOutputFormatClass(MapFileOutputFormat.class);
       job.setOutputKeyClass(Text.class);
       job.setOutputValueClass(CrawlDatum.class);

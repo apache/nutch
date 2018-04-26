@@ -77,7 +77,8 @@ public class CrawlDbMerger extends Configured implements Tool {
     public void close() throws IOException {
     }
 
-    public void setup(Reducer.Context context) {
+    public void setup(
+        Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
       Configuration conf = context.getConfiguration();
       schedule = FetchScheduleFactory.getFetchSchedule(conf);
     }
@@ -179,6 +180,7 @@ public class CrawlDbMerger extends Configured implements Tool {
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
 
+    job.setJarByClass(CrawlDbMerger.class);
     job.setMapperClass(CrawlDbFilter.class);
     conf.setBoolean(CrawlDbFilter.URL_FILTERING, filter);
     conf.setBoolean(CrawlDbFilter.URL_NORMALIZING, normalize);
