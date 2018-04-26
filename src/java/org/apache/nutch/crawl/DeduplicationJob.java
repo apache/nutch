@@ -265,7 +265,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     }
 
     String group = "none";
-    String crawldb = args[0];
+    Path crawlDb = new Path(args[0]);
     String compareOrder = "score,fetchTime,urlLength";
 
     for (int i = 1; i < args.length; i++) {
@@ -287,18 +287,17 @@ public class DeduplicationJob extends NutchTool implements Tool {
     long start = System.currentTimeMillis();
     LOG.info("DeduplicationJob: starting at " + sdf.format(start));
 
-    Path tempDir = new Path(getConf().get("mapreduce.cluster.temp.dir", ".")
-        + "/dedup-temp-"
+    Path tempDir = new Path(crawlDb, "dedup-temp-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     Job job = NutchJob.getInstance(getConf());
     Configuration conf = job.getConfiguration();
-    job.setJobName("Deduplication on " + crawldb);
+    job.setJobName("Deduplication on " + crawlDb);
     conf.set(DEDUPLICATION_GROUP_MODE, group);
     conf.set(DEDUPLICATION_COMPARE_ORDER, compareOrder);
     job.setJarByClass(DeduplicationJob.class);
 
-    FileInputFormat.addInputPath(job, new Path(crawldb, CrawlDb.CURRENT_NAME));
+    FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormatClass(SequenceFileInputFormat.class);
 
     FileOutputFormat.setOutputPath(job, tempDir);
@@ -342,28 +341,33 @@ public class DeduplicationJob extends NutchTool implements Tool {
       LOG.info("Deduplication: Updating status of duplicate urls into crawl db.");
     }
 
-    Path dbPath = new Path(crawldb);
-    Job mergeJob = CrawlDb.createJob(getConf(), dbPath);
+    Job mergeJob = CrawlDb.createJob(getConf(), crawlDb);
     FileInputFormat.addInputPath(mergeJob, tempDir);
     mergeJob.setReducerClass(StatusUpdateReducer.class);
+    mergeJob.setJarByClass(DeduplicationJob.class);
 
+    fs = crawlDb.getFileSystem(getConf());
+    Path outPath = FileOutputFormat.getOutputPath(job);
+    Path lock = CrawlDb.lock(getConf(), crawlDb, false);
     try {
-      boolean success = job.waitForCompletion(true);
+      boolean success = mergeJob.waitForCompletion(true);
       if (!success) {
         String message = "Crawl job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+            + mergeJob.getStatus().getState() + ", reason: "
+            + mergeJob.getStatus().getFailureInfo();
         LOG.error(message);
         fs.delete(tempDir, true);
+        NutchJob.cleanupAfterFailure(outPath, lock, fs);
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("DeduplicationMergeJob: " + StringUtils.stringifyException(e));
       fs.delete(tempDir, true);
+      NutchJob.cleanupAfterFailure(outPath, lock, fs);
       return -1;
     }
 
-    CrawlDb.install(mergeJob, dbPath);
+    CrawlDb.install(mergeJob, crawlDb);
 
     // clean up
     fs.delete(tempDir, true);
