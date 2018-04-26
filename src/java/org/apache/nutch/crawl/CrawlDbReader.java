@@ -99,7 +99,6 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     if (readers != null)
       return;
     Path crawlDbPath = new Path(crawlDb, CrawlDb.CURRENT_NAME);
-    FileSystem fs = crawlDbPath.getFileSystem(config);
     readers = MapFileOutputFormat.getReaders(crawlDbPath, config);
   }
 
@@ -180,7 +179,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
     public RecordWriter<Text, CrawlDatum> getRecordWriter(TaskAttemptContext
         context) throws IOException {
-      String name = context.getTaskAttemptID().toString();
+      String name = getUniqueFile(context, "part", "");
       Path dir = FileOutputFormat.getOutputPath(context);
       FileSystem fs = dir.getFileSystem(context.getConfiguration());
       DataOutputStream fileOut = fs.create(new Path(dir, name), context);

@@ -106,8 +106,7 @@ public class SegmentReader extends Configured implements Tool {
       FileOutputFormat<WritableComparable<?>, Writable> {
     public RecordWriter<WritableComparable<?>, Writable> getRecordWriter(
         TaskAttemptContext context) throws IOException, InterruptedException {
-      Configuration conf = context.getConfiguration();
-      String name = context.getTaskAttemptID().toString();
+      String name = getUniqueFile(context, "part", "");
       Path dir = FileOutputFormat.getOutputPath(context);
       FileSystem fs = dir.getFileSystem(context.getConfiguration());
 
