@@ -37,7 +37,6 @@ import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -177,7 +176,7 @@ public class ReadHostDb extends Configured implements Tool {
       conf.set(HOSTDB_FILTER_EXPRESSION, expr);
     }
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
-    conf.set("mapred.textoutputformat.separator", "\t");
+    conf.set("mapreduce.output.textoutputformat.separator", "\t");
     
     Job job = Job.getInstance(conf);
     job.setJobName("ReadHostDb");
@@ -186,7 +185,6 @@ public class ReadHostDb extends Configured implements Tool {
     FileInputFormat.addInputPath(job, new Path(hostDb, "current"));
     FileOutputFormat.setOutputPath(job, output);
 
-    job.setJarByClass(ReadHostDb.class);
     job.setMapperClass(ReadHostDbMapper.class);
 
     job.setInputFormatClass(SequenceFileInputFormat.class);

@@ -200,7 +200,7 @@ public class Http extends HttpBase {
     // for multi-threaded crawls.
     // --------------------------------------------------------------------------------
     params.setMaxTotalConnections(
-        conf.getInt("mapred.tasktracker.map.tasks.maximum", 5)
+        conf.getInt("mapreduce.tasktracker.map.tasks.maximum", 5)
             * conf.getInt("fetcher.threads.fetch", maxThreadsTotal));
 
     // Also set max connections per host to maxThreadsTotal since all threads

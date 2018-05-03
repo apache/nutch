@@ -330,14 +330,21 @@ public class NodeDumper extends Configured implements Tool {
 
     // Set equals-sign as separator for Solr's ExternalFileField
     if (asEff) {
-      conf.set("mapred.textoutputformat.separator", "=");
+      conf.set("mapreduce.output.textoutputformat.separator", "=");
     }
 
     try {
       LOG.info("NodeDumper: running");
-      int complete = dumper.waitForCompletion(true)?0:1;
+      boolean success = dumper.waitForCompletion(true);
+      if (!success) {
+        String message = "NodeDumper job did not succeed, job status:"
+            + dumper.getStatus().getState() + ", reason: "
+            + dumper.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
     } catch (IOException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("NodeDumper job failed:", e);
       throw e;
     }
     long end = System.currentTimeMillis();

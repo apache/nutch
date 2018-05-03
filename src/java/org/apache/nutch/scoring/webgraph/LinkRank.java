@@ -111,9 +111,16 @@ public class LinkRank extends Configured implements Tool {
     // run the counter job, outputs to a single reduce task and file
     LOG.info("Starting link counter job");
     try {
-      int complete = counter.waitForCompletion(true)?0:1;
+      boolean success = counter.waitForCompletion(true);
+      if (!success) {
+        String message = "Link counter job did not succeed, job status:"
+            + counter.getStatus().getState() + ", reason: "
+            + counter.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("Link counter job failed:", e);
       throw e;
     }
     
@@ -122,7 +129,7 @@ public class LinkRank extends Configured implements Tool {
     // read the first (and only) line from the file which should be the
     // number of links in the web graph
     LOG.info("Reading numlinks temp file");
-    FSDataInputStream readLinks = fs.open(new Path(numLinksPath, "part-00000"));
+    FSDataInputStream readLinks = fs.open(new Path(numLinksPath, "part-r-00000"));
     BufferedReader buffer = new BufferedReader(new InputStreamReader(readLinks));
     String numLinksLine = buffer.readLine();
     readLinks.close();
@@ -161,6 +168,7 @@ public class LinkRank extends Configured implements Tool {
     initializer.setJobName("LinkAnalysis Initializer");
     FileInputFormat.addInputPath(initializer, nodeDb);
     FileOutputFormat.setOutputPath(initializer, output);
+    initializer.setJarByClass(Initializer.class);
     initializer.setInputFormatClass(SequenceFileInputFormat.class);
     initializer.setMapperClass(Initializer.class);
     initializer.setMapOutputKeyClass(Text.class);
@@ -174,9 +182,16 @@ public class LinkRank extends Configured implements Tool {
     // run the initializer
     LOG.info("Starting initialization job");
     try {
-      int complete = initializer.waitForCompletion(true)?0:1;
+      boolean success = initializer.waitForCompletion(true);
+      if (!success) {
+        String message = "Initialization job did not succeed, job status:"
+            + initializer.getStatus().getState() + ", reason: "
+            + initializer.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("Initialization job failed:", e);
       throw e;
     }
     LOG.info("Finished initialization job.");
@@ -221,9 +236,16 @@ public class LinkRank extends Configured implements Tool {
     // run the inverter job
     LOG.info("Starting inverter job");
     try {
-      int complete = inverter.waitForCompletion(true)?0:1;
+      boolean success = inverter.waitForCompletion(true);
+      if (!success) {
+        String message = "Inverter job did not succeed, job status:"
+            + inverter.getStatus().getState() + ", reason: "
+            + inverter.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("Inverter job failed:", e);
       throw e;
     }
     LOG.info("Finished inverter job.");
@@ -278,9 +300,16 @@ public class LinkRank extends Configured implements Tool {
 
     LOG.info("Starting analysis job");
     try {
-      int complete = analyzer.waitForCompletion(true)?0:1;
+      boolean success = analyzer.waitForCompletion(true);
+      if (!success) {
+        String message = "Analysis job did not succeed, job status:"
+            + analyzer.getStatus().getState() + ", reason: "
+            + analyzer.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("Analysis job failed:", e);
       throw e;
     }
     LOG.info("Finished analysis job.");
@@ -331,8 +360,6 @@ public class LinkRank extends Configured implements Tool {
       }
     }
 
-    public void close() {
-    }
   }
 
   private static class Initializer extends Mapper<Text, Node, Text, Node> {
@@ -372,11 +399,8 @@ public class LinkRank extends Configured implements Tool {
     public static class InvertMapper extends 
         Mapper<Text, Writable, Text, ObjectWritable> {
 
-      private Configuration conf;
-
       @Override
       public void setup(Mapper<Text, Writable, Text, ObjectWritable>.Context context) {
-        conf = context.getConfiguration();
       }
 
       @Override
@@ -502,19 +526,14 @@ public class LinkRank extends Configured implements Tool {
        * needed values for analysis.
        */
       @Override
-      public void setup(Reducer<Text, ObjectWritable, Text, Node>.Context context) {
-        try {
-          conf = context.getConfiguration();
-          dampingFactor = conf
-              .getFloat("link.analyze.damping.factor", 0.85f);
-          rankOne = conf.getFloat("link.analyze.rank.one", 0.0f);
-          itNum = conf.getInt("link.analyze.iteration", 0);
-          limitPages = conf.getBoolean("link.ignore.limit.page", true);
-          limitDomains = conf.getBoolean("link.ignore.limit.domain", true);
-        } catch (Exception e) {
-          LOG.error(StringUtils.stringifyException(e));
-          throw new IllegalArgumentException(e);
-        }
+      public void setup(
+          Reducer<Text, ObjectWritable, Text, Node>.Context context) {
+        conf = context.getConfiguration();
+        dampingFactor = conf.getFloat("link.analyze.damping.factor", 0.85f);
+        rankOne = conf.getFloat("link.analyze.rank.one", 0.0f);
+        itNum = conf.getInt("link.analyze.iteration", 0);
+        limitPages = conf.getBoolean("link.ignore.limit.page", true);
+        limitDomains = conf.getBoolean("link.ignore.limit.domain", true);
       }
 
       @Override

@@ -184,9 +184,21 @@ public class ScoreUpdater extends Configured implements Tool{
     updater.setOutputFormatClass(MapFileOutputFormat.class);
 
     try {
-      int complete = updater.waitForCompletion(true)?0:1;
+      boolean success = updater.waitForCompletion(true);
+      if (!success) {
+        String message = "Update CrawlDb from WebGraph job did not succeed, job status:"
+            + updater.getStatus().getState() + ", reason: "
+            + updater.getStatus().getFailureInfo();
+        LOG.error(message);
+        // remove the temp crawldb on error
+        FileSystem fs = newCrawlDb.getFileSystem(conf);
+        if (fs.exists(newCrawlDb)) {
+          fs.delete(newCrawlDb, true);
+        }
+        throw new RuntimeException(message);
+      }
     } catch (IOException | ClassNotFoundException | InterruptedException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("Update CrawlDb from WebGraph:", e);
 
       // remove the temp crawldb on error
       FileSystem fs = newCrawlDb.getFileSystem(conf);

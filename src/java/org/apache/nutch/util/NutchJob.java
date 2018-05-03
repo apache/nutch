@@ -18,7 +18,10 @@
 package org.apache.nutch.util;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.Configuration;
@@ -26,6 +29,9 @@ import org.apache.hadoop.mapreduce.Job;
 
 /** A {@link Job} for Nutch jobs. */
 public class NutchJob extends Job {
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   @SuppressWarnings("deprecation")
   public NutchJob(Configuration conf, String jobName) throws IOException {
@@ -47,6 +53,7 @@ public class NutchJob extends Job {
       }
       LockUtil.removeLockFile(fs, lock);
     } catch (IOException e) {
+      LOG.error("NutchJob cleanup failed: {}", e.getMessage());
       throw e;
     }
   }

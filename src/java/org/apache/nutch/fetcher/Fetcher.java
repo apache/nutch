@@ -109,7 +109,6 @@ public class Fetcher extends NutchTool implements Tool {
   SequenceFileInputFormat<Text, CrawlDatum> {
     /** Don't split inputs, to keep things polite. */
     public InputSplit[] getSplits(JobContext job, int nSplits) throws IOException {
-      Configuration conf = job.getConfiguration();
       List<FileStatus> files = listStatus(job);
       FileSplit[] splits = new FileSplit[files.size()];
       Iterator<FileStatus> iterator= files.listIterator();
@@ -228,7 +227,7 @@ public class Fetcher extends NutchTool implements Tool {
       }
 
       // select a timeout that avoids a task timeout
-      long timeout = conf.getInt("mapred.task.timeout", 10 * 60 * 1000)
+      long timeout = conf.getInt("mapreduce.task.timeout", 10 * 60 * 1000)
           / timeoutDivisor;
 
       // Used for threshold check, holds pages and bytes processed in the last

@@ -108,6 +108,7 @@ public class TestCrawlDbFilter {
     job.setOutputFormatClass(MapFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
+    job.setJarByClass(CrawlDbFilter.class);
     job.waitForCompletion(true);
 
     Path fetchlist = new Path(new Path(newCrawlDb, "part-r-00000"), "data");

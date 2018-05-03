@@ -193,17 +193,22 @@ public interface ScoringFilter extends Configurable, Pluggable {
   }
 
   /**
-   * This method calculates a Lucene document boost.
+   * This method calculates a indexed document score/boost.
    * 
    * @param url
    *          url of the page
    * @param doc
-   *          Lucene document. NOTE: this already contains all information
+   *          indexed document. NOTE: this already contains all information
    *          collected by indexing filters. Implementations may modify this
    *          instance, in order to store/remove some information.
    * @param dbDatum
-   *          current page from CrawlDb. NOTE: changes made to this instance are
-   *          not persisted.
+   *          current page from CrawlDb. NOTE:
+   *          <ul>
+   *          <li>changes made to this instance are not persisted</li>
+   *          <li>may be null if indexing is done without CrawlDb or if the
+   *          segment is generated not from the CrawlDb (via
+   *          FreeGenerator).</li>
+   *          </ul>
    * @param fetchDatum
    *          datum from FetcherOutput (containing among others the fetching
    *          status)
@@ -214,10 +219,10 @@ public interface ScoringFilter extends Configurable, Pluggable {
    *          current inlinks from LinkDb. NOTE: changes made to this instance
    *          are not persisted.
    * @param initScore
-   *          initial boost value for the Lucene document.
-   * @return boost value for the Lucene document. This value is passed as an
+   *          initial boost value for the indexed document.
+   * @return boost value for the indexed document. This value is passed as an
    *         argument to the next scoring filter in chain. NOTE: implementations
-   *         may also express other scoring strategies by modifying Lucene
+   *         may also express other scoring strategies by modifying the indexed
    *         document directly.
    * @throws ScoringFilterException
    */

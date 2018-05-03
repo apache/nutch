@@ -47,15 +47,11 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
   @Override
   public void checkOutputSpecs(JobContext job) throws IOException {
     Configuration conf = job.getConfiguration();
-    FileSystem fs = FileSystem.get(conf);
     Path out = FileOutputFormat.getOutputPath(job);
     if ((out == null) && (job.getNumReduceTasks() != 0)) {
       throw new InvalidJobConfException("Output directory not set in conf.");
     }
-
-    if (fs == null) {
-      fs = out.getFileSystem(conf);
-    }
+    FileSystem fs = out.getFileSystem(conf);
     if (fs.exists(new Path(out, CrawlDatum.FETCH_DIR_NAME))) {
       throw new IOException("Segment already fetched!");
     }
@@ -67,8 +63,6 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
 
     Configuration conf = context.getConfiguration();
     String name = getUniqueFile(context, "part", "");
-    Path dir = FileOutputFormat.getOutputPath(context);
-    FileSystem fs = dir.getFileSystem(context.getConfiguration());
     Path out = FileOutputFormat.getOutputPath(context);
     final Path fetch = new Path(new Path(out, CrawlDatum.FETCH_DIR_NAME), name);
     final Path content = new Path(new Path(out, Content.DIR_NAME), name);

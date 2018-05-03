@@ -181,6 +181,7 @@ public class CrawlDb extends NutchTool implements Tool {
 
     job.setMapperClass(CrawlDbFilter.class);
     job.setReducerClass(CrawlDbReducer.class);
+    job.setJarByClass(CrawlDb.class);
 
     FileOutputFormat.setOutputPath(job, newCrawlDb);
     job.setOutputFormatClass(MapFileOutputFormat.class);
