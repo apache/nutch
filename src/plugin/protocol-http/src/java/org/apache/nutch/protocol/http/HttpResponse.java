@@ -464,6 +464,7 @@ public class HttpResponse implements Response {
         chunkBytesRead += len;
       }
 
+      contentBytesRead += chunkBytesRead;
       readLine(in, line, false);
 
     }
