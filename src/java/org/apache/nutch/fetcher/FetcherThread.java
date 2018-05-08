@@ -139,6 +139,8 @@ public class FetcherThread extends Thread {
   private AtomicLong bytes;
   
   private List<Content> robotsTxtContent = null;
+  private long robotsDeferVisitsDelay;
+  private int robotsDeferVisitsRetries;
 
   //Used by the REST service
   private FetchNode fetchNode;
@@ -192,6 +194,14 @@ public class FetcherThread extends Thread {
       if (conf.getBoolean("parse.normalize.urls", true))
         this.normalizersForOutlinks = new URLNormalizers(conf,
             URLNormalizers.SCOPE_OUTLINK);
+    }
+
+    // NUTCH-2573 defer visits if robots.txt fails with HTTP 5xx
+    if (conf.getBoolean("http.robots.503.defer.visits", true)) {
+      this.robotsDeferVisitsDelay = conf
+          .getLong("http.robots.503.defer.visits.delay", 5 * 60 * 1000L);
+      this.robotsDeferVisitsRetries = conf
+          .getInt("http.robots.503.defer.visits.retries", 3);
     }
 
     if((activatePublisher=conf.getBoolean("fetcher.publisher", false)))
@@ -311,6 +321,24 @@ public class FetcherThread extends Thread {
             if (robotsTxtContent != null) {
               outputRobotsTxt(robotsTxtContent);
               robotsTxtContent.clear();
+            }
+            if (rules.isDeferVisits()) {
+              LOG.info("Defer visits for queue {} : {}", fit.queueID, fit.url);
+              // retry the fetch item
+              if (fetchQueues.timelimitReached()) {
+                fetchQueues.finishFetchItem(fit, true);
+              } else {
+                fetchQueues.addFetchItem(fit);
+              }
+              // but check whether it's time to cancel the queue
+              int killedURLs = fetchQueues.checkExceptionThreshold(
+                  fit.getQueueID(), this.robotsDeferVisitsRetries + 1,
+                  this.robotsDeferVisitsDelay);
+              if (killedURLs != 0) {
+                context.getCounter("FetcherStatus",
+                    "DroppedRobotsTxtDeferVisits").increment(killedURLs);
+              }
+              continue;
             }
             if (!rules.isAllowed(fit.url.toString())) {
               // unblock
@@ -600,6 +628,12 @@ public class FetcherThread extends Thread {
       LOG.debug(" - ignoring redirect from {} to {} as duplicate", fit.url,
           redirUrl);
       return null;
+    } else if (fetchQueues.timelimitReached()) {
+      redirecting = false;
+      context.getCounter("FetcherStatus", "hitByTimeLimit").increment(1);
+      LOG.debug(" - ignoring redirect from {} to {} - timelimit reached",
+          fit.url, redirUrl);
+      return null;
     }
     CrawlDatum newDatum = createRedirDatum(redirUrl, fit, CrawlDatum.STATUS_DB_UNFETCHED);
     fit = FetchItem.create(redirUrl, newDatum, queueMode);
@@ -780,8 +814,10 @@ public class FetcherThread extends Thread {
             reportEvent.addEventData(Nutch.FETCH_EVENT_CONTENTLANG, parseData.getContentMeta().get("content-language"));
             publisher.publish(reportEvent, conf);
           }
+
           // Only process depth N outlinks
-          if (maxOutlinkDepth > 0 && outlinkDepth < maxOutlinkDepth) {
+          if (maxOutlinkDepth > 0 && outlinkDepth < maxOutlinkDepth
+              && !fetchQueues.timelimitReached()) {
             FetchItem ft = FetchItem.create(url, null, queueMode);
             FetchItemQueue queue = fetchQueues.getFetchItemQueue(ft.queueID);
             queue.alreadyFetched.add(url.toString().hashCode());
