@@ -205,7 +205,7 @@ public class HttpResponse implements Response {
 
       // store the request in the metadata?
       if (conf.getBoolean("store.http.request", false) == true) {
-        headers.add("_request_", reqStr.toString());
+        headers.add(Response.REQUEST, reqStr.toString());
       }
 
       byte[] reqBytes = reqStr.toString().getBytes();
@@ -263,7 +263,7 @@ public class HttpResponse implements Response {
             // store the headers verbatim only if the response was not compressed
             // as the content length reported with not match otherwise
             if (httpHeaders != null) {
-              headers.add("_response.headers_", httpHeaders.toString());
+              headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
             }
             if (Http.LOG.isTraceEnabled()) {
               Http.LOG.trace("fetched " + content.length + " bytes from " + url);
