@@ -149,13 +149,19 @@ public class OkHttpResponse implements Response {
         trimmed.setValue(true);
       }
     }
+    int bytesToCopy = contentBytesBuffered;
     if (maxContent != -1 && contentBytesBuffered > maxContent) {
       // okhttp's internal buffer is larger than maxContent
       trimmed.setValue(true);
-      contentBytesBuffered = maxContentBytes;
+      bytesToCopy = maxContentBytes;
     }
-    byte[] arr = new byte[contentBytesBuffered];
-    source.buffer().read(arr);
+    byte[] arr = new byte[bytesToCopy];
+    source.buffer().readFully(arr);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(
+          "copied {} bytes out of {} buffered, remaining buffer contains {} bytes",
+          bytesToCopy, contentBytesBuffered, source.buffer().size());
+    }
     return arr;
   }
 
