@@ -66,8 +66,12 @@ public final class MimeUtil {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   public MimeUtil(Configuration conf) {
-    tika = new Tika();
     ObjectCache objectCache = ObjectCache.get(conf);
+    tika = (Tika) objectCache.getObject(Tika.class.getName());
+    if (tika == null) {
+      tika = new Tika();
+      objectCache.setObject(Tika.class.getName(), tika);
+    }
     MimeTypes mimeTypez = (MimeTypes) objectCache.getObject(MimeTypes.class
         .getName());
     if (mimeTypez == null) {
