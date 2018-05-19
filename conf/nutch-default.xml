@@ -280,7 +280,7 @@
 <property>
   <name>http.proxy.exception.list</name>
   <value></value>
-  <description>A comma separated list of URL's and hosts that don't use the proxy 
+  <description>A comma separated list of hosts that don't use the proxy 
   (e.g. intranets). Example: www.apache.org</description>
 </property>
 
@@ -548,15 +548,21 @@
 </property>
 
 <property>
-    <name>db.url.normalizers</name>
+    <name>crawldb.url.normalizers</name>
     <value>false</value>
-    <description>Normalize urls when updating crawldb</description>
+    <description>
+	!Temporary, can be overwritten with the command line!
+	Normalize urls when updating crawldb
+    </description>
 </property>
 
 <property>
-    <name>db.url.filters</name>
+    <name>crawldb.url.filters</name>
     <value>false</value>
-    <description>Filter urls when updating crawldb</description>
+    <description>
+	!Temporary, can be overwritten with the command line!
+	Filter urls when updating crawldb
+    </description>
 </property>
 
 <property>
@@ -717,6 +723,16 @@
   QUANT = (int)(QUANT_RATE * maxFreq), where maxFreq is a maximum token
   frequency. If maxFreq > 1 then QUANT will be at least 2, which means that
   for longer texts tokens with frequency 1 will always be discarded.
+  </description>
+</property>
+
+<property>
+  <name>db.stats.score.quantiles</name>
+  <value>.01,.05,.1,.2,.25,.3,.4,.5,.6,.7,.75,.8,.9,.95,.99</value>
+  <description>
+    Quantiles of the distribution of CrawlDatum scores shown in the
+    CrawlDb statistics (command `readdb -stats').  Comma-separated
+    list of floating point numbers.
   </description>
 </property>
 
@@ -969,7 +985,7 @@
   <name>fetcher.threads.timeout.divisor</name>
   <value>2</value>
   <description>(EXPERT)The thread time-out divisor to use. By default threads have a time-out
-  value of mapred.task.timeout / 2. Increase this setting if the fetcher waits too
+  value of mapreduce.task.timeout / 2. Increase this setting if the fetcher waits too
   long before killing hanged threads. Be careful, a too high setting (+8) will most likely kill the
   fetcher threads prematurely.
   </description>
@@ -1070,6 +1086,12 @@
     <name>any23.extractors</name>
     <value>html-microdata</value>
     <description>Comma-separated list of Any23 extractors (a list of extractors is available here: http://any23.apache.org/getting-started.html)</description>
+</property>
+
+<property>
+    <name>any23.content_types</name>
+    <value>text/html,application/xhtml+xml</value>
+    <description>Comma-separated list of content-types onto which Any23 extractors should be applied (see http://www.iana.org/assignments/media-types/). If empty, all content-types are supported.</description>
 </property>
 
 <!-- moreindexingfilter plugin properties -->
@@ -1732,6 +1754,15 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<property>
+  <name>index.metadata.separator</name>
+  <value></value>
+  <description>
+   Separator to use if you want to index multiple values for a given field. Leave empty to
+   treat each value as a single value.
+  </description>
+</property>
+
 <!-- index-geoip plugin properties -->
 <property>
   <name>index.geoip.usage</name>
@@ -2117,8 +2148,10 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 <property>
     <name>elastic.rest.host</name>
     <value></value>
-    <description>The hostname to send documents to using Elasticsearch Jest. Both host
-        and port must be defined</description>
+    <description>
+      The hostname or a list of comma separated hostnames to send documents to
+      using Elasticsearch Jest. Both host and port must be defined.
+    </description>
 </property>
 
 <property>
@@ -2740,6 +2773,14 @@ If true (default) the Sitemap parser rejects URLs not sharing the same
     these values may have unexpected effects on what is crawled. Use this
     only if you can trust the sitemap and if the values in the sitemap do
     fit with your crawler configuration.
+   </description>
+</property>
+
+<property>
+  <name>sitemap.redir.max</name>
+  <value>3</value>
+  <description>
+    Maximum number of redirects to follow.
    </description>
 </property>
 </configuration>

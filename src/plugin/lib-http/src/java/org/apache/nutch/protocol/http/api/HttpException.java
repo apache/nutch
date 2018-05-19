@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.protocol.http.api;
 
-// Nutch imports
 import org.apache.nutch.protocol.ProtocolException;
 
 public class HttpException extends ProtocolException {

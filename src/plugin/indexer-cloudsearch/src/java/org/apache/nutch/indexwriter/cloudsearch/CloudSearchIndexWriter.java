@@ -34,8 +34,10 @@ import java.util.Map.Entry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.indexer.IndexWriter;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.nutch.indexer.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,27 +86,20 @@ public class CloudSearchIndexWriter implements IndexWriter {
   private String regionName;
 
   @Override
-  public void open(JobConf job, String name) throws IOException {
+  public void open(Configuration conf, String name) throws IOException {
     //Implementation not required
   }
 
   @Override
   public void open(IndexWriterParams parameters) throws IOException {
-    String endpoint = parameters.get(CloudSearchConstants.ENDPOINT);
-    boolean dumpBatchFilesToTemp = parameters
-            .getBoolean(CloudSearchConstants.BATCH_DUMP, false);
-    this.regionName = parameters.get(CloudSearchConstants.REGION);
-
-    if (StringUtils.isBlank(endpoint) && !dumpBatchFilesToTemp) {
-      String message = "Missing CloudSearch endpoint. Should set it in index-writers.xml";
-      message += "\n" + describe();
-      LOG.error(message);
-      throw new RuntimeException(message);
-    }
+    LOG.debug("CloudSearchIndexWriter.open() name={} ", name);
 
     maxDocsInBatch = parameters.getInt(CloudSearchConstants.MAX_DOCS_BATCH, -1);
 
     buffer = new StringBuffer(MAX_SIZE_BATCH_BYTES).append('[');
+
+    dumpBatchFilesToTemp = parameters.getBoolean(CloudSearchConstants.BATCH_DUMP,
+        false);
 
     if (dumpBatchFilesToTemp) {
       // only dumping to local file
@@ -112,11 +107,12 @@ public class CloudSearchIndexWriter implements IndexWriter {
       return;
     }
 
+    String endpoint = parameters.get(CloudSearchConstants.ENDPOINT);
+
     if (StringUtils.isBlank(endpoint)) {
       throw new RuntimeException("endpoint not set for CloudSearch");
     }
 
-    this.regionName = parameters.get(CloudSearchConstants.REGION);
     AmazonCloudSearchClient cl = new AmazonCloudSearchClient();
     if (StringUtils.isNotBlank(regionName)) {
       cl.setRegion(RegionUtils.getRegion(regionName));
@@ -126,7 +122,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
 
     // retrieve the domain name
     DescribeDomainsResult domains = cl
-            .describeDomains(new DescribeDomainsRequest());
+        .describeDomains(new DescribeDomainsRequest());
 
     Iterator<DomainStatus> dsiter = domains.getDomainStatusList().iterator();
     while (dsiter.hasNext()) {
@@ -140,11 +136,11 @@ public class CloudSearchIndexWriter implements IndexWriter {
     // check domain name
     if (StringUtils.isBlank(domainName)) {
       throw new RuntimeException(
-              "No domain name found for CloudSearch endpoint");
+          "No domain name found for CloudSearch endpoint");
     }
 
     DescribeIndexFieldsResult indexDescription = cl.describeIndexFields(
-            new DescribeIndexFieldsRequest().withDomainName(domainName));
+        new DescribeIndexFieldsRequest().withDomainName(domainName));
     for (IndexFieldStatus ifs : indexDescription.getIndexFields()) {
       String indexname = ifs.getOptions().getIndexFieldName();
       String indextype = ifs.getOptions().getIndexFieldType();

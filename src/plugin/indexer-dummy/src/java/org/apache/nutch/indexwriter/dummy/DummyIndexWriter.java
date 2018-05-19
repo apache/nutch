@@ -45,42 +45,41 @@ public class DummyIndexWriter implements IndexWriter {
   private Writer writer;
   private boolean delete = false;
 
-  @Override
-  public void open(JobConf job, String name) throws IOException {
-    //Implementation not required
+  public void open(Configuration conf, String name) throws IOException {
+      //Implementation not required
   }
 
-  /**
-   * Initializes the internal variables from a given index writer configuration.
-   *
-   * @param parameters Params from the index writer configuration.
-   * @throws IOException Some exception thrown by writer.
-   */
-  @Override
-  public void open(IndexWriterParams parameters) throws IOException {
-    delete = parameters.getBoolean(DummyConstants.DELETE, false);
+    /**
+     * Initializes the internal variables from a given index writer configuration.
+     *
+     * @param parameters Params from the index writer configuration.
+     * @throws IOException Some exception thrown by writer.
+     */
+    @Override
+    public void open(IndexWriterParams parameters) throws IOException {
+        delete = parameters.getBoolean(DummyConstants.DELETE, false);
 
-    String path = parameters.get(DummyConstants.PATH, "/");
-    if (path == null) {
-      String message = "Missing path.";
-      message += "\n" + describe();
-      LOG.error(message);
-      throw new RuntimeException(message);
-    }
+        String path = parameters.get(DummyConstants.PATH, "/");
+        if (path == null) {
+            String message = "Missing path.";
+            message += "\n" + describe();
+            LOG.error(message);
+            throw new RuntimeException(message);
+        }
 
-    if (writer != null) {
-      LOG.warn("Dummy index file already open for writing");
-      return;
-    }
+        if (writer != null) {
+            LOG.warn("Dummy index file already open for writing");
+            return;
+        }
 
-    try {
-      LOG.debug("Opening dummy index file {}", path);
-      writer = new BufferedWriter(new FileWriter(path));
-    } catch (IOException ex) {
-      LOG.error("Failed to open index file {}: {}", path,
-          StringUtils.stringifyException(ex));
+        try {
+            LOG.debug("Opening dummy index file {}", path);
+            writer = new BufferedWriter(new FileWriter(path));
+        } catch (IOException ex) {
+            LOG.error("Failed to open index file {}: {}", path,
+                    StringUtils.stringifyException(ex));
+        }
     }
-  }
 
   @Override
   public void delete(String key) throws IOException {
@@ -123,9 +122,7 @@ public class DummyIndexWriter implements IndexWriter {
   public String describe() {
     StringBuffer sb = new StringBuffer("DummyIndexWriter\n");
     sb.append("\t").append(
-        "path : Path of the file to write to (mandatory)\n");
-    sb.append("\t").append(
-        "delete : write deletions to dummy index file\n");
+        "dummy.path : Path of the file to write to (mandatory)\n");
     return sb.toString();
   }
 }

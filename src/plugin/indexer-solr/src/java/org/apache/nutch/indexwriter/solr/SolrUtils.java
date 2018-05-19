@@ -16,27 +16,63 @@
  */
 package org.apache.nutch.indexwriter.solr;
 
+import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
 import java.net.MalformedURLException;
 
-class SolrUtils {
+public class SolrUtils {
 
-  static CloudSolrClient getCloudSolrClient(String url) throws MalformedURLException {
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+
+  /**
+   *
+   *
+   * @param job
+   * @return SolrClient
+   */
+  public static ArrayList<SolrClient> getSolrClients(Configuration conf) throws MalformedURLException {
+    String[] urls = conf.getStrings(SolrConstants.SERVER_URL);
+    String[] zkHostString = conf.getStrings(SolrConstants.ZOOKEEPER_HOSTS);
+    ArrayList<SolrClient> solrClients = new ArrayList<SolrClient>();
+
+    if (zkHostString != null && zkHostString.length > 0) {
+      for (int i = 0; i < zkHostString.length; i++) {
+        CloudSolrClient sc = getCloudSolrClient(zkHostString[i]);
+        sc.setDefaultCollection(conf.get(SolrConstants.COLLECTION));
+        solrClients.add(sc);
+      }
+    } else {
+      for (int i = 0; i < urls.length; i++) {
+        SolrClient sc = new HttpSolrClient(urls[i]);
+        solrClients.add(sc);
+      }
+    }
+
+    return solrClients;
+  }
+
+  public static CloudSolrClient getCloudSolrClient(String url) throws MalformedURLException {
     CloudSolrClient sc = new CloudSolrClient(url.replace('|', ','));
     sc.setParallelUpdates(true);
     sc.connect();
     return sc;
   }
 
-  static SolrClient getHttpSolrClient(String url) throws MalformedURLException {
+  public static SolrClient getHttpSolrClient(String url) throws MalformedURLException {
     SolrClient sc =new HttpSolrClient(url);
     return sc;
   }
   
-  static String stripNonCharCodepoints(String input) {
+  public static String stripNonCharCodepoints(String input) {
     StringBuilder retval = new StringBuilder();
     char ch;
 

@@ -19,17 +19,13 @@ package org.apache.nutch.hostdb;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
-
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;
@@ -46,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * Webgraph's NodeDumper tool.
  */
 public class UpdateHostDbMapper
-  implements Mapper<Text, Writable, Text, NutchWritable> {
+  extends Mapper<Text, Writable, Text, NutchWritable> {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -62,20 +58,21 @@ public class UpdateHostDbMapper
   protected URLFilters filters = null;
   protected URLNormalizers normalizers = null;
 
-  public void close() {}
+  public void cleanup() {}
 
   /**
    * @param job
    */
-  public void configure(JobConf job) {
-    readingCrawlDb = job.getBoolean("hostdb.reading.crawldb", false);
-    filter = job.getBoolean(UpdateHostDb.HOSTDB_URL_FILTERING, false);
-    normalize = job.getBoolean(UpdateHostDb.HOSTDB_URL_NORMALIZING, false);
+  public void setup(Mapper<Text, Writable, Text, NutchWritable>.Context context) {
+    Configuration conf = context.getConfiguration();
+    readingCrawlDb = conf.getBoolean("hostdb.reading.crawldb", false);
+    filter = conf.getBoolean(UpdateHostDb.HOSTDB_URL_FILTERING, false);
+    normalize = conf.getBoolean(UpdateHostDb.HOSTDB_URL_NORMALIZING, false);
 
     if (filter)
-      filters = new URLFilters(job);
+      filters = new URLFilters(conf);
     if (normalize)
-      normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_DEFAULT);
+      normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_DEFAULT);
   }
 
   /**
@@ -111,12 +108,11 @@ public class UpdateHostDbMapper
     *
     * @param key
     * @param value
-    * @param output
-    * @param reporter
+    * @param context
     */
   public void map(Text key, Writable value,
-    OutputCollector<Text,NutchWritable> output, Reporter reporter)
-    throws IOException {
+    Context context)
+    throws IOException, InterruptedException {
 
     // Get the key!
     String keyStr = key.toString();
@@ -128,7 +124,7 @@ public class UpdateHostDbMapper
 
       // Filtered out?
       if (buffer == null) {
-        reporter.incrCounter("UpdateHostDb", "filtered_records", 1);
+        context.getCounter("UpdateHostDb", "filtered_records").increment(1);
         LOG.info("UpdateHostDb: " + URLUtil.getHost(keyStr) + " crawldatum has been filtered");
         return;
       }
@@ -177,7 +173,7 @@ public class UpdateHostDbMapper
             // Am i a redirect?
             if (reprUrl != null) {
               LOG.info("UpdateHostDb: homepage: " + keyStr + " redirects to: " + args[0]);
-              output.collect(host, new NutchWritable(hostDatum));
+              context.write(host, new NutchWritable(hostDatum));
               hostDatum.setHomepageUrl(reprUrl);
             } else {
               LOG.info("UpdateHostDb: homepage: " + keyStr + 
@@ -185,14 +181,14 @@ public class UpdateHostDbMapper
             }
           } else {
             hostDatum.setHomepageUrl(homepage);
-            output.collect(host, new NutchWritable(hostDatum));
+            context.write(host, new NutchWritable(hostDatum));
             LOG.info("UpdateHostDb: homepage: " + homepage);
           }
         }
       }
 
       // Always emit crawl datum
-      output.collect(host, new NutchWritable(crawlDatum));
+      context.write(host, new NutchWritable(crawlDatum));
     }
 
     // Check if we got a record from the hostdb
@@ -201,7 +197,7 @@ public class UpdateHostDbMapper
 
       // Filtered out?
       if (buffer == null) {
-        reporter.incrCounter("UpdateHostDb", "filtered_records", 1);
+        context.getCounter("UpdateHostDb", "filtered_records").increment(1);
         LOG.info("UpdateHostDb: " + key.toString() + " hostdatum has been filtered");
         return;
       }
@@ -216,7 +212,7 @@ public class UpdateHostDbMapper
         hostDatum.resetStatistics();
       }
 
-      output.collect(key, new NutchWritable(hostDatum));
+      context.write(key, new NutchWritable(hostDatum));
     }
 
     // Check if we got a record with host scores
@@ -225,14 +221,14 @@ public class UpdateHostDbMapper
 
       // Filtered out?
       if (buffer == null) {
-        reporter.incrCounter("UpdateHostDb", "filtered_records", 1);
+        context.getCounter("UpdateHostDb", "filtered_records").increment(1);
         LOG.info("UpdateHostDb: " + key.toString() + " score has been filtered");
         return;
       }
 
       key.set(buffer);
 
-      output.collect(key,
+      context.write(key,
         new NutchWritable(new FloatWritable(Float.parseFloat(value.toString()))));
     }
   }

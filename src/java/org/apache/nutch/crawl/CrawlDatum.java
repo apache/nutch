@@ -17,17 +17,27 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.*;
-import java.util.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.MapContext;
-
-import org.apache.hadoop.io.*;
-import org.apache.nutch.util.*;
+import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.VersionMismatchException;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.util.StringUtil;
 
 /* The crawl state of a url. */
 public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
@@ -36,7 +46,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   public static final String FETCH_DIR_NAME = "crawl_fetch";
   public static final String PARSE_DIR_NAME = "crawl_parse";
 
-  private final static byte CUR_VERSION = 7;
+  private static final byte CUR_VERSION = 7;
 
   /** Compatibility values for on-the-fly conversion from versions < 5. */
   private static final byte OLD_STATUS_SIGNATURE = 0;
@@ -371,10 +381,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     this.modifiedTime = that.modifiedTime;
     this.signature = that.signature;
     if (that.metaData != null) {
-      this.metaData = new org.apache.hadoop.io.MapWritable(that.metaData); // make
-                                                                           // a
-                                                                           // deep
-                                                                           // copy
+      // make a deep copy
+      this.metaData = new org.apache.hadoop.io.MapWritable(that.metaData);
     } else {
       this.metaData = null;
     }

@@ -21,26 +21,22 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
-import org.apache.hadoop.mapred.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -66,80 +62,87 @@ public class FreeGenerator extends Configured implements Tool {
   private static final String FILTER_KEY = "free.generator.filter";
   private static final String NORMALIZE_KEY = "free.generator.normalize";
 
-  public static class FG extends MapReduceBase implements
-      Mapper<WritableComparable<?>, Text, Text, Generator.SelectorEntry>,
-      Reducer<Text, Generator.SelectorEntry, Text, CrawlDatum> {
-    private URLNormalizers normalizers = null;
-    private URLFilters filters = null;
-    private ScoringFilters scfilters;
-    private CrawlDatum datum = new CrawlDatum();
-    private Text url = new Text();
-    private int defaultInterval = 0;
+  public static class FG {
 
-    @Override
-    public void configure(JobConf job) {
-      super.configure(job);
-      defaultInterval = job.getInt("db.fetch.interval.default", 0);
-      scfilters = new ScoringFilters(job);
-      if (job.getBoolean(FILTER_KEY, false)) {
-        filters = new URLFilters(job);
+    public static class FGMapper extends
+        Mapper<WritableComparable<?>, Text, Text, Generator.SelectorEntry> {
+      
+      private URLNormalizers normalizers = null;
+      private URLFilters filters = null;
+      private ScoringFilters scfilters;
+      private CrawlDatum datum = new CrawlDatum();
+      private Text url = new Text();
+      private int defaultInterval = 0;
+
+      Generator.SelectorEntry entry = new Generator.SelectorEntry();
+
+      @Override
+      public void setup(Mapper<WritableComparable<?>, Text, Text, Generator.SelectorEntry>.Context context) {
+        Configuration conf = context.getConfiguration();
+        defaultInterval = conf.getInt("db.fetch.interval.default", 0);
+        scfilters = new ScoringFilters(conf);
+        if (conf.getBoolean(FILTER_KEY, false)) {
+          filters = new URLFilters(conf);
+        }
+        if (conf.getBoolean(NORMALIZE_KEY, false)) {
+          normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_INJECT);
+        }
       }
-      if (job.getBoolean(NORMALIZE_KEY, false)) {
-        normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_INJECT);
+
+      @Override
+      public void map(WritableComparable<?> key, Text value,
+          Context context) throws IOException, InterruptedException {
+        // value is a line of text
+        String urlString = value.toString();
+        try {
+          if (normalizers != null) {
+            urlString = normalizers.normalize(urlString,
+                URLNormalizers.SCOPE_INJECT);
+          }
+          if (urlString != null && filters != null) {
+            urlString = filters.filter(urlString);
+          }
+          if (urlString != null) {
+            url.set(urlString);
+            scfilters.injectedScore(url, datum);
+          }
+        } catch (Exception e) {
+          LOG.warn("Error adding url '" + value.toString() + "', skipping: "
+              + StringUtils.stringifyException(e));
+          return;
+        }
+        if (urlString == null) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("- skipping " + value.toString());
+          }
+          return;
+        }
+        entry.datum = datum;
+        entry.url = url;
+        // https://issues.apache.org/jira/browse/NUTCH-1430
+        entry.datum.setFetchInterval(defaultInterval);
+        context.write(url, entry);
       }
     }
 
-    Generator.SelectorEntry entry = new Generator.SelectorEntry();
+    public static class FGReducer extends
+        Reducer<Text, Generator.SelectorEntry, Text, CrawlDatum> {
 
-    public void map(WritableComparable<?> key, Text value,
-        OutputCollector<Text, Generator.SelectorEntry> output, Reporter reporter)
-        throws IOException {
-      // value is a line of text
-      String urlString = value.toString();
-      try {
-        if (normalizers != null) {
-          urlString = normalizers.normalize(urlString,
-              URLNormalizers.SCOPE_INJECT);
+      @Override
+      public void reduce(Text key, Iterable<Generator.SelectorEntry> values,
+          Context context) throws IOException, InterruptedException {
+        // pick unique urls from values - discard the reduce key due to hash
+        // collisions
+        HashMap<Text, CrawlDatum> unique = new HashMap<>();
+        for (Generator.SelectorEntry entry : values) {
+          unique.put(entry.url, entry.datum);
         }
-        if (urlString != null && filters != null) {
-          urlString = filters.filter(urlString);
+        // output unique urls
+        for (Entry<Text, CrawlDatum> e : unique.entrySet()) {
+          context.write(e.getKey(), e.getValue());
         }
-        if (urlString != null) {
-          url.set(urlString);
-          scfilters.injectedScore(url, datum);
-        }
-      } catch (Exception e) {
-        LOG.warn("Error adding url '" + value.toString() + "', skipping: "
-            + StringUtils.stringifyException(e));
-        return;
       }
-      if (urlString == null) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("- skipping " + value.toString());
-        }
-        return;
-      }
-      entry.datum = datum;
-      entry.url = url;
-      // https://issues.apache.org/jira/browse/NUTCH-1430
-      entry.datum.setFetchInterval(defaultInterval);
-      output.collect(url, entry);
-    }
 
-    public void reduce(Text key, Iterator<Generator.SelectorEntry> values,
-        OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-        throws IOException {
-      // pick unique urls from values - discard the reduce key due to hash
-      // collisions
-      HashMap<Text, CrawlDatum> unique = new HashMap<>();
-      while (values.hasNext()) {
-        Generator.SelectorEntry entry = values.next();
-        unique.put(entry.url, entry.datum);
-      }
-      // output unique urls
-      for (Entry<Text, CrawlDatum> e : unique.entrySet()) {
-        output.collect(e.getKey(), e.getValue());
-      }
     }
   }
 
@@ -177,27 +180,36 @@ public class FreeGenerator extends Configured implements Tool {
     long start = System.currentTimeMillis();
     LOG.info("FreeGenerator: starting at " + sdf.format(start));
 
-    JobConf job = new NutchJob(getConf());
-    job.setBoolean(FILTER_KEY, filter);
-    job.setBoolean(NORMALIZE_KEY, normalize);
+    Job job = NutchJob.getInstance(getConf());
+    Configuration conf = job.getConfiguration();
+    conf.setBoolean(FILTER_KEY, filter);
+    conf.setBoolean(NORMALIZE_KEY, normalize);
     FileInputFormat.addInputPath(job, new Path(args[0]));
-    job.setInputFormat(TextInputFormat.class);
-    job.setMapperClass(FG.class);
+    job.setInputFormatClass(TextInputFormat.class);
+    job.setJarByClass(FG.class);
+    job.setMapperClass(FG.FGMapper.class);
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(Generator.SelectorEntry.class);
     job.setPartitionerClass(URLPartitioner.class);
-    job.setReducerClass(FG.class);
+    job.setReducerClass(FG.FGReducer.class);
     String segName = Generator.generateSegmentName();
-    job.setNumReduceTasks(job.getNumMapTasks());
-    job.setOutputFormat(SequenceFileOutputFormat.class);
+    job.setNumReduceTasks(Integer.parseInt(conf.get("mapreduce.job.maps")));
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
-    job.setOutputKeyComparatorClass(Generator.HashComparator.class);
+    job.setSortComparatorClass(Generator.HashComparator.class);
     FileOutputFormat.setOutputPath(job, new Path(args[1], new Path(segName,
         CrawlDatum.GENERATE_DIR_NAME)));
     try {
-      JobClient.runJob(job);
-    } catch (Exception e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "FreeGenerator job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("FAILED: " + StringUtils.stringifyException(e));
       return -1;
     }

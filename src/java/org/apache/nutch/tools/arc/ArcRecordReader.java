@@ -30,7 +30,9 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.FileSplit;
-import org.apache.hadoop.mapred.RecordReader;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.util.StringUtils;
 
@@ -52,7 +54,7 @@ import org.apache.hadoop.util.StringUtils;
  * @see <a href='http://www.archive.org/'>archive.org</a> 
  * @see <a href='http://www.grub.org/'>grub.org</a>
  */
-public class ArcRecordReader implements RecordReader<Text, BytesWritable> {
+public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -165,6 +167,22 @@ public class ArcRecordReader implements RecordReader<Text, BytesWritable> {
       // the progress is current pos - where we started / length of the split
       return Math.min(1.0f, (getPos() - splitStart) / (float) splitLen);
     }
+  }
+
+  public BytesWritable getCurrentValue(){
+    return new BytesWritable();
+  }
+
+  public Text getCurrentKey(){
+    return new Text();
+  }
+
+  public boolean nextKeyValue(){
+    return false;
+  }
+  
+  public void initialize(InputSplit split, TaskAttemptContext context){
+      
   }
 
   /**

@@ -19,24 +19,17 @@ package org.apache.nutch.scoring.similarity.cosine;
 import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.nutch.scoring.similarity.util.LuceneAnalyzerUtil.StemFilterType;
 import org.apache.nutch.scoring.similarity.util.LuceneTokenizer;
 import org.apache.nutch.scoring.similarity.util.LuceneTokenizer.TokenizerType;
-import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

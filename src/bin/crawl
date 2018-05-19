@@ -219,8 +219,19 @@ function __bin_nutch {
     fi
 }
 
+#check if directory exists locally or on hdfs
+function __directory_exists {
+  if [[ "$mode" == local  &&  -d "$1" ]]; then
+    return 0
+  elif [[ "$mode" == distributed ]] && hadoop fs -test -d "$1"; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 function __update_hostdb {
-  if [[ -d "$CRAWL_PATH"/crawldb ]]; then
+  if __directory_exists "$CRAWL_PATH"/crawldb; then
     echo "Updating HostDB"
     __bin_nutch updatehostdb -crawldb "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb
   fi
@@ -261,7 +272,7 @@ do
     [[ $a -eq 1 ]] && __update_hostdb
 
     # sitemap processing based on HostDB
-    if [[ -d "$CRAWL_PATH"/hostdb ]]; then
+    if __directory_exists "$CRAWL_PATH"/hostdb; then
       echo "Processing sitemaps based on hosts in HostDB"
       __bin_nutch sitemap "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $NUM_THREADS
     fi

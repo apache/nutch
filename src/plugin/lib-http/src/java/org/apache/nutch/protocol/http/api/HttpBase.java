@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.protocol.http.api;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,11 +29,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-// Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.Response;
@@ -47,12 +44,10 @@ import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.DeflateUtils;
 import org.apache.hadoop.util.StringUtils;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
-// crawler-commons imports
 import crawlercommons.robots.BaseRobotRules;
 
 public abstract class HttpBase implements Protocol {
@@ -161,7 +156,7 @@ public abstract class HttpBase implements Protocol {
         conf.get("http.agent.url"), conf.get("http.agent.email"));
     this.acceptLanguage = conf.get("http.accept.language", acceptLanguage)
         .trim();
-    this.acceptCharset = conf.get("http.accept.charset", accept).trim();
+    this.acceptCharset = conf.get("http.accept.charset", acceptCharset).trim();
     this.accept = conf.get("http.accept", accept).trim();
     // backward-compatible default setting
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);

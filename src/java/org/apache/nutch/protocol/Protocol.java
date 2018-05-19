@@ -19,11 +19,9 @@ package org.apache.nutch.protocol;
 
 import java.util.List;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.io.Text;
 
-// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.plugin.Pluggable;
 

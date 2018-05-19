@@ -27,14 +27,23 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.fs.*;
-import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.mapred.lib.HashPartitioner;
-import org.apache.hadoop.util.*;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.conf.Configuration;
 
+import org.apache.nutch.util.AbstractChecker;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
@@ -43,19 +52,20 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.io.Closeable;
 
-/** . */
-public class LinkDbReader extends Configured implements Tool, Closeable {
+/**
+ * Read utility for the LinkDb.
+ */
+public class LinkDbReader extends AbstractChecker implements Closeable {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private static final Partitioner<WritableComparable, Writable> PARTITIONER = new HashPartitioner<>();
+  private static final Partitioner<Text, Inlinks> PARTITIONER = new HashPartitioner<>();
 
-  private FileSystem fs;
   private Path directory;
   private MapFile.Reader[] readers;
 
   public LinkDbReader() {
-
+    //default constructor
   }
 
   public LinkDbReader(Configuration conf, Path directory) throws Exception {
@@ -64,7 +74,6 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
   }
 
   public void init(Path directory) throws Exception {
-    this.fs = directory.getFileSystem(getConf());
     this.directory = directory;
   }
 
@@ -79,7 +88,7 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
 
     if (readers == null) {
       synchronized (this) {
-        readers = MapFileOutputFormat.getReaders(fs, new Path(directory,
+        readers = MapFileOutputFormat.getReaders(new Path(directory,
             LinkDb.CURRENT_NAME), getConf());
       }
     }
@@ -96,19 +105,21 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
     }
   }
   
-  public static class LinkDBDumpMapper implements Mapper<Text, Inlinks, Text, Inlinks> {
+  public static class LinkDBDumpMapper extends Mapper<Text, Inlinks, Text, Inlinks> {
     Pattern pattern = null;
     Matcher matcher = null;
     
-    public void configure(JobConf job) {
-      if (job.get("linkdb.regex", null) != null) {
-        pattern = Pattern.compile(job.get("linkdb.regex"));
+    public void setup(Mapper<Text, Inlinks, Text, Inlinks>.Context context) {
+      Configuration conf = context.getConfiguration();
+      if (conf.get("linkdb.regex", null) != null) {
+        pattern = Pattern.compile(conf.get("linkdb.regex"));
       }
     }
 
-    public void close() {}
-    public void map(Text key, Inlinks value, OutputCollector<Text, Inlinks> output, Reporter reporter)
-            throws IOException {
+    public void cleanup() {}
+
+    public void map(Text key, Inlinks value, Context context)
+            throws IOException, InterruptedException {
 
       if (pattern != null) {
         matcher = pattern.matcher(key.toString());
@@ -117,11 +128,12 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
         }
       }
 
-      output.collect(key, value);
+      context.write(key, value);
     }
   }
 
-  public void processDumpJob(String linkdb, String output, String regex) throws IOException {
+  public void processDumpJob(String linkdb, String output, String regex) 
+    throws IOException, InterruptedException, ClassNotFoundException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
@@ -130,27 +142,57 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
     }
     Path outFolder = new Path(output);
 
-    JobConf job = new NutchJob(getConf());
+    Job job = NutchJob.getInstance(getConf());
     job.setJobName("read " + linkdb);
+    job.setJarByClass(LinkDbReader.class);
     
+    Configuration conf = job.getConfiguration();
+ 
     if (regex != null) {
-      job.set("linkdb.regex", regex);
+      conf.set("linkdb.regex", regex);
       job.setMapperClass(LinkDBDumpMapper.class);
     }
 
     FileInputFormat.addInputPath(job, new Path(linkdb, LinkDb.CURRENT_NAME));
-    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
 
     FileOutputFormat.setOutputPath(job, outFolder);
-    job.setOutputFormat(TextOutputFormat.class);
+    job.setOutputFormatClass(TextOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Inlinks.class);
 
-    JobClient.runJob(job);
+    try{
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "LinkDbRead job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e){
+      LOG.error(StringUtils.stringifyException(e));
+      throw e;
+    }
 
     long end = System.currentTimeMillis();
-    LOG.info("LinkDb dump: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    LOG.info("LinkDb dump: finished at {}, elapsed: {}",
+            sdf.format(end), TimingUtil.elapsedTime(start, end));
+  }
+
+  protected int process(String line, StringBuilder output) throws Exception {
+
+    Inlinks links = getInlinks(new Text(line));
+    if (links == null) {
+      output.append(" - no link information.");
+    } else {
+      Iterator<Inlink> it = links.iterator();
+      while (it.hasNext()) {
+        output.append(it.next().toString());
+      }
+    }
+    output.append("\n");
+    return 0;
   }
 
   public static void main(String[] args) throws Exception {
@@ -171,35 +213,40 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
           .println("\t-url <url>\tprint information about <url> to System.out");
       return -1;
     }
+
+    int numConsumed = 0;
+
     try {
-      if (args[1].equals("-dump")) {
-        String regex = null;
-        for (int i = 2; i < args.length; i++) {
-          if (args[i].equals("-regex")) {
-            regex = args[++i];
+      for (int i = 1; i < args.length; i++) {
+        if (args[i].equals("-dump")) {
+          String regex = null;
+          for (int j = i+1; j < args.length; j++) {
+            if (args[i].equals("-regex")) {
+              regex = args[++j];
+            }
           }
-        }
-        processDumpJob(args[0], args[2], regex);
-        return 0;
-      } else if (args[1].equals("-url")) {
-        init(new Path(args[0]));
-        Inlinks links = getInlinks(new Text(args[2]));
-        if (links == null) {
-          System.out.println(" - no link information.");
+          processDumpJob(args[0], args[i+1], regex);
+          return 0;
+        } else if (args[i].equals("-url")) {
+          init(new Path(args[0]));
+          return processSingle(args[++i]);
+        } else if ((numConsumed = super.parseArgs(args, i)) > 0) {
+          init(new Path(args[0]));
+          i += numConsumed - 1;
         } else {
-          Iterator<Inlink> it = links.iterator();
-          while (it.hasNext()) {
-            System.out.println(it.next().toString());
-          }
+          System.err.println("Error: wrong argument " + args[1]);
+          return -1;
         }
-        return 0;
-      } else {
-        System.err.println("Error: wrong argument " + args[1]);
-        return -1;
       }
     } catch (Exception e) {
       LOG.error("LinkDbReader: " + StringUtils.stringifyException(e));
       return -1;
     }
+
+    if (numConsumed > 0) {
+      // Start listening
+      return super.run();
+    }
+    return 0;
   }
 }

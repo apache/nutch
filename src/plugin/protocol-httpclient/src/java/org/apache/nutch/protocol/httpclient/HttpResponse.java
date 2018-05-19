@@ -16,13 +16,11 @@
  */
 package org.apache.nutch.protocol.httpclient;
 
-// JDK imports
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-// HTTP Client imports
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -32,7 +30,6 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpClient;
 
 
-// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;

@@ -17,26 +17,50 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.net.*;
-import java.util.*;
-import java.text.*;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
-// rLogging imports
+import org.apache.hadoop.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.conf.*;
-import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.mapred.lib.MultipleSequenceFileOutputFormat;
-import org.apache.hadoop.util.*;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 import org.apache.nutch.hostdb.HostDatum;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilterException;
@@ -114,378 +138,412 @@ public class Generator extends NutchTool implements Tool {
   }
 
   /** Selects entries due for fetch. */
-  public static class Selector implements
-      Mapper<Text, CrawlDatum, FloatWritable, SelectorEntry>,
-      Partitioner<FloatWritable, Writable>,
-      Reducer<FloatWritable, SelectorEntry, FloatWritable, SelectorEntry> {
-    private LongWritable genTime = new LongWritable(System.currentTimeMillis());
-    private long curTime;
-    private long limit;
-    private long count;
-    private HashMap<String, int[]> hostCounts = new HashMap<>();
-    private int segCounts[];
-    private int maxCount;
-    private boolean byDomain = false;
-    private Partitioner<Text, Writable> partitioner = new URLPartitioner();
-    private URLFilters filters;
-    private URLNormalizers normalizers;
-    private ScoringFilters scfilters;
-    private SelectorEntry entry = new SelectorEntry();
-    private FloatWritable sortValue = new FloatWritable();
-    private boolean filter;
-    private boolean normalise;
-    private long genDelay;
-    private FetchSchedule schedule;
-    private float scoreThreshold = 0f;
-    private int intervalThreshold = -1;
-    private String restrictStatus = null;
-    private int maxNumSegments = 1;
-    private Expression expr = null;
-    private int currentsegmentnum = 1;
-    private SequenceFile.Reader[] hostdbReaders = null;
-    private Expression maxCountExpr = null;
-    private Expression fetchDelayExpr = null;
-    private JobConf conf = null;
-    
-    public void configure(JobConf job) {
-      this.conf = job;
-      curTime = job.getLong(GENERATOR_CUR_TIME, System.currentTimeMillis());
-      limit = job.getLong(GENERATOR_TOP_N, Long.MAX_VALUE)
-          / job.getNumReduceTasks();
-      maxCount = job.getInt(GENERATOR_MAX_COUNT, -1);
-      if (maxCount == -1) {
-        byDomain = false;
-      }
-      if (GENERATOR_COUNT_VALUE_DOMAIN.equals(job.get(GENERATOR_COUNT_MODE)))
-        byDomain = true;
-      filters = new URLFilters(job);
-      normalise = job.getBoolean(GENERATOR_NORMALISE, true);
-      if (normalise)
-        normalizers = new URLNormalizers(job,
-            URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
-      scfilters = new ScoringFilters(job);
-      partitioner.configure(job);
-      filter = job.getBoolean(GENERATOR_FILTER, true);
-      genDelay = job.getLong(GENERATOR_DELAY, 7L) * 3600L * 24L * 1000L;
-      long time = job.getLong(Nutch.GENERATE_TIME_KEY, 0L);
-      if (time > 0)
-        genTime.set(time);
-      schedule = FetchScheduleFactory.getFetchSchedule(job);
-      scoreThreshold = job.getFloat(GENERATOR_MIN_SCORE, Float.NaN);
-      intervalThreshold = job.getInt(GENERATOR_MIN_INTERVAL, -1);
-      restrictStatus = job.get(GENERATOR_RESTRICT_STATUS, null);
-      expr = JexlUtil.parseExpression(job.get(GENERATOR_EXPR, null));
-      maxNumSegments = job.getInt(GENERATOR_MAX_NUM_SEGMENTS, 1);
-      segCounts = new int[maxNumSegments];
-      
-      if (job.get(GENERATOR_HOSTDB) != null) {
-        maxCountExpr = JexlUtil.parseExpression(job.get(GENERATOR_MAX_COUNT_EXPR, null));
-        fetchDelayExpr = JexlUtil.parseExpression(job.get(GENERATOR_FETCH_DELAY_EXPR, null));
-      }
-    }
-    
-    public void open() {
-      if (conf.get(GENERATOR_HOSTDB) != null) {
-        try {
-          Path path = new Path(conf.get(GENERATOR_HOSTDB), "current");
-          hostdbReaders = SequenceFileOutputFormat.getReaders(conf, path);
-        } catch (IOException e) {
-          LOG.error("Error reading HostDB because {}", e.getMessage());
-        }
-      }
-    }
+  public static class Selector extends
+      Partitioner<FloatWritable, Writable> implements Configurable {
 
-    public void close() {
-      if (hostdbReaders != null) {
-        try {
-          for (int i = 0; i < hostdbReaders.length; i++) {
-            hostdbReaders[i].close();
-          }
-        } catch (IOException e) {
-          LOG.error("Error closing HostDB because {}", e.getMessage());
-        }
-      }
-    }
-
-    /** Select and invert subset due for fetch. */
-    public void map(Text key, CrawlDatum value,
-        OutputCollector<FloatWritable, SelectorEntry> output, Reporter reporter)
-        throws IOException {
-      Text url = key;
-      if (filter) {
-        // If filtering is on don't generate URLs that don't pass
-        // URLFilters
-        try {
-          if (filters.filter(url.toString()) == null)
-            return;
-        } catch (URLFilterException e) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage()
-                + ")");
-          }
-        }
-      }
-      CrawlDatum crawlDatum = value;
-
-      // check fetch schedule
-      if (!schedule.shouldFetch(url, crawlDatum, curTime)) {
-        LOG.debug("-shouldFetch rejected '" + url + "', fetchTime="
-            + crawlDatum.getFetchTime() + ", curTime=" + curTime);
-        return;
-      }
-
-      LongWritable oldGenTime = (LongWritable) crawlDatum.getMetaData().get(
-          Nutch.WRITABLE_GENERATE_TIME_KEY);
-      if (oldGenTime != null) { // awaiting fetch & update
-        if (oldGenTime.get() + genDelay > curTime) // still wait for
-          // update
-          return;
-      }
-      float sort = 1.0f;
-      try {
-        sort = scfilters.generatorSortValue(key, crawlDatum, sort);
-      } catch (ScoringFilterException sfe) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Couldn't filter generatorSortValue for " + key + ": " + sfe);
-        }
-      }
-      
-      // check expr
-      if (expr != null) {
-        if (!crawlDatum.evaluate(expr, key.toString())) {
-          return;
-        }
-      }
-
-      if (restrictStatus != null
-          && !restrictStatus.equalsIgnoreCase(CrawlDatum
-              .getStatusName(crawlDatum.getStatus())))
-        return;
-
-      // consider only entries with a score superior to the threshold
-      if (scoreThreshold != Float.NaN && sort < scoreThreshold)
-        return;
-
-      // consider only entries with a retry (or fetch) interval lower than
-      // threshold
-      if (intervalThreshold != -1
-          && crawlDatum.getFetchInterval() > intervalThreshold)
-        return;
-
-      // sort by decreasing score, using DecreasingFloatComparator
-      sortValue.set(sort);
-      // record generation time
-      crawlDatum.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
-      entry.datum = crawlDatum;
-      entry.url = key;
-      output.collect(sortValue, entry); // invert for sort by score
-    }
+    private final URLPartitioner partitioner = new URLPartitioner();
 
     /** Partition by host / domain or IP. */
     public int getPartition(FloatWritable key, Writable value,
-        int numReduceTasks) {
+                            int numReduceTasks) {
       return partitioner.getPartition(((SelectorEntry) value).url, key,
-          numReduceTasks);
-    }
-    
-    private HostDatum getHostDatum(String host) throws Exception {
-      Text key = new Text();
-      HostDatum value = new HostDatum();
-      
-      open();
-      for (int i = 0; i < hostdbReaders.length; i++) {
-        while (hostdbReaders[i].next(key, value)) {
-          if (host.equals(key.toString())) {
-            close();
-            return value;
-          }
-        }
-      }
-      
-      close();
-      return null;
-    }
-    
-    private JexlContext createContext(HostDatum datum) {
-      JexlContext context = new MapContext();
-      context.set("dnsFailures", datum.getDnsFailures());
-      context.set("connectionFailures", datum.getConnectionFailures());
-      context.set("unfetched", datum.getUnfetched());
-      context.set("fetched", datum.getFetched());
-      context.set("notModified", datum.getNotModified());
-      context.set("redirTemp", datum.getRedirTemp());
-      context.set("redirPerm", datum.getRedirPerm());
-      context.set("gone", datum.getGone());
-      context.set("conf", conf);
-      
-      // Set metadata variables
-      for (Map.Entry<Writable, Writable> entry : datum.getMetaData().entrySet()) {
-        Object value = entry.getValue();
-        
-        if (value instanceof FloatWritable) {
-          FloatWritable fvalue = (FloatWritable)value;
-          Text tkey = (Text)entry.getKey();
-          context.set(tkey.toString(), fvalue.get());
-        }
-        
-        if (value instanceof IntWritable) {
-          IntWritable ivalue = (IntWritable)value;
-          Text tkey = (Text)entry.getKey();
-          context.set(tkey.toString(), ivalue.get());
-        }
-        
-        if (value instanceof Text) {
-          Text tvalue = (Text)value;
-          Text tkey = (Text)entry.getKey();     
-          context.set(tkey.toString().replace("-", "_"), tvalue.toString());
-        }
-      }
-      
-      return context;
+              numReduceTasks);
     }
 
-    /** Collect until limit is reached. */
-    public void reduce(FloatWritable key, Iterator<SelectorEntry> values,
-        OutputCollector<FloatWritable, SelectorEntry> output, Reporter reporter)
-        throws IOException {
-        
-      String hostname = null;
-      HostDatum host = null;
-      LongWritable variableFetchDelayWritable = null; // in millis
-      Text variableFetchDelayKey = new Text("_variableFetchDelay_");
-      int maxCount = this.maxCount;
-      while (values.hasNext()) {
-        SelectorEntry entry = values.next();
-        Text url = entry.url;
-        String urlString = url.toString();
-        URL u = null;
-        
-        // Do this only once per queue
-        if (host == null) {
+    @Override
+    public Configuration getConf() {
+      return partitioner.getConf();
+    }
+
+    @Override
+    public void setConf(Configuration conf) {
+      partitioner.setConf(conf);
+    }
+  }
+
+    /** Select and invert subset due for fetch. */
+
+    public static class SelectorMapper extends
+       Mapper<Text, CrawlDatum, FloatWritable, SelectorEntry> {
+  
+      private LongWritable genTime = new LongWritable(System.currentTimeMillis()); 
+      private long curTime; 
+      private Configuration conf;
+      private URLFilters filters;
+      private ScoringFilters scfilters;
+      private SelectorEntry entry = new SelectorEntry();
+      private FloatWritable sortValue = new FloatWritable();
+      private boolean filter;
+      private long genDelay;
+      private FetchSchedule schedule;
+      private float scoreThreshold = 0f;
+      private int intervalThreshold = -1;
+      private String restrictStatus = null;
+      private Expression expr = null;
+ 
+      @Override 
+      public void setup(Mapper<Text, CrawlDatum, FloatWritable, SelectorEntry>.Context context) throws IOException{
+        conf = context.getConfiguration();
+        curTime = conf.getLong(GENERATOR_CUR_TIME, System.currentTimeMillis());
+        filters = new URLFilters(conf);
+        scfilters = new ScoringFilters(conf);
+        filter = conf.getBoolean(GENERATOR_FILTER, true);
+        genDelay = conf.getLong(GENERATOR_DELAY, 7L) * 3600L * 24L * 1000L;
+        long time = conf.getLong(Nutch.GENERATE_TIME_KEY, 0L);
+        if (time > 0)
+          genTime.set(time);
+        schedule = FetchScheduleFactory.getFetchSchedule(conf);
+        scoreThreshold = conf.getFloat(GENERATOR_MIN_SCORE, Float.NaN);
+        intervalThreshold = conf.getInt(GENERATOR_MIN_INTERVAL, -1);
+        restrictStatus = conf.get(GENERATOR_RESTRICT_STATUS, null);
+        expr = JexlUtil.parseExpression(conf.get(GENERATOR_EXPR, null));
+      }
+
+      @Override 
+      public void map(Text key, CrawlDatum value,
+          	Context context)
+          	throws IOException, InterruptedException {
+        Text url = key;
+        if (filter) {
+          // If filtering is on don't generate URLs that don't pass
+          // URLFilters
           try {
-            hostname = URLUtil.getHost(urlString);
-            host = getHostDatum(hostname);
-          } catch (Exception e) {}
-          
-          // Got it?
-          if (host == null) {
-            // Didn't work, prevent future lookups
-            host = new HostDatum();
-          } else {
-            if (maxCountExpr != null) {
-              long variableMaxCount = Math.round((double)maxCountExpr.evaluate(createContext(host)));
-              LOG.info("Generator: variable maxCount: {} for {}", variableMaxCount, hostname);
-              maxCount = (int)variableMaxCount;
+            if (filters.filter(url.toString()) == null)
+              return;
+          } catch (URLFilterException e) {
+            if (LOG.isWarnEnabled()) {
+              LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage()
+                  + ")");
             }
-            
-            if (fetchDelayExpr != null) {
-              long variableFetchDelay = Math.round((double)fetchDelayExpr.evaluate(createContext(host)));
-              LOG.info("Generator: variable fetchDelay: {} ms for {}", variableFetchDelay, hostname);
-              variableFetchDelayWritable = new LongWritable(variableFetchDelay);              
-            }
+          }
+        }
+        CrawlDatum crawlDatum = value;
+
+        // check fetch schedule
+        if (!schedule.shouldFetch(url, crawlDatum, curTime)) {
+          LOG.debug("-shouldFetch rejected '" + url + "', fetchTime="
+              + crawlDatum.getFetchTime() + ", curTime=" + curTime);
+          return;
+        }
+
+        LongWritable oldGenTime = (LongWritable) crawlDatum.getMetaData().get(
+            Nutch.WRITABLE_GENERATE_TIME_KEY);
+        if (oldGenTime != null) { // awaiting fetch & update
+          if (oldGenTime.get() + genDelay > curTime) // still wait for
+            // update
+            return;
+        }
+        float sort = 1.0f;
+        try {
+          sort = scfilters.generatorSortValue(key, crawlDatum, sort);
+        } catch (ScoringFilterException sfe) {
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Couldn't filter generatorSortValue for " + key + ": " + sfe);
           }
         }
         
-        // Got a non-zero variable fetch delay? Add it to the datum's metadata
-        if (variableFetchDelayWritable != null) {
-          entry.datum.getMetaData().put(variableFetchDelayKey, variableFetchDelayWritable);
+        // check expr
+        if (expr != null) {
+          if (!crawlDatum.evaluate(expr, key.toString())) {
+            return;
+          }
         }
 
-        if (count == limit) {
-          // do we have any segments left?
-          if (currentsegmentnum < maxNumSegments) {
-            count = 0;
-            currentsegmentnum++;
-          } else
-            break;
+        if (restrictStatus != null
+            && !restrictStatus.equalsIgnoreCase(CrawlDatum
+                .getStatusName(crawlDatum.getStatus())))
+          return;
+
+        // consider only entries with a score superior to the threshold
+        if (scoreThreshold != Float.NaN && sort < scoreThreshold)
+          return;
+
+        // consider only entries with a retry (or fetch) interval lower than
+        // threshold
+        if (intervalThreshold != -1
+            && crawlDatum.getFetchInterval() > intervalThreshold)
+          return;
+
+        // sort by decreasing score, using DecreasingFloatComparator
+        sortValue.set(sort);
+        // record generation time
+        crawlDatum.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
+        entry.datum = crawlDatum;
+        entry.url = key;
+        context.write(sortValue, entry); // invert for sort by score
+      }
+    }
+
+
+    
+    /** Collect until limit is reached. */
+    public static class SelectorReducer extends
+       Reducer<FloatWritable, SelectorEntry, FloatWritable, SelectorEntry> {
+ 
+      private HashMap<String, int[]> hostCounts = new HashMap<>();
+      private long count;
+      private int currentsegmentnum = 1;
+      private MultipleOutputs mos;
+      private String outputFile;
+      private long limit;
+      private int segCounts[];
+      private int maxNumSegments = 1;
+      private int maxCount;
+      private Configuration conf;
+      private boolean byDomain = false;
+      private URLNormalizers normalizers;
+      private static boolean normalise;
+      private MapFile.Reader[] hostdbReaders = null;
+      private Expression maxCountExpr = null;
+      private Expression fetchDelayExpr = null;
+
+      public void open() {
+        if (conf.get(GENERATOR_HOSTDB) != null) {
+          try {
+            Path path = new Path(conf.get(GENERATOR_HOSTDB), "current");
+            hostdbReaders = MapFileOutputFormat.getReaders(path, conf);
+          } catch (IOException e) {
+            LOG.error("Error reading HostDB because {}", e.getMessage());
+          }
+        }
+      }
+
+      public void close() {
+        if (hostdbReaders != null) {
+          try {
+            for (int i = 0; i < hostdbReaders.length; i++) {
+              hostdbReaders[i].close();
+            }
+          } catch (IOException e) {
+            LOG.error("Error closing HostDB because {}", e.getMessage());
+          }
+        }
+      }
+
+      private JexlContext createContext(HostDatum datum) {
+        JexlContext context = new MapContext();
+        context.set("dnsFailures", datum.getDnsFailures());
+        context.set("connectionFailures", datum.getConnectionFailures());
+        context.set("unfetched", datum.getUnfetched());
+        context.set("fetched", datum.getFetched());
+        context.set("notModified", datum.getNotModified());
+        context.set("redirTemp", datum.getRedirTemp());
+        context.set("redirPerm", datum.getRedirPerm());
+        context.set("gone", datum.getGone());
+        context.set("conf", conf);
+        
+        // Set metadata variables
+        for (Map.Entry<Writable, Writable> entry : datum.getMetaData().entrySet()) {
+          Object value = entry.getValue();
+          
+          if (value instanceof FloatWritable) {
+            FloatWritable fvalue = (FloatWritable)value;
+            Text tkey = (Text)entry.getKey();
+            context.set(tkey.toString(), fvalue.get());
+          }
+          
+          if (value instanceof IntWritable) {
+            IntWritable ivalue = (IntWritable)value;
+            Text tkey = (Text)entry.getKey();
+            context.set(tkey.toString(), ivalue.get());
+          }
+
+          if (value instanceof Text) {
+            Text tvalue = (Text)value;
+            Text tkey = (Text)entry.getKey();    
+            context.set(tkey.toString().replace("-", "_"), tvalue.toString());
+          }
         }
 
-        String hostordomain = null;
+        return context;
+      }
 
-        try {
-          if (normalise && normalizers != null) {
-            urlString = normalizers.normalize(urlString,
-                URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
-          }
-          u = new URL(urlString);
-          if (byDomain) {
-            hostordomain = URLUtil.getDomainName(u);
-          } else {
-            hostordomain = new URL(urlString).getHost();
-          }
-        } catch (Exception e) {
-          LOG.warn("Malformed URL: '" + urlString + "', skipping ("
-              + StringUtils.stringifyException(e) + ")");
-          reporter.getCounter("Generator", "MALFORMED_URL").increment(1);
-          continue;
+      @Override
+      public void setup(Context context) throws IOException {
+        conf = context.getConfiguration();
+        mos = new MultipleOutputs(context);
+        Job job = Job.getInstance(conf);
+        limit = conf.getLong(GENERATOR_TOP_N, Long.MAX_VALUE) 
+                     / job.getNumReduceTasks();
+        maxNumSegments = conf.getInt(GENERATOR_MAX_NUM_SEGMENTS, 1);
+        segCounts = new int[maxNumSegments];
+        maxCount = conf.getInt(GENERATOR_MAX_COUNT, -1);
+        if (maxCount == -1) {
+          byDomain = false;
         }
+        if (GENERATOR_COUNT_VALUE_DOMAIN.equals(conf.get(GENERATOR_COUNT_MODE)))
+          byDomain = true;
+        normalise = conf.getBoolean(GENERATOR_NORMALISE, true);
+        if (normalise)
+          normalizers = new URLNormalizers(conf,
+              URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
 
-        hostordomain = hostordomain.toLowerCase();
+        if (conf.get(GENERATOR_HOSTDB) != null) {
+          maxCountExpr = JexlUtil.parseExpression(conf.get(GENERATOR_MAX_COUNT_EXPR, null));
+          fetchDelayExpr = JexlUtil.parseExpression(conf.get(GENERATOR_FETCH_DELAY_EXPR, null));
+        }
+      }
 
-        // only filter if we are counting hosts or domains
-        if (maxCount > 0) {
-          int[] hostCount = hostCounts.get(hostordomain);
-          if (hostCount == null) {
-            hostCount = new int[] { 1, 0 };
-            hostCounts.put(hostordomain, hostCount);
+      @Override
+      public void cleanup(Context context) throws IOException, InterruptedException {
+        mos.close();
+      }
+
+      @Override
+      public void reduce(FloatWritable key, Iterable<SelectorEntry> values,
+          Context context)
+          throws IOException, InterruptedException {
+      
+        String hostname = null;
+        HostDatum host = null;
+        LongWritable variableFetchDelayWritable = null; // in millis
+        Text variableFetchDelayKey = new Text("_variableFetchDelay_");
+        int temp_maxCount = maxCount;
+        for (SelectorEntry entry : values) {
+          Text url = entry.url;
+          String urlString = url.toString();
+          URL u = null;
+          
+          // Do this only once per queue
+          if (host == null) {
+            try {
+              hostname = URLUtil.getHost(urlString);
+              host = getHostDatum(hostname);
+            } catch (Exception e) {}
+            
+            // Got it?
+            if (host == null) {
+              // Didn't work, prevent future lookups
+              host = new HostDatum();
+            } else {
+              if (maxCountExpr != null) {
+                long variableMaxCount = Math.round((double)maxCountExpr.evaluate(createContext(host)));
+                LOG.info("Generator: variable maxCount: {} for {}", variableMaxCount, hostname);
+                maxCount = (int)variableMaxCount;
+              }
+              
+              if (fetchDelayExpr != null) {
+                long variableFetchDelay = Math.round((double)fetchDelayExpr.evaluate(createContext(host)));
+                LOG.info("Generator: variable fetchDelay: {} ms for {}", variableFetchDelay, hostname);
+                variableFetchDelayWritable = new LongWritable(variableFetchDelay);              
+              }
+            }
+          }
+          
+          // Got a non-zero variable fetch delay? Add it to the datum's metadata
+          if (variableFetchDelayWritable != null) {
+            entry.datum.getMetaData().put(variableFetchDelayKey, variableFetchDelayWritable);
           }
 
-          // increment hostCount
-          hostCount[1]++;
-
-          // check if topN reached, select next segment if it is
-          while (segCounts[hostCount[0] - 1] >= limit
-              && hostCount[0] < maxNumSegments) {
-            hostCount[0]++;
-            hostCount[1] = 0;
+          if (count == limit) {
+            // do we have any segments left?
+            if (currentsegmentnum < maxNumSegments) {
+              count = 0;
+              currentsegmentnum++;
+            } else
+              break;
           }
 
-          // reached the limit of allowed URLs per host / domain
-          // see if we can put it in the next segment?
-          if (hostCount[1] >= maxCount) {
-            if (hostCount[0] < maxNumSegments) {
+          String hostordomain = null;
+
+          try {
+            if (normalise && normalizers != null) {
+              urlString = normalizers.normalize(urlString,
+                  URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
+            }
+            u = new URL(urlString);
+            if (byDomain) {
+              hostordomain = URLUtil.getDomainName(u);
+            } else {
+              hostordomain = new URL(urlString).getHost();
+            }
+          } catch (Exception e) {
+            LOG.warn("Malformed URL: '" + urlString + "', skipping ("
+                + StringUtils.stringifyException(e) + ")");
+            context.getCounter("Generator", "MALFORMED_URL").increment(1);
+            continue;
+          }
+
+          hostordomain = hostordomain.toLowerCase();
+
+          // only filter if we are counting hosts or domains
+          if (maxCount > 0) {
+            int[] hostCount = hostCounts.get(hostordomain);
+            if (hostCount == null) {
+              hostCount = new int[] { 1, 0 };
+              hostCounts.put(hostordomain, hostCount);
+            }
+
+            // increment hostCount
+            hostCount[1]++;
+
+            // check if topN reached, select next segment if it is
+            while (segCounts[hostCount[0] - 1] >= limit
+                && hostCount[0] < maxNumSegments) {
               hostCount[0]++;
               hostCount[1] = 0;
-            } else {
-              if (hostCount[1] == maxCount + 1 && LOG.isInfoEnabled()) {
-                LOG.info("Host or domain "
-                    + hostordomain
-                    + " has more than "
-                    + maxCount
-                    + " URLs for all "
-                    + maxNumSegments
-                    + " segments. Additional URLs won't be included in the fetchlist.");
+            }
+
+            // reached the limit of allowed URLs per host / domain
+            // see if we can put it in the next segment?
+            if (hostCount[1] >= maxCount) {
+              if (hostCount[0] < maxNumSegments) {
+                hostCount[0]++;
+                hostCount[1] = 0;
+              } else {
+                if (hostCount[1] == maxCount + 1 && LOG.isInfoEnabled()) {
+                  LOG.info("Host or domain "
+                      + hostordomain
+                      + " has more than "
+                      + maxCount
+                      + " URLs for all "
+                      + maxNumSegments
+                      + " segments. Additional URLs won't be included in the fetchlist.");
+                }
+                // skip this entry
+                continue;
               }
-              // skip this entry
-              continue;
+            }
+            entry.segnum = new IntWritable(hostCount[0]);
+            segCounts[hostCount[0] - 1]++;
+          } else {
+            entry.segnum = new IntWritable(currentsegmentnum);
+            segCounts[currentsegmentnum - 1]++;
+          }
+
+          outputFile = generateFileName(entry);
+          mos.write("sequenceFiles", key, entry, outputFile);
+          context.write(key,entry);
+
+          // Count is incremented only when we keep the URL
+          // maxCount may cause us to skip it.
+          count++;
+        }
+        maxCount = temp_maxCount;
+      }
+      
+      private String generateFileName(SelectorEntry entry) {
+        return "fetchlist-" + entry.segnum.toString() + "/part";
+      }
+
+      private HostDatum getHostDatum(String host) throws Exception {
+        Text key = new Text();
+        HostDatum value = new HostDatum();
+
+        open();
+        for (int i = 0; i < hostdbReaders.length; i++) {
+          while (hostdbReaders[i].next(key, value)) {
+            if (host.equals(key.toString())) {
+              close();
+              return value;
             }
           }
-          entry.segnum = new IntWritable(hostCount[0]);
-          segCounts[hostCount[0] - 1]++;
-        } else {
-          entry.segnum = new IntWritable(currentsegmentnum);
-          segCounts[currentsegmentnum - 1]++;
         }
 
-        output.collect(key, entry);
-
-        // Count is incremented only when we keep the URL
-        // maxCount may cause us to skip it.
-        count++;
+        close();
+        return null;
       }
     }
-  }
-
-  // Allows the reducers to generate one subfile per
-  public static class GeneratorOutputFormat extends
-      MultipleSequenceFileOutputFormat<FloatWritable, SelectorEntry> {
-    // generate a filename based on the segnum stored for this entry
-    protected String generateFileNameForKeyValue(FloatWritable key,
-        SelectorEntry value, String name) {
-      return "fetchlist-" + value.segnum.toString() + "/" + name;
-    }
-
-  }
 
   public static class DecreasingFloatComparator extends
       FloatWritable.Comparator {
@@ -496,29 +554,28 @@ public class Generator extends NutchTool implements Tool {
     }
   }
 
-  public static class SelectorInverseMapper extends MapReduceBase implements
+  public static class SelectorInverseMapper extends
       Mapper<FloatWritable, SelectorEntry, Text, SelectorEntry> {
 
     public void map(FloatWritable key, SelectorEntry value,
-        OutputCollector<Text, SelectorEntry> output, Reporter reporter)
-        throws IOException {
+        Context context)
+        throws IOException, InterruptedException {
       SelectorEntry entry = value;
-      output.collect(entry.url, entry);
+      context.write(entry.url, entry);
     }
   }
 
-  public static class PartitionReducer extends MapReduceBase implements
+  public static class PartitionReducer extends
       Reducer<Text, SelectorEntry, Text, CrawlDatum> {
 
-    public void reduce(Text key, Iterator<SelectorEntry> values,
-        OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-        throws IOException {
+    public void reduce(Text key, Iterable<SelectorEntry> values,
+        Context context)
+        throws IOException, InterruptedException {
       // if using HashComparator, we get only one input key in case of
       // hash collision
       // so use only URLs from values
-      while (values.hasNext()) {
-        SelectorEntry entry = values.next();
-        output.collect(entry.url, entry.datum);
+      for (SelectorEntry entry : values) {
+        context.write(entry.url, entry.datum);
       }
     }
 
@@ -559,47 +616,55 @@ public class Generator extends NutchTool implements Tool {
   /**
    * Update the CrawlDB so that the next generate won't include the same URLs.
    */
-  public static class CrawlDbUpdater extends MapReduceBase implements
-      Mapper<Text, CrawlDatum, Text, CrawlDatum>,
-      Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-    long generateTime;
+  public static class CrawlDbUpdater {
 
-    public void configure(JobConf job) {
-      generateTime = job.getLong(Nutch.GENERATE_TIME_KEY, 0L);
+    public static class CrawlDbUpdateMapper extends
+            Mapper<Text, CrawlDatum, Text, CrawlDatum> {
+      @Override
+      public void map(Text key, CrawlDatum value,
+                      Context context)
+              throws IOException, InterruptedException {
+        context.write(key, value);
+      }
     }
 
-    public void map(Text key, CrawlDatum value,
-        OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-        throws IOException {
-      output.collect(key, value);
-    }
+    public static class CrawlDbUpdateReducer extends
+            Reducer<Text, CrawlDatum, Text, CrawlDatum> {
 
-    private CrawlDatum orig = new CrawlDatum();
-    private LongWritable genTime = new LongWritable(0L);
+      private CrawlDatum orig = new CrawlDatum();
+      private LongWritable genTime = new LongWritable(0L);
+      private long generateTime;
 
-    public void reduce(Text key, Iterator<CrawlDatum> values,
-        OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-        throws IOException {
-      genTime.set(0L);
-      while (values.hasNext()) {
-        CrawlDatum val = values.next();
-        if (val.getMetaData().containsKey(Nutch.WRITABLE_GENERATE_TIME_KEY)) {
-          LongWritable gt = (LongWritable) val.getMetaData().get(
-              Nutch.WRITABLE_GENERATE_TIME_KEY);
-          genTime.set(gt.get());
-          if (genTime.get() != generateTime) {
+      @Override
+      public void setup(Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
+        Configuration conf = context.getConfiguration();
+        generateTime = conf.getLong(Nutch.GENERATE_TIME_KEY, 0L);
+      }
+
+      @Override
+      public void reduce(Text key, Iterable<CrawlDatum> values,
+                         Context context)
+              throws IOException, InterruptedException {
+        genTime.set(0L);
+        for (CrawlDatum val : values) {
+          if (val.getMetaData().containsKey(Nutch.WRITABLE_GENERATE_TIME_KEY)) {
+            LongWritable gt = (LongWritable) val.getMetaData().get(
+                    Nutch.WRITABLE_GENERATE_TIME_KEY);
+            genTime.set(gt.get());
+            if (genTime.get() != generateTime) {
+              orig.set(val);
+              genTime.set(0L);
+              continue;
+            }
+          } else {
             orig.set(val);
-            genTime.set(0L);
-            continue;
           }
-        } else {
-          orig.set(val);
         }
+        if (genTime.get() != 0L) {
+          orig.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
+        }
+        context.write(key, orig);
       }
-      if (genTime.get() != 0L) {
-        orig.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
-      }
-      output.collect(key, orig);
     }
   }
 
@@ -611,11 +676,12 @@ public class Generator extends NutchTool implements Tool {
   }
 
   public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
-      long curTime) throws IOException {
+      long curTime) throws IOException, InterruptedException, ClassNotFoundException {
 
-    JobConf job = new NutchJob(getConf());
-    boolean filter = job.getBoolean(GENERATOR_FILTER, true);
-    boolean normalise = job.getBoolean(GENERATOR_NORMALISE, true);
+    Job job = NutchJob.getInstance(getConf());
+    Configuration conf = job.getConfiguration();
+    boolean filter = conf.getBoolean(GENERATOR_FILTER, true);
+    boolean normalise = conf.getBoolean(GENERATOR_NORMALISE, true);
     return generate(dbDir, segments, numLists, topN, curTime, filter,
         normalise, false, 1, null);
   }
@@ -625,14 +691,14 @@ public class Generator extends NutchTool implements Tool {
    * normalise and set the number of segments to 1
    **/
   public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
-      long curTime, boolean filter, boolean force) throws IOException {
+      long curTime, boolean filter, boolean force) throws IOException, InterruptedException, ClassNotFoundException {
     return generate(dbDir, segments, numLists, topN, curTime, filter, true,
         force, 1, null);
   }
   
   public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
       long curTime, boolean filter, boolean norm, boolean force,
-      int maxNumSegments, String expr) throws IOException {
+      int maxNumSegments, String expr) throws IOException, InterruptedException, ClassNotFoundException {
     return generate(dbDir, segments, numLists, topN, curTime, filter, true,
         force, 1, expr, null);
   }
@@ -661,9 +727,9 @@ public class Generator extends NutchTool implements Tool {
    */
   public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
       long curTime, boolean filter, boolean norm, boolean force,
-      int maxNumSegments, String expr, String hostdb) throws IOException {
+      int maxNumSegments, String expr, String hostdb) throws IOException, InterruptedException, ClassNotFoundException {
 
-    Path tempDir = new Path(getConf().get("mapred.temp.dir", ".")
+    Path tempDir = new Path(getConf().get("mapreduce.cluster.temp.dir", ".")
         + "/generate-temp-" + java.util.UUID.randomUUID().toString());
     FileSystem fs = tempDir.getFileSystem(getConf());
 
@@ -686,50 +752,58 @@ public class Generator extends NutchTool implements Tool {
     }
     
     // map to inverted subset due for fetch, sort by score
-    JobConf job = new NutchJob(getConf());
+    Job job = NutchJob.getInstance(getConf());
     job.setJobName("generate: select from " + dbDir);
-
+    Configuration conf = job.getConfiguration();
     if (numLists == -1) { // for politeness make
-      numLists = job.getNumMapTasks(); // a partition per fetch task
+      numLists = Integer.parseInt(conf.get("mapreduce.job.maps")); // a partition per fetch task
     }
-    if ("local".equals(job.get("mapreduce.framework.name")) && numLists != 1) {
+    if ("local".equals(conf.get("mapreduce.framework.name")) && numLists != 1) {
       // override
       LOG.info("Generator: running in local mode, generating exactly one partition.");
       numLists = 1;
     }
-    job.setLong(GENERATOR_CUR_TIME, curTime);
+    conf.setLong(GENERATOR_CUR_TIME, curTime);
     // record real generation time
     long generateTime = System.currentTimeMillis();
-    job.setLong(Nutch.GENERATE_TIME_KEY, generateTime);
-    job.setLong(GENERATOR_TOP_N, topN);
-    job.setBoolean(GENERATOR_FILTER, filter);
-    job.setBoolean(GENERATOR_NORMALISE, norm);
-    job.setInt(GENERATOR_MAX_NUM_SEGMENTS, maxNumSegments);
+    conf.setLong(Nutch.GENERATE_TIME_KEY, generateTime);
+    conf.setLong(GENERATOR_TOP_N, topN);
+    conf.setBoolean(GENERATOR_FILTER, filter);
+    conf.setBoolean(GENERATOR_NORMALISE, norm);
+    conf.setInt(GENERATOR_MAX_NUM_SEGMENTS, maxNumSegments);
     if (expr != null) {
-      job.set(GENERATOR_EXPR, expr);
+      conf.set(GENERATOR_EXPR, expr);
     }
     if (hostdb != null) {
-      job.set(GENERATOR_HOSTDB, hostdb);
+      conf.set(GENERATOR_HOSTDB, hostdb);
     }
     FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
-    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
 
-    job.setMapperClass(Selector.class);
+    job.setJarByClass(Selector.class);
+    job.setMapperClass(SelectorMapper.class);
     job.setPartitionerClass(Selector.class);
-    job.setReducerClass(Selector.class);
+    job.setReducerClass(SelectorReducer.class);
 
     FileOutputFormat.setOutputPath(job, tempDir);
-    job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
-    job.setOutputKeyComparatorClass(DecreasingFloatComparator.class);
+    job.setSortComparatorClass(DecreasingFloatComparator.class);
     job.setOutputValueClass(SelectorEntry.class);
-    job.setOutputFormat(GeneratorOutputFormat.class);
+    MultipleOutputs.addNamedOutput(job, "sequenceFiles", SequenceFileOutputFormat.class, FloatWritable.class, SelectorEntry.class);
 
     try {
-      JobClient.runJob(job);
-    } catch (IOException e) {
-      LockUtil.removeLockFile(getConf(), lock);
-      fs.delete(tempDir, true);
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Generator job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("Generator job failed: {}", e.getMessage());
+      NutchJob.cleanupAfterFailure(tempDir, lock, fs);
       throw e;
     }
 
@@ -765,30 +839,41 @@ public class Generator extends NutchTool implements Tool {
       Path tempDir2 = new Path(dbDir,
           "generate-temp-" + java.util.UUID.randomUUID().toString());
 
-      job = new NutchJob(getConf());
+      job = NutchJob.getInstance(getConf());
       job.setJobName("generate: updatedb " + dbDir);
-      job.setLong(Nutch.GENERATE_TIME_KEY, generateTime);
+      job.getConfiguration().setLong(Nutch.GENERATE_TIME_KEY, generateTime);
       for (Path segmpaths : generatedSegments) {
         Path subGenDir = new Path(segmpaths, CrawlDatum.GENERATE_DIR_NAME);
         FileInputFormat.addInputPath(job, subGenDir);
       }
       FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
-      job.setInputFormat(SequenceFileInputFormat.class);
-      job.setMapperClass(CrawlDbUpdater.class);
-      job.setReducerClass(CrawlDbUpdater.class);
-      job.setOutputFormat(MapFileOutputFormat.class);
+      job.setInputFormatClass(SequenceFileInputFormat.class);
+      job.setMapperClass(CrawlDbUpdater.CrawlDbUpdateMapper.class);
+      job.setReducerClass(CrawlDbUpdater.CrawlDbUpdateReducer.class);
+      job.setJarByClass(CrawlDbUpdater.class);
+      job.setOutputFormatClass(MapFileOutputFormat.class);
       job.setOutputKeyClass(Text.class);
       job.setOutputValueClass(CrawlDatum.class);
       FileOutputFormat.setOutputPath(job, tempDir2);
       try {
-        JobClient.runJob(job);
+        boolean success = job.waitForCompletion(true);
+        if (!success) {
+          String message = "Generator job did not succeed, job status:"
+              + job.getStatus().getState() + ", reason: "
+              + job.getStatus().getFailureInfo();
+          LOG.error(message);
+          NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+          NutchJob.cleanupAfterFailure(tempDir2, lock, fs);
+          throw new RuntimeException(message);
+        }
         CrawlDb.install(job, dbDir);
-      } catch (IOException e) {
-        LockUtil.removeLockFile(getConf(), lock);
-        fs.delete(tempDir, true);
-        fs.delete(tempDir2, true);
+      } catch (IOException | InterruptedException | ClassNotFoundException e) {
+        LOG.error("Generator job failed: {}", e.getMessage());
+        NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+        NutchJob.cleanupAfterFailure(tempDir2, lock, fs);
         throw e;
       }
+
       fs.delete(tempDir2, true);
     }
 
@@ -804,7 +889,7 @@ public class Generator extends NutchTool implements Tool {
   }
 
   private Path partitionSegment(Path segmentsDir, Path inputDir, int numLists)
-      throws IOException {
+      throws IOException, ClassNotFoundException, InterruptedException {
     // invert again, partition by host/domain/IP, sort by url hash
     if (LOG.isInfoEnabled()) {
       LOG.info("Generator: Partitioning selected urls for politeness.");
@@ -814,14 +899,15 @@ public class Generator extends NutchTool implements Tool {
 
     LOG.info("Generator: segment: " + segment);
 
-    NutchJob job = new NutchJob(getConf());
+    Job job = NutchJob.getInstance(getConf());
     job.setJobName("generate: partition " + segment);
-
-    job.setInt("partition.url.seed", new Random().nextInt());
+    Configuration conf = job.getConfiguration();
+    conf.setInt("partition.url.seed", new Random().nextInt());
 
     FileInputFormat.addInputPath(job, inputDir);
-    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
 
+    job.setJarByClass(Generator.class);
     job.setMapperClass(SelectorInverseMapper.class);
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(SelectorEntry.class);
@@ -830,11 +916,24 @@ public class Generator extends NutchTool implements Tool {
     job.setNumReduceTasks(numLists);
 
     FileOutputFormat.setOutputPath(job, output);
-    job.setOutputFormat(SequenceFileOutputFormat.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
-    job.setOutputKeyComparatorClass(HashComparator.class);
-    JobClient.runJob(job);
+    job.setSortComparatorClass(HashComparator.class);
+    try {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Generator job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error(StringUtils.stringifyException(e));  
+      throw e;
+    }
+
     return segment;
   }
 

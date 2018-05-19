@@ -15,47 +15,29 @@
  * limitations under the License.
  */
 
+
 package org.apache.nutch.util;
 
+import java.util.Arrays;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.Job;
 
-/** A {@link Job} for Nutch jobs. */
-public class NutchJob extends Job {
-
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
-
-  @SuppressWarnings("deprecation")
-  public NutchJob(Configuration conf, String jobName) throws IOException {
-    super(conf, jobName);
-  }
-
-  public static Job getInstance(Configuration conf) throws IOException {
-    return Job.getInstance(conf);
-  } 
-
-  /*
-   * Clean up the file system in case of a job failure.
-   */
-  public static void cleanupAfterFailure(Path tempDir, Path lock, FileSystem fs)
-         throws IOException {
-    try {
-      if (fs.exists(tempDir)) {
-        fs.delete(tempDir, true);
-      }
-      LockUtil.removeLockFile(fs, lock);
-    } catch (IOException e) {
-      LOG.error("NutchJob cleanup failed: {}", e.getMessage());
-      throw e;
+public class SegmentReaderUtil{
+  
+  public static SequenceFile.Reader[] getReaders(Path dir, Configuration conf) throws IOException{
+    FileSystem fs = dir.getFileSystem(conf);
+    Path[] names = FileUtil.stat2Paths(fs.listStatus(dir));
+    Arrays.sort(names);
+    SequenceFile.Reader[] parts = new SequenceFile.Reader[names.length];
+    for (int i = 0; i < names.length; i++) {
+      parts[i] = new SequenceFile.Reader(conf, SequenceFile.Reader.file(names[i]));
     }
+    return parts;
   }
 
 }

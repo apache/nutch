@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -37,13 +36,11 @@ import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.util.AbstractChecker;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.StringUtil;
-import org.apache.nutch.util.AbstractChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,12 +48,12 @@ import org.slf4j.LoggerFactory;
  * Reads and parses a URL and run the indexers on it. Displays the fields
  * obtained and the first 100 characters of their value
  * 
- * Tested with e.g. ./nutch org.apache.nutch.indexer.IndexingFiltersChecker
- * http://www.lemonde.fr
+ * Tested with e.g.
  * 
- * @author Julien Nioche
+ * <pre>
+    echo "http://www.lemonde.fr" | $NUTCH_HOME/bin/nutch indexchecker -stdin
+ * </pre>
  **/
-
 public class IndexingFiltersChecker extends AbstractChecker {
 
   protected URLNormalizers normalizers = null;
@@ -70,6 +67,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
 
   public int run(String[] args) throws Exception {
     String url = null;
+
     usage = "Usage: IndexingFiltersChecker [-normalize] [-followRedirects] [-dumpText] [-md key=value] (-stdin | -listen <port> [-keepClientCnxOpen])";
 
     // Print help when no args given
@@ -114,8 +112,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
       return super.run();
     }
   }
-    
-  
+
   protected int process(String url, StringBuilder output) throws Exception {
     if (normalizers != null) {
       url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
@@ -134,33 +131,48 @@ public class IndexingFiltersChecker extends AbstractChecker {
       datum.getMetaData().put(new Text(key), new Text(value));
     }
 
-    IndexingFilters indexers = new IndexingFilters(getConf());
-    
-    int maxRedirects = 3;
+    int maxRedirects = getConf().getInt("http.redirect.max", 3);
+    if (followRedirects) {
+      if (maxRedirects == 0) {
+        LOG.info("Following max. 3 redirects (ignored http.redirect.max == 0)");
+        maxRedirects = 3;
+      } else {
+        LOG.info("Following max. {} redirects", maxRedirects);
+      }
+    }
 
     ProtocolOutput protocolOutput = getProtocolOutput(url, datum);
     Text turl = new Text(url);
     
     // Following redirects and not reached maxRedirects?
-    while (!protocolOutput.getStatus().isSuccess() && followRedirects && protocolOutput.getStatus().isRedirect() && maxRedirects != 0) {
+    int numRedirects = 0;
+    while (!protocolOutput.getStatus().isSuccess() && followRedirects
+        && protocolOutput.getStatus().isRedirect() && maxRedirects >= numRedirects) {
       String[] stuff = protocolOutput.getStatus().getArgs();
       url = stuff[0];
-      
+      LOG.info("Follow redirect to {}", url);
+
       if (normalizers != null) {
         url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
       }
-    
+
       turl.set(url);
-      
+
       // try again
       protocolOutput = getProtocolOutput(url, datum);
-      maxRedirects--;
+      numRedirects++;
     }
 
     if (!protocolOutput.getStatus().isSuccess()) {
-      output.append("Fetch failed with protocol status: "
-          + protocolOutput.getStatus() + "\n");
-      return 0;
+      System.err.println("Fetch failed with protocol status: "
+          + protocolOutput.getStatus());
+
+      if (protocolOutput.getStatus().isRedirect()) {
+          System.err.println("Redirect(s) not handled due to configuration.");
+          System.err.println("Max Redirects to handle per config: " + maxRedirects);
+          System.err.println("Number of Redirects handled: " + numRedirects);
+      }
+      return -1;
     }
 
     Content content = protocolOutput.getContent();
@@ -173,6 +185,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
     String contentType = content.getContentType();
 
     if (contentType == null) {
+      LOG.error("Failed to determine content type!");
       return -1;
     }
 
@@ -229,6 +242,8 @@ public class IndexingFiltersChecker extends AbstractChecker {
       LOG.warn("Couldn't pass score, url {} ({})", turl, e);
     }
 
+    IndexingFilters indexers = new IndexingFilters(getConf());
+
     try {
       doc = indexers.filter(doc, parse, urlText, datum, inlinks);
     } catch (IndexingException e) {
@@ -255,7 +270,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
 
     if (getConf().getBoolean("doIndex", false) && doc != null) {
       IndexWriters writers = new IndexWriters(getConf());
-      writers.open(new JobConf(getConf()), "IndexingFilterChecker");
+      writers.open(getConf(), "IndexingFilterChecker");
       writers.write(doc);
       writers.close();
     }
@@ -263,17 +278,10 @@ public class IndexingFiltersChecker extends AbstractChecker {
     return 0;
   }
   
-  protected ProtocolOutput getProtocolOutput(String url, CrawlDatum datum) throws Exception {
-    ProtocolFactory factory = new ProtocolFactory(getConf());
-    Protocol protocol = factory.getProtocol(url);
-    Text turl = new Text(url);
-    ProtocolOutput protocolOutput = protocol.getProtocolOutput(turl, datum);
-    return protocolOutput;
-  }
-
   public static void main(String[] args) throws Exception {
     final int res = ToolRunner.run(NutchConfiguration.create(),
         new IndexingFiltersChecker(), args);
     System.exit(res);
   }
+
 }

@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
@@ -40,9 +41,10 @@ import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.service.NutchServer;
+import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
 
@@ -409,7 +411,24 @@ public class Injector extends NutchTool implements Tool {
 
     // set input and output paths of the job
     MultipleInputs.addInputPath(job, current, SequenceFileInputFormat.class);
-    MultipleInputs.addInputPath(job, urlDir, KeyValueTextInputFormat.class);
+    FileStatus[] seedFiles = urlDir.getFileSystem(getConf()).listStatus(urlDir);
+    int numSeedFiles = 0;
+    for (FileStatus seedFile : seedFiles) {
+      if (seedFile.isFile()) {
+        MultipleInputs.addInputPath(job, seedFile.getPath(),
+            KeyValueTextInputFormat.class);
+        numSeedFiles++;
+        LOG.info("Injecting seed URL file {}", seedFile.getPath());
+      } else {
+        LOG.warn("Skipped non-file input in {}: {}", urlDir,
+            seedFile.getPath());
+      }
+    }
+    if (numSeedFiles == 0) {
+      LOG.error("No seed files to inject found in {}", urlDir);
+      LockUtil.removeLockFile(fs, lock);
+      return;
+    }
     FileOutputFormat.setOutputPath(job, tempCrawlDb);
 
     try {
@@ -420,7 +439,7 @@ public class Injector extends NutchTool implements Tool {
             + job.getStatus().getState() + ", reason: "
             + job.getStatus().getFailureInfo();
         LOG.error(message);
-        cleanupAfterFailure(tempCrawlDb, lock, fs);
+        NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
         // throw exception so that calling routine can exit with error
         throw new RuntimeException(message);
       }
@@ -461,21 +480,9 @@ public class Injector extends NutchTool implements Tool {
         LOG.info("Injector: finished at " + sdf.format(end) + ", elapsed: "
             + TimingUtil.elapsedTime(start, end));
       }
-    } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("Injector job failed", e);
-      cleanupAfterFailure(tempCrawlDb, lock, fs);
-      throw e;
-    }
-  }
-
-  public void cleanupAfterFailure(Path tempCrawlDb, Path lock, FileSystem fs)
-      throws IOException {
-    try {
-      if (fs.exists(tempCrawlDb)) {
-        fs.delete(tempCrawlDb, true);
-      }
-      LockUtil.removeLockFile(fs, lock);
-    } catch (IOException e) {
+    } catch (IOException | InterruptedException | ClassNotFoundException | NullPointerException e) {
+      LOG.error("Injector job failed: {}", e.getMessage());
+      NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
       throw e;
     }
   }

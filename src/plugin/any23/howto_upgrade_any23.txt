@@ -1,8 +1,6 @@
-1. Upgrade Any23 dependency in trunk/ivy/ivy.xml
+1. Upgrade Any223 dependency in src/plugin/any23/ivy.xml
 
-2. Upgrade Any223 dependency in src/plugin/any23/ivy.xml
-
-3. Upgrade Any23's own dependencies in src/plugin/any23/plugin.xml
+2. Upgrade Any23's own dependencies in src/plugin/any23/plugin.xml
    To get the list of dependencies and their versions execute:
    $ ant -f ./build-ivy.xml
-   $ ls lib/
+   $ ls lib | sed 's/^/      <library name="/g' | sed 's/$/"\/>/g'

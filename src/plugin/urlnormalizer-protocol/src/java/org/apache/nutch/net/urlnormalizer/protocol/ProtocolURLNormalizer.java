@@ -35,7 +35,6 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
-import org.apache.nutch.util.URLUtil;
 
 /**
  * @author markus@openindex.io

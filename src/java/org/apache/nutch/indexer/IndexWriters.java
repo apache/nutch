@@ -18,6 +18,7 @@ package org.apache.nutch.indexer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
@@ -47,7 +48,7 @@ import java.util.Map;
 public class IndexWriters {
 
   private static final Logger LOG = LoggerFactory
-          .getLogger(MethodHandles.lookup().lookupClass());
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private HashMap<String, IndexWriterWrapper> indexWriters;
 
@@ -103,98 +104,98 @@ public class IndexWriters {
     }
   }
 
-  /**
-   * Loads the configuration of index writers.
-   *
-   * @param conf Nutch configuration instance.
-   */
-  private IndexWriterConfig[] loadWritersConfiguration(Configuration conf) {
-    InputStream ssInputStream = conf.getConfResourceAsInputStream("index-writers.xml");
-    InputSource inputSource = new InputSource(ssInputStream);
+    /**
+     * Loads the configuration of index writers.
+     *
+     * @param conf Nutch configuration instance.
+     */
+    private IndexWriterConfig[] loadWritersConfiguration(Configuration conf) {
+        InputStream ssInputStream = conf.getConfResourceAsInputStream("index-writers.xml");
+        InputSource inputSource = new InputSource(ssInputStream);
 
-    try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      Document document = builder.parse(inputSource);
-      Element rootElement = document.getDocumentElement();
-      NodeList writerList = rootElement.getElementsByTagName("writer");
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(inputSource);
+            Element rootElement = document.getDocumentElement();
+            NodeList writerList = rootElement.getElementsByTagName("writer");
 
-      IndexWriterConfig[] indexWriterConfigs = new IndexWriterConfig[writerList.getLength()];
+            IndexWriterConfig[] indexWriterConfigs = new IndexWriterConfig[writerList.getLength()];
 
-      for (int i = 0; i < writerList.getLength(); i++) {
-        indexWriterConfigs[i] = IndexWriterConfig.getInstanceFromElement((Element) writerList.item(i));
-      }
-
-      return indexWriterConfigs;
-    } catch (SAXException | IOException | ParserConfigurationException e) {
-      LOG.warn(e.toString());
-      return new IndexWriterConfig[0];
-    }
-  }
-
-  /**
-   * Maps the fields of a given document.
-   *
-   * @param document The document to map.
-   * @param mapping The mapping to apply.
-   * @return The mapped document.
-   */
-  private NutchDocument mapDocument(final NutchDocument document, final Map<MappingReader.Actions, Map<String, List<String>>> mapping) {
-    try {
-      NutchDocument mappedDocument = document.clone();
-
-      mapping.get(MappingReader.Actions.COPY).forEach((key, value) -> {
-        //Checking whether the field to copy exists or not
-        if (mappedDocument.getField(key) != null) {
-          for (String field : value) {
-            //To avoid duplicate the values
-            if (!key.equals(field)) {
-              for (Object val : mappedDocument.getField(key).getValues()) {
-                mappedDocument.add(field, val);
-              }
+            for (int i = 0; i < writerList.getLength(); i++) {
+                indexWriterConfigs[i] = IndexWriterConfig.getInstanceFromElement((Element) writerList.item(i));
             }
-          }
+
+            return indexWriterConfigs;
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            LOG.warn(e.toString());
+            return new IndexWriterConfig[0];
         }
-      });
+    }
 
-      mapping.get(MappingReader.Actions.RENAME).forEach((key, value) -> {
-        //Checking whether the field to rename exists or not
-        if (mappedDocument.getField(key) != null) {
-          NutchField field = mappedDocument.removeField(key);
-          mappedDocument.add(value.get(0), field.getValues());
-          mappedDocument.getField(value.get(0)).setWeight(field.getWeight());
+    /**
+     * Maps the fields of a given document.
+     *
+     * @param document The document to map.
+     * @param mapping The mapping to apply.
+     * @return The mapped document.
+     */
+    private NutchDocument mapDocument(final NutchDocument document, final Map<MappingReader.Actions, Map<String, List<String>>> mapping) {
+        try {
+            NutchDocument mappedDocument = document.clone();
+
+            mapping.get(MappingReader.Actions.COPY).forEach((key, value) -> {
+                //Checking whether the field to copy exists or not
+                if (mappedDocument.getField(key) != null) {
+                    for (String field : value) {
+                        //To avoid duplicate the values
+                        if (!key.equals(field)) {
+                            for (Object val : mappedDocument.getField(key).getValues()) {
+                                mappedDocument.add(field, val);
+                            }
+                        }
+                    }
+                }
+            });
+
+            mapping.get(MappingReader.Actions.RENAME).forEach((key, value) -> {
+                //Checking whether the field to rename exists or not
+                if (mappedDocument.getField(key) != null) {
+                    NutchField field = mappedDocument.removeField(key);
+                    mappedDocument.add(value.get(0), field.getValues());
+                    mappedDocument.getField(value.get(0)).setWeight(field.getWeight());
+                }
+            });
+
+            mapping.get(MappingReader.Actions.REMOVE).forEach((key, value) -> mappedDocument.removeField(key));
+
+            return mappedDocument;
+        } catch (CloneNotSupportedException e) {
+            LOG.warn("An instance of class {} can't be cloned.", document.getClass().getName());
+            return document;
         }
-      });
-
-      mapping.get(MappingReader.Actions.REMOVE).forEach((key, value) -> mappedDocument.removeField(key));
-
-      return mappedDocument;
-    } catch (CloneNotSupportedException e) {
-      LOG.warn("An instance of class {} can't be cloned.", document.getClass().getName());
-      return document;
     }
-  }
 
-  /**
-   * Initializes the internal variables of index writers.
-   *
-   * @param job  Nutch configuration.
-   * @param name
-   * @throws IOException Some exception thrown by some writer.
-   */
-  public void open(JobConf job, String name) throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {
-      entry.getValue().getIndexWriter().open(job, name);
-      entry.getValue().getIndexWriter().open(entry.getValue().getIndexWriterConfig().getParams());
+    /**
+     * Initializes the internal variables of index writers.
+     *
+     * @param job  Nutch configuration.
+     * @param name
+     * @throws IOException Some exception thrown by some writer.
+     */
+    public void open(Configuration conf, String name) throws IOException {
+        for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {
+            entry.getValue().getIndexWriter().open(conf, name);
+            entry.getValue().getIndexWriter().open(entry.getValue().getIndexWriterConfig().getParams());
+        }
     }
-  }
 
-  public void write(NutchDocument doc) throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {
-      NutchDocument mappedDocument = mapDocument(doc, entry.getValue().getIndexWriterConfig().getMapping());
-      entry.getValue().getIndexWriter().write(mappedDocument);
+    public void write(NutchDocument doc) throws IOException {
+        for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {
+            NutchDocument mappedDocument = mapDocument(doc, entry.getValue().getIndexWriterConfig().getMapping());
+            entry.getValue().getIndexWriter().write(mappedDocument);
+        }
     }
-  }
 
   public void update(NutchDocument doc) throws IOException {
     for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {

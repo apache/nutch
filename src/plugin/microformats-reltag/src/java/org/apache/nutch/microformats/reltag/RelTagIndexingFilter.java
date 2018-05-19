@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.microformats.reltag;
 
-// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingFilter;
@@ -25,7 +24,6 @@ import org.apache.nutch.indexer.NutchDocument;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.parse.Parse;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
 /**

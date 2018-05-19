@@ -20,7 +20,7 @@ package org.apache.nutch.indexer;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.hadoop.mrunit.ReduceDriver;
+import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
 import org.apache.hadoop.mrunit.types.Pair;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapreduce.Reducer;
 
 import static org.junit.Assert.*;
 
@@ -92,7 +92,7 @@ public class TestIndexerMapReduce {
   public static CrawlDatum crawlDatumFetchSuccess = new CrawlDatum(
       CrawlDatum.STATUS_FETCH_SUCCESS, 60 * 60 * 24);
 
-  private Reducer<Text, NutchWritable, Text, NutchIndexAction> reducer = new IndexerMapReduce();
+  private Reducer<Text, NutchWritable, Text, NutchIndexAction> reducer = new IndexerMapReduce.IndexerReducer();
   private ReduceDriver<Text, NutchWritable, Text, NutchIndexAction> reduceDriver;
   private Configuration configuration;
 
@@ -169,7 +169,7 @@ public class TestIndexerMapReduce {
     values.add(new NutchWritable(parseData));
     values.add(new NutchWritable(content));
     reduceDriver = ReduceDriver.newReduceDriver(reducer);
-    reduceDriver.setConfiguration(configuration);
+    reduceDriver.getConfiguration().addResource(configuration);
     reduceDriver.withInput(testUrlText, values);
     List<Pair<Text, NutchIndexAction>> reduceResult;
     NutchDocument doc = null;

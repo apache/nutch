@@ -27,7 +27,6 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -41,16 +40,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.RunningJob;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -66,7 +61,7 @@ import org.slf4j.LoggerFactory;
 
 import com.martinkl.warc.WARCRecord;
 import com.martinkl.warc.WARCWritable;
-import com.martinkl.warc.mapred.WARCOutputFormat;
+import com.martinkl.warc.mapreduce.WARCOutputFormat;
 
 /**
  * MapReduce job to exports Nutch segments as WARC files. The file format is
@@ -93,176 +88,178 @@ public class WARCExporter extends Configured implements Tool {
     super(conf);
   }
 
-  public static class WARCReducer
-      implements Mapper<Text, Writable, Text, NutchWritable>,
-      Reducer<Text, NutchWritable, NullWritable, WARCWritable> {
+  public static class WARCMapReduce {
 
-    SimpleDateFormat warcdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",
-        Locale.ENGLISH);
-
-    @Override
-    public void configure(JobConf job) {
-    }
-
-    @Override
     public void close() throws IOException {
     }
 
-    public void map(Text key, Writable value,
-        OutputCollector<Text, NutchWritable> output, Reporter reporter)
-            throws IOException {
-      output.collect(key, new NutchWritable(value));
+    public static class WARCMapper extends 
+        Mapper<Text, Writable, Text, NutchWritable> {
+      public void setup(Mapper<Text, Writable, Text, NutchWritable>.Context context) {
+      }
+
+      public void map(Text key, Writable value, Context context)
+              throws IOException, InterruptedException {
+        context.write(key, new NutchWritable(value));
+      }
     }
 
-    @Override
-    public void reduce(Text key, Iterator<NutchWritable> values,
-        OutputCollector<NullWritable, WARCWritable> output, Reporter reporter)
-            throws IOException {
+    public static class WARCReducer extends
+        Reducer<Text, NutchWritable, NullWritable, WARCWritable> {
+      public void setup(Reducer<Text, NutchWritable, NullWritable, WARCWritable>.Context context) {
+      }
 
-      Content content = null;
-      CrawlDatum cd = null;
+      public void reduce(Text key, Iterable<NutchWritable> values,
+          Context context) throws IOException, InterruptedException {
 
-      // aggregate the values found
-      while (values.hasNext()) {
-        final Writable value = values.next().get(); // unwrap
-        if (value instanceof Content) {
-          content = (Content) value;
-          continue;
+        Content content = null;
+        CrawlDatum cd = null;
+        SimpleDateFormat warcdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",
+        Locale.ENGLISH);
+
+        // aggregate the values found
+        for (NutchWritable val : values) {
+          final Writable value = val.get(); // unwrap
+          if (value instanceof Content) {
+            content = (Content) value;
+            continue;
+          }
+          if (value instanceof CrawlDatum) {
+            cd = (CrawlDatum) value;
+            continue;
+          }
         }
-        if (value instanceof CrawlDatum) {
-          cd = (CrawlDatum) value;
-          continue;
+
+        // check that we have everything we need
+        if (content == null) {
+          LOG.info("Missing content for {}", key);
+          context.getCounter("WARCExporter", "missing content").increment(1);
+          return;
         }
-      }
 
-      // check that we have everything we need
-      if (content == null) {
-        LOG.info("Missing content for {}", key);
-        reporter.getCounter("WARCExporter", "missing content").increment(1);
-        return;
-      }
-
-      if (cd == null) {
-        LOG.info("Missing fetch datum for {}", key);
-        reporter.getCounter("WARCExporter", "missing metadata").increment(1);
-        return;
-      }
-
-      // were the headers stored as is? Can write a response element then
-      String headersVerbatim = content.getMetadata().get("_response.headers_");
-      byte[] httpheaders = new byte[0];
-      if (StringUtils.isNotBlank(headersVerbatim)) {
-        // check that ends with an empty line
-        if (!headersVerbatim.endsWith(CRLF + CRLF)) {
-          headersVerbatim += CRLF + CRLF;
+        if (cd == null) {
+          LOG.info("Missing fetch datum for {}", key);
+          context.getCounter("WARCExporter", "missing metadata").increment(1);
+          return;
         }
-        httpheaders = headersVerbatim.getBytes();
-      }
 
-      StringBuilder buffer = new StringBuilder();
-      buffer.append(WARCRecord.WARC_VERSION);
-      buffer.append(CRLF);
+        // were the headers stored as is? Can write a response element then
+        String headersVerbatim = content.getMetadata().get("_response.headers_");
+        byte[] httpheaders = new byte[0];
+        if (StringUtils.isNotBlank(headersVerbatim)) {
+          // check that ends with an empty line
+          if (!headersVerbatim.endsWith(CRLF + CRLF)) {
+            headersVerbatim += CRLF + CRLF;
+          }
+          httpheaders = headersVerbatim.getBytes();
+        }
 
-      buffer.append("WARC-Record-ID").append(": ").append("<urn:uuid:")
-          .append(UUID.randomUUID().toString()).append(">").append(CRLF);
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(WARCRecord.WARC_VERSION);
+        buffer.append(CRLF);
 
-      int contentLength = 0;
-      if (content != null) {
-        contentLength = content.getContent().length;
-      }
+        buffer.append("WARC-Record-ID").append(": ").append("<urn:uuid:")
+            .append(UUID.randomUUID().toString()).append(">").append(CRLF);
 
-      // add the length of the http header
-      contentLength += httpheaders.length;
+        int contentLength = 0;
+        if (content != null) {
+          contentLength = content.getContent().length;
+        }
 
-      buffer.append("Content-Length").append(": ")
-          .append(Integer.toString(contentLength)).append(CRLF);
+        // add the length of the http header
+        contentLength += httpheaders.length;
 
-      Date fetchedDate = new Date(cd.getFetchTime());
-      buffer.append("WARC-Date").append(": ").append(warcdf.format(fetchedDate))
-          .append(CRLF);
+        buffer.append("Content-Length").append(": ")
+            .append(Integer.toString(contentLength)).append(CRLF);
 
-      // check if http headers have been stored verbatim
-      // if not generate a response instead
-      String WARCTypeValue = "resource";
-
-      if (StringUtils.isNotBlank(headersVerbatim)) {
-        WARCTypeValue = "response";
-      }
-
-      buffer.append("WARC-Type").append(": ").append(WARCTypeValue)
-          .append(CRLF);
-
-      // "WARC-IP-Address" if present
-      String IP = content.getMetadata().get("_ip_");
-      if (StringUtils.isNotBlank(IP)) {
-        buffer.append("WARC-IP-Address").append(": ").append("IP").append(CRLF);
-      }
-
-      // detect if truncated only for fetch success
-      String status = CrawlDatum.getStatusName(cd.getStatus());
-      if (status.equalsIgnoreCase("STATUS_FETCH_SUCCESS")
-          && ParseSegment.isTruncated(content)) {
-        buffer.append("WARC-Truncated").append(": ").append("unspecified")
+        Date fetchedDate = new Date(cd.getFetchTime());
+        buffer.append("WARC-Date").append(": ").append(warcdf.format(fetchedDate))
             .append(CRLF);
-      }
 
-      // must be a valid URI
-      try {
-        String normalised = key.toString().replaceAll(" ", "%20");
-        URI uri = URI.create(normalised);
-        buffer.append("WARC-Target-URI").append(": ")
-            .append(uri.toASCIIString()).append(CRLF);
-      } catch (Exception e) {
-        LOG.error("Invalid URI {} ", key);
-        reporter.getCounter("WARCExporter", "invalid URI").increment(1);
-        return;
-      }
+        // check if http headers have been stored verbatim
+        // if not generate a response instead
+        String WARCTypeValue = "resource";
 
-      // provide a ContentType if type response
-      if (WARCTypeValue.equals("response")) {
-        buffer.append("Content-Type: application/http; msgtype=response")
+        if (StringUtils.isNotBlank(headersVerbatim)) {
+          WARCTypeValue = "response";
+        }
+
+        buffer.append("WARC-Type").append(": ").append(WARCTypeValue)
             .append(CRLF);
+
+        // "WARC-IP-Address" if present
+        String IP = content.getMetadata().get("_ip_");
+        if (StringUtils.isNotBlank(IP)) {
+          buffer.append("WARC-IP-Address").append(": ").append("IP").append(CRLF);
+        }
+
+        // detect if truncated only for fetch success
+        String status = CrawlDatum.getStatusName(cd.getStatus());
+        if (status.equalsIgnoreCase("STATUS_FETCH_SUCCESS")
+            && ParseSegment.isTruncated(content)) {
+          buffer.append("WARC-Truncated").append(": ").append("unspecified")
+              .append(CRLF);
+        }
+
+        // must be a valid URI
+        try {
+          String normalised = key.toString().replaceAll(" ", "%20");
+          URI uri = URI.create(normalised);
+          buffer.append("WARC-Target-URI").append(": ")
+              .append(uri.toASCIIString()).append(CRLF);
+        } catch (Exception e) {
+          LOG.error("Invalid URI {} ", key);
+          context.getCounter("WARCExporter", "invalid URI").increment(1);
+          return;
+        }
+
+        // provide a ContentType if type response
+        if (WARCTypeValue.equals("response")) {
+          buffer.append("Content-Type: application/http; msgtype=response")
+              .append(CRLF);
+        }
+
+        // finished writing the WARC headers, now let's serialize it
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        // store the headers
+        bos.write(buffer.toString().getBytes("UTF-8"));
+        bos.write(CRLF_BYTES);
+        // the http headers
+        bos.write(httpheaders);
+
+        // the binary content itself
+        if (content.getContent() != null) {
+          bos.write(content.getContent());
+        }
+        bos.write(CRLF_BYTES);
+        bos.write(CRLF_BYTES);
+
+        try {
+          DataInput in = new DataInputStream(
+              new ByteArrayInputStream(bos.toByteArray()));
+          WARCRecord record = new WARCRecord(in);
+          context.write(NullWritable.get(), new WARCWritable(record));
+          context.getCounter("WARCExporter", "records generated").increment(1);
+        } catch (IOException exception) {
+          LOG.error("Exception when generating WARC record for {} : {}", key,
+              exception.getMessage());
+          context.getCounter("WARCExporter", "exception").increment(1);
+        }
+
       }
-
-      // finished writing the WARC headers, now let's serialize it
-
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-      // store the headers
-      bos.write(buffer.toString().getBytes("UTF-8"));
-      bos.write(CRLF_BYTES);
-      // the http headers
-      bos.write(httpheaders);
-
-      // the binary content itself
-      if (content.getContent() != null) {
-        bos.write(content.getContent());
-      }
-      bos.write(CRLF_BYTES);
-      bos.write(CRLF_BYTES);
-
-      try {
-        DataInput in = new DataInputStream(
-            new ByteArrayInputStream(bos.toByteArray()));
-        WARCRecord record = new WARCRecord(in);
-        output.collect(NullWritable.get(), new WARCWritable(record));
-        reporter.getCounter("WARCExporter", "records generated").increment(1);
-      } catch (IOException exception) {
-        LOG.error("Exception when generating WARC record for {} : {}", key,
-            exception.getMessage());
-        reporter.getCounter("WARCExporter", "exception").increment(1);
-      }
-
     }
   }
 
-  public int generateWARC(String output, List<Path> segments) {
+  public int generateWARC(String output, List<Path> segments) throws IOException{
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("WARCExporter: starting at {}", sdf.format(start));
 
-    final JobConf job = new NutchJob(getConf());
+    final Job job = NutchJob.getInstance(getConf());
     job.setJobName("warc-exporter " + output);
+    Configuration conf = job.getConfiguration();
 
     for (final Path segment : segments) {
       LOG.info("warc-exporter: adding segment: {}", segment);
@@ -271,29 +268,37 @@ public class WARCExporter extends Configured implements Tool {
           new Path(segment, CrawlDatum.FETCH_DIR_NAME));
     }
 
-    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
 
-    job.setMapperClass(WARCReducer.class);
-    job.setReducerClass(WARCReducer.class);
+    job.setJarByClass(WARCMapReduce.class);
+    job.setMapperClass(WARCMapReduce.WARCMapper.class);
+    job.setReducerClass(WARCMapReduce.WARCReducer.class);
 
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(NutchWritable.class);
 
     FileOutputFormat.setOutputPath(job, new Path(output));
     // using the old api
-    job.setOutputFormat(WARCOutputFormat.class);
+    job.setOutputFormatClass(WARCOutputFormat.class);
 
     job.setOutputKeyClass(NullWritable.class);
     job.setOutputValueClass(WARCWritable.class);
 
     try {
-      RunningJob rj = JobClient.runJob(job);
-      LOG.info(rj.getCounters().toString());
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "WARCExporter job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+      LOG.info(job.getCounters().toString());
       long end = System.currentTimeMillis();
       LOG.info("WARCExporter: finished at {}, elapsed: {}", sdf.format(end),
           TimingUtil.elapsedTime(start, end));
-    } catch (Exception e) {
-      LOG.error("Exception caught", e);
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("WARCExporter job failed: {}", e.getMessage());
       return -1;
     }
 

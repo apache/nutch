@@ -18,21 +18,36 @@
 package org.creativecommons.nutch;
 
 import org.apache.nutch.metadata.CreativeCommons;
-import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.HtmlParseFilter;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.parse.ParseResult;
+import org.apache.nutch.parse.ParseStatus;
+import org.apache.nutch.parse.ParseText;
 import org.apache.hadoop.conf.Configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Comment;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import java.util.*;
+import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
-import java.io.*;
-import java.net.*;
-import javax.xml.parsers.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.xml.sax.InputSource;
-import org.w3c.dom.*;
 
 /** Adds metadata identifying the Creative Commons license used, if any. */
 public class CCParseFilter implements HtmlParseFilter {
@@ -184,7 +199,6 @@ public class CCParseFilter implements HtmlParseFilter {
         if (LOG.isWarnEnabled()) {
           LOG.warn("CC: Failed to parse RDF in " + base + ": " + e);
         }
-        // e.printStackTrace();
         return;
       }
 
@@ -219,12 +233,6 @@ public class CCParseFilter implements HtmlParseFilter {
           if (!CC_NS.equals(predicateElement.getNamespaceURI())) {
             continue;
           }
-
-          // add object and predicate to metadata
-          // metadata.put(object, predicate);
-          // if (LOG.isInfoEnabled()) {
-          // LOG.info("CC: found: "+predicate+"="+object);
-          // }
         }
       }
 
@@ -244,7 +252,7 @@ public class CCParseFilter implements HtmlParseFilter {
     }
   }
 
-  private static final HashMap<String, String> WORK_TYPE_NAMES = new HashMap<String, String>();
+  private static final HashMap<String, String> WORK_TYPE_NAMES = new HashMap<>();
   static {
     WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/MovingImage", "video");
     WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/StillImage", "image");

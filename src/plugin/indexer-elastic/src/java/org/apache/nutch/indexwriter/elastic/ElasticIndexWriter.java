@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
@@ -47,8 +46,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.transport.client.*;
-
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,47 +74,47 @@ public class ElasticIndexWriter implements IndexWriter {
 
   private Configuration config;
 
-  @Override
-  public void open(JobConf job, String name) throws IOException {
-    //Implementation not required
-  }
-
-  /**
-   * Initializes the internal variables from a given index writer configuration.
-   *
-   * @param parameters Params from the index writer configuration.
-   * @throws IOException Some exception thrown by writer.
-   */
-  @Override
-  public void open(IndexWriterParams parameters) throws IOException {
-    String cluster = parameters.get(ElasticConstants.CLUSTER);
-    String hosts = parameters.get(ElasticConstants.HOSTS);
-
-    if (StringUtils.isBlank(cluster) && StringUtils.isBlank(hosts)) {
-      String message = "Missing elastic.cluster and elastic.host. At least one of them should be set in index-writers.xml ";
-      message += "\n" + describe();
-      LOG.error(message);
-      throw new RuntimeException(message);
+    @Override
+    public void open(Configuration conf, String name) throws IOException {
+        //Implementation not required
     }
 
-    bulkCloseTimeout = parameters.getLong(ElasticConstants.BULK_CLOSE_TIMEOUT, DEFAULT_BULK_CLOSE_TIMEOUT);
-    defaultIndex = parameters.get(ElasticConstants.INDEX, DEFAULT_INDEX);
+    /**
+     * Initializes the internal variables from a given index writer configuration.
+     *
+     * @param parameters Params from the index writer configuration.
+     * @throws IOException Some exception thrown by writer.
+     */
+    @Override
+    public void open(IndexWriterParams parameters) throws IOException {
+        String cluster = parameters.get(ElasticConstants.CLUSTER);
+        String hosts = parameters.get(ElasticConstants.HOSTS);
 
-    int maxBulkDocs = parameters.getInt(ElasticConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
-    int maxBulkLength = parameters.getInt(ElasticConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
-    int expBackoffMillis = parameters.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS, DEFAULT_EXP_BACKOFF_MILLIS);
-    int expBackoffRetries = parameters.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES, DEFAULT_EXP_BACKOFF_RETRIES);
+        if (StringUtils.isBlank(cluster) && StringUtils.isBlank(hosts)) {
+            String message = "Missing elastic.cluster and elastic.host. At least one of them should be set in index-writers.xml ";
+            message += "\n" + describe();
+            LOG.error(message);
+            throw new RuntimeException(message);
+        }
 
-    makeClient(parameters);
+        bulkCloseTimeout = parameters.getLong(ElasticConstants.BULK_CLOSE_TIMEOUT, DEFAULT_BULK_CLOSE_TIMEOUT);
+        defaultIndex = parameters.get(ElasticConstants.INDEX, DEFAULT_INDEX);
+
+        int maxBulkDocs = parameters.getInt(ElasticConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
+        int maxBulkLength = parameters.getInt(ElasticConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
+        int expBackoffMillis = parameters.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS, DEFAULT_EXP_BACKOFF_MILLIS);
+        int expBackoffRetries = parameters.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES, DEFAULT_EXP_BACKOFF_RETRIES);
+
+        makeClient(parameters);
 
     LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}", maxBulkDocs, maxBulkLength);
     bulkProcessor = BulkProcessor.builder(client, bulkProcessorListener())
-            .setBulkActions(maxBulkDocs)
-            .setBulkSize(new ByteSizeValue(maxBulkLength, ByteSizeUnit.BYTES))
-            .setConcurrentRequests(1)
-            .setBackoffPolicy(BackoffPolicy.exponentialBackoff(
-                    TimeValue.timeValueMillis(expBackoffMillis), expBackoffRetries))
-            .build();
+      .setBulkActions(maxBulkDocs)
+      .setBulkSize(new ByteSizeValue(maxBulkLength, ByteSizeUnit.BYTES))
+      .setConcurrentRequests(1)
+      .setBackoffPolicy(BackoffPolicy.exponentialBackoff(
+          TimeValue.timeValueMillis(expBackoffMillis), expBackoffRetries))
+      .build();
   }
 
   /** Generates a TransportClient or NodeClient */

@@ -26,8 +26,8 @@
       <library name="scoring-similarity.jar">
          <export name="*"/>
       </library>
-      <library name="lucene-analyzers-common-5.5.0.jar"/>
-      <library name="lucene-core-5.5.0.jar"/>
+      <library name="lucene-analyzers-common-6.4.1.jar"/>
+      <library name="lucene-core-6.4.1.jar"/>
    </runtime>
 
    <requires>

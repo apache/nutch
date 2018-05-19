@@ -24,10 +24,8 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 
@@ -37,7 +35,7 @@ import org.apache.nutch.net.URLNormalizers;
  * 
  * @author Andrzej Bialecki
  */
-public class LinkDbFilter implements Mapper<Text, Inlinks, Text, Inlinks> {
+public class LinkDbFilter extends Mapper<Text, Inlinks, Text, Inlinks> {
   public static final String URL_FILTERING = "linkdb.url.filters";
 
   public static final String URL_NORMALIZING = "linkdb.url.normalizer";
@@ -59,24 +57,24 @@ public class LinkDbFilter implements Mapper<Text, Inlinks, Text, Inlinks> {
 
   private Text newKey = new Text();
 
-  public void configure(JobConf job) {
-    filter = job.getBoolean(URL_FILTERING, false);
-    normalize = job.getBoolean(URL_NORMALIZING, false);
+  public void setup(Mapper<Text, Inlinks, Text, Inlinks>.Context context) {
+    Configuration conf = context.getConfiguration();
+    filter = conf.getBoolean(URL_FILTERING, false);
+    normalize = conf.getBoolean(URL_NORMALIZING, false);
     if (filter) {
-      filters = new URLFilters(job);
+      filters = new URLFilters(conf);
     }
     if (normalize) {
-      scope = job.get(URL_NORMALIZING_SCOPE, URLNormalizers.SCOPE_LINKDB);
-      normalizers = new URLNormalizers(job, scope);
+      scope = conf.get(URL_NORMALIZING_SCOPE, URLNormalizers.SCOPE_LINKDB);
+      normalizers = new URLNormalizers(conf, scope);
     }
   }
 
   public void close() {
   }
 
-  public void map(Text key, Inlinks value,
-      OutputCollector<Text, Inlinks> output, Reporter reporter)
-      throws IOException {
+  public void map(Text key, Inlinks value, Context context)
+      throws IOException, InterruptedException {
     String url = key.toString();
     Inlinks result = new Inlinks();
     if (normalize) {
@@ -124,7 +122,7 @@ public class LinkDbFilter implements Mapper<Text, Inlinks, Text, Inlinks> {
     }
     if (result.size() > 0) { // don't collect empty inlinks
       newKey.set(url);
-      output.collect(newKey, result);
+      context.write(newKey, result);
     }
   }
 }

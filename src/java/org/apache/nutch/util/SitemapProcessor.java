@@ -52,6 +52,7 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.util.NutchJob;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,13 +92,15 @@ public class SitemapProcessor extends Configured implements Tool {
   public static final String SITEMAP_URL_NORMALIZING = "sitemap.url.normalize";
   public static final String SITEMAP_ALWAYS_TRY_SITEMAPXML_ON_ROOT = "sitemap.url.default.sitemap.xml";
   public static final String SITEMAP_OVERWRITE_EXISTING = "sitemap.url.overwrite.existing";
-
+  public static final String SITEMAP_REDIR_MAX = "sitemap.redir.max";
+  
   private static class SitemapMapper extends Mapper<Text, Writable, Text, CrawlDatum> {
     private ProtocolFactory protocolFactory = null;
     private boolean strict = true;
     private boolean filter = true;
     private boolean normalize = true;
     private boolean tryDefaultSitemapXml = true;
+    private int maxRedir = 3;
     private URLFilters filters = null;
     private URLNormalizers normalizers = null;
     private CrawlDatum datum = new CrawlDatum();
@@ -110,6 +113,7 @@ public class SitemapProcessor extends Configured implements Tool {
       this.normalize = conf.getBoolean(SITEMAP_URL_NORMALIZING, true);
       this.strict = conf.getBoolean(SITEMAP_STRICT_PARSING, true);
       this.tryDefaultSitemapXml = conf.getBoolean(SITEMAP_ALWAYS_TRY_SITEMAPXML_ON_ROOT, true);
+      this.maxRedir = conf.getInt(SITEMAP_REDIR_MAX, 3);
       this.parser = new SiteMapParser(strict);
 
       if (filter) {
@@ -148,9 +152,16 @@ public class SitemapProcessor extends Configured implements Tool {
           if (tryDefaultSitemapXml && sitemaps.size() == 0) {
             sitemaps.add(url + "sitemap.xml");
           }
-          for(String sitemap: sitemaps) {
+          for (String sitemap : sitemaps) {
             context.getCounter("Sitemap", "sitemaps_from_hostdb").increment(1);
-            generateSitemapUrlDatum(protocolFactory.getProtocol(sitemap), sitemap, context);
+            sitemap = filterNormalize(sitemap);
+            if (sitemap == null) {
+              context.getCounter("Sitemap", "filtered_sitemaps_from_hostdb")
+                  .increment(1);
+            } else {
+              generateSitemapUrlDatum(protocolFactory.getProtocol(sitemap),
+                  sitemap, context);
+            }
           }
         }
         else if (value instanceof Text) {
@@ -187,19 +198,21 @@ public class SitemapProcessor extends Configured implements Tool {
       ProtocolStatus status = output.getStatus();
       Content content = output.getContent();
 
-      // Following redirects http > https
-      if (!output.getStatus().isSuccess() && output.getStatus().isRedirect()) {
+      // Following redirects http > https and what else
+      int maxRedir = this.maxRedir;
+      while (!output.getStatus().isSuccess() && output.getStatus().isRedirect() && maxRedir > 0) {
         String[] stuff = output.getStatus().getArgs();
-        url = stuff[0];
-
-        if (normalizers != null) {
-          url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
+        url = filterNormalize(stuff[0]);
+        
+        // get out!
+        if (url == null) {
+          break;
         }
-
-        // try again
         output = protocol.getProtocolOutput(new Text(url), datum);
         status = output.getStatus();
         content = output.getContent();
+        
+        maxRedir--;
       }
 
       if(status.getCode() != ProtocolStatus.SUCCESS) {
@@ -258,8 +271,11 @@ public class SitemapProcessor extends Configured implements Tool {
         }
 
         LOG.info("Parsing sitemap index file: {}", index.getUrl().toString());
-        for(AbstractSiteMap sitemap: sitemapUrls) {
-          generateSitemapUrlDatum(protocol, sitemap.getUrl().toString(), context);
+        for (AbstractSiteMap sitemap : sitemapUrls) {
+          String sitemapUrl = filterNormalize(sitemap.getUrl().toString());
+          if (sitemapUrl != null) {
+            generateSitemapUrlDatum(protocol, sitemapUrl, context);
+          }
         }
       }
     }
@@ -320,7 +336,7 @@ public class SitemapProcessor extends Configured implements Tool {
       LOG.info("SitemapProcessor: Starting at {}", sdf.format(start));
     }
 
-    FileSystem fs = FileSystem.get(getConf());
+    FileSystem fs = crawldb.getFileSystem(getConf());
     Path old = new Path(crawldb, "old");
     Path current = new Path(crawldb, "current");
     Path tempCrawlDb = new Path(crawldb, "crawldb-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
@@ -368,7 +384,7 @@ public class SitemapProcessor extends Configured implements Tool {
             + " job did not succeed, job status: " + job.getStatus().getState()
             + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
-        cleanupAfterFailure(tempCrawlDb, lock, fs);
+        NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
         // throw exception so that calling routine can exit with error
         throw new RuntimeException(message);
       }
@@ -400,19 +416,7 @@ public class SitemapProcessor extends Configured implements Tool {
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("SitemapProcessor_" + crawldb.toString(), e);
-      cleanupAfterFailure(tempCrawlDb, lock, fs);
-      throw e;
-    }
-  }
-
-  public void cleanupAfterFailure(Path tempCrawlDb, Path lock, FileSystem fs)
-      throws IOException {
-    try {
-      if (fs.exists(tempCrawlDb)) {
-        fs.delete(tempCrawlDb, true);
-      }
-      LockUtil.removeLockFile(fs, lock);
-    } catch (IOException e) {
+      NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
       throw e;
     }
   }
@@ -429,7 +433,7 @@ public class SitemapProcessor extends Configured implements Tool {
     System.err.println("\t<crawldb>\t\tpath to crawldb where the sitemap urls would be injected");
     System.err.println("\t-hostdb <hostdb>\tpath of a hostdb. Sitemap(s) from these hosts would be downloaded");
     System.err.println("\t-sitemapUrls <url_dir>\tpath to sitemap urls directory");
-    System.err.println("\t-threads <threads>\tNumber of threads created per mapper to fetch sitemap urls");
+    System.err.println("\t-threads <threads>\tNumber of threads created per mapper to fetch sitemap urls (default: 8)");
     System.err.println("\t-force\t\t\tforce update even if CrawlDb appears to be locked (CAUTION advised)");
     System.err.println("\t-noStrict\t\tBy default Sitemap parser rejects invalid urls. '-noStrict' disables that.");
     System.err.println("\t-noFilter\t\tturn off URLFilters on urls (optional)");
@@ -448,7 +452,7 @@ public class SitemapProcessor extends Configured implements Tool {
     boolean strict = true;
     boolean filter = true;
     boolean normalize = true;
-    int threads = getConf().getInt("mapred.map.multithreadedrunner.threads", 8);
+    int threads = 8;
 
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-hostdb")) {

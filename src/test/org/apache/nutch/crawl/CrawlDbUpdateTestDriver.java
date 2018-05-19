@@ -92,7 +92,7 @@ public class CrawlDbUpdateTestDriver<T extends Reducer<Text, CrawlDatum, Text, C
     }
     Collections.shuffle(values); // sorting of values should have no influence
     reduceDriver = ReduceDriver.newReduceDriver(reducer);
-    reduceDriver.setConfiguration(configuration);
+    reduceDriver.getConfiguration().addResource(configuration);
     reduceDriver.withInput(dummyURL, values);
     List<Pair<Text,CrawlDatum>> reduceResult;
     try {

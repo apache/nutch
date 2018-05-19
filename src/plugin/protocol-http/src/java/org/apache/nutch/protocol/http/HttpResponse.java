@@ -124,28 +124,29 @@ public class HttpResponse implements Response {
       socket.connect(sockAddr, http.getTimeout());
 
       if (scheme == Scheme.HTTPS) {
-        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory
-            .getDefault();
-        SSLSocket sslsocket = (SSLSocket) factory
-            .createSocket(socket, sockHost, sockPort, true);
-        sslsocket.setUseClientMode(true);
+        SSLSocket sslsocket = null;
 
-        // Get the protocols and ciphers supported by this JVM
-        Set<String> protocols = new HashSet<String>(
-            Arrays.asList(sslsocket.getSupportedProtocols()));
-        Set<String> ciphers = new HashSet<String>(
-            Arrays.asList(sslsocket.getSupportedCipherSuites()));
-
-        // Intersect with preferred protocols and ciphers
-        protocols.retainAll(http.getTlsPreferredProtocols());
-        ciphers.retainAll(http.getTlsPreferredCipherSuites());
-
-        sslsocket.setEnabledProtocols(
-            protocols.toArray(new String[protocols.size()]));
-        sslsocket.setEnabledCipherSuites(
-            ciphers.toArray(new String[ciphers.size()]));
-
-        sslsocket.startHandshake();
+        try {
+          sslsocket = getSSLSocket(socket, sockHost, sockPort);
+          sslsocket.startHandshake();
+        } catch (IOException e) {
+          Http.LOG.debug("SSL connection to {} failed with: {}", url,
+              e.getMessage());
+          if ("handshake alert:  unrecognized_name".equals(e.getMessage())) {
+            try {
+              // Reconnect, see NUTCH-2447
+              socket = new Socket();
+              socket.setSoTimeout(http.getTimeout());
+              socket.connect(sockAddr, http.getTimeout());
+              sslsocket = getSSLSocket(socket, "", sockPort);
+              sslsocket.startHandshake();
+            } catch (IOException ex) {
+              String msg = "SSL reconnect to " + url + " failed with: "
+                  + e.getMessage();
+              throw new HttpException(msg);
+            }
+          }
+        }
         socket = sslsocket;
       }
 
@@ -318,6 +319,31 @@ public class HttpResponse implements Response {
    * -------------------------
    */
 
+  private SSLSocket getSSLSocket(Socket socket, String sockHost, int sockPort) throws IOException {
+    SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory
+      .getDefault();
+    SSLSocket sslsocket = (SSLSocket) factory
+      .createSocket(socket, sockHost, sockPort, true);
+    sslsocket.setUseClientMode(true);
+
+    // Get the protocols and ciphers supported by this JVM
+    Set<String> protocols = new HashSet<String>(
+      Arrays.asList(sslsocket.getSupportedProtocols()));
+    Set<String> ciphers = new HashSet<String>(
+      Arrays.asList(sslsocket.getSupportedCipherSuites()));
+
+    // Intersect with preferred protocols and ciphers
+    protocols.retainAll(http.getTlsPreferredProtocols());
+    ciphers.retainAll(http.getTlsPreferredCipherSuites());
+
+    sslsocket.setEnabledProtocols(
+      protocols.toArray(new String[protocols.size()]));
+    sslsocket.setEnabledCipherSuites(
+      ciphers.toArray(new String[ciphers.size()]));
+
+    return sslsocket;
+  }
+
   private void readPlainContent(InputStream in)
       throws HttpException, IOException {
 
@@ -438,6 +464,7 @@ public class HttpResponse implements Response {
         chunkBytesRead += len;
       }
 
+      contentBytesRead += chunkBytesRead;
       readLine(in, line, false);
 
     }

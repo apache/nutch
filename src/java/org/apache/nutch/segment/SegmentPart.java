@@ -18,7 +18,7 @@ package org.apache.nutch.segment;
 
 import java.io.IOException;
 
-import org.apache.hadoop.mapred.FileSplit;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 /**
  * Utility class for handling information about segment parts.
