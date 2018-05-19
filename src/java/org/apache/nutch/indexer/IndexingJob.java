@@ -120,6 +120,8 @@ public class IndexingJob extends NutchTool implements Tool {
         LOG.info("Indexer: adding binary content");
       }
     }
+    IndexWriters writers = new IndexWriters(getConf());
+    LOG.info(writers.describe());
 
     IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job, addBinaryContent);
 
@@ -130,7 +132,6 @@ public class IndexingJob extends NutchTool implements Tool {
     conf.setBoolean(IndexerMapReduce.URL_FILTERING, filter);
     conf.setBoolean(IndexerMapReduce.URL_NORMALIZING, normalize);
     conf.setBoolean(IndexerMapReduce.INDEXER_BINARY_AS_BASE64, base64);
-    conf.setBoolean(IndexerMapReduce.INDEXER_NO_COMMIT, noCommit);
 
     if (params != null) {
       conf.set(IndexerMapReduce.INDEXER_PARAMS, params);
@@ -318,13 +319,13 @@ public class IndexingJob extends NutchTool implements Tool {
       Object segmentsFromArg = args.get(Nutch.ARG_SEGMENTS);
       ArrayList<String> segmentList = new ArrayList<String>();
       if(segmentsFromArg instanceof ArrayList) {
-    	segmentList = (ArrayList<String>)segmentsFromArg; }
+    	  segmentList = (ArrayList<String>)segmentsFromArg; }
       else if(segmentsFromArg instanceof Path){
         segmentList.add(segmentsFromArg.toString());
       }
 
       for(String segment: segmentList) {
-    	segments.add(new Path(segment));
+    	  segments.add(new Path(segment));
       }
     }
 

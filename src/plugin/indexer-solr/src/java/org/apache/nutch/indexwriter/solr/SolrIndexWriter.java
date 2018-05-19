@@ -19,6 +19,7 @@ package org.apache.nutch.indexwriter.solr;
 import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexWriter;
+import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.IndexerMapReduce;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
@@ -49,7 +51,6 @@ public class SolrIndexWriter implements IndexWriter {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private List<SolrClient> solrClients;
-  private SolrMappingReader solrMapping;
   private ModifiableSolrParams params;
 
   private Configuration config;
@@ -68,73 +69,77 @@ public class SolrIndexWriter implements IndexWriter {
   private boolean delete = false;
 
   @Override
-  public void open(JobConf job, String name) throws IOException {
+  public void open(Configuration conf, String name) throws IOException {
     //Implementation not required
   }
 
-    /**
-     * Initializes the internal variables from a given index writer configuration.
-     *
-     * @param parameters Params from the index writer configuration.
-     * @throws IOException Some exception thrown by writer.
-     */
-    @Override
-    public void open(IndexWriterParams parameters) throws IOException {
-        String type = parameters.get("type", "http");
+  /**
+   * Initializes the internal variables from a given index writer configuration.
+   *
+   * @param parameters Params from the index writer configuration.
+   * @throws IOException Some exception thrown by writer.
+   */
+  @Override
+  public void open(IndexWriterParams parameters) throws IOException {
+    String type = parameters.get("type", "http");
 
-        String[] urls = parameters.getStrings("url");
+    String[] urls = parameters.getStrings("url");
 
-        if (urls == null) {
-            String message = "Missing SOLR URL.\n" + describe();
-            LOG.error(message);
-            throw new RuntimeException(message);
-        }
-
-        this.solrClients = new ArrayList<>();
-
-        switch (type) {
-            case "http":
-                for (String url : urls) {
-                    solrClients.add(SolrUtils.getHttpSolrClient(url));
-                }
-                break;
-            case "cloud":
-                for (String url : urls) {
-                    CloudSolrClient sc = SolrUtils.getCloudSolrClient(url);
-                    sc.setDefaultCollection(parameters.get(SolrConstants.COLLECTION));
-                    solrClients.add(sc);
-                }
-                break;
-            case "concurrent":
-                // TODO: 1/08/17 Implement this
-                throw new UnsupportedOperationException("The type \"concurrent\" is not yet supported.");
-            case "lb":
-                // TODO: 1/08/17 Implement this
-                throw new UnsupportedOperationException("The type \"lb\" is not yet supported.");
-            default:
-                throw new IllegalArgumentException("The type \"" + type + "\" is not supported.");
-        }
-
-        init(parameters);
+    if (urls == null) {
+      String message = "Missing SOLR URL.\n" + describe();
+      LOG.error(message);
+      throw new RuntimeException(message);
     }
 
-    private void init(IndexWriterParams properties) {
-        batchSize = Integer.parseInt(properties.getOrDefault(SolrConstants.COMMIT_SIZE, "1000"));
-        delete = config.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
-        // parse optional params
-        params = new ModifiableSolrParams();
-        String paramString = config.get(IndexerMapReduce.INDEXER_PARAMS);
-        if (paramString != null) {
-            String[] values = paramString.split("&");
-            for (String v : values) {
-                String[] kv = v.split("=");
-                if (kv.length < 2) {
-                    continue;
-                }
-                params.add(kv[0], kv[1]);
-            }
-        }
+    this.solrClients = new ArrayList<>();
+
+    switch (type) {
+    case "http":
+      for (String url : urls) {
+        solrClients.add(SolrUtils.getHttpSolrClient(url));
+      }
+      break;
+    case "cloud":
+      for (String url : urls) {
+        CloudSolrClient sc = SolrUtils.getCloudSolrClient(url);
+        sc.setDefaultCollection(parameters.get(SolrConstants.COLLECTION));
+        solrClients.add(sc);
+      }
+      break;
+    case "concurrent":
+      // TODO: 1/08/17 Implement this
+      throw new UnsupportedOperationException(
+          "The type \"concurrent\" is not yet supported.");
+    case "lb":
+      // TODO: 1/08/17 Implement this
+      throw new UnsupportedOperationException(
+          "The type \"lb\" is not yet supported.");
+    default:
+      throw new IllegalArgumentException(
+          "The type \"" + type + "\" is not supported.");
     }
+
+    init(parameters);
+  }
+
+  private void init(IndexWriterParams properties) {
+    batchSize = Integer
+        .parseInt(properties.getOrDefault(SolrConstants.COMMIT_SIZE, "1000"));
+    delete = config.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
+    // parse optional params
+    params = new ModifiableSolrParams();
+    String paramString = config.get(IndexerMapReduce.INDEXER_PARAMS);
+    if (paramString != null) {
+      String[] values = paramString.split("&");
+      for (String v : values) {
+        String[] kv = v.split("=");
+        if (kv.length < 2) {
+          continue;
+        }
+        params.add(kv[0], kv[1]);
+      }
+    }
+  }
 
   public void delete(String key) throws IOException {
     try {
@@ -143,7 +148,8 @@ public class SolrIndexWriter implements IndexWriter {
       LOG.error("Error decoding: " + key);
       throw new IOException("UnsupportedEncodingException for " + key);
     } catch (IllegalArgumentException e) {
-      LOG.warn("Could not decode: " + key + ", it probably wasn't encoded in the first place..");
+      LOG.warn("Could not decode: " + key
+          + ", it probably wasn't encoded in the first place..");
     }
 
     // escape solr hash separator
@@ -225,12 +231,13 @@ public class SolrIndexWriter implements IndexWriter {
       LOG.error("Failed to commit solr connection: " + e.getMessage()); // FIXME
     }
   }
-    
+
   public void push() throws IOException {
     if (inputDocs.size() > 0) {
       try {
-        LOG.info("Indexing " + Integer.toString(inputDocs.size())
-            + "/" + Integer.toString(totalAdds) + " documents");
+        LOG.info(
+            "Indexing " + Integer.toString(inputDocs.size()) + "/" + Integer
+                .toString(totalAdds) + " documents");
         LOG.info("Deleting " + Integer.toString(numDeletes) + " documents");
         numDeletes = 0;
         UpdateRequest req = new UpdateRequest();
@@ -248,8 +255,9 @@ public class SolrIndexWriter implements IndexWriter {
 
     if (deleteIds.size() > 0) {
       try {
-        LOG.info("SolrIndexer: deleting " + Integer.toString(deleteIds.size()) 
-            + "/" + Integer.toString(totalDeletes) + " documents");
+        LOG.info(
+            "SolrIndexer: deleting " + Integer.toString(deleteIds.size()) + "/"
+                + Integer.toString(totalDeletes) + " documents");
         for (SolrClient solrClient : solrClients) {
           solrClient.deleteById(deleteIds);
         }
@@ -285,18 +293,18 @@ public class SolrIndexWriter implements IndexWriter {
   @Override
   public String describe() {
     StringBuffer sb = new StringBuffer("SOLRIndexWriter\n");
-    sb.append("\t").append(SolrConstants.SERVER_TYPE)
-            .append(" : Type of the server. Can be: \"cloud\", \"concurrent\", \"http\" or \"lb\"\n");
+    sb.append("\t").append(SolrConstants.SERVER_TYPE).append(
+        " : Type of the server. Can be: \"cloud\", \"concurrent\", \"http\" or \"lb\"\n");
     sb.append("\t").append(SolrConstants.SERVER_URL)
-            .append(" : URL of the SOLR instance or URL of the Zookeeper quorum\n");
+        .append(" : URL of the SOLR instance or URL of the Zookeeper quorum\n");
     sb.append("\t").append(SolrConstants.COMMIT_SIZE)
-            .append(" : buffer size when sending to SOLR (default 1000)\n");
+        .append(" : buffer size when sending to SOLR (default 1000)\n");
     sb.append("\t").append(SolrConstants.USE_AUTH)
-            .append(" : use authentication (default false)\n");
+        .append(" : use authentication (default false)\n");
     sb.append("\t").append(SolrConstants.USERNAME)
-            .append(" : username for authentication\n");
+        .append(" : username for authentication\n");
     sb.append("\t").append(SolrConstants.PASSWORD)
-            .append(" : password for authentication\n");
+        .append(" : password for authentication\n");
     return sb.toString();
   }
 }

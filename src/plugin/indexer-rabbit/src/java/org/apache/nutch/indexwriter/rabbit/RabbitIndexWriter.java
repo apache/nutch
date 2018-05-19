@@ -31,7 +31,9 @@ import org.apache.nutch.indexer.NutchField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 public class RabbitIndexWriter implements IndexWriter {
@@ -51,7 +53,8 @@ public class RabbitIndexWriter implements IndexWriter {
 
   private int commitSize;
 
-    public static final Logger LOG = LoggerFactory.getLogger(RabbitIndexWriter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration config;
 
@@ -75,53 +78,56 @@ public class RabbitIndexWriter implements IndexWriter {
     //Implementation not required
   }
 
-    /**
-     * Initializes the internal variables from a given index writer configuration.
-     *
-     * @param parameters Params from the index writer configuration.
-     * @throws IOException Some exception thrown by writer.
-     */
-    @Override
-    public void open(IndexWriterParams parameters) throws IOException {
-        serverHost = parameters.get(RabbitMQConstants.SERVER_HOST, "localhost");
-        serverPort = parameters.getInt(RabbitMQConstants.SERVER_PORT, 5672);
-        serverVirtualHost = parameters.get(RabbitMQConstants.SERVER_VIRTUAL_HOST, null);
+  /**
+   * Initializes the internal variables from a given index writer configuration.
+   *
+   * @param parameters Params from the index writer configuration.
+   * @throws IOException Some exception thrown by writer.
+   */
+  @Override
+  public void open(IndexWriterParams parameters) throws IOException {
+    serverHost = parameters.get(RabbitMQConstants.SERVER_HOST, "localhost");
+    serverPort = parameters.getInt(RabbitMQConstants.SERVER_PORT, 5672);
+    serverVirtualHost = parameters
+        .get(RabbitMQConstants.SERVER_VIRTUAL_HOST, null);
 
-        serverUsername = parameters.get(RabbitMQConstants.SERVER_USERNAME, "admin");
-        serverPassword = parameters.get(RabbitMQConstants.SERVER_PASSWORD, "admin");
+    serverUsername = parameters.get(RabbitMQConstants.SERVER_USERNAME, "admin");
+    serverPassword = parameters.get(RabbitMQConstants.SERVER_PASSWORD, "admin");
 
-        exchangeServer = parameters.get(RabbitMQConstants.EXCHANGE_SERVER, "nutch.exchange");
-        exchangeType = parameters.get(RabbitMQConstants.EXCHANGE_TYPE, "direct");
+    exchangeServer = parameters
+        .get(RabbitMQConstants.EXCHANGE_SERVER, "nutch.exchange");
+    exchangeType = parameters.get(RabbitMQConstants.EXCHANGE_TYPE, "direct");
 
-        queueName = parameters.get(RabbitMQConstants.QUEUE_NAME, "nutch.queue");
-        queueDurable = parameters.getBoolean(RabbitMQConstants.QUEUE_DURABLE, true);
-        queueRoutingKey = parameters.get(RabbitMQConstants.QUEUE_ROUTING_KEY, "nutch.key");
+    queueName = parameters.get(RabbitMQConstants.QUEUE_NAME, "nutch.queue");
+    queueDurable = parameters.getBoolean(RabbitMQConstants.QUEUE_DURABLE, true);
+    queueRoutingKey = parameters
+        .get(RabbitMQConstants.QUEUE_ROUTING_KEY, "nutch.key");
 
-        commitSize = parameters.getInt(RabbitMQConstants.COMMIT_SIZE, 250);
+    commitSize = parameters.getInt(RabbitMQConstants.COMMIT_SIZE, 250);
 
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(serverHost);
-        factory.setPort(serverPort);
+    ConnectionFactory factory = new ConnectionFactory();
+    factory.setHost(serverHost);
+    factory.setPort(serverPort);
 
-        if (serverVirtualHost != null) {
-            factory.setVirtualHost(serverVirtualHost);
-        }
-
-        factory.setUsername(serverUsername);
-        factory.setPassword(serverPassword);
-
-        try {
-            connection = factory.newConnection(UUID.randomUUID().toString());
-            channel = connection.createChannel();
-
-            channel.exchangeDeclare(exchangeServer, exchangeType, true);
-            channel.queueDeclare(queueName, queueDurable, false, false, null);
-            channel.queueBind(queueName, exchangeServer, queueRoutingKey);
-
-        } catch (TimeoutException | IOException ex) {
-            throw makeIOException(ex);
-        }
+    if(serverVirtualHost != null) {
+      factory.setVirtualHost(serverVirtualHost);
     }
+
+    factory.setUsername(serverUsername);
+    factory.setPassword(serverPassword);
+
+    try {
+      connection = factory.newConnection(UUID.randomUUID().toString());
+      channel = connection.createChannel();
+
+      channel.exchangeDeclare(exchangeServer, exchangeType, true);
+      channel.queueDeclare(queueName, queueDurable, false, false, null);
+      channel.queueBind(queueName, exchangeServer, queueRoutingKey);
+
+    } catch (TimeoutException | IOException ex) {
+      throw makeIOException(ex);
+    }
+  }
 
   @Override
   public void update(NutchDocument doc) throws IOException {
@@ -129,9 +135,7 @@ public class RabbitIndexWriter implements IndexWriter {
 
     for (final Map.Entry<String, NutchField> e : doc) {
       RabbitDocument.RabbitDocumentField field = new RabbitDocument.RabbitDocumentField(
-              e.getKey(),
-              e.getValue().getWeight(),
-              e.getValue().getValues());
+          e.getKey(), e.getValue().getWeight(), e.getValue().getValues());
       rabbitDocument.addField(field);
     }
     rabbitDocument.setDocumentBoost(doc.getWeight());
@@ -144,8 +148,9 @@ public class RabbitIndexWriter implements IndexWriter {
 
   @Override
   public void commit() throws IOException {
-    if (!rabbitMessage.isEmpty()) {
-      channel.basicPublish(exchangeServer, queueRoutingKey, null, rabbitMessage.getBytes());
+    if(!rabbitMessage.isEmpty()) {
+      channel.basicPublish(exchangeServer, queueRoutingKey, null,
+          rabbitMessage.getBytes());
     }
     rabbitMessage.clear();
   }
@@ -156,9 +161,7 @@ public class RabbitIndexWriter implements IndexWriter {
 
     for (final Map.Entry<String, NutchField> e : doc) {
       RabbitDocument.RabbitDocumentField field = new RabbitDocument.RabbitDocumentField(
-              e.getKey(),
-              e.getValue().getWeight(),
-              e.getValue().getValues());
+          e.getKey(), e.getValue().getWeight(), e.getValue().getValues());
       rabbitDocument.addField(field);
     }
     rabbitDocument.setDocumentBoost(doc.getWeight());
@@ -200,12 +203,18 @@ public class RabbitIndexWriter implements IndexWriter {
 
   public String describe() {
     StringBuilder sb = new StringBuilder("RabbitIndexWriter\n");
-    sb.append("\t").append(RabbitMQConstants.SERVER_HOST).append(" : Host of RabbitMQ server\n");
-    sb.append("\t").append(RabbitMQConstants.SERVER_PORT).append(" : Port of RabbitMQ server\n");
-    sb.append("\t").append(RabbitMQConstants.SERVER_VIRTUAL_HOST).append(" : Virtualhost name\n");
-    sb.append("\t").append(RabbitMQConstants.SERVER_USERNAME).append(" : Username for authentication\n");
-    sb.append("\t").append(RabbitMQConstants.SERVER_PASSWORD).append(" : Password for authentication\n");
-    sb.append("\t").append(RabbitMQConstants.COMMIT_SIZE).append(" : Buffer size when sending to RabbitMQ (default 250)\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_HOST)
+        .append(" : Host of RabbitMQ server\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_PORT)
+        .append(" : Port of RabbitMQ server\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_VIRTUAL_HOST)
+        .append(" : Virtualhost name\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_USERNAME)
+        .append(" : Username for authentication\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_PASSWORD)
+        .append(" : Password for authentication\n");
+    sb.append("\t").append(RabbitMQConstants.COMMIT_SIZE)
+        .append(" : Buffer size when sending to RabbitMQ (default 250)\n");
     return sb.toString();
   }
 }

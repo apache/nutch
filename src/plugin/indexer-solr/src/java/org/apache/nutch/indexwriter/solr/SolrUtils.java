@@ -34,12 +34,11 @@ public class SolrUtils {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
-   *
-   *
-   * @param job
+   * @param conf
    * @return SolrClient
    */
-  public static ArrayList<SolrClient> getSolrClients(Configuration conf) throws MalformedURLException {
+  public static ArrayList<SolrClient> getSolrClients(Configuration conf)
+      throws MalformedURLException {
     String[] urls = conf.getStrings(SolrConstants.SERVER_URL);
     String[] zkHostString = conf.getStrings(SolrConstants.ZOOKEEPER_HOSTS);
     ArrayList<SolrClient> solrClients = new ArrayList<SolrClient>();
@@ -60,18 +59,20 @@ public class SolrUtils {
     return solrClients;
   }
 
-  public static CloudSolrClient getCloudSolrClient(String url) throws MalformedURLException {
+  public static CloudSolrClient getCloudSolrClient(String url)
+      throws MalformedURLException {
     CloudSolrClient sc = new CloudSolrClient(url.replace('|', ','));
     sc.setParallelUpdates(true);
     sc.connect();
     return sc;
   }
 
-  public static SolrClient getHttpSolrClient(String url) throws MalformedURLException {
-    SolrClient sc =new HttpSolrClient(url);
+  public static SolrClient getHttpSolrClient(String url)
+      throws MalformedURLException {
+    SolrClient sc = new HttpSolrClient(url);
     return sc;
   }
-  
+
   public static String stripNonCharCodepoints(String input) {
     StringBuilder retval = new StringBuilder();
     char ch;

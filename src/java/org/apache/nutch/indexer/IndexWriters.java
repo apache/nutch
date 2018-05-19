@@ -57,13 +57,13 @@ public class IndexWriters {
 
     synchronized (objectCache) {
       this.indexWriters = (HashMap<String, IndexWriterWrapper>) objectCache
-              .getObject(IndexWriterWrapper.class.getName());
+          .getObject(IndexWriterWrapper.class.getName());
 
       //It's not cached yet
       if (this.indexWriters == null) {
         try {
-          ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(
-                  IndexWriter.X_POINT_ID);
+          ExtensionPoint point = PluginRepository.get(conf)
+              .getExtensionPoint(IndexWriter.X_POINT_ID);
 
           if (point == null) {
             throw new RuntimeException(IndexWriter.X_POINT_ID + " not found.");
@@ -77,7 +77,8 @@ public class IndexWriters {
             extensionMap.putIfAbsent(extension.getClazz(), extension);
           }
 
-          IndexWriterConfig[] indexWriterConfigs = loadWritersConfiguration(conf);
+          IndexWriterConfig[] indexWriterConfigs = loadWritersConfiguration(
+              conf);
           HashMap<String, IndexWriterWrapper> indexWriters = new HashMap<>();
 
           for (IndexWriterConfig indexWriterConfig : indexWriterConfigs) {
@@ -87,136 +88,153 @@ public class IndexWriters {
             if (extensionMap.containsKey(clazz)) {
               IndexWriterWrapper writerWrapper = new IndexWriterWrapper();
               writerWrapper.setIndexWriterConfig(indexWriterConfig);
-              writerWrapper.setIndexWriter((IndexWriter) extensionMap.get(clazz).getExtensionInstance());
+              writerWrapper.setIndexWriter(
+                  (IndexWriter) extensionMap.get(clazz).getExtensionInstance());
 
               indexWriters.put(indexWriterConfig.getId(), writerWrapper);
             }
           }
 
-          objectCache.setObject(IndexWriterWrapper.class.getName(), indexWriters);
+          objectCache
+              .setObject(IndexWriterWrapper.class.getName(), indexWriters);
         } catch (PluginRuntimeException e) {
           throw new RuntimeException(e);
         }
 
         this.indexWriters = (HashMap<String, IndexWriterWrapper>) objectCache
-                .getObject(IndexWriterWrapper.class.getName());
+            .getObject(IndexWriterWrapper.class.getName());
       }
     }
   }
 
-    /**
-     * Loads the configuration of index writers.
-     *
-     * @param conf Nutch configuration instance.
-     */
-    private IndexWriterConfig[] loadWritersConfiguration(Configuration conf) {
-        InputStream ssInputStream = conf.getConfResourceAsInputStream("index-writers.xml");
-        InputSource inputSource = new InputSource(ssInputStream);
+  /**
+   * Loads the configuration of index writers.
+   *
+   * @param conf Nutch configuration instance.
+   */
+  private IndexWriterConfig[] loadWritersConfiguration(Configuration conf) {
+    InputStream ssInputStream = conf
+        .getConfResourceAsInputStream("index-writers.xml");
+    InputSource inputSource = new InputSource(ssInputStream);
 
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(inputSource);
-            Element rootElement = document.getDocumentElement();
-            NodeList writerList = rootElement.getElementsByTagName("writer");
+    try {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document document = builder.parse(inputSource);
+      Element rootElement = document.getDocumentElement();
+      NodeList writerList = rootElement.getElementsByTagName("writer");
 
-            IndexWriterConfig[] indexWriterConfigs = new IndexWriterConfig[writerList.getLength()];
+      IndexWriterConfig[] indexWriterConfigs = new IndexWriterConfig[writerList
+          .getLength()];
 
-            for (int i = 0; i < writerList.getLength(); i++) {
-                indexWriterConfigs[i] = IndexWriterConfig.getInstanceFromElement((Element) writerList.item(i));
+      for (int i = 0; i < writerList.getLength(); i++) {
+        indexWriterConfigs[i] = IndexWriterConfig
+            .getInstanceFromElement((Element) writerList.item(i));
+      }
+
+      return indexWriterConfigs;
+    } catch (SAXException | IOException | ParserConfigurationException e) {
+      LOG.warn(e.toString());
+      return new IndexWriterConfig[0];
+    }
+  }
+
+  /**
+   * Maps the fields of a given document.
+   *
+   * @param document The document to map.
+   * @param mapping  The mapping to apply.
+   * @return The mapped document.
+   */
+  private NutchDocument mapDocument(final NutchDocument document,
+      final Map<MappingReader.Actions, Map<String, List<String>>> mapping) {
+    try {
+      NutchDocument mappedDocument = document.clone();
+
+      mapping.get(MappingReader.Actions.COPY).forEach((key, value) -> {
+        //Checking whether the field to copy exists or not
+        if (mappedDocument.getField(key) != null) {
+          for (String field : value) {
+            //To avoid duplicate the values
+            if (!key.equals(field)) {
+              for (Object val : mappedDocument.getField(key).getValues()) {
+                mappedDocument.add(field, val);
+              }
             }
-
-            return indexWriterConfigs;
-        } catch (SAXException | IOException | ParserConfigurationException e) {
-            LOG.warn(e.toString());
-            return new IndexWriterConfig[0];
+          }
         }
-    }
+      });
 
-    /**
-     * Maps the fields of a given document.
-     *
-     * @param document The document to map.
-     * @param mapping The mapping to apply.
-     * @return The mapped document.
-     */
-    private NutchDocument mapDocument(final NutchDocument document, final Map<MappingReader.Actions, Map<String, List<String>>> mapping) {
-        try {
-            NutchDocument mappedDocument = document.clone();
-
-            mapping.get(MappingReader.Actions.COPY).forEach((key, value) -> {
-                //Checking whether the field to copy exists or not
-                if (mappedDocument.getField(key) != null) {
-                    for (String field : value) {
-                        //To avoid duplicate the values
-                        if (!key.equals(field)) {
-                            for (Object val : mappedDocument.getField(key).getValues()) {
-                                mappedDocument.add(field, val);
-                            }
-                        }
-                    }
-                }
-            });
-
-            mapping.get(MappingReader.Actions.RENAME).forEach((key, value) -> {
-                //Checking whether the field to rename exists or not
-                if (mappedDocument.getField(key) != null) {
-                    NutchField field = mappedDocument.removeField(key);
-                    mappedDocument.add(value.get(0), field.getValues());
-                    mappedDocument.getField(value.get(0)).setWeight(field.getWeight());
-                }
-            });
-
-            mapping.get(MappingReader.Actions.REMOVE).forEach((key, value) -> mappedDocument.removeField(key));
-
-            return mappedDocument;
-        } catch (CloneNotSupportedException e) {
-            LOG.warn("An instance of class {} can't be cloned.", document.getClass().getName());
-            return document;
+      mapping.get(MappingReader.Actions.RENAME).forEach((key, value) -> {
+        //Checking whether the field to rename exists or not
+        if (mappedDocument.getField(key) != null) {
+          NutchField field = mappedDocument.removeField(key);
+          mappedDocument.add(value.get(0), field.getValues());
+          mappedDocument.getField(value.get(0)).setWeight(field.getWeight());
         }
-    }
+      });
 
-    /**
-     * Initializes the internal variables of index writers.
-     *
-     * @param job  Nutch configuration.
-     * @param name
-     * @throws IOException Some exception thrown by some writer.
-     */
-    public void open(Configuration conf, String name) throws IOException {
-        for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {
-            entry.getValue().getIndexWriter().open(conf, name);
-            entry.getValue().getIndexWriter().open(entry.getValue().getIndexWriterConfig().getParams());
-        }
-    }
+      mapping.get(MappingReader.Actions.REMOVE)
+          .forEach((key, value) -> mappedDocument.removeField(key));
 
-    public void write(NutchDocument doc) throws IOException {
-        for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {
-            NutchDocument mappedDocument = mapDocument(doc, entry.getValue().getIndexWriterConfig().getMapping());
-            entry.getValue().getIndexWriter().write(mappedDocument);
-        }
+      return mappedDocument;
+    } catch (CloneNotSupportedException e) {
+      LOG.warn("An instance of class {} can't be cloned.",
+          document.getClass().getName());
+      return document;
     }
+  }
+
+  /**
+   * Initializes the internal variables of index writers.
+   *
+   * @param conf Nutch configuration.
+   * @param name
+   * @throws IOException Some exception thrown by some writer.
+   */
+  public void open(Configuration conf, String name) throws IOException {
+    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
+        .entrySet()) {
+      entry.getValue().getIndexWriter().open(conf, name);
+      entry.getValue().getIndexWriter()
+          .open(entry.getValue().getIndexWriterConfig().getParams());
+    }
+  }
+
+  public void write(NutchDocument doc) throws IOException {
+    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
+        .entrySet()) {
+      NutchDocument mappedDocument = mapDocument(doc,
+          entry.getValue().getIndexWriterConfig().getMapping());
+      entry.getValue().getIndexWriter().write(mappedDocument);
+    }
+  }
 
   public void update(NutchDocument doc) throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {
-      entry.getValue().getIndexWriter().update(mapDocument(doc, entry.getValue().getIndexWriterConfig().getMapping()));
+    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
+        .entrySet()) {
+      entry.getValue().getIndexWriter().update(mapDocument(doc,
+          entry.getValue().getIndexWriterConfig().getMapping()));
     }
   }
 
   public void delete(String key) throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {
+    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
+        .entrySet()) {
       entry.getValue().getIndexWriter().delete(key);
     }
   }
 
   public void close() throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {
+    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
+        .entrySet()) {
       entry.getValue().getIndexWriter().close();
     }
   }
 
   public void commit() throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters.entrySet()) {
+    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
+        .entrySet()) {
       entry.getValue().getIndexWriter().commit();
     }
   }
@@ -234,7 +252,8 @@ public class IndexWriters {
       builder.append("Active IndexWriters :\n");
 
     for (IndexWriterWrapper indexWriterWrapper : this.indexWriters.values()) {
-      builder.append(indexWriterWrapper.getIndexWriter().describe()).append("\n");
+      builder.append(indexWriterWrapper.getIndexWriter().describe())
+          .append("\n");
     }
 
     return builder.toString();

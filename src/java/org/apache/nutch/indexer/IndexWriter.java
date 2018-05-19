@@ -18,14 +18,14 @@ package org.apache.nutch.indexer;
 
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.plugin.Pluggable;
 
 import java.io.IOException;
-import java.util.Map;
 
 public interface IndexWriter extends Pluggable, Configurable {
-  /** The name of the extension point. */
+  /**
+   * The name of the extension point.
+   */
   final static String X_POINT_ID = IndexWriter.class.getName();
 
   @Deprecated

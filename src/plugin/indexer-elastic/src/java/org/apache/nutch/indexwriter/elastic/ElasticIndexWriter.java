@@ -74,50 +74,59 @@ public class ElasticIndexWriter implements IndexWriter {
 
   private Configuration config;
 
-    @Override
-    public void open(Configuration conf, String name) throws IOException {
-        //Implementation not required
-    }
-
-    /**
-     * Initializes the internal variables from a given index writer configuration.
-     *
-     * @param parameters Params from the index writer configuration.
-     * @throws IOException Some exception thrown by writer.
-     */
-    @Override
-    public void open(IndexWriterParams parameters) throws IOException {
-        String cluster = parameters.get(ElasticConstants.CLUSTER);
-        String hosts = parameters.get(ElasticConstants.HOSTS);
-
-        if (StringUtils.isBlank(cluster) && StringUtils.isBlank(hosts)) {
-            String message = "Missing elastic.cluster and elastic.host. At least one of them should be set in index-writers.xml ";
-            message += "\n" + describe();
-            LOG.error(message);
-            throw new RuntimeException(message);
-        }
-
-        bulkCloseTimeout = parameters.getLong(ElasticConstants.BULK_CLOSE_TIMEOUT, DEFAULT_BULK_CLOSE_TIMEOUT);
-        defaultIndex = parameters.get(ElasticConstants.INDEX, DEFAULT_INDEX);
-
-        int maxBulkDocs = parameters.getInt(ElasticConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
-        int maxBulkLength = parameters.getInt(ElasticConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
-        int expBackoffMillis = parameters.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS, DEFAULT_EXP_BACKOFF_MILLIS);
-        int expBackoffRetries = parameters.getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES, DEFAULT_EXP_BACKOFF_RETRIES);
-
-        makeClient(parameters);
-
-    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}", maxBulkDocs, maxBulkLength);
-    bulkProcessor = BulkProcessor.builder(client, bulkProcessorListener())
-      .setBulkActions(maxBulkDocs)
-      .setBulkSize(new ByteSizeValue(maxBulkLength, ByteSizeUnit.BYTES))
-      .setConcurrentRequests(1)
-      .setBackoffPolicy(BackoffPolicy.exponentialBackoff(
-          TimeValue.timeValueMillis(expBackoffMillis), expBackoffRetries))
-      .build();
+  @Override
+  public void open(Configuration conf, String name) throws IOException {
+    //Implementation not required
   }
 
-  /** Generates a TransportClient or NodeClient */
+  /**
+   * Initializes the internal variables from a given index writer configuration.
+   *
+   * @param parameters Params from the index writer configuration.
+   * @throws IOException Some exception thrown by writer.
+   */
+  @Override
+  public void open(IndexWriterParams parameters) throws IOException {
+    String cluster = parameters.get(ElasticConstants.CLUSTER);
+    String hosts = parameters.get(ElasticConstants.HOSTS);
+
+    if (StringUtils.isBlank(cluster) && StringUtils.isBlank(hosts)) {
+      String message = "Missing elastic.cluster and elastic.host. At least one of them should be set in index-writers.xml ";
+      message += "\n" + describe();
+      LOG.error(message);
+      throw new RuntimeException(message);
+    }
+
+    bulkCloseTimeout = parameters.getLong(ElasticConstants.BULK_CLOSE_TIMEOUT,
+        DEFAULT_BULK_CLOSE_TIMEOUT);
+    defaultIndex = parameters.get(ElasticConstants.INDEX, DEFAULT_INDEX);
+
+    int maxBulkDocs = parameters
+        .getInt(ElasticConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
+    int maxBulkLength = parameters
+        .getInt(ElasticConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
+    int expBackoffMillis = parameters
+        .getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
+            DEFAULT_EXP_BACKOFF_MILLIS);
+    int expBackoffRetries = parameters
+        .getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
+            DEFAULT_EXP_BACKOFF_RETRIES);
+
+    makeClient(parameters);
+
+    LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}",
+        maxBulkDocs, maxBulkLength);
+    bulkProcessor = BulkProcessor.builder(client, bulkProcessorListener())
+        .setBulkActions(maxBulkDocs)
+        .setBulkSize(new ByteSizeValue(maxBulkLength, ByteSizeUnit.BYTES))
+        .setConcurrentRequests(1).setBackoffPolicy(BackoffPolicy
+            .exponentialBackoff(TimeValue.timeValueMillis(expBackoffMillis),
+                expBackoffRetries)).build();
+  }
+
+  /**
+   * Generates a TransportClient or NodeClient
+   */
   protected void makeClient(IndexWriterParams parameters) throws IOException {
     String clusterName = parameters.get(ElasticConstants.CLUSTER);
     String[] hosts = parameters.getStrings(ElasticConstants.HOSTS);
@@ -126,7 +135,7 @@ public class ElasticIndexWriter implements IndexWriter {
     Settings.Builder settingsBuilder = Settings.builder();
 
     BufferedReader reader = new BufferedReader(
-            config.getConfResourceAsReader("elasticsearch.conf"));
+        config.getConfResourceAsReader("elasticsearch.conf"));
     String line;
     String[] parts;
     while ((line = reader.readLine()) != null) {
@@ -150,8 +159,9 @@ public class ElasticIndexWriter implements IndexWriter {
     if (hosts != null && port > 1) {
       TransportClient transportClient = new PreBuiltTransportClient(settings);
 
-      for (String host: hosts)
-        transportClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
+      for (String host : hosts)
+        transportClient.addTransportAddress(
+            new InetSocketTransportAddress(InetAddress.getByName(host), port));
       client = transportClient;
     } else if (clusterName != null) {
       node = new Node(settings);
@@ -159,19 +169,24 @@ public class ElasticIndexWriter implements IndexWriter {
     }
   }
 
-  /** Generates a default BulkProcessor.Listener */
+  /**
+   * Generates a default BulkProcessor.Listener
+   */
   protected BulkProcessor.Listener bulkProcessorListener() {
     return new BulkProcessor.Listener() {
       @Override
-      public void beforeBulk(long executionId, BulkRequest request) { }
+      public void beforeBulk(long executionId, BulkRequest request) {
+      }
 
       @Override
-      public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+      public void afterBulk(long executionId, BulkRequest request,
+          Throwable failure) {
         throw new RuntimeException(failure);
       }
 
       @Override
-      public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+      public void afterBulk(long executionId, BulkRequest request,
+          BulkResponse response) {
         if (response.hasFailures()) {
           LOG.warn("Failures occurred during bulk request");
         }
@@ -198,7 +213,8 @@ public class ElasticIndexWriter implements IndexWriter {
       }
     }
 
-    IndexRequest request = new IndexRequest(defaultIndex, type, id).source(source);
+    IndexRequest request = new IndexRequest(defaultIndex, type, id)
+        .source(source);
     bulkProcessor.add(request);
   }
 
@@ -224,7 +240,8 @@ public class ElasticIndexWriter implements IndexWriter {
     try {
       bulkProcessor.awaitClose(bulkCloseTimeout, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
-      LOG.warn("interrupted while waiting for BulkProcessor to complete ({})", e.getMessage());
+      LOG.warn("interrupted while waiting for BulkProcessor to complete ({})",
+          e.getMessage());
     }
 
     client.close();
@@ -248,8 +265,8 @@ public class ElasticIndexWriter implements IndexWriter {
     sb.append("\t").append(ElasticConstants.MAX_BULK_LENGTH)
         .append(" : elastic bulk index length in bytes. (default ")
         .append(DEFAULT_MAX_BULK_LENGTH).append(")\n");
-    sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS)
-        .append(" : elastic bulk exponential backoff initial delay in milliseconds. (default ")
+    sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS).append(
+        " : elastic bulk exponential backoff initial delay in milliseconds. (default ")
         .append(DEFAULT_EXP_BACKOFF_MILLIS).append(")\n");
     sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES)
         .append(" : elastic bulk exponential backoff max retries. (default ")

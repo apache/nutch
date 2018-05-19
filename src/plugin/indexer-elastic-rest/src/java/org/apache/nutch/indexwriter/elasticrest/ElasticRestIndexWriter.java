@@ -70,7 +70,7 @@ public class ElasticRestIndexWriter implements IndexWriter {
       .getLogger(ElasticRestIndexWriter.class);
 
   private static final int DEFAULT_MAX_BULK_DOCS = 250;
-  private static final int DEFAULT_MAX_BULK_LENGTH = 2500500;  
+  private static final int DEFAULT_MAX_BULK_LENGTH = 2500500;
   private static final String DEFAULT_SEPARATOR = "_";
   private static final String DEFAULT_SINK = "others";
 
@@ -96,7 +96,7 @@ public class ElasticRestIndexWriter implements IndexWriter {
   private boolean createNewBulk = false;
   private long millis;
   private BasicFuture<JestResult> basicFuture = null;
-  
+
   private String[] languages = null;
   private String separator = null;
   private String sink = null;
@@ -106,88 +106,99 @@ public class ElasticRestIndexWriter implements IndexWriter {
     //Implementation not required
   }
 
-    @Override
-    public void open(IndexWriterParams parameters) throws IOException {
-        host = parameters.get(ElasticRestConstants.HOST);
-        if (StringUtils.isBlank(host)) {
-            String message = "Missing host. It should be set in index-writers.xml";
-            message += "\n" + describe();
-            LOG.error(message);
-            throw new RuntimeException(message);
-        }
-
-        port = parameters.getInt(ElasticRestConstants.PORT, 9200);
-        user = parameters.get(ElasticRestConstants.USER);
-        password = parameters.get(ElasticRestConstants.PASSWORD);
-        https = parameters.getBoolean(ElasticRestConstants.HTTPS, false);
-        trustAllHostnames = parameters.getBoolean(ElasticRestConstants.HOSTNAME_TRUST, false);
-
-        languages = parameters.getStrings(ElasticRestConstants.LANGUAGES);
-        separator = parameters.get(ElasticRestConstants.SEPARATOR, DEFAULT_SEPARATOR);
-        sink = parameters.get(ElasticRestConstants.SINK, DEFAULT_SINK);
-
-        // trust ALL certificates
-        SSLContext sslContext = null;
-        try {
-            sslContext = new SSLContextBuilder()
-                    .loadTrustMaterial(new TrustStrategy() {
-                        public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-                            return true;
-                        }
-                    }).build();
-        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
-            LOG.error("Failed to instantiate sslcontext object: \n{}",
-                    ExceptionUtils.getStackTrace(e));
-            throw new SecurityException();
-        }
-
-        // skip hostname checks
-        HostnameVerifier hostnameVerifier = null;
-        if (trustAllHostnames) {
-            hostnameVerifier = NoopHostnameVerifier.INSTANCE;
-        } else {
-            hostnameVerifier = new DefaultHostnameVerifier();
-        }
-
-        SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext);
-        SchemeIOSessionStrategy httpsIOSessionStrategy = new SSLIOSessionStrategy(sslContext, hostnameVerifier);
-
-        JestClientFactory jestClientFactory = new JestClientFactory();
-        URL urlOfElasticsearchNode = new URL(https ? "https" : "http", host, port, "");
-
-        if (host != null && port > 1) {
-            HttpClientConfig.Builder builder = new HttpClientConfig.Builder(
-                    urlOfElasticsearchNode.toString()).multiThreaded(true)
-                    .connTimeout(300000).readTimeout(300000);
-            if (https) {
-                if (user != null && password != null) {
-                    builder.defaultCredentials(user, password);
-                }
-                builder.defaultSchemeForDiscoveredNodes("https")
-                        .sslSocketFactory(sslSocketFactory) // this only affects sync calls
-                        .httpsIOSessionStrategy(httpsIOSessionStrategy); // this only affects async calls
-            }
-            jestClientFactory.setHttpClientConfig(builder.build());
-        } else {
-            throw new IllegalStateException("No host or port specified. Please set the host and port in nutch-site.xml");
-        }
-
-        client = jestClientFactory.getObject();
-
-        defaultIndex = parameters.get(ElasticRestConstants.INDEX, "nutch");
-        defaultType = parameters.get(ElasticRestConstants.TYPE, "doc");
-
-        maxBulkDocs = parameters.getInt(ElasticRestConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
-        maxBulkLength = parameters.getInt(ElasticRestConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
-
-        bulkBuilder = new Bulk.Builder().defaultIndex(defaultIndex).defaultType(defaultType);
+  @Override
+  public void open(IndexWriterParams parameters) throws IOException {
+    host = parameters.get(ElasticRestConstants.HOST);
+    if (StringUtils.isBlank(host)) {
+      String message = "Missing host. It should be set in index-writers.xml";
+      message += "\n" + describe();
+      LOG.error(message);
+      throw new RuntimeException(message);
     }
-  
+
+    port = parameters.getInt(ElasticRestConstants.PORT, 9200);
+    user = parameters.get(ElasticRestConstants.USER);
+    password = parameters.get(ElasticRestConstants.PASSWORD);
+    https = parameters.getBoolean(ElasticRestConstants.HTTPS, false);
+    trustAllHostnames = parameters
+        .getBoolean(ElasticRestConstants.HOSTNAME_TRUST, false);
+
+    languages = parameters.getStrings(ElasticRestConstants.LANGUAGES);
+    separator = parameters
+        .get(ElasticRestConstants.SEPARATOR, DEFAULT_SEPARATOR);
+    sink = parameters.get(ElasticRestConstants.SINK, DEFAULT_SINK);
+
+    // trust ALL certificates
+    SSLContext sslContext = null;
+    try {
+      sslContext = new SSLContextBuilder()
+          .loadTrustMaterial(new TrustStrategy() {
+            public boolean isTrusted(X509Certificate[] arg0, String arg1)
+                throws CertificateException {
+              return true;
+            }
+          }).build();
+    } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+      LOG.error("Failed to instantiate sslcontext object: \n{}",
+          ExceptionUtils.getStackTrace(e));
+      throw new SecurityException();
+    }
+
+    // skip hostname checks
+    HostnameVerifier hostnameVerifier = null;
+    if (trustAllHostnames) {
+      hostnameVerifier = NoopHostnameVerifier.INSTANCE;
+    } else {
+      hostnameVerifier = new DefaultHostnameVerifier();
+    }
+
+    SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(
+        sslContext);
+    SchemeIOSessionStrategy httpsIOSessionStrategy = new SSLIOSessionStrategy(
+        sslContext, hostnameVerifier);
+
+    JestClientFactory jestClientFactory = new JestClientFactory();
+    URL urlOfElasticsearchNode = new URL(https ? "https" : "http", host, port,
+        "");
+
+    if (host != null && port > 1) {
+      HttpClientConfig.Builder builder = new HttpClientConfig.Builder(
+          urlOfElasticsearchNode.toString()).multiThreaded(true)
+          .connTimeout(300000).readTimeout(300000);
+      if (https) {
+        if (user != null && password != null) {
+          builder.defaultCredentials(user, password);
+        }
+        builder.defaultSchemeForDiscoveredNodes("https")
+            .sslSocketFactory(sslSocketFactory) // this only affects sync calls
+            .httpsIOSessionStrategy(
+                httpsIOSessionStrategy); // this only affects async calls
+      }
+      jestClientFactory.setHttpClientConfig(builder.build());
+    } else {
+      throw new IllegalStateException(
+          "No host or port specified. Please set the host and port in nutch-site.xml");
+    }
+
+    client = jestClientFactory.getObject();
+
+    defaultIndex = parameters.get(ElasticRestConstants.INDEX, "nutch");
+    defaultType = parameters.get(ElasticRestConstants.TYPE, "doc");
+
+    maxBulkDocs = parameters
+        .getInt(ElasticRestConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
+    maxBulkLength = parameters
+        .getInt(ElasticRestConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
+
+    bulkBuilder = new Bulk.Builder().defaultIndex(defaultIndex)
+        .defaultType(defaultType);
+  }
+
   private static Object normalizeValue(Object value) {
     if (value == null) {
       return null;
     }
-    
+
     if (value instanceof Map || value instanceof Date) {
       return value;
     }
@@ -207,10 +218,12 @@ public class ElasticRestIndexWriter implements IndexWriter {
 
     // Loop through all fields of this doc
     for (String fieldName : doc.getFieldNames()) {
-      Set<Object> allFieldValues = new LinkedHashSet<>(doc.getField(fieldName).getValues());
-      
+      Set<Object> allFieldValues = new LinkedHashSet<>(
+          doc.getField(fieldName).getValues());
+
       if (allFieldValues.size() > 1) {
-        Object[] normalizedFieldValues = allFieldValues.stream().map(ElasticRestIndexWriter::normalizeValue).toArray();
+        Object[] normalizedFieldValues = allFieldValues.stream()
+            .map(ElasticRestIndexWriter::normalizeValue).toArray();
 
         // Loop through the values to keep track of the size of this document
         for (Object value : normalizedFieldValues) {
@@ -218,13 +231,14 @@ public class ElasticRestIndexWriter implements IndexWriter {
         }
 
         source.put(fieldName, normalizedFieldValues);
-      } else if(allFieldValues.size() == 1) {
-        Object normalizedFieldValue = normalizeValue(allFieldValues.iterator().next());
+      } else if (allFieldValues.size() == 1) {
+        Object normalizedFieldValue = normalizeValue(
+            allFieldValues.iterator().next());
         source.put(fieldName, normalizedFieldValue);
         bulkLength += normalizedFieldValue.toString().length();
       }
     }
-    
+
     String index;
     if (languages != null && languages.length > 0) {
       String language = (String) doc.getFieldValue("lang");
@@ -243,8 +257,8 @@ public class ElasticRestIndexWriter implements IndexWriter {
     } else {
       index = defaultIndex;
     }
-    Index indexRequest = new Index.Builder(source).index(index)
-        .type(type).id(id).build();
+    Index indexRequest = new Index.Builder(source).index(index).type(type)
+        .id(id).build();
 
     // Add this indexing request to a bulk request
     bulkBuilder.addAction(indexRequest);
@@ -267,14 +281,19 @@ public class ElasticRestIndexWriter implements IndexWriter {
     try {
       if (languages != null && languages.length > 0) {
         Bulk.Builder bulkBuilder = new Bulk.Builder().defaultType(defaultType);
-        for (String lang : languages) {          
-          bulkBuilder.addAction(new Delete.Builder(key).index(getLanguageIndexName(lang)).type(defaultType).build());
+        for (String lang : languages) {
+          bulkBuilder.addAction(
+              new Delete.Builder(key).index(getLanguageIndexName(lang))
+                  .type(defaultType).build());
         }
-        bulkBuilder.addAction(new Delete.Builder(key).index(getSinkIndexName()).type(defaultType).build());
+        bulkBuilder.addAction(
+            new Delete.Builder(key).index(getSinkIndexName()).type(defaultType)
+                .build());
         client.execute(bulkBuilder.build());
       } else {
-        client.execute(new Delete.Builder(key).index(defaultIndex)
-          .type(defaultType).build());
+        client.execute(
+            new Delete.Builder(key).index(defaultIndex).type(defaultType)
+                .build());
       }
     } catch (IOException e) {
       LOG.error(ExceptionUtils.getStackTrace(e));
@@ -385,11 +404,11 @@ public class ElasticRestIndexWriter implements IndexWriter {
   private String getLanguageIndexName(String lang) {
     return getComposedIndexName(defaultIndex, lang);
   }
-  
+
   private String getSinkIndexName() {
     return getComposedIndexName(defaultIndex, sink);
   }
-  
+
   private String getComposedIndexName(String prefix, String postfix) {
     return prefix + separator + postfix;
   }
