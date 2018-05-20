@@ -16,7 +16,7 @@ public class IndexWriterParams extends HashMap<String, String> {
      * @param m the map whose mappings are to be placed in this map
      * @throws NullPointerException if the specified map is null
      */
-    IndexWriterParams(Map<? extends String, ? extends String> m) {
+    public IndexWriterParams(Map<? extends String, ? extends String> m) {
         super(m);
     }
 

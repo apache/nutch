@@ -112,7 +112,7 @@ public class ElasticIndexWriter implements IndexWriter {
         .getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
             DEFAULT_EXP_BACKOFF_RETRIES);
 
-    makeClient(parameters);
+    client = makeClient(parameters);
 
     LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}",
         maxBulkDocs, maxBulkLength);
@@ -127,7 +127,7 @@ public class ElasticIndexWriter implements IndexWriter {
   /**
    * Generates a TransportClient or NodeClient
    */
-  protected void makeClient(IndexWriterParams parameters) throws IOException {
+  protected Client makeClient(IndexWriterParams parameters) throws IOException {
     String clusterName = parameters.get(ElasticConstants.CLUSTER);
     String[] hosts = parameters.getStrings(ElasticConstants.HOSTS);
     int port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
@@ -155,6 +155,8 @@ public class ElasticIndexWriter implements IndexWriter {
 
     Settings settings = settingsBuilder.build();
 
+    Client client = null;
+
     // Prefer TransportClient
     if (hosts != null && port > 1) {
       TransportClient transportClient = new PreBuiltTransportClient(settings);
@@ -167,6 +169,8 @@ public class ElasticIndexWriter implements IndexWriter {
       node = new Node(settings);
       client = node.client();
     }
+
+    return client;
   }
 
   /**

@@ -17,13 +17,11 @@
 package org.apache.nutch.indexer;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
-import org.apache.nutch.util.ObjectCache;
+import org.apache.nutch.util.NutchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -41,6 +39,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Creates and caches {@link IndexWriter} implementing plugins.
@@ -50,59 +49,56 @@ public class IndexWriters {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
+  private static final WeakHashMap<String, IndexWriters> CACHE = new WeakHashMap<>();
+
+  public static synchronized IndexWriters get(Configuration conf) {
+    String uuid = NutchConfiguration.getUUID(conf);
+    if (uuid == null) {
+      uuid = "nonNutchConf@" + conf.hashCode(); // fallback
+    }
+    return CACHE.computeIfAbsent(uuid, k -> new IndexWriters(conf));
+  }
+
   private HashMap<String, IndexWriterWrapper> indexWriters;
 
-  public IndexWriters(Configuration conf) {
-    ObjectCache objectCache = ObjectCache.get(conf);
+  private IndexWriters(Configuration conf) {
+    //It's not cached yet
+    if (this.indexWriters == null) {
+      try {
+        ExtensionPoint point = PluginRepository.get(conf)
+            .getExtensionPoint(IndexWriter.X_POINT_ID);
 
-    synchronized (objectCache) {
-      this.indexWriters = (HashMap<String, IndexWriterWrapper>) objectCache
-          .getObject(IndexWriterWrapper.class.getName());
-
-      //It's not cached yet
-      if (this.indexWriters == null) {
-        try {
-          ExtensionPoint point = PluginRepository.get(conf)
-              .getExtensionPoint(IndexWriter.X_POINT_ID);
-
-          if (point == null) {
-            throw new RuntimeException(IndexWriter.X_POINT_ID + " not found.");
-          }
-
-          Extension[] extensions = point.getExtensions();
-
-          HashMap<String, Extension> extensionMap = new HashMap<>();
-          for (Extension extension : extensions) {
-            LOG.info("Index writer {} identified.", extension.getClazz());
-            extensionMap.putIfAbsent(extension.getClazz(), extension);
-          }
-
-          IndexWriterConfig[] indexWriterConfigs = loadWritersConfiguration(
-              conf);
-          HashMap<String, IndexWriterWrapper> indexWriters = new HashMap<>();
-
-          for (IndexWriterConfig indexWriterConfig : indexWriterConfigs) {
-            final String clazz = indexWriterConfig.getClazz();
-
-            //If was enabled in plugin.includes property
-            if (extensionMap.containsKey(clazz)) {
-              IndexWriterWrapper writerWrapper = new IndexWriterWrapper();
-              writerWrapper.setIndexWriterConfig(indexWriterConfig);
-              writerWrapper.setIndexWriter(
-                  (IndexWriter) extensionMap.get(clazz).getExtensionInstance());
-
-              indexWriters.put(indexWriterConfig.getId(), writerWrapper);
-            }
-          }
-
-          objectCache
-              .setObject(IndexWriterWrapper.class.getName(), indexWriters);
-        } catch (PluginRuntimeException e) {
-          throw new RuntimeException(e);
+        if (point == null) {
+          throw new RuntimeException(IndexWriter.X_POINT_ID + " not found.");
         }
 
-        this.indexWriters = (HashMap<String, IndexWriterWrapper>) objectCache
-            .getObject(IndexWriterWrapper.class.getName());
+        Extension[] extensions = point.getExtensions();
+
+        HashMap<String, Extension> extensionMap = new HashMap<>();
+        for (Extension extension : extensions) {
+          LOG.info("Index writer {} identified.", extension.getClazz());
+          extensionMap.putIfAbsent(extension.getClazz(), extension);
+        }
+
+        IndexWriterConfig[] indexWriterConfigs = loadWritersConfiguration(
+            conf);
+        this.indexWriters = new HashMap<>();
+
+        for (IndexWriterConfig indexWriterConfig : indexWriterConfigs) {
+          final String clazz = indexWriterConfig.getClazz();
+
+          //If was enabled in plugin.includes property
+          if (extensionMap.containsKey(clazz)) {
+            IndexWriterWrapper writerWrapper = new IndexWriterWrapper();
+            writerWrapper.setIndexWriterConfig(indexWriterConfig);
+            writerWrapper.setIndexWriter(
+                (IndexWriter) extensionMap.get(clazz).getExtensionInstance());
+
+            indexWriters.put(indexWriterConfig.getId(), writerWrapper);
+          }
+        }
+      } catch (PluginRuntimeException e) {
+        throw new RuntimeException(e);
       }
     }
   }

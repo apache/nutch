@@ -93,7 +93,7 @@ public class CleaningJob implements Tool {
 
     public void setup(Reducer<ByteWritable, Text, Text, ByteWritable>.Context context) {
       Configuration conf = context.getConfiguration();
-      writers = new IndexWriters(conf);
+      writers = IndexWriters.get(conf);
       try {
         writers.open(conf, "Deletion");
       } catch (IOException e) {
@@ -186,7 +186,7 @@ public class CleaningJob implements Tool {
       String usage = "Usage: CleaningJob <crawldb> [-noCommit]";
       LOG.error("Missing crawldb. " + usage);
       System.err.println(usage);
-      IndexWriters writers = new IndexWriters(getConf());
+      IndexWriters writers = IndexWriters.get(getConf());
       System.err.println(writers.describe());
       return 1;
     }

@@ -120,7 +120,7 @@ public class IndexingJob extends NutchTool implements Tool {
         LOG.info("Indexer: adding binary content");
       }
     }
-    IndexWriters writers = new IndexWriters(getConf());
+    IndexWriters writers = IndexWriters.get(conf);
     LOG.info(writers.describe());
 
     IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job, addBinaryContent);
@@ -132,6 +132,7 @@ public class IndexingJob extends NutchTool implements Tool {
     conf.setBoolean(IndexerMapReduce.URL_FILTERING, filter);
     conf.setBoolean(IndexerMapReduce.URL_NORMALIZING, normalize);
     conf.setBoolean(IndexerMapReduce.INDEXER_BINARY_AS_BASE64, base64);
+    conf.setBoolean(IndexerMapReduce.INDEXER_NO_COMMIT, noCommit);
 
     if (params != null) {
       conf.set(IndexerMapReduce.INDEXER_PARAMS, params);
@@ -157,11 +158,6 @@ public class IndexingJob extends NutchTool implements Tool {
         LOG.error(StringUtils.stringifyException(e));
         throw e;
       }
-      // do the commits once and for all the reducers in one go
-      if (!noCommit) {
-        writers.open(conf, "commit");
-        writers.commit();
-      }
       LOG.info("Indexer: number of documents indexed, deleted, or skipped:");
       for (Counter counter : job.getCounters().getGroup("IndexerStatus")) {
         LOG.info("Indexer: {}  {}",
@@ -181,7 +177,7 @@ public class IndexingJob extends NutchTool implements Tool {
       System.err
       //.println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
       .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize] [-addBinaryContent] [-base64]");
-      IndexWriters writers = new IndexWriters(getConf());
+      IndexWriters writers = IndexWriters.get(getConf());
       System.err.println(writers.describe());
       return -1;
     }
