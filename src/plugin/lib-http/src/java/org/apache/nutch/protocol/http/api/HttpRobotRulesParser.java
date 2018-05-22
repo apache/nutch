@@ -138,8 +138,10 @@ public class HttpRobotRulesParser extends RobotRulesParser {
 
       if (cacheRule) {
         CACHE.put(cacheKey, robotRules); // cache rules for host
-        if (redir != null && !redir.getHost().equalsIgnoreCase(url.getHost())) {
+        if (redir != null && !redir.getHost().equalsIgnoreCase(url.getHost())
+            && "/robots.txt".equals(redir.getFile())) {
           // cache also for the redirected host
+          // if the URL path is /robots.txt
           CACHE.put(getCacheKey(redir), robotRules);
         }
       }
