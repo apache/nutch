@@ -65,16 +65,36 @@ public class ProtocolFactory {
    * @return The appropriate {@link Protocol} implementation for a given
    *         {@link URL}.
    * @throws ProtocolNotFound
-   *           when Protocol can not be found for urlString
+   *           when Protocol can not be found for urlString or urlString is not
+   *           a valid URL
    */
-  public synchronized Protocol getProtocol(String urlString)
+  public Protocol getProtocol(String urlString) throws ProtocolNotFound {
+    try {
+      URL url = new URL(urlString);
+      return getProtocol(url);
+    } catch (MalformedURLException e) {
+      throw new ProtocolNotFound(urlString, e.toString());
+    }
+  }
+
+  /**
+   * Returns the appropriate {@link Protocol} implementation for a url.
+   * 
+   * @param url
+   *          URL to be fetched by returned {@link Protocol} implementation
+   * @return The appropriate {@link Protocol} implementation for a given
+   *         {@link URL}.
+   * @throws ProtocolNotFound
+   *           when Protocol can not be found for url
+   */
+  public synchronized Protocol getProtocol(URL url)
       throws ProtocolNotFound {
     ObjectCache objectCache = ObjectCache.get(conf);
     try {
-      URL url = new URL(urlString);
       String protocolName = url.getProtocol();
-      if (protocolName == null)
-        throw new ProtocolNotFound(urlString);
+      if (protocolName == null) {
+        throw new ProtocolNotFound(url.toString());
+      }
 
       String cacheId = Protocol.X_POINT_ID + protocolName;
       Protocol protocol = (Protocol) objectCache.getObject(cacheId);
@@ -90,10 +110,8 @@ public class ProtocolFactory {
       protocol = (Protocol) extension.getExtensionInstance();
       objectCache.setObject(cacheId, protocol);
       return protocol;
-    } catch (MalformedURLException e) {
-      throw new ProtocolNotFound(urlString, e.toString());
     } catch (PluginRuntimeException e) {
-      throw new ProtocolNotFound(urlString, e.toString());
+      throw new ProtocolNotFound(url.toString(), e.toString());
     }
   }
 
