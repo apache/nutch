@@ -64,44 +64,38 @@ public class OkHttpResponse implements Response {
     Request request = rb.build();
     okhttp3.Call call = okhttp.getClient().newCall(request);
 
-    try (okhttp3.Response response = call.execute()) {
+    okhttp3.Response response = call.execute();
 
-      Metadata responsemetadata = new Metadata();
-      okhttp3.Headers httpHeaders = response.headers();
+    Metadata responsemetadata = new Metadata();
+    okhttp3.Headers httpHeaders = response.headers();
 
-      for (int i = 0, size = httpHeaders.size(); i < size; i++) {
-        String key = httpHeaders.name(i);
-        String value = httpHeaders.value(i);
+    for (int i = 0, size = httpHeaders.size(); i < size; i++) {
+      String key = httpHeaders.name(i);
+      String value = httpHeaders.value(i);
 
-        if (key.equals(REQUEST)
-            || key.equals(RESPONSE_HEADERS)) {
-          value = new String(Base64.getDecoder().decode(value));
-        }
-
-        responsemetadata.add(key, value);
-      }
-      LOG.debug("{} - {} {} {}", url, response.protocol(), response.code(),
-          response.message());
-
-      MutableBoolean trimmed = new MutableBoolean();
-      content = toByteArray(response.body(), trimmed, okhttp.getMaxContent(),
-          okhttp.getTimeout());
-      responsemetadata.add(FETCH_TIME,
-          Long.toString(System.currentTimeMillis()));
-      if (trimmed.booleanValue()) {
-        if (!call.isCanceled()) {
-          call.cancel();
-        }
-        responsemetadata.set(TRIMMED_CONTENT, "true");
-        LOG.debug("HTTP content trimmed to {} bytes", content.length);
+      if (key.equals(REQUEST) || key.equals(RESPONSE_HEADERS)) {
+        value = new String(Base64.getDecoder().decode(value));
       }
 
-      code = response.code();
-      headers = responsemetadata;
-
-    } catch (IOException e) {
-      LOG.warn("Fetch of URL {} failed: {}", url, e);
+      responsemetadata.add(key, value);
     }
+    LOG.debug("{} - {} {} {}", url, response.protocol(), response.code(),
+        response.message());
+
+    MutableBoolean trimmed = new MutableBoolean();
+    content = toByteArray(response.body(), trimmed, okhttp.getMaxContent(),
+        okhttp.getTimeout());
+    responsemetadata.add(FETCH_TIME, Long.toString(System.currentTimeMillis()));
+    if (trimmed.booleanValue()) {
+      if (!call.isCanceled()) {
+        call.cancel();
+      }
+      responsemetadata.set(TRIMMED_CONTENT, "true");
+      LOG.debug("HTTP content trimmed to {} bytes", content.length);
+    }
+
+    code = response.code();
+    headers = responsemetadata;
 
   }
 
