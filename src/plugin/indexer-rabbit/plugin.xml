@@ -21,12 +21,11 @@
     <library name="indexer-rabbit.jar">
       <export name="*" />
     </library>
-    <library name="amqp-client-3.6.5.jar"/>
-    <library name="gson-2.7.jar"/>
   </runtime>
 
   <requires>
-    <import plugin="nutch-extensionpoints" />
+    <import plugin="nutch-extensionpoints"/>
+    <import plugin="lib-rabbitmq"/>
   </requires>
 
   <extension id="org.apache.nutch.indexer.rabbit"

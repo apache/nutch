@@ -18,46 +18,41 @@ package org.apache.nutch.indexwriter.rabbit;
 
 import java.io.IOException;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.NutchDocument;
 
 import org.apache.nutch.indexer.IndexWriter;
 
 import org.apache.nutch.indexer.NutchField;
+import org.apache.nutch.publisher.NutchPublishers;
+import org.apache.nutch.rabbitmq.RabbitMQClient;
+import org.apache.nutch.rabbitmq.RabbitMQMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 public class RabbitIndexWriter implements IndexWriter {
 
-  private String serverHost;
-  private int serverPort;
-  private String serverVirtualHost;
-  private String serverUsername;
-  private String serverPassword;
+  public static final Logger LOG = LoggerFactory
+      .getLogger(RabbitIndexWriter.class);
 
-  private String exchangeServer;
-  private String exchangeType;
-
-  private String queueName;
-  private boolean queueDurable;
-  private String queueRoutingKey;
+  private String exchange;
+  private String routingKey;
 
   private int commitSize;
+  private String commitMode;
 
-  public static final Logger LOG = LoggerFactory.getLogger(RabbitIndexWriter.class);
+  private String headersStatic;
+  private List<String> headersDynamic;
 
   private Configuration config;
 
   private RabbitMessage rabbitMessage = new RabbitMessage();
 
-  private Channel channel;
-  private Connection connection;
+  private RabbitMQClient client;
 
   @Override
   public Configuration getConf() {
@@ -68,46 +63,64 @@ public class RabbitIndexWriter implements IndexWriter {
   public void setConf(Configuration conf) {
     config = conf;
 
-    serverHost = conf.get(RabbitMQConstants.SERVER_HOST, "localhost");
-    serverPort = conf.getInt(RabbitMQConstants.SERVER_PORT, 15672);
-    serverVirtualHost = conf.get(RabbitMQConstants.SERVER_VIRTUAL_HOST, null);
-
-    serverUsername = conf.get(RabbitMQConstants.SERVER_USERNAME, "admin");
-    serverPassword = conf.get(RabbitMQConstants.SERVER_PASSWORD, "admin");
-
-    exchangeServer = conf.get(RabbitMQConstants.EXCHANGE_SERVER, "nutch.exchange");
-    exchangeType = conf.get(RabbitMQConstants.EXCHANGE_TYPE, "direct");
-
-    queueName = conf.get(RabbitMQConstants.QUEUE_NAME, "nutch.queue");
-    queueDurable = conf.getBoolean(RabbitMQConstants.QUEUE_DURABLE, true);
-    queueRoutingKey = conf.get(RabbitMQConstants.QUEUE_ROUTING_KEY, "nutch.key");
+    exchange = conf.get(RabbitMQConstants.EXCHANGE_NAME);
+    routingKey = conf.get(RabbitMQConstants.ROUTING_KEY);
 
     commitSize = conf.getInt(RabbitMQConstants.COMMIT_SIZE, 250);
+    commitMode = conf.get(RabbitMQConstants.COMMIT_MODE, "multiple");
+
+    headersStatic = conf.get(RabbitMQConstants.HEADERS_STATIC, "");
+    headersDynamic = Arrays
+        .asList(conf.getStrings(RabbitMQConstants.HEADERS_DYNAMIC, ""));
   }
 
   @Override
   public void open(Configuration conf, String name) throws IOException {
-    ConnectionFactory factory = new ConnectionFactory();
-    factory.setHost(serverHost);
-    factory.setPort(serverPort);
+    String uri = conf.get(RabbitMQConstants.SERVER_URI);
 
-    if(serverVirtualHost != null) {
-      factory.setVirtualHost(serverVirtualHost);
+    client = new RabbitMQClient(uri);
+    client.openChannel();
+
+    boolean binding = conf.getBoolean(RabbitMQConstants.BINDING, false);
+    if (binding) {
+      String queueName = conf.get(RabbitMQConstants.QUEUE_NAME);
+      String queueOptions = conf.get(RabbitMQConstants.QUEUE_OPTIONS);
+
+      String exchangeOptions = conf.get(RabbitMQConstants.EXCHANGE_OPTIONS);
+
+      String bindingArguments = conf
+          .get(RabbitMQConstants.BINDING_ARGUMENTS, "");
+
+      client
+          .bind(exchange, exchangeOptions, queueName, queueOptions, routingKey,
+              bindingArguments);
     }
+  }
 
-    factory.setUsername(serverUsername);
-    factory.setPassword(serverPassword);
+  @Override
+  public void write(NutchDocument doc) throws IOException {
+    RabbitDocument rabbitDocument = new RabbitDocument();
 
-    try {
-      connection = factory.newConnection();
-      channel = connection.createChannel();
+    for (final Map.Entry<String, NutchField> e : doc) {
+      RabbitDocument.RabbitDocumentField field = new RabbitDocument.RabbitDocumentField(
+          e.getKey(), e.getValue().getWeight(), e.getValue().getValues());
+      rabbitDocument.addField(field);
+    }
+    rabbitDocument.setDocumentBoost(doc.getWeight());
 
-      channel.exchangeDeclare(exchangeServer, exchangeType, true);
-      channel.queueDeclare(queueName, queueDurable, false, false, null);
-      channel.queueBind(queueName, exchangeServer, queueRoutingKey);
+    rabbitMessage.addDocToWrite(rabbitDocument);
 
-    } catch (TimeoutException | IOException ex) {
-      throw makeIOException(ex);
+    if (rabbitMessage.size() >= commitSize) {
+      commit();
+    }
+  }
+
+  @Override
+  public void delete(String url) throws IOException {
+    rabbitMessage.addDocToDelete(url);
+
+    if (rabbitMessage.size() >= commitSize) {
+      commit();
     }
   }
 
@@ -117,15 +130,13 @@ public class RabbitIndexWriter implements IndexWriter {
 
     for (final Map.Entry<String, NutchField> e : doc) {
       RabbitDocument.RabbitDocumentField field = new RabbitDocument.RabbitDocumentField(
-              e.getKey(),
-              e.getValue().getWeight(),
-              e.getValue().getValues());
+          e.getKey(), e.getValue().getWeight(), e.getValue().getValues());
       rabbitDocument.addField(field);
     }
     rabbitDocument.setDocumentBoost(doc.getWeight());
 
     rabbitMessage.addDocToUpdate(rabbitDocument);
-    if(rabbitMessage.size() >= commitSize) {
+    if (rabbitMessage.size() >= commitSize) {
       commit();
     }
   }
@@ -133,61 +144,89 @@ public class RabbitIndexWriter implements IndexWriter {
   @Override
   public void commit() throws IOException {
     if (!rabbitMessage.isEmpty()) {
-      channel.basicPublish(exchangeServer, queueRoutingKey, null, rabbitMessage.getBytes());
+
+      if ("single".equals(commitMode)) {
+        // The messages to delete
+        for (String s : rabbitMessage.getDocsToDelete()) {
+          RabbitMQMessage message = new RabbitMQMessage();
+          message.setBody(s.getBytes());
+          message.setHeaders(headersStatic);
+          message.addHeader("action", "delete");
+          client.publish(exchange, routingKey, message);
+        }
+
+        // The messages to update
+        for (RabbitDocument rabbitDocument : rabbitMessage.getDocsToUpdate()) {
+          RabbitMQMessage message = new RabbitMQMessage();
+          message.setBody(rabbitDocument.getBytes());
+          addHeaders(message, rabbitDocument);
+          message.addHeader("action", "update");
+          client.publish(exchange, routingKey, message);
+        }
+
+        // The messages to write
+        for (RabbitDocument rabbitDocument : rabbitMessage.getDocsToWrite()) {
+          RabbitMQMessage message = new RabbitMQMessage();
+          message.setBody(rabbitDocument.getBytes());
+          addHeaders(message, rabbitDocument);
+          message.addHeader("action", "write");
+          client.publish(exchange, routingKey, message);
+        }
+      } else {
+        RabbitMQMessage message = new RabbitMQMessage();
+        message.setBody(rabbitMessage.getBytes());
+        message.setHeaders(headersStatic);
+        client.publish(exchange, routingKey, message);
+      }
     }
     rabbitMessage.clear();
   }
 
   @Override
-  public void write(NutchDocument doc) throws IOException {
-    RabbitDocument rabbitDocument = new RabbitDocument();
-
-    for (final Map.Entry<String, NutchField> e : doc) {
-      RabbitDocument.RabbitDocumentField field = new RabbitDocument.RabbitDocumentField(
-              e.getKey(),
-              e.getValue().getWeight(),
-              e.getValue().getValues());
-      rabbitDocument.addField(field);
-    }
-    rabbitDocument.setDocumentBoost(doc.getWeight());
-
-    rabbitMessage.addDocToWrite(rabbitDocument);
-
-    if(rabbitMessage.size() >= commitSize) {
-      commit();
-    }
-  }
-
-  @Override
   public void close() throws IOException {
-    commit();//TODO: This is because indexing job never call commit method. It should be fixed.
-    try {
-      channel.close();
-      connection.close();
-    } catch (IOException | TimeoutException e) {
-      throw makeIOException(e);
-    }
-  }
-
-  @Override
-  public void delete(String url) throws IOException {
-    rabbitMessage.addDocToDelete(url);
-
-    if(rabbitMessage.size() >= commitSize) {
-      commit();
-    }
-  }
-
-  private static IOException makeIOException(Exception e) {
-    return new IOException(e);
+    commit(); //TODO: This is because indexing job never call commit method. It should be fixed.
+    client.close();
   }
 
   public String describe() {
-    return "RabbitIndexWriter\n" +
-            "\t" + serverHost +  ":" + serverPort + " : URL of RabbitMQ server\n" +
-            "\t" + RabbitMQConstants.SERVER_VIRTUAL_HOST + " : Virtualhost name\n" +
-            "\t" + RabbitMQConstants.SERVER_USERNAME + " : Username for authentication\n" +
-            "\t" + RabbitMQConstants.SERVER_PASSWORD + " : Password for authentication\n" +
-            "\t" + RabbitMQConstants.COMMIT_SIZE + " : Buffer size when sending to RabbitMQ (default 250)\n";
+    StringBuffer sb = new StringBuffer("RabbitIndexWriter\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_URI)
+        .append(" : URI of RabbitMQ server\n");
+    sb.append("\t").append(RabbitMQConstants.BINDING).append(
+        " : If binding is created automatically or not (default true)\n");
+    sb.append("\t").append(RabbitMQConstants.BINDING_ARGUMENTS)
+        .append(" : Arguments used in binding\n");
+    sb.append("\t").append(RabbitMQConstants.EXCHANGE_NAME)
+        .append(" : Exchange's name\n");
+    sb.append("\t").append(RabbitMQConstants.EXCHANGE_OPTIONS)
+        .append(" : Exchange's options\n");
+    sb.append("\t").append(RabbitMQConstants.QUEUE_NAME)
+        .append(" : Queue's name\n");
+    sb.append("\t").append(RabbitMQConstants.QUEUE_OPTIONS)
+        .append(" : Queue's options\n");
+    sb.append("\t").append(RabbitMQConstants.ROUTING_KEY)
+        .append(" : Routing key\n");
+    sb.append("\t").append(RabbitMQConstants.COMMIT_SIZE)
+        .append(" : Buffer size when sending to RabbitMQ (default 250)\n");
+    sb.append("\t").append(RabbitMQConstants.COMMIT_MODE)
+        .append(" : The mode to send the documents (default multiple)\n");
+    sb.append("\t").append(RabbitMQConstants.HEADERS_STATIC)
+        .append(" : Static headers that will be added to the messages\n");
+    sb.append("\t").append(RabbitMQConstants.HEADERS_DYNAMIC)
+        .append(" : Document's fields added as headers\n");
+    return sb.toString();
+  }
+
+  private void addHeaders(final RabbitMQMessage message,
+      RabbitDocument document) {
+    message.setHeaders(headersStatic);
+
+    for (RabbitDocument.RabbitDocumentField rabbitDocumentField : document
+        .getFields()) {
+      if (headersDynamic.contains(rabbitDocumentField.getKey())) {
+        message.addHeader(rabbitDocumentField.getKey(),
+            rabbitDocumentField.getValues().get(0));
+      }
+    }
   }
 }

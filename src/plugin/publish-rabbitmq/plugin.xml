@@ -25,11 +25,11 @@
       <library name="publish-rabbitmq.jar">
          <export name="*"/>
       </library>
-      <library name="amqp-client-3.6.5.jar"/>
    </runtime>
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-rabbitmq"/>
    </requires>
    
    <extension id="org.apache.nutch.publisher.rabbitmq"

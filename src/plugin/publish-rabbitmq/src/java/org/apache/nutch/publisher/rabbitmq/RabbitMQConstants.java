@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.indexwriter.rabbit;
+package org.apache.nutch.publisher.rabbitmq;
 
 interface RabbitMQConstants {
-  String RABBIT_PREFIX = "rabbitmq.indexer.";
+  String RABBIT_PREFIX = "rabbitmq.publisher.";
 
   String SERVER_URI = RABBIT_PREFIX + "server.uri";
 
@@ -37,12 +37,5 @@ interface RabbitMQConstants {
   String BINDING_ARGUMENTS = RABBIT_PREFIX + "binding.arguments";
 
 
-  String COMMIT_SIZE = RABBIT_PREFIX + "commit.size";
-
-  String COMMIT_MODE = RABBIT_PREFIX + "commit.mode";
-
-
   String HEADERS_STATIC = RABBIT_PREFIX + "headers.static";
-
-  String HEADERS_DYNAMIC = RABBIT_PREFIX + "headers.dynamic";
 }
