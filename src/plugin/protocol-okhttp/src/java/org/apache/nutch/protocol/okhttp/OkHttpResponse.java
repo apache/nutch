@@ -22,11 +22,13 @@ import java.net.URL;
 import java.util.Base64;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.protocol.http.api.HttpBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +61,13 @@ public class OkHttpResponse implements Response {
     if (okhttp.isIfModifiedSinceEnabled() && datum.getModifiedTime() > 0) {
       rb.header(IF_MODIFIED_SINCE,
           HttpDateFormat.toString(datum.getModifiedTime()));
+    }
+
+    if (okhttp.isCookieEnabled()
+        && datum.getMetaData().containsKey(HttpBase.COOKIE)) {
+      String cookie = ((Text) datum.getMetaData().get(HttpBase.COOKIE))
+          .toString();
+      rb.header("Cookie", cookie);
     }
 
     Request request = rb.build();
