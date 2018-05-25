@@ -15,25 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.tika;
+package org.apache.nutch.parse.tika;
 
-import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.tika.DOMContentUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.util.NutchConfiguration;
-
-import java.io.ByteArrayInputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.xml.sax.*;
-import org.w3c.dom.*;
-import org.apache.html.dom.*;
-import org.cyberneko.html.parsers.DOMFragmentParser;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.html.dom.HTMLDocumentImpl;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.DocumentFragment;
 
 /**
  * Unit tests for DOMContentUtils.
@@ -55,7 +53,7 @@ public class TestDOMContentUtils {
           + "<a href=\"/\"> separate this " + "<a href=\"ok\"> from this"
           + "</a></a>" + "</body></html>"),
 
-      // this one relies on certain neko fixup behavior, possibly
+      // this one relies on certain  fixup behavior, possibly
       // distributing the anchors into the LI's-but not the other
       // anchors (outside of them, instead)! So you get a tree that
       // looks like:
@@ -112,7 +110,7 @@ public class TestDOMContentUtils {
           + "<a href=\"http://www.nutch.org\" rel=\"nofollow\"> ignore </a>"
           + "<a rel=\"nofollow\" href=\"http://www.nutch.org\"> ignore </a>"
           + "</body></html>"),
-      // test that POST form actions are skipped
+      // test that all form actions are skipped
       new String("<html><head></head><body>"
           + "<form method='POST' action='/search.jsp'><input type=text>"
           + "<input type=submit><p>test1</p></form>"
@@ -150,20 +148,17 @@ public class TestDOMContentUtils {
 
   private static URL[] testBaseHrefURLs = new URL[testPages.length];
 
-  private static final String[] answerText = {
-      "title body anchor",
-      "title body home bots",
-      "separate this from this",
-      "my title body home 1 2",
-      "my title",
-      "my title the bottom",
-      "my title Whitespace test whitespace test "
-          + "This is a whitespace test . Newlines should appear as space too. "
-          + "Tabs are spaces too. This is a break -> and the line after break . "
-          + "one two three space here space there no space "
-          + "one two two three three four put some text here and there. "
-          + "End this madness ! . . . .", "ignore ignore", "test1 test2",
-      "test1 test2", "title anchor1 anchor2 anchor3",
+  private static final String[] answerText = { "title body anchor",
+      "title body home bots", "separate this from this",
+      "my title body home 1 2", "my title", "my title the bottom",
+      "my title\n" + "Whitespace test\n" + "whitespace test\n"
+          + "This is a whitespace test. Newlines should appear as space too.\n"
+          + "Tabs are spaces too. This is a break -> and the line after break.\n"
+          + "one\n" + "two\n" + "three\n" + "space here\n" + "space there\n"
+          + "no space\n" + "one two\n" + "two three\n" + "three four\n"
+          + "put some text here and there. End this madness ! . . . .",
+      "ignore ignore", "test1 test2", "test1 test2",
+      "title anchor1 anchor2 anchor3",
       "title anchor1 anchor2 anchor3 anchor4 anchor5", "" };
 
   private static final String[] answerTitle = { "title", "title", "",
@@ -179,23 +174,26 @@ public class TestDOMContentUtils {
   @Before
   public void setup() throws Exception {
     conf = NutchConfiguration.create();
-    conf.setBoolean("parser.html.form.use_action", true);
     utils = new DOMContentUtils(conf);
-    DOMFragmentParser parser = new DOMFragmentParser();
-    parser.setFeature(
-        "http://cyberneko.org/html/features/scanner/allow-selfclosing-iframe",
-        true);
+    conf.set("plugin.includes", "parse-tika");
+    TikaParser parser = new TikaParser();
+    parser.setConf(conf);
+
     for (int i = 0; i < testPages.length; i++) {
-      DocumentFragment node = new HTMLDocumentImpl().createDocumentFragment();
       try {
-        parser.parse(
-            new InputSource(new ByteArrayInputStream(testPages[i].getBytes())),
-            node);
-        testBaseHrefURLs[i] = new URL(testBaseHrefs[i]);
+        String url = testBaseHrefs[i];
+        testBaseHrefURLs[i] = new URL(url);
+        Content content = new Content(url, url,
+            testPages[i].getBytes(StandardCharsets.UTF_8), "text/html",
+            new Metadata(), conf);
+        HTMLDocumentImpl doc = new HTMLDocumentImpl();
+        doc.setErrorChecking(false);
+        DocumentFragment root = doc.createDocumentFragment();
+        parser.getParse(content, doc, root);
+        testDOMs[i] = root;
       } catch (Exception e) {
         Assert.assertTrue("caught exception: " + e, false);
       }
-      testDOMs[i] = node;
     }
     answerOutlinks = new Outlink[][] {
         { new Outlink("http://www.nutch.org", "anchor"), },
@@ -217,7 +215,7 @@ public class TestDOMContentUtils {
             new Outlink("http://www.nutch.org/docs/index.html", ""), },
         { new Outlink("http://www.nutch.org/index.html", "whitespace test"), },
         {},
-        { new Outlink("http://www.nutch.org/dummy.jsp", "test2"), },
+        {},
         {},
         { new Outlink("http://www.nutch.org/;x", "anchor1"),
             new Outlink("http://www.nutch.org/g;x", "anchor2"),
@@ -230,7 +228,7 @@ public class TestDOMContentUtils {
             new Outlink("http://www.nutch.org/;something?y=1#s", "anchor4"),
             new Outlink("http://www.nutch.org/;something?y=1;somethingelse",
                 "anchor5") },
-        { new Outlink("http://www.nutch.org/movie.mp4", "") } };
+        {} };
 
   }
 

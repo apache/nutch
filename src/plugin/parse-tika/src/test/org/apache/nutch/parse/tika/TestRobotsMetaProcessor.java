@@ -15,20 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.tika;
+package org.apache.nutch.parse.tika;
 
-import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.tika.HTMLMetaProcessor;
-
-import java.io.ByteArrayInputStream;
 import java.net.URL;
 
-import org.xml.sax.*;
-import org.w3c.dom.*;
-import org.apache.html.dom.*;
-import org.cyberneko.html.parsers.DOMFragmentParser;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.html.dom.HTMLDocumentImpl;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.DomUtil;
+import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
+import org.w3c.dom.DocumentFragment;
 
 /** Unit tests for HTMLMetaProcessor. */
 public class TestRobotsMetaProcessor {
@@ -87,7 +87,8 @@ public class TestRobotsMetaProcessor {
 
   };
 
-  public static final boolean[][] answers = { { true, true, true }, // NONE
+  public static final boolean[][] answers = { //
+      { true, true, true }, // NONE
       { false, false, true }, // all
       { true, true, true }, // nOnE
       { true, true, false }, // none
@@ -102,8 +103,9 @@ public class TestRobotsMetaProcessor {
 
   @Test
   public void testRobotsMetaProcessor() {
-    DOMFragmentParser parser = new DOMFragmentParser();
-    ;
+    Configuration conf = NutchConfiguration.create();
+    TikaParser parser = new TikaParser();
+    parser.setConf(conf);
 
     try {
       currURLsAndAnswers = new URL[][] {
@@ -125,23 +127,27 @@ public class TestRobotsMetaProcessor {
     for (int i = 0; i < tests.length; i++) {
       byte[] bytes = tests[i].getBytes();
 
-      DocumentFragment node = new HTMLDocumentImpl().createDocumentFragment();
+      HTMLDocumentImpl doc = new HTMLDocumentImpl();
+      doc.setErrorChecking(false);
+      DocumentFragment root = doc.createDocumentFragment();
+      Content content = new Content("http://www.nutch.org",
+          "http://www.nutch.org", bytes, "text/html", new Metadata(), conf);
 
       try {
-        parser.parse(new InputSource(new ByteArrayInputStream(bytes)), node);
+        parser.getParse(content, doc, root);
       } catch (Exception e) {
         e.printStackTrace();
       }
 
       HTMLMetaTags robotsMeta = new HTMLMetaTags();
-      HTMLMetaProcessor.getMetaTags(robotsMeta, node, currURLsAndAnswers[i][0]);
+      HTMLMetaProcessor.getMetaTags(robotsMeta, root, currURLsAndAnswers[i][0]);
 
-      Assert.assertTrue("got index wrong on test " + i,
-          robotsMeta.getNoIndex() == answers[i][0]);
-      Assert.assertTrue("got follow wrong on test " + i,
-          robotsMeta.getNoFollow() == answers[i][1]);
-      Assert.assertTrue("got cache wrong on test " + i,
-          robotsMeta.getNoCache() == answers[i][2]);
+      Assert.assertEquals("got noindex wrong on test " + i,
+          answers[i][0], robotsMeta.getNoIndex());
+      Assert.assertEquals("got nofollow wrong on test " + i,
+          answers[i][1], robotsMeta.getNoFollow());
+      Assert.assertEquals("got nocache wrong on test " + i,
+          answers[i][2], robotsMeta.getNoCache());
       Assert
           .assertTrue(
               "got base href wrong on test " + i + " (got "

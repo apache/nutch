@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse.tika;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.nutch.parse.HTMLMetaTags;
@@ -113,6 +114,26 @@ public class HTMLMetaProcessor {
               }
 
             } // end if (name == robots)
+            // meta names added/transformed by Tika
+            else if (name.equals("pragma")) {
+              String content = contentNode.getNodeValue().toLowerCase();
+              if (content.contains("no-cache")) {
+                metaTags.setNoCache();
+              }
+            } else if (name.equals("content-location")) {
+              String urlString = contentNode.getNodeValue();
+              URL url = null;
+              try {
+                if (currURL == null) {
+                  url = new URL(urlString);
+                } else {
+                  url = new URL(currURL, urlString);
+                }
+                metaTags.setBaseHref(url);
+              } catch (MalformedURLException e) {
+                // ignore, base-href not set
+              }
+            }
           }
         }
 
