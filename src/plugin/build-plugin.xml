@@ -235,6 +235,10 @@
     <ivy:retrieve pattern="${build.test.lib}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
   </target>
 
+  <target name="report" depends="resolve-test" description="--> generates a report of dependencies">
+    <ivy:report todir="${build.dir}"/>
+  </target>
+
   <!-- ================================================================== -->
   <!-- Clean.  Delete the build files, and their directories              -->
   <!-- ================================================================== -->
