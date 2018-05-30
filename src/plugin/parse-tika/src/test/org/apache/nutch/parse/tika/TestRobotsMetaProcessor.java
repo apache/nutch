@@ -23,8 +23,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.Parse;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.DomUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
@@ -85,6 +85,9 @@ public class TestRobotsMetaProcessor {
           + "<base href=\"http://www.nutch.org/base/\">" + "</head><body>"
           + " some text" + "</body></html>",
 
+      "<html><head><title>Meta-refresh redirect</title>"
+          + "<meta http-equiv=\"refresh\" content=\"0; url=http://example.com/\"></head><body> "
+          + "Test meta-refresh redirect." + "</body></html>",
   };
 
   public static final boolean[][] answers = { //
@@ -97,6 +100,7 @@ public class TestRobotsMetaProcessor {
       { false, true, false }, // index,nofollow
       { false, false, false }, // index,follow
       { false, false, false }, // missing!
+      { false, false, false }, // NUTCH-2589: test for meta-refresh redirects
   };
 
   private URL[][] currURLsAndAnswers;
@@ -119,7 +123,8 @@ public class TestRobotsMetaProcessor {
           { new URL("http://www.nutch.org/foo/"),
               new URL("http://www.nutch.org/") },
           { new URL("http://www.nutch.org"),
-              new URL("http://www.nutch.org/base/") } };
+              new URL("http://www.nutch.org/base/") },
+          { new URL("http://www.nutch.org"), null } };
     } catch (Exception e) {
       Assert.assertTrue("couldn't make test URLs!", false);
     }
@@ -130,11 +135,13 @@ public class TestRobotsMetaProcessor {
       HTMLDocumentImpl doc = new HTMLDocumentImpl();
       doc.setErrorChecking(false);
       DocumentFragment root = doc.createDocumentFragment();
-      Content content = new Content("http://www.nutch.org",
-          "http://www.nutch.org", bytes, "text/html", new Metadata(), conf);
+      String url = "http://www.nutch.org";
+      Content content = new Content(url,
+          url, bytes, "text/html", new Metadata(), conf);
+      Parse parse = null;
 
       try {
-        parser.getParse(content, doc, root);
+        parse = parser.getParse(content, doc, root).get(url);
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -156,6 +163,17 @@ public class TestRobotsMetaProcessor {
                   || ((robotsMeta.getBaseHref() != null) && robotsMeta
                       .getBaseHref().equals(currURLsAndAnswers[i][1])));
 
+      if (tests[i].contains("meta-refresh redirect")) {
+        // test for NUTCH-2589
+        URL metaRefreshUrl = robotsMeta.getRefreshHref();
+        Assert.assertNotNull("failed to get meta-refresh redirect",
+            metaRefreshUrl);
+        Assert.assertEquals("failed to get meta-refresh redirect",
+            "http://example.com/", metaRefreshUrl.toString());
+        Assert.assertEquals(
+            "failed to add meta-refresh redirect to parse status",
+            "http://example.com/", parse.getData().getStatus().getArgs()[0]);
+      }
     }
   }
 
