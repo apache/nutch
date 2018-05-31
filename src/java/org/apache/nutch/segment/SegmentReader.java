@@ -59,7 +59,6 @@ import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.LinkDbReader;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
@@ -440,8 +439,8 @@ public class SegmentReader extends Configured implements Tool {
   }
 
   private List<Writable> getSeqRecords(Path dir, Text key) throws Exception {
-    MapFile.Reader[] readers = MapFileOutputFormat.getReaders(
-        dir, getConf());
+    SequenceFile.Reader[] readers = org.apache.hadoop.mapred.SequenceFileOutputFormat
+        .getReaders(getConf(), dir);
     ArrayList<Writable> res = new ArrayList<>();
     Class<?> keyClass = readers[0].getKeyClass();
     Class<?> valueClass = readers[0].getValueClass();
