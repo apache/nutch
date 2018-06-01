@@ -24,15 +24,15 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-public class IndexerOutputFormat extends
-    FileOutputFormat<Text, NutchIndexAction> {
+public class IndexerOutputFormat
+    extends FileOutputFormat<Text, NutchIndexAction> {
 
   @Override
   public RecordWriter<Text, NutchIndexAction> getRecordWriter(
       TaskAttemptContext context) throws IOException {
 
     Configuration conf = context.getConfiguration();
-    final IndexWriters writers = new IndexWriters(conf);
+    final IndexWriters writers = IndexWriters.get(conf);
 
     String name = getUniqueFile(context, "part", "");
     writers.open(conf, name);
@@ -40,6 +40,12 @@ public class IndexerOutputFormat extends
     return new RecordWriter<Text, NutchIndexAction>() {
 
       public void close(TaskAttemptContext context) throws IOException {
+        // do the commits once and for all the reducers in one go
+        boolean noCommit = conf
+            .getBoolean(IndexerMapReduce.INDEXER_NO_COMMIT, false);
+        if (!noCommit) {
+          writers.commit();
+        }
         writers.close();
       }
 

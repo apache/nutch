@@ -19,12 +19,12 @@ package org.apache.nutch.indexwriter.rabbit;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 
 import org.apache.nutch.indexer.IndexWriter;
 
 import org.apache.nutch.indexer.NutchField;
-import org.apache.nutch.publisher.NutchPublishers;
 import org.apache.nutch.rabbitmq.RabbitMQClient;
 import org.apache.nutch.rabbitmq.RabbitMQMessage;
 import org.slf4j.Logger;
@@ -62,33 +62,44 @@ public class RabbitIndexWriter implements IndexWriter {
   @Override
   public void setConf(Configuration conf) {
     config = conf;
-
-    exchange = conf.get(RabbitMQConstants.EXCHANGE_NAME);
-    routingKey = conf.get(RabbitMQConstants.ROUTING_KEY);
-
-    commitSize = conf.getInt(RabbitMQConstants.COMMIT_SIZE, 250);
-    commitMode = conf.get(RabbitMQConstants.COMMIT_MODE, "multiple");
-
-    headersStatic = conf.get(RabbitMQConstants.HEADERS_STATIC, "");
-    headersDynamic = Arrays
-        .asList(conf.getStrings(RabbitMQConstants.HEADERS_DYNAMIC, ""));
   }
 
   @Override
   public void open(Configuration conf, String name) throws IOException {
-    String uri = conf.get(RabbitMQConstants.SERVER_URI);
+    //Implementation not required
+  }
+
+  /**
+   * Initializes the internal variables from a given index writer configuration.
+   *
+   * @param parameters Params from the index writer configuration.
+   * @throws IOException Some exception thrown by writer.
+   */
+  @Override
+  public void open(IndexWriterParams parameters) throws IOException {
+    exchange = parameters.get(RabbitMQConstants.EXCHANGE_NAME);
+    routingKey = parameters.get(RabbitMQConstants.ROUTING_KEY);
+
+    commitSize = parameters.getInt(RabbitMQConstants.COMMIT_SIZE, 250);
+    commitMode = parameters.get(RabbitMQConstants.COMMIT_MODE, "multiple");
+
+    headersStatic = parameters.get(RabbitMQConstants.HEADERS_STATIC, "");
+    headersDynamic = Arrays
+        .asList(parameters.getStrings(RabbitMQConstants.HEADERS_DYNAMIC, ""));
+
+    String uri = parameters.get(RabbitMQConstants.SERVER_URI);
 
     client = new RabbitMQClient(uri);
     client.openChannel();
 
-    boolean binding = conf.getBoolean(RabbitMQConstants.BINDING, false);
+    boolean binding = parameters.getBoolean(RabbitMQConstants.BINDING, false);
     if (binding) {
-      String queueName = conf.get(RabbitMQConstants.QUEUE_NAME);
-      String queueOptions = conf.get(RabbitMQConstants.QUEUE_OPTIONS);
+      String queueName = parameters.get(RabbitMQConstants.QUEUE_NAME);
+      String queueOptions = parameters.get(RabbitMQConstants.QUEUE_OPTIONS);
 
-      String exchangeOptions = conf.get(RabbitMQConstants.EXCHANGE_OPTIONS);
+      String exchangeOptions = parameters.get(RabbitMQConstants.EXCHANGE_OPTIONS);
 
-      String bindingArguments = conf
+      String bindingArguments = parameters
           .get(RabbitMQConstants.BINDING_ARGUMENTS, "");
 
       client
