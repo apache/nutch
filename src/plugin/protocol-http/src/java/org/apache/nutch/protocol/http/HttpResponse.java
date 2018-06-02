@@ -437,9 +437,11 @@ public class HttpResponse implements Response {
         break;
       }
 
-      if (http.getMaxContent() >= 0 && (contentBytesRead + chunkLen) > http
-          .getMaxContent())
+      if (http.getMaxContent() >= 0
+          && (contentBytesRead + chunkLen) > http.getMaxContent()) {
+        // content will be trimmed when processing this chunk
         chunkLen = http.getMaxContent() - contentBytesRead;
+      }
 
       // read one chunk
       int chunkBytesRead = 0;
@@ -465,17 +467,26 @@ public class HttpResponse implements Response {
       }
 
       contentBytesRead += chunkBytesRead;
+      if (http.getMaxContent() >= 0
+          && contentBytesRead >= http.getMaxContent()) {
+        Http.LOG.trace("Http: content limit reached");
+        break;
+      }
+
       readLine(in, line, false);
 
     }
 
+    content = out.toByteArray();
+
     if (!doneChunks) {
+      // content trimmed
       if (contentBytesRead != http.getMaxContent())
         throw new HttpException("chunk eof: !doneChunk && didn't max out");
       return;
     }
 
-    content = out.toByteArray();
+    // read trailing headers
     parseHeaders(in, line, null);
 
   }
