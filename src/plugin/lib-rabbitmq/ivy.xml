@@ -34,5 +34,10 @@
     <!--get the artifact from our module name-->
     <artifact conf="master"/>
   </publications>
+
+  <dependencies>
+    <dependency org="com.rabbitmq" name="amqp-client" rev="5.2.0"/>
+    <dependency org="com.google.code.gson" name="gson" rev="2.8.4"/>
+  </dependencies>
   
 </ivy-module>

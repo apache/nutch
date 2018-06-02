@@ -30,6 +30,7 @@
     <ant dir="lib-htmlunit" target="deploy"/>
     <ant dir="lib-http" target="deploy"/>
     <ant dir="lib-nekohtml" target="deploy"/>
+    <ant dir="lib-rabbitmq" target="deploy"/>
     <ant dir="lib-regex-filter" target="deploy"/>
     <ant dir="lib-selenium" target="deploy"/>
     <ant dir="lib-xml" target="deploy"/>
@@ -186,6 +187,7 @@
     <ant dir="lib-htmlunit" target="clean"/>
     <ant dir="lib-http" target="clean"/>
     <ant dir="lib-nekohtml" target="clean"/>
+    <ant dir="lib-rabbitmq" target="clean"/>
     <ant dir="lib-regex-filter" target="clean"/>
     <ant dir="lib-selenium" target="clean"/>
     <ant dir="lib-xml" target="clean"/>

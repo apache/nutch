@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
  Licensed to the Apache Software Foundation (ASF) under one or more
  contributor license agreements.  See the NOTICE file distributed with
@@ -15,20 +15,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="indexer-rabbit" default="jar-core">
+<!--
+ ! A common framework for http protocol implementations
+ !-->
+<plugin id="lib-rabbitmq" name="RabbitMQ" version="1.0" provider-name="org.apache.nutch">
 
-  <import file="../build-plugin.xml" />
+  <runtime>
+    <library name="lib-rabbitmq.jar">
+      <export name="*" />
+    </library>
+    <library name="amqp-client-5.2.0.jar">
+      <export name="*"/>
+    </library>
+    <library name="gson-2.8.4.jar">
+      <export name="*"/>
+    </library>
+  </runtime>
 
-  <!-- Build compilation dependencies -->
-  <target name="deps-jar">
-    <ant target="jar" inheritall="false" dir="../lib-rabbitmq"/>
-  </target>
-
-  <!-- Add compilation dependencies to classpath -->
-  <path id="plugin.deps">
-    <fileset dir="${nutch.root}/build">
-      <include name="**/lib-rabbitmq/*.jar" />
-    </fileset>
-  </path>
-
-</project>
+</plugin>

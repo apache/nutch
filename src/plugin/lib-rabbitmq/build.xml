@@ -15,20 +15,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="indexer-rabbit" default="jar-core">
+<project name="lib-rabbitmq" default="jar-core">
 
-  <import file="../build-plugin.xml" />
-
-  <!-- Build compilation dependencies -->
-  <target name="deps-jar">
-    <ant target="jar" inheritall="false" dir="../lib-rabbitmq"/>
-  </target>
-
-  <!-- Add compilation dependencies to classpath -->
-  <path id="plugin.deps">
-    <fileset dir="${nutch.root}/build">
-      <include name="**/lib-rabbitmq/*.jar" />
-    </fileset>
-  </path>
+  <import file="../build-plugin.xml"/>
 
 </project>

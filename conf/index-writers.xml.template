@@ -46,17 +46,18 @@
   </writer>
   <writer id="indexer_rabbit_1" class="org.apache.nutch.indexwriter.rabbit.RabbitIndexWriter">
     <parameters>
-      <param name="server.host" value="localhost"/>
-      <param name="server.port" value="5672"/>
-      <param name="server.virtualhost" value="nutch"/>
-      <param name="server.username" value="admin"/>
-      <param name="server.password" value="admin"/>
-      <param name="exchange.server" value="nutch.exchange"/>
-      <param name="exchange.type" value="direct"/>
+      <param name="server.uri" value="amqp://guest:guest@localhost:5672/"/>
+      <param name="binding" value="false"/>
+      <param name="binding.arguments" value=""/>
+      <param name="exchange.name" value=""/>
+      <param name="exchange.options" value="type=direct,durable=true"/>
       <param name="queue.name" value="nutch.queue"/>
-      <param name="queue.durable" value="true"/>
-      <param name="queue.routingkey" value="nutch.key"/>
+      <param name="queue.options" value="durable=true,exclusive=false,auto-delete=false"/>
+      <param name="routingkey" value=""/>
+      <param name="commit.commit" value="multiple"/>
       <param name="commit.size" value="250"/>
+      <param name="headers.static" value=""/>
+      <param name="headers.dynamic" value=""/>
     </parameters>
     <mapping>
       <copy>
