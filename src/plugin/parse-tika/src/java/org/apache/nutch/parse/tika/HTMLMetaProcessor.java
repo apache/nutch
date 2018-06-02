@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse.tika;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.nutch.parse.HTMLMetaTags;
@@ -113,6 +114,29 @@ public class HTMLMetaProcessor {
               }
 
             } // end if (name == robots)
+            // meta names added/transformed by Tika
+            else if (name.equals("pragma")) {
+              String content = contentNode.getNodeValue().toLowerCase();
+              if (content.contains("no-cache")) {
+                metaTags.setNoCache();
+              }
+            } else if (name.equals("refresh")) {
+              String content = contentNode.getNodeValue().toLowerCase();
+              setRefresh(metaTags, content, currURL);
+            } else if (name.equals("content-location")) {
+              String urlString = contentNode.getNodeValue();
+              URL url = null;
+              try {
+                if (currURL == null) {
+                  url = new URL(urlString);
+                } else {
+                  url = new URL(currURL, urlString);
+                }
+                metaTags.setBaseHref(url);
+              } catch (MalformedURLException e) {
+                // ignore, base-href not set
+              }
+            }
           }
         }
 
@@ -127,54 +151,7 @@ public class HTMLMetaProcessor {
               if (index >= 0)
                 metaTags.setNoCache();
             } else if ("refresh".equals(name)) {
-              int idx = content.indexOf(';');
-              String time = null;
-              if (idx == -1) { // just the refresh time
-                time = content;
-              } else
-                time = content.substring(0, idx);
-              try {
-                metaTags.setRefreshTime(Integer.parseInt(time));
-                // skip this if we couldn't parse the time
-                metaTags.setRefresh(true);
-              } catch (Exception e) {
-                ;
-              }
-              URL refreshUrl = null;
-              if (metaTags.getRefresh() && idx != -1) { // set the URL
-                idx = content.toLowerCase().indexOf("url=");
-                if (idx == -1) { // assume a mis-formatted entry with just the
-                                 // url
-                  idx = content.indexOf(';') + 1;
-                } else
-                  idx += 4;
-                if (idx != -1) {
-                  String url = content.substring(idx);
-                  try {
-                    refreshUrl = new URL(url);
-                  } catch (Exception e) {
-                    // XXX according to the spec, this has to be an absolute
-                    // XXX url. However, many websites use relative URLs and
-                    // XXX expect browsers to handle that.
-                    // XXX Unfortunately, in some cases this may create a
-                    // XXX infinitely recursive paths (a crawler trap)...
-                    // if (!url.startsWith("/")) url = "/" + url;
-                    try {
-                      refreshUrl = new URL(currURL, url);
-                    } catch (Exception e1) {
-                      refreshUrl = null;
-                    }
-                  }
-                }
-              }
-              if (metaTags.getRefresh()) {
-                if (refreshUrl == null) {
-                  // apparently only refresh time was present. set the URL
-                  // to the same URL.
-                  refreshUrl = currURL;
-                }
-                metaTags.setRefreshHref(refreshUrl);
-              }
+              setRefresh(metaTags, content, currURL);
             }
           }
         }
@@ -210,6 +187,58 @@ public class HTMLMetaProcessor {
       for (int i = 0; i < len; i++) {
         getMetaTagsHelper(metaTags, children.item(i), currURL);
       }
+    }
+  }
+
+  private static void setRefresh(HTMLMetaTags metaTags, String content,
+      URL currURL) {
+    int idx = content.indexOf(';');
+    String time = null;
+    if (idx == -1) { // just the refresh time
+      time = content;
+    } else
+      time = content.substring(0, idx);
+    try {
+      metaTags.setRefreshTime(Integer.parseInt(time));
+      // skip this if we couldn't parse the time
+      metaTags.setRefresh(true);
+    } catch (Exception e) {
+      ;
+    }
+    URL refreshUrl = null;
+    if (metaTags.getRefresh() && idx != -1) { // set the URL
+      idx = content.toLowerCase().indexOf("url=");
+      if (idx == -1) { // assume a mis-formatted entry with just the
+                       // url
+        idx = content.indexOf(';') + 1;
+      } else
+        idx += 4;
+      if (idx != -1) {
+        String url = content.substring(idx);
+        try {
+          refreshUrl = new URL(url);
+        } catch (Exception e) {
+          // XXX according to the spec, this has to be an absolute
+          // XXX url. However, many websites use relative URLs and
+          // XXX expect browsers to handle that.
+          // XXX Unfortunately, in some cases this may create a
+          // XXX infinitely recursive paths (a crawler trap)...
+          // if (!url.startsWith("/")) url = "/" + url;
+          try {
+            refreshUrl = new URL(currURL, url);
+          } catch (Exception e1) {
+            refreshUrl = null;
+          }
+        }
+      }
+    }
+    if (metaTags.getRefresh()) {
+      if (refreshUrl == null) {
+        // apparently only refresh time was present. set the URL
+        // to the same URL.
+        refreshUrl = currURL;
+      }
+      metaTags.setRefreshHref(refreshUrl);
     }
   }
 
