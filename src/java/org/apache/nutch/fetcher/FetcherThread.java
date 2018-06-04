@@ -581,7 +581,7 @@ public class FetcherThread extends Thread {
 
   private void logError(Text url, String message) {
     if (LOG.isInfoEnabled()) {
-      LOG.info("{} {} fetch of {} failed with: ", getName(),
+      LOG.info("{} {} fetch of {} failed with: {}", getName(),
           Thread.currentThread().getId(), url, message);
     }
     errors.incrementAndGet();
