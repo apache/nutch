@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.exchange.Exchanges;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
@@ -61,6 +62,8 @@ public class IndexWriters {
 
   private HashMap<String, IndexWriterWrapper> indexWriters;
 
+  private Exchanges exchanges;
+
   private IndexWriters(Configuration conf) {
     //It's not cached yet
     if (this.indexWriters == null) {
@@ -80,8 +83,7 @@ public class IndexWriters {
           extensionMap.putIfAbsent(extension.getClazz(), extension);
         }
 
-        IndexWriterConfig[] indexWriterConfigs = loadWritersConfiguration(
-            conf);
+        IndexWriterConfig[] indexWriterConfigs = loadWritersConfiguration(conf);
         this.indexWriters = new HashMap<>();
 
         for (IndexWriterConfig indexWriterConfig : indexWriterConfigs) {
@@ -97,6 +99,9 @@ public class IndexWriters {
             indexWriters.put(indexWriterConfig.getId(), writerWrapper);
           }
         }
+
+        this.exchanges = new Exchanges(conf);
+        this.exchanges.open();
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
       }
@@ -198,27 +203,33 @@ public class IndexWriters {
   }
 
   public void write(NutchDocument doc) throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
-        .entrySet()) {
+    for (String indexWriterId : this.exchanges.indexWriters(doc)) {
       NutchDocument mappedDocument = mapDocument(doc,
-          entry.getValue().getIndexWriterConfig().getMapping());
-      entry.getValue().getIndexWriter().write(mappedDocument);
+          this.indexWriters.get(indexWriterId).getIndexWriterConfig()
+              .getMapping());
+      this.indexWriters.get(indexWriterId).getIndexWriter()
+          .write(mappedDocument);
     }
   }
 
   public void update(NutchDocument doc) throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
-        .entrySet()) {
-      entry.getValue().getIndexWriter().update(mapDocument(doc,
-          entry.getValue().getIndexWriterConfig().getMapping()));
+    for (String indexWriterId : this.exchanges.indexWriters(doc)) {
+      NutchDocument mappedDocument = mapDocument(doc,
+          this.indexWriters.get(indexWriterId).getIndexWriterConfig()
+              .getMapping());
+      this.indexWriters.get(indexWriterId).getIndexWriter()
+          .update(mappedDocument);
     }
   }
 
-  public void delete(String key) throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
-        .entrySet()) {
-      entry.getValue().getIndexWriter().delete(key);
+  public void delete(String key, NutchDocument doc) throws IOException {
+    for (String indexWriterId : this.exchanges.indexWriters(doc)) {
+      this.indexWriters.get(indexWriterId).getIndexWriter().delete(key);
     }
+  }
+
+public void delete(String key) throws IOException {
+    
   }
 
   public void close() throws IOException {
