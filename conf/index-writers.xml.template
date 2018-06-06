@@ -54,7 +54,7 @@
       <param name="queue.name" value="nutch.queue"/>
       <param name="queue.options" value="durable=true,exclusive=false,auto-delete=false"/>
       <param name="routingkey" value=""/>
-      <param name="commit.commit" value="multiple"/>
+      <param name="commit.mode" value="multiple"/>
       <param name="commit.size" value="250"/>
       <param name="headers.static" value=""/>
       <param name="headers.dynamic" value=""/>
