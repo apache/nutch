@@ -679,13 +679,6 @@
 </property>
 
 <property>
-  <name>db.max.anchor.length</name>
-  <value>100</value>
-  <description>The maximum number of characters permitted in an anchor.
-  </description>
-</property>
-
- <property>
   <name>db.parsemeta.to.crawldb</name>
   <value></value>
   <description>Comma-separated list of parse metadata keys to transfer to the crawldb (NUTCH-779).
@@ -762,6 +755,15 @@
   <value>false</value>
   <description>If true, when adding new links to a page, links from
   the a different host are ignored.
+  </description>
+</property>
+
+<property>
+  <name>linkdb.max.anchor.length</name>
+  <value>100</value>
+  <description>
+    The maximum number of characters permitted for anchor texts stored
+    in LinkDb.
   </description>
 </property>
 
