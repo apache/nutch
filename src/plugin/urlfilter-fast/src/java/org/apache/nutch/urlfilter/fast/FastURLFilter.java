@@ -26,27 +26,59 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.net.URI;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
- * Filters URLs based on a file of regular expressions using host/domains matching
- * first. Host-based rules are evaluated before domain-based rules, but otherwise should
- * be checked in order. The default policy is to accept a URL if no matches are found.
+ * Filters URLs based on a file of regular expressions using host/domains
+ * matching first. The default policy is to accept a URL if no matches are
+ * found.
  *
  * Rule Format:
+ * 
+ * <pre>
+ * Host www.example.org
+ *   DenyPath /path/to/be/excluded
+ *   DenyPath /some/other/path/excluded
  *
- * Host www.imdb.com
- *   DenyPath /keyword/(?:.*?/){2,}  # permutation of keywords separated by /
- *   DenyPath /some/other/path
+ * # Deny everything from *.example.com and example.com
+ * Domain example.com
+ *   DenyPath .*
  *
- * Domain gravatar.com
- *   DenyPath .*     # Deny everything from *.gravatar.com and gravatar.com
- *
- * Domain myspace.com
- *   DenyPathQuery /resource/.*?action=add
- *
- * {@link java.util.regex Java Regex implementation}.
+ * Domain example.org
+ *   DenyPathQuery /resource/.*?action=exclude
+ * </pre>
+ * 
+ * <code>Host</code> rules are evaluated before <code>Domain</code> rules. For
+ * <code>Host</code> rules the entire host name of a URL must match while domain
+ * names are considered as matches if the domain is a suffix of the host name
+ * (consisting of complete host name parts). Shorter domain suffixes are checked
+ * first, a single dot &quot;<code>.</code>&quot; as &quot;domain name&quot; can
+ * be used to specify global rules applied to every URL.
+ * 
+ * E.g., for "www.example.com" rules are looked up in the following order:
+ * <ol>
+ * <li>check "www.example.com" whether host-based rules exist and whether one of
+ * them matches</li>
+ * <li>check "www.example.com" for domain-based rules</li>
+ * <li>check "example.com" for domain-based rules</li>
+ * <li>check "com" for domain-based rules</li>
+ * <li>check for global rules (domain name is ".")</li>
+ * </ol>
+ * 
+ * For rules either the URL path (<code>DenyPath</code>) or path and query
+ * (<code>DenyPathQuery</code>) are checked whether one of the given
+ * {@link java.util.regex Java Regular expression} matches the beginning of the
+ * URL path (and query).
+ * 
+ * Rules are applied in the order of their definition. For better performance,
+ * regular expressions which are simpler or match more URLs should be defined
+ * earlier.
+ * 
+ * Comments in the rule file start with the <code>#</code> character and reach
+ * until the end of the line.
  */
 public class FastURLFilter implements URLFilter {
   private final static Logger LOG = LoggerFactory.getLogger(FastURLFilter.class);
@@ -55,11 +87,23 @@ public class FastURLFilter implements URLFilter {
   private Multimap<String, Rule> hostRules = LinkedHashMultimap.create();
   private Multimap<String, Rule> domainRules = LinkedHashMultimap.create();
 
+  private static final Pattern CATCH_ALL_RULE = Pattern
+      .compile("^\\s*DenyPath\\s+\\.\\*\\s*$");
+
   public FastURLFilter() {}
+
+  FastURLFilter(Reader rules) throws IOException, PatternSyntaxException {
+    reloadRules(rules);
+  }
 
   public void setConf(Configuration conf) {
     this.conf = conf;
-    reloadRules();
+    try {
+      reloadRules();
+    } catch (Exception e) {
+      LOG.error(e.getMessage());
+      throw new RuntimeException(e.getMessage(), e);
+    }
   }
 
   public Configuration getConf() {
@@ -77,11 +121,11 @@ public class FastURLFilter implements URLFilter {
         }
       }
 
-      String[] domainParts = hostname.split("\\.");
-      String domain = null;
-      for (int i=domainParts.length - 1; i >= 0; i--) {
-        domain = domainParts[i] + (domain == null ? "" : "." + domain);
-
+      int start = 0;
+      int pos;
+      while ((pos = hostname.indexOf('.', start)) != -1) {
+        start = pos + 1;
+        String domain = hostname.substring(start);
         for (Rule rule : domainRules.get(domain)) {
           if (rule.match(uri)) {
             return null;
@@ -103,13 +147,16 @@ public class FastURLFilter implements URLFilter {
     return url;
   }
 
-  public void reloadRules() {
+  public void reloadRules() throws IOException {
+    String fileRules = conf.get(URLFILTER_FAST_FILE);
+    reloadRules(conf.getConfResourceAsReader(fileRules));
+  }
+
+  private void reloadRules(Reader rules) throws IOException {
     domainRules.clear();
     hostRules.clear();
 
-    String fileRules = conf.get(URLFILTER_FAST_FILE);
-    BufferedReader reader = new BufferedReader(conf.getConfResourceAsReader(fileRules));
-
+    BufferedReader reader = new BufferedReader(rules);
 
     String current = null;
     boolean host = false;
@@ -122,6 +169,7 @@ public class FastURLFilter implements URLFilter {
         line = line.trim();
 
         if (line.indexOf("#") != -1) {
+          // strip comments
           line = line.substring(0, line.indexOf("#")).trim();
         }
 
@@ -129,12 +177,12 @@ public class FastURLFilter implements URLFilter {
           continue;
         }
 
-        if (line.startsWith("Host ")) {
+        if (line.startsWith("Host")) {
           host = true;
-          current =  line.split("\\s")[1];
-        } else if (line.startsWith("Domain ")) {
+          current =  line.split("\\s+")[1];
+        } else if (line.startsWith("Domain")) {
           host = false;
-          current = line.split("\\s")[1];
+          current = line.split("\\s+")[1];
         } else {
           if (current == null) {
             continue;
@@ -142,14 +190,14 @@ public class FastURLFilter implements URLFilter {
 
           Rule rule = null;
           try {
-            if (line.startsWith("DenyPath ")) {
-              if (line.equals("DenyPath .*")) {
+            if (line.startsWith("DenyPathQuery")) {
+              rule = new DenyPathQueryRule(line.split("\\s+")[1]);
+            } else if (line.startsWith("DenyPath")) {
+              if (CATCH_ALL_RULE.matcher(line).matches()) {
                 rule = DenyPathEntirelyRule.getInstance();
               } else {
-                rule = new DenyPathRule(line.split("\\s")[1]);
+                rule = new DenyPathRule(line.split("\\s+")[1]);
               }
-            } else if (line.startsWith("DenyPathQuery ")) {
-              rule = new DenyPathQueryRule(line.split("\\s")[1]);
             } else {
               continue;
             }
@@ -158,10 +206,10 @@ public class FastURLFilter implements URLFilter {
           }
 
           if (host) {
-            if (LOG.isTraceEnabled()) { LOG.trace("Adding host rule [" + current + "] [" + rule.toString() + "]"); }
-            hostRules.put(current,rule);
+            LOG.trace("Adding host rule [{}] [{}]", current, rule);
+            hostRules.put(current, rule);
           } else {
-            if (LOG.isTraceEnabled()) { LOG.trace("Adding domain rule [" + current + "] [" + rule.toString() + "]"); }
+            LOG.trace("Adding domain rule [{}] [{}]", current, rule);
             domainRules.put(current, rule);
           }
         }
@@ -209,7 +257,8 @@ public class FastURLFilter implements URLFilter {
 
     private static Rule instance = new DenyPathEntirelyRule(".*");
 
-    private DenyPathEntirelyRule(String pattern) {
+    private DenyPathEntirelyRule(String regex) {
+      super(regex);
     }
 
     public static Rule getInstance() {

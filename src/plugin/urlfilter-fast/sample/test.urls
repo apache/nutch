@@ -1,0 +1,14 @@
+-https://www.example.org/path/to/be/excluded
+-https://www.example.org/path/to/be/excluded/continued
+-https://www.example.org/some/other/path/excluded
++https://www.example.org/
+-https://www1.example.com/
+-https://www2.example.com/
+-https://www.subnet.example.com/
++https://www.examplex.com/
++https://www.example.co.uk/
++https://www.example.com.za/
+-https://www.example.org/resource/put?action=exclude
+-http://www.nutch.org/abcd/foo/bar/foo/bar/foo/
+-http://www.nutch.org/abcd/foo/bar/xyz/foo/bar/foo/
++http://www.nutch.org/abcd/foo1/bar1/zzz1/

@@ -1175,7 +1175,8 @@
         <source path="${plugins.dir}/urlfilter-domain/src/test/" />
         <source path="${plugins.dir}/urlfilter-domainblacklist/src/java/" />
         <source path="${plugins.dir}/urlfilter-domainblacklist/src/test/" />
-        <source path="${plugins.dir}/urlfilter-fast/src/java"/>
+        <source path="${plugins.dir}/urlfilter-fast/src/java/"/>
+        <source path="${plugins.dir}/urlfilter-fast/src/test/"/>
         <source path="${plugins.dir}/urlfilter-ignoreexempt/src/java/" />
         <source path="${plugins.dir}/urlfilter-prefix/src/java/" />
         <source path="${plugins.dir}/urlfilter-prefix/src/test/" />

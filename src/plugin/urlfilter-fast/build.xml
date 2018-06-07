@@ -42,10 +42,10 @@
     <ant target="deploy" inheritall="false" dir="../lib-regex-filter"/>
   </target>
 
-  <!-- for junit test
+  <!-- for junit test -->
   <mkdir dir="${build.test}/data"/>
   <copy todir="${build.test}/data">
-    <fileset dir="sample" includes="**/*.rules, **/*.urls"/>
+    <fileset dir="sample" includes="**/*.txt, **/*.urls"/>
   </copy>
-  -->
+
 </project>
