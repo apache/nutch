@@ -823,6 +823,7 @@ public class Generator extends NutchTool implements Tool {
       }
     } catch (Exception e) {
       LOG.warn("Generator: exception while partitioning segments, exiting ...");
+      LockUtil.removeLockFile(getConf(),lock);
       fs.delete(tempDir, true);
       return null;
     }
