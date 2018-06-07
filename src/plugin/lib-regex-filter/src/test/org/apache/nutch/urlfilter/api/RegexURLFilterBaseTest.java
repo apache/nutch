@@ -43,8 +43,8 @@ public abstract class RegexURLFilterBaseTest {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private final static String SEPARATOR = System.getProperty("file.separator");
-  private final static String SAMPLES = System.getProperty("test.data", ".");
+  protected final static String SEPARATOR = System.getProperty("file.separator");
+  protected final static String SAMPLES = System.getProperty("test.data", ".");
 
   protected abstract URLFilter getURLFilter(Reader rules);
 
