@@ -90,7 +90,10 @@ public class HttpResponse implements Response {
       Http.LOG.trace("fetching " + url);
     }
 
-    String path = "".equals(url.getFile()) ? "/" : url.getFile();
+    String path = url.getFile();
+    if (!path.startsWith("/")) {
+      path = "/" + path;
+    }
 
     // some servers will redirect a request with a host line like
     // "Host: <hostname>:80" to "http://<hpstname>/<orig_path>"- they

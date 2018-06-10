@@ -32,6 +32,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
@@ -86,6 +88,7 @@ public class TestBadServerResponses {
   private void runServer(int port, String response) throws Exception {
     server = new ServerSocket();
     server.bind(new InetSocketAddress("127.0.0.1", port));
+    Pattern requestPattern = Pattern.compile("(?i)^GET\\s+(\\S+)");
     while (true) {
       LOG.info("Listening on port {}", port);
       Socket socket = server.accept();
@@ -101,6 +104,13 @@ public class TestBadServerResponses {
           LOG.info("Request: {}", line);
           if (line.trim().isEmpty()) {
             break;
+          }
+          Matcher m = requestPattern.matcher(line);
+          if (m.find()) {
+            LOG.info("Requested {}", m.group(1));
+            if (!m.group(1).startsWith("/")) {
+              response = "HTTP/1.1 400 Bad request\r\n\r\n";
+            }
           }
         }
         LOG.info("Response: {}",
@@ -139,8 +149,6 @@ public class TestBadServerResponses {
     LOG.info("Fetching {}", url);
     CrawlDatum crawlDatum = new CrawlDatum();
     Response response = http.getResponse(url, crawlDatum, true);
-    ProtocolOutput out = http.getProtocolOutput(new Text(url.toString()),
-        crawlDatum);
     assertEquals("HTTP Status Code for " + url, expectedCode,
         response.getCode());
     return response;
@@ -152,6 +160,16 @@ public class TestBadServerResponses {
     // test with trivial well-formed content, to make sure the server is responding 
     launchServer(responseHeader + simpleContent);
     fetchPage("/", 200);
+  }
+
+  /**
+   * NUTCH-2555 URL normalization problem: path not starting with a '/'
+   */
+  @Test
+  public void testRequestNotStartingWithSlash() throws Exception {
+    setUp();
+    launchServer(responseHeader + simpleContent);
+    fetchPage("?171", 200);
   }
 
   /**

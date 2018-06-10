@@ -132,21 +132,25 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         changed = true;
       }
 
-      if (file == null || "".equals(file)) { // add a slash
+      if (file == null || "".equals(file)) {
         file = "/";
         changed = true;
+      } else if (!file.startsWith("/")) {
+        file = "/" + file;
+        changed = true;
+      } else {
+        // check for unnecessary use of "/../", "/./", and "//"
+        String file2 = getFileWithNormalizedPath(url);
+        if (!file.equals(file2)) {
+          changed = true;
+          file = file2;
+        }
       }
 
       if (url.getRef() != null) { // remove the ref
         changed = true;
       }
 
-      // check for unnecessary use of "/../", "/./", and "//"
-      String file2 = getFileWithNormalizedPath(url);
-      if (!file.equals(file2)) {
-        changed = true;
-        file = file2;
-      }
     }
 
     // properly encode characters in path/file using percent-encoding
@@ -191,6 +195,8 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     // if path is empty return a single slash
     if (file.isEmpty()) {
       file = "/";
+    } else if (!file.startsWith("/")) {
+      file = "/" + file;
     }
 
     return file;
