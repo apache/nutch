@@ -166,7 +166,11 @@ public class HttpResponse implements Response {
         reqStr.append(path);
       }
 
-      reqStr.append(" HTTP/1.0\r\n");
+      if (http.getUseHttp11()) {
+        reqStr.append(" HTTP/1.1\r\n");
+      } else {
+        reqStr.append(" HTTP/1.0\r\n");
+      }
 
       reqStr.append("Host: ");
       reqStr.append(host);
