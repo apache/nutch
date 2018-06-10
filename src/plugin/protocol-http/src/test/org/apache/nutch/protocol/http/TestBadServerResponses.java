@@ -185,6 +185,19 @@ public class TestBadServerResponses {
   }
 
   /**
+   * NUTCH-2559 protocol-http cannot handle colons after the HTTP status code
+   */
+  @Test
+  public void testHeaderWithColon() throws Exception {
+    setUp();
+    launchServer("HTTP/1.1 200: OK\r\n" + simpleContent);
+    fetchPage("/", 200);
+    server.close();
+    launchServer("HTTP/1.1 \u0966\u0967\u0968: OK\r\n" + simpleContent);
+    fetchPage("/", 200);
+  }
+
+  /**
    * NUTCH-2562 protocol-http fails to read large chunked HTTP responses,
    * NUTCH-2575 protocol-http does not respect the maximum content-size for
    * chunked responses

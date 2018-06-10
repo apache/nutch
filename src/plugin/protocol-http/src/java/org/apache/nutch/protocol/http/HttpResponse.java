@@ -501,36 +501,29 @@ public class HttpResponse implements Response {
     readLine(in, line, false);
 
     int codeStart = line.indexOf(" ");
-    int codeEnd = line.indexOf(" ", codeStart + 1);
+    int codeEnd;
+    int lineLength = line.length();
 
-    // handle lines with no plaintext result code, ie:
-    // "HTTP/1.1 200" vs "HTTP/1.1 200 OK"
-    if (codeEnd == -1)
-      codeEnd = line.length();
-
-    int code;
-    try {
-      code = Integer.parseInt(line.substring(codeStart + 1, codeEnd));
-    } catch (NumberFormatException e) {
-      throw new HttpException(
-          "bad status line '" + line + "': " + e.getMessage(), e);
+    // We want to handle lines like "HTTP/1.1 200", "HTTP/1.1 200 OK", or "HTTP/1.1 404: Not Found"
+    for (codeEnd = codeStart + 1; codeEnd < lineLength; codeEnd++) {
+      if (!Character.isDigit(line.charAt(codeEnd))) break;
+      // Note: input is plain ASCII and may not contain Arabic etc. digits
+      // covered by Character.isDigit()
     }
 
-    return code;
+    try {
+      return Integer.parseInt(line.substring(codeStart + 1, codeEnd));
+    } catch (NumberFormatException e) {
+      throw new HttpException("bad status line '" + line + "'" + e.getMessage(), e);
+    }
   }
 
-  private void processHeaderLine(StringBuffer line)
-      throws IOException, HttpException {
+  private void processHeaderLine(StringBuffer line) {
 
     int colonIndex = line.indexOf(":"); // key is up to colon
     if (colonIndex == -1) {
-      int i;
-      for (i = 0; i < line.length(); i++)
-        if (!Character.isWhitespace(line.charAt(i)))
-          break;
-      if (i == line.length())
-        return;
-      throw new HttpException("No colon in header:" + line);
+      Http.LOG.info("Ignoring a header line without a colon: '{}'", line);
+      return;
     }
     String key = line.substring(0, colonIndex);
 
