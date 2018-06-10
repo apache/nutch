@@ -173,6 +173,18 @@ public class TestBadServerResponses {
   }
 
   /**
+   * NUTCH-2564 protocol-http throws an error when the content-length header is
+   * not a number
+   */
+  @Test
+  public void testContentLengthNotANumber() throws Exception {
+    setUp();
+    launchServer(
+        responseHeader + "Content-Length: thousand\r\n" + simpleContent);
+    fetchPage("/", 200);
+  }
+
+  /**
    * NUTCH-2562 protocol-http fails to read large chunked HTTP responses,
    * NUTCH-2575 protocol-http does not respect the maximum content-size for
    * chunked responses

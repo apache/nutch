@@ -356,10 +356,11 @@ public class HttpResponse implements Response {
     if (contentLengthString != null) {
       contentLengthString = contentLengthString.trim();
       try {
-        if (!contentLengthString.isEmpty())
+        if (!contentLengthString.isEmpty()) {
           contentLength = Integer.parseInt(contentLengthString);
+        }
       } catch (NumberFormatException e) {
-        throw new HttpException("bad content length: " + contentLengthString);
+        Http.LOG.warn("bad content length: {}", contentLengthString);
       }
     }
     if (http.getMaxContent() >= 0 && contentLength > http.getMaxContent()) {
