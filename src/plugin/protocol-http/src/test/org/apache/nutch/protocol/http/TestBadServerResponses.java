@@ -1,0 +1,187 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.nutch.protocol.http;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.lang.invoke.MethodHandles;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ProtocolOutput;
+import org.junit.After;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Test cases for protocol-http - robustness regarding bad server responses:
+ * malformed HTTP header lines, etc. See, NUTCH-2549.
+ */
+public class TestBadServerResponses {
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+
+  private Http http;
+  private ServerSocket server;
+  private Configuration conf;
+  private int port = 47505;
+
+  private static final String responseHeader = "HTTP/1.1 200 OK\r\n";
+  private static final String simpleContent = "Content-Type: text/html\r\n\r\nThis is a text.";
+
+  public void setUp() throws Exception {
+    conf = new Configuration();
+    conf.addResource("nutch-default.xml");
+    conf.addResource("nutch-site-test.xml");
+
+    http = new Http();
+    http.setConf(conf);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    server.close();
+  }
+
+  /**
+   * Starts the test server at a specified port and constant response.
+   * 
+   * @param portno
+   *          Port number.
+   * @param response
+   *          response sent on every request
+   */
+  private void runServer(int port, String response) throws Exception {
+    server = new ServerSocket();
+    server.bind(new InetSocketAddress("127.0.0.1", port));
+    while (true) {
+      LOG.info("Listening on port {}", port);
+      Socket socket = server.accept();
+      LOG.info("Connection received");
+      try (
+          BufferedReader in = new BufferedReader(new InputStreamReader(
+              socket.getInputStream(), StandardCharsets.UTF_8));
+          PrintWriter out = new PrintWriter(new OutputStreamWriter(
+              socket.getOutputStream(), StandardCharsets.UTF_8), true)) {
+
+        String line;
+        while ((line = in.readLine()) != null) {
+          LOG.info("Request: {}", line);
+          if (line.trim().isEmpty()) {
+            break;
+          }
+        }
+        LOG.info("Response: {}",
+            response.substring(0, Math.min(1024, response.length())));
+        out.print(response);
+      } catch (Exception e) {
+        LOG.warn("Exception in test server:", e);
+      }
+    }
+  }
+
+  private void launchServer(String response) throws InterruptedException {
+    Thread serverThread = new Thread(() -> {
+      try {
+        runServer(port, response);
+      } catch (Exception e) {
+        LOG.warn("Test server died:", e);
+      }
+    });
+    serverThread.start();
+    Thread.sleep(50);
+  }
+
+  /**
+   * Fetches the specified <code>page</code> from the local test server and
+   * checks whether the HTTP response status code matches with the expected
+   * code.
+   * 
+   * @param page
+   *          Page to be fetched.
+   * @param expectedCode
+   *          HTTP response status code expected while fetching the page.
+   */
+  private Response fetchPage(String page, int expectedCode) throws Exception {
+    URL url = new URL("http", "127.0.0.1", port, page);
+    LOG.info("Fetching {}", url);
+    CrawlDatum crawlDatum = new CrawlDatum();
+    Response response = http.getResponse(url, crawlDatum, true);
+    ProtocolOutput out = http.getProtocolOutput(new Text(url.toString()),
+        crawlDatum);
+    assertEquals("HTTP Status Code for " + url, expectedCode,
+        response.getCode());
+    return response;
+  }
+
+  @Test
+  public void testBadHttpServer() throws Exception {
+    setUp();
+    // test with trivial well-formed content, to make sure the server is responding 
+    launchServer(responseHeader + simpleContent);
+    fetchPage("/", 200);
+  }
+
+  /**
+   * NUTCH-2562 protocol-http fails to read large chunked HTTP responses,
+   * NUTCH-2575 protocol-http does not respect the maximum content-size for
+   * chunked responses
+   */
+  @Test
+  public void testChunkedContent() throws Exception {
+    setUp();
+    StringBuilder response = new StringBuilder();
+    response.append(responseHeader);
+    response.append("Content-Type: text/html\r\n");
+    response.append("Transfer-Encoding: chunked\r\n");
+    // 81920 bytes (80 chunks, 1024 bytes each)
+    // > 65536 (http.content.limit defined in nutch-site-test.xml)
+    for (int i = 0; i < 80; i++) {
+      response.append(String.format("\r\n400\r\n%02x\r\n", i));
+      for (int j = 0; j < 1012; j++) {
+        response.append('x');
+      }
+      response.append(String.format("\r\n%02x\r\n", i));
+      response.append("\r\n");
+    }
+    response.append("\r\n0\r\n\r\n");
+    launchServer(response.toString());
+    Response fetched = fetchPage("/", 200);
+    assertEquals(
+        "Chunked content not truncated according to http.content.limit", 65536,
+        fetched.getContent().length);
+  }
+
+}
