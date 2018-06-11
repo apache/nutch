@@ -18,6 +18,7 @@
 package org.apache.nutch.protocol.http;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -198,6 +199,21 @@ public class TestBadServerResponses {
     launchServer(responseHeader + "Client-Transfer-Encoding: chunked\r\n"
         + simpleContent);
     fetchPage("/", 200);
+  }
+
+  /**
+   * NUTCH-2557 protocol-http fails to follow redirections when an HTTP response
+   * body is invalid
+   */
+  @Test
+  public void testIgnoreErrorInRedirectPayload() throws Exception {
+    setUp();
+    launchServer("HTTP/1.1 302 Found\r\nLocation: http://example.com/\r\n"
+        + "Transfer-Encoding: chunked\r\n\r\nNot a valid chunk.");
+    Response fetched = fetchPage("/", 302);
+    assertNotNull("No redirect Location.", fetched.getHeader("Location"));
+    assertEquals("Wrong redirect Location.", "http://example.com/",
+        fetched.getHeader("Location"));
   }
 
   /**

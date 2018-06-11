@@ -272,30 +272,46 @@ public class HttpResponse implements Response {
         haveSeenNonContinueStatus = code != 100; // 100 is "Continue"
       }
 
-      String transferEncoding = getHeader(Response.TRANSFER_ENCODING);
-      if (transferEncoding != null && "chunked"
-          .equalsIgnoreCase(transferEncoding.trim())) {
-        readChunkedContent(in, line);
-      } else {
-        readPlainContent(in);
-      }
-
-      String contentEncoding = getHeader(Response.CONTENT_ENCODING);
-      if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
-        content = http.processGzipEncoded(content, url);
-      } else if ("deflate".equals(contentEncoding)) {
-        content = http.processDeflateEncoded(content, url);
-      } else {
-        // store the headers verbatim only if the response was not compressed
-        // as the content length reported does not match otherwise
-        if (httpHeaders != null) {
-          headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
+      try {
+        String transferEncoding = getHeader(Response.TRANSFER_ENCODING);
+        if (transferEncoding != null
+            && "chunked".equalsIgnoreCase(transferEncoding.trim())) {
+          readChunkedContent(in, line);
+        } else {
+          readPlainContent(in);
         }
-        if (Http.LOG.isTraceEnabled()) {
-          Http.LOG.trace("fetched " + content.length + " bytes from " + url);
+
+        String contentEncoding = getHeader(Response.CONTENT_ENCODING);
+        if ("gzip".equals(contentEncoding)
+            || "x-gzip".equals(contentEncoding)) {
+          content = http.processGzipEncoded(content, url);
+        } else if ("deflate".equals(contentEncoding)) {
+          content = http.processDeflateEncoded(content, url);
+        } else {
+          // store the headers verbatim only if the response was not compressed
+          // as the content length reported does not match otherwise
+          if (httpHeaders != null) {
+            headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
+          }
+          if (Http.LOG.isTraceEnabled()) {
+            Http.LOG.trace("fetched " + content.length + " bytes from " + url);
+          }
+        }
+      } catch (IOException | HttpException e) {
+        // Headers parsing went fine, but an error occurred while trying to read
+        // the body of the request (the body may be malformed)
+        if (code != 200) {
+          Http.LOG.warn(
+              "Ignored exception while reading payload of response with status code "
+                  + code + ":",
+              e);
+          content = null;
+        } else {
+          // If the page is a "200 OK" response, we do not want to go further
+          // with processing the invalid payload.
+          throw e;
         }
       }
-
     } finally {
       if (socket != null)
         socket.close();
