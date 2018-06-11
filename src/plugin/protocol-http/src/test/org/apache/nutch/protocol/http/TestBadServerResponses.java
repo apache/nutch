@@ -19,6 +19,7 @@ package org.apache.nutch.protocol.http;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -62,6 +63,7 @@ public class TestBadServerResponses {
     conf = new Configuration();
     conf.addResource("nutch-default.xml");
     conf.addResource("nutch-site-test.xml");
+    conf.setBoolean("store.http.headers", true);
 
     http = new Http();
     http.setConf(conf);
@@ -237,6 +239,23 @@ public class TestBadServerResponses {
     fetched = fetchPage("/", 200);
     assertEquals("Wrong text returned for response with no status line.", text,
         new String(fetched.getContent(), StandardCharsets.UTF_8));
+  }
+
+  /**
+   * NUTCH-2560 protocol-http throws an error when an http header spans over
+   * multiple lines
+   */
+  @Test
+  public void testMultiLineHeader() throws Exception {
+    setUp();
+    launchServer(responseHeader
+        + "Set-Cookie: UserID=JohnDoe;\r\n  Max-Age=3600;\r\n  Version=1\r\n"
+        + simpleContent);
+    Response fetched = fetchPage("/", 200);
+    LOG.info("Headers: {}", fetched.getHeaders());
+    assertNotNull("Failed to set multi-line \"Set-Cookie\" header.", fetched.getHeader("Set-Cookie"));
+    assertTrue("Failed to set multi-line \"Set-Cookie\" header.",
+        fetched.getHeader("Set-Cookie").contains("Version=1"));
   }
 
   /**
