@@ -19,11 +19,8 @@ package org.apache.nutch.protocol.http;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.invoke.MethodHandles;
@@ -36,11 +33,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ProtocolOutput;
 import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -192,8 +186,50 @@ public class TestBadServerResponses {
     setUp();
     launchServer("HTTP/1.1 200: OK\r\n" + simpleContent);
     fetchPage("/", 200);
+  }
+
+  /**
+   * NUTCH-2558 protocol-http cannot handle a missing HTTP status line
+   */
+  @Test
+  public void testNoStatusLine() throws Exception {
+    setUp();
+    String text = "This is a text containing non-ASCII characters: \u00e4\u00f6\u00fc\u00df";
+    launchServer(text);
+    Response fetched = fetchPage("/", 200);
+    assertEquals("Wrong text returned for response with no status line.", text,
+        new String(fetched.getContent(), StandardCharsets.UTF_8));
     server.close();
-    launchServer("HTTP/1.1 \u0966\u0967\u0968: OK\r\n" + simpleContent);
+    text = "<!DOCTYPE html>\n<html>\n<head>\n"
+        + "<title>Testing no HTTP header èéâ</title>\n"
+        + "<meta charset=\"utf-8\">\n"
+        + "</head>\n<body>This is a text containing non-ASCII characters:"
+        + "\u00e4\u00f6\u00fc\u00df</body>\n</html";
+    launchServer(text);
+    fetched = fetchPage("/", 200);
+    assertEquals("Wrong text returned for response with no status line.", text,
+        new String(fetched.getContent(), StandardCharsets.UTF_8));
+  }
+
+  /**
+   * NUTCH-2561 protocol-http can be made to read arbitrarily large HTTP
+   * responses
+   */
+  @Test(expected = Exception.class)
+  public void testOverlongHeader() throws Exception {
+    setUp();
+    StringBuilder response = new StringBuilder();
+    response.append(responseHeader);
+    for (int i = 0; i < 80; i++) {
+      response.append("X-Custom-Header-");
+      for (int j = 0; j < 10000; j++) {
+        response.append('x');
+      }
+      response.append(": hello\r\n");
+    }
+    response.append("\r\n" + simpleContent);
+    launchServer(response.toString());
+    // should throw exception because of overlong header
     fetchPage("/", 200);
   }
 

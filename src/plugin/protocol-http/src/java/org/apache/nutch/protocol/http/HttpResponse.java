@@ -18,7 +18,6 @@ package org.apache.nutch.protocol.http;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,6 +25,7 @@ import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -243,6 +243,7 @@ public class HttpResponse implements Response {
                   Http.BUFFER_SIZE), Http.BUFFER_SIZE);
 
       StringBuffer line = new StringBuffer();
+      StringBuffer lineSeparator = new StringBuffer();
 
       // store the http headers verbatim
       if (http.isStoreHttpHeaders()) {
@@ -254,7 +255,16 @@ public class HttpResponse implements Response {
       boolean haveSeenNonContinueStatus = false;
       while (!haveSeenNonContinueStatus) {
         // parse status code line
-        this.code = parseStatusLine(in, line);
+        try {
+          this.code = parseStatusLine(in, line, lineSeparator);
+        } catch(HttpException e) {
+          Http.LOG.warn("Missing or invalid HTTP status line", e);
+          Http.LOG.warn("No HTTP header, assuming HTTP/0.9 for {}", getUrl());
+          this.code = 200;
+          in.unread(lineSeparator.toString().getBytes(StandardCharsets.ISO_8859_1));
+          in.unread(line.toString().getBytes(StandardCharsets.ISO_8859_1));
+          break;
+        }
         if (httpHeaders != null)
           httpHeaders.append(line).append("\n");
         // parse headers
@@ -496,9 +506,9 @@ public class HttpResponse implements Response {
 
   }
 
-  private int parseStatusLine(PushbackInputStream in, StringBuffer line)
-      throws IOException, HttpException {
-    readLine(in, line, false);
+  private int parseStatusLine(PushbackInputStream in, StringBuffer line,
+      StringBuffer lineSeparator) throws IOException, HttpException {
+    readLine(in, line, false, 2048, lineSeparator);
 
     int codeStart = line.indexOf(" ");
     int codeEnd;
@@ -514,7 +524,7 @@ public class HttpResponse implements Response {
     try {
       return Integer.parseInt(line.substring(codeStart + 1, codeEnd));
     } catch (NumberFormatException e) {
-      throw new HttpException("bad status line '" + line + "'" + e.getMessage(), e);
+      throw new HttpException("Bad status line, no HTTP response code: " + line, e);
     }
   }
 
@@ -553,7 +563,7 @@ public class HttpResponse implements Response {
           (pos = line.indexOf("<HTML")) != -1) || ((pos = line.indexOf("<html"))
           != -1)) {
 
-        in.unread(line.substring(pos).getBytes("UTF-8"));
+        in.unread(line.substring(pos).getBytes(StandardCharsets.ISO_8859_1));
         line.setLength(pos);
 
         try {
@@ -576,14 +586,31 @@ public class HttpResponse implements Response {
 
   private static int readLine(PushbackInputStream in, StringBuffer line,
       boolean allowContinuedLine) throws IOException {
+    return readLine(in, line, allowContinuedLine, Http.BUFFER_SIZE, null);
+  }
+
+  private static int readLine(PushbackInputStream in, StringBuffer line,
+      boolean allowContinuedLine, int maxBytes, StringBuffer lineSeparator) throws IOException {
     line.setLength(0);
-    for (int c = in.read(); c != -1; c = in.read()) {
+    int bytesRead = 0;
+    for (int c = in.read(); c != -1
+        && bytesRead < maxBytes; c = in.read(), bytesRead++) {
       switch (c) {
       case '\r':
+        if (lineSeparator != null) {
+          lineSeparator.append((char) c);
+        }
         if (peek(in) == '\n') {
           in.read();
+          if (lineSeparator != null) {
+            lineSeparator.append((char) c);
+          }
         }
+        // fall-through
       case '\n':
+        if (lineSeparator != null) {
+          lineSeparator.append((char) c);
+        }
         if (line.length() > 0) {
           // at EOL -- check for continued line if the current
           // (possibly continued) line wasn't blank
@@ -592,6 +619,9 @@ public class HttpResponse implements Response {
             case ' ':
             case '\t': // line is continued
               in.read();
+              if (lineSeparator != null) {
+                lineSeparator.replace(0, lineSeparator.length(), "");
+              }
               continue;
             }
         }
@@ -600,7 +630,11 @@ public class HttpResponse implements Response {
         line.append((char) c);
       }
     }
-    throw new EOFException();
+    if (bytesRead >= maxBytes) {
+      throw new IOException("Line exceeds max. buffer size: "
+          + line.substring(0, Math.min(32, line.length())));
+    }
+    return line.length();
   }
 
   private static int peek(PushbackInputStream in) throws IOException {
