@@ -34,4 +34,10 @@
   <value>true</value>
 </property>
 
+<property>
+  <name>http.content.limit</name>
+  <value>65536</value>
+  <description></description>
+</property>
+
 </configuration>
