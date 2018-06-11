@@ -151,7 +151,8 @@ public class TestBadServerResponses {
   @Test
   public void testBadHttpServer() throws Exception {
     setUp();
-    // test with trivial well-formed content, to make sure the server is responding 
+    // test with trivial well-formed content, to make sure the server is
+    // responding
     launchServer(responseHeader + simpleContent);
     fetchPage("/", 200);
   }
@@ -185,6 +186,17 @@ public class TestBadServerResponses {
   public void testHeaderWithColon() throws Exception {
     setUp();
     launchServer("HTTP/1.1 200: OK\r\n" + simpleContent);
+    fetchPage("/", 200);
+  }
+
+  /**
+   * NUTCH-2563 HTTP header spellchecking issues
+   */
+  @Test
+  public void testHeaderSpellChecking() throws Exception {
+    setUp();
+    launchServer(responseHeader + "Client-Transfer-Encoding: chunked\r\n"
+        + simpleContent);
     fetchPage("/", 200);
   }
 
