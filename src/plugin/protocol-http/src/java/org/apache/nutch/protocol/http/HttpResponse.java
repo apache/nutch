@@ -225,6 +225,10 @@ public class HttpResponse implements Response {
             + HttpDateFormat.toString(datum.getModifiedTime()));
         reqStr.append("\r\n");
       }
+
+      // "signal that this connection will be closed after completion of the
+      // response", see https://tools.ietf.org/html/rfc7230#section-6.1
+      reqStr.append("Connection: close\r\n");
       reqStr.append("\r\n");
 
       // store the request in the metadata?
