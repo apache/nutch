@@ -32,9 +32,10 @@ import org.apache.commons.lang.StringUtils;
 public class SpellCheckedMetadata extends Metadata {
 
   /**
-   * Treshold divider.
+   * Threshold divider to calculate max. Levenshtein distance for misspelled
+   * header field names:
    * 
-   * <code>threshold = searched.length() / TRESHOLD_DIVIDER;</code>
+   * <code>threshold = Math.min(3, searched.length() / TRESHOLD_DIVIDER);</code>
    */
   private static final int TRESHOLD_DIVIDER = 3;
 
@@ -112,7 +113,7 @@ public class SpellCheckedMetadata extends Metadata {
     String value = NAMES_IDX.get(searched);
 
     if ((value == null) && (normalized != null)) {
-      int threshold = searched.length() / TRESHOLD_DIVIDER;
+      int threshold = Math.min(3, searched.length() / TRESHOLD_DIVIDER);
       for (int i = 0; i < normalized.length && value == null; i++) {
         if (StringUtils.getLevenshteinDistance(searched, normalized[i]) < threshold) {
           value = NAMES_IDX.get(normalized[i]);

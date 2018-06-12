@@ -170,6 +170,8 @@ public class TestBasicURLNormalizer {
     normalizeTest("http:", "http:/");
     normalizeTest("http:////", "http:/");
     normalizeTest("http:///////", "http:/");
+    // NUTCH-2555 path must start with '/'
+    normalizeTest("http://example.com?a=1", "http://example.com/?a=1");
   }
   
   @Test
