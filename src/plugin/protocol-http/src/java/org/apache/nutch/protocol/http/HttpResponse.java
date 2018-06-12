@@ -33,9 +33,9 @@ import java.util.Set;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
@@ -49,7 +49,6 @@ import org.apache.nutch.protocol.http.api.HttpException;
  */
 public class HttpResponse implements Response {
 
-  private Configuration conf;
   private HttpBase http;
   private URL url;
   private byte[] content;
@@ -150,9 +149,7 @@ public class HttpResponse implements Response {
         socket = sslsocket;
       }
 
-      this.conf = http.getConf();
-      if (sockAddr != null
-          && conf.getBoolean("store.ip.address", false) == true) {
+      if (sockAddr != null && http.isStoreIPAddress()) {
         headers.add("_ip_", sockAddr.getAddress().getHostAddress());
       }
 
@@ -217,15 +214,15 @@ public class HttpResponse implements Response {
       }
 
       if (http.isIfModifiedSinceEnabled() && datum.getModifiedTime() > 0) {
-        reqStr.append("If-Modified-Since: " + HttpDateFormat
-            .toString(datum.getModifiedTime()));
+        reqStr.append(HttpHeaders.IF_MODIFIED_SINCE + ": "
+            + HttpDateFormat.toString(datum.getModifiedTime()));
         reqStr.append("\r\n");
       }
       reqStr.append("\r\n");
 
       // store the request in the metadata?
-      if (conf.getBoolean("store.http.request", false) == true) {
-        headers.add("_request_", reqStr.toString());
+      if (http.isStoreHttpRequest()) {
+        headers.add(Response.REQUEST, reqStr.toString());
       }
 
       byte[] reqBytes = reqStr.toString().getBytes();
@@ -241,11 +238,11 @@ public class HttpResponse implements Response {
       StringBuffer line = new StringBuffer();
 
       // store the http headers verbatim
-      if (conf.getBoolean("store.http.headers", false) == true) {
+      if (http.isStoreHttpHeaders()) {
         httpHeaders = new StringBuffer();
       }
 
-      headers.add("nutch.fetch.time", Long.toString(System.currentTimeMillis()));
+      headers.add(FETCH_TIME, Long.toString(System.currentTimeMillis()));
 
       boolean haveSeenNonContinueStatus = false;
       while (!haveSeenNonContinueStatus) {
@@ -273,9 +270,9 @@ public class HttpResponse implements Response {
         content = http.processDeflateEncoded(content, url);
       } else {
         // store the headers verbatim only if the response was not compressed
-        // as the content length reported with not match otherwise
+        // as the content length reported does not match otherwise
         if (httpHeaders != null) {
-          headers.add("_response.headers_", httpHeaders.toString());
+          headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
         }
         if (Http.LOG.isTraceEnabled()) {
           Http.LOG.trace("fetched " + content.length + " bytes from " + url);
