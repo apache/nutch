@@ -55,7 +55,7 @@ public class TestBadServerResponses {
   private OkHttp http;
   private ServerSocket server;
   private Configuration conf;
-  private int port = 47505;
+  private int port = 47506;
 
   private static final String responseHeader = "HTTP/1.1 200 OK\r\n";
   private static final String simpleContent = "Content-Type: text/html\r\n\r\nThis is a text.";
