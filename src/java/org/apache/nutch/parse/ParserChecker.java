@@ -271,13 +271,10 @@ public class ParserChecker extends AbstractChecker {
 
     for (Map.Entry<Text, Parse> entry : parseResult) {
       parse = entry.getValue();
-      LOG.info("---------\nUrl\n---------------\n");
-      System.out.print(entry.getKey());
-      LOG.info("\n---------\nParseData\n---------\n");
-      System.out.print(parse.getData().toString());
+      output.append(entry.getKey() + "\n");
+      output.append(parse.getData().toString() + "\n");
       if (dumpText) {
-        LOG.info("---------\nParseText\n---------\n");
-        System.out.print(parse.getText());
+        output.append(parse.getText());
       }
     }
 
