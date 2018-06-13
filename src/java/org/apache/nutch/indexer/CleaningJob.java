@@ -64,10 +64,12 @@ public class CleaningJob implements Tool {
       Mapper<Text, CrawlDatum, ByteWritable, Text> {
     private ByteWritable OUT = new ByteWritable(CrawlDatum.STATUS_DB_GONE);
 
+    @Override
     public void setup(Mapper<Text, CrawlDatum, ByteWritable, Text>.Context context) {
     }
 
-    public void cleanup() throws IOException {
+    @Override
+    public void cleanup(Context context) throws IOException {
     }
 
     @Override
@@ -91,6 +93,7 @@ public class CleaningJob implements Tool {
 
     IndexWriters writers = null;
 
+    @Override
     public void setup(Reducer<ByteWritable, Text, Text, ByteWritable>.Context context) {
       Configuration conf = context.getConfiguration();
       writers = IndexWriters.get(conf);
@@ -102,7 +105,8 @@ public class CleaningJob implements Tool {
       noCommit = conf.getBoolean("noCommit", false);
     }
 
-    public void cleanup() throws IOException {
+    @Override
+    public void cleanup(Context context) throws IOException {
       // BUFFERING OF CALLS TO INDEXER SHOULD BE HANDLED AT INDEXER LEVEL
       // if (numDeletes > 0) {
       // LOG.info("CleaningJob: deleting " + numDeletes + " documents");
@@ -119,6 +123,7 @@ public class CleaningJob implements Tool {
       LOG.info("CleaningJob: deleted a total of " + totalDeleted + " documents");
     }
 
+    @Override
     public void reduce(ByteWritable key, Iterable<Text> values,
         Context context) throws IOException {
       for (Text document : values) {
