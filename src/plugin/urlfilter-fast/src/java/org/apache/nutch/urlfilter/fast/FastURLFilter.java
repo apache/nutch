@@ -24,6 +24,7 @@ import org.apache.nutch.net.URLFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -81,7 +82,10 @@ import java.util.regex.PatternSyntaxException;
  * until the end of the line.
  */
 public class FastURLFilter implements URLFilter {
-  private final static Logger LOG = LoggerFactory.getLogger(FastURLFilter.class);
+
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+
   private Configuration conf;
   public static final String URLFILTER_FAST_FILE = "urlfilter.fast.file";
   private Multimap<String, Rule> hostRules = LinkedHashMultimap.create();
@@ -116,6 +120,13 @@ public class FastURLFilter implements URLFilter {
       String hostname = uri.getHost();
 
       for (Rule rule : hostRules.get(hostname)) {
+        if (rule.match(uri)) {
+          return null;
+        }
+      }
+
+      // also look up domain rules for host name 
+      for (Rule rule : domainRules.get(hostname)) {
         if (rule.match(uri)) {
           return null;
         }
