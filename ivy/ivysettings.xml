@@ -38,6 +38,9 @@
     value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier])"/>
   <property name="maven2.pattern.ext"
     value="${maven2.pattern}.[ext]"/>
+  <property name="maven2.pattern.local"
+    value="${user.home}/.m2/repository/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).[ext]"
+    override="false" />
   <!-- pull in the local repository -->
   <include url="${ivy.default.conf.dir}/ivyconf-local.xml"/>
   <settings defaultResolver="default"/>
@@ -59,14 +62,23 @@
       pattern="${maven2.pattern.ext}"
       m2compatible="true"
       />
+    <filesystem name="maven2-local" m2compatible="true" >
+      <artifact pattern="${maven2.pattern.local}"/>
+      <ivy pattern="${maven2.pattern.local}"/>
+    </filesystem>
     <chain name="default" dual="true">
       <resolver ref="local"/>
       <resolver ref="maven2"/>
       <resolver ref="apache-snapshot"/>
       <resolver ref="sonatype"/>
+      <resolver ref="maven2-local"/>
     </chain>
     <chain name="internal">
       <resolver ref="local"/>
+    </chain>
+    <chain name="internal-and-maven">
+      <resolver ref="local"/>
+      <resolver ref="maven2-local"/>
     </chain>
     <chain name="external">
       <resolver ref="maven2"/>
@@ -83,5 +95,7 @@
     rather than look for them online.
     -->
     <module organisation="org.apache.nutch" name=".*" resolver="internal"/>
+    <module organisation="org.commoncrawl" name=".*" resolver="internal-and-maven"/>
+    <module organisation="org.apache.tika" name="tika-core" resolver="internal-and-maven"/>
   </modules>
 </ivysettings>
