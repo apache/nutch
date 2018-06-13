@@ -43,6 +43,7 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.GZIPUtils;
+import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.DeflateUtils;
 import org.apache.hadoop.util.StringUtils;
 
@@ -109,6 +110,13 @@ public abstract class HttpBase implements Protocol {
 
   /** The nutch configuration */
   private Configuration conf = null;
+
+  /**
+   * MimeUtil for MIME type detection. Note (see NUTCH-2578): MimeUtil object is
+   * used concurrently by parallel fetcher threads, methods to detect MIME type
+   * must be thread-safe.
+   */
+  private MimeUtil mimeTypes = null;
 
   /** Do we use HTTP/1.1? */
   protected boolean useHttp11 = false;
@@ -185,6 +193,7 @@ public abstract class HttpBase implements Protocol {
         .trim();
     this.acceptCharset = conf.get("http.accept.charset", acceptCharset).trim();
     this.accept = conf.get("http.accept", accept).trim();
+    this.mimeTypes = new MimeUtil(conf);
     // backward-compatible default setting
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);
     this.useHttp2 = conf.getBoolean("http.useHttp2", false);
@@ -313,7 +322,7 @@ public abstract class HttpBase implements Protocol {
       byte[] content = response.getContent();
       Content c = new Content(u.toString(), u.toString(),
           (content == null ? EMPTY_CONTENT : content),
-          response.getHeader("Content-Type"), response.getHeaders(), this.conf);
+          response.getHeader("Content-Type"), response.getHeaders(), mimeTypes);
 
       if (code == 200) { // got a good response
         return new ProtocolOutput(c); // return it
