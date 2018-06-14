@@ -65,14 +65,6 @@ public class CleaningJob implements Tool {
     private ByteWritable OUT = new ByteWritable(CrawlDatum.STATUS_DB_GONE);
 
     @Override
-    public void setup(Mapper<Text, CrawlDatum, ByteWritable, Text>.Context context) {
-    }
-
-    @Override
-    public void cleanup(Context context) throws IOException {
-    }
-
-    @Override
     public void map(Text key, CrawlDatum value,
         Context context) throws IOException, InterruptedException {
 

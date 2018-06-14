@@ -192,14 +192,13 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     NutchWritable COUNT_1 = new NutchWritable(new LongWritable(1));
     private boolean sort = false;
 
+    @Override
     public void setup(Mapper<Text, CrawlDatum, Text, NutchWritable>.Context context) {
       Configuration conf = context.getConfiguration();
       sort = conf.getBoolean("db.reader.stats.sort", false);
     }
 
-    public void close() {
-    }
-
+    @Override
     public void map(Text key, CrawlDatum value, Context context)
         throws IOException, InterruptedException {
       context.write(new Text("T"), COUNT_1);
@@ -242,9 +241,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     public void setup(Reducer<Text, NutchWritable, Text, NutchWritable>.Context context) {
     }
 
-    public void close() {
-    }
-
+    @Override
     public void reduce(Text key, Iterable<NutchWritable> values,
         Context context)
         throws IOException, InterruptedException {
@@ -329,14 +326,13 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     private static final FloatWritable fw = new FloatWritable();
     private float min = 0.0f;
 
+    @Override
     public void setup(Mapper<Text, CrawlDatum, FloatWritable, Text>.Context context) {
       Configuration conf = context.getConfiguration();
       min = conf.getFloat("db.reader.topn.min", 0.0f);
     }
 
-    public void close() {
-    }
-
+    @Override
     public void map(Text key, CrawlDatum value,
         Context context)
         throws IOException, InterruptedException {
@@ -352,6 +348,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     private long topN;
     private long count = 0L;
 
+    @Override
     public void reduce(FloatWritable key, Iterable<Text> values,
         Context context)
         throws IOException, InterruptedException {
@@ -364,12 +361,10 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       }
     }
 
+    @Override
     public void setup(Reducer<FloatWritable, Text, FloatWritable, Text>.Context context) {
       Configuration conf = context.getConfiguration();
       topN = conf.getLong("db.reader.topn", 100) / Integer.parseInt(conf.get("mapreduce.job.reduces"));
-    }
-
-    public void close() {
     }
   }
 
@@ -401,24 +396,25 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
 	  // https://issues.apache.org/jira/browse/NUTCH-1029
 	  config.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
-          FileSystem fileSystem = tmpFolder.getFileSystem(config);
-          try {
-            boolean success = job.waitForCompletion(true);
-            if (!success) {
-              String message = "CrawlDbReader job did not succeed, job status:"
-                  + job.getStatus().getState() + ", reason: "
-                  + job.getStatus().getFailureInfo();
-              LOG.error(message);
-              fileSystem.delete(tmpFolder, true);
-              throw new RuntimeException(message);
-            }
-          } catch (IOException | InterruptedException | ClassNotFoundException e) {
-            LOG.error(StringUtils.stringifyException(e));
-            fileSystem.delete(tmpFolder, true);
-            throw e;
-          }
-	  // reading the result
-          SequenceFile.Reader[] readers = SegmentReaderUtil.getReaders(tmpFolder, config);
+    FileSystem fileSystem = tmpFolder.getFileSystem(config);
+    try {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CrawlDbReader job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        fileSystem.delete(tmpFolder, true);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error(StringUtils.stringifyException(e));
+      fileSystem.delete(tmpFolder, true);
+      throw e;
+    }
+
+    // reading the result
+    SequenceFile.Reader[] readers = SegmentReaderUtil.getReaders(tmpFolder, config);
 
 	  Text key = new Text();
 	  NutchWritable value = new NutchWritable();
@@ -629,6 +625,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     return res;
   }
 
+  @Override
   protected int process(String line, StringBuilder output) throws Exception {
     Job job = NutchJob.getInstance(getConf());
     Configuration config = job.getConfiguration();
@@ -720,6 +717,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     Expression expr = null;
     float sample;
 
+    @Override
     public void setup(Mapper<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
       Configuration config = context.getConfiguration();
       if (config.get("regex", null) != null) {
@@ -734,9 +732,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       sample = config.getFloat("sample", 1);
     }
 
-    public void close() {
-    }
-
+    @Override
     public void map(Text key, CrawlDatum value,
         Context context)
         throws IOException, InterruptedException {
