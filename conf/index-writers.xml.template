@@ -129,7 +129,7 @@
       <remove />
     </mapping>
   </writer>
-  <writer id="indexer_cloud_search_1" class="org.apache.nutch.indexwriter.elasticrest.ElasticRestIndexWriter">
+  <writer id="indexer_cloud_search_1" class="org.apache.nutch.indexwriter.cloudsearch.CloudSearchIndexWriter">
     <parameters>
       <param name="endpoint" value=""/>
       <param name="region" value=""/>
