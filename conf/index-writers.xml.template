@@ -22,10 +22,10 @@
   <writer id="indexer_solr_1" class="org.apache.nutch.indexwriter.solr.SolrIndexWriter">
     <parameters>
       <param name="type" value="http"/>
-      <!-- Solr URL (default core name is "nutch" but you may change it): -->
       <param name="url" value="http://localhost:8983/solr/nutch"/>
-      <param name="commitSize" value="250"/>
-      <param name="commitIndex" value="true"/>
+      <param name="collection" value=""/>
+      <param name="weight.field" value=""/>
+      <param name="commitSize" value="1000"/>
       <param name="auth" value="false"/>
       <param name="username" value="username"/>
       <param name="password" value="password"/>
