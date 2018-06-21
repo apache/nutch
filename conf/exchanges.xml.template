@@ -18,6 +18,7 @@
 <exchanges xmlns="http://lucene.apache.org/nutch"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://lucene.apache.org/nutch exchanges.xsd">
+  <!--
   <exchange id="exchange_jexl_1" class="org.apache.nutch.exchange.jexl.JexlExchange">
     <writers>
       <writer id="indexer_solr_1" />
@@ -33,4 +34,5 @@
     </writers>
     <params />
   </exchange>
+  -->
 </exchanges>

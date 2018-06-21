@@ -18,6 +18,7 @@ package org.apache.nutch.indexer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.exchange.Exchanges;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
@@ -37,10 +38,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 
 /**
  * Creates and caches {@link IndexWriter} implementing plugins.
@@ -187,6 +185,19 @@ public class IndexWriters {
   }
 
   /**
+   * Ensures if there are not available exchanges, the document will be routed to all configured index writers.
+   *
+   * @param doc Document to process.
+   * @return Index writers IDs.
+   */
+  private Collection<String> getIndexWriters(NutchDocument doc) {
+    if (this.exchanges.areAvailableExchanges()) {
+      return Arrays.asList(this.exchanges.indexWriters(doc));
+    }
+    return this.indexWriters.keySet();
+  }
+
+  /**
    * Initializes the internal variables of index writers.
    *
    * @param conf Nutch configuration.
@@ -203,7 +214,7 @@ public class IndexWriters {
   }
 
   public void write(NutchDocument doc) throws IOException {
-    for (String indexWriterId : this.exchanges.indexWriters(doc)) {
+    for (String indexWriterId : getIndexWriters(doc)) {
       NutchDocument mappedDocument = mapDocument(doc,
           this.indexWriters.get(indexWriterId).getIndexWriterConfig()
               .getMapping());
@@ -213,7 +224,7 @@ public class IndexWriters {
   }
 
   public void update(NutchDocument doc) throws IOException {
-    for (String indexWriterId : this.exchanges.indexWriters(doc)) {
+    for (String indexWriterId : getIndexWriters(doc)) {
       NutchDocument mappedDocument = mapDocument(doc,
           this.indexWriters.get(indexWriterId).getIndexWriterConfig()
               .getMapping());
@@ -223,13 +234,13 @@ public class IndexWriters {
   }
 
   public void delete(String key, NutchDocument doc) throws IOException {
-    for (String indexWriterId : this.exchanges.indexWriters(doc)) {
+    for (String indexWriterId : getIndexWriters(doc)) {
       this.indexWriters.get(indexWriterId).getIndexWriter().delete(key);
     }
   }
 
-public void delete(String key) throws IOException {
-    
+  public void delete(String key) throws IOException {
+
   }
 
   public void close() throws IOException {

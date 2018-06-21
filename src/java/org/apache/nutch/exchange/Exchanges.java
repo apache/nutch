@@ -45,6 +45,8 @@ public class Exchanges {
 
   private ExchangeConfig defaultExchangeConfig;
 
+  private boolean availableExchanges = true;
+
   public Exchanges(Configuration conf) {
     try {
       ExtensionPoint point = PluginRepository.get(conf)
@@ -63,14 +65,28 @@ public class Exchanges {
       ExchangeConfig[] exchangeConfigs = loadConfigurations(conf);
 
       for (ExchangeConfig exchangeConfig : exchangeConfigs) {
-        ExchangeConfigRelation exchangeConfigRelation = new ExchangeConfigRelation(
-            (Exchange) extensionMap.get(exchangeConfig.getClazz())
-                .getExtensionInstance(), exchangeConfig);
-        exchanges.put(exchangeConfig.getId(), exchangeConfigRelation);
+        final String clazz = exchangeConfig.getClazz();
+
+        // If was enabled in plugin.includes property
+        if (extensionMap.containsKey(clazz)) {
+          ExchangeConfigRelation exchangeConfigRelation = new ExchangeConfigRelation(
+              (Exchange) extensionMap.get(clazz).getExtensionInstance(),
+              exchangeConfig);
+          exchanges.put(exchangeConfig.getId(), exchangeConfigRelation);
+        }
+      }
+
+      if (exchanges.isEmpty() && defaultExchangeConfig == null) {
+        availableExchanges = false;
+        LOG.warn("No exchange was configured. The documents will be routed to all index writers.");
       }
     } catch (PluginRuntimeException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public boolean areAvailableExchanges() {
+    return availableExchanges;
   }
 
   /**

@@ -22,7 +22,7 @@
   <xs:element name="exchanges">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="exchange" type="exchangeType" maxOccurs="unbounded" minOccurs="1"/>
+        <xs:element name="exchange" type="exchangeType" maxOccurs="unbounded" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -36,7 +36,7 @@
   </xs:complexType>
   <xs:complexType name="writersType">
     <xs:sequence>
-      <xs:element type="writerType" name="writer" maxOccurs="unbounded" minOccurs="1" />
+      <xs:element type="writerType" name="writer" maxOccurs="unbounded" minOccurs="0" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="writerType">
