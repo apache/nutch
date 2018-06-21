@@ -17,43 +17,21 @@
 package org.apache.nutch.indexwriter.solr;
 
 public interface SolrConstants {
-  public static final String SOLR_PREFIX = "solr.";
 
-  public static final String SERVER_TYPE = "type";
+  String SERVER_TYPE = "type";
 
-  public static final String SERVER_URL = "url";
+  String SERVER_URLS = "url";
 
-  public static final String COMMIT_SIZE = "commitSize";
+  String COLLECTION = "collection";
 
-  public static final String MAPPING_FILE = SOLR_PREFIX + "mapping.file";
+  String COMMIT_SIZE = "commitSize";
 
-  public static final String USE_AUTH = "auth";
+  String WEIGHT_FIELD = "weight.field";
 
-  public static final String USERNAME = "username";
+  String USE_AUTH = "auth";
 
-  public static final String PASSWORD = "password";
+  String USERNAME = "username";
 
-  public static final String LOAD_BALANCE_URL = "loadbalanceURL";
+  String PASSWORD = "password";
 
-  public static final String COLLECTION = "collection";
-
-  public static final String ZOOKEEPER_HOSTS = SOLR_PREFIX + "zookeeper.hosts";
-
-  public static final String ID_FIELD = "id";
-
-  public static final String URL_FIELD = "url";
-
-  public static final String BOOST_FIELD = "boost";
-
-  public static final String TIMESTAMP_FIELD = "tstamp";
-
-  public static final String DIGEST_FIELD = "digest";
-
-
-
-  @Deprecated
-  public static final String COMMIT_INDEX = "commitIndex";
-
-  @Deprecated
-  public static final String PARAMS = SOLR_PREFIX + "params";
 }
