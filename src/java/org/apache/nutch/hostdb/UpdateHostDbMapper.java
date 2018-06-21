@@ -58,11 +58,10 @@ public class UpdateHostDbMapper
   protected URLFilters filters = null;
   protected URLNormalizers normalizers = null;
 
-  public void cleanup() {}
-
   /**
    * @param job
    */
+  @Override
   public void setup(Mapper<Text, Writable, Text, NutchWritable>.Context context) {
     Configuration conf = context.getConfiguration();
     readingCrawlDb = conf.getBoolean("hostdb.reading.crawldb", false);
@@ -110,6 +109,7 @@ public class UpdateHostDbMapper
     * @param value
     * @param context
     */
+  @Override
   public void map(Text key, Writable value,
     Context context)
     throws IOException, InterruptedException {

@@ -145,8 +145,9 @@ public class TestGenerator {
 
     createCrawlDB(list);
 
+    int maxPerHost = 1;
     Configuration myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 2);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
     Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
         myConfiguration, false);
 
@@ -156,10 +157,13 @@ public class TestGenerator {
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(1, fetchList.size());
+    int expectedFetchListSize = Math.min(maxPerHost, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by host",
+        expectedFetchListSize, fetchList.size());
 
+    maxPerHost = 2;
     myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 3);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
@@ -169,10 +173,13 @@ public class TestGenerator {
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(2, fetchList.size());
+    expectedFetchListSize = Math.min(maxPerHost, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by host",
+        expectedFetchListSize, fetchList.size());
 
+    maxPerHost = 3;
     myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 4);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
@@ -182,7 +189,9 @@ public class TestGenerator {
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(3, fetchList.size());
+    expectedFetchListSize = Math.min(maxPerHost, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by host",
+        expectedFetchListSize, fetchList.size());
   }
 
   /**
@@ -201,8 +210,9 @@ public class TestGenerator {
 
     createCrawlDB(list);
 
+    int maxPerDomain = 1;
     Configuration myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 2);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerDomain);
     myConfiguration.set(Generator.GENERATOR_COUNT_MODE,
         Generator.GENERATOR_COUNT_VALUE_DOMAIN);
 
@@ -215,10 +225,13 @@ public class TestGenerator {
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(1, fetchList.size());
+    int expectedFetchListSize = Math.min(maxPerDomain, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by domain",
+        expectedFetchListSize, fetchList.size());
 
+    maxPerDomain = 2;
     myConfiguration = new Configuration(myConfiguration);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 3);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerDomain);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
@@ -228,10 +241,13 @@ public class TestGenerator {
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(2, fetchList.size());
+    expectedFetchListSize = Math.min(maxPerDomain, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by domain",
+        expectedFetchListSize, fetchList.size());
 
+    maxPerDomain = 3;
     myConfiguration = new Configuration(myConfiguration);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 4);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerDomain);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
@@ -241,7 +257,9 @@ public class TestGenerator {
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(3, fetchList.size());
+    expectedFetchListSize = Math.min(maxPerDomain, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by domain",
+        expectedFetchListSize, fetchList.size());
   }
 
   /**

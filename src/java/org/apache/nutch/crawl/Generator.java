@@ -283,7 +283,7 @@ public class Generator extends NutchTool implements Tool {
       private HashMap<String, int[]> hostCounts = new HashMap<>();
       private long count;
       private int currentsegmentnum = 1;
-      private MultipleOutputs mos;
+      private MultipleOutputs<FloatWritable, SelectorEntry> mos;
       private String outputFile;
       private long limit;
       private int segCounts[];
@@ -361,7 +361,7 @@ public class Generator extends NutchTool implements Tool {
       @Override
       public void setup(Context context) throws IOException {
         conf = context.getConfiguration();
-        mos = new MultipleOutputs(context);
+        mos = new MultipleOutputs<FloatWritable, SelectorEntry>(context);
         Job job = Job.getInstance(conf);
         limit = conf.getLong(GENERATOR_TOP_N, Long.MAX_VALUE) 
                      / job.getNumReduceTasks();
@@ -398,7 +398,8 @@ public class Generator extends NutchTool implements Tool {
         HostDatum host = null;
         LongWritable variableFetchDelayWritable = null; // in millis
         Text variableFetchDelayKey = new Text("_variableFetchDelay_");
-        int temp_maxCount = maxCount;
+          // local variable maxCount may hold host-specific count set in HostDb
+        int maxCount = this.maxCount;
         for (SelectorEntry entry : values) {
           Text url = entry.url;
           String urlString = url.toString();
@@ -486,12 +487,12 @@ public class Generator extends NutchTool implements Tool {
 
             // reached the limit of allowed URLs per host / domain
             // see if we can put it in the next segment?
-            if (hostCount[1] >= maxCount) {
+            if (hostCount[1] > maxCount) {
               if (hostCount[0] < maxNumSegments) {
                 hostCount[0]++;
-                hostCount[1] = 0;
+                hostCount[1] = 1;
               } else {
-                if (hostCount[1] == maxCount + 1 && LOG.isInfoEnabled()) {
+                if (hostCount[1] == maxCount && LOG.isInfoEnabled()) {
                   LOG.info("Host or domain "
                       + hostordomain
                       + " has more than "
@@ -519,7 +520,6 @@ public class Generator extends NutchTool implements Tool {
           // maxCount may cause us to skip it.
           count++;
         }
-        maxCount = temp_maxCount;
       }
       
       private String generateFileName(SelectorEntry entry) {
@@ -823,6 +823,7 @@ public class Generator extends NutchTool implements Tool {
       }
     } catch (Exception e) {
       LOG.warn("Generator: exception while partitioning segments, exiting ...");
+      LockUtil.removeLockFile(getConf(),lock);
       fs.delete(tempDir, true);
       return null;
     }

@@ -125,9 +125,6 @@ public class IndexingJob extends NutchTool implements Tool {
 
     IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job, addBinaryContent);
 
-    // NOW PASSED ON THE COMMAND LINE AS A HADOOP PARAM
-    // job.set(SolrConstants.SERVER_URL, solrUrl);
-
     conf.setBoolean(IndexerMapReduce.INDEXER_DELETE, deleteGone);
     conf.setBoolean(IndexerMapReduce.URL_FILTERING, filter);
     conf.setBoolean(IndexerMapReduce.URL_NORMALIZING, normalize);

@@ -20,7 +20,9 @@ import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -34,16 +36,11 @@ import org.apache.nutch.indexer.NutchField;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
-import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.ModifiableSolrParams;
-import org.apache.solr.common.util.DateUtil;
-import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-// WORK AROUND FOR NOT REMOVING URL ENCODED URLS!!!
 
 public class SolrIndexWriter implements IndexWriter {
 
@@ -55,21 +52,23 @@ public class SolrIndexWriter implements IndexWriter {
 
   private Configuration config;
 
-  private final List<SolrInputDocument> inputDocs = new ArrayList<SolrInputDocument>();
+  private final List<SolrInputDocument> inputDocs = new ArrayList<>();
 
-  private final List<SolrInputDocument> updateDocs = new ArrayList<SolrInputDocument>();
-
-  private final List<String> deleteIds = new ArrayList<String>();
+  private final List<String> deleteIds = new ArrayList<>();
 
   private int batchSize;
   private int numDeletes = 0;
   private int totalAdds = 0;
   private int totalDeletes = 0;
-  private int totalUpdates = 0;
   private boolean delete = false;
+  private String weightField;
+
+  private boolean auth;
+  private String username;
+  private String password;
 
   @Override
-  public void open(Configuration conf, String name) throws IOException {
+  public void open(Configuration conf, String name) {
     //Implementation not required
   }
 
@@ -77,19 +76,22 @@ public class SolrIndexWriter implements IndexWriter {
    * Initializes the internal variables from a given index writer configuration.
    *
    * @param parameters Params from the index writer configuration.
-   * @throws IOException Some exception thrown by writer.
    */
   @Override
-  public void open(IndexWriterParams parameters) throws IOException {
-    String type = parameters.get("type", "http");
+  public void open(IndexWriterParams parameters) {
+    String type = parameters.get(SolrConstants.SERVER_TYPE, "http");
 
-    String[] urls = parameters.getStrings("url");
+    String[] urls = parameters.getStrings(SolrConstants.SERVER_URLS);
 
     if (urls == null) {
       String message = "Missing SOLR URL.\n" + describe();
       LOG.error(message);
       throw new RuntimeException(message);
     }
+
+    this.auth = parameters.getBoolean(SolrConstants.USE_AUTH, false);
+    this.username = parameters.get(SolrConstants.USERNAME);
+    this.password = parameters.get(SolrConstants.PASSWORD);
 
     this.solrClients = new ArrayList<>();
 
@@ -100,11 +102,12 @@ public class SolrIndexWriter implements IndexWriter {
       }
       break;
     case "cloud":
-      for (String url : urls) {
-        CloudSolrClient sc = SolrUtils.getCloudSolrClient(url);
-        sc.setDefaultCollection(parameters.get(SolrConstants.COLLECTION));
-        solrClients.add(sc);
-      }
+      CloudSolrClient sc = this.auth ?
+          SolrUtils.getCloudSolrClient(Arrays.asList(urls), this.username,
+              this.password) :
+          SolrUtils.getCloudSolrClient(Arrays.asList(urls));
+      sc.setDefaultCollection(parameters.get(SolrConstants.COLLECTION));
+      solrClients.add(sc);
       break;
     case "concurrent":
       // TODO: 1/08/17 Implement this
@@ -123,9 +126,10 @@ public class SolrIndexWriter implements IndexWriter {
   }
 
   private void init(IndexWriterParams properties) {
-    batchSize = Integer
-        .parseInt(properties.getOrDefault(SolrConstants.COMMIT_SIZE, "1000"));
+    batchSize = properties.getInt(SolrConstants.COMMIT_SIZE, 1000);
     delete = config.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
+    weightField = properties.get(SolrConstants.WEIGHT_FIELD, "");
+
     // parse optional params
     params = new ModifiableSolrParams();
     String paramString = config.get(IndexerMapReduce.INDEXER_PARAMS);
@@ -166,18 +170,6 @@ public class SolrIndexWriter implements IndexWriter {
 
   }
 
-  public void deleteByQuery(String query) throws IOException {
-    try {
-      LOG.info("SolrWriter: deleting " + query);
-      for (SolrClient solrClient : solrClients) {
-        solrClient.deleteByQuery(query);
-      }
-    } catch (final SolrServerException e) {
-      LOG.error("Error deleting: " + deleteIds);
-      throw makeIOException(e);
-    }
-  }
-
   @Override
   public void update(NutchDocument doc) throws IOException {
     write(doc);
@@ -192,18 +184,20 @@ public class SolrIndexWriter implements IndexWriter {
         Object val2 = val;
 
         if (val instanceof Date) {
-          val2 = DateUtil.getThreadLocalDateFormat().format(val);
+          val2 = DateTimeFormatter.ISO_INSTANT.format(((Date) val).toInstant());
         }
 
         if (e.getKey().equals("content") || e.getKey().equals("title")) {
           val2 = SolrUtils.stripNonCharCodepoints((String) val);
         }
 
-        inputDoc.addField(e.getKey(), val2, e.getValue().getWeight());
+        inputDoc.addField(e.getKey(), val2);
       }
     }
 
-    inputDoc.setDocumentBoost(doc.getWeight());
+    if (!weightField.isEmpty()) {
+      inputDoc.addField(weightField, doc.getWeight());
+    }
     inputDocs.add(inputDoc);
     totalAdds++;
 
@@ -225,14 +219,21 @@ public class SolrIndexWriter implements IndexWriter {
     push();
     try {
       for (SolrClient solrClient : solrClients) {
-        solrClient.commit();
+        if (this.auth) {
+          UpdateRequest req = new UpdateRequest();
+          req.setAction(UpdateRequest.ACTION.COMMIT, true, true);
+          req.setBasicAuthCredentials(this.username, this.password);
+          solrClient.request(req);
+        } else {
+          solrClient.commit();
+        }
       }
     } catch (final SolrServerException e) {
-      LOG.error("Failed to commit solr connection: " + e.getMessage()); // FIXME
+      LOG.error("Failed to commit solr connection: " + e.getMessage());
     }
   }
 
-  public void push() throws IOException {
+  private void push() throws IOException {
     if (inputDocs.size() > 0) {
       try {
         LOG.info(
@@ -242,10 +243,13 @@ public class SolrIndexWriter implements IndexWriter {
         numDeletes = 0;
         UpdateRequest req = new UpdateRequest();
         req.add(inputDocs);
-        req.setAction(AbstractUpdateRequest.ACTION.OPTIMIZE, false, false);
+        req.setAction(UpdateRequest.ACTION.OPTIMIZE, false, false);
         req.setParams(params);
+        if (this.auth) {
+          req.setBasicAuthCredentials(this.username, this.password);
+        }
         for (SolrClient solrClient : solrClients) {
-          NamedList res = solrClient.request(req);
+          solrClient.request(req);
         }
       } catch (final SolrServerException e) {
         throw makeIOException(e);
@@ -269,10 +273,8 @@ public class SolrIndexWriter implements IndexWriter {
     }
   }
 
-  public static IOException makeIOException(SolrServerException e) {
-    final IOException ioe = new IOException();
-    ioe.initCause(e);
-    return ioe;
+  private static IOException makeIOException(SolrServerException e) {
+    return new IOException(e);
   }
 
   @Override
@@ -295,7 +297,7 @@ public class SolrIndexWriter implements IndexWriter {
     StringBuffer sb = new StringBuffer("SOLRIndexWriter\n");
     sb.append("\t").append(SolrConstants.SERVER_TYPE).append(
         " : Type of the server. Can be: \"cloud\", \"concurrent\", \"http\" or \"lb\"\n");
-    sb.append("\t").append(SolrConstants.SERVER_URL)
+    sb.append("\t").append(SolrConstants.SERVER_URLS)
         .append(" : URL of the SOLR instance or URL of the Zookeeper quorum\n");
     sb.append("\t").append(SolrConstants.COMMIT_SIZE)
         .append(" : buffer size when sending to SOLR (default 1000)\n");

@@ -278,6 +278,15 @@
 </property>
 
 <property>
+  <name>http.proxy.type</name>
+  <value>HTTP</value>
+  <description>
+    Proxy type: HTTP or SOCKS (cf. java.net.Proxy.Type).
+    Note: supported by protocol-okhttp.
+  </description>
+</property>
+
+<property>
   <name>http.proxy.exception.list</name>
   <value></value>
   <description>A comma separated list of hosts that don't use the proxy 
@@ -301,9 +310,22 @@
 
 <property>
   <name>http.useHttp11</name>
+  <value>true</value>
+  <description>
+    If true, use HTTP 1.1, if false use HTTP 1.0 .
+  </description>
+</property>
+
+<property>
+  <name>http.useHttp2</name>
   <value>false</value>
-  <description>NOTE: at the moment this works only for protocol-httpclient.
-  If true, use HTTP 1.1, if false use HTTP 1.0 .
+  <description>
+    If true try HTTP/2 and fall-back to HTTP/1.1 if HTTP/2 not
+    supported, if false use always HTTP/1.1.
+
+    NOTE: HTTP/2 is currently only supported by protocol-okhttp and
+    requires at runtime Java 9 or a modified Java 8 with support for
+    ALPN (Application Layer Protocol Negotiation).
   </description>
 </property>
 
@@ -679,13 +701,6 @@
 </property>
 
 <property>
-  <name>db.max.anchor.length</name>
-  <value>100</value>
-  <description>The maximum number of characters permitted in an anchor.
-  </description>
-</property>
-
- <property>
   <name>db.parsemeta.to.crawldb</name>
   <value></value>
   <description>Comma-separated list of parse metadata keys to transfer to the crawldb (NUTCH-779).
@@ -762,6 +777,15 @@
   <value>false</value>
   <description>If true, when adding new links to a page, links from
   the a different host are ignored.
+  </description>
+</property>
+
+<property>
+  <name>linkdb.max.anchor.length</name>
+  <value>100</value>
+  <description>
+    The maximum number of characters permitted for anchor texts stored
+    in LinkDb.
   </description>
 </property>
 

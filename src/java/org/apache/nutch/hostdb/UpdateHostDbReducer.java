@@ -74,6 +74,7 @@ public class UpdateHostDbReducer
     *
     * @param job
     */
+  @Override
   public void setup(Reducer<Text, NutchWritable, Text, HostDatum>.Context context) {
     Configuration conf = context.getConfiguration();
     purgeFailedHostsThreshold = conf.getInt(UpdateHostDb.HOSTDB_PURGE_FAILED_HOSTS_THRESHOLD, -1);
@@ -113,6 +114,7 @@ public class UpdateHostDbReducer
   /**
     *
     */
+  @Override
   public void reduce(Text key, Iterable<NutchWritable> values,
     Context context) throws IOException, InterruptedException {
 
@@ -401,7 +403,8 @@ public class UpdateHostDbReducer
   /**
     * Shut down all running threads and wait for completion.
     */
-  public void cleanup() {
+  @Override
+  public void cleanup(Context context) {
     LOG.info("UpdateHostDb: feeder finished, waiting for shutdown");
 
     // If we're here all keys have been fed and we can issue a shut down

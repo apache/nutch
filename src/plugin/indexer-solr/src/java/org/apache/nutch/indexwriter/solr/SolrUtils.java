@@ -16,64 +16,50 @@
  */
 package org.apache.nutch.indexwriter.solr;
 
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.hadoop.conf.Configuration;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
-import java.net.MalformedURLException;
+import java.util.List;
 
 public class SolrUtils {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
-
-  /**
-   * @param conf
-   * @return SolrClient
-   */
-  public static ArrayList<SolrClient> getSolrClients(Configuration conf)
-      throws MalformedURLException {
-    String[] urls = conf.getStrings(SolrConstants.SERVER_URL);
-    String[] zkHostString = conf.getStrings(SolrConstants.ZOOKEEPER_HOSTS);
-    ArrayList<SolrClient> solrClients = new ArrayList<SolrClient>();
-
-    if (zkHostString != null && zkHostString.length > 0) {
-      for (int i = 0; i < zkHostString.length; i++) {
-        CloudSolrClient sc = getCloudSolrClient(zkHostString[i]);
-        sc.setDefaultCollection(conf.get(SolrConstants.COLLECTION));
-        solrClients.add(sc);
-      }
-    } else {
-      for (int i = 0; i < urls.length; i++) {
-        SolrClient sc = new HttpSolrClient(urls[i]);
-        solrClients.add(sc);
-      }
-    }
-
-    return solrClients;
-  }
-
-  public static CloudSolrClient getCloudSolrClient(String url)
-      throws MalformedURLException {
-    CloudSolrClient sc = new CloudSolrClient(url.replace('|', ','));
-    sc.setParallelUpdates(true);
+  static CloudSolrClient getCloudSolrClient(List<String> urls) {
+    CloudSolrClient sc = new CloudSolrClient.Builder(urls)
+        .withParallelUpdates(true).build();
     sc.connect();
     return sc;
   }
 
-  public static SolrClient getHttpSolrClient(String url)
-      throws MalformedURLException {
-    SolrClient sc = new HttpSolrClient(url);
+  static CloudSolrClient getCloudSolrClient(List<String> urls, String username, String password) {
+    // Building http client
+    CredentialsProvider provider = new BasicCredentialsProvider();
+    UsernamePasswordCredentials credentials
+        = new UsernamePasswordCredentials(username, password);
+    provider.setCredentials(AuthScope.ANY, credentials);
+
+    HttpClient client = HttpClientBuilder.create()
+        .setDefaultCredentialsProvider(provider)
+        .build();
+
+    // Building the client
+    CloudSolrClient sc = new CloudSolrClient.Builder(urls)
+        .withParallelUpdates(true).withHttpClient(client).build();
+        sc.connect();
     return sc;
   }
 
-  public static String stripNonCharCodepoints(String input) {
+  static SolrClient getHttpSolrClient(String url) {
+    return new HttpSolrClient.Builder(url).build();
+  }
+
+  static String stripNonCharCodepoints(String input) {
     StringBuilder retval = new StringBuilder();
     char ch;
 
@@ -95,5 +81,4 @@ public class SolrUtils {
 
     return retval.toString();
   }
-
 }

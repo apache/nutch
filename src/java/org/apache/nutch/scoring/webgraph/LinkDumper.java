@@ -272,9 +272,6 @@ public class LinkDumper extends Configured implements Tool {
         }
       }
     }
-
-    public void cleanup() {
-    }
   }
 
   /**

@@ -285,7 +285,7 @@ public abstract class RobotRulesParser implements Tool {
       }
       ProtocolFactory factory = new ProtocolFactory(conf);
       try {
-        protocol = factory.getProtocol(robotsTxtUrl.toString());
+        protocol = factory.getProtocol(robotsTxtUrl);
       } catch (ProtocolNotFound e) {
         LOG.error("No protocol found for {}: {}", args[0],
             StringUtils.stringifyException(e));

@@ -109,6 +109,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     Pattern pattern = null;
     Matcher matcher = null;
     
+    @Override
     public void setup(Mapper<Text, Inlinks, Text, Inlinks>.Context context) {
       Configuration conf = context.getConfiguration();
       if (conf.get("linkdb.regex", null) != null) {
@@ -116,8 +117,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
       }
     }
 
-    public void cleanup() {}
-
+    @Override
     public void map(Text key, Inlinks value, Context context)
             throws IOException, InterruptedException {
 

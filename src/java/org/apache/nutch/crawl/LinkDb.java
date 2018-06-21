@@ -99,9 +99,6 @@ public class LinkDb extends NutchTool implements Tool {
       }
     } 
 
-    public void cleanup(){
-    }
-
     public void map(Text key, ParseData parseData,
             Context context)
                     throws IOException, InterruptedException {
