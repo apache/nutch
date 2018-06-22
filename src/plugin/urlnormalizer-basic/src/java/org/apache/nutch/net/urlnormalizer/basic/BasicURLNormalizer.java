@@ -25,6 +25,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,7 +65,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
       .compile("%([0-9A-Fa-f]{2})");
   
   // charset used for encoding URLs before escaping
-  private final static Charset utf8 = Charset.forName("UTF-8");
+  private final static Charset utf8 = StandardCharsets.UTF_8;
 
   /** look-up table for characters which should not be escaped in URL paths */
   private final static boolean[] unescapedCharacters = new boolean[128];
@@ -77,9 +78,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
        * producers and, when found in a URI, should be decoded to their
        * corresponding unreserved characters by URI normalizers.
        */
-      if ((0x41 <= c && c <= 0x5A)
-        || (0x61 <= c && c <= 0x7A)
-        || (0x30 <= c && c <= 0x39)
+      if (isAlphaNumeric(c)
         || c == 0x2D || c == 0x2E
         || c == 0x5F || c == 0x7E) {
         unescapedCharacters[c] = true;
@@ -87,6 +86,47 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         unescapedCharacters[c] = false;
       }
     }
+  }
+
+  /** look-up table for characters which should not be escaped in URL paths */
+  private final static boolean[] escapedCharacters = new boolean[128];
+  static {
+    for (int c = 0; c < 128; c++) {
+      if (unescapedCharacters[c]) {
+        escapedCharacters[c] = false;
+      } else if (c < 0x21 // control character or space
+          || c == 0x22 // "
+          || c == 0x3C // <
+          || c == 0x3E // >
+          || c == 0x5B // [
+          || c == 0x5D // ]
+          || c == 0x5E // ^
+          || c == 0x60 // `
+          || c == 0x7B // {
+          || c == 0x7C // |
+          || c == 0x7D // }
+          || c == 0x7F // DEL
+          ) {
+        escapedCharacters[c] = true;
+      } else {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Character {} ({}) not handled as escaped or unescaped", c,
+              (char) c);
+        }
+      }
+    }
+  }
+
+  private static boolean isAlphaNumeric(int c) {
+    return (0x41 <= c && c <= 0x5A)
+        || (0x61 <= c && c <= 0x7A)
+        || (0x30 <= c && c <= 0x39);
+  }
+
+  private static boolean isHexCharacter(int c) {
+    return (0x41 <= c && c <= 0x46)
+        || (0x61 <= c && c <= 0x66)
+        || (0x30 <= c && c <= 0x39);
   }
 
   public String normalize(String urlString, String scope)
@@ -105,6 +145,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     String file = url.getFile();
 
     boolean changed = false;
+    boolean normalizePath = false;
 
     if (!urlString.startsWith(protocol)) // protocol was lowercased
       changed = true;
@@ -132,25 +173,23 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         changed = true;
       }
 
+      normalizePath = true;
       if (file == null || "".equals(file)) {
         file = "/";
         changed = true;
+        normalizePath = false; // no further path normalization required
       } else if (!file.startsWith("/")) {
         file = "/" + file;
         changed = true;
-      } else {
-        // check for unnecessary use of "/../", "/./", and "//"
-        String file2 = getFileWithNormalizedPath(url);
-        if (!file.equals(file2)) {
-          changed = true;
-          file = file2;
-        }
+        normalizePath = false; // no further path normalization required
       }
 
       if (url.getRef() != null) { // remove the ref
         changed = true;
       }
 
+    } else if (protocol.equals("file")) {
+      normalizePath = true;
     }
 
     // properly encode characters in path/file using percent-encoding
@@ -161,8 +200,22 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
       file = file2;
     }
 
-    if (changed)
-      urlString = new URL(protocol, host, port, file).toString();
+    if (normalizePath) {
+      // check for unnecessary use of "/../", "/./", and "//"
+      if (changed) {
+        url = new URL(protocol, host, port, file);
+      }
+      file2 = getFileWithNormalizedPath(url);
+      if (!file.equals(file2)) {
+        changed = true;
+        file = file2;
+      }
+    }
+
+    if (changed) {
+      url = new URL(protocol, host, port, file);
+      urlString = url.toString();
+    }
 
     return urlString;
   }
@@ -179,7 +232,8 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         // URI.normalize() does not normalize leading dot segments,
         // see also http://tools.ietf.org/html/rfc3986#section-5.2.4
         int start = 0;
-        while (file.startsWith("/../", start)) {
+        while (file.startsWith("/..", start)
+            && ((start + 3) == file.length() || file.charAt(3) == '/')) {
           start += 3;
         }
         if (start > 0) {
@@ -254,9 +308,11 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     StringBuilder sb = new StringBuilder(path.length());
 
     // Traverse over all bytes in this URL
-    for (byte b: path.getBytes(utf8)) {
+    byte[] bytes = path.getBytes(utf8);
+    for (int i = 0; i < bytes.length; i++) {
+      byte b = bytes[i];
       // Is this a control character?
-      if (b < 0x21 || b == 0x5B || b == 0x5D || b == 0x7B || b == 0x7D) {
+      if (b < 0 || escapedCharacters[b]) {
         // Start escape sequence 
         sb.append('%');
         
@@ -271,9 +327,27 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
           // No, append this hexadecimal representation
           sb.append(hex);
         }
+      } else if (b == 0x25) {
+        // percent sign (%): read-ahead to check whether a valid escape sequence
+        if ((i+2) >= bytes.length) {
+          // need at least two more characters
+          sb.append("%25");
+        } else {
+          byte e1 = bytes[i+1];
+          byte e2 = bytes[i+2];
+          if (isHexCharacter(e1) && isHexCharacter(e2)) {
+            // valid percent encoding, output and fast-forward
+            i += 2;
+            sb.append((char) b);
+            sb.append((char) e1);
+            sb.append((char) e2);
+          } else {
+            sb.append("%25");
+          }
+        }
       } else {
         // No, just append this character as-is
-        sb.append((char)b);
+        sb.append((char) b);
       }
     }
     
