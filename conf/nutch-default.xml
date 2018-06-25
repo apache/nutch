@@ -1389,6 +1389,16 @@
 </property>
 
 <property>
+  <name>parser.html.line.separators</name>
+  <value>article,aside,blockquote,canvas,dd,div,dl,dt,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hr,li,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video</value>
+ <description>Comma separated list of HTML tags. Newline will be added to the
+  parsed text after these tages.
+  The default list above are the block-level HTML elements.
+  Tags must be in lower case.
+  To disable this feature, leave the list empty.</description>
+</property>
+
+<property>
   <name>htmlparsefilter.order</name>
   <value></value>
   <description>The order by which HTMLParse filters are applied.
