@@ -31,7 +31,7 @@ import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.MapFile.Writer.Option;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.After;
 import org.junit.Assert;
@@ -129,7 +129,7 @@ public class TestCrawlDbMerger {
       String url = it.next();
       LOG.debug("url=" + url);
       CrawlDatum cd = expected.get(url);
-      CrawlDatum res = reader.get(crawlDb, url, new JobConf(conf));
+      CrawlDatum res = reader.get(crawlDb, url, conf);
       LOG.debug(" -> " + res);
       System.out.println("url=" + url);
       System.out.println(" cd " + cd);

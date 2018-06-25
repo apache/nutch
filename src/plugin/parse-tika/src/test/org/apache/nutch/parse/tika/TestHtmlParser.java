@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.tika;
+package org.apache.nutch.parse.tika;
 
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;

@@ -50,7 +50,7 @@ public class TestInjector {
 
   @Before
   public void setUp() throws Exception {
-    conf = CrawlDBTestUtil.createConfiguration();
+    conf = CrawlDBTestUtil.createContext().getConfiguration();
     urlPath = new Path(testdir, "urls");
     crawldbPath = new Path(testdir, "crawldb");
     fs = FileSystem.get(conf);

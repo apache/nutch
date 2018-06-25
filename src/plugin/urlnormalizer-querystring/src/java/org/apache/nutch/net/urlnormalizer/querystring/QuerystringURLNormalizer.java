@@ -19,7 +19,6 @@ package org.apache.nutch.net.urlnormalizer.querystring;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,9 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizer;
-import org.apache.nutch.plugin.Extension;
-import org.apache.nutch.plugin.PluginRepository;
-import org.apache.nutch.util.URLUtil;
 
 /**
  * URL normalizer plugin for normalizing query strings but sorting query string

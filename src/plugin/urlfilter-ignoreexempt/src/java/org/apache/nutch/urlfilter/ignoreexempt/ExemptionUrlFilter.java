@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.urlfilter.ignoreexempt;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLExemptionFilter;
 import org.apache.nutch.util.NutchConfiguration;
@@ -26,12 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
-import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.List;
-import java.util.ArrayList;
 
 
 /**

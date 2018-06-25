@@ -23,28 +23,17 @@ import java.util.Random;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableUtils;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
-import org.apache.hadoop.mapred.KeyValueTextInputFormat;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.lib.MultipleInputs;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.util.FSUtils;
@@ -87,22 +76,13 @@ public class UpdateHostDb extends Configured implements Tool {
     long start = System.currentTimeMillis();
     LOG.info("UpdateHostDb: starting at " + sdf.format(start));
 
-    JobConf job = new NutchJob(getConf());
-    boolean preserveBackup = job.getBoolean("db.preserve.backup", true);
+    Job job = NutchJob.getInstance(getConf());
+    Configuration conf = job.getConfiguration();
+    boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
     job.setJarByClass(UpdateHostDb.class);
     job.setJobName("UpdateHostDb");
 
-    // Check whether the urlfilter-domainblacklist plugin is loaded
-    if (filter && new String("urlfilter-domainblacklist").matches(job.get("plugin.includes"))) {
-      throw new Exception("domainblacklist-urlfilter must not be enabled");
-    }
-
-    // Check whether the urlnormalizer-host plugin is loaded
-    if (normalize && new String("urlnormalizer-host").matches(job.get("plugin.includes"))) {
-      throw new Exception("urlnormalizer-host must not be enabled");
-    }
-
-    FileSystem fs = hostDb.getFileSystem(job);
+    FileSystem fs = hostDb.getFileSystem(conf);
     Path old = new Path(hostDb, "old");
     Path current = new Path(hostDb, "current");
     Path tempHostDb = new Path(hostDb, "hostdb-"
@@ -122,14 +102,14 @@ public class UpdateHostDb extends Configured implements Tool {
     }
     if (crawlDb != null) {
       // Tell the job we read from CrawlDB
-      job.setBoolean("hostdb.reading.crawldb", true);
+      conf.setBoolean("hostdb.reading.crawldb", true);
       MultipleInputs.addInputPath(job, new Path(crawlDb,
         CrawlDb.CURRENT_NAME), SequenceFileInputFormat.class);
     }
 
     FileOutputFormat.setOutputPath(job, tempHostDb);
 
-    job.setOutputFormat(SequenceFileOutputFormat.class);
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(NutchWritable.class);
@@ -137,29 +117,35 @@ public class UpdateHostDb extends Configured implements Tool {
     job.setOutputValueClass(HostDatum.class);
     job.setMapperClass(UpdateHostDbMapper.class);
     job.setReducerClass(UpdateHostDbReducer.class);
-
-    job.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
     job.setSpeculativeExecution(false);
-    job.setBoolean(HOSTDB_CHECK_FAILED, checkFailed);
-    job.setBoolean(HOSTDB_CHECK_NEW, checkNew);
-    job.setBoolean(HOSTDB_CHECK_KNOWN, checkKnown);
-    job.setBoolean(HOSTDB_FORCE_CHECK, force);
-    job.setBoolean(HOSTDB_URL_FILTERING, filter);
-    job.setBoolean(HOSTDB_URL_NORMALIZING, normalize);
-    job.setClassLoader(Thread.currentThread().getContextClassLoader());
+
+    conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    conf.setBoolean(HOSTDB_CHECK_FAILED, checkFailed);
+    conf.setBoolean(HOSTDB_CHECK_NEW, checkNew);
+    conf.setBoolean(HOSTDB_CHECK_KNOWN, checkKnown);
+    conf.setBoolean(HOSTDB_FORCE_CHECK, force);
+    conf.setBoolean(HOSTDB_URL_FILTERING, filter);
+    conf.setBoolean(HOSTDB_URL_NORMALIZING, normalize);
+    conf.setClassLoader(Thread.currentThread().getContextClassLoader());
     
     try {
-      JobClient.runJob(job);
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "UpdateHostDb job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(tempHostDb, lock, fs);
+        throw new RuntimeException(message);
+      }
 
       FSUtils.replace(fs, old, current, true);
       FSUtils.replace(fs, current, tempHostDb, true);
 
       if (!preserveBackup && fs.exists(old)) fs.delete(old, true);
     } catch (Exception e) {
-      if (fs.exists(tempHostDb)) {
-        fs.delete(tempHostDb, true);
-      }
-      LockUtil.removeLockFile(fs, lock);
+      LOG.error("UpdateHostDb job failed: {}", e.getMessage());
+      NutchJob.cleanupAfterFailure(tempHostDb, lock, fs);
       throw e;
     }
 

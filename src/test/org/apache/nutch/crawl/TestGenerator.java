@@ -53,7 +53,7 @@ public class TestGenerator {
 
   @Before
   public void setUp() throws Exception {
-    conf = CrawlDBTestUtil.createConfiguration();
+    conf = CrawlDBTestUtil.createContext().getConfiguration();
     fs = FileSystem.get(conf);
     fs.delete(testdir, true);
   }
@@ -91,7 +91,7 @@ public class TestGenerator {
     Path generatedSegment = generateFetchlist(NUM_RESULTS, conf, false);
 
     Path fetchlist = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     ArrayList<URLCrawlDatum> l = readContents(fetchlist);
 
@@ -145,44 +145,53 @@ public class TestGenerator {
 
     createCrawlDB(list);
 
+    int maxPerHost = 1;
     Configuration myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 2);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
     Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
         myConfiguration, false);
 
     Path fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(1, fetchList.size());
+    int expectedFetchListSize = Math.min(maxPerHost, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by host",
+        expectedFetchListSize, fetchList.size());
 
+    maxPerHost = 2;
     myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 3);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(2, fetchList.size());
+    expectedFetchListSize = Math.min(maxPerHost, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by host",
+        expectedFetchListSize, fetchList.size());
 
+    maxPerHost = 3;
     myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 4);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(3, fetchList.size());
+    expectedFetchListSize = Math.min(maxPerHost, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by host",
+        expectedFetchListSize, fetchList.size());
   }
 
   /**
@@ -201,8 +210,9 @@ public class TestGenerator {
 
     createCrawlDB(list);
 
+    int maxPerDomain = 1;
     Configuration myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 2);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerDomain);
     myConfiguration.set(Generator.GENERATOR_COUNT_MODE,
         Generator.GENERATOR_COUNT_VALUE_DOMAIN);
 
@@ -210,38 +220,46 @@ public class TestGenerator {
         myConfiguration, false);
 
     Path fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(1, fetchList.size());
+    int expectedFetchListSize = Math.min(maxPerDomain, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by domain",
+        expectedFetchListSize, fetchList.size());
 
+    maxPerDomain = 2;
     myConfiguration = new Configuration(myConfiguration);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 3);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerDomain);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(2, fetchList.size());
+    expectedFetchListSize = Math.min(maxPerDomain, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by domain",
+        expectedFetchListSize, fetchList.size());
 
+    maxPerDomain = 3;
     myConfiguration = new Configuration(myConfiguration);
-    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 4);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, maxPerDomain);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    Assert.assertEquals(3, fetchList.size());
+    expectedFetchListSize = Math.min(maxPerDomain, list.size());
+    Assert.assertEquals("Failed to apply generate.max.count by domain",
+        expectedFetchListSize, fetchList.size());
   }
 
   /**
@@ -273,7 +291,7 @@ public class TestGenerator {
         false);
 
     Path fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
 
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
@@ -320,9 +338,11 @@ public class TestGenerator {
    *          Configuration to use
    * @return path to generated segment
    * @throws IOException
+   * @throws InterruptedException 
+   * @throws ClassNotFoundException 
    */
   private Path generateFetchlist(int numResults, Configuration config,
-      boolean filter) throws IOException {
+      boolean filter) throws IOException, ClassNotFoundException, InterruptedException {
     // generate segment
     Generator g = new Generator(config);
     Path[] generatedSegment = g.generate(dbDir, segmentsDir, -1, numResults,

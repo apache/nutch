@@ -34,8 +34,8 @@ import java.util.Map.Entry;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
+import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
 import org.slf4j.Logger;
@@ -86,23 +86,36 @@ public class CloudSearchIndexWriter implements IndexWriter {
   private String regionName;
 
   @Override
-  public void open(JobConf job, String name) throws IOException {
-    LOG.debug("CloudSearchIndexWriter.open() name={} ", name);
+  public void open(Configuration conf, String name) throws IOException {
+    //Implementation not required
+  }
 
-    maxDocsInBatch = job.getInt(CloudSearchConstants.MAX_DOCS_BATCH, -1);
+  @Override
+  public void open(IndexWriterParams parameters) throws IOException {
+//    LOG.debug("CloudSearchIndexWriter.open() name={} ", name);
+
+    String endpoint = parameters.get(CloudSearchConstants.ENDPOINT);
+    dumpBatchFilesToTemp = parameters.getBoolean(CloudSearchConstants.BATCH_DUMP,
+        false);
+    this.regionName = parameters.get(CloudSearchConstants.REGION);
+
+    if (StringUtils.isBlank(endpoint) && !dumpBatchFilesToTemp) {
+      String message = "Missing CloudSearch endpoint. Should set it set via -D "
+          + CloudSearchConstants.ENDPOINT + " or in nutch-site.xml";
+      message += "\n" + describe();
+      LOG.error(message);
+      throw new RuntimeException(message);
+    }
+
+    maxDocsInBatch = parameters.getInt(CloudSearchConstants.MAX_DOCS_BATCH, -1);
 
     buffer = new StringBuffer(MAX_SIZE_BATCH_BYTES).append('[');
-
-    dumpBatchFilesToTemp = job.getBoolean(CloudSearchConstants.BATCH_DUMP,
-        false);
 
     if (dumpBatchFilesToTemp) {
       // only dumping to local file
       // no more config required
       return;
     }
-
-    String endpoint = job.get(CloudSearchConstants.ENDPOINT);
 
     if (StringUtils.isBlank(endpoint)) {
       throw new RuntimeException("endpoint not set for CloudSearch");
@@ -145,7 +158,6 @@ public class CloudSearchIndexWriter implements IndexWriter {
 
     client = new AmazonCloudSearchDomainClient();
     client.setEndpoint(endpoint);
-
   }
 
   @Override
@@ -327,18 +339,6 @@ public class CloudSearchIndexWriter implements IndexWriter {
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
-    String endpoint = getConf().get(CloudSearchConstants.ENDPOINT);
-    boolean dumpBatchFilesToTemp = getConf()
-        .getBoolean(CloudSearchConstants.BATCH_DUMP, false);
-    this.regionName = getConf().get(CloudSearchConstants.REGION);
-
-    if (StringUtils.isBlank(endpoint) && !dumpBatchFilesToTemp) {
-      String message = "Missing CloudSearch endpoint. Should set it set via -D "
-          + CloudSearchConstants.ENDPOINT + " or in nutch-site.xml";
-      message += "\n" + describe();
-      LOG.error(message);
-      throw new RuntimeException(message);
-    }
   }
 
   public String describe() {

@@ -27,12 +27,11 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapFileOutputFormat;
-import org.apache.hadoop.mapred.lib.HashPartitioner;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -65,8 +64,7 @@ public class NodeReader extends Configured {
    */
   public void dumpUrl(Path webGraphDb, String url) throws IOException {
 
-    FileSystem fs = webGraphDb.getFileSystem(getConf());
-    nodeReaders = MapFileOutputFormat.getReaders(fs, new Path(webGraphDb,
+    nodeReaders = MapFileOutputFormat.getReaders(new Path(webGraphDb,
         WebGraph.NODE_DIR), getConf());
 
     // open the readers, get the node, print out the info, and close the readers

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.tika;
+package org.apache.nutch.parse.tika;
 
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;

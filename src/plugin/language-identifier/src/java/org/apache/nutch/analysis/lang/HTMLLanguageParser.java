@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.analysis.lang;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.util.Enumeration;
 import java.util.HashMap;

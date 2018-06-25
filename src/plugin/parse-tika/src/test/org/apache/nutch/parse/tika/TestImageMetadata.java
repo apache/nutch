@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.tika;
+package org.apache.nutch.parse.tika;
 
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;
@@ -32,21 +32,15 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Unit tests for PdfParser.
- * 
- * @author John Xing
+ * Test extraction of image metadata
  */
-public class TestPdfParser {
+public class TestImageMetadata {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
   private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
-  // ./src/plugin/parse-pdf/build.xml during plugin compilation.
-  // Check ./src/plugin/parse-pdf/sample/README.txt for what they are.
-  private String[] sampleFiles = { "pdftest.pdf", "encrypted.pdf" };
-
-  private String expectedText = "A VERY SMALL PDF FILE";
+  private String[] sampleFiles = { "nutch_logo_tm.gif", };
 
   @Test
   public void testIt() throws ProtocolException, ParseException {
@@ -65,8 +59,8 @@ public class TestPdfParser {
       parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
           .get(content.getUrl());
 
-      int index = parse.getText().indexOf(expectedText);
-      Assert.assertTrue(index > 0);
+      Assert.assertEquals("121", parse.getData().getMeta("width"));
+      Assert.assertEquals("48", parse.getData().getMeta("height"));
     }
   }
 

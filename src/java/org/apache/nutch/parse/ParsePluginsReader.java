@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.parse;
 
-// JDK imports
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
@@ -33,14 +32,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
-// Nutch imports
 import org.apache.nutch.util.NutchConfiguration;
 
 /**

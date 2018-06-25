@@ -17,6 +17,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +28,7 @@ import junit.framework.TestCase;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.nutch.crawl.CrawlDbUpdateUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.TimingUtil;
@@ -45,8 +46,7 @@ public class ContinuousCrawlTestUtil extends TestCase {
 
   protected static Text dummyURL = new Text("http://nutch.apache.org/");
 
-  protected static Configuration defaultConfig = CrawlDBTestUtil
-      .createConfiguration();
+  protected static Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context defaultContext = CrawlDBTestUtil.createContext();
 
   protected long interval = FetchSchedule.SECONDS_PER_DAY * 1000; // (default)
                                                                   // launch
@@ -57,7 +57,7 @@ public class ContinuousCrawlTestUtil extends TestCase {
                                                                               // two
                                                                               // years
 
-  protected Configuration configuration;
+  protected Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context;
   private FetchSchedule schedule;
 
   /** status a fetched datum should get */
@@ -74,25 +74,26 @@ public class ContinuousCrawlTestUtil extends TestCase {
     content.setContent(data);
   }
 
-  protected ContinuousCrawlTestUtil(Configuration conf) {
-    configuration = conf;
-    schedule = FetchScheduleFactory.getFetchSchedule(new JobConf(conf));
+  protected ContinuousCrawlTestUtil(Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context cont) {
+    context = cont;
+    Configuration conf = context.getConfiguration();
+    schedule = FetchScheduleFactory.getFetchSchedule(conf);
     signatureImpl = SignatureFactory.getSignature(conf);
   }
 
-  protected ContinuousCrawlTestUtil(Configuration conf, byte fetchStatus,
+  protected ContinuousCrawlTestUtil(Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context cont, byte fetchStatus,
       byte expectedDbStatus) {
-    this(conf);
+    this(cont);
     this.fetchStatus = fetchStatus;
     this.expectedDbStatus = expectedDbStatus;
   }
 
   protected ContinuousCrawlTestUtil() {
-    this(defaultConfig);
+    this(defaultContext);
   }
 
   protected ContinuousCrawlTestUtil(byte fetchStatus, byte expectedDbStatus) {
-    this(defaultConfig, fetchStatus, expectedDbStatus);
+    this(defaultContext, fetchStatus, expectedDbStatus);
   }
 
   /** set the interval the crawl is relaunched (default: every day) */
@@ -192,13 +193,14 @@ public class ContinuousCrawlTestUtil extends TestCase {
    *          correct, but stop after max. number of errors
    * 
    * @return false if a check of CrawlDatum failed, true otherwise
+   * @throws IOException 
    */
-  protected boolean run(int maxErrors) {
+  protected boolean run(int maxErrors) throws IOException {
 
     long now = System.currentTimeMillis();
 
     CrawlDbUpdateUtil<CrawlDbReducer> updateDb = new CrawlDbUpdateUtil<CrawlDbReducer>(
-        new CrawlDbReducer(), configuration);
+        new CrawlDbReducer(), context);
 
     /* start with a db_unfetched */
     CrawlDatum dbDatum = new CrawlDatum();

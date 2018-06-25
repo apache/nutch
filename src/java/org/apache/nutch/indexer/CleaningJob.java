@@ -19,21 +19,16 @@ package org.apache.nutch.indexer;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.lib.NullOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -65,31 +60,22 @@ public class CleaningJob implements Tool {
     this.conf = conf;
   }
 
-  public static class DBFilter implements
+  public static class DBFilter extends
       Mapper<Text, CrawlDatum, ByteWritable, Text> {
     private ByteWritable OUT = new ByteWritable(CrawlDatum.STATUS_DB_GONE);
 
     @Override
-    public void configure(JobConf arg0) {
-    }
-
-    @Override
-    public void close() throws IOException {
-    }
-
-    @Override
     public void map(Text key, CrawlDatum value,
-        OutputCollector<ByteWritable, Text> output, Reporter reporter)
-        throws IOException {
+        Context context) throws IOException, InterruptedException {
 
       if (value.getStatus() == CrawlDatum.STATUS_DB_GONE
           || value.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
-        output.collect(OUT, key);
+        context.write(OUT, key);
       }
     }
   }
 
-  public static class DeleterReducer implements
+  public static class DeleterReducer extends
       Reducer<ByteWritable, Text, Text, ByteWritable> {
     private static final int NUM_MAX_DELETE_REQUEST = 1000;
     private int numDeletes = 0;
@@ -100,18 +86,19 @@ public class CleaningJob implements Tool {
     IndexWriters writers = null;
 
     @Override
-    public void configure(JobConf job) {
-      writers = new IndexWriters(job);
+    public void setup(Reducer<ByteWritable, Text, Text, ByteWritable>.Context context) {
+      Configuration conf = context.getConfiguration();
+      writers = IndexWriters.get(conf);
       try {
-        writers.open(job, "Deletion");
+        writers.open(conf, "Deletion");
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
-      noCommit = job.getBoolean("noCommit", false);
+      noCommit = conf.getBoolean("noCommit", false);
     }
 
     @Override
-    public void close() throws IOException {
+    public void cleanup(Context context) throws IOException {
       // BUFFERING OF CALLS TO INDEXER SHOULD BE HANDLED AT INDEXER LEVEL
       // if (numDeletes > 0) {
       // LOG.info("CleaningJob: deleting " + numDeletes + " documents");
@@ -129,14 +116,12 @@ public class CleaningJob implements Tool {
     }
 
     @Override
-    public void reduce(ByteWritable key, Iterator<Text> values,
-        OutputCollector<Text, ByteWritable> output, Reporter reporter)
-        throws IOException {
-      while (values.hasNext()) {
-        Text document = values.next();
+    public void reduce(ByteWritable key, Iterable<Text> values,
+        Context context) throws IOException {
+      for (Text document : values) {
         writers.delete(document.toString());
         totalDeleted++;
-        reporter.incrCounter("CleaningJobStatus", "Deleted documents", 1);
+        context.getCounter("CleaningJobStatus", "Deleted documents").increment(1);
         // if (numDeletes >= NUM_MAX_DELETE_REQUEST) {
         // LOG.info("CleaningJob: deleting " + numDeletes
         // + " documents");
@@ -150,28 +135,43 @@ public class CleaningJob implements Tool {
     }
   }
 
-  public void delete(String crawldb, boolean noCommit) throws IOException {
+  public void delete(String crawldb, boolean noCommit) 
+    throws IOException, InterruptedException, ClassNotFoundException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("CleaningJob: starting at " + sdf.format(start));
 
-    JobConf job = new NutchJob(getConf());
+    Job job = NutchJob.getInstance(getConf());
+    Configuration conf = job.getConfiguration();
 
     FileInputFormat.addInputPath(job, new Path(crawldb, CrawlDb.CURRENT_NAME));
-    job.setBoolean("noCommit", noCommit);
-    job.setInputFormat(SequenceFileInputFormat.class);
-    job.setOutputFormat(NullOutputFormat.class);
+    conf.setBoolean("noCommit", noCommit);
+    job.setInputFormatClass(SequenceFileInputFormat.class);
+    job.setOutputFormatClass(NullOutputFormat.class);
     job.setMapOutputKeyClass(ByteWritable.class);
     job.setMapOutputValueClass(Text.class);
     job.setMapperClass(DBFilter.class);
     job.setReducerClass(DeleterReducer.class);
+    job.setJarByClass(CleaningJob.class);
 
     job.setJobName("CleaningJob");
 
     // need to expicitely allow deletions
-    job.setBoolean(IndexerMapReduce.INDEXER_DELETE, true);
+    conf.setBoolean(IndexerMapReduce.INDEXER_DELETE, true);
 
-    JobClient.runJob(job);
+    try{
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CleaningJob did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (InterruptedException | ClassNotFoundException e) {
+      LOG.error(StringUtils.stringifyException(e));
+      throw e;
+    }
 
     long end = System.currentTimeMillis();
     LOG.info("CleaningJob: finished at " + sdf.format(end) + ", elapsed: "
@@ -183,7 +183,7 @@ public class CleaningJob implements Tool {
       String usage = "Usage: CleaningJob <crawldb> [-noCommit]";
       LOG.error("Missing crawldb. " + usage);
       System.err.println(usage);
-      IndexWriters writers = new IndexWriters(getConf());
+      IndexWriters writers = IndexWriters.get(getConf());
       System.err.println(writers.describe());
       return 1;
     }

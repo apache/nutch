@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.protocol.selenium;
 
-// JDK imports
 import java.io.BufferedInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -26,8 +25,16 @@ import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
@@ -48,7 +55,12 @@ public class HttpResponse implements Response {
   private byte[] content;
   private int code;
   private Metadata headers = new SpellCheckedMetadata();
+  // used for storing the http headers verbatim
+  private StringBuffer httpHeaders;
 
+  protected enum Scheme {
+    HTTP, HTTPS,
+  }
   /** The nutch configuration */
   private Configuration conf = null;
 
@@ -59,9 +71,15 @@ public class HttpResponse implements Response {
     this.url = url;
     this.orig = url.toString();
     this.base = url.toString();
+    Scheme scheme = null;
 
-    if (!"http".equals(url.getProtocol()))
-      throw new HttpException("Not an HTTP url:" + url);
+    if ("http".equals(url.getProtocol())) {
+      scheme = Scheme.HTTP;
+    } else if ("https".equals(url.getProtocol())) {
+      scheme = Scheme.HTTPS;
+    } else {
+      throw new HttpException("Unknown scheme (not http/https) for url:" + url);
+    }
 
     if (Http.LOG.isTraceEnabled()) {
       Http.LOG.trace("fetching " + url);
@@ -77,7 +95,11 @@ public class HttpResponse implements Response {
     int port;
     String portString;
     if (url.getPort() == -1) {
-      port = 80;
+      if (scheme == Scheme.HTTP) {
+        port = 80;
+      } else {
+        port = 443;
+      }
       portString = "";
     } else {
       port = url.getPort();
@@ -95,6 +117,36 @@ public class HttpResponse implements Response {
       InetSocketAddress sockAddr = new InetSocketAddress(sockHost, sockPort);
       socket.connect(sockAddr, http.getTimeout());
 
+      if (scheme == Scheme.HTTPS) {
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory
+                .getDefault();
+        SSLSocket sslsocket = (SSLSocket) factory
+                .createSocket(socket, sockHost, sockPort, true);
+        sslsocket.setUseClientMode(true);
+
+        // Get the protocols and ciphers supported by this JVM
+        Set<String> protocols = new HashSet<String>(
+                Arrays.asList(sslsocket.getSupportedProtocols()));
+        Set<String> ciphers = new HashSet<String>(
+                Arrays.asList(sslsocket.getSupportedCipherSuites()));
+
+        // Intersect with preferred protocols and ciphers
+        protocols.retainAll(http.getTlsPreferredProtocols());
+        ciphers.retainAll(http.getTlsPreferredCipherSuites());
+
+        sslsocket.setEnabledProtocols(
+                protocols.toArray(new String[protocols.size()]));
+        sslsocket.setEnabledCipherSuites(
+                ciphers.toArray(new String[ciphers.size()]));
+
+        sslsocket.startHandshake();
+        socket = sslsocket;
+      }
+
+      if (sockAddr != null
+              && conf.getBoolean("store.ip.address", false) == true) {
+        headers.add("_ip_", sockAddr.getAddress().getHostAddress());
+      }
       // make request
       OutputStream req = socket.getOutputStream();
 
@@ -125,19 +177,48 @@ public class HttpResponse implements Response {
         reqStr.append("\r\n");
       }
 
-      reqStr.append("Accept-Language: ");
-      reqStr.append(this.http.getAcceptLanguage());
-      reqStr.append("\r\n");
+      String acceptLanguage = http.getAcceptLanguage();
+      if (!acceptLanguage.isEmpty()) {
+        reqStr.append("Accept-Language: ");
+        reqStr.append(acceptLanguage);
+        reqStr.append("\r\n");
+      }
 
-      reqStr.append("Accept: ");
-      reqStr.append(this.http.getAccept());
-      reqStr.append("\r\n");
+      String acceptCharset = http.getAcceptCharset();
+      if (!acceptCharset.isEmpty()) {
+        reqStr.append("Accept-Charset: ");
+        reqStr.append(acceptCharset);
+        reqStr.append("\r\n");
+      }
 
-      if (datum.getModifiedTime() > 0) {
-        reqStr.append("If-Modified-Since: " + HttpDateFormat.toString(datum.getModifiedTime()));
+      String accept = http.getAccept();
+      if (!accept.isEmpty()) {
+        reqStr.append("Accept: ");
+        reqStr.append(accept);
+        reqStr.append("\r\n");
+      }
+
+      if (http.isCookieEnabled()
+              && datum.getMetaData().containsKey(HttpBase.COOKIE)) {
+        String cookie = ((Text) datum.getMetaData().get(HttpBase.COOKIE))
+                .toString();
+        reqStr.append("Cookie: ");
+        reqStr.append(cookie);
+        reqStr.append("\r\n");
+      }
+
+      if (http.isIfModifiedSinceEnabled() && datum.getModifiedTime() > 0) {
+        reqStr.append("If-Modified-Since: " + HttpDateFormat
+                .toString(datum.getModifiedTime()));
         reqStr.append("\r\n");
       }
       reqStr.append("\r\n");
+
+      // store the request in the metadata?
+      if (conf.getBoolean("store.http.request", false) == true) {
+        headers.add("_request_", reqStr.toString());
+      }
+
 
       byte[] reqBytes = reqStr.toString().getBytes();
 
@@ -150,10 +231,20 @@ public class HttpResponse implements Response {
 
       StringBuffer line = new StringBuffer();
 
+
+      // store the http headers verbatim
+      if (conf.getBoolean("store.http.headers", false) == true) {
+        httpHeaders = new StringBuffer();
+      }
+
+      headers.add("nutch.fetch.time", Long.toString(System.currentTimeMillis()));
+
       boolean haveSeenNonContinueStatus = false;
       while (!haveSeenNonContinueStatus) {
         // parse status code line
         this.code = parseStatusLine(in, line);
+        if (httpHeaders != null)
+          httpHeaders.append(line).append("\n");
         // parse headers
         parseHeaders(in, line);
         haveSeenNonContinueStatus = code != 100; // 100 is "Continue"

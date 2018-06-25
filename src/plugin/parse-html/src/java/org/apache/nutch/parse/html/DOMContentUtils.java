@@ -22,16 +22,16 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Stack;
 
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
 import org.apache.nutch.util.URLUtil;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
-
-import org.w3c.dom.*;
 
 /**
  * A collection of methods for extracting content from DOM trees.

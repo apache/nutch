@@ -17,7 +17,6 @@
 
 package org.apache.nutch.parse.zip;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,14 +25,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.net.URL;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
-// Nutch imports
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.Parse;

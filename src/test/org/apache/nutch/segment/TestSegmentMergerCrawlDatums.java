@@ -28,7 +28,7 @@ import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
@@ -291,7 +291,7 @@ public class TestSegmentMergerCrawlDatums {
   protected byte checkMergedSegment(Path testDir, Path mergedSegment)
       throws Exception {
     // Get a MapFile reader for the <Text,CrawlDatum> pairs
-    MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new Path(
+    MapFile.Reader[] readers = MapFileOutputFormat.getReaders(new Path(
         mergedSegment, CrawlDatum.FETCH_DIR_NAME), conf);
 
     Text key = new Text();

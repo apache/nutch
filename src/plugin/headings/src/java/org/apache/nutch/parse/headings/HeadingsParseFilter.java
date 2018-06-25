@@ -19,7 +19,9 @@ package org.apache.nutch.parse.headings;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
@@ -27,7 +29,8 @@ import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NodeWalker;
-import org.w3c.dom.*;
+import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Node;
 
 /**
  * HtmlParseFilter to retrieve h1 and h2 values from the DOM.
@@ -81,7 +84,7 @@ public class HeadingsParseFilter implements HtmlParseFilter {
    * Finds the specified element and returns its value
    */
   protected List<String> getElement(DocumentFragment doc, String element) {
-    List<String> headings = new ArrayList<String>();
+    List<String> headings = new ArrayList<>();
     NodeWalker walker = new NodeWalker(doc);
 
     while (walker.hasNext()) {

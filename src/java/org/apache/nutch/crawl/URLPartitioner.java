@@ -23,18 +23,21 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 
+import org.apache.hadoop.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.URLUtil;
+import org.apache.hadoop.mapreduce.Partitioner;
 
 /**
  * Partition urls by host, domain name or IP depending on the value of the
  * parameter 'partition.url.mode' which can be 'byHost', 'byDomain' or 'byIP'
  */
-public class URLPartitioner implements Partitioner<Text, Writable> {
+public class URLPartitioner extends Partitioner<Text, Writable> implements Configurable {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -48,16 +51,25 @@ public class URLPartitioner implements Partitioner<Text, Writable> {
   private URLNormalizers normalizers;
   private String mode = PARTITION_MODE_HOST;
 
-  public void configure(JobConf job) {
-    seed = job.getInt("partition.url.seed", 0);
-    mode = job.get(PARTITION_MODE_KEY, PARTITION_MODE_HOST);
+  private Configuration conf;
+
+  @Override
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    seed = conf.getInt("partition.url.seed", 0);
+    mode = conf.get(PARTITION_MODE_KEY, PARTITION_MODE_HOST);
     // check that the mode is known
     if (!mode.equals(PARTITION_MODE_IP) && !mode.equals(PARTITION_MODE_DOMAIN)
         && !mode.equals(PARTITION_MODE_HOST)) {
       LOG.error("Unknown partition mode : " + mode + " - forcing to byHost");
       mode = PARTITION_MODE_HOST;
     }
-    normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_PARTITION);
+    normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_PARTITION);
+  }
+
+  @Override
+  public Configuration getConf() {
+    return conf;
   }
 
   public void close() {

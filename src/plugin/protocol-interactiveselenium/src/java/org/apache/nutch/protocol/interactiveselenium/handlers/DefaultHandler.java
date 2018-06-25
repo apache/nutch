@@ -20,11 +20,14 @@ package org.apache.nutch.protocol.interactiveselenium.handlers;
 import org.openqa.selenium.WebDriver;
 
 public class DefaultHandler implements InteractiveSeleniumHandler {
-    public String processDriver(WebDriver driver) {
-      return null;
-    }
 
-    public boolean shouldProcessURL(String URL) {
-        return true;
-    }
+  @Override
+  public String processDriver(WebDriver driver) {
+    return null;
+  }
+
+  @Override
+  public boolean shouldProcessURL(String url) {
+    return true;
+  }
 }

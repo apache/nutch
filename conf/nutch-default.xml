@@ -278,6 +278,15 @@
 </property>
 
 <property>
+  <name>http.proxy.type</name>
+  <value>HTTP</value>
+  <description>
+    Proxy type: HTTP or SOCKS (cf. java.net.Proxy.Type).
+    Note: supported by protocol-okhttp.
+  </description>
+</property>
+
+<property>
   <name>http.proxy.exception.list</name>
   <value></value>
   <description>A comma separated list of hosts that don't use the proxy 
@@ -301,9 +310,22 @@
 
 <property>
   <name>http.useHttp11</name>
+  <value>true</value>
+  <description>
+    If true, use HTTP 1.1, if false use HTTP 1.0 .
+  </description>
+</property>
+
+<property>
+  <name>http.useHttp2</name>
   <value>false</value>
-  <description>NOTE: at the moment this works only for protocol-httpclient.
-  If true, use HTTP 1.1, if false use HTTP 1.0 .
+  <description>
+    If true try HTTP/2 and fall-back to HTTP/1.1 if HTTP/2 not
+    supported, if false use always HTTP/1.1.
+
+    NOTE: HTTP/2 is currently only supported by protocol-okhttp and
+    requires at runtime Java 9 or a modified Java 8 with support for
+    ALPN (Application Layer Protocol Negotiation).
   </description>
 </property>
 
@@ -548,15 +570,21 @@
 </property>
 
 <property>
-    <name>db.url.normalizers</name>
+    <name>crawldb.url.normalizers</name>
     <value>false</value>
-    <description>Normalize urls when updating crawldb</description>
+    <description>
+	!Temporary, can be overwritten with the command line!
+	Normalize urls when updating crawldb
+    </description>
 </property>
 
 <property>
-    <name>db.url.filters</name>
+    <name>crawldb.url.filters</name>
     <value>false</value>
-    <description>Filter urls when updating crawldb</description>
+    <description>
+	!Temporary, can be overwritten with the command line!
+	Filter urls when updating crawldb
+    </description>
 </property>
 
 <property>
@@ -673,13 +701,6 @@
 </property>
 
 <property>
-  <name>db.max.anchor.length</name>
-  <value>100</value>
-  <description>The maximum number of characters permitted in an anchor.
-  </description>
-</property>
-
- <property>
   <name>db.parsemeta.to.crawldb</name>
   <value></value>
   <description>Comma-separated list of parse metadata keys to transfer to the crawldb (NUTCH-779).
@@ -720,6 +741,16 @@
   </description>
 </property>
 
+<property>
+  <name>db.stats.score.quantiles</name>
+  <value>.01,.05,.1,.2,.25,.3,.4,.5,.6,.7,.75,.8,.9,.95,.99</value>
+  <description>
+    Quantiles of the distribution of CrawlDatum scores shown in the
+    CrawlDb statistics (command `readdb -stats').  Comma-separated
+    list of floating point numbers.
+  </description>
+</property>
+
 <!-- linkdb properties -->
 
 <property>
@@ -746,6 +777,15 @@
   <value>false</value>
   <description>If true, when adding new links to a page, links from
   the a different host are ignored.
+  </description>
+</property>
+
+<property>
+  <name>linkdb.max.anchor.length</name>
+  <value>100</value>
+  <description>
+    The maximum number of characters permitted for anchor texts stored
+    in LinkDb.
   </description>
 </property>
 
@@ -969,7 +1009,7 @@
   <name>fetcher.threads.timeout.divisor</name>
   <value>2</value>
   <description>(EXPERT)The thread time-out divisor to use. By default threads have a time-out
-  value of mapred.task.timeout / 2. Increase this setting if the fetcher waits too
+  value of mapreduce.task.timeout / 2. Increase this setting if the fetcher waits too
   long before killing hanged threads. Be careful, a too high setting (+8) will most likely kill the
   fetcher threads prematurely.
   </description>
@@ -1738,6 +1778,15 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<property>
+  <name>index.metadata.separator</name>
+  <value></value>
+  <description>
+   Separator to use if you want to index multiple values for a given field. Leave empty to
+   treat each value as a single value.
+  </description>
+</property>
+
 <!-- index-geoip plugin properties -->
 <property>
   <name>index.geoip.usage</name>
@@ -2030,84 +2079,107 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   last operation.</description>
 </property>
 
+<!-- RabbitMQ indexer properties -->
+
 <property>
-  <name>rabbitmq.indexer.server.host</name>
-  <value>localhost</value>
+  <name>rabbitmq.indexer.server.uri</name>
+  <value>amqp://guest:guest@localhost:5672/</value>
   <description>
-    Host on which the RabbitMQ server is running. Default "localhost".
+    URI with connection parameters in the form
+    amqp://username:password@hostname:port/virtualHost
+    Where:
+    username is the username for RabbitMQ server.
+    password is the password for RabbitMQ server.
+    hostname is where the RabbitMQ server is running.
+    port is where the RabbitMQ server is listening.
+    virtualHost is where where the exchange is and the user has access.
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.indexer.server.port</name>
-  <value>5672</value>
+  <name>rabbitmq.indexer.binding</name>
+  <value>false</value>
   <description>
-    Port on which the RabbitMQ server is listening. Default "5672".
+    Whether the relationship between an exchange and a queue is created
+    automatically. Default "false".
+
+    NOTE: Binding between exchanges is not supported.
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.indexer.server.virtualhost</name>
+  <name>rabbitmq.indexer.binding.arguments</name>
   <value></value>
   <description>
-    Virtual Host where the exchange is and the user has access. Default "/".
+    Arguments used in binding. It must have the form key1=value1,key2=value2.
+    This value is only used when the exchange's type is headers and
+    the value of 'rabbitmq.indexer.binding' property is true. In other cases
+    is ignored.
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.indexer.server.username</name>
-  <value>admin</value>
-  <description>
-    Username for RabbitMQ server. Default "admin"
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.server.password</name>
-  <value>admin</value>
-  <description>
-    Password for RabbitMQ server. Default "admin"
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.exchange.server</name>
+  <name>rabbitmq.indexer.exchange.name</name>
   <value></value>
   <description>
-    Name for the exchange server to use. Default "nutch.exchange"
+    Name for the exchange where the messages will be sent. Default "".
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.indexer.exchange.type</name>
-  <value></value>
+  <name>rabbitmq.indexer.exchange.options</name>
+  <value>type=direct,durable=true</value>
   <description>
-    Type of the exchange. Default "direct".
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.queue.durable</name>
-  <value></value>
-  <description>
-    Message durability into the queue. Default "true".
+    Options used when the exchange is created.
+    Only used when the value of 'rabbitmq.indexer.binding' property is true.
+    Default "type=direct,durable=true".
   </description>
 </property>
 
 <property>
   <name>rabbitmq.indexer.queue.name</name>
-  <value></value>
+  <value>nutch.queue</value>
   <description>
-    Name of the queue where the messages will be sent. Default "nutch.queue"
+    Name of the queue used to create the binding. Default "nutch.queue".
+    Only used when the value of 'rabbitmq.indexer.binding' property is true.
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.indexer.queue.routingkey</name>
+  <name>rabbitmq.indexer.queue.options</name>
+  <value>durable=true,exclusive=false,auto-delete=false</value>
+  <description>
+    Options used when the queue is created.
+    Only used when the value of 'rabbitmq.indexer.binding' property is true.
+    Default "durable=true,exclusive=false,auto-delete=false".
+
+    It must have the form
+    durable={durable},exclusive={exclusive},auto-delete={auto-delete},arguments={arguments}
+    where:
+    durable is true or false
+    exclusive is true or false
+    auto-delete is true or false
+    arguments must be the for {key1:value1;key2:value2}
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.routingkey</name>
   <value></value>
   <description>
-    The routingKey used by indexer to publish messages to specific queues.
-    If the exchange type is "fanout", then this property is ignored. Default is "nutch.key"
+    The routing key used to publish messages to specific queues.
+    It is only used when the exchange type is "topic" or "direct". Default
+    is the value of 'rabbitmq.indexer.queue.name' property.
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.commit.mode</name>
+  <value>multiple</value>
+  <description>
+    "single" if a message contains only one document. In this case a header
+    with the action (write, update or delete) will be added.
+    "multiple" if a message contains all documents. Default "multiple".
   </description>
 </property>
 
@@ -2115,7 +2187,24 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>rabbitmq.indexer.commit.size</name>
   <value>250</value>
   <description>
-    Amount of documents to send into each message. Default "250"
+    Amount of documents to send into each message if the value of
+    'rabbitmq.indexer.commit.mode' property is "multiple". Default "250".
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.headers.static</name>
+  <value></value>
+  <description>
+    Headers to add to each message. It must have the form key1=value1,key2=value2.
+  </description>
+</property>
+
+<property>
+  <name>rabbitmq.indexer.headers.dynamic</name>
+  <value></value>
+  <description>
+    Document's fields to add as headers to each message. It must have the form field1,field2.
   </description>
 </property>
 
@@ -2616,87 +2705,105 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
-<!-- RabbitMQ properties -->
+<!-- RabbitMQ publisher properties -->
 
 <property>
-  <name>rabbitmq.exchange.server</name>
-  <value></value>
+  <name>rabbitmq.publisher.server.uri</name>
+  <value>amqp://guest:guest@localhost:5672/</value>
   <description>
-    Name for the exchange server to use. Default - "fetcher_log"
+    URI with connection parameters in the form
+    amqp://username:password@hostname:port/virtualHost
+    where:
+    username is the username for RabbitMQ server.
+    password is the password for RabbitMQ server.
+    hostname is where the RabbitMQ server is running.
+    port is where the RabbitMQ server is listening.
+    virtualHost is where where the exchange is and the user has access.
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.exchange.type</name>
-  <value></value>
+  <name>rabbitmq.publisher.binding</name>
+  <value>false</value>
   <description>
-    There are a few exchange types available: direct, topic, headers and fanout. Default "fanout".
+    Whether the relationship between an exchange and a queue is created
+    automatically. Default "false".
+
+    NOTE: Binding between exchanges is not supported.
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.host</name>
+  <name>rabbitmq.publisher.binding.arguments</name>
   <value></value>
   <description>
-    Host on which the RabbitMQ server is running. Default "localhost".
+    Arguments used in binding. It must have the form key1=value1,key2=value2.
+    This value is only used when the exchange's type is headers and
+    the value of 'rabbitmq.publisher.binding' property is true. In other cases
+    is ignored.
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.port</name>
+  <name>rabbitmq.publisher.exchange.name</name>
   <value></value>
   <description>
-    Port on which the RabbitMQ server is listening. Default "5672".
+    Name for the exchange where the messages will be sent. Default "".
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.virtualhost</name>
-  <value></value>
+  <name>rabbitmq.publisher.exchange.options</name>
+  <value>type=direct,durable=true</value>
   <description>
-    Default 'null'
+    Options used when the exchange is created.
+    Only used when the value of 'rabbitmq.publisher.binding' property is true.
+    Default "type=direct,durable=true".
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.username</name>
-  <value></value>
+  <name>rabbitmq.publisher.queue.name</name>
+  <value>nutch.events.queue</value>
   <description>
-    Default 'null'
+    Name of the queue used to create the binding. Default "nutch.queue".
+    Only used when the value of 'rabbitmq.publisher.binding' property is true.
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.password</name>
-  <value></value>
+  <name>rabbitmq.publisher.queue.options</name>
+  <value>durable=true,exclusive=false,auto-delete=false</value>
   <description>
-    Default 'null'
+    Options used when the queue is created.
+    Only used when the value of 'rabbitmq.publisher.binding' property is true.
+    Default "durable=true,exclusive=false,auto-delete=false".
+
+    It must have the form
+    durable={durable},exclusive={exclusive},auto-delete={auto-delete},arguments={arguments}
+    where:
+    durable is true or false
+    exclusive is true or false
+    auto-delete is true or false
+    arguments must be the for {key1:value1;key2:value2}
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.queue.name</name>
+  <name>rabbitmq.publisher.routingkey</name>
   <value></value>
   <description>
-    Default 'fanout.queue'
+    The routing key used to publish messages to specific queues.
+    It is only used when the exchange type is "topic" or "direct". Default
+    is the value of 'rabbitmq.publisher.queue.name' property.
   </description>
 </property>
 
 <property>
-  <name>rabbitmq.queue.durable</name>
+  <name>rabbitmq.publisher.headers.static</name>
   <value></value>
   <description>
-    Default 'true'
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.queue.routingkey</name>
-  <value></value>
-  <description>
-    Default is 'fanout.key'
-    The routingKey used by publisher to publish messages to specific queues. 
-    If the exchange type is "fanout", then this property is ignored.
+    Headers to add to each message. It must have the form key1=value1,key2=value2.
   </description>
 </property>
 

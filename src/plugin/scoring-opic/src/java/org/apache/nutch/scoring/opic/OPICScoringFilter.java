@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
-// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,6 +167,9 @@ public class OPICScoringFilter implements ScoringFilter {
   public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
       throws ScoringFilterException {
+    if (dbDatum == null) {
+      return initScore;
+    }
     return (float) Math.pow(dbDatum.getScore(), scorePower) * initScore;
   }
 }

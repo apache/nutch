@@ -22,86 +22,71 @@ import java.lang.invoke.MethodHandles;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.publisher.NutchPublisher;
+import org.apache.nutch.rabbitmq.RabbitMQClient;
+import org.apache.nutch.rabbitmq.RabbitMQMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 
-public class RabbitMQPublisherImpl implements NutchPublisher{
+public class RabbitMQPublisherImpl implements NutchPublisher {
 
-  private static String EXCHANGE_SERVER;
-  private static String EXCHANGE_TYPE;
-
-  private static String HOST;
-    
-  private static int PORT;
-  private static String VIRTUAL_HOST;
-  private static String USERNAME;
-  private static String PASSWORD;
-
-  private static String QUEUE_NAME;
-  private static boolean QUEUE_DURABLE;
-  private static String QUEUE_ROUTING_KEY;
-  
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
-  
-  private static Channel channel;
+
+  private String exchange;
+  private String routingKey;
+
+  private String headersStatic;
+
+  private RabbitMQClient client;
 
   @Override
   public boolean setConfig(Configuration conf) {
     try {
-      EXCHANGE_SERVER = conf.get("rabbitmq.exchange.server", "fetcher_log");
-      EXCHANGE_TYPE = conf.get("rabbitmq.exchange.type", "fanout");
+      exchange = conf.get(RabbitMQConstants.EXCHANGE_NAME);
+      routingKey = conf.get(RabbitMQConstants.ROUTING_KEY);
+      headersStatic = conf.get(RabbitMQConstants.HEADERS_STATIC, "");
 
-      HOST = conf.get("rabbitmq.host", "localhost");
-      PORT = conf.getInt("rabbitmq.port", 5672);
-      VIRTUAL_HOST = conf.get("rabbitmq.virtualhost", null);
-      USERNAME = conf.get("rabbitmq.username", null);
-      PASSWORD = conf.get("rabbitmq.password", null);
+      String uri = conf.get(RabbitMQConstants.SERVER_URI);
+      client = new RabbitMQClient(uri);
 
-      QUEUE_NAME = conf.get("rabbitmq.queue.name", "fanout.queue");
-      QUEUE_DURABLE = conf.getBoolean("rabbitmq.queue.durable", true);
-      QUEUE_ROUTING_KEY = conf.get("rabbitmq.queue.routingkey", "fanout.key");
+      client.openChannel();
 
-      ConnectionFactory factory = new ConnectionFactory();
-      factory.setHost(HOST);
-      factory.setPort(PORT);
+      boolean binding = conf.getBoolean(RabbitMQConstants.BINDING, false);
+      if (binding) {
+        String queueName = conf.get(RabbitMQConstants.QUEUE_NAME);
+        String queueOptions = conf.get(RabbitMQConstants.QUEUE_OPTIONS);
 
-      if(VIRTUAL_HOST != null) {
-        factory.setVirtualHost(VIRTUAL_HOST);
+        String exchangeOptions = conf.get(RabbitMQConstants.EXCHANGE_OPTIONS);
+
+        String bindingArguments = conf
+            .get(RabbitMQConstants.BINDING_ARGUMENTS, "");
+
+        client.bind(exchange, exchangeOptions, queueName, queueOptions,
+            routingKey, bindingArguments);
       }
-
-      if(USERNAME != null) {
-        factory.setUsername(USERNAME);
-        factory.setPassword(PASSWORD);
-      }
-    
-      Connection connection = factory.newConnection();
-      channel = connection.createChannel();
-      channel.exchangeDeclare(EXCHANGE_SERVER, EXCHANGE_TYPE);
-      channel.queueDeclare(QUEUE_NAME, QUEUE_DURABLE, false, false, null);
-      channel.queueBind(QUEUE_NAME, EXCHANGE_SERVER, QUEUE_ROUTING_KEY);
 
       LOG.info("Configured RabbitMQ publisher");
       return true;
-    }catch(Exception e) {
-      LOG.error("Could not initialize RabbitMQ publisher - {}", StringUtils.stringifyException(e));
+    } catch (Exception e) {
+      LOG.error("Could not initialize RabbitMQ publisher - {}",
+          StringUtils.stringifyException(e));
       return false;
     }
-
   }
 
   @Override
   public void publish(Object event, Configuration conf) {
     try {
-      channel.basicPublish(EXCHANGE_SERVER, QUEUE_ROUTING_KEY, null, getJSONString(event).getBytes());
+      RabbitMQMessage message = new RabbitMQMessage();
+      message.setBody(getJSONString(event).getBytes());
+      message.setHeaders(headersStatic);
+      client.publish(exchange, routingKey, message);
     } catch (Exception e) {
-      LOG.error("Error occured while publishing - {}", StringUtils.stringifyException(e));
+      LOG.error("Error occured while publishing - {}",
+          StringUtils.stringifyException(e));
     }
   }
 
@@ -110,15 +95,15 @@ public class RabbitMQPublisherImpl implements NutchPublisher{
     try {
       return mapper.writeValueAsString(obj);
     } catch (JsonProcessingException e) {
-      LOG.error("Error converting event object to JSON String - {}", StringUtils.stringifyException(e));
+      LOG.error("Error converting event object to JSON String - {}",
+          StringUtils.stringifyException(e));
     }
     return null;
   }
 
-
   @Override
   public void setConf(Configuration arg0) {
-    
+
   }
 
   @Override
