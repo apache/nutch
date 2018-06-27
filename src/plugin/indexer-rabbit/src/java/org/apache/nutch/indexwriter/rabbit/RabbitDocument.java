@@ -16,39 +16,54 @@
  */
 package org.apache.nutch.indexwriter.rabbit;
 
+import com.google.gson.Gson;
+
 import java.util.LinkedList;
 import java.util.List;
 
 class RabbitDocument {
-    private List<RabbitDocumentField> fields;
+  private List<RabbitDocumentField> fields;
 
-    private float documentBoost;
+  private float documentBoost;
 
-    RabbitDocument() {
-        this.fields = new LinkedList<>();
+  RabbitDocument() {
+    this.fields = new LinkedList<>();
+  }
+
+  List<RabbitDocumentField> getFields() {
+    return fields;
+  }
+
+  void setDocumentBoost(float documentBoost) {
+    this.documentBoost = documentBoost;
+  }
+
+  void addField(RabbitDocumentField field) {
+    fields.add(field);
+  }
+
+  byte[] getBytes() {
+    Gson gson = new Gson();
+    return gson.toJson(this).getBytes();
+  }
+
+  static class RabbitDocumentField {
+    private String key;
+    private float weight;
+    private List<Object> values;
+
+    RabbitDocumentField(String key, float weight, List<Object> values) {
+      this.key = key;
+      this.weight = weight;
+      this.values = values;
     }
 
-    List<RabbitDocumentField> getFields() {
-        return fields;
+    public String getKey() {
+      return key;
     }
 
-    void setDocumentBoost(float documentBoost) {
-        this.documentBoost = documentBoost;
+    public List<Object> getValues() {
+      return values;
     }
-
-    void addField(RabbitDocumentField field) {
-        fields.add(field);
-    }
-
-    static class RabbitDocumentField {
-        private String key;
-        private float weight;
-        private List<Object> values;
-
-        RabbitDocumentField(String key, float weight, List<Object> values) {
-            this.key = key;
-            this.weight = weight;
-            this.values = values;
-        }
-    }
+  }
 }

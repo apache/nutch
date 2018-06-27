@@ -33,11 +33,11 @@ import org.apache.nutch.metadata.Metadata;
 
 /** A {@link NutchDocument} is the unit of indexing. */
 public class NutchDocument implements Writable,
-    Iterable<Entry<String, NutchField>> {
+    Iterable<Entry<String, NutchField>>, Cloneable {
 
   public static final byte VERSION = 2;
 
-  private Map<String, NutchField> fields;
+  private HashMap<String, NutchField> fields;
 
   private Metadata documentMeta;
 
@@ -140,5 +140,18 @@ public class NutchDocument implements Writable,
     }
     sb.append("}\n");
     return sb.toString();
+  }
+
+  @Override
+  public NutchDocument clone() throws CloneNotSupportedException {
+    NutchDocument clonedDocument = (NutchDocument) super.clone();
+
+    clonedDocument.fields = new HashMap<>();
+
+    for (Entry<String, NutchField> field : this.fields.entrySet()) {
+      clonedDocument.fields.put(field.getKey(), field.getValue().clone());
+    }
+
+    return clonedDocument;
   }
 }

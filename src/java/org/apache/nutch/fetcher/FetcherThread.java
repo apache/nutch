@@ -296,14 +296,14 @@ public class FetcherThread extends Thread {
               LOG.debug("redirectCount={}", redirectCount);
             }
             redirecting = false;
-            Protocol protocol = this.protocolFactory.getProtocol(fit.url
-                .toString());
-            BaseRobotRules rules = protocol.getRobotRules(fit.url, fit.datum, robotsTxtContent);
+            Protocol protocol = this.protocolFactory.getProtocol(fit.u);
+            BaseRobotRules rules = protocol.getRobotRules(fit.url, fit.datum,
+                robotsTxtContent);
             if (robotsTxtContent != null) {
               outputRobotsTxt(robotsTxtContent);
               robotsTxtContent.clear();
             }
-            if (!rules.isAllowed(fit.u.toString())) {
+            if (!rules.isAllowed(fit.url.toString())) {
               // unblock
               ((FetchItemQueues) fetchQueues).finishFetchItem(fit, true);
               if (LOG.isDebugEnabled()) {
@@ -581,7 +581,7 @@ public class FetcherThread extends Thread {
 
   private void logError(Text url, String message) {
     if (LOG.isInfoEnabled()) {
-      LOG.info("{} {} fetch of {} failed with: ", getName(),
+      LOG.info("{} {} fetch of {} failed with: {}", getName(),
           Thread.currentThread().getId(), url, message);
     }
     errors.incrementAndGet();

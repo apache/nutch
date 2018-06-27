@@ -157,7 +157,11 @@ public abstract class AbstractFetchSchedule extends Configured implements
    * @return the date as a long.
    */
   public long calculateLastFetchTime(CrawlDatum datum) {
-    return datum.getFetchTime() - (long) datum.getFetchInterval() * 1000;
+    if (datum.getStatus() == CrawlDatum.STATUS_DB_UNFETCHED) {
+      return 0L;
+    } else {
+      return datum.getFetchTime() - (long) datum.getFetchInterval() * 1000;
+    }
   }
 
   /**

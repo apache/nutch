@@ -57,8 +57,7 @@ import org.xml.sax.ContentHandler;
 /**
  * Wrapper for Tika parsers. Mimics the HTMLParser but using the XHTML
  * representation returned by Tika as SAX events
- ***/
-
+ */
 public class TikaParser implements org.apache.nutch.parse.Parser {
 
   private static final Logger LOG = LoggerFactory
@@ -72,8 +71,17 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   private HtmlMapper HTMLMapper;
   private boolean upperCaseElementNames = true;
 
-  @SuppressWarnings("deprecation")
   public ParseResult getParse(Content content) {
+    HTMLDocumentImpl doc = new HTMLDocumentImpl();
+    doc.setErrorChecking(false);
+    DocumentFragment root = doc.createDocumentFragment();
+
+    return getParse(content, doc, root);
+  }
+
+  @SuppressWarnings("deprecation")
+  ParseResult getParse(Content content, HTMLDocumentImpl doc,
+      DocumentFragment root) {
     String mimeType = content.getContentType();
     
     boolean useBoilerpipe = getConf().get("tika.extractor", "none").equals("boilerpipe");
@@ -102,10 +110,6 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
         + " for mime-type " + mimeType);
 
     Metadata tikamd = new Metadata();
-
-    HTMLDocumentImpl doc = new HTMLDocumentImpl();
-    doc.setErrorChecking(false);
-    DocumentFragment root = doc.createDocumentFragment();
 
     ContentHandler domHandler;
     
@@ -266,7 +270,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     String htmlmapperClassName = conf.get("tika.htmlmapper.classname");
     if (StringUtils.isNotBlank(htmlmapperClassName)) {
       try {
-        Class HTMLMapperClass = Class.forName(htmlmapperClassName);
+        Class<?> HTMLMapperClass = Class.forName(htmlmapperClassName);
         boolean interfaceOK = HtmlMapper.class
             .isAssignableFrom(HTMLMapperClass);
         if (!interfaceOK) {

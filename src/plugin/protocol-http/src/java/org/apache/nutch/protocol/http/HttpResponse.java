@@ -18,7 +18,6 @@ package org.apache.nutch.protocol.http;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,6 +25,7 @@ import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,9 +33,9 @@ import java.util.Set;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
@@ -49,7 +49,6 @@ import org.apache.nutch.protocol.http.api.HttpException;
  */
 public class HttpResponse implements Response {
 
-  private Configuration conf;
   private HttpBase http;
   private URL url;
   private byte[] content;
@@ -91,7 +90,10 @@ public class HttpResponse implements Response {
       Http.LOG.trace("fetching " + url);
     }
 
-    String path = "".equals(url.getFile()) ? "/" : url.getFile();
+    String path = url.getFile();
+    if (!path.startsWith("/")) {
+      path = "/" + path;
+    }
 
     // some servers will redirect a request with a host line like
     // "Host: <hostname>:80" to "http://<hpstname>/<orig_path>"- they
@@ -150,9 +152,7 @@ public class HttpResponse implements Response {
         socket = sslsocket;
       }
 
-      this.conf = http.getConf();
-      if (sockAddr != null
-          && conf.getBoolean("store.ip.address", false) == true) {
+      if (sockAddr != null && http.isStoreIPAddress()) {
         headers.add("_ip_", sockAddr.getAddress().getHostAddress());
       }
 
@@ -166,7 +166,11 @@ public class HttpResponse implements Response {
         reqStr.append(path);
       }
 
-      reqStr.append(" HTTP/1.0\r\n");
+      if (http.getUseHttp11()) {
+        reqStr.append(" HTTP/1.1\r\n");
+      } else {
+        reqStr.append(" HTTP/1.0\r\n");
+      }
 
       reqStr.append("Host: ");
       reqStr.append(host);
@@ -217,15 +221,19 @@ public class HttpResponse implements Response {
       }
 
       if (http.isIfModifiedSinceEnabled() && datum.getModifiedTime() > 0) {
-        reqStr.append("If-Modified-Since: " + HttpDateFormat
-            .toString(datum.getModifiedTime()));
+        reqStr.append(HttpHeaders.IF_MODIFIED_SINCE + ": "
+            + HttpDateFormat.toString(datum.getModifiedTime()));
         reqStr.append("\r\n");
       }
+
+      // "signal that this connection will be closed after completion of the
+      // response", see https://tools.ietf.org/html/rfc7230#section-6.1
+      reqStr.append("Connection: close\r\n");
       reqStr.append("\r\n");
 
       // store the request in the metadata?
-      if (conf.getBoolean("store.http.request", false) == true) {
-        headers.add("_request_", reqStr.toString());
+      if (http.isStoreHttpRequest()) {
+        headers.add(Response.REQUEST, reqStr.toString());
       }
 
       byte[] reqBytes = reqStr.toString().getBytes();
@@ -239,18 +247,28 @@ public class HttpResponse implements Response {
                   Http.BUFFER_SIZE), Http.BUFFER_SIZE);
 
       StringBuffer line = new StringBuffer();
+      StringBuffer lineSeparator = new StringBuffer();
 
       // store the http headers verbatim
-      if (conf.getBoolean("store.http.headers", false) == true) {
+      if (http.isStoreHttpHeaders()) {
         httpHeaders = new StringBuffer();
       }
 
-      headers.add("nutch.fetch.time", Long.toString(System.currentTimeMillis()));
+      headers.add(FETCH_TIME, Long.toString(System.currentTimeMillis()));
 
       boolean haveSeenNonContinueStatus = false;
       while (!haveSeenNonContinueStatus) {
         // parse status code line
-        this.code = parseStatusLine(in, line);
+        try {
+          this.code = parseStatusLine(in, line, lineSeparator);
+        } catch(HttpException e) {
+          Http.LOG.warn("Missing or invalid HTTP status line", e);
+          Http.LOG.warn("No HTTP header, assuming HTTP/0.9 for {}", getUrl());
+          this.code = 200;
+          in.unread(lineSeparator.toString().getBytes(StandardCharsets.ISO_8859_1));
+          in.unread(line.toString().getBytes(StandardCharsets.ISO_8859_1));
+          break;
+        }
         if (httpHeaders != null)
           httpHeaders.append(line).append("\n");
         // parse headers
@@ -258,30 +276,46 @@ public class HttpResponse implements Response {
         haveSeenNonContinueStatus = code != 100; // 100 is "Continue"
       }
 
-      String transferEncoding = getHeader(Response.TRANSFER_ENCODING);
-      if (transferEncoding != null && "chunked"
-          .equalsIgnoreCase(transferEncoding.trim())) {
-        readChunkedContent(in, line);
-      } else {
-        readPlainContent(in);
-      }
-
-      String contentEncoding = getHeader(Response.CONTENT_ENCODING);
-      if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
-        content = http.processGzipEncoded(content, url);
-      } else if ("deflate".equals(contentEncoding)) {
-        content = http.processDeflateEncoded(content, url);
-      } else {
-        // store the headers verbatim only if the response was not compressed
-        // as the content length reported with not match otherwise
-        if (httpHeaders != null) {
-          headers.add("_response.headers_", httpHeaders.toString());
+      try {
+        String transferEncoding = getHeader(Response.TRANSFER_ENCODING);
+        if (transferEncoding != null
+            && "chunked".equalsIgnoreCase(transferEncoding.trim())) {
+          readChunkedContent(in, line);
+        } else {
+          readPlainContent(in);
         }
-        if (Http.LOG.isTraceEnabled()) {
-          Http.LOG.trace("fetched " + content.length + " bytes from " + url);
+
+        String contentEncoding = getHeader(Response.CONTENT_ENCODING);
+        if ("gzip".equals(contentEncoding)
+            || "x-gzip".equals(contentEncoding)) {
+          content = http.processGzipEncoded(content, url);
+        } else if ("deflate".equals(contentEncoding)) {
+          content = http.processDeflateEncoded(content, url);
+        } else {
+          // store the headers verbatim only if the response was not compressed
+          // as the content length reported does not match otherwise
+          if (httpHeaders != null) {
+            headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
+          }
+          if (Http.LOG.isTraceEnabled()) {
+            Http.LOG.trace("fetched " + content.length + " bytes from " + url);
+          }
+        }
+      } catch (IOException | HttpException e) {
+        // Headers parsing went fine, but an error occurred while trying to read
+        // the body of the request (the body may be malformed)
+        if (code != 200) {
+          Http.LOG.warn(
+              "Ignored exception while reading payload of response with status code "
+                  + code + ":",
+              e);
+          content = null;
+        } else {
+          // If the page is a "200 OK" response, we do not want to go further
+          // with processing the invalid payload.
+          throw e;
         }
       }
-
     } finally {
       if (socket != null)
         socket.close();
@@ -352,10 +386,11 @@ public class HttpResponse implements Response {
     if (contentLengthString != null) {
       contentLengthString = contentLengthString.trim();
       try {
-        if (!contentLengthString.isEmpty())
+        if (!contentLengthString.isEmpty()) {
           contentLength = Integer.parseInt(contentLengthString);
+        }
       } catch (NumberFormatException e) {
-        throw new HttpException("bad content length: " + contentLengthString);
+        Http.LOG.warn("bad content length: {}", contentLengthString);
       }
     }
     if (http.getMaxContent() >= 0 && contentLength > http.getMaxContent()) {
@@ -437,9 +472,11 @@ public class HttpResponse implements Response {
         break;
       }
 
-      if (http.getMaxContent() >= 0 && (contentBytesRead + chunkLen) > http
-          .getMaxContent())
+      if (http.getMaxContent() >= 0
+          && (contentBytesRead + chunkLen) > http.getMaxContent()) {
+        // content will be trimmed when processing this chunk
         chunkLen = http.getMaxContent() - contentBytesRead;
+      }
 
       // read one chunk
       int chunkBytesRead = 0;
@@ -464,56 +501,59 @@ public class HttpResponse implements Response {
         chunkBytesRead += len;
       }
 
+      contentBytesRead += chunkBytesRead;
+      if (http.getMaxContent() >= 0
+          && contentBytesRead >= http.getMaxContent()) {
+        Http.LOG.trace("Http: content limit reached");
+        break;
+      }
+
       readLine(in, line, false);
 
     }
 
+    content = out.toByteArray();
+
     if (!doneChunks) {
+      // content trimmed
       if (contentBytesRead != http.getMaxContent())
         throw new HttpException("chunk eof: !doneChunk && didn't max out");
       return;
     }
 
-    content = out.toByteArray();
+    // read trailing headers
     parseHeaders(in, line, null);
 
   }
 
-  private int parseStatusLine(PushbackInputStream in, StringBuffer line)
-      throws IOException, HttpException {
-    readLine(in, line, false);
+  private int parseStatusLine(PushbackInputStream in, StringBuffer line,
+      StringBuffer lineSeparator) throws IOException, HttpException {
+    readLine(in, line, false, 2048, lineSeparator);
 
     int codeStart = line.indexOf(" ");
-    int codeEnd = line.indexOf(" ", codeStart + 1);
+    int codeEnd;
+    int lineLength = line.length();
 
-    // handle lines with no plaintext result code, ie:
-    // "HTTP/1.1 200" vs "HTTP/1.1 200 OK"
-    if (codeEnd == -1)
-      codeEnd = line.length();
-
-    int code;
-    try {
-      code = Integer.parseInt(line.substring(codeStart + 1, codeEnd));
-    } catch (NumberFormatException e) {
-      throw new HttpException(
-          "bad status line '" + line + "': " + e.getMessage(), e);
+    // We want to handle lines like "HTTP/1.1 200", "HTTP/1.1 200 OK", or "HTTP/1.1 404: Not Found"
+    for (codeEnd = codeStart + 1; codeEnd < lineLength; codeEnd++) {
+      if (!Character.isDigit(line.charAt(codeEnd))) break;
+      // Note: input is plain ASCII and may not contain Arabic etc. digits
+      // covered by Character.isDigit()
     }
 
-    return code;
+    try {
+      return Integer.parseInt(line.substring(codeStart + 1, codeEnd));
+    } catch (NumberFormatException e) {
+      throw new HttpException("Bad status line, no HTTP response code: " + line, e);
+    }
   }
 
-  private void processHeaderLine(StringBuffer line)
-      throws IOException, HttpException {
+  private void processHeaderLine(StringBuffer line) {
 
     int colonIndex = line.indexOf(":"); // key is up to colon
     if (colonIndex == -1) {
-      int i;
-      for (i = 0; i < line.length(); i++)
-        if (!Character.isWhitespace(line.charAt(i)))
-          break;
-      if (i == line.length())
-        return;
-      throw new HttpException("No colon in header:" + line);
+      Http.LOG.info("Ignoring a header line without a colon: '{}'", line);
+      return;
     }
     String key = line.substring(0, colonIndex);
 
@@ -543,7 +583,7 @@ public class HttpResponse implements Response {
           (pos = line.indexOf("<HTML")) != -1) || ((pos = line.indexOf("<html"))
           != -1)) {
 
-        in.unread(line.substring(pos).getBytes("UTF-8"));
+        in.unread(line.substring(pos).getBytes(StandardCharsets.ISO_8859_1));
         line.setLength(pos);
 
         try {
@@ -566,14 +606,31 @@ public class HttpResponse implements Response {
 
   private static int readLine(PushbackInputStream in, StringBuffer line,
       boolean allowContinuedLine) throws IOException {
+    return readLine(in, line, allowContinuedLine, Http.BUFFER_SIZE, null);
+  }
+
+  private static int readLine(PushbackInputStream in, StringBuffer line,
+      boolean allowContinuedLine, int maxBytes, StringBuffer lineSeparator) throws IOException {
     line.setLength(0);
-    for (int c = in.read(); c != -1; c = in.read()) {
+    int bytesRead = 0;
+    for (int c = in.read(); c != -1
+        && bytesRead < maxBytes; c = in.read(), bytesRead++) {
       switch (c) {
       case '\r':
+        if (lineSeparator != null) {
+          lineSeparator.append((char) c);
+        }
         if (peek(in) == '\n') {
           in.read();
+          if (lineSeparator != null) {
+            lineSeparator.append((char) c);
+          }
         }
+        // fall-through
       case '\n':
+        if (lineSeparator != null) {
+          lineSeparator.append((char) c);
+        }
         if (line.length() > 0) {
           // at EOL -- check for continued line if the current
           // (possibly continued) line wasn't blank
@@ -582,6 +639,9 @@ public class HttpResponse implements Response {
             case ' ':
             case '\t': // line is continued
               in.read();
+              if (lineSeparator != null) {
+                lineSeparator.replace(0, lineSeparator.length(), "");
+              }
               continue;
             }
         }
@@ -590,7 +650,11 @@ public class HttpResponse implements Response {
         line.append((char) c);
       }
     }
-    throw new EOFException();
+    if (bytesRead >= maxBytes) {
+      throw new IOException("Line exceeds max. buffer size: "
+          + line.substring(0, Math.min(32, line.length())));
+    }
+    return line.length();
   }
 
   private static int peek(PushbackInputStream in) throws IOException {

@@ -71,13 +71,13 @@ public class IndexingJob extends NutchTool implements Tool {
   }
 
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
-      boolean noCommit, boolean deleteGone) 
+      boolean noCommit, boolean deleteGone)
       throws IOException, InterruptedException, ClassNotFoundException {
     index(crawlDb, linkDb, segments, noCommit, deleteGone, null);
   }
 
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
-      boolean noCommit, boolean deleteGone, String params) 
+      boolean noCommit, boolean deleteGone, String params)
       throws IOException, InterruptedException, ClassNotFoundException {
     index(crawlDb, linkDb, segments, noCommit, deleteGone, params, false, false);
   }
@@ -91,7 +91,7 @@ public class IndexingJob extends NutchTool implements Tool {
 
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
       boolean noCommit, boolean deleteGone, String params,
-      boolean filter, boolean normalize, boolean addBinaryContent) 
+      boolean filter, boolean normalize, boolean addBinaryContent)
       throws IOException, InterruptedException, ClassNotFoundException {
     index(crawlDb, linkDb, segments, noCommit, deleteGone, params, false,
         false, false, false);
@@ -101,7 +101,6 @@ public class IndexingJob extends NutchTool implements Tool {
       boolean noCommit, boolean deleteGone, String params,
       boolean filter, boolean normalize, boolean addBinaryContent,
       boolean base64) throws IOException, InterruptedException, ClassNotFoundException {
-
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -120,19 +119,17 @@ public class IndexingJob extends NutchTool implements Tool {
       } else {
         LOG.info("Indexer: adding binary content");
       }
-    }        
-    IndexWriters writers = new IndexWriters(getConf());
+    }
+    IndexWriters writers = IndexWriters.get(conf);
     LOG.info(writers.describe());
 
     IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job, addBinaryContent);
-
-    // NOW PASSED ON THE COMMAND LINE AS A HADOOP PARAM
-    // job.set(SolrConstants.SERVER_URL, solrUrl);
 
     conf.setBoolean(IndexerMapReduce.INDEXER_DELETE, deleteGone);
     conf.setBoolean(IndexerMapReduce.URL_FILTERING, filter);
     conf.setBoolean(IndexerMapReduce.URL_NORMALIZING, normalize);
     conf.setBoolean(IndexerMapReduce.INDEXER_BINARY_AS_BASE64, base64);
+    conf.setBoolean(IndexerMapReduce.INDEXER_NO_COMMIT, noCommit);
 
     if (params != null) {
       conf.set(IndexerMapReduce.INDEXER_PARAMS, params);
@@ -158,11 +155,6 @@ public class IndexingJob extends NutchTool implements Tool {
         LOG.error(StringUtils.stringifyException(e));
         throw e;
       }
-      // do the commits once and for all the reducers in one go
-      if (!noCommit) {
-        writers.open(conf, "commit");
-        writers.commit();
-      }
       LOG.info("Indexer: number of documents indexed, deleted, or skipped:");
       for (Counter counter : job.getCounters().getGroup("IndexerStatus")) {
         LOG.info("Indexer: {}  {}",
@@ -182,7 +174,7 @@ public class IndexingJob extends NutchTool implements Tool {
       System.err
       //.println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
       .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize] [-addBinaryContent] [-base64]");
-      IndexWriters writers = new IndexWriters(getConf());
+      IndexWriters writers = IndexWriters.get(getConf());
       System.err.println(writers.describe());
       return -1;
     }
@@ -318,15 +310,15 @@ public class IndexingJob extends NutchTool implements Tool {
 
     if(args.containsKey(Nutch.ARG_SEGMENTS)) {
       Object segmentsFromArg = args.get(Nutch.ARG_SEGMENTS);
-      ArrayList<String> segmentList = new ArrayList<String>(); 
+      ArrayList<String> segmentList = new ArrayList<String>();
       if(segmentsFromArg instanceof ArrayList) {
-    	segmentList = (ArrayList<String>)segmentsFromArg; }
+    	  segmentList = (ArrayList<String>)segmentsFromArg; }
       else if(segmentsFromArg instanceof Path){
         segmentList.add(segmentsFromArg.toString());
       }
-    	      
+
       for(String segment: segmentList) {
-    	segments.add(new Path(segment));
+    	  segments.add(new Path(segment));
       }
     }
 
