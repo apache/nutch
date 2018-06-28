@@ -22,6 +22,8 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
@@ -44,6 +46,7 @@ public class DOMContentUtils {
   
   private String srcTagMetaName;
   private boolean keepNodenames;
+  private Set<String> blockNodes;
 
   public static class LinkParams {
     public String elName;
@@ -99,6 +102,7 @@ public class DOMContentUtils {
     srcTagMetaName = this.conf
         .get("parser.html.outlinks.htmlnode_metadata_name");
     keepNodenames = (srcTagMetaName != null && srcTagMetaName.length() > 0);
+    blockNodes = new HashSet<>(conf.getTrimmedStringCollection("parser.html.line.separators"));
   }
 
   /**
@@ -145,6 +149,13 @@ public class DOMContentUtils {
       Node currentNode = walker.nextNode();
       String nodeName = currentNode.getNodeName();
       short nodeType = currentNode.getNodeType();
+      Node previousSibling = currentNode.getPreviousSibling();
+      if (previousSibling != null
+          && blockNodes.contains(previousSibling.getNodeName().toLowerCase())) {
+        appendParagraphSeparator(sb);
+      } else if (blockNodes.contains(nodeName.toLowerCase())) {
+        appendParagraphSeparator(sb);
+      }
 
       if ("script".equalsIgnoreCase(nodeName)) {
         walker.skipChildren();
