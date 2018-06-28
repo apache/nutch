@@ -76,12 +76,27 @@ public class ParserChecker extends AbstractChecker {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
+  private ScoringFilters scfilters;
 
   public int run(String[] args) throws Exception {
     String url = null;
 
-    String usage = "Usage: ParserChecker [-normalize] [-followRedirects] [-dumpText] [-forceAs mimeType] [-md key=value] (-stdin | -listen <port> [-keepClientCnxOpen])";
-
+    String usage = "Usage:\n" //
+        + "  ParserChecker [OPTIONS] <url>\n" //
+        + "    Fetch single URL and parse it\n" //
+        + "  ParserChecker [OPTIONS] -stdin\n" //
+        + "    Read URLs to be parsed from stdin\n" //
+        + "  ParserChecker [OPTIONS] -listen <port> [-keepClientCnxOpen]\n" //
+        + "    Listen on <port> for URLs to be parsed\n" //
+        + "Options:\n" //
+        + "  -D<property>=<value>\tset/overwrite Nutch/Hadoop properties\n" //
+        + "                  \t(a generic Hadoop option to be passed\n" //
+        + "                  \t before other command-specific options)"
+        + "  -normalize      \tnormalize URLs\n" //
+        + "  -followRedirects\tfollow redirects when fetching URL\n" //
+        + "  -dumpText       \talso show the plain-text extracted by parsers\n" //
+        + "  -forceAs <mimeType>\tforce parsing as <mimeType>\n" //
+        + "  -md <key>=<value>\tmetadata added to CrawlDatum before parsing\n";
     // Print help when no args given
     if (args.length < 1) {
       System.err.println(usage);
@@ -118,6 +133,8 @@ public class ParserChecker extends AbstractChecker {
         url = args[i];
       }
     }
+
+    scfilters = new ScoringFilters(getConf());
     
     if (url != null) {
       return super.processSingle(url);
@@ -217,7 +234,6 @@ public class ParserChecker extends AbstractChecker {
       LOG.warn("Content is truncated, parse may fail!");
     }
 
-    ScoringFilters scfilters = new ScoringFilters(getConf());
     // call the scoring filters
     try {
       scfilters.passScoreBeforeParsing(turl, datum, content);
@@ -246,33 +262,22 @@ public class ParserChecker extends AbstractChecker {
       LOG.info("signature: " + StringUtil.toHexString(signature));
     }
 
-    Parse parse = parseResult.get(turl);
-    if (parse == null) {
-      LOG.error("Failed to get parse from parse result");
-      LOG.error("Available parses in parse result (by URL key):");
-      for (Map.Entry<Text, Parse> entry : parseResult) {
-        LOG.error("  " + entry.getKey());
-      }
-      LOG.error("Parse result does not contain a parse for URL to be checked:");
-      LOG.error("  " + turl);
-      return -1;
-    }
-
-    // call the scoring filters
-    try {
-      scfilters.passScoreAfterParsing(turl, content, parse);
-    } catch (Exception e) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't pass score after parsing, url " + turl + " (" + e
-            + ")");
-        LOG.warn(StringUtils.stringifyException(e));
-      }
-    }
-
     for (Map.Entry<Text, Parse> entry : parseResult) {
-      parse = entry.getValue();
-      output.append(entry.getKey() + "\n");
-      output.append(parse.getData().toString() + "\n");
+      turl = entry.getKey();
+      Parse parse = entry.getValue();
+      // call the scoring filters
+      try {
+        scfilters.passScoreAfterParsing(turl, content, parse);
+      } catch (Exception e) {
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("Couldn't pass score after parsing, url " + turl + " (" + e
+              + ")");
+          LOG.warn(StringUtils.stringifyException(e));
+        }
+      }
+
+      output.append(turl + "\n");
+      output.append(parse.getData() + "\n");
       if (dumpText) {
         output.append(parse.getText());
       }
