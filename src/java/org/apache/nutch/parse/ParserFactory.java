@@ -137,10 +137,13 @@ public final class ParserFactory {
         parsers.add(p);
       } catch (PluginRuntimeException e) {
         if (LOG.isWarnEnabled()) {
-          LOG.warn("ParserFactory:PluginRuntimeException when "
-              + "initializing parser plugin "
-              + ext.getDescriptor().getPluginId() + " instance in getParsers "
-              + "function: attempting to continue instantiating parsers");
+          LOG.warn(
+              "ParserFactory:PluginRuntimeException when "
+                  + "initializing parser plugin "
+                  + ext.getDescriptor().getPluginId()
+                  + " instance because: " + e.getMessage()
+                  + " - attempting to continue instantiating parsers",
+              e);
         }
       }
     }
