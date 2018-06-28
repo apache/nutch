@@ -25,6 +25,10 @@
    Please not that plugins can define extension points as well to be extendable.-->
 
 <extension-point
+      id="org.apache.nutch.exchange.Exchange"
+      name="Nutch Exchange"/>
+
+<extension-point
       id="org.apache.nutch.indexer.IndexingFilter"
       name="Nutch Indexing Filter"/>
 

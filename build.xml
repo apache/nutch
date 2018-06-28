@@ -177,6 +177,7 @@
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
+      <packageset dir="${plugins.dir}/exchange-jexl/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
@@ -265,6 +266,7 @@
       <group title="Parse Plugins" packages="${plugins.parse}"/>
       <group title="Parse Filter Plugins" packages="${plugins.parsefilter}"/>
       <group title="Publisher Plugins" packages="${plugins.publisher}"/>
+      <group title="Exchange Plugins" packages="${plugins.exchange}"/>
       <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
       <group title="Indexer Plugins" packages="${plugins.indexer}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
@@ -636,6 +638,7 @@
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
+      <packageset dir="${plugins.dir}/exchange-jexl/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
@@ -724,6 +727,7 @@
       <group title="Parse Plugins" packages="${plugins.parse}"/>
       <group title="Parse Filter Plugins" packages="${plugins.parsefilter}"/>
       <group title="Publisher Plugins" packages="${plugins.publisher}"/>
+      <group title="Exchange Plugins" packages="${plugins.exchange}"/>
       <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
       <group title="Indexer Plugins" packages="${plugins.indexer}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
@@ -1049,6 +1053,7 @@
         <source path="${plugins.dir}/feed/src/java/" />
         <source path="${plugins.dir}/feed/src/test/" />
         <source path="${plugins.dir}/headings/src/java/" />
+        <source path="${plugins.dir}/exchange-jexl/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/test/" />
         <source path="${plugins.dir}/index-basic/src/java/" />
