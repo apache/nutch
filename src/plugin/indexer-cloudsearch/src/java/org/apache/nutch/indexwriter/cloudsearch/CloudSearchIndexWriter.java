@@ -1,20 +1,19 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.indexwriter.cloudsearch;
 
 import java.lang.invoke.MethodHandles;
@@ -83,6 +82,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
 
   private Map<String, String> csfields = new HashMap<String, String>();
 
+  private String endpoint;
   private String regionName;
 
   @Override
@@ -92,11 +92,11 @@ public class CloudSearchIndexWriter implements IndexWriter {
 
   @Override
   public void open(IndexWriterParams parameters) throws IOException {
-//    LOG.debug("CloudSearchIndexWriter.open() name={} ", name);
+    //    LOG.debug("CloudSearchIndexWriter.open() name={} ", name);
 
-    String endpoint = parameters.get(CloudSearchConstants.ENDPOINT);
-    dumpBatchFilesToTemp = parameters.getBoolean(CloudSearchConstants.BATCH_DUMP,
-        false);
+    endpoint = parameters.get(CloudSearchConstants.ENDPOINT);
+    dumpBatchFilesToTemp = parameters
+        .getBoolean(CloudSearchConstants.BATCH_DUMP, false);
     this.regionName = parameters.get(CloudSearchConstants.REGION);
 
     if (StringUtils.isBlank(endpoint) && !dumpBatchFilesToTemp) {
@@ -327,7 +327,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
     // This will flush any unsent documents.
     commit();
     // close the client
-    if (client != null){
+    if (client != null) {
       client.shutdown();
     }
   }
@@ -342,36 +342,23 @@ public class CloudSearchIndexWriter implements IndexWriter {
   }
 
   public String describe() {
-    String configuredEndpoint = null;
-    String configuredRegion = null;
-
-    // get the values set in the conf
-    if (getConf() != null) {
-      configuredEndpoint = getConf().get(CloudSearchConstants.ENDPOINT);
-      configuredRegion = getConf().get(CloudSearchConstants.REGION);
-    }
-
-    StringBuffer sb = new StringBuffer("CloudSearchIndexWriter\n");
-    sb.append("\t").append(CloudSearchConstants.ENDPOINT)
-        .append(" : URL of the CloudSearch domain's document endpoint.");
-    if (StringUtils.isNotBlank(configuredEndpoint)) {
-      sb.append(" (value: ").append(configuredEndpoint).append(")");
-    }
-    sb.append("\n");
-
-    sb.append("\t").append(CloudSearchConstants.REGION)
-        .append(" : name of the CloudSearch region.");
-    if (StringUtils.isNotBlank(configuredRegion)) {
-      sb.append(" (").append(configuredRegion).append(")");
-    }
-    sb.append("\n");
+    StringBuffer sb = new StringBuffer(this.getClass().getSimpleName())
+        .append("\n");
+    sb.append("\t").append(CloudSearchConstants.ENDPOINT).append(": ")
+        .append(this.endpoint).append("\n");
+    sb.append("\t").append(CloudSearchConstants.REGION).append(": ")
+        .append(this.regionName).append("\n");
+    sb.append("\t").append(CloudSearchConstants.BATCH_DUMP).append(": ")
+        .append(this.dumpBatchFilesToTemp).append("\n");
+    sb.append("\t").append(CloudSearchConstants.MAX_DOCS_BATCH).append(": ")
+        .append(this.maxDocsInBatch).append("\n");
     return sb.toString();
   }
 
   /**
    * Remove the non-cloudSearch-legal characters. Note that this might convert
    * two fields to the same name.
-   * 
+   *
    * @param name
    * @return
    */

@@ -56,6 +56,10 @@ public class SolrIndexWriter implements IndexWriter {
 
   private final List<String> deleteIds = new ArrayList<>();
 
+  private String type;
+  private String[] urls;
+  private String collection;
+
   private int batchSize;
   private int numDeletes = 0;
   private int totalAdds = 0;
@@ -79,9 +83,9 @@ public class SolrIndexWriter implements IndexWriter {
    */
   @Override
   public void open(IndexWriterParams parameters) {
-    String type = parameters.get(SolrConstants.SERVER_TYPE, "http");
-
-    String[] urls = parameters.getStrings(SolrConstants.SERVER_URLS);
+    this.type = parameters.get(SolrConstants.SERVER_TYPE, "http");
+    this.urls = parameters.getStrings(SolrConstants.SERVER_URLS);
+    this.collection = parameters.get(SolrConstants.COLLECTION);
 
     if (urls == null) {
       String message = "Missing SOLR URL.\n" + describe();
@@ -106,7 +110,7 @@ public class SolrIndexWriter implements IndexWriter {
           SolrUtils.getCloudSolrClient(Arrays.asList(urls), this.username,
               this.password) :
           SolrUtils.getCloudSolrClient(Arrays.asList(urls));
-      sc.setDefaultCollection(parameters.get(SolrConstants.COLLECTION));
+      sc.setDefaultCollection(this.collection);
       solrClients.add(sc);
       break;
     case "concurrent":
@@ -294,19 +298,25 @@ public class SolrIndexWriter implements IndexWriter {
    */
   @Override
   public String describe() {
-    StringBuffer sb = new StringBuffer("SOLRIndexWriter\n");
-    sb.append("\t").append(SolrConstants.SERVER_TYPE).append(
-        " : Type of the server. Can be: \"cloud\", \"concurrent\", \"http\" or \"lb\"\n");
-    sb.append("\t").append(SolrConstants.SERVER_URLS)
-        .append(" : URL of the SOLR instance or URL of the Zookeeper quorum\n");
-    sb.append("\t").append(SolrConstants.COMMIT_SIZE)
-        .append(" : buffer size when sending to SOLR (default 1000)\n");
-    sb.append("\t").append(SolrConstants.USE_AUTH)
-        .append(" : use authentication (default false)\n");
-    sb.append("\t").append(SolrConstants.USERNAME)
-        .append(" : username for authentication\n");
-    sb.append("\t").append(SolrConstants.PASSWORD)
-        .append(" : password for authentication\n");
+    StringBuffer sb = new StringBuffer(this.getClass().getSimpleName())
+        .append("\n");
+    sb.append("\t").append(SolrConstants.SERVER_TYPE).append(": ")
+        .append(this.type).append("\n");
+    sb.append("\t").append(SolrConstants.SERVER_URLS).append(": ")
+        .append(this.urls == null ? "null" : String.join(",", urls))
+        .append("\n");
+    sb.append("\t").append(SolrConstants.COLLECTION).append(": ")
+        .append(this.collection).append("\n");
+    sb.append("\t").append(SolrConstants.COMMIT_SIZE).append(": ")
+        .append(this.batchSize).append("\n");
+    sb.append("\t").append(SolrConstants.WEIGHT_FIELD).append(": ")
+        .append(this.weightField).append("\n");
+    sb.append("\t").append(SolrConstants.USE_AUTH).append(": ")
+        .append(this.auth).append("\n");
+    sb.append("\t").append(SolrConstants.USERNAME).append(": ")
+        .append(this.username).append("\n");
+    sb.append("\t").append(SolrConstants.PASSWORD).append(": ")
+        .append(this.password).append("\n");
     return sb.toString();
   }
 }

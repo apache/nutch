@@ -17,15 +17,21 @@
 package org.apache.nutch.indexer;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IndexerOutputFormat
     extends FileOutputFormat<Text, NutchIndexAction> {
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   @Override
   public RecordWriter<Text, NutchIndexAction> getRecordWriter(
@@ -36,6 +42,7 @@ public class IndexerOutputFormat
 
     String name = getUniqueFile(context, "part", "");
     writers.open(conf, name);
+    LOG.info(writers.describe());
 
     return new RecordWriter<Text, NutchIndexAction>() {
 

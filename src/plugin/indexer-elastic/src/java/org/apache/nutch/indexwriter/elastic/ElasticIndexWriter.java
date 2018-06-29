@@ -65,6 +65,15 @@ public class ElasticIndexWriter implements IndexWriter {
   private static final int DEFAULT_BULK_CLOSE_TIMEOUT = 600;
   private static final String DEFAULT_INDEX = "nutch";
 
+  private String cluster;
+  private String[] hosts;
+  private int port;
+
+  private int maxBulkDocs;
+  private int maxBulkLength;
+  private int expBackoffMillis;
+  private int expBackoffRetries;
+
   private String defaultIndex;
   private Client client;
   private Node node;
@@ -87,7 +96,7 @@ public class ElasticIndexWriter implements IndexWriter {
    */
   @Override
   public void open(IndexWriterParams parameters) throws IOException {
-    String cluster = parameters.get(ElasticConstants.CLUSTER);
+    cluster = parameters.get(ElasticConstants.CLUSTER);
     String hosts = parameters.get(ElasticConstants.HOSTS);
 
     if (StringUtils.isBlank(cluster) && StringUtils.isBlank(hosts)) {
@@ -101,14 +110,14 @@ public class ElasticIndexWriter implements IndexWriter {
         DEFAULT_BULK_CLOSE_TIMEOUT);
     defaultIndex = parameters.get(ElasticConstants.INDEX, DEFAULT_INDEX);
 
-    int maxBulkDocs = parameters
+    maxBulkDocs = parameters
         .getInt(ElasticConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
-    int maxBulkLength = parameters
+    maxBulkLength = parameters
         .getInt(ElasticConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
-    int expBackoffMillis = parameters
+    expBackoffMillis = parameters
         .getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
             DEFAULT_EXP_BACKOFF_MILLIS);
-    int expBackoffRetries = parameters
+    expBackoffRetries = parameters
         .getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
             DEFAULT_EXP_BACKOFF_RETRIES);
 
@@ -128,9 +137,8 @@ public class ElasticIndexWriter implements IndexWriter {
    * Generates a TransportClient or NodeClient
    */
   protected Client makeClient(IndexWriterParams parameters) throws IOException {
-    String clusterName = parameters.get(ElasticConstants.CLUSTER);
-    String[] hosts = parameters.getStrings(ElasticConstants.HOSTS);
-    int port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
+    hosts = parameters.getStrings(ElasticConstants.HOSTS);
+    port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
 
     Settings.Builder settingsBuilder = Settings.builder();
 
@@ -149,8 +157,8 @@ public class ElasticIndexWriter implements IndexWriter {
     }
 
     // Set the cluster name and build the settings
-    if (StringUtils.isNotBlank(clusterName)) {
-      settingsBuilder.put("cluster.name", clusterName);
+    if (StringUtils.isNotBlank(cluster)) {
+      settingsBuilder.put("cluster.name", cluster);
     }
 
     Settings settings = settingsBuilder.build();
@@ -165,7 +173,7 @@ public class ElasticIndexWriter implements IndexWriter {
         transportClient.addTransportAddress(
             new InetSocketTransportAddress(InetAddress.getByName(host), port));
       client = transportClient;
-    } else if (clusterName != null) {
+    } else if (cluster != null) {
       node = new Node(settings);
       client = node.client();
     }
@@ -256,28 +264,26 @@ public class ElasticIndexWriter implements IndexWriter {
 
   @Override
   public String describe() {
-    StringBuffer sb = new StringBuffer("ElasticIndexWriter\n");
-    sb.append("\t").append(ElasticConstants.CLUSTER)
-        .append(" : elastic prefix cluster\n");
-    sb.append("\t").append(ElasticConstants.HOSTS).append(" : hostname\n");
-    sb.append("\t").append(ElasticConstants.PORT).append(" : port\n");
-    sb.append("\t").append(ElasticConstants.INDEX)
-        .append(" : elastic index command \n");
-    sb.append("\t").append(ElasticConstants.MAX_BULK_DOCS)
-        .append(" : elastic bulk index doc counts. (default ")
-        .append(DEFAULT_MAX_BULK_DOCS).append(")\n");
-    sb.append("\t").append(ElasticConstants.MAX_BULK_LENGTH)
-        .append(" : elastic bulk index length in bytes. (default ")
-        .append(DEFAULT_MAX_BULK_LENGTH).append(")\n");
-    sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS).append(
-        " : elastic bulk exponential backoff initial delay in milliseconds. (default ")
-        .append(DEFAULT_EXP_BACKOFF_MILLIS).append(")\n");
-    sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES)
-        .append(" : elastic bulk exponential backoff max retries. (default ")
-        .append(DEFAULT_EXP_BACKOFF_RETRIES).append(")\n");
-    sb.append("\t").append(ElasticConstants.BULK_CLOSE_TIMEOUT)
-        .append(" : elastic timeout for the last bulk in seconds. (default ")
-        .append(DEFAULT_BULK_CLOSE_TIMEOUT).append(")\n");
+    StringBuffer sb = new StringBuffer(this.getClass().getSimpleName())
+        .append("\n");
+    sb.append("\t").append(ElasticConstants.CLUSTER).append(": ")
+        .append(this.cluster).append("\n");
+    sb.append("\t").append(ElasticConstants.HOSTS).append(": ")
+        .append(this.hosts == null ? "null" : String.join(",", hosts)).append("\n");
+    sb.append("\t").append(ElasticConstants.PORT).append(": ")
+        .append(this.port).append("\n");
+    sb.append("\t").append(ElasticConstants.INDEX).append(": ")
+        .append(this.defaultIndex).append("\n");
+    sb.append("\t").append(ElasticConstants.MAX_BULK_DOCS).append(": ")
+        .append(this.maxBulkDocs).append("\n");
+    sb.append("\t").append(ElasticConstants.MAX_BULK_LENGTH).append(": ")
+        .append(this.maxBulkLength).append("\n");
+    sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS).append(": ")
+        .append(this.expBackoffMillis).append("\n");
+    sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES).append(": ")
+        .append(this.expBackoffRetries).append("\n");
+    sb.append("\t").append(ElasticConstants.BULK_CLOSE_TIMEOUT).append(": ")
+        .append(this.bulkCloseTimeout).append("\n");
     return sb.toString();
   }
 

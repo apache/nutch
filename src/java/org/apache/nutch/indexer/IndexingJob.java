@@ -120,8 +120,6 @@ public class IndexingJob extends NutchTool implements Tool {
         LOG.info("Indexer: adding binary content");
       }
     }
-    IndexWriters writers = IndexWriters.get(conf);
-    LOG.info(writers.describe());
 
     IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job, addBinaryContent);
 

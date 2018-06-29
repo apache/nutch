@@ -379,15 +379,37 @@ public class ElasticRestIndexWriter implements IndexWriter {
 
   @Override
   public String describe() {
-    StringBuffer sb = new StringBuffer("ElasticRestIndexWriter\n");
-    sb.append("\t").append(ElasticRestConstants.HOST).append(" : hostname\n");
-    sb.append("\t").append(ElasticRestConstants.PORT).append(" : port\n");
-    sb.append("\t").append(ElasticRestConstants.INDEX)
-        .append(" : elastic index command \n");
-    sb.append("\t").append(ElasticRestConstants.MAX_BULK_DOCS)
-        .append(" : elastic bulk index doc counts. (default 250) \n");
-    sb.append("\t").append(ElasticRestConstants.MAX_BULK_LENGTH)
-        .append(" : elastic bulk index length. (default 2500500 ~2.5MB)\n");
+    StringBuffer sb = new StringBuffer(this.getClass().getSimpleName())
+        .append("\n");
+    sb.append("\t").append(ElasticRestConstants.HOST).append(": ")
+        .append(this.host).append("\n");
+    sb.append("\t").append(ElasticRestConstants.PORT).append(": ")
+        .append(this.port).append("\n");
+    sb.append("\t").append(ElasticRestConstants.INDEX).append(": ")
+        .append(this.defaultIndex).append("\n");
+    sb.append("\t").append(ElasticRestConstants.MAX_BULK_DOCS).append(": ")
+        .append(this.maxBulkDocs).append("\n");
+    sb.append("\t").append(ElasticRestConstants.MAX_BULK_LENGTH).append(": ")
+        .append(this.maxBulkLength).append("\n");
+
+    sb.append("\t").append(ElasticRestConstants.USER).append(": ")
+        .append(this.user).append("\n");
+    sb.append("\t").append(ElasticRestConstants.PASSWORD).append(": ")
+        .append(this.password).append("\n");
+    sb.append("\t").append(ElasticRestConstants.TYPE).append(": ")
+        .append(this.defaultType).append("\n");
+    sb.append("\t").append(ElasticRestConstants.HTTPS).append(": ")
+        .append(this.https).append("\n");
+    sb.append("\t").append(ElasticRestConstants.HOSTNAME_TRUST).append(": ")
+        .append(this.trustAllHostnames).append("\n");
+
+    sb.append("\t").append(ElasticRestConstants.LANGUAGES).append(": ")
+        .append(this.languages == null ? "null" : String.join(",", languages))
+        .append("\n");
+    sb.append("\t").append(ElasticRestConstants.SEPARATOR).append(": ")
+        .append(this.separator).append("\n");
+    sb.append("\t").append(ElasticRestConstants.SINK).append(": ")
+        .append(this.sink).append("\n");
     return sb.toString();
   }
 

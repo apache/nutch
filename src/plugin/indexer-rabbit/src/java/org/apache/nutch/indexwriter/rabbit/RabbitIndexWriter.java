@@ -39,7 +39,11 @@ public class RabbitIndexWriter implements IndexWriter {
   public static final Logger LOG = LoggerFactory
       .getLogger(RabbitIndexWriter.class);
 
+  private String uri;
+
   private String exchange;
+  private String exchangeOptions;
+
   private String routingKey;
 
   private int commitSize;
@@ -47,6 +51,12 @@ public class RabbitIndexWriter implements IndexWriter {
 
   private String headersStatic;
   private List<String> headersDynamic;
+
+  private boolean binding;
+  private String bindingArguments;
+
+  private String queueName;
+  private String queueOptions;
 
   private Configuration config;
 
@@ -87,19 +97,19 @@ public class RabbitIndexWriter implements IndexWriter {
     headersDynamic = Arrays
         .asList(parameters.getStrings(RabbitMQConstants.HEADERS_DYNAMIC, ""));
 
-    String uri = parameters.get(RabbitMQConstants.SERVER_URI);
+    uri = parameters.get(RabbitMQConstants.SERVER_URI);
 
     client = new RabbitMQClient(uri);
     client.openChannel();
 
-    boolean binding = parameters.getBoolean(RabbitMQConstants.BINDING, false);
+    binding = parameters.getBoolean(RabbitMQConstants.BINDING, false);
     if (binding) {
-      String queueName = parameters.get(RabbitMQConstants.QUEUE_NAME);
-      String queueOptions = parameters.get(RabbitMQConstants.QUEUE_OPTIONS);
+      queueName = parameters.get(RabbitMQConstants.QUEUE_NAME);
+      queueOptions = parameters.get(RabbitMQConstants.QUEUE_OPTIONS);
 
-      String exchangeOptions = parameters.get(RabbitMQConstants.EXCHANGE_OPTIONS);
+      exchangeOptions = parameters.get(RabbitMQConstants.EXCHANGE_OPTIONS);
 
-      String bindingArguments = parameters
+      bindingArguments = parameters
           .get(RabbitMQConstants.BINDING_ARGUMENTS, "");
 
       client
@@ -200,31 +210,32 @@ public class RabbitIndexWriter implements IndexWriter {
   }
 
   public String describe() {
-    StringBuffer sb = new StringBuffer("RabbitIndexWriter\n");
-    sb.append("\t").append(RabbitMQConstants.SERVER_URI)
-        .append(" : URI of RabbitMQ server\n");
-    sb.append("\t").append(RabbitMQConstants.BINDING).append(
-        " : If binding is created automatically or not (default true)\n");
-    sb.append("\t").append(RabbitMQConstants.BINDING_ARGUMENTS)
-        .append(" : Arguments used in binding\n");
-    sb.append("\t").append(RabbitMQConstants.EXCHANGE_NAME)
-        .append(" : Exchange's name\n");
-    sb.append("\t").append(RabbitMQConstants.EXCHANGE_OPTIONS)
-        .append(" : Exchange's options\n");
-    sb.append("\t").append(RabbitMQConstants.QUEUE_NAME)
-        .append(" : Queue's name\n");
-    sb.append("\t").append(RabbitMQConstants.QUEUE_OPTIONS)
-        .append(" : Queue's options\n");
-    sb.append("\t").append(RabbitMQConstants.ROUTING_KEY)
-        .append(" : Routing key\n");
-    sb.append("\t").append(RabbitMQConstants.COMMIT_SIZE)
-        .append(" : Buffer size when sending to RabbitMQ (default 250)\n");
-    sb.append("\t").append(RabbitMQConstants.COMMIT_MODE)
-        .append(" : The mode to send the documents (default multiple)\n");
-    sb.append("\t").append(RabbitMQConstants.HEADERS_STATIC)
-        .append(" : Static headers that will be added to the messages\n");
-    sb.append("\t").append(RabbitMQConstants.HEADERS_DYNAMIC)
-        .append(" : Document's fields added as headers\n");
+    StringBuffer sb = new StringBuffer(this.getClass().getSimpleName())
+        .append("\n");
+    sb.append("\t").append(RabbitMQConstants.SERVER_URI).append(": ")
+        .append(this.uri).append("\n");
+    sb.append("\t").append(RabbitMQConstants.BINDING).append(": ")
+        .append(this.binding).append("\n");
+    sb.append("\t").append(RabbitMQConstants.BINDING_ARGUMENTS).append(": ")
+        .append(this.bindingArguments).append("\n");
+    sb.append("\t").append(RabbitMQConstants.EXCHANGE_NAME).append(": ")
+        .append(this.exchange).append("\n");
+    sb.append("\t").append(RabbitMQConstants.EXCHANGE_OPTIONS).append(": ")
+        .append(this.exchangeOptions).append("\n");
+    sb.append("\t").append(RabbitMQConstants.QUEUE_NAME).append(": ")
+        .append(this.queueName).append("\n");
+    sb.append("\t").append(RabbitMQConstants.QUEUE_OPTIONS).append(": ")
+        .append(this.queueOptions).append("\n");
+    sb.append("\t").append(RabbitMQConstants.ROUTING_KEY).append(": ")
+        .append(this.routingKey).append("\n");
+    sb.append("\t").append(RabbitMQConstants.COMMIT_SIZE).append(": ")
+        .append(this.commitSize).append("\n");
+    sb.append("\t").append(RabbitMQConstants.COMMIT_MODE).append(": ")
+        .append(this.commitMode).append("\n");
+    sb.append("\t").append(RabbitMQConstants.HEADERS_STATIC).append(": ")
+        .append(this.headersStatic).append("\n");
+    sb.append("\t").append(RabbitMQConstants.HEADERS_DYNAMIC).append(": ")
+        .append(this.headersDynamic).append("\n");
     return sb.toString();
   }
 
