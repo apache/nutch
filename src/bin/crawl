@@ -253,7 +253,7 @@ function __update_hostdb {
   fi
 }
 
-# initial injection
+#initial injection
 if [[ ! -z $SEEDDIR  ]]; then
   echo "Injecting seed URLs"
   __bin_nutch inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
