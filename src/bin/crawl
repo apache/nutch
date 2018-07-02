@@ -235,7 +235,7 @@ function __bin_nutch {
     fi
 }
 
-#check if directory exists on locally or on hdfs
+#check if directory exists locally or on hdfs
 function __directory_exists {
   if [[ "$mode" == local  &&  -d "$1" ]]; then
     return 0

@@ -19,7 +19,6 @@ package org.apache.nutch.scoring.webgraph;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -36,17 +35,14 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableUtils;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
-import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -86,70 +82,85 @@ public class NodeDumper extends Configured implements Tool {
    * on the command line, the top urls could be for number of inlinks, for
    * number of outlinks, or for link analysis score.
    */
-  public static class Sorter extends Configured implements
-      Mapper<Text, Node, FloatWritable, Text>,
-      Reducer<FloatWritable, Text, Text, FloatWritable> {
-
-    private JobConf conf;
-    private boolean inlinks = false;
-    private boolean outlinks = false;
-    private boolean scores = false;
-    private long topn = Long.MAX_VALUE;
-
-    /**
-     * Configures the job, sets the flag for type of content and the topN number
-     * if any.
-     */
-    public void configure(JobConf conf) {
-      this.conf = conf;
-      this.inlinks = conf.getBoolean("inlinks", false);
-      this.outlinks = conf.getBoolean("outlinks", false);
-      this.scores = conf.getBoolean("scores", true);
-      this.topn = conf.getLong("topn", Long.MAX_VALUE);
-    }
-
-    public void close() {
-    }
+  public static class Sorter extends Configured {
 
     /**
      * Outputs the url with the appropriate number of inlinks, outlinks, or for
      * score.
      */
-    public void map(Text key, Node node,
-        OutputCollector<FloatWritable, Text> output, Reporter reporter)
-        throws IOException {
+    public static class SorterMapper extends 
+        Mapper<Text, Node, FloatWritable, Text> {
 
-      float number = 0;
-      if (inlinks) {
-        number = node.getNumInlinks();
-      } else if (outlinks) {
-        number = node.getNumOutlinks();
-      } else {
-        number = node.getInlinkScore();
+      private Configuration conf;
+      private boolean inlinks = false;
+      private boolean outlinks = false;
+
+      /**
+       * Configures the mapper, sets the flag for type of content and the topN number
+       * if any.
+       */
+      @Override
+      public void setup(Mapper<Text, Node, FloatWritable, Text>.Context context) {
+        conf = context.getConfiguration();
+	inlinks = conf.getBoolean("inlinks", false);
+	outlinks = conf.getBoolean("outlinks", false);
       }
 
-      // number collected with negative to be descending
-      output.collect(new FloatWritable(-number), key);
+      @Override
+      public void map(Text key, Node node,
+          Context context) throws IOException, InterruptedException {
+
+        float number = 0;
+        if (inlinks) {
+          number = node.getNumInlinks();
+        } else if (outlinks) {
+          number = node.getNumOutlinks();
+        } else {
+          number = node.getInlinkScore();
+        }
+
+        // number collected with negative to be descending
+        context.write(new FloatWritable(-number), key);
+      }
     }
 
     /**
      * Flips and collects the url and numeric sort value.
      */
-    public void reduce(FloatWritable key, Iterator<Text> values,
-        OutputCollector<Text, FloatWritable> output, Reporter reporter)
-        throws IOException {
+    public static class SorterReducer extends
+        Reducer<FloatWritable, Text, Text, FloatWritable> {
+     
+      private Configuration conf;
+      private long topn = Long.MAX_VALUE;
 
-      // take the negative of the negative to get original value, sometimes 0
-      // value are a little weird
-      float val = key.get();
-      FloatWritable number = new FloatWritable(val == 0 ? 0 : -val);
-      long numCollected = 0;
+      /**
+       * Configures the reducer, sets the flag for type of content and the topN number
+       * if any.
+       */
+      @Override
+      public void setup(Reducer<FloatWritable, Text, Text, FloatWritable>.Context context) {
+        conf = context.getConfiguration();
+        topn = conf.getLong("topn", Long.MAX_VALUE);
+      }
 
-      // collect all values, this time with the url as key
-      while (values.hasNext() && (numCollected < topn)) {
-        Text url = WritableUtils.clone(values.next(), conf);
-        output.collect(url, number);
-        numCollected++;
+      @Override
+      public void reduce(FloatWritable key, Iterable<Text> values,
+          Context context) throws IOException, InterruptedException {
+
+        // take the negative of the negative to get original value, sometimes 0
+        // value are a little weird
+        float val = key.get();
+        FloatWritable number = new FloatWritable(val == 0 ? 0 : -val);
+        long numCollected = 0;
+
+        // collect all values, this time with the url as key
+        for (Text value : values) {
+          if (numCollected < topn) {
+            Text url = WritableUtils.clone(value, conf);
+            context.write(url, number);
+            numCollected++;
+          }
+        }
       }
     }
   }
@@ -159,88 +170,98 @@ public class NodeDumper extends Configured implements Tool {
    * of either the number of inlinks, the number of outlinks or the score. The
    * computed value is then either the sum of all parts or the top value.
    */
-  public static class Dumper extends Configured implements
-      Mapper<Text, Node, Text, FloatWritable>,
-      Reducer<Text, FloatWritable, Text, FloatWritable> {
-
-    private JobConf conf;
-    private boolean inlinks = false;
-    private boolean outlinks = false;
-    private boolean scores = false;
-    private long topn = Long.MAX_VALUE;
-    private boolean host = false;
-    private boolean domain = false;
-    private boolean sum = false;
-    private boolean max = false;
-
-    public void configure(JobConf conf) {
-      this.conf = conf;
-      this.inlinks = conf.getBoolean("inlinks", false);
-      this.outlinks = conf.getBoolean("outlinks", false);
-      this.scores = conf.getBoolean("scores", true);
-      this.topn = conf.getLong("topn", Long.MAX_VALUE);
-      this.host = conf.getBoolean("host", false);
-      this.domain = conf.getBoolean("domain", false);
-      this.sum = conf.getBoolean("sum", false);
-      this.max = conf.getBoolean("max", false);
-    }
-
-    public void close() {
-    }
+  public static class Dumper extends Configured {
 
     /**
      * Outputs the host or domain as key for this record and numInlinks,
      * numOutlinks or score as the value.
      */
-    public void map(Text key, Node node,
-        OutputCollector<Text, FloatWritable> output, Reporter reporter)
-        throws IOException {
+    public static class DumperMapper extends
+        Mapper<Text, Node, Text, FloatWritable> {
 
-      float number = 0;
-      if (inlinks) {
-        number = node.getNumInlinks();
-      } else if (outlinks) {
-        number = node.getNumOutlinks();
-      } else {
-        number = node.getInlinkScore();
+      private Configuration conf;
+      private boolean inlinks = false;
+      private boolean outlinks = false;
+      private boolean host = false;
+
+      @Override
+      public void setup(Mapper<Text, Node, Text, FloatWritable>.Context context) {
+        conf = context.getConfiguration();
+	inlinks = conf.getBoolean("inlinks", false);
+        outlinks = conf.getBoolean("outlinks", false);
+        host = conf.getBoolean("host", false);
       }
 
-      if (host) {
-        key.set(URLUtil.getHost(key.toString()));
-      } else {
-        key.set(URLUtil.getDomainName(key.toString()));
-      }
+      @Override
+      public void map(Text key, Node node,
+          Context context) throws IOException, InterruptedException {
 
-      output.collect(key, new FloatWritable(number));
+        float number = 0;
+        if (inlinks) {
+          number = node.getNumInlinks();
+        } else if (outlinks) {
+          number = node.getNumOutlinks();
+        } else {
+          number = node.getInlinkScore();
+        }
+
+        if (host) {
+          key.set(URLUtil.getHost(key.toString()));
+        } else {
+          key.set(URLUtil.getDomainName(key.toString()));
+        }
+
+        context.write(key, new FloatWritable(number));
+      }
     }
 
     /**
      * Outputs either the sum or the top value for this record.
      */
-    public void reduce(Text key, Iterator<FloatWritable> values,
-        OutputCollector<Text, FloatWritable> output, Reporter reporter)
-        throws IOException {
+    public static class DumperReducer extends
+        Reducer<Text, FloatWritable, Text, FloatWritable> {
+   
+      private Configuration conf;
+      private long topn = Long.MAX_VALUE;
+      private boolean sum = false;
+   
+      @Override 
+      public void reduce(Text key, Iterable<FloatWritable> values,
+          Context context) throws IOException, InterruptedException {
 
-      long numCollected = 0;
-      float sumOrMax = 0;
-      float val = 0;
+        long numCollected = 0;
+        float sumOrMax = 0;
+        float val = 0;
 
-      // collect all values, this time with the url as key
-      while (values.hasNext() && (numCollected < topn)) {
-        val = values.next().get();
+        // collect all values, this time with the url as key
+        for (FloatWritable value : values) {
+          if (numCollected < topn) {
+            val = value.get();
 
-        if (sum) {
-          sumOrMax += val;
-        } else {
-          if (sumOrMax < val) {
-            sumOrMax = val;
+            if (sum) {
+              sumOrMax += val;
+            } else {
+              if (sumOrMax < val) {
+                sumOrMax = val;
+              }
+            }
+
+            numCollected++;
+          } else {
+            break;
           }
         }
 
-        numCollected++;
+        context.write(key, new FloatWritable(sumOrMax));
       }
 
-      output.collect(key, new FloatWritable(sumOrMax));
+      @Override
+      public void setup(Reducer<Text, FloatWritable, Text, FloatWritable>.Context context) {
+        conf = context.getConfiguration();
+	topn = conf.getLong("topn", Long.MAX_VALUE);
+	sum = conf.getBoolean("sum", false);
+      }
+
     }
   }
 
@@ -266,19 +287,21 @@ public class NodeDumper extends Configured implements Tool {
     Path nodeDb = new Path(webGraphDb, WebGraph.NODE_DIR);
     Configuration conf = getConf();
 
-    JobConf dumper = new NutchJob(conf);
+    Job dumper = NutchJob.getInstance(conf);
     dumper.setJobName("NodeDumper: " + webGraphDb);
     FileInputFormat.addInputPath(dumper, nodeDb);
-    dumper.setInputFormat(SequenceFileInputFormat.class);
+    dumper.setInputFormatClass(SequenceFileInputFormat.class);
 
     if (nameType == null) {
-      dumper.setMapperClass(Sorter.class);
-      dumper.setReducerClass(Sorter.class);
+      dumper.setJarByClass(Sorter.class);
+      dumper.setMapperClass(Sorter.SorterMapper.class);
+      dumper.setReducerClass(Sorter.SorterReducer.class);
       dumper.setMapOutputKeyClass(FloatWritable.class);
       dumper.setMapOutputValueClass(Text.class);
     } else {
-      dumper.setMapperClass(Dumper.class);
-      dumper.setReducerClass(Dumper.class);
+      dumper.setJarByClass(Dumper.class);
+      dumper.setMapperClass(Dumper.DumperMapper.class);
+      dumper.setReducerClass(Dumper.DumperReducer.class);
       dumper.setMapOutputKeyClass(Text.class);
       dumper.setMapOutputValueClass(FloatWritable.class);
     }
@@ -288,33 +311,40 @@ public class NodeDumper extends Configured implements Tool {
     FileOutputFormat.setOutputPath(dumper, output);
 
     if (asSequenceFile) {
-      dumper.setOutputFormat(SequenceFileOutputFormat.class);
+      dumper.setOutputFormatClass(SequenceFileOutputFormat.class);
     } else {
-      dumper.setOutputFormat(TextOutputFormat.class);
+      dumper.setOutputFormatClass(TextOutputFormat.class);
     }
 
     dumper.setNumReduceTasks(1);
-    dumper.setBoolean("inlinks", type == DumpType.INLINKS);
-    dumper.setBoolean("outlinks", type == DumpType.OUTLINKS);
-    dumper.setBoolean("scores", type == DumpType.SCORES);
+    conf.setBoolean("inlinks", type == DumpType.INLINKS);
+    conf.setBoolean("outlinks", type == DumpType.OUTLINKS);
+    conf.setBoolean("scores", type == DumpType.SCORES);
 
-    dumper.setBoolean("host", nameType == NameType.HOST);
-    dumper.setBoolean("domain", nameType == NameType.DOMAIN);
-    dumper.setBoolean("sum", aggrType == AggrType.SUM);
-    dumper.setBoolean("max", aggrType == AggrType.MAX);
+    conf.setBoolean("host", nameType == NameType.HOST);
+    conf.setBoolean("domain", nameType == NameType.DOMAIN);
+    conf.setBoolean("sum", aggrType == AggrType.SUM);
+    conf.setBoolean("max", aggrType == AggrType.MAX);
 
-    dumper.setLong("topn", topN);
+    conf.setLong("topn", topN);
 
     // Set equals-sign as separator for Solr's ExternalFileField
     if (asEff) {
-      dumper.set("mapred.textoutputformat.separator", "=");
+      conf.set("mapreduce.output.textoutputformat.separator", "=");
     }
 
     try {
       LOG.info("NodeDumper: running");
-      JobClient.runJob(dumper);
+      boolean success = dumper.waitForCompletion(true);
+      if (!success) {
+        String message = "NodeDumper job did not succeed, job status:"
+            + dumper.getStatus().getState() + ", reason: "
+            + dumper.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
     } catch (IOException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("NodeDumper job failed:", e);
       throw e;
     }
     long end = System.currentTimeMillis();

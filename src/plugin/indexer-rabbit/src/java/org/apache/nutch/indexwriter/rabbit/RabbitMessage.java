@@ -22,50 +22,50 @@ import java.util.LinkedList;
 import java.util.List;
 
 class RabbitMessage {
-    private List<RabbitDocument> docsToWrite = new LinkedList<>();
-    private List<RabbitDocument> docsToUpdate = new LinkedList<>();
-    private List<String> docsToDelete = new LinkedList<>();
+  private List<RabbitDocument> docsToWrite = new LinkedList<>();
+  private List<RabbitDocument> docsToUpdate = new LinkedList<>();
+  private List<String> docsToDelete = new LinkedList<>();
 
-    boolean addDocToWrite (RabbitDocument doc) {
-        return docsToWrite.add(doc);
-    }
+  boolean addDocToWrite (RabbitDocument doc) {
+    return docsToWrite.add(doc);
+  }
 
-    boolean addDocToUpdate (RabbitDocument doc) {
-        return docsToUpdate.add(doc);
-    }
+  boolean addDocToUpdate (RabbitDocument doc) {
+    return docsToUpdate.add(doc);
+  }
 
-    boolean addDocToDelete (String url) {
-        return docsToDelete.add(url);
-    }
+  boolean addDocToDelete (String url) {
+    return docsToDelete.add(url);
+  }
 
-    byte[] getBytes() {
-        Gson gson = new Gson();
-        return gson.toJson(this).getBytes();
-    }
+  byte[] getBytes() {
+    Gson gson = new Gson();
+    return gson.toJson(this).getBytes();
+  }
 
-    boolean isEmpty () {
-        return docsToWrite.isEmpty() && docsToUpdate.isEmpty() && docsToDelete.isEmpty();
-    }
+  boolean isEmpty () {
+    return docsToWrite.isEmpty() && docsToUpdate.isEmpty() && docsToDelete.isEmpty();
+  }
 
-    public List<RabbitDocument> getDocsToWrite() {
-        return docsToWrite;
-    }
+  public List<RabbitDocument> getDocsToWrite() {
+    return docsToWrite;
+  }
 
-    public List<RabbitDocument> getDocsToUpdate() {
-        return docsToUpdate;
-    }
+  public List<RabbitDocument> getDocsToUpdate() {
+    return docsToUpdate;
+  }
 
-    public List<String> getDocsToDelete() {
-        return docsToDelete;
-    }
+  public List<String> getDocsToDelete() {
+    return docsToDelete;
+  }
 
-    public int size () {
-        return docsToWrite.size() + docsToUpdate.size() + docsToDelete.size();
-    }
+  public int size () {
+    return docsToWrite.size() + docsToUpdate.size() + docsToDelete.size();
+  }
 
-    public void clear() {
-        docsToWrite.clear();
-        docsToUpdate.clear();
-        docsToDelete.clear();
-    }
+  public void clear() {
+    docsToWrite.clear();
+    docsToUpdate.clear();
+    docsToDelete.clear();
+  }
 }

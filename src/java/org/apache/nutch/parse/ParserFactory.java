@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.parse;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,14 +23,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
-// Nutch imports
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
@@ -141,10 +137,13 @@ public final class ParserFactory {
         parsers.add(p);
       } catch (PluginRuntimeException e) {
         if (LOG.isWarnEnabled()) {
-          LOG.warn("ParserFactory:PluginRuntimeException when "
-              + "initializing parser plugin "
-              + ext.getDescriptor().getPluginId() + " instance in getParsers "
-              + "function: attempting to continue instantiating parsers");
+          LOG.warn(
+              "ParserFactory:PluginRuntimeException when "
+                  + "initializing parser plugin "
+                  + ext.getDescriptor().getPluginId()
+                  + " instance because: " + e.getMessage()
+                  + " - attempting to continue instantiating parsers",
+              e);
         }
       }
     }

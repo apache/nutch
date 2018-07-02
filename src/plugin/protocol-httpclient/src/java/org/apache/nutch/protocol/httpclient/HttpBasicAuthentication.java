@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.protocol.httpclient;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,14 +24,11 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// Commons Codec imports
 import org.apache.commons.codec.binary.Base64;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configurable;
 

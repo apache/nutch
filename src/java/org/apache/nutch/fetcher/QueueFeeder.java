@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.RecordReader;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.fetcher.Fetcher.FetcherRun;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,14 +34,14 @@ public class QueueFeeder extends Thread {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
   
-  private RecordReader<Text, CrawlDatum> reader;
+  private FetcherRun.Context context;
   private FetchItemQueues queues;
   private int size;
   private long timelimit = -1;
 
-  public QueueFeeder(RecordReader<Text, CrawlDatum> reader,
+  public QueueFeeder(FetcherRun.Context context,
       FetchItemQueues queues, int size) {
-    this.reader = reader;
+    this.context = context;
     this.queues = queues;
     this.size = size;
     this.setDaemon(true);
@@ -61,12 +61,13 @@ public class QueueFeeder extends Thread {
         // enough .. lets' simply
         // read all the entries from the input without processing them
         try {
-          Text url = new Text();
-          CrawlDatum datum = new CrawlDatum();
-          hasMore = reader.next(url, datum);
+          hasMore = context.nextKeyValue();
           timelimitcount++;
         } catch (IOException e) {
           LOG.error("QueueFeeder error reading input, record " + cnt, e);
+          return;
+        } catch (InterruptedException e) {
+          LOG.info("QueueFeeder interrupted, exception:", e);
           return;
         }
         continue;
@@ -81,13 +82,18 @@ public class QueueFeeder extends Thread {
         ;
         continue;
       } else {
-        LOG.debug("-feeding " + feed + " input urls ...");
+        LOG.debug("-feeding {} input urls ...", feed);
         while (feed > 0 && hasMore) {
           try {
-            Text url = new Text();
-            CrawlDatum datum = new CrawlDatum();
-            hasMore = reader.next(url, datum);
+            hasMore = context.nextKeyValue();
             if (hasMore) {
+              /*
+               * Need to copy key and value objects because MapReduce will reuse
+               * the original objects while the objects are stored in the queue.
+               */
+              Text url = new Text((Text)context.getCurrentKey());
+              CrawlDatum datum = new CrawlDatum();
+              datum.set((CrawlDatum)context.getCurrentValue());
               queues.addFetchItem(url, datum);
               cnt++;
               feed--;
@@ -95,11 +101,13 @@ public class QueueFeeder extends Thread {
           } catch (IOException e) {
             LOG.error("QueueFeeder error reading input, record " + cnt, e);
             return;
+          } catch (InterruptedException e) {
+            LOG.info("QueueFeeder interrupted, exception:", e);
           }
         }
       }
     }
-    LOG.info("QueueFeeder finished: total " + cnt
-        + " records + hit by time limit :" + timelimitcount);
+    LOG.info("QueueFeeder finished: total {} records hit by time limit : {}",
+        cnt, timelimitcount);
   }
 }

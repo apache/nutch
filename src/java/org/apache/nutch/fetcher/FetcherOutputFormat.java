@@ -29,53 +29,53 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.InvalidJobConfException;
-import org.apache.hadoop.mapred.OutputFormat;
-import org.apache.hadoop.mapred.RecordWriter;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapred.InvalidJobConfException;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.protocol.Content;
 
 /** Splits FetcherOutput entries into multiple map files. */
-public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
+public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
 
-  public void checkOutputSpecs(FileSystem ignored, JobConf job)
-      throws IOException {
+  @Override
+  public void checkOutputSpecs(JobContext job) throws IOException {
+    Configuration conf = job.getConfiguration();
     Path out = FileOutputFormat.getOutputPath(job);
     if ((out == null) && (job.getNumReduceTasks() != 0)) {
-      throw new InvalidJobConfException("Output directory not set in JobConf.");
+      throw new InvalidJobConfException("Output directory not set in conf.");
     }
-
-    if (out != null) {
-      FileSystem fs = out.getFileSystem(job);
-      if (fs.exists(new Path(out, CrawlDatum.FETCH_DIR_NAME))) {
-        throw new IOException("Segment already fetched!");
-      }
+    FileSystem fs = out.getFileSystem(conf);
+    if (fs.exists(new Path(out, CrawlDatum.FETCH_DIR_NAME))) {
+      throw new IOException("Segment already fetched!");
     }
   }
 
-  public RecordWriter<Text, NutchWritable> getRecordWriter(final FileSystem fs,
-      final JobConf job, final String name, final Progressable progress)
+  @Override
+  public RecordWriter<Text, NutchWritable> getRecordWriter(TaskAttemptContext context)
           throws IOException {
 
-    Path out = FileOutputFormat.getOutputPath(job);
+    Configuration conf = context.getConfiguration();
+    String name = getUniqueFile(context, "part", "");
+    Path out = FileOutputFormat.getOutputPath(context);
     final Path fetch = new Path(new Path(out, CrawlDatum.FETCH_DIR_NAME), name);
     final Path content = new Path(new Path(out, Content.DIR_NAME), name);
 
     final CompressionType compType = SequenceFileOutputFormat
-        .getOutputCompressionType(job);
+        .getOutputCompressionType(context);
 
     Option fKeyClassOpt = MapFile.Writer.keyClass(Text.class);
     org.apache.hadoop.io.SequenceFile.Writer.Option fValClassOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
-    org.apache.hadoop.io.SequenceFile.Writer.Option fProgressOpt = SequenceFile.Writer.progressable(progress);
+    org.apache.hadoop.io.SequenceFile.Writer.Option fProgressOpt = SequenceFile.Writer.progressable((Progressable)context);
     org.apache.hadoop.io.SequenceFile.Writer.Option fCompOpt = SequenceFile.Writer.compression(compType);
 
-    final MapFile.Writer fetchOut = new MapFile.Writer(job,
+    final MapFile.Writer fetchOut = new MapFile.Writer(conf,
         fetch, fKeyClassOpt, fValClassOpt, fCompOpt, fProgressOpt);
 
     return new RecordWriter<Text, NutchWritable>() {
@@ -83,22 +83,21 @@ public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
       private RecordWriter<Text, Parse> parseOut;
 
       {
-        if (Fetcher.isStoringContent(job)) {
+        if (Fetcher.isStoringContent(conf)) {
           Option cKeyClassOpt = MapFile.Writer.keyClass(Text.class);
           org.apache.hadoop.io.SequenceFile.Writer.Option cValClassOpt = SequenceFile.Writer.valueClass(Content.class);
-          org.apache.hadoop.io.SequenceFile.Writer.Option cProgressOpt = SequenceFile.Writer.progressable(progress);
+          org.apache.hadoop.io.SequenceFile.Writer.Option cProgressOpt = SequenceFile.Writer.progressable((Progressable)context);
           org.apache.hadoop.io.SequenceFile.Writer.Option cCompOpt = SequenceFile.Writer.compression(compType);
-          contentOut = new MapFile.Writer(job, content,
+          contentOut = new MapFile.Writer(conf, content,
               cKeyClassOpt, cValClassOpt, cCompOpt, cProgressOpt);
         }
 
-        if (Fetcher.isParsing(job)) {
-          parseOut = new ParseOutputFormat().getRecordWriter(fs, job, name,
-              progress);
+        if (Fetcher.isParsing(conf)) {
+          parseOut = new ParseOutputFormat().getRecordWriter(context);
         }
       }
 
-      public void write(Text key, NutchWritable value) throws IOException {
+      public void write(Text key, NutchWritable value) throws IOException, InterruptedException {
 
         Writable w = value.get();
 
@@ -110,13 +109,13 @@ public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
           parseOut.write(key, (Parse) w);
       }
 
-      public void close(Reporter reporter) throws IOException {
+      public void close(TaskAttemptContext context) throws IOException, InterruptedException {
         fetchOut.close();
         if (contentOut != null) {
           contentOut.close();
         }
         if (parseOut != null) {
-          parseOut.close(reporter);
+          parseOut.close(context);
         }
       }
 

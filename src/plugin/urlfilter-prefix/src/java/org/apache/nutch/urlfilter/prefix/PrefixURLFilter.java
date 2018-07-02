@@ -20,17 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.net.*;
 
 import org.apache.nutch.util.PrefixStringMatcher;
 import org.apache.nutch.util.TrieStringMatcher;
-
+import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 
 import java.lang.invoke.MethodHandles;
 import java.io.Reader;
-import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -79,7 +77,7 @@ public class PrefixURLFilter implements URLFilter {
   private TrieStringMatcher readConfiguration(Reader reader) throws IOException {
 
     BufferedReader in = new BufferedReader(reader);
-    List<String> urlprefixes = new ArrayList<String>();
+    List<String> urlprefixes = new ArrayList<>();
     String line;
 
     while ((line = in.readLine()) != null) {

@@ -27,16 +27,12 @@
   </info>
 
   <configurations>
-    <include file="../../..//ivy/ivy-configurations.xml"/>
+    <include file="../../../ivy/ivy-configurations.xml"/>
   </configurations>
 
   <publications>
     <!--get the artifact from our module name-->
     <artifact conf="master"/>
   </publications>
-
-  <dependencies>
-    <dependency org="com.rabbitmq" name="amqp-client" rev="3.6.5" conf="*->default" />
-  </dependencies>
   
 </ivy-module>

@@ -17,11 +17,20 @@
 
 package org.apache.nutch.parse;
 
-import java.io.*;
-import org.apache.hadoop.io.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.ArrayFile;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.VersionMismatchException;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.util.GenericOptionsParser;
-import org.apache.hadoop.fs.*;
-import org.apache.hadoop.conf.*;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
 import org.apache.commons.cli.Options;
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -31,9 +40,10 @@ import org.apache.nutch.util.NutchConfiguration;
 public final class ParseText implements Writable {
   public static final String DIR_NAME = "parse_text";
 
-  private final static byte VERSION = 2;
+  private static final byte VERSION = 2;
 
   public ParseText() {
+    //default constructor
   }
 
   private String text;
@@ -61,7 +71,7 @@ public final class ParseText implements Writable {
     Text.writeString(out, text);
   }
 
-  public final static ParseText read(DataInput in) throws IOException {
+  public static final ParseText read(DataInput in) throws IOException {
     ParseText parseText = new ParseText();
     parseText.readFields(in);
     return parseText;
@@ -74,6 +84,7 @@ public final class ParseText implements Writable {
     return text;
   }
 
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof ParseText))
       return false;
@@ -81,6 +92,7 @@ public final class ParseText implements Writable {
     return this.text.equals(other.text);
   }
 
+  @Override
   public String toString() {
     return text;
   }

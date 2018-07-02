@@ -177,6 +177,7 @@
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
+      <packageset dir="${plugins.dir}/exchange-jexl/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
@@ -195,6 +196,7 @@
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-htmlunit/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
+      <packageset dir="${plugins.dir}/lib-rabbitmq/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
       <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
@@ -214,6 +216,7 @@
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
       <packageset dir="${plugins.dir}/protocol-interactiveselenium/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-okhttp/src/java"/>
       <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
       <packageset dir="${plugins.dir}/publish-rabbitmq/src/java"/>
       <packageset dir="${plugins.dir}/scoring-depth/src/java"/>
@@ -263,6 +266,7 @@
       <group title="Parse Plugins" packages="${plugins.parse}"/>
       <group title="Parse Filter Plugins" packages="${plugins.parsefilter}"/>
       <group title="Publisher Plugins" packages="${plugins.publisher}"/>
+      <group title="Exchange Plugins" packages="${plugins.exchange}"/>
       <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
       <group title="Indexer Plugins" packages="${plugins.indexer}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
@@ -634,6 +638,7 @@
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
+      <packageset dir="${plugins.dir}/exchange-jexl/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
@@ -652,6 +657,7 @@
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-htmlunit/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
+      <packageset dir="${plugins.dir}/lib-rabbitmq/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
       <packageset dir="${plugins.dir}/lib-selenium/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
@@ -671,6 +677,7 @@
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
       <packageset dir="${plugins.dir}/protocol-interactiveselenium/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-okhttp/src/java"/>
       <packageset dir="${plugins.dir}/protocol-selenium/src/java"/>
       <packageset dir="${plugins.dir}/publish-rabbitmq/src/java"/>
       <packageset dir="${plugins.dir}/scoring-depth/src/java"/>
@@ -720,6 +727,7 @@
       <group title="Parse Plugins" packages="${plugins.parse}"/>
       <group title="Parse Filter Plugins" packages="${plugins.parsefilter}"/>
       <group title="Publisher Plugins" packages="${plugins.publisher}"/>
+      <group title="Exchange Plugins" packages="${plugins.exchange}"/>
       <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
       <group title="Indexer Plugins" packages="${plugins.indexer}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
@@ -1002,7 +1010,7 @@
 
   <!-- target: ant-eclipse-download   =================================== -->
   <target name="ant-eclipse-download" description="--> downloads the ant-eclipse binary.">
-    <get src="http://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
+    <get src="https://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
          dest="${build.dir}/ant-eclipse-1.0.bin.tar.bz2" usetimestamp="false" />
 
     <untar src="${build.dir}/ant-eclipse-1.0.bin.tar.bz2"
@@ -1045,6 +1053,7 @@
         <source path="${plugins.dir}/feed/src/java/" />
         <source path="${plugins.dir}/feed/src/test/" />
         <source path="${plugins.dir}/headings/src/java/" />
+        <source path="${plugins.dir}/exchange-jexl/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/test/" />
         <source path="${plugins.dir}/index-basic/src/java/" />
@@ -1073,6 +1082,7 @@
         <source path="${plugins.dir}/lib-htmlunit/src/java/" />
         <source path="${plugins.dir}/lib-http/src/java/" />
         <source path="${plugins.dir}/lib-http/src/test/" />
+        <source path="${plugins.dir}/lib-rabbitmq/src/java/" />
         <source path="${plugins.dir}/lib-regex-filter/src/java/" />
         <source path="${plugins.dir}/lib-regex-filter/src/test/" />
         <source path="${plugins.dir}/lib-selenium/src/java/" />
@@ -1104,6 +1114,8 @@
         <source path="${plugins.dir}/protocol-httpclient/src/java/" />
         <source path="${plugins.dir}/protocol-httpclient/src/test/" />
         <source path="${plugins.dir}/protocol-interactiveselenium/src/java/" />
+        <source path="${plugins.dir}/protocol-okhttp/src/java/" />
+        <source path="${plugins.dir}/protocol-okhttp/src/test/" />
         <source path="${plugins.dir}/protocol-selenium/src/java"/>
         <source path="${plugins.dir}/publish-rabbitmq/src/java"/>
         <source path="${plugins.dir}/scoring-depth/src/java/" />

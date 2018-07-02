@@ -16,19 +16,15 @@
  */
 package org.apache.nutch.urlfilter.automaton;
 
-// JDK imports
 import java.io.Reader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.regex.PatternSyntaxException;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
-// Automaton imports
 import dk.brics.automaton.RegExp;
 import dk.brics.automaton.RunAutomaton;
-import org.apache.nutch.net.*;
 import org.apache.nutch.urlfilter.api.RegexRule;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
 

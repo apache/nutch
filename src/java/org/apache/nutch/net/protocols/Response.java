@@ -16,10 +16,8 @@
  */
 package org.apache.nutch.net.protocols;
 
-// JDK imports
 import java.net.URL;
 
-// Nutch imports
 import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.metadata.Metadata;
 
@@ -27,6 +25,32 @@ import org.apache.nutch.metadata.Metadata;
  * A response interface. Makes all protocols model HTTP.
  */
 public interface Response extends HttpHeaders {
+
+  /** Key to hold the HTTP request if <code>store.http.request</code> is true */
+  public static final String REQUEST = "_request_";
+
+  /**
+   * Key to hold the HTTP response header if <code>store.http.headers</code> is
+   * true
+   */
+  public static final String RESPONSE_HEADERS = "_response.headers_";
+
+  /**
+   * Key to hold the IP address the request is sent to if
+   * <code>store.ip.address</code> is true
+   */
+  public static final String IP_ADDRESS = "_ip_";
+
+  /**
+   * Key to hold the time when the page has been fetched
+   */
+  public static final String FETCH_TIME = "nutch.fetch.time";
+
+  /**
+   * Key to hold boolean whether content has been trimmed because it exceeds
+   * <code>http.content.limit</code>
+   */
+  public static final String TRIMMED_CONTENT = "http.content.trimmed";
 
   /** Returns the URL used to retrieve this response. */
   public URL getUrl();

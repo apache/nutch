@@ -17,7 +17,6 @@
 
 package org.apache.nutch.crawl;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

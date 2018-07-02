@@ -29,7 +29,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
 
-// Nutch imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.io.Text;

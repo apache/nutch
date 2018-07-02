@@ -17,17 +17,10 @@
 
 package org.apache.nutch.net;
 
-import org.apache.nutch.plugin.Extension;
-import org.apache.nutch.plugin.ExtensionPoint;
-import org.apache.nutch.plugin.PluginRepository;
-
 import org.apache.hadoop.util.ToolRunner;
 
 import org.apache.nutch.util.AbstractChecker;
 import org.apache.nutch.util.NutchConfiguration;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 /**
  * Checks one given filter or all filters.

@@ -20,7 +20,8 @@ package org.apache.nutch.indexwriter.elastic;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.util.NutchConfiguration;
 import org.elasticsearch.action.Action;
@@ -43,6 +44,9 @@ import org.elasticsearch.threadpool.ThreadPool;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class TestElasticIndexWriter {
@@ -103,7 +107,7 @@ public class TestElasticIndexWriter {
     // customize the plugin to signal successful bulk operations
     testIndexWriter = new ElasticIndexWriter() {
       @Override
-      protected Client makeClient(Configuration conf) {
+      protected Client makeClient(IndexWriterParams parameters) {
         return client;
       }
 
@@ -132,10 +136,14 @@ public class TestElasticIndexWriter {
   public void testBulkMaxDocs() throws IOException {
     int numDocs = 10;
     conf.setInt(ElasticConstants.MAX_BULK_DOCS, numDocs);
-    JobConf job = new JobConf(conf);
+    Job job = Job.getInstance(conf);
+
+    Map<String, String> parameters = new HashMap<>();
+    parameters.put(ElasticConstants.CLUSTER, "nutch");
+    parameters.put(ElasticConstants.MAX_BULK_DOCS, String.valueOf(numDocs));
 
     testIndexWriter.setConf(conf);
-    testIndexWriter.open(job, "name");
+    testIndexWriter.open(new IndexWriterParams(parameters));
 
     NutchDocument doc = new NutchDocument();
     doc.add("id", "http://www.example.com");
@@ -167,10 +175,14 @@ public class TestElasticIndexWriter {
     int numDocs = testMaxBulkLength / (key.length() + value.length());
 
     conf.setInt(ElasticConstants.MAX_BULK_LENGTH, testMaxBulkLength);
-    JobConf job = new JobConf(conf);
+    Job job = Job.getInstance(conf);
+
+    Map<String, String> parameters = new HashMap<>();
+    parameters.put(ElasticConstants.CLUSTER, "nutch");
+    parameters.put(ElasticConstants.MAX_BULK_LENGTH, String.valueOf(testMaxBulkLength));
 
     testIndexWriter.setConf(conf);
-    testIndexWriter.open(job, "name");
+    testIndexWriter.open(new IndexWriterParams(parameters));
 
     NutchDocument doc = new NutchDocument();
     doc.add(key, value);
@@ -195,10 +207,15 @@ public class TestElasticIndexWriter {
     int numDocs = 10;
     conf.setInt(ElasticConstants.MAX_BULK_DOCS, numDocs);
 
-    JobConf job = new JobConf(conf);
+    Job job = Job.getInstance(conf);
+
+    Map<String, String> parameters = new HashMap<>();
+    parameters.put(ElasticConstants.CLUSTER, "nutch");
+    parameters.put(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES, String.valueOf(maxNumFailures));
+    parameters.put(ElasticConstants.MAX_BULK_DOCS, String.valueOf(numDocs));
 
     testIndexWriter.setConf(conf);
-    testIndexWriter.open(job, "name");
+    testIndexWriter.open(new IndexWriterParams(parameters));
 
     NutchDocument doc = new NutchDocument();
     doc.add("id", "http://www.example.com");

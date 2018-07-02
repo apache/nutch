@@ -17,14 +17,45 @@
 
 package org.apache.nutch.util;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Job;
 
-/** A {@link JobConf} for Nutch jobs. */
-public class NutchJob extends JobConf {
+/** A {@link Job} for Nutch jobs. */
+public class NutchJob extends Job {
 
-  public NutchJob(Configuration conf) {
-    super(conf, NutchJob.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+
+  @SuppressWarnings("deprecation")
+  public NutchJob(Configuration conf, String jobName) throws IOException {
+    super(conf, jobName);
+  }
+
+  public static Job getInstance(Configuration conf) throws IOException {
+    return Job.getInstance(conf);
+  } 
+
+  /*
+   * Clean up the file system in case of a job failure.
+   */
+  public static void cleanupAfterFailure(Path tempDir, Path lock, FileSystem fs)
+         throws IOException {
+    try {
+      if (fs.exists(tempDir)) {
+        fs.delete(tempDir, true);
+      }
+      LockUtil.removeLockFile(fs, lock);
+    } catch (IOException e) {
+      LOG.error("NutchJob cleanup failed: {}", e.getMessage());
+      throw e;
+    }
   }
 
 }

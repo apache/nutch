@@ -20,8 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * POJO to store a filename, its match pattern and its replacement string.
@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class FieldReplacer {
 
-  private static final Log LOG = LogFactory.getLog(FieldReplacer.class
+  private static final Logger LOG = LoggerFactory.getLogger(FieldReplacer.class
       .getName());
 
   private final String fieldName;

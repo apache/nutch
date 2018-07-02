@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.microformats.reltag;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -28,11 +27,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Nutch imports
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
@@ -41,7 +38,6 @@ import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.StringUtil;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
 /**

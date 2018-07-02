@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.parse.feed;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -26,13 +25,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
-// APACHE imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.StringUtils;
-// import org.apache.nutch.indexer.anchor.AnchorIndexingFilter; removed as per NUTCH-1078
 import org.apache.nutch.metadata.Feed;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.URLFilters;
@@ -52,7 +49,6 @@ import org.apache.nutch.util.EncodingDetector;
 import org.apache.nutch.util.NutchConfiguration;
 import org.xml.sax.InputSource;
 
-// ROME imports
 import com.rometools.rome.feed.synd.SyndCategory;
 import com.rometools.rome.feed.synd.SyndContent;
 import com.rometools.rome.feed.synd.SyndEntry;

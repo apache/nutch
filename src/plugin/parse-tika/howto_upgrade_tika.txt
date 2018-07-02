@@ -1,8 +1,18 @@
-1. Upgrade Tika depencency in trunk/ivy/ivy.xml
+1. Upgrade Tika depencency (tika-core) in ivy/ivy.xml
 
 2. Upgrade Tika dependency in src/plugin/parse-tika/ivy.xml
 
 3. Upgrade Tika's own dependencies in src/plugin/parse-tika/plugin.xml
+
    To get the list of dependencies and their versions execute:
-   $ ant -f ./build-ivy.xml
-   $ ls lib | sed 's/^/      <library name="/g' | sed 's/$/"\/>/g'
+    $ cd src/plugin/parse-tika/
+    $ ant -f ./build-ivy.xml
+    $ ls lib | sed 's/^/      <library name="/g' | sed 's/$/"\/>/g'
+
+   In the plugin.xml replace all lines between
+      <!-- dependencies of Tika (tika-parsers) -->
+   and
+      <!-- end of dependencies of Tika (tika-parsers) -->
+   with the output of the command above.
+
+

@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.protocol.httpclient;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.io.InputStream;
 import java.io.IOException;
@@ -36,11 +35,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 
-// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// HTTP Client imports
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -50,11 +47,8 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-// NUTCH-1929 Consider implementing dependency injection for crawl HTTPS sites that use self signed certificates
-//import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
 
 import org.apache.commons.lang.StringUtils;
-// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
@@ -206,7 +200,7 @@ public class Http extends HttpBase {
     // for multi-threaded crawls.
     // --------------------------------------------------------------------------------
     params.setMaxTotalConnections(
-        conf.getInt("mapred.tasktracker.map.tasks.maximum", 5)
+        conf.getInt("mapreduce.tasktracker.map.tasks.maximum", 5)
             * conf.getInt("fetcher.threads.fetch", maxThreadsTotal));
 
     // Also set max connections per host to maxThreadsTotal since all threads

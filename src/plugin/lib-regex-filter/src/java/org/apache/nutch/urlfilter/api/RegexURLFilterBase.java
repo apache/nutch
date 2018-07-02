@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.urlfilter.api;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.io.File;
 import java.io.Reader;
@@ -29,15 +28,11 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.ArrayList;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-
-// Nutch imports
-import org.apache.nutch.net.*;
+import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.util.URLUtil;
 
 /**

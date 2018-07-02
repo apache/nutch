@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import crawlercommons.robots.BaseRobotRules;
-import crawlercommons.robots.SimpleRobotRules;
 
 /**
  * This class is used for parsing robots for urls belonging to FTP protocol. It
