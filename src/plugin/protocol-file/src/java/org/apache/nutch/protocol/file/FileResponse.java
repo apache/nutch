@@ -17,12 +17,10 @@
 
 package org.apache.nutch.protocol.file;
 
-// JDK imports
 import java.net.URL;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.MimeUtil;
@@ -30,10 +28,8 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 
-// Tika imports
 import org.apache.tika.Tika;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
 /************************************

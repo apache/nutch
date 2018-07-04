@@ -26,10 +26,10 @@ package org.apache.nutch.metadata;
  */
 public interface CreativeCommons {
 
-  public final static String LICENSE_URL = "License-Url";
+  public static final String LICENSE_URL = "License-Url";
 
-  public final static String LICENSE_LOCATION = "License-Location";
+  public static final String LICENSE_LOCATION = "License-Location";
 
-  public final static String WORK_TYPE = "Work-Type";
+  public static final String WORK_TYPE = "Work-Type";
 
 }

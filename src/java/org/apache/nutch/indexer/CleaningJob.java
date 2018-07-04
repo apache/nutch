@@ -19,8 +19,6 @@ package org.apache.nutch.indexer;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ByteWritable;
@@ -29,7 +27,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.StringUtils;
@@ -67,12 +64,6 @@ public class CleaningJob implements Tool {
       Mapper<Text, CrawlDatum, ByteWritable, Text> {
     private ByteWritable OUT = new ByteWritable(CrawlDatum.STATUS_DB_GONE);
 
-    public void setup(Mapper<Text, CrawlDatum, ByteWritable, Text>.Context context) {
-    }
-
-    public void cleanup() throws IOException {
-    }
-
     @Override
     public void map(Text key, CrawlDatum value,
         Context context) throws IOException, InterruptedException {
@@ -94,9 +85,10 @@ public class CleaningJob implements Tool {
 
     IndexWriters writers = null;
 
+    @Override
     public void setup(Reducer<ByteWritable, Text, Text, ByteWritable>.Context context) {
       Configuration conf = context.getConfiguration();
-      writers = new IndexWriters(conf);
+      writers = IndexWriters.get(conf);
       try {
         writers.open(conf, "Deletion");
       } catch (IOException e) {
@@ -105,7 +97,8 @@ public class CleaningJob implements Tool {
       noCommit = conf.getBoolean("noCommit", false);
     }
 
-    public void cleanup() throws IOException {
+    @Override
+    public void cleanup(Context context) throws IOException {
       // BUFFERING OF CALLS TO INDEXER SHOULD BE HANDLED AT INDEXER LEVEL
       // if (numDeletes > 0) {
       // LOG.info("CleaningJob: deleting " + numDeletes + " documents");
@@ -122,6 +115,7 @@ public class CleaningJob implements Tool {
       LOG.info("CleaningJob: deleted a total of " + totalDeleted + " documents");
     }
 
+    @Override
     public void reduce(ByteWritable key, Iterable<Text> values,
         Context context) throws IOException {
       for (Text document : values) {
@@ -158,6 +152,7 @@ public class CleaningJob implements Tool {
     job.setMapOutputValueClass(Text.class);
     job.setMapperClass(DBFilter.class);
     job.setReducerClass(DeleterReducer.class);
+    job.setJarByClass(CleaningJob.class);
 
     job.setJobName("CleaningJob");
 
@@ -165,7 +160,14 @@ public class CleaningJob implements Tool {
     conf.setBoolean(IndexerMapReduce.INDEXER_DELETE, true);
 
     try{
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CleaningJob did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
     } catch (InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
@@ -181,7 +183,7 @@ public class CleaningJob implements Tool {
       String usage = "Usage: CleaningJob <crawldb> [-noCommit]";
       LOG.error("Missing crawldb. " + usage);
       System.err.println(usage);
-      IndexWriters writers = new IndexWriters(getConf());
+      IndexWriters writers = IndexWriters.get(getConf());
       System.err.println(writers.describe());
       return 1;
     }

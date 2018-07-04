@@ -24,8 +24,6 @@ import java.util.Map.Entry;
 import java.text.SimpleDateFormat;
 
 import org.apache.hadoop.io.MapWritable;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 

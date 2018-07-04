@@ -22,24 +22,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.util.AbstractChecker;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parser checker, useful for testing parser. It also accurately reports
@@ -66,38 +63,54 @@ import org.apache.nutch.util.StringUtil;
  * on <code>content.length</code> configuration.</li>
  * </ol>
  * 
- * @author John Xing
  */
 
-public class ParserChecker implements Tool {
+public class ParserChecker extends AbstractChecker {
+
+  protected URLNormalizers normalizers = null;
+  protected boolean dumpText = false;
+  protected boolean followRedirects = false;
+  // used to simulate the metadata propagated from injection
+  protected HashMap<String, String> metadata = new HashMap<>();
+  protected String forceAsContentType = null;
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
-  private Configuration conf;
-
-  public ParserChecker() {
-  }
+  private ScoringFilters scfilters;
 
   public int run(String[] args) throws Exception {
-    boolean dumpText = false;
-    boolean force = false;
-    String contentType = null;
     String url = null;
 
-    String usage = "Usage: ParserChecker [-dumpText] [-forceAs mimeType] [-md key=value] url";
-
-    if (args.length == 0) {
-      LOG.error(usage);
-      return (-1);
+    String usage = "Usage:\n" //
+        + "  ParserChecker [OPTIONS] <url>\n" //
+        + "    Fetch single URL and parse it\n" //
+        + "  ParserChecker [OPTIONS] -stdin\n" //
+        + "    Read URLs to be parsed from stdin\n" //
+        + "  ParserChecker [OPTIONS] -listen <port> [-keepClientCnxOpen]\n" //
+        + "    Listen on <port> for URLs to be parsed\n" //
+        + "Options:\n" //
+        + "  -D<property>=<value>\tset/overwrite Nutch/Hadoop properties\n" //
+        + "                  \t(a generic Hadoop option to be passed\n" //
+        + "                  \t before other command-specific options)"
+        + "  -normalize      \tnormalize URLs\n" //
+        + "  -followRedirects\tfollow redirects when fetching URL\n" //
+        + "  -dumpText       \talso show the plain-text extracted by parsers\n" //
+        + "  -forceAs <mimeType>\tforce parsing as <mimeType>\n" //
+        + "  -md <key>=<value>\tmetadata added to CrawlDatum before parsing\n";
+    // Print help when no args given
+    if (args.length < 1) {
+      System.err.println(usage);
+      System.exit(-1);
     }
 
-    // used to simulate the metadata propagated from injection
-    HashMap<String, String> metadata = new HashMap<>();
-
+    int numConsumed;
     for (int i = 0; i < args.length; i++) {
-      if (args[i].equals("-forceAs")) {
-        force = true;
-        contentType = args[++i];
+      if (args[i].equals("-normalize")) {
+        normalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_DEFAULT);
+      } else if (args[i].equals("-followRedirects")) {
+        followRedirects = true;
+      } else if (args[i].equals("-forceAs")) {
+        forceAsContentType = args[++i];
       } else if (args[i].equals("-dumpText")) {
         dumpText = true;
       } else if (args[i].equals("-md")) {
@@ -110,19 +123,35 @@ public class ParserChecker implements Tool {
         } else
           k = nextOne;
         metadata.put(k, v);
+      } else if ((numConsumed = super.parseArgs(args, i)) > 0) {
+        i += numConsumed - 1;
       } else if (i != args.length - 1) {
-        LOG.error(usage);
+        System.err.println("ERR: Not a recognized argument: " + args[i]);
+        System.err.println(usage);
         System.exit(-1);
       } else {
-        url = URLUtil.toASCII(args[i]);
+        url = args[i];
       }
     }
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("fetching: " + url);
+    scfilters = new ScoringFilters(getConf());
+    
+    if (url != null) {
+      return super.processSingle(url);
+    } else {
+      // Start listening
+      return super.run();
+    }
+  }
+
+  protected int process(String url, StringBuilder output) throws Exception {
+    if (normalizers != null) {
+      url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
     }
 
-    CrawlDatum cd = new CrawlDatum();
+    LOG.info("fetching: " + url);
+
+    CrawlDatum datum = new CrawlDatum();
 
     Iterator<String> iter = metadata.keySet().iterator();
     while (iter.hasNext()) {
@@ -130,67 +159,84 @@ public class ParserChecker implements Tool {
       String value = metadata.get(key);
       if (value == null)
         value = "";
-      cd.getMetaData().put(new Text(key), new Text(value));
+      datum.getMetaData().put(new Text(key), new Text(value));
     }
 
-    ProtocolFactory factory = new ProtocolFactory(conf);
-    Protocol protocol = factory.getProtocol(url);
+    int maxRedirects = getConf().getInt("http.redirect.max", 3);
+    if (followRedirects) {
+      if (maxRedirects == 0) {
+        LOG.info("Following max. 3 redirects (ignored http.redirect.max == 0)");
+        maxRedirects = 3;
+      } else {
+        LOG.info("Following max. {} redirects", maxRedirects);
+      }
+    }
+
+    ProtocolOutput protocolOutput = getProtocolOutput(url, datum);
     Text turl = new Text(url);
-    ProtocolOutput output = protocol.getProtocolOutput(turl, cd);
-
-    // if the configuration permits, handle redirects until we either run
-    // out of allowed redirects or we stop getting redirect statuses.
-    int maxRedirects = conf.getInt("http.redirect.max", 0);
+    
+    // Following redirects and not reached maxRedirects?
     int numRedirects = 0;
-    while (output.getStatus().isRedirect() && numRedirects < maxRedirects) {
-        String newURL = URLUtil.toASCII(output.getStatus().getArgs()[0]);
-        LOG.info("Handling redirect to " + newURL);
+    while (!protocolOutput.getStatus().isSuccess() && followRedirects
+        && protocolOutput.getStatus().isRedirect() && maxRedirects >= numRedirects) {
+      String[] stuff = protocolOutput.getStatus().getArgs();
+      url = stuff[0];
+      LOG.info("Follow redirect to {}", url);
 
-        protocol = factory.getProtocol(newURL);
-        turl = new Text(newURL);
-        output = protocol.getProtocolOutput(turl, cd);
+      if (normalizers != null) {
+        url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
+      }
 
-        numRedirects++;
+      turl.set(url);
+
+      // try again
+      protocolOutput = getProtocolOutput(url, datum);
+      numRedirects++;
     }
 
-    if (!output.getStatus().isSuccess()) {
+    if (!protocolOutput.getStatus().isSuccess()) {
       System.err.println("Fetch failed with protocol status: "
-          + output.getStatus());
+          + protocolOutput.getStatus());
 
-      if (output.getStatus().isRedirect()) {
+      if (protocolOutput.getStatus().isRedirect()) {
           System.err.println("Redirect(s) not handled due to configuration.");
           System.err.println("Max Redirects to handle per config: " + maxRedirects);
           System.err.println("Number of Redirects handled: " + numRedirects);
       }
-      return (-1);
+      return -1;
     }
 
-    Content content = output.getContent();
+    Content content = protocolOutput.getContent();
 
     if (content == null) {
-      LOG.error("No content for " + url);
-      return (-1);
+      output.append("No content for " + url + "\n");
+      return 0;
     }
 
-    if (force) {
-      content.setContentType(contentType);
+    String contentType;
+    if (forceAsContentType != null) {
+      content.setContentType(forceAsContentType);
+      contentType = forceAsContentType;
     } else {
       contentType = content.getContentType();
     }
 
     if (contentType == null) {
       LOG.error("Failed to determine content type!");
-      return (-1);
+      return -1;
     }
+
+    // store the guessed content type in the crawldatum
+    datum.getMetaData().put(new Text(Metadata.CONTENT_TYPE),
+        new Text(contentType));
 
     if (ParseSegment.isTruncated(content)) {
       LOG.warn("Content is truncated, parse may fail!");
     }
 
-    ScoringFilters scfilters = new ScoringFilters(conf);
     // call the scoring filters
     try {
-      scfilters.passScoreBeforeParsing(turl, cd, content);
+      scfilters.passScoreBeforeParsing(turl, datum, content);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Couldn't pass score before parsing, url " + turl + " (" + e
@@ -199,7 +245,7 @@ public class ParserChecker implements Tool {
       }
     }
 
-    ParseResult parseResult = new ParseUtil(conf).parse(content);
+    ParseResult parseResult = new ParseUtil(getConf()).parse(content);
 
     if (parseResult == null) {
       LOG.error("Parsing content failed!");
@@ -216,52 +262,28 @@ public class ParserChecker implements Tool {
       LOG.info("signature: " + StringUtil.toHexString(signature));
     }
 
-    Parse parse = parseResult.get(turl);
-    if (parse == null) {
-      LOG.error("Failed to get parse from parse result");
-      LOG.error("Available parses in parse result (by URL key):");
-      for (Map.Entry<Text, Parse> entry : parseResult) {
-        LOG.error("  " + entry.getKey());
-      }
-      LOG.error("Parse result does not contain a parse for URL to be checked:");
-      LOG.error("  " + turl);
-      return -1;
-    }
-
-    // call the scoring filters
-    try {
-      scfilters.passScoreAfterParsing(turl, content, parse);
-    } catch (Exception e) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't pass score after parsing, url " + turl + " (" + e
-            + ")");
-        LOG.warn(StringUtils.stringifyException(e));
-      }
-    }
-
     for (Map.Entry<Text, Parse> entry : parseResult) {
-      parse = entry.getValue();
-      LOG.info("---------\nUrl\n---------------\n");
-      System.out.print(entry.getKey());
-      LOG.info("\n---------\nParseData\n---------\n");
-      System.out.print(parse.getData().toString());
+      turl = entry.getKey();
+      Parse parse = entry.getValue();
+      // call the scoring filters
+      try {
+        scfilters.passScoreAfterParsing(turl, content, parse);
+      } catch (Exception e) {
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("Couldn't pass score after parsing, url " + turl + " (" + e
+              + ")");
+          LOG.warn(StringUtils.stringifyException(e));
+        }
+      }
+
+      output.append(turl + "\n");
+      output.append(parse.getData() + "\n");
       if (dumpText) {
-        LOG.info("---------\nParseText\n---------\n");
-        System.out.print(parse.getText());
+        output.append(parse.getText());
       }
     }
 
     return 0;
-  }
-
-  @Override
-  public Configuration getConf() {
-    return conf;
-  }
-
-  @Override
-  public void setConf(Configuration c) {
-    conf = c;
   }
 
   public static void main(String[] args) throws Exception {

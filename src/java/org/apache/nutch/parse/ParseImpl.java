@@ -17,8 +17,11 @@
 
 package org.apache.nutch.parse;
 
-import java.io.*;
-import org.apache.hadoop.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.io.Writable;
 
 /**
  * The result of parsing a page's raw content.

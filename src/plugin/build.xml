@@ -30,6 +30,7 @@
     <ant dir="lib-htmlunit" target="deploy"/>
     <ant dir="lib-http" target="deploy"/>
     <ant dir="lib-nekohtml" target="deploy"/>
+    <ant dir="lib-rabbitmq" target="deploy"/>
     <ant dir="lib-regex-filter" target="deploy"/>
     <ant dir="lib-selenium" target="deploy"/>
     <ant dir="lib-xml" target="deploy"/>
@@ -38,6 +39,7 @@
     <ant dir="creativecommons" target="deploy"/>
     <ant dir="feed" target="deploy"/>
     <ant dir="headings" target="deploy"/>
+    <ant dir="exchange-jexl" target="deploy"/>
     <ant dir="index-anchor" target="deploy"/>
     <ant dir="index-basic" target="deploy"/>
     <ant dir="index-geoip" target="deploy"/>
@@ -73,6 +75,7 @@
     <ant dir="protocol-http" target="deploy"/>
     <ant dir="protocol-httpclient" target="deploy"/>
     <ant dir="protocol-interactiveselenium" target="deploy" />
+    <ant dir="protocol-okhttp" target="deploy"/>
     <ant dir="protocol-selenium" target="deploy" />
     <ant dir="publish-rabbitmq" target="deploy"/>
     <ant dir="scoring-depth" target="deploy"/>
@@ -133,6 +136,7 @@
      <ant dir="protocol-file" target="test"/>
      <ant dir="protocol-http" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
+     <ant dir="protocol-okhttp" target="test"/>
      <ant dir="scoring-orphan" target="test"/>
      <ant dir="subcollection" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
@@ -169,6 +173,7 @@
     <ant dir="creativecommons" target="clean"/>
     <ant dir="feed" target="clean"/>
     <ant dir="headings" target="clean"/>
+    <ant dir="exchange-jexl" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-geoip" target="clean"/>
@@ -189,6 +194,7 @@
     <ant dir="lib-htmlunit" target="clean"/>
     <ant dir="lib-http" target="clean"/>
     <ant dir="lib-nekohtml" target="clean"/>
+    <ant dir="lib-rabbitmq" target="clean"/>
     <ant dir="lib-regex-filter" target="clean"/>
     <ant dir="lib-selenium" target="clean"/>
     <ant dir="lib-xml" target="clean"/>
@@ -210,6 +216,7 @@
     <ant dir="protocol-http" target="clean"/>
     <ant dir="protocol-httpclient" target="clean"/>
     <ant dir="protocol-interactiveselenium" target="clean" />
+    <ant dir="protocol-okhttp" target="clean"/>
     <ant dir="protocol-selenium" target="clean" />
     <ant dir="publish-rabbitmq" target="clean"/>
     <ant dir="scoring-depth" target="clean"/>

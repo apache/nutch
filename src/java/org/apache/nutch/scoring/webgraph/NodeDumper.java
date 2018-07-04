@@ -19,7 +19,6 @@ package org.apache.nutch.scoring.webgraph;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -40,7 +39,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -332,14 +330,21 @@ public class NodeDumper extends Configured implements Tool {
 
     // Set equals-sign as separator for Solr's ExternalFileField
     if (asEff) {
-      conf.set("mapred.textoutputformat.separator", "=");
+      conf.set("mapreduce.output.textoutputformat.separator", "=");
     }
 
     try {
       LOG.info("NodeDumper: running");
-      int complete = dumper.waitForCompletion(true)?0:1;
+      boolean success = dumper.waitForCompletion(true);
+      if (!success) {
+        String message = "NodeDumper job did not succeed, job status:"
+            + dumper.getStatus().getState() + ", reason: "
+            + dumper.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
     } catch (IOException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("NodeDumper job failed:", e);
       throw e;
     }
     long end = System.currentTimeMillis();

@@ -17,10 +17,8 @@
 
 package org.apache.nutch.parse;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configurable;
 
-// Nutch imports
 import org.apache.nutch.plugin.Pluggable;
 import org.apache.nutch.protocol.Content;
 

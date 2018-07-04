@@ -23,14 +23,9 @@ import java.util.Random;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -39,7 +34,6 @@ import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.util.FSUtils;
@@ -88,16 +82,6 @@ public class UpdateHostDb extends Configured implements Tool {
     job.setJarByClass(UpdateHostDb.class);
     job.setJobName("UpdateHostDb");
 
-    // Check whether the urlfilter-domainblacklist plugin is loaded
-    if (filter && new String("urlfilter-domainblacklist").matches(conf.get("plugin.includes"))) {
-      throw new Exception("domainblacklist-urlfilter must not be enabled");
-    }
-
-    // Check whether the urlnormalizer-host plugin is loaded
-    if (normalize && new String("urlnormalizer-host").matches(conf.get("plugin.includes"))) {
-      throw new Exception("urlnormalizer-host must not be enabled");
-    }
-
     FileSystem fs = hostDb.getFileSystem(conf);
     Path old = new Path(hostDb, "old");
     Path current = new Path(hostDb, "current");
@@ -145,17 +129,23 @@ public class UpdateHostDb extends Configured implements Tool {
     conf.setClassLoader(Thread.currentThread().getContextClassLoader());
     
     try {
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "UpdateHostDb job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(tempHostDb, lock, fs);
+        throw new RuntimeException(message);
+      }
 
       FSUtils.replace(fs, old, current, true);
       FSUtils.replace(fs, current, tempHostDb, true);
 
       if (!preserveBackup && fs.exists(old)) fs.delete(old, true);
     } catch (Exception e) {
-      if (fs.exists(tempHostDb)) {
-        fs.delete(tempHostDb, true);
-      }
-      LockUtil.removeLockFile(fs, lock);
+      LOG.error("UpdateHostDb job failed: {}", e.getMessage());
+      NutchJob.cleanupAfterFailure(tempHostDb, lock, fs);
       throw e;
     }
 

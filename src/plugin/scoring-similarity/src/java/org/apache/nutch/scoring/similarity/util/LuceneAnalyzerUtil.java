@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.scoring.similarity.util;
 
-import java.io.Reader;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;

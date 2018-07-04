@@ -32,7 +32,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
@@ -122,7 +121,20 @@ public class LinkDbMerger extends Configured implements Tool {
     for (int i = 0; i < dbs.length; i++) {
       FileInputFormat.addInputPath(job, new Path(dbs[i], LinkDb.CURRENT_NAME));
     }
-    int complete = job.waitForCompletion(true)?0:1;
+
+    try {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "LinkDbMerge job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("LinkDbMerge job failed: {}", e.getMessage());
+      throw e;
+    }
     FileSystem fs = output.getFileSystem(getConf());
     fs.mkdirs(output);
     fs.rename(FileOutputFormat.getOutputPath(job), new Path(output,
@@ -152,7 +164,7 @@ public class LinkDbMerger extends Configured implements Tool {
 
     FileOutputFormat.setOutputPath(job, newLinkDb);
     job.setOutputFormatClass(MapFileOutputFormat.class);
-    conf.setBoolean("mapred.output.compress", true);
+    conf.setBoolean("mapreduce.output.fileoutputformat.compress", true);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Inlinks.class);
 

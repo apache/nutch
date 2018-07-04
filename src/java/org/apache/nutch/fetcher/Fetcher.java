@@ -20,26 +20,29 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.fs.*;
-import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.util.StringUtils;
@@ -48,8 +51,10 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.protocol.*;
-import org.apache.nutch.util.*;
+import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * A queue-based fetcher.
@@ -104,7 +109,6 @@ public class Fetcher extends NutchTool implements Tool {
   SequenceFileInputFormat<Text, CrawlDatum> {
     /** Don't split inputs, to keep things polite. */
     public InputSplit[] getSplits(JobContext job, int nSplits) throws IOException {
-      Configuration conf = job.getConfiguration();
       List<FileStatus> files = listStatus(job);
       FileSplit[] splits = new FileSplit[files.size()];
       Iterator<FileStatus> iterator= files.listIterator();
@@ -206,7 +210,6 @@ public class Fetcher extends NutchTool implements Tool {
 
       feeder = new QueueFeeder(innerContext, fetchQueues, threadCount
           * queueDepthMuliplier);
-      // feeder.setPriority((Thread.MAX_PRIORITY + Thread.NORM_PRIORITY) / 2);
 
       // the value of the time limit is either -1 or the time where it should
       // finish
@@ -224,7 +227,7 @@ public class Fetcher extends NutchTool implements Tool {
       }
 
       // select a timeout that avoids a task timeout
-      long timeout = conf.getInt("mapred.task.timeout", 10 * 60 * 1000)
+      long timeout = conf.getInt("mapreduce.task.timeout", 10 * 60 * 1000)
           / timeoutDivisor;
 
       // Used for threshold check, holds pages and bytes processed in the last
@@ -491,7 +494,14 @@ public class Fetcher extends NutchTool implements Tool {
     job.setOutputValueClass(NutchWritable.class);
 
     try {
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Fetcher job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
     } catch (InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
@@ -576,8 +586,8 @@ public class Fetcher extends NutchTool implements Tool {
       }
     }
     else {
-      String segment_dir = crawlId+"/segments";
-      File segmentsDir = new File(segment_dir);
+      String segmentDir = crawlId+"/segments";
+      File segmentsDir = new File(segmentDir);
       File[] segmentsList = segmentsDir.listFiles();  
       Arrays.sort(segmentsList, (f1, f2) -> {
         if(f1.lastModified()>f2.lastModified())

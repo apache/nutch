@@ -17,20 +17,25 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.net.*;
-import java.util.*;
-import java.text.*;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
-// rLogging imports
+import org.apache.hadoop.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -38,13 +43,24 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
-import org.apache.hadoop.util.*;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
 import org.apache.nutch.hostdb.HostDatum;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilterException;
@@ -123,9 +139,27 @@ public class Generator extends NutchTool implements Tool {
 
   /** Selects entries due for fetch. */
   public static class Selector extends
-      Partitioner<FloatWritable, Writable> {
+      Partitioner<FloatWritable, Writable> implements Configurable {
 
-    private static URLPartitioner partitioner = new URLPartitioner();
+    private final URLPartitioner partitioner = new URLPartitioner();
+
+    /** Partition by host / domain or IP. */
+    public int getPartition(FloatWritable key, Writable value,
+                            int numReduceTasks) {
+      return partitioner.getPartition(((SelectorEntry) value).url, key,
+              numReduceTasks);
+    }
+
+    @Override
+    public Configuration getConf() {
+      return partitioner.getConf();
+    }
+
+    @Override
+    public void setConf(Configuration conf) {
+      partitioner.setConf(conf);
+    }
+  }
 
     /** Select and invert subset due for fetch. */
 
@@ -150,11 +184,9 @@ public class Generator extends NutchTool implements Tool {
       @Override 
       public void setup(Mapper<Text, CrawlDatum, FloatWritable, SelectorEntry>.Context context) throws IOException{
         conf = context.getConfiguration();
-        Job job = Job.getInstance(conf);
         curTime = conf.getLong(GENERATOR_CUR_TIME, System.currentTimeMillis());
         filters = new URLFilters(conf);
         scfilters = new ScoringFilters(conf);
-        partitioner.configure(job);
         filter = conf.getBoolean(GENERATOR_FILTER, true);
         genDelay = conf.getLong(GENERATOR_DELAY, 7L) * 3600L * 24L * 1000L;
         long time = conf.getLong(Nutch.GENERATE_TIME_KEY, 0L);
@@ -242,12 +274,7 @@ public class Generator extends NutchTool implements Tool {
       }
     }
 
-    /** Partition by host / domain or IP. */
-    public int getPartition(FloatWritable key, Writable value,
-        int numReduceTasks) {
-      return partitioner.getPartition(((SelectorEntry) value).url, key,
-          numReduceTasks);
-    }
+
     
     /** Collect until limit is reached. */
     public static class SelectorReducer extends
@@ -256,7 +283,7 @@ public class Generator extends NutchTool implements Tool {
       private HashMap<String, int[]> hostCounts = new HashMap<>();
       private long count;
       private int currentsegmentnum = 1;
-      private MultipleOutputs mos;
+      private MultipleOutputs<FloatWritable, SelectorEntry> mos;
       private String outputFile;
       private long limit;
       private int segCounts[];
@@ -334,7 +361,7 @@ public class Generator extends NutchTool implements Tool {
       @Override
       public void setup(Context context) throws IOException {
         conf = context.getConfiguration();
-        mos = new MultipleOutputs(context);
+        mos = new MultipleOutputs<FloatWritable, SelectorEntry>(context);
         Job job = Job.getInstance(conf);
         limit = conf.getLong(GENERATOR_TOP_N, Long.MAX_VALUE) 
                      / job.getNumReduceTasks();
@@ -371,7 +398,8 @@ public class Generator extends NutchTool implements Tool {
         HostDatum host = null;
         LongWritable variableFetchDelayWritable = null; // in millis
         Text variableFetchDelayKey = new Text("_variableFetchDelay_");
-        int temp_maxCount = maxCount;
+          // local variable maxCount may hold host-specific count set in HostDb
+        int maxCount = this.maxCount;
         for (SelectorEntry entry : values) {
           Text url = entry.url;
           String urlString = url.toString();
@@ -459,12 +487,12 @@ public class Generator extends NutchTool implements Tool {
 
             // reached the limit of allowed URLs per host / domain
             // see if we can put it in the next segment?
-            if (hostCount[1] >= maxCount) {
+            if (hostCount[1] > maxCount) {
               if (hostCount[0] < maxNumSegments) {
                 hostCount[0]++;
-                hostCount[1] = 0;
+                hostCount[1] = 1;
               } else {
-                if (hostCount[1] == maxCount + 1 && LOG.isInfoEnabled()) {
+                if (hostCount[1] == maxCount && LOG.isInfoEnabled()) {
                   LOG.info("Host or domain "
                       + hostordomain
                       + " has more than "
@@ -492,7 +520,6 @@ public class Generator extends NutchTool implements Tool {
           // maxCount may cause us to skip it.
           count++;
         }
-        maxCount = temp_maxCount;
       }
       
       private String generateFileName(SelectorEntry entry) {
@@ -517,7 +544,6 @@ public class Generator extends NutchTool implements Tool {
         return null;
       }
     }
-  }
 
   public static class DecreasingFloatComparator extends
       FloatWritable.Comparator {
@@ -591,20 +617,20 @@ public class Generator extends NutchTool implements Tool {
    * Update the CrawlDB so that the next generate won't include the same URLs.
    */
   public static class CrawlDbUpdater {
-    
+
     public static class CrawlDbUpdateMapper extends
-           Mapper<Text, CrawlDatum, Text, CrawlDatum> {
+            Mapper<Text, CrawlDatum, Text, CrawlDatum> {
       @Override
       public void map(Text key, CrawlDatum value,
-          Context context)
-          throws IOException, InterruptedException {
+                      Context context)
+              throws IOException, InterruptedException {
         context.write(key, value);
       }
     }
 
-    public static class CrawlDbUpdateReducer extends 
-           Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-      
+    public static class CrawlDbUpdateReducer extends
+            Reducer<Text, CrawlDatum, Text, CrawlDatum> {
+
       private CrawlDatum orig = new CrawlDatum();
       private LongWritable genTime = new LongWritable(0L);
       private long generateTime;
@@ -617,13 +643,13 @@ public class Generator extends NutchTool implements Tool {
 
       @Override
       public void reduce(Text key, Iterable<CrawlDatum> values,
-          Context context)
-          throws IOException, InterruptedException {
+                         Context context)
+              throws IOException, InterruptedException {
         genTime.set(0L);
         for (CrawlDatum val : values) {
           if (val.getMetaData().containsKey(Nutch.WRITABLE_GENERATE_TIME_KEY)) {
             LongWritable gt = (LongWritable) val.getMetaData().get(
-                Nutch.WRITABLE_GENERATE_TIME_KEY);
+                    Nutch.WRITABLE_GENERATE_TIME_KEY);
             genTime.set(gt.get());
             if (genTime.get() != generateTime) {
               orig.set(val);
@@ -755,9 +781,9 @@ public class Generator extends NutchTool implements Tool {
     job.setInputFormatClass(SequenceFileInputFormat.class);
 
     job.setJarByClass(Selector.class);
-    job.setMapperClass(Selector.SelectorMapper.class);
+    job.setMapperClass(SelectorMapper.class);
     job.setPartitionerClass(Selector.class);
-    job.setReducerClass(Selector.SelectorReducer.class);
+    job.setReducerClass(SelectorReducer.class);
 
     FileOutputFormat.setOutputPath(job, tempDir);
     job.setOutputKeyClass(FloatWritable.class);
@@ -766,10 +792,18 @@ public class Generator extends NutchTool implements Tool {
     MultipleOutputs.addNamedOutput(job, "sequenceFiles", SequenceFileOutputFormat.class, FloatWritable.class, SelectorEntry.class);
 
     try {
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Generator job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+        throw new RuntimeException(message);
+      }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LockUtil.removeLockFile(getConf(), lock);
-      fs.delete(tempDir, true);
+      LOG.error("Generator job failed: {}", e.getMessage());
+      NutchJob.cleanupAfterFailure(tempDir, lock, fs);
       throw e;
     }
 
@@ -789,6 +823,7 @@ public class Generator extends NutchTool implements Tool {
       }
     } catch (Exception e) {
       LOG.warn("Generator: exception while partitioning segments, exiting ...");
+      LockUtil.removeLockFile(getConf(),lock);
       fs.delete(tempDir, true);
       return null;
     }
@@ -814,21 +849,29 @@ public class Generator extends NutchTool implements Tool {
       }
       FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
       job.setInputFormatClass(SequenceFileInputFormat.class);
-      job.setJarByClass(CrawlDbUpdater.class);
       job.setMapperClass(CrawlDbUpdater.CrawlDbUpdateMapper.class);
       job.setReducerClass(CrawlDbUpdater.CrawlDbUpdateReducer.class);
-      //job.setJarByClass(CrawlDbUpdater.class);
+      job.setJarByClass(CrawlDbUpdater.class);
       job.setOutputFormatClass(MapFileOutputFormat.class);
       job.setOutputKeyClass(Text.class);
       job.setOutputValueClass(CrawlDatum.class);
       FileOutputFormat.setOutputPath(job, tempDir2);
       try {
-        int complete = job.waitForCompletion(true)?0:1;
+        boolean success = job.waitForCompletion(true);
+        if (!success) {
+          String message = "Generator job did not succeed, job status:"
+              + job.getStatus().getState() + ", reason: "
+              + job.getStatus().getFailureInfo();
+          LOG.error(message);
+          NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+          NutchJob.cleanupAfterFailure(tempDir2, lock, fs);
+          throw new RuntimeException(message);
+        }
         CrawlDb.install(job, dbDir);
       } catch (IOException | InterruptedException | ClassNotFoundException e) {
-        LockUtil.removeLockFile(getConf(), lock);
-        fs.delete(tempDir, true);
-        fs.delete(tempDir2, true);
+        LOG.error("Generator job failed: {}", e.getMessage());
+        NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+        NutchJob.cleanupAfterFailure(tempDir2, lock, fs);
         throw e;
       }
 
@@ -879,8 +922,15 @@ public class Generator extends NutchTool implements Tool {
     job.setOutputValueClass(CrawlDatum.class);
     job.setSortComparatorClass(HashComparator.class);
     try {
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (InterruptedException | ClassNotFoundException e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "Generator job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));  
       throw e;
     }

@@ -16,11 +16,12 @@
  */
 package org.apache.nutch.protocol.http.api;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.net.Proxy;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,11 +31,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-// Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.Response;
@@ -44,15 +43,14 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.GZIPUtils;
+import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.DeflateUtils;
 import org.apache.hadoop.util.StringUtils;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
-// crawler-commons imports
 import crawlercommons.robots.BaseRobotRules;
 
 public abstract class HttpBase implements Protocol {
@@ -75,8 +73,11 @@ public abstract class HttpBase implements Protocol {
   /** The proxy port. */
   protected int proxyPort = 8080;
   
+  /** The proxy port. */
+  protected Proxy.Type proxyType = Proxy.Type.HTTP;
+
   /** The proxy exception list. */
-  protected HashMap proxyException = new HashMap(); 
+  protected HashMap<String,String> proxyException = new HashMap<>();
 
   /** Indicates if a proxy is used */
   protected boolean useProxy = false;
@@ -94,7 +95,7 @@ public abstract class HttpBase implements Protocol {
   /** The "Accept-Language" request header value. */
   protected String acceptLanguage = "en-us,en-gb,en;q=0.7,*;q=0.3";
 
-  /** The "Accept-Language" request header value. */
+  /** The "Accept-Charset" request header value. */
   protected String acceptCharset = "utf-8,iso-8859-1;q=0.7,*;q=0.7";
 
   /** The "Accept" request header value. */
@@ -110,14 +111,42 @@ public abstract class HttpBase implements Protocol {
   /** The nutch configuration */
   private Configuration conf = null;
 
+  /**
+   * MimeUtil for MIME type detection. Note (see NUTCH-2578): MimeUtil object is
+   * used concurrently by parallel fetcher threads, methods to detect MIME type
+   * must be thread-safe.
+   */
+  private MimeUtil mimeTypes = null;
+
   /** Do we use HTTP/1.1? */
   protected boolean useHttp11 = false;
+
+  /** Whether to use HTTP/2 */
+  protected boolean useHttp2 = false;
 
   /**
    * Record response time in CrawlDatum's meta data, see property
    * http.store.responsetime.
    */
   protected boolean responseTime = true;
+
+  /**
+   * Record the IP address of the responding server, see property
+   * <code>store.ip.address</code>.
+   */
+  protected boolean storeIPAddress = false;
+
+  /**
+   * Record the HTTP request in the metadata, see property
+   * <code>store.http.request</code>.
+   */
+  protected boolean storeHttpRequest = false;
+
+  /**
+   * Record the HTTP response header in the metadata, see property
+   * <code>store.http.headers</code>.
+   */
+  protected boolean storeHttpHeaders = false;
 
   /** Skip page if Crawl-Delay longer than this value. */
   protected long maxCrawlDelay = -1L;
@@ -152,6 +181,7 @@ public abstract class HttpBase implements Protocol {
     this.conf = conf;
     this.proxyHost = conf.get("http.proxy.host");
     this.proxyPort = conf.getInt("http.proxy.port", 8080);
+    this.proxyType = Proxy.Type.valueOf(conf.get("http.proxy.type", "HTTP"));
     this.proxyException = arrayToMap(conf.getStrings("http.proxy.exception.list"));
     this.useProxy = (proxyHost != null && proxyHost.length() > 0);
     this.timeout = conf.getInt("http.timeout", 10000);
@@ -163,9 +193,14 @@ public abstract class HttpBase implements Protocol {
         .trim();
     this.acceptCharset = conf.get("http.accept.charset", acceptCharset).trim();
     this.accept = conf.get("http.accept", accept).trim();
+    this.mimeTypes = new MimeUtil(conf);
     // backward-compatible default setting
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);
+    this.useHttp2 = conf.getBoolean("http.useHttp2", false);
     this.responseTime = conf.getBoolean("http.store.responsetime", true);
+    this.storeIPAddress = conf.getBoolean("store.ip.address", false);
+    this.storeHttpRequest = conf.getBoolean("store.http.request", false);
+    this.storeHttpHeaders = conf.getBoolean("store.http.headers", false);
     this.enableIfModifiedsinceHeader = conf.getBoolean("http.enable.if.modified.since.header", true);
     this.enableCookieHeader = conf.getBoolean("http.enable.cookie.header", true);
     this.robots.setConf(conf);
@@ -287,7 +322,7 @@ public abstract class HttpBase implements Protocol {
       byte[] content = response.getContent();
       Content c = new Content(u.toString(), u.toString(),
           (content == null ? EMPTY_CONTENT : content),
-          response.getHeader("Content-Type"), response.getHeaders(), this.conf);
+          response.getHeader("Content-Type"), response.getHeaders(), mimeTypes);
 
       if (code == 200) { // got a good response
         return new ProtocolOutput(c); // return it
@@ -365,9 +400,15 @@ public abstract class HttpBase implements Protocol {
   }
 
   public boolean useProxy(URL url) {
-    if (!useProxy){
-      return false;
-    } else if (proxyException.get(url.getHost())!=null){
+    return useProxy(url.getHost());
+  }
+
+  public boolean useProxy(URI uri) {
+    return useProxy(uri.getHost());
+  }
+
+  public boolean useProxy(String host) {
+    if (useProxy && proxyException.containsKey(host)) {
       return false;
     }
     return useProxy;
@@ -385,13 +426,26 @@ public abstract class HttpBase implements Protocol {
     return enableCookieHeader;
   }
 
+  public boolean isStoreIPAddress() {
+    return storeIPAddress;
+  }
+
+  public boolean isStoreHttpRequest() {
+    return storeHttpRequest;
+  }
+
+  public boolean isStoreHttpHeaders() {
+    return storeHttpHeaders;
+  }
+
   public int getMaxContent() {
     return maxContent;
   }
 
   public String getUserAgent() {
-    if (userAgentNames!=null) {
-      return userAgentNames.get(ThreadLocalRandom.current().nextInt(userAgentNames.size()));
+    if (userAgentNames != null) {
+      return userAgentNames
+          .get(ThreadLocalRandom.current().nextInt(userAgentNames.size()));
     }
     return userAgent;
   }

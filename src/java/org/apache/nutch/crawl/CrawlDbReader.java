@@ -24,9 +24,12 @@ import java.io.Closeable;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -34,8 +37,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.TreeMap;
 
-
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,16 +67,16 @@ import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.nutch.util.AbstractChecker;
 import org.apache.nutch.util.JexlUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.SegmentReaderUtil;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TimingUtil;
-import org.apache.nutch.util.SegmentReaderUtil;
 import org.apache.commons.jexl2.Expression;
 
 /**
@@ -84,19 +85,20 @@ import org.apache.commons.jexl2.Expression;
  * @author Andrzej Bialecki
  * 
  */
-public class CrawlDbReader extends Configured implements Closeable, Tool {
+public class CrawlDbReader extends AbstractChecker implements Closeable {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private MapFile.Reader[] readers = null;
 
+  protected String crawlDb;
+
   private void openReaders(String crawlDb, Configuration config)
       throws IOException {
     if (readers != null)
       return;
     Path crawlDbPath = new Path(crawlDb, CrawlDb.CURRENT_NAME);
-    FileSystem fs = crawlDbPath.getFileSystem(config);
     readers = MapFileOutputFormat.getReaders(crawlDbPath, config);
   }
 
@@ -110,6 +112,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
       }
     }
+    readers = null;
   }
 
   public static class CrawlDatumCsvOutputFormat extends
@@ -176,7 +179,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
     public RecordWriter<Text, CrawlDatum> getRecordWriter(TaskAttemptContext
         context) throws IOException {
-      String name = context.getTaskAttemptID().toString();
+      String name = getUniqueFile(context, "part", "");
       Path dir = FileOutputFormat.getOutputPath(context);
       FileSystem fs = dir.getFileSystem(context.getConfiguration());
       DataOutputStream fileOut = fs.create(new Path(dir, name), context);
@@ -189,14 +192,13 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     NutchWritable COUNT_1 = new NutchWritable(new LongWritable(1));
     private boolean sort = false;
 
+    @Override
     public void setup(Mapper<Text, CrawlDatum, Text, NutchWritable>.Context context) {
       Configuration conf = context.getConfiguration();
       sort = conf.getBoolean("db.reader.stats.sort", false);
     }
 
-    public void close() {
-    }
-
+    @Override
     public void map(Text key, CrawlDatum value, Context context)
         throws IOException, InterruptedException {
       context.write(new Text("T"), COUNT_1);
@@ -239,9 +241,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     public void setup(Reducer<Text, NutchWritable, Text, NutchWritable>.Context context) {
     }
 
-    public void close() {
-    }
-
+    @Override
     public void reduce(Text key, Iterable<NutchWritable> values,
         Context context)
         throws IOException, InterruptedException {
@@ -250,16 +250,16 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           || k.equals("ftt") || k.equals("fit")) {
         // sum all values for this key
         long sum = 0;
-        for (Writable value : values) {
-          sum += ((LongWritable) value).get();
+        for (NutchWritable value : values) {
+          sum += ((LongWritable) value.get()).get();
         }
         // output sum
         context.write(key, new NutchWritable(new LongWritable(sum)));
       } else if (k.equals("sc")) {
         float min = Float.MAX_VALUE;
         float max = Float.MIN_VALUE;
-        for (Writable temp_value : values) {
-          float value = ((FloatWritable) temp_value).get();
+        for (NutchWritable nvalue : values) {
+          float value = ((FloatWritable) nvalue.get()).get();
           if (max < value) {
             max = value;
           }
@@ -272,8 +272,8 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       } else if (k.equals("ft") || k.equals("fi")) {
         long min = Long.MAX_VALUE;
         long max = Long.MIN_VALUE;
-        for (Writable temp_value : values) {
-          long value = ((LongWritable) temp_value).get();
+        for (NutchWritable nvalue : values) {
+          long value = ((LongWritable) nvalue.get()).get();
           if (max < value) {
             max = value;
           }
@@ -285,14 +285,15 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         context.write(key, new NutchWritable(new LongWritable(max)));
       } else if (k.equals("sct")) {
         float cnt = 0.0f;
-        for (Writable temp_value : values) {
-          float value = ((FloatWritable) temp_value).get();
+        for (NutchWritable nvalue : values) {
+          float value = ((FloatWritable) nvalue.get()).get();
           cnt += value;
         }
         context.write(key, new NutchWritable(new FloatWritable(cnt)));
       } else if (k.equals("scd")) {
         MergingDigest tdigest = null;
-        for (Writable value : values) {
+        for (NutchWritable nvalue : values) {
+          Writable value = nvalue.get();
           if (value instanceof BytesWritable) {
             byte[] bytes = ((BytesWritable) value).getBytes();
             MergingDigest tdig = MergingDigest
@@ -325,14 +326,13 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     private static final FloatWritable fw = new FloatWritable();
     private float min = 0.0f;
 
+    @Override
     public void setup(Mapper<Text, CrawlDatum, FloatWritable, Text>.Context context) {
       Configuration conf = context.getConfiguration();
       min = conf.getFloat("db.reader.topn.min", 0.0f);
     }
 
-    public void close() {
-    }
-
+    @Override
     public void map(Text key, CrawlDatum value,
         Context context)
         throws IOException, InterruptedException {
@@ -348,6 +348,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     private long topN;
     private long count = 0L;
 
+    @Override
     public void reduce(FloatWritable key, Iterable<Text> values,
         Context context)
         throws IOException, InterruptedException {
@@ -360,12 +361,10 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       }
     }
 
+    @Override
     public void setup(Reducer<FloatWritable, Text, FloatWritable, Text>.Context context) {
       Configuration conf = context.getConfiguration();
-      topN = conf.getLong("db.reader.topn", 100) / Integer.parseInt(conf.get("mapred.job.reduces"));
-    }
-
-    public void close() {
+      topN = conf.getLong("db.reader.topn", 100) / Integer.parseInt(conf.get("mapreduce.job.reduces"));
     }
   }
 
@@ -385,6 +384,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 	  FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
 	  job.setInputFormatClass(SequenceFileInputFormat.class);
 
+	  job.setJarByClass(CrawlDbReader.class);
 	  job.setMapperClass(CrawlDbStatMapper.class);
 	  job.setCombinerClass(CrawlDbStatReducer.class);
 	  job.setReducerClass(CrawlDbStatReducer.class);
@@ -396,16 +396,25 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
 	  // https://issues.apache.org/jira/browse/NUTCH-1029
 	  config.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    FileSystem fileSystem = tmpFolder.getFileSystem(config);
+    try {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CrawlDbReader job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        fileSystem.delete(tmpFolder, true);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error(StringUtils.stringifyException(e));
+      fileSystem.delete(tmpFolder, true);
+      throw e;
+    }
 
-          try {
-            int complete = job.waitForCompletion(true)?0:1;
-          } catch (InterruptedException | ClassNotFoundException e) {
-            LOG.error(StringUtils.stringifyException(e));
-            throw e;
-          }
-	  // reading the result
-	  FileSystem fileSystem = tmpFolder.getFileSystem(config);
-          SequenceFile.Reader[] readers = SegmentReaderUtil.getReaders(tmpFolder, config);
+    // reading the result
+    SequenceFile.Reader[] readers = SegmentReaderUtil.getReaders(tmpFolder, config);
 
 	  Text key = new Text();
 	  NutchWritable value = new NutchWritable();
@@ -506,6 +515,34 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
   public void processStatJob(String crawlDb, Configuration config, boolean sort)
       throws IOException, InterruptedException, ClassNotFoundException {
 
+    double quantiles[] = { .01, .05, .1, .2, .25, .3, .4, .5, .6, .7, .75, .8,
+        .9, .95, .99 };
+    if (config.get("db.stats.score.quantiles") != null) {
+      List<Double> qs = new ArrayList<>();
+      for (String s : config.getStrings("db.stats.score.quantiles")) {
+        try {
+          double d = Double.parseDouble(s);
+          if (d >= 0.0 && d <= 1.0) {
+            qs.add(d);
+          } else {
+            LOG.warn(
+                "Skipping quantile {} not in range in db.stats.score.quantiles: {}",
+                s);
+          }
+        } catch (NumberFormatException e) {
+          LOG.warn(
+              "Skipping bad floating point number {} in db.stats.score.quantiles: {}",
+              s, e.getMessage());
+        }
+        quantiles = new double[qs.size()];
+        int i = 0;
+        for (Double q : qs) {
+          quantiles[i++] = q;
+        }
+        Arrays.sort(quantiles);
+      }
+    }
+
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb statistics start: " + crawlDb);
     }
@@ -564,12 +601,8 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         } else if (k.equals("scd")) {
           MergingDigest tdigest = MergingDigest
               .fromBytes(ByteBuffer.wrap(bytesValue));
-          if (k.startsWith("sc")) {
-            double quantiles[] = { .01, .05, .1, .2, .25, .3, .4, .5, .6, .7,
-                .75, .8, .9, .95, .99 };
-            for (double q : quantiles) {
-              LOG.info("score quantile {}:\t{}", q, tdigest.quantile(q));
-            }
+          for (double q : quantiles) {
+            LOG.info("score quantile {}:\t{}", q, tdigest.quantile(q));
           }
         } else {
           LOG.info(k + ":\t" + val);
@@ -592,15 +625,26 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     return res;
   }
 
-  public void readUrl(String crawlDb, String url, Configuration config)
+  @Override
+  protected int process(String line, StringBuilder output) throws Exception {
+    Job job = NutchJob.getInstance(getConf());
+    Configuration config = job.getConfiguration();
+    // Close readers, so we know we're not working on stale data
+    closeReaders();
+    readUrl(this.crawlDb, line, config, output);
+    return 0;
+  }
+
+  public void readUrl(String crawlDb, String url, Configuration config, StringBuilder output)
       throws IOException {
     CrawlDatum res = get(crawlDb, url, config);
-    System.out.println("URL: " + url);
+    output.append("URL: " + url + "\n");
     if (res != null) {
-      System.out.println(res);
+      output.append(res);
     } else {
-      System.out.println("not found");
+      output.append("not found");
     }
+    output.append("\n");
   }
 
   public void processDumpJob(String crawlDb, String output,
@@ -643,10 +687,18 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     job.setMapperClass(CrawlDbDumpMapper.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
+    job.setJarByClass(CrawlDbReader.class);
 
     try {
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (InterruptedException | ClassNotFoundException e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CrawlDbReader job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
@@ -665,6 +717,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     Expression expr = null;
     float sample;
 
+    @Override
     public void setup(Mapper<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
       Configuration config = context.getConfiguration();
       if (config.get("regex", null) != null) {
@@ -679,9 +732,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
       sample = config.getFloat("sample", 1);
     }
 
-    public void close() {
-    }
-
+    @Override
     public void map(Text key, CrawlDatum value,
         Context context)
         throws IOException, InterruptedException {
@@ -740,6 +791,8 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     job.setJobName("topN prepare " + crawlDb);
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormatClass(SequenceFileInputFormat.class);
+
+    job.setJarByClass(CrawlDbReader.class);
     job.setMapperClass(CrawlDbTopNMapper.class);
     job.setReducerClass(Reducer.class);
 
@@ -749,11 +802,21 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     job.setOutputValueClass(Text.class);
 
     job.getConfiguration().setFloat("db.reader.topn.min", min);
-    
+   
+    FileSystem fs = tempDir.getFileSystem(config); 
     try{
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (InterruptedException | ClassNotFoundException e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CrawlDbReader job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        fs.delete(tempDir, true);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
+      fs.delete(tempDir, true);
       throw e;
     }
 
@@ -768,6 +831,7 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     job.setInputFormatClass(SequenceFileInputFormat.class);
     job.setMapperClass(Mapper.class);
     job.setReducerClass(CrawlDbTopNReducer.class);
+    job.setJarByClass(CrawlDbReader.class);
 
     FileOutputFormat.setOutputPath(job, outFolder);
     job.setOutputFormatClass(TextOutputFormat.class);
@@ -777,13 +841,21 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     job.setNumReduceTasks(1); // create a single file.
 
     try{
-      int complete = job.waitForCompletion(true)?0:1;
-    } catch (InterruptedException | ClassNotFoundException e) {
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CrawlDbReader job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        fs.delete(tempDir, true);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error(StringUtils.stringifyException(e));
+      fs.delete(tempDir, true);
       throw e;
     }
 
-    FileSystem fs = tempDir.getFileSystem(config);
     fs.delete(tempDir, true);
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb topN: done");
@@ -791,7 +863,8 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
 
   }
 
-  public int run(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+
+  public int run(String[] args) throws IOException, InterruptedException, ClassNotFoundException, Exception {
     @SuppressWarnings("resource")
     CrawlDbReader dbr = new CrawlDbReader();
 
@@ -826,8 +899,11 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
     }
     String param = null;
     String crawlDb = args[0];
+    this.crawlDb = crawlDb;
+    int numConsumed = 0;
     Job job = NutchJob.getInstance(getConf());
     Configuration config = job.getConfiguration();
+
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-stats")) {
         boolean toSort = false;
@@ -873,7 +949,9 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
         dbr.processDumpJob(crawlDb, param, config, format, regex, status, retry, expr, sample);
       } else if (args[i].equals("-url")) {
         param = args[++i];
-        dbr.readUrl(crawlDb, param, config);
+        StringBuilder output = new StringBuilder();
+        dbr.readUrl(crawlDb, param, config, output);
+        System.out.print(output);
       } else if (args[i].equals("-topN")) {
         param = args[++i];
         long topN = Long.parseLong(param);
@@ -883,10 +961,17 @@ public class CrawlDbReader extends Configured implements Closeable, Tool {
           min = Float.parseFloat(args[++i]);
         }
         dbr.processTopNJob(crawlDb, topN, min, param, config);
+      } else if ((numConsumed = super.parseArgs(args, i)) > 0) {
+        i += numConsumed - 1;
       } else {
         System.err.println("\nError: wrong argument " + args[i]);
         return -1;
       }
+    }
+
+    if (numConsumed > 0) {
+      // Start listening
+      return super.run();
     }
     return 0;
   }

@@ -41,8 +41,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.w3c.dom.*;
+import org.w3c.dom.DocumentFragment;
 
 /**
  * RegexParseFilter. If a regular expression matches either HTML or 
@@ -58,9 +57,11 @@ public class RegexParseFilter implements HtmlParseFilter {
   private Configuration conf;
   private DocumentFragment doc;
   
-  private static final Map<String,RegexRule> rules = new HashMap<String,RegexRule>();
+  private static final Map<String,RegexRule> rules = new HashMap<>();
   
-  public RegexParseFilter() {}
+  public RegexParseFilter() {
+    //default constructor
+  }
   
   public RegexParseFilter(String regexFile) {
     this.regexFile = regexFile;

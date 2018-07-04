@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.apache.nutch.service.JobManager.JobType;
 
-
 public class JobConfig {
   private String crawlId;
   private JobType type;

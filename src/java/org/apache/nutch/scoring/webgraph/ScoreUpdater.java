@@ -19,7 +19,6 @@ package org.apache.nutch.scoring.webgraph;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
 import java.util.Random;
 
 import org.apache.commons.cli.CommandLine;
@@ -43,7 +42,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.util.StringUtils;
@@ -186,9 +184,21 @@ public class ScoreUpdater extends Configured implements Tool{
     updater.setOutputFormatClass(MapFileOutputFormat.class);
 
     try {
-      int complete = updater.waitForCompletion(true)?0:1;
+      boolean success = updater.waitForCompletion(true);
+      if (!success) {
+        String message = "Update CrawlDb from WebGraph job did not succeed, job status:"
+            + updater.getStatus().getState() + ", reason: "
+            + updater.getStatus().getFailureInfo();
+        LOG.error(message);
+        // remove the temp crawldb on error
+        FileSystem fs = newCrawlDb.getFileSystem(conf);
+        if (fs.exists(newCrawlDb)) {
+          fs.delete(newCrawlDb, true);
+        }
+        throw new RuntimeException(message);
+      }
     } catch (IOException | ClassNotFoundException | InterruptedException e) {
-      LOG.error(StringUtils.stringifyException(e));
+      LOG.error("Update CrawlDb from WebGraph:", e);
 
       // remove the temp crawldb on error
       FileSystem fs = newCrawlDb.getFileSystem(conf);

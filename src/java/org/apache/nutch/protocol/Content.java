@@ -17,7 +17,6 @@
 
 package org.apache.nutch.protocol;
 
-//JDK imports
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
-//Hadoop imports
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -37,7 +35,6 @@ import org.apache.hadoop.io.VersionMismatchException;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-//Nutch imports
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
@@ -84,6 +81,29 @@ public final class Content implements Writable {
     this.metadata = metadata;
 
     this.mimeTypes = new MimeUtil(conf);
+
+    this.contentType = getContentType(contentType, url, content);
+  }
+
+  public Content(String url, String base, byte[] content, String contentType,
+      Metadata metadata, MimeUtil mimeTypes) {
+
+    if (url == null)
+      throw new IllegalArgumentException("null url");
+    if (base == null)
+      throw new IllegalArgumentException("null base");
+    if (content == null)
+      throw new IllegalArgumentException("null content");
+    if (metadata == null)
+      throw new IllegalArgumentException("null metadata");
+
+    this.url = url;
+    this.base = base;
+    this.content = content;
+    this.metadata = metadata;
+
+    this.mimeTypes = mimeTypes;
+
     this.contentType = getContentType(contentType, url, content);
   }
 

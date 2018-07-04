@@ -62,16 +62,19 @@ public class TestAny23ParseFilter {
   
   private String file2 = "microdata_basic.html";
 
-  private static final int EXPECTED_TRIPLES_1 = 79;
+  private static final int EXPECTED_TRIPLES_1 = 68;
   
-  private static final int EXPECTED_TRIPLES_2 = 39;
+  private static final int EXPECTED_TRIPLES_2 = 38;
   
   @Before
   public void setUp() {
     this.conf = NutchConfiguration.create();
     conf.set("file.content.limit", "-1");
     conf.set("parser.timeout", "-1");
-    conf.set(Any23ParseFilter.ANY_23_EXTRACTORS_CONF, "html-embedded-jsonld,html-head-icbm,html-head-links,html-head-meta,html-head-title,html-mf-adr,html-mf-geo,html-mf-hcalendar,html-mf-hcard,html-mf-hlisting,html-mf-hrecipe,html-mf-hresume,html-mf-hreview,html-mf-hreview-aggregate,html-mf-license,html-mf-species,html-mf-xfn,html-microdata,html-rdfa11,html-xpath");
+    conf.set(Any23ParseFilter.ANY_23_EXTRACTORS_CONF, "html-embedded-jsonld,html-head-icbm,html-head-links,"
+            + "html-head-meta,html-head-title,html-mf-adr,html-mf-geo,html-mf-hcalendar,html-mf-hcard,"
+            + "html-mf-hlisting,html-mf-hrecipe,html-mf-hresume,html-mf-hreview,html-mf-hreview-aggregate,"
+            + "html-mf-license,html-mf-species,html-mf-xfn,html-microdata,html-rdfa11,html-xpath");
     conf.set(Any23ParseFilter.ANY_23_CONTENT_TYPES_CONF, "text/html");
   }
 

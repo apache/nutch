@@ -16,13 +16,11 @@
  */
 package org.apache.nutch.protocol.httpclient;
 
-// JDK imports
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-// HTTP Client imports
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -32,7 +30,6 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpClient;
 
 
-// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
@@ -91,8 +88,13 @@ public class HttpResponse implements Response {
     }
     params.makeLenient();
     params.setContentCharset("UTF-8");
-    params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-    params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
+
+    if (http.isCookieEnabled()) {
+      params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+      params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
+    } else {
+      params.setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+    }
     // XXX (ab) not sure about this... the default is to retry 3 times; if
     // XXX the request body was sent the method is not retried, so there is
     // XXX little danger in retrying...

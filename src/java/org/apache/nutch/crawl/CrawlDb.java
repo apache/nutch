@@ -17,24 +17,32 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Random;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.fs.*;
-import org.apache.hadoop.conf.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
-import org.apache.hadoop.util.*;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.HadoopFSUtil;
@@ -121,17 +129,23 @@ public class CrawlDb extends NutchTool implements Tool {
       LOG.info("CrawlDb update: Merging segment data into db.");
     }
 
+    FileSystem fs = crawlDb.getFileSystem(getConf());
+    Path outPath = FileOutputFormat.getOutputPath(job);
     try {
-      int complete = job.waitForCompletion(true)?0:1;
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "CrawlDb update job did not succeed, job status:"
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        NutchJob.cleanupAfterFailure(outPath, lock, fs);
+        throw new RuntimeException(message);
+      }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      FileSystem fs = crawlDb.getFileSystem(getConf());
-      LockUtil.removeLockFile(fs, lock);
-      Path outPath = FileOutputFormat.getOutputPath(job);
-      if (fs.exists(outPath))
-        fs.delete(outPath, true);
+      LOG.error("CrawlDb update job failed: {}", e.getMessage());
+      NutchJob.cleanupAfterFailure(outPath, lock, fs);
       throw e;
     }
-    
 
     CrawlDb.install(job, crawlDb);
 
@@ -167,6 +181,7 @@ public class CrawlDb extends NutchTool implements Tool {
 
     job.setMapperClass(CrawlDbFilter.class);
     job.setReducerClass(CrawlDbReducer.class);
+    job.setJarByClass(CrawlDb.class);
 
     FileOutputFormat.setOutputPath(job, newCrawlDb);
     job.setOutputFormatClass(MapFileOutputFormat.class);
@@ -330,7 +345,7 @@ public class CrawlDb extends NutchTool implements Tool {
     }
     else if(args.containsKey(Nutch.ARG_SEGMENTS)) {
       Object segments = args.get(Nutch.ARG_SEGMENTS);
-      ArrayList<String> segmentList = new ArrayList<String>();      
+      ArrayList<String> segmentList = new ArrayList<>();
       if(segments instanceof ArrayList) {
     	segmentList = (ArrayList<String>)segments;
       }
@@ -343,8 +358,8 @@ public class CrawlDb extends NutchTool implements Tool {
       }
     }
     else {
-      String segment_dir = crawlId+"/segments";
-      File dir = new File(segment_dir);
+      String segmentDir = crawlId+"/segments";
+      File dir = new File(segmentDir);
       File[] segmentsList = dir.listFiles();  
       Arrays.sort(segmentsList, (f1, f2) -> {
         if(f1.lastModified()>f2.lastModified())

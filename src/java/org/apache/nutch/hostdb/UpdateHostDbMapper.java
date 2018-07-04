@@ -19,17 +19,13 @@ package org.apache.nutch.hostdb;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
-
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;
@@ -62,11 +58,10 @@ public class UpdateHostDbMapper
   protected URLFilters filters = null;
   protected URLNormalizers normalizers = null;
 
-  public void cleanup() {}
-
   /**
    * @param job
    */
+  @Override
   public void setup(Mapper<Text, Writable, Text, NutchWritable>.Context context) {
     Configuration conf = context.getConfiguration();
     readingCrawlDb = conf.getBoolean("hostdb.reading.crawldb", false);
@@ -114,6 +109,7 @@ public class UpdateHostDbMapper
     * @param value
     * @param context
     */
+  @Override
   public void map(Text key, Writable value,
     Context context)
     throws IOException, InterruptedException {

@@ -17,8 +17,6 @@
 
 package org.apache.nutch.tools;
 
-//JDK imports
-
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,11 +49,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-//Commons imports
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 
-//Hadoop
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -75,7 +71,6 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.DumpFileUtil;
 import org.apache.nutch.util.NutchConfiguration;
-//Tika imports
 import org.apache.tika.Tika;
 
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;

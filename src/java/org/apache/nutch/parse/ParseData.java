@@ -17,16 +17,20 @@
 
 package org.apache.nutch.parse;
 
-import java.io.*;
-import java.util.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.cli.Options;
-import org.apache.hadoop.io.*;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
-
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.ArrayFile;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.VersionMismatchException;
+import org.apache.hadoop.io.VersionedWritable;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -38,7 +42,7 @@ import org.apache.nutch.util.NutchConfiguration;
 public final class ParseData extends VersionedWritable {
   public static final String DIR_NAME = "parse_data";
 
-  private final static byte VERSION = 5;
+  private static final byte VERSION = 5;
 
   private String title;
   private Outlink[] outlinks;

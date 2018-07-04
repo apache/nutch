@@ -19,7 +19,6 @@ package org.apache.nutch.hostdb;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -32,9 +31,7 @@ import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.crawl.CrawlDatum;
@@ -77,6 +74,7 @@ public class UpdateHostDbReducer
     *
     * @param job
     */
+  @Override
   public void setup(Reducer<Text, NutchWritable, Text, HostDatum>.Context context) {
     Configuration conf = context.getConfiguration();
     purgeFailedHostsThreshold = conf.getInt(UpdateHostDb.HOSTDB_PURGE_FAILED_HOSTS_THRESHOLD, -1);
@@ -116,6 +114,7 @@ public class UpdateHostDbReducer
   /**
     *
     */
+  @Override
   public void reduce(Text key, Iterable<NutchWritable> values,
     Context context) throws IOException, InterruptedException {
 
@@ -137,7 +136,8 @@ public class UpdateHostDbReducer
     
     // Loop through all values until we find a non-empty HostDatum or use
     // an empty if this is a new host for the host db
-    for (Writable value : values) {
+    for (NutchWritable val : values) {
+      final Writable value = val.get(); // unwrap
       
       // Count crawl datum status's and collect metadata from fields
       if (value instanceof CrawlDatum) {
@@ -263,7 +263,7 @@ public class UpdateHostDbReducer
       }
       
       // 
-      if (value instanceof HostDatum) {
+      else if (value instanceof HostDatum) {
         HostDatum buffer = (HostDatum)value;
 
         // Check homepage URL
@@ -298,9 +298,11 @@ public class UpdateHostDbReducer
       }
 
       // Check for the score
-      if (value instanceof FloatWritable) {
+      else if (value instanceof FloatWritable) {
         FloatWritable buffer = (FloatWritable)value;
         score = buffer.get();
+      } else {
+        LOG.error("Class {} not handled", value.getClass());
       }
     }
 
@@ -401,7 +403,8 @@ public class UpdateHostDbReducer
   /**
     * Shut down all running threads and wait for completion.
     */
-  public void cleanup() {
+  @Override
+  public void cleanup(Context context) {
     LOG.info("UpdateHostDb: feeder finished, waiting for shutdown");
 
     // If we're here all keys have been fed and we can issue a shut down
