@@ -183,8 +183,6 @@ public class CleaningJob implements Tool {
       String usage = "Usage: CleaningJob <crawldb> [-noCommit]";
       LOG.error("Missing crawldb. " + usage);
       System.err.println(usage);
-      IndexWriters writers = IndexWriters.get(getConf());
-      System.err.println(writers.describe());
       return 1;
     }
 
