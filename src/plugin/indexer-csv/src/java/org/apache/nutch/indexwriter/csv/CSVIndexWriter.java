@@ -28,10 +28,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.indexer.IndexWriter;
-import org.apache.nutch.indexer.IndexingJob;
-import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.NutchField;
+import org.apache.nutch.indexer.*;
 import org.apache.nutch.util.NutchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,13 +104,13 @@ public class CSVIndexWriter implements IndexWriter {
       return sb.toString();
     }
 
-    protected void setFromConf(Configuration conf, String property) {
-      setFromConf(conf, property, false);
+    protected void setFromConf(IndexWriterParams parameters, String property) {
+      setFromConf(parameters, property, false);
     }
 
-    protected void setFromConf(Configuration conf, String property,
+    protected void setFromConf(IndexWriterParams parameters, String property,
         boolean isChar) {
-      String str = conf.get(property);
+      String str = parameters.get(property);
       if (isChar && str != null && !str.isEmpty()) {
         LOG.warn("Separator " + property
             + " must be a char, only the first character '" + str.charAt(0)
@@ -232,10 +229,42 @@ public class CSVIndexWriter implements IndexWriter {
 
   @Override
   public void open(Configuration conf, String name) throws IOException {
-    fs = FileSystem.get(conf);
+
+  }
+
+  /**
+   * Initializes the internal variables from a given index writer configuration.
+   *
+   * @param parameters Params from the index writer configuration.
+   * @throws IOException Some exception thrown by writer.
+   */
+  @Override
+  public void open(IndexWriterParams parameters) throws IOException {
+    outputPath = parameters.get(CSV_OUTPATH, outputPath);
+    String charset = parameters.get(CSV_CHARSET);
+    if (charset != null) {
+      encoding = Charset.forName(charset);
+    }
+    fieldSeparator.setFromConf(parameters, CSV_FIELD_SEPARATOR);
+    quoteCharacter.setFromConf(parameters, CSV_QUOTECHARACTER, true);
+    escapeCharacter.setFromConf(parameters, CSV_ESCAPECHARACTER, true);
+    recordSeparator.setFromConf(parameters, CSV_RECORDSEPARATOR);
+    valueSeparator.setFromConf(parameters, CSV_VALUESEPARATOR);
+    withHeader = parameters.getBoolean(CSV_WITHHEADER, true);
+    maxFieldLength = parameters.getInt(CSV_MAXFIELDLENGTH, maxFieldLength);
+    LOG.info(CSV_MAXFIELDLENGTH + " = " + maxFieldLength);
+    maxFieldValues = parameters.getInt(CSV_MAXFIELDVALUES, maxFieldValues);
+    LOG.info(CSV_MAXFIELDVALUES + " = " + maxFieldValues);
+    fields = parameters.getStrings(CSV_FIELDS, "id", "title", "content");
+    LOG.info("fields =");
+    for (String f : fields) {
+      LOG.info("\t" + f);
+    }
+
+    fs = FileSystem.get(config);
     LOG.info("Writing output to {}", outputPath);
     Path outputDir = new Path(outputPath);
-    fs = outputDir.getFileSystem(conf);
+    fs = outputDir.getFileSystem(config);
     csvLocalOutFile = new Path(outputDir, "nutch.csv");
     if (!fs.exists(outputDir)) {
       fs.mkdirs(outputDir);
@@ -339,26 +368,6 @@ public class CSVIndexWriter implements IndexWriter {
   @Override
   public void setConf(Configuration conf) {
     config = conf;
-    outputPath = conf.get(CSV_OUTPATH, outputPath);
-    String charset = conf.get(CSV_CHARSET);
-    if (charset != null) {
-      encoding = Charset.forName(charset);
-    }
-    fieldSeparator.setFromConf(conf, CSV_FIELD_SEPARATOR);
-    quoteCharacter.setFromConf(conf, CSV_QUOTECHARACTER, true);
-    escapeCharacter.setFromConf(conf, CSV_ESCAPECHARACTER, true);
-    recordSeparator.setFromConf(conf, CSV_RECORDSEPARATOR);
-    valueSeparator.setFromConf(conf, CSV_VALUESEPARATOR);
-    withHeader = conf.getBoolean(CSV_WITHHEADER, true);
-    maxFieldLength = conf.getInt(CSV_MAXFIELDLENGTH, maxFieldLength);
-    LOG.info(CSV_MAXFIELDLENGTH + " = " + maxFieldLength);
-    maxFieldValues = conf.getInt(CSV_MAXFIELDVALUES, maxFieldValues);
-    LOG.info(CSV_MAXFIELDVALUES + " = " + maxFieldValues);
-    fields = conf.getStrings(CSV_FIELDS, "id", "title", "content");
-    LOG.info("fields =");
-    for (String f : fields) {
-      LOG.info("\t" + f);
-    }
   }
 
   /** Write a value to output stream. If necessary use quote characters. */
