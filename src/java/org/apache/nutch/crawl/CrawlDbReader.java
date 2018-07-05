@@ -550,8 +550,11 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Statistics for CrawlDb: " + crawlDb);
-      LongWritable totalCnt = ((LongWritable) stats.get("T"));
-      stats.remove("T");
+      LongWritable totalCnt = new LongWritable(0);
+      if (stats.containsKey("T")) {
+        totalCnt = ((LongWritable) stats.get("T"));
+        stats.remove("T");
+      }
       LOG.info("TOTAL urls:\t" + totalCnt.get());
       for (Map.Entry<String, Writable> entry : stats.entrySet()) {
         String k = entry.getKey();
