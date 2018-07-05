@@ -24,10 +24,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
@@ -53,7 +55,8 @@ public class TestCSVIndexWriter {
     protected FileSystem.Statistics fsStats;
 
     @Override
-    public void open(Configuration conf, String name) throws IOException {
+    public void open(IndexWriterParams parameters) throws IOException {
+      super.open(parameters);
       byteBuffer = new ByteArrayOutputStream();
       fsStats = new FileSystem.Statistics("testCSVIndexWriter");
       csvout = new FSDataOutputStream(byteBuffer, fsStats);
@@ -82,12 +85,14 @@ public class TestCSVIndexWriter {
   public String getCSV(final String[] configParams, NutchDocument[] docs)
       throws IOException {
     Configuration conf = NutchConfiguration.create();
+    IndexWriterParams params = new IndexWriterParams(
+        new HashMap<String, String>());
     for (int i = 0; i < configParams.length; i += 2) {
-      conf.set(configParams[i], configParams[i+1]);
+      params.put(configParams[i], configParams[i+1]);
     }
     CSVByteArrayIndexWriter out = new CSVByteArrayIndexWriter();
     out.setConf(conf);
-    out.open(conf, "test");
+    out.open(params);
     for (NutchDocument doc : docs) {
       out.write(doc);
     }
