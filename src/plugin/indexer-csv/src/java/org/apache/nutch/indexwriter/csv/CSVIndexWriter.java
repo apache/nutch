@@ -53,11 +53,9 @@ public class CSVIndexWriter implements IndexWriter {
 
   /** ordered list of fields (columns) in the CSV file */
   private String[] fields;
-  public static final String CSV_FIELDS = "indexer.csv.fields";
 
   /** encoding of CSV file */
   protected Charset encoding = Charset.forName("UTF-8");
-  public static final String CSV_CHARSET = "indexer.csv.charset";
 
   /**
    * represent separators (also quote and escape characters) as char(s) and
@@ -147,11 +145,9 @@ public class CSVIndexWriter implements IndexWriter {
 
   /** separator between records (rows) resp. documents */
   private Separator recordSeparator = new Separator("\r\n");
-  public static final String CSV_RECORDSEPARATOR = "indexer.csv.recordsep";
 
   /** separator between fields (columns) */
   private Separator fieldSeparator = new Separator(",");
-  public static final String CSV_FIELD_SEPARATOR = "indexer.csv.separator";
 
   /**
    * separator between multiple values of one field ({@link NutchField} allows
@@ -159,64 +155,54 @@ public class CSVIndexWriter implements IndexWriter {
    * not present in field data should be chosen.
    */
   private Separator valueSeparator = new Separator("|");
-  public static final String CSV_VALUESEPARATOR = "indexer.csv.valuesep";
 
   /** quote character used to quote fields containing separators or quotes */
   private Separator quoteCharacter = new Separator("\"");
-  public static final String CSV_QUOTECHARACTER = "indexer.csv.quotechar";
 
   /** escape character used to escape a quote character */
   private Separator escapeCharacter = quoteCharacter;
-  public static final String CSV_ESCAPECHARACTER = "indexer.csv.escapechar";
 
   /** max. length of a field value */
   private int maxFieldLength = 4096;
-  public static final String CSV_MAXFIELDLENGTH = "indexer.csv.maxfieldlength";
 
   /**
    * max. number of values of one field, useful for fields with potentially many
    * variant values, e.g., the "anchor" texts field
    */
   private int maxFieldValues = 12;
-  public static final String CSV_MAXFIELDVALUES = "indexer.csv.maxfieldvalues";
 
   /** max. length of a field value */
   private boolean withHeader = true;
-  public static final String CSV_WITHHEADER = "indexer.csv.header";
 
   /** output path / directory */
   private String outputPath = "csvindexwriter";
-  public static final String CSV_OUTPATH = "indexer.csv.outpath";
 
 
   private static final String description =
       " - write index as CSV file (comma separated values)"
-      + String.format("\n  %-24s : %s", CSV_FIELDS,
+      + String.format("\n  %-24s : %s", CSVConstants.CSV_FIELDS,
           "ordered list of fields (columns) in the CSV file")
-      + String.format("\n  %-24s : %s", CSV_FIELD_SEPARATOR,
+      + String.format("\n  %-24s : %s", CSVConstants.CSV_FIELD_SEPARATOR,
           "separator between fields (columns), default: , (U+002C, comma)")
-      + String.format("\n  %-24s : %s", CSV_QUOTECHARACTER,
+      + String.format("\n  %-24s : %s", CSVConstants.CSV_QUOTECHARACTER,
           "quote character used to quote fields containing separators or quotes, "
               + "default: \" (U+0022, quotation mark)")
-      + String.format("\n  %-24s : %s", CSV_ESCAPECHARACTER,
+      + String.format("\n  %-24s : %s", CSVConstants.CSV_ESCAPECHARACTER,
           "escape character used to escape a quote character, "
               + "default: \" (U+0022, quotation mark)")
-      + String.format("\n  %-24s : %s", CSV_RECORDSEPARATOR,
-          "separator between records (rows) resp. documents, "
-              + "default: \\r\\n (DOS-style line breaks)")
-      + String.format("\n  %-24s : %s", CSV_VALUESEPARATOR,
+      + String.format("\n  %-24s : %s", CSVConstants.CSV_VALUESEPARATOR,
           "separator between multiple values of one field, "
               + "default: | (U+007C)")
-      + String.format("\n  %-24s : %s", CSV_MAXFIELDVALUES,
+      + String.format("\n  %-24s : %s", CSVConstants.CSV_MAXFIELDVALUES,
           "max. number of values of one field, useful for, "
               + " e.g., the anchor texts field, default: 12")
-      + String.format("\n  %-24s : %s", CSV_MAXFIELDLENGTH,
+      + String.format("\n  %-24s : %s", CSVConstants.CSV_MAXFIELDLENGTH,
           "max. length of a single field value in characters, default: 4096.")
-      + String.format("\n  %-24s : %s", CSV_CHARSET,
+      + String.format("\n  %-24s : %s", CSVConstants.CSV_CHARSET,
           "encoding of CSV file, default: UTF-8")
-      + String.format("\n  %-24s : %s", CSV_WITHHEADER,
+      + String.format("\n  %-24s : %s", CSVConstants.CSV_WITHHEADER,
           "write CSV column headers, default: true")
-      + String.format("\n  %-24s : %s", CSV_OUTPATH,
+      + String.format("\n  %-24s : %s", CSVConstants.CSV_OUTPATH,
           "output path / directory, default: csvindexwriter. "
           + "\n    CAVEAT: existing output directories are removed!") + "\n";
 
@@ -240,22 +226,21 @@ public class CSVIndexWriter implements IndexWriter {
    */
   @Override
   public void open(IndexWriterParams parameters) throws IOException {
-    outputPath = parameters.get(CSV_OUTPATH, outputPath);
-    String charset = parameters.get(CSV_CHARSET);
+    outputPath = parameters.get(CSVConstants.CSV_OUTPATH, outputPath);
+    String charset = parameters.get(CSVConstants.CSV_CHARSET);
     if (charset != null) {
       encoding = Charset.forName(charset);
     }
-    fieldSeparator.setFromConf(parameters, CSV_FIELD_SEPARATOR);
-    quoteCharacter.setFromConf(parameters, CSV_QUOTECHARACTER, true);
-    escapeCharacter.setFromConf(parameters, CSV_ESCAPECHARACTER, true);
-    recordSeparator.setFromConf(parameters, CSV_RECORDSEPARATOR);
-    valueSeparator.setFromConf(parameters, CSV_VALUESEPARATOR);
-    withHeader = parameters.getBoolean(CSV_WITHHEADER, true);
-    maxFieldLength = parameters.getInt(CSV_MAXFIELDLENGTH, maxFieldLength);
-    LOG.info(CSV_MAXFIELDLENGTH + " = " + maxFieldLength);
-    maxFieldValues = parameters.getInt(CSV_MAXFIELDVALUES, maxFieldValues);
-    LOG.info(CSV_MAXFIELDVALUES + " = " + maxFieldValues);
-    fields = parameters.getStrings(CSV_FIELDS, "id", "title", "content");
+    fieldSeparator.setFromConf(parameters, CSVConstants.CSV_FIELD_SEPARATOR);
+    quoteCharacter.setFromConf(parameters, CSVConstants.CSV_QUOTECHARACTER, true);
+    escapeCharacter.setFromConf(parameters, CSVConstants.CSV_ESCAPECHARACTER, true);
+    valueSeparator.setFromConf(parameters, CSVConstants.CSV_VALUESEPARATOR);
+    withHeader = parameters.getBoolean(CSVConstants.CSV_WITHHEADER, true);
+    maxFieldLength = parameters.getInt(CSVConstants.CSV_MAXFIELDLENGTH, maxFieldLength);
+    LOG.info(CSVConstants.CSV_MAXFIELDLENGTH + " = " + maxFieldLength);
+    maxFieldValues = parameters.getInt(CSVConstants.CSV_MAXFIELDVALUES, maxFieldValues);
+    LOG.info(CSVConstants.CSV_MAXFIELDVALUES + " = " + maxFieldValues);
+    fields = parameters.getStrings(CSVConstants.CSV_FIELDS, "id", "title", "content");
     LOG.info("fields =");
     for (String f : fields) {
       LOG.info("\t" + f);
@@ -311,7 +296,7 @@ public class CSVIndexWriter implements IndexWriter {
             continue;
           } else if (objval instanceof Date) {
             // date: format as "dow mon dd hh:mm:ss zzz yyyy"
-            value = ((Date) objval).toString();
+            value = objval.toString();
           } else {
             value = (String) objval;
           }
@@ -336,7 +321,7 @@ public class CSVIndexWriter implements IndexWriter {
 
   /** (deletion of documents is not supported) */
   @Override
-  public void delete(String key) throws IOException {
+  public void delete(String key) {
   }
 
   @Override
@@ -352,7 +337,7 @@ public class CSVIndexWriter implements IndexWriter {
 
   /** (nothing to commit) */
   @Override
-  public void commit() throws IOException {
+  public void commit() {
   }
 
   @Override

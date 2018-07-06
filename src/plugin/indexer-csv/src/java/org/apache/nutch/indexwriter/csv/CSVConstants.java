@@ -14,8 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * Index writer plugin to write a plain CSV file.
- */
 package org.apache.nutch.indexwriter.csv;
+
+public interface CSVConstants {
+  
+  String CSV_FIELDS = "fields";
+
+  String CSV_CHARSET = "charset";
+
+  String CSV_FIELD_SEPARATOR = "separator";
+
+  String CSV_VALUESEPARATOR = "valuesep";
+
+  String CSV_QUOTECHARACTER = "quotechar";
+
+  String CSV_ESCAPECHARACTER = "escapechar";
+
+  String CSV_MAXFIELDLENGTH = "maxfieldlength";
+
+  String CSV_MAXFIELDVALUES = "maxfieldvalues";
+
+  String CSV_WITHHEADER = "header";
+
+  String CSV_OUTPATH = "outpath";
+
+}
