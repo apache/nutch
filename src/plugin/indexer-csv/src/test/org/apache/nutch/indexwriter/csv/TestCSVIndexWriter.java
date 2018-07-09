@@ -40,11 +40,10 @@ import org.slf4j.LoggerFactory;
 /**
  * Test CSVIndexWriter. Focus is on CSV-specific potential issues, mainly quoting and escaping.
  */
-
 public class TestCSVIndexWriter {
 
-  protected static final Logger LOG = LoggerFactory.getLogger(TestCSVIndexWriter.class);
-
+  protected static final Logger LOG = LoggerFactory
+      .getLogger(TestCSVIndexWriter.class);
 
   /**
    * Dummy IndexWriter which stores the indexed documents as CSV string in a
@@ -52,8 +51,8 @@ public class TestCSVIndexWriter {
    */
   public class CSVByteArrayIndexWriter extends CSVIndexWriter {
 
-    protected ByteArrayOutputStream byteBuffer;
-    protected FileSystem.Statistics fsStats;
+    ByteArrayOutputStream byteBuffer;
+    FileSystem.Statistics fsStats;
 
     @Override
     public void open(IndexWriterParams parameters) throws IOException {
@@ -79,17 +78,17 @@ public class TestCSVIndexWriter {
 
   /**
    * write one NutchDocument as CSV record
-   * @param configParams  configuration parameters: array (property => value, prop2 => value)
-   * @param doc  NutchDocument
+   *
+   * @param configParams configuration parameters: array (property => value, prop2 => value)
+   * @param docs         NutchDocument
    * @return CSV string representing the document
    */
-  public String getCSV(final String[] configParams, NutchDocument[] docs)
+  private String getCSV(final String[] configParams, NutchDocument[] docs)
       throws IOException {
     Configuration conf = NutchConfiguration.create();
-    IndexWriterParams params = new IndexWriterParams(
-        new HashMap<String, String>());
+    IndexWriterParams params = new IndexWriterParams(new HashMap<>());
     for (int i = 0; i < configParams.length; i += 2) {
-      params.put(configParams[i], configParams[i+1]);
+      params.put(configParams[i], configParams[i + 1]);
     }
     CSVByteArrayIndexWriter out = new CSVByteArrayIndexWriter();
     out.setConf(conf);
@@ -105,17 +104,17 @@ public class TestCSVIndexWriter {
 
   /**
    * write one document as CSV record
-   * @param configParams  configuration parameters: array (property => value, prop2 => value)
-   * @param fieldContent  array of {field => value} maps
-   * @param header  add CSV column headers
+   *
+   * @param configParams configuration parameters: array (property => value, prop2 => value)
+   * @param fieldContent array of {field => value} maps
    * @return CSV string representing the document
    */
-  public String getCSV(final String[] configParams, final String[] fieldContent)
+  private String getCSV(final String[] configParams, final String[] fieldContent)
       throws IOException {
     NutchDocument[] docs = new NutchDocument[1];
     docs[0] = new NutchDocument();
     for (int i = 0; i < fieldContent.length; i += 2) {
-      docs[0].add(fieldContent[i], fieldContent[i+1]);
+      docs[0].add(fieldContent[i], fieldContent[i + 1]);
     }
     return getCSV(configParams, docs);
   }
@@ -135,7 +134,7 @@ public class TestCSVIndexWriter {
 
   @Test
   public void testCSVquoteFieldSeparators() throws IOException {
-    String[] params = { CSVIndexWriter.CSV_FIELDS, "test,test2" };
+    String[] params = { CSVConstants.CSV_FIELDS, "test,test2" };
     String[] fields = { "test", "a,b", "test2", "c,d" };
     String csv = getCSV(params, fields);
     assertEquals("If field contains a fields separator, it must be quoted",
@@ -144,7 +143,7 @@ public class TestCSVIndexWriter {
 
   @Test
   public void testCSVquoteRecordSeparators() throws IOException {
-    String[] params = { CSVIndexWriter.CSV_FIELDS, "test" };
+    String[] params = { CSVConstants.CSV_FIELDS, "test" };
     String[] fields = { "test", "a\nb" };
     String csv = getCSV(params, fields);
     assertEquals("If field contains a fields separator, it must be quoted",
@@ -153,7 +152,7 @@ public class TestCSVIndexWriter {
 
   @Test
   public void testCSVescapeQuotes() throws IOException {
-    String[] params = { CSVIndexWriter.CSV_FIELDS, "test" };
+    String[] params = { CSVConstants.CSV_FIELDS, "test" };
     String[] fields = { "test", "a,b:\"quote\",c" };
     String csv = getCSV(params, fields);
     assertEquals("Quotes inside a quoted field must be escaped",
@@ -162,8 +161,8 @@ public class TestCSVIndexWriter {
 
   @Test
   public void testCSVclipMaxLength() throws IOException {
-    String[] params = { CSVIndexWriter.CSV_FIELDS, "test",
-        CSVIndexWriter.CSV_MAXFIELDLENGTH, "8" };
+    String[] params = { CSVConstants.CSV_FIELDS, "test",
+        CSVConstants.CSV_MAXFIELDLENGTH, "8" };
     String[] fields = { "test", "0123456789" };
     String csv = getCSV(params, fields);
     assertEquals("Field clipped to max. length = 8", "01234567", csv.trim());
@@ -171,8 +170,8 @@ public class TestCSVIndexWriter {
 
   @Test
   public void testCSVclipMaxLengthQuote() throws IOException {
-    String[] params = { CSVIndexWriter.CSV_FIELDS, "test",
-        CSVIndexWriter.CSV_MAXFIELDLENGTH, "7" };
+    String[] params = { CSVConstants.CSV_FIELDS, "test",
+        CSVConstants.CSV_MAXFIELDLENGTH, "7" };
     String[] fields = { "test", "1,\"2\",3,\"4\"" };
     String csv = getCSV(params, fields);
     assertEquals("Field clipped to max. length = 7", "\"1,\"\"2\"\",3\"",
@@ -181,9 +180,9 @@ public class TestCSVIndexWriter {
 
   @Test
   public void testCSVmultiValueFields() throws IOException {
-    String[] params = { CSVIndexWriter.CSV_FIELDS, "test",
-        CSVIndexWriter.CSV_VALUESEPARATOR, "|",
-        CSVIndexWriter.CSV_QUOTECHARACTER, "" };
+    String[] params = { CSVConstants.CSV_FIELDS, "test",
+        CSVConstants.CSV_VALUESEPARATOR, "|",
+        CSVConstants.CSV_QUOTECHARACTER, "" };
     String[] fields = { "test", "abc", "test", "def" };
     String csv = getCSV(params, fields);
     assertEquals("Values of multi-value fields are concatenated by |",
@@ -199,23 +198,22 @@ public class TestCSVIndexWriter {
     };
     for (int i = 0; i < charsets.length; i += 2) {
       String charset = charsets[i];
-      String test = charsets[i+1];
-      String[] params = { CSVIndexWriter.CSV_FIELDS, "test",
-          CSVIndexWriter.CSV_CHARSET, charset };
+      String test = charsets[i + 1];
+      String[] params = { CSVConstants.CSV_FIELDS, "test",
+          CSVConstants.CSV_CHARSET, charset };
       String[] fields = { "test", test };
       String csv = getCSV(params, fields);
-      assertEquals("wrong charset conversion",
-          test, csv.trim());
+      assertEquals("wrong charset conversion", test, csv.trim());
     }
   }
 
   /** test non-ASCII separator */
   @Test
   public void testCSVEncodingSeparator() throws IOException {
-    String[] params = { CSVIndexWriter.CSV_FIELDS, "test",
-        CSVIndexWriter.CSV_CHARSET, "iso-8859-1",
-        CSVIndexWriter.CSV_VALUESEPARATOR, "\u00a6", // ¦ (broken bar)
-        CSVIndexWriter.CSV_QUOTECHARACTER, ""
+    String[] params = { CSVConstants.CSV_FIELDS, "test",
+        CSVConstants.CSV_CHARSET, "iso-8859-1",
+        CSVConstants.CSV_VALUESEPARATOR, "\u00a6", // ¦ (broken bar)
+        CSVConstants.CSV_QUOTECHARACTER, ""
     };
     String[] fields = { "test", "abc", "test", "def" };
     String csv = getCSV(params, fields);
@@ -225,10 +223,9 @@ public class TestCSVIndexWriter {
 
   @Test
   public void testCSVtabSeparated() throws IOException {
-    String[] params = { CSVIndexWriter.CSV_FIELDS, "1,2,3",
-        CSVIndexWriter.CSV_FIELD_SEPARATOR, "\t",
-        CSVIndexWriter.CSV_RECORDSEPARATOR, "\n",
-        CSVIndexWriter.CSV_QUOTECHARACTER, ""
+    String[] params = { CSVConstants.CSV_FIELDS, "1,2,3",
+        CSVConstants.CSV_FIELD_SEPARATOR, "\t",
+        CSVConstants.CSV_QUOTECHARACTER, ""
     };
     NutchDocument[] docs = new NutchDocument[2];
     docs[0] = new NutchDocument();
@@ -241,14 +238,15 @@ public class TestCSVIndexWriter {
     docs[1].add("2", "B");
     docs[1].add("3", "C");
     String csv = getCSV(params, docs);
-    String[] records = csv.trim().split("\\n");
+    String[] records = csv.trim().split("\\r\\n");
     assertEquals("tab-separated output", "a|b\ta\"2\"b\tc,d", records[0]);
     assertEquals("tab-separated output", "A\tB\tC", records[1]);
   }
 
   @Test
   public void testCSVdateField() throws IOException {
-    String[] params = { CSVIndexWriter.CSV_FIELDS, "date" };
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    String[] params = { CSVConstants.CSV_FIELDS, "date" };
     NutchDocument[] docs = new NutchDocument[1];
     docs[0] = new NutchDocument();
     docs[0].add("date", new Date(0)); // 1970-01-01
