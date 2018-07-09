@@ -152,10 +152,16 @@ public class ParseUtil {
     }
 
     ParseResult parseResult = null;
-    if (maxParseTime != -1)
+    if (maxParseTime != -1) {
       parseResult = runParser(p, content);
-    else
-      parseResult = p.getParse(content);
+    } else {
+      try {
+        parseResult = p.getParse(content);
+      } catch (Throwable e) {
+        LOG.warn("Error parsing " + content.getUrl() + " with "
+            + p.getClass().getName(), e);
+      }
+    }
     if (parseResult != null && !parseResult.isEmpty()) {
       return parseResult;
     } else {
