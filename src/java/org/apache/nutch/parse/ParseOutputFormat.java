@@ -164,7 +164,7 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
     int maxOutlinksPerPage = conf.getInt("db.max.outlinks.per.page", 100);
     final int maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
         : maxOutlinksPerPage;
-    int maxOutlinkL = conf.getInt("db.max.outlink.length", 8192);
+    int maxOutlinkL = conf.getInt("db.max.outlink.length", 4096);
     final int maxOutlinkLength = (maxOutlinkL < 0) ? Integer.MAX_VALUE
         : maxOutlinkL;
     final boolean isParsing = conf.getBoolean("fetcher.parse", true);

@@ -200,7 +200,7 @@ public class FetcherThread extends Thread {
     int maxOutlinksPerPage = conf.getInt("db.max.outlinks.per.page", 100);
     maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
         : maxOutlinksPerPage;
-    int maxOutlinkL = conf.getInt("db.max.outlink.length", 8192);
+    int maxOutlinkL = conf.getInt("db.max.outlink.length", 4096);
     maxOutlinkLength = (maxOutlinkL < 0) ? Integer.MAX_VALUE : maxOutlinkL;
     interval = conf.getInt("db.fetch.interval.default", 2592000);
     ignoreInternalLinks = conf.getBoolean("db.ignore.internal.links", false);

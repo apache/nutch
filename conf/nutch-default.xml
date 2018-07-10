@@ -702,7 +702,7 @@
 
 <property>
   <name>db.max.outlink.length</name>
-  <value>8192</value>
+  <value>4096</value>
   <description>
     The maximum length in characters accepted for outlinks before
     applying URL normalizers and filters.  If this value is
