@@ -85,6 +85,25 @@
       <remove />
     </mapping>
   </writer>
+  <writer id="indexer_csv_1" class="org.apache.nutch.indexwriter.csv.CSVIndexWriter">
+    <parameters>
+      <param name="fields" value="id,title,content"/>
+      <param name="charset" value="UTF-8"/>
+      <param name="separator" value=","/>
+      <param name="valuesep" value="|"/>
+      <param name="quotechar" value="&quot;"/>
+      <param name="escapechar" value="&quot;"/>
+      <param name="maxfieldlength" value="4096"/>
+      <param name="maxfieldvalues" value="12"/>
+      <param name="header" value="true"/>
+      <param name="outpath" value="csvindexwriter"/>
+    </parameters>
+    <mapping>
+      <copy />
+      <rename />
+      <remove />
+    </mapping>
+  </writer>
   <writer id="indexer_elastic_1" class="org.apache.nutch.indexwriter.elastic.ElasticIndexWriter">
     <parameters>
       <param name="host" value=""/>
