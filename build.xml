@@ -188,6 +188,7 @@
       <packageset dir="${plugins.dir}/index-replace/src/java"/>
       <packageset dir="${plugins.dir}/index-static/src/java"/>
       <packageset dir="${plugins.dir}/indexer-cloudsearch/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-csv/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic-rest/src/java/"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
@@ -649,6 +650,7 @@
       <packageset dir="${plugins.dir}/index-replace/src/java"/>
       <packageset dir="${plugins.dir}/index-static/src/java"/>
       <packageset dir="${plugins.dir}/indexer-cloudsearch/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-csv/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic-rest/src/java/"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
@@ -1071,6 +1073,8 @@
         <source path="${plugins.dir}/index-static/src/java/" />
         <source path="${plugins.dir}/index-static/src/test/" />
         <source path="${plugins.dir}/indexer-cloudsearch/src/java/" />
+        <source path="${plugins.dir}/indexer-csv/src/java"/>
+        <source path="${plugins.dir}/indexer-csv/src/test"/>
         <source path="${plugins.dir}/indexer-dummy/src/java/" />
         <source path="${plugins.dir}/indexer-elastic-rest/src/java/"/>
         <source path="${plugins.dir}/indexer-elastic/src/java/" />
