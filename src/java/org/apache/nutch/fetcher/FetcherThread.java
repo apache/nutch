@@ -95,8 +95,8 @@ public class FetcherThread extends Thread {
   private String ignoreExternalLinksMode;
 
   // Used by fetcher.follow.outlinks.depth in parse
-  private int maxOutlinksPerPage;
   private final int maxOutlinks;
+  private final int maxOutlinkLength;
   private final int interval;
   private int maxOutlinkDepth;
   private int maxOutlinkDepthNumLinks;
@@ -197,9 +197,11 @@ public class FetcherThread extends Thread {
         Thread.currentThread().getId(), queueMode);
     this.maxRedirect = conf.getInt("http.redirect.max", 3);
 
-    maxOutlinksPerPage = conf.getInt("db.max.outlinks.per.page", 100);
+    int maxOutlinksPerPage = conf.getInt("db.max.outlinks.per.page", 100);
     maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
         : maxOutlinksPerPage;
+    int maxOutlinkL = conf.getInt("db.max.outlink.length", 8192);
+    maxOutlinkLength = (maxOutlinkL < 0) ? Integer.MAX_VALUE : maxOutlinkL;
     interval = conf.getInt("db.fetch.interval.default", 2592000);
     ignoreInternalLinks = conf.getBoolean("db.ignore.internal.links", false);
     ignoreExternalLinks = conf.getBoolean("db.ignore.external.links", false);
@@ -482,6 +484,9 @@ public class FetcherThread extends Thread {
   private Text handleRedirect(FetchItem fit, String newUrl,
       boolean temp, String redirType)
       throws MalformedURLException, URLFilterException, InterruptedException {
+    if (newUrl.length() > maxOutlinkLength) {
+      return null;
+    }
     newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
     newUrl = urlFilters.filter(newUrl);
     String urlString = fit.url.toString();
@@ -721,6 +726,9 @@ public class FetcherThread extends Thread {
           for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
             String toUrl = links[i].getToUrl();
 
+            if (toUrl.length() > maxOutlinkLength) {
+              continue;
+            }
             toUrl = ParseOutputFormat.filterNormalize(url.toString(), toUrl,
                 origin, ignoreInternalLinks, ignoreExternalLinks,
                 ignoreExternalLinksMode, urlFiltersForOutlinks,
