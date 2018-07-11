@@ -64,7 +64,7 @@ public interface Response extends HttpHeaders {
     LENGTH,
     /** fetch exceeded configured http.fetch.duration */
     TIME,
-    /** network disconnect during fetch */
+    /** network disconnect or timeout during fetch */
     DISCONNECT,
     /** implementation internal reason */
     INTERNAL,

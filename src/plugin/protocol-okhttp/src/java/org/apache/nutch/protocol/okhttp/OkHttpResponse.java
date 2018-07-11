@@ -114,7 +114,7 @@ public class OkHttpResponse implements Response {
 
     TruncatedContent truncated = new TruncatedContent();
     content = toByteArray(response.body(), truncated, okhttp.getMaxContent(),
-        okhttp.getMaxDuration());
+        okhttp.getMaxDuration(), okhttp.isStorePartialAsTruncated());
     responsemetadata.add(FETCH_TIME, Long.toString(System.currentTimeMillis()));
     if (truncated.booleanValue()) {
       if (!call.isCanceled()) {
@@ -133,7 +133,8 @@ public class OkHttpResponse implements Response {
   }
 
   private final byte[] toByteArray(final ResponseBody responseBody,
-      TruncatedContent truncated, int maxContent, int maxDuration) throws IOException {
+      TruncatedContent truncated, int maxContent, int maxDuration,
+      boolean partialAsTruncated) throws IOException {
 
     if (responseBody == null) {
       return new byte[] {};
@@ -156,7 +157,17 @@ public class OkHttpResponse implements Response {
     while (contentBytesBuffered < maxContentBytes) {
       contentBytesRequested += Math.min(bufferGrowStepBytes,
           (maxContentBytes - contentBytesBuffered));
-      boolean success = source.request(contentBytesRequested);
+      boolean success = false;
+      try {
+        success = source.request(contentBytesRequested);
+      } catch (IOException e) {
+        if (partialAsTruncated && contentBytesBuffered > 0) {
+          // treat already fetched content as truncated
+          truncated.setReason(TruncatedContentReason.DISCONNECT);
+        } else {
+          throw e;
+        }
+      }
       contentBytesBuffered = (int) source.buffer().size();
       if (LOG.isDebugEnabled()) {
         LOG.debug("total bytes requested = {}, buffered = {}",

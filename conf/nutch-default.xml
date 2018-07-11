@@ -238,6 +238,18 @@
 </property>
 
 <property>
+  <name>http.partial.truncated</name>
+  <value>false</value>
+  <description>
+    If true the HTTP protocol implementation may store the content of
+    partial fetches and mark the response as truncated instead of
+    throwing an exception which will cause the fetch to fail.  This
+    allows to use the data which has already been fetched, instead of
+    retrying the fetch later.  Note: supported only by protocol-okhttp.
+  </description>
+</property>
+
+<property>
   <name>http.proxy.host</name>
   <value></value>
   <description>The proxy hostname.  If empty, no proxy is used.</description>

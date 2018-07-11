@@ -91,6 +91,9 @@ public abstract class HttpBase implements Protocol {
   /** The time limit to download the entire content, in seconds. */
   protected int maxDuration = 300;
 
+  /** Whether to save partial fetches as truncated content. */
+  protected boolean partialAsTruncated = false;
+
   /** The Nutch 'User-Agent' request header */
   protected String userAgent = getAgentString("NutchCVS", null, "Nutch",
       "http://nutch.apache.org/bot.html", "agent@nutch.apache.org");
@@ -190,6 +193,8 @@ public abstract class HttpBase implements Protocol {
     this.timeout = conf.getInt("http.timeout", 10000);
     this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
     this.maxDuration = conf.getInt("http.time.limit", -1);
+    this.partialAsTruncated = conf
+        .getBoolean("http.partial.truncated", false);
     this.userAgent = getAgentString(conf.get("http.agent.name"),
         conf.get("http.agent.version"), conf.get("http.agent.description"),
         conf.get("http.agent.url"), conf.get("http.agent.email"));
@@ -199,7 +204,7 @@ public abstract class HttpBase implements Protocol {
     this.accept = conf.get("http.accept", accept).trim();
     this.mimeTypes = new MimeUtil(conf);
     // backward-compatible default setting
-    this.useHttp11 = conf.getBoolean("http.useHttp11", false);
+    this.useHttp11 = conf.getBoolean("http.useHttp11", true);
     this.useHttp2 = conf.getBoolean("http.useHttp2", false);
     this.responseTime = conf.getBoolean("http.store.responsetime", true);
     this.storeIPAddress = conf.getBoolean("store.ip.address", false);
@@ -452,6 +457,14 @@ public abstract class HttpBase implements Protocol {
    */
   public int getMaxDuration() {
     return maxDuration;
+  }
+
+  /**
+   * Whether to save partial fetches as truncated content, cf. the property
+   * <code>http.partial.truncated</code>.
+   */
+  public boolean isStorePartialAsTruncated() {
+    return partialAsTruncated;
   }
 
   public String getUserAgent() {
