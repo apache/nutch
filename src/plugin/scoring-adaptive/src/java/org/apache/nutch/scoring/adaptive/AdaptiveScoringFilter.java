@@ -283,6 +283,13 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
         new IntWritable(nowMinutes));
   }
 
+  /** Add detection timestamp to metadata (URL found as outlink) */
+  public void initialScore(Text url, CrawlDatum datum)
+      throws ScoringFilterException {
+    datum.getMetaData().put(WRITABLE_LAST_SEEN_TIME,
+        new IntWritable(nowMinutes));
+  }
+
   /**
    * Use {@link CrawlDatum#getScore()} but be adaptive to page status and
    * fetch time.
