@@ -34,9 +34,6 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * as iterating through a preferred list of {@link Parser}s to obtain
  * {@link Parse} objects.
  * 
- * @author mattmann
- * @author J&eacute;r&ocirc;me Charron
- * @author S&eacute;bastien Le Callonnec
  */
 public class ParseUtil {
 
@@ -102,8 +99,16 @@ public class ParseUtil {
         }
       }
 
-      if (parseResult != null && !parseResult.isEmpty())
+      if (parseResult != null && parseResult.isAnySuccess()) {
         return parseResult;
+      }
+
+      // continue and try further parsers if parse failed
+    }
+
+    // if there is a failed parse result return it (contains reason for failure)
+    if (parseResult != null && !parseResult.isEmpty()) {
+      return parseResult;
     }
 
     if (LOG.isWarnEnabled()) {
