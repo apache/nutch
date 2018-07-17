@@ -91,10 +91,16 @@ public class ParseUtil {
         LOG.debug("Parsing [" + content.getUrl() + "] with [" + parsers[i]
             + "]");
       }
-      if (maxParseTime != -1)
+      if (maxParseTime != -1) {
         parseResult = runParser(parsers[i], content);
-      else
-        parseResult = parsers[i].getParse(content);
+      } else {
+        try {
+          parseResult = parsers[i].getParse(content);
+        } catch (Throwable e) {
+          LOG.warn("Error parsing " + content.getUrl() + " with "
+              + parsers[i].getClass().getName(), e);
+        }
+      }
 
       if (parseResult != null && !parseResult.isEmpty())
         return parseResult;
@@ -146,10 +152,16 @@ public class ParseUtil {
     }
 
     ParseResult parseResult = null;
-    if (maxParseTime != -1)
+    if (maxParseTime != -1) {
       parseResult = runParser(p, content);
-    else
-      parseResult = p.getParse(content);
+    } else {
+      try {
+        parseResult = p.getParse(content);
+      } catch (Throwable e) {
+        LOG.warn("Error parsing " + content.getUrl() + " with "
+            + p.getClass().getName(), e);
+      }
+    }
     if (parseResult != null && !parseResult.isEmpty()) {
       return parseResult;
     } else {
@@ -170,7 +182,8 @@ public class ParseUtil {
     try {
       res = task.get(maxParseTime, TimeUnit.SECONDS);
     } catch (Exception e) {
-      LOG.warn("Error parsing " + content.getUrl() + " with " + p, e);
+      LOG.warn("Error parsing " + content.getUrl() + " with "
+          + p.getClass().getName(), e);
       task.cancel(true);
     } finally {
       pc = null;
