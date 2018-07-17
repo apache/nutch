@@ -701,6 +701,21 @@
 </property>
 
 <property>
+  <name>db.max.outlink.length</name>
+  <value>4096</value>
+  <description>
+    The maximum length in characters accepted for outlinks before
+    applying URL normalizers and filters.  If this value is
+    nonnegative (>=0), only URLs with a length in characters less or
+    equal than db.max.outlink.length are accepted and then passed to
+    URL normalizers and filters. Doing the length check beforehand
+    avoids that normalizers or filters hang up on overlong URLs.
+    Note: this property is only used to check URLs found as outlinks
+    and redirects, but not for injected URLs.
+  </description>
+</property>
+
+<property>
   <name>db.parsemeta.to.crawldb</name>
   <value></value>
   <description>Comma-separated list of parse metadata keys to transfer to the crawldb (NUTCH-779).
