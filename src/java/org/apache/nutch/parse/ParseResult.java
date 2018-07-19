@@ -59,7 +59,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * Convenience method for obtaining {@link ParseResult} from a single
-   * <code>Parse</code> output.
+   * {@link Parse} output.
    * 
    * @param url
    *          canonical url.
@@ -150,7 +150,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * Remove all results where status is not successful (as determined by
-   * <code>ParseStatus#isSuccess()</code>). Note that effects of this operation
+   * {@link ParseStatus#isSuccess()}). Note that effects of this operation
    * cannot be reversed.
    */
   public void filter() {
@@ -166,7 +166,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * A convenience method which returns true only if all parses are successful.
-   * Parse success is determined by <code>ParseStatus#isSuccess()</code>.
+   * Parse success is determined by {@link ParseStatus#isSuccess()}.
    */
   public boolean isSuccess() {
     for (Iterator<Entry<Text, Parse>> i = iterator(); i.hasNext();) {
@@ -176,5 +176,19 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
       }
     }
     return true;
+  }
+
+  /**
+   * A convenience method which returns true if at least one of the parses is
+   * successful. Parse success is determined by {@link ParseStatus#isSuccess()}.
+   */
+  public boolean isAnySuccess() {
+    for (Iterator<Entry<Text, Parse>> i = iterator(); i.hasNext();) {
+      Entry<Text, Parse> entry = i.next();
+      if (entry.getValue().getData().getStatus().isSuccess()) {
+        return true;
+      }
+    }
+    return false;
   }
 }
