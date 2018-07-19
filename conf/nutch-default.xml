@@ -224,6 +224,32 @@
 </property>
 
 <property>
+  <name>http.time.limit</name>
+  <value>-1</value>
+  <description>The time limit in seconds to fetch a single document.
+  If this value is nonnegative (>=0), the HTTP protocol implementation
+  will stop reading from a socket after http.time.limit seconds have
+  been spent for fetching this document.  The HTTP response is then
+  marked as truncated.  The http.time.limit should be set to a longer
+  time period than http.timeout, as it applies to the entire duration
+  to fetch a document, not only the network timeout of a single I/O
+  operation.  Note: supported only by protocol-okhttp.
+  </description>
+</property>
+
+<property>
+  <name>http.partial.truncated</name>
+  <value>false</value>
+  <description>
+    If true the HTTP protocol implementation may store the content of
+    partial fetches and mark the response as truncated instead of
+    throwing an exception which will cause the fetch to fail.  This
+    allows to use the data which has already been fetched, instead of
+    retrying the fetch later.  Note: supported only by protocol-okhttp.
+  </description>
+</property>
+
+<property>
   <name>http.proxy.host</name>
   <value></value>
   <description>The proxy hostname.  If empty, no proxy is used.</description>
