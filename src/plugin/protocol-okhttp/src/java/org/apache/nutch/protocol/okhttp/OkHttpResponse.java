@@ -94,42 +94,44 @@ public class OkHttpResponse implements Response {
     Request request = rb.build();
     okhttp3.Call call = okhttp.getClient().newCall(request);
 
-    okhttp3.Response response = call.execute();
+    // ensure that Response and underlying ResponseBody are closed
+    try (okhttp3.Response response = call.execute()) {
 
-    Metadata responsemetadata = new Metadata();
-    okhttp3.Headers httpHeaders = response.headers();
+      Metadata responsemetadata = new Metadata();
+      okhttp3.Headers httpHeaders = response.headers();
 
-    for (int i = 0, size = httpHeaders.size(); i < size; i++) {
-      String key = httpHeaders.name(i);
-      String value = httpHeaders.value(i);
+      for (int i = 0, size = httpHeaders.size(); i < size; i++) {
+        String key = httpHeaders.name(i);
+        String value = httpHeaders.value(i);
 
-      if (key.equals(REQUEST) || key.equals(RESPONSE_HEADERS)) {
-        value = new String(Base64.getDecoder().decode(value));
+        if (key.equals(REQUEST) || key.equals(RESPONSE_HEADERS)) {
+          value = new String(Base64.getDecoder().decode(value));
+        }
+
+        responsemetadata.add(key, value);
+      }
+      LOG.debug("{} - {} {} {}", url, response.protocol(), response.code(),
+          response.message());
+
+      TruncatedContent truncated = new TruncatedContent();
+      content = toByteArray(response.body(), truncated, okhttp.getMaxContent(),
+          okhttp.getMaxDuration(), okhttp.isStorePartialAsTruncated());
+      responsemetadata.add(FETCH_TIME,
+          Long.toString(System.currentTimeMillis()));
+      if (truncated.booleanValue()) {
+        if (!call.isCanceled()) {
+          call.cancel();
+        }
+        responsemetadata.set(TRUNCATED_CONTENT, "true");
+        responsemetadata.set(TRUNCATED_CONTENT_REASON,
+            truncated.getReason().toString().toLowerCase(Locale.ROOT));
+        LOG.debug("HTTP content truncated to {} bytes (reason: {})",
+            content.length, truncated.getReason());
       }
 
-      responsemetadata.add(key, value);
+      code = response.code();
+      headers = responsemetadata;
     }
-    LOG.debug("{} - {} {} {}", url, response.protocol(), response.code(),
-        response.message());
-
-    TruncatedContent truncated = new TruncatedContent();
-    content = toByteArray(response.body(), truncated, okhttp.getMaxContent(),
-        okhttp.getMaxDuration(), okhttp.isStorePartialAsTruncated());
-    responsemetadata.add(FETCH_TIME, Long.toString(System.currentTimeMillis()));
-    if (truncated.booleanValue()) {
-      if (!call.isCanceled()) {
-        call.cancel();
-      }
-      responsemetadata.set(TRUNCATED_CONTENT, "true");
-      responsemetadata.set(TRUNCATED_CONTENT_REASON,
-          truncated.getReason().toString().toLowerCase(Locale.ROOT));
-      LOG.debug("HTTP content truncated to {} bytes (reason: {})",
-          content.length, truncated.getReason());
-    }
-
-    code = response.code();
-    headers = responsemetadata;
-
   }
 
   private final byte[] toByteArray(final ResponseBody responseBody,
