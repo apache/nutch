@@ -87,7 +87,7 @@ public class ProtocolFactory {
    * @throws ProtocolNotFound
    *           when Protocol can not be found for url
    */
-  public synchronized Protocol getProtocol(URL url)
+  public Protocol getProtocol(URL url)
       throws ProtocolNotFound {
     ObjectCache objectCache = ObjectCache.get(conf);
     try {
@@ -97,19 +97,21 @@ public class ProtocolFactory {
       }
 
       String cacheId = Protocol.X_POINT_ID + protocolName;
-      Protocol protocol = (Protocol) objectCache.getObject(cacheId);
-      if (protocol != null) {
+      synchronized (objectCache) {
+        Protocol protocol = (Protocol) objectCache.getObject(cacheId);
+        if (protocol != null) {
+          return protocol;
+        }
+
+        Extension extension = findExtension(protocolName);
+        if (extension == null) {
+          throw new ProtocolNotFound(protocolName);
+        }
+
+        protocol = (Protocol) extension.getExtensionInstance();
+        objectCache.setObject(cacheId, protocol);
         return protocol;
       }
-
-      Extension extension = findExtension(protocolName);
-      if (extension == null) {
-        throw new ProtocolNotFound(protocolName);
-      }
-
-      protocol = (Protocol) extension.getExtensionInstance();
-      objectCache.setObject(cacheId, protocol);
-      return protocol;
     } catch (PluginRuntimeException e) {
       throw new ProtocolNotFound(url.toString(), e.toString());
     }
