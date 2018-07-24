@@ -47,10 +47,30 @@ public interface Response extends HttpHeaders {
   public static final String FETCH_TIME = "nutch.fetch.time";
 
   /**
-   * Key to hold boolean whether content has been trimmed because it exceeds
-   * <code>http.content.limit</code>
+   * Key to hold boolean whether content has been truncated, e.g., because it
+   * exceeds <code>http.content.limit</code>
    */
-  public static final String TRIMMED_CONTENT = "http.content.trimmed";
+  public static final String TRUNCATED_CONTENT = "http.content.truncated";
+
+  /**
+   * Key to hold reason why content has been truncated, see
+   * {@link TruncatedContentReason}
+   */
+  public static final String TRUNCATED_CONTENT_REASON = "http.content.truncated.reason";
+
+  public static enum TruncatedContentReason {
+    NOT_TRUNCATED,
+    /** fetch exceeded configured http.content.limit */
+    LENGTH,
+    /** fetch exceeded configured http.fetch.duration */
+    TIME,
+    /** network disconnect or timeout during fetch */
+    DISCONNECT,
+    /** implementation internal reason */
+    INTERNAL,
+    /** unknown reason */
+    UNSPECIFIED
+  };
 
   /** Returns the URL used to retrieve this response. */
   public URL getUrl();

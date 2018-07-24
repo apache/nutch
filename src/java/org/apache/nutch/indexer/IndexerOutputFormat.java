@@ -61,7 +61,7 @@ public class IndexerOutputFormat
         if (indexAction.action == NutchIndexAction.ADD) {
           writers.write(indexAction.doc);
         } else if (indexAction.action == NutchIndexAction.DELETE) {
-          writers.delete(key.toString(), indexAction.doc);
+          writers.delete(key.toString());
         }
       }
     };

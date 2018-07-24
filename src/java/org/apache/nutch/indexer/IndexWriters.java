@@ -18,7 +18,6 @@ package org.apache.nutch.indexer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.exchange.Exchanges;
-import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
@@ -233,14 +232,10 @@ public class IndexWriters {
     }
   }
 
-  public void delete(String key, NutchDocument doc) throws IOException {
-    for (String indexWriterId : getIndexWriters(doc)) {
-      this.indexWriters.get(indexWriterId).getIndexWriter().delete(key);
-    }
-  }
-
   public void delete(String key) throws IOException {
-
+    for (IndexWriterWrapper iww : indexWriters.values()) {
+      iww.getIndexWriter().delete(key);
+    }
   }
 
   public void close() throws IOException {

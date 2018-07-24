@@ -277,7 +277,7 @@ public class UrlValidator implements URLFilter {
         segCount++;
       }
       String topLevel = domainSegment[segCount - 1];
-      if (topLevel.length() < 2 || topLevel.length() > 4) {
+      if (topLevel.length() < 2) {
         return false;
       }
 
