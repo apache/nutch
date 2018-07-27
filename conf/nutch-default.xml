@@ -979,8 +979,11 @@
 <property>
   <name>fetcher.queue.mode</name>
   <value>byHost</value>
-  <description>Determines how to put URLs into queues. Default value is 'byHost', 
-  also takes 'byDomain' or 'byIP'. 
+  <description>Determines how to put URLs into queues. Default value is 'byHost',
+  also takes 'byDomain', 'byIP' or 'byHostProtocol'. Crawl delays are implemented on
+  the level of fetcher queues. The mode 'byHostProtocol' uses a combination of host
+  and protocol as queue ID and will put the http:// and https:// URLs of the same
+  host into different queues.
   </description>
 </property>
 

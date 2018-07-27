@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Locale;
 
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -65,7 +66,6 @@ public class FetchItem {
 
   public static FetchItem create(Text url, CrawlDatum datum,
       String queueMode, int outlinkDepth) {
-    String queueID;
     URL u = null;
     try {
       u = new URL(url.toString());
@@ -73,7 +73,6 @@ public class FetchItem {
       LOG.warn("Cannot parse url: " + url, e);
       return null;
     }
-    final String proto = u.getProtocol().toLowerCase();
     String key;
     if (FetchItemQueues.QUEUE_MODE_IP.equalsIgnoreCase(queueMode)) {
       try {
@@ -85,21 +84,23 @@ public class FetchItem {
         return null;
       }
     } else if (FetchItemQueues.QUEUE_MODE_DOMAIN.equalsIgnoreCase(queueMode)) {
-      key = URLUtil.getDomainName(u);
+      key = URLUtil.getDomainName(u).toLowerCase(Locale.ROOT);
       if (key == null) {
         LOG.warn("Unknown domain for url: " + url
             + ", using URL string as key");
         key = u.toExternalForm();
       }
     } else {
-      key = u.getHost();
+      key = u.getHost().toLowerCase(Locale.ROOT);
       if (key == null) {
         LOG.warn("Unknown host for url: " + url + ", using URL string as key");
         key = u.toExternalForm();
+      } else if (FetchItemQueues.QUEUE_MODE_HOST_PROTOCOL
+          .equalsIgnoreCase(queueMode)) {
+        key = u.getProtocol().toLowerCase(Locale.ROOT) + "://" + key;
       }
     }
-    queueID = proto + "://" + key.toLowerCase();
-    return new FetchItem(url, u, datum, queueID, outlinkDepth);
+    return new FetchItem(url, u, datum, key, outlinkDepth);
   }
 
   public CrawlDatum getDatum() {

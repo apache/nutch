@@ -186,13 +186,7 @@ public class FetcherThread extends Thread {
     
     queueMode = conf.get("fetcher.queue.mode",
         FetchItemQueues.QUEUE_MODE_HOST);
-    // check that the mode is known
-    if (!queueMode.equals(FetchItemQueues.QUEUE_MODE_IP)
-        && !queueMode.equals(FetchItemQueues.QUEUE_MODE_DOMAIN)
-        && !queueMode.equals(FetchItemQueues.QUEUE_MODE_HOST)) {
-      LOG.error("Unknown partition mode : {} - forcing to byHost", queueMode);
-      queueMode = FetchItemQueues.QUEUE_MODE_HOST;
-    }
+    queueMode = FetchItemQueues.checkQueueMode(queueMode);
     LOG.info("{} {} Using queue mode : {}", getName(),
         Thread.currentThread().getId(), queueMode);
     this.maxRedirect = conf.getInt("http.redirect.max", 3);
