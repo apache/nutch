@@ -1172,6 +1172,18 @@
 	Publisher implementation specific properties</description>
 </property> 
 
+<property>
+  <name>fetcher.filter.urls</name>
+  <value>false</value>
+  <description>Whether fetcher will filter URLs (with the configured URL filters).</description>
+</property>
+
+<property>
+  <name>fetcher.normalize.urls</name>
+  <value>false</value>
+  <description>Whether fetcher will normalize URLs (with the configured URL normalizers).</description>
+</property>
+
 <!--  any23 plugin properties -->
 
 <property>
