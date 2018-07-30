@@ -54,13 +54,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.AbstractMap;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -377,40 +377,74 @@ public class ElasticRestIndexWriter implements IndexWriter {
     client.shutdownClient();
   }
 
+  /**
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   *
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   */
   @Override
-  public String describe() {
-    StringBuffer sb = new StringBuffer(this.getClass().getSimpleName())
-        .append("\n");
-    sb.append("\t").append(ElasticRestConstants.HOST).append(": ")
-        .append(this.host).append("\n");
-    sb.append("\t").append(ElasticRestConstants.PORT).append(": ")
-        .append(this.port).append("\n");
-    sb.append("\t").append(ElasticRestConstants.INDEX).append(": ")
-        .append(this.defaultIndex).append("\n");
-    sb.append("\t").append(ElasticRestConstants.MAX_BULK_DOCS).append(": ")
-        .append(this.maxBulkDocs).append("\n");
-    sb.append("\t").append(ElasticRestConstants.MAX_BULK_LENGTH).append(": ")
-        .append(this.maxBulkLength).append("\n");
+  public Map<String, Map.Entry<String, Object>> describe() {
+    Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
 
-    sb.append("\t").append(ElasticRestConstants.USER).append(": ")
-        .append(this.user).append("\n");
-    sb.append("\t").append(ElasticRestConstants.PASSWORD).append(": ")
-        .append(this.password).append("\n");
-    sb.append("\t").append(ElasticRestConstants.TYPE).append(": ")
-        .append(this.defaultType).append("\n");
-    sb.append("\t").append(ElasticRestConstants.HTTPS).append(": ")
-        .append(this.https).append("\n");
-    sb.append("\t").append(ElasticRestConstants.HOSTNAME_TRUST).append(": ")
-        .append(this.trustAllHostnames).append("\n");
+    properties.put(ElasticRestConstants.HOST, new AbstractMap.SimpleEntry<>(
+        "The hostname or a list of comma separated hostnames to send documents "
+            + "to using Elasticsearch Jest. Both host and port must be defined.",
+        this.host));
+    properties.put(ElasticRestConstants.PORT, new AbstractMap.SimpleEntry<>(
+        "The port to connect to using Elasticsearch Jest.", this.port));
+    properties.put(ElasticRestConstants.INDEX,
+        new AbstractMap.SimpleEntry<>("Default index to send documents to.",
+            this.defaultIndex));
+    properties.put(ElasticRestConstants.MAX_BULK_DOCS,
+        new AbstractMap.SimpleEntry<>(
+            "Maximum size of the bulk in number of documents.",
+            this.maxBulkDocs));
+    properties.put(ElasticRestConstants.MAX_BULK_LENGTH,
+        new AbstractMap.SimpleEntry<>("Maximum size of the bulk in bytes.",
+            this.maxBulkLength));
 
-    sb.append("\t").append(ElasticRestConstants.LANGUAGES).append(": ")
-        .append(this.languages == null ? "null" : String.join(",", languages))
-        .append("\n");
-    sb.append("\t").append(ElasticRestConstants.SEPARATOR).append(": ")
-        .append(this.separator).append("\n");
-    sb.append("\t").append(ElasticRestConstants.SINK).append(": ")
-        .append(this.sink).append("\n");
-    return sb.toString();
+    properties.put(ElasticRestConstants.USER, new AbstractMap.SimpleEntry<>(
+        "Username for auth credentials (only used when https is enabled)",
+        this.user));
+    properties.put(ElasticRestConstants.PASSWORD, new AbstractMap.SimpleEntry<>(
+        "Password for auth credentials (only used when https is enabled)",
+        this.password));
+    properties.put(ElasticRestConstants.TYPE,
+        new AbstractMap.SimpleEntry<>("Default type to send documents to.",
+            this.defaultType));
+    properties.put(ElasticRestConstants.HTTPS, new AbstractMap.SimpleEntry<>(
+        "true to enable https, false to disable https. If you've disabled http "
+            + "access (by forcing https), be sure to set this to true, otherwise "
+            + "you might get \"connection reset by peer\".", this.https));
+    properties.put(ElasticRestConstants.HOSTNAME_TRUST,
+        new AbstractMap.SimpleEntry<>(
+            "true to trust elasticsearch server's certificate even if its listed "
+                + "domain name does not match the domain they are hosted or false "
+                + "to check if the elasticsearch server's certificate's listed "
+                + "domain is the same domain that it is hosted on, and if "
+                + "it doesn't, then fail to index (only used when https is enabled)",
+            this.trustAllHostnames));
+
+    properties.put(ElasticRestConstants.LANGUAGES,
+        new AbstractMap.SimpleEntry<>(
+            "A list of strings denoting the supported languages (e.g. en, de, fr, it). "
+                + "If this value is empty all documents will be sent to index property. "
+                + "If not empty the Rest client will distribute documents in different "
+                + "indices based on their languages property. Indices are named with the "
+                + "following schema: index separator language (e.g. nutch_de). "
+                + "Entries with an unsupported languages value will be added to "
+                + "index index separator sink (e.g. nutch_others).",
+            this.languages == null ? "" : String.join(",", languages)));
+    properties.put(ElasticRestConstants.SEPARATOR,
+        new AbstractMap.SimpleEntry<>(
+            "Is used only if languages property is defined to build the index name "
+                + "(i.e. index separator lang).", this.separator));
+    properties.put(ElasticRestConstants.SINK, new AbstractMap.SimpleEntry<>(
+        "Is used only if languages property is defined to build the index name "
+            + "where to store documents with unsupported languages "
+            + "(i.e. index separator sink).", this.sink));
+
+    return properties;
   }
 
   @Override

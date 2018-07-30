@@ -21,10 +21,13 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
@@ -292,31 +295,43 @@ public class SolrIndexWriter implements IndexWriter {
   }
 
   /**
-   * Returns a String describing the IndexWriter instance and the specific parameters it can take.
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
    *
-   * @return The full description.
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
    */
   @Override
-  public String describe() {
-    StringBuffer sb = new StringBuffer(this.getClass().getSimpleName())
-        .append("\n");
-    sb.append("\t").append(SolrConstants.SERVER_TYPE).append(": ")
-        .append(this.type).append("\n");
-    sb.append("\t").append(SolrConstants.SERVER_URLS).append(": ")
-        .append(this.urls == null ? "null" : String.join(",", urls))
-        .append("\n");
-    sb.append("\t").append(SolrConstants.COLLECTION).append(": ")
-        .append(this.collection).append("\n");
-    sb.append("\t").append(SolrConstants.COMMIT_SIZE).append(": ")
-        .append(this.batchSize).append("\n");
-    sb.append("\t").append(SolrConstants.WEIGHT_FIELD).append(": ")
-        .append(this.weightField).append("\n");
-    sb.append("\t").append(SolrConstants.USE_AUTH).append(": ")
-        .append(this.auth).append("\n");
-    sb.append("\t").append(SolrConstants.USERNAME).append(": ")
-        .append(this.username).append("\n");
-    sb.append("\t").append(SolrConstants.PASSWORD).append(": ")
-        .append(this.password).append("\n");
-    return sb.toString();
+  public Map<String, Entry<String, Object>> describe() {
+    Map<String, Entry<String, Object>> properties = new LinkedHashMap<>();
+
+    properties.put(SolrConstants.SERVER_TYPE, new AbstractMap.SimpleEntry<>(
+        "Specifies the SolrClient implementation to use. This is a string value of one of the following \"cloud\" or \"http\"."
+            + " The values represent CloudSolrServer or HttpSolrServer respectively.",
+        this.type));
+    properties.put(SolrConstants.SERVER_URLS, new AbstractMap.SimpleEntry<>(
+        "Defines the fully qualified URL of Solr into which data should be indexed. Multiple URL can be provided using comma as a delimiter."
+            + " When the value of type property is cloud, the URL should not include any collections or cores; just the root Solr path.",
+        this.urls == null ? "" : String.join(",", urls)));
+    properties.put(SolrConstants.COLLECTION, new AbstractMap.SimpleEntry<>(
+        "The collection used in requests. Only used when the value of type property is cloud.",
+        this.collection));
+    properties.put(SolrConstants.COMMIT_SIZE, new AbstractMap.SimpleEntry<>(
+        "Defines the number of documents to send to Solr in a single update batch. "
+            + "Decrease when handling very large documents to prevent Nutch from running out of memory.\n"
+            + "Note: It does not explicitly trigger a server side commit.",
+        this.batchSize));
+    properties.put(SolrConstants.WEIGHT_FIELD, new AbstractMap.SimpleEntry<>(
+        "Field's name where the weight of the documents will be written. If it is empty no field will be used.",
+        this.weightField));
+    properties.put(SolrConstants.USE_AUTH, new AbstractMap.SimpleEntry<>(
+        "Whether to enable HTTP basic authentication for communicating with Solr. Use the username and password properties to configure your credentials.",
+        this.auth));
+    properties.put(SolrConstants.USERNAME,
+        new AbstractMap.SimpleEntry<>("The username of Solr server.",
+            this.username));
+    properties.put(SolrConstants.PASSWORD,
+        new AbstractMap.SimpleEntry<>("The password of Solr server.",
+            this.password));
+
+    return properties;
   }
 }

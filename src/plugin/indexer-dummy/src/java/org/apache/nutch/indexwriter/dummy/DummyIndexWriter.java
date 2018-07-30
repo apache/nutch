@@ -21,6 +21,9 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.AbstractMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
@@ -120,13 +123,20 @@ public class DummyIndexWriter implements IndexWriter {
     config = conf;
   }
 
-  public String describe() {
-    StringBuffer sb = new StringBuffer(this.getClass().getSimpleName())
-        .append("\n");
-    sb.append("\t").append(DummyConstants.DELETE).append(": ")
-        .append(this.delete).append("\n");
-    sb.append("\t").append(DummyConstants.PATH).append(": ").append(this.path)
-        .append("\n");
-    return sb.toString();
+  /**
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   *
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   */
+  @Override
+  public Map<String, Map.Entry<String, Object>> describe() {
+    Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
+
+    properties.put(DummyConstants.DELETE, new AbstractMap.SimpleEntry<>(
+        "If delete operations should be written to the file.", this.delete));
+    properties.put(DummyConstants.PATH, new AbstractMap.SimpleEntry<>(
+        "Path where the file will be created.", this.path));
+
+    return properties;
   }
 }

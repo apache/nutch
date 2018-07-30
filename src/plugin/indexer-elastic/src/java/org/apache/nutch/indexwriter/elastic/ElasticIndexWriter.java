@@ -21,7 +21,9 @@ import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -262,29 +264,49 @@ public class ElasticIndexWriter implements IndexWriter {
     }
   }
 
+  /**
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   *
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   */
   @Override
-  public String describe() {
-    StringBuffer sb = new StringBuffer(this.getClass().getSimpleName())
-        .append("\n");
-    sb.append("\t").append(ElasticConstants.CLUSTER).append(": ")
-        .append(this.cluster).append("\n");
-    sb.append("\t").append(ElasticConstants.HOSTS).append(": ")
-        .append(this.hosts == null ? "null" : String.join(",", hosts)).append("\n");
-    sb.append("\t").append(ElasticConstants.PORT).append(": ")
-        .append(this.port).append("\n");
-    sb.append("\t").append(ElasticConstants.INDEX).append(": ")
-        .append(this.defaultIndex).append("\n");
-    sb.append("\t").append(ElasticConstants.MAX_BULK_DOCS).append(": ")
-        .append(this.maxBulkDocs).append("\n");
-    sb.append("\t").append(ElasticConstants.MAX_BULK_LENGTH).append(": ")
-        .append(this.maxBulkLength).append("\n");
-    sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS).append(": ")
-        .append(this.expBackoffMillis).append("\n");
-    sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES).append(": ")
-        .append(this.expBackoffRetries).append("\n");
-    sb.append("\t").append(ElasticConstants.BULK_CLOSE_TIMEOUT).append(": ")
-        .append(this.bulkCloseTimeout).append("\n");
-    return sb.toString();
+  public Map<String, Map.Entry<String, Object>> describe() {
+    Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
+
+    properties.put(ElasticConstants.CLUSTER, new AbstractMap.SimpleEntry<>(
+        "The cluster name to discover. Either host and port must be defined or cluster.",
+        this.cluster));
+    properties.put(ElasticConstants.HOSTS, new AbstractMap.SimpleEntry<>(
+        "Ordered list of fields (columns) in the CSV fileComma-separated list of "
+            + "hostnames to send documents to using TransportClient. "
+            + "Either host and port must be defined or cluster.",
+        this.hosts == null ? "" : String.join(",", hosts)));
+    properties.put(ElasticConstants.PORT, new AbstractMap.SimpleEntry<>(
+        "The port to connect to using TransportClient.", this.port));
+    properties.put(ElasticConstants.INDEX,
+        new AbstractMap.SimpleEntry<>("Default index to send documents to.",
+            this.defaultIndex));
+    properties.put(ElasticConstants.MAX_BULK_DOCS,
+        new AbstractMap.SimpleEntry<>(
+            "Maximum size of the bulk in number of documents.",
+            this.maxBulkDocs));
+    properties.put(ElasticConstants.MAX_BULK_LENGTH,
+        new AbstractMap.SimpleEntry<>("Maximum size of the bulk in bytes.",
+            this.maxBulkLength));
+    properties.put(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
+        new AbstractMap.SimpleEntry<>(
+            "Initial delay for the BulkProcessor exponential backoff policy.",
+            this.expBackoffMillis));
+    properties.put(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
+        new AbstractMap.SimpleEntry<>(
+            "Number of times the BulkProcessor exponential backoff policy should retry bulk operations.",
+            this.expBackoffRetries));
+    properties.put(ElasticConstants.BULK_CLOSE_TIMEOUT,
+        new AbstractMap.SimpleEntry<>(
+            "Number of seconds allowed for the BulkProcessor to complete its last operation.",
+            this.bulkCloseTimeout));
+
+    return properties;
   }
 
   @Override

@@ -21,8 +21,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.plugin.Pluggable;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface IndexWriter extends Pluggable, Configurable {
+
   /**
    * The name of the extension point.
    */
@@ -50,9 +52,9 @@ public interface IndexWriter extends Pluggable, Configurable {
   public void close() throws IOException;
 
   /**
-   * Returns a String describing the IndexWriter instance and the specific parameters it can take.
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
    *
-   * @return The full description.
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
    */
-  public String describe();
+  Map<String, Map.Entry<String, Object>> describe();
 }

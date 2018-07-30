@@ -23,9 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -341,18 +343,28 @@ public class CloudSearchIndexWriter implements IndexWriter {
     this.conf = conf;
   }
 
-  public String describe() {
-    StringBuffer sb = new StringBuffer(this.getClass().getSimpleName())
-        .append("\n");
-    sb.append("\t").append(CloudSearchConstants.ENDPOINT).append(": ")
-        .append(this.endpoint).append("\n");
-    sb.append("\t").append(CloudSearchConstants.REGION).append(": ")
-        .append(this.regionName).append("\n");
-    sb.append("\t").append(CloudSearchConstants.BATCH_DUMP).append(": ")
-        .append(this.dumpBatchFilesToTemp).append("\n");
-    sb.append("\t").append(CloudSearchConstants.MAX_DOCS_BATCH).append(": ")
-        .append(this.maxDocsInBatch).append("\n");
-    return sb.toString();
+  /**
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   *
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   */
+  @Override
+  public Map<String, Entry<String, Object>> describe() {
+    Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
+
+    properties.put(CloudSearchConstants.ENDPOINT, new AbstractMap.SimpleEntry<>(
+        "Endpoint where service requests should be submitted.", this.endpoint));
+    properties.put(CloudSearchConstants.REGION,
+        new AbstractMap.SimpleEntry<>("Region name.", this.regionName));
+    properties.put(CloudSearchConstants.BATCH_DUMP,
+        new AbstractMap.SimpleEntry<>("true to send documents to a local file.",
+            this.dumpBatchFilesToTemp));
+    properties.put(CloudSearchConstants.MAX_DOCS_BATCH,
+        new AbstractMap.SimpleEntry<>(
+            "Maximum number of documents to send as a batch to CloudSearch.",
+            this.maxDocsInBatch));
+
+    return properties;
   }
 
   /**
