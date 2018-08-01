@@ -75,6 +75,14 @@ public class WarcOutputFormat extends FileOutputFormat<Text, WarcCapture> {
 
       String scheme = output.getFileSystem(context.getConfiguration()).getScheme();
       if (scheme.startsWith("s3")) {
+        /*
+         * The default FileOutputCommitter is slow on S3, use
+         * NullOutputCommitter until a better solution is available, cf.
+         * https://hadoop.apache.org/docs/r3.1.0/hadoop-aws/tools/hadoop-aws/
+         * committers.html and
+         * https://hadoop.apache.org/docs/r3.1.0/hadoop-aws/tools/hadoop-aws/
+         * committer_architecture.html
+         */
         committer = new NullOutputCommitter();
       } else {
         committer = super.getOutputCommitter(context);
