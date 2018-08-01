@@ -14,18 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.crawl;
+package org.commoncrawl.util;
 
 import org.apache.hadoop.io.Writable;
-import org.apache.nutch.util.GenericWritableConfigurable;
 
+/**
+ This is specifically for shuffling around the Content class. Since Hadoop compresses content for the mapper *after*
+ it buffers it for sorting, we can significantly increase the effectiveness of our io.sort.mb buffer by compressing
+ our Writables when we output them.
+ */
 @SuppressWarnings("unchecked")
-public class NutchWritable extends GenericWritableConfigurable {
-
+public class CompressedNutchWritable extends CompressedGenericWritable {
   private static Class<? extends Writable>[] CLASSES = null;
 
   static {
-    CLASSES = (Class<? extends Writable>[]) new Class<?>[] {
+    CLASSES = new Class[] {
         org.apache.hadoop.io.NullWritable.class,
         org.apache.hadoop.io.BooleanWritable.class,
         org.apache.hadoop.io.LongWritable.class,
@@ -34,7 +37,8 @@ public class NutchWritable extends GenericWritableConfigurable {
         org.apache.hadoop.io.FloatWritable.class,
         org.apache.hadoop.io.IntWritable.class,
         org.apache.hadoop.io.MapWritable.class,
-        org.apache.hadoop.io.Text.class, org.apache.hadoop.io.MD5Hash.class,
+        org.apache.hadoop.io.Text.class,
+        org.apache.hadoop.io.MD5Hash.class,
         org.apache.nutch.crawl.CrawlDatum.class,
         org.apache.nutch.crawl.Inlink.class,
         org.apache.nutch.crawl.Inlinks.class,
@@ -48,15 +52,12 @@ public class NutchWritable extends GenericWritableConfigurable {
         org.apache.nutch.protocol.Content.class,
         org.apache.nutch.protocol.ProtocolStatus.class,
         org.apache.nutch.scoring.webgraph.LinkDatum.class,
-        org.apache.nutch.hostdb.HostDatum.class,
-        org.commoncrawl.util.WarcCapture.class
-    };
+        org.apache.nutch.hostdb.HostDatum.class };
   }
 
-  public NutchWritable() {
-  }
+  public CompressedNutchWritable() { }
 
-  public NutchWritable(Writable instance) {
+  public CompressedNutchWritable(Writable instance) {
     set(instance);
   }
 
