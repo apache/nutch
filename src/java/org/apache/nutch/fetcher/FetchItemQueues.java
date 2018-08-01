@@ -47,6 +47,7 @@ public class FetchItemQueues {
   int maxExceptionsPerQueue = -1;
   Configuration conf;
 
+  public static final String QUEUE_MODE_HOST_PROTOCOL = "byHostProtocol";
   public static final String QUEUE_MODE_HOST = "byHost";
   public static final String QUEUE_MODE_DOMAIN = "byDomain";
   public static final String QUEUE_MODE_IP = "byIP";
@@ -57,14 +58,7 @@ public class FetchItemQueues {
     this.conf = conf;
     this.maxThreads = conf.getInt("fetcher.threads.per.queue", 1);
     queueMode = conf.get("fetcher.queue.mode", QUEUE_MODE_HOST);
-    // check that the mode is known
-    if (!queueMode.equals(QUEUE_MODE_IP)
-        && !queueMode.equals(QUEUE_MODE_DOMAIN)
-        && !queueMode.equals(QUEUE_MODE_HOST)) {
-      LOG.error("Unknown partition mode : " + queueMode
-          + " - forcing to byHost");
-      queueMode = QUEUE_MODE_HOST;
-    }
+    queueMode = checkQueueMode(queueMode);
     LOG.info("Using queue mode : " + queueMode);
 
     this.crawlDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
@@ -73,6 +67,25 @@ public class FetchItemQueues {
     this.timelimit = conf.getLong("fetcher.timelimit", -1);
     this.maxExceptionsPerQueue = conf.getInt(
         "fetcher.max.exceptions.per.queue", -1);
+  }
+
+  /**
+   * Check whether queue mode is valid, fall-back to default mode if not.
+   * 
+   * @param queueMode
+   *          queue mode to check
+   * @return valid queue mode or default
+   */
+  protected static String checkQueueMode(String queueMode) {
+    // check that the mode is known
+    if (!queueMode.equals(QUEUE_MODE_IP)
+        && !queueMode.equals(QUEUE_MODE_DOMAIN)
+        && !queueMode.equals(QUEUE_MODE_HOST)
+        && !queueMode.equals(QUEUE_MODE_HOST_PROTOCOL)) {
+      LOG.error("Unknown partition mode : {} - forcing to byHost", queueMode);
+      queueMode = QUEUE_MODE_HOST;
+    }
+    return queueMode;
   }
 
   public int getTotalSize() {
