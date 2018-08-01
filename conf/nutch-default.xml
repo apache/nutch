@@ -1007,6 +1007,19 @@
 </property>
 
 <property>
+  <name>fetcher.signature</name>
+  <value>false</value>
+  <description>If true, fetcher will generate the signature for successfully fetched
+  documents even if it is the content is not parsed by fetcher (see property
+  fetcher.parse). Default is false, which means that the signature is calculated when
+  parsing either by the fetcher or during the parsing step.  Note that a non-parsing
+  fetcher can only generate signatures based on the binary content and not on the
+  textual content. An appropriate signature class should be chosen (see property
+  db.signature.class).
+  </description>
+</property>
+
+<property>
   <name>fetcher.timelimit.mins</name>
   <value>-1</value>
   <description>This is the number of minutes allocated to the fetching.
