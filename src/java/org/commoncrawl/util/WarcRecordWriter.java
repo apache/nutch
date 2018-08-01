@@ -289,15 +289,29 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       }
       String name = headers.substring(start, colonPos);
       if (PROBLEMATIC_HEADERS.matcher(name).matches()) {
-        if (last < start) {
-          replace.append(headers.substring(last, start));
-        }
-        last = lineEnd;
-        replace.append("X-Crawler-").append(headers.substring(start, lineEnd));
+        boolean needsFix = true;
         if (name.equalsIgnoreCase("content-length")) {
-          // add effective uncompressed and unchunked length of content bytes
-          replace.append("Content-Length").append(COLONSP).append(contentLength)
-              .append(CRLF);
+          String value = headers.substring(colonPos+1, lineEnd-2).trim();
+          try {
+            int l = Integer.parseInt(value);
+            if (l == contentLength) {
+              needsFix = false;
+            }
+          } catch (NumberFormatException e) {
+            // needs a fix
+          }
+        }
+        if (needsFix) {
+          if (last < start) {
+            replace.append(headers.substring(last, start));
+          }
+          last = lineEnd;
+          replace.append("X-Crawler-").append(headers.substring(start, lineEnd));
+          if (name.equalsIgnoreCase("content-length")) {
+            // add effective uncompressed and unchunked length of content
+            replace.append("Content-Length").append(COLONSP)
+                .append(contentLength).append(CRLF);
+          }
         }
       }
       start = lineEnd;

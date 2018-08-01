@@ -27,25 +27,24 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
-import org.commoncrawl.util.CombineSequenceFileInputFormat;
-import org.commoncrawl.util.CompressedNutchWritable;
+import org.apache.nutch.util.TimingUtil;
 import org.commoncrawl.util.WarcCapture;
 import org.commoncrawl.util.WarcOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,18 +58,18 @@ public class WarcExport extends Configured implements Tool {
   }
 
   public static class ExportMapper
-      extends Mapper<Text, Writable, Text, CompressedNutchWritable> {
+      extends Mapper<Text, Writable, Text, NutchWritable> {
     public void map(Text key, Writable value, Context context)
         throws IOException, InterruptedException {
       if (key.getLength() == 0) {
         return;
       }
-      context.write(key, new CompressedNutchWritable(value));
+      context.write(key, new NutchWritable(value));
     }
   }
 
   public static class ExportReducer
-      extends Reducer<Text, CompressedNutchWritable, Text, WarcCapture> {
+      extends Reducer<Text, NutchWritable, Text, WarcCapture> {
 
     private boolean generateCrawlDiagnostics = false;
     private boolean generateRobotsTxt = false;
@@ -82,12 +81,12 @@ public class WarcExport extends Configured implements Tool {
       generateRobotsTxt = conf.getBoolean("warc.export.robotstxt", false);
     }
 
-    public void reduce(Text key, Iterable<CompressedNutchWritable> values,
+    public void reduce(Text key, Iterable<NutchWritable> values,
         Context context) throws IOException, InterruptedException {
       CrawlDatum datum = null;
       Content content = null;
 
-      for (CompressedNutchWritable nutchValue : values) {
+      for (NutchWritable nutchValue : values) {
         final Writable value = nutchValue.get(); // unwrap
         if (value instanceof CrawlDatum) {
           datum = (CrawlDatum) value;
@@ -124,17 +123,9 @@ public class WarcExport extends Configured implements Tool {
     }
   }
 
-  public static class ParseDataCombinedInputFormat
-      extends CombineSequenceFileInputFormat<Text, ParseData> {
-  }
-
-  public static class CrawlDatumCombinedInputFormat
-      extends CombineSequenceFileInputFormat<Text, CrawlDatum> {
-  }
-
   public void export(Path outputDir, List<Path> segments,
       boolean generateCrawlDiagnostics, boolean generateRobotsTxt, Path cdxPath)
-      throws IOException {
+      throws IOException, InterruptedException, ClassNotFoundException {
     Configuration conf = getConf();
 
     // We compress ourselves, so this isn't necessary
@@ -156,27 +147,27 @@ public class WarcExport extends Configured implements Tool {
     FileOutputFormat.setOutputPath(job, new Path("out"));
 
     for (final Path segment : segments) {
-      LOG.info("ExporterMapReduces: adding segment: " + segment);
+      LOG.info("ExporterMapReduces: adding segment: {}", segment);
       FileSystem fs = segment.getFileSystem(getConf());
 
       MultipleInputs.addInputPath(job,
           new Path(segment, CrawlDatum.FETCH_DIR_NAME),
-          CrawlDatumCombinedInputFormat.class);
+          SequenceFileInputFormat.class);
 
       Path parseDataPath = new Path(segment, ParseData.DIR_NAME);
       if (fs.exists(parseDataPath)) {
         MultipleInputs.addInputPath(job, parseDataPath,
-            ParseDataCombinedInputFormat.class);
+            SequenceFileInputFormat.class);
       }
 
       MultipleInputs.addInputPath(job, new Path(segment, Content.DIR_NAME),
-          ContentCombinedInputFormat.class);
+          SequenceFileInputFormat.class);
     }
 
     job.setMapperClass(ExportMapper.class);
     job.setReducerClass(ExportReducer.class);
 
-    job.setMapOutputValueClass(CompressedNutchWritable.class);
+    job.setMapOutputValueClass(NutchWritable.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(WarcCapture.class);
 
@@ -185,18 +176,24 @@ public class WarcExport extends Configured implements Tool {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
-    LOG.info("Exporter: starting at " + sdf.format(start));
+    LOG.info("WarcExport: starting at {}", sdf.format(start));
 
     try {
-      boolean result = job.waitForCompletion(true);
-      LOG.info("Return from waitForCompletion: " + result);
-    } catch (Exception e) {
-      LOG.error("Caught exception while trying to run job", e);
+      boolean success = job.waitForCompletion(true);
+      if (!success) {
+        String message = "WarcExport: job did not succeed, job status: "
+            + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
+        LOG.error(message);
+        throw new RuntimeException(message);
+      }
+    } catch (IOException | InterruptedException | ClassNotFoundException e) {
+      LOG.error("WarcExport job failed: {}", e.getMessage());
+      throw e;
     }
-  }
-
-  public static class ContentCombinedInputFormat
-      extends CombineSequenceFileInputFormat<Text, Content> {
+    long end = System.currentTimeMillis();
+    LOG.info("WarcExport: finished at {}, elapsed: {}", sdf.format(end),
+        TimingUtil.elapsedTime(start, end));
   }
 
   public int run(String[] args) throws Exception {
@@ -239,7 +236,7 @@ public class WarcExport extends Configured implements Tool {
           cdxPath);
       return 0;
     } catch (final Exception e) {
-      LOG.error("Exporter: " + StringUtils.stringifyException(e));
+      LOG.error("WARC Exporter:", e);
       return -1;
     }
   }
