@@ -393,7 +393,7 @@ public class CSVIndexWriter implements IndexWriter {
 
   /**
    * Write a value to output stream. Escape quote characters.
-   * Clip value after <code>indexer.csv.maxfieldlength</code> characters.
+   * Clip value after <code>maxfieldlength</code> characters.
    *
    * @param value
    *          String to write
@@ -419,7 +419,7 @@ public class CSVIndexWriter implements IndexWriter {
 
   /**
    * Write a value to output stream. Escape quote characters. Clip value after
-   * <code>indexer.csv.maxfieldlength</code> characters.
+   * <code>maxfieldlength</code> characters.
    */
   private void writeEscaped (String value) throws IOException {
     int nextQuoteChar = quoteCharacter.find(value, 0);
