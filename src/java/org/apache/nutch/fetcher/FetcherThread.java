@@ -63,6 +63,7 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
+import org.commoncrawl.util.WarcCapture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,6 +129,8 @@ public class FetcherThread extends Thread {
   private FetcherRun.Context context;
 
   private boolean storingContent;
+  private boolean storingWarc;
+  private boolean storing404s;
 
   private boolean signatureWithoutParsing;
 
@@ -171,6 +174,8 @@ public class FetcherThread extends Thread {
     this.segmentName = segmentName;
     this.parsing = parsing;
     this.storingContent = storingContent;
+    this.storing404s = conf.getBoolean("fetcher.store.404s", false);
+    this.storingWarc = Fetcher.isStoringWarc(conf);
     this.pages = pages;
     this.bytes = bytes;
 
@@ -417,7 +422,7 @@ public class FetcherThread extends Thread {
               /* FALLTHROUGH */
             case ProtocolStatus.RETRY: // retry
             case ProtocolStatus.BLOCKED:
-              output(fit.url, fit.datum, null, status,
+              output(fit.url, fit.datum, (storing404s ? content : null), status,
                   CrawlDatum.STATUS_FETCH_RETRY);
               break;
 
@@ -425,12 +430,12 @@ public class FetcherThread extends Thread {
             case ProtocolStatus.NOTFOUND:
             case ProtocolStatus.ACCESS_DENIED:
             case ProtocolStatus.ROBOTS_DENIED:
-              output(fit.url, fit.datum, null, status,
+              output(fit.url, fit.datum, (storing404s ? content : null), status,
                   CrawlDatum.STATUS_FETCH_GONE);
               break;
 
             case ProtocolStatus.NOTMODIFIED:
-              output(fit.url, fit.datum, null, status,
+              output(fit.url, fit.datum, (storing404s ? content : null), status,
                   CrawlDatum.STATUS_FETCH_NOTMODIFIED);
               break;
 
@@ -439,7 +444,7 @@ public class FetcherThread extends Thread {
                 LOG.warn("{} {} Unknown ProtocolStatus: {}", getName(),
                     Thread.currentThread().getId(), status.getCode());
               }
-              output(fit.url, fit.datum, null, status,
+              output(fit.url, fit.datum, (storing404s ? content : null), status,
                   CrawlDatum.STATUS_FETCH_RETRY);
             }
 
@@ -653,6 +658,10 @@ public class FetcherThread extends Thread {
       context.write(key, new NutchWritable(datum));
       if (content != null && storingContent)
         context.write(key, new NutchWritable(content));
+      if (storingWarc) {
+        WarcCapture warcCapture = new WarcCapture(key, datum, content);
+        context.write(key, new NutchWritable(warcCapture));
+      }
       if (parseResult != null) {
         for (Entry<Text, Parse> entry : parseResult) {
           Text url = entry.getKey();
@@ -827,8 +836,12 @@ public class FetcherThread extends Thread {
       LOG.debug("fetched and stored robots.txt {}",
           robotsTxt.getUrl());
       try {
-        context.write(new Text(robotsTxt.getUrl()),
-            new NutchWritable(robotsTxt));
+        Text tUrl = new Text(robotsTxt.getUrl());
+        context.write(tUrl, new NutchWritable(robotsTxt));
+        if (storingWarc) {
+          context.write(tUrl,
+              new NutchWritable(new WarcCapture(tUrl, null, robotsTxt)));
+        }
       } catch (IOException e) {
         LOG.error("fetcher caught:", e);
       }

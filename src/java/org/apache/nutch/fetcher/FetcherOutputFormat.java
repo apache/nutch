@@ -18,6 +18,10 @@
 package org.apache.nutch.fetcher;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
@@ -40,6 +44,8 @@ import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.protocol.Content;
+import org.commoncrawl.util.WarcCapture;
+import org.commoncrawl.util.WarcOutputFormat;
 
 /** Splits FetcherOutput entries into multiple map files. */
 public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
@@ -81,6 +87,7 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
     return new RecordWriter<Text, NutchWritable>() {
       private MapFile.Writer contentOut;
       private RecordWriter<Text, Parse> parseOut;
+      private RecordWriter<Text, WarcCapture> warcOut;
 
       {
         if (Fetcher.isStoringContent(conf)) {
@@ -95,6 +102,28 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
         if (Fetcher.isParsing(conf)) {
           parseOut = new ParseOutputFormat().getRecordWriter(context);
         }
+
+        if (Fetcher.isStoringWarc(conf)) {
+          Path warc = new Path(
+              new Path(FileOutputFormat.getOutputPath(context), "warc"), name);
+          // set start and end time of WARC capture
+          long timelimit = conf.getLong("fetcher.timelimit", -1);
+          long timelimitMins = conf.getLong("fetcher.timelimit.mins", -1);
+          long startTime = System.currentTimeMillis();
+          long endTime = System.currentTimeMillis();
+          if (timelimitMins > 0) {
+            startTime = timelimit - (timelimitMins * 60 * 1000);
+            if (endTime > timelimit) {
+              endTime = timelimit;
+            }
+          }
+          SimpleDateFormat fileDate = new SimpleDateFormat("yyyyMMddHHmmss",
+              Locale.US);
+          fileDate.setTimeZone(TimeZone.getTimeZone("GMT"));
+          conf.set("warc.export.date", fileDate.format(new Date(startTime)));
+          conf.set("warc.export.date.end", fileDate.format(new Date(endTime)));
+          warcOut = new WarcOutputFormat().getRecordWriter(context);
+        }
       }
 
       public void write(Text key, NutchWritable value) throws IOException, InterruptedException {
@@ -107,6 +136,8 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
           contentOut.append(key, w);
         else if (w instanceof Parse && parseOut != null)
           parseOut.write(key, (Parse) w);
+        else if (w instanceof WarcCapture)
+          warcOut.write(key, (WarcCapture) w);
       }
 
       public void close(TaskAttemptContext context) throws IOException, InterruptedException {
@@ -116,6 +147,9 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
         }
         if (parseOut != null) {
           parseOut.close(context);
+        }
+        if (warcOut != null) {
+          warcOut.close(null);
         }
       }
 

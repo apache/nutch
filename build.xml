@@ -95,7 +95,7 @@
     <javac
      encoding="${build.encoding}"
      srcdir="${src.dir}"
-     includes="org/apache/nutch/**/*.java"
+     includes="org/apache/nutch/**/*.java org/commoncrawl/**/*.java"
      destdir="${build.classes}"
      debug="${javac.debug}"
      optimize="${javac.optimize}"
@@ -421,7 +421,7 @@
     <javac
      encoding="${build.encoding}"
      srcdir="${test.src.dir}"
-     includes="org/apache/nutch/**/*.java"
+     includes="org/apache/nutch/**/*.java org/commoncrawl/**/*.java"
      destdir="${test.build.classes}"
      debug="${javac.debug}"
      optimize="${javac.optimize}"
