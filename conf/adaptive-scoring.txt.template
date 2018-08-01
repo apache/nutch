@@ -1,0 +1,17 @@
+#
+# Configuration file for scoring-adaptive
+#
+# See also properties
+#  scoring.adaptive.sort.by_status.file
+#  scoring.adaptive.factor.fetchtime
+#  scoring.adaptive.penalty.fetch_retry
+#  scoring.adaptive.boost.injected
+#
+# Format:
+#   <status> <tab> <sortvalue>
+# e.g.
+# db_unfetched	.1
+# db_gone	-.5
+#
+# The sort value is added to other sort values (score, fetch time).
+# It may be negative to penalize fetch items.
