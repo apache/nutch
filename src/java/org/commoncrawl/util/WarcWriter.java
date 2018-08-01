@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -36,39 +37,39 @@ public class WarcWriter {
   protected OutputStream out = null;
   protected OutputStream origOut = null;
 
-  private final String WARC_VERSION = "WARC/1.0";
+  private static final String WARC_VERSION = "WARC/1.1";
 
   // Record types
-  private final String WARC_INFO = "warcinfo";
-  private final String WARC_RESPONSE = "response";
-  private final String WARC_REQUEST = "request";
-  private final String WARC_REVISIT = "revisit";
-  private final String WARC_CONVERSION = "conversion";
-  private final String WARC_METADATA = "metadata";
+  private static final String WARC_INFO = "warcinfo";
+  private static final String WARC_RESPONSE = "response";
+  private static final String WARC_REQUEST = "request";
+  private static final String WARC_REVISIT = "revisit";
+  private static final String WARC_CONVERSION = "conversion";
+  private static final String WARC_METADATA = "metadata";
 
   // Defined fields
-  private final String WARC_TYPE = "WARC-Type";
-  private final String WARC_DATE = "WARC-Date";
-  private final String WARC_RECORD_ID = "WARC-Record-ID";
-  private final String CONTENT_LENGTH = "Content-Length";
-  private final String CONTENT_TYPE = "Content-Type";
-  private final String WARC_IP_ADDRESS = "WARC-IP-Address";
-  private final String WARC_WARCINFO_ID = "WARC-Warcinfo-ID";
-  private final String WARC_TARGET_URI = "WARC-Target-URI";
-  private final String WARC_CONCURRENT_TO = "WARC-Concurrent-To";
-  private final String WARC_REFERS_TO = "WARC-Refers-To";
-  private final String WARC_BLOCK_DIGEST = "WARC-Block-Digest";
-  private final String WARC_PAYLOAD_DIGEST = "WARC-Payload-Digest";
-  private final String WARC_TRUNCATED = "WARC-Truncated";
-  private final String WARC_IDENTIFIED_PAYLOAD_TYPE = "WARC-Identified-Payload-Type";
-  private final String WARC_PROFILE = "WARC-Profile";
-  private final String WARC_FILENAME = "WARC-Filename";
+  private static final String WARC_TYPE = "WARC-Type";
+  private static final String WARC_DATE = "WARC-Date";
+  private static final String WARC_RECORD_ID = "WARC-Record-ID";
+  private static final String CONTENT_LENGTH = "Content-Length";
+  private static final String CONTENT_TYPE = "Content-Type";
+  private static final String WARC_IP_ADDRESS = "WARC-IP-Address";
+  private static final String WARC_WARCINFO_ID = "WARC-Warcinfo-ID";
+  private static final String WARC_TARGET_URI = "WARC-Target-URI";
+  private static final String WARC_CONCURRENT_TO = "WARC-Concurrent-To";
+  private static final String WARC_REFERS_TO = "WARC-Refers-To";
+  private static final String WARC_BLOCK_DIGEST = "WARC-Block-Digest";
+  private static final String WARC_PAYLOAD_DIGEST = "WARC-Payload-Digest";
+  private static final String WARC_TRUNCATED = "WARC-Truncated";
+  private static final String WARC_IDENTIFIED_PAYLOAD_TYPE = "WARC-Identified-Payload-Type";
+  private static final String WARC_PROFILE = "WARC-Profile";
+  private static final String WARC_FILENAME = "WARC-Filename";
 
   public static final String PROFILE_REVISIT_IDENTICAL_DIGEST = "http://netpreserve.org/warc/1.0/revisit/identical-payload-digest";
   public static final String PROFILE_REVISIT_NOT_MODIFIED = "http://netpreserve.org/warc/1.0/revisit/server-not-modified";
 
-  private final String CRLF = "\r\n";
-  private final String COLONSP = ": ";
+  private static final String CRLF = "\r\n";
+  private static final String COLONSP = ": ";
 
   private SimpleDateFormat isoDate;
 
@@ -95,14 +96,30 @@ public class WarcWriter {
    */
   public URI writeWarcinfoRecord(String filename, String hostname,
       String publisher, String operator, String software, String isPartOf,
-      String description, Date date) throws IOException {
+      String description, Date date)
+      throws IOException {
     Map<String, String> extra = new LinkedHashMap<String, String>();
     extra.put(WARC_FILENAME, filename);
 
-    StringBuilder sb = new StringBuilder(1024);
+    StringBuilder sb = new StringBuilder();
     Map<String, String> settings = new LinkedHashMap<String, String>();
 
-    settings.put("robots", "classic");
+    if (isPartOf != null) {
+      settings.put("isPartOf", isPartOf);
+    }
+
+    if (publisher != null) {
+      settings.put("publisher", publisher);
+    }
+
+    if (description != null) {
+      settings.put("description", description);
+    }
+
+    if (operator != null) {
+      settings.put("operator", operator);
+    }
+
     if (hostname != null) {
       settings.put("hostname", hostname);
     }
@@ -111,21 +128,10 @@ public class WarcWriter {
       settings.put("software", software);
     }
 
-    if (isPartOf != null) {
-      settings.put("isPartOf", isPartOf);
-    }
-
-    if (operator != null) {
-      settings.put("operator", operator);
-    }
-
-    if (description != null) {
-      settings.put("description", description);
-    }
-
-    if (publisher != null) {
-      settings.put("publisher", publisher);
-    }
+    String robotsTxtParser = String.format(Locale.ROOT,
+        "checked via crawler-commons %s (https://github.com/crawler-commons/crawler-commons)",
+        crawlercommons.CrawlerCommons.getVersion());
+    settings.put("robots", robotsTxtParser);
 
     settings.put("format", "WARC File Format 1.1");
     settings.put("conformsTo",
