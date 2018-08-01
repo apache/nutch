@@ -75,6 +75,7 @@ public class FetcherJob extends NutchTool implements Tool {
     FIELDS.add(WebPage.Field.MARKERS);
     FIELDS.add(WebPage.Field.REPR_URL);
     FIELDS.add(WebPage.Field.FETCH_TIME);
+    FIELDS.add(WebPage.Field.METADATA);
   }
 
   /**
