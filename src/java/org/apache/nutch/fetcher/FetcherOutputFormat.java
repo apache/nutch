@@ -41,14 +41,18 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.OutputCommitter;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.protocol.Content;
+import org.commoncrawl.util.NullOutputCommitter;
 import org.commoncrawl.util.WarcCapture;
 import org.commoncrawl.util.WarcOutputFormat;
 
 /** Splits FetcherOutput entries into multiple map files. */
 public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
+
+  private OutputCommitter committer;
 
   @Override
   public void checkOutputSpecs(JobContext job) throws IOException {
@@ -61,6 +65,31 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
     if (fs.exists(new Path(out, CrawlDatum.FETCH_DIR_NAME))) {
       throw new IOException("Segment already fetched!");
     }
+  }
+
+  @Override
+  public synchronized OutputCommitter getOutputCommitter(
+      TaskAttemptContext context) throws java.io.IOException {
+    if (committer == null) {
+      Path output = getOutputPath(context);
+
+      String scheme = output.getFileSystem(context.getConfiguration())
+          .getScheme();
+      /*
+       * The default FileOutputCommitter is slow on S3, use
+       * NullOutputCommitter until a better solution is available, cf.
+       * https://hadoop.apache.org/docs/r3.1.0/hadoop-aws/tools/hadoop-aws/
+       * committers.html and
+       * https://hadoop.apache.org/docs/r3.1.0/hadoop-aws/tools/hadoop-aws/
+       * committer_architecture.html
+       */
+      if (scheme.startsWith("s3")) {
+        committer = new NullOutputCommitter();
+      } else {
+        committer = super.getOutputCommitter(context);
+      }
+    }
+    return committer;
   }
 
   @Override
