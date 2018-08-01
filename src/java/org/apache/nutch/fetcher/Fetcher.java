@@ -139,6 +139,10 @@ public class Fetcher extends NutchTool implements Tool {
     return conf.getBoolean("fetcher.store.content", true);
   }
 
+  public static boolean isStoringWarc(Configuration conf) {
+    return conf.getBoolean("fetcher.store.warc", false);
+  }
+
   public static class FetcherRun extends
      Mapper<Text, CrawlDatum, Text, NutchWritable> {
 
