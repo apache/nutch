@@ -379,6 +379,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     String ip = "0.0.0.0";
     Date date = null;
     boolean notModified = false;
+    Date lastModifiedDate = null;
     String verbatimResponseHeaders = null;
     String verbatimRequestHeaders = null;
     List<String> headers = new ArrayList<>();
@@ -397,31 +398,34 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
         LOG.warn("Cannot write WARC record, no protocol status for {}",
             value.url);
         return;
-      } else {
-        switch (pstatus.getCode()) {
-        case ProtocolStatus.SUCCESS:
-          statusLine = "HTTP/1.1 200 OK";
-          httpStatusCode = 200;
-          break;
-        case ProtocolStatus.TEMP_MOVED:
-          statusLine = "HTTP/1.1 302 Found";
-          httpStatusCode = 302;
-          break;
-        case ProtocolStatus.MOVED:
-          statusLine = "HTTP/1.1 301 Moved Permanently";
-          httpStatusCode = 301;
-          break;
-        case ProtocolStatus.NOTMODIFIED:
-          statusLine = "HTTP/1.1 304 Not Modified";
-          httpStatusCode = 304;
-          notModified = true;
-          break;
-        default:
-          if (value.content.getMetadata()
-              .get(Response.RESPONSE_HEADERS) == null) {
-            LOG.warn("Unknown or ambiguous protocol status: {}", pstatus);
-            return;
-          }
+      }
+      switch (pstatus.getCode()) {
+      case ProtocolStatus.SUCCESS:
+        statusLine = "HTTP/1.1 200 OK";
+        httpStatusCode = 200;
+        break;
+      case ProtocolStatus.TEMP_MOVED:
+        statusLine = "HTTP/1.1 302 Found";
+        httpStatusCode = 302;
+        break;
+      case ProtocolStatus.MOVED:
+        statusLine = "HTTP/1.1 301 Moved Permanently";
+        httpStatusCode = 301;
+        break;
+      case ProtocolStatus.NOTMODIFIED:
+        statusLine = "HTTP/1.1 304 Not Modified";
+        httpStatusCode = 304;
+        notModified = true;
+        long modifiedTime = value.datum.getModifiedTime();
+        if (modifiedTime > 0) {
+          lastModifiedDate = new Date(modifiedTime);
+        }
+        break;
+      default:
+        if (value.content.getMetadata()
+            .get(Response.RESPONSE_HEADERS) == null) {
+          LOG.warn("Unknown or ambiguous protocol status: {}", pstatus);
+          return;
         }
       }
       if (value.datum.getMetaData().get(FETCH_DURATION) != null) {
@@ -545,20 +549,39 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       infoId = crawlDiagnosticsWarcinfoId;
     }
 
+    LOG.info("WARC {} record {}", (notModified ? "revisit" : "response"),
+        targetUri);
+
     URI requestId = null;
     if (verbatimRequestHeaders != null) {
-      LOG.warn("c {} {} {}", targetUri, infoId, writer);
       requestId = writer.writeWarcRequestRecord(targetUri, ip, date, infoId,
           verbatimRequestHeaders.getBytes(StandardCharsets.UTF_8));
     }
 
+    if (generateCdx) {
+      value.content.getMetadata().add("HTTP-Status-Code",
+          String.format("%d", httpStatusCode));
+    }
+
     if (notModified) {
-      LOG.warn("Revisit records not supported: {}", key);
       /*
-       * writer.writeWarcRevisitRecord(targetUri, ip, date, infoId, requestId,
-       * WarcWriter.PROFILE_REVISIT_NOT_MODIFIED, payloadDigest,
-       * abbreviatedResponse, abbreviatedResponseLength);
+       * revisit record of profile WarcWriter.PROFILE_REVISIT_NOT_MODIFIED
+       * 
+       * Note: "revisits" identified by signature comparison
+       * (WarcWriter.PROFILE_REVISIT_IDENTICAL_DIGEST) are stored as response
+       * records.
+       * 
+       * The modified date of the CrawlDatum is the date of the last successful
+       * fetch with content (status 200). It is uses for the
+       * WARC-Refers-To-Date.
        */
+      byte[] responseHeaderBytes = responseHeaders
+          .getBytes(StandardCharsets.UTF_8);
+      String blockDigest = getSha1DigestWithAlg(responseHeaderBytes);
+      String payloadDigest = getSha1DigestWithAlg(new byte[0]);
+      writer.writeWarcRevisitRecord(targetUri, ip, date, infoId, requestId,
+          WarcWriter.PROFILE_REVISIT_NOT_MODIFIED, lastModifiedDate,
+          payloadDigest, blockDigest, responseHeaderBytes, value.content);
     } else {
       StringBuilder responsesb = new StringBuilder(4096);
       responsesb.append(responseHeaders).append(CRLF);
@@ -572,15 +595,11 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       System.arraycopy(value.content.getContent(), 0, responseBytes,
           responseHeaderBytes.length, value.content.getContent().length);
 
-      if (generateCdx) {
-        value.content.getMetadata().add("HTTP-Status-Code",
-            String.format("%d", httpStatusCode));
-      }
-
+      String payloadDigest = getSha1DigestWithAlg(value.content.getContent());
+      String blockDigest = getSha1DigestWithAlg(responseBytes);
       URI responseId = writer.writeWarcResponseRecord(targetUri, ip, date,
-          infoId, requestId, getSha1DigestWithAlg(value.content.getContent()),
-          getSha1DigestWithAlg(responseBytes), truncatedReason, responseBytes,
-          value.content);
+          infoId, requestId, payloadDigest, blockDigest, truncatedReason,
+          responseBytes, value.content);
 
       // Write metadata record
       StringBuilder metadatasb = new StringBuilder(4096);
