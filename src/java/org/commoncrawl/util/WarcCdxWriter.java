@@ -90,14 +90,28 @@ public class WarcCdxWriter extends WarcWriter {
     jsonWriter = jsonMapper.writer(new JsonIndenter());
   }
 
+  public URI writeWarcRevisitRecord(final URI targetUri, final String ip,
+      final Date date, final URI warcinfoId, final URI relatedId,
+      final String warcProfile, final Date refersToDate,
+      final String payloadDigest, final String blockDigest, byte[] block,
+      Content content) throws IOException {
+    long offset = countingOut.getByteCount();
+    URI recordId = super.writeWarcRevisitRecord(targetUri, ip, date, warcinfoId,
+        relatedId, warcProfile, refersToDate, payloadDigest, blockDigest, block,
+        content);
+    long length = (countingOut.getByteCount() - offset);
+    writeCdxLine(targetUri, date, offset, length, null, content);
+    return recordId;
+  }
+
   public URI writeWarcResponseRecord(final URI targetUri, final String ip,
       final Date date, final URI warcinfoId, final URI relatedId,
       final String payloadDigest, final String blockDigest,
-      final String truncated, final byte[] payload, Content content)
+      final String truncated, final byte[] block, Content content)
       throws IOException {
     long offset = countingOut.getByteCount();
     URI recordId = super.writeWarcResponseRecord(targetUri, ip, date,
-        warcinfoId, relatedId, payloadDigest, blockDigest, truncated, payload,
+        warcinfoId, relatedId, payloadDigest, blockDigest, truncated, block,
         content);
     long length = (countingOut.getByteCount() - offset);
     writeCdxLine(targetUri, date, offset, length, payloadDigest, content);
@@ -115,8 +129,11 @@ public class WarcCdxWriter extends WarcWriter {
           StringUtils.stringifyException(e));
       return;
     }
-    if (payloadDigest.startsWith("sha1:"))
+    if (payloadDigest == null) {
+      // no content, e.g., revisit record
+    } else if (payloadDigest.startsWith("sha1:")) {
       payloadDigest = payloadDigest.substring(5);
+    }
     cdxOut.write(surt.getBytes(UTF_8));
     cdxOut.write(' ');
     cdxOut.write(timestampFormat.format(date).getBytes(UTF_8));
@@ -126,7 +143,9 @@ public class WarcCdxWriter extends WarcWriter {
     data.put("mime", cleanMimeType(content.getMetadata().get("Content-Type")));
     data.put("mime-detected", content.getContentType());
     data.put("status", content.getMetadata().get("HTTP-Status-Code"));
-    data.put("digest", payloadDigest);
+    if (payloadDigest == null) {
+      data.put("digest", payloadDigest);
+    }
     data.put("length", String.format("%d", length));
     data.put("offset", String.format("%d", offset));
     data.put("filename", warcFilename);
