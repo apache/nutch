@@ -136,6 +136,10 @@
 		<!-- RabbitMQ dependencies -->
 		<dependency org="com.rabbitmq" name="amqp-client" rev="3.6.5" conf="*->default" />
 
+		<!-- Kafka Dependencies -->
+		<dependency org="org.apache.kafka" name="kafka_2.12" rev="1.1.0"/>
+		<dependency org="org.apache.kafka" name="connect-json" rev="1.1.0"/>
+
 
 		<!--Added Because of Elasticsearch JEST client-->
 		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
