@@ -330,6 +330,12 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
       return null;
     }
 
+    @Override
+    public boolean userClassesTakesPrecedence() {
+      // required for CDH 5.14.2
+      return false;
+    }
+
   }
 
   /**

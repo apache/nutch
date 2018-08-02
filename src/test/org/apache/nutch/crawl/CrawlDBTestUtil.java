@@ -352,6 +352,12 @@ public class CrawlDBTestUtil {
     public Path getWorkingDirectory() throws IOException {
       return null;
     }
+
+    @Override
+    public boolean userClassesTakesPrecedence() {
+      // required for CDH 5.14.2
+      return false;
+    }
   }
   /**
    * For now we need to manually construct our Configuration, because we need to
