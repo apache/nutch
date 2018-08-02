@@ -63,7 +63,7 @@
 		</dependency>
 		<!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="1.18" />
+		<dependency org="org.apache.tika" name="tika-core" rev="1.19-SNAPSHOT" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
 
 		<dependency org="xerces" name="xercesImpl" rev="2.11.0" />
