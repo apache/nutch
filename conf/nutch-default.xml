@@ -2082,6 +2082,26 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<!-- Kafka properties -->
+
+<property>
+  <name>kafka.host</name>
+  <value></value>
+  <description>Location of the host Kafka cluster to connect to using producerConfig</description>
+</property>
+
+<property>
+  <name>kafka.port</name>
+  <value></value>
+  <description>The port to connect to using the producerConfig</description>
+</property>
+
+<property>
+  <name>kafka.index</name>
+  <value></value>
+  <description>Default index to attach to documents</description>
+</property>
+
 <!-- Elasticsearch properties -->
 
 <property>

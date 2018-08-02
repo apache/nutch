@@ -161,4 +161,19 @@
       <remove />
     </mapping>
   </writer>
+  <writer id="indexer_kafka_1" class="org.apache.nutch.indexwriter.kafka.KafkaIndexWriter">
+    <parameters>
+      <param name="host" value=""/>
+      <param name="port" value=""/>
+      <param name="index" value=""/>
+      <param name="topic" value=""/>
+    </parameters>
+    <mapping>
+      <copy>
+        <field source="title" dest="search"/>
+      </copy>
+      <rename />
+      <remove />
+    </mapping>
+  </writer>
 </writers>
