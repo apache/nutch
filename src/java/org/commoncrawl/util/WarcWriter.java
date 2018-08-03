@@ -37,7 +37,7 @@ public class WarcWriter {
   protected OutputStream out = null;
   protected OutputStream origOut = null;
 
-  private static final String WARC_VERSION = "WARC/1.1";
+  private static final String WARC_VERSION = "WARC/1.0";
 
   // Record types
   private static final String WARC_INFO = "warcinfo";
