@@ -69,6 +69,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   public static final String COLONSP = ": ";
   protected static final Pattern PROBLEMATIC_HEADERS = Pattern
       .compile("(?i)(?:Content-(?:Encoding|Length)|Transfer-Encoding)");
+  protected static final String X_HIDE_HEADER = "X-Crawler-";
 
   private DataOutputStream warcOut;
   private WarcWriter warcWriter;
@@ -306,7 +307,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
             replace.append(headers.substring(last, start));
           }
           last = lineEnd;
-          replace.append("X-Crawler-").append(headers.substring(start, lineEnd));
+          replace.append(X_HIDE_HEADER)
+              .append(headers.substring(start, lineEnd));
           if (name.equalsIgnoreCase("content-length")) {
             // add effective uncompressed and unchunked length of content
             replace.append("Content-Length").append(COLONSP)
@@ -493,29 +495,29 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
         // We have to fix up a few headers because we don't have the raw
         // responses to avoid that WARC readers try to read the content
         // as chunked or gzip-compressed.
-        if (name.equalsIgnoreCase("Content-Length")) {
+        if (name.equalsIgnoreCase(Response.CONTENT_LENGTH)) {
           int origContentLength = -1;
           try {
             origContentLength = Integer.parseInt(val);
           } catch (NumberFormatException e) {
             // ignore
           }
-          headers.add("Content-Length");
+          headers.add(Response.CONTENT_LENGTH);
           if (origContentLength != value.content.getContent().length) {
             headers.add("" + value.content.getContent().length);
-            headers.add("X-Crawler-Content-Length");
+            headers.add(X_HIDE_HEADER + Response.CONTENT_LENGTH);
           }
-        } else if (name.equalsIgnoreCase("Content-Encoding")) {
+        } else if (name.equalsIgnoreCase(Response.CONTENT_ENCODING)) {
           if (val.equalsIgnoreCase("identity")) {
             headers.add(name);
           } else {
-            headers.add("X-Crawler-Content-Encoding");
+            headers.add(X_HIDE_HEADER + Response.CONTENT_ENCODING);
           }
-        } else if (name.equalsIgnoreCase("Transfer-Encoding")) {
+        } else if (name.equalsIgnoreCase(Response.TRANSFER_ENCODING)) {
           if (val.equalsIgnoreCase("identity")) {
             headers.add(name);
           } else {
-            headers.add("X-Crawler-Transfer-Encoding");
+            headers.add(X_HIDE_HEADER + Response.TRANSFER_ENCODING);
           }
         } else {
           headers.add(name);
