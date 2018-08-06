@@ -66,6 +66,13 @@
 		<dependency org="org.apache.tika" name="tika-core" rev="1.19-SNAPSHOT" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
 
+		<!-- language detection -->
+		<dependency org="org.commoncrawl" name="language-detection-cld2" rev="0.1-SNAPSHOT" />
+		<dependency org="net.java.dev.jna" name="jna" rev="4.5.2" />
+		<dependency org="org.apache.tika" name="tika-parsers" rev="1.19-SNAPSHOT">
+			<include name="tika-parsers" />
+		</dependency>
+
 		<dependency org="xerces" name="xercesImpl" rev="2.11.0" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
 		<dependency org="oro" name="oro" rev="2.0.8" />

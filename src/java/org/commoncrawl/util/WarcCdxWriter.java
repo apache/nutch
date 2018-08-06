@@ -31,6 +31,7 @@ import java.util.TimeZone;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.protocol.Content;
 import org.archive.url.WaybackURLKeyMaker;
 import org.slf4j.Logger;
@@ -122,6 +123,7 @@ public class WarcCdxWriter extends WarcWriter {
       long length, String payloadDigest, Content content) throws IOException {
     String url = targetUri.toString();
     String surt = url;
+    Metadata meta = content.getMetadata();
     try {
       surt = surtKeyMaker.makeKey(url);
     } catch (URISyntaxException e) {
@@ -142,13 +144,21 @@ public class WarcCdxWriter extends WarcWriter {
     data.put("url", url);
     data.put("mime", cleanMimeType(content.getMetadata().get("Content-Type")));
     data.put("mime-detected", content.getContentType());
-    data.put("status", content.getMetadata().get("HTTP-Status-Code"));
+    data.put("status", meta.get("HTTP-Status-Code"));
     if (payloadDigest == null) {
       data.put("digest", payloadDigest);
     }
     data.put("length", String.format("%d", length));
     data.put("offset", String.format("%d", offset));
     data.put("filename", warcFilename);
+    String val = meta.get("Detected-Charset");
+    if (val != null) {
+      data.put("charset", val);
+    }
+    val = meta.get("Detected-Language");
+    if (val != null) {
+      data.put("languages", val);
+    }
     cdxOut.write(jsonWriter.writeValueAsBytes(data));
     cdxOut.write('\n');
   }
