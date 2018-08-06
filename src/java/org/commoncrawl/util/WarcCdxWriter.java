@@ -156,6 +156,14 @@ public class WarcCdxWriter extends WarcWriter {
     data.put("length", String.format("%d", length));
     data.put("offset", String.format("%d", offset));
     data.put("filename", warcFilename);
+    String val = meta.get("Detected-Charset");
+    if (val != null) {
+      data.put("charset", val);
+    }
+    val = meta.get("Detected-Language");
+    if (val != null) {
+      data.put("languages", val);
+    }
     cdxOut.write(jsonWriter.writeValueAsBytes(data));
     cdxOut.write('\n');
   }
