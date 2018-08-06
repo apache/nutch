@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -52,6 +53,8 @@ import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolStatus;
+import org.commoncrawl.langdetect.cld2.Cld2;
+import org.commoncrawl.langdetect.cld2.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,6 +92,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   private boolean generateRobotsTxt;
   private boolean generateCdx;
   private boolean deduplicate;
+  private boolean detectLanguage;
   private String lastURL = ""; // for deduplication
 
   public WarcRecordWriter(Configuration conf, Path outputPath, int partition) throws IOException {
@@ -130,6 +134,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     generateRobotsTxt = conf.getBoolean("warc.export.robotstxt", false);
     generateCdx = conf.getBoolean("warc.export.cdx", false);
     deduplicate = conf.getBoolean("warc.deduplicate", false);
+    detectLanguage = conf.getBoolean("warc.detect.language", false);
 
     Path warcPath = new Path(new Path(outputPath, "warc"), filename);
     warcOut = fs.create(warcPath);
@@ -422,6 +427,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     String statusLine = "";
     int httpStatusCode = 200;
     String fetchDuration = null;
+    String truncatedReason = null;
 
     if (value.datum != null) {
       date = new Date(value.datum.getFetchTime());
@@ -497,7 +503,6 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     }
 
     boolean useVerbatimResponseHeaders = false;
-    String truncatedReason = null;
 
     for (String name : value.content.getMetadata().names()) {
       String val = value.content.getMetadata().get(name);
@@ -599,6 +604,32 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
           String.format("%d", httpStatusCode));
     }
 
+    LanguageDetector.Result ldres = null;
+    if (detectLanguage && writer == warcWriter) {
+      // detect language only for successfully fetched primary documents
+      ldres = LanguageDetector.detectLanguage(targetUri, value.content);
+      if (generateCdx) {
+        if (ldres.charset != null) {
+          value.content.getMetadata().add("Detected-Charset",
+              ldres.charset.name());
+        }
+        org.commoncrawl.langdetect.cld2.Result lr = ldres.languages;
+        if (lr != null) {
+          Language[] langs = lr.getLanguages();
+          if (langs.length > 0) {
+            StringBuilder sb = new StringBuilder();
+            for (Language lang : langs) {
+              if (sb.length() > 0) {
+                sb.append(',');
+              }
+              sb.append(lang.getCodeISO639_3());
+            }
+            value.content.getMetadata().add("Detected-Language", sb.toString());
+          }
+        }
+      }
+    }
+
     if (notModified) {
       /*
        * revisit record of profile WarcWriter.PROFILE_REVISIT_NOT_MODIFIED
@@ -650,7 +681,14 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       if (fetchDuration != null) {
         metadata.put("fetchTimeMs", fetchDuration);
       }
-
+      if (ldres != null) {
+        if (ldres.charset != null) {
+          metadata.put("charset-detected", ldres.charset.name());
+        }
+        if (ldres.languages != null) {
+          metadata.put("languages-cld2", ldres.languages.toJSON());
+        }
+      }
       if (metadata.size() > 0) {
         for (Map.Entry<String, String> entry : metadata.entrySet()) {
           metadatasb.append(entry.getKey()).append(COLONSP)
