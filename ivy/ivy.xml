@@ -79,7 +79,7 @@
 
 		<dependency org="com.google.guava" name="guava" rev="25.0-jre" />
 
-		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="0.10" />
+		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="0.11-SNAPSHOT" />
 
 		<!-- jetty is required by NutchServer -->
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" />
