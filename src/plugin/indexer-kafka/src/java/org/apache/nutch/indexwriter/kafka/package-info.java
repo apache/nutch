@@ -15,4 +15,7 @@
  * limitations under the License.
  */
 
+/**
+ * Index writer plugin to produce JSON messages to <a href="https://kafka.apache.org/">Kafka</a>.
+ */
 package org.apache.nutch.indexwriter.kafka;
