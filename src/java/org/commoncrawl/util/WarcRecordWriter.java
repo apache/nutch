@@ -23,7 +23,6 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -53,8 +52,6 @@ import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolStatus;
-import org.commoncrawl.langdetect.cld2.Cld2;
-import org.commoncrawl.langdetect.cld2.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +85,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   private URI robotsTxtWarcinfoId;
   private MessageDigest sha1 = null;
   private Base32 base32 = new Base32();
+  private LanguageDetector langDetect;
   private boolean generateCrawlDiagnostics;
   private boolean generateRobotsTxt;
   private boolean generateCdx;
@@ -182,6 +180,13 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     } catch (NoSuchAlgorithmException e) {
       LOG.error("Unable to instantiate SHA1 MessageDigest object");
       throw new RuntimeException(e);
+    }
+
+    if (detectLanguage) {
+      boolean bestEffort = conf
+          .getBoolean("warc.detect.language.cld2.besteffort", false);
+      langDetect = new LanguageDetector();
+      langDetect.setBestEffort(bestEffort);
     }
   }
 
@@ -573,7 +578,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     LanguageDetector.Result ldres = null;
     if (detectLanguage && writer == warcWriter) {
       // detect language only for successfully fetched primary documents
-      ldres = LanguageDetector.detectLanguage(targetUri, value.content);
+      ldres = langDetect.detectLanguage(targetUri, value.content);
       if (generateCdx) {
         if (ldres.charset != null) {
           value.content.getMetadata().add("Detected-Charset",
@@ -581,16 +586,9 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
         }
         org.commoncrawl.langdetect.cld2.Result lr = ldres.languages;
         if (lr != null) {
-          Language[] langs = lr.getLanguages();
-          if (langs.length > 0) {
-            StringBuilder sb = new StringBuilder();
-            for (Language lang : langs) {
-              if (sb.length() > 0) {
-                sb.append(',');
-              }
-              sb.append(lang.getCodeISO639_3());
-            }
-            value.content.getMetadata().add("Detected-Language", sb.toString());
+          String codes = lr.getLanguageCodesISO639_3(",");
+          if (codes != null && !codes.isEmpty()) {
+            value.content.getMetadata().add("Detected-Language", codes);
           }
         }
       }

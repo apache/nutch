@@ -46,21 +46,28 @@ public class LanguageDetector {
     SUPPORTED_CONTENT_TYPES.add("application/xhtml+xml");
   }
 
+  protected Flags flags = new Flags();
+
+  public void setBestEffort(boolean bestEffort) {
+    flags.setBestEffort(bestEffort);
+  }
+
   public static class Result {
     Charset charset;
     org.commoncrawl.langdetect.cld2.Result languages;
     String errorReason;
   }
 
-  protected static Result detectLanguage(URI uri, Content content) {
+  protected Result detectLanguage(URI uri, Content content) {
 
     LanguageDetector.Result result = new Result();
 
     String detectedContentType = content.getContentType();
+    boolean isPlainText = false;
     if (!SUPPORTED_CONTENT_TYPES.contains(detectedContentType)) {
       // TODO: as an improvement, parse documents of non-HTML content types and
       // do the language detection on extracted text, for now skip them
-      LOG.debug("Skipping document of {} for language detection",
+      LOG.debug("Skipping document of Content-Type {} for language detection",
           detectedContentType);
       result.errorReason = "Content-Type " + detectedContentType + " not supported";
       return result;
@@ -95,8 +102,7 @@ public class LanguageDetector {
     if (httpContentLanguage != null) {
       hints.setContentLanguageHint(httpContentLanguage);
     }
-    result.languages = Cld2.detect(bytes, hints,
-        Flags.BEST_EFFORT, false);
+    result.languages = Cld2.detect(bytes, hints, flags, isPlainText);
     result.languages.configurePruning(10, 2, 0.0);
 
     return result;
