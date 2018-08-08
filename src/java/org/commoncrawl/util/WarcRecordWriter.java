@@ -586,7 +586,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
         }
         org.commoncrawl.langdetect.cld2.Result lr = ldres.languages;
         if (lr != null) {
-          String codes = lr.getLanguageCodesISO639_3(",");
+          String codes = lr.getLanguageCodesISO639_3(",", true);
           if (codes != null && !codes.isEmpty()) {
             value.content.getMetadata().add("Detected-Language", codes);
           }
