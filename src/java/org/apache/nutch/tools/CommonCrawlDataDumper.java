@@ -283,7 +283,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
         SequenceFile.Reader reader = new SequenceFile.Reader(nutchConfig,
             SequenceFile.Reader.file(segmentPart));
 
-        Writable key = (Writable) reader.getKeyClass().newInstance();
+        Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
 
         Content content = null;
         while (reader.next(key)) {

@@ -344,6 +344,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
 
           // set the url version into the metadata
           content.getMetadata().set(URL_VERSION, version);
+          @SuppressWarnings("unused")
           ParseStatus pstatus = null;
           pstatus = output(context, segmentName, url, datum, content, status,
               CrawlDatum.STATUS_FETCH_SUCCESS);

@@ -195,6 +195,7 @@ public class Benchmark extends Configured implements Tool {
     conf.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
     conf.set(Generator.GENERATOR_COUNT_MODE,
         Generator.GENERATOR_COUNT_VALUE_HOST);
+    @SuppressWarnings("unused")
     Job job = NutchJob.getInstance(getConf());
     FileSystem fs = FileSystem.get(conf);
     Path dir = new Path(getConf().get("hadoop.tmp.dir"), "bench-"
@@ -276,6 +277,7 @@ public class Benchmark extends Configured implements Tool {
       LOG.info("crawl finished: " + dir);
     }
     res.elapsed = System.currentTimeMillis() - res.elapsed;
+    @SuppressWarnings("resource")
     CrawlDbReader dbreader = new CrawlDbReader();
     dbreader.processStatJob(crawlDb.toString(), conf, false);
     return res;

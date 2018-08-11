@@ -154,7 +154,7 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
         if (splits.length == 3) {
           // Add a lower cased MIME-type and the factor to the map
           mimeMap.put(StringUtils.lowerCase(splits[0]), new AdaptiveRate(
-              new Float(splits[1]), new Float(splits[2])));
+              Float.valueOf(splits[1]), Float.valueOf(splits[2])));
         } else {
           LOG.warn("Invalid configuration line in: " + line);
         }

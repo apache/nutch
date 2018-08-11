@@ -224,8 +224,8 @@ public class ReadHostDb extends Configured implements Tool {
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
       throw new IOException("Incompatible key (" + keyClass.getName() + ")");
       
-    Text key = (Text) keyClass.newInstance();
-    HostDatum value = (HostDatum) valueClass.newInstance();
+    Text key = (Text) keyClass.getConstructor().newInstance();
+    HostDatum value = (HostDatum) valueClass.getConstructor().newInstance();
     
     for (int i = 0; i < readers.length; i++) {
       while (readers[i].next(key, value)) {

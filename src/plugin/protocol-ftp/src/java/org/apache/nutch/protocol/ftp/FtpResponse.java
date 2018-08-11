@@ -320,7 +320,7 @@ public class FtpResponse {
 
       FTPFile ftpFile = (FTPFile) list.get(0);
       this.headers.set(Response.CONTENT_LENGTH,
-          new Long(ftpFile.getSize()).toString());
+          Long.valueOf(ftpFile.getSize()).toString());
       this.headers.set(Response.LAST_MODIFIED,
           HttpDateFormat.toString(ftpFile.getTimestamp()));
       // don't retrieve the file if not changed.
@@ -367,7 +367,7 @@ public class FtpResponse {
 
       FTPFile ftpFile = (FTPFile) list.get(0);
       this.headers.set(Response.CONTENT_LENGTH,
-          new Long(ftpFile.getSize()).toString());
+          Long.valueOf(ftpFile.getSize()).toString());
       // this.headers.put("content-type", "text/html");
       this.headers.set(Response.LAST_MODIFIED,
           HttpDateFormat.toString(ftpFile.getTimestamp()));
@@ -428,7 +428,7 @@ public class FtpResponse {
       ftp.client.retrieveList(null, list, ftp.maxContentLength, ftp.parser);
       this.content = list2html(list, path, "/".equals(path) ? false : true);
       this.headers.set(Response.CONTENT_LENGTH,
-          new Integer(this.content.length).toString());
+          Integer.valueOf(this.content.length).toString());
       this.headers.set(Response.CONTENT_TYPE, "text/html");
       // this.headers.put("Last-Modified", null);
 
@@ -452,7 +452,7 @@ public class FtpResponse {
 
       this.content = list2html(list, path, "/".equals(path) ? false : true);
       this.headers.set(Response.CONTENT_LENGTH,
-          new Integer(this.content.length).toString());
+          Integer.valueOf(this.content.length).toString());
       this.headers.set(Response.CONTENT_TYPE, "text/html");
       // this.headers.put("Last-Modified", null);
 

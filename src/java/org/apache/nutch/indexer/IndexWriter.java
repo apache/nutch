@@ -28,6 +28,9 @@ public interface IndexWriter extends Pluggable, Configurable {
    */
   final static String X_POINT_ID = IndexWriter.class.getName();
 
+  /**
+   * @deprecated use {@link #open(IndexWriterParams)}} instead.  
+   */
   @Deprecated
   public void open(Configuration conf, String name) throws IOException;
 

@@ -160,8 +160,6 @@ public class CommonCrawlFormatWARC extends AbstractCommonCrawlFormat {
     record.setType(WARCConstants.WARCRecordType.response);
     record.setUrl(getUrl());
 
-    String fetchTime;
-
     record.setCreate14DigitDate(DateUtils
         .getLog14Date(Long.parseLong(metadata.get("nutch.fetch.time"))));
     record.setMimetype(WARCConstants.HTTP_RESPONSE_MIMETYPE);

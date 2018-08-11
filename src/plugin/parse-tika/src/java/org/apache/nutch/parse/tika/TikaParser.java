@@ -277,7 +277,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
           throw new RuntimeException("Class " + htmlmapperClassName
               + " does not implement HtmlMapper");
         }
-        HTMLMapper = (HtmlMapper) HTMLMapperClass.newInstance();
+        HTMLMapper = (HtmlMapper) HTMLMapperClass.getConstructor().newInstance();
       } catch (Exception e) {
         LOG.error("Can't generate instance for class " + htmlmapperClassName);
         throw new RuntimeException("Can't generate instance for class "
