@@ -130,7 +130,7 @@ public class Http extends HttpBase {
    */
   public void setConf(Configuration conf) {
     super.setConf(conf);
-    this.conf = conf;
+    Http.conf = conf;
     this.maxThreadsTotal = conf.getInt("fetcher.threads.fetch", 10);
     this.proxyUsername = conf.get("http.proxy.username", "");
     this.proxyPassword = conf.get("http.proxy.password", "");

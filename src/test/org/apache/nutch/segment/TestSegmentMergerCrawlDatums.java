@@ -74,8 +74,8 @@ public class TestSegmentMergerCrawlDatums {
   @Test
   public void testSingleRandomSequence() throws Exception {
     Assert.assertEquals(
-        new Byte(CrawlDatum.STATUS_FETCH_SUCCESS),
-        new Byte(executeSequence(CrawlDatum.STATUS_FETCH_GONE,
+        Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS),
+        Byte.valueOf(executeSequence(CrawlDatum.STATUS_FETCH_GONE,
             CrawlDatum.STATUS_FETCH_SUCCESS, 256, false)));
   }
 
@@ -109,9 +109,9 @@ public class TestSegmentMergerCrawlDatums {
     // Merge the segments and get status
     Path mergedSegment = merge(testDir, new Path[] { segment1, segment2,
         segment3, segment4, segment5, segment6, segment7, segment8 });
-    Byte status = new Byte(status = checkMergedSegment(testDir, mergedSegment));
+    Byte status = Byte.valueOf(status = checkMergedSegment(testDir, mergedSegment));
 
-    Assert.assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    Assert.assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
 
   /**
@@ -147,8 +147,8 @@ public class TestSegmentMergerCrawlDatums {
   @Test
   public void testRandomTestSequenceWithRedirects() throws Exception {
     Assert.assertEquals(
-        new Byte(CrawlDatum.STATUS_FETCH_SUCCESS),
-        new Byte(executeSequence(CrawlDatum.STATUS_FETCH_GONE,
+        Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS),
+        Byte.valueOf(executeSequence(CrawlDatum.STATUS_FETCH_GONE,
             CrawlDatum.STATUS_FETCH_SUCCESS, 128, true)));
   }
 
@@ -172,9 +172,9 @@ public class TestSegmentMergerCrawlDatums {
     // Merge the segments and get status
     Path mergedSegment = merge(testDir, new Path[] { segment1, segment2,
         segment3 });
-    Byte status = new Byte(status = checkMergedSegment(testDir, mergedSegment));
+    Byte status = Byte.valueOf(status = checkMergedSegment(testDir, mergedSegment));
 
-    Assert.assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    Assert.assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
 
   /**
@@ -192,9 +192,9 @@ public class TestSegmentMergerCrawlDatums {
 
     // Merge the segments and get status
     Path mergedSegment = merge(testDir, new Path[] { segment });
-    Byte status = new Byte(status = checkMergedSegment(testDir, mergedSegment));
+    Byte status = Byte.valueOf(status = checkMergedSegment(testDir, mergedSegment));
 
-    Assert.assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    Assert.assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
 
   /**
@@ -214,9 +214,9 @@ public class TestSegmentMergerCrawlDatums {
 
     // Merge the segments and get status
     Path mergedSegment = merge(testDir, new Path[] { segment1, segment2 });
-    Byte status = new Byte(status = checkMergedSegment(testDir, mergedSegment));
+    Byte status = Byte.valueOf(status = checkMergedSegment(testDir, mergedSegment));
 
-    Assert.assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    Assert.assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
 
   /**

@@ -61,7 +61,7 @@ public class JexlIndexingFilter implements IndexingFilter {
     jcontext.set("fetchTime", (long) (datum.getFetchTime()));
     jcontext.set("modifiedTime", (long) (datum.getModifiedTime()));
     jcontext.set("retries", datum.getRetriesSinceFetch());
-    jcontext.set("interval", new Integer(datum.getFetchInterval()));
+    jcontext.set("interval", Integer.valueOf(datum.getFetchInterval()));
     jcontext.set("score", datum.getScore());
     jcontext.set("signature", StringUtil.toHexString(datum.getSignature()));
     jcontext.set("url", url.toString());

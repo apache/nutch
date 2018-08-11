@@ -17,10 +17,6 @@
 
 package org.apache.nutch.indexer.urlmeta;
 
-import java.lang.invoke.MethodHandles;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -69,8 +65,6 @@ import org.apache.nutch.parse.Parse;
  */
 public class URLMetaIndexingFilter implements IndexingFilter {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
   private static final String CONF_PROPERTY = "urlmeta.tags";
   private static String[] urlMetaTags;
   private Configuration conf;

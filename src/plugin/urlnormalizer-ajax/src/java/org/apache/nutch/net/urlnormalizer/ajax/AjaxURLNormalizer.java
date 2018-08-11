@@ -114,7 +114,6 @@ public class AjaxURLNormalizer implements URLNormalizer {
    * @return String
    */
   protected String normalizeEscapedFragment(String urlString) throws MalformedURLException {
-    int pos = urlString.indexOf(ESCAPED_URL_PART);
     URL u = new URL(urlString);
     StringBuilder sb = new StringBuilder();
 
