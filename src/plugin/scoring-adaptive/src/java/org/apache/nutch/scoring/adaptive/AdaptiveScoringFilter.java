@@ -35,8 +35,6 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.FetchSchedule;
-import org.apache.nutch.crawl.FetchScheduleFactory;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.scoring.AbstractScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -185,7 +183,6 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
 
   private Map<Byte, Float> statusSortMap = new TreeMap<Byte, Float>();
 
-  private FetchSchedule schedule;
   int nowMinutes;
   int orphanTimeGone;
   int orphanTimeRedirect;
@@ -219,7 +216,6 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     }
 
     // orphan detection
-    schedule = FetchScheduleFactory.getFetchSchedule(conf);
     nowMinutes = (int) (System.currentTimeMillis() / (60000));
     int orphanTimeSpanAny = conf.getInt(ADAPTIVE_ORPHAN_TIME,
         60 * 24 * 30 * 12);
@@ -338,11 +334,10 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
 
     // Are there inlinks for this record?
     if (inlinks.size() > 0) {
-      // Set the last time we have seen this link to the fetch time
-      int fetchTimeMinutes = (int) (schedule.calculateLastFetchTime(datum)
-          / 60000);
+      // If yes, set the last time we have seen this page to now
+      // (assuming the link has been found recently)
       datum.getMetaData().put(WRITABLE_LAST_SEEN_TIME,
-          new IntWritable(fetchTimeMinutes));
+          new IntWritable(nowMinutes));
     } else {
       orphanedScore(url, datum, old);
     }
