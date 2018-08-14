@@ -218,7 +218,7 @@ public class FetcherThread extends Thread {
     maxOutlinkDepthNumLinks = conf.getInt(
         "fetcher.follow.outlinks.num.links", 4);
     if (conf.getBoolean("fetcher.store.robotstxt", false)) {
-      if (storingContent) {
+      if (storingContent || storingWarc) {
         robotsTxtContent = new LinkedList<>();
       } else {
         LOG.warn(
