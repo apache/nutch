@@ -143,7 +143,7 @@ public class WarcCdxWriter extends WarcWriter {
     data.put("mime", cleanMimeType(content.getMetadata().get("Content-Type")));
     data.put("mime-detected", content.getContentType());
     data.put("status", content.getMetadata().get("HTTP-Status-Code"));
-    if (payloadDigest == null) {
+    if (payloadDigest != null) {
       data.put("digest", payloadDigest);
     }
     data.put("length", String.format("%d", length));
