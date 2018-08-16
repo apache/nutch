@@ -24,26 +24,25 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
-
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.CounterGroup;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.mapreduce.CounterGroup;
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -67,9 +66,9 @@ public class DeduplicationJob extends NutchTool implements Tool {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private final static Text urlKey = new Text("_URLTEMPKEY_");
-  private final static String DEDUPLICATION_GROUP_MODE = "deduplication.group.mode";
-  private final static String DEDUPLICATION_COMPARE_ORDER = "deduplication.compare.order";
+  protected final static Text urlKey = new Text("_URLTEMPKEY_");
+  protected final static String DEDUPLICATION_GROUP_MODE = "deduplication.group.mode";
+  protected final static String DEDUPLICATION_COMPARE_ORDER = "deduplication.compare.order";
 
   public static class DBFilter extends
       Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum> {
@@ -124,17 +123,18 @@ public class DeduplicationJob extends NutchTool implements Tool {
     }
   }
 
-  public static class DedupReducer extends
-      Reducer<BytesWritable, CrawlDatum, Text, CrawlDatum> {
+  public static class DedupReducer<K extends Writable> extends
+      Reducer<K, CrawlDatum, Text, CrawlDatum> {
 
     private String[] compareOrder;
     
-    public void setup(Reducer<BytesWritable, CrawlDatum, Text, CrawlDatum>.Context context) {
+    @Override
+    public void setup(Reducer<K, CrawlDatum, Text, CrawlDatum>.Context context) {
       Configuration arg0 = context.getConfiguration();
       compareOrder = arg0.get(DEDUPLICATION_COMPARE_ORDER).split(",");
     }
 
-    private void writeOutAsDuplicate(CrawlDatum datum,
+    protected void writeOutAsDuplicate(CrawlDatum datum,
         Context context)
         throws IOException, InterruptedException {
       datum.setStatus(CrawlDatum.STATUS_DB_DUPLICATE);
@@ -144,79 +144,75 @@ public class DeduplicationJob extends NutchTool implements Tool {
       context.write(key, datum);
     }
 
-    public void reduce(BytesWritable key, Iterable<CrawlDatum> values,
-        Context context)
-        throws IOException, InterruptedException {
+    @Override
+    public void reduce(K key, Iterable<CrawlDatum> values,
+        Context context) throws IOException, InterruptedException {
       CrawlDatum existingDoc = null;
 
-      outerloop:
       for (CrawlDatum newDoc : values) {
         if (existingDoc == null) {
           existingDoc = new CrawlDatum();
           existingDoc.set(newDoc);
           continue;
         }
-
-        for (int i = 0; i < compareOrder.length; i++) {
-          switch (compareOrder[i]) {
-            case "score":
-              // compare based on score
-              if (existingDoc.getScore() < newDoc.getScore()) {
-                writeOutAsDuplicate(existingDoc, context);
-                existingDoc = new CrawlDatum();
-                existingDoc.set(newDoc);
-                continue outerloop;
-              } else if (existingDoc.getScore() > newDoc.getScore()) {
-                // mark new one as duplicate
-                writeOutAsDuplicate(newDoc, context);
-                continue outerloop;
-              }
-              break;
-            case "fetchTime":
-              // same score? delete the one which is oldest
-              if (existingDoc.getFetchTime() > newDoc.getFetchTime()) {
-                // mark new one as duplicate
-                writeOutAsDuplicate(newDoc, context);
-                continue outerloop;
-              } else if (existingDoc.getFetchTime() < newDoc.getFetchTime()) {
-                // mark existing one as duplicate
-                writeOutAsDuplicate(existingDoc, context);
-                existingDoc = new CrawlDatum();
-                existingDoc.set(newDoc);
-                continue outerloop;
-              }
-              break;
-            case "urlLength":
-              // same time? keep the one which has the shortest URL
-              String urlExisting;
-              String urlnewDoc;
-              try {
-                urlExisting = URLDecoder.decode(existingDoc.getMetaData().get(urlKey).toString(), "UTF8");
-                urlnewDoc = URLDecoder.decode(newDoc.getMetaData().get(urlKey).toString(), "UTF8");
-              } catch (UnsupportedEncodingException e) {
-                LOG.error("Error decoding: " + urlKey);
-                throw new IOException("UnsupportedEncodingException for " + urlKey);
-              }
-              if (urlExisting.length() < urlnewDoc.length()) {
-                // mark new one as duplicate
-                writeOutAsDuplicate(newDoc, context);
-                continue outerloop;
-              } else if (urlExisting.length() > urlnewDoc.length()) {
-                // mark existing one as duplicate
-                writeOutAsDuplicate(existingDoc, context);
-                existingDoc = new CrawlDatum();
-                existingDoc.set(newDoc);
-                continue outerloop;
-              }
-              break;
+        CrawlDatum duplicate = getDuplicate(existingDoc, newDoc);
+        if (duplicate != null) {
+          writeOutAsDuplicate(duplicate, context);
+          if (duplicate == existingDoc) {
+            // keep new
+            existingDoc.set(newDoc);
           }
         }
-
       }
     }
 
-    public void close() throws IOException {
-
+    protected CrawlDatum getDuplicate(CrawlDatum existingDoc,
+        CrawlDatum newDoc) throws IOException {
+      for (int i = 0; i < compareOrder.length; i++) {
+        switch (compareOrder[i]) {
+        case "score":
+          // compare based on score
+          if (existingDoc.getScore() < newDoc.getScore()) {
+            return existingDoc;
+          } else if (existingDoc.getScore() > newDoc.getScore()) {
+            // mark new one as duplicate
+            return newDoc;
+          }
+          break;
+        case "fetchTime":
+          // same score? delete the one which is oldest
+          if (existingDoc.getFetchTime() > newDoc.getFetchTime()) {
+            // mark new one as duplicate
+            return newDoc;
+          } else if (existingDoc.getFetchTime() < newDoc.getFetchTime()) {
+            // mark existing one as duplicate
+            return existingDoc;
+          }
+          break;
+        case "urlLength":
+          // same time? keep the one which has the shortest URL
+          String urlExisting;
+          String urlnewDoc;
+          try {
+            urlExisting = URLDecoder.decode(
+                existingDoc.getMetaData().get(urlKey).toString(), "UTF8");
+            urlnewDoc = URLDecoder
+                .decode(newDoc.getMetaData().get(urlKey).toString(), "UTF8");
+          } catch (UnsupportedEncodingException e) {
+            LOG.error("Error decoding: " + urlKey);
+            throw new IOException("UnsupportedEncodingException for " + urlKey);
+          }
+          if (urlExisting.length() < urlnewDoc.length()) {
+            // mark new one as duplicate
+            return newDoc;
+          } else if (urlExisting.length() > urlnewDoc.length()) {
+            // mark existing one as duplicate
+            return existingDoc;
+          }
+          break;
+        }
+      }
+      return null; // no decision possible
     }
   }
 
