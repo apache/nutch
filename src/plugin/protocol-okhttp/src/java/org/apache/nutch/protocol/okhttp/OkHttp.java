@@ -96,7 +96,8 @@ public class OkHttp extends HttpBase {
     }
 
     if (useProxy) {
-      Proxy proxy = new Proxy(proxyType, new InetSocketAddress(proxyHost, proxyPort));
+      Proxy proxy = new Proxy(proxyType,
+          new InetSocketAddress(proxyHost, proxyPort));
       String proxyUsername = conf.get("http.proxy.username");
       if (proxyUsername == null) {
         ProxySelector selector = new ProxySelector() {
@@ -112,6 +113,7 @@ public class OkHttp extends HttpBase {
               add(proxy);
             }
           };
+
           @Override
           public List<Proxy> select(URI uri) {
             if (useProxy(uri)) {
@@ -119,29 +121,38 @@ public class OkHttp extends HttpBase {
             }
             return noProxyList;
           }
+
           @Override
-          public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+          public void connectFailed(URI uri, SocketAddress sa,
+              IOException ioe) {
             LOG.error("Connection to proxy failed for {}: {}", uri, ioe);
           }
         };
         builder.proxySelector(selector);
       } else {
-        // NOTE: the proxy exceptions list does NOT work with proxy username/password
-        // because an okhttp3 bug when using the ProxySelector class with proxy auth.
-        // If a proxy username is present, the configured proxy will be used for ALL
-        // requests.
+        /*
+         * NOTE: the proxy exceptions list does NOT work with proxy
+         * username/password because an okhttp3 bug
+         * (https://github.com/square/okhttp/issues/3995) when using the
+         * ProxySelector class with proxy auth. If a proxy username is present,
+         * the configured proxy will be used for ALL requests.
+         */
         if (proxyException.size() > 0) {
-          LOG.warn("protocol-okhttp does not respect 'http.proxy.exception.list' setting when " +
-            "'http.proxy.username' is set. This is a limitation of the current okhttp3 implementation.");
+          LOG.warn(
+              "protocol-okhttp does not respect 'http.proxy.exception.list' setting when "
+                  + "'http.proxy.username' is set. This is a limitation of the current okhttp3 "
+                  + "implementation, see NUTCH-2636");
         }
         builder.proxy(proxy);
-        String proxyPassword = conf.get("http.proxy.password");        
+        String proxyPassword = conf.get("http.proxy.password");
         Authenticator proxyAuthenticator = new Authenticator() {
-          @Override public Request authenticate(okhttp3.Route route, okhttp3.Response response) throws IOException {
-            String credential = okhttp3.Credentials.basic(proxyUsername, proxyPassword);
+          @Override
+          public Request authenticate(okhttp3.Route route,
+              okhttp3.Response response) throws IOException {
+            String credential = okhttp3.Credentials.basic(proxyUsername,
+                proxyPassword);
             return response.request().newBuilder()
-              .header("Proxy-Authorization", credential)
-              .build();
+                .header("Proxy-Authorization", credential).build();
           }
         };
         builder.proxyAuthenticator(proxyAuthenticator);
@@ -149,7 +160,7 @@ public class OkHttp extends HttpBase {
     }
 
     if (storeIPAddress || storeHttpHeaders || storeHttpRequest) {
-        builder.addNetworkInterceptor(new HTTPHeadersInterceptor());
+      builder.addNetworkInterceptor(new HTTPHeadersInterceptor());
     }
 
     client = builder.build();
