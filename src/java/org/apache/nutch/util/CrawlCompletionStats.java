@@ -68,28 +68,30 @@ public class CrawlCompletionStats extends Configured implements Tool {
   private static final int MODE_HOST = 1;
   private static final int MODE_DOMAIN = 2;
 
-  private int mode = 0;
-
   public int run(String[] args) throws Exception {
     Option helpOpt = new Option("h", "help", false, "Show this message");
+    @SuppressWarnings("static-access")
     Option inDirs = OptionBuilder
         .withArgName("inputDirs")
         .isRequired()
         .withDescription("Comma separated list of crawl directories (e.g., \"./crawl1,./crawl2\")")
         .hasArgs()
         .create("inputDirs");
+    @SuppressWarnings("static-access")
     Option outDir = OptionBuilder
         .withArgName("outputDir")
         .isRequired()
         .withDescription("Output directory where results should be dumped")
         .hasArgs()
         .create("outputDir");
+    @SuppressWarnings("static-access")
     Option modeOpt = OptionBuilder
         .withArgName("mode")
         .isRequired()
         .withDescription("Set statistics gathering mode (by 'host' or by 'domain')")
         .hasArgs()
         .create("mode");
+    @SuppressWarnings("static-access")
     Option numReducers = OptionBuilder
         .withArgName("numReducers")
         .withDescription("Optional number of reduce jobs to use. Defaults to 1")

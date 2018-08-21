@@ -17,9 +17,6 @@
 
 package org.apache.nutch.indexer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.parse.Parse;
 import org.apache.hadoop.conf.Configuration;
@@ -27,15 +24,10 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.hadoop.io.Text;
 
-import java.lang.invoke.MethodHandles;
-
 /** Creates and caches {@link IndexingFilter} implementing plugins. */
 public class IndexingFilters {
 
   public static final String INDEXINGFILTER_ORDER = "indexingfilter.order";
-
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
 
   private IndexingFilter[] indexingFilters;
 

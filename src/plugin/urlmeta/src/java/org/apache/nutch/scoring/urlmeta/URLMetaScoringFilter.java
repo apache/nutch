@@ -17,14 +17,11 @@
 
 package org.apache.nutch.scoring.urlmeta;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
@@ -44,8 +41,6 @@ import org.apache.nutch.scoring.ScoringFilterException;
  */
 public class URLMetaScoringFilter extends Configured implements ScoringFilter {
 
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
   private static final String CONF_PROPERTY = "urlmeta.tags";
   private static String[] urlMetaTags;
   private Configuration conf;

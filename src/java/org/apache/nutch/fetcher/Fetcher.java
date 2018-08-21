@@ -165,7 +165,7 @@ public class Fetcher extends NutchTool implements Tool {
     private void reportStatus(Context context, FetchItemQueues fetchQueues, int pagesLastSec, int bytesLastSec)
         throws IOException {
       StringBuilder status = new StringBuilder();
-      Long elapsed = new Long((System.currentTimeMillis() - start) / 1000);
+      Long elapsed = Long.valueOf((System.currentTimeMillis() - start) / 1000);
 
       float avgPagesSec = (float) pages.get() / elapsed.floatValue();
       long avgBytesSec = (bytes.get() / 128l) / elapsed.longValue();

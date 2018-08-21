@@ -21,7 +21,6 @@ import java.lang.invoke.MethodHandles;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +52,7 @@ public class TestNutchServer {
     else {
       LOG.info("Testing admin endpoint");
       WebClient client = WebClient.create(ENDPOINT_ADDRESS + server.getPort());
+      @SuppressWarnings("unused")
       Response response = client.path("admin").get();
       //Assert.assertTrue(response.readEntity(String.class).contains("startDate"));
       response = client.path("stop").get();

@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-//TODO refactor the dependencies out of root ivy file
-
 package org.apache.nutch.indexwriter.elasticrest;
 
 import io.searchbox.client.JestClient;
@@ -54,11 +51,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;

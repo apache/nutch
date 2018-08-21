@@ -211,6 +211,7 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
    */
   public static void main(String[] args) throws IOException, IndexingException {
     Option helpOpt = new Option("h", "help", false, "show this help message");
+    @SuppressWarnings("static-access")
     Option rulesOpt = OptionBuilder.withArgName("file").hasArg()
         .withDescription(
             "Rules file to be used in the tests relative to the conf directory")

@@ -43,7 +43,7 @@ public class FetchScheduleFactory {
       try {
         LOG.info("Using FetchSchedule impl: " + clazz);
         Class<?> implClass = Class.forName(clazz);
-        impl = (FetchSchedule) implClass.newInstance();
+        impl = (FetchSchedule) implClass.getConstructor().newInstance();
         impl.setConf(conf);
         objectCache.setObject(clazz, impl);
       } catch (Exception e) {

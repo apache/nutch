@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.plugin;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
@@ -158,8 +159,13 @@ public class Extension {
         // lazy loading of Plugin in case there is no instance of the plugin
         // already.
         pluginRepository.getPluginInstance(getDescriptor());
-        Object object = extensionClazz.newInstance();
-        if (object instanceof Configurable) {
+        Object object = null;
+        try {
+          object = extensionClazz.getConstructor().newInstance();
+        } catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+          e.printStackTrace();
+        }
+        if (object != null && object instanceof Configurable) {
           ((Configurable) object).setConf(this.conf);
         }
         return object;
