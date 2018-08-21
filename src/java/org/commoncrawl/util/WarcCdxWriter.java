@@ -101,7 +101,7 @@ public class WarcCdxWriter extends WarcWriter {
         relatedId, warcProfile, refersToDate, payloadDigest, blockDigest, block,
         content);
     long length = (countingOut.getByteCount() - offset);
-    writeCdxLine(targetUri, date, offset, length, null, content);
+    writeCdxLine(targetUri, date, offset, length, payloadDigest, content, true);
     return recordId;
   }
 
@@ -115,12 +115,13 @@ public class WarcCdxWriter extends WarcWriter {
         warcinfoId, relatedId, payloadDigest, blockDigest, truncated, block,
         content);
     long length = (countingOut.getByteCount() - offset);
-    writeCdxLine(targetUri, date, offset, length, payloadDigest, content);
+    writeCdxLine(targetUri, date, offset, length, payloadDigest, content, false);
     return recordId;
   }
 
   public void writeCdxLine(final URI targetUri, final Date date, long offset,
-      long length, String payloadDigest, Content content) throws IOException {
+      long length, String payloadDigest, Content content, boolean revisit)
+      throws IOException {
     String url = targetUri.toString();
     String surt = url;
     Metadata meta = content.getMetadata();
@@ -142,8 +143,12 @@ public class WarcCdxWriter extends WarcWriter {
     cdxOut.write(' ');
     Map<String, String> data = new LinkedHashMap<String, String>();
     data.put("url", url);
-    data.put("mime", cleanMimeType(content.getMetadata().get("Content-Type")));
-    data.put("mime-detected", content.getContentType());
+    if (revisit) {
+      data.put("mime", "warc/revisit");
+    } else {
+      data.put("mime", cleanMimeType(meta.get("Content-Type")));
+      data.put("mime-detected", content.getContentType());
+    }
     data.put("status", meta.get("HTTP-Status-Code"));
     if (payloadDigest != null) {
       data.put("digest", payloadDigest);
