@@ -71,6 +71,7 @@ if [ $# = 0 ]; then
   echo "  mergelinkdb       merge linkdb-s, with optional filtering"
   echo "  index             run the plugin-based indexer on parsed segments and linkdb"
   echo "  dedup             deduplicate entries in the crawldb and give them a special status"
+  echo "  dedupredirects    deduplicate redirects in the crawldb (keep one of multiple redirects pointing to same target)"
   echo "  dump              exports crawled data from segments into files"
   echo "  commoncrawldump   exports crawled data from segments into common crawl data format encoded as CBOR"
   echo "  solrindex         run the solr indexer on parsed segments and linkdb - DEPRECATED use the index command instead"
@@ -256,6 +257,8 @@ elif [ "$COMMAND" = "solrdedup" ] ; then
   exit -1
 elif [ "$COMMAND" = "dedup" ] ; then
   CLASS=org.apache.nutch.crawl.DeduplicationJob
+elif [ "$COMMAND" = "dedup" ] ; then
+  CLASS=org.apache.nutch.crawl.DedupRedirectsJob
 elif [ "$COMMAND" = "solrclean" ] ; then
   CLASS="org.apache.nutch.indexer.CleaningJob -D solr.server.url=$2 $1"
   shift; shift
