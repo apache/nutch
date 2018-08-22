@@ -55,7 +55,6 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
-import org.commoncrawl.util.NullOutputCommitter;
 
 /**
  * A queue-based fetcher.

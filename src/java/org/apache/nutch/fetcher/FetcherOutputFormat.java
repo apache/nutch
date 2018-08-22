@@ -23,36 +23,33 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.NutchWritable;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
-import org.apache.hadoop.util.Progressable;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.InvalidJobConfException;
-import org.apache.hadoop.mapreduce.RecordWriter;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.JobContext;
-import org.apache.hadoop.mapreduce.OutputCommitter;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.util.Progressable;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.protocol.Content;
-import org.commoncrawl.util.NullOutputCommitter;
+import org.commoncrawl.util.S3FileOutputFormat;
 import org.commoncrawl.util.WarcCapture;
 import org.commoncrawl.util.WarcOutputFormat;
 
 /** Splits FetcherOutput entries into multiple map files. */
-public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
-
-  private OutputCommitter committer;
+public class FetcherOutputFormat extends S3FileOutputFormat<Text, NutchWritable> {
 
   @Override
   public void checkOutputSpecs(JobContext job) throws IOException {
@@ -65,31 +62,6 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
     if (fs.exists(new Path(out, CrawlDatum.FETCH_DIR_NAME))) {
       throw new IOException("Segment already fetched!");
     }
-  }
-
-  @Override
-  public synchronized OutputCommitter getOutputCommitter(
-      TaskAttemptContext context) throws java.io.IOException {
-    if (committer == null) {
-      Path output = getOutputPath(context);
-
-      String scheme = output.getFileSystem(context.getConfiguration())
-          .getScheme();
-      /*
-       * The default FileOutputCommitter is slow on S3, use
-       * NullOutputCommitter until a better solution is available, cf.
-       * https://hadoop.apache.org/docs/r3.1.0/hadoop-aws/tools/hadoop-aws/
-       * committers.html and
-       * https://hadoop.apache.org/docs/r3.1.0/hadoop-aws/tools/hadoop-aws/
-       * committer_architecture.html
-       */
-      if (scheme.startsWith("s3")) {
-        committer = new NullOutputCommitter();
-      } else {
-        committer = super.getOutputCommitter(context);
-      }
-    }
-    return committer;
   }
 
   @Override
@@ -133,8 +105,6 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
         }
 
         if (Fetcher.isStoringWarc(conf)) {
-          Path warc = new Path(
-              new Path(FileOutputFormat.getOutputPath(context), "warc"), name);
           // set start and end time of WARC capture
           long timelimit = conf.getLong("fetcher.timelimit", -1);
           long timelimitMins = conf.getLong("fetcher.timelimit.mins", -1);
@@ -151,6 +121,7 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
           fileDate.setTimeZone(TimeZone.getTimeZone("GMT"));
           conf.set("warc.export.date", fileDate.format(new Date(startTime)));
           conf.set("warc.export.date.end", fileDate.format(new Date(endTime)));
+
           warcOut = new WarcOutputFormat().getRecordWriter(context);
         }
       }
