@@ -120,15 +120,16 @@ public class Injector extends NutchTool implements Tool {
     public static final String EQUAL_CHARACTER = "=";
 
     private URLNormalizers urlNormalizers;
-    private int interval;
+    protected int interval;
     private float scoreInjected;
     private URLFilters filters;
-    private ScoringFilters scfilters;
-    private long curTime;
+    protected ScoringFilters scfilters;
+    protected long curTime;
     private boolean url404Purging;
     private String scope;
     private boolean filterNormalizeAll = false;
 
+    @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
       boolean normalize = conf.getBoolean(CrawlDbFilter.URL_NORMALIZING, true);
@@ -150,7 +151,7 @@ public class Injector extends NutchTool implements Tool {
     }
 
     /* Filter and normalize the input url */
-    private String filterNormalize(String url) {
+    protected String filterNormalize(String url) {
       if (url != null) {
         try {
           if (urlNormalizers != null)
@@ -206,6 +207,7 @@ public class Injector extends NutchTool implements Tool {
       }
     }
 
+    @Override
     public void map(Text key, Writable value, Context context)
         throws IOException, InterruptedException {
       if (value instanceof Text) {
@@ -271,17 +273,14 @@ public class Injector extends NutchTool implements Tool {
   /** Combine multiple new entries for a url. */
   public static class InjectReducer
       extends Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-    private int interval;
-    private float scoreInjected;
     private boolean overwrite = false;
     private boolean update = false;
     private CrawlDatum old = new CrawlDatum();
     private CrawlDatum injected = new CrawlDatum();
 
+    @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
-      interval = conf.getInt("db.fetch.interval.default", 2592000);
-      scoreInjected = conf.getFloat("db.score.injected", 1.0f);
       overwrite = conf.getBoolean("db.injector.overwrite", false);
       update = conf.getBoolean("db.injector.update", false);
       LOG.info("Injector: overwrite: " + overwrite);
@@ -303,6 +302,7 @@ public class Injector extends NutchTool implements Tool {
      * 
      * For more details @see NUTCH-1405
      */
+    @Override
     public void reduce(Text key, Iterable<CrawlDatum> values, Context context)
         throws IOException, InterruptedException {
 
