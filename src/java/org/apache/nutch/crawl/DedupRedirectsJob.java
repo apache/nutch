@@ -297,6 +297,7 @@ public class DedupRedirectsJob extends DeduplicationJob {
     job.setReducerClass(DedupRedirectReducer.class);
 
     FileSystem fs = tempDir.getFileSystem(getConf());
+    long numDuplicates = 0;
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
@@ -310,9 +311,9 @@ public class DedupRedirectsJob extends DeduplicationJob {
       CounterGroup g = job.getCounters().getGroup("DeduplicationJobStatus");
       if (g != null) {
         Counter counter = g.findCounter("Documents marked as duplicate");
-        long dups = counter.getValue();
+        numDuplicates = counter.getValue();
         LOG.info(
-            "Deduplication: " + (int) dups + " documents marked as duplicates");
+            "Deduplication: " + (int) numDuplicates + " documents marked as duplicates");
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("DeduplicationJob: " + StringUtils.stringifyException(e));
@@ -320,40 +321,47 @@ public class DedupRedirectsJob extends DeduplicationJob {
       return -1;
     }
 
-    // temporary output is the deduped crawldb but not in proper sorting
-    // (sorted by redirect target), use "merge" job to achieve proper sorting
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Redirect deduplication: writing CrawlDb.");
-    }
+    if (numDuplicates == 0) {
+      if (LOG.isInfoEnabled()) {
+        LOG.info("No duplicates found, skip writing CrawlDb");
+      }
 
-    Job mergeJob = CrawlDb.createJob(getConf(), crawlDb);
-    FileInputFormat.addInputPath(mergeJob, tempDir);
-    mergeJob.setReducerClass(StatusUpdateReducer.class);
-    mergeJob.setJarByClass(DedupRedirectsJob.class);
-    mergeJob.setReducerClass(StatusUpdateReducer.class);
+    } else {
+      // temporary output is the deduped crawldb but not in proper sorting
+      // (sorted by redirect target), use "merge" job to achieve proper sorting
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Redirect deduplication: writing CrawlDb.");
+      }
 
-    fs = crawlDb.getFileSystem(getConf());
-    Path outPath = FileOutputFormat.getOutputPath(job);
-    Path lock = CrawlDb.lock(getConf(), crawlDb, false);
-    try {
-      boolean success = mergeJob.waitForCompletion(true);
-      if (!success) {
-        String message = "Crawl job did not succeed, job status:"
-            + mergeJob.getStatus().getState() + ", reason: "
-            + mergeJob.getStatus().getFailureInfo();
-        LOG.error(message);
+      Job mergeJob = CrawlDb.createJob(getConf(), crawlDb);
+      FileInputFormat.addInputPath(mergeJob, tempDir);
+      mergeJob.setReducerClass(StatusUpdateReducer.class);
+      mergeJob.setJarByClass(DedupRedirectsJob.class);
+      mergeJob.setReducerClass(StatusUpdateReducer.class);
+
+      fs = crawlDb.getFileSystem(getConf());
+      Path outPath = FileOutputFormat.getOutputPath(job);
+      Path lock = CrawlDb.lock(getConf(), crawlDb, false);
+      try {
+        boolean success = mergeJob.waitForCompletion(true);
+        if (!success) {
+          String message = "Crawl job did not succeed, job status:"
+              + mergeJob.getStatus().getState() + ", reason: "
+              + mergeJob.getStatus().getFailureInfo();
+          LOG.error(message);
+          fs.delete(tempDir, true);
+          NutchJob.cleanupAfterFailure(outPath, lock, fs);
+          throw new RuntimeException(message);
+        }
+      } catch (IOException | InterruptedException | ClassNotFoundException e) {
+        LOG.error("DedupRedirectsJob: " + StringUtils.stringifyException(e));
         fs.delete(tempDir, true);
         NutchJob.cleanupAfterFailure(outPath, lock, fs);
-        throw new RuntimeException(message);
+        return -1;
       }
-    } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("DedupRedirectsJob: " + StringUtils.stringifyException(e));
-      fs.delete(tempDir, true);
-      NutchJob.cleanupAfterFailure(outPath, lock, fs);
-      return -1;
-    }
 
-    CrawlDb.install(mergeJob, crawlDb);
+      CrawlDb.install(mergeJob, crawlDb);
+    }
 
     // clean up
     fs.delete(tempDir, true);
