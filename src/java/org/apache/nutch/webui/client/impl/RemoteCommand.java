@@ -69,7 +69,7 @@ public class RemoteCommand implements Serializable {
   public String toString() {
     String statusInfo = StringUtils.EMPTY;
     if (jobInfo != null) {
-      statusInfo = new MessageFormat("{0}", Locale.ROOT).format(jobInfo.getState());
+      statusInfo = String.valueOf(jobInfo.getState());
     }
     return new MessageFormat("{0} status: {1}", Locale.ROOT).format(new Object[] {jobConfig.getType(), statusInfo});
   }
