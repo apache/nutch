@@ -17,9 +17,6 @@
 
 package org.apache.nutch.indexer.basic;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Parse;
 
@@ -33,7 +30,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 
-import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -49,8 +45,6 @@ import org.apache.hadoop.conf.Configuration;
  * {@code indexer.max.content.length} in nutch-default.xml.
  */
 public class BasicIndexingFilter implements IndexingFilter {
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
 
   private int MAX_TITLE_LENGTH;
   private int MAX_CONTENT_LENGTH;

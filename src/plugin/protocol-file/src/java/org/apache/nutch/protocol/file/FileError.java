@@ -22,6 +22,7 @@ package org.apache.nutch.protocol.file;
  */
 public class FileError extends FileException {
 
+  @SuppressWarnings("unused")
   private int code;
 
   public int getCode(int code) {

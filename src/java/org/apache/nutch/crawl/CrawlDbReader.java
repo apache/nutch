@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import com.tdunning.math.stats.MergingDigest;
 import com.tdunning.math.stats.TDigest;
 
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -64,10 +62,8 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.util.AbstractChecker;
@@ -550,8 +546,11 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Statistics for CrawlDb: " + crawlDb);
-      LongWritable totalCnt = ((LongWritable) stats.get("T"));
-      stats.remove("T");
+      LongWritable totalCnt = new LongWritable(0);
+      if (stats.containsKey("T")) {
+        totalCnt = ((LongWritable) stats.get("T"));
+        stats.remove("T");
+      }
       LOG.info("TOTAL urls:\t" + totalCnt.get());
       for (Map.Entry<String, Writable> entry : stats.entrySet()) {
         String k = entry.getKey();

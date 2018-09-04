@@ -44,7 +44,7 @@ public class WritableTestUtils {
     DataInputBuffer dib = new DataInputBuffer();
     dib.reset(dob.getData(), dob.getLength());
 
-    Writable after = (Writable) before.getClass().newInstance();
+    Writable after = (Writable) before.getClass().getConstructor().newInstance();
     if (conf != null) {
       ((Configurable) after).setConf(conf);
     }

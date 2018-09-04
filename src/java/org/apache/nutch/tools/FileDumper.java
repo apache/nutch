@@ -172,7 +172,7 @@ public class FileDumper {
 
           SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(file));
 
-          Writable key = (Writable) reader.getKeyClass().newInstance();
+          Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
           Content content = null;
 
           while (reader.next(key)) {

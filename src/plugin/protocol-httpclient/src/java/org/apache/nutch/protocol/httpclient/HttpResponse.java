@@ -88,8 +88,13 @@ public class HttpResponse implements Response {
     }
     params.makeLenient();
     params.setContentCharset("UTF-8");
-    params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-    params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
+
+    if (http.isCookieEnabled()) {
+      params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+      params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
+    } else {
+      params.setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+    }
     // XXX (ab) not sure about this... the default is to retry 3 times; if
     // XXX the request body was sent the method is not retried, so there is
     // XXX little danger in retrying...

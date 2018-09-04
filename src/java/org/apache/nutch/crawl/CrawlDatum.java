@@ -545,7 +545,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       jcontext.set("fetchTime", (long)(getFetchTime()));
       jcontext.set("modifiedTime", (long)(getModifiedTime()));
       jcontext.set("retries", getRetriesSinceFetch());
-      jcontext.set("interval", new Integer(getFetchInterval()));
+      jcontext.set("interval", Integer.valueOf(getFetchInterval()));
       jcontext.set("score", getScore());
       jcontext.set("signature", StringUtil.toHexString(getSignature()));
             

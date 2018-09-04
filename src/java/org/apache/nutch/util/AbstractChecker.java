@@ -94,6 +94,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
     String line;
     while ((line = in.readLine()) != null) {
       StringBuilder output = new StringBuilder();
+      @SuppressWarnings("unused")
       int ret = process(line, output);
       System.out.println(output);
     }
@@ -101,6 +102,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
   }
 
   // Open TCP socket and process input
+  @SuppressWarnings("resource")
   protected void processTCP(int tcpPort) throws Exception {
     ServerSocket server = null;
 

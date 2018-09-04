@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.Base64;
+import java.util.Locale;
 
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
@@ -45,6 +45,27 @@ public class OkHttpResponse implements Response {
   private byte[] content;
   private int code;
   private Metadata headers = new Metadata();
+
+  /** Container to store whether and why content has been truncated */
+  public static class TruncatedContent {
+
+    private TruncatedContentReason value = TruncatedContentReason.NOT_TRUNCATED;
+
+    public TruncatedContent() {
+    }
+
+    public void setReason(TruncatedContentReason val) {
+      value = val;
+   }
+
+    public TruncatedContentReason getReason() {
+       return value;
+    }
+
+    public boolean booleanValue() {
+      return value != TruncatedContentReason.NOT_TRUNCATED;
+    }
+  }
 
   public OkHttpResponse(OkHttp okhttp, URL url, CrawlDatum datum)
       throws ProtocolException, IOException {
@@ -73,51 +94,57 @@ public class OkHttpResponse implements Response {
     Request request = rb.build();
     okhttp3.Call call = okhttp.getClient().newCall(request);
 
-    okhttp3.Response response = call.execute();
+    // ensure that Response and underlying ResponseBody are closed
+    try (okhttp3.Response response = call.execute()) {
 
-    Metadata responsemetadata = new Metadata();
-    okhttp3.Headers httpHeaders = response.headers();
+      Metadata responsemetadata = new Metadata();
+      okhttp3.Headers httpHeaders = response.headers();
 
-    for (int i = 0, size = httpHeaders.size(); i < size; i++) {
-      String key = httpHeaders.name(i);
-      String value = httpHeaders.value(i);
+      for (int i = 0, size = httpHeaders.size(); i < size; i++) {
+        String key = httpHeaders.name(i);
+        String value = httpHeaders.value(i);
 
-      if (key.equals(REQUEST) || key.equals(RESPONSE_HEADERS)) {
-        value = new String(Base64.getDecoder().decode(value));
+        if (key.equals(REQUEST) || key.equals(RESPONSE_HEADERS)) {
+          value = new String(Base64.getDecoder().decode(value));
+        }
+
+        responsemetadata.add(key, value);
+      }
+      LOG.debug("{} - {} {} {}", url, response.protocol(), response.code(),
+          response.message());
+
+      TruncatedContent truncated = new TruncatedContent();
+      content = toByteArray(response.body(), truncated, okhttp.getMaxContent(),
+          okhttp.getMaxDuration(), okhttp.isStorePartialAsTruncated());
+      responsemetadata.add(FETCH_TIME,
+          Long.toString(System.currentTimeMillis()));
+      if (truncated.booleanValue()) {
+        if (!call.isCanceled()) {
+          call.cancel();
+        }
+        responsemetadata.set(TRUNCATED_CONTENT, "true");
+        responsemetadata.set(TRUNCATED_CONTENT_REASON,
+            truncated.getReason().toString().toLowerCase(Locale.ROOT));
+        LOG.debug("HTTP content truncated to {} bytes (reason: {})",
+            content.length, truncated.getReason());
       }
 
-      responsemetadata.add(key, value);
+      code = response.code();
+      headers = responsemetadata;
     }
-    LOG.debug("{} - {} {} {}", url, response.protocol(), response.code(),
-        response.message());
-
-    MutableBoolean trimmed = new MutableBoolean();
-    content = toByteArray(response.body(), trimmed, okhttp.getMaxContent(),
-        okhttp.getTimeout());
-    responsemetadata.add(FETCH_TIME, Long.toString(System.currentTimeMillis()));
-    if (trimmed.booleanValue()) {
-      if (!call.isCanceled()) {
-        call.cancel();
-      }
-      responsemetadata.set(TRIMMED_CONTENT, "true");
-      LOG.debug("HTTP content trimmed to {} bytes", content.length);
-    }
-
-    code = response.code();
-    headers = responsemetadata;
-
   }
 
   private final byte[] toByteArray(final ResponseBody responseBody,
-      MutableBoolean trimmed, int maxContent, int timeout) throws IOException {
+      TruncatedContent truncated, int maxContent, int maxDuration,
+      boolean partialAsTruncated) throws IOException {
 
     if (responseBody == null) {
       return new byte[] {};
     }
 
     long endDueFor = -1;
-    if (timeout != -1) {
-      endDueFor = System.currentTimeMillis() + timeout;
+    if (maxDuration != -1) {
+      endDueFor = System.currentTimeMillis() + (maxDuration * 1000);
     }
 
     int maxContentBytes = Integer.MAX_VALUE;
@@ -132,7 +159,17 @@ public class OkHttpResponse implements Response {
     while (contentBytesBuffered < maxContentBytes) {
       contentBytesRequested += Math.min(bufferGrowStepBytes,
           (maxContentBytes - contentBytesBuffered));
-      boolean success = source.request(contentBytesRequested);
+      boolean success = false;
+      try {
+        success = source.request(contentBytesRequested);
+      } catch (IOException e) {
+        if (partialAsTruncated && contentBytesBuffered > 0) {
+          // treat already fetched content as truncated
+          truncated.setReason(TruncatedContentReason.DISCONNECT);
+        } else {
+          throw e;
+        }
+      }
       contentBytesBuffered = (int) source.buffer().size();
       if (LOG.isDebugEnabled()) {
         LOG.debug("total bytes requested = {}, buffered = {}",
@@ -143,19 +180,19 @@ public class OkHttpResponse implements Response {
         break;
       }
       if (endDueFor != -1 && endDueFor <= System.currentTimeMillis()) {
-        LOG.debug("timeout reached");
-        trimmed.setValue(true);
+        LOG.debug("max. fetch duration reached");
+        truncated.setReason(TruncatedContentReason.TIME);
         break;
       }
       if (contentBytesBuffered > maxContentBytes) {
         LOG.debug("content limit reached");
-        trimmed.setValue(true);
+        truncated.setReason(TruncatedContentReason.LENGTH);
       }
     }
     int bytesToCopy = contentBytesBuffered;
     if (maxContent != -1 && contentBytesBuffered > maxContent) {
       // okhttp's internal buffer is larger than maxContent
-      trimmed.setValue(true);
+      truncated.setReason(TruncatedContentReason.LENGTH);
       bytesToCopy = maxContentBytes;
     }
     byte[] arr = new byte[bytesToCopy];

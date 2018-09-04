@@ -41,7 +41,7 @@ class BoilerpipeExtractorRepository {
           Class extractorClass = loader.loadClass(boilerpipeExtractorName);
 
           // Add an instance to the repository
-          extractorRepository.put(boilerpipeExtractorName, (BoilerpipeExtractor)extractorClass.newInstance());
+          extractorRepository.put(boilerpipeExtractorName, (BoilerpipeExtractor)extractorClass.getConstructor().newInstance());
 
         } catch (ClassNotFoundException e) {
           LOG.error("BoilerpipeExtractor " + boilerpipeExtractorName + " not found!");
