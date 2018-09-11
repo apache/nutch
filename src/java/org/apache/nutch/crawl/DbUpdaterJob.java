@@ -137,7 +137,7 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     LOG.info("DbUpdaterJob: starting at " + sdf.format(start));
 
     if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
-      LOG.info("DbUpdaterJob: updatinging all");
+      LOG.info("DbUpdaterJob: updating all");
     } else {
       LOG.info("DbUpdaterJob: batchId: " + batchId);
     }
