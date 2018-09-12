@@ -658,6 +658,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
     Job job = NutchJob.getInstance(config);
     job.setJobName("dump " + crawlDb);
+    Configuration jobConf = job.getConfiguration();
 
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormatClass(SequenceFileInputFormat.class);
@@ -672,17 +673,18 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     }
 
     if (status != null)
-      config.set("status", status);
+      jobConf.set("status", status);
     if (regex != null)
-      config.set("regex", regex);
+      jobConf.set("regex", regex);
     if (retry != null)
-      config.setInt("retry", retry);
+      jobConf.setInt("retry", retry);
     if (expr != null) {
-      config.set("expr", expr);
+      jobConf.set("expr", expr);
       LOG.info("CrawlDb db: expr: " + expr);
     }
-    if (sample != null)
-      config.setFloat("sample", sample);
+    if (sample != null) {
+      jobConf.setFloat("sample", sample);
+    }
     job.setMapperClass(CrawlDbDumpMapper.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
