@@ -85,6 +85,10 @@
     <chain name="internal-and-maven">
       <resolver ref="local"/>
       <resolver ref="maven2-local"/>
+      <resolver ref="maven2"/>
+      <resolver ref="apache-snapshot"/>
+      <resolver ref="sonatype"/>
+      <resolver ref="cloudera-repos"/>
     </chain>
     <chain name="external">
       <resolver ref="maven2"/>
