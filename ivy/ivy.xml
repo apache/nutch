@@ -71,6 +71,7 @@
 		<dependency org="net.java.dev.jna" name="jna" rev="4.5.2" />
 		<dependency org="org.apache.tika" name="tika-parsers" rev="1.19-SNAPSHOT">
 			<include name="tika-parsers" />
+			<exclude />
 		</dependency>
 
 		<dependency org="xerces" name="xercesImpl" rev="2.11.0" />
