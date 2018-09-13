@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -182,6 +183,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   private float adaptiveBoostInjected;
 
   private Map<Byte, Float> statusSortMap = new TreeMap<Byte, Float>();
+  private Map<String, Float> contentTypeSortMap = new HashMap<String, Float>();
 
   int nowMinutes;
   int orphanTimeGone;
@@ -258,6 +260,10 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
         LOG.warn("Invalid sort value `{}' in line: {}", splits[1], line);
         continue;
       }
+      if (splits[0].startsWith("Content-Type:")) {
+        contentTypeSortMap.put(splits[0].substring("Content-Type:".length()), value);
+        continue;
+      }
       byte status = -1;
       for (Entry<Byte, String> entry : CrawlDatum.statNames.entrySet()) {
         if (entry.getValue().equals(splits[0])) {
@@ -296,6 +302,10 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     long fetchTime = datum.getFetchTime();
     byte status = datum.getStatus();
     long daysSinceScheduledFetch = (curTime - fetchTime) / 86400000;
+    String contentType = null;
+    if (datum.getMetaData().containsKey(new Text("Content-Type"))) {
+      contentType = datum.getMetaData().get(new Text("Content-Type")).toString();
+    }
     if (adaptiveFetchTimeSort > 0.0f) {
       // boost/penalize by time elapsed since the scheduled fetch time
       initSort += adaptiveFetchTimeSort * daysSinceScheduledFetch;
@@ -303,6 +313,10 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     if (statusSortMap.containsKey(status)) {
       // boost/penalize by fetch status
       initSort += statusSortMap.get(status);
+    }
+    if (contentType != null && contentTypeSortMap.containsKey(contentType)) {
+      // boost/penalize by Content-Type / MIME type
+      initSort += contentTypeSortMap.get(contentType);
     }
     if (status == CrawlDatum.STATUS_DB_UNFETCHED) {
       if (datum.getRetriesSinceFetch() > 0) {
