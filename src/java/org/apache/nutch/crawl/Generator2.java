@@ -44,6 +44,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.TaskCounter;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -787,12 +788,9 @@ public class Generator2 extends Configured implements Tool {
       job.setJobName("generate: select from " + dbDir);
 
       Configuration conf = job.getConfiguration();
-      if (numLists == -1) { // for politeness make
-        numLists = Integer.parseInt(conf.get("mapreduce.job.maps")); // a
-                                                                     // partition
-                                                                     // per
-                                                                     // fetch
-                                                                     // task
+      if (numLists == -1) {
+        // for politeness create a single partition per fetcher map task
+        numLists = Integer.parseInt(conf.get("mapreduce.job.maps"));
       }
       if ("local".equals(conf.get("mapreduce.framework.name"))
           && numLists != 1) {
@@ -843,6 +841,14 @@ public class Generator2 extends Configured implements Tool {
         LOG.error("Generator job failed: {}", e.getMessage());
         NutchJob.cleanupAfterFailure(tempDir, lock, fs);
         throw e;
+      }
+
+      long selected = job.getCounters()
+          .findCounter(TaskCounter.REDUCE_OUTPUT_RECORDS).getValue();
+      if (selected == 0) {
+        LOG.warn("Generator: 0 records selected for fetching, exiting ...");
+        NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+        return null;
       }
 
       // Read through the generated URL list and output individual segment files
