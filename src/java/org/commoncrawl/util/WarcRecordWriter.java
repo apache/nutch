@@ -263,6 +263,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       String value = it.next();
       sb.append(name).append(COLONSP).append(value).append(CRLF);
     }
+    sb.append(CRLF);
     return sb.toString();
   }
 
@@ -279,8 +280,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   public static String fixHttpHeaders(String headers, int contentLength) {
     int start = 0, lineEnd = 0, last = 0;
     StringBuilder replace = new StringBuilder();
+    boolean hasTrailingEmptyLine = false;
     while ((lineEnd = headers.indexOf(CRLF, start)) != -1) {
-      lineEnd += 2;
       int colonPos = -1;
       for (int i = start; i < lineEnd; i++) {
         if (headers.charAt(i) == ':') {
@@ -288,14 +289,34 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
           break;
         }
       }
+      lineEnd += 2; // add '\r\n'
       if (colonPos == -1) {
+        boolean valid = true;
         if (start == 0) {
           // status line (without colon)
           // TODO: http/2
+        } else if (lineEnd == headers.length()) {
+          // ok, trailing empty line
+          hasTrailingEmptyLine = true;
+        } else if (start == (lineEnd-2)) {
+          // skip/remove empty line
+          LOG.debug("Skipping empty header line");
+          valid = false;
         } else {
-          // TODO: invalid header line
+          LOG.warn("Invalid header line: {}", headers.substring(start, (lineEnd-2)));
+          valid = false;
+        }
+        if (!valid) {
+          if (last < start) {
+            replace.append(headers.substring(last, start));
+          }
+          last = lineEnd;
         }
         start = lineEnd;
+        /*
+         * skip over invalid header line, no further check for problematic
+         * headers required
+         */
         continue;
       }
       String name = headers.substring(start, colonPos);
@@ -309,7 +330,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
               needsFix = false;
             }
           } catch (NumberFormatException e) {
-            // needs a fix
+            // needs to be fixed
           }
         }
         if (needsFix) {
@@ -328,10 +349,13 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       }
       start = lineEnd;
     }
-    if (last > 0) {
+    if (last > 0 || !hasTrailingEmptyLine) {
       if (last < headers.length()) {
         // append trailing headers
         replace.append(headers.substring(last));
+      }
+      if (!hasTrailingEmptyLine) {
+        replace.append(CRLF);
       }
       return replace.toString();
     }
@@ -500,6 +524,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       case Nutch.FETCH_STATUS_KEY:
       case Nutch.SCORE_KEY:
       case Nutch.SIGNATURE_KEY:
+      case Response.FETCH_TIME:
         break; // ignore, not required for WARC record
       default:
         // We have to fix up a few headers because we don't have the raw
@@ -615,7 +640,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
           payloadDigest, blockDigest, responseHeaderBytes, value.content);
     } else {
       StringBuilder responsesb = new StringBuilder(4096);
-      responsesb.append(responseHeaders).append(CRLF);
+      responsesb.append(responseHeaders);
 
       byte[] responseHeaderBytes = responsesb.toString()
           .getBytes(StandardCharsets.UTF_8);
