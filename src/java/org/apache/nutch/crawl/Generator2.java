@@ -65,7 +65,6 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
-import org.commoncrawl.util.S3SequenceFileOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +84,10 @@ import org.slf4j.LoggerFactory;
  * (see {@link #GENERATOR_COUNT_KEEP_MIN_IN_SEGMENT}). Keeping a minimum number
  * of same-host/domain URLs together minimizes the overhead caused by DNS
  * lookups and robots.txt fetches, parsing and storing robots.txt rules.
+ * 
+ * All segments are partitioned in a single job which saves time when many
+ * segments (e.g., <code>-maxNumSegments 100</code>) are generated
+ * ({@link Generator} launches one partition job per segment).
  **/
 public class Generator2 extends Configured implements Tool {
 
@@ -596,6 +599,29 @@ public class Generator2 extends Configured implements Tool {
     }
   }
 
+  public static class SegmentPartitioner
+      extends Partitioner<SegmenterKey, Writable> implements Configurable {
+
+    private Configuration conf;
+
+    @Override
+    public Configuration getConf() {
+      return conf;
+    }
+
+    @Override
+    public void setConf(Configuration conf) {
+      this.conf = conf;
+    }
+
+    @Override
+    public int getPartition(SegmenterKey key, Writable value,
+        int numReduceTasks) {
+      return (key.segment.get() - 1) % numReduceTasks;
+    }
+
+  }
+
   public static class SegmenterMapper extends
       Mapper<FloatWritable, SelectorEntry, SegmenterKey, SelectorEntry> {
 
@@ -756,7 +782,7 @@ public class Generator2 extends Configured implements Tool {
    */
   public Path[] generate(Path dbDir, String dbVersion, Path segments,
       int numLists, long topN, long curTime, boolean filter, boolean norm,
-      boolean force, int maxNumSegments, boolean keep, String stage2)
+      boolean force, int maxNumSegments, boolean keep, String stage2, String stage1)
       throws Exception {
 
     Path tempDir = new Path(getConf().get("mapreduce.cluster.temp.dir", ".")
@@ -765,7 +791,7 @@ public class Generator2 extends Configured implements Tool {
     Path lock = new Path(dbDir, CrawlDb.LOCK_NAME);
     FileSystem fs = lock.getFileSystem(getConf());
     FileSystem tempFs = tempDir.getFileSystem(getConf());
-    Path stage2Dir;
+    Path stage1Dir = null, stage2Dir = null;
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -782,7 +808,7 @@ public class Generator2 extends Configured implements Tool {
           "Generator: GENERATE_MAX_PER_HOST_BY_IP will be ignored, use partition.url.mode instead");
     }
 
-    if (stage2 == null) {
+    if (stage2 == null && stage1 == null) {
       // map to inverted subset due for fetch, sort by score
       Job job = NutchJob.getInstance(getConf());
       job.setJobName("generate: select from " + dbDir);
@@ -818,9 +844,9 @@ public class Generator2 extends Configured implements Tool {
       job.setReducerClass(SelectorReducer.class);
       job.setJarByClass(Selector.class);
 
-      Path stage1Dir = tempDir.suffix("/stage1");
+      stage1Dir = tempDir.suffix("/stage1");
       FileOutputFormat.setOutputPath(job, stage1Dir);
-      job.setOutputFormatClass(S3SequenceFileOutputFormat.class);
+      job.setOutputFormatClass(SequenceFileOutputFormat.class);
       job.setMapOutputKeyClass(DomainScorePair.class);
       job.setOutputKeyClass(FloatWritable.class);
       job.setSortComparatorClass(ScoreComparator.class);
@@ -850,11 +876,15 @@ public class Generator2 extends Configured implements Tool {
         NutchJob.cleanupAfterFailure(tempDir, lock, fs);
         return null;
       }
+    } else if (stage1 != null) {
+      stage1Dir = new Path(stage1);
+    }
 
+    if (stage2 == null) {
       // Read through the generated URL list and output individual segment files
-      job = NutchJob.getInstance(getConf());
+      Job job = NutchJob.getInstance(getConf());
       job.setJobName("generate: segmenter");
-      conf = job.getConfiguration();
+      Configuration conf = job.getConfiguration();
       conf.setInt(GENERATOR_MAX_NUM_SEGMENTS, maxNumSegments);
       conf.setLong(GENERATOR_TOP_N, topN);
 
@@ -868,8 +898,16 @@ public class Generator2 extends Configured implements Tool {
       job.setReducerClass(SegmenterReducer.class);
       job.setJarByClass(SegmenterMapper.class);
 
-      job.setSortComparatorClass(UrlHashComparator.class);
+      /*
+       * Every reduce partition contains all data from a single segment in a
+       * single group to check for the max. segment size.
+       */
       job.setGroupingComparatorClass(SegmentComparator.class);
+      job.setPartitionerClass(SegmentPartitioner.class);
+      /*
+       * URLs are shuffled (sorted by pseudo-random hash value).
+       */
+      job.setSortComparatorClass(UrlHashComparator.class);
 
       job.setMapOutputKeyClass(SegmenterKey.class);
       job.setMapOutputValueClass(SelectorEntry.class);
@@ -939,6 +977,10 @@ public class Generator2 extends Configured implements Tool {
     return generatedSegments.toArray(patharray);
   }
 
+  /**
+   * Partition segments: one partition is the fetch lists of a single fetcher
+   * task.
+   */
   private List<Path> partitionSegments(FileSystem fs, Path segmentsDir,
       List<Path> inputDirs, int numLists) throws Exception {
     if (LOG.isInfoEnabled()) {
@@ -967,7 +1009,17 @@ public class Generator2 extends Configured implements Tool {
     job.setMapOutputValueClass(CrawlDatum.class);
     job.setJarByClass(SelectorInverseMapper.class);
 
-    conf.setLong("mapred.min.split.size", Long.MAX_VALUE);
+    /* Ensure output files from step 2 are not split. */
+    conf.setLong("mapreduce.input.fileinputformat.split.minsize",
+        Long.MAX_VALUE);
+    /*
+     * Reduce the replication factor to limit the number of open HDFS
+     * files/blocks - we may write 100 segments each which 100 partions /
+     * fetchers.
+     */
+    conf.set("dfs.replication", "1");
+
+    /* Set number of fetchers */
     conf.setInt("num.lists", numLists);
     job.setNumReduceTasks(0);
 
@@ -984,12 +1036,6 @@ public class Generator2 extends Configured implements Tool {
       MultipleOutputs.setCountersEnabled(job, true);
     }
 
-    // S3 driver does an MD5 verification after uploading
-    // Also, this is painfully slow because of S3's slow copy functions
-    // if (fs.getScheme().startsWith("s3")) {
-    // job.setOutputCommitter(NullOutputCommitter.class);
-    // }
-
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
@@ -1004,7 +1050,7 @@ public class Generator2 extends Configured implements Tool {
       throw e;
     }
 
-    return generatedSegments; // ????
+    return generatedSegments;
   }
 
   private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -1045,6 +1091,7 @@ public class Generator2 extends Configured implements Tool {
     boolean keep = false;
     int maxNumSegments = 1;
     String stage2 = null;
+    String stage1 = null;
     String dbVersion = CrawlDb.CURRENT_NAME;
 
     for (int i = 2; i < args.length; i++) {
@@ -1067,6 +1114,8 @@ public class Generator2 extends Configured implements Tool {
         maxNumSegments = Integer.parseInt(args[i + 1]);
       } else if ("-keep".equals(args[i])) {
         keep = true;
+      } else if ("-stage1".equals(args[i])) {
+        stage1 = args[++i];
       } else if ("-stage2".equals(args[i])) {
         stage2 = args[++i];
       } else if ("-dbVersion".equals(args[i])) {
@@ -1076,7 +1125,7 @@ public class Generator2 extends Configured implements Tool {
 
     try {
       Path[] segs = generate(dbDir, dbVersion, segmentsDir, numFetchers, topN,
-          curTime, filter, norm, force, maxNumSegments, keep, stage2);
+          curTime, filter, norm, force, maxNumSegments, keep, stage2, stage1);
       if (segs == null)
         return -1;
     } catch (Exception e) {
