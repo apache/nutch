@@ -605,7 +605,13 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       byte[] responseHeaderBytes = responseHeaders
           .getBytes(StandardCharsets.UTF_8);
       String blockDigest = getSha1DigestWithAlg(responseHeaderBytes);
-      String payloadDigest = getSha1DigestWithAlg(new byte[0]);
+      /*
+       * HTTP 304 not-modified responses do not have a payload, should not add a
+       * digest for it according to the WARC specification:
+       * "The WARC-Payload-Digest field ... shall not be used on records without
+       * a well-defined payload."
+       */
+      String payloadDigest = null;
       writer.writeWarcRevisitRecord(targetUri, ip, date, infoId, requestId,
           WarcWriter.PROFILE_REVISIT_NOT_MODIFIED, lastModifiedDate,
           payloadDigest, blockDigest, responseHeaderBytes, value.content);
