@@ -74,13 +74,14 @@ public class MoreIndexingFilter implements IndexingFilter {
     long time = -1;
     CharSequence lastModified = page.getHeaders().get(
         new Utf8(HttpHeaders.LAST_MODIFIED));
-    // String lastModified = data.getMeta(Metadata.LAST_MODIFIED);
     if (lastModified != null) { // try parse last-modified
       time = getTime(lastModified.toString(), url); // use as time
-      String formlastModified = DateUtil.getThreadLocalDateFormat().format(
-          new Date(time));
-      // store as string
-      doc.add("lastModified", formlastModified);
+      if (time > -1) {
+        String formlastModified = DateUtil.getThreadLocalDateFormat()
+            .format(new Date(time));
+        // store as string
+        doc.add("lastModified", formlastModified);
+      }
     }
 
     if (time == -1) { // if no last-modified
@@ -115,7 +116,7 @@ public class MoreIndexingFilter implements IndexingFilter {
                 "MMM dd yyyy HH:mm:ss zzz", "dd.MM.yyyy HH:mm:ss zzz",
                 "dd MM yyyy HH:mm:ss zzz", "dd.MM.yyyy; HH:mm:ss",
                 "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy zzz",
-                "yyyy-MM-dd'T'HH:mm:ss'Z'" });
+                "yyyy-MM-dd'T'HH:mm:ssXXX" });
         time = parsedDate.getTime();
         // if (LOG.isWarnEnabled()) {
         // LOG.warn(url + ": parsed date: " + date +" to:"+time);
