@@ -19,16 +19,23 @@ package org.apache.nutch.indexwriter.csv;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.AbstractMap;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.indexer.*;
+import org.apache.nutch.indexer.IndexWriter;
+import org.apache.nutch.indexer.IndexWriterParams;
+import org.apache.nutch.indexer.IndexingJob;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.util.NutchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,35 +185,6 @@ public class CSVIndexWriter implements IndexWriter {
   private String outputPath = "csvindexwriter";
 
 
-  private static final String description =
-      " - write index as CSV file (comma separated values)"
-      + String.format("\n  %-24s : %s", CSVConstants.CSV_FIELDS,
-          "ordered list of fields (columns) in the CSV file")
-      + String.format("\n  %-24s : %s", CSVConstants.CSV_FIELD_SEPARATOR,
-          "separator between fields (columns), default: , (U+002C, comma)")
-      + String.format("\n  %-24s : %s", CSVConstants.CSV_QUOTECHARACTER,
-          "quote character used to quote fields containing separators or quotes, "
-              + "default: \" (U+0022, quotation mark)")
-      + String.format("\n  %-24s : %s", CSVConstants.CSV_ESCAPECHARACTER,
-          "escape character used to escape a quote character, "
-              + "default: \" (U+0022, quotation mark)")
-      + String.format("\n  %-24s : %s", CSVConstants.CSV_VALUESEPARATOR,
-          "separator between multiple values of one field, "
-              + "default: | (U+007C)")
-      + String.format("\n  %-24s : %s", CSVConstants.CSV_MAXFIELDVALUES,
-          "max. number of values of one field, useful for, "
-              + " e.g., the anchor texts field, default: 12")
-      + String.format("\n  %-24s : %s", CSVConstants.CSV_MAXFIELDLENGTH,
-          "max. length of a single field value in characters, default: 4096.")
-      + String.format("\n  %-24s : %s", CSVConstants.CSV_CHARSET,
-          "encoding of CSV file, default: UTF-8")
-      + String.format("\n  %-24s : %s", CSVConstants.CSV_WITHHEADER,
-          "write CSV column headers, default: true")
-      + String.format("\n  %-24s : %s", CSVConstants.CSV_OUTPATH,
-          "output path / directory, default: csvindexwriter. "
-          + "\n    CAVEAT: existing output directories are removed!") + "\n";
-
-
   private FileSystem fs;
 
   protected FSDataOutputStream csvout;
@@ -345,9 +323,47 @@ public class CSVIndexWriter implements IndexWriter {
     return config;
   }
 
+  /**
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   *
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   */
   @Override
-  public String describe() {
-    return getClass().getSimpleName() + description;
+  public Map<String, Map.Entry<String, Object>> describe() {
+    Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
+
+    properties.put(CSVConstants.CSV_FIELDS, new AbstractMap.SimpleEntry<>(
+        "Ordered list of fields (columns) in the CSV file",
+        this.fields == null ? "" : String.join(",", this.fields)));
+    properties.put(CSVConstants.CSV_FIELD_SEPARATOR, new AbstractMap.SimpleEntry<>(
+        "Separator between fields (columns), default: , (U+002C, comma)",
+        this.fieldSeparator));
+    properties.put(CSVConstants.CSV_QUOTECHARACTER, new AbstractMap.SimpleEntry<>(
+        "Quote character used to quote fields containing separators or quotes, default: \" (U+0022, quotation mark)",
+        this.quoteCharacter));
+    properties.put(CSVConstants.CSV_ESCAPECHARACTER, new AbstractMap.SimpleEntry<>(
+        "Escape character used to escape a quote character, default: \" (U+0022, quotation mark)",
+        this.escapeCharacter));
+    properties.put(CSVConstants.CSV_VALUESEPARATOR, new AbstractMap.SimpleEntry<>(
+        "Separator between multiple values of one field, default: | (U+007C)",
+        this.valueSeparator));
+    properties.put(CSVConstants.CSV_MAXFIELDVALUES, new AbstractMap.SimpleEntry<>(
+        "Max. number of values of one field, useful for, e.g., the anchor texts field, default: 12",
+        this.maxFieldValues));
+    properties.put(CSVConstants.CSV_MAXFIELDLENGTH, new AbstractMap.SimpleEntry<>(
+        "Max. length of a single field value in characters, default: 4096",
+        this.maxFieldLength));
+    properties.put(CSVConstants.CSV_CHARSET, new AbstractMap.SimpleEntry<>(
+        "Encoding of CSV file, default: UTF-8",
+        this.encoding));
+    properties.put(CSVConstants.CSV_WITHHEADER, new AbstractMap.SimpleEntry<>(
+        "Write CSV column headers, default: true",
+        this.withHeader));
+    properties.put(CSVConstants.CSV_OUTPATH, new AbstractMap.SimpleEntry<>(
+        "Output path / directory, default: csvindexwriter. ",
+        this.outputPath));
+
+    return properties;
   }
 
   @Override
