@@ -169,6 +169,7 @@ public class ElasticIndexWriter implements IndexWriter {
 
     // Prefer TransportClient
     if (hosts != null && port > 1) {
+      @SuppressWarnings("resource")
       TransportClient transportClient = new PreBuiltTransportClient(settings);
 
       for (String host : hosts)

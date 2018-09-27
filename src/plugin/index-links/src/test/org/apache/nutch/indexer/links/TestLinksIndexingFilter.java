@@ -36,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URL;
-import java.util.Iterator;
 
 public class TestLinksIndexingFilter {
 

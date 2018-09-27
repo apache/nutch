@@ -259,7 +259,6 @@ public class WARCExporter extends Configured implements Tool {
 
     final Job job = NutchJob.getInstance(getConf());
     job.setJobName("warc-exporter " + output);
-    Configuration conf = job.getConfiguration();
 
     for (final Path segment : segments) {
       LOG.info("warc-exporter: adding segment: {}", segment);

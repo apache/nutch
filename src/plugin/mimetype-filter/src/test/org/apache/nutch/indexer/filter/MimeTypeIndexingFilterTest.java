@@ -45,7 +45,6 @@ public class MimeTypeIndexingFilterTest {
   private MimeTypeIndexingFilter filter = new MimeTypeIndexingFilter();
   private String[] MIME_TYPES = { "text/html", "image/png", "application/pdf" };
   private ParseImpl[] parses = new ParseImpl[MIME_TYPES.length];
-  private String sampleDir = System.getProperty("test.data", ".");
 
   @Before
   public void setUp() throws Exception {

@@ -313,6 +313,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
       batch.setContentLength((long) bb.length);
       batch.setContentType(ContentType.Applicationjson);
       batch.setDocuments(inputStream);
+      @SuppressWarnings("unused")
       UploadDocumentsResult result = client.uploadDocuments(batch);
     } catch (Exception e) {
       LOG.error("Exception while sending batch", e);

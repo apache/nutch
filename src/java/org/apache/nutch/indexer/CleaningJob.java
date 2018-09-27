@@ -77,7 +77,9 @@ public class CleaningJob implements Tool {
 
   public static class DeleterReducer extends
       Reducer<ByteWritable, Text, Text, ByteWritable> {
+    @SuppressWarnings("unused")
     private static final int NUM_MAX_DELETE_REQUEST = 1000;
+    @SuppressWarnings("unused")
     private int numDeletes = 0;
     private int totalDeleted = 0;
 
