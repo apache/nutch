@@ -514,7 +514,6 @@ public class Generator extends NutchTool implements Tool {
 
           outputFile = generateFileName(entry);
           mos.write("sequenceFiles", key, entry, outputFile);
-          context.write(key,entry);
 
           // Count is incremented only when we keep the URL
           // maxCount may cause us to skip it.
@@ -572,8 +571,7 @@ public class Generator extends NutchTool implements Tool {
         Context context)
         throws IOException, InterruptedException {
       // if using HashComparator, we get only one input key in case of
-      // hash collision
-      // so use only URLs from values
+      // hash collision so use only URLs from values
       for (SelectorEntry entry : values) {
         context.write(entry.url, entry.datum);
       }
@@ -605,8 +603,7 @@ public class Generator extends NutchTool implements Tool {
     private static int hash(byte[] bytes, int start, int length) {
       int hash = 1;
       // make later bytes more significant in hash code, so that sorting
-      // by
-      // hashcode correlates less with by-host ordering.
+      // by hashcode correlates less with by-host ordering.
       for (int i = length - 1; i >= 0; i--)
         hash = (31 * hash) + (int) bytes[start + i];
       return hash;
