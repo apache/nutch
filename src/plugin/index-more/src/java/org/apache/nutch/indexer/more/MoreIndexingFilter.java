@@ -104,8 +104,10 @@ public class MoreIndexingFilter implements IndexingFilter {
     String lastModified = data.getMeta(Metadata.LAST_MODIFIED);
     if (lastModified != null) { // try parse last-modified
       time = getTime(lastModified, url); // use as time
-                                         // store as string
-      doc.add("lastModified", new Date(time));
+                                         // store as Date
+      if (time > -1) {
+        doc.add("lastModified", new Date(time));
+      }
     }
 
     if (time == -1) { // if no last-modified specified in HTTP header
@@ -139,7 +141,7 @@ public class MoreIndexingFilter implements IndexingFilter {
             "MMM dd yyyy HH:mm:ss. zzz", "MMM dd yyyy HH:mm:ss zzz",
             "dd.MM.yyyy HH:mm:ss zzz", "dd MM yyyy HH:mm:ss zzz",
             "dd.MM.yyyy; HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy zzz",
-            "yyyy-MM-dd'T'HH:mm:ss'Z'" });
+            "yyyy-MM-dd'T'HH:mm:ssXXX" });
         time = parsedDate.getTime();
         // if (LOG.isWarnEnabled()) {
         // LOG.warn(url + ": parsed date: " + date +" to:"+time);
