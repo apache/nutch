@@ -373,7 +373,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 	  Path tmpFolder = new Path(crawlDb, "stat_tmp" + System.currentTimeMillis());
 
 	  Job job = NutchJob.getInstance(config);
-          config = job.getConfiguration();
+	  config = job.getConfiguration();
 	  job.setJobName("stats " + crawlDb);
 	  config.setBoolean("db.reader.stats.sort", sort);
 
@@ -658,6 +658,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
     Job job = NutchJob.getInstance(config);
     job.setJobName("dump " + crawlDb);
+    Configuration jobConf = job.getConfiguration();
 
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormatClass(SequenceFileInputFormat.class);
@@ -672,17 +673,18 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     }
 
     if (status != null)
-      config.set("status", status);
+      jobConf.set("status", status);
     if (regex != null)
-      config.set("regex", regex);
+      jobConf.set("regex", regex);
     if (retry != null)
-      config.setInt("retry", retry);
+      jobConf.setInt("retry", retry);
     if (expr != null) {
-      config.set("expr", expr);
+      jobConf.set("expr", expr);
       LOG.info("CrawlDb db: expr: " + expr);
     }
-    if (sample != null)
-      config.setFloat("sample", sample);
+    if (sample != null) {
+      jobConf.setFloat("sample", sample);
+    }
     job.setMapperClass(CrawlDbDumpMapper.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
@@ -900,8 +902,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     String crawlDb = args[0];
     this.crawlDb = crawlDb;
     int numConsumed = 0;
-    Job job = NutchJob.getInstance(getConf());
-    Configuration config = job.getConfiguration();
+    Configuration config = getConf();
 
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-stats")) {
