@@ -17,16 +17,22 @@
 package org.apache.nutch.indexer.more;
 
 import org.apache.avro.util.Utf8;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.EncodingDetector;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.solr.common.util.DateUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import static org.junit.Assert.*;
 
@@ -87,5 +93,46 @@ public class TestMoreIndexingFilter {
     page.getHeaders().put(EncodingDetector.CONTENT_TYPE_UTF8, new Utf8(source));
     NutchDocument doc = filter.filter(new NutchDocument(), url, page);
     assertEquals("mime type not detected", expected, doc.getFieldValue("type"));
+  }
+
+  @Test
+  public void testDates() throws IndexingException {
+    Configuration conf = NutchConfiguration.create();
+
+    MoreIndexingFilter filter = new MoreIndexingFilter();
+    filter.setConf(conf);
+
+    WebPage page = WebPage.newBuilder().build();
+    String url = "http://www.example.com/";
+    page.setContent(ByteBuffer.wrap("text".getBytes(StandardCharsets.UTF_8)));
+    page.setTitle(new Utf8("title"));
+    NutchDocument doc = new NutchDocument();
+
+    long dateEpocheSeconds = 1537898340; // 2018-09-25T17:59:00+0000
+    page.setModifiedTime(dateEpocheSeconds * 1000);
+    // fetch time 30 days later
+    page.setFetchTime((dateEpocheSeconds + 30 * 24 * 60 * 60) * 1000);
+    // NOTE: the datum.getLastModified() returns the fetch time
+    // of the latest fetch of changed content (i.e., not a "HTTP 304
+    // not-modified" or a re-fetch resulting in the same signature)
+
+    doc = filter.filter(doc, url, page);
+
+    String dateExpected = DateUtil.getThreadLocalDateFormat()
+        .format(new Date(dateEpocheSeconds * 1000));
+    assertEquals("last fetch date not extracted", dateExpected,
+        doc.getFieldValue("date"));
+
+    // set last-modified time (7 days before fetch time)
+    Date lastModifiedDate = new Date(
+        (dateEpocheSeconds - 7 * 24 * 60 * 60) * 1000);
+    dateExpected = DateUtil.getThreadLocalDateFormat().format(lastModifiedDate);
+    String lastModifiedDateStr = DateTimeFormatter.ISO_INSTANT
+        .format(lastModifiedDate.toInstant());
+    page.getHeaders().put(new Utf8(HttpHeaders.LAST_MODIFIED), new Utf8(lastModifiedDateStr));
+    doc = filter.filter(doc, url, page);
+
+    Assert.assertEquals("last-modified date not extracted", dateExpected,
+        doc.getFieldValue("lastModified"));
   }
 }
