@@ -355,10 +355,17 @@ public class HttpResponse implements Response {
    * -------------------------
    */
 
-  private SSLSocket getSSLSocket(Socket socket, String sockHost, int sockPort) throws Exception {
-    SSLContext sslContext = SSLContext.getInstance("TLS");
-    sslContext.init(null, new TrustManager[]{new DummyX509TrustManager(null)}, null);
-    SSLSocketFactory factory = sslContext.getSocketFactory();
+  private SSLSocket getSSLSocket(Socket socket, String sockHost, int sockPort)
+      throws Exception {
+    SSLSocketFactory factory;
+    if (http.isTlsCheckCertificates()) {
+      factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+    } else {
+      SSLContext sslContext = SSLContext.getInstance("TLS");
+      sslContext.init(null,
+          new TrustManager[] { new DummyX509TrustManager(null) }, null);
+      factory = sslContext.getSocketFactory();
+    }
     
     SSLSocket sslsocket = (SSLSocket) factory
       .createSocket(socket, sockHost, sockPort, true);

@@ -250,6 +250,18 @@
 </property>
 
 <property>
+  <name>http.tls.certificates.check</name>
+  <value>false</value>
+  <description>
+    Whether to check the TLS/SSL server certificates for validity.
+    If true invalid (e.g., self-signed or expired) certificates are
+    rejected and the https connection is failed.  If false insecure
+    TLS/SSL connections are allowed.  Note that this property is
+    currently not supported by all http/https protocol plugins.
+  </description>
+</property>
+
+<property>
   <name>http.proxy.host</name>
   <value></value>
   <description>The proxy hostname.  If empty, no proxy is used.</description>
