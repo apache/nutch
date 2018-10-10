@@ -46,6 +46,7 @@ public class TestWarcRecordWriter {
       headers.append(testHeaders1[i]).append(WarcRecordWriter.COLONSP);
       headers.append(testHeaders1[i+1]).append(WarcRecordWriter.CRLF);
     }
+    headers.append(WarcRecordWriter.CRLF);
     testHeaderString1 = headers.toString();
   }
 
