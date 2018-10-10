@@ -32,10 +32,12 @@ public class CCFetchSchedule extends DefaultFetchSchedule {
 
   private static final String RESET_FETCH_INTERVAL = "db.fetch.interval.reset";
   private static final String FETCH_TIME_MAX_DAYS_AHEAD = "db.fetch.time.max.days.ahead";
+  private static final String RESET_NOT_MODIFIED = "db.fetch.reset.notmodified.after";
 
   private boolean resetFetchInterval = false;
   private boolean resetFetchTime = false;
   private long latestFetchTime;
+  private long minModifiedTime = 0;
 
   public void setConf(Configuration conf) {
     super.setConf(conf);
@@ -55,12 +57,23 @@ public class CCFetchSchedule extends DefaultFetchSchedule {
       LOG.info("Resetting fetch time if more than {} = {} days ahead",
           FETCH_TIME_MAX_DAYS_AHEAD, fetchTimeMaxDaysAhead);
     }
+    int secondsResetNotModifiedTime = conf.getInt(RESET_NOT_MODIFIED, 0);
+    if (secondsResetNotModifiedTime > 0) {
+      minModifiedTime = System.currentTimeMillis() - secondsResetNotModifiedTime * 1000;
+    }
   }
 
   @Override
   public boolean shouldFetch(Text url, CrawlDatum datum, long curTime) {
     if (datum.getFetchTime() > curTime) {
       return false; // not time yet
+    }
+    if (datum.getModifiedTime() > 0
+        && datum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED
+        && datum.getModifiedTime() < minModifiedTime) {
+      // trigger a full re-fetch of not-modified pages
+      // (do not send if-not-modified-since requests)
+      datum.setModifiedTime(0);
     }
     return true;
   }
