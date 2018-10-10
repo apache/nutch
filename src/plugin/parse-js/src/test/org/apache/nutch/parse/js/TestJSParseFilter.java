@@ -28,55 +28,64 @@ import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
- * JUnit test case for {@link JSParseFilter} which tests 1. That 5 outlinks are
- * extracted from JavaScript snippets embedded in HTML 2. That X outlinks are
- * extracted from a pure JavaScript file (this is temporarily disabled)
- * 
- * @author lewismc
+ * JUnit test case for {@link JSParseFilter} which tests
+ * <ol>
+ * <li>That 2 outlinks are extracted from JavaScript snippets embedded in
+ * HTML</li>
+ * <li>That 2 outlinks are extracted from a pure JavaScript file.</li>
+ * </ol>
  */
-
 public class TestJSParseFilter {
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private String fileSeparator = System.getProperty("file.separator");
 
   // This system property is defined in ./src/plugin/build-plugin.xml
   private String sampleDir = System.getProperty("test.data", ".");
 
-  // Make sure sample files are copied to "test.data" as specified in
-  // ./src/plugin/parse-js/build.xml during plugin compilation.
-  private String[] sampleFiles = { "parse_pure_js_test.js",
-      "parse_embedded_js_test.html" };
-
   private Configuration conf;
 
   @Before
   public void setUp() {
     conf = NutchConfiguration.create();
-    conf.set("file.content.limit", "-1");
+    conf.set("plugin.includes", "parse-(html|js)");
   }
 
-  public Outlink[] getOutlinks(String[] sampleFiles) throws ProtocolException,
-      ParseException, IOException {
-    String urlString;
+  public Outlink[] getOutlinks(String sampleFile)
+      throws ProtocolException, ParseException, IOException {
+    String urlString, fileName;
     Parse parse;
 
-    urlString = "file:" + sampleDir + fileSeparator + sampleFiles;
-    File file = new File(urlString);
+    fileName = sampleDir + fileSeparator + sampleFile;
+    urlString = "file:" + fileName;
+
+    urlString = "file:" + sampleDir + fileSeparator + sampleFile;
+    File file = new File(fileName);
     byte[] bytes = new byte[(int) file.length()];
     DataInputStream dip = new DataInputStream(new FileInputStream(file));
     dip.readFully(bytes);
     dip.close();
 
+    LOG.info("Parsing {}", urlString);
     WebPage page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8(urlString));
     page.setContent(ByteBuffer.wrap(bytes));
@@ -85,22 +94,32 @@ public class TestJSParseFilter {
     page.setContentType(new Utf8(mime));
 
     parse = new ParseUtil(conf).parse(urlString, page);
+    LOG.info("Parsed {} with {} outlinks: {}", urlString,
+        parse.getOutlinks().length, Arrays.toString(parse.getOutlinks()));
     return parse.getOutlinks();
   }
 
   @Test
-  public void testOutlinkExtraction() throws ProtocolException, ParseException,
-      IOException {
+  public void testJavaScriptOutlinkExtraction()
+      throws ProtocolException, ParseException, IOException {
     String[] filenames = new File(sampleDir).list();
     for (int i = 0; i < filenames.length; i++) {
-      if (filenames[i].endsWith(".js") == true) {
-        assertEquals("number of outlinks in .js test file should be 5", 5,
-            getOutlinks(sampleFiles));
-        // temporarily disabled as a suitable pure JS file could not be be
-        // found.
-        // } else {
-        // assertEquals("number of outlinks in .html file should be X", 5,
-        // getOutlinks(sampleFiles));
+      Outlink[] outlinks = getOutlinks(filenames[i]);
+      if (filenames[i].endsWith("parse_pure_js_test.js")) {
+        assertEquals("number of outlinks in .js test file should be X", 2,
+            outlinks.length);
+        assertEquals("http://search.lucidimagination.com/p:nutch", outlinks[0].getToUrl());
+        assertEquals("http://search-lucene.com/nutch", outlinks[1].getToUrl());
+      } else {
+        assertTrue("number of outlinks in .html file should be at least 2", outlinks.length >= 2);
+        Set<String> outlinkSet = new TreeSet<>();
+        for (Outlink o : outlinks) {
+          outlinkSet.add(o.getToUrl());
+        }
+        assertTrue("http://search.lucidimagination.com/p:nutch not in outlinks",
+            outlinkSet.contains("http://search.lucidimagination.com/p:nutch"));
+        assertTrue("http://search-lucene.com/nutch not in outlinks",
+            outlinkSet.contains("http://search-lucene.com/nutch"));
       }
     }
   }

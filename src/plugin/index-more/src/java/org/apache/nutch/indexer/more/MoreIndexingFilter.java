@@ -5,6 +5,9 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.avro.util.Utf8;
 import org.apache.commons.lang.time.DateUtils;
@@ -17,12 +20,6 @@ import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.MimeUtil;
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-import org.apache.oro.text.regex.Perl5Pattern;
 import org.apache.solr.common.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -224,18 +221,16 @@ public class MoreIndexingFilter implements IndexingFilter {
   // Patterns used to extract filename from possible non-standard
   // HTTP header "Content-Disposition". Typically it looks like:
   // Content-Disposition: inline; filename="foo.ppt"
-  private PatternMatcher matcher = new Perl5Matcher();
-
   private Configuration conf;
-  static Perl5Pattern patterns[] = { null, null };
+
+  static Pattern patterns[] = { null, null };
+
   static {
-    Perl5Compiler compiler = new Perl5Compiler();
     try {
       // order here is important
-      patterns[0] = (Perl5Pattern) compiler
-          .compile("\\bfilename=['\"](.+)['\"]");
-      patterns[1] = (Perl5Pattern) compiler.compile("\\bfilename=(\\S+)\\b");
-    } catch (MalformedPatternException e) {
+      patterns[0] = Pattern.compile("\\bfilename=['\"](.+)['\"]");
+      patterns[1] = Pattern.compile("\\bfilename=(\\S+)\\b");
+    } catch (PatternSyntaxException e) {
       // just ignore
     }
   }
@@ -246,12 +241,10 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (contentDisposition == null)
       return doc;
 
-    MatchResult result;
     for (int i = 0; i < patterns.length; i++) {
-      if (matcher.contains(contentDisposition.toString(), patterns[i])) {
-        result = matcher.getMatch();
-        doc.removeField("title");
-        doc.add("title", result.group(1));
+      Matcher matcher = patterns[i].matcher(contentDisposition);
+      if (matcher.find()) {
+        doc.add("title", matcher.group(1));
         break;
       }
     }
