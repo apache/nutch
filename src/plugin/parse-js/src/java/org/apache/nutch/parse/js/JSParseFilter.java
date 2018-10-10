@@ -64,6 +64,20 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
   private Configuration conf;
 
+  /**
+   * Scan the JavaScript fragments of a HTML page looking for possible {@link Outlink}'s
+   * 
+   * @param content
+   *          page content
+   * @param parseResult
+   *          parsed content, result of running the HTML parser
+   * @param metaTags
+   *          within the {@link HTMLMetaTags}
+   * @param doc
+   *          The {@link DocumentFragment} object
+   * @return parse the actual {@link ParseResult} object with additional outlinks from JavaScript
+   */
+  @Override
   public ParseResult filter(Content content, ParseResult parseResult,
       HTMLMetaTags metaTags, DocumentFragment doc) {
 
@@ -149,6 +163,14 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     }
   }
 
+  /**
+   * Parse a JavaScript file and extract outlinks
+   * 
+   * @param c
+   *          page content
+   * @return parse the actual {@link Parse} object
+   */
+  @Override
   public ParseResult getParse(Content c) {
     String script = new String(c.getContent());
     Outlink[] outlinks = getJSLinks(script, "", c.getUrl());
@@ -194,7 +216,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       baseURL = new URL(base);
     } catch (Exception e) {
       if (LOG.isErrorEnabled()) {
-        LOG.error("getJSLinks", e);
+        LOG.error("error assigning base URL", e);
       }
     }
 
@@ -235,7 +257,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       // if it is a malformed URL we just throw it away and continue with
       // extraction.
       if (LOG.isErrorEnabled()) {
-        LOG.error("getJSLinks", ex);
+        LOG.error(" - invalid or malformed URL", ex);
       }
     }
 
@@ -243,7 +265,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
     // create array of the Outlinks
     if (outlinks != null && outlinks.size() > 0) {
-      retval = (Outlink[]) outlinks.toArray(new Outlink[0]);
+      retval = outlinks.toArray(new Outlink[0]);
     } else {
       retval = new Outlink[0];
     }
@@ -251,6 +273,14 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     return retval;
   }
 
+  /**
+   * Main method which can be run from command line with the plugin option. The
+   * method takes two arguments e.g. o.a.n.parse.js.JSParseFilter file.js
+   * baseURL
+   * 
+   * @param args
+   * @throws Exception
+   */
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println(JSParseFilter.class.getName() + " file.js baseURL");

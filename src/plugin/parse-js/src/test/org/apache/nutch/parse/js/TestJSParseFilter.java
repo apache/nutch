@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -44,9 +43,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JUnit test case for {@link JSParseFilter} which tests 1. That 5 outlinks are
- * extracted from JavaScript snippets embedded in HTML 2. That X outlinks are
- * extracted from a pure JavaScript file (this is temporarily disabled)
+ * JUnit test case for {@link JSParseFilter} which tests
+ * <ol>
+ * <li>That 2 outlinks are extracted from JavaScript snippets embedded in
+ * HTML</li>
+ * <li>That X outlinks are extracted from a pure JavaScript file (this is
+ * temporarily disabled)</li>
+ * </ol>
  */
 public class TestJSParseFilter {
 
@@ -60,8 +63,6 @@ public class TestJSParseFilter {
 
   // Make sure sample files are copied to "test.data" as specified in
   // ./src/plugin/parse-js/build.xml during plugin compilation.
-  private String[] sampleFiles = { "parse_pure_js_test.js",
-      "parse_embedded_js_test.html" };
 
   private Configuration conf;
 
