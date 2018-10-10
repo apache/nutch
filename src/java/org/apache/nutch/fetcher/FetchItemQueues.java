@@ -80,8 +80,7 @@ public class FetchItemQueues {
     // check that the mode is known
     if (!queueMode.equals(QUEUE_MODE_IP)
         && !queueMode.equals(QUEUE_MODE_DOMAIN)
-        && !queueMode.equals(QUEUE_MODE_HOST)
-        && !queueMode.equals(QUEUE_MODE_HOST_PROTOCOL)) {
+        && !queueMode.equals(QUEUE_MODE_HOST)) {
       LOG.error("Unknown partition mode : {} - forcing to byHost", queueMode);
       queueMode = QUEUE_MODE_HOST;
     }

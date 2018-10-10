@@ -373,7 +373,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 	  Path tmpFolder = new Path(crawlDb, "stat_tmp" + System.currentTimeMillis());
 
 	  Job job = NutchJob.getInstance(config);
-          config = job.getConfiguration();
+	  config = job.getConfiguration();
 	  job.setJobName("stats " + crawlDb);
 	  config.setBoolean("db.reader.stats.sort", sort);
 
@@ -902,8 +902,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     String crawlDb = args[0];
     this.crawlDb = crawlDb;
     int numConsumed = 0;
-    Job job = NutchJob.getInstance(getConf());
-    Configuration config = job.getConfiguration();
+    Configuration config = getConf();
 
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-stats")) {

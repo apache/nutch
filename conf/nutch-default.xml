@@ -250,6 +250,18 @@
 </property>
 
 <property>
+  <name>http.tls.certificates.check</name>
+  <value>false</value>
+  <description>
+    Whether to check the TLS/SSL server certificates for validity.
+    If true invalid (e.g., self-signed or expired) certificates are
+    rejected and the https connection is failed.  If false insecure
+    TLS/SSL connections are allowed.  Note that this property is
+    currently not supported by all http/https protocol plugins.
+  </description>
+</property>
+
+<property>
   <name>http.proxy.host</name>
   <value></value>
   <description>The proxy hostname.  If empty, no proxy is used.</description>
@@ -979,11 +991,9 @@
 <property>
   <name>fetcher.queue.mode</name>
   <value>byHost</value>
-  <description>Determines how to put URLs into queues. Default value is 'byHost',
-  also takes 'byDomain', 'byIP' or 'byHostProtocol'. Crawl delays are implemented on
-  the level of fetcher queues. The mode 'byHostProtocol' uses a combination of host
-  and protocol as queue ID and will put the http:// and https:// URLs of the same
-  host into different queues.
+  <description>Determines how to put URLs into queues. Default value
+  is 'byHost', also takes 'byDomain' or 'byIP'. Crawl delays are
+  implemented on the level of fetcher queues.
   </description>
 </property>
 

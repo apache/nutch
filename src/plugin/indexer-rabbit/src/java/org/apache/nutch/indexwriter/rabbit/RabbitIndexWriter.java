@@ -30,7 +30,9 @@ import org.apache.nutch.rabbitmq.RabbitMQMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +41,11 @@ public class RabbitIndexWriter implements IndexWriter {
   public static final Logger LOG = LoggerFactory
       .getLogger(RabbitIndexWriter.class);
 
+  private String uri;
+
   private String exchange;
+  private String exchangeOptions;
+
   private String routingKey;
 
   private int commitSize;
@@ -47,6 +53,12 @@ public class RabbitIndexWriter implements IndexWriter {
 
   private String headersStatic;
   private List<String> headersDynamic;
+
+  private boolean binding;
+  private String bindingArguments;
+
+  private String queueName;
+  private String queueOptions;
 
   private Configuration config;
 
@@ -87,19 +99,19 @@ public class RabbitIndexWriter implements IndexWriter {
     headersDynamic = Arrays
         .asList(parameters.getStrings(RabbitMQConstants.HEADERS_DYNAMIC, ""));
 
-    String uri = parameters.get(RabbitMQConstants.SERVER_URI);
+    uri = parameters.get(RabbitMQConstants.SERVER_URI);
 
     client = new RabbitMQClient(uri);
     client.openChannel();
 
-    boolean binding = parameters.getBoolean(RabbitMQConstants.BINDING, false);
+    binding = parameters.getBoolean(RabbitMQConstants.BINDING, false);
     if (binding) {
-      String queueName = parameters.get(RabbitMQConstants.QUEUE_NAME);
-      String queueOptions = parameters.get(RabbitMQConstants.QUEUE_OPTIONS);
+      queueName = parameters.get(RabbitMQConstants.QUEUE_NAME);
+      queueOptions = parameters.get(RabbitMQConstants.QUEUE_OPTIONS);
 
-      String exchangeOptions = parameters.get(RabbitMQConstants.EXCHANGE_OPTIONS);
+      exchangeOptions = parameters.get(RabbitMQConstants.EXCHANGE_OPTIONS);
 
-      String bindingArguments = parameters
+      bindingArguments = parameters
           .get(RabbitMQConstants.BINDING_ARGUMENTS, "");
 
       client
@@ -199,33 +211,71 @@ public class RabbitIndexWriter implements IndexWriter {
     client.close();
   }
 
-  public String describe() {
-    StringBuffer sb = new StringBuffer("RabbitIndexWriter\n");
-    sb.append("\t").append(RabbitMQConstants.SERVER_URI)
-        .append(" : URI of RabbitMQ server\n");
-    sb.append("\t").append(RabbitMQConstants.BINDING).append(
-        " : If binding is created automatically or not (default true)\n");
-    sb.append("\t").append(RabbitMQConstants.BINDING_ARGUMENTS)
-        .append(" : Arguments used in binding\n");
-    sb.append("\t").append(RabbitMQConstants.EXCHANGE_NAME)
-        .append(" : Exchange's name\n");
-    sb.append("\t").append(RabbitMQConstants.EXCHANGE_OPTIONS)
-        .append(" : Exchange's options\n");
-    sb.append("\t").append(RabbitMQConstants.QUEUE_NAME)
-        .append(" : Queue's name\n");
-    sb.append("\t").append(RabbitMQConstants.QUEUE_OPTIONS)
-        .append(" : Queue's options\n");
-    sb.append("\t").append(RabbitMQConstants.ROUTING_KEY)
-        .append(" : Routing key\n");
-    sb.append("\t").append(RabbitMQConstants.COMMIT_SIZE)
-        .append(" : Buffer size when sending to RabbitMQ (default 250)\n");
-    sb.append("\t").append(RabbitMQConstants.COMMIT_MODE)
-        .append(" : The mode to send the documents (default multiple)\n");
-    sb.append("\t").append(RabbitMQConstants.HEADERS_STATIC)
-        .append(" : Static headers that will be added to the messages\n");
-    sb.append("\t").append(RabbitMQConstants.HEADERS_DYNAMIC)
-        .append(" : Document's fields added as headers\n");
-    return sb.toString();
+  /**
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   *
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   */
+  @Override
+  public Map<String, Map.Entry<String, Object>> describe() {
+    Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
+
+    properties.put(RabbitMQConstants.SERVER_URI, new AbstractMap.SimpleEntry<>(
+        "URI with connection parameters in the form amqp://<username>:<password>@<hostname>:<port>/<virtualHost>",
+        this.uri));
+    properties.put(RabbitMQConstants.BINDING, new AbstractMap.SimpleEntry<>(
+        "Whether the relationship between an exchange and a queue is created automatically. "
+            + "NOTE: Binding between exchanges is not supported.",
+        this.binding));
+    properties.put(RabbitMQConstants.BINDING_ARGUMENTS,
+        new AbstractMap.SimpleEntry<>(
+            "Arguments used in binding. It must have the form key1=value1,key2=value2. "
+                + "This value is only used when the exchange's type is headers and "
+                + "the value of binding property is true. In other cases is ignored.",
+            this.bindingArguments));
+    properties.put(RabbitMQConstants.EXCHANGE_NAME,
+        new AbstractMap.SimpleEntry<>(
+            "Name for the exchange where the messages will be sent.",
+            this.exchange));
+    properties.put(RabbitMQConstants.EXCHANGE_OPTIONS,
+        new AbstractMap.SimpleEntry<>(
+            "Options used when the exchange is created. Only used when the value of binding property is true. "
+                + "It must have the form type=<type>,durable=<durable>",
+            this.exchangeOptions));
+    properties.put(RabbitMQConstants.QUEUE_NAME, new AbstractMap.SimpleEntry<>(
+        "Name of the queue used to create the binding. Only used when the value "
+            + "of binding property is true.", this.queueName));
+    properties.put(RabbitMQConstants.QUEUE_OPTIONS,
+        new AbstractMap.SimpleEntry<>(
+            "Options used when the queue is created. Only used when the value of "
+                + "binding property is true. It must have the form "
+                + "durable=<durable>,exclusive=<exclusive>,auto-delete=<auto-delete>,arguments=<arguments>",
+            this.queueOptions));
+    properties.put(RabbitMQConstants.ROUTING_KEY, new AbstractMap.SimpleEntry<>(
+        "The routing key used to route messages in the exchange. "
+            + "It only makes sense when the exchange type is topic or direct.",
+        this.routingKey));
+    properties.put(RabbitMQConstants.COMMIT_MODE, new AbstractMap.SimpleEntry<>(
+        "single if a message contains only one document. "
+            + "In this case, a header with the action (write, update or delete) will be added. "
+            + "multiple if a message contains all documents.",
+        this.commitMode));
+    properties.put(RabbitMQConstants.COMMIT_SIZE, new AbstractMap.SimpleEntry<>(
+        "Amount of documents to send into each message if the value of commit.mode "
+            + "property is multiple. In single mode this value represents "
+            + "the amount of messages to be sent.", this.commitSize));
+    properties.put(RabbitMQConstants.HEADERS_STATIC,
+        new AbstractMap.SimpleEntry<>(
+            "Headers to add to each message. It must have the form key1=value1,key2=value2.",
+            this.headersStatic));
+    properties.put(RabbitMQConstants.HEADERS_DYNAMIC,
+        new AbstractMap.SimpleEntry<>(
+            "Document's fields to add as headers to each message. "
+                + "It must have the form field1,field2. "
+                + "Only used when the value of commit.mode property is single",
+            this.headersDynamic));
+
+    return properties;
   }
 
   private void addHeaders(final RabbitMQMessage message,
