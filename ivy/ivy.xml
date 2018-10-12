@@ -63,13 +63,13 @@
 		</dependency>
 		<!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="1.19" />
+		<dependency org="org.apache.tika" name="tika-core" rev="1.19.1" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
 
 		<!-- language detection -->
 		<dependency org="org.commoncrawl" name="language-detection-cld2" rev="0.1-SNAPSHOT" />
 		<dependency org="net.java.dev.jna" name="jna" rev="4.5.2" />
-		<dependency org="org.apache.tika" name="tika-parsers" rev="1.19">
+		<dependency org="org.apache.tika" name="tika-parsers" rev="1.19.1">
 			<include name="tika-parsers" />
 			<exclude />
 		</dependency>
