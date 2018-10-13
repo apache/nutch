@@ -16,11 +16,11 @@
  */
 package org.apache.nutch.parse.js;
 
-import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -28,29 +28,22 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.ParseFilter;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseStatusCodes;
+import org.apache.nutch.parse.ParseFilter;
 import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.storage.ParseStatus;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.TableUtil;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.PatternMatcherInput;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -85,7 +78,7 @@ public class JSParseFilter implements ParseFilter, Parser {
    *          within the {@link HTMLMetaTags}
    * @param doc
    *          The {@link DocumentFragment} object
-   * @return parse the actual {@link Parse} object
+   * @return parse the actual {@link Parse} object with additional outlinks from JavaScript
    */
   @Override
   public Parse filter(String url, WebPage page, Parse parse,
@@ -169,7 +162,7 @@ public class JSParseFilter implements ParseFilter, Parser {
   }
 
   /**
-   * Set the {@link Configuration} object
+   * Parse a JavaScript file and extract outlinks
    * 
    * @param url
    *          URL of the {@link WebPage} which is parsed
@@ -179,12 +172,6 @@ public class JSParseFilter implements ParseFilter, Parser {
    */
   @Override
   public Parse getParse(String url, WebPage page) {
-    String type = TableUtil.toString(page.getContentType());
-    if (type != null && !type.trim().equals("")
-        && !type.toLowerCase(Locale.ROOT).startsWith("application/x-javascript"))
-      return ParseStatusUtils.getEmptyParse(
-          ParseStatusCodes.FAILED_INVALID_FORMAT, "Content not JavaScript: '"
-              + type + "'", getConf());
     String script = Bytes.toString(page.getContent());
     Outlink[] outlinks = getJSLinks(script, "", url);
     if (outlinks == null)
@@ -205,9 +192,13 @@ public class JSParseFilter implements ParseFilter, Parser {
     return parse;
   }
 
-  private static final String STRING_PATTERN = "(\\\\*(?:\"|\'))([^\\s\"\']+?)(?:\\1)";
+  private static final Pattern STRING_PATTERN = Pattern.compile(
+      "(\\\\*(?:\"|\'))([^\\s\"\']+?)(?:\\1)",
+      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
   // A simple pattern. This allows also invalid URL characters.
-  private static final String URI_PATTERN = "(^|\\s*?)/?\\S+?[/\\.]\\S+($|\\s*)";
+  private static final Pattern URI_PATTERN = Pattern.compile(
+      "(^|\\s*?)/?\\S+?[/\\.]\\S+($|\\s*)",
+      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
   // Alternative pattern, which limits valid url characters.
   // private static final String URI_PATTERN =
@@ -230,30 +221,15 @@ public class JSParseFilter implements ParseFilter, Parser {
     }
 
     try {
-      final PatternCompiler cp = new Perl5Compiler();
-      final Pattern pattern = cp.compile(STRING_PATTERN,
-          Perl5Compiler.CASE_INSENSITIVE_MASK | Perl5Compiler.READ_ONLY_MASK
-              | Perl5Compiler.MULTILINE_MASK);
-      final Pattern pattern1 = cp.compile(URI_PATTERN,
-          Perl5Compiler.CASE_INSENSITIVE_MASK | Perl5Compiler.READ_ONLY_MASK
-              | Perl5Compiler.MULTILINE_MASK);
-      final PatternMatcher matcher = new Perl5Matcher();
 
-      final PatternMatcher matcher1 = new Perl5Matcher();
-      final PatternMatcherInput input = new PatternMatcherInput(plainText);
+      Matcher matcher = STRING_PATTERN.matcher(plainText);
 
-      MatchResult result;
       String url;
 
-      // loop the matches
-      while (matcher.contains(input, pattern)) {
-        result = matcher.getMatch();
-        url = result.group(2);
-        PatternMatcherInput input1 = new PatternMatcherInput(url);
-        if (!matcher1.matches(input1, pattern1)) {
-          if (LOG.isTraceEnabled()) {
-            LOG.trace(" - invalid '" + url + "'");
-          }
+      while (matcher.find()) {
+        url = matcher.group(2);
+        Matcher matcherUri = URI_PATTERN.matcher(url);
+        if (!matcherUri.matches()) {
           continue;
         }
         if (url.startsWith("www.")) {
@@ -316,6 +292,8 @@ public class JSParseFilter implements ParseFilter, Parser {
     String line = null;
     while ((line = br.readLine()) != null)
       sb.append(line + "\n");
+    br.close();
+
     JSParseFilter parseFilter = new JSParseFilter();
     parseFilter.setConf(NutchConfiguration.create());
     Outlink[] links = parseFilter.getJSLinks(sb.toString(), "", args[1]);
