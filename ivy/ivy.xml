@@ -69,10 +69,8 @@
 		<!-- language detection -->
 		<dependency org="org.commoncrawl" name="language-detection-cld2" rev="0.1-SNAPSHOT" />
 		<dependency org="net.java.dev.jna" name="jna" rev="4.5.2" />
-		<dependency org="org.apache.tika" name="tika-parsers" rev="1.19.1">
-			<include name="tika-parsers" />
-			<exclude />
-		</dependency>
+		<!-- tika-parsers (without transitive dependencies) is used to detect the charset in text and HTML documents -->
+		<dependency org="org.apache.tika" name="tika-parsers" rev="1.19.1" transitive="false" />
 
 		<dependency org="xerces" name="xercesImpl" rev="2.11.0" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
