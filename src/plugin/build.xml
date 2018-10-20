@@ -113,9 +113,11 @@
      <ant dir="any23" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="feed" target="test"/>
+     <ant dir="headings" target="test"/>
      <ant dir="index-anchor" target="test"/>
      <ant dir="index-basic" target="test"/>
      <!--ant dir="index-geoip" target="test"/-->
+     <ant dir="index-jexl-filter" target="test"/>
      <ant dir="index-links" target="test"/>
      <ant dir="index-more" target="test"/>
      <ant dir="index-replace" target="test"/>
@@ -128,6 +130,7 @@
      <ant dir="mimetype-filter" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
      <ant dir="parse-html" target="test"/>
+     <ant dir="parse-js" target="test"/>
      <ant dir="parse-metatags" target="test"/>
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-tika" target="test"/>
