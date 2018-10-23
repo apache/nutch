@@ -385,6 +385,10 @@
     <field name="lastModified" type="date" stored="true" indexed="false"/>
     <field name="date" type="tdate" stored="true" indexed="true"/>
 
+    <!-- fields for index-links -->
+    <field name="inlinks" type="url" stored="true" indexed="true" multiValued="true"/>
+    <field name="outlinks" type="url" stored="true" indexed="true" multiValued="true"/>
+
     <!-- fields for languageidentifier plugin -->
     <field name="lang" type="string" stored="true" indexed="true"/>
 
