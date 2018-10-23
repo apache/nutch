@@ -612,6 +612,34 @@
     </fail>
   </target>
 
+  <!-- Check dependencies for security vulnerabilities                                    -->
+  <!-- requires installation of OWASP dependency check tool, see                          -->
+  <!--   https://jeremylong.github.io/DependencyCheck/dependency-check-ant/index.html     -->
+  <!-- get http://dl.bintray.com/jeremy-long/owasp/dependency-check-ant-3.3.2-release.zip -->
+  <!-- and unzip in directory ./ivy/                                                      -->
+  <property name="dependency-check.home" value="${ivy.dir}/dependency-check-ant/"/>
+  <path id="dependency-check.path">
+    <pathelement location="${dependency-check.home}/dependency-check-ant.jar"/>
+    <fileset dir="${dependency-check.home}/lib">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+  <taskdef resource="dependency-check-taskdefs.properties">
+    <classpath refid="dependency-check.path" />
+  </taskdef>
+  <target name="report-vulnerabilities" description="--> check dependencies for security vulnerabilities">
+    <dependency-check projectname="${name}"
+                      reportoutputdirectory="${build.dir}"
+                      reportformat="ALL">
+        <suppressionfile path="${dependency-check.home}/dependency-check-suppressions.xml" />
+        <retirejsFilter regex="copyright.*jeremy long" />
+        <fileset dir="${build.dir}">
+          <include name="lib/*.jar"/>
+          <include name="plugins/*/*.jar"/>
+        </fileset>
+    </dependency-check>
+  </target>
+
   <!-- ================================================================== -->
   <!-- Documentation                                                      -->
   <!-- ================================================================== -->
