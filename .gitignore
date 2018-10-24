@@ -8,4 +8,10 @@ logs/
 *.iml
 .idea
 .log
-
+.classpath
+.naivebayes-model.crc
+.project
+ivy/ivy-2.3.0.jar
+ivy/ivy-2.4.0.jar
+naivebayes-model
+src/plugin/parse-tika/lib/
