@@ -70,7 +70,9 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   protected static final Pattern PROBLEMATIC_HEADERS = Pattern
       .compile("(?i)(?:Content-(?:Encoding|Length)|Transfer-Encoding)");
   protected static final String X_HIDE_HEADER = "X-Crawler-";
+  public static final String WARC_WRITER_COUNTER_GROUP = "WARC-Writer";
 
+  private TaskAttemptContext context;
   private DataOutputStream warcOut;
   private WarcWriter warcWriter;
   private DataOutputStream crawlDiagnosticsWarcOut;
@@ -93,7 +95,10 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   private boolean detectLanguage;
   private String lastURL = ""; // for deduplication
 
-  public WarcRecordWriter(Configuration conf, Path outputPath, int partition) throws IOException {
+  public WarcRecordWriter(Configuration conf, Path outputPath, int partition,
+      TaskAttemptContext context) throws IOException {
+
+    this.context = context;
 
     FileSystem fs = outputPath.getFileSystem(conf);
 
@@ -604,6 +609,16 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     if (detectLanguage && writer == warcWriter) {
       // detect language only for successfully fetched primary documents
       ldres = langDetect.detectLanguage(targetUri, value.content);
+      if (ldres.errorReason != null) {
+        context.getCounter(WARC_WRITER_COUNTER_GROUP,
+            "language detection: " + ldres.errorStatus.name).increment(1);
+      } else if (ldres.languages.isReliable()) {
+        context.getCounter(WARC_WRITER_COUNTER_GROUP,
+            "language detection: reliable").increment(1);
+      } else {
+        context.getCounter(WARC_WRITER_COUNTER_GROUP,
+            "language detection: not reliable").increment(1);
+      }
       if (generateCdx) {
         if (ldres.charset != null) {
           value.content.getMetadata().add("Detected-Charset",
