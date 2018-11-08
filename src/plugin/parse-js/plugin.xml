@@ -36,7 +36,7 @@
               point="org.apache.nutch.parse.Parser">
       <implementation id="JSParser"
          class="org.apache.nutch.parse.js.JSParseFilter">
-        <parameter name="contentType" value="application/x-javascript"/>
+        <parameter name="contentType" value="application/x-javascript|application/javascript"/>
         <parameter name="pathSuffix"  value="js"/>
       </implementation>
    </extension>
@@ -45,7 +45,7 @@
               point="org.apache.nutch.parse.HtmlParseFilter">
       <implementation id="JSParseFilter"
          class="org.apache.nutch.parse.js.JSParseFilter">
-        <parameter name="contentType" value="application/x-javascript"/>
+        <parameter name="contentType" value="application/x-javascript|application/javascript"/>
         <parameter name="pathSuffix"  value=""/>
       </implementation>
    </extension>

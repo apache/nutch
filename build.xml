@@ -417,7 +417,7 @@
   <!-- ================================================================== -->
   <!-- Compile test code                                                  -->
   <!-- ================================================================== -->
-  <target name="compile-core-test" depends="init, resolve-test, compile-core" description="--> compile test code">
+  <target name="compile-core-test" depends="init, compile-core, resolve-test" description="--> compile test code">
     <javac
      encoding="${build.encoding}"
      srcdir="${test.src.dir}"
@@ -1065,6 +1065,7 @@
         <source path="${plugins.dir}/feed/src/java/" />
         <source path="${plugins.dir}/feed/src/test/" />
         <source path="${plugins.dir}/headings/src/java/" />
+        <source path="${plugins.dir}/headings/src/test/" />
         <source path="${plugins.dir}/exchange-jexl/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/test/" />
@@ -1108,6 +1109,7 @@
         <source path="${plugins.dir}/parse-html/src/java/" />
         <source path="${plugins.dir}/parse-html/src/test/" />
         <source path="${plugins.dir}/parse-js/src/java/" />
+        <source path="${plugins.dir}/parse-js/src/test/" />
         <source path="${plugins.dir}/parse-metatags/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/test/" />
         <source path="${plugins.dir}/parse-swf/src/java/" />

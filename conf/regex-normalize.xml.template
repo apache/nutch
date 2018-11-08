@@ -17,7 +17,8 @@
 -->
 <!-- This is the configuration file for the RegexUrlNormalize Class.
      This is intended so that users can specify substitutions to be
-     done on URLs. The regex engine that is used is Perl5 compatible.
+     done on URLs using the Java regex syntax, see
+     https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
      The rules are applied to URLs in the order they occur in this file.  -->
 
 <!-- WATCH OUT: an xml parser reads this file an ampersands must be
