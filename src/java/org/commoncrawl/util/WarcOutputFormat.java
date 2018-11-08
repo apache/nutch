@@ -41,21 +41,16 @@ public class WarcOutputFormat extends FileOutputFormat<Text, WarcCapture> {
 
   private OutputCommitter committer;
 
+  @Override
   public RecordWriter<Text, WarcCapture> getRecordWriter(
       TaskAttemptContext context) throws IOException {
 
     TaskID taskid = context.getTaskAttemptID().getTaskID();
     int partition = taskid.getId();
+    LOG.info("Partition: " + partition);
+
     Configuration conf = context.getConfiguration();
     Path outputPath = getOutputPath(context);
-
-    return getRecordWriter(conf, outputPath, partition);
-  }
-
-  public RecordWriter<Text, WarcCapture> getRecordWriter(
-      Configuration conf, Path outputPath, int partition) throws IOException {
-
-    LOG.info("Partition: " + partition);
 
     String warcOutputPath = conf.get("warc.export.path");
     if (warcOutputPath != null) {
@@ -64,7 +59,7 @@ public class WarcOutputFormat extends FileOutputFormat<Text, WarcCapture> {
       outputPath = new Path(warcOutputPath);
     }
 
-    return new WarcRecordWriter(conf, outputPath, partition);
+    return new WarcRecordWriter(conf, outputPath, partition, context);
   }
 
   @Override
