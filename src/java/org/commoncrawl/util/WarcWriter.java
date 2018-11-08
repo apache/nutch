@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -141,7 +142,7 @@ public class WarcWriter {
 
     writeWarcKeyValue(sb, settings);
 
-    byte[] ba = sb.toString().getBytes("utf-8");
+    byte[] ba = sb.toString().getBytes(StandardCharsets.UTF_8);
     URI recordId = getRecordId();
 
     writeRecord(WARC_INFO, date, "application/warc-fields", recordId, extra,
@@ -280,7 +281,7 @@ public class WarcWriter {
     sb.append(CRLF);
 
     startRecord();
-    out.write(sb.toString().getBytes("UTF-8"));
+    out.write(sb.toString().getBytes(StandardCharsets.UTF_8));
     if (contentLength != 0 && content != null) {
       copyStream(content, out, contentLength);
     }
@@ -310,7 +311,7 @@ public class WarcWriter {
     sb.append(CRLF);
 
     startRecord();
-    out.write(sb.toString().getBytes("UTF-8"));
+    out.write(sb.toString().getBytes(StandardCharsets.UTF_8));
     if (block != null && block.length != 0) {
       out.write(block);
     }

@@ -32,6 +32,7 @@ import org.apache.tika.metadata.Metadata;
 import org.commoncrawl.langdetect.cld2.CLDHints;
 import org.commoncrawl.langdetect.cld2.Cld2;
 import org.commoncrawl.langdetect.cld2.Flags;
+import org.commoncrawl.util.LanguageDetector.Result.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,11 +57,28 @@ public class LanguageDetector {
     Charset charset;
     org.commoncrawl.langdetect.cld2.Result languages;
     String errorReason;
+    enum Status {
+      EMPTY_CONTENT("empty content"),
+      CHARSET_DETECTION_FAILED("failed to detect charset"),
+      UNSUPPORTED_MIME_TYPE("MIME type not supported");
+      String name;
+      Status(String name) {
+        this.name = name;
+      }
+    };
+    Status errorStatus;
   }
 
   protected Result detectLanguage(URI uri, Content content) {
 
     LanguageDetector.Result result = new Result();
+
+    if (content.getContent().length == 0) {
+      // empty content, nothing to detect
+      LOG.debug("Skipping empty document for language and charset detection");
+      result.errorStatus = Status.EMPTY_CONTENT;
+      return result;
+    }
 
     String detectedContentType = content.getContentType();
     boolean isPlainText = false;
@@ -70,6 +88,7 @@ public class LanguageDetector {
       LOG.debug("Skipping document of Content-Type {} for language detection",
           detectedContentType);
       result.errorReason = "Content-Type " + detectedContentType + " not supported";
+      result.errorStatus = Status.UNSUPPORTED_MIME_TYPE;
       return result;
     }
 
@@ -94,6 +113,7 @@ public class LanguageDetector {
     } catch (IOException | TikaException e) {
       LOG.error("Failed to convert charset:", e);
       result.errorReason = "Failed to convert charset " + e.getMessage();
+      result.errorStatus = Status.CHARSET_DETECTION_FAILED;
       return result;
     }
     CLDHints hints = new CLDHints();
