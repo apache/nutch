@@ -89,7 +89,7 @@ public class ReadHostDb extends Configured implements Tool {
 
     public void map(Text key, HostDatum datum, Context context) throws IOException, InterruptedException {
       if (fieldHeader && !dumpHomepages && !dumpHostnames) {
-        context.write(new Text("hostname"), new Text("unfetched\tfetched\tgone\tredirTemp\tredirPerm\tredirSum\tok\tnumRecords\tdnsFail\tcnxFail\tsumFail\tscore\tlastCheck\thomepage\tmetadata"));
+        context.write(new Text("hostname"), new Text("unfetched\tfetched\tgone\tredirTemp\tredirPerm\tnotModified\tnumRecords\tdnsFail\tcnxFail\tsumFail\tscore\tlastCheck\thomepage\tmetadata"));
         fieldHeader = false;
       }
       
