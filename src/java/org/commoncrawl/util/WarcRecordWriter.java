@@ -392,6 +392,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     return new DataOutputStream(new GZIPOutputStream(fs.create(cdxFile)));
   }
 
+  @Override
   public synchronized void write(Text key, WarcCapture value)
       throws IOException {
     URI targetUri;
@@ -612,6 +613,9 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       if (ldres.errorReason != null) {
         context.getCounter(WARC_WRITER_COUNTER_GROUP,
             "language detection: " + ldres.errorStatus.name).increment(1);
+      } else if (ldres.languages == null) {
+        context.getCounter(WARC_WRITER_COUNTER_GROUP,
+            "language detection: no result").increment(1);
       } else if (ldres.languages.isReliable()) {
         context.getCounter(WARC_WRITER_COUNTER_GROUP,
             "language detection: reliable").increment(1);
@@ -706,6 +710,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     }
   }
 
+  @Override
   public synchronized void close(TaskAttemptContext context)
       throws IOException {
     warcOut.close();
