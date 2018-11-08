@@ -256,7 +256,7 @@ elif [ "$COMMAND" = "solrdedup" ] ; then
   exit -1
 elif [ "$COMMAND" = "dedup" ] ; then
   CLASS=org.apache.nutch.crawl.DeduplicationJob
-elif [ "$COMMAND" = "dedup" ] ; then
+elif [ "$COMMAND" = "dedupredirects" ] ; then
   CLASS=org.apache.nutch.crawl.DedupRedirectsJob
 elif [ "$COMMAND" = "solrclean" ] ; then
   CLASS="org.apache.nutch.indexer.CleaningJob -D solr.server.url=$2 $1"

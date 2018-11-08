@@ -326,6 +326,7 @@ public class DedupRedirectsJob extends DeduplicationJob {
     } else if (noSortingAfterDedup) {
       LOG.info("Skipping step to sort CrawlDb");
       LOG.warn("Make sure that the CrawlDb is sorted again by a following job");
+      CrawlDb.install(job, crawlDb);
 
     } else {
       // temporary output is the deduped crawldb but not in proper sorting
