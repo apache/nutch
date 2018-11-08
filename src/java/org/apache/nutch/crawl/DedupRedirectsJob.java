@@ -243,17 +243,17 @@ public class DedupRedirectsJob extends DeduplicationJob {
 
     if (args.length < 1) {
       System.err.println(
-          "Usage: DedupRedirectsJob <crawldb> [-group <none|host|domain>] [-compareOrder <score>,<fetchTime>,<urlLength>]");
+          "Usage: DedupRedirectsJob <crawldb> [-compareOrder <score>,<fetchTime>,<urlLength>] [-noSort]");
       return 1;
     }
 
-    String group = "none";
     Path crawlDb = new Path(args[0]);
     String compareOrder = "score,fetchTime,urlLength";
 
+    boolean noSortingAfterDedup = false;
     for (int i = 1; i < args.length; i++) {
-      if (args[i].equals("-group"))
-        group = args[++i];
+      if (args[i].equals("-noSort"))
+        noSortingAfterDedup = true;
       if (args[i].equals("-compareOrder")) {
         compareOrder = args[++i];
 
@@ -277,7 +277,6 @@ public class DedupRedirectsJob extends DeduplicationJob {
     Job job = NutchJob.getInstance(getConf());
     Configuration conf = job.getConfiguration();
     job.setJobName("Redirect deduplication on " + crawlDb);
-    conf.set(DEDUPLICATION_GROUP_MODE, group);
     conf.set(DEDUPLICATION_COMPARE_ORDER, compareOrder);
     job.setJarByClass(DedupRedirectsJob.class);
 
@@ -322,9 +321,11 @@ public class DedupRedirectsJob extends DeduplicationJob {
     }
 
     if (numDuplicates == 0) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("No duplicates found, skip writing CrawlDb");
-      }
+      LOG.info("No duplicates found, skip writing CrawlDb");
+
+    } else if (noSortingAfterDedup) {
+      LOG.info("Skipping step to sort CrawlDb");
+      LOG.warn("Make sure that the CrawlDb is sorted again by a following job");
 
     } else {
       // temporary output is the deduped crawldb but not in proper sorting
