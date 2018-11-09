@@ -131,19 +131,25 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
 
   /*
    * Time span (in minutes) after which a page not seen anymore by inlink or
-   * seed is marked as orpaned.
+   * seed is marked as orphaned.
    */
   public static final String ADAPTIVE_ORPHAN_TIME = "scoring.adaptive.mark.orphan.after";
 
   /*
    * Time span (in minutes) after which a &quot;redirected&quot; page not seen anymore
-   * by inlink or seed is marked as orpaned.
+   * by inlink or seed is marked as orphaned.
    */
   public static final String ADAPTIVE_ORPHAN_TIME_REDIRECT = "scoring.adaptive.mark.redirect.orphan.after";
 
   /*
+   * Time span (in minutes) after which a &quot;unfetched&quot; page not seen anymore
+   * by inlink or seed is marked as orphaned.
+   */
+  public static final String ADAPTIVE_ORPHAN_TIME_UNFETCHED = "scoring.adaptive.mark.unfetched.orphan.after";
+
+  /*
    * Time span (in minutes) after which a &quot;gone&quot; page not seen anymore
-   * by inlink or seed is marked as orpaned. Also duplicates and unfetched pages
+   * by inlink or seed is marked as orphaned. Also duplicates and unfetched pages
    * with a retry count >= 3 are considered as &quot;gone&quot;.
    */
   public static final String ADAPTIVE_ORPHAN_TIME_GONE = "scoring.adaptive.mark.gone.orphan.after";
@@ -188,6 +194,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   int nowMinutes;
   int orphanTimeGone;
   int orphanTimeRedirect;
+  int orphanTimeUnfetched;
   int orphanTimeAny;
   int orphanTimeLastSeenDefault;
 
@@ -225,6 +232,8 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     int orphanTimeSpanRedirect = conf.getInt(ADAPTIVE_ORPHAN_TIME_REDIRECT,
         60 * 24 * 30 * 4);
     orphanTimeRedirect = nowMinutes - orphanTimeSpanRedirect;
+    int orphanTimeSpanUnfetched = conf.getInt(ADAPTIVE_ORPHAN_TIME_UNFETCHED, orphanTimeSpanAny);
+    orphanTimeUnfetched = nowMinutes - orphanTimeSpanUnfetched;
     int orphanTimeSpanGone = conf.getInt(ADAPTIVE_ORPHAN_TIME_GONE,
         60 * 24 * 30 * 4);
     orphanTimeGone = nowMinutes - orphanTimeSpanGone;
@@ -379,6 +388,12 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     } else if (pageIsGone(datum)) {
       if (lastSeenMinutes < orphanTimeGone) {
         // last seen time before mark-as-orphan-if-gone time
+        datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
+      }
+    } else if (datum.getStatus() == CrawlDatum.STATUS_DB_UNFETCHED) {
+      if (lastSeenMinutes < orphanTimeUnfetched) {
+        // last seen time before mark-as-orphan-if-still-unfetched time
+        // Note: unfetched pages with high retry count are considered as "gone"
         datum.setStatus(CrawlDatum.STATUS_DB_ORPHAN);
       }
     }

@@ -1822,6 +1822,24 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 </property>
 
 <property>
+  <name>scoring.adaptive.mark.redirect.orphan.after</name>
+   <value>518400</value>
+   <description>
+     Time span (in minutes) after which a redirect not seen anymore by inlink
+     or seed is marked as orpaned. Default = 518400 minutes = one year.
+   </description>
+</property>
+
+<property>
+  <name>scoring.adaptive.mark.unfetched.orphan.after</name>
+   <value>518400</value>
+   <description>
+     Time span (in minutes) after which a still unfetched page not seen anymore
+     by inlink or seed is marked as orpaned. Default = 518400 minutes = one year.
+   </description>
+</property>
+
+<property>
   <name>scoring.adaptive.mark.orphan.last.seen.default.date</name>
   <value>2017-07-15T00:00:00</value>
   <description>
