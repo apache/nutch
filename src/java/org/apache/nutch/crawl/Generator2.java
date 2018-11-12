@@ -928,12 +928,16 @@ public class Generator2 extends Configured implements Tool {
               + job.getStatus().getState() + ", reason: "
               + job.getStatus().getFailureInfo();
           LOG.error(message);
-          NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+          if (!keep) {
+            NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+          }
           throw new RuntimeException(message);
         }
       } catch (IOException | InterruptedException | ClassNotFoundException e) {
         LOG.error("Generator job failed: {}", e.getMessage());
-        NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+        if (!keep) {
+          NutchJob.cleanupAfterFailure(tempDir, lock, fs);
+        }
         throw e;
       }
     } else {
