@@ -54,20 +54,20 @@ public class HttpWebClient {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  public static ThreadLocal<WebDriver> threadWebDriver = new ThreadLocal<WebDriver>() {
-
-    @Override
-    protected WebDriver initialValue()
-    {
-      FirefoxProfile profile = new FirefoxProfile();
-      profile.setPreference("permissions.default.stylesheet", 2);
-      profile.setPreference("permissions.default.image", 2);
-      profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", "false");
-      profile.setPreference(FirefoxProfile.ALLOWED_HOSTS_PREFERENCE, "localhost");
-      WebDriver driver = new FirefoxDriver(profile);
-      return driver;          
-    };
-  };
+//  public static ThreadLocal<WebDriver> threadWebDriver = new ThreadLocal<WebDriver>() {
+//
+//    @Override
+//    protected WebDriver initialValue()
+//    {
+//      FirefoxProfile profile = new FirefoxProfile();
+//      profile.setPreference("permissions.default.stylesheet", 2);
+//      profile.setPreference("permissions.default.image", 2);
+//      profile.setPreference("dom.ipc.plugins.enabled.libflashplayer.so", "false");
+//      profile.setPreference(FirefoxProfile.ALLOWED_HOSTS_PREFERENCE, "localhost");
+//      WebDriver driver = new FirefoxDriver(profile);
+//      return driver;          
+//    };
+//  };
 
   public static WebDriver getDriverForPage(String url, Configuration conf) {
       WebDriver driver = null;
@@ -155,20 +155,20 @@ public class HttpWebClient {
       return driver;
   }
 
-  public static String getHTMLContent(WebDriver driver, Configuration conf) {
-      if (conf.getBoolean("take.screenshot", false)) {
-        takeScreenshot(driver, conf);
-      }
-
-      return driver.findElement(By.tagName("body")).getAttribute("innerHTML");
-  }
+//  public static String getHTMLContent(WebDriver driver, Configuration conf) {
+//      if (conf.getBoolean("take.screenshot", false)) {
+//        takeScreenshot(driver, conf);
+//      }
+//
+//      return driver.findElement(By.tagName("body")).getAttribute("innerHTML");
+//  }
 
   public static void cleanUpDriver(WebDriver driver) {
     if (driver != null) {
       try {
-	      driver.close();
-        driver.quit();
-        TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
+		driver.close();
+		driver.quit();
+		TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
