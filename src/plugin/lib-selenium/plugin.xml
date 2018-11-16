@@ -41,7 +41,7 @@
      <library name="commons-exec-1.3.jar">
        <export name="*"/>
      </library>
-     <library name="commons-io-2.4.jar">
+     <library name="commons-io-2.6.jar">
        <export name="*"/>
      </library>
      <library name="commons-jxpath-1.3.jar">
@@ -104,46 +104,43 @@
      <library name="operalaunchers-1.1.jar">
        <export name="*"/>
      </library>
-     <library name="phantomjsdriver-1.2.1.jar">
-       <export name="*"/>
-     </library>
      <library name="protobuf-java-2.4.1.jar">
        <export name="*"/>
      </library>
      <library name="sac-1.3.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-api-2.48.2.jar">
+     <library name="selenium-api-3.141.5.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-chrome-driver-2.48.2.jar">
+     <library name="selenium-chrome-driver-3.141.5.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-edge-driver-2.48.2.jar">
+     <library name="selenium-edge-driver-3.141.5.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-firefox-driver-2.48.2.jar">
+     <library name="selenium-firefox-driver-3.141.5.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-htmlunit-driver-2.48.2.jar">
+     <library name="selenium-htmlunit-driver-3.141.5.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-ie-driver-2.48.2.jar">
+     <library name="selenium-ie-driver-3.141.5.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-java-2.48.2.jar">
+     <library name="selenium-java-3.141.5.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-leg-rc-2.48.2.jar">
+     <library name="selenium-leg-rc-3.141.5.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-remote-driver-2.48.2.jar">
+     <library name="selenium-remote-driver-3.141.5.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-safari-driver-2.48.2.jar">
+     <library name="selenium-safari-driver-3.141.5.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-support-2.48.2.jar">
+     <library name="selenium-support-3.141.5.jar">
        <export name="*"/>
      </library>
      <library name="serializer-2.7.2.jar">
