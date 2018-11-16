@@ -31,8 +31,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 
-//import org.openqa.selenium.By;
-import org.openqa.selenm.Capabilities;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
@@ -177,6 +177,8 @@ public class HttpWebClient {
 
   public static WebDriver getDriverForPage(String url, Configuration conf) {
     WebDriver driver = null;
+    long pageLoadWait = conf.getLong("page.load.delay", 3);
+
     try{
 	    String driverType  = conf.get("selenium.driver", "firefox");
 	    switch (driverType) {
@@ -205,8 +207,17 @@ public class HttpWebClient {
 					    driver = createDefaultWebDriver(seleniumHubUrl, enableHeadlessMode); 
 					    break;
 			    }
-
+			    break;
+		    default:
+			    LOG.error("The Selenium WebDriver choice {} is not available... defaulting to FirefoxDriver().", driverType);
+			    FirefoxOptions options = new FirefoxOptions();
+			    driver = new FirefoxDriver(options);
+			    break;
 	    }
+	    LOG.debug("Selenium {} WebDriver selected.", driverType);
+
+	    driver.manage().timeouts().pageLoadTimeout(pageLoadWait, TimeUnit.SECONDS);
+	    driver.get(url);
     }catch (Exception e){
 	    if(e instanceof TimeoutException){
 		    LOG.debug("Selenium WebDriver: Timeout Exception: Capturing whatever loaded so far...");
@@ -215,28 +226,29 @@ public class HttpWebClient {
 	    cleanUpDriver(driver);
 	    throw new RuntimeException(e);
     }
-
+    
+    return driver;
   }
 
-  public static Capabilities createFirefoxWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
+  public static RemoteWebDriver createFirefoxWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
     FirefoxOptions firefoxOptions = new FirefoxOptions();
     if(enableHeadlessMode){
 	    firefoxOptions.setHeadless(true);
     }
-    RemoteWebDriver driver = createRemoteWebDriver(seleniumHubUrl, firefoxOptions);
+    RemoteWebDriver driver = new RemoteWebDriver(seleniumHubUrl, firefoxOptions);
     return driver;
   }
   
-  public static Capabilities createChromeWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
-    ChromeOptions = new ChromeOptions();
+  public static RemoteWebDriver createChromeWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
+    ChromeOptions chromeOptions = new ChromeOptions();
     if(enableHeadlessMode){
 	    chromeOptions.setHeadless(true);
     }
-    RemoteWebDriver driver = createRemoteWebDriver(seleniumHubUrl, firefoxOptions);
+    RemoteWebDriver driver = new RemoteWebDriver(seleniumHubUrl, chromeOptions);
     return driver;
   }
 
-  public static Capabilities createRandomWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
+  public static RemoteWebDriver createRandomWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
     // we consider a possibility of generating only 2 types of browsers: Firefox and Chrome only
     Random r = new Random();
     int min = 0;
@@ -252,15 +264,9 @@ public class HttpWebClient {
     return createChromeWebDriver(seleniumHubUrl, enableHeadlessMode); 
   }
 
-  public static Capabilities createDefaultWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
-    return createFirefoxWebDriver(enableHeadlessMode);	  
+  public static RemoteWebDriver createDefaultWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
+    return createFirefoxWebDriver(seleniumHubUrl, enableHeadlessMode); 
   }
-
-  public static RemoteWebDriver createRemoteWebDriver(URL url, Capabilities capabilities){
-    RemoteWebDriver driver = new RemoteWebDriver(url, capabilities);
-    return driver; 
-  }
-
 
   public static void cleanUpDriver(WebDriver driver) {
     if (driver != null) {
