@@ -51,7 +51,7 @@ import org.openqa.selenium.io.TemporaryFilesystem;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
-import org.openqa.selenium.safari.SafariDriver;
+//import org.openqa.selenium.safari.SafariDriver;
 
 //import org.openqa.selenium.phantomjs.PhantomJSDriver;
 //import org.openqa.selenium.phantomjs.PhantomJSDriverService;
@@ -59,7 +59,7 @@ import org.openqa.selenium.safari.SafariDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opera.core.systems.OperaDriver;
+//import com.opera.core.systems.OperaDriver;
 
 public class HttpWebClient {
 
@@ -271,7 +271,7 @@ public class HttpWebClient {
   public static void cleanUpDriver(WebDriver driver) {
     if (driver != null) {
       try {
-		driver.close();
+		//driver.close();
 		driver.quit();
 		TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
       } catch (Exception e) {
