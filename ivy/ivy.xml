@@ -148,8 +148,9 @@
 		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
 		<dependency org="org.apache.httpcomponents" name="httpcore-nio" rev="4.4.9"/>
 		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.9"/>
+		<!--Already added
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.5"/>
-
+                -->
 		<dependency org="de.vandermeer" name="asciitable" rev="0.3.2"/>
 
 		<!--global exclusion -->
