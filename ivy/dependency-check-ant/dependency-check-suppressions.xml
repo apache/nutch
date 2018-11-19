@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+   <suppress>
+      <notes>only applies to tika-server &lt; 1.18</notes>
+      <gav regex="true">^org\.(apache\.tika:tika-(core|parsers)|gagravarr:vorbis-java-tika):.*$</gav>
+      <cve>CVE-2018-1335</cve>
+   </suppress>
+</suppressions>
