@@ -182,6 +182,12 @@ public class HttpWebClient {
     try{
 	    String driverType  = conf.get("selenium.driver", "firefox");
 	    switch (driverType) {
+		    case "chrome":
+			    String chromeDriverPath = conf.get("webdriver.chrome.driver", "/root/chromedriver");
+			    // if not specified, WebDriver will search your path for chromedriver
+			    System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+			    driver = new ChromeDriver();
+			    break;
 		    case "remote":
 			    String seleniumHubHost = conf.get("selenium.hub.host", "localhost");
 			    int seleniumHubPort = Integer.parseInt(conf.get("selenium.hub.port", "4444"));
