@@ -2485,7 +2485,8 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
     exist - 'firefox', 'chrome', 'safari', 'opera' and 'remote'.
     If 'remote' is used it is essential to also set correct properties for
     'selenium.hub.port', 'selenium.hub.path', 'selenium.hub.host',
-    'selenium.hub.protocol', 'selenium.grid.driver' and 'selenium.grid.binary'.
+    'selenium.hub.protocol', 'selenium.grid.driver', 'selenium.grid.binary'
+    and 'selenium.enable.headless'.
   </description>
 </property>
 
@@ -2517,7 +2518,8 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>selenium.grid.driver</name>
   <value>firefox</value>
   <description>A String value representing the flavour of Selenium 
-    WebDriver() used on the selenium grid. Currently the following options
+    WebDriver() used on the selenium grid. We must set `selenium.driver` to `remote` first.
+    Currently the following options
     exist - 'firefox', 'chrome', 'random' </description>
 </property>
 
@@ -2586,6 +2588,14 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   2: Block all stylesheet
   Currently this option exist for - 'firefox' </description>
 </property>
+
+<!-- selenium chrome configurations -->
+<property>
+  <name>webdriver.chrome.driver</name>
+  <value>/root/chromedriver</value>
+  <description>The path to the ChromeDriver binary</description>
+</property>
+<!-- end of selenium chrome configurations -->
 
 <!-- protocol-interactiveselenium configuration -->
 <property>
