@@ -184,7 +184,8 @@ public class HttpWebClient {
 		    case "firefox":
 			    break;
 		    case "chrome":
-			    driver = createChromeWebDriver();
+			    String chromeDriverPath = conf.get("webdriver.chrome.driver", "/root/chromedriver");
+			    driver = createChromeWebDriver(chromeDriverPath);
 			    break;
 		    case "remote":
 			    String seleniumHubHost = conf.get("selenium.hub.host", "localhost");
@@ -235,8 +236,7 @@ public class HttpWebClient {
   }
 
 
-  public static WebDriver createChromeWebDriver(){
-    String chromeDriverPath = conf.get("webdriver.chrome.driver", "/root/chromedriver");
+  public static WebDriver createChromeWebDriver(String chromeDriverPath){
     // if not specified, WebDriver will search your path for chromedriver
     System.setProperty("webdriver.chrome.driver", chromeDriverPath);
     ChromeOptions chromeOptions = new ChromeOptions();
@@ -259,23 +259,7 @@ public class HttpWebClient {
     RemoteWebDriver driver = new RemoteWebDriver(seleniumHubUrl, firefoxOptions);
     return driver;
   }
-
-  public static WebDriver createChromeWebDriver(){
-    String chromeDriverPath = conf.get("webdriver.chrome.driver", "/root/chromedriver");
-    // if not specified, WebDriver will search your path for chromedriver
-    System.setProperty("webdriver.chrome.driver", chromeDriverPath);
-    ChromeOptions chromeOptions = new ChromeOptions();
-    chromeOptions.addArguments("--no-sandbox");
-    chromeOptions.addArguments("--disable-extensions");
-    // be sure to set selenium.enable.headless to true if there is no monitor
-    //  attached to your server
-    if(enableHeadlessMode){
-	chromeOptions.addArguments("--headless");
-    }   
-    WebDriver driver = new ChromeDriver(chromeOptions);
-    return driver; 
-  }
-  
+ 
   public static RemoteWebDriver createChromeRemoteWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
     ChromeOptions chromeOptions = new ChromeOptions();
     if(enableHeadlessMode){
