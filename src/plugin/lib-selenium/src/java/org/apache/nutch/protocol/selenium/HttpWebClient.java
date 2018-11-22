@@ -248,7 +248,7 @@ public class HttpWebClient {
         chromeOptions.addArguments("--headless");
     }   
     WebDriver driver = new ChromeDriver(chromeOptions);
-    return driver 
+    return driver;
   }
 
   public static RemoteWebDriver createFirefoxRemoteWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
