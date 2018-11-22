@@ -180,12 +180,14 @@ public class HttpWebClient {
 
     try{
 	    String driverType  = conf.get("selenium.driver", "firefox");
+	    boolean enableHeadlessMode = conf.getBoolean("selenium.enable.headless", false);
+	    
 	    switch (driverType) {
 		    case "firefox":
 			    break;
 		    case "chrome":
 			    String chromeDriverPath = conf.get("webdriver.chrome.driver", "/root/chromedriver");
-			    driver = createChromeWebDriver(chromeDriverPath);
+			    driver = createChromeWebDriver(chromeDriverPath, enableHeadlessMode);
 			    break;
 		    case "remote":
 			    String seleniumHubHost = conf.get("selenium.hub.host", "localhost");
@@ -195,7 +197,6 @@ public class HttpWebClient {
 			    URL seleniumHubUrl = new URL(seleniumHubProtocol, seleniumHubHost, seleniumHubPort, seleniumHubPath); 
 
 			    String seleniumGridDriver = conf.get("selenium.grid.driver","firefox");
-			    boolean enableHeadlessMode = conf.getBoolean("selenium.enable.headless", false);
 
 			    switch (seleniumGridDriver){
 				    case "firefox":
@@ -236,7 +237,7 @@ public class HttpWebClient {
   }
 
 
-  public static WebDriver createChromeWebDriver(String chromeDriverPath){
+  public static WebDriver createChromeWebDriver(String chromeDriverPath, boolean enableHeadlessMode){
     // if not specified, WebDriver will search your path for chromedriver
     System.setProperty("webdriver.chrome.driver", chromeDriverPath);
     ChromeOptions chromeOptions = new ChromeOptions();
