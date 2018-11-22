@@ -65,7 +65,6 @@ public class HttpWebClient {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
-
 //  public static ThreadLocal<WebDriver> threadWebDriver = new ThreadLocal<WebDriver>() {
 //
 //    @Override
@@ -182,11 +181,10 @@ public class HttpWebClient {
     try{
 	    String driverType  = conf.get("selenium.driver", "firefox");
 	    switch (driverType) {
+		    case "firefox":
+			    break;
 		    case "chrome":
-			    String chromeDriverPath = conf.get("webdriver.chrome.driver", "/root/chromedriver");
-			    // if not specified, WebDriver will search your path for chromedriver
-			    System.setProperty("webdriver.chrome.driver", chromeDriverPath);
-			    driver = new ChromeDriver();
+			    driver = createChromeWebDriver();
 			    break;
 		    case "remote":
 			    String seleniumHubHost = conf.get("selenium.hub.host", "localhost");
@@ -200,13 +198,13 @@ public class HttpWebClient {
 
 			    switch (seleniumGridDriver){
 				    case "firefox":
-					    driver = createFirefoxWebDriver(seleniumHubUrl, enableHeadlessMode);
+					    driver = createFirefoxRemoteWebDriver(seleniumHubUrl, enableHeadlessMode);
 					    break;
 				    case "chrome":
-					    driver = createChromeWebDriver(seleniumHubUrl, enableHeadlessMode);
+					    driver = createChromeRemoteWebDriver(seleniumHubUrl, enableHeadlessMode);
 					    break;
 				    case "random":
-					    driver = createRandomWebDriver(seleniumHubUrl, enableHeadlessMode);
+					    driver = createRandomRemoteWebDriver(seleniumHubUrl, enableHeadlessMode);
 					    break;
 				    default:
 					    LOG.error("The Selenium Grid WebDriver choice {} is not available... defaulting to FirefoxDriver().", driverType);
@@ -236,7 +234,24 @@ public class HttpWebClient {
     return driver;
   }
 
-  public static RemoteWebDriver createFirefoxWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
+
+  public static WebDriver createChromeWebDriver(){
+    String chromeDriverPath = conf.get("webdriver.chrome.driver", "/root/chromedriver");
+    // if not specified, WebDriver will search your path for chromedriver
+    System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+    ChromeOptions chromeOptions = new ChromeOptions();
+    chromeOptions.addArguments("--no-sandbox");
+    chromeOptions.addArguments("--disable-extensions");
+    // be sure to set selenium.enable.headless to true if no monitor attached
+    // to your server
+    if(enableHeadlessMode){
+        chromeOptions.addArguments("--headless");
+    }   
+    WebDriver driver = new ChromeDriver(chromeOptions);
+    return driver 
+  }
+
+  public static RemoteWebDriver createFirefoxRemoteWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
     FirefoxOptions firefoxOptions = new FirefoxOptions();
     if(enableHeadlessMode){
 	    firefoxOptions.setHeadless(true);
@@ -244,8 +259,24 @@ public class HttpWebClient {
     RemoteWebDriver driver = new RemoteWebDriver(seleniumHubUrl, firefoxOptions);
     return driver;
   }
+
+  public static WebDriver createChromeWebDriver(){
+    String chromeDriverPath = conf.get("webdriver.chrome.driver", "/root/chromedriver");
+    // if not specified, WebDriver will search your path for chromedriver
+    System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+    ChromeOptions chromeOptions = new ChromeOptions();
+    chromeOptions.addArguments("--no-sandbox");
+    chromeOptions.addArguments("--disable-extensions");
+    // be sure to set selenium.enable.headless to true if there is no monitor
+    //  attached to your server
+    if(enableHeadlessMode){
+	chromeOptions.addArguments("--headless");
+    }   
+    WebDriver driver = new ChromeDriver(chromeOptions);
+    return driver 
+  }
   
-  public static RemoteWebDriver createChromeWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
+  public static RemoteWebDriver createChromeRemoteWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
     ChromeOptions chromeOptions = new ChromeOptions();
     if(enableHeadlessMode){
 	    chromeOptions.setHeadless(true);
@@ -254,7 +285,7 @@ public class HttpWebClient {
     return driver;
   }
 
-  public static RemoteWebDriver createRandomWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
+  public static RemoteWebDriver createRandomRemoteWebDriver(URL seleniumHubUrl, boolean enableHeadlessMode){
     // we consider a possibility of generating only 2 types of browsers: Firefox and Chrome only
     Random r = new Random();
     int min = 0;
