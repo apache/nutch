@@ -276,8 +276,8 @@ public class HttpWebClient {
     System.setProperty("webdriver.opera.driver", operaDriverPath);
     OperaOptions operaOptions = new OperaOptions();
     operaOptions.setBinary("/usr/bin/opera");
-    //operaOptions.addArguments("--no-sandbox");
-    //operaOptions.addArguments("--disable-extensions");
+    operaOptions.addArguments("--no-sandbox");
+    operaOptions.addArguments("--disable-extensions");
     // be sure to set selenium.enable.headless to true if no monitor attached
     // to your server
     if(enableHeadlessMode){
