@@ -245,7 +245,7 @@ public class HttpWebClient {
     	firefoxOptions.addArguments("--headless");
     }
     WebDriver driver = new FirefoxDriver(firefoxOptions);
-    return driver
+    return driver;
   }
 
   public static WebDriver createChromeWebDriver(String chromeDriverPath, boolean enableHeadlessMode){
