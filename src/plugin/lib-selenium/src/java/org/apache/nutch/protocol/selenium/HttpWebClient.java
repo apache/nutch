@@ -235,8 +235,11 @@ public class HttpWebClient {
 	    driver.get(url);
     }catch (Exception e){
 	    if(e instanceof TimeoutException){
-		    LOG.debug("Selenium WebDriver: Timeout Exception: Capturing whatever loaded so far...");
+		    LOG.error("Selenium WebDriver: Timeout Exception: Capturing whatever loaded so far...");
 		    return driver;
+	    }
+	    else{
+	    	LOG.error(e.toString());
 	    }
 	    cleanUpDriver(driver);
 	    throw new RuntimeException(e);
@@ -333,7 +336,8 @@ public class HttpWebClient {
 		driver.quit();
 		TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
       } catch (Exception e) {
-        throw new RuntimeException(e);
+        LOG.error(e.toString());
+	//throw new RuntimeException(e);
       }
     }
   }
@@ -363,6 +367,8 @@ public class HttpWebClient {
       // I'm sure this catch statement is a code smell ; borrowing it from lib-htmlunit
     } catch (Exception e) {
       TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
+      //throw new RuntimeException(e);
+      LOG.error("getHtmlPage(url, conf): " + e.toString());
       throw new RuntimeException(e);
     } finally {
       cleanUpDriver(driver);
@@ -394,6 +400,7 @@ public class HttpWebClient {
             + "'screenshot.location' is absent from nutch-site.xml.", url);
       }
     } catch (Exception e) {
+      LOG.error(e.toString());
       cleanUpDriver(driver);
       throw new RuntimeException(e);
     }
