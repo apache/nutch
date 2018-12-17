@@ -23,7 +23,6 @@ import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -437,6 +436,7 @@ public class Generator2 extends Configured implements Tool {
     private int maxNumSegments = 1;
     private int currentSegment;
     private int keepMinUrlsPerSegment;
+    private int segmentIncrement = 1;
 
     @Override
     public void setup(Context context) throws IOException {
@@ -446,11 +446,25 @@ public class Generator2 extends Configured implements Tool {
       currentSegment = 1;
       keepMinUrlsPerSegment = conf.getInt(GENERATOR_COUNT_KEEP_MIN_IN_SEGMENT,
           100);
+      segmentIncrement = 1; // increment to select next segment
+      int prime[] = { 2, 3, 5, 7, 11, 13, 17, 23, 29 };
+      // select next segment with a larger step, so that fetching of smaller
+      // sites is paused between consecutive segments. Select a prime number
+      // - which is not bigger than 1/3 of the number of segments
+      // - number of segments isn't a multiple of
+      for (int i = 0; i < prime.length; i++) {
+        if (prime[i] >= (maxNumSegments / 3))
+          break;
+        if (0 == (maxNumSegments % prime[i]))
+          continue;
+        segmentIncrement = prime[i];
+      }
     }
 
     private int nextSegment() {
-      if (++currentSegment > maxNumSegments) {
-        currentSegment = 1;
+      currentSegment += segmentIncrement;
+      if (currentSegment > maxNumSegments) {
+        currentSegment = (currentSegment % maxNumSegments);
       }
       return currentSegment;
     }
@@ -1018,7 +1032,7 @@ public class Generator2 extends Configured implements Tool {
         Long.MAX_VALUE);
     /*
      * Reduce the replication factor to limit the number of open HDFS
-     * files/blocks - we may write 100 segments each which 100 partions /
+     * files/blocks - we may write 100 segments each with 100 partitions /
      * fetchers.
      */
     conf.set("dfs.replication", "1");
@@ -1055,17 +1069,6 @@ public class Generator2 extends Configured implements Tool {
     }
 
     return generatedSegments;
-  }
-
-  private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-
-  public static synchronized String generateSegmentName() {
-    try {
-      Thread.sleep(1000);
-    } catch (Throwable t) {
-    }
-
-    return sdf.format(new Date(System.currentTimeMillis()));
   }
 
   /**
