@@ -165,8 +165,10 @@
     <parameters>
       <param name="host" value=""/>
       <param name="port" value=""/>
-      <param name="index" value=""/>
       <param name="topic" value=""/>
+      <param name="key.serializer" value=""/>
+      <param name="value.serializer" value=""/>
+      <param name="max.doc.count" value=""/>
     </parameters>
     <mapping>
       <copy>

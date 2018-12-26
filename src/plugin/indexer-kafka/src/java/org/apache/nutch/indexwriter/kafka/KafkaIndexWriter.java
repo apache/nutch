@@ -21,7 +21,6 @@ package org.apache.nutch.indexwriter.kafka;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
@@ -29,22 +28,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Properties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
+ * Sends Nutch documents to a configured Kafka Cluster
  */
 public class KafkaIndexWriter implements IndexWriter {
   public static Logger LOG = LoggerFactory.getLogger(KafkaIndexWriter.class);
@@ -59,12 +61,12 @@ public class KafkaIndexWriter implements IndexWriter {
   private String valueSerializer = null;
   private String keySerializer = null;
   private String topic = null;
+  private int maxDocCount = -1;
 
   private String jsonString = null;
   private JsonNode json = null;
 
-  private List<ProducerRecord<String, JsonNode>> inputDocs = new ArrayList<ProducerRecord<String, JsonNode>>(
-      10);
+  private List<ProducerRecord<String, JsonNode>> inputDocs = null;
 
   @Override
   public void open(Configuration job, String name) throws IOException {
@@ -81,6 +83,9 @@ public class KafkaIndexWriter implements IndexWriter {
     valueSerializer = params.get(KafkaConstants.VALUE_SERIALIZER,
         "org.apache.kafka.connect.json.JsonSerializer");
     topic = params.get(KafkaConstants.TOPIC);
+    maxDocCount = params.get(KafkaConstants.MAX_DOC_COUNT, 100);
+
+    inputDocs = new ArrayList<ProducerRecord<String, JsonNode>>(maxDocCount);
     
     if (StringUtils.isBlank(host)) {
       String message = "Missing host. It should be set in index-writers.xml";
@@ -121,6 +126,9 @@ public class KafkaIndexWriter implements IndexWriter {
       data = new ProducerRecord<String, JsonNode>(topic, json);
 
       inputDocs.add(data);
+      if (inputDocs.size() == maxDocCount) {
+        commit();
+      }
     } catch (NullPointerException e) {
       LOG.info("Data is empty, all messages have been sent");
     }
@@ -147,6 +155,7 @@ public class KafkaIndexWriter implements IndexWriter {
       for (ProducerRecord<String, JsonNode> datum : inputDocs) {
         producer.send(datum);
       }
+      inputDocs.clear();
     } catch (NullPointerException e) {
       LOG.info("All records have been sent to Kakfa on topic {}", topic);
     }
@@ -155,30 +164,34 @@ public class KafkaIndexWriter implements IndexWriter {
   @Override
   public void close() throws IOException {
     commit();
+    producer.close();
   }
 
   @Override
-  public String describe() {
-    StringBuffer sb = new StringBuffer("KafkaIndexWriter\n");
-    sb.append("\t").append(KafkaConstants.HOST).append(" : hostname \n");
-    sb.append("\t").append(KafkaConstants.PORT).append(" : port \n");
-    sb.append("\t").append(KafkaConstants.INDEX)
-        .append(" : Kafka index command \n");
-    return sb.toString();
+  public Map<String, Map.Entry<String, Object>> describe() {
+    Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
+
+    properties.put(KafkaConstants.HOST,
+            new AbstractMap.SimpleEntry<>(
+                    "Location of the host Kafka cluster to connect to using producerConfig",
+                    this.host));
+
+    properties.put(KafkaConstants.PORT,
+            new AbstractMap.SimpleEntry<>(
+                    "The port to connect to using the producerConfig",
+                    this.port));
+
+    properties.put(KafkaConstants.TOPIC,
+            new AbstractMap.SimpleEntry<>(
+                    "Default index to attach to documents",
+                    this.topic));
+
+    return properties;
   }
 
   @Override
   public void setConf(Configuration conf) {
     config = conf;
-//    String host = conf.get(KafkaConstants.HOST);
-//    String port = conf.get(KafkaConstants.PORT);
-//
-//    if (StringUtils.isBlank(host) && StringUtils.isBlank(port)) {
-//      String message = "Missing kafka.host and kafka.port. These should be set in nutch-site.xml ";
-//      message += "\n" + describe();
-//      LOG.error(message);
-//      throw new RuntimeException(message);
-//    }
   }
 
   @Override
