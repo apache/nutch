@@ -23,28 +23,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -55,6 +51,8 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A queue-based fetcher.
@@ -105,19 +103,20 @@ public class Fetcher extends NutchTool implements Tool {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  public static class InputFormat extends
-  SequenceFileInputFormat<Text, CrawlDatum> {
-    /** Don't split inputs, to keep things polite. */
-    public InputSplit[] getSplits(JobContext job, int nSplits) throws IOException {
+  public static class InputFormat
+      extends SequenceFileInputFormat<Text, CrawlDatum> {
+    /**
+     * Don't split inputs to keep things polite - a single fetch list must be
+     * processed in one fetcher task. Do not split a fetch lists and assigning
+     * the splits to multiple parallel tasks.
+     */
+    @Override
+    public List<InputSplit> getSplits(JobContext job) throws IOException {
       List<FileStatus> files = listStatus(job);
-      FileSplit[] splits = new FileSplit[files.size()];
-      Iterator<FileStatus> iterator= files.listIterator();
-      int index = 0;
-      while(iterator.hasNext()) {
-        index++;
-        FileStatus cur = iterator.next();
-        splits[index] = new FileSplit(cur.getPath(), 0, cur.getLen(),
-            (String[]) null);
+      List<InputSplit> splits = new ArrayList<>();
+      for (FileStatus cur : files) {
+        splits.add(
+            new FileSplit(cur.getPath(), 0, cur.getLen(), (String[]) null));
       }
       return splits;
     }
@@ -160,7 +159,7 @@ public class Fetcher extends NutchTool implements Tool {
     private void reportStatus(Context context, FetchItemQueues fetchQueues, int pagesLastSec, int bytesLastSec)
         throws IOException {
       StringBuilder status = new StringBuilder();
-      Long elapsed = new Long((System.currentTimeMillis() - start) / 1000);
+      Long elapsed = Long.valueOf((System.currentTimeMillis() - start) / 1000);
 
       float avgPagesSec = (float) pages.get() / elapsed.floatValue();
       long avgBytesSec = (bytes.get() / 128l) / elapsed.longValue();

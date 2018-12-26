@@ -76,15 +76,19 @@ public class FetchNodeDbInfo {
       this.anchorText = anchorText;
     }
     
+    @SuppressWarnings("unused")
     public String getAnchorText() {
       return anchorText;
     }
+    @SuppressWarnings("unused")
     public void setAnchorText(String anchorText) {
       this.anchorText = anchorText;
     }
+    @SuppressWarnings("unused")
     public String getChildUrl() {
       return childUrl;
     }
+    @SuppressWarnings("unused")
     public void setChildUrl(String childUrl) {
       this.childUrl = childUrl;
     }

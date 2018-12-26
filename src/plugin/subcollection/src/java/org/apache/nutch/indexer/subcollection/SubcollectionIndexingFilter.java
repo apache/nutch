@@ -16,14 +16,9 @@
  */
 package org.apache.nutch.indexer.subcollection;
 
-import java.lang.invoke.MethodHandles;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.util.NutchConfiguration;
@@ -75,12 +70,6 @@ public class SubcollectionIndexingFilter extends Configured implements
    * Metadata source field name
    */
   public static String metadataSource = "subcollection";
-
-  /**
-   * Logger
-   */
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * "Mark" document to be a part of subcollection

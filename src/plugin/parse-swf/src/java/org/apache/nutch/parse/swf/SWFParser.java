@@ -246,7 +246,7 @@ class ExtractText extends SWFTagTypesImpl {
       int[] codes) throws IOException {
     // System.out.println("-defineFontInfo id=" + fontId + ", name=" +
     // fontName);
-    fontCodes.put(new Integer(fontId), codes);
+    fontCodes.put(Integer.valueOf(fontId), codes);
   }
 
   // XXX too much hassle for too little return ... we cannot guess character
@@ -263,7 +263,7 @@ class ExtractText extends SWFTagTypesImpl {
       int numGlyphs, int ascent, int descent, int leading, int[] codes,
       int[] advances, Rect[] bounds, int[] kernCodes1, int[] kernCodes2,
       int[] kernAdjustments) throws IOException {
-    fontCodes.put(new Integer(id), (codes != null) ? codes : new int[0]);
+    fontCodes.put(Integer.valueOf(id), (codes != null) ? codes : new int[0]);
 
     return null;
   }

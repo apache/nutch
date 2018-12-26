@@ -48,6 +48,7 @@ public class NutchServerPoolExecutor extends ThreadPoolExecutor{
       runningWorkers.offer(((JobWorker) runnable));
     }
   }
+  @SuppressWarnings("unlikely-arg-type")
   @Override
   protected void afterExecute(Runnable runnable, Throwable throwable) {
     super.afterExecute(runnable, throwable);

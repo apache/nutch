@@ -1,10 +1,158 @@
 # Nutch Change Log
 
-Nutch 1.15 Release (dd/mm/yyyy)
+Nutch 1.16 Release (dd/mm/yyyy)
 
 Comments
 
 Breaking Changes
+
+The value of crawl.gen.delay is now read in milliseconds as stated in the description
+in nutch-default.xml. Previously, the value has been read in days, see NUTCH-1842 for
+further information.
+
+
+Nutch 1.15 Release (25/07/2018)
+Release Report: https://s.apache.org/nczS
+
+Breaking Changes
+
+    - indexer plugins are now configured in a single XML file (conf/index-writers.xml),
+      see https://wiki.apache.org/nutch/IndexWriters - setting or overwriting configuration
+      parameters via Nutch properties is not possible anymore.
+
+Bug
+
+    [NUTCH-1993] - Nutch does not use backup parsers
+    [NUTCH-2071] - A parser failure on a single document may fail crawling job if parser.timeout=-1
+    [NUTCH-2145] - parse/index checker fail to fetch valid percent-encoded URLs
+    [NUTCH-2161] - Interrupted failed and/or killed tasks fail to clean up temp directories in HDFS
+    [NUTCH-2273] - Selenium and InteractiveSelenium Do Not Support HTTPS
+    [NUTCH-2310] - Protocol-Selenium does not support HTTPS protocol
+    [NUTCH-2321] - Indexing filter checker leaks threads
+    [NUTCH-2324] - Issue in setting default linkdb path
+    [NUTCH-2447] - Work-around SSLProtocolException: handshake alert: unrecognized_name
+    [NUTCH-2454] - REST API fix for usage of hostdb in generator
+    [NUTCH-2461] - Generate passes the data to when maxCount == 0
+    [NUTCH-2466] - Sitemap processor to follow redirects
+    [NUTCH-2467] - Sitemap type field can be null
+    [NUTCH-2485] - ParserFactory swallows exception
+    [NUTCH-2486] - Compiler Warning: Unchecked / unsafe operations in MimeTypeIndexingFilter
+    [NUTCH-2489] - Dependency collision with lucene-analyzers-common in scoring-similarity plugin
+    [NUTCH-2490] - Sitemap processing: Sitemap index files not working
+    [NUTCH-2494] - Fetcher: java.lang.IllegalArgumentException: Wrong FS: s3
+    [NUTCH-2499] - Elastic REST Indexer: Duplicate values
+    [NUTCH-2505] - nutch does not delete the .locked file, when the generator partition got an exception
+    [NUTCH-2508] - Misleading documentation about http.proxy.exception.list
+    [NUTCH-2509] - Inconsistent behavior in SitemapProcessor
+    [NUTCH-2513] - ant eclipse target fails with "protocol switch unsafe"
+    [NUTCH-2517] - mergesegs corrupts segment data
+    [NUTCH-2518] - Must check return value of job.waitForCompletion()
+    [NUTCH-2520] - Wrong Accept-Charset sent when http.accept.charset is not defined
+    [NUTCH-2521] - SitemapProcessor to use property sitemap.redir.max
+    [NUTCH-2523] - UpdateHostDB blocks usage of plugins unintentionally
+    [NUTCH-2524] - bin/crawl: fix check for HostDb in distributed mode
+    [NUTCH-2533] - Injector: NullPointerException if seed URL dir contains non-file entries
+    [NUTCH-2535] - CrawlDbReader -stats: ClassCastException
+    [NUTCH-2544] - Nutch 1.15 no longer compatible with AWS EMR and S3
+    [NUTCH-2547] - urlnormalizer-basic fails on special characters in path/query
+    [NUTCH-2549] - protocol-http does not behave the same as browsers
+    [NUTCH-2550] - Fetcher fails to follow redirects
+    [NUTCH-2551] - NullPointerException in generator
+    [NUTCH-2552] - CrawlDbReader -topN fails
+    [NUTCH-2553] - Fetcher not to modify URLs to be fetched
+    [NUTCH-2554] - parserchecker can't fetch some URLs
+    [NUTCH-2565] - MergeDB incorrectly handles unfetched CrawlDatums
+    [NUTCH-2568] - Caught exception is immediately rethrown
+    [NUTCH-2569] - ClassNotFoundException when running in (pseudo-)distributed mode
+    [NUTCH-2570] - Deduplication job fails to install deduplicated CrawlDb
+    [NUTCH-2571] - SegmentReader -list fails to read segment
+    [NUTCH-2572] - HostDb: updatehostdb does not set values
+    [NUTCH-2574] - Generator: hostCount >= maxCount comparison wrong
+    [NUTCH-2581] - Caching of redirected robots.txt may overwrite correct robots.txt rules
+    [NUTCH-2589] - HTML redirections are not followed when using parse-tika
+    [NUTCH-2590] - SegmentReader -get fails
+    [NUTCH-2592] - Fetcher to log reason of failed fetches
+    [NUTCH-2593] - Single mode doesn't work in RabbitMQ indexer
+    [NUTCH-2597] - NPE in updatehostdb
+    [NUTCH-2601] - Elasticsearch Rest and Amazon CloudSearch have the same implementation class in indexer-writers.xml
+    [NUTCH-2607] - ParserChecker should call ScoringFilters.passScoreAfterParsing() on all parses
+    [NUTCH-2609] - urlnormalizer-basic to normalize path of file: URLs
+    [NUTCH-2614] - NPE in CrawlDbReader -stats on empty CrawlDb
+    [NUTCH-2616] - Review routing of deletions by Exchange component
+    [NUTCH-2618] - protocol-okhttp not to use http.timeout for max duration to fetch document
+    [NUTCH-2620] - urlfilter-validator incorrectly assumes that top-level domains are not longer than 4 characters
+    [NUTCH-2624] - protocol-okhttp resource leak
+
+New Feature
+
+    [NUTCH-1129] - Any23 Nutch plugin
+    [NUTCH-1541] - Indexer plugin to write CSV
+    [NUTCH-2412] - Exchange component for indexing job
+    [NUTCH-2492] - Add more configuration parameters to crawl script
+
+Improvement
+
+    [NUTCH-1106] - Options to skip url's based on length
+    [NUTCH-1480] - SolrIndexer to write to multiple servers.
+    [NUTCH-2012] - Merge parsechecker and indexchecker
+    [NUTCH-2375] - Upgrade the code base from org.apache.hadoop.mapred to org.apache.hadoop.mapreduce
+    [NUTCH-2390] - No documentation on pluggable indexing
+    [NUTCH-2411] - Index-metadata to support indexing multiple values for a field
+    [NUTCH-2416] - Fetcher to log thread ID
+    [NUTCH-2432] - Protocol httpclient to disable cookies if http.enable.cookie.header is false
+    [NUTCH-2441] - ARG_SEGMENT usage
+    [NUTCH-2491] - Integrate sitemap processing and HostDB into crawl script
+    [NUTCH-2493] - Add configuration parameter for sitemap processing to crawler script
+    [NUTCH-2497] - Elastic REST Indexer: Allow multiple hosts
+    [NUTCH-2502] - Any23 Plugin: Add Content-Type filtering
+    [NUTCH-2503] - Add option to run tests for a single plugin
+    [NUTCH-2510] - Crawl script modification. HostDb : generate, optional usage and description
+    [NUTCH-2516] - Hadoop imports use wildcards
+    [NUTCH-2519] - Log mapreduce job counters in local mode
+    [NUTCH-2526] - NPE in scoring-opic when indexing document without CrawlDb datum
+    [NUTCH-2527] - URL filter: provide rules to exclude localhost and private address spaces
+    [NUTCH-2530] - Rename property db.max.anchor.length > linkdb.max.anchor.length
+    [NUTCH-2534] - CrawlDbReader -stats: make score quantiles configurable
+    [NUTCH-2539] - Not correct naming of db.url.filters and db.url.normalizers in nutch-default.xml
+    [NUTCH-2543] - readdb & readlinkdb to implement AbstractChecker
+    [NUTCH-2545] - Upgrade to Any23 2.2
+    [NUTCH-2566] - Fix exception log messages
+    [NUTCH-2576] - HTTP protocol plugin based on okhttp
+    [NUTCH-2577] - protocol-selenium can't handle https
+    [NUTCH-2578] - Avoid lock by MimeUtil in constructor of protocol.Content
+    [NUTCH-2579] - Fetcher to use parsed URL to call ProtocolFactory.getProtocol(url)
+    [NUTCH-2580] - Improvements for Rabbitmq support
+    [NUTCH-2583] - Upgrading Nutch's dependencies
+    [NUTCH-2584] - Upgrade parse-tika to use Tika 1.18
+    [NUTCH-2594] - Documentation for indexer plugins
+    [NUTCH-2595] - Upgrade crawler-commons dependency to 0.10
+    [NUTCH-2600] - Refactoring indexer-solr
+    [NUTCH-2611] - Add line-breaks when parsing HTML block-level elements
+    [NUTCH-2617] - Disable Exchange component by default
+    [NUTCH-2619] - protocol-okhttp: allow to keep partially fetched docs as truncated
+
+Task
+
+    [NUTCH-1219] - Upgrade all jobs to new MapReduce API
+    [NUTCH-1228] - Change mapred.task.timeout to mapreduce.task.timeout in fetcher
+
+Sub-task
+
+    [NUTCH-1223] - Migrate WebGraph to MapReduce API
+    [NUTCH-1224] - Migrate FreeGenerator to MapReduce API
+    [NUTCH-1226] - Migrate CrawlDbReader to MapReduce API
+    [NUTCH-2152] - CommonCrawl dump via Service endpoint
+    [NUTCH-2555] - URL normalization problem: path not starting with a '/'
+    [NUTCH-2556] - protocol-http makes invalid HTTP/1.0 requests
+    [NUTCH-2557] - protocol-http fails to follow redirections when an HTTP response body is invalid
+    [NUTCH-2558] - protocol-http cannot handle a missing HTTP status line
+    [NUTCH-2559] - protocol-http cannot handle colons after the HTTP status code
+    [NUTCH-2560] - protocol-http throws an error when an http header spans over multiple lines
+    [NUTCH-2561] - protocol-http can be made to read arbitrarily large HTTP responses
+    [NUTCH-2562] - protocol-http fails to read large chunked HTTP responses
+    [NUTCH-2563] - HTTP header spellchecking issues
+    [NUTCH-2575] - protocol-http does not respect the maximum content-size for chunked responses
+    [NUTCH-2622] - Unbundle LGPL-licensed jars from binary release
 
 
 Nutch 1.14 Release 18/12/2017 (dd/mm/yyyy)

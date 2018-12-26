@@ -51,7 +51,9 @@ public class HttpResponse implements Response {
   private Configuration conf;
   private HttpBase http;
   private URL url;
+  @SuppressWarnings("unused")
   private String orig;
+  @SuppressWarnings("unused")
   private String base;
   private byte[] content;
   private int code;

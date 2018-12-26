@@ -415,7 +415,7 @@
   <!-- ================================================================== -->
   <!-- Compile test code                                                  -->
   <!-- ================================================================== -->
-  <target name="compile-core-test" depends="init, resolve-test, compile-core" description="--> compile test code">
+  <target name="compile-core-test" depends="init, compile-core, resolve-test" description="--> compile test code">
     <javac
      encoding="${build.encoding}"
      srcdir="${test.src.dir}"
@@ -528,7 +528,7 @@
   <!-- ================================================================== -->
 
   <!-- target: resolve  ================================================= -->
-  <target name="resolve-default" depends="clean-default-lib" description="--> resolve and retrieve dependencies with ivy">
+  <target name="resolve-default" depends="clean-default-lib, init" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="default" log="download-only"/>
     <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
@@ -562,7 +562,13 @@
 
   <!-- target: report  ================================================== -->
   <target name="report" depends="resolve-test" description="--> generates a report of dependencies">
-    <ivy:report todir="${build.dir}"/>
+    <ivy:report todir="${build.dir}" xml="true"/>
+  </target>
+
+  <!-- target: 3rd-party licenses report  =============================== -->
+  <target name="report-licenses" depends="resolve-default" description="--> generates a report of licenses of dependencies">
+    <ivy:report todir="${build.dir}" xml="false" graph="false" xslfile="ivy/ivy-report-license.xsl"
+                outputpattern="[organisation]-[module]-[conf]-3rd-party-licenses.tsv"/>
   </target>
 
   <!-- target: ivy-init  ================================================ -->
@@ -604,6 +610,34 @@
       You need Apache Ivy 2.0 or later from http://ant.apache.org/
       It could not be loaded from ${ivy.repo.url}
     </fail>
+  </target>
+
+  <!-- Check dependencies for security vulnerabilities                                    -->
+  <!-- requires installation of OWASP dependency check tool, see                          -->
+  <!--   https://jeremylong.github.io/DependencyCheck/dependency-check-ant/index.html     -->
+  <!-- get http://dl.bintray.com/jeremy-long/owasp/dependency-check-ant-3.3.2-release.zip -->
+  <!-- and unzip in directory ./ivy/                                                      -->
+  <property name="dependency-check.home" value="${ivy.dir}/dependency-check-ant/"/>
+  <path id="dependency-check.path">
+    <pathelement location="${dependency-check.home}/dependency-check-ant.jar"/>
+    <fileset dir="${dependency-check.home}/lib" erroronmissingdir="false">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+  <taskdef resource="dependency-check-taskdefs.properties" onerror="ignore">
+    <classpath refid="dependency-check.path" />
+  </taskdef>
+  <target name="report-vulnerabilities" description="--> check dependencies for security vulnerabilities">
+    <dependency-check projectname="${name}"
+                      reportoutputdirectory="${build.dir}"
+                      reportformat="ALL">
+        <suppressionfile path="${dependency-check.home}/dependency-check-suppressions.xml" />
+        <retirejsFilter regex="copyright.*jeremy long" />
+        <fileset dir="${build.dir}">
+          <include name="lib/*.jar"/>
+          <include name="plugins/*/*.jar"/>
+        </fileset>
+    </dependency-check>
   </target>
 
   <!-- ================================================================== -->
@@ -1055,6 +1089,7 @@
         <source path="${plugins.dir}/feed/src/java/" />
         <source path="${plugins.dir}/feed/src/test/" />
         <source path="${plugins.dir}/headings/src/java/" />
+        <source path="${plugins.dir}/headings/src/test/" />
         <source path="${plugins.dir}/exchange-jexl/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/test/" />
@@ -1098,6 +1133,7 @@
         <source path="${plugins.dir}/parse-html/src/java/" />
         <source path="${plugins.dir}/parse-html/src/test/" />
         <source path="${plugins.dir}/parse-js/src/java/" />
+        <source path="${plugins.dir}/parse-js/src/test/" />
         <source path="${plugins.dir}/parse-metatags/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/test/" />
         <source path="${plugins.dir}/parse-swf/src/java/" />

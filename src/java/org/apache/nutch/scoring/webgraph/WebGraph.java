@@ -527,8 +527,7 @@ public class WebGraph extends Configured implements Tool {
       LOG.info("WebGraphDb: URL filter: " + filter);
     }
 
-    Configuration conf = getConf();
-    FileSystem fs = webGraphDb.getFileSystem(conf);
+    FileSystem fs = webGraphDb.getFileSystem(getConf());
 
     // lock an existing webgraphdb to prevent multiple simultaneous updates
     Path lock = new Path(webGraphDb, LOCK_NAME);
@@ -548,11 +547,12 @@ public class WebGraph extends Configured implements Tool {
 
     Path tempOutlinkDb = new Path(outlinkDb + "-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
-    Job outlinkJob = NutchJob.getInstance(conf);
+    Job outlinkJob = NutchJob.getInstance(getConf());
+    Configuration outlinkJobConf = outlinkJob.getConfiguration();
     outlinkJob.setJobName("Outlinkdb: " + outlinkDb);
 
-    boolean deleteGone = conf.getBoolean("link.delete.gone", false);
-    boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
+    boolean deleteGone = outlinkJobConf.getBoolean("link.delete.gone", false);
+    boolean preserveBackup = outlinkJobConf.getBoolean("db.preserve.backup", true);
 
     if (deleteGone) {
       LOG.info("OutlinkDb: deleting gone links");
@@ -561,7 +561,7 @@ public class WebGraph extends Configured implements Tool {
     // get the parse data and crawl fetch data for all segments
     if (segments != null) {
       for (int i = 0; i < segments.length; i++) {
-        FileSystem sfs = segments[i].getFileSystem(conf);
+        FileSystem sfs = segments[i].getFileSystem(outlinkJobConf);
         Path parseData = new Path(segments[i], ParseData.DIR_NAME);
         if (sfs.exists(parseData)) {
           LOG.info("OutlinkDb: adding input: " + parseData);
@@ -582,8 +582,8 @@ public class WebGraph extends Configured implements Tool {
     LOG.info("OutlinkDb: adding input: " + outlinkDb);
     FileInputFormat.addInputPath(outlinkJob, outlinkDb);
 
-    conf.setBoolean(OutlinkDb.URL_NORMALIZING, normalize);
-    conf.setBoolean(OutlinkDb.URL_FILTERING, filter);
+    outlinkJobConf.setBoolean(OutlinkDb.URL_NORMALIZING, normalize);
+    outlinkJobConf.setBoolean(OutlinkDb.URL_FILTERING, filter);
 
     outlinkJob.setInputFormatClass(SequenceFileInputFormat.class);
     outlinkJob.setJarByClass(OutlinkDb.class);
@@ -595,7 +595,7 @@ public class WebGraph extends Configured implements Tool {
     outlinkJob.setOutputValueClass(LinkDatum.class);
     FileOutputFormat.setOutputPath(outlinkJob, tempOutlinkDb);
     outlinkJob.setOutputFormatClass(MapFileOutputFormat.class);
-    conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
+    outlinkJobConf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
         false);
 
     // run the outlinkdb job and replace any old outlinkdb with the new one
@@ -628,7 +628,8 @@ public class WebGraph extends Configured implements Tool {
     Path tempInlinkDb = new Path(inlinkDb + "-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Job inlinkJob = NutchJob.getInstance(conf);
+    Job inlinkJob = NutchJob.getInstance(getConf());
+    Configuration inlinkJobConf = inlinkJob.getConfiguration();
     inlinkJob.setJobName("Inlinkdb " + inlinkDb);
     LOG.info("InlinkDb: adding input: " + outlinkDb);
     FileInputFormat.addInputPath(inlinkJob, outlinkDb);
@@ -641,7 +642,7 @@ public class WebGraph extends Configured implements Tool {
     inlinkJob.setOutputValueClass(LinkDatum.class);
     FileOutputFormat.setOutputPath(inlinkJob, tempInlinkDb);
     inlinkJob.setOutputFormatClass(MapFileOutputFormat.class);
-    conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
+    inlinkJobConf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
         false);
 
     try {
@@ -672,7 +673,8 @@ public class WebGraph extends Configured implements Tool {
     Path tempNodeDb = new Path(nodeDb + "-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Job nodeJob = NutchJob.getInstance(conf);
+    Job nodeJob = NutchJob.getInstance(getConf());
+    Configuration nodeJobConf = nodeJob.getConfiguration();
     nodeJob.setJobName("NodeDb " + nodeDb);
     LOG.info("NodeDb: adding input: " + outlinkDb);
     LOG.info("NodeDb: adding input: " + inlinkDb);
@@ -687,7 +689,7 @@ public class WebGraph extends Configured implements Tool {
     nodeJob.setOutputValueClass(Node.class);
     FileOutputFormat.setOutputPath(nodeJob, tempNodeDb);
     nodeJob.setOutputFormatClass(MapFileOutputFormat.class);
-    conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
+    nodeJobConf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs",
         false);
 
     try {

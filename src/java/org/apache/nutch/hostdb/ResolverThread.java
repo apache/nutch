@@ -61,6 +61,7 @@ public class ResolverThread implements Runnable {
     // Resolve the host and act appropriatly
     try {
       // Throws an exception if host is not found
+      @SuppressWarnings("unused")
       InetAddress inetAddr = InetAddress.getByName(host);
 
       if (datum.isEmpty()) {
