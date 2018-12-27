@@ -40,10 +40,10 @@
     <dependency org="commons-lang" name="commons-lang" rev="2.4"
       conf="*->default" />
     <dependency org="commons-collections" name="commons-collections"
-      rev="3.1" conf="*->default" />
+      rev="3.2.2" conf="*->default" />
     <dependency org="org.apache.httpcomponents" name="httpclient"
       rev="4.2.5" conf="*->master" />
-    <dependency org="commons-codec" name="commons-codec" rev="1.3"
+    <dependency org="commons-codec" name="commons-codec" rev="1.11"
       conf="*->default" />
 
     <!-- Hadoop Dependencies -->
@@ -61,7 +61,7 @@
     <!-- End of Hadoop Dependencies -->
 
     <dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
-    <dependency org="org.apache.tika" name="tika-core" rev="1.10" />
+    <dependency org="org.apache.tika" name="tika-core" rev="1.20" />
     <dependency org="com.googlecode.juniversalchardet" name="juniversalchardet" rev="1.0.3"/>
 
     <dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
@@ -154,7 +154,7 @@
 
     <!-- web app dependencies -->
 
-    <dependency org="org.apache.commons" name="commons-collections4" rev="4.0" conf="*->default" />
+    <dependency org="org.apache.commons" name="commons-collections4" rev="4.2" conf="*->default" />
     <dependency org="org.springframework" name="spring-core" rev="4.0.4.RELEASE" conf="*->default" />
     <dependency org="org.springframework" name="spring-context" rev="4.0.4.RELEASE" conf="*->default" />
     <dependency org="org.springframework" name="spring-web" rev="4.0.4.RELEASE" conf="*->default" />
