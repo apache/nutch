@@ -44,6 +44,7 @@
       <exclude org="org.slf4j" name="slf4j-api" />
       <exclude org="commons-lang" name="commons-lang" />
       <exclude org="commons-codec" name="commons-codec" />
+      <exclude org="org.apache.commons" name="commons-compress" />
       <exclude org="com.google.protobuf" name="protobuf-java" />
     </dependency>
   </dependencies>

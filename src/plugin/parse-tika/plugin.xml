@@ -37,9 +37,7 @@
       <library name="bzip2-0.9.1.jar"/>
       <library name="c3p0-0.9.1.1.jar"/>
       <library name="cdm-4.5.5.jar"/>
-      <library name="commons-codec-1.11.jar"/>
       <library name="commons-collections4-4.2.jar"/>
-      <library name="commons-compress-1.18.jar"/>
       <library name="commons-csv-1.6.jar"/>
       <library name="commons-exec-1.3.jar"/>
       <library name="commons-io-2.6.jar"/>

@@ -62,6 +62,8 @@
 
     <dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
     <dependency org="org.apache.tika" name="tika-core" rev="1.20" />
+    <!-- Tika requires a recent version of commons-compress -->
+    <dependency org="org.apache.commons" name="commons-compress" rev="1.18" conf="*->default" />
     <dependency org="com.googlecode.juniversalchardet" name="juniversalchardet" rev="1.0.3"/>
 
     <dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
