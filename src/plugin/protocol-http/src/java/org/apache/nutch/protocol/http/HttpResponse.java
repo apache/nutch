@@ -272,7 +272,7 @@ public class HttpResponse implements Response {
           break;
         }
         if (httpHeaders != null)
-          httpHeaders.append(line).append("\n");
+          httpHeaders.append(line).append("\r\n");
         // parse headers
         parseHeaders(in, line, httpHeaders);
         haveSeenNonContinueStatus = code != 100; // 100 is "Continue"
@@ -297,6 +297,7 @@ public class HttpResponse implements Response {
           // store the headers verbatim only if the response was not compressed
           // as the content length reported does not match otherwise
           if (httpHeaders != null) {
+            httpHeaders.append("\r\n");
             headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
           }
           if (Http.LOG.isTraceEnabled()) {
@@ -586,7 +587,7 @@ public class HttpResponse implements Response {
     while (readLine(in, line, true) != 0) {
 
       if (httpHeaders != null)
-        httpHeaders.append(line).append("\n");
+        httpHeaders.append(line).append("\r\n");
 
       // handle HTTP responses with missing blank line after headers
       int pos;
