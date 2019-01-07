@@ -73,7 +73,7 @@ public class File implements Protocol {
    */
   public void setConf(Configuration conf) {
     this.conf = conf;
-    this.maxContentLength = conf.getInt("file.content.limit", 64 * 1024);
+    this.maxContentLength = conf.getInt("file.content.limit", 1024 * 1024);
     this.crawlParents = conf.getBoolean("file.crawl.parent", true);
     this.symlinksAsRedirects = conf.getBoolean(
         "file.crawl.redirect_noncanonical", true);

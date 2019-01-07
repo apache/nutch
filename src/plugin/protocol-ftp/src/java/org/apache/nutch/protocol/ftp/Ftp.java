@@ -251,7 +251,7 @@ public class Ftp implements Protocol {
    */
   public void setConf(Configuration conf) {
     this.conf = conf;
-    this.maxContentLength = conf.getInt("ftp.content.limit", 64 * 1024);
+    this.maxContentLength = conf.getInt("ftp.content.limit", 1024 * 1024);
     this.timeout = conf.getInt("ftp.timeout", 10000);
     this.userName = conf.get("ftp.username", "anonymous");
     this.passWord = conf.get("ftp.password", "anonymous@example.com");
