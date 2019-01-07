@@ -75,14 +75,13 @@ public class DeduplicationJob extends NutchTool implements Tool {
       
     private String groupMode;
 
+    @Override
     public void setup(Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum>.Context context) {
       Configuration arg0 = context.getConfiguration();
       groupMode = arg0.get(DEDUPLICATION_GROUP_MODE);
     }
 
-    public void close() throws IOException {
-    }
-
+    @Override
     public void map(Text key, CrawlDatum value,
         Context context)
         throws IOException, InterruptedException {
@@ -117,7 +116,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
         }
         // add the URL as a temporary MD
         value.getMetaData().put(urlKey, key);
-        // reduce on the signature optionall grouped on host or domain or not at all
+        // reduce on the signature optionally grouped on host or domain or not at all
         context.write(sig, value);
       }
     }
@@ -130,8 +129,8 @@ public class DeduplicationJob extends NutchTool implements Tool {
     
     @Override
     public void setup(Reducer<K, CrawlDatum, Text, CrawlDatum>.Context context) {
-      Configuration arg0 = context.getConfiguration();
-      compareOrder = arg0.get(DEDUPLICATION_COMPARE_ORDER).split(",");
+      Configuration conf = context.getConfiguration();
+      compareOrder = conf.get(DEDUPLICATION_COMPARE_ORDER).split(",");
     }
 
     protected void writeOutAsDuplicate(CrawlDatum datum,
@@ -189,6 +188,21 @@ public class DeduplicationJob extends NutchTool implements Tool {
             return existingDoc;
           }
           break;
+        case "httpsOverHttp":
+          // prefer https:// over http:// if URLs are identical except for the
+          // protocol
+          String url1 = existingDoc.getMetaData().get(urlKey).toString();
+          String url2 = newDoc.getMetaData().get(urlKey).toString();
+          if (url1.startsWith("https://") && url2.startsWith("http://")
+              && url1.substring(8).equals(url2.substring(7))) {
+            // existingDoc with https://, mark newDoc as duplicate
+            return newDoc;
+          } else if (url2.startsWith("https://") && url1.startsWith("http://")
+              && url2.substring(8).equals(url1.substring(7))) {
+            // newDoc with https://, mark existingDoc as duplicate
+            return existingDoc;
+          }
+          break;
         case "urlLength":
           // same time? keep the one which has the shortest URL
           String urlExisting;
@@ -220,15 +234,14 @@ public class DeduplicationJob extends NutchTool implements Tool {
   public static class StatusUpdateReducer extends
       Reducer<Text, CrawlDatum, Text, CrawlDatum> {
 
+    @Override
     public void setup(Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
-    }
-
-    public void close() {
     }
 
     private CrawlDatum old = new CrawlDatum();
     private CrawlDatum duplicate = new CrawlDatum();
 
+    @Override
     public void reduce(Text key, Iterable<CrawlDatum> values,
         Context context)
         throws IOException, InterruptedException {
@@ -256,7 +269,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
   public int run(String[] args) throws IOException {
     if (args.length < 1) {
-      System.err.println("Usage: DeduplicationJob <crawldb> [-group <none|host|domain>] [-compareOrder <score>,<fetchTime>,<urlLength>]");
+      System.err.println("Usage: DeduplicationJob <crawldb> [-group <none|host|domain>] [-compareOrder <score>,<fetchTime>,<httpsOverHttp>,<urlLength>]");
       return 1;
     }
 

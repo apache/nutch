@@ -243,7 +243,7 @@ public class DedupRedirectsJob extends DeduplicationJob {
 
     if (args.length < 1) {
       System.err.println(
-          "Usage: DedupRedirectsJob <crawldb> [-compareOrder <score>,<fetchTime>,<urlLength>] [-noSort]");
+          "Usage: DedupRedirectsJob <crawldb> [-compareOrder <score>,<fetchTime>,<httpsOverHttp>,<urlLength>] [-noSort]");
       return 1;
     }
 
