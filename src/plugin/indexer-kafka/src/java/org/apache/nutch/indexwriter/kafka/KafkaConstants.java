@@ -25,5 +25,5 @@ public interface KafkaConstants {
   public static final String VALUE_SERIALIZER = 
       "value.serializer";
   public static final String TOPIC =  "topic";
-  public static final int MAX_DOC_COUNT = "max.doc.count";
+  public static final String MAX_DOC_COUNT = "max.doc.count";
 }

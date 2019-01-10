@@ -83,7 +83,7 @@ public class KafkaIndexWriter implements IndexWriter {
     valueSerializer = params.get(KafkaConstants.VALUE_SERIALIZER,
         "org.apache.kafka.connect.json.JsonSerializer");
     topic = params.get(KafkaConstants.TOPIC);
-    maxDocCount = params.get(KafkaConstants.MAX_DOC_COUNT, 100);
+    maxDocCount = params.getInt(KafkaConstants.MAX_DOC_COUNT, 100);
 
     inputDocs = new ArrayList<ProducerRecord<String, JsonNode>>(maxDocCount);
     
