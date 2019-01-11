@@ -188,7 +188,7 @@ public class Generator extends NutchTool implements Tool {
         filters = new URLFilters(conf);
         scfilters = new ScoringFilters(conf);
         filter = conf.getBoolean(GENERATOR_FILTER, true);
-        genDelay = conf.getLong(GENERATOR_DELAY, 7L) * 3600L * 24L * 1000L;
+        genDelay = conf.getLong(GENERATOR_DELAY, 604800000L); // 7 days as default.
         long time = conf.getLong(Nutch.GENERATE_TIME_KEY, 0L);
         if (time > 0)
           genTime.set(time);

@@ -200,8 +200,7 @@ public final class MimeUtil {
       }
 
       if (magicType != null && !magicType.equals(MimeTypes.OCTET_STREAM)
-          && !magicType.equals(MimeTypes.PLAIN_TEXT) && retType != null
-          && !retType.equals(magicType)) {
+          && retType != null && !retType.equals(magicType)) {
 
         // If magic enabled and the current mime type differs from that of the
         // one returned from the magic, take the magic mimeType

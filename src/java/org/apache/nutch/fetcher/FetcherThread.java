@@ -310,9 +310,7 @@ public class FetcherThread extends Thread {
             if (!rules.isAllowed(fit.url.toString())) {
               // unblock
               ((FetchItemQueues) fetchQueues).finishFetchItem(fit, true);
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Denied by robots.txt: {}", fit.url);
-              }
+              LOG.info("Denied by robots.txt: {}", fit.url);
               output(fit.url, fit.datum, null,
                   ProtocolStatus.STATUS_ROBOTS_DENIED,
                   CrawlDatum.STATUS_FETCH_GONE);
@@ -323,7 +321,7 @@ public class FetcherThread extends Thread {
               if (rules.getCrawlDelay() > maxCrawlDelay && maxCrawlDelay >= 0) {
                 // unblock
                 ((FetchItemQueues) fetchQueues).finishFetchItem(fit, true);
-                LOG.debug("Crawl-Delay for {} too long ({}), skipping", fit.url,
+                LOG.info("Crawl-Delay for {} too long ({}), skipping", fit.url,
                     rules.getCrawlDelay());
                 output(fit.url, fit.datum, null,
                     ProtocolStatus.STATUS_ROBOTS_DENIED,
