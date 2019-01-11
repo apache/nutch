@@ -43,11 +43,11 @@
 			<exclude org="com.sun.jmx" name="jmxri" />
 		</dependency-->
 
-		<dependency org="org.apache.commons" name="commons-lang3" rev="3.7" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-collections4" rev="4.1" conf="*->master" />
-		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.5" conf="*->master" />
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.8.1" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-collections4" rev="4.2" conf="*->master" />
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.6" conf="*->master" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.11" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-compress" rev="1.16.1" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-compress" rev="1.18" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-jexl" rev="2.1.1" />
 		<dependency org="com.tdunning" name="t-digest" rev="3.2" />
 
@@ -63,7 +63,7 @@
 		</dependency>
 		<!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="1.19.1" />
+		<dependency org="org.apache.tika" name="tika-core" rev="1.20" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
 
 		<!-- language detection -->
@@ -85,14 +85,14 @@
 		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0" />
 
 		<!--dependency org="org.apache.cxf" name="cxf" rev="3.0.4" conf="*->default"/-->
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.1.15" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.1.15" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.1.15" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.1.15" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.1.15" conf="test->default"/>
-		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.5" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.9.5" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.9.5" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.2.7" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.2.7" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.2.7" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.2.7" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.2.7" conf="test->default"/>
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.7" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.9.7" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.9.7" conf="*->default"/>
 
 		<!-- WARC artifacts needed -->
 		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.5" conf="*->default">
