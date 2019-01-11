@@ -449,6 +449,31 @@
   </description>
 </property>
 
+<property>
+  <name>http.filter.ipaddress.include</name>
+  <value></value>
+  <description>
+    If not empty: only fetch content from these IP addresses defined
+    as a comma-separated list of a single IP address, a CIDR notation,
+    or one of the following pre-defined IP address types: localhost,
+    loopback, sitelocal. The property http.filter.ipaddress.exclude
+    can be used to block subranges in the included list of ranges.
+    Note: supported only by protocol-okhttp.
+  </description>
+</property>
+
+<property>
+  <name>http.filter.ipaddress.exclude</name>
+  <value></value>
+  <description>
+    If not empty: do not fetch content from these IP addresses defined
+    as a comma-separated list of a single IP address, a CIDR notation,
+    or one of the following pre-defined IP address types: localhost,
+    loopback, sitelocal. Note: supported only by protocol-okhttp.
+  </description>
+</property>
+
+
 <!-- FTP properties -->
 
 <property>
