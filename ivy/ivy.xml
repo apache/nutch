@@ -51,16 +51,16 @@
 		<dependency org="org.apache.commons" name="commons-jexl" rev="2.1.1" />
 		<dependency org="com.tdunning" name="t-digest" rev="3.2" />
 		<dependency org="org.codehaus.jettison" name="jettison" rev="1.4.0"/>
-		<dependency org="com.sun.jersey" name="jersey-json" rev="1.19.4"/>
 
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-client" rev="3.0.0-cdh6.0.0" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-client" rev="3.0.0-cdh6.1.0" conf="*->default">
 			<exclude org="hsqldb" name="hsqldb" />
 			<exclude org="net.sf.kosmosfs" name="kfs" />
 			<exclude org="net.java.dev.jets3t" name="jets3t" />
 			<exclude org="org.eclipse.jdt" name="core" />
 			<exclude org="org.mortbay.jetty" name="jsp-*" />
 			<exclude org="org.mortbay.jetty" name="jetty-util" />
+			<exclude org="com.squareup.okhttp" name="*" />
 			<exclude org="ant" name="ant" />
 		</dependency>
 		<!-- End of Hadoop Dependencies -->
@@ -136,6 +136,7 @@
 		<dependency org="org.springframework" name="spring-web" rev="4.0.9.RELEASE" conf="*->default" />
 
 		<dependency org="com.sun.jersey" name="jersey-client" rev="1.19.4" conf="*->default" />
+		<dependency org="com.sun.jersey" name="jersey-json" rev="1.19.4"/>
 
 		<dependency org="com.j256.ormlite" name="ormlite-jdbc" rev="5.1" conf="*->default" />
 		<dependency org="com.h2database" name="h2" rev="1.4.197" conf="*->default" />
