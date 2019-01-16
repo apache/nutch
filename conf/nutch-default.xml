@@ -1207,6 +1207,15 @@
   </description>
 </property>
 
+<property>
+  <name>moreIndexingFilter.mapMimeTypes.field</name>
+  <value></value>
+  <description>It's used if moreIndexingFilter.mapMimeTypes is true. Indicates the field
+  where the mapped MIME-type must be written. If it's null, the field "type"
+  will be replaced by the mapped MIME-type.
+  </description>
+</property>
+
 <!-- AnchorIndexing filter plugin properties -->
 
 <property>
