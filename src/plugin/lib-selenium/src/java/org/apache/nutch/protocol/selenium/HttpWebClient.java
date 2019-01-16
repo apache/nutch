@@ -85,11 +85,11 @@ public class HttpWebClient {
 			    String chromeDriverPath = conf.get("selenium.grid.binary", "/root/chromedriver");
 			    driver = createChromeWebDriver(chromeDriverPath, enableHeadlessMode);
 			    break;
-		    case "opera":
-			    //  This class is provided as a convenience for easily testing the Chrome browser.
-			    String operaDriverPath = conf.get("selenium.grid.binary", "/root/operadriver");
-			    driver = createOperaWebDriver(operaDriverPath, enableHeadlessMode);
-			    break;
+//		    case "opera":
+//			    //  This class is provided as a convenience for easily testing the Chrome browser.
+//			    String operaDriverPath = conf.get("selenium.grid.binary", "/root/operadriver");
+//			    driver = createOperaWebDriver(operaDriverPath, enableHeadlessMode);
+//			    break;
 		    case "remote":
 			    String seleniumHubHost = conf.get("selenium.hub.host", "localhost");
 			    int seleniumHubPort = Integer.parseInt(conf.get("selenium.hub.port", "4444"));
