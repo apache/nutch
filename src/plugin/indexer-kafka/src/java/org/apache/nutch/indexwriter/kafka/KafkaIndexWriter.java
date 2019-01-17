@@ -186,6 +186,20 @@ public class KafkaIndexWriter implements IndexWriter {
                     "Default index to attach to documents",
                     this.topic));
 
+    properties.put(KafkaConstants.KEY_SERIALIZER,
+    new AbstractMap.SimpleEntry<>(
+            "instruct how to turn the key object the user provides with their ProducerRecord into bytes",
+            this.keySerializer));      
+
+    properties.put(KafkaConstants.VALUE_SERIALIZER,
+    new AbstractMap.SimpleEntry<>(
+            "instruct how to turn the value object the user provides with their ProducerRecord into bytes",
+            this.valueSerializer));
+
+    properties.put(KafkaConstants.MAX_DOC_COUNT,
+    new AbstractMap.SimpleEntry<>(
+            "Maximum number of documents before a commit is forced",
+            this.maxDocCount));
     return properties;
   }
 
