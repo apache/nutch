@@ -1,0 +1,16 @@
+# This file defines a hostname to protocol plugin mapping. Each line takes a
+# host name followed by a tab, followed by the ID of the protocol plugin. You
+# can find the ID in the protocol plugin's plugin.xml file.
+#
+# <hostname>\t<plugin_id>\n
+# nutch.apache.org	org.apache.nutch.protocol.httpclient.Http
+# tika.apache.org	org.apache.nutch.protocol.http.Http
+#
+# If the requested host is not mapped, Nutch can choose any of the enabled
+# plugins so you can force defaults using:
+#
+# protocol:<protocol>\t<plugin_id>\n
+#
+# This example forces httpclient for all protocol in case the host is not mapped:
+# protocol:http	org.apache.nutch.protocol.httpclient.Http
+# protocol:https	org.apache.nutch.protocol.httpclient.Http

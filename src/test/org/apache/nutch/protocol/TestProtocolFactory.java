@@ -59,12 +59,6 @@ public class TestProtocolFactory {
       Assert.fail("Must not throw any other exception");
     }
 
-    // cache key
-    Object protocol = ObjectCache.get(conf).getObject(
-        Protocol.X_POINT_ID + "http");
-    Assert.assertNotNull(protocol);
-    Assert.assertEquals(httpProtocol, protocol);
-
     // test same object instance
     try {
       Assert.assertTrue(httpProtocol == factory.getProtocol("http://somehost"));
