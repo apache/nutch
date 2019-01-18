@@ -273,7 +273,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   static {
     try {
       // order here is important
-      patterns[0] = Pattern.compile("\\bfilename=['\"](.+)['\"]");
+      patterns[0] = Pattern.compile("\\bfilename=['\"]([^\"]+)");
       patterns[1] = Pattern.compile("\\bfilename=(\\S+)\\b");
     } catch (PatternSyntaxException e) {
       // just ignore
