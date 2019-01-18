@@ -17,8 +17,13 @@
 
 package org.apache.nutch.protocol;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
@@ -26,7 +31,12 @@ import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.util.ObjectCache;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.apache.hadoop.conf.Configuration;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates and caches {@link Protocol} plugins. Protocol plugins should define
@@ -37,9 +47,15 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class ProtocolFactory {
 
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+
   private ExtensionPoint extensionPoint;
 
   private Configuration conf;
+
+  protected Map<String, String> defaultProtocolImplMapping = new HashMap<>();
+  protected Map<String, String> hostProtocolMapping = new HashMap<>();
 
   public ProtocolFactory(Configuration conf) {
     this.conf = conf;
@@ -49,8 +65,35 @@ public class ProtocolFactory {
       throw new RuntimeException("x-point " + Protocol.X_POINT_ID
           + " not found.");
     }
-  }
 
+    try {
+      BufferedReader reader = new BufferedReader(conf.getConfResourceAsReader("host-protocol-mapping.txt"));
+      String line;
+      String parts[];
+      while ((line = reader.readLine()) != null) {
+        if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
+          line = line.trim();
+          parts = line.split("\t");
+
+          // Must be at least two parts
+          if (parts.length == 2) {
+            // Is this a host to plugin mapping, or a default?
+            if (parts[0].indexOf(":") == -1) {
+              hostProtocolMapping.put(parts[0].trim(), parts[1].trim());
+            } else {
+              String[] moreParts = parts[0].split(":");
+              defaultProtocolImplMapping.put(moreParts[1].trim(), parts[1].trim());
+            }
+          } else {
+            LOG.warn("Wrong format of line: {}", line);
+            LOG.warn("Expected format: <hostname> <tab> <plugin_id> or protocol:<protocol> <tab> <plugin_id>");
+          }
+        }
+      }
+    } catch (IOException e) {
+      LOG.error("Unable to read host-protocol-mapping.txt", e);
+    }
+  }
   /**
    * Returns the appropriate {@link Protocol} implementation for a url.
    * 
@@ -83,52 +126,92 @@ public class ProtocolFactory {
    */
   public Protocol getProtocol(URL url)
       throws ProtocolNotFound {
-    ObjectCache objectCache = ObjectCache.get(conf);
     try {
-      String protocolName = url.getProtocol();
-      if (protocolName == null) {
-        throw new ProtocolNotFound(url.toString());
+      Protocol protocol = null;
+
+      // First attempt to resolve a protocol implementation by hostname
+      String host = url.getHost();
+      if (hostProtocolMapping.containsKey(host)) {
+        Extension extension = getExtensionById(hostProtocolMapping.get(host));
+        if (extension != null) {
+          protocol = getProtocolInstanceByExtension(extension);
+        }
       }
 
-      String cacheId = Protocol.X_POINT_ID + protocolName;
-      synchronized (objectCache) {
-        Protocol protocol = (Protocol) objectCache.getObject(cacheId);
-        if (protocol != null) {
-          return protocol;
+      // Nothing, see if we have defaults configured
+      if (protocol == null) {
+        // Protocol listed in default map?
+        if (defaultProtocolImplMapping.containsKey(url.getProtocol())) {
+          Extension extension = getExtensionById(defaultProtocolImplMapping.get(url.getProtocol()));
+          if (extension != null) {
+            protocol = getProtocolInstanceByExtension(extension);
+          }
         }
+      }
 
-        Extension extension = findExtension(protocolName);
-        if (extension == null) {
-          throw new ProtocolNotFound(protocolName);
+      // Still couldn't find a protocol? Attempt by protocol
+      if (protocol == null) {
+        Extension extension = findExtension(url.getProtocol(), "protocolName");
+        if (extension != null) {
+          protocol = getProtocolInstanceByExtension(extension);
         }
+      }
 
-        protocol = (Protocol) extension.getExtensionInstance();
-        objectCache.setObject(cacheId, protocol);
+      // Got anything?
+      if (protocol != null) {
         return protocol;
       }
+
+      // Nothing!
+      throw new ProtocolNotFound(url.toString());
     } catch (PluginRuntimeException e) {
       throw new ProtocolNotFound(url.toString(), e.toString());
     }
   }
 
-  private Extension findExtension(String name) throws PluginRuntimeException {
+  private Protocol getProtocolInstanceByExtension(Extension extension) throws PluginRuntimeException {
+    Protocol protocol = null;
+    String cacheId = extension.getId();
+    ObjectCache objectCache = ObjectCache.get(conf);
+    synchronized (objectCache) {
+      if (!objectCache.hasObject(cacheId)) {
+        protocol = (Protocol) extension.getExtensionInstance();
+        objectCache.setObject(cacheId, protocol);
+      }
+      protocol = (Protocol) objectCache.getObject(cacheId);
+    }
 
+    return protocol;
+  }
+
+  private Extension getExtensionById(String id) {
     Extension[] extensions = this.extensionPoint.getExtensions();
-
     for (int i = 0; i < extensions.length; i++) {
-      Extension extension = extensions[i];
+      if (id.equals(extensions[i].getId())) {
+        return extensions[i];
+      }
+    }
 
-      if (contains(name, extension.getAttribute("protocolName")))
+    return null;
+  }
+
+  private Extension findExtension(String name, String attribute) throws PluginRuntimeException {
+    for (int i = 0; i < this.extensionPoint.getExtensions().length; i++) {
+      Extension extension = this.extensionPoint.getExtensions()[i];
+
+      if (contains(name, extension.getAttribute(attribute)))
         return extension;
     }
     return null;
   }
 
   boolean contains(String what, String where) {
-    String parts[] = where.split("[, ]");
-    for (int i = 0; i < parts.length; i++) {
-      if (parts[i].equals(what))
-        return true;
+    if (where != null) {
+      String parts[] = where.split("[, ]");
+      for (int i = 0; i < parts.length; i++) {
+        if (parts[i].equals(what))
+          return true;
+      }
     }
     return false;
   }
