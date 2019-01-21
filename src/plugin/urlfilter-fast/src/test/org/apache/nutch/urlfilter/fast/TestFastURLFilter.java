@@ -37,24 +37,6 @@ public class TestFastURLFilter extends RegexURLFilterBaseTest {
     }
   }
 
-  protected void bench(int loops, String rulesFile, String urlsFile) {
-    try {
-      bench(loops, new FileReader(SAMPLES + SEPARATOR + rulesFile),
-          new FileReader(SAMPLES + SEPARATOR + urlsFile));
-    } catch (Exception e) {
-      Assert.fail(e.toString());
-    }
-  }
-
-  protected void test(String rulesFile, String urlsFile) {
-    try {
-      test(new FileReader(SAMPLES + SEPARATOR + rulesFile),
-          new FileReader(SAMPLES + SEPARATOR + urlsFile));
-    } catch (Exception e) {
-      Assert.fail(e.toString());
-    }
-  }
-
   @Test
   public void test() {
     test("fast-urlfilter-test.txt", "test.urls");
