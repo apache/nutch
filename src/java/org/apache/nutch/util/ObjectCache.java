@@ -52,6 +52,10 @@ public class ObjectCache {
     return objectMap.get(key);
   }
 
+  public boolean hasObject(String key) {
+    return objectMap.containsKey(key);
+  }
+
   public synchronized void setObject(String key, Object value) {
     objectMap.put(key, value);
   }

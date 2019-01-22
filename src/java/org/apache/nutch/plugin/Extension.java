@@ -197,4 +197,8 @@ public class Extension {
   public void setDescriptor(PluginDescriptor pDescriptor) {
     fDescriptor = pDescriptor;
   }
+
+  public String toString() {
+    return getId() + ", " + getClazz() + ", " + getTargetPoint();
+  }
 }
