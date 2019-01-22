@@ -13,19 +13,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Rule file for the plugin urlfilter-fast
 
-# This is used to filter a large number of domain and host-specific
-# regular expressions
+# Used to filter a large number of domain and host-specific regular
+# expressions
+
 #
-# To match *.domain.com and domain.com:
+# `Domain` rules are applied to all hosts and subdomains of a domain, e.g.
 #
-# Domain example.org
-#   DenyPath (?i)%7c # Matches against just the path part of URL
-#   DenyPathQuery ^/resource?x=1 # Matches against path + query
+#   Domain example.org
+#     DenyPath (?i)%7c                # matches against just the path part of URL
+#     DenyPathQuery ^/resource\?x=1   # matches against path + query
+#
 #
 # To match against a single hostname:
 #
-# Host www.example.com
-#   DenyPath (?i)%7c # Matches against just the path part of URL
-#   DenyPathQuery ^/resource?x=1 # Matches against path + query
+#   Host www.example.com
+#     DenyPath (?i)%7c
+#
+#
+# Global rules are defined using the domain name `.`:
+#
+#   Domain .
+#     (/[^/]+)/[^/]+\1/[^/]+\1/
+#     # skips URLs with slash-delimited segment that repeats 3+ times, to break loops
+#
+#
+# Comments start with the `#` character and reach until the end of the line.
+#
+#
+# For more details, see
+#  - src/plugin/urlfilter-fast/README.md
+#  - src/plugin/urlfilter-fast/src/java/org/apache/nutch/urlfilter/fast/FastURLFilter.java
+#
 

@@ -16,8 +16,8 @@
  */
 
 /**
- * URL filter plugin that first does fast exact matches on host/domain names
- * before applying regexes to the path component of a URL. See
+ * URL filter plugin that first does fast exact suffix matches on host/domain
+ * names before applying regular expressions to the path component of a URL. See
  * {@link org.apache.nutch.urlfilter.fast.FastURLFilter} for a description of
  * the rule format.
  */

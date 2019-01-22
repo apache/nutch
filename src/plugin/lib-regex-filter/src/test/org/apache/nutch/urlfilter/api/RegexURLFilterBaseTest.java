@@ -72,6 +72,24 @@ public abstract class RegexURLFilterBaseTest {
         + (System.currentTimeMillis() - start) + "ms");
   }
 
+  protected void bench(int loops, String rulesFile, String urlsFile) {
+    try {
+      bench(loops, new FileReader(SAMPLES + SEPARATOR + rulesFile),
+          new FileReader(SAMPLES + SEPARATOR + urlsFile));
+    } catch (Exception e) {
+      Assert.fail(e.toString());
+    }
+  }
+
+  protected void test(String rulesFile, String urlsFile) {
+    try {
+      test(new FileReader(SAMPLES + SEPARATOR + rulesFile),
+          new FileReader(SAMPLES + SEPARATOR + urlsFile));
+    } catch (Exception e) {
+      Assert.fail(e.toString());
+    }
+  }
+
   protected void test(String file) {
     try {
       test(new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
