@@ -22,9 +22,11 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Random;
@@ -42,6 +44,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.TaskCounter;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.map.MultithreadedMapper;
@@ -134,6 +137,9 @@ public class SitemapInjector extends Injector {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   protected int threads = 8;
+  protected boolean keepTemp;
+  protected boolean runStepOneOnly;
+  protected boolean runStepTwoOnly;
 
   /** Fetch and parse sitemaps, output extracted URLs as seeds */
   public static class SitemapInjectMapper extends InjectMapper {
@@ -981,59 +987,87 @@ public class SitemapInjector extends Injector {
     conf.setBoolean(URL_FILTER_NORMALIZE_ALL, filterNormalizeAll);
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
 
-    Path tempDir = new Path(getConf().get("mapreduce.cluster.temp.dir", ".")
-        + "/sitemap-inject-temp-"
-        + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+    Path tempDir;
+    Path lock = null;
+    if (runStepOneOnly) {
+      tempDir = crawlDb;
+    } else {
+      if (runStepTwoOnly) {
+        tempDir = urlDir;
+      } else {
+        tempDir = new Path(getConf().get("mapreduce.cluster.temp.dir", ".")
+            + "/sitemap-inject-temp-"
+            + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+      }
+      // lock an existing crawldb to prevent multiple simultaneous updates
+      lock = CrawlDb.lock(conf, crawlDb, false);
+    }
 
-    // lock an existing crawldb to prevent multiple simultaneous updates
-    Path lock = CrawlDb.lock(conf, crawlDb, false);
+    if (!runStepTwoOnly) {
+      Job sitemapJob = NutchJob.getInstance(getConf());
+      sitemapJob.setJobName("process sitemaps " + urlDir);
+      sitemapJob.setJarByClass(SitemapInjector.class);
+      sitemapJob.setInputFormatClass(KeyValueTextInputFormat.class);
+      KeyValueTextInputFormat.addInputPath(sitemapJob, urlDir);
 
-    Job sitemapJob = NutchJob.getInstance(getConf());
-    sitemapJob.setJobName("process sitemaps " + urlDir);
-    sitemapJob.setJarByClass(SitemapInjector.class);
-    sitemapJob.setInputFormatClass(KeyValueTextInputFormat.class);
-    KeyValueTextInputFormat.addInputPath(sitemapJob, urlDir);
+      sitemapJob.setMapperClass(MultithreadedMapper.class);
+      MultithreadedMapper.setMapperClass(sitemapJob, SitemapInjectMapper.class);
+      MultithreadedMapper.setNumberOfThreads(sitemapJob, threads);
+      sitemapJob.setMapSpeculativeExecution(false); // mappers are fetching
+                                                    // sitemaps
 
-    sitemapJob.setMapperClass(MultithreadedMapper.class);
-    MultithreadedMapper.setMapperClass(sitemapJob, SitemapInjectMapper.class);
-    MultithreadedMapper.setNumberOfThreads(sitemapJob, threads);
-    sitemapJob.setMapSpeculativeExecution(false); // mappers are fetching
-                                                  // sitemaps
+      FileOutputFormat.setOutputPath(sitemapJob, tempDir);
+      sitemapJob.setOutputFormatClass(SequenceFileOutputFormat.class);
+      sitemapJob.setOutputKeyClass(Text.class);
+      sitemapJob.setOutputValueClass(CrawlDatum.class);
 
-    FileOutputFormat.setOutputPath(sitemapJob, tempDir);
-    sitemapJob.setOutputFormatClass(SequenceFileOutputFormat.class);
-    sitemapJob.setOutputKeyClass(Text.class);
-    sitemapJob.setOutputValueClass(CrawlDatum.class);
-
-    conf = sitemapJob.getConfiguration();
-    conf.setLong("injector.current.time", System.currentTimeMillis());
-    try {
-      // run the job
-      boolean success = sitemapJob.waitForCompletion(true);
-      if (!success) {
-        String message = "SitemapInjector job did not succeed, job status: "
-            + sitemapJob.getStatus().getState() + ", reason: "
-            + sitemapJob.getStatus().getFailureInfo();
-        LOG.error(message);
+      conf = sitemapJob.getConfiguration();
+      conf.setLong("injector.current.time", System.currentTimeMillis());
+      try {
+        // run the job
+        boolean success = sitemapJob.waitForCompletion(true);
+        if (!success) {
+          String message = "SitemapInjector job did not succeed, job status: "
+              + sitemapJob.getStatus().getState() + ", reason: "
+              + sitemapJob.getStatus().getFailureInfo();
+          LOG.error(message);
+          NutchJob.cleanupAfterFailure(tempDir, lock,
+              tempDir.getFileSystem(conf));
+          // throw exception so that calling routine can exit with error
+          throw new RuntimeException(message);
+        }
+      } catch (IOException | InterruptedException | ClassNotFoundException
+          | NullPointerException e) {
+        LOG.error("SitemapInjector job failed: {}", e.getMessage());
         NutchJob.cleanupAfterFailure(tempDir, lock,
             tempDir.getFileSystem(conf));
-        // throw exception so that calling routine can exit with error
-        throw new RuntimeException(message);
+        throw e;
       }
-    } catch (IOException | InterruptedException | ClassNotFoundException
-        | NullPointerException e) {
-      LOG.error("SitemapInjector job failed: {}", e.getMessage());
-      NutchJob.cleanupAfterFailure(tempDir, lock, tempDir.getFileSystem(conf));
-      throw e;
+
+      for (Counter counter : sitemapJob.getCounters()
+          .getGroup("SitemapInjector")) {
+        LOG.info(String.format("SitemapInjector: %8d  %s", counter.getValue(),
+            counter.getName()));
+      }
+
+      long end = System.currentTimeMillis();
+      LOG.info("SitemapInjector: finished fetching and processing sitemaps at " + sdf.format(end) + ", elapsed: "
+          + TimingUtil.elapsedTime(start, end));
+
+      if (runStepOneOnly) {
+        return;
+      }
+
+      long numOutputRecords = sitemapJob.getCounters()
+          .findCounter(TaskCounter.REDUCE_OUTPUT_RECORDS).getValue();
+      if (numOutputRecords == 0) {
+        LOG.warn(
+            "No URLs found in sitemaps, skipping step 2 merging URLs into CrawlDb");
+        return;
+      }
     }
 
-    for (Counter counter : sitemapJob.getCounters()
-        .getGroup("SitemapInjector")) {
-      LOG.info(String.format("SitemapInjector: %8d  %s", counter.getValue(),
-          counter.getName()));
-    }
-
-    // merge with existing crawl db
+    // merge with existing CrawlDb
     if (LOG.isInfoEnabled()) {
       LOG.info("SitemapInjector: Merging injected urls into crawl db.");
     }
@@ -1072,24 +1106,37 @@ public class SitemapInjector extends Injector {
     CrawlDb.install(mergeJob, crawlDb);
 
     // clean up
-    tempDir.getFileSystem(conf).delete(tempDir, true);
+    if (!(keepTemp || runStepOneOnly || runStepTwoOnly)) {
+      tempDir.getFileSystem(conf).delete(tempDir, true);
+    }
 
     long end = System.currentTimeMillis();
     LOG.info("SitemapInjector: finished at " + sdf.format(end) + ", elapsed: "
         + TimingUtil.elapsedTime(start, end));
   }
 
+  public void usage(String errorMessage) {
+    System.err.println(errorMessage + "\n");
+    usage();
+  }
+
   public void usage() {
     System.err.println(
         "Usage: SitemapInjector [-D...] <crawldb> <url_dir> [-threads <n>] [-overwrite|-update] [-noFilter] [-noNormalize] [-filterNormalizeAll]\n");
     System.err.println("\nFor sitemap URLs listed in seed input files:");
-    System.err.println("\t- fetch and parse the sitemap");
-    System.err.println("\t- inject URLs from sitemaps into the CrawlDb");
+    System.err.println("\t- fetch and parse the sitemap (step 1)");
+    System.err.println("\t- inject URLs from sitemaps into the CrawlDb (step 2)");
     System.err.println(
         "\t- using fetch intervals and scores from sitemaps if applicable");
     System.err.println("Options and properties of SitemapInjector");
     System.err.println(
         "\t-threads <threads>\tNumber of threads created per mapper to fetch sitemap urls (default: 8)");
+    System.err.println(
+        "\t-keepTemp\tDo not delete the temporary directory which contains the output of step 1");
+    System.err.println(
+        "\t-step1\tOnly run step 1 (<crawldb> is used as output path and must not exist)");
+    System.err.println(
+        "\t-step2\tOnly run step 2 (<url_dir> must point to the output of step 1)");
     System.err.println(
         "\nIn addition, all options of Injector are supported, see below.\n");
     super.usage();
@@ -1106,22 +1153,40 @@ public class SitemapInjector extends Injector {
       usage();
       return -1;
     }
-    int i = 2;
-    for (; i < args.length; i++) {
-      if (args[i].equals("-threads")) {
-        threads = Integer.parseInt(args[i + 1]);
-        // remove specific argument from args
-        String[] args2 = new String[args.length - 2];
-        for (int j = 0; j < i; j++) {
-          args2[j] = args[j];
-        }
-        for (int j = i + 2; j < args.length; j++) {
-          args2[j - 2] = args[j];
-        }
-        args = args2;
-        break;
+    List<String> superArguments = new ArrayList<>();
+    for (int i = 0; i < args.length; i++) {
+      if (i < 2) {
+        superArguments.add(args[i]);
+        continue;
+      }
+      switch (args[i]) {
+        case "-threads":
+          i++;
+          if (i == args.length) {
+            usage("Argument -threads requires parameter");
+            return -1;
+          }
+          threads = Integer.parseInt(args[i]);
+          break;
+        case "-keepTemp":
+          keepTemp = true;
+          break;
+        case "-step1":
+          runStepOneOnly = true;
+          break;
+        case "-step2":
+          runStepTwoOnly = true;
+          break;
+        default:
+          superArguments.add(args[i]);
       }
     }
-    return super.run(args);
+    if (runStepOneOnly && runStepTwoOnly) {
+      LOG.warn("Running step 1 and 2 as both -step1 and -step2 are defined.");
+      runStepOneOnly = false;
+      runStepTwoOnly = false;
+      return -1;
+    }
+    return super.run(superArguments.toArray(new String[0]));
   }
 }
