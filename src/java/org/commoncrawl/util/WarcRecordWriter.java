@@ -401,12 +401,21 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     try {
       targetUri = new URI(url);
     } catch (URISyntaxException e) {
-      LOG.error("Cannot write WARC record, invalid URI: {}", value.url);
+      LOG.error("Cannot write WARC record, invalid URI: {}", url);
       return;
     }
 
     if (value.content == null) {
-      LOG.warn("Cannot write WARC record, no content for {}", value.url);
+      String reason = "";
+      if (value.datum != null) {
+        ProtocolStatus pstatus = (ProtocolStatus) value.datum.getMetaData()
+            .get(Nutch.WRITABLE_PROTO_STATUS_KEY);
+        if (pstatus != null) {
+          reason = ": " + pstatus.getName() + " - " + pstatus.getMessage();
+        }
+      }
+      LOG.warn("Cannot write WARC record, no content for {}{}", value.url,
+          reason);
       return;
     }
 
