@@ -81,6 +81,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   /** Map for mime-type substitution */
   private HashMap<String, String> mimeMap = null;
   private boolean mapMimes = false;
+  private String mapFieldName;
 
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
@@ -226,8 +227,11 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (mapMimes) {
       // Check if the current mime is mapped
       if (mimeMap.containsKey(mimeType)) {
-        // It's mapped, let's replace it
-        mimeType = mimeMap.get(mimeType);
+        if (mapFieldName != null) {
+          doc.add(mapFieldName, mimeMap.get(mimeType));
+        } else {
+          mimeType = mimeMap.get(mimeType);
+        }
       }
     }
 
@@ -300,8 +304,10 @@ public class MoreIndexingFilter implements IndexingFilter {
     this.conf = conf;
     MIME = new MimeUtil(conf);
 
-    if (conf.getBoolean("moreIndexingFilter.mapMimeTypes", false) == true) {
+    if (conf.getBoolean("moreIndexingFilter.mapMimeTypes", false)) {
       mapMimes = true;
+
+      mapFieldName = conf.get("moreIndexingFilter.mapMimeTypes.field");
 
       // Load the mapping
       try {

@@ -73,6 +73,9 @@ public class DepthScoringFilter extends Configured implements ScoringFilter {
   public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
       ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
       CrawlDatum adjust, int allCount) throws ScoringFilterException {
+    if (targets.isEmpty()) {
+      return adjust;
+    }
     String depthString = parseData.getMeta(DEPTH_KEY);
     if (depthString == null) {
       LOG.warn("Missing depth, removing all outlinks from url " + fromUrl);
