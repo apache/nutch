@@ -1,97 +1,71 @@
 <ivysettings>
 
- <!--
-   Licensed to the Apache Software Foundation (ASF) under one or more
-   contributor license agreements.  See the NOTICE file distributed with
-   this work for additional information regarding copyright ownership.
-   The ASF licenses this file to You under the Apache License, Version 2.0
-   (the "License"); you may not use this file except in compliance with
-   the License.  You may obtain a copy of the License at
+	<!-- Licensed to the Apache Software Foundation (ASF) under one or more 
+		contributor license agreements. See the NOTICE file distributed with this 
+		work for additional information regarding copyright ownership. The ASF licenses 
+		this file to You under the Apache License, Version 2.0 (the "License"); you 
+		may not use this file except in compliance with the License. You may obtain 
+		a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless 
+		required by applicable law or agreed to in writing, software distributed 
+		under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+		OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+		the specific language governing permissions and limitations under the License. -->
+	<!-- you can override this property to use mirrors http://repo1.maven.org/maven2/ 
+		http://mirrors.dotsrc.org/maven2 http://ftp.ggi-project.org/pub/packages/maven2 
+		http://mirrors.sunsite.dk/maven2 http://public.planetmirror.com/pub/maven2 
+		http://ibiblio.lsu.edu/main/pub/packages/maven2 http://www.ibiblio.net/pub/packages/maven2 -->
+	<property name="oss.sonatype.org"
+		value="http://oss.sonatype.org/content/repositories/releases/"
+		override="false" />
+	<property name="repo.maven.org"
+		value="http://repo1.maven.org/maven2/" override="false" />
+	<property name="repository.apache.org"
+		value="https://repository.apache.org/content/repositories/snapshots/"
+		override="false" />
+	<property name="maven2.pattern"
+		value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier])" />
+	<property name="maven2.pattern.ext"
+		value="${maven2.pattern}.[ext]" />
+	<!-- define packaging.type=jar to work around the failing dependency download 
+		of javax.ws.rs-api.jar required by Tika (1.19 and higher), cf. https://github.com/eclipse-ee4j/jaxrs-api/issues/572 
+		https://github.com/jax-rs/api/pull/576 -->
 
-       http://www.apache.org/licenses/LICENSE-2.0
+	<property name="packaging.type" value="jar" />
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
--->
-  <!-- you can override this property to use mirrors
-          http://repo1.maven.org/maven2/
-          http://mirrors.dotsrc.org/maven2
-          http://ftp.ggi-project.org/pub/packages/maven2
-          http://mirrors.sunsite.dk/maven2
-          http://public.planetmirror.com/pub/maven2
-          http://ibiblio.lsu.edu/main/pub/packages/maven2
-          http://www.ibiblio.net/pub/packages/maven2
-  -->
-  <property name="oss.sonatype.org" 
-    value="http://oss.sonatype.org/content/repositories/releases/" 
-    override="false"/>
-  <property name="repo.maven.org"
-    value="http://repo1.maven.org/maven2/"
-    override="false"/>
-  <property name="repository.apache.org"
-    value="https://repository.apache.org/content/repositories/snapshots/"
-    override="false"/>
-  <property name="maven2.pattern"
-    value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier])"/>
-  <property name="maven2.pattern.ext"
-    value="${maven2.pattern}.[ext]"/>
-  <!-- define packaging.type=jar to work around the failing dependency download of
-         javax.ws.rs-api.jar
-       required by Tika (1.19 and higher), cf.
-         https://github.com/eclipse-ee4j/jaxrs-api/issues/572
-         https://github.com/jax-rs/api/pull/576
-  -->
-  
-  <property name="packaging.type"
-    value="jar"/>
- 
-  <!-- pull in the local repository -->
-  <include url="${ivy.default.conf.dir}/ivyconf-local.xml"/>
-  <settings defaultResolver="default"/>
-  <resolvers>
-    <ibiblio name="maven2"
-      root="${repo.maven.org}"
-      pattern="${maven2.pattern.ext}"
-      m2compatible="true"
-      />
-    <ibiblio name="apache-snapshot"
-      root="${repository.apache.org}"
-      m2compatible="true" 
-      changingMatcher="regexp"
-      changingPattern=".*SNAPSHOT.*" 
-      checkmodified="true"
-      />
-    <ibiblio name="sonatype"
-      root="${oss.sonatype.org}"
-      pattern="${maven2.pattern.ext}"
-      m2compatible="true"
-      />
-    <chain name="default" dual="true">
-      <resolver ref="local"/>
-      <resolver ref="maven2"/>
-      <resolver ref="apache-snapshot"/>
-      <resolver ref="sonatype"/>
-    </chain>
-    <chain name="internal">
-      <resolver ref="local"/>
-    </chain>
-    <chain name="external">
-      <resolver ref="maven2"/>
-    </chain>
-    <chain name="external-and-snapshots">
-      <resolver ref="maven2"/>
-      <resolver ref="apache-snapshot"/>
-      <resolver ref="sonatype"/>
-    </chain>
-  </resolvers>
-  <modules>
-    <!--
-    This forces a requirement for other nutch-artifacts to be built locally
-    rather than look for them online.
-    -->
-    <module organisation="org.apache.nutch" name=".*" resolver="internal"/>
-  </modules>
+	<!-- pull in the local repository -->
+	<include url="${ivy.default.conf.dir}/ivyconf-local.xml" />
+	<settings defaultResolver="default" />
+	<resolvers>
+		<ibiblio name="maven2" root="${repo.maven.org}"
+			pattern="${maven2.pattern.ext}" m2compatible="true" />
+		<ibiblio name="apache-snapshot"
+			root="${repository.apache.org}" m2compatible="true"
+			changingMatcher="regexp" changingPattern=".*SNAPSHOT.*"
+			checkmodified="true" />
+		<ibiblio name="sonatype" root="${oss.sonatype.org}"
+			pattern="${maven2.pattern.ext}" m2compatible="true" />
+		<chain name="default" dual="true">
+			<resolver ref="local" />
+			<resolver ref="maven2" />
+			<resolver ref="apache-snapshot" />
+			<resolver ref="sonatype" />
+		</chain>
+		<chain name="internal">
+			<resolver ref="local" />
+		</chain>
+		<chain name="external">
+			<resolver ref="maven2" />
+		</chain>
+		<chain name="external-and-snapshots">
+			<resolver ref="maven2" />
+			<resolver ref="apache-snapshot" />
+			<resolver ref="sonatype" />
+		</chain>
+	</resolvers>
+	<modules>
+		<!-- This forces a requirement for other nutch-artifacts to be built locally 
+			rather than look for them online. -->
+		<module organisation="org.apache.nutch" name=".*"
+			resolver="internal" />
+	</modules>
 </ivysettings>

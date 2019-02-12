@@ -11,11 +11,13 @@
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. -->
 
-<ivy-module version="1.0" xmlns:maven="http://ant.apache.org/ivy/maven">
+<ivy-module version="1.0"
+	xmlns:maven="http://ant.apache.org/ivy/maven">
 	<info organisation="org.apache.nutch" module="nutch">
 		<license name="Apache 2.0"
 			url="http://www.apache.org/licenses/LICENSE-2.0.txt/" />
-		<ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org" />
+		<ivyauthor name="Apache Nutch Team"
+			url="http://nutch.apache.org" />
 		<description homepage="http://nutch.apache.org">Nutch is an open source web-search
 			software. It builds on
 			Hadoop, Tika and Solr, adding web-specifics,
@@ -34,25 +36,32 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.25" conf="*->master" />
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.25" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.25"
+			conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-log4j12"
+			rev="1.7.25" conf="*->master" />
 
-		<!--dependency org="log4j" name="log4j" rev="1.2.15" conf="*->default">
-			<exclude org="javax.jms" name="jms" />
-			<exclude org="com.sun.jdmk" name="jmxtools" />
-			<exclude org="com.sun.jmx" name="jmxri" />
-		</dependency-->
+		<!--dependency org="log4j" name="log4j" rev="1.2.15" conf="*->default"> 
+			<exclude org="javax.jms" name="jms" /> <exclude org="com.sun.jdmk" name="jmxtools" 
+			/> <exclude org="com.sun.jmx" name="jmxri" /> </dependency -->
 
-		<dependency org="org.apache.commons" name="commons-lang3" rev="3.7" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-collections4" rev="4.1" conf="*->master" />
-		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.5" conf="*->master" />
-		<dependency org="commons-codec" name="commons-codec" rev="1.11" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-compress" rev="1.16.1" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-jexl" rev="2.1.1" />
+		<dependency org="org.apache.commons" name="commons-lang3"
+			rev="3.7" conf="*->default" />
+		<dependency org="org.apache.commons"
+			name="commons-collections4" rev="4.1" conf="*->master" />
+		<dependency org="org.apache.httpcomponents"
+			name="httpclient" rev="4.5.5" conf="*->master" />
+		<dependency org="commons-codec" name="commons-codec"
+			rev="1.11" conf="*->default" />
+		<dependency org="org.apache.commons"
+			name="commons-compress" rev="1.16.1" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-jexl"
+			rev="2.1.1" />
 		<dependency org="com.tdunning" name="t-digest" rev="3.2" />
 
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-common" rev="2.7.4" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-common"
+			rev="2.7.4" conf="*->default">
 			<exclude org="hsqldb" name="hsqldb" />
 			<exclude org="net.sf.kosmosfs" name="kfs" />
 			<exclude org="net.java.dev.jets3t" name="jets3t" />
@@ -60,104 +69,143 @@
 			<exclude org="org.mortbay.jetty" name="jsp-*" />
 			<exclude org="ant" name="ant" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.7.4" conf="*->default"/>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="2.7.4" conf="*->default"/>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="2.7.4" conf="*->default"/>
+		<dependency org="org.apache.hadoop" name="hadoop-hdfs"
+			rev="2.7.4" conf="*->default" />
+		<dependency org="org.apache.hadoop"
+			name="hadoop-mapreduce-client-core" rev="2.7.4" conf="*->default" />
+		<dependency org="org.apache.hadoop"
+			name="hadoop-mapreduce-client-jobclient" rev="2.7.4"
+			conf="*->default" />
 		<!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="1.19.1" />
+		<dependency org="org.apache.tika" name="tika-core"
+			rev="1.19.1" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
 
 		<dependency org="xerces" name="xercesImpl" rev="2.11.0" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
 
-		<dependency org="com.google.guava" name="guava" rev="25.0-jre" />
+		<dependency org="com.google.guava" name="guava"
+			rev="25.0-jre" />
 
-		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="0.10" />
+		<dependency org="com.github.crawler-commons"
+			name="crawler-commons" rev="0.10" />
 
-		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0" />
+		<dependency org="com.martinkl.warc" name="warc-hadoop"
+			rev="0.1.0" />
 
-		<!--dependency org="org.apache.cxf" name="cxf" rev="3.0.4" conf="*->default"/-->
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.1.15" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.1.15" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.1.15" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.1.15" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.1.15" conf="test->default"/>
-		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.5" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.9.5" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.9.5" conf="*->default"/>
+		<!--dependency org="org.apache.cxf" name="cxf" rev="3.0.4" conf="*->default"/ -->
+		<dependency org="org.apache.cxf"
+			name="cxf-rt-frontend-jaxws" rev="3.1.15" conf="*->default" />
+		<dependency org="org.apache.cxf"
+			name="cxf-rt-frontend-jaxrs" rev="3.1.15" conf="*->default" />
+		<dependency org="org.apache.cxf"
+			name="cxf-rt-transports-http" rev="3.1.15" conf="*->default" />
+		<dependency org="org.apache.cxf"
+			name="cxf-rt-transports-http-jetty" rev="3.1.15" conf="*->default" />
+		<dependency org="org.apache.cxf" name="cxf-rt-rs-client"
+			rev="3.1.15" conf="test->default" />
+		<dependency org="com.fasterxml.jackson.core"
+			name="jackson-databind" rev="2.9.5" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.dataformat"
+			name="jackson-dataformat-cbor" rev="2.9.5" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.jaxrs"
+			name="jackson-jaxrs-json-provider" rev="2.9.5" conf="*->default" />
 
 		<!-- WARC artifacts needed -->
-		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.5" conf="*->default">
-			<exclude module="hadoop-core"/>
-			<exclude org="com.google.guava"/>
-			<exclude org="junit"/>
+		<dependency org="org.netpreserve.commons"
+			name="webarchive-commons" rev="1.1.5" conf="*->default">
+			<exclude module="hadoop-core" />
+			<exclude org="com.google.guava" />
+			<exclude org="junit" />
 			<!-- Exclude dependencies with incompatible license (see https://www.apache.org/legal/resolved.html#category-x) -->
-			<exclude org="org.json"/><!-- JSON License -->
-			<!--
-				Exclusion of the following dependencies disables support of WARC generation by
-				"bin/nutch commoncrawldump -warc ..."
-				Please remove these exclusion and recompile Nutch to generate WARC files using the tool "commoncrawldump".
-			-->
-			<exclude org="it.unimi.dsi" module="dsiutils"/><!-- LGPL 2.1 -->
-			<exclude org="org.gnu.inet" module="libidn"/><!-- LGPL 2.1 -->
+			<exclude org="org.json" /><!-- JSON License -->
+			<!-- Exclusion of the following dependencies disables support of WARC 
+				generation by "bin/nutch commoncrawldump -warc ..." Please remove these exclusion 
+				and recompile Nutch to generate WARC files using the tool "commoncrawldump". -->
+			<exclude org="it.unimi.dsi" module="dsiutils" /><!-- LGPL 2.1 -->
+			<exclude org="org.gnu.inet" module="libidn" /><!-- LGPL 2.1 -->
 		</dependency>
 
 		<!--artifacts needed for testing -->
-		<dependency org="junit" name="junit" rev="4.11" conf="test->default" />
-		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">
+		<dependency org="junit" name="junit" rev="4.11"
+			conf="test->default" />
+		<dependency org="org.apache.mrunit" name="mrunit"
+			rev="1.1.0" conf="test->default">
 			<artifact name="mrunit" maven:classifier="hadoop2" />
 			<exclude org="log4j" module="log4j" />
 		</dependency>
-		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.26" conf="test->default" />
-		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" conf="test->default" />
-		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.26" conf="test->default" />
-		<dependency org="tomcat" name="jasper-runtime" rev="5.5.23" conf="test->default" />
-		<dependency org="tomcat" name="jasper-compiler" rev="5.5.23" conf="test->default">
+		<dependency org="org.mortbay.jetty" name="jetty-client"
+			rev="6.1.26" conf="test->default" />
+		<dependency org="org.mortbay.jetty" name="jetty"
+			rev="6.1.26" conf="test->default" />
+		<dependency org="org.mortbay.jetty" name="jetty-util"
+			rev="6.1.26" conf="test->default" />
+		<dependency org="tomcat" name="jasper-runtime" rev="5.5.23"
+			conf="test->default" />
+		<dependency org="tomcat" name="jasper-compiler"
+			rev="5.5.23" conf="test->default">
 			<exclude org="ant" name="ant" />
 		</dependency>
 		<!-- end of test artifacts -->
 
 		<!-- web app dependencies -->
-		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" />
+		<dependency org="org.mortbay.jetty" name="jetty"
+			rev="6.1.26" />
 
-		<dependency org="org.apache.commons" name="commons-collections4" rev="4.1" conf="*->default" />
-		<dependency org="org.springframework" name="spring-core" rev="4.0.9.RELEASE" conf="*->default" />
-		<dependency org="org.springframework" name="spring-context" rev="4.0.9.RELEASE" conf="*->default" />
-		<dependency org="org.springframework" name="spring-web" rev="4.0.9.RELEASE" conf="*->default" />
+		<dependency org="org.apache.commons"
+			name="commons-collections4" rev="4.1" conf="*->default" />
+		<dependency org="org.springframework" name="spring-core"
+			rev="4.0.9.RELEASE" conf="*->default" />
+		<dependency org="org.springframework" name="spring-context"
+			rev="4.0.9.RELEASE" conf="*->default" />
+		<dependency org="org.springframework" name="spring-web"
+			rev="4.0.9.RELEASE" conf="*->default" />
 
-		<dependency org="com.sun.jersey" name="jersey-client" rev="1.19.4" conf="*->default" />
+		<dependency org="com.sun.jersey" name="jersey-client"
+			rev="1.19.4" conf="*->default" />
 
-		<dependency org="com.j256.ormlite" name="ormlite-jdbc" rev="5.1" conf="*->default" />
-		<dependency org="com.h2database" name="h2" rev="1.4.197" conf="*->default" />
-		<dependency org="org.eclipse.persistence" name="javax.persistence" rev="2.2.0" conf="*->default" />
+		<dependency org="com.j256.ormlite" name="ormlite-jdbc"
+			rev="5.1" conf="*->default" />
+		<dependency org="com.h2database" name="h2" rev="1.4.197"
+			conf="*->default" />
+		<dependency org="org.eclipse.persistence"
+			name="javax.persistence" rev="2.2.0" conf="*->default" />
 
-		<dependency org="org.apache.wicket" name="wicket-core" rev="6.17.0" conf="*->default" />
-		<dependency org="org.apache.wicket" name="wicket-spring" rev="6.17.0" conf="*->default" />
-		<dependency org="de.agilecoders.wicket" name="wicket-bootstrap-core" rev="0.9.2" conf="*->default" />
-		<dependency org="de.agilecoders.wicket" name="wicket-bootstrap-extensions" rev="0.9.2" conf="*->default">
-			<exclude org="org.json"/>
+		<dependency org="org.apache.wicket" name="wicket-core"
+			rev="6.17.0" conf="*->default" />
+		<dependency org="org.apache.wicket" name="wicket-spring"
+			rev="6.17.0" conf="*->default" />
+		<dependency org="de.agilecoders.wicket"
+			name="wicket-bootstrap-core" rev="0.9.2" conf="*->default" />
+		<dependency org="de.agilecoders.wicket"
+			name="wicket-bootstrap-extensions" rev="0.9.2" conf="*->default">
+			<exclude org="org.json" />
 		</dependency>
 
 
 		<!-- RabbitMQ dependencies -->
-		<dependency org="com.rabbitmq" name="amqp-client" rev="5.2.0" conf="*->default" />
+		<dependency org="com.rabbitmq" name="amqp-client"
+			rev="5.2.0" conf="*->default" />
 
 
-		<!--Added Because of Elasticsearch JEST client-->
-		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
-		<dependency org="org.apache.httpcomponents" name="httpcore-nio" rev="4.4.9"/>
-		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.9"/>
-		<!--Already added
-		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.5"/>
-                -->
-		<dependency org="de.vandermeer" name="asciitable" rev="0.3.2"/>
+		<!--Added Because of Elasticsearch JEST client -->
+		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently 
+			doesn't resolve correctly -->
+		<dependency org="org.apache.httpcomponents"
+			name="httpcore-nio" rev="4.4.9" />
+		<dependency org="org.apache.httpcomponents" name="httpcore"
+			rev="4.4.9" />
+		<!--Already added <dependency org="org.apache.httpcomponents" name="httpclient" 
+			rev="4.5.5"/> -->
+		<dependency org="de.vandermeer" name="asciitable"
+			rev="0.3.2" />
 
 		<!--global exclusion -->
 		<exclude module="jmxtools" />
 		<exclude module="jms" />
 		<exclude module="jmxri" />
-		<exclude org="com.thoughtworks.xstream"/>
+		<exclude org="com.thoughtworks.xstream" />
 
 	</dependencies>
 
