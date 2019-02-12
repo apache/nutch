@@ -18,24 +18,26 @@
 -->
 
 <ivy-module version="1.0">
-    <info organisation="org.apache.nutch" module="${ant.project.name}">
-        <license name="Apache 2.0"/>
-        <ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org"/>
-        <description>
-            Apache Nutch
-        </description>
-    </info>
+  <info organisation="org.apache.nutch" module="${ant.project.name}">
+      <license name="Apache 2.0"/>
+      <ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org"/>
+      <description>
+          Apache Nutch
+      </description>
+  </info>
 
-    <configurations>
-        <include file="../../..//ivy/ivy-configurations.xml"/>
-    </configurations>
+  <configurations>
+    <include file="../../..//ivy/ivy-configurations.xml"/>
+  </configurations>
 
-    <publications>
-        <!--get the artifact from our module name-->
-        <artifact conf="master"/>
-    </publications>
+  <publications>
+    <!--get the artifact from our module name-->
+    <artifact conf="master"/>
+  </publications>
 
-    <dependencies>
-    </dependencies>
+  <dependencies>
+    <!-- <dependency org="org.apache.kafka" name="kafka_2.12" rev="1.1.0"/>
+	<dependency org="org.apache.kafka" name="connect-json" rev="1.1.0"/> -->
+  </dependencies>
 
 </ivy-module>
