@@ -39,7 +39,7 @@ public class TestJexlIndexingFilter {
   @Test
   public void testAllowMatchingDocument() throws Exception {
     Configuration conf = NutchConfiguration.create();
-    conf.set("index.jexl.filter", "doc.lang[0]=='en'");
+    conf.set("index.jexl.filter", "doc.lang=='en'");
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     filter.setConf(conf);
@@ -73,7 +73,7 @@ public class TestJexlIndexingFilter {
   @Test
   public void testBlockNotMatchingDocuments() throws Exception {
     Configuration conf = NutchConfiguration.create();
-    conf.set("index.jexl.filter", "doc.lang[0]=='en'");
+    conf.set("index.jexl.filter", "doc.lang=='en'");
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     filter.setConf(conf);
@@ -115,7 +115,7 @@ public class TestJexlIndexingFilter {
   @Test
   public void testInvalidExpression() throws Exception {
     Configuration conf = NutchConfiguration.create();
-    conf.set("index.jexl.filter", "doc.lang[0]=<>:='en'");
+    conf.set("index.jexl.filter", "doc.lang=<>:='en'");
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     thrown.expect(RuntimeException.class);
