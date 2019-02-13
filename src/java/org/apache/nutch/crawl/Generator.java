@@ -255,7 +255,7 @@ public class Generator extends NutchTool implements Tool {
           return;
 
         // consider only entries with a score superior to the threshold
-        if (scoreThreshold != Float.NaN && sort < scoreThreshold)
+        if (!Float.isNaN(scoreThreshold) && sort < scoreThreshold)
           return;
 
         // consider only entries with a retry (or fetch) interval lower than
