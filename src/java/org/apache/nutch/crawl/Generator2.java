@@ -16,16 +16,23 @@
  */
 package org.apache.nutch.crawl;
 
+import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -62,7 +69,6 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
-import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,11 +78,16 @@ import org.slf4j.LoggerFactory;
  * This version works differently from the original in that it doesn't try to
  * keep highest scoring things in earlier segments across domains.
  *
- * In order to speed performance of generating thousands of segments for
- * multi-billion entry url databases, we group by domain and secondary sort by
- * score descending. No per-host (or per-domain) counts are hold in memory.
- * Grouping by IP is not supported.
+ * In order to speed up performance of generating dozens or hundreds of segments
+ * for multi-billion entry URL databases, we group by host (or domain) and
+ * secondary sort by score descending. No per-host (or per-domain) counts are
+ * hold in memory. Grouping by IP is not supported.
  * 
+ * If fetch lists are grouped by domain (see <code>generate.count.mode</code>)
+ * additional limits are configurable (also per domain): max. number of hosts,
+ * max. number of URLs per host, number of partitions URLs of a single domain
+ * are distributed on.
+ *
  * URLs of a single host or domain are distributed over multiple segments
  * round-robin but with a configurable number of URLs kept in a single segment
  * (see {@link #GENERATOR_COUNT_KEEP_MIN_IN_SEGMENT}). Keeping a minimum number
@@ -111,6 +122,12 @@ public class Generator2 extends Configured implements Tool {
    * this number of URLs together in one segment
    */
   public static final String GENERATOR_COUNT_KEEP_MIN_IN_SEGMENT = "generate.count.keep.min.urls.per.segment";
+  /** Name of file with domain-specific limits */
+  public static final String GENERATOR_DOMAIN_LIMITS_FILE = "generate.domain.limits.file";
+  /** Max. number of hosts per domain (if generate.count.mode == domain) */
+  public static final String GENERATOR_MAX_HOSTS_PER_DOMAIN = "generate.max.hosts.per.domain";
+  /** Max. number of URLs per host (if generate.count.mode == domain) */
+  public static final String GENERATOR_MAX_COUNT_PER_HOST = "generate.max.count.per.host.by.domain";
 
   protected static Random random = new Random();
 
@@ -393,11 +410,10 @@ public class Generator2 extends Configured implements Tool {
         }
         URL u = new URL(urlString);
         if (byDomain) {
-          hostordomain = URLUtil.getDomainName(u);
+          hostordomain = URLPartitioner.getDomainName(u.getHost());
         } else {
-          hostordomain = u.getHost();
+          hostordomain = u.getHost().toLowerCase(Locale.ROOT);
         }
-        hostordomain = hostordomain.toLowerCase();
       } catch (Exception e) {
         LOG.warn("Malformed URL: '{}', skipping ({})", urlString,
             e.getMessage());
@@ -426,11 +442,39 @@ public class Generator2 extends Configured implements Tool {
     private int keepMinUrlsPerSegment;
     private int segmentIncrement = 1;
 
+    // additional host limits if byDomain
+    private boolean byDomainWithHostLimits = false;
+    private int maxCountPerHost = -1;
+    private int maxHostsPerDomain = -1;
+    private Map<String, DomainLimits> domainLimits = null;
+
+    public static class DomainLimits {
+      int maxURLs;
+      int maxURLsPerHost;
+      int maxHosts;
+      int numPartitions;
+      public DomainLimits(int urls, int urlsHost, int hosts, int parts) {
+        maxURLs = urls;
+        maxURLsPerHost = urlsHost;
+        maxHosts = hosts;
+        numPartitions = parts;
+      }
+    }
+
     @Override
     public void setup(Context context) throws IOException {
       conf = context.getConfiguration();
       maxNumSegments = conf.getInt(GENERATOR_MAX_NUM_SEGMENTS, 1);
       maxCount = conf.getInt(GENERATOR_MAX_COUNT, -1);
+      if (GENERATOR_COUNT_VALUE_DOMAIN.equals(conf.get(GENERATOR_COUNT_MODE))) {
+        maxHostsPerDomain = conf.getInt(GENERATOR_MAX_HOSTS_PER_DOMAIN, Integer.MAX_VALUE);
+        maxCountPerHost = conf.getInt(GENERATOR_MAX_COUNT_PER_HOST, Integer.MAX_VALUE);
+        domainLimits = readLimitsFile(conf);
+        if (domainLimits != null || maxHostsPerDomain < Integer.MAX_VALUE
+            || maxCountPerHost < Integer.MAX_VALUE) {
+          byDomainWithHostLimits = true;
+        }
+      }
       currentSegment = 0;
       keepMinUrlsPerSegment = conf.getInt(GENERATOR_COUNT_KEEP_MIN_IN_SEGMENT,
           100);
@@ -457,6 +501,62 @@ public class Generator2 extends Configured implements Tool {
       return currentSegment;
     }
 
+    public static Map<String, DomainLimits> readLimitsFile(Configuration conf) {
+      String limitsFile = conf.get(GENERATOR_DOMAIN_LIMITS_FILE);
+      if (limitsFile != null) {
+        LOG.info("Reading domain-specific limits from {}", limitsFile);
+        try (Reader limitsReader = conf.getConfResourceAsReader(limitsFile)) {
+          return readLimitsFile(limitsReader);
+        } catch (IOException e) {
+          LOG.error("Failed to read domain-specific limits", e);
+        }
+      }
+      return null;
+    }
+
+    /**
+     * Reads the domain-specific limits into a map
+     * 
+     * @param limitsReader  reader for limits file
+     */
+    public static Map<String, DomainLimits> readLimitsFile(Reader limitsReader)
+        throws IOException {
+
+      Map<String, DomainLimits> domainLimits = new HashMap<>();
+
+      BufferedReader reader = new BufferedReader(limitsReader);
+
+      String line = null;
+      String[] splits = null;
+
+      // Read all lines
+      while ((line = reader.readLine()) != null) {
+        // Skip blank lines and comments
+        if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
+          // Split the line by TAB
+          splits = line.split("\t");
+
+          if (splits.length < 5) {
+            LOG.warn("Invalid line: {}", line);
+            continue;
+          }
+          int urls, urlsHost, hosts, parts;
+          try {
+            urls = Integer.parseInt(splits[1]);
+            urlsHost = Integer.parseInt(splits[2]);
+            hosts = Integer.parseInt(splits[3]);
+            parts = Integer.parseInt(splits[4]);
+          } catch (NumberFormatException e) {
+            LOG.warn("Invalid number in line: {} - {}", line, e.getMessage());
+            continue;
+          }
+          domainLimits.put(StringUtils.lowerCase(splits[0]),
+              new DomainLimits(urls, urlsHost, hosts, parts));
+        }
+      }
+      return domainLimits;
+    }
+
     /*
      * Limit the number of URLs per host/domain and assign segment number to
      * every record.
@@ -467,27 +567,122 @@ public class Generator2 extends Configured implements Tool {
       int hostOrDomainCount = 0;
       int segment = nextSegment();
 
+      Map<String, int[]> hosts = null;
+      int[] segments = null;
+      int maxCountPerSegment = maxCount;
+      int maxCountPerHostTotal = maxCountPerHost * maxNumSegments;
+      int maxHosts = maxHostsPerDomain;
+      int maxHostsOverflowCount = 0;
+      String domain = null;
+      if (byDomainWithHostLimits) {
+        hosts = new HashMap<>();
+        segments = new int[maxNumSegments];
+        domain = key.getDomain().toString();
+        if (domainLimits != null) {
+          DomainLimits limits = domainLimits.get(key.domain.toString());
+          if (limits != null) {
+            maxCountPerSegment = limits.maxURLs;
+            maxCountPerHostTotal = limits.maxURLsPerHost * maxNumSegments;
+            maxHosts = limits.maxHosts;
+          }
+        }
+      }
+      int maxCountTotal = maxCountPerSegment * maxNumSegments;
+
       for (SelectorEntry entry : values) {
 
         hostOrDomainCount++;
 
-        if (maxCount > 0 && hostOrDomainCount > (maxCount * maxNumSegments)) {
+        if (maxCountTotal > 0 && hostOrDomainCount > maxCountTotal) {
           LOG.info(
               "Host or domain {} has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
-              key.getDomain(), (maxCount * maxNumSegments), maxNumSegments);
+              key.getDomain(), maxCountTotal, maxNumSegments);
           context.getCounter("Generator", "SKIPPED_DOMAINS_OVERFLOW")
               .increment(1);
-          return;
+          break;
         }
+
+        if (byDomainWithHostLimits) {
+          String host = null;
+          try {
+            host = new URL(entry.url.toString()).getHost().toLowerCase(Locale.ROOT);
+            if (host.endsWith(domain)) {
+              // clip common domain name suffix to save storage space in map keys
+              host = host.substring(0, host.length()-domain.length());
+            } else {
+              LOG.warn("Host {} does not have domain {} as suffix!", host, domain);
+            }
+          } catch (MalformedURLException e) {
+            hostOrDomainCount--;
+            continue;
+          }
+          int[] counts = hosts.get(host);
+          if (counts == null) {
+            if (hosts.size() >= maxHosts) {
+              // skip current host, max. number of unique hosts reached for domain
+              hostOrDomainCount--;
+              maxHostsOverflowCount++;
+              continue;
+            }
+            counts = new int[3];
+            counts[0] = 0;
+            counts[1] = nextSegment();
+            counts[2] = 0;
+            hosts.put(host, counts);
+          } else if (counts[0] >= maxCountPerHostTotal) {
+            hostOrDomainCount--;
+            if (counts[0] == maxCountPerHostTotal) {
+              LOG.info(
+                  "Host {} has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
+                  host, maxCountPerHostTotal, maxNumSegments);
+              context.getCounter("Generator", "SKIPPED_HOSTS_NUM_URLS_OVERFLOW")
+                .increment(1);
+            }
+            context.getCounter("Generator", "SKIPPED_URLS_HOST_OVERFLOW")
+              .increment(1);
+            counts[0]++;
+            continue;
+          } else if ((counts[2] % keepMinUrlsPerSegment) == 0) {
+            counts[1] = nextSegment();
+            counts[2] = 0;
+          }
+          segment = counts[1];
+          // select next segment if there are already too many URLs from the current domain
+          if (maxNumSegments > 1 && segments[segment] >= maxCountPerSegment) {
+            for (int i = 1; i < maxNumSegments; i++) {
+              int s = (segment + i) % maxNumSegments;
+              if (segments[s] < maxCountPerSegment) {
+                counts[1] = segment = s;
+                counts[2] = 0;
+                break;
+              }
+            }
+          }
+          counts[0]++;
+          counts[2]++;
+          segments[segment]++;
+          entry.segnum.set(segment);
+        } else {
+          entry.segnum.set(segment);
+          if ((hostOrDomainCount % keepMinUrlsPerSegment) == 0) {
+            segment = nextSegment();
+          }
+        }
+
         context.getCounter("Selected by status",
             CrawlDatum.getStatusName(entry.datum.getStatus())).increment(1);
 
-        entry.segnum.set(segment);
-        if ((hostOrDomainCount % keepMinUrlsPerSegment) == 0) {
-          segment = nextSegment();
-        }
-
         context.write(key.getScore(), entry);
+      }
+
+      if (maxHostsOverflowCount > 0) {
+        context.getCounter("Generator", "SKIPPED_DOMAINS_NUM_HOSTS_OVERFLOW")
+            .increment(1);
+        context.getCounter("Generator", "SKIPPED_URLS_NUM_HOSTS_OVERFLOW")
+          .increment(maxHostsOverflowCount);
+        LOG.info(
+            "Domain {} has more than {} hosts, skipped {} URLs from remaining hosts",
+            key.getDomain(), maxHosts, maxHostsOverflowCount);
       }
     }
 
@@ -657,9 +852,21 @@ public class Generator2 extends Configured implements Tool {
     public void reduce(SegmenterKey key, Iterable<SelectorEntry> values,
         Context context) throws IOException, InterruptedException {
       long count = 0;
+      int segnum = -1;
+      String fileName = null;
       for (SelectorEntry entry : values) {
+        if (segnum == -1) {
+          segnum = entry.segnum.get(); // same as key.getSegment().get()
+          fileName = generateFileName(entry);
+          LOG.info("Writing segment {} to {}", segnum, fileName);
+        } else if (entry.segnum.get() != segnum) {
+          // TODO: should not happen!!!
+          LOG.error("Segment number does not match: {} <> {}", segnum, entry.segnum.get());
+          segnum = entry.segnum.get();
+          fileName = generateFileName(entry);
+        }
         if (count < maxPerSegment) {
-          mos.write("sequenceFiles", entry.url, entry, generateFileName(entry));
+          mos.write("sequenceFiles", entry.url, entry, fileName);
         } else {
           context.getCounter("Generator", "SKIPPED_RECORDS_SEGMENT_OVERFLOW")
               .increment(1);
@@ -702,6 +909,7 @@ public class Generator2 extends Configured implements Tool {
           random.nextInt(Integer.MAX_VALUE));
       numLists = conf.getInt("num.lists", 1);
       partitioner.setConf(conf);
+      partitioner.setDomainLimits(SelectorReducer.readLimitsFile(conf));
     }
 
     public void map(Text key, SelectorEntry value, Context context)

@@ -1,0 +1,15 @@
+#
+# Fetch list limits by domain
+#
+# Note: please register this file using the property `generate.domain.limits.file`.
+#
+# Fields (tab-separated):
+#  1 - domain name
+#  2 - max. number of URLs per domain and segment
+#  3 - max. number of URLs per host (in domain) and segment
+#  4 - max. number of hosts per domain over all segments
+#  5 - max. number of partitions (fetcher tasks) for domain
+#
+# Lines starting with `#` are ignored.
+# 
+# wikipedia.org	5000	500	20	1
