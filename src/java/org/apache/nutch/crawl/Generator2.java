@@ -50,7 +50,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.LazyOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.hash.MurmurHash;
@@ -114,10 +113,6 @@ public class Generator2 extends Configured implements Tool {
   public static final String GENERATOR_COUNT_KEEP_MIN_IN_SEGMENT = "generate.count.keep.min.urls.per.segment";
 
   protected static Random random = new Random();
-
-  // deprecated parameters
-  public static final String GENERATE_MAX_PER_HOST_BY_IP = "generate.max.per.host.by.ip";
-  public static final String GENERATE_MAX_PER_HOST = "generate.max.per.host";
 
   public static class DomainScorePair
       implements WritableComparable<DomainScorePair> {
@@ -324,8 +319,9 @@ public class Generator2 extends Configured implements Tool {
       intervalThreshold = conf.getInt(GENERATOR_MIN_INTERVAL, -1);
       restrictStatus = conf.get(GENERATOR_RESTRICT_STATUS, null);
 
-      if (GENERATOR_COUNT_VALUE_DOMAIN.equals(conf.get(GENERATOR_COUNT_MODE)))
+      if (GENERATOR_COUNT_VALUE_DOMAIN.equals(conf.get(GENERATOR_COUNT_MODE))) {
         byDomain = true;
+      }
     }
 
     /** Select & invert subset due for fetch. */
@@ -341,26 +337,19 @@ public class Generator2 extends Configured implements Tool {
             return;
         } catch (URLFilterException e) {
           if (LOG.isWarnEnabled()) {
-            LOG.warn(
-                "Couldn't filter url: " + key + " (" + e.getMessage() + ")");
+            LOG.warn("Couldn't filter url {}: {}", key, e.getMessage());
           }
         }
       }
 
       // check fetch schedule
       if (!schedule.shouldFetch(key, value, curTime)) {
-        LOG.debug("-shouldFetch rejected '" + key + "', fetchTime="
-            + value.getFetchTime() + ", curTime=" + curTime);
+        LOG.debug("-shouldFetch rejected '{}', fetchTime={}, curTime={}", key,
+            value.getFetchTime(), curTime);
         context.getCounter("Schedule rejected by status",
             CrawlDatum.getStatusName(value.getStatus())).increment(1);
         return;
       }
-
-      /*
-       * if (value.getStatus() != CrawlDatum.STATUS_DB_UNFETCHED) {
-       * LOG.debug("-newonly rejected '" + key + "', fetchTime=" +
-       * value.getFetchTime() + ", curTime=" + curTime); return; }
-       */
 
       LongWritable oldGenTime = (LongWritable) value.getMetaData()
           .get(Nutch.WRITABLE_GENERATE_TIME_KEY);
@@ -374,8 +363,7 @@ public class Generator2 extends Configured implements Tool {
         sort = scfilters.generatorSortValue(key, value, sort);
       } catch (ScoringFilterException sfe) {
         if (LOG.isWarnEnabled()) {
-          LOG.warn(
-              "Couldn't filter generatorSortValue for " + key + ": " + sfe);
+          LOG.warn("Couldn't filter generatorSortValue for {}: {}", key, sfe);
         }
       }
 
@@ -411,8 +399,8 @@ public class Generator2 extends Configured implements Tool {
         }
         hostordomain = hostordomain.toLowerCase();
       } catch (Exception e) {
-        LOG.warn("Malformed URL: '" + urlString + "', skipping ("
-            + StringUtils.stringifyException(e) + ")");
+        LOG.warn("Malformed URL: '{}', skipping ({})", urlString,
+            e.getMessage());
         context.getCounter("Generator", "MALFORMED_URL").increment(1);
         return;
       }
@@ -443,7 +431,7 @@ public class Generator2 extends Configured implements Tool {
       conf = context.getConfiguration();
       maxNumSegments = conf.getInt(GENERATOR_MAX_NUM_SEGMENTS, 1);
       maxCount = conf.getInt(GENERATOR_MAX_COUNT, -1);
-      currentSegment = 1;
+      currentSegment = 0;
       keepMinUrlsPerSegment = conf.getInt(GENERATOR_COUNT_KEEP_MIN_IN_SEGMENT,
           100);
       segmentIncrement = 1; // increment to select next segment
@@ -463,7 +451,7 @@ public class Generator2 extends Configured implements Tool {
 
     private int nextSegment() {
       currentSegment += segmentIncrement;
-      if (currentSegment > maxNumSegments) {
+      if (currentSegment >= maxNumSegments) {
         currentSegment = (currentSegment % maxNumSegments);
       }
       return currentSegment;
@@ -476,14 +464,14 @@ public class Generator2 extends Configured implements Tool {
     public void reduce(DomainScorePair key, Iterable<SelectorEntry> values,
         Context context) throws IOException, InterruptedException {
 
-      int hostCount = 0;
+      int hostOrDomainCount = 0;
       int segment = nextSegment();
 
       for (SelectorEntry entry : values) {
 
-        hostCount++;
+        hostOrDomainCount++;
 
-        if (maxCount > 0 && hostCount >= maxCount * maxNumSegments) {
+        if (maxCount > 0 && hostOrDomainCount > (maxCount * maxNumSegments)) {
           LOG.info(
               "Host or domain {} has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
               key.getDomain(), (maxCount * maxNumSegments), maxNumSegments);
@@ -495,7 +483,7 @@ public class Generator2 extends Configured implements Tool {
             CrawlDatum.getStatusName(entry.datum.getStatus())).increment(1);
 
         entry.segnum.set(segment);
-        if ((hostCount % keepMinUrlsPerSegment) == 0) {
+        if ((hostOrDomainCount % keepMinUrlsPerSegment) == 0) {
           segment = nextSegment();
         }
 
@@ -631,7 +619,7 @@ public class Generator2 extends Configured implements Tool {
     @Override
     public int getPartition(SegmenterKey key, Writable value,
         int numReduceTasks) {
-      return (key.segment.get() - 1) % numReduceTasks;
+      return key.segment.get() % numReduceTasks;
     }
 
   }
@@ -809,18 +797,15 @@ public class Generator2 extends Configured implements Tool {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
-    LOG.info("Generator: starting at " + sdf.format(start));
+    LOG.info("Generator: starting at {}", sdf.format(start));
     LOG.info("Generator: Selecting best-scoring urls due for fetch.");
-    LOG.info("Generator: filtering: " + filter);
-    LOG.info("Generator: normalizing: " + norm);
+    LOG.info("Generator: filtering: {}", filter);
+    LOG.info("Generator: normalizing: {}", norm);
     if (topN != Long.MAX_VALUE) {
-      LOG.info("Generator: perSegment: " + topN);
+      LOG.info("Generator: perSegment: {}", topN);
     }
-
-    if ("true".equals(getConf().get(GENERATE_MAX_PER_HOST_BY_IP))) {
-      LOG.info(
-          "Generator: GENERATE_MAX_PER_HOST_BY_IP will be ignored, use partition.url.mode instead");
-    }
+    LOG.info("Generator: generate.count.mode = {}", getConf().get(GENERATOR_COUNT_MODE));
+    LOG.info("Generator: partition.url.mode = {}", getConf().get(URLPartitioner.PARTITION_MODE_KEY));
 
     if (stage2 == null && stage1 == null) {
       // map to inverted subset due for fetch, sort by score
@@ -899,7 +884,6 @@ public class Generator2 extends Configured implements Tool {
       Job job = NutchJob.getInstance(getConf());
       job.setJobName("generate: segmenter");
       Configuration conf = job.getConfiguration();
-      conf.setInt(GENERATOR_MAX_NUM_SEGMENTS, maxNumSegments);
       conf.setLong(GENERATOR_TOP_N, topN);
 
       job.setSpeculativeExecution(true);
@@ -922,6 +906,8 @@ public class Generator2 extends Configured implements Tool {
        * URLs are shuffled (sorted by pseudo-random hash value).
        */
       job.setSortComparatorClass(UrlHashComparator.class);
+      /* ensure that every segments gets its own partition */
+      job.setNumReduceTasks(maxNumSegments);
 
       job.setMapOutputKeyClass(SegmenterKey.class);
       job.setMapOutputValueClass(SelectorEntry.class);
@@ -988,8 +974,8 @@ public class Generator2 extends Configured implements Tool {
     }
 
     long end = System.currentTimeMillis();
-    LOG.info("Generator: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    LOG.info("Generator: finished at {}, elapsed: {}", sdf.format(end),
+        TimingUtil.elapsedTime(start, end));
 
     Path[] patharray = new Path[generatedSegments.size()];
     return generatedSegments.toArray(patharray);
@@ -1007,7 +993,7 @@ public class Generator2 extends Configured implements Tool {
 
     List<Path> generatedSegments = new ArrayList<Path>();
 
-    LOG.info("Generator: partitionSegment: " + segmentsDir);
+    LOG.info("Generator: partitionSegment: {}", segmentsDir);
 
     Job job = NutchJob.getInstance(getConf());
     job.setJobName("generate: partition " + segmentsDir);
@@ -1136,7 +1122,7 @@ public class Generator2 extends Configured implements Tool {
       if (segs == null)
         return -1;
     } catch (Exception e) {
-      LOG.error("Generator: " + StringUtils.stringifyException(e));
+      LOG.error("Generator failed with", e);
       return -1;
     }
     return 0;
