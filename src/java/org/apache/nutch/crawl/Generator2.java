@@ -467,12 +467,22 @@ public class Generator2 extends Configured implements Tool {
       maxNumSegments = conf.getInt(GENERATOR_MAX_NUM_SEGMENTS, 1);
       maxCount = conf.getInt(GENERATOR_MAX_COUNT, -1);
       if (GENERATOR_COUNT_VALUE_DOMAIN.equals(conf.get(GENERATOR_COUNT_MODE))) {
-        maxHostsPerDomain = conf.getInt(GENERATOR_MAX_HOSTS_PER_DOMAIN, Integer.MAX_VALUE);
-        maxCountPerHost = conf.getInt(GENERATOR_MAX_COUNT_PER_HOST, Integer.MAX_VALUE);
+        maxHostsPerDomain = conf.getInt(GENERATOR_MAX_HOSTS_PER_DOMAIN, -1);
+        maxCountPerHost = conf.getInt(GENERATOR_MAX_COUNT_PER_HOST, -1);
         domainLimits = readLimitsFile(conf);
-        if (domainLimits != null || maxHostsPerDomain < Integer.MAX_VALUE
-            || maxCountPerHost < Integer.MAX_VALUE) {
+        if (domainLimits != null || maxHostsPerDomain > 0
+            || maxCountPerHost > 0) {
           byDomainWithHostLimits = true;
+          LOG.info("Domain limits enabled:");
+          LOG.info(" - {}: {}", GENERATOR_MAX_HOSTS_PER_DOMAIN,
+              maxHostsPerDomain);
+          LOG.info(" - {}: {}", GENERATOR_MAX_COUNT_PER_HOST,
+              maxCountPerHost);
+          if (domainLimits != null) {
+            LOG.info(
+                " - domain limits file ({}) contains limits for {} domains",
+                GENERATOR_DOMAIN_LIMITS_FILE, domainLimits.size());
+          }
         }
       }
       currentSegment = 0;
@@ -570,7 +580,10 @@ public class Generator2 extends Configured implements Tool {
       Map<String, int[]> hosts = null;
       int[] segments = null;
       int maxCountPerSegment = maxCount;
-      int maxCountPerHostTotal = maxCountPerHost * maxNumSegments;
+      int maxCountPerHostTotal = -1;
+      if (maxCountPerHost > 0) {
+        maxCountPerHostTotal = maxCountPerHost * maxNumSegments;
+      }
       int maxHosts = maxHostsPerDomain;
       int maxHostsOverflowCount = 0;
       String domain = null;
@@ -587,7 +600,10 @@ public class Generator2 extends Configured implements Tool {
           }
         }
       }
-      int maxCountTotal = maxCountPerSegment * maxNumSegments;
+      int maxCountTotal = -1;
+      if (maxCountPerSegment > 0) {
+        maxCountTotal = maxCountPerSegment * maxNumSegments;
+      }
 
       for (SelectorEntry entry : values) {
 
@@ -618,7 +634,7 @@ public class Generator2 extends Configured implements Tool {
           }
           int[] counts = hosts.get(host);
           if (counts == null) {
-            if (hosts.size() >= maxHosts) {
+            if (maxHosts > 0 && hosts.size() >= maxHosts) {
               // skip current host, max. number of unique hosts reached for domain
               hostOrDomainCount--;
               maxHostsOverflowCount++;
@@ -629,7 +645,7 @@ public class Generator2 extends Configured implements Tool {
             counts[1] = nextSegment();
             counts[2] = 0;
             hosts.put(host, counts);
-          } else if (counts[0] >= maxCountPerHostTotal) {
+          } else if (maxCountPerHostTotal > 0 && counts[0] >= maxCountPerHostTotal) {
             hostOrDomainCount--;
             if (counts[0] == maxCountPerHostTotal) {
               LOG.info(
@@ -859,11 +875,6 @@ public class Generator2 extends Configured implements Tool {
           segnum = entry.segnum.get(); // same as key.getSegment().get()
           fileName = generateFileName(entry);
           LOG.info("Writing segment {} to {}", segnum, fileName);
-        } else if (entry.segnum.get() != segnum) {
-          // TODO: should not happen!!!
-          LOG.error("Segment number does not match: {} <> {}", segnum, entry.segnum.get());
-          segnum = entry.segnum.get();
-          fileName = generateFileName(entry);
         }
         if (count < maxPerSegment) {
           mos.write("sequenceFiles", entry.url, entry, fileName);

@@ -924,24 +924,26 @@
 <property>
   <name>generate.max.count.per.host.by.domain</name>
   <value>-1</value>
-  <description>(Generator2 only) Max. number of URLs per host. Used
-  only if generate.count.mode == domain.</description>
+  <description>(Generator2 only) Max. number of URLs per host if
+  `generate.count.mode == domain`. Unlimited if -1.
+  </description>
 </property>
 
 <property>
   <name>generate.max.hosts.per.domain</name>
   <value>-1</value>
-  <description>(Generator2 only) Max. number of hosts per domain. Used
-  only if generate.count.mode == domain.</description>
+  <description>(Generator2 only) Max. number of different hosts
+  allowed per domain. Unlimited if -1. Used only if
+  `generate.count.mode == domain`. </description>
 </property>
 
 <property>
   <name>generate.domain.limits.file</name>
   <value></value>
   <description>(Generator2 only) Name of file with domain-specific
-  limits, see generate-domain-limits.txt.template for the file
-  format. Used only if not empty and generate.count.mode ==
-  domain.</description>
+  limits. Used only if not empty and `generate.count.mode == domain`.
+  See generate-domain-limits.txt.template for the file format.
+  </description>
 </property>
 
 
