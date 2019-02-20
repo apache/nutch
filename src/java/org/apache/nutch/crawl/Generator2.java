@@ -649,8 +649,8 @@ public class Generator2 extends Configured implements Tool {
             hostOrDomainCount--;
             if (counts[0] == maxCountPerHostTotal) {
               LOG.info(
-                  "Host {} has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
-                  host, maxCountPerHostTotal, maxNumSegments);
+                  "Host {}{} (domain: {}) has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
+                  host, domain, domain, maxCountPerHostTotal, maxNumSegments);
               context.getCounter("Generator", "SKIPPED_HOSTS_NUM_URLS_OVERFLOW")
                 .increment(1);
             }
