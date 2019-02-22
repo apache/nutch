@@ -64,7 +64,7 @@ public class SequenceReader implements NutchReader {
     }catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-      LOG.error("Error occurred while reading file {} : ", file, 
+      LOG.error("Error occurred while reading file {} : {}", file,
           StringUtils.stringifyException(e));
       throw new WebApplicationException();
     } 
@@ -99,7 +99,7 @@ public class SequenceReader implements NutchReader {
       throw new FileNotFoundException();
     }catch (IOException e) {
       // TODO Auto-generated catch block
-      LOG.error("Error occurred while reading file {} : ", file, 
+      LOG.error("Error occurred while reading file {} : {}", file,
           StringUtils.stringifyException(e));
       throw new WebApplicationException();
     } 
@@ -134,7 +134,7 @@ public class SequenceReader implements NutchReader {
       throw new FileNotFoundException();
     }catch (IOException e) {
       // TODO Auto-generated catch block
-      LOG.error("Error occurred while reading file {} : ", file, 
+      LOG.error("Error occurred while reading file {} : {}", file,
           StringUtils.stringifyException(e));
       throw new WebApplicationException();
     } 
@@ -161,7 +161,7 @@ public class SequenceReader implements NutchReader {
       throw new FileNotFoundException();
     }catch (IOException e) {
       // TODO Auto-generated catch block
-      LOG.error("Error occurred while reading file {} : ", file, 
+      LOG.error("Error occurred while reading file {} : {}", file,
           StringUtils.stringifyException(e));
       throw new WebApplicationException();
     } 

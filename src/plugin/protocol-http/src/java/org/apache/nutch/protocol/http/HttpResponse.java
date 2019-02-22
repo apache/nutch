@@ -154,7 +154,7 @@ public class HttpResponse implements Response {
         socket = sslsocket;
       }
 
-      if (sockAddr != null && http.isStoreIPAddress()) {
+      if (http.isStoreIPAddress()) {
         headers.add("_ip_", sockAddr.getAddress().getHostAddress());
       }
 
@@ -452,7 +452,7 @@ public class HttpResponse implements Response {
     byte[] bytes = new byte[Http.BUFFER_SIZE];
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
 
-    while (!doneChunks) {
+    while (true) {
       if (Http.LOG.isTraceEnabled()) {
         Http.LOG.trace("Http: starting chunk");
       }

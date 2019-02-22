@@ -170,10 +170,8 @@ public class EncodingDetector {
       // will sometimes throw exceptions
       try {
         detector.enableInputFilter(filter);
-        if (data.length > MIN_LENGTH) {
-          detector.setText(data);
-          matches = detector.detectAll();
-        }
+        detector.setText(data);
+        matches = detector.detectAll();
       } catch (Exception e) {
         LOG.debug("Exception from ICU4J (ignoring): ", e);
       }

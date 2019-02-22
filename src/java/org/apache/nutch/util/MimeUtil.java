@@ -166,8 +166,7 @@ public final class MimeUtil {
     }
 
     // if returned null, or if it's the default type then try url resolution
-    if (type == null
-        || (type != null && type.getName().equals(MimeTypes.OCTET_STREAM))) {
+    if (type == null || type.getName().equals(MimeTypes.OCTET_STREAM)) {
       // If no mime-type header, or cannot find a corresponding registered
       // mime-type, then guess a mime-type from the url pattern
       try {

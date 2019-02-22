@@ -71,8 +71,6 @@ public class UpdateHostDbReducer
 
   /**
     * Configures the thread pool and prestarts all resolver threads.
-    *
-    * @param job
     */
   @Override
   public void setup(Reducer<Text, NutchWritable, Text, HostDatum>.Context context) {
