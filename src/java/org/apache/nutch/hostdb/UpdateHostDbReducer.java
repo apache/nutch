@@ -28,7 +28,7 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.FloatWritable;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -118,10 +118,10 @@ public class UpdateHostDbReducer
   public void reduce(Text key, Iterable<NutchWritable> values,
     Context context) throws IOException, InterruptedException {
 
-    Map<String,Map<String,Integer>> stringCounts = new HashMap<>();
+    Map<String,Map<String,Long>> stringCounts = new HashMap<>();
     Map<String,Float> maximums = new HashMap<>();
     Map<String,Float> sums = new HashMap<>(); // used to calc averages
-    Map<String,Integer> counts = new HashMap<>(); // used to calc averages
+    Map<String,Long> counts = new HashMap<>(); // used to calc averages
     Map<String,Float> minimums = new HashMap<>();
     Map<String,TDigest> tdigests = new HashMap<String,TDigest>();
     
@@ -146,27 +146,27 @@ public class UpdateHostDbReducer
         // Set the correct status field
         switch (buffer.getStatus()) {
           case CrawlDatum.STATUS_DB_UNFETCHED:
-            hostDatum.setUnfetched(hostDatum.getUnfetched() + 1);
+            hostDatum.setUnfetched(hostDatum.getUnfetched() + 1l);
             break;
 
           case CrawlDatum.STATUS_DB_FETCHED:
-            hostDatum.setFetched(hostDatum.getFetched() + 1);
+            hostDatum.setFetched(hostDatum.getFetched() + 1l);
             break;
 
           case CrawlDatum.STATUS_DB_GONE:
-            hostDatum.setGone(hostDatum.getGone() + 1);
+            hostDatum.setGone(hostDatum.getGone() + 1l);
             break;
 
           case CrawlDatum.STATUS_DB_REDIR_TEMP:
-            hostDatum.setRedirTemp(hostDatum.getRedirTemp() + 1);
+            hostDatum.setRedirTemp(hostDatum.getRedirTemp() + 1l);
             break;
 
           case CrawlDatum.STATUS_DB_REDIR_PERM:
-            hostDatum.setRedirPerm(hostDatum.getRedirPerm() + 1);
+            hostDatum.setRedirPerm(hostDatum.getRedirPerm() + 1l);
             break;
 
           case CrawlDatum.STATUS_DB_NOTMODIFIED:
-            hostDatum.setNotModified(hostDatum.getNotModified() + 1);
+            hostDatum.setNotModified(hostDatum.getNotModified() + 1l);
             break;
         }
         
@@ -193,10 +193,10 @@ public class UpdateHostDbReducer
                 // Does the value exist?
                 if (stringCounts.get(stringFields[i]).containsKey(metadataValue)) {
                   // Yes, increment it
-                  stringCounts.get(stringFields[i]).put(metadataValue, stringCounts.get(stringFields[i]).get(metadataValue) + 1);
+                  stringCounts.get(stringFields[i]).put(metadataValue, stringCounts.get(stringFields[i]).get(metadataValue) + 1l);
                 } else {
                   // Create it!
-                  stringCounts.get(stringFields[i]).put(metadataValue, 1);
+                  stringCounts.get(stringFields[i]).put(metadataValue, 1l);
                 }
               }
             }
@@ -247,11 +247,11 @@ public class UpdateHostDbReducer
                   if (sums.containsKey(numericFields[i])) {
                     // Increment
                     sums.put(numericFields[i], sums.get(numericFields[i]) + metadataValue);
-                    counts.put(numericFields[i], counts.get(numericFields[i]) + 1);
+                    counts.put(numericFields[i], counts.get(numericFields[i]) + 1l);
                   } else {
                     // Create it!
                     sums.put(numericFields[i], metadataValue);
-                    counts.put(numericFields[i], 1);
+                    counts.put(numericFields[i], 1l);
                   }
                 } catch (Exception e) {
                   LOG.error(e.getMessage() + " when processing values for " + key.toString());
@@ -312,9 +312,9 @@ public class UpdateHostDbReducer
     }
     
     // Set metadata
-    for (Map.Entry<String, Map<String,Integer>> entry : stringCounts.entrySet()) {
-      for (Map.Entry<String,Integer> subEntry : entry.getValue().entrySet()) {
-        hostDatum.getMetaData().put(new Text(entry.getKey() + "." + subEntry.getKey()), new IntWritable(subEntry.getValue()));
+    for (Map.Entry<String, Map<String,Long>> entry : stringCounts.entrySet()) {
+      for (Map.Entry<String,Long> subEntry : entry.getValue().entrySet()) {
+        hostDatum.getMetaData().put(new Text(entry.getKey() + "." + subEntry.getKey()), new LongWritable(subEntry.getValue()));
       }
     }
     for (Map.Entry<String, Float> entry : maximums.entrySet()) {
@@ -326,7 +326,7 @@ public class UpdateHostDbReducer
     for (Map.Entry<String, TDigest> entry : tdigests.entrySet()) {
       // Emit all percentiles
       for (int i = 0; i < percentiles.length; i++) {
-        hostDatum.getMetaData().put(new Text("pct" + Integer.toString(percentiles[i]) + "." + entry.getKey()), new FloatWritable((float)entry.getValue().quantile(0.5)));
+        hostDatum.getMetaData().put(new Text("pct" + Long.toString(percentiles[i]) + "." + entry.getKey()), new FloatWritable((float)entry.getValue().quantile(0.5)));
       }
     }      
     for (Map.Entry<String, Float> entry : minimums.entrySet()) {
