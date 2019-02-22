@@ -150,20 +150,10 @@ public final class ParseData extends VersionedWritable {
       outlinks[i] = Outlink.read(in);
     }
 
-    if (version < 3) {
-      int propertyCount = in.readInt(); // read metadata
-      contentMeta.clear();
-      for (int i = 0; i < propertyCount; i++) {
-        contentMeta.add(Text.readString(in), Text.readString(in));
-      }
-    } else {
-      contentMeta.clear();
-      contentMeta.readFields(in);
-    }
-    if (version > 3) {
-      parseMeta.clear();
-      parseMeta.readFields(in);
-    }
+    contentMeta.clear();
+    contentMeta.readFields(in);
+    parseMeta.clear();
+    parseMeta.readFields(in);
   }
 
   public final void write(DataOutput out) throws IOException {
