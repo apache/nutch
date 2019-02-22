@@ -21,6 +21,8 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
@@ -256,6 +258,20 @@ public final class Content implements Writable {
   }
 
   public String toString() {
+    return toString(StandardCharsets.UTF_8);
+  }
+
+  public String toString(String charset) {
+    Charset c = StandardCharsets.UTF_8;
+    try {
+      c = Charset.forName(charset);
+    } catch(Exception e) {
+      // fall-back to utf-8
+    };
+    return toString(c);
+  }
+
+  public String toString(Charset charset) {
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("Version: " + version + "\n");
@@ -264,7 +280,7 @@ public final class Content implements Writable {
     buffer.append("contentType: " + contentType + "\n");
     buffer.append("metadata: " + metadata + "\n");
     buffer.append("Content:\n");
-    buffer.append(new String(content)); // try default encoding
+    buffer.append(new String(content, charset));
 
     return buffer.toString();
 
