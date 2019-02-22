@@ -2407,6 +2407,14 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<property>
+  <name>subcollection.case.insensitive</name>
+  <value>false</value>
+  <description>
+  Whether the URL prefixes are to be treated case insensitive.
+  </description>
+</property>
+
 <!-- Headings plugin properties -->
 
 <property>

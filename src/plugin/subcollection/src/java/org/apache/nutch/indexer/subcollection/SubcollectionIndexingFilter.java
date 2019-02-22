@@ -36,6 +36,7 @@ public class SubcollectionIndexingFilter extends Configured implements
     IndexingFilter {
 
   private Configuration conf;
+  private boolean caseInsensitive = false;
 
   public SubcollectionIndexingFilter() {
     super(NutchConfiguration.create());
@@ -52,7 +53,9 @@ public class SubcollectionIndexingFilter extends Configured implements
     this.conf = conf;
     fieldName = conf.get("subcollection.default.fieldname", "subcollection");
     metadataSource = conf.get("subcollection.metadata.source", "subcollection");
+    caseInsensitive = conf.getBoolean("subcollection.case.insensitive", false);
   }
+  
 
   /**
    * @return Configuration
@@ -102,6 +105,9 @@ public class SubcollectionIndexingFilter extends Configured implements
     }
     
     String sUrl = url.toString();
+    if (caseInsensitive) {
+      sUrl = sUrl.toLowerCase();
+    }
     addSubCollectionField(doc, sUrl);
     return doc;
   }

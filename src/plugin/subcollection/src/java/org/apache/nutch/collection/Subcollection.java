@@ -69,6 +69,11 @@ public class Subcollection extends Configured implements URLFilter {
    * SubCollection blacklist as String
    */
   String blString;
+  
+  /**
+   * Whether the white and black lists are case sensitive
+   */
+  boolean caseInsensitive = false;
 
   /**
    * public Constructor
@@ -95,10 +100,12 @@ public class Subcollection extends Configured implements URLFilter {
     this.id = id;
     this.key = key;
     this.name = name;
+    caseInsensitive = conf.getBoolean("subcollection.case.insensitive", false);
   }
 
   public Subcollection(Configuration conf) {
     super(conf);
+    caseInsensitive = conf.getBoolean("subcollection.case.insensitive", false);
   }
 
   /**
@@ -231,7 +238,11 @@ public class Subcollection extends Configured implements URLFilter {
 
     while (st.hasMoreElements()) {
       String line = (String) st.nextElement();
-      list.add(line.trim());
+      line = line.trim();
+      if (caseInsensitive) {
+        line = line.toLowerCase();
+      }
+      list.add(line);
     }
   }
 
