@@ -131,7 +131,7 @@ public class TestGenerator {
   }
 
   /**
-   * Test that generator obeys the property "generate.max.per.host".
+   * Test that generator obeys the property "generate.max.count".
    * 
    * @throws Exception
    */
@@ -195,8 +195,8 @@ public class TestGenerator {
   }
 
   /**
-   * Test that generator obeys the property "generator.max.count" and
-   * "generator.count.per.domain".
+   * Test that generator obeys the property "generate.max.count" and
+   * "generate.count.mode".
    * 
    * @throws Exception
    */

@@ -849,14 +849,14 @@
   <value>-1</value>
   <description>The maximum number of urls in a single
   fetchlist.  -1 if unlimited. The urls are counted according
-  to the value of the parameter generator.count.mode.
+  to the value of the parameter generate.count.mode.
   </description>
 </property>
 
 <property>
   <name>generate.count.mode</name>
   <value>host</value>
-  <description>Determines how the URLs are counted for generator.max.count.
+  <description>Determines how the URLs are counted for generate.max.count.
   Default value is 'host' but can be 'domain'. Note that we do not count 
   per IP in the new version of the Generator.
   </description>
@@ -1098,7 +1098,7 @@
 <property>
   <name>fetcher.throughput.threshold.retries</name>
   <value>5</value>
-  <description>The number of times the fetcher.throughput.threshold is allowed to be exceeded.
+  <description>The number of times the fetcher.throughput.threshold.pages is allowed to be exceeded.
   This settings prevents accidental slow downs from immediately killing the fetcher thread.
   </description>
 </property>
@@ -1223,13 +1223,13 @@
 
 <property>
   <name>fetcher.filter.urls</name>
-  <value>true</value>
+  <value>false</value>
   <description>Whether fetcher will filter URLs (with the configured URL filters).</description>
 </property>
 
 <property>
   <name>fetcher.normalize.urls</name>
-  <value>true</value>
+  <value>false</value>
   <description>Whether fetcher will normalize URLs (with the configured URL normalizers).</description>
 </property>
 
@@ -2574,6 +2574,14 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<property>
+  <name>subcollection.case.insensitive</name>
+  <value>false</value>
+  <description>
+  Whether the URL prefixes are to be treated case insensitive.
+  </description>
+</property>
+
 <!-- Headings plugin properties -->
 
 <property>
@@ -2672,10 +2680,11 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <description>
     A String value representing the flavour of Selenium 
     WebDriver() to use. Currently the following options
-    exist - 'firefox', 'chrome', 'safari', 'opera', 'phantomjs' and 'remote'.
+    exist - 'firefox', 'chrome', 'safari', 'opera' and 'remote'.
     If 'remote' is used it is essential to also set correct properties for
     'selenium.hub.port', 'selenium.hub.path', 'selenium.hub.host',
-    'selenium.hub.protocol', 'selenium.grid.driver' and 'selenium.grid.binary'.
+    'selenium.hub.protocol', 'selenium.grid.driver', 'selenium.grid.binary'
+    and 'selenium.enable.headless'.
   </description>
 </property>
 
@@ -2707,8 +2716,9 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>selenium.grid.driver</name>
   <value>firefox</value>
   <description>A String value representing the flavour of Selenium 
-    WebDriver() used on the selenium grid. Currently the following options
-    exist - 'firefox', 'phantomjs' </description>
+    WebDriver() used on the selenium grid. We must set `selenium.driver` to `remote` first.
+    Currently the following options
+    exist - 'firefox', 'chrome', 'random' </description>
 </property>
 
 <property>
@@ -2719,6 +2729,14 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
  </description>
 </property>
 
+<!-- headless options for Firefox and Chrome-->
+<property>
+  <name>selenium.enable.headless</name>
+  <value>false</value>
+  <description>A Boolean value representing the headless option
+    for Firefix and Chrome drivers
+  </description>
+</property>
 <!-- selenium firefox configuration; 
      applies to protocol-selenium and protocol-interactiveselenium plugins -->
 <property>
@@ -2768,6 +2786,14 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   2: Block all stylesheet
   Currently this option exist for - 'firefox' </description>
 </property>
+
+<!-- selenium chrome configurations -->
+<property>
+  <name>webdriver.chrome.driver</name>
+  <value>/root/chromedriver</value>
+  <description>The path to the ChromeDriver binary</description>
+</property>
+<!-- end of selenium chrome configurations -->
 
 <!-- protocol-interactiveselenium configuration -->
 <property>
