@@ -33,6 +33,7 @@ import org.apache.hadoop.util.PriorityQueue;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.util.StringUtil;
 
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer extends
@@ -168,7 +169,8 @@ public class CrawlDbReducer extends
         context.getCounter("CrawlDB status",
             CrawlDatum.getStatusName(old.getStatus())).increment(1);
       } else {
-        LOG.warn("Missing fetch and old value, signature=" + signature);
+        LOG.warn("Missing fetch and old value, signature="
+            + StringUtil.toHexString(signature));
       }
       return;
     }

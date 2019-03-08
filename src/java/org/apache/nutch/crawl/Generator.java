@@ -254,7 +254,7 @@ public class Generator extends NutchTool implements Tool {
           return;
 
         // consider only entries with a score superior to the threshold
-        if (scoreThreshold != Float.NaN && sort < scoreThreshold)
+        if (!Float.isNaN(scoreThreshold) && sort < scoreThreshold)
           return;
 
         // consider only entries with a retry (or fetch) interval lower than
@@ -701,9 +701,9 @@ public class Generator extends NutchTool implements Tool {
 
   /**
    * Generate fetchlists in one or more segments. Whether to filter URLs or not
-   * is read from the crawl.generate.filter property in the configuration files.
-   * If the property is not found, the URLs are filtered. Same for the
-   * normalisation.
+   * is read from the &quot;generate.filter&quot; property set for the job from
+   * command-line. If the property is not found, the URLs are filtered. Same for
+   * the normalisation.
    * 
    * @param dbDir
    *          Crawl database directory

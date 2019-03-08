@@ -53,7 +53,7 @@ public class NutchServerPoolExecutor extends ThreadPoolExecutor{
   protected void afterExecute(Runnable runnable, Throwable throwable) {
     super.afterExecute(runnable, throwable);
     synchronized (runningWorkers) {
-      runningWorkers.remove(((JobWorker) runnable).getInfo());
+      runningWorkers.remove((JobWorker) runnable);
     }
     JobWorker worker = ((JobWorker) runnable);
     addStatusToHistory(worker);

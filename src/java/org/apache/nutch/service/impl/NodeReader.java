@@ -61,7 +61,7 @@ public class NodeReader implements NutchReader {
 
     }catch (IOException e) {
       e.printStackTrace();
-      LOG.error("Error occurred while reading file {} : ", file, StringUtils.stringifyException(e));
+      LOG.error("Error occurred while reading file {} : {}", file, StringUtils.stringifyException(e));
       throw new WebApplicationException();
     } 
 
@@ -93,7 +93,7 @@ public class NodeReader implements NutchReader {
 
     }catch (IOException e) {
       e.printStackTrace();
-      LOG.error("Error occurred while reading file {} : ", file, 
+      LOG.error("Error occurred while reading file {} : {}", file, 
           StringUtils.stringifyException(e));
       throw new WebApplicationException();
     } 
@@ -128,7 +128,7 @@ public class NodeReader implements NutchReader {
 
     }catch (IOException e) {
       e.printStackTrace();
-      LOG.error("Error occurred while reading file {} : ", file, 
+      LOG.error("Error occurred while reading file {} : {}", file, 
           StringUtils.stringifyException(e));
       throw new WebApplicationException();
     } 
@@ -157,7 +157,7 @@ public class NodeReader implements NutchReader {
 
     }catch (IOException e) {
       e.printStackTrace();
-      LOG.error("Error occurred while reading file {} : ", file, 
+      LOG.error("Error occurred while reading file {} : {}", file, 
           StringUtils.stringifyException(e));
       throw new WebApplicationException();
     } 

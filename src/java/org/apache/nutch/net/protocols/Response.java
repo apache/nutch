@@ -62,7 +62,7 @@ public interface Response extends HttpHeaders {
     NOT_TRUNCATED,
     /** fetch exceeded configured http.content.limit */
     LENGTH,
-    /** fetch exceeded configured http.fetch.duration */
+    /** fetch exceeded configured http.time.limit */
     TIME,
     /** network disconnect or timeout during fetch */
     DISCONNECT,

@@ -521,7 +521,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
             qs.add(d);
           } else {
             LOG.warn(
-                "Skipping quantile {} not in range in db.stats.score.quantiles: {}",
+                "Skipping quantile {} not in range in db.stats.score.quantiles",
                 s);
           }
         } catch (NumberFormatException e) {

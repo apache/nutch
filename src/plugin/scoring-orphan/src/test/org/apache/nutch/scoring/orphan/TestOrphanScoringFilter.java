@@ -91,7 +91,7 @@ public class TestOrphanScoringFilter {
             + CrawlDatum.getStatusName(datum.getStatus()),
         CrawlDatum.STATUS_DB_NOTMODIFIED, datum.getStatus());
 
-    // Wait until mark.gone.after
+    // Wait until scoring.orphan.mark.gone.after
     try {
       Thread.sleep(5000);
     } catch (Exception e) {
@@ -106,7 +106,7 @@ public class TestOrphanScoringFilter {
             + CrawlDatum.getStatusName(datum.getStatus()),
         CrawlDatum.STATUS_DB_GONE, datum.getStatus());
 
-    // Wait until mark.orphan.after
+    // Wait until scoring.orphan.mark.orphan.after
     try {
       Thread.sleep(5000);
     } catch (Exception e) {

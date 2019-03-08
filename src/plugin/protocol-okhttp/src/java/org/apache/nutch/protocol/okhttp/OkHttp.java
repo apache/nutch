@@ -236,34 +236,34 @@ public class OkHttp extends HttpBase {
       String httpProtocol = response.protocol().toString()
           .toUpperCase(Locale.ROOT);
       if (useHttp2 && "H2".equals(httpProtocol)) {
-        // back-warc compatible protocol name
+        // back-ward compatible protocol name
         httpProtocol = "HTTP/2";
       }
 
-      StringBuilder resquestverbatim = null;
+      StringBuilder requestverbatim = null;
       StringBuilder responseverbatim = null;
 
       if (storeHttpRequest) {
-        resquestverbatim = new StringBuilder();
+        requestverbatim = new StringBuilder();
 
-        resquestverbatim.append(request.method()).append(' ');
-        resquestverbatim.append(request.url().encodedPath());
+        requestverbatim.append(request.method()).append(' ');
+        requestverbatim.append(request.url().encodedPath());
         String query = request.url().encodedQuery();
         if (query != null) {
-          resquestverbatim.append('?').append(query);
+          requestverbatim.append('?').append(query);
         }
-        resquestverbatim.append(' ').append(httpProtocol).append("\r\n");
+        requestverbatim.append(' ').append(httpProtocol).append("\r\n");
 
         Headers headers = request.headers();
 
         for (int i = 0, size = headers.size(); i < size; i++) {
           String key = headers.name(i);
           String value = headers.value(i);
-          resquestverbatim.append(key).append(": ").append(value)
+          requestverbatim.append(key).append(": ").append(value)
               .append("\r\n");
         }
 
-        resquestverbatim.append("\r\n");
+        requestverbatim.append("\r\n");
       }
 
       if (storeHttpHeaders) {
@@ -294,9 +294,9 @@ public class OkHttp extends HttpBase {
         builder = builder.header(Response.IP_ADDRESS, ipAddress);
       }
 
-      if (resquestverbatim != null) {
+      if (requestverbatim != null) {
         byte[] encodedBytesRequest = Base64.getEncoder()
-            .encode(resquestverbatim.toString().getBytes());
+            .encode(requestverbatim.toString().getBytes());
         builder = builder.header(Response.REQUEST,
             new String(encodedBytesRequest));
       }

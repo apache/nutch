@@ -128,7 +128,7 @@ public class OutlinkExtractor {
     final Outlink[] retval;
 
     // create array of the Outlinks
-    if (outlinks != null && outlinks.size() > 0) {
+    if (outlinks.size() > 0) {
       retval = outlinks.toArray(new Outlink[0]);
     } else {
       retval = new Outlink[0];

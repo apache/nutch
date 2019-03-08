@@ -80,35 +80,32 @@ public class HTMLMetaProcessor {
             String name = nameNode.getNodeValue().toLowerCase();
             metaTags.getGeneralTags().add(name, contentNode.getNodeValue());
             if ("robots".equals(name)) {
+              String directives = contentNode.getNodeValue().toLowerCase();
+              int index = directives.indexOf("none");
 
-              if (contentNode != null) {
-                String directives = contentNode.getNodeValue().toLowerCase();
-                int index = directives.indexOf("none");
+              if (index >= 0) {
+                metaTags.setNoIndex();
+                metaTags.setNoFollow();
+              }
 
-                if (index >= 0) {
-                  metaTags.setNoIndex();
-                  metaTags.setNoFollow();
-                }
+              index = directives.indexOf("all");
+              if (index >= 0) {
+                // do nothing...
+              }
 
-                index = directives.indexOf("all");
-                if (index >= 0) {
-                  // do nothing...
-                }
+              index = directives.indexOf("noindex");
+              if (index >= 0) {
+                metaTags.setNoIndex();
+              }
 
-                index = directives.indexOf("noindex");
-                if (index >= 0) {
-                  metaTags.setNoIndex();
-                }
+              index = directives.indexOf("nofollow");
+              if (index >= 0) {
+                metaTags.setNoFollow();
+              }
 
-                index = directives.indexOf("nofollow");
-                if (index >= 0) {
-                  metaTags.setNoFollow();
-                }
-
-                index = directives.indexOf("noarchive");
-                if (index >= 0) {
-                  metaTags.setNoCache();
-                }
+              index = directives.indexOf("noarchive");
+              if (index >= 0) {
+                metaTags.setNoCache();
               }
 
             } // end if (name == robots)

@@ -308,7 +308,7 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
         return true;
       }
     } catch (Exception e) {
-      LOG.equals(StringUtils.stringifyException(e));
+      LOG.error("Failed reading ARC record: ", e);
     }
 
     // couldn't populate the record or there is no next record to read

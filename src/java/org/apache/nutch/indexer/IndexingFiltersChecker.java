@@ -267,7 +267,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
     
     output.append("\n"); // For readability if keepClientCnxOpen
 
-    if (getConf().getBoolean("doIndex", false) && doc != null) {
+    if (getConf().getBoolean("doIndex", false)) {
       IndexWriters writers = IndexWriters.get(getConf());
       writers.open(getConf(), "IndexingFilterChecker");
       writers.write(doc);

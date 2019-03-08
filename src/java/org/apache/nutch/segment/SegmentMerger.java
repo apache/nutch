@@ -392,7 +392,7 @@ public class SegmentMerger extends Configured implements Tool{
         try {
           url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT); // normalize the url.
         } catch (Exception e) {
-          LOG.warn("Skipping {} :", url, e.getMessage());
+          LOG.warn("Skipping {} : {}", url, e.getMessage());
           url = null;
         }
       }
@@ -400,7 +400,7 @@ public class SegmentMerger extends Configured implements Tool{
         try {
           url = filters.filter(url);
         } catch (Exception e) {
-          LOG.warn("Skipping key {} : ", url, e.getMessage());
+          LOG.warn("Skipping key {} : {}", url, e.getMessage());
           url = null;
         }
       }

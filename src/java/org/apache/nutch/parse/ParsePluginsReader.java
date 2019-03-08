@@ -238,7 +238,7 @@ class ParsePluginsReader {
     Map<String, String> aliases = new HashMap<>();
     NodeList aliasRoot = parsePluginsRoot.getElementsByTagName("aliases");
 
-    if (aliasRoot == null || (aliasRoot != null && aliasRoot.getLength() == 0)) {
+    if (aliasRoot == null || aliasRoot.getLength() == 0) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("No aliases defined in parse-plugins.xml!");
       }

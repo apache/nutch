@@ -269,8 +269,8 @@ public class ArcSegmentCreator extends Configured implements Tool {
      * and other relevant data.
      * </p>
      * 
-     * @param job
-     *          The job configuration.
+     * @param context
+     *          The task context.
      */
     public void setup(Mapper<Text, BytesWritable, Text, NutchWritable>.Context context) { 
       // set the url filters, scoring filters the parse util and the url
