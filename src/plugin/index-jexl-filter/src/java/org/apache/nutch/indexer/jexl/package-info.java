@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * <p>This plugin implements a dynamic indexing filter which uses JEXL 
  * expressions to allow filtering based on the page's metadata 
