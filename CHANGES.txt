@@ -1,14 +1,104 @@
 Nutch Change Log
 
-Nutch 2.4 Development
+Nutch 2.4 Release 09032018 (ddmmyyyy)
+Release Report - https://s.apache.org/bFfL
 
- * NUTCH-2256 Inconsistent log level (songwanging via snagel)
+Sub-task
 
- * NUTCH-961 GitHub-92 Add the boilerpipe parsing adapted from NUTCH-961 (Jeremie Bourseaux <jeremie.bourseau@xilopix.com> via mattmann)
+    [NUTCH-2284] - Basic Authentication Support for REST API
+    [NUTCH-2285] - Digest Authentication Support for REST API
+    [NUTCH-2289] - SSL Support for REST API
+    [NUTCH-2294] - Authorization Support for REST API
+    [NUTCH-2301] - Create Tests for Security Layer of NutchServer
 
- * GitHub-94 Fix the issue of the bad timestamp. (Jeremie Bourseaux <jeremie.bourseau@xilopix.com> via mattmann)
+Bug
 
- * NUTCH-1314 Impose a limit on the length of outlink target urls (ferdy, lewismc, tejasp, Canan Girgin, Tien Nguyen Manh)
+    [NUTCH-2089] - Move Nutch 2.x to compile on JDK 8
+    [NUTCH-2112] - Missing org.restlet.jee when building with gora-solr
+    [NUTCH-2222] - re-fetch deletes all metadata except _csh_ and _rs_
+    [NUTCH-2256] - Inconsistent log level practice
+    [NUTCH-2259] - Nutch 2.x HBase Docker requires a logs folder to run exception free
+    [NUTCH-2260] - JAVA_HOME and hbase-common dependency absent from hbase Docker image
+    [NUTCH-2266] - Fix dead link in build.xml for javadoc
+    [NUTCH-2269] - Clean not working after crawl
+    [NUTCH-2282] - Incorrect content-type returned in 4 API calls
+    [NUTCH-2283] - "Bad substitution" error when running cassandra docker scripts
+    [NUTCH-2305] - generate.min.score doesn't work in 2.x
+    [NUTCH-2314] - Use indexer-elastic2 Plugin for javadoc and eclipse Targets
+    [NUTCH-2337] - urlnormalizer-basic to strip empty port
+    [NUTCH-2346] - Check Types at Object Equality
+    [NUTCH-2348] - Close GZIPInputStream
+    [NUTCH-2349] - urlnormalizer-basic NPE for ill-formed URL "http:/"
+    [NUTCH-2350] - Add Missing activeConfId Field to NutchStatus Object
+    [NUTCH-2358] - HostInjectorJob doesn't work
+    [NUTCH-2364] - http.agent.rotate: IllegalArgumentException / last element of agent names ignored
+    [NUTCH-2388] - bin/crawl indexing only webpages containing batchID instead of all in 2.x
+    [NUTCH-2393] - 2.x patch for MD5 duplication issue addressed in NUTCH-2391
+    [NUTCH-2404] - Failed Jenkin Build #1588 error in unit test resolved
+    [NUTCH-2405] - jsoup-extractor structure correction, typo fixed
+    [NUTCH-2437] - gora mongodb mapping file error
+    [NUTCH-2446] - URLFiltersCheck fix
+    [NUTCH-2448] - Allow Sending an empty http.agent.version
+    [NUTCH-2451] - protocol-ftp to resolve relative URL when following redirects
+    [NUTCH-2469] - Documents not commited to solr in Sever mode
+    [NUTCH-2475] - If and else-if branches has the same condition
+    [NUTCH-2513] - ant eclipse target fails with "protocol switch unsafe"
+    [NUTCH-2520] - Wrong Accept-Charset sent when http.accept.charset is not defined
+    [NUTCH-2533] - Injector: NullPointerException if seed URL dir contains non-file entries
+    [NUTCH-2536] - GeneratorReducer.count is a static variable
+    [NUTCH-2548] - Compressed content skipped. Content of size 78 was truncated to 74
+    [NUTCH-2581] - Caching of redirected robots.txt may overwrite correct robots.txt rules
+    [NUTCH-2637] - Number of fetcher reducers is misconfigured when the arg not passed
+    [NUTCH-2639] - bin/nutch fails to set native library path on Cygwin causing jobs to fail with UnsatisfiedLinkError
+    [NUTCH-2640] - Typo: DbUpdaterJob: updatinging all
+    [NUTCH-2641] - ClassCastException in webui
+    [NUTCH-2642] - MoreIndexingFilter parses ISO 8601 UTC dates in local time zone
+
+New Feature
+
+    [NUTCH-1741] - Support of Sitemaps in Nutch 2.x
+    [NUTCH-2199] - Documentation for Nutch 2.X REST API
+    [NUTCH-2238] - Indexer for Elasticsearch 2.x
+    [NUTCH-2243] - Documentation for Nutch 2.X REST API
+    [NUTCH-2344] - Authentication Support for Web GUI
+    [NUTCH-2373] - Indexer for Hbase
+    [NUTCH-2389] - Precise data parsing using Jsoup CSS selectors
+
+Improvement
+
+    [NUTCH-1314] - Impose a limit on the length of outlink target urls
+    [NUTCH-1678] - Remove dependency on org.apache.oro
+    [NUTCH-1756] - Security layer for NutchServer
+    [NUTCH-2035] - Regex filter using case sensitive rules.
+    [NUTCH-2040] - Upgrade to recent version of Crawler-Commons
+    [NUTCH-2122] - Implement Javadoc package-info.java for webui packages
+    [NUTCH-2288] - Upgrade Restlet to 2.3.7
+    [NUTCH-2302] - RAMConfManager Could Be Constructed With Custom Configuration
+    [NUTCH-2303] - NutchServer Could Be Able To Select a Configuration to Use
+    [NUTCH-2306] - Id of Active Configuration Could Be Stored at NutchStatus and Exposed via REST API
+    [NUTCH-2308] - Implement SSL Connection Test at TestNutchAPI
+    [NUTCH-2347] - Use Logger Instead of Printing Throwable
+    [NUTCH-2351] - Log with Generic Class Name at Nutch 2.x
+    [NUTCH-2374] - Upgrade Nutch 2.X to Gora 0.7
+    [NUTCH-2376] - Improve configurability of HTTP Accept* header fields
+    [NUTCH-2378] - ChildFirst plugin classloader
+    [NUTCH-2397] - Parser to add paragraph line breaks
+    [NUTCH-2438] - Upgrade Nutch 2.X to Gora 0.8
+    [NUTCH-2468] - should filter out invalid URLs by default
+    [NUTCH-2519] - Log mapreduce job counters in local mode
+    [NUTCH-2527] - URL filter: provide rules to exclude localhost and private address spaces
+    [NUTCH-2667] - Update Tika and Commons Collections 4
+    [NUTCH-2668] - Integrate OWASP dependency checks as ant target
+
+Wish
+
+    [NUTCH-2022] - Investigate better documentation for the Nutch REST API's
+
+Task
+
+    [NUTCH-1228] - Change mapred.task.timeout to mapreduce.task.timeout in fetcher
+    [NUTCH-2192] - Get rid of oro
+    [NUTCH-2264] - Check Forbidden APIs at Build
 
 Nutch 2.3.1 Release 22092015 (ddmmyyyy)
 Release Report - http://s.apache.org/nutch_2.3.1
