@@ -22,19 +22,22 @@
         <library name="indexer-kafka.jar">
             <export name="*"/>
         </library>
-
-        <library name="commons-codec-1.9.jar"/>
-        <library name="commons-lang3-3.4.jar"/>
-        <library name="commons-logging-1.2.jar"/>
-        <library name="gson-2.6.2.jar"/>
-        <library name="guava-19.0.jar"/>
-        <library name="httpasyncclient-4.1.1.jar"/>
-        <library name="httpclient-4.5.2.jar"/>
-        <library name="httpcore-4.4.4.jar"/>
-        <library name="httpcore-nio-4.4.4.jar"/>
-        <library name="jest-2.0.3.jar"/>
-        <library name="jest-common-2.0.3.jar"/>
-
+        <library name="kafka_2.12-1.1.0.jar"/>
+        <library name="connect-json-1.1.0.jar"/>
+        <library name="connect-api-1.1.0.jar"/>
+        <library name="jackson-annotations-2.9.0.jar"/>
+        <library name="jackson-core-2.9.4.jar"/>
+        <library name="jackson-databind-2.9.4.jar"/>
+        <library name="jopt-simple-5.0.4.jar"/>
+        <library name="kafka-clients-1.1.0.jar"/>
+        <library name="lz4-java-1.4.jar"/>
+        <library name="metrics-core-2.2.0.jar"/>
+        <library name="scala-library-2.12.4.jar"/>
+        <library name="scala-logging_2.12-3.7.2.jar"/>
+        <library name="scala-reflect-2.12.4.jar"/>
+        <library name="snappy-java-1.1.7.1.jar"/>
+        <library name="zkclient-0.10.jar"/>
+        <library name="zookeeper-3.4.10.jar"/>
     </runtime>
 
     <requires>

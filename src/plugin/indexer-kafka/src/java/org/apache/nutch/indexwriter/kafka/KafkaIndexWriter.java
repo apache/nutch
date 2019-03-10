@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-//TODO refactor the dependencies out of root ivy file
 package org.apache.nutch.indexwriter.kafka;
 
 import org.apache.commons.lang.StringUtils;
@@ -101,7 +99,8 @@ public class KafkaIndexWriter implements IndexWriter {
         keySerializer);
     configProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
         valueSerializer);
-    
+
+    Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
     producer = new KafkaProducer<String, JsonNode>(configProperties);
   }
 
