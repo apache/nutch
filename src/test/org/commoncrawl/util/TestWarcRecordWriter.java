@@ -36,8 +36,8 @@ public class TestWarcRecordWriter {
       "Last-Modified", "Thu, 15 Jan 2009 00:02:29 GMT", "ETag",
       "\"1262d9e-3ffa-2c19af40\"", //
       "Date", "Mon, 26 Jan 2009 10:00:40 GMT", //
-      "Connection", "close", //
-      "Content-Length", "16378" };
+      "Content-Length", "16378", //
+      "Connection", "close" };
   public final static String testHeaderString1;
   static {
     StringBuilder headers = new StringBuilder();
@@ -65,13 +65,24 @@ public class TestWarcRecordWriter {
       headers.append(testHeaders1[i]).append(WarcRecordWriter.COLONSP);
       headers.append(testHeaders1[i+1]).append(WarcRecordWriter.CRLF);
     }
-    String fixed = WarcRecordWriter.fixHttpHeaders(WarcRecordWriter.formatHttpHeaders(statusLine1,
-        Arrays.asList(testHeaders1)), 50000);
+    String headerStr = WarcRecordWriter.formatHttpHeaders(statusLine1,
+        Arrays.asList(testHeaders1));
+    String fixed = WarcRecordWriter.fixHttpHeaders(headerStr, 50000);
     assertFalse("Content-Encoding should be removed",
         fixed.contains("\r\nContent-Encoding:"));
+    assertTrue("Prefixed original Content-Encoding not found",
+        fixed.contains("\r\nX-Crawler-Content-Encoding:"));
 //    assertFalse("Transfer-Encoding should be removed",
 //        fixed.contains("\r\nTransfer-Encoding:"));
-    assertTrue("Content-Length to be fixed",
+    assertFalse("Content-Length to be replaced",
+        fixed.contains("\r\nContent-Length: 16378\r\n"));
+    assertTrue("Prefixed original Content-Length not found",
+        fixed.contains("\r\nX-Crawler-Content-Length: 16378\r\n"));
+    assertTrue("Correct/fixed Content-Length not found",
         fixed.contains("\r\nContent-Length: 50000\r\n"));
+
+    fixed = WarcRecordWriter.fixHttpHeaders(headerStr.replaceAll("[\r\n]+$", ""), 50000);
+    assertTrue("No trailing \\r\\n\\r\\n in HTTP headers",
+        fixed.endsWith("\r\n\r\n"));
   }
 }
