@@ -260,7 +260,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   /**
    * Modify verbatim HTTP response headers: fix, remove or replace headers
    * <code>Content-Length</code>, <code>Content-Encoding</code> and
-   * <code>Transfer-Encoding</code> which may confuse WARC readers.
+   * <code>Transfer-Encoding</code> which may confuse WARC readers. Ensure that
+   * returned header end with a single empty line (<code>\r\n\r\n</code>).
    * 
    * @param headers
    *          HTTP 1.1 or 1.0 response header string, CR-LF-separated lines,
@@ -268,10 +269,15 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
    * @return safe HTTP response header
    */
   public static String fixHttpHeaders(String headers, int contentLength) {
-    int start = 0, lineEnd = 0, last = 0;
+    int start = 0, lineEnd = 0, last = 0, trailingCrLf= 0;
     StringBuilder replace = new StringBuilder();
-    boolean hasTrailingEmptyLine = false;
-    while ((lineEnd = headers.indexOf(CRLF, start)) != -1) {
+    while (start < headers.length()) {
+      lineEnd = headers.indexOf(CRLF, start);
+      trailingCrLf = 1;
+      if (lineEnd == -1) {
+        lineEnd = headers.length();
+        trailingCrLf = 0;
+      }
       int colonPos = -1;
       for (int i = start; i < lineEnd; i++) {
         if (headers.charAt(i) == ':') {
@@ -279,30 +285,31 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
           break;
         }
       }
-      lineEnd += 2; // add '\r\n'
       if (colonPos == -1) {
         boolean valid = true;
         if (start == 0) {
           // status line (without colon)
           // TODO: http/2
-        } else if (lineEnd == headers.length()) {
+        } else if ((lineEnd + 4) == headers.length()
+            && headers.endsWith(CRLF + CRLF)) {
           // ok, trailing empty line
-          hasTrailingEmptyLine = true;
-        } else if (start == (lineEnd-2)) {
+          trailingCrLf = 2;
+        } else if (start == lineEnd) {
           // skip/remove empty line
           LOG.debug("Skipping empty header line");
           valid = false;
         } else {
-          LOG.warn("Invalid header line: {}", headers.substring(start, (lineEnd-2)));
+          LOG.warn("Invalid header line: {}",
+              headers.substring(start, lineEnd));
           valid = false;
         }
         if (!valid) {
           if (last < start) {
             replace.append(headers.substring(last, start));
           }
-          last = lineEnd;
+          last = lineEnd + 2 * trailingCrLf;
         }
-        start = lineEnd;
+        start = lineEnd + 2 * trailingCrLf;
         /*
          * skip over invalid header line, no further check for problematic
          * headers required
@@ -313,7 +320,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       if (PROBLEMATIC_HEADERS.matcher(name).matches()) {
         boolean needsFix = true;
         if (name.equalsIgnoreCase("content-length")) {
-          String value = headers.substring(colonPos+1, lineEnd-2).trim();
+          String value = headers.substring(colonPos + 1, lineEnd).trim();
           try {
             int l = Integer.parseInt(value);
             if (l == contentLength) {
@@ -327,9 +334,13 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
           if (last < start) {
             replace.append(headers.substring(last, start));
           }
-          last = lineEnd;
+          last = lineEnd + 2 * trailingCrLf;
           replace.append(X_HIDE_HEADER)
-              .append(headers.substring(start, lineEnd));
+              .append(headers.substring(start, lineEnd + 2 * trailingCrLf));
+          if (trailingCrLf == 0) {
+            replace.append(CRLF);
+            trailingCrLf = 1;
+          }
           if (name.equalsIgnoreCase("content-length")) {
             // add effective uncompressed and unchunked length of content
             replace.append("Content-Length").append(COLONSP)
@@ -337,15 +348,16 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
           }
         }
       }
-      start = lineEnd;
+      start = lineEnd + 2 * trailingCrLf;
     }
-    if (last > 0 || !hasTrailingEmptyLine) {
+    if (last > 0 || trailingCrLf != 2) {
       if (last < headers.length()) {
         // append trailing headers
         replace.append(headers.substring(last));
       }
-      if (!hasTrailingEmptyLine) {
+      while (trailingCrLf < 2) {
         replace.append(CRLF);
+        trailingCrLf++;
       }
       return replace.toString();
     }
