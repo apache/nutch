@@ -22,6 +22,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -129,7 +130,7 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
       String domainName = getDomainName(url.getHost());
       hashCode = domainName.hashCode();
       if (partitionsPerDomain != null && partitionsPerDomain.containsKey(domainName)) {
-        hashCode += ((url.getHost().toLowerCase().hashCode() & Integer.MAX_VALUE) % partitionsPerDomain.get(domainName));
+        hashCode += ((url.getHost().toLowerCase(Locale.ROOT).hashCode() & Integer.MAX_VALUE) % partitionsPerDomain.get(domainName));
       }
     } else if (mode.equals(PARTITION_MODE_IP)) {
       try {
