@@ -16,9 +16,25 @@
  */
 package org.apache.nutch.util;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 public class TimingUtil {
+
+  /** Formats dates for logging */
+  public static DateTimeFormatter logDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+  /**
+   * Convert epoch milliseconds ({@link System#currentTimeMillis()}) into date
+   * string (local time zone) used for logging
+   */
+  public static String logDateMillis(long millis) {
+    return logDateFormat.format(
+        LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), ZoneId.systemDefault()));
+  }
 
   /**
    * Calculate the elapsed time between two times specified in milliseconds.
