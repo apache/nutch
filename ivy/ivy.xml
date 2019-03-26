@@ -139,10 +139,8 @@
 			<exclude org="org.json"/>
 		</dependency>
 
-
 		<!-- RabbitMQ dependencies -->
 		<dependency org="com.rabbitmq" name="amqp-client" rev="5.2.0" conf="*->default" />
-
 
 		<!--Added Because of Elasticsearch JEST client-->
 		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
