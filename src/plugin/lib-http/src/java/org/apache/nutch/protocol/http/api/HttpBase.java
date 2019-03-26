@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.net.protocols.ProtocolLogUtil;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
@@ -121,6 +122,12 @@ public abstract class HttpBase implements Protocol {
 
   /** The nutch configuration */
   private Configuration conf = null;
+
+  /**
+   * Logging utility, used to suppress stack traces for common exceptions in a
+   * configurable way.
+   */
+  private ProtocolLogUtil logUtil = new ProtocolLogUtil();
 
   /**
    * MimeUtil for MIME type detection. Note (see NUTCH-2578): MimeUtil object is
@@ -223,6 +230,8 @@ public abstract class HttpBase implements Protocol {
     this.enableIfModifiedsinceHeader = conf.getBoolean("http.enable.if.modified.since.header", true);
     this.enableCookieHeader = conf.getBoolean("http.enable.cookie.header", true);
     this.robots.setConf(conf);
+
+    this.logUtil.setConf(conf);
 
     // NUTCH-1941: read list of alternating agent names
     if (conf.getBoolean("http.agent.rotate", false)) {
@@ -436,7 +445,12 @@ public abstract class HttpBase implements Protocol {
             ProtocolStatus.EXCEPTION, "Http code=" + code + ", url=" + u));
       }
     } catch (Throwable e) {
-      logger.error("Failed to get protocol output", e);
+      if (logger.isDebugEnabled() || !logUtil.logShort(e)) {
+        logger.error("Failed to get protocol output", e);
+      } else {
+        logger.error("Failed to get protocol output: {}",
+            e.getClass().getName());
+      }
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }

@@ -997,6 +997,17 @@
 </property>
 
 <property>
+  <name>http.log.exceptions.suppress.stack</name>
+  <value>java.net.UnknownHostException,java.net.NoRouteToHostException</value>
+  <description>Comma-separated list of exceptions not shown with full
+  stack trace in logs of fetcher and HTTP protocol implementations.
+  The logs may shrink in size significantly, e.g., when for a large
+  unrestriced web crawl unknown hosts are logged shortly without full
+  stack trace.  The full class name of the exception class (extending
+  Throwable) including the package path must be specified.</description>
+</property>
+
+<property>
   <name>fetcher.parse</name>
   <value>false</value>
   <description>If true, fetcher will parse content. Default is false, which means
