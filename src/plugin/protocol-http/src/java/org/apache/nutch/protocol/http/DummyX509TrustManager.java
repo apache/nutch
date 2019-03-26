@@ -17,7 +17,6 @@
 /*
  * Based on EasyX509TrustManager from commons-httpclient.
  */
-
 package org.apache.nutch.protocol.http;
 
 import java.lang.invoke.MethodHandles;
