@@ -38,7 +38,7 @@
 
 <property>
   <name>file.content.limit</name>
-  <value>65536</value>
+  <value>1048576</value>
   <description>The length limit for downloaded content using the file://
   protocol, in bytes. If this value is nonnegative (>=0), content longer
   than it will be truncated; otherwise, no truncation at all. Do not
@@ -215,9 +215,9 @@
 
 <property>
   <name>http.content.limit</name>
-  <value>65536</value>
-  <description>The length limit for downloaded content using the http://
-  protocol, in bytes. If this value is nonnegative (>=0), content longer
+  <value>1048576</value>
+  <description>The length limit for downloaded content using the http/https
+  protocols, in bytes. If this value is nonnegative (>=0), content longer
   than it will be truncated; otherwise, no truncation at all. Do not
   confuse this setting with the file.content.limit setting.
   </description>
@@ -440,7 +440,7 @@
 
 <property>
   <name>ftp.content.limit</name>
-  <value>65536</value> 
+  <value>1048576</value>
   <description>The length limit for downloaded content, in bytes.
   If this value is nonnegative (>=0), content longer than it will be truncated;
   otherwise, no truncation at all.

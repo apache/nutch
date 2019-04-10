@@ -86,7 +86,7 @@ public abstract class HttpBase implements Protocol {
   protected int timeout = 10000;
 
   /** The length limit for downloaded content, in bytes. */
-  protected int maxContent = 64 * 1024;
+  protected int maxContent = 1024 * 1024;
 
   /** The time limit to download the entire content, in seconds. */
   protected int maxDuration = 300;
@@ -194,7 +194,7 @@ public abstract class HttpBase implements Protocol {
     this.proxyException = arrayToMap(conf.getStrings("http.proxy.exception.list"));
     this.useProxy = (proxyHost != null && proxyHost.length() > 0);
     this.timeout = conf.getInt("http.timeout", 10000);
-    this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
+    this.maxContent = conf.getInt("http.content.limit", 1024 * 1024);
     this.maxDuration = conf.getInt("http.time.limit", -1);
     this.partialAsTruncated = conf
         .getBoolean("http.partial.truncated", false);
