@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.indexer;
 
 import java.lang.invoke.MethodHandles;
@@ -59,6 +58,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
   protected URLNormalizers normalizers = null;
   protected boolean dumpText = false;
   protected boolean followRedirects = false;
+  protected boolean doIndex = false;
   // used to simulate the metadata propagated from injection
   protected HashMap<String, String> metadata = new HashMap<>();
 
@@ -68,13 +68,33 @@ public class IndexingFiltersChecker extends AbstractChecker {
   public int run(String[] args) throws Exception {
     String url = null;
 
-    usage = "Usage: IndexingFiltersChecker [-normalize] [-followRedirects] [-dumpText] [-md key=value] (-stdin | -listen <port> [-keepClientCnxOpen])";
+    String usage = "Usage:\n" //
+        + "  IndexingFiltersChecker [OPTIONS] <url>\n" //
+        + "    Fetch single URL and index it\n" //
+        + "  IndexingFiltersChecker [OPTIONS] -stdin\n" //
+        + "    Read URLs to be indexed from stdin\n" //
+        + "  IndexingFiltersChecker [OPTIONS] -listen <port> [-keepClientCnxOpen]\n" //
+        + "    Listen on <port> for URLs to be indexed\n" //
+        + "Options:\n" //
+        + "  -D<property>=<value>\tset/overwrite Nutch/Hadoop properties\n" //
+        + "                  \t(a generic Hadoop option to be passed\n" //
+        + "                  \t before other command-specific options)\n"
+        + "  -normalize      \tnormalize URLs\n" //
+        + "  -followRedirects\tfollow redirects when fetching URL\n" //
+        + "  -dumpText       \tshow the entire plain-text content,\n" //"
+        + "                  \tnot only the first 100 characters\n" //
+        + "  -doIndex        \tpass document to configured index writers\n" //
+        + "                  \tand let them index it\n" //
+        + "  -md <key>=<value>\tmetadata added to CrawlDatum before parsing\n";
 
     // Print help when no args given
     if (args.length < 1) {
       System.err.println(usage);
       System.exit(-1);
     }
+
+    // read property "doIndex" for back-ward compatibility
+    doIndex = getConf().getBoolean("doIndex", false);
 
     int numConsumed;
     for (int i = 0; i < args.length; i++) {
@@ -84,6 +104,8 @@ public class IndexingFiltersChecker extends AbstractChecker {
         followRedirects = true;
       } else if (args[i].equals("-dumpText")) {
         dumpText = true;
+      } else if (args[i].equals("-doIndex")) {
+        doIndex = true;
       } else if (args[i].equals("-md")) {
         String k = null, v = null;
         String nextOne = args[++i];
@@ -268,7 +290,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
     
     output.append("\n"); // For readability if keepClientCnxOpen
 
-    if (getConf().getBoolean("doIndex", false)) {
+    if (doIndex) {
       IndexWriters writers = IndexWriters.get(getConf());
       writers.open(getConf(), "IndexingFilterChecker");
       writers.write(doc);

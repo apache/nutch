@@ -165,8 +165,8 @@ public class DeduplicationJob extends NutchTool implements Tool {
       }
     }
 
-    protected CrawlDatum getDuplicate(CrawlDatum existingDoc,
-        CrawlDatum newDoc) throws IOException {
+    protected CrawlDatum getDuplicate(CrawlDatum existingDoc, CrawlDatum newDoc)
+        throws IOException {
       for (int i = 0; i < compareOrder.length; i++) {
         switch (compareOrder[i]) {
         case "score":

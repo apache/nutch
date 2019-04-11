@@ -19,7 +19,6 @@ package org.apache.nutch.fetcher;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -431,10 +430,9 @@ public class Fetcher extends NutchTool implements Tool {
 
     checkConfiguration();
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("Fetcher: starting at {}", sdf.format(start));
+      LOG.info("Fetcher: starting at {}", TimingUtil.logDateMillis(start));
       LOG.info("Fetcher: segment: {}", segment);
     }
 
@@ -444,7 +442,8 @@ public class Fetcher extends NutchTool implements Tool {
     long timelimit = getConf().getLong("fetcher.timelimit.mins", -1);
     if (timelimit != -1) {
       timelimit = System.currentTimeMillis() + (timelimit * 60 * 1000);
-      LOG.info("Fetcher Timelimit set for : {}", timelimit);
+      LOG.info("Fetcher Timelimit set for : {}  ({})", timelimit,
+          TimingUtil.logDateMillis(timelimit));
       getConf().setLong("fetcher.timelimit", timelimit);
     }
 
@@ -511,8 +510,8 @@ public class Fetcher extends NutchTool implements Tool {
     }
 
     long end = System.currentTimeMillis();
-    LOG.info("Fetcher: finished at {}, elapsed: {}", sdf.format(end),
-        TimingUtil.elapsedTime(start, end));
+    LOG.info("Fetcher: finished at {}, elapsed: {}",
+        TimingUtil.logDateMillis(end), TimingUtil.elapsedTime(start, end));
   }
 
   /** Run the fetcher. */
