@@ -234,8 +234,9 @@ public class FastURLFilter implements URLFilter {
               LOG.warn("Problem reading rule on line {}: {}", lineno, line);
               continue;
             }
-          } catch (IndexOutOfBoundsException e) {
-            LOG.warn("Problem reading rule on line {}: {}", lineno, line);
+          } catch (Exception e) {
+            LOG.warn("Problem reading rule on line {}: {} - {}", lineno, line, e.getMessage());
+            continue;
           }
 
           if (host) {
