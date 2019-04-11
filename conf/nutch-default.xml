@@ -1600,6 +1600,15 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>tika.extractor.boilerpipe.mime.types</name>
+  <value>text/html,application/xhtml+xml</value>
+  <description>
+    Comma-separated list of MIME types accepted for Boilerpipe extraction,
+    documents of other MIME types are not passed to the Boilerpipe extractor.
+  </description>
+</property>
+
 <!-- urlfilter plugin properties -->
 
 <property>
