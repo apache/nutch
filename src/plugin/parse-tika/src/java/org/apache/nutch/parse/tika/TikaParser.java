@@ -21,8 +21,11 @@ import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -73,6 +76,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   private boolean upperCaseElementNames = true;
   private String boilerpipeExtractorName;
   private boolean useBoilerpipe;
+  private Set<String> boilerpipeMimeTypes;
 
   public ParseResult getParse(Content content) {
     HTMLDocumentImpl doc = new HTMLDocumentImpl();
@@ -114,7 +118,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     ContentHandler domHandler;
 
     // Check whether to use Tika's BoilerplateContentHandler
-    if (useBoilerpipe) {
+    if (useBoilerpipe && boilerpipeMimeTypes.contains(mimeType)) {
       BoilerpipeContentHandler bpHandler = new BoilerpipeContentHandler(
           (ContentHandler) new DOMBuilder(doc, root),
           BoilerpipeExtractorRepository.getExtractor(boilerpipeExtractorName));
@@ -291,16 +295,18 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       }
     }
 
-    htmlParseFilters = new HtmlParseFilters(getConf());
+    htmlParseFilters = new HtmlParseFilters(conf);
     utils = new DOMContentUtils(conf);
-    cachingPolicy = getConf().get("parser.caching.forbidden.policy",
+    cachingPolicy = conf.get("parser.caching.forbidden.policy",
         Nutch.CACHING_FORBIDDEN_CONTENT);
-    upperCaseElementNames = getConf().getBoolean("tika.uppercase.element.names",
+    upperCaseElementNames = conf.getBoolean("tika.uppercase.element.names",
         true);
-    useBoilerpipe = getConf().get("tika.extractor", "none")
-        .equals("boilerpipe");
-    boilerpipeExtractorName = getConf()
-        .get("tika.extractor.boilerpipe.algorithm", "ArticleExtractor");
+    useBoilerpipe = conf.get("tika.extractor", "none").equals("boilerpipe");
+    boilerpipeExtractorName = conf.get("tika.extractor.boilerpipe.algorithm",
+        "ArticleExtractor");
+    boilerpipeMimeTypes = new HashSet<>(Arrays
+        .asList(conf.getTrimmedStrings("tika.extractor.boilerpipe.mime.types",
+            "text/html", "application/xhtml+xml")));
   }
 
   public Configuration getConf() {
