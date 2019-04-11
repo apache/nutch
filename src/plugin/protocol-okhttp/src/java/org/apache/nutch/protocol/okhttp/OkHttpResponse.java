@@ -148,7 +148,7 @@ public class OkHttpResponse implements Response {
     }
 
     int maxContentBytes = Integer.MAX_VALUE;
-    if (maxContent != -1) {
+    if (maxContent >= 0) {
       maxContentBytes = Math.min(maxContentBytes, maxContent);
     }
 
@@ -190,7 +190,7 @@ public class OkHttpResponse implements Response {
     }
     int bytesBuffered = (int) source.buffer().size();
     int bytesToCopy = bytesBuffered;
-    if (maxContent != -1 && bytesToCopy > maxContent) {
+    if (maxContent >= 0 && bytesToCopy > maxContent) {
       // okhttp's internal buffer is larger than maxContent
       truncated.setReason(TruncatedContentReason.LENGTH);
       bytesToCopy = maxContentBytes;
