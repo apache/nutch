@@ -90,7 +90,7 @@ public class ParserChecker extends AbstractChecker {
         + "Options:\n" //
         + "  -D<property>=<value>\tset/overwrite Nutch/Hadoop properties\n" //
         + "                  \t(a generic Hadoop option to be passed\n" //
-        + "                  \t before other command-specific options)"
+        + "                  \t before other command-specific options)\n"
         + "  -normalize      \tnormalize URLs\n" //
         + "  -followRedirects\tfollow redirects when fetching URL\n" //
         + "  -dumpText       \talso show the plain-text extracted by parsers\n" //
