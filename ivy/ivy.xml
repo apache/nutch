@@ -53,7 +53,7 @@
 		<dependency org="org.codehaus.jettison" name="jettison" rev="1.4.0"/>
 
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-client" rev="3.0.0-cdh6.1.0" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-client" rev="3.0.0-cdh6.2.0" conf="*->default">
 			<exclude org="hsqldb" name="hsqldb" />
 			<exclude org="net.sf.kosmosfs" name="kfs" />
 			<exclude org="net.java.dev.jets3t" name="jets3t" />
