@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -394,7 +395,10 @@ public class IndexerMapReduce extends Configured {
         String binary;
         if (base64) {
           // optionally encode as base64
-          binary = Base64.encodeBase64String(content.getContent());
+          // Note: we need a form which works with many versions of commons-code (1.4, 1.11 and upwards),
+          // cf. NUTCH-2706.  The following returns a chunked string for commons-coded 1.4:
+          //   binary = Base64.encodeBase64String(content.getContent());
+          binary = StringUtils.newStringUtf8(Base64.encodeBase64(content.getContent(), false, false));
         } else {
           binary = new String(content.getContent());
         }
