@@ -95,8 +95,8 @@ public class FetcherThread extends Thread {
   private String ignoreExternalLinksMode;
 
   // Used by fetcher.follow.outlinks.depth in parse
-  private int maxOutlinksPerPage;
   private final int maxOutlinks;
+  private final int maxOutlinkLength;
   private final int interval;
   private int maxOutlinkDepth;
   private int maxOutlinkDepthNumLinks;
@@ -129,6 +129,8 @@ public class FetcherThread extends Thread {
 
   private boolean storingContent;
 
+  private boolean signatureWithoutParsing;
+
   private AtomicInteger pages;
 
   private AtomicLong bytes;
@@ -155,6 +157,7 @@ public class FetcherThread extends Thread {
     this.scfilters = new ScoringFilters(conf);
     this.parseUtil = new ParseUtil(conf);
     this.skipTruncated = conf.getBoolean(ParseSegment.SKIP_TRUNCATED, true);
+    this.signatureWithoutParsing = conf.getBoolean("fetcher.signature", false);
     this.protocolFactory = new ProtocolFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
     this.maxCrawlDelay = conf.getInt("fetcher.max.crawl.delay", 30) * 1000;
@@ -186,20 +189,16 @@ public class FetcherThread extends Thread {
     
     queueMode = conf.get("fetcher.queue.mode",
         FetchItemQueues.QUEUE_MODE_HOST);
-    // check that the mode is known
-    if (!queueMode.equals(FetchItemQueues.QUEUE_MODE_IP)
-        && !queueMode.equals(FetchItemQueues.QUEUE_MODE_DOMAIN)
-        && !queueMode.equals(FetchItemQueues.QUEUE_MODE_HOST)) {
-      LOG.error("Unknown partition mode : {} - forcing to byHost", queueMode);
-      queueMode = FetchItemQueues.QUEUE_MODE_HOST;
-    }
+    queueMode = FetchItemQueues.checkQueueMode(queueMode);
     LOG.info("{} {} Using queue mode : {}", getName(),
         Thread.currentThread().getId(), queueMode);
     this.maxRedirect = conf.getInt("http.redirect.max", 3);
 
-    maxOutlinksPerPage = conf.getInt("db.max.outlinks.per.page", 100);
+    int maxOutlinksPerPage = conf.getInt("db.max.outlinks.per.page", 100);
     maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
         : maxOutlinksPerPage;
+    int maxOutlinkL = conf.getInt("db.max.outlink.length", 4096);
+    maxOutlinkLength = (maxOutlinkL < 0) ? Integer.MAX_VALUE : maxOutlinkL;
     interval = conf.getInt("db.fetch.interval.default", 2592000);
     ignoreInternalLinks = conf.getBoolean("db.ignore.internal.links", false);
     ignoreExternalLinks = conf.getBoolean("db.ignore.external.links", false);
@@ -306,9 +305,7 @@ public class FetcherThread extends Thread {
             if (!rules.isAllowed(fit.url.toString())) {
               // unblock
               ((FetchItemQueues) fetchQueues).finishFetchItem(fit, true);
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Denied by robots.txt: {}", fit.url);
-              }
+              LOG.info("Denied by robots.txt: {}", fit.url);
               output(fit.url, fit.datum, null,
                   ProtocolStatus.STATUS_ROBOTS_DENIED,
                   CrawlDatum.STATUS_FETCH_GONE);
@@ -319,7 +316,7 @@ public class FetcherThread extends Thread {
               if (rules.getCrawlDelay() > maxCrawlDelay && maxCrawlDelay >= 0) {
                 // unblock
                 ((FetchItemQueues) fetchQueues).finishFetchItem(fit, true);
-                LOG.debug("Crawl-Delay for {} too long ({}), skipping", fit.url,
+                LOG.info("Crawl-Delay for {} too long ({}), skipping", fit.url,
                     rules.getCrawlDelay());
                 output(fit.url, fit.datum, null,
                     ProtocolStatus.STATUS_ROBOTS_DENIED,
@@ -482,6 +479,9 @@ public class FetcherThread extends Thread {
   private Text handleRedirect(FetchItem fit, String newUrl,
       boolean temp, String redirType)
       throws MalformedURLException, URLFilterException, InterruptedException {
+    if (newUrl.length() > maxOutlinkLength) {
+      return null;
+    }
     newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
     newUrl = urlFilters.filter(newUrl);
     String urlString = fit.url.toString();
@@ -620,13 +620,9 @@ public class FetcherThread extends Thread {
               Thread.currentThread().getId(), key, e);
         }
       }
-      /*
-       * Note: Fetcher will only follow meta-redirects coming from the
-       * original URL.
-       */
-      if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
-        if (!skipTruncated
-            || (skipTruncated && !ParseSegment.isTruncated(content))) {
+
+      if (status == CrawlDatum.STATUS_FETCH_SUCCESS) {
+        if (parsing && !(skipTruncated && ParseSegment.isTruncated(content))) {
           try {
             parseResult = this.parseUtil.parse(content);
           } catch (Exception e) {
@@ -636,7 +632,7 @@ public class FetcherThread extends Thread {
           }
         }
 
-        if (parseResult == null) {
+        if (parseResult == null && (parsing || signatureWithoutParsing)) {
           byte[] signature = SignatureFactory.getSignature(conf)
               .calculate(content, new ParseStatus().getEmptyParse(conf));
           datum.setSignature(signature);
@@ -721,6 +717,9 @@ public class FetcherThread extends Thread {
           for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
             String toUrl = links[i].getToUrl();
 
+            if (toUrl.length() > maxOutlinkLength) {
+              continue;
+            }
             toUrl = ParseOutputFormat.filterNormalize(url.toString(), toUrl,
                 origin, ignoreInternalLinks, ignoreExternalLinks,
                 ignoreExternalLinksMode, urlFiltersForOutlinks,
@@ -808,7 +807,8 @@ public class FetcherThread extends Thread {
       }
     }
 
-    // return parse status if it exits
+    // return parse status (of the "original" URL if the ParseResult contains
+    // multiple parses) which allows Fetcher to follow meta-redirects
     if (parseResult != null && !parseResult.isEmpty()) {
       Parse p = parseResult.get(content.getUrl());
       if (p != null) {

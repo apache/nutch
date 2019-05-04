@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.net.urlnormalizer.ajax;
 
 import java.lang.invoke.MethodHandles;
@@ -114,7 +113,6 @@ public class AjaxURLNormalizer implements URLNormalizer {
    * @return String
    */
   protected String normalizeEscapedFragment(String urlString) throws MalformedURLException {
-    int pos = urlString.indexOf(ESCAPED_URL_PART);
     URL u = new URL(urlString);
     StringBuilder sb = new StringBuilder();
 

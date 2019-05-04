@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.parse;
 
 import java.text.NumberFormat;
@@ -162,9 +161,12 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
     final boolean storeText = conf.getBoolean("parser.store.text", true);
 
     int maxOutlinksPerPage = conf.getInt("db.max.outlinks.per.page", 100);
-    final boolean isParsing = conf.getBoolean("fetcher.parse", true);
     final int maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
         : maxOutlinksPerPage;
+    int maxOutlinkL = conf.getInt("db.max.outlink.length", 4096);
+    final int maxOutlinkLength = (maxOutlinkL < 0) ? Integer.MAX_VALUE
+        : maxOutlinkL;
+    final boolean isParsing = conf.getBoolean("fetcher.parse", true);
     final CompressionType compType = SequenceFileOutputFormat
         .getOutputCompressionType(context);
     Path out = FileOutputFormat.getOutputPath(context);
@@ -301,6 +303,9 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
 
           // only normalize and filter if fetcher.parse = false
           if (!isParsing) {
+            if (toUrl.length() > maxOutlinkLength) {
+              continue;
+            }
             toUrl = ParseOutputFormat.filterNormalize(fromUrl, toUrl, origin,
                 ignoreInternalLinks, ignoreExternalLinks, ignoreExternalLinksMode, filters, exemptionFilters, normalizers);
             if (toUrl == null) {

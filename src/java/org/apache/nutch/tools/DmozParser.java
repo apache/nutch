@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.tools;
 
 import java.io.BufferedInputStream;
@@ -113,10 +112,10 @@ public class DmozParser {
    */
   private class RDFProcessor extends DefaultHandler {
     String curURL = null, curSection = null;
-    boolean titlePending = false, descPending = false,
-        insideAdultSection = false;
+    boolean titlePending = false, descPending = false;
     Pattern topicPattern = null;
     StringBuffer title = new StringBuffer(), desc = new StringBuffer();
+    @SuppressWarnings("unused")
     XMLReader reader;
     int subsetDenom;
     int hashSkew;
@@ -255,17 +254,6 @@ public class DmozParser {
     public void error(SAXParseException spe) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Error: " + spe.toString() + ": " + spe.getMessage());
-      }
-    }
-
-    /**
-     * Emit the exception message, with line numbers
-     */
-    public void errorError(SAXParseException spe) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error("Fatal err: " + spe.toString() + ": " + spe.getMessage());
-        LOG.error("Last known line is " + location.getLineNumber()
-            + ", column " + location.getColumnNumber());
       }
     }
 

@@ -30,7 +30,7 @@ import org.apache.hadoop.io.Writable;
 /**
  */
 public class HostDatum implements Writable, Cloneable {
-  protected int failures = 0;
+  protected long failures = 0;
   protected float score = 0;
   protected Date lastCheck = new Date(0);
   protected String homepageUrl = new String();
@@ -38,17 +38,17 @@ public class HostDatum implements Writable, Cloneable {
   protected MapWritable metaData = new MapWritable();
 
   // Records the number of times DNS look-up failed, may indicate host no longer exists
-  protected int dnsFailures = 0;
+  protected long dnsFailures = 0;
 
   // Records the number of connection failures, may indicate our netwerk being blocked by firewall
-  protected int connectionFailures = 0;
+  protected long connectionFailures = 0;
 
-  protected int unfetched = 0;
-  protected int fetched = 0;
-  protected int notModified = 0;
-  protected int redirTemp = 0;
-  protected int redirPerm = 0;
-  protected int gone = 0;
+  protected long unfetched = 0;
+  protected long fetched = 0;
+  protected long notModified = 0;
+  protected long redirTemp = 0;
+  protected long redirPerm = 0;
+  protected long gone = 0;
 
   public HostDatum() {
   }
@@ -68,15 +68,15 @@ public class HostDatum implements Writable, Cloneable {
   }
 
   public void resetFailures() {
-    setDnsFailures(0);
-    setConnectionFailures(0);
+    setDnsFailures(0l);
+    setConnectionFailures(0l);
   }
 
-  public void setDnsFailures(Integer dnsFailures) {
+  public void setDnsFailures(Long dnsFailures) {
     this.dnsFailures = dnsFailures;
   }
 
-  public void setConnectionFailures(Integer connectionFailures) {
+  public void setConnectionFailures(Long connectionFailures) {
     this.connectionFailures = connectionFailures;
   }
 
@@ -88,15 +88,15 @@ public class HostDatum implements Writable, Cloneable {
     this.connectionFailures++;
   }
 
-  public Integer numFailures() {
+  public Long numFailures() {
     return getDnsFailures() + getConnectionFailures();
   }
 
-  public Integer getDnsFailures() {
+  public Long getDnsFailures() {
     return dnsFailures;
   }
 
-  public Integer getConnectionFailures() {
+  public Long getConnectionFailures() {
     return connectionFailures;
   }
 
@@ -120,7 +120,7 @@ public class HostDatum implements Writable, Cloneable {
     return score;
   }
 
-  public Integer numRecords() {
+  public Long numRecords() {
     return unfetched + fetched + gone + redirPerm + redirTemp + notModified;
   }
 
@@ -140,51 +140,51 @@ public class HostDatum implements Writable, Cloneable {
     this.homepageUrl = homepageUrl;
   }
 
-  public void setUnfetched(int val) {
+  public void setUnfetched(long val) {
     unfetched = val;
   }
 
-  public int getUnfetched() {
+  public long getUnfetched() {
     return unfetched;
   }
 
-  public void setFetched(int val) {
+  public void setFetched(long val) {
     fetched = val;
   }
 
-  public int getFetched() {
+  public long getFetched() {
     return fetched;
   }
 
-  public void setNotModified(int val) {
+  public void setNotModified(long val) {
     notModified = val;
   }
 
-  public int getNotModified() {
+  public long getNotModified() {
     return notModified;
   }
 
-  public void setRedirTemp(int val) {
+  public void setRedirTemp(long val) {
     redirTemp = val;
   }
 
-  public int getRedirTemp() {
+  public long getRedirTemp() {
     return redirTemp;
   }
 
-  public void setRedirPerm(int val) {
+  public void setRedirPerm(long val) {
     redirPerm = val;
   }
 
-  public int getRedirPerm() {
+  public long getRedirPerm() {
     return redirPerm;
   }
 
-  public void setGone(int val) {
+  public void setGone(long val) {
     gone = val;
   }
 
-  public int getGone() {
+  public long getGone() {
     return gone;
   }
 
@@ -249,15 +249,15 @@ public class HostDatum implements Writable, Cloneable {
     lastCheck = new Date(in.readLong());
     homepageUrl = Text.readString(in);
 
-    dnsFailures = in.readInt();
-    connectionFailures = in.readInt();
+    dnsFailures = in.readLong();
+    connectionFailures = in.readLong();
 
-    unfetched= in.readInt();
-    fetched= in.readInt();
-    notModified= in.readInt();
-    redirTemp= in.readInt();
-    redirPerm = in.readInt();
-    gone = in.readInt();
+    unfetched= in.readLong();
+    fetched= in.readLong();
+    notModified= in.readLong();
+    redirTemp= in.readLong();
+    redirPerm = in.readLong();
+    gone = in.readLong();
 
     metaData = new org.apache.hadoop.io.MapWritable();
     metaData.readFields(in);
@@ -269,15 +269,15 @@ public class HostDatum implements Writable, Cloneable {
     out.writeLong(lastCheck.getTime());
     Text.writeString(out, homepageUrl);
 
-    out.writeInt(dnsFailures);
-    out.writeInt(connectionFailures);
+    out.writeLong(dnsFailures);
+    out.writeLong(connectionFailures);
 
-    out.writeInt(unfetched);
-    out.writeInt(fetched);
-    out.writeInt(notModified);
-    out.writeInt(redirTemp);
-    out.writeInt(redirPerm);
-    out.writeInt(gone);
+    out.writeLong(unfetched);
+    out.writeLong(fetched);
+    out.writeLong(notModified);
+    out.writeLong(redirTemp);
+    out.writeLong(redirPerm);
+    out.writeLong(gone);
 
     metaData.write(out);
   }
@@ -285,25 +285,25 @@ public class HostDatum implements Writable, Cloneable {
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder();
-    buf.append(Integer.toString(getUnfetched()));
+    buf.append(Long.toString(getUnfetched()));
     buf.append("\t");
-    buf.append(Integer.toString(getFetched()));
+    buf.append(Long.toString(getFetched()));
     buf.append("\t");
-    buf.append(Integer.toString(getGone()));
+    buf.append(Long.toString(getGone()));
     buf.append("\t");
-    buf.append(Integer.toString(getRedirTemp()));
+    buf.append(Long.toString(getRedirTemp()));
     buf.append("\t");
-    buf.append(Integer.toString(getRedirPerm()));
+    buf.append(Long.toString(getRedirPerm()));
     buf.append("\t");
-    buf.append(Integer.toString(getNotModified()));
+    buf.append(Long.toString(getNotModified()));
     buf.append("\t");
-    buf.append(Integer.toString(numRecords()));
+    buf.append(Long.toString(numRecords()));
     buf.append("\t");
-    buf.append(Integer.toString(getDnsFailures()));
+    buf.append(Long.toString(getDnsFailures()));
     buf.append("\t");
-    buf.append(Integer.toString(getConnectionFailures()));
+    buf.append(Long.toString(getConnectionFailures()));
     buf.append("\t");
-    buf.append(Integer.toString(numFailures()));
+    buf.append(Long.toString(numFailures()));
     buf.append("\t");
     buf.append(Float.toString(score));
     buf.append("\t");

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PushbackInputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
@@ -342,7 +343,11 @@ public class HttpResponse implements Response {
     for (int i = 0; i < handlerNames.length; i++) {
         try {
             String classToLoad = this.getClass().getPackage().getName() + ".handlers." + handlerNames[i];
-            handlers[i] = InteractiveSeleniumHandler.class.cast(Class.forName(classToLoad).newInstance());
+            try {
+              handlers[i] = InteractiveSeleniumHandler.class.cast(Class.forName(classToLoad).getConstructor().newInstance());
+            } catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+              e.printStackTrace();
+            }
             Http.LOG.info("Successfully loaded " + classToLoad);
         } catch (ClassNotFoundException e) {
             Http.LOG.info("Unable to load Handler class for: " + handlerNames[i]);

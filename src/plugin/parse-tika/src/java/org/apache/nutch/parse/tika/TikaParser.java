@@ -21,8 +21,11 @@ import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -42,6 +45,7 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.html.BoilerpipeContentHandler;
+import org.apache.tika.parser.CompositeParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.html.HtmlMapper;
@@ -70,6 +74,9 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   private String cachingPolicy;
   private HtmlMapper HTMLMapper;
   private boolean upperCaseElementNames = true;
+  private String boilerpipeExtractorName;
+  private boolean useBoilerpipe;
+  private Set<String> boilerpipeMimeTypes;
 
   public ParseResult getParse(Content content) {
     HTMLDocumentImpl doc = new HTMLDocumentImpl();
@@ -83,59 +90,59 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   ParseResult getParse(Content content, HTMLDocumentImpl doc,
       DocumentFragment root) {
     String mimeType = content.getContentType();
-    
-    boolean useBoilerpipe = getConf().get("tika.extractor", "none").equals("boilerpipe");
-    String boilerpipeExtractorName = getConf().get("tika.extractor.boilerpipe.algorithm", "ArticleExtractor");
 
     URL base;
     try {
       base = new URL(content.getBaseUrl());
     } catch (MalformedURLException e) {
-      return new ParseStatus(e)
-          .getEmptyParseResult(content.getUrl(), getConf());
+      return new ParseStatus(e).getEmptyParseResult(content.getUrl(),
+          getConf());
     }
 
     // get the right parser using the mime type as a clue
-    Parser parser = tikaConfig.getParser(MediaType.parse(mimeType));
-    byte[] raw = content.getContent();
-
+    CompositeParser compositeParser = (CompositeParser) tikaConfig.getParser();
+    Parser parser = compositeParser.getParsers().get(MediaType.parse(mimeType));
     if (parser == null) {
       String message = "Can't retrieve Tika parser for mime-type " + mimeType;
       LOG.error(message);
-      return new ParseStatus(ParseStatus.FAILED, message).getEmptyParseResult(
-          content.getUrl(), getConf());
+      return new ParseStatus(ParseStatus.FAILED, message)
+          .getEmptyParseResult(content.getUrl(), getConf());
     }
 
-    LOG.debug("Using Tika parser " + parser.getClass().getName()
-        + " for mime-type " + mimeType);
+    LOG.debug("Using Tika parser {} for mime-type {}.",
+        parser.getClass().getName(), mimeType);
 
+    byte[] raw = content.getContent();
     Metadata tikamd = new Metadata();
 
     ContentHandler domHandler;
-    
+
     // Check whether to use Tika's BoilerplateContentHandler
-    if (useBoilerpipe) {
-      BoilerpipeContentHandler bpHandler = new BoilerpipeContentHandler((ContentHandler)new DOMBuilder(doc, root),
-      BoilerpipeExtractorRepository.getExtractor(boilerpipeExtractorName));
+    if (useBoilerpipe && boilerpipeMimeTypes.contains(mimeType)) {
+      BoilerpipeContentHandler bpHandler = new BoilerpipeContentHandler(
+          (ContentHandler) new DOMBuilder(doc, root),
+          BoilerpipeExtractorRepository.getExtractor(boilerpipeExtractorName));
       bpHandler.setIncludeMarkup(true);
-      domHandler = (ContentHandler)bpHandler;
+      domHandler = (ContentHandler) bpHandler;
     } else {
       DOMBuilder domBuilder = new DOMBuilder(doc, root);
       domBuilder.setUpperCaseElementNames(upperCaseElementNames);
       domBuilder.setDefaultNamespaceURI(XHTMLContentHandler.XHTML);
-      domHandler = (ContentHandler)domBuilder;
+      domHandler = (ContentHandler) domBuilder;
     }
 
     LinkContentHandler linkContentHandler = new LinkContentHandler();
 
     ParseContext context = new ParseContext();
-    TeeContentHandler teeContentHandler = new TeeContentHandler(domHandler, linkContentHandler);
-    
+    TeeContentHandler teeContentHandler = new TeeContentHandler(domHandler,
+        linkContentHandler);
+
     if (HTMLMapper != null)
       context.set(HtmlMapper.class, HTMLMapper);
     tikamd.set(Metadata.CONTENT_TYPE, mimeType);
     try {
-      parser.parse(new ByteArrayInputStream(raw), (ContentHandler)teeContentHandler, tikamd, context);
+      parser.parse(new ByteArrayInputStream(raw),
+          (ContentHandler) teeContentHandler, tikamd, context);
     } catch (Exception e) {
       LOG.error("Error parsing " + content.getUrl(), e);
       return new ParseStatus(ParseStatus.FAILED, e.getMessage())
@@ -186,16 +193,16 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       if (LOG.isTraceEnabled()) {
         LOG.trace("Getting links (base URL = {}) ...", baseTag);
       }
-      
+
       // pre-1233 outlink extraction
-      //utils.getOutlinks(baseTag != null ? baseTag : base, l, root);
+      // utils.getOutlinks(baseTag != null ? baseTag : base, l, root);
       // Get outlinks from Tika
       List<Link> tikaExtractedOutlinks = linkContentHandler.getLinks();
       utils.getOutlinks(baseTag, l, tikaExtractedOutlinks);
       outlinks = l.toArray(new Outlink[l.size()]);
       if (LOG.isTraceEnabled()) {
-        LOG.trace("found " + outlinks.length + " outlinks in "
-            + content.getUrl());
+        LOG.trace(
+            "found " + outlinks.length + " outlinks in " + content.getUrl());
       }
     }
 
@@ -251,7 +258,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
         // see if a Tika config file can be found in the job file
         URL customTikaConfig = conf.getResource(customConfFile);
         if (customTikaConfig != null)
-          tikaConfig = new TikaConfig(customTikaConfig, this.getClass().getClassLoader());
+          tikaConfig = new TikaConfig(customTikaConfig,
+              this.getClass().getClassLoader());
       } catch (Exception e1) {
         String message = "Problem loading custom Tika configuration from "
             + customConfFile;
@@ -277,20 +285,28 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
           throw new RuntimeException("Class " + htmlmapperClassName
               + " does not implement HtmlMapper");
         }
-        HTMLMapper = (HtmlMapper) HTMLMapperClass.newInstance();
+        HTMLMapper = (HtmlMapper) HTMLMapperClass.getConstructor()
+            .newInstance();
       } catch (Exception e) {
-        LOG.error("Can't generate instance for class " + htmlmapperClassName);
-        throw new RuntimeException("Can't generate instance for class "
-            + htmlmapperClassName);
+        String message = "Can't generate instance for class "
+            + htmlmapperClassName;
+        LOG.error(message);
+        throw new RuntimeException(message);
       }
     }
 
-    this.htmlParseFilters = new HtmlParseFilters(getConf());
-    this.utils = new DOMContentUtils(conf);
-    this.cachingPolicy = getConf().get("parser.caching.forbidden.policy",
+    htmlParseFilters = new HtmlParseFilters(conf);
+    utils = new DOMContentUtils(conf);
+    cachingPolicy = conf.get("parser.caching.forbidden.policy",
         Nutch.CACHING_FORBIDDEN_CONTENT);
-    this.upperCaseElementNames = getConf().getBoolean(
-        "tika.uppercase.element.names", true);
+    upperCaseElementNames = conf.getBoolean("tika.uppercase.element.names",
+        true);
+    useBoilerpipe = conf.get("tika.extractor", "none").equals("boilerpipe");
+    boilerpipeExtractorName = conf.get("tika.extractor.boilerpipe.algorithm",
+        "ArticleExtractor");
+    boilerpipeMimeTypes = new HashSet<>(Arrays
+        .asList(conf.getTrimmedStrings("tika.extractor.boilerpipe.mime.types",
+            "text/html", "application/xhtml+xml")));
   }
 
   public Configuration getConf() {

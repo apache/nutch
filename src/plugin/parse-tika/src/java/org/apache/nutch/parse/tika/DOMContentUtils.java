@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.parse.tika;
 
 import java.net.MalformedURLException;
@@ -24,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.MapWritable;
@@ -47,6 +47,7 @@ public class DOMContentUtils {
 
   private String srcTagMetaName;
   private boolean keepNodenames;
+  private Set<String> blockNodes;
 
   private static class LinkParams {
     private String elName;
@@ -104,6 +105,7 @@ public class DOMContentUtils {
     srcTagMetaName = this.conf
         .get("parser.html.outlinks.htmlnode_metadata_name");
     keepNodenames = (srcTagMetaName != null && srcTagMetaName.length() > 0);
+    blockNodes = new HashSet<>(conf.getTrimmedStringCollection("parser.html.line.separators"));
   }
 
   /**
@@ -150,6 +152,13 @@ public class DOMContentUtils {
       Node currentNode = walker.nextNode();
       String nodeName = currentNode.getNodeName();
       short nodeType = currentNode.getNodeType();
+      Node previousSibling = currentNode.getPreviousSibling();
+      if (previousSibling != null
+          && blockNodes.contains(previousSibling.getNodeName().toLowerCase())) {
+        appendParagraphSeparator(sb);
+      } else if (blockNodes.contains(nodeName.toLowerCase())) {
+        appendParagraphSeparator(sb);
+      }
 
       if ("script".equalsIgnoreCase(nodeName)) {
         walker.skipChildren();

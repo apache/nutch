@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.tools;
 
 import java.io.DataOutputStream;
@@ -172,7 +171,7 @@ public class FileDumper {
 
           SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(file));
 
-          Writable key = (Writable) reader.getKeyClass().newInstance();
+          Writable key = (Writable) reader.getKeyClass().getConstructor().newInstance();
           Content content = null;
 
           while (reader.next(key)) {

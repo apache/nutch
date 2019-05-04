@@ -1,10 +1,4 @@
 /*
- * XXX ab@apache.org: This class is copied verbatim from Xalan-J 2.6.0
- * XXX distribution, org.apache.xml.utils.DOMBuilder, in order to
- * avoid dependency on Xalan.
- */
-
-/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -19,6 +13,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ */
+
+/*
+ * XXX ab@apache.org: This class is copied verbatim from Xalan-J 2.6.0
+ * XXX distribution, org.apache.xml.utils.DOMBuilder, in order to
+ * avoid dependency on Xalan.
  */
 /*
  * $Id$

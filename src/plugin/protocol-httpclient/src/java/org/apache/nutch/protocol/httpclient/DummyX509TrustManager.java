@@ -14,13 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Based on EasyX509TrustManager from commons-httpclient.
- */
-
 package org.apache.nutch.protocol.httpclient;
 
-import java.lang.invoke.MethodHandles;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -30,15 +25,12 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/*
+ * Based on EasyX509TrustManager from commons-httpclient.
+ */
 public class DummyX509TrustManager implements X509TrustManager {
   private X509TrustManager standardTrustManager = null;
-
-  /** Logger object for this class. */
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * Constructor for DummyX509TrustManager.

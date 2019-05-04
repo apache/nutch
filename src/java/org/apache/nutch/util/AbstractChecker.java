@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.util;
 
 import java.io.BufferedReader;
@@ -94,6 +93,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
     String line;
     while ((line = in.readLine()) != null) {
       StringBuilder output = new StringBuilder();
+      @SuppressWarnings("unused")
       int ret = process(line, output);
       System.out.println(output);
     }
@@ -101,6 +101,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
   }
 
   // Open TCP socket and process input
+  @SuppressWarnings("resource")
   protected void processTCP(int tcpPort) throws Exception {
     ServerSocket server = null;
 

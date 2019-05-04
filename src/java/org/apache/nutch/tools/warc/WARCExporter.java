@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.tools.warc;
 
 import java.io.ByteArrayInputStream;
@@ -259,7 +258,6 @@ public class WARCExporter extends Configured implements Tool {
 
     final Job job = NutchJob.getInstance(getConf());
     job.setJobName("warc-exporter " + output);
-    Configuration conf = job.getConfiguration();
 
     for (final Path segment : segments) {
       LOG.info("warc-exporter: adding segment: {}", segment);

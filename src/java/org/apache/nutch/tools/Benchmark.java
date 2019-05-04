@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.tools;
 
 import java.io.OutputStream;
@@ -195,6 +194,7 @@ public class Benchmark extends Configured implements Tool {
     conf.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
     conf.set(Generator.GENERATOR_COUNT_MODE,
         Generator.GENERATOR_COUNT_VALUE_HOST);
+    @SuppressWarnings("unused")
     Job job = NutchJob.getInstance(getConf());
     FileSystem fs = FileSystem.get(conf);
     Path dir = new Path(getConf().get("hadoop.tmp.dir"), "bench-"
@@ -276,6 +276,7 @@ public class Benchmark extends Configured implements Tool {
       LOG.info("crawl finished: " + dir);
     }
     res.elapsed = System.currentTimeMillis() - res.elapsed;
+    @SuppressWarnings("resource")
     CrawlDbReader dbreader = new CrawlDbReader();
     dbreader.processStatJob(crawlDb.toString(), conf, false);
     return res;

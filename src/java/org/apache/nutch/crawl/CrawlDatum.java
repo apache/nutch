@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.crawl;
 
 import java.io.DataInput;
@@ -545,7 +544,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       jcontext.set("fetchTime", (long)(getFetchTime()));
       jcontext.set("modifiedTime", (long)(getModifiedTime()));
       jcontext.set("retries", getRetriesSinceFetch());
-      jcontext.set("interval", new Integer(getFetchInterval()));
+      jcontext.set("interval", Integer.valueOf(getFetchInterval()));
       jcontext.set("score", getScore());
       jcontext.set("signature", StringUtil.toHexString(getSignature()));
             

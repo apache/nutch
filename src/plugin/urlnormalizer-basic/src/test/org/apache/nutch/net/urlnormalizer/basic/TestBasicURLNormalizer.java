@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,8 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.net.urlnormalizer.basic;
+
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
@@ -131,6 +134,7 @@ public class TestBasicURLNormalizer {
     // normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
 
     // check that unnecessary "../" are removed
+    normalizeTest("http://foo.com/..", "http://foo.com/");
     normalizeTest("http://foo.com/aa/./foo.html", "http://foo.com/aa/foo.html");
     normalizeTest("http://foo.com/aa/../", "http://foo.com/");
     normalizeTest("http://foo.com/aa/bb/../", "http://foo.com/aa/");
@@ -172,6 +176,38 @@ public class TestBasicURLNormalizer {
     normalizeTest("http:///////", "http:/");
     // NUTCH-2555 path must start with '/'
     normalizeTest("http://example.com?a=1", "http://example.com/?a=1");
+    // NUTCH-2547 urlnormalizer-basic fails on special characters in path/query
+    normalizeTest("http://www.example.com/a/c/../b/search?q=foobar|",
+        "http://www.example.com/a/b/search?q=foobar%7C");
+    normalizeTest("http://www.example.com/a/c/../b/search?q=foobar%",
+        "http://www.example.com/a/b/search?q=foobar%25");
+    normalizeTest("http://www.example.com/a/c/../b/search?q=foobar\"",
+        "http://www.example.com/a/b/search?q=foobar%22");
+    normalizeTest("http://www.example.com/a/c/../b/search?q=foobar^",
+        "http://www.example.com/a/b/search?q=foobar%5E");
+    normalizeTest("http://www.example.com/a/c/../b/search?q=foobar<",
+        "http://www.example.com/a/b/search?q=foobar%3C");
+    normalizeTest("http://www.example.com/a/c/../b/search?q=foobar>",
+        "http://www.example.com/a/b/search?q=foobar%3E");
+    normalizeTest("http://www.example.com/a/c/../b/search?q=foobar`",
+        "http://www.example.com/a/b/search?q=foobar%60");
+    // escape percent in case it's an invalid escape sequence
+    normalizeTest("http://www.example.com/p%zz%77%v",
+        "http://www.example.com/p%25zzw%25v");
+    // boundary test: percent sign close to the end of string
+    normalizeTest("http://www.example.com/search?q=foobar%",
+        "http://www.example.com/search?q=foobar%25");
+    normalizeTest("http://www.example.com/search?q=foobar%2",
+        "http://www.example.com/search?q=foobar%252");
+    normalizeTest("http://www.example.com/search?q=foobar%25",
+        "http://www.example.com/search?q=foobar%25");
+    normalizeTest("http://www.example.com/search?q=foobar%252",
+        "http://www.example.com/search?q=foobar%252");
+    // NUTCH-2609 normalize path of file: URLs
+    normalizeTest("file:/var/www/html/foo/../bar/index.html",
+        "file:/var/www/html/bar/index.html");
+    normalizeTest("file:/var/www/html/////./bar/index.html",
+        "file:/var/www/html/bar/index.html");
   }
   
   @Test
@@ -183,6 +219,12 @@ public class TestBasicURLNormalizer {
   private void normalizeTest(String weird, String normal) throws Exception {
     Assert.assertEquals("normalizing: " + weird, normal,
         normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
+    try {
+      (new URL(normal)).toURI();
+    } catch (MalformedURLException | URISyntaxException e) {
+      Assert.fail("Output of normalization fails to validate as URL or URI: "
+          + e.getMessage());
+    }
   }
 
   public static void main(String[] args) throws Exception {

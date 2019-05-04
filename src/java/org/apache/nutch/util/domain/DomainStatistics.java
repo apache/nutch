@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.util.domain;
 
 import java.io.File;
@@ -62,8 +61,6 @@ public class DomainStatistics extends Configured implements Tool {
   private static final int MODE_DOMAIN = 2;
   private static final int MODE_SUFFIX = 3;
   private static final int MODE_TLD = 4;
-
-  private int mode = 0;
 
   public int run(String[] args) throws Exception {
     if (args.length < 3) {

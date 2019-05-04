@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -51,6 +51,7 @@ public class HttpBasicAuthentication implements HttpAuthentication,
   private static Map<String, HttpBasicAuthentication> authMap = new TreeMap<String, HttpBasicAuthentication>();
 
   private Configuration conf = null;
+  @SuppressWarnings("unused")
   private String challenge = null;
   private ArrayList<String> credentials = null;
   private String realm = null;

@@ -21,10 +21,13 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
@@ -56,6 +59,10 @@ public class SolrIndexWriter implements IndexWriter {
 
   private final List<String> deleteIds = new ArrayList<>();
 
+  private String type;
+  private String[] urls;
+  private String collection;
+
   private int batchSize;
   private int numDeletes = 0;
   private int totalAdds = 0;
@@ -79,9 +86,9 @@ public class SolrIndexWriter implements IndexWriter {
    */
   @Override
   public void open(IndexWriterParams parameters) {
-    String type = parameters.get(SolrConstants.SERVER_TYPE, "http");
-
-    String[] urls = parameters.getStrings(SolrConstants.SERVER_URLS);
+    this.type = parameters.get(SolrConstants.SERVER_TYPE, "http");
+    this.urls = parameters.getStrings(SolrConstants.SERVER_URLS);
+    this.collection = parameters.get(SolrConstants.COLLECTION);
 
     if (urls == null) {
       String message = "Missing SOLR URL.\n" + describe();
@@ -106,7 +113,7 @@ public class SolrIndexWriter implements IndexWriter {
           SolrUtils.getCloudSolrClient(Arrays.asList(urls), this.username,
               this.password) :
           SolrUtils.getCloudSolrClient(Arrays.asList(urls));
-      sc.setDefaultCollection(parameters.get(SolrConstants.COLLECTION));
+      sc.setDefaultCollection(this.collection);
       solrClients.add(sc);
       break;
     case "concurrent":
@@ -288,25 +295,43 @@ public class SolrIndexWriter implements IndexWriter {
   }
 
   /**
-   * Returns a String describing the IndexWriter instance and the specific parameters it can take.
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
    *
-   * @return The full description.
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
    */
   @Override
-  public String describe() {
-    StringBuffer sb = new StringBuffer("SOLRIndexWriter\n");
-    sb.append("\t").append(SolrConstants.SERVER_TYPE).append(
-        " : Type of the server. Can be: \"cloud\", \"concurrent\", \"http\" or \"lb\"\n");
-    sb.append("\t").append(SolrConstants.SERVER_URLS)
-        .append(" : URL of the SOLR instance or URL of the Zookeeper quorum\n");
-    sb.append("\t").append(SolrConstants.COMMIT_SIZE)
-        .append(" : buffer size when sending to SOLR (default 1000)\n");
-    sb.append("\t").append(SolrConstants.USE_AUTH)
-        .append(" : use authentication (default false)\n");
-    sb.append("\t").append(SolrConstants.USERNAME)
-        .append(" : username for authentication\n");
-    sb.append("\t").append(SolrConstants.PASSWORD)
-        .append(" : password for authentication\n");
-    return sb.toString();
+  public Map<String, Entry<String, Object>> describe() {
+    Map<String, Entry<String, Object>> properties = new LinkedHashMap<>();
+
+    properties.put(SolrConstants.SERVER_TYPE, new AbstractMap.SimpleEntry<>(
+        "Specifies the SolrClient implementation to use. This is a string value of one of the following \"cloud\" or \"http\"."
+            + " The values represent CloudSolrServer or HttpSolrServer respectively.",
+        this.type));
+    properties.put(SolrConstants.SERVER_URLS, new AbstractMap.SimpleEntry<>(
+        "Defines the fully qualified URL of Solr into which data should be indexed. Multiple URL can be provided using comma as a delimiter."
+            + " When the value of type property is cloud, the URL should not include any collections or cores; just the root Solr path.",
+        this.urls == null ? "" : String.join(",", urls)));
+    properties.put(SolrConstants.COLLECTION, new AbstractMap.SimpleEntry<>(
+        "The collection used in requests. Only used when the value of type property is cloud.",
+        this.collection));
+    properties.put(SolrConstants.COMMIT_SIZE, new AbstractMap.SimpleEntry<>(
+        "Defines the number of documents to send to Solr in a single update batch. "
+            + "Decrease when handling very large documents to prevent Nutch from running out of memory.\n"
+            + "Note: It does not explicitly trigger a server side commit.",
+        this.batchSize));
+    properties.put(SolrConstants.WEIGHT_FIELD, new AbstractMap.SimpleEntry<>(
+        "Field's name where the weight of the documents will be written. If it is empty no field will be used.",
+        this.weightField));
+    properties.put(SolrConstants.USE_AUTH, new AbstractMap.SimpleEntry<>(
+        "Whether to enable HTTP basic authentication for communicating with Solr. Use the username and password properties to configure your credentials.",
+        this.auth));
+    properties.put(SolrConstants.USERNAME,
+        new AbstractMap.SimpleEntry<>("The username of Solr server.",
+            this.username));
+    properties.put(SolrConstants.PASSWORD,
+        new AbstractMap.SimpleEntry<>("The password of Solr server.",
+            this.password));
+
+    return properties;
   }
 }

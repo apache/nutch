@@ -58,9 +58,6 @@ public class UpdateHostDbMapper
   protected URLFilters filters = null;
   protected URLNormalizers normalizers = null;
 
-  /**
-   * @param job
-   */
   @Override
   public void setup(Mapper<Text, Writable, Text, NutchWritable>.Context context) {
     Configuration conf = context.getConfiguration();

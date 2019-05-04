@@ -16,7 +16,12 @@
  */
 package org.apache.nutch.indexer;
 
+import de.vandermeer.asciitable.AT_ColumnWidthCalculator;
+import de.vandermeer.asciitable.AT_Row;
+import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.skb.interfaces.document.TableRowType;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.exchange.Exchanges;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
@@ -36,10 +41,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 
 /**
  * Creates and caches {@link IndexWriter} implementing plugins.
@@ -61,6 +63,8 @@ public class IndexWriters {
 
   private HashMap<String, IndexWriterWrapper> indexWriters;
 
+  private Exchanges exchanges;
+
   private IndexWriters(Configuration conf) {
     //It's not cached yet
     if (this.indexWriters == null) {
@@ -80,8 +84,7 @@ public class IndexWriters {
           extensionMap.putIfAbsent(extension.getClazz(), extension);
         }
 
-        IndexWriterConfig[] indexWriterConfigs = loadWritersConfiguration(
-            conf);
+        IndexWriterConfig[] indexWriterConfigs = loadWritersConfiguration(conf);
         this.indexWriters = new HashMap<>();
 
         for (IndexWriterConfig indexWriterConfig : indexWriterConfigs) {
@@ -97,6 +100,9 @@ public class IndexWriters {
             indexWriters.put(indexWriterConfig.getId(), writerWrapper);
           }
         }
+
+        this.exchanges = new Exchanges(conf);
+        this.exchanges.open();
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
       }
@@ -182,6 +188,19 @@ public class IndexWriters {
   }
 
   /**
+   * Ensures if there are not available exchanges, the document will be routed to all configured index writers.
+   *
+   * @param doc Document to process.
+   * @return Index writers IDs.
+   */
+  private Collection<String> getIndexWriters(NutchDocument doc) {
+    if (this.exchanges.areAvailableExchanges()) {
+      return Arrays.asList(this.exchanges.indexWriters(doc));
+    }
+    return this.indexWriters.keySet();
+  }
+
+  /**
    * Initializes the internal variables of index writers.
    *
    * @param conf Nutch configuration.
@@ -198,26 +217,28 @@ public class IndexWriters {
   }
 
   public void write(NutchDocument doc) throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
-        .entrySet()) {
+    for (String indexWriterId : getIndexWriters(doc)) {
       NutchDocument mappedDocument = mapDocument(doc,
-          entry.getValue().getIndexWriterConfig().getMapping());
-      entry.getValue().getIndexWriter().write(mappedDocument);
+          this.indexWriters.get(indexWriterId).getIndexWriterConfig()
+              .getMapping());
+      this.indexWriters.get(indexWriterId).getIndexWriter()
+          .write(mappedDocument);
     }
   }
 
   public void update(NutchDocument doc) throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
-        .entrySet()) {
-      entry.getValue().getIndexWriter().update(mapDocument(doc,
-          entry.getValue().getIndexWriterConfig().getMapping()));
+    for (String indexWriterId : getIndexWriters(doc)) {
+      NutchDocument mappedDocument = mapDocument(doc,
+          this.indexWriters.get(indexWriterId).getIndexWriterConfig()
+              .getMapping());
+      this.indexWriters.get(indexWriterId).getIndexWriter()
+          .update(mappedDocument);
     }
   }
 
   public void delete(String key) throws IOException {
-    for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
-        .entrySet()) {
-      entry.getValue().getIndexWriter().delete(key);
+    for (IndexWriterWrapper iww : indexWriters.values()) {
+      iww.getIndexWriter().delete(key);
     }
   }
 
@@ -248,8 +269,52 @@ public class IndexWriters {
       builder.append("Active IndexWriters :\n");
 
     for (IndexWriterWrapper indexWriterWrapper : this.indexWriters.values()) {
-      builder.append(indexWriterWrapper.getIndexWriter().describe())
-          .append("\n");
+      // Getting the class name
+      builder.append(
+          indexWriterWrapper.getIndexWriter().getClass().getSimpleName())
+          .append(":\n");
+
+      // Building the table
+      AsciiTable at = new AsciiTable();
+      at.getRenderer().setCWC((rows, colNumbers, tableWidth) -> {
+        int maxLengthFirstColumn = 0;
+        int maxLengthLastColumn = 0;
+        for (AT_Row row : rows) {
+          if (row.getType() == TableRowType.CONTENT) {
+            // First column
+            int lengthFirstColumn = row.getCells().get(0).toString().length();
+            if (lengthFirstColumn > maxLengthFirstColumn) {
+              maxLengthFirstColumn = lengthFirstColumn;
+            }
+
+            // Last column
+            int lengthLastColumn = row.getCells().get(2).toString().length();
+            if (lengthLastColumn > maxLengthLastColumn) {
+              maxLengthLastColumn = lengthLastColumn;
+            }
+          }
+        }
+        return new int[] { maxLengthFirstColumn,
+            tableWidth - maxLengthFirstColumn - maxLengthLastColumn,
+            maxLengthLastColumn };
+      });
+
+      // Getting the properties
+      Map<String, Map.Entry<String, Object>> properties = indexWriterWrapper
+          .getIndexWriter().describe();
+
+      // Adding the rows
+      properties.forEach((key, value) -> {
+        at.addRule();
+        at.addRow(key, value.getKey(),
+            value.getValue() != null ? value.getValue() : "");
+      });
+
+      // Last rule
+      at.addRule();
+
+      // Rendering the table
+      builder.append(at.render(150)).append("\n\n");
     }
 
     return builder.toString();

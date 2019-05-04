@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.parsefilter.regex;
 
 import java.lang.invoke.MethodHandles;
@@ -55,7 +54,6 @@ public class RegexParseFilter implements HtmlParseFilter {
   private String regexFile = null;
   
   private Configuration conf;
-  private DocumentFragment doc;
   
   private static final Map<String,RegexRule> rules = new HashMap<>();
   

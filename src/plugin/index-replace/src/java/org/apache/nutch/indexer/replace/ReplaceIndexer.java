@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -201,7 +201,7 @@ public class ReplaceIndexer implements IndexingFilter {
                   continue;
                 }
               }
-              Integer iFlags = (flags > 0) ? new Integer(flags) : null;
+              Integer iFlags = (flags > 0) ? Integer.valueOf(flags) : null;
 
               // Make a FieldReplacer out of these params.
               FieldReplacer fr = new FieldReplacer(fieldName, toFieldName,

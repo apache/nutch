@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -29,45 +29,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A collection of Jexl utilit(y|ies).
+ * Utility methods for handling JEXL expressions
  */
 public class JexlUtil {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  /**
-   * 
-   */
-  public static Pattern datePattern = Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z");
+  /** Supported format for date parsing yyyy-MM-ddTHH:mm:ssZ */
+  private static final Pattern DATE_PATTERN = Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z");
 
   /**
-   * Parses the given experssion to a Jexl expression. This supports
+   * Parses the given expression to a JEXL expression. This supports
    * date parsing.
    *
-   * @param expr the Jexl expression
-   * @return parsed Jexl expression or null in case of parse error
+   * @param expr string JEXL expression
+   * @return parsed JEXL expression or null in case of parse error
    */
   public static Expression parseExpression(String expr) {
     if (expr == null) return null;
     
     try {
-      // Translate any date object into a long, dates must be specified as 20-03-2016T00:00:00Z
-      Matcher matcher = datePattern.matcher(expr);
+      // Translate any date object into a long. Dates must be in the DATE_PATTERN
+      // format. For example: 2016-03-20T00:00:00Z
+      Matcher matcher = DATE_PATTERN.matcher(expr);
+
       if (matcher.find()) {
         String date = matcher.group();
         
-        // Parse the thing and get epoch!
+        // parse the matched substring and get the epoch
         Date parsedDate = DateUtils.parseDateStrictly(date, new String[] {"yyyy-MM-dd'T'HH:mm:ss'Z'"});
         long time = parsedDate.getTime();
         
-        // Replace in the original expression
+        // replace the original string date with the numeric value
         expr = expr.replace(date, Long.toString(time));
       }
-      
+
       JexlEngine jexl = new JexlEngine();
+
       jexl.setSilent(true);
       jexl.setStrict(true);
+
       return jexl.createExpression(expr);
     } catch (Exception e) {
       LOG.error(e.getMessage());

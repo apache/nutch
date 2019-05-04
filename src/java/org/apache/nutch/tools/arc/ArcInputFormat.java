@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -46,8 +46,8 @@ public class ArcInputFormat extends FileInputFormat<Text, BytesWritable> {
    *          The InputSplit of the arc file to process.
    * @param job
    *          The job configuration.
-   * @param reporter
-   *          The progress reporter.
+   * @param context
+   *          The task context.
    */
   public RecordReader<Text, BytesWritable> getRecordReader(InputSplit split,
       Job job, Context context) throws IOException {

@@ -38,7 +38,7 @@
 
 <property>
   <name>file.content.limit</name>
-  <value>65536</value>
+  <value>1048576</value>
   <description>The length limit for downloaded content using the file://
   protocol, in bytes. If this value is nonnegative (>=0), content longer
   than it will be truncated; otherwise, no truncation at all. Do not
@@ -164,7 +164,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-1.15-SNAPSHOT</value>
+  <value>Nutch-1.16-SNAPSHOT</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -215,11 +215,49 @@
 
 <property>
   <name>http.content.limit</name>
-  <value>65536</value>
-  <description>The length limit for downloaded content using the http://
-  protocol, in bytes. If this value is nonnegative (>=0), content longer
+  <value>1048576</value>
+  <description>The length limit for downloaded content using the http/https
+  protocols, in bytes. If this value is nonnegative (>=0), content longer
   than it will be truncated; otherwise, no truncation at all. Do not
   confuse this setting with the file.content.limit setting.
+  </description>
+</property>
+
+<property>
+  <name>http.time.limit</name>
+  <value>-1</value>
+  <description>The time limit in seconds to fetch a single document.
+  If this value is nonnegative (>=0), the HTTP protocol implementation
+  will stop reading from a socket after http.time.limit seconds have
+  been spent for fetching this document.  The HTTP response is then
+  marked as truncated.  The http.time.limit should be set to a longer
+  time period than http.timeout, as it applies to the entire duration
+  to fetch a document, not only the network timeout of a single I/O
+  operation.  Note: supported only by protocol-okhttp.
+  </description>
+</property>
+
+<property>
+  <name>http.partial.truncated</name>
+  <value>false</value>
+  <description>
+    If true the HTTP protocol implementation may store the content of
+    partial fetches and mark the response as truncated instead of
+    throwing an exception which will cause the fetch to fail.  This
+    allows to use the data which has already been fetched, instead of
+    retrying the fetch later.  Note: supported only by protocol-okhttp.
+  </description>
+</property>
+
+<property>
+  <name>http.tls.certificates.check</name>
+  <value>false</value>
+  <description>
+    Whether to check the TLS/SSL server certificates for validity.
+    If true invalid (e.g., self-signed or expired) certificates are
+    rejected and the https connection is failed.  If false insecure
+    TLS/SSL connections are allowed.  Note that this property is
+    currently not supported by all http/https protocol plugins.
   </description>
 </property>
 
@@ -402,7 +440,7 @@
 
 <property>
   <name>ftp.content.limit</name>
-  <value>65536</value> 
+  <value>1048576</value>
   <description>The length limit for downloaded content, in bytes.
   If this value is nonnegative (>=0), content longer than it will be truncated;
   otherwise, no truncation at all.
@@ -701,6 +739,21 @@
 </property>
 
 <property>
+  <name>db.max.outlink.length</name>
+  <value>4096</value>
+  <description>
+    The maximum length in characters accepted for outlinks before
+    applying URL normalizers and filters.  If this value is
+    nonnegative (>=0), only URLs with a length in characters less or
+    equal than db.max.outlink.length are accepted and then passed to
+    URL normalizers and filters. Doing the length check beforehand
+    avoids that normalizers or filters hang up on overlong URLs.
+    Note: this property is only used to check URLs found as outlinks
+    and redirects, but not for injected URLs.
+  </description>
+</property>
+
+<property>
   <name>db.parsemeta.to.crawldb</name>
   <value></value>
   <description>Comma-separated list of parse metadata keys to transfer to the crawldb (NUTCH-779).
@@ -796,14 +849,14 @@
   <value>-1</value>
   <description>The maximum number of urls in a single
   fetchlist.  -1 if unlimited. The urls are counted according
-  to the value of the parameter generator.count.mode.
+  to the value of the parameter generate.count.mode.
   </description>
 </property>
 
 <property>
   <name>generate.count.mode</name>
   <value>host</value>
-  <description>Determines how the URLs are counted for generator.max.count.
+  <description>Determines how the URLs are counted for generate.max.count.
   Default value is 'host' but can be 'domain'. Note that we do not count 
   per IP in the new version of the Generator.
   </description>
@@ -938,8 +991,9 @@
 <property>
   <name>fetcher.queue.mode</name>
   <value>byHost</value>
-  <description>Determines how to put URLs into queues. Default value is 'byHost', 
-  also takes 'byDomain' or 'byIP'. 
+  <description>Determines how to put URLs into queues. Default value
+  is 'byHost', also takes 'byDomain' or 'byIP'. Crawl delays are
+  implemented on the level of fetcher queues.
   </description>
 </property>
 
@@ -960,6 +1014,20 @@
   <name>fetcher.store.content</name>
   <value>true</value>
   <description>If true, fetcher will store content.</description>
+</property>
+
+<property>
+  <name>fetcher.signature</name>
+  <value>false</value>
+  <description>If true, fetcher will generate the signature for
+  successfully fetched documents even if the content is not parsed by
+  fetcher (see property fetcher.parse).  Default is false, which means
+  that the signature is calculated when parsing either by the fetcher
+  or during the parsing step.  Note that a non-parsing fetcher can
+  only generate signatures based on the binary content and not on the
+  textual content. An appropriate signature class should be chosen
+  (see property db.signature.class).
+  </description>
 </property>
 
 <property>
@@ -994,7 +1062,7 @@
 <property>
   <name>fetcher.throughput.threshold.retries</name>
   <value>5</value>
-  <description>The number of times the fetcher.throughput.threshold is allowed to be exceeded.
+  <description>The number of times the fetcher.throughput.threshold.pages is allowed to be exceeded.
   This settings prevents accidental slow downs from immediately killing the fetcher thread.
   </description>
 </property>
@@ -1104,6 +1172,18 @@
 	Publisher implementation specific properties</description>
 </property> 
 
+<property>
+  <name>fetcher.filter.urls</name>
+  <value>false</value>
+  <description>Whether fetcher will filter URLs (with the configured URL filters).</description>
+</property>
+
+<property>
+  <name>fetcher.normalize.urls</name>
+  <value>false</value>
+  <description>Whether fetcher will normalize URLs (with the configured URL normalizers).</description>
+</property>
+
 <!--  any23 plugin properties -->
 
 <property>
@@ -1136,6 +1216,15 @@
   plain text file with mapped MIME-types. With it the user can map both
   application/xhtml+xml and text/html to the same target MIME-type so it
   can be treated equally in an index. See conf/contenttype-mapping.txt.
+  </description>
+</property>
+
+<property>
+  <name>moreIndexingFilter.mapMimeTypes.field</name>
+  <value></value>
+  <description>It's used if moreIndexingFilter.mapMimeTypes is true. Indicates the field
+  where the mapped MIME-type must be written. If it's empty or unset, the content of the field "type"
+  will be replaced by the mapped MIME-type.
   </description>
 </property>
 
@@ -1292,11 +1381,11 @@
   <value>protocol-http|urlfilter-(regex|validator)|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
-  In any case you need at least include the nutch-extensionpoints plugin. By
-  default Nutch includes crawling just HTML and plain text via HTTP,
-  and basic indexing and search plugins. In order to use HTTPS please enable 
-  protocol-httpclient, but be aware of possible intermittent problems with the 
-  underlying commons-httpclient library. Set parsefilter-naivebayes for classification based focused crawler.
+  By default Nutch includes plugins to crawl HTML and various other
+  document formats via HTTP/HTTPS and indexing the crawled content
+  into Solr.  More plugins are available to support more indexing
+  backends, to fetch ftp:// and file:// URLs, for focused crawling,
+  and many other use cases.
   </description>
 </property>
 
@@ -1386,6 +1475,16 @@
 	<value></value>
 	<description>if not empty, the source nodename of a found outlink will
 		be set in the metadata with this name into the outlink</description>
+</property>
+
+<property>
+  <name>parser.html.line.separators</name>
+  <value>article,aside,blockquote,canvas,dd,div,dl,dt,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hr,li,main,nav,noscript,ol,output,p,pre,section,table,tfoot,ul,video</value>
+ <description>Comma separated list of HTML tags. Newline will be added to the
+  parsed text after these tages.
+  The default list above are the block-level HTML elements.
+  Tags must be in lower case.
+  To disable this feature, leave the list empty.</description>
 </property>
 
 <property>
@@ -1498,6 +1597,15 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <description> 
   Which Boilerpipe algorithm to use. Valid values are: DefaultExtractor, ArticleExtractor
   or CanolaExtractor.
+  </description>
+</property>
+
+<property>
+  <name>tika.extractor.boilerpipe.mime.types</name>
+  <value>text/html,application/xhtml+xml</value>
+  <description>
+    Comma-separated list of MIME types accepted for Boilerpipe extraction,
+    documents of other MIME types are not passed to the Boilerpipe extractor.
   </description>
 </property>
 
@@ -2320,6 +2428,14 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   </description>
 </property>
 
+<property>
+  <name>subcollection.case.insensitive</name>
+  <value>false</value>
+  <description>
+  Whether the URL prefixes are to be treated case insensitive.
+  </description>
+</property>
+
 <!-- Headings plugin properties -->
 
 <property>
@@ -2418,10 +2534,11 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <description>
     A String value representing the flavour of Selenium 
     WebDriver() to use. Currently the following options
-    exist - 'firefox', 'chrome', 'safari', 'opera', 'phantomjs' and 'remote'.
+    exist - 'firefox', 'chrome', 'safari', 'opera' and 'remote'.
     If 'remote' is used it is essential to also set correct properties for
     'selenium.hub.port', 'selenium.hub.path', 'selenium.hub.host',
-    'selenium.hub.protocol', 'selenium.grid.driver' and 'selenium.grid.binary'.
+    'selenium.hub.protocol', 'selenium.grid.driver', 'selenium.grid.binary'
+    and 'selenium.enable.headless'.
   </description>
 </property>
 
@@ -2453,8 +2570,9 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <name>selenium.grid.driver</name>
   <value>firefox</value>
   <description>A String value representing the flavour of Selenium 
-    WebDriver() used on the selenium grid. Currently the following options
-    exist - 'firefox', 'phantomjs' </description>
+    WebDriver() used on the selenium grid. We must set `selenium.driver` to `remote` first.
+    Currently the following options
+    exist - 'firefox', 'chrome', 'random' </description>
 </property>
 
 <property>
@@ -2465,6 +2583,14 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
  </description>
 </property>
 
+<!-- headless options for Firefox and Chrome-->
+<property>
+  <name>selenium.enable.headless</name>
+  <value>false</value>
+  <description>A Boolean value representing the headless option
+    for Firefix and Chrome drivers
+  </description>
+</property>
 <!-- selenium firefox configuration; 
      applies to protocol-selenium and protocol-interactiveselenium plugins -->
 <property>
@@ -2514,6 +2640,14 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   2: Block all stylesheet
   Currently this option exist for - 'firefox' </description>
 </property>
+
+<!-- selenium chrome configurations -->
+<property>
+  <name>webdriver.chrome.driver</name>
+  <value>/root/chromedriver</value>
+  <description>The path to the ChromeDriver binary</description>
+</property>
+<!-- end of selenium chrome configurations -->
 
 <!-- protocol-interactiveselenium configuration -->
 <property>

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.parse;
 
 import java.io.DataInput;
@@ -150,20 +149,10 @@ public final class ParseData extends VersionedWritable {
       outlinks[i] = Outlink.read(in);
     }
 
-    if (version < 3) {
-      int propertyCount = in.readInt(); // read metadata
-      contentMeta.clear();
-      for (int i = 0; i < propertyCount; i++) {
-        contentMeta.add(Text.readString(in), Text.readString(in));
-      }
-    } else {
-      contentMeta.clear();
-      contentMeta.readFields(in);
-    }
-    if (version > 3) {
-      parseMeta.clear();
-      parseMeta.readFields(in);
-    }
+    contentMeta.clear();
+    contentMeta.readFields(in);
+    parseMeta.clear();
+    parseMeta.readFields(in);
   }
 
   public final void write(DataOutput out) throws IOException {

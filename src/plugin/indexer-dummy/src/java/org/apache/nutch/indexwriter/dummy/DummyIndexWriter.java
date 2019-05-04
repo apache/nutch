@@ -21,14 +21,14 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.AbstractMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
-import org.apache.nutch.indexer.IndexerMapReduce;
 import org.apache.nutch.indexer.NutchDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,47 +39,51 @@ import org.slf4j.LoggerFactory;
  * and add.
  */
 public class DummyIndexWriter implements IndexWriter {
+
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
+
   private Configuration config;
   private Writer writer;
+
   private boolean delete = false;
+  private String path;
 
   public void open(Configuration conf, String name) throws IOException {
-      //Implementation not required
+    //Implementation not required
   }
 
-    /**
-     * Initializes the internal variables from a given index writer configuration.
-     *
-     * @param parameters Params from the index writer configuration.
-     * @throws IOException Some exception thrown by writer.
-     */
-    @Override
-    public void open(IndexWriterParams parameters) throws IOException {
-        delete = parameters.getBoolean(DummyConstants.DELETE, false);
+  /**
+   * Initializes the internal variables from a given index writer configuration.
+   *
+   * @param parameters Params from the index writer configuration.
+   * @throws IOException Some exception thrown by writer.
+   */
+  @Override
+  public void open(IndexWriterParams parameters) throws IOException {
+    delete = parameters.getBoolean(DummyConstants.DELETE, false);
 
-        String path = parameters.get(DummyConstants.PATH, "/");
-        if (path == null) {
-            String message = "Missing path.";
-            message += "\n" + describe();
-            LOG.error(message);
-            throw new RuntimeException(message);
-        }
-
-        if (writer != null) {
-            LOG.warn("Dummy index file already open for writing");
-            return;
-        }
-
-        try {
-            LOG.debug("Opening dummy index file {}", path);
-            writer = new BufferedWriter(new FileWriter(path));
-        } catch (IOException ex) {
-            LOG.error("Failed to open index file {}: {}", path,
-                    StringUtils.stringifyException(ex));
-        }
+    path = parameters.get(DummyConstants.PATH, "/");
+    if (path == null) {
+      String message = "Missing path.";
+      message += "\n" + describe();
+      LOG.error(message);
+      throw new RuntimeException(message);
     }
+
+    if (writer != null) {
+      LOG.warn("Dummy index file already open for writing");
+      return;
+    }
+
+    try {
+      LOG.debug("Opening dummy index file {}", path);
+      writer = new BufferedWriter(new FileWriter(path));
+    } catch (IOException ex) {
+      LOG.error("Failed to open index file {}: {}", path,
+          StringUtils.stringifyException(ex));
+    }
+  }
 
   @Override
   public void delete(String key) throws IOException {
@@ -119,10 +123,20 @@ public class DummyIndexWriter implements IndexWriter {
     config = conf;
   }
 
-  public String describe() {
-    StringBuffer sb = new StringBuffer("DummyIndexWriter\n");
-    sb.append("\t").append(
-        "dummy.path : Path of the file to write to (mandatory)\n");
-    return sb.toString();
+  /**
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   *
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   */
+  @Override
+  public Map<String, Map.Entry<String, Object>> describe() {
+    Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
+
+    properties.put(DummyConstants.DELETE, new AbstractMap.SimpleEntry<>(
+        "If delete operations should be written to the file.", this.delete));
+    properties.put(DummyConstants.PATH, new AbstractMap.SimpleEntry<>(
+        "Path where the file will be created.", this.path));
+
+    return properties;
   }
 }

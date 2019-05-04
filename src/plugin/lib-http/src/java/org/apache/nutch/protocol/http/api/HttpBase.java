@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -86,7 +86,13 @@ public abstract class HttpBase implements Protocol {
   protected int timeout = 10000;
 
   /** The length limit for downloaded content, in bytes. */
-  protected int maxContent = 64 * 1024;
+  protected int maxContent = 1024 * 1024;
+
+  /** The time limit to download the entire content, in seconds. */
+  protected int maxDuration = 300;
+
+  /** Whether to save partial fetches as truncated content. */
+  protected boolean partialAsTruncated = false;
 
   /** The Nutch 'User-Agent' request header */
   protected String userAgent = getAgentString("NutchCVS", null, "Nutch",
@@ -151,6 +157,9 @@ public abstract class HttpBase implements Protocol {
   /** Skip page if Crawl-Delay longer than this value. */
   protected long maxCrawlDelay = -1L;
 
+  /** Whether to check TLS/SSL certificates */
+  protected boolean tlsCheckCertificate = false;
+
   /** Which TLS/SSL protocols to support */
   protected Set<String> tlsPreferredProtocols;
 
@@ -185,7 +194,10 @@ public abstract class HttpBase implements Protocol {
     this.proxyException = arrayToMap(conf.getStrings("http.proxy.exception.list"));
     this.useProxy = (proxyHost != null && proxyHost.length() > 0);
     this.timeout = conf.getInt("http.timeout", 10000);
-    this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
+    this.maxContent = conf.getInt("http.content.limit", 1024 * 1024);
+    this.maxDuration = conf.getInt("http.time.limit", -1);
+    this.partialAsTruncated = conf
+        .getBoolean("http.partial.truncated", false);
     this.userAgent = getAgentString(conf.get("http.agent.name"),
         conf.get("http.agent.version"), conf.get("http.agent.description"),
         conf.get("http.agent.url"), conf.get("http.agent.email"));
@@ -195,8 +207,10 @@ public abstract class HttpBase implements Protocol {
     this.accept = conf.get("http.accept", accept).trim();
     this.mimeTypes = new MimeUtil(conf);
     // backward-compatible default setting
-    this.useHttp11 = conf.getBoolean("http.useHttp11", false);
+    this.useHttp11 = conf.getBoolean("http.useHttp11", true);
     this.useHttp2 = conf.getBoolean("http.useHttp2", false);
+    this.tlsCheckCertificate = conf.getBoolean("http.tls.certificates.check",
+        false);
     this.responseTime = conf.getBoolean("http.store.responsetime", true);
     this.storeIPAddress = conf.getBoolean("store.ip.address", false);
     this.storeHttpRequest = conf.getBoolean("store.http.request", false);
@@ -442,6 +456,22 @@ public abstract class HttpBase implements Protocol {
     return maxContent;
   }
 
+  /**
+   * The time limit to download the entire content, in seconds. See the property
+   * <code>http.time.limit</code>.
+   */
+  public int getMaxDuration() {
+    return maxDuration;
+  }
+
+  /**
+   * Whether to save partial fetches as truncated content, cf. the property
+   * <code>http.partial.truncated</code>.
+   */
+  public boolean isStorePartialAsTruncated() {
+    return partialAsTruncated;
+  }
+
   public String getUserAgent() {
     if (userAgentNames != null) {
       return userAgentNames
@@ -469,6 +499,10 @@ public abstract class HttpBase implements Protocol {
 
   public boolean getUseHttp11() {
     return useHttp11;
+  }
+
+  public boolean isTlsCheckCertificates() {
+    return tlsCheckCertificate;
   }
 
   public Set<String> getTlsPreferredCipherSuites() {

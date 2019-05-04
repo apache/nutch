@@ -30,7 +30,7 @@ import org.apache.hadoop.conf.Configuration;
  * instances are used as the point of life cycle managemet of plugin related
  * functionality.
  * 
- * The <code>Plugin</code> will be startuped and shutdown by the nutch plugin
+ * The <code>Plugin</code> will be started up and shutdown by the nutch plugin
  * management system.
  * 
  * A possible usecase of the <code>Plugin</code> implementation is to create or
@@ -88,6 +88,7 @@ public class Plugin {
     fDescriptor = descriptor;
   }
 
+  @SuppressWarnings("deprecation")
   protected void finalize() throws Throwable {
     super.finalize();
     shutDown();

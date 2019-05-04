@@ -61,6 +61,7 @@ public class ResolverThread implements Runnable {
     // Resolve the host and act appropriatly
     try {
       // Throws an exception if host is not found
+      @SuppressWarnings("unused")
       InetAddress inetAddr = InetAddress.getByName(host);
 
       if (datum.isEmpty()) {
@@ -70,7 +71,7 @@ public class ResolverThread implements Runnable {
       } else if (datum.getDnsFailures() > 0) {
         context.getCounter("UpdateHostDb", "rediscovered_host").increment(1);
         datum.setLastCheck();
-        datum.setDnsFailures(0);
+        datum.setDnsFailures(0l);
         LOG.info(host + ": rediscovered_host " + datum);
       } else {
         context.getCounter("UpdateHostDb", "existing_known_host").increment(1);
@@ -85,7 +86,7 @@ public class ResolverThread implements Runnable {
         // If the counter is empty we'll initialize with date = today and 1 failure
         if (datum.isEmpty()) {
           datum.setLastCheck();
-          datum.setDnsFailures(1);
+          datum.setDnsFailures(1l);
           context.write(hostText, datum);
           context.getCounter("UpdateHostDb", "new_unknown_host").increment(1);
           LOG.info(host + ": new_unknown_host " + datum);
@@ -107,7 +108,7 @@ public class ResolverThread implements Runnable {
         }
 
         context.getCounter("UpdateHostDb",
-          Integer.toString(datum.numFailures()) + "_times_failed").increment(1);
+          Long.toString(datum.numFailures()) + "_times_failed").increment(1);
       } catch (Exception ioe) {
         LOG.warn(StringUtils.stringifyException(ioe));
       }

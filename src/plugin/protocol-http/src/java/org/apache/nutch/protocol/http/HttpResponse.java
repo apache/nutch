@@ -1,13 +1,13 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * <p/>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,8 +30,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -131,7 +133,7 @@ public class HttpResponse implements Response {
         try {
           sslsocket = getSSLSocket(socket, sockHost, sockPort);
           sslsocket.startHandshake();
-        } catch (IOException e) {
+        } catch (Exception e) {
           Http.LOG.debug("SSL connection to {} failed with: {}", url,
               e.getMessage());
           if ("handshake alert:  unrecognized_name".equals(e.getMessage())) {
@@ -142,7 +144,7 @@ public class HttpResponse implements Response {
               socket.connect(sockAddr, http.getTimeout());
               sslsocket = getSSLSocket(socket, "", sockPort);
               sslsocket.startHandshake();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
               String msg = "SSL reconnect to " + url + " failed with: "
                   + e.getMessage();
               throw new HttpException(msg);
@@ -152,7 +154,7 @@ public class HttpResponse implements Response {
         socket = sslsocket;
       }
 
-      if (sockAddr != null && http.isStoreIPAddress()) {
+      if (http.isStoreIPAddress()) {
         headers.add("_ip_", sockAddr.getAddress().getHostAddress());
       }
 
@@ -270,7 +272,7 @@ public class HttpResponse implements Response {
           break;
         }
         if (httpHeaders != null)
-          httpHeaders.append(line).append("\n");
+          httpHeaders.append(line).append("\r\n");
         // parse headers
         parseHeaders(in, line, httpHeaders);
         haveSeenNonContinueStatus = code != 100; // 100 is "Continue"
@@ -295,6 +297,7 @@ public class HttpResponse implements Response {
           // store the headers verbatim only if the response was not compressed
           // as the content length reported does not match otherwise
           if (httpHeaders != null) {
+            httpHeaders.append("\r\n");
             headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
           }
           if (Http.LOG.isTraceEnabled()) {
@@ -353,9 +356,18 @@ public class HttpResponse implements Response {
    * -------------------------
    */
 
-  private SSLSocket getSSLSocket(Socket socket, String sockHost, int sockPort) throws IOException {
-    SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory
-      .getDefault();
+  private SSLSocket getSSLSocket(Socket socket, String sockHost, int sockPort)
+      throws Exception {
+    SSLSocketFactory factory;
+    if (http.isTlsCheckCertificates()) {
+      factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+    } else {
+      SSLContext sslContext = SSLContext.getInstance("TLS");
+      sslContext.init(null,
+          new TrustManager[] { new DummyX509TrustManager(null) }, null);
+      factory = sslContext.getSocketFactory();
+    }
+    
     SSLSocket sslsocket = (SSLSocket) factory
       .createSocket(socket, sockHost, sockPort, true);
     sslsocket.setUseClientMode(true);
@@ -440,7 +452,7 @@ public class HttpResponse implements Response {
     byte[] bytes = new byte[Http.BUFFER_SIZE];
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
 
-    while (!doneChunks) {
+    while (true) {
       if (Http.LOG.isTraceEnabled()) {
         Http.LOG.trace("Http: starting chunk");
       }
@@ -575,7 +587,7 @@ public class HttpResponse implements Response {
     while (readLine(in, line, true) != 0) {
 
       if (httpHeaders != null)
-        httpHeaders.append(line).append("\n");
+        httpHeaders.append(line).append("\r\n");
 
       // handle HTTP responses with missing blank line after headers
       int pos;

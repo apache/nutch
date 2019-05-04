@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.protocol.ftp;
 
 import org.slf4j.Logger;
@@ -182,6 +181,7 @@ public class Ftp implements Protocol {
   public static void main(String[] args) throws Exception {
     int timeout = Integer.MIN_VALUE;
     int maxContentLength = Integer.MIN_VALUE;
+    @SuppressWarnings("unused")
     String logLevel = "info";
     boolean followTalk = false;
     boolean keepConnection = false;
@@ -250,7 +250,7 @@ public class Ftp implements Protocol {
    */
   public void setConf(Configuration conf) {
     this.conf = conf;
-    this.maxContentLength = conf.getInt("ftp.content.limit", 64 * 1024);
+    this.maxContentLength = conf.getInt("ftp.content.limit", 1024 * 1024);
     this.timeout = conf.getInt("ftp.timeout", 10000);
     this.userName = conf.get("ftp.username", "anonymous");
     this.passWord = conf.get("ftp.password", "anonymous@example.com");

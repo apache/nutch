@@ -14,11 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Created on Apr 28, 2005
- * Author: Andrzej Bialecki &lt;ab@getopt.org&gt;
- *
- */
 package org.apache.nutch.parse;
 
 import java.io.DataInput;

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -47,7 +47,7 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-
+import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
@@ -130,7 +130,7 @@ public class Http extends HttpBase {
    */
   public void setConf(Configuration conf) {
     super.setConf(conf);
-    this.conf = conf;
+    Http.conf = conf;
     this.maxThreadsTotal = conf.getInt("fetcher.threads.fetch", 10);
     this.proxyUsername = conf.get("http.proxy.username", "");
     this.proxyPassword = conf.get("http.proxy.password", "");
@@ -184,8 +184,12 @@ public class Http extends HttpBase {
   private void configureClient() {
 
     // Set up an HTTPS socket factory that accepts self-signed certs.
-    // ProtocolSocketFactory factory = new SSLProtocolSocketFactory();
-    ProtocolSocketFactory factory = new DummySSLProtocolSocketFactory();
+    ProtocolSocketFactory factory;
+    if (tlsCheckCertificate) {
+      factory = new SSLProtocolSocketFactory();
+    } else {
+      factory = new DummySSLProtocolSocketFactory();
+    }
     Protocol https = new Protocol("https", factory, 443);
     Protocol.registerProtocol("https", https);
 

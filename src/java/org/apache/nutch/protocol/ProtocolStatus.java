@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.protocol;
 
 import java.io.DataInput;
@@ -101,22 +100,22 @@ public class ProtocolStatus implements Writable {
 
   private static final HashMap<Integer, String> codeToName = new HashMap<>();
   static {
-    codeToName.put(new Integer(SUCCESS), "success");
-    codeToName.put(new Integer(FAILED), "failed");
-    codeToName.put(new Integer(PROTO_NOT_FOUND), "proto_not_found");
-    codeToName.put(new Integer(GONE), "gone");
-    codeToName.put(new Integer(MOVED), "moved");
-    codeToName.put(new Integer(TEMP_MOVED), "temp_moved");
-    codeToName.put(new Integer(NOTFOUND), "notfound");
-    codeToName.put(new Integer(RETRY), "retry");
-    codeToName.put(new Integer(EXCEPTION), "exception");
-    codeToName.put(new Integer(ACCESS_DENIED), "access_denied");
-    codeToName.put(new Integer(ROBOTS_DENIED), "robots_denied");
-    codeToName.put(new Integer(REDIR_EXCEEDED), "redir_exceeded");
-    codeToName.put(new Integer(NOTFETCHING), "notfetching");
-    codeToName.put(new Integer(NOTMODIFIED), "notmodified");
-    codeToName.put(new Integer(WOULDBLOCK), "wouldblock");
-    codeToName.put(new Integer(BLOCKED), "blocked");
+    codeToName.put(Integer.valueOf(SUCCESS), "success");
+    codeToName.put(Integer.valueOf(FAILED), "failed");
+    codeToName.put(Integer.valueOf(PROTO_NOT_FOUND), "proto_not_found");
+    codeToName.put(Integer.valueOf(GONE), "gone");
+    codeToName.put(Integer.valueOf(MOVED), "moved");
+    codeToName.put(Integer.valueOf(TEMP_MOVED), "temp_moved");
+    codeToName.put(Integer.valueOf(NOTFOUND), "notfound");
+    codeToName.put(Integer.valueOf(RETRY), "retry");
+    codeToName.put(Integer.valueOf(EXCEPTION), "exception");
+    codeToName.put(Integer.valueOf(ACCESS_DENIED), "access_denied");
+    codeToName.put(Integer.valueOf(ROBOTS_DENIED), "robots_denied");
+    codeToName.put(Integer.valueOf(REDIR_EXCEEDED), "redir_exceeded");
+    codeToName.put(Integer.valueOf(NOTFETCHING), "notfetching");
+    codeToName.put(Integer.valueOf(NOTMODIFIED), "notmodified");
+    codeToName.put(Integer.valueOf(WOULDBLOCK), "wouldblock");
+    codeToName.put(Integer.valueOf(BLOCKED), "blocked");
   }
 
   public ProtocolStatus() {
@@ -280,7 +279,7 @@ public class ProtocolStatus implements Writable {
 
   public String toString() {
     StringBuffer res = new StringBuffer();
-    res.append(codeToName.get(new Integer(code)) + "(" + code
+    res.append(codeToName.get(Integer.valueOf(code)) + "(" + code
         + "), lastModified=" + lastModified);
     if (args != null) {
       if (args.length == 1) {

@@ -1,20 +1,19 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.indexwriter.cloudsearch;
 
 import java.lang.invoke.MethodHandles;
@@ -24,9 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -83,6 +84,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
 
   private Map<String, String> csfields = new HashMap<String, String>();
 
+  private String endpoint;
   private String regionName;
 
   @Override
@@ -92,11 +94,11 @@ public class CloudSearchIndexWriter implements IndexWriter {
 
   @Override
   public void open(IndexWriterParams parameters) throws IOException {
-//    LOG.debug("CloudSearchIndexWriter.open() name={} ", name);
+    //    LOG.debug("CloudSearchIndexWriter.open() name={} ", name);
 
-    String endpoint = parameters.get(CloudSearchConstants.ENDPOINT);
-    dumpBatchFilesToTemp = parameters.getBoolean(CloudSearchConstants.BATCH_DUMP,
-        false);
+    endpoint = parameters.get(CloudSearchConstants.ENDPOINT);
+    dumpBatchFilesToTemp = parameters
+        .getBoolean(CloudSearchConstants.BATCH_DUMP, false);
     this.regionName = parameters.get(CloudSearchConstants.REGION);
 
     if (StringUtils.isBlank(endpoint) && !dumpBatchFilesToTemp) {
@@ -311,6 +313,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
       batch.setContentLength((long) bb.length);
       batch.setContentType(ContentType.Applicationjson);
       batch.setDocuments(inputStream);
+      @SuppressWarnings("unused")
       UploadDocumentsResult result = client.uploadDocuments(batch);
     } catch (Exception e) {
       LOG.error("Exception while sending batch", e);
@@ -327,7 +330,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
     // This will flush any unsent documents.
     commit();
     // close the client
-    if (client != null){
+    if (client != null) {
       client.shutdown();
     }
   }
@@ -341,37 +344,34 @@ public class CloudSearchIndexWriter implements IndexWriter {
     this.conf = conf;
   }
 
-  public String describe() {
-    String configuredEndpoint = null;
-    String configuredRegion = null;
+  /**
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   *
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   */
+  @Override
+  public Map<String, Entry<String, Object>> describe() {
+    Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
 
-    // get the values set in the conf
-    if (getConf() != null) {
-      configuredEndpoint = getConf().get(CloudSearchConstants.ENDPOINT);
-      configuredRegion = getConf().get(CloudSearchConstants.REGION);
-    }
+    properties.put(CloudSearchConstants.ENDPOINT, new AbstractMap.SimpleEntry<>(
+        "Endpoint where service requests should be submitted.", this.endpoint));
+    properties.put(CloudSearchConstants.REGION,
+        new AbstractMap.SimpleEntry<>("Region name.", this.regionName));
+    properties.put(CloudSearchConstants.BATCH_DUMP,
+        new AbstractMap.SimpleEntry<>("true to send documents to a local file.",
+            this.dumpBatchFilesToTemp));
+    properties.put(CloudSearchConstants.MAX_DOCS_BATCH,
+        new AbstractMap.SimpleEntry<>(
+            "Maximum number of documents to send as a batch to CloudSearch.",
+            this.maxDocsInBatch));
 
-    StringBuffer sb = new StringBuffer("CloudSearchIndexWriter\n");
-    sb.append("\t").append(CloudSearchConstants.ENDPOINT)
-        .append(" : URL of the CloudSearch domain's document endpoint.");
-    if (StringUtils.isNotBlank(configuredEndpoint)) {
-      sb.append(" (value: ").append(configuredEndpoint).append(")");
-    }
-    sb.append("\n");
-
-    sb.append("\t").append(CloudSearchConstants.REGION)
-        .append(" : name of the CloudSearch region.");
-    if (StringUtils.isNotBlank(configuredRegion)) {
-      sb.append(" (").append(configuredRegion).append(")");
-    }
-    sb.append("\n");
-    return sb.toString();
+    return properties;
   }
 
   /**
    * Remove the non-cloudSearch-legal characters. Note that this might convert
    * two fields to the same name.
-   * 
+   *
    * @param name
    * @return
    */

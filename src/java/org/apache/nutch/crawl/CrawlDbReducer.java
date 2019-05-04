@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.crawl;
 
 import java.lang.invoke.MethodHandles;
@@ -34,6 +33,7 @@ import org.apache.hadoop.util.PriorityQueue;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.util.StringUtil;
 
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer extends
@@ -169,7 +169,8 @@ public class CrawlDbReducer extends
         context.getCounter("CrawlDB status",
             CrawlDatum.getStatusName(old.getStatus())).increment(1);
       } else {
-        LOG.warn("Missing fetch and old value, signature=" + signature);
+        LOG.warn("Missing fetch and old value, signature="
+            + StringUtil.toHexString(signature));
       }
       return;
     }

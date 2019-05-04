@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -81,6 +81,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   /** Map for mime-type substitution */
   private HashMap<String, String> mimeMap = null;
   private boolean mapMimes = false;
+  private String mapFieldName;
 
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
@@ -104,8 +105,10 @@ public class MoreIndexingFilter implements IndexingFilter {
     String lastModified = data.getMeta(Metadata.LAST_MODIFIED);
     if (lastModified != null) { // try parse last-modified
       time = getTime(lastModified, url); // use as time
-                                         // store as string
-      doc.add("lastModified", new Date(time));
+                                         // store as Date
+      if (time > -1) {
+        doc.add("lastModified", new Date(time));
+      }
     }
 
     if (time == -1) { // if no last-modified specified in HTTP header
@@ -139,7 +142,7 @@ public class MoreIndexingFilter implements IndexingFilter {
             "MMM dd yyyy HH:mm:ss. zzz", "MMM dd yyyy HH:mm:ss zzz",
             "dd.MM.yyyy HH:mm:ss zzz", "dd MM yyyy HH:mm:ss zzz",
             "dd.MM.yyyy; HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy zzz",
-            "yyyy-MM-dd'T'HH:mm:ss'Z'" });
+            "yyyy-MM-dd'T'HH:mm:ssXXX" });
         time = parsedDate.getTime();
         // if (LOG.isWarnEnabled()) {
         // LOG.warn(url + ": parsed date: " + date +" to:"+time);
@@ -224,8 +227,11 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (mapMimes) {
       // Check if the current mime is mapped
       if (mimeMap.containsKey(mimeType)) {
-        // It's mapped, let's replace it
-        mimeType = mimeMap.get(mimeType);
+        if (mapFieldName != null) {
+          doc.add(mapFieldName, mimeMap.get(mimeType));
+        } else {
+          mimeType = mimeMap.get(mimeType);
+        }
       }
     }
 
@@ -271,7 +277,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   static {
     try {
       // order here is important
-      patterns[0] = Pattern.compile("\\bfilename=['\"](.+)['\"]");
+      patterns[0] = Pattern.compile("\\bfilename=['\"]([^\"]+)");
       patterns[1] = Pattern.compile("\\bfilename=(\\S+)\\b");
     } catch (PatternSyntaxException e) {
       // just ignore
@@ -298,8 +304,10 @@ public class MoreIndexingFilter implements IndexingFilter {
     this.conf = conf;
     MIME = new MimeUtil(conf);
 
-    if (conf.getBoolean("moreIndexingFilter.mapMimeTypes", false) == true) {
+    if (conf.getBoolean("moreIndexingFilter.mapMimeTypes", false)) {
       mapMimes = true;
+
+      mapFieldName = conf.get("moreIndexingFilter.mapMimeTypes.field");
 
       // Load the mapping
       try {

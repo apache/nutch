@@ -40,7 +40,6 @@ public class OrphanScoringFilter extends AbstractScoringFilter {
 
   public static Text ORPHAN_KEY_WRITABLE = new Text("_orphan_");
 
-  private Configuration conf;
   private static int DEFAULT_GONE_TIME = 30 * 24 * 60 * 60;
   private static int DEFAULT_ORPHAN_TIME = 40 * 24 * 60 * 60;
 
@@ -63,10 +62,14 @@ public class OrphanScoringFilter extends AbstractScoringFilter {
   /**
    * Used for orphan control.
    *
-   * @param Text url of the record
-   * @param CrawlDatum old CrawlDatum
-   * @param CrawlDatum new CrawlDatum
-   * @param List<CrawlDatum> list of inlinked CrawlDatums
+   * @param url
+   *          of the record
+   * @param old
+   *          CrawlDatum
+   * @param datum
+   *          new CrawlDatum
+   * @param inLinks
+   *          list of inlinked CrawlDatums
    * @return void
    */
   public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,

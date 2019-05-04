@@ -177,6 +177,7 @@
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
+      <packageset dir="${plugins.dir}/exchange-jexl/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
@@ -187,9 +188,11 @@
       <packageset dir="${plugins.dir}/index-replace/src/java"/>
       <packageset dir="${plugins.dir}/index-static/src/java"/>
       <packageset dir="${plugins.dir}/indexer-cloudsearch/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-csv/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic-rest/src/java/"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
@@ -265,6 +268,7 @@
       <group title="Parse Plugins" packages="${plugins.parse}"/>
       <group title="Parse Filter Plugins" packages="${plugins.parsefilter}"/>
       <group title="Publisher Plugins" packages="${plugins.publisher}"/>
+      <group title="Exchange Plugins" packages="${plugins.exchange}"/>
       <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
       <group title="Indexer Plugins" packages="${plugins.indexer}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
@@ -412,7 +416,7 @@
   <!-- ================================================================== -->
   <!-- Compile test code                                                  -->
   <!-- ================================================================== -->
-  <target name="compile-core-test" depends="init, resolve-test, compile-core" description="--> compile test code">
+  <target name="compile-core-test" depends="init, compile-core, resolve-test" description="--> compile test code">
     <javac
      encoding="${build.encoding}"
      srcdir="${test.src.dir}"
@@ -525,7 +529,7 @@
   <!-- ================================================================== -->
 
   <!-- target: resolve  ================================================= -->
-  <target name="resolve-default" depends="clean-default-lib" description="--> resolve and retrieve dependencies with ivy">
+  <target name="resolve-default" depends="clean-default-lib, init" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="default" log="download-only"/>
     <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
@@ -559,7 +563,13 @@
 
   <!-- target: report  ================================================== -->
   <target name="report" depends="resolve-test" description="--> generates a report of dependencies">
-    <ivy:report todir="${build.dir}"/>
+    <ivy:report todir="${build.dir}" xml="true"/>
+  </target>
+
+  <!-- target: 3rd-party licenses report  =============================== -->
+  <target name="report-licenses" depends="resolve-default" description="--> generates a report of licenses of dependencies">
+    <ivy:report todir="${build.dir}" xml="false" graph="false" xslfile="ivy/ivy-report-license.xsl"
+                outputpattern="[organisation]-[module]-[conf]-3rd-party-licenses.tsv"/>
   </target>
 
   <!-- target: ivy-init  ================================================ -->
@@ -603,6 +613,34 @@
     </fail>
   </target>
 
+  <!-- Check dependencies for security vulnerabilities                                    -->
+  <!-- requires installation of OWASP dependency check tool, see                          -->
+  <!--   https://jeremylong.github.io/DependencyCheck/dependency-check-ant/index.html     -->
+  <!-- get http://dl.bintray.com/jeremy-long/owasp/dependency-check-ant-3.3.2-release.zip -->
+  <!-- and unzip in directory ./ivy/                                                      -->
+  <property name="dependency-check.home" value="${ivy.dir}/dependency-check-ant/"/>
+  <path id="dependency-check.path">
+    <pathelement location="${dependency-check.home}/dependency-check-ant.jar"/>
+    <fileset dir="${dependency-check.home}/lib" erroronmissingdir="false">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+  <taskdef resource="dependency-check-taskdefs.properties" onerror="ignore">
+    <classpath refid="dependency-check.path" />
+  </taskdef>
+  <target name="report-vulnerabilities" description="--> check dependencies for security vulnerabilities">
+    <dependency-check projectname="${name}"
+                      reportoutputdirectory="${build.dir}"
+                      reportformat="ALL">
+        <suppressionfile path="${dependency-check.home}/dependency-check-suppressions.xml" />
+        <retirejsFilter regex="copyright.*jeremy long" />
+        <fileset dir="${build.dir}">
+          <include name="lib/*.jar"/>
+          <include name="plugins/*/*.jar"/>
+        </fileset>
+    </dependency-check>
+  </target>
+
   <!-- ================================================================== -->
   <!-- Documentation                                                      -->
   <!-- ================================================================== -->
@@ -636,6 +674,7 @@
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
+      <packageset dir="${plugins.dir}/exchange-jexl/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
@@ -646,9 +685,11 @@
       <packageset dir="${plugins.dir}/index-replace/src/java"/>
       <packageset dir="${plugins.dir}/index-static/src/java"/>
       <packageset dir="${plugins.dir}/indexer-cloudsearch/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-csv/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic-rest/src/java/"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
@@ -724,6 +765,7 @@
       <group title="Parse Plugins" packages="${plugins.parse}"/>
       <group title="Parse Filter Plugins" packages="${plugins.parsefilter}"/>
       <group title="Publisher Plugins" packages="${plugins.publisher}"/>
+      <group title="Exchange Plugins" packages="${plugins.exchange}"/>
       <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
       <group title="Indexer Plugins" packages="${plugins.indexer}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
@@ -959,32 +1001,6 @@
     </rat:report>
   </target>
 
-  <!-- ================================================================== -->
-  <!-- SONAR targets                                                      -->
-  <!-- ================================================================== -->
-
-  <!-- Define the Sonar task if this hasn't been done in a common script -->
-  <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
-    <classpath path="${ant.library.dir}"/>
-    <classpath path="${mysql.library.dir}"/>
-  </taskdef>
-
-  <!-- Add the target -->
-  <target name="sonar" description="--> run SONAR analysis">
-
-    <!-- list of mandatory source directories (required) -->
-    <property name="sonar.sources" value="${src.dir}"/>
-
-    <!-- list of properties (optional) -->
-    <property name="sonar.projectName" value="Nutch Trunk 1.4 Sonar Analysis" />
-    <property name="sonar.binaries" value="${build.dir}/classes" />
-    <property name="sonar.binaries" value="${build.dir}/plugins" />
-    <property name="sonar.tests" value="${test.src.dir}" />
-
-    <sonar:sonar workDir="${base.dir}" key="org.apache.nutch:trunk"
-     version="1.4-SNAPSHOT" xmlns:sonar="antlib:org.sonar.ant"/>
-  </target>
-
 
   <!-- ================================================================== -->
   <!-- Eclipse targets                                                    -->
@@ -1049,6 +1065,8 @@
         <source path="${plugins.dir}/feed/src/java/" />
         <source path="${plugins.dir}/feed/src/test/" />
         <source path="${plugins.dir}/headings/src/java/" />
+        <source path="${plugins.dir}/headings/src/test/" />
+        <source path="${plugins.dir}/exchange-jexl/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/test/" />
         <source path="${plugins.dir}/index-basic/src/java/" />
@@ -1066,10 +1084,13 @@
         <source path="${plugins.dir}/index-static/src/java/" />
         <source path="${plugins.dir}/index-static/src/test/" />
         <source path="${plugins.dir}/indexer-cloudsearch/src/java/" />
+        <source path="${plugins.dir}/indexer-csv/src/java"/>
+        <source path="${plugins.dir}/indexer-csv/src/test"/>
         <source path="${plugins.dir}/indexer-dummy/src/java/" />
         <source path="${plugins.dir}/indexer-elastic-rest/src/java/"/>
         <source path="${plugins.dir}/indexer-elastic/src/java/" />
         <source path="${plugins.dir}/indexer-elastic/src/test/" />
+        <source path="${plugins.dir}/indexer-kafka/src/java/" />
         <source path="${plugins.dir}/indexer-rabbit/src/java/" />
         <source path="${plugins.dir}/indexer-solr/src/java/" />
         <source path="${plugins.dir}/language-identifier/src/java/" />
@@ -1089,6 +1110,7 @@
         <source path="${plugins.dir}/parse-html/src/java/" />
         <source path="${plugins.dir}/parse-html/src/test/" />
         <source path="${plugins.dir}/parse-js/src/java/" />
+        <source path="${plugins.dir}/parse-js/src/test/" />
         <source path="${plugins.dir}/parse-metatags/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/test/" />
         <source path="${plugins.dir}/parse-swf/src/java/" />

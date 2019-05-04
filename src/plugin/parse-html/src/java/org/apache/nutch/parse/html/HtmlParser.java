@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.parse.html;
 
 import java.io.ByteArrayInputStream;
@@ -344,6 +343,7 @@ public class HtmlParser implements Parser {
     String url = "file:" + name;
     File file = new File(name);
     byte[] bytes = new byte[(int) file.length()];
+    @SuppressWarnings("resource")
     DataInputStream in = new DataInputStream(new FileInputStream(file));
     in.readFully(bytes);
     Configuration conf = NutchConfiguration.create();

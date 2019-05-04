@@ -20,10 +20,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLExemptionFilter;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.urlfilter.regex.RegexURLFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.regex.Pattern;
@@ -56,11 +52,8 @@ public class ExemptionUrlFilter extends RegexURLFilter
 
   public static final String DB_IGNORE_EXTERNAL_EXEMPTIONS_FILE
       = "db.ignore.external.exemptions.file";
-  private static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
 
   private List<Pattern> exemptions;
-  private Configuration conf;
 
   public List<Pattern> getExemptions() {
     return exemptions;

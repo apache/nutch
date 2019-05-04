@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.crawl;
 
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ public class SignatureFactory {
           LOG.info("Using Signature impl: " + clazz);
         }
         Class<?> implClass = Class.forName(clazz);
-        impl = (Signature) implClass.newInstance();
+        impl = (Signature) implClass.getConstructor().newInstance();
         impl.setConf(conf);
         objectCache.setObject(clazz, impl);
       } catch (Exception e) {

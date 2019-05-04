@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -111,8 +111,9 @@ public class GeoIPDocumentCreator {
     doc.add("isp", traits.getIsp());
     doc.add("org", traits.getOrganization());
     doc.add("userType", traits.getUserType());
+    //for better results, users should upgrade to
+    //https://www.maxmind.com/en/solutions/geoip2-enterprise-product-suite/anonymous-ip-database
     doc.add("isAnonProxy", traits.isAnonymousProxy());
-    doc.add("isSatelliteProv", traits.isSatelliteProvider());
     return doc;
   }
 
