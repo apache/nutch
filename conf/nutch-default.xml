@@ -1632,6 +1632,13 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <property>
+  <name>urlfilter.fast.file</name>
+  <value>fast-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing regular expressions
+  used by urlfilter-fast (FastURLFilter) plugin.</description>
+</property>
+
+<property>
   <name>urlfilter.order</name>
   <value></value>
   <description>The order by which url filters are applied.
