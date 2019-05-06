@@ -50,7 +50,7 @@ public class ProtocolStatus implements Writable {
   /** Temporary failure. Application may retry immediately. */
   public static final int RETRY = 15;
   /**
-   * Unspecified exception occured. Further information may be provided in args.
+   * Unspecified exception occurred. Further information may be provided in args.
    */
   public static final int EXCEPTION = 16;
   /** Access denied - authorization required, but missing/incorrect. */
@@ -68,8 +68,10 @@ public class ProtocolStatus implements Writable {
    * expected number of milliseconds to wait before retry may be provided in
    * args.
    */
+  @Deprecated
   public static final int WOULDBLOCK = 22;
   /** Thread was blocked http.max.delays times during fetching. */
+  @Deprecated
   public static final int BLOCKED = 23;
 
   // Useful static instances for status codes that don't usually require any

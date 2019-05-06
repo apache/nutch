@@ -205,15 +205,6 @@
 </property>
 
 <property>
-  <name>http.max.delays</name>
-  <value>100</value>
-  <description>The number of times a thread will delay when trying to
-  fetch a page.  Each time it finds that a host is busy, it will wait
-  fetcher.server.delay.  After http.max.delays attempts, it will give
-  up on the page for now.</description>
-</property>
-
-<property>
   <name>http.content.limit</name>
   <value>1048576</value>
   <description>The length limit for downloaded content using the http/https
@@ -329,12 +320,6 @@
   <value></value>
   <description>A comma separated list of hosts that don't use the proxy 
   (e.g. intranets). Example: www.apache.org</description>
-</property>
-
-<property>
-  <name>http.verbose</name>
-  <value>false</value>
-  <description>If true, HTTP will log more verbosely.</description>
 </property>
 
 <property>
