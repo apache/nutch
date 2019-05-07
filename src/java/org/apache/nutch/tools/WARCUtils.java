@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.NutchDocument;
@@ -46,6 +47,11 @@ public class WARCUtils {
   public final static String CONFORMS_TO = "conformsTo";
   public final static String IP = "ip";
   public final static UUIDGenerator generator = new UUIDGenerator();
+  public static final String CRLF = "\r\n";
+  public static final String COLONSP = ": ";
+  protected static final Pattern PROBLEMATIC_HEADERS = Pattern
+      .compile("(?i)(?:Content-(?:Encoding|Length)|Transfer-Encoding)");
+  protected static final String X_HIDE_HEADER = "X-Crawler-";
 
   public static final ANVLRecord getWARCInfoContent(Configuration conf) {
     ANVLRecord record = new ANVLRecord();
@@ -167,4 +173,107 @@ public class WARCUtils {
 
     return record;
   }
+  
+  /**
+   * Modify verbatim HTTP response headers: fix, remove or replace headers
+   * <code>Content-Length</code>, <code>Content-Encoding</code> and
+   * <code>Transfer-Encoding</code> which may confuse WARC readers. Ensure that
+   * returned header end with a single empty line (<code>\r\n\r\n</code>).
+   * 
+   * @param headers
+   *          HTTP 1.1 or 1.0 response header string, CR-LF-separated lines,
+   *          first line is status line
+   * @return safe HTTP response header
+   */
+  public static final String fixHttpHeaders(String headers, int contentLength) {
+    int start = 0, lineEnd = 0, last = 0, trailingCrLf= 0;
+    StringBuilder replace = new StringBuilder();
+    while (start < headers.length()) {
+      lineEnd = headers.indexOf(CRLF, start);
+      trailingCrLf = 1;
+      if (lineEnd == -1) {
+        lineEnd = headers.length();
+        trailingCrLf = 0;
+      }
+      int colonPos = -1;
+      for (int i = start; i < lineEnd; i++) {
+        if (headers.charAt(i) == ':') {
+          colonPos = i;
+          break;
+        }
+      }
+      if (colonPos == -1) {
+        boolean valid = true;
+        if (start == 0) {
+          // status line (without colon)
+          // TODO: http/2
+        } else if ((lineEnd + 4) == headers.length()
+            && headers.endsWith(CRLF + CRLF)) {
+          // ok, trailing empty line
+          trailingCrLf = 2;
+        } else {
+          valid = false;
+        }
+        if (!valid) {
+          if (last < start) {
+            replace.append(headers.substring(last, start));
+          }
+          last = lineEnd + 2 * trailingCrLf;
+        }
+        start = lineEnd + 2 * trailingCrLf;
+        /*
+         * skip over invalid header line, no further check for problematic
+         * headers required
+         */
+        continue;
+      }
+      String name = headers.substring(start, colonPos);
+      if (PROBLEMATIC_HEADERS.matcher(name).matches()) {
+        boolean needsFix = true;
+        if (name.equalsIgnoreCase("content-length")) {
+          String value = headers.substring(colonPos + 1, lineEnd).trim();
+          try {
+            int l = Integer.parseInt(value);
+            if (l == contentLength) {
+              needsFix = false;
+            }
+          } catch (NumberFormatException e) {
+            // needs to be fixed
+          }
+        }
+        if (needsFix) {
+          if (last < start) {
+            replace.append(headers.substring(last, start));
+          }
+          last = lineEnd + 2 * trailingCrLf;
+          replace.append(X_HIDE_HEADER)
+              .append(headers.substring(start, lineEnd + 2 * trailingCrLf));
+          if (trailingCrLf == 0) {
+            replace.append(CRLF);
+            trailingCrLf = 1;
+          }
+          if (name.equalsIgnoreCase("content-length")) {
+            // add effective uncompressed and unchunked length of content
+            replace.append("Content-Length").append(COLONSP)
+                .append(contentLength).append(CRLF);
+          }
+        }
+      }
+      start = lineEnd + 2 * trailingCrLf;
+    }
+    if (last > 0 || trailingCrLf != 2) {
+      if (last < headers.length()) {
+        // append trailing headers
+        replace.append(headers.substring(last));
+      }
+      while (trailingCrLf < 2) {
+        replace.append(CRLF);
+        trailingCrLf++;
+      }
+      return replace.toString();
+    }
+    return headers;
+  }
+
+  
 }
