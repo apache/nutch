@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -148,32 +148,30 @@ public class OkHttpResponse implements Response {
     }
 
     int maxContentBytes = Integer.MAX_VALUE;
-    if (maxContent != -1) {
+    if (maxContent >= 0) {
       maxContentBytes = Math.min(maxContentBytes, maxContent);
     }
 
     BufferedSource source = responseBody.source();
-    int contentBytesBuffered = 0;
-    int contentBytesRequested = 0;
+    int bytesRequested = 0;
     int bufferGrowStepBytes = 8192;
-    while (contentBytesBuffered < maxContentBytes) {
-      contentBytesRequested += Math.min(bufferGrowStepBytes,
-          (maxContentBytes - contentBytesBuffered));
+    while (source.buffer().size() < maxContentBytes) {
+      bytesRequested += Math.min(bufferGrowStepBytes,
+          (maxContentBytes - bytesRequested));
       boolean success = false;
       try {
-        success = source.request(contentBytesRequested);
+        success = source.request(bytesRequested);
       } catch (IOException e) {
-        if (partialAsTruncated && contentBytesBuffered > 0) {
+        if (partialAsTruncated && source.buffer().size() > 0) {
           // treat already fetched content as truncated
           truncated.setReason(TruncatedContentReason.DISCONNECT);
         } else {
           throw e;
         }
       }
-      contentBytesBuffered = (int) source.buffer().size();
       if (LOG.isDebugEnabled()) {
-        LOG.debug("total bytes requested = {}, buffered = {}",
-            contentBytesRequested, contentBytesBuffered);
+        LOG.debug("total bytes requested = {}, buffered = {}", bytesRequested,
+            source.buffer().size());
       }
       if (!success) {
         LOG.debug("source exhausted, no more data to read");
@@ -184,13 +182,15 @@ public class OkHttpResponse implements Response {
         truncated.setReason(TruncatedContentReason.TIME);
         break;
       }
-      if (contentBytesBuffered > maxContentBytes) {
+      if (source.buffer().size() > maxContentBytes) {
         LOG.debug("content limit reached");
-        truncated.setReason(TruncatedContentReason.LENGTH);
       }
+      // okhttp may fetch more content than requested, forward requested bytes
+      bytesRequested = (int) source.buffer().size();
     }
-    int bytesToCopy = contentBytesBuffered;
-    if (maxContent != -1 && contentBytesBuffered > maxContent) {
+    int bytesBuffered = (int) source.buffer().size();
+    int bytesToCopy = bytesBuffered;
+    if (maxContent >= 0 && bytesToCopy > maxContent) {
       // okhttp's internal buffer is larger than maxContent
       truncated.setReason(TruncatedContentReason.LENGTH);
       bytesToCopy = maxContentBytes;
@@ -199,8 +199,8 @@ public class OkHttpResponse implements Response {
     source.buffer().readFully(arr);
     if (LOG.isDebugEnabled()) {
       LOG.debug(
-          "copied {} bytes out of {} buffered, remaining buffer contains {} bytes",
-          bytesToCopy, contentBytesBuffered, source.buffer().size());
+          "copied {} bytes out of {} buffered, remaining {} bytes in buffer",
+          bytesToCopy, bytesBuffered, source.buffer().size());
     }
     return arr;
   }

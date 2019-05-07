@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.protocol.file;
 
 import java.lang.invoke.MethodHandles;
@@ -73,7 +72,7 @@ public class File implements Protocol {
    */
   public void setConf(Configuration conf) {
     this.conf = conf;
-    this.maxContentLength = conf.getInt("file.content.limit", 64 * 1024);
+    this.maxContentLength = conf.getInt("file.content.limit", 1024 * 1024);
     this.crawlParents = conf.getBoolean("file.crawl.parent", true);
     this.symlinksAsRedirects = conf.getBoolean(
         "file.crawl.redirect_noncanonical", true);

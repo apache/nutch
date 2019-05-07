@@ -6,6 +6,13 @@ Comments
 
 Breaking Changes
 
+    -  The value of crawl.gen.delay is now read in milliseconds as stated in the description
+       in nutch-default.xml. Previously, the value has been read in days, see NUTCH-1842 for
+       further information.
+
+    -  HostDB entries have been moved from Integer to Long in order to accomodate very large
+       hosts. Remove your existing HostDB and recreate it with bin/nutch updatehostdb.
+
 
 Nutch 1.15 Release (25/07/2018)
 Release Report: https://s.apache.org/nczS

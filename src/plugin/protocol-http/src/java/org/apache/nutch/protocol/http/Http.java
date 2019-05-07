@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -50,11 +50,6 @@ public class Http extends HttpBase {
    */
   public void setConf(Configuration conf) {
     super.setConf(conf);
-    // Level logLevel = Level.WARNING;
-    // if (conf.getBoolean("http.verbose", false)) {
-    // logLevel = Level.FINE;
-    // }
-    // LOG.setLevel(logLevel);
   }
 
   public static void main(String[] args) throws Exception {

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.util;
 
 import java.io.File;
@@ -68,7 +67,16 @@ public class TestMimeUtil extends TestCase {
           "<?xml version=\"1.0\"?>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">"
               + "<html>\n<head>\n"
               + "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"
-              + "</head>\n<body>Hello, World!</body></html>" } };
+              + "</head>\n<body>Hello, World!</body></html>" },
+      { /*
+         * test detection of plain-text documents with erroneous Content-Type
+         * sent in HTTP header (NUTCH-2606)
+         */
+          "text/plain", // correct MIME type
+          "test.doc", // erroneously indicates MS-Word document
+          "application/msword", // erroneous Content-Type
+          "This is a plain text document",
+          "requires-mime-magic" } };
 
   public static String[][] binaryFiles = { {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -99,6 +107,9 @@ public class TestMimeUtil extends TestCase {
   /** use only HTTP Content-Type (if given) and URL pattern */
   public void testWithoutMimeMagic() {
     for (String[] testPage : textBasedFormats) {
+      if (testPage.length > 4 && "requires-mime-magic".equals(testPage[4])) {
+        continue;
+      }
       String mimeType = getMimeType(urlPrefix + testPage[1],
           testPage[3].getBytes(defaultCharset), testPage[2], false);
       assertEquals("", testPage[0], mimeType);

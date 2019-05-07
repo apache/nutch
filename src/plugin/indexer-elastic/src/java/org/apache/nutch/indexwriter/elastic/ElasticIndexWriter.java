@@ -14,14 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.indexwriter.elastic;
 
 import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -65,6 +66,15 @@ public class ElasticIndexWriter implements IndexWriter {
   private static final int DEFAULT_BULK_CLOSE_TIMEOUT = 600;
   private static final String DEFAULT_INDEX = "nutch";
 
+  private String cluster;
+  private String[] hosts;
+  private int port;
+
+  private int maxBulkDocs;
+  private int maxBulkLength;
+  private int expBackoffMillis;
+  private int expBackoffRetries;
+
   private String defaultIndex;
   private Client client;
   private Node node;
@@ -87,7 +97,7 @@ public class ElasticIndexWriter implements IndexWriter {
    */
   @Override
   public void open(IndexWriterParams parameters) throws IOException {
-    String cluster = parameters.get(ElasticConstants.CLUSTER);
+    cluster = parameters.get(ElasticConstants.CLUSTER);
     String hosts = parameters.get(ElasticConstants.HOSTS);
 
     if (StringUtils.isBlank(cluster) && StringUtils.isBlank(hosts)) {
@@ -101,14 +111,14 @@ public class ElasticIndexWriter implements IndexWriter {
         DEFAULT_BULK_CLOSE_TIMEOUT);
     defaultIndex = parameters.get(ElasticConstants.INDEX, DEFAULT_INDEX);
 
-    int maxBulkDocs = parameters
+    maxBulkDocs = parameters
         .getInt(ElasticConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
-    int maxBulkLength = parameters
+    maxBulkLength = parameters
         .getInt(ElasticConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
-    int expBackoffMillis = parameters
+    expBackoffMillis = parameters
         .getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
             DEFAULT_EXP_BACKOFF_MILLIS);
-    int expBackoffRetries = parameters
+    expBackoffRetries = parameters
         .getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
             DEFAULT_EXP_BACKOFF_RETRIES);
 
@@ -128,9 +138,8 @@ public class ElasticIndexWriter implements IndexWriter {
    * Generates a TransportClient or NodeClient
    */
   protected Client makeClient(IndexWriterParams parameters) throws IOException {
-    String clusterName = parameters.get(ElasticConstants.CLUSTER);
-    String[] hosts = parameters.getStrings(ElasticConstants.HOSTS);
-    int port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
+    hosts = parameters.getStrings(ElasticConstants.HOSTS);
+    port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
 
     Settings.Builder settingsBuilder = Settings.builder();
 
@@ -149,8 +158,8 @@ public class ElasticIndexWriter implements IndexWriter {
     }
 
     // Set the cluster name and build the settings
-    if (StringUtils.isNotBlank(clusterName)) {
-      settingsBuilder.put("cluster.name", clusterName);
+    if (StringUtils.isNotBlank(cluster)) {
+      settingsBuilder.put("cluster.name", cluster);
     }
 
     Settings settings = settingsBuilder.build();
@@ -166,7 +175,7 @@ public class ElasticIndexWriter implements IndexWriter {
         transportClient.addTransportAddress(
             new InetSocketTransportAddress(InetAddress.getByName(host), port));
       client = transportClient;
-    } else if (clusterName != null) {
+    } else if (cluster != null) {
       node = new Node(settings);
       client = node.client();
     }
@@ -255,31 +264,49 @@ public class ElasticIndexWriter implements IndexWriter {
     }
   }
 
+  /**
+   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   *
+   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   */
   @Override
-  public String describe() {
-    StringBuffer sb = new StringBuffer("ElasticIndexWriter\n");
-    sb.append("\t").append(ElasticConstants.CLUSTER)
-        .append(" : elastic prefix cluster\n");
-    sb.append("\t").append(ElasticConstants.HOSTS).append(" : hostname\n");
-    sb.append("\t").append(ElasticConstants.PORT).append(" : port\n");
-    sb.append("\t").append(ElasticConstants.INDEX)
-        .append(" : elastic index command \n");
-    sb.append("\t").append(ElasticConstants.MAX_BULK_DOCS)
-        .append(" : elastic bulk index doc counts. (default ")
-        .append(DEFAULT_MAX_BULK_DOCS).append(")\n");
-    sb.append("\t").append(ElasticConstants.MAX_BULK_LENGTH)
-        .append(" : elastic bulk index length in bytes. (default ")
-        .append(DEFAULT_MAX_BULK_LENGTH).append(")\n");
-    sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS).append(
-        " : elastic bulk exponential backoff initial delay in milliseconds. (default ")
-        .append(DEFAULT_EXP_BACKOFF_MILLIS).append(")\n");
-    sb.append("\t").append(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES)
-        .append(" : elastic bulk exponential backoff max retries. (default ")
-        .append(DEFAULT_EXP_BACKOFF_RETRIES).append(")\n");
-    sb.append("\t").append(ElasticConstants.BULK_CLOSE_TIMEOUT)
-        .append(" : elastic timeout for the last bulk in seconds. (default ")
-        .append(DEFAULT_BULK_CLOSE_TIMEOUT).append(")\n");
-    return sb.toString();
+  public Map<String, Map.Entry<String, Object>> describe() {
+    Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
+
+    properties.put(ElasticConstants.CLUSTER, new AbstractMap.SimpleEntry<>(
+        "The cluster name to discover. Either host and port must be defined or cluster.",
+        this.cluster));
+    properties.put(ElasticConstants.HOSTS, new AbstractMap.SimpleEntry<>(
+        "Ordered list of fields (columns) in the CSV fileComma-separated list of "
+            + "hostnames to send documents to using TransportClient. "
+            + "Either host and port must be defined or cluster.",
+        this.hosts == null ? "" : String.join(",", hosts)));
+    properties.put(ElasticConstants.PORT, new AbstractMap.SimpleEntry<>(
+        "The port to connect to using TransportClient.", this.port));
+    properties.put(ElasticConstants.INDEX,
+        new AbstractMap.SimpleEntry<>("Default index to send documents to.",
+            this.defaultIndex));
+    properties.put(ElasticConstants.MAX_BULK_DOCS,
+        new AbstractMap.SimpleEntry<>(
+            "Maximum size of the bulk in number of documents.",
+            this.maxBulkDocs));
+    properties.put(ElasticConstants.MAX_BULK_LENGTH,
+        new AbstractMap.SimpleEntry<>("Maximum size of the bulk in bytes.",
+            this.maxBulkLength));
+    properties.put(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
+        new AbstractMap.SimpleEntry<>(
+            "Initial delay for the BulkProcessor exponential backoff policy.",
+            this.expBackoffMillis));
+    properties.put(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
+        new AbstractMap.SimpleEntry<>(
+            "Number of times the BulkProcessor exponential backoff policy should retry bulk operations.",
+            this.expBackoffRetries));
+    properties.put(ElasticConstants.BULK_CLOSE_TIMEOUT,
+        new AbstractMap.SimpleEntry<>(
+            "Number of seconds allowed for the BulkProcessor to complete its last operation.",
+            this.bulkCloseTimeout));
+
+    return properties;
   }
 
   @Override

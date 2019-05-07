@@ -9,18 +9,18 @@
 # matches, the URL is ignored.
 
 # skip file:, ftp:, & mailto: urls
--^(file|ftp|mailto):
+-^(?:file|ftp|mailto):
 
 # skip image and other suffixes we can't yet parse
--\.(gif|GIF|jpg|JPG|ico|ICO|css|sit|eps|wmf|zip|ppt|mpg|xls|gz|rpm|tgz|mov|MOV|exe|png)$
+-(?i)\.(?:gif|jpg|ico|css|sit|eps|wmf|zip|ppt|mpg|xls|gz|rpm|tgz|mov|exe|png)$
 
 # skip URLs containing certain characters as probable queries, etc.
 -[?*!@=]
 
 # skip .fr .org and .net domains
--^.*//.*\.fr/
--^.*//.*\.org/
--^.*//.*\.net/
+-^[^/]*//[^/]*\.fr/
+-^[^/]*//[^/]*\.org/
+-^[^/]*//[^/]*\.net/
 
-# skip everything else
+# accept everything else
 +.

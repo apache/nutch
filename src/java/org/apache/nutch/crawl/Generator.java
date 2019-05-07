@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.crawl;
 
 import java.io.DataInput;
@@ -188,7 +187,7 @@ public class Generator extends NutchTool implements Tool {
         filters = new URLFilters(conf);
         scfilters = new ScoringFilters(conf);
         filter = conf.getBoolean(GENERATOR_FILTER, true);
-        genDelay = conf.getLong(GENERATOR_DELAY, 7L) * 3600L * 24L * 1000L;
+        genDelay = conf.getLong(GENERATOR_DELAY, 604800000L); // 7 days as default.
         long time = conf.getLong(Nutch.GENERATE_TIME_KEY, 0L);
         if (time > 0)
           genTime.set(time);
@@ -255,7 +254,7 @@ public class Generator extends NutchTool implements Tool {
           return;
 
         // consider only entries with a score superior to the threshold
-        if (scoreThreshold != Float.NaN && sort < scoreThreshold)
+        if (!Float.isNaN(scoreThreshold) && sort < scoreThreshold)
           return;
 
         // consider only entries with a retry (or fetch) interval lower than
@@ -514,7 +513,6 @@ public class Generator extends NutchTool implements Tool {
 
           outputFile = generateFileName(entry);
           mos.write("sequenceFiles", key, entry, outputFile);
-          context.write(key,entry);
 
           // Count is incremented only when we keep the URL
           // maxCount may cause us to skip it.
@@ -572,8 +570,7 @@ public class Generator extends NutchTool implements Tool {
         Context context)
         throws IOException, InterruptedException {
       // if using HashComparator, we get only one input key in case of
-      // hash collision
-      // so use only URLs from values
+      // hash collision so use only URLs from values
       for (SelectorEntry entry : values) {
         context.write(entry.url, entry.datum);
       }
@@ -605,8 +602,7 @@ public class Generator extends NutchTool implements Tool {
     private static int hash(byte[] bytes, int start, int length) {
       int hash = 1;
       // make later bytes more significant in hash code, so that sorting
-      // by
-      // hashcode correlates less with by-host ordering.
+      // by hashcode correlates less with by-host ordering.
       for (int i = length - 1; i >= 0; i--)
         hash = (31 * hash) + (int) bytes[start + i];
       return hash;
@@ -705,9 +701,9 @@ public class Generator extends NutchTool implements Tool {
 
   /**
    * Generate fetchlists in one or more segments. Whether to filter URLs or not
-   * is read from the crawl.generate.filter property in the configuration files.
-   * If the property is not found, the URLs are filtered. Same for the
-   * normalisation.
+   * is read from the &quot;generate.filter&quot; property set for the job from
+   * command-line. If the property is not found, the URLs are filtered. Same for
+   * the normalisation.
    * 
    * @param dbDir
    *          Crawl database directory

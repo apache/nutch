@@ -16,6 +16,9 @@
  */
 package org.apache.nutch.indexer.more;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -119,5 +122,43 @@ public class TestMoreIndexingFilter {
         new Inlinks());
     Assert.assertEquals("mime type not detected", expected,
         doc.getFieldValue("type"));
+  }
+
+  @Test
+  public void testDates() throws IndexingException {
+    Configuration conf = NutchConfiguration.create();
+
+    Metadata metadata = new Metadata();
+    MoreIndexingFilter filter = new MoreIndexingFilter();
+    filter.setConf(conf);
+
+    Text url = new Text("http://www.example.com/");
+    ParseImpl parseImpl = new ParseImpl("text",
+        new ParseData(new ParseStatus(), "title", new Outlink[0], metadata));
+    CrawlDatum fetchDatum = new CrawlDatum();
+    NutchDocument doc = new NutchDocument();
+
+    long dateEpocheSeconds = 1537898340; // 2018-09-25T17:59:00+0000
+    fetchDatum.setModifiedTime(dateEpocheSeconds * 1000);
+    // fetch time 30 days later
+    fetchDatum.setFetchTime((dateEpocheSeconds + 30 * 24 * 60 * 60) * 1000);
+    // NOTE: the datum.getLastModified() returns the fetch time
+    // of the latest fetch of changed content (i.e., not a "HTTP 304
+    // not-modified" or a re-fetch resulting in the same signature)
+
+    doc = filter.filter(doc, parseImpl, url, fetchDatum, new Inlinks());
+
+    Assert.assertEquals("last fetch date not extracted",
+        new Date(dateEpocheSeconds * 1000), doc.getFieldValue("date"));
+
+    // set last-modified time (7 days before fetch time)
+    Date lastModifiedDate = new Date(
+        (dateEpocheSeconds - 7 * 24 * 60 * 60) * 1000);
+    String lastModifiedDateStr = DateTimeFormatter.ISO_INSTANT.format(lastModifiedDate.toInstant());
+    parseImpl.getData().getParseMeta().set(Metadata.LAST_MODIFIED, lastModifiedDateStr);
+    doc = filter.filter(doc, parseImpl, url, fetchDatum, new Inlinks());
+
+    Assert.assertEquals("last-modified date not extracted", lastModifiedDate,
+        doc.getFieldValue("lastModified"));
   }
 }

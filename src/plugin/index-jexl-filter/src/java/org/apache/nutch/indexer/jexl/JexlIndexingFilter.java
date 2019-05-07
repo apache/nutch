@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.indexer.jexl;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.commons.jexl2.Expression;
@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 /**
  * An {@link org.apache.nutch.indexer.IndexingFilter} that allows filtering of
  * documents based on a JEXL expression.
- *
  */
 public class JexlIndexingFilter implements IndexingFilter {
 
@@ -84,9 +83,12 @@ public class JexlIndexingFilter implements IndexingFilter {
         metadataToContext(parse.getData().getParseMeta()));
 
     JexlContext context = new MapContext();
+
     for (Entry<String, NutchField> entry : doc) {
-      context.set(entry.getKey(), entry.getValue().getValues());
+      List<Object> values = entry.getValue().getValues();
+      context.set(entry.getKey(), values.size() > 1 ? values : values.get(0));
     }
+
     jcontext.set("doc", context);
 
     try {
@@ -102,16 +104,21 @@ public class JexlIndexingFilter implements IndexingFilter {
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
-    String str = conf.get("index.jexl.filter");
-    if (str == null) {
-      LOG.warn(
+    String strExpr = conf.get("index.jexl.filter");
+
+    if (strExpr == null) {
+      LOG.error(
           "The property index.jexl.filter must have a value when index-jexl-filter is used. You can use 'true' or 'false' to index all/none");
+
       throw new RuntimeException(
           "The property index.jexl.filter must have a value when index-jexl-filter is used. You can use 'true' or 'false' to index all/none");
     }
-    expr = JexlUtil.parseExpression(str);
+
+    expr = JexlUtil.parseExpression(strExpr);
+
     if (expr == null) {
-      LOG.warn("Failed parsing JEXL from index.jexl.filter: {}", str);
+      LOG.error("Failed parsing JEXL from index.jexl.filter: {}", strExpr);
+
       throw new RuntimeException("Failed parsing JEXL from index.jexl.filter");
     }
   }
@@ -123,9 +130,12 @@ public class JexlIndexingFilter implements IndexingFilter {
 
   private JexlContext metadataToContext(Metadata metadata) {
     JexlContext context = new MapContext();
+
     for (String name : metadata.names()) {
-      context.set(name, metadata.getValues(name));
+      String[] values = metadata.getValues(name);
+      context.set(name, values.length > 1 ? values : values[0]);
     }
+
     return context;
   }
 }

@@ -11,4 +11,6 @@ logs/
 .project
 ivy/ivy-2.3.0.jar
 ivy/ivy-2.4.0.jar
+ivy/ivy-2.5.0-rc1.jar
 naivebayes-model
+.gitconfig

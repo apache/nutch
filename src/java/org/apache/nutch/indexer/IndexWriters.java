@@ -16,6 +16,10 @@
  */
 package org.apache.nutch.indexer;
 
+import de.vandermeer.asciitable.AT_ColumnWidthCalculator;
+import de.vandermeer.asciitable.AT_Row;
+import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.skb.interfaces.document.TableRowType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.exchange.Exchanges;
 import org.apache.nutch.plugin.Extension;
@@ -265,8 +269,52 @@ public class IndexWriters {
       builder.append("Active IndexWriters :\n");
 
     for (IndexWriterWrapper indexWriterWrapper : this.indexWriters.values()) {
-      builder.append(indexWriterWrapper.getIndexWriter().describe())
-          .append("\n");
+      // Getting the class name
+      builder.append(
+          indexWriterWrapper.getIndexWriter().getClass().getSimpleName())
+          .append(":\n");
+
+      // Building the table
+      AsciiTable at = new AsciiTable();
+      at.getRenderer().setCWC((rows, colNumbers, tableWidth) -> {
+        int maxLengthFirstColumn = 0;
+        int maxLengthLastColumn = 0;
+        for (AT_Row row : rows) {
+          if (row.getType() == TableRowType.CONTENT) {
+            // First column
+            int lengthFirstColumn = row.getCells().get(0).toString().length();
+            if (lengthFirstColumn > maxLengthFirstColumn) {
+              maxLengthFirstColumn = lengthFirstColumn;
+            }
+
+            // Last column
+            int lengthLastColumn = row.getCells().get(2).toString().length();
+            if (lengthLastColumn > maxLengthLastColumn) {
+              maxLengthLastColumn = lengthLastColumn;
+            }
+          }
+        }
+        return new int[] { maxLengthFirstColumn,
+            tableWidth - maxLengthFirstColumn - maxLengthLastColumn,
+            maxLengthLastColumn };
+      });
+
+      // Getting the properties
+      Map<String, Map.Entry<String, Object>> properties = indexWriterWrapper
+          .getIndexWriter().describe();
+
+      // Adding the rows
+      properties.forEach((key, value) -> {
+        at.addRule();
+        at.addRow(key, value.getKey(),
+            value.getValue() != null ? value.getValue() : "");
+      });
+
+      // Last rule
+      at.addRule();
+
+      // Rendering the table
+      builder.append(at.render(150)).append("\n\n");
     }
 
     return builder.toString();

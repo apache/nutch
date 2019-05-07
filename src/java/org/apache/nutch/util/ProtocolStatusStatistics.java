@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.util;
 
 import java.io.File;
@@ -65,8 +64,6 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
   private static final Text UNFETCHED_TEXT = new Text("UNFETCHED");
 
-  public static Configuration conf;
-
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println("Usage: ProtocolStatistics inputDirs outDir [numOfReducer]");
@@ -94,7 +91,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
     String jobName = "ProtocolStatistics";
 
-    conf = getConf();
+    Configuration conf = getConf();
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
 
     Job job = Job.getInstance(conf, jobName);

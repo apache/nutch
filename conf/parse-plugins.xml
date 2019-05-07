@@ -43,6 +43,10 @@
 		<plugin id="parse-zip" />
 	</mimeType>
 
+	<mimeType name="application/javascript">
+		<plugin id="parse-js" />
+	</mimeType>
+
 	<mimeType name="application/x-javascript">
 		<plugin id="parse-js" />
 	</mimeType>

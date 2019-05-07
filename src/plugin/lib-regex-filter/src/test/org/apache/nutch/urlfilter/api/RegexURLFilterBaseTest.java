@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -43,8 +43,8 @@ public abstract class RegexURLFilterBaseTest {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private final static String SEPARATOR = System.getProperty("file.separator");
-  private final static String SAMPLES = System.getProperty("test.data", ".");
+  protected final static String SEPARATOR = System.getProperty("file.separator");
+  protected final static String SAMPLES = System.getProperty("test.data", ".");
 
   protected abstract URLFilter getURLFilter(Reader rules);
 
@@ -70,6 +70,24 @@ public abstract class RegexURLFilterBaseTest {
     }
     LOG.info("bench time (" + loops + ") "
         + (System.currentTimeMillis() - start) + "ms");
+  }
+
+  protected void bench(int loops, String rulesFile, String urlsFile) {
+    try {
+      bench(loops, new FileReader(SAMPLES + SEPARATOR + rulesFile),
+          new FileReader(SAMPLES + SEPARATOR + urlsFile));
+    } catch (Exception e) {
+      Assert.fail(e.toString());
+    }
+  }
+
+  protected void test(String rulesFile, String urlsFile) {
+    try {
+      test(new FileReader(SAMPLES + SEPARATOR + rulesFile),
+          new FileReader(SAMPLES + SEPARATOR + urlsFile));
+    } catch (Exception e) {
+      Assert.fail(e.toString());
+    }
   }
 
   protected void test(String file) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.util;
 
 import java.util.Arrays;
@@ -24,6 +23,8 @@ import java.util.ListIterator;
 /**
  * TrieStringMatcher is a base class for simple tree-based string matching.
  * 
+ * This class is thread-safe during string matching but not when adding strings
+ * to the trie.
  */
 public abstract class TrieStringMatcher {
   protected TrieNode root;
@@ -104,9 +105,7 @@ public abstract class TrieStringMatcher {
      */
     TrieNode getChild(char nextChar) {
       if (children == null) {
-        children = childrenList.toArray(new TrieNode[childrenList.size()]);
-        childrenList = null;
-        Arrays.sort(children);
+        compile();
       }
 
       int min = 0;
@@ -137,6 +136,18 @@ public abstract class TrieStringMatcher {
         return 0;
       // if (this.nodeChar > other.nodeChar)
       return 1;
+    }
+
+    /**
+     * Prepare node for matching. Note: this method is synchronized because it
+     * may be called concurrently when the trie is used for matching.
+     */
+    synchronized void compile() {
+      if (childrenList != null) {
+        children = childrenList.toArray(new TrieNode[childrenList.size()]);
+        childrenList = null;
+        Arrays.sort(children);
+      }
     }
   }
 

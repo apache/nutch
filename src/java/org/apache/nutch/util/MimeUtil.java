@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.util;
 
 import java.io.File;
@@ -166,8 +165,7 @@ public final class MimeUtil {
     }
 
     // if returned null, or if it's the default type then try url resolution
-    if (type == null
-        || (type != null && type.getName().equals(MimeTypes.OCTET_STREAM))) {
+    if (type == null || type.getName().equals(MimeTypes.OCTET_STREAM)) {
       // If no mime-type header, or cannot find a corresponding registered
       // mime-type, then guess a mime-type from the url pattern
       try {
@@ -200,8 +198,7 @@ public final class MimeUtil {
       }
 
       if (magicType != null && !magicType.equals(MimeTypes.OCTET_STREAM)
-          && !magicType.equals(MimeTypes.PLAIN_TEXT) && retType != null
-          && !retType.equals(magicType)) {
+          && retType != null && !retType.equals(magicType)) {
 
         // If magic enabled and the current mime type differs from that of the
         // one returned from the magic, take the magic mimeType

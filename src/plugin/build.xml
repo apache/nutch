@@ -54,6 +54,7 @@
     <ant dir="indexer-dummy" target="deploy"/>
     <ant dir="indexer-elastic" target="deploy"/>
     <ant dir="indexer-elastic-rest" target="deploy"/>
+    <ant dir="indexer-kafka" target="deploy"/>
     <ant dir="indexer-rabbit" target="deploy"/>
     <ant dir="indexer-solr" target="deploy"/>
     <ant dir="language-identifier" target="deploy"/>
@@ -88,6 +89,7 @@
     <ant dir="urlfilter-automaton" target="deploy"/>
     <ant dir="urlfilter-domain" target="deploy" />
     <ant dir="urlfilter-domainblacklist" target="deploy" />
+    <ant dir="urlfilter-fast" target="deploy"/>
     <ant dir="urlfilter-prefix" target="deploy"/>
     <ant dir="urlfilter-regex" target="deploy"/>
     <ant dir="urlfilter-suffix" target="deploy"/>
@@ -113,9 +115,11 @@
      <ant dir="any23" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="feed" target="test"/>
+     <ant dir="headings" target="test"/>
      <ant dir="index-anchor" target="test"/>
      <ant dir="index-basic" target="test"/>
      <!--ant dir="index-geoip" target="test"/-->
+     <ant dir="index-jexl-filter" target="test"/>
      <ant dir="index-links" target="test"/>
      <ant dir="index-more" target="test"/>
      <ant dir="index-replace" target="test"/>
@@ -128,6 +132,7 @@
      <ant dir="mimetype-filter" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
      <ant dir="parse-html" target="test"/>
+     <ant dir="parse-js" target="test"/>
      <ant dir="parse-metatags" target="test"/>
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-tika" target="test"/>
@@ -142,6 +147,7 @@
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-domain" target="test"/>
      <ant dir="urlfilter-domainblacklist" target="test"/>
+     <ant dir="urlfilter-fast" target="test"/>
      <!--ant dir="urlfilter-ignoreexempt" target="test"/-->
      <ant dir="urlfilter-prefix" target="test"/>
      <ant dir="urlfilter-regex" target="test"/>
@@ -188,6 +194,7 @@
     <ant dir="indexer-dummy" target="clean"/>
     <ant dir="indexer-elastic" target="clean"/>
     <ant dir="indexer-elastic-rest" target="clean"/>
+    <ant dir="indexer-kafka" target="clean"/>
     <ant dir="indexer-rabbit" target="clean"/>
     <ant dir="indexer-solr" target="clean"/>
     <ant dir="language-identifier" target="clean"/>
@@ -229,6 +236,7 @@
     <ant dir="urlfilter-automaton" target="clean"/>
     <ant dir="urlfilter-domain" target="clean" />
     <ant dir="urlfilter-domainblacklist" target="clean" />
+    <ant dir="urlfilter-fast" target="clean"/>
     <ant dir="urlfilter-ignoreexempt" target="clean"/>
     <ant dir="urlfilter-prefix" target="clean"/>
     <ant dir="urlfilter-regex" target="clean"/>
