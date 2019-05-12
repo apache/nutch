@@ -186,6 +186,9 @@ public class WARCUtils {
    * @return safe HTTP response header
    */
   public static final String fixHttpHeaders(String headers, int contentLength) {
+    if (headers==null) {
+      return null;
+    }
     int start = 0, lineEnd = 0, last = 0, trailingCrLf= 0;
     StringBuilder replace = new StringBuilder();
     while (start < headers.length()) {
