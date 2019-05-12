@@ -37,7 +37,7 @@
 
   <dependencies>
     <!-- begin selenium dependencies -->
-    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="3.141.5" />
+    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="3.141.59" />
     <dependency org="org.seleniumhq.selenium" name="htmlunit-driver" rev="2.35.1" />
     
     <dependency org="com.opera" name="operadriver" rev="1.5">
