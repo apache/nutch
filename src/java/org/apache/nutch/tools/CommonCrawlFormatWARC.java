@@ -192,6 +192,7 @@ public class CommonCrawlFormatWARC extends AbstractCommonCrawlFormat {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     String httpHeaders = metadata.get("_response.headers_");
+    httpHeaders = WARCUtils.fixHttpHeaders(httpHeaders, content.getContent().length);
 
     if (StringUtils.isNotBlank(httpHeaders)) {
       output.write(httpHeaders.getBytes());

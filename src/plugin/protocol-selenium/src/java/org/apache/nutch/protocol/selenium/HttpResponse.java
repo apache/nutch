@@ -295,6 +295,9 @@ public class HttpResponse implements Response {
             }
           }
         }
+        if (httpHeaders != null) {
+          headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
+        }
       } 
 
     } finally {
