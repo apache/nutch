@@ -51,6 +51,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.tools.WARCUtils;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -144,6 +145,7 @@ public class WARCExporter extends Configured implements Tool {
 
         // were the headers stored as is? Can write a response element then
         String headersVerbatim = content.getMetadata().get("_response.headers_");
+        headersVerbatim = WARCUtils.fixHttpHeaders(headersVerbatim, content.getContent().length);
         byte[] httpheaders = new byte[0];
         if (StringUtils.isNotBlank(headersVerbatim)) {
           // check that ends with an empty line
@@ -241,7 +243,7 @@ public class WARCExporter extends Configured implements Tool {
           WARCRecord record = new WARCRecord(in);
           context.write(NullWritable.get(), new WARCWritable(record));
           context.getCounter("WARCExporter", "records generated").increment(1);
-        } catch (IOException exception) {
+        } catch (IOException | IllegalStateException exception) {
           LOG.error("Exception when generating WARC record for {} : {}", key,
               exception.getMessage());
           context.getCounter("WARCExporter", "exception").increment(1);

@@ -55,7 +55,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -72,6 +72,7 @@ import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
+import org.apache.nutch.util.SegmentReaderUtil;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
@@ -292,7 +293,7 @@ public class Generator extends NutchTool implements Tool {
       private boolean byDomain = false;
       private URLNormalizers normalizers;
       private static boolean normalise;
-      private MapFile.Reader[] hostdbReaders = null;
+      private SequenceFile.Reader[] hostdbReaders = null;
       private Expression maxCountExpr = null;
       private Expression fetchDelayExpr = null;
 
@@ -300,7 +301,7 @@ public class Generator extends NutchTool implements Tool {
         if (conf.get(GENERATOR_HOSTDB) != null) {
           try {
             Path path = new Path(conf.get(GENERATOR_HOSTDB), "current");
-            hostdbReaders = MapFileOutputFormat.getReaders(path, conf);
+            hostdbReaders = SegmentReaderUtil.getReaders(path, conf);
           } catch (IOException e) {
             LOG.error("Error reading HostDB because {}", e.getMessage());
           }
