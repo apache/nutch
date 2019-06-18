@@ -22,19 +22,7 @@
 
 <configuration>
 
-<!-- general properties  -->
-
-<property>
-  <name>store.ip.address</name>
-  <value>false</value>
-  <description>Enables us to capture the specific IP address 
-  (InetSocketAddress) of the host which we connect to via 
-  the given protocol. Currently supported is protocol-ftp and
-  http.
-  </description>
-</property>
-
-<!-- file properties -->
+<!-- protocol-file properties -->
 
 <property>
   <name>file.content.limit</name>
@@ -352,8 +340,8 @@
     supported, if false use always HTTP/1.1.
 
     NOTE: HTTP/2 is currently only supported by protocol-okhttp and
-    requires at runtime Java 9 or a modified Java 8 with support for
-    ALPN (Application Layer Protocol Negotiation).
+    requires at runtime Java 9 and upwards or a modified Java 8 with
+    support for ALPN (Application Layer Protocol Negotiation).
   </description>
 </property>
 
@@ -2466,12 +2454,26 @@ Add scoring-metadata to the list of active plugins
   </description>
 </property>
 
+<!-- general (HTTP) protocol plugin properties  -->
+
+<property>
+  <name>store.ip.address</name>
+  <value>false</value>
+  <description>Enables us to capture the specific IP address
+  (InetSocketAddress) of the host which we connect to via the given
+  protocol. Currently supported by: protocol-ftp, protocol-http,
+  protocol-okhttp, protocol-htmlunit, protocol-selenium.  Note that
+  the IP address is required by the plugin index-geoip and when
+  writing WARC files.
+  </description>
+</property>
+
 <property>
   <name>store.http.request</name>
   <value>false</value>
   <description>
-    Store the raw request made by Nutch, required to use the CommonCrawlDataDumper
-    tool for the WARC format.
+    Store the HTTP request headers sent by Nutch. Useful for debugging and
+    required when writing WARC files.
   </description>
 </property>
 
@@ -2479,8 +2481,8 @@ Add scoring-metadata to the list of active plugins
   <name>store.http.headers</name>
   <value>false</value>
   <description>
-    Store the raw headers received by Nutch from the server, required to use the 
-    CommonCrawlDataDumper tool for the WARC format.
+    Store the HTTP response headers received by Nutch from the
+    server. Useful for debugging and required when writing WARC files.
   </description>
 </property>
 
