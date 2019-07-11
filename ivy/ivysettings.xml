@@ -52,11 +52,6 @@
       changingPattern=".*-SNAPSHOT"
       m2compatible="true"
       />
-    <ibiblio name="restlet"
-      root="https://maven.restlet.org"
-      pattern="${maven2.pattern.ext}"
-      m2compatible="true"
-      />
     <ibiblio name="spring-plugins"
       root="https://repo.spring.io/plugins-release"
       pattern="${maven2.pattern.ext}"
@@ -73,7 +68,6 @@
       <resolver ref="maven2"/>
       <resolver ref="sonatype"/>
       <resolver ref="apache-snapshot"/>
-      <resolver ref="restlet"/>
       <resolver ref="spring-plugins"/>
     </chain>
     <chain name="internal">
@@ -88,9 +82,6 @@
       <resolver ref="apache-snapshot"/>
       <resolver ref="sonatype"/>
     </chain>
-    <chain name="restletchain">
-      <resolver ref="restlet"/>
-    </chain>
   </resolvers>
   <modules>
 
@@ -99,7 +90,5 @@
     rather than look for them online.
     -->
     <module organisation="org.apache.nutch" name=".*" resolver="internal"/>
-    <module organisation="org.restlet" name=".*" resolver="restletchain"/>
-    <module organisation="org.restlet.jse" name=".*" resolver="restletchain"/>
   </modules>
 </ivysettings>
