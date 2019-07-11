@@ -57,6 +57,11 @@
       pattern="${maven2.pattern.ext}"
       m2compatible="true"
       />
+    <ibiblio name="spring-plugins"
+      root="https://repo.spring.io/plugins-release"
+      pattern="${maven2.pattern.ext}"
+      m2compatible="true"
+      />
      <ibiblio name="sonatype"
       root="${oss.sonatype.org}"
       pattern="${maven2.pattern.ext}"
@@ -69,6 +74,7 @@
       <resolver ref="sonatype"/>
       <resolver ref="apache-snapshot"/>
       <resolver ref="restlet"/>
+      <resolver ref="spring-plugins"/>
     </chain>
     <chain name="internal">
       <resolver ref="local"/>
