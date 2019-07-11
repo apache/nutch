@@ -27,15 +27,16 @@
   <description>${ivy.pom.description}</description>
   <url>${ivy.pom.url}</url>
   <licenses>
-     <license>
-	<name>The Apache Software License, Version 2.0</name>
-	<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-	<distribution>repo</distribution>
-     </license>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
   </licenses>
   <scm>
-     <url>http://svn.apache.org/viewvc/nutch</url>
-     <connection>http://svn.apache.org/viewvc/nutch</connection>
+    <developerConnection>scm:git:https://github.com/apache/nutch.git</developerConnection>
+    <connection>scm:git:https://github.com/apache/nutch.git</connection>
+    <url>https://github.com/apache/nutch.git</url>
   </scm>
 
   <pluginRepositories>
@@ -47,57 +48,63 @@
   </pluginRepositories>
 
   <developers>
-	  		<developer>
-			<id>mattmann</id>
-			<name>Chris A. Mattmann</name>
-			<email>mattmann@apache.org</email>
-		</developer>
-                <developer>
-			<id>jnioche</id>
-			<name>Julien Nioche</name>
-			<email>jnioche@apache.org</email>
-		</developer>
-		<developer>
-                        <id>lewismc</id>
-                        <name>Lewis John McGibbney</name>
-                        <email>lewismc@apache.org</email>
-                </developer>
-		<developer>
-                        <id>markus</id>
-                        <name>Markus Jelsma</name>
-                        <email>markus@apache.org</email>
-                </developer>	
-		<developer>
-			<id>fenglu</id>
-			<name>Feng Lu</name>
-			<email>fenglu@apache.org</email>
-		</developer>
-		<developer>
-          <id>kamaci</id>
-          <name>Furkan KAMACI</name>
-          <email>kamaci@apache.org</email>
-        </developer>
-		<developer>
-			<id>kiranch</id>
-			<name>Kiran Chitturi</name>
-			<email>kiranch@apache.org</email>
-		</developer>
-		<developer>
-			<id>tejasp</id>
-			<name>Tejas Patil</name>
-			<email>tejasp@apache.org</email>
-		</developer>
-                <developer>
-                        <id>talat</id>
-                        <name>Talat Uyarer</name>
-                        <email>talat@apache.org</email>
-                </developer>
-		<developer>
-			<id>snagel</id>
-			<name>Sebastian Nagel</name>
-			<email>snagel@apache.org</email>
-		</developer>
-	</developers>
+    <developer>
+      <id>mattmann</id>
+      <name>Chris A. Mattmann</name>
+      <email>mattmann@apache.org</email>
+    </developer>
+    <developer>
+      <id>jnioche</id>
+      <name>Julien Nioche</name>
+      <email>jnioche@apache.org</email>
+    </developer>
+    <developer>
+      <id>lewismc</id>
+      <name>Lewis John McGibbney</name>
+      <email>lewismc@apache.org</email>
+    </developer>
+    <developer>
+      <id>markus</id>
+      <name>Markus Jelsma</name>
+      <email>markus@apache.org</email>
+    </developer>
+    <developer>
+      <id>fenglu</id>
+      <name>Feng Lu</name>
+      <email>fenglu@apache.org</email>
+    </developer>
+    <developer>
+      <id>kamaci</id>
+      <name>Furkan KAMACI</name>
+      <email>kamaci@apache.org</email>
+    </developer>
+    <developer>
+      <id>kiranch</id>
+      <name>Kiran Chitturi</name>
+      <email>kiranch@apache.org</email>
+    </developer>
+    <developer>
+      <id>tejasp</id>
+      <name>Tejas Patil</name>
+      <email>tejasp@apache.org</email>
+    </developer>
+    <developer>
+      <id>talat</id>
+      <name>Talat Uyarer</name>
+      <email>talat@apache.org</email>
+    </developer>
+    <developer>
+      <id>snagel</id>
+      <name>Sebastian Nagel</name>
+      <email>snagel@apache.org</email>
+    </developer>
+    <developer>
+      <id>thammegowda</id>
+      <name>Thamme Gowda</name>
+      <email>thammegowda@apache.org</email>
+    </developer>
+  </developers>
+
   <build>
     <sourceDirectory>src/java</sourceDirectory>
     <testSourceDirectory>src/test</testSourceDirectory>
@@ -112,8 +119,8 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
+            <source>1.8</source>
+            <target>1.8</target>
           </configuration>
         </plugin>
       </plugins>
@@ -122,7 +129,7 @@
       <plugin>
         <groupId>com.qmino</groupId>
         <artifactId>miredot-plugin</artifactId>
-        <version>2.0-RC2</version>
+        <version>2.0.1</version>
         <executions>
           <execution>
             <goals>
@@ -131,7 +138,7 @@
           </execution>
         </executions>
         <configuration>
-          <organizationId>c579ca2e-c194-4a14-a7f0-f39ef4ec3c2d</organizationId>
+          <licence>cHJvamVjdHxvcmcuYXBhY2hlLm51dGNoLm51dGNofDIwMTktMTAtMzB8dHJ1ZXwtMSNNQ3dDRkJMb0FjM283ME1YRERRMkFJemY1QmxZUjAwK0FoUkJVMlJrVi81RlBQc25zMUZ2S2g0Q29weGFxZz09</licence>
           <restModel>
             <restFramework>
               <name>jax-rs</name>
@@ -146,4 +153,3 @@
     </plugins>
   </build>
 </project>
-
