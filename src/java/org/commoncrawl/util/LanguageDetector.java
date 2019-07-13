@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,6 +36,8 @@ import org.commoncrawl.langdetect.cld2.Flags;
 import org.commoncrawl.util.LanguageDetector.Result.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Utf8;
 
 public class LanguageDetector {
 
@@ -106,10 +109,22 @@ public class LanguageDetector {
     try (AutoDetectReader charsetDetectReader = new AutoDetectReader(
         new ByteArrayInputStream(bytes), metadata);) {
       result.charset = charsetDetectReader.getCharset();
-      LOG.debug("Recoding from {}: {}", result.charset, uri);
-      // NOTE: need also recode from UTF-8 to make sure it's valid
-      text = new String(bytes, result.charset);
-      bytes = Cld2.encodeNative(text);
+      boolean isValidUtf8 = false;
+      if (result.charset.equals(StandardCharsets.UTF_8)) {
+        // need to validate UTF-8 because CLD2 may segfault on invalid UTF-8
+        LOG.debug("Validating UTF-8 for: {}", uri);
+        if (Utf8.isWellFormed(bytes)) {
+          isValidUtf8 = true;
+        }
+      }
+      if (isValidUtf8) {
+        // CLD2 requires that the input byte[] includes a trailing zero byte
+        bytes = Cld2.bytesToNative(bytes);
+      } else {
+        LOG.debug("Recoding from {}: {}", result.charset, uri);
+        text = new String(bytes, result.charset);
+        bytes = Cld2.encodeNative(text);
+      }
     } catch (IOException | TikaException e) {
       LOG.error("Failed to convert charset:", e);
       result.errorReason = "Failed to convert charset " + e.getMessage();
