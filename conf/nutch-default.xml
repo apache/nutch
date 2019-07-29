@@ -190,6 +190,14 @@
 </property>
 
 <property>
+  <name>http.agent.host.cookie.file</name>
+  <value>cookies.txt</value>
+  <description>
+    File containing per-host configured cookies.
+  </description>
+</property>
+
+<property>
   <name>http.agent.host</name>
   <value></value>
   <description>Name or IP address of the host on which the Nutch crawler

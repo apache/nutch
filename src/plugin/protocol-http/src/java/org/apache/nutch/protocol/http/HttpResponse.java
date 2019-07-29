@@ -213,13 +213,22 @@ public class HttpResponse implements Response {
         reqStr.append("\r\n");
       }
 
-      if (http.isCookieEnabled()
-          && datum.getMetaData().containsKey(HttpBase.COOKIE)) {
-        String cookie = ((Text) datum.getMetaData().get(HttpBase.COOKIE))
-            .toString();
-        reqStr.append("Cookie: ");
-        reqStr.append(cookie);
-        reqStr.append("\r\n");
+      if (http.isCookieEnabled()) {
+        String cookie = null;
+        
+        if (datum.getMetaData().containsKey(HttpBase.COOKIE)) {
+          cookie = ((Text)datum.getMetaData().get(HttpBase.COOKIE)).toString();
+        }
+        
+        if (cookie == null) {
+          cookie = http.getCookie(url);
+        }
+        
+        if (cookie != null) {
+          reqStr.append("Cookie: ");
+          reqStr.append(cookie);
+          reqStr.append("\r\n");
+        }
       }
 
       if (http.isIfModifiedSinceEnabled() && datum.getModifiedTime() > 0) {
