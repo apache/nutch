@@ -257,15 +257,17 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       try {
         // see if a Tika config file can be found in the job file
         URL customTikaConfig = conf.getResource(customConfFile);
-        if (customTikaConfig != null)
+        if (customTikaConfig != null) {
           tikaConfig = new TikaConfig(customTikaConfig,
               this.getClass().getClassLoader());
+        }
       } catch (Exception e1) {
         String message = "Problem loading custom Tika configuration from "
             + customConfFile;
         LOG.error(message, e1);
       }
-    } else {
+    }
+    if (tikaConfig == null) {
       try {
         tikaConfig = new TikaConfig(this.getClass().getClassLoader());
       } catch (Exception e2) {

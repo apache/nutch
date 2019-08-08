@@ -36,8 +36,8 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.tika" name="tika-parsers" rev="1.20" conf="*->default">
-      <!-- exclusions of dependencies in Nutch core (ivy/ivy.xml) -->
+    <dependency org="org.apache.tika" name="tika-parsers" rev="1.22" conf="*->default">
+      <!-- exclusions of dependencies provided in Nutch core (ivy/ivy.xml) -->
       <exclude org="org.apache.tika" name="tika-core" />
       <exclude org="org.apache.httpcomponents" name="httpclient" />
       <exclude org="org.apache.httpcomponents" name="httpcore" />
@@ -50,10 +50,13 @@
       <exclude org="org.apache.cxf" name="cxf-core" />
       <exclude org="org.apache.cxf" name="cxf-rt-transports-http" />
       <exclude org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" />
+      <exclude org="com.fasterxml.jackson.core" name="jackson-core" />
       <exclude org="com.fasterxml.jackson.core" name="jackson-databind" />
+      <exclude org="com.fasterxml.jackson.core" name="jackson-annotations" />
       <exclude org="com.google.protobuf" name="protobuf-java" />
       <exclude org="org.slf4j" name="slf4j-log4j12" />
       <exclude org="org.slf4j" name="slf4j-api" />
+      <exclude org="xml-apis" name="xml-apis" /><!-- must be provided in core as it is used also by tika-core -->
     </dependency>
   </dependencies>
   

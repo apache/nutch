@@ -17,14 +17,21 @@
 -->
 <project name="parse-tika" default="deps-jar" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-    <property name="ivy.install.version" value="2.1.0" />
+    <property name="ivy.install.version" value="2.4.0" />
     <condition property="ivy.home" value="${env.IVY_HOME}">
       <isset property="env.IVY_HOME" />
     </condition>
     <property name="ivy.home" value="${user.home}/.ant" />
     <property name="ivy.checksums" value="" />
     <property name="ivy.jar.dir" value="${ivy.home}/lib" />
-    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy-${ivy.install.version}.jar" />
+    <!-- define packaging.type=jar to work around the failing dependency download of
+           javax.ws.rs-api.jar
+         required by Tika (1.19 and higher), cf.
+           https://github.com/eclipse-ee4j/jaxrs-api/issues/572
+           https://github.com/jax-rs/api/pull/576
+    -->
+    <property name="packaging.type" value="jar"/>
 
     <target name="download-ivy" unless="offline">
 
