@@ -23,10 +23,12 @@ import java.net.URL;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.okhttp.OkHttp;
+import org.apache.nutch.util.NutchConfiguration;
 import org.junit.After;
 import org.junit.Test;
 import org.mortbay.jetty.Server;
@@ -40,19 +42,21 @@ import org.mortbay.jetty.servlet.ServletHolder;
 public class TestProtocolOkHttp {
   private static final String RES_DIR = System.getProperty("test.data", ".");
 
-  private OkHttp http;
+  private Protocol http;
   private Server server;
   private Context root;
   private Configuration conf;
   private int port;
 
   public void setUp(boolean redirection) throws Exception {
-    conf = new Configuration();
+    conf = NutchConfiguration.create();
     conf.addResource("nutch-default.xml");
+    // plugin tests specific config file - adds protocol-okhttp to
+    // plugin.includes
     conf.addResource("nutch-site-test.xml");
 
-    http = new OkHttp();
-    http.setConf(conf);
+    http = new ProtocolFactory(conf)
+        .getProtocolById("org.apache.nutch.protocol.okhttp.OkHttp");
 
     server = new Server();
 
@@ -123,12 +127,17 @@ public class TestProtocolOkHttp {
   private void fetchPage(String page, int expectedCode) throws Exception {
     URL url = new URL("http", "127.0.0.1", port, page);
     CrawlDatum crawlDatum = new CrawlDatum();
-    Response response = http.getResponse(url, crawlDatum, true);
+
     ProtocolOutput out = http.getProtocolOutput(new Text(url.toString()),
         crawlDatum);
+    int httpStatusCode = -1;
+    if (crawlDatum.getMetaData().containsKey(Nutch.PROTOCOL_STATUS_CODE_KEY)) {
+      httpStatusCode = Integer.parseInt(crawlDatum.getMetaData()
+          .get(Nutch.PROTOCOL_STATUS_CODE_KEY).toString());
+    }
     Content content = out.getContent();
-    assertEquals("HTTP Status Code for " + url, expectedCode,
-        response.getCode());
+
+    assertEquals("HTTP Status Code for " + url, expectedCode, httpStatusCode);
 
     if (page.compareTo("/nonexists.html") != 0
         && page.compareTo("/brokenpage.jsp") != 0

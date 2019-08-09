@@ -20,6 +20,11 @@
 <configuration>
 
 <property>
+  <name>plugin.includes</name>
+  <value>protocol-okhttp</value>
+</property>
+
+<property>
   <name>http.agent.name</name>
   <value>Nutch-Test</value>
 </property>
