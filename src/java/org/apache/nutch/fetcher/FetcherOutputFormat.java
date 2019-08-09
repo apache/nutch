@@ -148,7 +148,7 @@ public class FetcherOutputFormat extends S3FileOutputFormat<Text, NutchWritable>
           parseOut.close(context);
         }
         if (warcOut != null) {
-          warcOut.close(null);
+          warcOut.close(context);
         }
       }
 

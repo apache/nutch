@@ -734,6 +734,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   @Override
   public synchronized void close(TaskAttemptContext context)
       throws IOException {
+    context.setStatus("closing WARC output writers");
     warcOut.close();
     if (generateCrawlDiagnostics) {
       crawlDiagnosticsWarcOut.close();
