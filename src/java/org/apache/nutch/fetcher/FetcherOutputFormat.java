@@ -149,7 +149,7 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
           parseOut.close(context);
         }
         if (warcOut != null) {
-          warcOut.close(null);
+          warcOut.close(context);
         }
       }
 
