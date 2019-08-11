@@ -107,15 +107,26 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
           Path warc = new Path(
               new Path(FileOutputFormat.getOutputPath(context), "warc"), name);
           // set start and end time of WARC capture
-          long timelimit = conf.getLong("fetcher.timelimit", -1);
+          /*
+           * Note: start and end time are only reliable if fetcher is configured
+           * with a time limit (fetcher.timelimit.mins), otherwise the time is
+           * that of reduce task started which is after the fetch has happened
+           * in the map tasks.
+           */
           long timelimitMins = conf.getLong("fetcher.timelimit.mins", -1);
           long startTime = System.currentTimeMillis();
-          long endTime = System.currentTimeMillis();
+          long endTime = startTime;
           if (timelimitMins > 0) {
-            startTime = timelimit - (timelimitMins * 60 * 1000);
-            if (endTime > timelimit) {
-              endTime = timelimit;
-            }
+            long timelimit = conf.getLong("fetcher.timelimit", -1);
+            /*
+             * Note: the current time might be before the timelimit, however, if
+             * a reduce task fails it gets assigned another end time and
+             * consequently output file name. This may cause duplicate WARC
+             * files in the worst case. We take the latest possible end time
+             * (when the time limit applies) as end time.
+             */
+            endTime = timelimit;
+            startTime = endTime - (timelimitMins * 60 * 1000);
           }
           SimpleDateFormat fileDate = new SimpleDateFormat("yyyyMMddHHmmss",
               Locale.US);
