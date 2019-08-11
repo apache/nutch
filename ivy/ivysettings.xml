@@ -16,20 +16,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-  <!-- you can override this property to use mirrors
-          http://repo1.maven.org/maven2/
-          http://mirrors.dotsrc.org/maven2
-          http://ftp.ggi-project.org/pub/packages/maven2
-          http://mirrors.sunsite.dk/maven2
-          http://public.planetmirror.com/pub/maven2
-          http://ibiblio.lsu.edu/main/pub/packages/maven2
-          http://www.ibiblio.net/pub/packages/maven2
-  -->
   <property name="oss.sonatype.org" 
-    value="http://oss.sonatype.org/content/repositories/releases/" 
+    value="https://oss.sonatype.org/content/repositories/releases/" 
     override="false"/>
   <property name="repo.maven.org"
-    value="http://repo1.maven.org/maven2/"
+    value="https://repo1.maven.org/maven2/"
     override="false"/>
   <property name="repository.apache.org"
     value="https://repository.apache.org/content/repositories/snapshots/"

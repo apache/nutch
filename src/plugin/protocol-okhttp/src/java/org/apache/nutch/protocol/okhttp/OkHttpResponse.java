@@ -84,11 +84,20 @@ public class OkHttpResponse implements Response {
           HttpDateFormat.toString(datum.getModifiedTime()));
     }
 
-    if (okhttp.isCookieEnabled()
-        && datum.getMetaData().containsKey(HttpBase.COOKIE)) {
-      String cookie = ((Text) datum.getMetaData().get(HttpBase.COOKIE))
-          .toString();
-      rb.header("Cookie", cookie);
+    if (okhttp.isCookieEnabled()) {
+      String cookie = null;
+      
+      if (datum.getMetaData().containsKey(HttpBase.COOKIE)) {
+        cookie = ((Text)datum.getMetaData().get(HttpBase.COOKIE)).toString();
+      }
+      
+      if (cookie == null) {
+        cookie = okhttp.getCookie(url);
+      }
+      
+      if (cookie != null) {
+        rb.header("Cookie", cookie);
+      }
     }
 
     Request request = rb.build();

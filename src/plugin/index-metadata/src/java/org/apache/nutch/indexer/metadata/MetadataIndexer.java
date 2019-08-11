@@ -93,12 +93,15 @@ public class MetadataIndexer implements IndexingFilter {
   
   protected void add(NutchDocument doc, String key, String value) {
     if (separator == null || value.indexOf(separator) == -1 || !mvFields.contains(key)) {
-      doc.add(key, value);
+      value = value.trim();
+      if (!value.isEmpty()) {
+        doc.add(key, value);
+      }
     } else {
       String[] parts = value.split(separator);
       for (String part : parts) {
         part = part.trim();
-        if (part.length() != 0) {
+        if (!part.isEmpty()) {
           doc.add(key, part);
         }
       }

@@ -18,8 +18,6 @@ package org.apache.nutch.indexwriter.solr;
 
 import java.lang.invoke.MethodHandles;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -153,16 +151,6 @@ public class SolrIndexWriter implements IndexWriter {
   }
 
   public void delete(String key) throws IOException {
-    try {
-      key = URLDecoder.decode(key, "UTF8");
-    } catch (UnsupportedEncodingException e) {
-      LOG.error("Error decoding: " + key);
-      throw new IOException("UnsupportedEncodingException for " + key);
-    } catch (IllegalArgumentException e) {
-      LOG.warn("Could not decode: " + key
-          + ", it probably wasn't encoded in the first place..");
-    }
-
     // escape solr hash separator
     key = key.replaceAll("!", "\\!");
 

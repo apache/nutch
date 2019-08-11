@@ -43,6 +43,7 @@ import org.apache.nutch.net.URLExemptionFilters;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
+import org.apache.nutch.net.protocols.ProtocolLogUtil;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
@@ -148,6 +149,8 @@ public class FetcherThread extends Thread {
   private FetcherThreadPublisher publisher;
   private boolean activatePublisher;
 
+  private ProtocolLogUtil logUtil = new ProtocolLogUtil();
+
   public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues, 
       QueueFeeder feeder, AtomicInteger spinWaiting, AtomicLong lastRequestStart, FetcherRun.Context context,
       AtomicInteger errors, String segmentName, boolean parsing, boolean storingContent, 
@@ -178,6 +181,8 @@ public class FetcherThread extends Thread {
     this.storingWarc = Fetcher.isStoringWarc(conf);
     this.pages = pages;
     this.bytes = bytes;
+
+    this.logUtil.setConf(conf);
 
     // NUTCH-2413 Apply filters and normalizers on outlinks
     // when parsing only if configured
@@ -462,7 +467,15 @@ public class FetcherThread extends Thread {
         } catch (Throwable t) { // unexpected exception
           // unblock
           ((FetchItemQueues) fetchQueues).finishFetchItem(fit);
-          logError(fit.url, StringUtils.stringifyException(t));
+          String message;
+          if (LOG.isDebugEnabled()) {
+            message = StringUtils.stringifyException(t);
+          } else if (logUtil.logShort(t)) {
+            message = t.getClass().getName();
+          } else {
+            message = StringUtils.stringifyException(t);
+          }
+          logError(fit.url, message);
           output(fit.url, fit.datum, null, ProtocolStatus.STATUS_FAILED,
               CrawlDatum.STATUS_FETCH_RETRY);
         }
