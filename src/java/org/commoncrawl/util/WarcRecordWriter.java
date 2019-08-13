@@ -270,6 +270,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
    */
   public static String fixHttpHeaders(String headers, int contentLength) {
     int start = 0, lineEnd = 0, last = 0, trailingCrLf= 0;
+    boolean hasContentLength = false;
     StringBuilder replace = new StringBuilder();
     while (start < headers.length()) {
       lineEnd = headers.indexOf(CRLF, start);
@@ -320,6 +321,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       if (PROBLEMATIC_HEADERS.matcher(name).matches()) {
         boolean needsFix = true;
         if (name.equalsIgnoreCase("content-length")) {
+          hasContentLength = true;
           String value = headers.substring(colonPos + 1, lineEnd).trim();
           try {
             int l = Integer.parseInt(value);
@@ -350,10 +352,14 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       }
       start = lineEnd + 2 * trailingCrLf;
     }
-    if (last > 0 || trailingCrLf != 2) {
+    if (last > 0 || trailingCrLf != 2 || !hasContentLength) {
       if (last < headers.length()) {
         // append trailing headers
         replace.append(headers.substring(last));
+      }
+      if (!hasContentLength) {
+        replace.append("Content-Length").append(COLONSP).append(contentLength)
+            .append(CRLF);
       }
       while (trailingCrLf < 2) {
         replace.append(CRLF);
