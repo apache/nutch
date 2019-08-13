@@ -164,9 +164,13 @@ public class OkHttpResponse implements Response {
     BufferedSource source = responseBody.source();
     int bytesRequested = 0;
     int bufferGrowStepBytes = 8192;
-    while (source.buffer().size() < maxContentBytes) {
+    while (source.buffer().size() <= maxContentBytes) {
       bytesRequested += Math.min(bufferGrowStepBytes,
-          (maxContentBytes - bytesRequested));
+          /*
+           * request one byte more than required to reliably detect truncated
+           * content
+           */
+          (1 + maxContentBytes - bytesRequested));
       boolean success = false;
       try {
         success = source.request(bytesRequested);
@@ -191,7 +195,7 @@ public class OkHttpResponse implements Response {
         truncated.setReason(TruncatedContentReason.TIME);
         break;
       }
-      if (source.buffer().size() > maxContentBytes) {
+      if (source.buffer().size() >= maxContentBytes) {
         LOG.debug("content limit reached");
       }
       // okhttp may fetch more content than requested, forward requested bytes
