@@ -190,6 +190,14 @@
 </property>
 
 <property>
+  <name>http.agent.host.cookie.file</name>
+  <value>cookies.txt</value>
+  <description>
+    File containing per-host configured cookies.
+  </description>
+</property>
+
+<property>
   <name>http.agent.host</name>
   <value></value>
   <description>Name or IP address of the host on which the Nutch crawler
@@ -202,15 +210,6 @@
   <name>http.timeout</name>
   <value>10000</value>
   <description>The default network timeout, in milliseconds.</description>
-</property>
-
-<property>
-  <name>http.max.delays</name>
-  <value>100</value>
-  <description>The number of times a thread will delay when trying to
-  fetch a page.  Each time it finds that a host is busy, it will wait
-  fetcher.server.delay.  After http.max.delays attempts, it will give
-  up on the page for now.</description>
 </property>
 
 <property>
@@ -329,12 +328,6 @@
   <value></value>
   <description>A comma separated list of hosts that don't use the proxy 
   (e.g. intranets). Example: www.apache.org</description>
-</property>
-
-<property>
-  <name>http.verbose</name>
-  <value>false</value>
-  <description>If true, HTTP will log more verbosely.</description>
 </property>
 
 <property>
@@ -1004,6 +997,17 @@
 </property>
 
 <property>
+  <name>http.log.exceptions.suppress.stack</name>
+  <value>java.net.UnknownHostException,java.net.NoRouteToHostException</value>
+  <description>Comma-separated list of exceptions not shown with full
+  stack trace in logs of fetcher and HTTP protocol implementations.
+  The logs may shrink in size significantly, e.g., when for a large
+  unrestriced web crawl unknown hosts are logged shortly without full
+  stack trace.  The full class name of the exception class (extending
+  Throwable) including the package path must be specified.</description>
+</property>
+
+<property>
   <name>fetcher.parse</name>
   <value>false</value>
   <description>If true, fetcher will parse content. Default is false, which means
@@ -1644,6 +1648,13 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <value>suffix-urlfilter.txt</value>
   <description>Name of file on CLASSPATH containing url suffixes
   used by urlfilter-suffix (SuffixURLFilter) plugin.</description>
+</property>
+
+<property>
+  <name>urlfilter.fast.file</name>
+  <value>fast-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing regular expressions
+  used by urlfilter-fast (FastURLFilter) plugin.</description>
 </property>
 
 <property>

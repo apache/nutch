@@ -16,8 +16,9 @@
  */
 
 /**
- * Helper classes related to the {@link org.apache.nutch.protocol.Protocol Protocol}
- * interface, see also {@link org.apache.nutch.protocol}.
+ * URL filter plugin that first does fast exact suffix matches on host/domain
+ * names before applying regular expressions to the path component of a URL. See
+ * {@link org.apache.nutch.urlfilter.fast.FastURLFilter} for a description of
+ * the rule format.
  */
-package org.apache.nutch.net.protocols;
-
+package org.apache.nutch.urlfilter.fast;

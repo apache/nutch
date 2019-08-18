@@ -231,6 +231,7 @@
       <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-fast/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
@@ -351,6 +352,17 @@
     <artifact:mvn>
       <arg value="test"/>
       <arg value="-e"/>
+      <arg value="-o"/>
+      <!-- run offline (-o): must not download dependencies as this is
+           done from http://repo1.maven.org/ hardwired in
+           maven-ant-tasks-2.1.3.jar, see NUTCH-2722.
+
+           Dependencies and plugins need to be resolved and cached locally beforehand
+           by running
+             `mvn dependency:resolve`
+           resp.
+             `mvn dependency:resolve-plugins`
+           after the pom.xml has been generated. -->
     </artifact:mvn>
   </target>
 
@@ -728,6 +740,7 @@
       <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-fast/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
@@ -1150,6 +1163,8 @@
         <source path="${plugins.dir}/urlfilter-domain/src/test/" />
         <source path="${plugins.dir}/urlfilter-domainblacklist/src/java/" />
         <source path="${plugins.dir}/urlfilter-domainblacklist/src/test/" />
+        <source path="${plugins.dir}/urlfilter-fast/src/java/"/>
+        <source path="${plugins.dir}/urlfilter-fast/src/test/"/>
         <source path="${plugins.dir}/urlfilter-ignoreexempt/src/java/" />
         <source path="${plugins.dir}/urlfilter-prefix/src/java/" />
         <source path="${plugins.dir}/urlfilter-prefix/src/test/" />

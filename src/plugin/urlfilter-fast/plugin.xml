@@ -16,16 +16,15 @@
  limitations under the License.
 -->
 <plugin
-   id="urlfilter-automaton"
-   name="Automaton URL Filter"
+   id="urlfilter-fast"
+   name="Fast URL Filter"
    version="1.0.0"
    provider-name="nutch.org">
 
    <runtime>
-      <library name="urlfilter-automaton.jar">
+      <library name="urlfilter-fast.jar">
          <export name="*"/>
       </library>
-      <library name="automaton-1.12-1.jar"/>
    </runtime>
 
    <requires>
@@ -33,11 +32,10 @@
       <import plugin="lib-regex-filter"/>
    </requires>
 
-   <extension id="org.apache.nutch.net.urlfilter.automaton"
-              name="Nutch Automaton URL Filter"
+   <extension id="org.apache.nutch.net.urlfilter.fast"
+              name="Nutch Fast URL Filter"
               point="org.apache.nutch.net.URLFilter">
-      <implementation id="AutomatonURLFilter"
-                      class="org.apache.nutch.urlfilter.automaton.AutomatonURLFilter"/>
+      <implementation id="FastURLFilter"
+                      class="org.apache.nutch.urlfilter.fast.FastURLFilter"/>
    </extension>
-
 </plugin>

@@ -213,13 +213,22 @@ public class HttpResponse implements Response {
         reqStr.append("\r\n");
       }
 
-      if (http.isCookieEnabled()
-          && datum.getMetaData().containsKey(HttpBase.COOKIE)) {
-        String cookie = ((Text) datum.getMetaData().get(HttpBase.COOKIE))
-            .toString();
-        reqStr.append("Cookie: ");
-        reqStr.append(cookie);
-        reqStr.append("\r\n");
+      if (http.isCookieEnabled()) {
+        String cookie = null;
+        
+        if (datum.getMetaData().containsKey(HttpBase.COOKIE)) {
+          cookie = ((Text)datum.getMetaData().get(HttpBase.COOKIE)).toString();
+        }
+        
+        if (cookie == null) {
+          cookie = http.getCookie(url);
+        }
+        
+        if (cookie != null) {
+          reqStr.append("Cookie: ");
+          reqStr.append(cookie);
+          reqStr.append("\r\n");
+        }
       }
 
       if (http.isIfModifiedSinceEnabled() && datum.getModifiedTime() > 0) {
@@ -294,15 +303,13 @@ public class HttpResponse implements Response {
         } else if ("deflate".equals(contentEncoding)) {
           content = http.processDeflateEncoded(content, url);
         } else {
-          // store the headers verbatim only if the response was not compressed
-          // as the content length reported does not match otherwise
-          if (httpHeaders != null) {
-            httpHeaders.append("\r\n");
-            headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
-          }
           if (Http.LOG.isTraceEnabled()) {
             Http.LOG.trace("fetched " + content.length + " bytes from " + url);
           }
+        }
+        if (httpHeaders != null) {
+          httpHeaders.append("\r\n");
+          headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
         }
       } catch (IOException | HttpException e) {
         // Headers parsing went fine, but an error occurred while trying to read

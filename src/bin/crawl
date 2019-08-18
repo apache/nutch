@@ -338,7 +338,7 @@ do
 
   # fetching the segment
   echo "Fetching : $SEGMENT"
-  __bin_nutch fetch $commonOptions -D fetcher.timelimit.mins=$TIME_LIMIT_FETCH "$CRAWL_PATH"/segments/$SEGMENT -noParsing -threads $NUM_THREADS
+  __bin_nutch fetch $commonOptions -D fetcher.timelimit.mins=$TIME_LIMIT_FETCH "$CRAWL_PATH"/segments/$SEGMENT -threads $NUM_THREADS
 
   # parsing the segment
   echo "Parsing : $SEGMENT"

@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.net.protocols.ProtocolLogUtil;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
@@ -45,6 +47,7 @@ import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.DeflateUtils;
+import org.apache.nutch.util.URLUtil;
 import org.apache.hadoop.util.StringUtils;
 
 import org.apache.hadoop.conf.Configuration;
@@ -66,6 +69,9 @@ public abstract class HttpBase implements Protocol {
   private HttpRobotRulesParser robots = null;
 
   private ArrayList<String> userAgentNames = null;
+  
+  /** Mapping hostnames to cookies */
+  private Map<String, String> hostCookies = null;
 
   /** The proxy hostname. */
   protected String proxyHost = null;
@@ -116,6 +122,12 @@ public abstract class HttpBase implements Protocol {
 
   /** The nutch configuration */
   private Configuration conf = null;
+
+  /**
+   * Logging utility, used to suppress stack traces for common exceptions in a
+   * configurable way.
+   */
+  private ProtocolLogUtil logUtil = new ProtocolLogUtil();
 
   /**
    * MimeUtil for MIME type detection. Note (see NUTCH-2578): MimeUtil object is
@@ -219,6 +231,8 @@ public abstract class HttpBase implements Protocol {
     this.enableCookieHeader = conf.getBoolean("http.enable.cookie.header", true);
     this.robots.setConf(conf);
 
+    this.logUtil.setConf(conf);
+
     // NUTCH-1941: read list of alternating agent names
     if (conf.getBoolean("http.agent.rotate", false)) {
       String agentsFile = conf.get("http.agent.rotate.file", "agents.txt");
@@ -255,6 +269,42 @@ public abstract class HttpBase implements Protocol {
       if (userAgentNames == null) {
         logger
             .warn("Falling back to fixed user agent set via property http.agent.name");
+      }
+    }
+    
+    // If cookies are enabled, try to load a per-host cookie file
+    if (enableCookieHeader) {
+      String cookieFile = conf.get("http.agent.host.cookie.file", "cookies.txt");
+      BufferedReader br = null;
+      try {
+        Reader reader = conf.getConfResourceAsReader(cookieFile);
+        br = new BufferedReader(reader);
+        hostCookies = new HashMap<String,String>();
+        String word = "";
+        while ((word = br.readLine()) != null) {
+          if (!word.trim().isEmpty()) {
+            if (word.indexOf("#") == -1) { // skip comment
+              String[] parts = word.split("\t");
+              if (parts.length == 2) {
+                hostCookies.put(parts[0], parts[1]);
+              } else {
+                LOG.warn("Unable to parse cookie file correctly at: " + word);
+              }
+            }
+          }
+        }
+      } catch (Exception e) {
+        logger.warn("Failed to read http.agent.host.cookie.file {}: {}", cookieFile,
+            StringUtils.stringifyException(e));
+        hostCookies = null;
+      } finally {
+        if (br != null) {
+          try {
+            br.close();
+          } catch (IOException e) {
+            // ignore
+          }
+        }
       }
     }
 
@@ -395,7 +445,12 @@ public abstract class HttpBase implements Protocol {
             ProtocolStatus.EXCEPTION, "Http code=" + code + ", url=" + u));
       }
     } catch (Throwable e) {
-      logger.error("Failed to get protocol output", e);
+      if (logger.isDebugEnabled() || !logUtil.logShort(e)) {
+        logger.error("Failed to get protocol output", e);
+      } else {
+        logger.error("Failed to get protocol output: {}",
+            e.getClass().getName());
+      }
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
@@ -478,6 +533,21 @@ public abstract class HttpBase implements Protocol {
           .get(ThreadLocalRandom.current().nextInt(userAgentNames.size()));
     }
     return userAgent;
+  }
+  
+  /**
+   * If per-host cookies are configured, this method will look it up
+   * for the given url.
+   *
+   * @param url the url to look-up a cookie for
+   * @return the cookie or null
+   */
+  public String getCookie(URL url) {
+    if (hostCookies != null) {
+      return hostCookies.get(url.getHost());
+    }
+    
+    return null;
   }
 
   /**

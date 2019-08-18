@@ -16,8 +16,11 @@
  */
 package org.apache.nutch.util;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * A class for efficiently matching <code>String</code>s against a set of
@@ -102,8 +105,9 @@ public class PrefixStringMatcher extends TrieStringMatcher {
   }
 
   public static final void main(String[] argv) {
-    PrefixStringMatcher matcher = new PrefixStringMatcher(new String[] {
-        "abcd", "abc", "aac", "baz", "foo", "foobar" });
+    String[] prefixes = new String[] { "abcd", "abc", "aac", "baz", "foo",
+        "foobar" };
+    PrefixStringMatcher matcher = new PrefixStringMatcher(prefixes);
 
     String[] tests = { "a", "ab", "abc", "abcdefg", "apple", "aa", "aac",
         "aaccca", "abaz", "baz", "bazooka", "fo", "foobar", "kite", };
@@ -114,5 +118,23 @@ public class PrefixStringMatcher extends TrieStringMatcher {
       System.out.println("  shortest: " + matcher.shortestMatch(tests[i]));
       System.out.println("   longest: " + matcher.longestMatch(tests[i]));
     }
+
+    int iterations = 1000;
+    System.out.println("Testing thread-safety (NUTCH-2585) with " + iterations
+        + " iterations:");
+    List<String> testsList = Arrays.asList(tests);
+    for (int i = 0; i < iterations; i++) {
+      matcher = new PrefixStringMatcher(prefixes);
+      Collections.shuffle(testsList);
+      try {
+        long count = testsList.parallelStream().filter(matcher::matches).count();
+        System.out.print(String.format("Cycle %4d : %d matches\r", i, count));
+      } catch (Exception e) {
+        // flush output
+        System.out.println("");
+        throw e;
+      }
+    }
+    System.out.println("");
   }
 }

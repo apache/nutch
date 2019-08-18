@@ -36,7 +36,6 @@
   </publications>
 
   <dependencies>
-    <dependency org="dk.brics" name="automaton" rev="1.12-1" conf="*->default" />
   </dependencies>
   
 </ivy-module>
