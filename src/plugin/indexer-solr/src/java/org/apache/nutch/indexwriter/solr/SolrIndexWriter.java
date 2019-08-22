@@ -257,9 +257,19 @@ public class SolrIndexWriter implements IndexWriter {
         LOG.info(
             "SolrIndexer: deleting " + Integer.toString(deleteIds.size()) + "/"
                 + Integer.toString(totalDeletes) + " documents");
-        for (SolrClient solrClient : solrClients) {
-          solrClient.deleteById(deleteIds);
+        
+        UpdateRequest req = new UpdateRequest();
+        req.deleteById(deleteIds);
+        req.setAction(UpdateRequest.ACTION.OPTIMIZE, false, false);
+        req.setParams(params);
+        if (this.auth) {
+          req.setBasicAuthCredentials(this.username, this.password);
         }
+        
+        for (SolrClient solrClient : solrClients) {
+          solrClient.request(req);
+        }
+        
       } catch (final SolrServerException e) {
         LOG.error("Error deleting: " + deleteIds);
         throw makeIOException(e);
