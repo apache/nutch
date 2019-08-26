@@ -16,5 +16,5 @@
   limitations under the License.
 -->
 <properties>
-    <service-loader initializableProblemHandler="ignore"/>
+    <service-loader initializableProblemHandler="ignore" loadErrorHandler="warn" />
 </properties>

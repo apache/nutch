@@ -65,11 +65,12 @@
 		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="2.7.4" conf="*->default"/>
 		<!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="1.20" />
-		<dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
+		<dependency org="org.apache.tika" name="tika-core" rev="1.22" />
 
-		<dependency org="xerces" name="xercesImpl" rev="2.11.0" />
-		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
+		<dependency org="xml-apis" name="xml-apis" rev="1.4.01"/><!-- force this version as it is required by Tika -->
+		<dependency org="xerces" name="xercesImpl" rev="2.12.0" />
+
+		<dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
 
 		<dependency org="com.google.guava" name="guava" rev="25.0-jre" />
 
@@ -83,9 +84,10 @@
 		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.2.7" conf="*->default"/>
 		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.2.7" conf="*->default"/>
 		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.2.7" conf="test->default"/>
-		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.7" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.9.7" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.9.7" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.9" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.9.9" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.9.9" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.9.9" conf="*->default"/>
 
 		<!-- WARC artifacts needed -->
 		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.5" conf="*->default">
