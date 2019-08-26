@@ -383,7 +383,7 @@ public class TestBadServerResponses {
             Response.TruncatedContentReason.LENGTH.toString().toLowerCase(),
             fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT_REASON));
       }
-      server.close();
+      server.close(); // need to close server before next loop iteration
     }
   }
 
@@ -428,8 +428,33 @@ public class TestBadServerResponses {
             Response.TruncatedContentReason.LENGTH.toString().toLowerCase(),
             fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT_REASON));
       }
-      server.close();
+      server.close(); // need to close server before next loop iteration
     }
+  }
+
+  @Test
+  public void testNoContentLimit() throws Exception {
+    setUp();
+    conf.setInt("http.content.limit", -1);
+    http.setConf(conf);
+    StringBuilder response = new StringBuilder();
+    response.append(responseHeader);
+    // Even 128 kB content shouldn't cause any truncation because
+    // http.content.limit == -1
+    int kB = 128;
+    response.append("Content-Type: text/plain\r\nContent-Length: " + (kB * 1024)
+        + "\r\n\r\n");
+    for (int i = 0; i < kB; i++) {
+      for (int j = 0; j < 16; j++) {
+        // 16 chunks a 64 bytes = 1 kB
+        response.append(
+            "abcdefghijklmnopqurstuvxyz0123456789-ABCDEFGHIJKLMNOPQURSTUVXYZ\n");
+      }
+    }
+    launchServer(response.toString());
+    ProtocolOutput fetched = fetchPage("/", 200);
+    assertEquals("Content truncated although http.content.limit == -1",
+        (kB * 1024), fetched.getContent().getContent().length);
   }
 
 }
