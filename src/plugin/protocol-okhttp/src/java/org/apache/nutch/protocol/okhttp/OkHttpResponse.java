@@ -168,9 +168,10 @@ public class OkHttpResponse implements Response {
       bytesRequested += Math.min(bufferGrowStepBytes,
           /*
            * request one byte more than required to reliably detect truncated
-           * content
+           * content, but beware of integer overflows
            */
-          (1 + maxContentBytes - bytesRequested));
+          (maxContentBytes == Integer.MAX_VALUE ? maxContentBytes
+              : (1 + maxContentBytes)) - bytesRequested);
       boolean success = false;
       try {
         success = source.request(bytesRequested);
