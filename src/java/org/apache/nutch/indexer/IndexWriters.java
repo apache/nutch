@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.indexer;
 
-import de.vandermeer.asciitable.AT_ColumnWidthCalculator;
 import de.vandermeer.asciitable.AT_Row;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.skb.interfaces.document.TableRowType;
@@ -218,6 +217,10 @@ public class IndexWriters {
 
   public void write(NutchDocument doc) throws IOException {
     for (String indexWriterId : getIndexWriters(doc)) {
+      if (!this.indexWriters.containsKey(indexWriterId)) {
+        LOG.warn("Index writer {} is not present. Maybe the plugin is not in plugin.includes or there is a misspelling.", indexWriterId);
+        continue;
+      }
       NutchDocument mappedDocument = mapDocument(doc,
           this.indexWriters.get(indexWriterId).getIndexWriterConfig()
               .getMapping());
@@ -228,6 +231,10 @@ public class IndexWriters {
 
   public void update(NutchDocument doc) throws IOException {
     for (String indexWriterId : getIndexWriters(doc)) {
+      if (!this.indexWriters.containsKey(indexWriterId)) {
+        LOG.warn("Index writer {} is not present. Maybe the plugin is not in plugin.includes or there is a misspelling.", indexWriterId);
+        continue;
+      }
       NutchDocument mappedDocument = mapDocument(doc,
           this.indexWriters.get(indexWriterId).getIndexWriterConfig()
               .getMapping());
