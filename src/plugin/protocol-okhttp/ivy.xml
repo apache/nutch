@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="com.squareup.okhttp3" name="okhttp" rev="3.10.0"/>
+    <dependency org="com.squareup.okhttp3" name="okhttp" rev="3.14.2"/>
   </dependencies>
   
 </ivy-module>
