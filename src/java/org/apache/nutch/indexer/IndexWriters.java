@@ -115,8 +115,10 @@ public class IndexWriters {
    * @param conf Nutch configuration instance.
    */
   private IndexWriterConfig[] loadWritersConfiguration(Configuration conf) {
+    String filename = conf.get("indexer.indexwriters.file",
+        "index-writers.xml");
     InputStream ssInputStream = conf
-        .getConfResourceAsInputStream("index-writers.xml");
+        .getConfResourceAsInputStream(filename);
     InputSource inputSource = new InputSource(ssInputStream);
 
     try {
@@ -136,7 +138,7 @@ public class IndexWriters {
 
       return indexWriterConfigs;
     } catch (SAXException | IOException | ParserConfigurationException e) {
-      LOG.warn(e.toString());
+      LOG.error(e.toString());
       return new IndexWriterConfig[0];
     }
   }
