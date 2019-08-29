@@ -66,7 +66,7 @@
 		<!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.apache.tika" name="tika-core" rev="1.22" />
-    <!-- tika-parsers (without transitive dependencies) is used to detect the charset in text and HTML documents -->
+		<!-- tika-parsers (without transitive dependencies) is used to detect the charset in text and HTML documents -->
 		<dependency org="org.apache.tika" name="tika-parsers" rev="1.22" transitive="false" />
 
 		<!-- language detection -->
@@ -85,7 +85,9 @@
 		<!-- jetty is required by NutchServer -->
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" />
 
-		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0" />
+		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0">
+			<exclude module="hadoop-client" />
+		</dependency>
 
 		<!--dependency org="org.apache.cxf" name="cxf" rev="3.0.4" conf="*->default"/-->
 		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.2.7" conf="*->default"/>

@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
@@ -34,8 +35,14 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.protocol.ProtocolOutput;
+import org.apache.nutch.util.NutchConfiguration;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -51,7 +58,7 @@ public class TestBadServerResponses {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private OkHttp http;
+  private Protocol http;
   private ServerSocket server;
   private Configuration conf;
   private int port = 47506;
@@ -60,18 +67,34 @@ public class TestBadServerResponses {
   private static final String simpleContent = "Content-Type: text/html\r\n\r\nThis is a text.";
 
   public void setUp() throws Exception {
-    conf = new Configuration();
+    conf = NutchConfiguration.create();
     conf.addResource("nutch-default.xml");
+    // plugin tests specific config file - adds protocol-okhttp to
+    // plugin.includes
     conf.addResource("nutch-site-test.xml");
     conf.setBoolean("store.http.headers", true);
 
-    http = new OkHttp();
-    http.setConf(conf);
+    http = new ProtocolFactory(conf)
+        .getProtocolById("org.apache.nutch.protocol.okhttp.OkHttp");
   }
 
   @After
   public void tearDown() throws Exception {
     server.close();
+  }
+
+  public static String getHeaders(ProtocolOutput response) {
+    return response.getContent().getMetadata().get(Response.RESPONSE_HEADERS);
+  }
+
+  public static String getHeader(ProtocolOutput response, String header) {
+    for (String line : getHeaders(response).split("\r\n")) {
+      String[] parts = line.split(": ", 1);
+      if (parts[0].equals(header)) {
+        return parts[1];
+      }
+    }
+    return null;
   }
 
   /**
@@ -141,14 +164,22 @@ public class TestBadServerResponses {
    * @param expectedCode
    *          HTTP response status code expected while fetching the page.
    */
-  private Response fetchPage(String page, int expectedCode) throws Exception {
+  private ProtocolOutput fetchPage(String page, int expectedCode)
+      throws MalformedURLException {
     URL url = new URL("http", "127.0.0.1", port, page);
     LOG.info("Fetching {}", url);
     CrawlDatum crawlDatum = new CrawlDatum();
-    Response response = http.getResponse(url, crawlDatum, true);
-    assertEquals("HTTP Status Code for " + url, expectedCode,
-        response.getCode());
-    return response;
+    ProtocolOutput out = http.getProtocolOutput(new Text(url.toString()),
+        crawlDatum);
+    int httpStatusCode = -1;
+    if (crawlDatum.getMetaData().containsKey(Nutch.PROTOCOL_STATUS_CODE_KEY)) {
+      httpStatusCode = Integer.parseInt(crawlDatum.getMetaData()
+          .get(Nutch.PROTOCOL_STATUS_CODE_KEY).toString());
+    }
+
+    assertEquals("HTTP Status Code for " + url, expectedCode, httpStatusCode);
+
+    return out;
   }
 
   @Test
@@ -214,10 +245,10 @@ public class TestBadServerResponses {
     setUp();
     launchServer("HTTP/1.1 302 Found\r\nLocation: http://example.com/\r\n"
         + "Transfer-Encoding: chunked\r\n\r\nNot a valid chunk.");
-    Response fetched = fetchPage("/", 302);
-    assertNotNull("No redirect Location.", fetched.getHeader("Location"));
+    ProtocolOutput fetched = fetchPage("/", 302);
+    assertNotNull("No redirect Location.", getHeader(fetched, "Location"));
     assertEquals("Wrong redirect Location.", "http://example.com/",
-        fetched.getHeader("Location"));
+        getHeader(fetched, "Location"));
   }
 
   /**
@@ -229,9 +260,9 @@ public class TestBadServerResponses {
     setUp();
     String text = "This is a text containing non-ASCII characters: \u00e4\u00f6\u00fc\u00df";
     launchServer(text);
-    Response fetched = fetchPage("/", 200);
+    ProtocolOutput fetched = fetchPage("/", 200);
     assertEquals("Wrong text returned for response with no status line.", text,
-        new String(fetched.getContent(), StandardCharsets.UTF_8));
+        new String(fetched.getContent().getContent(), StandardCharsets.UTF_8));
     server.close();
     text = "<!DOCTYPE html>\n<html>\n<head>\n"
         + "<title>Testing no HTTP header èéâ</title>\n"
@@ -241,7 +272,7 @@ public class TestBadServerResponses {
     launchServer(text);
     fetched = fetchPage("/", 200);
     assertEquals("Wrong text returned for response with no status line.", text,
-        new String(fetched.getContent(), StandardCharsets.UTF_8));
+        new String(fetched.getContent().getContent(), StandardCharsets.UTF_8));
   }
 
   /**
@@ -255,18 +286,18 @@ public class TestBadServerResponses {
     launchServer(responseHeader
         + "Set-Cookie: UserID=JohnDoe;\r\n  Max-Age=3600;\r\n  Version=1\r\n"
         + simpleContent);
-    Response fetched = fetchPage("/", 200);
-    LOG.info("Headers: {}", fetched.getHeaders());
-    assertNotNull("Failed to set multi-line \"Set-Cookie\" header.", fetched.getHeader("Set-Cookie"));
+    ProtocolOutput fetched = fetchPage("/", 200);
+    LOG.info("Headers: {}", getHeaders(fetched));
+    assertNotNull("Failed to set multi-line \"Set-Cookie\" header.",
+        getHeader(fetched, "Set-Cookie"));
     assertTrue("Failed to set multi-line \"Set-Cookie\" header.",
-        fetched.getHeader("Set-Cookie").contains("Version=1"));
+        getHeader(fetched, "Set-Cookie").contains("Version=1"));
   }
 
   /**
    * NUTCH-2561 protocol-http can be made to read arbitrarily large HTTP
    * responses
    */
-  @Test(expected = Exception.class)
   public void testOverlongHeader() throws Exception {
     setUp();
     StringBuilder response = new StringBuilder();
@@ -281,7 +312,7 @@ public class TestBadServerResponses {
     response.append("\r\n" + simpleContent);
     launchServer(response.toString());
     // should throw exception because of overlong header
-    fetchPage("/", 200);
+    fetchPage("/", -1);
   }
 
   /**
@@ -309,20 +340,15 @@ public class TestBadServerResponses {
     }
     response.append("\r\n0\r\n\r\n");
     launchServer(response.toString());
-    Response fetched = fetchPage("/", 200);
+    ProtocolOutput fetched = fetchPage("/", 200);
     assertEquals(
         "Chunked content not truncated according to http.content.limit", 65536,
-        fetched.getContent().length);
+        fetched.getContent().getContent().length);
     assertNotNull("Content truncation not marked",
-        fetched.getHeaders().get(Response.TRUNCATED_CONTENT));
+        fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT));
     assertEquals("Content truncation not marked",
         Response.TruncatedContentReason.LENGTH.toString().toLowerCase(),
-        fetched.getHeaders().get(Response.TRUNCATED_CONTENT_REASON));
-    LOG.warn("Truncation marked: {}", fetched.getHeaders().get(Response.TRUNCATED_CONTENT));
-    LOG.warn("Truncation reason: {}", fetched.getHeaders().get(Response.TRUNCATED_CONTENT_REASON));
-    for (String name : fetched.getHeaders().names()) {
-      LOG.warn("{}: {}", name, fetched.getHeaders().get(name));
-    }
+        fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT_REASON));
   }
 
   /**
@@ -347,17 +373,17 @@ public class TestBadServerResponses {
         }
       }
       launchServer(response.toString());
-      Response fetched = fetchPage("/", 200);
+      ProtocolOutput fetched = fetchPage("/", 200);
       assertEquals("Content not truncated according to http.content.limit",
-          Math.min(kB * 1024, 65536), fetched.getContent().length);
+          Math.min(kB * 1024, 65536), fetched.getContent().getContent().length);
       if (kB * 1024 > 65536) {
         assertNotNull("Content truncation not marked",
-            fetched.getHeaders().get(Response.TRUNCATED_CONTENT));
+            fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT));
         assertEquals("Content truncation not marked",
             Response.TruncatedContentReason.LENGTH.toString().toLowerCase(),
-            fetched.getHeaders().get(Response.TRUNCATED_CONTENT_REASON));
+            fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT_REASON));
       }
-      server.close();
+      server.close(); // need to close server before next loop iteration
     }
   }
 
@@ -392,17 +418,17 @@ public class TestBadServerResponses {
       response.write(bytes.toByteArray());
 
       launchServer(response.toByteArray());
-      Response fetched = fetchPage("/", 200);
+      ProtocolOutput fetched = fetchPage("/", 200);
       assertEquals("Content not truncated according to http.content.limit",
-          Math.min(kB * 1024, 65536), fetched.getContent().length);
+          Math.min(kB * 1024, 65536), fetched.getContent().getContent().length);
       if (kB * 1024 > 65536) {
         assertNotNull("Content truncation not marked",
-            fetched.getHeaders().get(Response.TRUNCATED_CONTENT));
+            fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT));
         assertEquals("Content truncation not marked",
             Response.TruncatedContentReason.LENGTH.toString().toLowerCase(),
-            fetched.getHeaders().get(Response.TRUNCATED_CONTENT_REASON));
+            fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT_REASON));
       }
-      server.close();
+      server.close(); // need to close server before next loop iteration
     }
   }
 
@@ -426,10 +452,9 @@ public class TestBadServerResponses {
       }
     }
     launchServer(response.toString());
-    Response fetched = fetchPage("/", 200);
+    ProtocolOutput fetched = fetchPage("/", 200);
     assertEquals("Content truncated although http.content.limit == -1",
-        (kB * 1024), fetched.getContent().length);
-    server.close();
+        (kB * 1024), fetched.getContent().getContent().length);
   }
 
 }
