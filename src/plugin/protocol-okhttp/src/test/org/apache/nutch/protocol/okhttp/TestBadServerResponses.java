@@ -432,6 +432,26 @@ public class TestBadServerResponses {
     }
   }
 
+  /**
+   * Force an exception after all content has been fetched by sending a wrong
+   * `Content-Length` header and check whether the content is stored anyway if
+   * http.partial.truncated == true
+   */
+  @Test
+  public void testPartialContentTruncated() throws Exception {
+    setUp();
+    conf.setBoolean("http.partial.truncated", true);
+    http.setConf(conf);
+    String testContent = "This is a text.";
+    launchServer(
+        responseHeader + "Content-Length: 50000\r\n\r\n" + testContent);
+    ProtocolOutput fetched = fetchPage("/", 200);
+    assertEquals("Content not saved as truncated", testContent,
+        new String(fetched.getContent().getContent(), StandardCharsets.UTF_8));
+    assertNotNull("Content truncation not marked",
+        fetched.getContent().getMetadata().get(Response.TRUNCATED_CONTENT));
+  }
+
   @Test
   public void testNoContentLimit() throws Exception {
     setUp();
