@@ -80,12 +80,11 @@
 			<exclude module="hadoop-client" />
 		</dependency>
 
-		<!--dependency org="org.apache.cxf" name="cxf" rev="3.0.4" conf="*->default"/-->
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.2.7" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.2.7" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.2.7" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.2.7" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.2.7" conf="test->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.3.3" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.3.3" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.3.3" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.3.3" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.3.3" conf="test->default"/>
 		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.9" conf="*->default"/>
 		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.9.9" conf="*->default"/>
 		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.9.9" conf="*->default"/>
