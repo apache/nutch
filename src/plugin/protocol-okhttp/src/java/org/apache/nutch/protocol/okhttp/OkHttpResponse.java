@@ -179,6 +179,8 @@ public class OkHttpResponse implements Response {
         if (partialAsTruncated && source.buffer().size() > 0) {
           // treat already fetched content as truncated
           truncated.setReason(TruncatedContentReason.DISCONNECT);
+          LOG.info("Truncated content for {}, partial fetch caused by:", url,
+              e);
         } else {
           throw e;
         }
