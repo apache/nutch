@@ -17,7 +17,6 @@
 package org.apache.nutch.indexwriter.elastic;
 
 import java.lang.invoke.MethodHandles;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.AbstractMap;
@@ -143,16 +142,17 @@ public class ElasticIndexWriter implements IndexWriter {
 
     Settings.Builder settingsBuilder = Settings.builder();
 
-    BufferedReader reader = new BufferedReader(
-        config.getConfResourceAsReader("elasticsearch.conf"));
-    String line;
-    String[] parts;
-    while ((line = reader.readLine()) != null) {
-      if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        parts = line.trim().split("=");
+    String options = parameters.get(ElasticConstants.OPTIONS);
 
-        if (parts.length == 2) {
-          settingsBuilder.put(parts[0].trim(), parts[1].trim());
+    if (options != null) {
+      String[] lines = options.trim().split(",");
+      for (String line : lines) {
+        if (StringUtils.isNotBlank(line)) {
+          String[] parts = line.trim().split("=");
+
+          if (parts.length == 2) {
+            settingsBuilder.put(parts[0].trim(), parts[1].trim());
+          }
         }
       }
     }
@@ -168,8 +168,8 @@ public class ElasticIndexWriter implements IndexWriter {
 
     // Prefer TransportClient
     if (hosts != null && port > 1) {
-      @SuppressWarnings("resource")
-      TransportClient transportClient = new PreBuiltTransportClient(settings);
+      @SuppressWarnings("resource") TransportClient transportClient = new PreBuiltTransportClient(
+          settings);
 
       for (String host : hosts)
         transportClient.addTransportAddress(
