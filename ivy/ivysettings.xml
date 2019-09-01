@@ -29,14 +29,6 @@
     value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier])"/>
   <property name="maven2.pattern.ext"
     value="${maven2.pattern}.[ext]"/>
-  <!-- define packaging.type=jar to work around the failing dependency download of
-         javax.ws.rs-api.jar
-       required by Tika (1.19 and higher), cf.
-         https://github.com/eclipse-ee4j/jaxrs-api/issues/572
-         https://github.com/jax-rs/api/pull/576
-  -->
-  <property name="packaging.type"
-    value="jar"/>
   <!-- pull in the local repository -->
   <include url="${ivy.default.conf.dir}/ivyconf-local.xml"/>
   <settings defaultResolver="default"/>
