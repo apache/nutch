@@ -1314,6 +1314,20 @@
   </description>
 </property>
 
+<property>
+  <name>indexer.indexwriters.file</name>
+  <value>index-writers.xml</value>
+  <description>The configuration file for index writers.</description>
+</property>
+
+<!-- Exchanges properties -->
+
+<property>
+  <name>exchanges.exchanges.file</name>
+  <value>exchanges.xml</value>
+  <description>The configuration file used by the Exchange component.</description>
+</property>
+
 <!-- URL normalizer properties -->
 
 <property>
