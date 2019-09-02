@@ -60,11 +60,13 @@
     <dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="2.5.2" conf="*->default"/>
     <!-- End of Hadoop Dependencies -->
 
-    <dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
-    <dependency org="org.apache.tika" name="tika-core" rev="1.20" />
+    <dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
+    <dependency org="org.apache.tika" name="tika-core" rev="1.22" />
     <!-- Tika requires a recent version of commons-compress -->
     <dependency org="org.apache.commons" name="commons-compress" rev="1.18" conf="*->default" />
     <dependency org="com.googlecode.juniversalchardet" name="juniversalchardet" rev="1.0.3"/>
+    <dependency org="xml-apis" name="xml-apis" rev="1.4.01"/><!-- force this version as it is required by Tika -->
+    <dependency org="xerces" name="xercesImpl" rev="2.12.0" />
 
     <dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
 
