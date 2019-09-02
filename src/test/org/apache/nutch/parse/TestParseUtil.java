@@ -62,7 +62,7 @@ public class TestParseUtil {
         page.setContent(ByteBuffer.wrap(content.getBytes("utf-8")));
         page.setStatus((int)CrawlStatus.STATUS_FETCHED);
         parseUtil.process("http://www.example.com/", page);
-        assertTrue("Wrong URL!", page.getOutlinks().size() == 2);
+        assertTrue("Wrong number of URLs", page.getOutlinks().size() == 2);
         assertTrue("Wrong URL", page.getOutlinks().containsKey(new Utf8("http://www.nutch.org/index.html")));
         assertTrue("Wrong URL", page.getOutlinks().containsKey(new Utf8("http://www.apache.org/foundation/")));
 
