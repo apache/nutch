@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.indexer;
 
-import de.vandermeer.asciitable.AT_ColumnWidthCalculator;
 import de.vandermeer.asciitable.AT_Row;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.skb.interfaces.document.TableRowType;
@@ -115,8 +114,10 @@ public class IndexWriters {
    * @param conf Nutch configuration instance.
    */
   private IndexWriterConfig[] loadWritersConfiguration(Configuration conf) {
+    String filename = conf.get("indexer.indexwriters.file",
+        "index-writers.xml");
     InputStream ssInputStream = conf
-        .getConfResourceAsInputStream("index-writers.xml");
+        .getConfResourceAsInputStream(filename);
     InputSource inputSource = new InputSource(ssInputStream);
 
     try {
@@ -136,7 +137,7 @@ public class IndexWriters {
 
       return indexWriterConfigs;
     } catch (SAXException | IOException | ParserConfigurationException e) {
-      LOG.warn(e.toString());
+      LOG.error(e.toString());
       return new IndexWriterConfig[0];
     }
   }
@@ -218,6 +219,10 @@ public class IndexWriters {
 
   public void write(NutchDocument doc) throws IOException {
     for (String indexWriterId : getIndexWriters(doc)) {
+      if (!this.indexWriters.containsKey(indexWriterId)) {
+        LOG.warn("Index writer {} is not present. Maybe the plugin is not in plugin.includes or there is a misspelling.", indexWriterId);
+        continue;
+      }
       NutchDocument mappedDocument = mapDocument(doc,
           this.indexWriters.get(indexWriterId).getIndexWriterConfig()
               .getMapping());
@@ -228,6 +233,10 @@ public class IndexWriters {
 
   public void update(NutchDocument doc) throws IOException {
     for (String indexWriterId : getIndexWriters(doc)) {
+      if (!this.indexWriters.containsKey(indexWriterId)) {
+        LOG.warn("Index writer {} is not present. Maybe the plugin is not in plugin.includes or there is a misspelling.", indexWriterId);
+        continue;
+      }
       NutchDocument mappedDocument = mapDocument(doc,
           this.indexWriters.get(indexWriterId).getIndexWriterConfig()
               .getMapping());

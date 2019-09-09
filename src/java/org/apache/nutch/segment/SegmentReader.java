@@ -25,6 +25,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,7 +117,7 @@ public class SegmentReader extends Configured implements Tool {
         fs.delete(segmentDumpFile, true);
 
       final PrintStream printStream = new PrintStream(
-          fs.create(segmentDumpFile));
+          fs.create(segmentDumpFile), false, StandardCharsets.UTF_8.name());
       return new RecordWriter<WritableComparable<?>, Writable>() {
         public synchronized void write(WritableComparable<?> key, Writable value)
             throws IOException {
@@ -254,12 +255,12 @@ public class SegmentReader extends Configured implements Tool {
         HadoopFSUtil.getPassAllFilter());
     Path[] files = HadoopFSUtil.getPaths(fstats);
 
-    PrintWriter writer = null;
     int currentRecordNumber = 0;
     if (files.length > 0) {
-      writer = new PrintWriter(
-          new BufferedWriter(new OutputStreamWriter(outFs.create(dumpFile))));
-      try {
+      try (PrintWriter writer = new PrintWriter(
+          new BufferedWriter(new OutputStreamWriter(outFs.create(dumpFile),
+              StandardCharsets.UTF_8)))) {
+
         for (int i = 0; i < files.length; i++) {
           Path partFile = files[i];
           try {
@@ -273,8 +274,6 @@ public class SegmentReader extends Configured implements Tool {
             }
           }
         }
-      } finally {
-        writer.close();
       }
     }
     fs.delete(tempDir, true);
@@ -286,8 +285,8 @@ public class SegmentReader extends Configured implements Tool {
   /** Appends two files and updates the Recno counter */
   private int append(FileSystem fs, Configuration conf, Path src,
       PrintWriter writer, int currentRecordNumber) throws IOException {
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-        fs.open(src)))) {
+    try (BufferedReader reader = new BufferedReader(
+        new InputStreamReader(fs.open(src), StandardCharsets.UTF_8))) {
       String line = reader.readLine();
       while (line != null) {
         if (line.startsWith("Recno:: ")) {
@@ -666,7 +665,7 @@ public class SegmentReader extends Configured implements Tool {
         } else
           dirs.add(new Path(args[i]));
       }
-      segmentReader.list(dirs, new OutputStreamWriter(System.out, "UTF-8"));
+      segmentReader.list(dirs, new OutputStreamWriter(System.out, StandardCharsets.UTF_8));
       return 0;
     case MODE_GET:
       input = args[1];
@@ -682,7 +681,7 @@ public class SegmentReader extends Configured implements Tool {
         return -1;
       }
       segmentReader.get(new Path(input), new Text(key), new OutputStreamWriter(
-          System.out, "UTF-8"), new HashMap<>());
+          System.out, StandardCharsets.UTF_8), new HashMap<>());
       return 0;
     default:
       System.err.println("Invalid operation: " + args[0]);
