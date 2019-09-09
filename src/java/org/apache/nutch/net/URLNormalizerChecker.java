@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.net;
 
+import java.net.MalformedURLException;
+
 import org.apache.hadoop.util.ToolRunner;
 
 import org.apache.nutch.util.AbstractChecker;
@@ -35,7 +37,8 @@ public class URLNormalizerChecker extends AbstractChecker {
         + "\n             \t(if not given all configured URL normalizers are applied)"
         + "\n  -scope     \tone of: default,partition,generate_host_count,fetcher,crawldb,linkdb,inject,outlink"
         + "\n  -stdin     \ttool reads a list of URLs from stdin, one URL per line"
-        + "\n  -listen <port>\trun tool as Telnet server listening on <port>\n";
+        + "\n  -listen <port>\trun tool as Telnet server listening on <port>"
+        + "\n\nAn empty line is added to the output if a URL fails to normalize (MalformedURLException or null returned).\n";
 
     // Print help when no args given
     if (args.length < 1) {
@@ -71,7 +74,16 @@ public class URLNormalizerChecker extends AbstractChecker {
   }
 
   protected int process(String line, StringBuilder output) throws Exception {
-    output.append(normalizers.normalize(line, scope));
+    try {
+      String norm = normalizers.normalize(line, scope);
+      if (norm == null) {
+        output.append("");
+      } else {
+        output.append(norm);
+      }
+    } catch (MalformedURLException e) {
+      output.append("");
+    }
     return 0;
   }
 

@@ -132,46 +132,27 @@ public class SitemapProcessor extends Configured implements Tool {
           context.write(key, (CrawlDatum) value);
         }
         else if (value instanceof HostDatum) {
-          // For entry from hostdb, get sitemap url(s) from robots.txt, fetch the sitemap,
-          // extract urls and emit those
-
-          // try different combinations of schemes one by one till we get rejection in all cases
-          String host = key.toString();
-          if((url = filterNormalize("http://" + host + "/")) == null &&
-              (url = filterNormalize("https://" + host + "/")) == null &&
-              (url = filterNormalize("ftp://" + host + "/")) == null &&
-              (url = filterNormalize("file:/" + host + "/")) == null) {
-            context.getCounter("Sitemap", "filtered_records").increment(1);
-            return;
-          }
-          // We may wish to use the robots.txt content as the third parameter for .getRobotRules
-          BaseRobotRules rules = protocolFactory.getProtocol(url).getRobotRules(new Text(url), datum, null);
-          List<String> sitemaps = rules.getSitemaps();
-
-          if (tryDefaultSitemapXml && sitemaps.size() == 0) {
-            sitemaps.add(url + "sitemap.xml");
-          }
-          for (String sitemap : sitemaps) {
-            context.getCounter("Sitemap", "sitemaps_from_hostdb").increment(1);
-            sitemap = filterNormalize(sitemap);
-            if (sitemap == null) {
-              context.getCounter("Sitemap", "filtered_sitemaps_from_hostdb")
-                  .increment(1);
-            } else {
-              generateSitemapUrlDatum(protocolFactory.getProtocol(sitemap),
-                  sitemap, context);
-            }
-          }
+          generateSitemapsFromHostname(key.toString(), context);
         }
         else if (value instanceof Text) {
-          // For entry from sitemap urls file, fetch the sitemap, extract urls and emit those
-          if((url = filterNormalize(key.toString())) == null) {
-            context.getCounter("Sitemap", "filtered_records").increment(1);
-            return;
-          }
+          // Input can be sitemap URL or hostname
+          url = key.toString();
+          if (url.startsWith("http://") ||
+                url.startsWith("https://") ||
+                url.startsWith("ftp://") ||
+                url.startsWith("file:/")) {
+            // For entry from sitemap urls file, fetch the sitemap, extract urls and emit those
+            if((url = filterNormalize(url)) == null) {
+              context.getCounter("Sitemap", "filtered_records").increment(1);
+              return;
+            }
 
-          context.getCounter("Sitemap", "sitemap_seeds").increment(1);
-          generateSitemapUrlDatum(protocolFactory.getProtocol(url), url, context);
+            context.getCounter("Sitemap", "sitemap_seeds").increment(1);
+            generateSitemapUrlDatum(protocolFactory.getProtocol(url), url, context); 
+          } else {
+            LOG.info("generateSitemapsFromHostname: " + key.toString());
+            generateSitemapsFromHostname(key.toString(), context);
+          }
         }
       } catch (Exception e) {
         LOG.warn("Exception for record {} : {}", key.toString(), StringUtils.stringifyException(e));
@@ -190,6 +171,43 @@ public class SitemapProcessor extends Configured implements Tool {
         return null;
       }
       return url;
+    }
+    
+    private void generateSitemapsFromHostname(String host, Context context) {
+      try {
+        // For entry from hostdb, get sitemap url(s) from robots.txt, fetch the sitemap,
+        // extract urls and emit those
+
+        // try different combinations of schemes one by one till we get rejection in all cases
+        String url;
+        if((url = filterNormalize("http://" + host + "/")) == null &&
+            (url = filterNormalize("https://" + host + "/")) == null &&
+            (url = filterNormalize("ftp://" + host + "/")) == null &&
+            (url = filterNormalize("file:/" + host + "/")) == null) {
+          context.getCounter("Sitemap", "filtered_records").increment(1);
+          return;
+        }
+        // We may wish to use the robots.txt content as the third parameter for .getRobotRules
+        BaseRobotRules rules = protocolFactory.getProtocol(url).getRobotRules(new Text(url), datum, null);
+        List<String> sitemaps = rules.getSitemaps();
+
+        if (tryDefaultSitemapXml && sitemaps.size() == 0) {
+          sitemaps.add(url + "sitemap.xml");
+        }
+        for (String sitemap : sitemaps) {
+          context.getCounter("Sitemap", "sitemaps_from_hostname").increment(1);
+          sitemap = filterNormalize(sitemap);
+          if (sitemap == null) {
+            context.getCounter("Sitemap", "filtered_sitemaps_from_hostname")
+                .increment(1);
+          } else {
+            generateSitemapUrlDatum(protocolFactory.getProtocol(sitemap),
+                sitemap, context);
+          }
+        }
+      } catch (Exception e) {
+        LOG.warn("Exception for record {} : {}", host, StringUtils.stringifyException(e));
+      }
     }
 
     private void generateSitemapUrlDatum(Protocol protocol, String url, Context context) throws Exception {
@@ -399,13 +417,13 @@ public class SitemapProcessor extends Configured implements Tool {
 
       if (LOG.isInfoEnabled()) {
         long filteredRecords = job.getCounters().findCounter("Sitemap", "filtered_records").getValue();
-        long fromHostDb = job.getCounters().findCounter("Sitemap", "sitemaps_from_hostdb").getValue();
+        long fromHostname = job.getCounters().findCounter("Sitemap", "sitemaps_from_hostname").getValue();
         long fromSeeds = job.getCounters().findCounter("Sitemap", "sitemap_seeds").getValue();
         long failedFetches = job.getCounters().findCounter("Sitemap", "failed_fetches").getValue();
         long newSitemapEntries = job.getCounters().findCounter("Sitemap", "new_sitemap_entries").getValue();
 
         LOG.info("SitemapProcessor: Total records rejected by filters: {}", filteredRecords);
-        LOG.info("SitemapProcessor: Total sitemaps from HostDb: {}", fromHostDb);
+        LOG.info("SitemapProcessor: Total sitemaps from host name: {}", fromHostname);
         LOG.info("SitemapProcessor: Total sitemaps from seed urls: {}", fromSeeds);
         LOG.info("SitemapProcessor: Total failed sitemap fetches: {}", failedFetches);
         LOG.info("SitemapProcessor: Total new sitemap entries added: {}", newSitemapEntries);
@@ -431,7 +449,7 @@ public class SitemapProcessor extends Configured implements Tool {
 
     System.err.println("\t<crawldb>\t\tpath to crawldb where the sitemap urls would be injected");
     System.err.println("\t-hostdb <hostdb>\tpath of a hostdb. Sitemap(s) from these hosts would be downloaded");
-    System.err.println("\t-sitemapUrls <url_dir>\tpath to sitemap urls directory");
+    System.err.println("\t-sitemapUrls <url_dir>\tpath to directory with sitemap urls or hostnames");
     System.err.println("\t-threads <threads>\tNumber of threads created per mapper to fetch sitemap urls (default: 8)");
     System.err.println("\t-force\t\t\tforce update even if CrawlDb appears to be locked (CAUTION advised)");
     System.err.println("\t-noStrict\t\tBy default Sitemap parser rejects invalid urls. '-noStrict' disables that.");
