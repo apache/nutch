@@ -36,6 +36,20 @@ To contribute a patch, follow these instructions (note that installing
 11. git push -u <your git username> NUTCH-xxx
 12. git pull-request
 ```
+
+IDE setup
+=========
+
+Generate Eclipse project files
+
+```
+ant eclipse
+```
+
+and follow the instructions in [Importing existing projects](https://help.eclipse.org/2019-06/topic/org.eclipse.platform.doc.user/tasks/tasks-importproject.htm).
+
+IntelliJ IDEA users can also import Eclipse projects using the ["Eclipser" plugin](https://www.tutorialspoint.com/intellij_idea/intellij_idea_migrating_from_eclipse.htm)https://plugins.jetbrains.com/plugin/7153-eclipser), see also [Importing Eclipse Projects into IntelliJ IDEA](https://www.jetbrains.com/help/idea/migrating-from-eclipse-to-intellij-idea.html#migratingEclipseProject).
+
    
 Export Control
 ==============
