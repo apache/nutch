@@ -4,6 +4,9 @@ Nutch 1.16 Release (dd/mm/yyyy)
 
 Comments
 
+    -  schema.xml has been moved to indexer-solr plugin directory. This file is provided as a
+       reference/guide for Solr users (NUTCH-2654)
+
 Breaking Changes
 
     -  The value of crawl.gen.delay is now read in milliseconds as stated in the description

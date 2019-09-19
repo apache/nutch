@@ -17,13 +17,14 @@
 package org.apache.nutch.indexwriter.elastic;
 
 public interface ElasticConstants {
-  public static final String HOSTS = "host";
-  public static final String PORT = "port";
-  public static final String CLUSTER = "cluster";
-  public static final String INDEX = "index";
-  public static final String MAX_BULK_DOCS = "max.bulk.docs";
-  public static final String MAX_BULK_LENGTH = "max.bulk.size";
-  public static final String EXPONENTIAL_BACKOFF_MILLIS = "exponential.backoff.millis";
-  public static final String EXPONENTIAL_BACKOFF_RETRIES = "exponential.backoff.retries";
-  public static final String BULK_CLOSE_TIMEOUT = "bulk.close.timeout";
+  String HOSTS = "host";
+  String PORT = "port";
+  String CLUSTER = "cluster";
+  String INDEX = "index";
+  String MAX_BULK_DOCS = "max.bulk.docs";
+  String MAX_BULK_LENGTH = "max.bulk.size";
+  String EXPONENTIAL_BACKOFF_MILLIS = "exponential.backoff.millis";
+  String EXPONENTIAL_BACKOFF_RETRIES = "exponential.backoff.retries";
+  String BULK_CLOSE_TIMEOUT = "bulk.close.timeout";
+  String OPTIONS = "options";
 }
