@@ -53,6 +53,7 @@ Bug
     [NUTCH-2640] - Typo: DbUpdaterJob: updatinging all
     [NUTCH-2641] - ClassCastException in webui
     [NUTCH-2642] - MoreIndexingFilter parses ISO 8601 UTC dates in local time zone
+    [NUTCH-2722] - Fetch dependencies via https
 
 New Feature
 
@@ -89,6 +90,7 @@ Improvement
     [NUTCH-2527] - URL filter: provide rules to exclude localhost and private address spaces
     [NUTCH-2667] - Update Tika and Commons Collections 4
     [NUTCH-2668] - Integrate OWASP dependency checks as ant target
+    [NUTCH-2734] - Upgrade 2.x to use Tika 1.22
 
 Wish
 
