@@ -6,11 +6,18 @@ build/
 runtime/
 logs/
 /bin/
-.classpath
-.naivebayes-model.crc
-.project
 ivy/ivy-2.3.0.jar
 ivy/ivy-2.4.0.jar
 ivy/ivy-2.5.0-rc1.jar
 naivebayes-model
+.naivebayes-model.crc
 .gitconfig
+# Eclipse configuration files
+.classpath
+.project
+.settings/
+.externalToolBuilders/
+# IntelliJ IDEA configuration files
+.idea/
+*.iml
+*.swp
