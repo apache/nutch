@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Nutch 2.4 Release 09032018 (ddmmyyyy)
+Nutch 2.4 Release 23092019 (ddmmyyyy)
 Release Report - https://s.apache.org/bFfL
 
 Sub-task
