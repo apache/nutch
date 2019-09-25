@@ -14,11 +14,11 @@ Nutch can run on a single machine, but gains a lot of its strength from running 
 
 Current configuration of this image consists of components:
 
-*	Nutch 1.x
+*	Nutch 1.x (branch "master")
 
 ##  Base Image
 
-* [ubuntu:14.04](https://registry.hub.docker.com/_/ubuntu/)
+* [ubuntu:18.04](https://hub.docker.com/_/ubuntu/)
 
 ## Tips
 
