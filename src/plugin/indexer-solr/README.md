@@ -38,3 +38,7 @@ commitSize | Defines the number of documents to send to Solr in a single update 
 auth | Whether to enable HTTP basic authentication for communicating with Solr. Use the `username` and `password` properties to configure your credentials. | false
 username | The username of Solr server. | username
 password | The password of Solr server. | password
+
+## schema.xml
+
+In the distribution of the indexer-solr plugin there is a schema.xml file available. Nutch does not use this file, but it is provided to Solr users as a reference/guide to facilitate the configuration of Solr.
