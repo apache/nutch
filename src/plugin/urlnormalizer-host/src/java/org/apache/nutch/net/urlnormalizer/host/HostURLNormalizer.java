@@ -53,15 +53,7 @@ public class HostURLNormalizer implements URLNormalizer {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private static String attributeFile = null;
-  private String hostsFile = null;
   private static final HashMap<String, String> hostsMap = new HashMap<String, String>();
-
-  public HostURLNormalizer() {
-  }
-
-  public HostURLNormalizer(String hostsFile) {
-    this.hostsFile = hostsFile;
-  }
 
   private synchronized void readConfiguration(Reader configReader)
       throws IOException {
@@ -121,11 +113,15 @@ public class HostURLNormalizer implements URLNormalizer {
       }
     }
 
-    // domain file and attribute "file" take precedence if defined
+    // precedence hierarchy for definition of normalizer rules
+    // (first non-empty definition takes precedence):
+    // 1. string rules defined by `urlnormalizer.hosts.rules`
+    // 2. rule file name defined by `urlnormalizer.hosts.file"`
+    // 3. rule file name defined in plugin.xml (`attributeFile`)
     String file = conf.get("urlnormalizer.hosts.file");
     String stringRules = conf.get("urlnormalizer.hosts.rules");
-    if (hostsFile != null) {
-      file = hostsFile;
+    if (file != null) {
+      // take file
     } else if (attributeFile != null) {
       file = attributeFile;
     }
@@ -133,6 +129,7 @@ public class HostURLNormalizer implements URLNormalizer {
     if (stringRules != null) { // takes precedence over files
       reader = new StringReader(stringRules);
     } else {
+      LOG.info("Reading {} rules file {}", pluginName, file);
       reader = conf.getConfResourceAsReader(file);
     }
     try {
@@ -141,7 +138,7 @@ public class HostURLNormalizer implements URLNormalizer {
       }
       readConfiguration(reader);
     } catch (IOException e) {
-      LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
+      LOG.error("Error reading " + pluginName + " rule file " + file, e);
     }
   }
 

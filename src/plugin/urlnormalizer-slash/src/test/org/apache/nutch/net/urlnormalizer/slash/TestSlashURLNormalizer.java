@@ -31,7 +31,8 @@ public class TestSlashURLNormalizer extends TestCase {
     Configuration conf = NutchConfiguration.create();
 
     String slashesFile = SAMPLES + SEPARATOR + "slashes.txt";
-    SlashURLNormalizer normalizer = new SlashURLNormalizer(slashesFile);
+    conf.set("urlnormalizer.slashes.file", slashesFile);
+    SlashURLNormalizer normalizer = new SlashURLNormalizer();
     normalizer.setConf(conf);
 
     // No change
