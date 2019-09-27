@@ -77,12 +77,4 @@ public class TestEmbeddedDocuments {
     }
   }
 
-  @Test
-  public void testOpeningDocs() throws ProtocolException, ParseException {
-    String[] filenames = new File(sampleDir).list();
-    for (int i = 0; i < filenames.length; i++) {
-      Assert.assertTrue("can't read content of " + filenames[i],
-          getTextContent(filenames[i]).length() > 0);
-    }
-  }
 }
