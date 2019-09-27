@@ -1627,6 +1627,14 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>tika.parse.embedded</name>
+  <value>true</value>
+  <description>
+    Whether parse-tika shall parse embedded documents (even recursively).
+  </description>
+</property>
+
 <!-- urlfilter plugin properties -->
 
 <property>

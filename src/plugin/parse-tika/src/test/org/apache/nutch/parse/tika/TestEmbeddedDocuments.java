@@ -55,6 +55,7 @@ public class TestEmbeddedDocuments {
   public void setUp() {
     conf = NutchConfiguration.create();
     conf.set("file.content.limit", "-1");
+    conf.setBoolean("tika.parse.embedded", true);
   }
 
   public String getTextContent(String fileName) throws ProtocolException,

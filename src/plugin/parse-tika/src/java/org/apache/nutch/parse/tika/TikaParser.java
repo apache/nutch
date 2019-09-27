@@ -45,6 +45,7 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.html.BoilerpipeContentHandler;
+import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.CompositeParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
@@ -73,9 +74,10 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   private HtmlParseFilters htmlParseFilters;
   private String cachingPolicy;
   private HtmlMapper HTMLMapper;
+  private boolean parseEmbedded = true;
   private boolean upperCaseElementNames = true;
-  private String boilerpipeExtractorName;
   private boolean useBoilerpipe;
+  private String boilerpipeExtractorName;
   private Set<String> boilerpipeMimeTypes;
 
   public ParseResult getParse(Content content) {
@@ -134,6 +136,10 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     LinkContentHandler linkContentHandler = new LinkContentHandler();
 
     ParseContext context = new ParseContext();
+    if (parseEmbedded) {
+      context.set(Parser.class, new AutoDetectParser(tikaConfig));
+    }
+
     TeeContentHandler teeContentHandler = new TeeContentHandler(domHandler,
         linkContentHandler);
 
@@ -309,6 +315,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     boilerpipeMimeTypes = new HashSet<>(Arrays
         .asList(conf.getTrimmedStrings("tika.extractor.boilerpipe.mime.types",
             "text/html", "application/xhtml+xml")));
+    parseEmbedded = conf.getBoolean("tika.parse.embedded", true);
   }
 
   public Configuration getConf() {
