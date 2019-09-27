@@ -35,7 +35,8 @@ public class TestRegexParseFilter extends TestCase {
     Configuration conf = NutchConfiguration.create();
 
     String file = SAMPLES + SEPARATOR + "regex-parsefilter.txt";
-    RegexParseFilter filter = new RegexParseFilter(file);
+    conf.set("parsefilter.regex.file", file);
+    RegexParseFilter filter = new RegexParseFilter();
     filter.setConf(conf);
 
     String url = "http://nutch.apache.org/";
@@ -56,7 +57,8 @@ public class TestRegexParseFilter extends TestCase {
     Configuration conf = NutchConfiguration.create();
 
     String file = SAMPLES + SEPARATOR + "regex-parsefilter.txt";
-    RegexParseFilter filter = new RegexParseFilter(file);
+    conf.set("parsefilter.regex.file", file);
+    RegexParseFilter filter = new RegexParseFilter();
     filter.setConf(conf);
 
     String url = "http://nutch.apache.org/";

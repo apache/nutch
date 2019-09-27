@@ -39,9 +39,8 @@ import java.util.ArrayList;
 
 /**
  * Filters URLs based on a file of URL prefixes. The file is named by (1)
- * property "urlfilter.prefix.file" in ./conf/nutch-default.xml, and (2)
- * attribute "file" in plugin.xml of this plugin Attribute "file" has higher
- * precedence if defined.
+ * property "urlfilter.prefix.file" in ./conf/nutch-default.xml, or (2)
+ * the attribute "file" in plugin.xml of this plugin.
  * 
  * <p>
  * The format of this file is one URL prefix per line.
@@ -129,43 +128,44 @@ public class PrefixURLFilter implements URLFilter {
         break;
       }
     }
-    if (attributeFile != null && attributeFile.trim().equals(""))
+
+    if (attributeFile != null && attributeFile.trim().isEmpty()) {
       attributeFile = null;
-    if (attributeFile != null) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Attribute \"file\" is defined for plugin " + pluginName
-            + " as " + attributeFile);
-      }
-    } else {
-      // if (LOG.isWarnEnabled()) {
-      // LOG.warn("Attribute \"file\" is not defined in plugin.xml for
-      // plugin "+pluginName);
-      // }
     }
 
+    if (attributeFile != null) {
+      LOG.info("Attribute \"file\" is defined for plugin {} as {}", pluginName, attributeFile);
+    }
+
+    // precedence hierarchy for definition of filter rules
+    // (first non-empty definition takes precedence):
+    // 1. string rules defined by `urlfilter.domainblacklist.rules`
+    // 2. rule file name defined by `urlfilter.domainblacklist.file`
+    // 3. rule file name defined in plugin.xml (`attributeFile`)
     String file = conf.get("urlfilter.prefix.file");
     String stringRules = conf.get("urlfilter.prefix.rules");
-    // attribute "file" takes precedence if defined
-    if (attributeFile != null)
-      file = attributeFile;
     Reader reader = null;
     if (stringRules != null) { // takes precedence over files
       reader = new StringReader(stringRules);
     } else {
+      if (file != null) {
+        // take file
+      } else if (attributeFile != null) {
+        file = attributeFile;
+      }
+      LOG.info("Reading {} rules file {}", pluginName, file);
       reader = conf.getConfResourceAsReader(file);
     }
 
     if (reader == null) {
+      LOG.warn("Missing {} rule file '{}': all URLs will be rejected!",
+          pluginName, file);
       trie = new PrefixStringMatcher(new String[0]);
     } else {
       try {
         trie = readConfiguration(reader);
       } catch (IOException e) {
-        if (LOG.isErrorEnabled()) {
-          LOG.error(e.getMessage());
-        }
-        // TODO mb@media-style.com: throw Exception? Because broken api.
-        throw new RuntimeException(e.getMessage(), e);
+        LOG.error("Error reading " + pluginName + " rule file " + file, e);
       }
     }
   }
