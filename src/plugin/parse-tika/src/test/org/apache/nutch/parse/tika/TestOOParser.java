@@ -41,7 +41,7 @@ public class TestOOParser {
   // This system property is defined in ./src/plugin/build-plugin.xml
   private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
-  // ./src/plugin/parse-oo/build.xml during plugin compilation.
+  // ./src/plugin/parse-tika/build.xml during plugin compilation.
   private String[] sampleFiles = { "ootest.odt", "ootest.sxw" };
 
   private String expectedText;

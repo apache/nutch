@@ -38,16 +38,16 @@ import java.io.File;
  * 
  * @author John Xing
  */
-public class TestMSWordParser {
+public class TestEmbeddedDocuments {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
   private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
   // ./src/plugin/parse-tika/build.xml during plugin compilation.
-  private String[] sampleFiles = { "word97.doc" };
+  private String[] sampleFiles = { "test_recursive_embedded.docx" };
 
-  private String expectedText = "This is a sample doc file prepared for nutch.";
+  private String expectedText = "When in the Course of human events";
 
   private Configuration conf;
 
@@ -73,7 +73,7 @@ public class TestMSWordParser {
     for (int i = 0; i < sampleFiles.length; i++) {
       String found = getTextContent(sampleFiles[i]);
       Assert.assertTrue("text found : '" + found + "'",
-          found.startsWith(expectedText));
+          found.contains(expectedText));
     }
   }
 
@@ -81,8 +81,6 @@ public class TestMSWordParser {
   public void testOpeningDocs() throws ProtocolException, ParseException {
     String[] filenames = new File(sampleDir).list();
     for (int i = 0; i < filenames.length; i++) {
-      if (filenames[i].endsWith(".doc") == false)
-        continue;
       Assert.assertTrue("can't read content of " + filenames[i],
           getTextContent(filenames[i]).length() > 0);
     }
