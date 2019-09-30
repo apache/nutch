@@ -20,12 +20,14 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -211,18 +214,16 @@ public class Generator extends NutchTool implements Tool {
             if (filters.filter(url.toString()) == null)
               return;
           } catch (URLFilterException e) {
-            if (LOG.isWarnEnabled()) {
-              LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage()
-                  + ")");
-            }
+            LOG.warn("Couldn't filter url: {} ({})", url, e.getMessage());
           }
         }
         CrawlDatum crawlDatum = value;
 
         // check fetch schedule
         if (!schedule.shouldFetch(url, crawlDatum, curTime)) {
-          LOG.debug("-shouldFetch rejected '" + url + "', fetchTime="
-              + crawlDatum.getFetchTime() + ", curTime=" + curTime);
+          LOG.debug("-shouldFetch rejected '{}', fetchTime={}, curTime={}", url,
+              crawlDatum.getFetchTime(), curTime);
+          context.getCounter("Generator", "SCHEDULE_REJECTED").increment(1);
           return;
         }
 
@@ -231,6 +232,7 @@ public class Generator extends NutchTool implements Tool {
         if (oldGenTime != null) { // awaiting fetch & update
           if (oldGenTime.get() + genDelay > curTime) // still wait for
             // update
+            context.getCounter("Generator", "WAIT_FOR_UPDATE").increment(1);
             return;
         }
         float sort = 1.0f;
@@ -245,24 +247,31 @@ public class Generator extends NutchTool implements Tool {
         // check expr
         if (expr != null) {
           if (!crawlDatum.evaluate(expr, key.toString())) {
+            context.getCounter("Generator", "EXPR_REJECTED").increment(1);
             return;
           }
         }
 
         if (restrictStatus != null
-            && !restrictStatus.equalsIgnoreCase(CrawlDatum
-                .getStatusName(crawlDatum.getStatus())))
+            && !restrictStatus
+                .equalsIgnoreCase(CrawlDatum.getStatusName(crawlDatum.getStatus()))) {
+          context.getCounter("Generator", "STATUS_REJECTED").increment(1);
           return;
+        }
 
         // consider only entries with a score superior to the threshold
-        if (!Float.isNaN(scoreThreshold) && sort < scoreThreshold)
+        if (!Float.isNaN(scoreThreshold) && sort < scoreThreshold) {
+          context.getCounter("Generator", "SCORE_TOO_LOW").increment(1);
           return;
+        }
 
         // consider only entries with a retry (or fetch) interval lower than
         // threshold
         if (intervalThreshold != -1
-            && crawlDatum.getFetchInterval() > intervalThreshold)
+            && crawlDatum.getFetchInterval() > intervalThreshold) {
+          context.getCounter("Generator", "INTERVAL_REJECTED").increment(1);
           return;
+        }
 
         // sort by decreasing score, using DecreasingFloatComparator
         sortValue.set(sort);
@@ -456,11 +465,11 @@ public class Generator extends NutchTool implements Tool {
             if (byDomain) {
               hostordomain = URLUtil.getDomainName(u);
             } else {
-              hostordomain = new URL(urlString).getHost();
+              hostordomain = u.getHost();
             }
-          } catch (Exception e) {
-            LOG.warn("Malformed URL: '" + urlString + "', skipping ("
-                + StringUtils.stringifyException(e) + ")");
+          } catch (MalformedURLException e) {
+            LOG.warn("Malformed URL: '{}', skipping ({})", urlString,
+                StringUtils.stringifyException(e));
             context.getCounter("Generator", "MALFORMED_URL").increment(1);
             continue;
           }
@@ -493,13 +502,9 @@ public class Generator extends NutchTool implements Tool {
                 hostCount[1] = 1;
               } else {
                 if (hostCount[1] == maxCount && LOG.isInfoEnabled()) {
-                  LOG.info("Host or domain "
-                      + hostordomain
-                      + " has more than "
-                      + maxCount
-                      + " URLs for all "
-                      + maxNumSegments
-                      + " segments. Additional URLs won't be included in the fetchlist.");
+                  LOG.info(
+                      "Host or domain {} has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
+                      hostordomain, maxCount, maxNumSegments);
                 }
                 // skip this entry
                 continue;
@@ -802,6 +807,13 @@ public class Generator extends NutchTool implements Tool {
       LOG.error("Generator job failed: {}", e.getMessage());
       NutchJob.cleanupAfterFailure(tempDir, lock, fs);
       throw e;
+    }
+
+    LOG.info("Generator: number of items rejected during selection:");
+    for (Counter counter : job.getCounters().getGroup("Generator")) {
+      LOG.info("Generator: {}  {}",
+          String.format(Locale.ROOT, "%6d", counter.getValue()),
+          counter.getName());
     }
 
     // read the subdirectories generated in the temp
