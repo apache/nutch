@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="com.maxmind.geoip2" name="geoip2" rev="2.10.0" >
+    <dependency org="com.maxmind.geoip2" name="geoip2" rev="2.12.0" >
       <!-- Exlude due to classpath issues -->
       <exclude org="org.apache.httpcomponents" name="httpclient" />
       <exclude org="org.apache.httpcomponents" name="httpcore" />
