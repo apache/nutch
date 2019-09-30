@@ -513,7 +513,7 @@ public class Generator extends NutchTool implements Tool {
               hostCount[0]++;
               hostCount[1] = 1;
             } else {
-              if (hostCount[1] == maxCount) {
+              if (hostCount[1] == (maxCount+1)) {
                 context
                     .getCounter("Generator", "HOSTS_AFFECTED_PER_HOST_OVERFLOW")
                     .increment(1);
