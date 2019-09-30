@@ -502,12 +502,17 @@ public class Generator extends NutchTool implements Tool {
                 hostCount[0]++;
                 hostCount[1] = 1;
               } else {
-                if (hostCount[1] == maxCount && LOG.isInfoEnabled()) {
+                if (hostCount[1] == maxCount) {
+                  context
+                    .getCounter("Generator", "HOSTS_AFFECTED_PER_HOST_OVERFLOW")
+                    .increment(1);
                   LOG.info(
                       "Host or domain {} has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
                       hostordomain, maxCount, maxNumSegments);
                 }
                 // skip this entry
+                context.getCounter("Generator", "URLS_SKIPPED_PER_HOST_OVERFLOW")
+                  .increment(1);
                 continue;
               }
             }
