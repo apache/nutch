@@ -750,7 +750,7 @@ public class Generator extends NutchTool implements Tool {
     if (expr != null) {
       LOG.info("Generator: expr: {}", expr);
     }
-    if (expr != null) {
+    if (hostdb != null) {
       LOG.info("Generator: hostdb: {}", hostdb);
     }
     
