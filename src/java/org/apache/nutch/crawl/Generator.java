@@ -181,7 +181,7 @@ public class Generator extends NutchTool implements Tool {
       private FetchSchedule schedule;
       private float scoreThreshold = 0f;
       private int intervalThreshold = -1;
-      private String restrictStatus = null;
+      private byte restrictStatus = -1;
       private Expression expr = null;
  
       @Override 
@@ -198,7 +198,10 @@ public class Generator extends NutchTool implements Tool {
         schedule = FetchScheduleFactory.getFetchSchedule(conf);
         scoreThreshold = conf.getFloat(GENERATOR_MIN_SCORE, Float.NaN);
         intervalThreshold = conf.getInt(GENERATOR_MIN_INTERVAL, -1);
-        restrictStatus = conf.get(GENERATOR_RESTRICT_STATUS, null);
+        String restrictStatusString = conf.getTrimmed(GENERATOR_RESTRICT_STATUS, "");
+        if (!restrictStatusString.isEmpty()) {
+          restrictStatus = CrawlDatum.getStatusByName(restrictStatusString);
+        }
         expr = JexlUtil.parseExpression(conf.get(GENERATOR_EXPR, null));
       }
 
@@ -252,9 +255,7 @@ public class Generator extends NutchTool implements Tool {
           }
         }
 
-        if (restrictStatus != null
-            && !restrictStatus
-                .equalsIgnoreCase(CrawlDatum.getStatusName(crawlDatum.getStatus()))) {
+        if (restrictStatus != -1 && restrictStatus != crawlDatum.getStatus()) {
           context.getCounter("Generator", "STATUS_REJECTED").increment(1);
           return;
         }

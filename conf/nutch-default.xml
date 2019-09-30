@@ -904,6 +904,13 @@
   See https://issues.apache.org/jira/browse/NUTCH-2368</description>
 </property>
 
+<property>
+  <name>generate.restrict.status</name>
+  <value></value>
+  <description>Select only entries of this status, see
+  https://issues.apache.org/jira/browse/NUTCH-1248</description>
+</property>
+
 <!-- urlpartitioner properties -->
 
 <property>
