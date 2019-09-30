@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.MD5Hash;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseImpl;
@@ -67,11 +68,22 @@ public class TextProfileSignature extends Signature {
 
   Signature fallback = new MD5Signature();
 
-  public byte[] calculate(Content content, Parse parse) {
-    int MIN_TOKEN_LEN = getConf().getInt(
+  int MIN_TOKEN_LEN = 2;
+  float QUANT_RATE = 0.01f;
+  boolean secondaryLexicographicSorting = true;
+
+  @Override
+  public void setConf(Configuration conf) {
+    super.setConf(conf);
+    MIN_TOKEN_LEN = conf.getInt(
         "db.signature.text_profile.min_token_len", 2);
-    float QUANT_RATE = getConf().getFloat(
+    QUANT_RATE = conf.getFloat(
         "db.signature.text_profile.quant_rate", 0.01f);
+    secondaryLexicographicSorting = conf.getBoolean(
+        "db.signature.text_profile.sec_sort_lex", true);
+  }
+
+  public byte[] calculate(Content content, Parse parse) {
     HashMap<String, Token> tokens = new HashMap<>();
     String text = null;
     if (parse != null)
@@ -161,9 +173,17 @@ public class TextProfileSignature extends Signature {
     }
   }
 
-  private static class TokenComparator implements Comparator<Token> {
+  private class TokenComparator implements Comparator<Token> {
+    /**
+     * Sort tokens first by decreasing frequency and second in lexicographic
+     * (Unicode) order
+     */
     public int compare(Token t1, Token t2) {
-      return t2.cnt - t1.cnt;
+      int diffCnt = t2.cnt - t1.cnt;
+      if (diffCnt == 0 && secondaryLexicographicSorting) {
+        return t1.val.compareTo(t2.val);
+      }
+      return diffCnt;
     }
   }
 
