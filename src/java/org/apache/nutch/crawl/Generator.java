@@ -193,8 +193,8 @@ public class Generator extends NutchTool implements Tool {
       filters = new URLFilters(conf);
       scfilters = new ScoringFilters(conf);
       filter = conf.getBoolean(GENERATOR_FILTER, true);
-      genDelay = conf.getLong(GENERATOR_DELAY, 604800000L); // 7 days as
-                                                            // default.
+      /* CrawlDb items are unblocked after 7 days as default */
+      genDelay = conf.getLong(GENERATOR_DELAY, 604800000L);
       long time = conf.getLong(Nutch.GENERATE_TIME_KEY, 0L);
       if (time > 0)
         genTime.set(time);
@@ -775,11 +775,9 @@ public class Generator extends NutchTool implements Tool {
     Job job = NutchJob.getInstance(getConf());
     job.setJobName("generate: select from " + dbDir);
     Configuration conf = job.getConfiguration();
-    if (numLists == -1) { // for politeness make
-      numLists = Integer.parseInt(conf.get("mapreduce.job.maps")); // a
-                                                                   // partition
-                                                                   // per fetch
-                                                                   // task
+    if (numLists == -1) {
+      /* for politeness create exactly one partition per fetch task */ 
+      numLists = Integer.parseInt(conf.get("mapreduce.job.maps"));
     }
     if ("local".equals(conf.get("mapreduce.framework.name")) && numLists != 1) {
       // override

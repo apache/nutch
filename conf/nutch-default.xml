@@ -862,8 +862,9 @@
   generate/fetch/update cycles may overlap, setting this to true ensures
   that generate will create different fetchlists even without intervening
   updatedb-s, at the cost of running an additional job to update CrawlDB.
-  If false, running generate twice without intervening
-  updatedb will generate identical fetchlists.</description>
+  If false, running generate twice without intervening updatedb will
+  generate identical fetchlists. See also crawl.gen.delay which defines
+  how long items already generated are blocked.</description>
 </property>
 
 <property>
@@ -927,8 +928,9 @@
   <description>
    This value, expressed in milliseconds, defines how long we should keep the lock on records 
    in CrawlDb that were just selected for fetching. If these records are not updated 
-   in the meantime, the lock is canceled, i.e. they become eligible for selecting. 
-   Default value of this is 7 days (604800000 ms).
+   in the meantime, the lock is canceled, i.e. they become eligible for selecting again.
+   Default value of this is 7 days (604800000 ms). If generate.update.crawldb is false
+   the property crawl.gen.delay has no effect.
   </description>
 </property>
 
