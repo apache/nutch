@@ -1,6 +1,7 @@
 # Nutch Change Log
 
-Nutch 1.16 Release (01/10/2019)
+Nutch 1.16 Release 02/10/2019 (dd/mm/yyyy)
+Release Report: https://s.apache.org/l2j94
 
 Comments
 
