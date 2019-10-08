@@ -1,6 +1,10 @@
 # Nutch Change Log
 
-Nutch 1.16 Release (dd/mm/yyyy)
+Nutch 1.17 Development
+
+
+Nutch 1.16 Release 02/10/2019 (dd/mm/yyyy)
+Release Report: https://s.apache.org/l2j94
 
 Comments
 
@@ -23,6 +27,125 @@ Breaking Changes
        these are likely to change when upgrading to Nutch 1.16.  The previous behavior relying
        on a semi-stable pseudo-random hash sorting could be restored setting the property
        `db.signature.text_profile.sec_sort_lex` to `false`. See also NUTCH-2381.
+
+Bug
+
+    [NUTCH-1063] - OutlinkExtractor test generates an exception but does not fail
+    [NUTCH-1842] - crawl.gen.delay has a wrong default value in nutch-default.xml or is being parsed incorrectly
+    [NUTCH-2279] - LinkRank fails when using Hadoop MR output compression
+    [NUTCH-2381] - In some situations the class TextProfileSignature gives different signatures for the same text "profile" page.
+    [NUTCH-2387] - Nutch should not index document with "noindex" meta
+    [NUTCH-2457] - Embedded documents likely not correctly parsed by Tika
+    [NUTCH-2475] - If and else-if branches has the same condition
+    [NUTCH-2482] - index-geoip not to add null values to document fields
+    [NUTCH-2585] - NPE in TrieStringMatcher
+    [NUTCH-2598] - URLNormalizerChecker fails on invalid URLs in input
+    [NUTCH-2606] - MIME detection is wrong for plain-text documents send as Content-Type "application/msword"
+    [NUTCH-2635] - Generator writes unneeded temporary output
+    [NUTCH-2639] - bin/nutch fails to set native library path on Cygwin causing jobs to fail with UnsatisfiedLinkError
+    [NUTCH-2641] - ClassCastException in webui
+    [NUTCH-2642] - MoreIndexingFilter parses ISO 8601 UTC dates in local time zone
+    [NUTCH-2643] - ant target "resolve-default" to depend on "init"
+    [NUTCH-2644] - CrawlDbReader -dump ignores filter options
+    [NUTCH-2645] - Webgraph tools ignore command-line options
+    [NUTCH-2650] - -addBinaryContent -base64 flags are causing "String length must be a multiple of four" error in IndexingJob
+    [NUTCH-2652] - Fetcher launches more fetch tasks than fetch lists
+    [NUTCH-2655] - Update Solr schema.xml for Solr 7.x
+    [NUTCH-2656] - Update description to configure Solr 7.x in tutorial
+    [NUTCH-2673] - EOFException protocol-http
+    [NUTCH-2674] - HostDb: dump shows wrong column headers
+    [NUTCH-2680] - Documentation: https supported by multiple protocol plugins not only httpclient
+    [NUTCH-2687] - Regex for reading title from Content-Disposition is wrong
+    [NUTCH-2694] - HostDB to aggregate by long instead of integer
+    [NUTCH-2696] - Nutch SegmentReader does not dump non-ASCII characters with Hadoop 3.x
+    [NUTCH-2699] - Protocol-okhttp: needless loops to increment requested bytes counter when more content is already buffered
+    [NUTCH-2703] - parse-tika: Boilerpipe should not run for non-(X)HTML pages
+    [NUTCH-2706] - -addBinaryContent flag can cause "String length must be a multiple of four" error in IndexingJob
+    [NUTCH-2715] - WARCExporter fails on large records
+    [NUTCH-2716] - protocol-http: Response headers are not stored for a compressed response
+    [NUTCH-2717] - Generator cannot open hostDB
+    [NUTCH-2722] - Fetch dependencies via https
+    [NUTCH-2723] - Indexer Solr not to decode URLs before deletion
+    [NUTCH-2724] - Metadata indexer not to emit empty values
+    [NUTCH-2729] - protocol-okhttp: fix marking of truncated content
+    [NUTCH-2731] - Solr Cleanup Step Fails when Authentication is Required
+    [NUTCH-2738] - Generator: document property generate.restrict.status
+    [NUTCH-2740] - Generator: generate.max.count overflow not logged
+
+New Feature
+
+    [NUTCH-2676] - Update to the latest selenium and add code to use chrome and firefox headless mode with the remote web driver
+
+Improvement
+
+    [NUTCH-1014] - Migrate from Apache ORO to java.util.regex
+    [NUTCH-1021] - Migrate OutlinkExtractor from Apache ORO to java.util.regex
+    [NUTCH-1982] - Make Git ignore IDE project files and add note about IDE setup
+    [NUTCH-2460] - use the headless option of firefox and chrome in protocol-selenium
+    [NUTCH-2602] - Configuration values in the description of index writers
+    [NUTCH-2612] - Support for sitemap processing by hostname
+    [NUTCH-2623] - Fetcher to guarantee delay for same host/domain/ip independent of http/https protocol
+    [NUTCH-2625] - ProtocolFactory.getProtocol(url) may create multiple plugin instances
+    [NUTCH-2626] - bin/crawl: remove option -noParsing from fetch command
+    [NUTCH-2627] - Fetcher to optionally filter URLs
+    [NUTCH-2628] - Fetcher: optionally generate signature of unparsed content
+    [NUTCH-2629] - Documentation for CSV Index Writer
+    [NUTCH-2630] - Fetcher to log skipped records by robots.txt
+    [NUTCH-2631] - KafkaIndexWriter
+    [NUTCH-2632] - protocol-okhttp doesn't accept proxy authentication
+    [NUTCH-2633] - Fix deprecation warnings when building Nutch master branch under JDK 10.0.2+13
+    [NUTCH-2647] - Skip TLS certificate checks in protocol-http plugin
+    [NUTCH-2648] - Make configurable whether TLS/SSL certificates are checked by protocol plugins
+    [NUTCH-2651] - Upgrade to Tika 1.19.1 (from 1.18)
+    [NUTCH-2653] - ProtocolFactory.getProtocol(url) creates separate plugin instances for http/https
+    [NUTCH-2654] - Remove obsolete index-writer configuration in conf/
+    [NUTCH-2657] - Protocol-http to store HTTP response header with "\r\n"
+    [NUTCH-2658] - Add README file to all plugins in src/plugin
+    [NUTCH-2659] - Add missing Apache license headers
+    [NUTCH-2660] - Unit tests of plugins parse-js, headings, index-jexl-filter to be executed during build
+    [NUTCH-2661] - Move TestOutlinks to the proper path
+    [NUTCH-2663] - Improve index-jexl-filter syntax for scripts
+    [NUTCH-2666] - Increase default value for http.content.limit / ftp.content.limit / file.content.limit
+    [NUTCH-2668] - Integrate OWASP dependency checks as ant target
+    [NUTCH-2678] - Allow for per-host configurable protocol plugin
+    [NUTCH-2682] - Upgrade to Tika 1.20
+    [NUTCH-2683] - DeduplicationJob: add option to prefer https:// over http://
+    [NUTCH-2686] - Separate field for mime types mapped by index-more plugin
+    [NUTCH-2688] - Unify the licence headers
+    [NUTCH-2689] - Speed up urlfilter-regex and urlfilter-automaton
+    [NUTCH-2690] - Configurable and fast URL filter
+    [NUTCH-2691] - Improve logging from scoring-depth plugin
+    [NUTCH-2692] - Subcollection to support case-insensitive white and black lists
+    [NUTCH-2693] - Misspelled configuration property names in documentation
+    [NUTCH-2695] - Fix some alerts raised by LGTM
+    [NUTCH-2700] - Indexchecker: improve command-line help
+    [NUTCH-2701] - Fetcher: log dates and times also in human-readable form
+    [NUTCH-2702] - Fetcher: suppress stack for frequent exceptions
+    [NUTCH-2704] - Upgrade crawler-commons dependency to 1.0
+    [NUTCH-2708] - urlfilter-automaton: update library dependency (dk.brics.automaton)
+    [NUTCH-2709] - Remove unused properties and code related to HTTP protocol
+    [NUTCH-2718] - Names of index writers and exchanges configuration files to be configurable
+    [NUTCH-2719] - NPE if exchanges.xml uses index writer not available
+    [NUTCH-2725] - Plugin lib-http to support per-host configurable cookies
+    [NUTCH-2726] - Upgrade to Tika 1.22
+    [NUTCH-2727] - Upgrade Hadoop dependencies to 2.9.2
+    [NUTCH-2728] - protocol-okhttp: upgrade okhttp dependency to 3.14.2
+    [NUTCH-2732] - Ignored and tracked configuration files by git
+    [NUTCH-2736] - Upgrade Dockerfile to be based on recent Ubuntu LTS version
+    [NUTCH-2737] - Generator: count and log reason of rejections during selection
+
+Task
+
+    [NUTCH-2192] - Get rid of oro
+    [NUTCH-2613] - Documentation for exchange component
+    [NUTCH-2698] - Remove sonar build task from build.xml
+
+Sub-task
+
+    [NUTCH-1121] - JUnit test for parse-js
+    [NUTCH-2621] - Generate report of third-party licenses
+    [NUTCH-2684] - Add README.md file to all indexer writers plugins
+    [NUTCH-2685] - Add README.md file to all exchange plugins
 
 
 Nutch 1.15 Release (25/07/2018)
