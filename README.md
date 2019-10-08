@@ -1,5 +1,9 @@
 # Apache Nutch README
 
+
+# NOTE: Apache Nutch 2.x development line has been retired. As of September 23rd, 2019 Nutch 2.4 is the last release of the Nutch 2.x line. Nutch users should skip to using the Nutch 1.X 'master' codebase as this is under active development, use and maintenance by the Nutch PMC, Committership, and Community. Thank you to everyone that contributed to Nutch 2.x over the years.
+
+
 <img src="http://nutch.apache.org/assets/img/nutch_logo_tm.png" align="right" width="300" />
 
 For the latest information about Nutch, please visit our website at:
