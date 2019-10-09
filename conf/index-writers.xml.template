@@ -115,6 +115,7 @@
       <param name="exponential.backoff.millis" value="100"/>
       <param name="exponential.backoff.retries" value="10"/>
       <param name="bulk.close.timeout" value="600"/>
+      <!--<param name="options" value="key1=value1,key2=value2"/>-->
     </parameters>
     <mapping>
       <copy>

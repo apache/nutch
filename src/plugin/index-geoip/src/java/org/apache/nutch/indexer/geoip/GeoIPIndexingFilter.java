@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer.geoip;
 
 import java.lang.invoke.MethodHandles;
+import java.net.URL;
 import java.io.File;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
@@ -118,8 +119,6 @@ public class GeoIPIndexingFilter implements IndexingFilter {
 
   private String usage = null;
 
-  private File geoDb = null;
-
   WebServiceClient client = null;
 
   DatabaseReader reader = null;
@@ -146,49 +145,45 @@ public class GeoIPIndexingFilter implements IndexingFilter {
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
-    String use = conf.get("index.geoip.usage", "insightsService");
-    LOG.debug("GeoIP usage medium set to: {}", use);
-    if (use.equalsIgnoreCase("cityDatabase")) {
-      try {
-        geoDb = new File(conf.getResource("GeoIP2-City.mmdb").getFile());
-        buildDb();
-      } catch (Exception e) {
-        LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
+    usage = conf.get("index.geoip.usage", "insightsService");
+    LOG.debug("GeoIP usage medium set to: {}", usage);
+    if (usage.equalsIgnoreCase("insightsService")) {
+      client = new WebServiceClient.Builder(
+          conf.getInt("index.geoip.userid", 12345),
+          conf.get("index.geoip.licensekey")).build();
+    } else {
+      String db = null;
+      if (usage.equalsIgnoreCase("cityDatabase")) {
+        db = "GeoIP2-City.mmdb";
+      } else if (usage.equalsIgnoreCase("connectionTypeDatabase")) {
+        db = "GeoIP2-Connection-Type.mmdb";
+      } else if (usage.equalsIgnoreCase("domainDatabase")) {
+        db = "GeoIP2-Domain.mmdb";
+      } else if (usage.equalsIgnoreCase("ispDatabase")) {
+        db = "GeoIP2-ISP.mmdb";
       }
-    } else if (use.equalsIgnoreCase("connectionTypeDatabase")) {
-      try {
-        geoDb = new File(conf.getResource("GeoIP2-Connection-Type.mmdb")
-            .getFile());
-        buildDb();
-      } catch (Exception e) {
-        LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
+      URL dbFileUrl = conf.getResource(db);
+      if (dbFileUrl == null) {
+        LOG.error("GeoDb file {} not found on classpath", db);
+      } else {
+        try {
+          buildDb(new File(dbFileUrl.getFile()));
+        } catch (Exception e) {
+          LOG.error("Failed to read geoDb file {}: ", db, e);
+        }
       }
-    } else if (use.equalsIgnoreCase("domainDatabase")) {
-      try {
-        geoDb = new File(conf.getResource("GeoIP2-Domain.mmdb").getFile());
-        buildDb();
-      } catch (Exception e) {
-        LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
-      }
-    } else if (use.equalsIgnoreCase("ispDatabase")) {
-      try {
-        geoDb = new File(conf.getResource("GeoIP2-ISP.mmdb").getFile());
-        buildDb();
-      } catch (Exception e) {
-        LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
-      }
-    } else if (use.equalsIgnoreCase("insightsService")) {
-      client = new WebServiceClient.Builder(conf.getInt("index.geoip.userid",
-          12345), conf.get("index.geoip.licensekey")).build();
     }
-    usage = use;
+    if (!conf.getBoolean("store.ip.address", false)) {
+      LOG.warn("Plugin index-geoip is active but IP address is not stored"
+          + "(store.ip.address == false)");
+    }
   }
 
-  private void buildDb() {
+  private void buildDb(File geoDb) {
     try {
       reader = new DatabaseReader.Builder(geoDb).build();
     } catch (IOException e) {
-      LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
+      LOG.error("Failed to build geoDb:", e);
     }
   }
 
@@ -207,30 +202,25 @@ public class GeoIPIndexingFilter implements IndexingFilter {
   private NutchDocument addServerGeo(NutchDocument doc, ParseData data,
       String url) {
 
-    if (conf.getBoolean("store.ip.address", false) == true) {
+    String serverIp = data.getContentMeta().get("_ip_");
+    if (serverIp != null && reader != null) {
       try {
-        String serverIp = data.getContentMeta().get("_ip_");
-        if (serverIp != null) {
-          if (usage.equalsIgnoreCase("cityDatabase")) {
-            doc = GeoIPDocumentCreator.createDocFromCityDb(serverIp, doc,
-                reader);
-          } else if (usage.equalsIgnoreCase("connectionTypeDatabase")) {
-            doc = GeoIPDocumentCreator.createDocFromConnectionDb(serverIp, doc,
-                reader);
-          } else if (usage.equalsIgnoreCase("domainDatabase")) {
-            doc = GeoIPDocumentCreator.createDocFromDomainDb(serverIp, doc,
-                reader);
-          } else if (usage.equalsIgnoreCase("ispDatabase")) {
-            doc = GeoIPDocumentCreator
-                .createDocFromIspDb(serverIp, doc, reader);
-          } else if (usage.equalsIgnoreCase("insightsService")) {
-            doc = GeoIPDocumentCreator.createDocFromInsightsService(serverIp,
-                doc, client);
-          }
+        if (usage.equalsIgnoreCase("cityDatabase")) {
+          doc = GeoIPDocumentCreator.createDocFromCityDb(serverIp, doc, reader);
+        } else if (usage.equalsIgnoreCase("connectionTypeDatabase")) {
+          doc = GeoIPDocumentCreator.createDocFromConnectionDb(serverIp, doc,
+              reader);
+        } else if (usage.equalsIgnoreCase("domainDatabase")) {
+          doc = GeoIPDocumentCreator.createDocFromDomainDb(serverIp, doc,
+              reader);
+        } else if (usage.equalsIgnoreCase("ispDatabase")) {
+          doc = GeoIPDocumentCreator.createDocFromIspDb(serverIp, doc, reader);
+        } else if (usage.equalsIgnoreCase("insightsService")) {
+          doc = GeoIPDocumentCreator.createDocFromInsightsService(serverIp, doc,
+              client);
         }
       } catch (Exception e) {
-        LOG.error(e.getMessage());
-        e.printStackTrace();
+        LOG.error("Failed to determine geoip:", e);
       }
     }
     return doc;

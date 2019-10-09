@@ -54,66 +54,76 @@ import com.maxmind.geoip2.record.Traits;
  */
 public class GeoIPDocumentCreator {
 
-  /**
-   * Default constructor.
-   */
-  public GeoIPDocumentCreator() {
+  /** Add field to document but only if value isn't null */
+  public static void addIfNotNull(NutchDocument doc, String name,
+      String value) {
+    if (value != null) {
+      doc.add(name, value);
+    }
+  }
+
+  /** Add field to document but only if value isn't null */
+  public static void addIfNotNull(NutchDocument doc, String name,
+      Integer value) {
+    if (value != null) {
+      doc.add(name, value);
+    }
   }
 
   public static NutchDocument createDocFromInsightsService(String serverIp,
       NutchDocument doc, WebServiceClient client) throws UnknownHostException,
       IOException, GeoIp2Exception {
-    doc.add("ip", serverIp);
+    addIfNotNull(doc, "ip", serverIp);
     InsightsResponse response = client
         .insights(InetAddress.getByName(serverIp));
     // CityResponse response = client.city(InetAddress.getByName(serverIp));
 
     City city = response.getCity();
-    doc.add("cityName", city.getName()); // 'Minneapolis'
-    doc.add("cityConfidence", city.getConfidence()); // 50
-    doc.add("cityGeoNameId", city.getGeoNameId());
+    addIfNotNull(doc, "cityName", city.getName()); // 'Minneapolis'
+    addIfNotNull(doc, "cityConfidence", city.getConfidence()); // 50
+    addIfNotNull(doc, "cityGeoNameId", city.getGeoNameId());
 
     Continent continent = response.getContinent();
-    doc.add("continentCode", continent.getCode());
-    doc.add("continentGeoNameId", continent.getGeoNameId());
-    doc.add("continentName", continent.getName());
+    addIfNotNull(doc, "continentCode", continent.getCode());
+    addIfNotNull(doc, "continentGeoNameId", continent.getGeoNameId());
+    addIfNotNull(doc, "continentName", continent.getName());
 
     Country country = response.getCountry();
-    doc.add("countryIsoCode", country.getIsoCode()); // 'US'
-    doc.add("countryName", country.getName()); // 'United States'
-    doc.add("countryConfidence", country.getConfidence()); // 99
-    doc.add("countryGeoName", country.getGeoNameId());
+    addIfNotNull(doc, "countryIsoCode", country.getIsoCode()); // 'US'
+    addIfNotNull(doc, "countryName", country.getName()); // 'United States'
+    addIfNotNull(doc, "countryConfidence", country.getConfidence()); // 99
+    addIfNotNull(doc, "countryGeoName", country.getGeoNameId());
 
     Location location = response.getLocation();
-    doc.add("latLon", location.getLatitude() + "," + location.getLongitude()); // 44.9733,
+    addIfNotNull(doc, "latLon", location.getLatitude() + "," + location.getLongitude()); // 44.9733,
                                                                                // -93.2323
-    doc.add("accRadius", location.getAccuracyRadius()); // 3
-    doc.add("timeZone", location.getTimeZone()); // 'America/Chicago'
-    doc.add("metroCode", location.getMetroCode());
+    addIfNotNull(doc, "accRadius", location.getAccuracyRadius()); // 3
+    addIfNotNull(doc, "timeZone", location.getTimeZone()); // 'America/Chicago'
+    addIfNotNull(doc, "metroCode", location.getMetroCode());
 
     Postal postal = response.getPostal();
-    doc.add("postalCode", postal.getCode()); // '55455'
-    doc.add("postalConfidence", postal.getConfidence()); // 40
+    addIfNotNull(doc, "postalCode", postal.getCode()); // '55455'
+    addIfNotNull(doc, "postalConfidence", postal.getConfidence()); // 40
 
     RepresentedCountry rCountry = response.getRepresentedCountry();
-    doc.add("countryType", rCountry.getType());
+    addIfNotNull(doc, "countryType", rCountry.getType());
 
     Subdivision subdivision = response.getMostSpecificSubdivision();
-    doc.add("subDivName", subdivision.getName()); // 'Minnesota'
-    doc.add("subDivIdoCode", subdivision.getIsoCode()); // 'MN'
-    doc.add("subDivConfidence", subdivision.getConfidence()); // 90
-    doc.add("subDivGeoNameId", subdivision.getGeoNameId());
+    addIfNotNull(doc, "subDivName", subdivision.getName()); // 'Minnesota'
+    addIfNotNull(doc, "subDivIdoCode", subdivision.getIsoCode()); // 'MN'
+    addIfNotNull(doc, "subDivConfidence", subdivision.getConfidence()); // 90
+    addIfNotNull(doc, "subDivGeoNameId", subdivision.getGeoNameId());
 
     Traits traits = response.getTraits();
-    doc.add("autonSystemNum", traits.getAutonomousSystemNumber());
-    doc.add("autonSystemOrg", traits.getAutonomousSystemOrganization());
-    doc.add("domain", traits.getDomain());
-    doc.add("isp", traits.getIsp());
-    doc.add("org", traits.getOrganization());
-    doc.add("userType", traits.getUserType());
+    addIfNotNull(doc, "autonSystemNum", traits.getAutonomousSystemNumber());
+    addIfNotNull(doc, "autonSystemOrg", traits.getAutonomousSystemOrganization());
+    addIfNotNull(doc, "domain", traits.getDomain());
+    addIfNotNull(doc, "isp", traits.getIsp());
+    addIfNotNull(doc, "org", traits.getOrganization());
+    addIfNotNull(doc, "userType", traits.getUserType());
     //for better results, users should upgrade to
     //https://www.maxmind.com/en/solutions/geoip2-enterprise-product-suite/anonymous-ip-database
-    doc.add("isAnonProxy", traits.isAnonymousProxy());
+    addIfNotNull(doc, "isAnonProxy", String.valueOf(traits.isAnonymousProxy()));
     return doc;
   }
 
@@ -137,11 +147,11 @@ public class GeoIPDocumentCreator {
       NutchDocument doc, DatabaseReader reader) throws UnknownHostException,
       IOException, GeoIp2Exception {
     IspResponse response = reader.isp(InetAddress.getByName(serverIp));
-    doc.add("ip", serverIp);
-    doc.add("autonSystemNum", response.getAutonomousSystemNumber());
-    doc.add("autonSystemOrg", response.getAutonomousSystemOrganization());
-    doc.add("isp", response.getIsp());
-    doc.add("org", response.getOrganization());
+    addIfNotNull(doc, "ip", serverIp);
+    addIfNotNull(doc, "autonSystemNum", response.getAutonomousSystemNumber());
+    addIfNotNull(doc, "autonSystemOrg", response.getAutonomousSystemOrganization());
+    addIfNotNull(doc, "isp", response.getIsp());
+    addIfNotNull(doc, "org", response.getOrganization());
     return doc;
   }
 
@@ -149,8 +159,8 @@ public class GeoIPDocumentCreator {
       NutchDocument doc, DatabaseReader reader) throws UnknownHostException,
       IOException, GeoIp2Exception {
     DomainResponse response = reader.domain(InetAddress.getByName(serverIp));
-    doc.add("ip", serverIp);
-    doc.add("domain", response.getDomain());
+    addIfNotNull(doc, "ip", serverIp);
+    addIfNotNull(doc, "domain", response.getDomain());
     return doc;
   }
 
@@ -159,52 +169,53 @@ public class GeoIPDocumentCreator {
       IOException, GeoIp2Exception {
     ConnectionTypeResponse response = reader.connectionType(InetAddress
         .getByName(serverIp));
-    doc.add("ip", serverIp);
-    doc.add("connType", response.getConnectionType().toString());
+    addIfNotNull(doc, "ip", serverIp);
+    addIfNotNull(doc, "connType", response.getConnectionType().toString());
     return doc;
   }
 
   public static NutchDocument createDocFromCityDb(String serverIp,
       NutchDocument doc, DatabaseReader reader) throws UnknownHostException,
       IOException, GeoIp2Exception {
-    doc.add("ip", serverIp);
+    addIfNotNull(doc, "ip", serverIp);
     CityResponse response = reader.city(InetAddress.getByName(serverIp));
 
     City city = response.getCity();
-    doc.add("cityName", city.getName()); // 'Minneapolis'
-    doc.add("cityConfidence", city.getConfidence()); // 50
-    doc.add("cityGeoNameId", city.getGeoNameId());
+    addIfNotNull(doc, "cityName", city.getName()); // 'Minneapolis'
+    addIfNotNull(doc, "cityConfidence", city.getConfidence()); // 50
+    addIfNotNull(doc, "cityGeoNameId", city.getGeoNameId());
+
 
     Continent continent = response.getContinent();
-    doc.add("continentCode", continent.getCode());
-    doc.add("continentGeoNameId", continent.getGeoNameId());
-    doc.add("continentName", continent.getName());
+    addIfNotNull(doc, "continentCode", continent.getCode());
+    addIfNotNull(doc, "continentGeoNameId", continent.getGeoNameId());
+    addIfNotNull(doc, "continentName", continent.getName());
 
     Country country = response.getCountry();
-    doc.add("countryIsoCode", country.getIsoCode()); // 'US'
-    doc.add("countryName", country.getName()); // 'United States'
-    doc.add("countryConfidence", country.getConfidence()); // 99
-    doc.add("countryGeoName", country.getGeoNameId());
+    addIfNotNull(doc, "countryIsoCode", country.getIsoCode()); // 'US'
+    addIfNotNull(doc, "countryName", country.getName()); // 'United States'
+    addIfNotNull(doc, "countryConfidence", country.getConfidence()); // 99
+    addIfNotNull(doc, "countryGeoName", country.getGeoNameId());
 
     Location location = response.getLocation();
-    doc.add("latLon", location.getLatitude() + "," + location.getLongitude()); // 44.9733,
+    addIfNotNull(doc, "latLon", location.getLatitude() + "," + location.getLongitude()); // 44.9733,
                                                                                // -93.2323
-    doc.add("accRadius", location.getAccuracyRadius()); // 3
-    doc.add("timeZone", location.getTimeZone()); // 'America/Chicago'
-    doc.add("metroCode", location.getMetroCode());
+    addIfNotNull(doc, "accRadius", location.getAccuracyRadius()); // 3
+    addIfNotNull(doc, "timeZone", location.getTimeZone()); // 'America/Chicago'
+    addIfNotNull(doc, "metroCode", location.getMetroCode());
 
     Postal postal = response.getPostal();
-    doc.add("postalCode", postal.getCode()); // '55455'
-    doc.add("postalConfidence", postal.getConfidence()); // 40
+    addIfNotNull(doc, "postalCode", postal.getCode()); // '55455'
+    addIfNotNull(doc, "postalConfidence", postal.getConfidence()); // 40
 
     RepresentedCountry rCountry = response.getRepresentedCountry();
-    doc.add("countryType", rCountry.getType());
+    addIfNotNull(doc, "countryType", rCountry.getType());
 
     Subdivision subdivision = response.getMostSpecificSubdivision();
-    doc.add("subDivName", subdivision.getName()); // 'Minnesota'
-    doc.add("subDivIdoCode", subdivision.getIsoCode()); // 'MN'
-    doc.add("subDivConfidence", subdivision.getConfidence()); // 90
-    doc.add("subDivGeoNameId", subdivision.getGeoNameId());
+    addIfNotNull(doc, "subDivName", subdivision.getName()); // 'Minnesota'
+    addIfNotNull(doc, "subDivIdoCode", subdivision.getIsoCode()); // 'MN'
+    addIfNotNull(doc, "subDivConfidence", subdivision.getConfidence()); // 90
+    addIfNotNull(doc, "subDivGeoNameId", subdivision.getGeoNameId());
     return doc;
   }
 

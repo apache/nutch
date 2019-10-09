@@ -41,8 +41,7 @@ public class TestPdfParser {
   // This system property is defined in ./src/plugin/build-plugin.xml
   private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
-  // ./src/plugin/parse-pdf/build.xml during plugin compilation.
-  // Check ./src/plugin/parse-pdf/sample/README.txt for what they are.
+  // ./src/plugin/parse-tika/build.xml during plugin compilation.
   private String[] sampleFiles = { "pdftest.pdf", "encrypted.pdf" };
 
   private String expectedText = "A VERY SMALL PDF FILE";

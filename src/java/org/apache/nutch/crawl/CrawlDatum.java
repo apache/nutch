@@ -185,6 +185,15 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     return res;
   }
 
+  public static byte getStatusByName(String name) {
+    for (Entry<Byte, String> status : statNames.entrySet()) {
+      if (name.equalsIgnoreCase(status.getValue())) {
+        return status.getKey();
+      }
+    }
+    return -1;
+  }
+
   public void setStatus(int status) {
     this.status = (byte) status;
   }

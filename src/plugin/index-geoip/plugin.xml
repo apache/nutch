@@ -25,10 +25,10 @@
       <library name="index-geoip.jar">
          <export name="*"/>
       </library>
-      <library name="geoip2-2.10.0.jar"/>
-      <library name="jackson-annotations-2.9.0.jar"/>
-      <library name="jackson-core-2.9.2.jar"/>
-      <library name="jackson-databind-2.9.2.jar"/>
+      <library name="geoip2-2.12.0.jar"/>
+      <library name="jackson-annotations-2.9.5.jar"/>
+      <library name="jackson-core-2.9.5.jar"/>
+      <library name="jackson-databind-2.9.5.jar"/>
       <library name="maxmind-db-1.2.2.jar"/>
    </runtime>
 

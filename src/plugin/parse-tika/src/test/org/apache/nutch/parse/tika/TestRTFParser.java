@@ -47,8 +47,7 @@ public class TestRTFParser {
   // This system property is defined in ./src/plugin/build-plugin.xml
   private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
-  // ./src/plugin/parse-rtf/build.xml during plugin compilation.
-  // Check ./src/plugin/parse-rtf/sample/README.txt for what they are.
+  // ./src/plugin/parse-tika/build.xml during plugin compilation.
   private String rtfFile = "test.rtf";
 
   @Ignore("There seems to be an issue with line 71 e.g. text.trim()")
