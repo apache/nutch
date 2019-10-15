@@ -92,7 +92,8 @@ public class SitemapProcessor extends Configured implements Tool {
   public static final String SITEMAP_ALWAYS_TRY_SITEMAPXML_ON_ROOT = "sitemap.url.default.sitemap.xml";
   public static final String SITEMAP_OVERWRITE_EXISTING = "sitemap.url.overwrite.existing";
   public static final String SITEMAP_REDIR_MAX = "sitemap.redir.max";
-  
+  public static final String SITEMAP_SIZE_MAX = "sitemap.size.max";
+
   private static class SitemapMapper extends Mapper<Text, Writable, Text, CrawlDatum> {
     private ProtocolFactory protocolFactory = null;
     private boolean strict = true;
@@ -107,6 +108,9 @@ public class SitemapProcessor extends Configured implements Tool {
 
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
+      int maxSize = conf.getInt(SITEMAP_SIZE_MAX, SiteMapParser.MAX_BYTES_ALLOWED);
+      conf.setInt("http.content.limit", maxSize);
+      conf.setInt("file.content.limit", maxSize);
       this.protocolFactory = new ProtocolFactory(conf);
       this.filter = conf.getBoolean(SITEMAP_URL_FILTERING, true);
       this.normalize = conf.getBoolean(SITEMAP_URL_NORMALIZING, true);

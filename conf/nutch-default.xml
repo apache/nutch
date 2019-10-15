@@ -2671,4 +2671,12 @@ If true (default) the Sitemap parser rejects URLs not sharing the same
     Maximum number of redirects to follow.
    </description>
 </property>
+
+<property>
+  <name>sitemap.size.max</name>
+  <value>52428800</value>
+  <description>
+    Maximum sitemap size in bytes.
+   </description>
+</property>
 </configuration>
