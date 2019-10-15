@@ -108,7 +108,9 @@ public class SitemapProcessor extends Configured implements Tool {
 
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
-      conf.setInt("http.content.limit", conf.getInt(SITEMAP_SIZE_MAX, SiteMapParser.MAX_BYTES_ALLOWED));
+      int maxSize = conf.getInt(SITEMAP_SIZE_MAX, SiteMapParser.MAX_BYTES_ALLOWED);
+      conf.setInt("http.content.limit", maxSize);
+      conf.setInt("file.content.limit", maxSize);
       this.protocolFactory = new ProtocolFactory(conf);
       this.filter = conf.getBoolean(SITEMAP_URL_FILTERING, true);
       this.normalize = conf.getBoolean(SITEMAP_URL_NORMALIZING, true);
