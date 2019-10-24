@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexer.replace;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -25,8 +26,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -83,8 +85,8 @@ import org.apache.nutch.parse.Parse;
  */
 public class ReplaceIndexer implements IndexingFilter {
 
-  private static final Log LOG = LogFactory.getLog(ReplaceIndexer.class
-      .getName());
+	private static final Logger LOG = LoggerFactory
+		      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** Special field name signifying the start of a host-specific match set */
   private static final String HOSTMATCH = "hostmatch";

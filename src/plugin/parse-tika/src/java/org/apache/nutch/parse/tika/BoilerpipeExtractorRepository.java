@@ -16,14 +16,17 @@
  */
 package org.apache.nutch.parse.tika;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.l3s.boilerpipe.BoilerpipeExtractor;
 
 class BoilerpipeExtractorRepository {
 
-    public static final Log LOG = LogFactory.getLog(BoilerpipeExtractorRepository.class);
+	private static final Logger LOG = LoggerFactory
+		      .getLogger(MethodHandles.lookup().lookupClass());
     public static final HashMap<String, BoilerpipeExtractor> extractorRepository = new HashMap<>();
  
     /**
@@ -48,7 +51,7 @@ class BoilerpipeExtractorRepository {
         } catch (InstantiationException e) {
           LOG.error("Could not instantiate " + boilerpipeExtractorName);
         } catch (Exception e) {
-          LOG.error(e);
+          LOG.error(e.getLocalizedMessage());
         }
       }
 
