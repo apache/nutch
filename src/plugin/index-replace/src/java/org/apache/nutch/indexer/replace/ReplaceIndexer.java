@@ -85,7 +85,7 @@ import org.apache.nutch.parse.Parse;
  */
 public class ReplaceIndexer implements IndexingFilter {
 
-	private static final Logger LOG = LoggerFactory
+  private static final Logger LOG = LoggerFactory
 		      .getLogger(MethodHandles.lookup().lookupClass());
 
   /** Special field name signifying the start of a host-specific match set */

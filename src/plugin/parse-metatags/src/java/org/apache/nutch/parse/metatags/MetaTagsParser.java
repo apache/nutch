@@ -41,7 +41,7 @@ import org.w3c.dom.DocumentFragment;
  */
 public class MetaTagsParser implements HtmlParseFilter {
 
-	private static final Logger LOG = LoggerFactory
+  private static final Logger LOG = LoggerFactory
 		      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
