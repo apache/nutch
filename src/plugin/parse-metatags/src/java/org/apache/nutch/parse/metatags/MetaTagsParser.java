@@ -16,14 +16,15 @@
  */
 package org.apache.nutch.parse.metatags;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
@@ -40,8 +41,8 @@ import org.w3c.dom.DocumentFragment;
  */
 public class MetaTagsParser implements HtmlParseFilter {
 
-  private static final Log LOG = LogFactory.getLog(MetaTagsParser.class
-      .getName());
+  private static final Logger LOG = LoggerFactory
+		      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
 
