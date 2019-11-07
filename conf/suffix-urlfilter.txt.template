@@ -19,13 +19,18 @@
 ### prohibit these
 # pictures
 .gif
+.gifv
 .jpg
 .jpeg
+.jp2
+.jpf
+.jpx
 .bmp
 .png
 .tif
 .tiff
 .ico
+.icns
 .eps
 .ps
 .wmf
@@ -38,13 +43,19 @@
 .psp
 .psd
 .tga
+.webp
 .xbm
 .xpm
+.kdc
+.svg
+.svgz
 
 # web-formats
 .css
+.js
 
 # archives/packages
+.apk
 .arj
 .arc
 .7z
@@ -52,14 +63,25 @@
 .lzw
 .lha
 .lzh
+.mar
 .zip
 .gz
 .tar
 .tgz
+.rar
 .sit
 .rpm
 .deb
+.udeb
 .pkg
+.bz2
+.dmg
+.lzma
+.xz
+.ipk
+.whl
+.egg
+.crx
 
 # audio/video
 .mid
@@ -68,11 +90,19 @@
 .mpeg
 .mpg
 .mpe
+.mp4
 .mp3
 .mp2
 .aac
 .mov
+.m4a
+.m4r
+.m4v
+.mp4a
+.mpga
+.f4v
 .fla
+.flac
 .flv
 .ra
 .ram
@@ -82,14 +112,41 @@
 .wmv
 .wav
 .wave
+.oga
 .ogg
+.webm
 .avi
+.avif
 .au
 .snd
+.3gp
+.3g2
+.qt
+.mka
+.mks
+.mkv
+.mk3d
+.opus
+.xm
+.m3u8
+.movie
+.aif
+.aiff
+.gblorb
+.xhr
 
-# executables
+# fonts
+.ttf
+.otf
+.pfb
+.afm
+.woff
+.woff2
+
+# executables and shared libraries
 .exe
 .com
+.dll
 
 # windows links
 .lnk
