@@ -53,7 +53,7 @@ public class CCFetchSchedule extends DefaultFetchSchedule {
     int fetchTimeMaxDaysAhead = conf.getInt(FETCH_TIME_MAX_DAYS_AHEAD, 0);
     if (fetchTimeMaxDaysAhead > 0) {
       resetFetchTime = true;
-      latestFetchTime += fetchTimeMaxDaysAhead * 24 * 60 * 60 * 1000;
+      latestFetchTime += fetchTimeMaxDaysAhead * 24 * 60 * 60 * 1000L;
       LOG.info("Resetting fetch time if more than {} = {} days ahead",
           FETCH_TIME_MAX_DAYS_AHEAD, fetchTimeMaxDaysAhead);
     }

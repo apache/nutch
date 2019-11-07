@@ -188,7 +188,7 @@ public class UrlCleaner extends Configured implements Tool {
       case DOMAIN_REVERSED:
         keyVal = (domain != null) ? domain : "";
         keyVal = String.join(".", reverseHost(keyVal));
-        addVal = String.join(".", reverseHost(host))+ "\t" + url;
+        addVal = String.join(".", reverseHost(host)) + "\t" + url;
         break;
       case HOST_REVERSED_TRAILING_DOT:
         keyVal = (host != null) ? host : "";
@@ -206,7 +206,7 @@ public class UrlCleaner extends Configured implements Tool {
         parts = new ArrayList<>();
         parts.addAll(Arrays.asList(reverseHost(host)));
         parts.add("");
-        addVal = String.join(".", parts)+ "\t" + url;
+        addVal = String.join(".", parts) + "\t" + url;
         break;
       default:
         break;

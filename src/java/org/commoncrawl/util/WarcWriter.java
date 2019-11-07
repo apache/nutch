@@ -312,9 +312,7 @@ public class WarcWriter {
 
     startRecord();
     out.write(sb.toString().getBytes(StandardCharsets.UTF_8));
-    if (block != null && block.length != 0) {
-      out.write(block);
-    }
+    out.write(block);
 
     out.write(CRLF.getBytes());
     out.write(CRLF.getBytes());

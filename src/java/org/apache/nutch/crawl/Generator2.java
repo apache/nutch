@@ -389,7 +389,7 @@ public class Generator2 extends Configured implements Tool {
         return;
 
       // consider only entries with a score superior to the threshold
-      if (scoreThreshold != Float.NaN && sort < scoreThreshold) {
+      if (!Float.isNaN(scoreThreshold) && sort < scoreThreshold) {
         context.getCounter("Score below threshold by status",
             CrawlDatum.getStatusName(value.getStatus())).increment(1);
         return;
