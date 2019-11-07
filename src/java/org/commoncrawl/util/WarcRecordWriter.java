@@ -498,6 +498,14 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
           return;
         }
       }
+      String httpStatusCodeVal = value.datum.getMetaData()
+          .get(Nutch.PROTOCOL_STATUS_CODE_KEY).toString();
+      if (httpStatusCodeVal != null) {
+        try {
+          httpStatusCode = Integer.parseInt(httpStatusCodeVal);
+        } catch (NumberFormatException e) {
+        }
+      }
       if (value.datum.getMetaData().get(FETCH_DURATION) != null) {
         fetchDuration = value.datum.getMetaData().get(FETCH_DURATION)
             .toString();
@@ -507,7 +515,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       String fetchTime = value.content.getMetadata().get(Nutch.FETCH_TIME_KEY);
       if (fetchTime != null) {
         try {
-          date = new Date(new Long(fetchTime));
+          date = new Date(Long.parseLong(fetchTime));
         } catch (NumberFormatException e) {
           LOG.error("Invalid fetch time '{}' in content metadata of {}",
               fetchTime, value.url.toString());
@@ -687,8 +695,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
        * a well-defined payload."
        */
       String payloadDigest = null;
-      writer.writeWarcRevisitRecord(targetUri, ip, date, infoId, requestId,
-          WarcWriter.PROFILE_REVISIT_NOT_MODIFIED, lastModifiedDate,
+      writer.writeWarcRevisitRecord(targetUri, ip, httpStatusCode, date, infoId,
+          requestId, WarcWriter.PROFILE_REVISIT_NOT_MODIFIED, lastModifiedDate,
           payloadDigest, blockDigest, responseHeaderBytes, value.content);
     } else {
       StringBuilder responsesb = new StringBuilder(4096);
@@ -705,9 +713,9 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
 
       String payloadDigest = getSha1DigestWithAlg(value.content.getContent());
       String blockDigest = getSha1DigestWithAlg(responseBytes);
-      URI responseId = writer.writeWarcResponseRecord(targetUri, ip, date,
-          infoId, requestId, payloadDigest, blockDigest, truncatedReason,
-          responseBytes, value.content);
+      URI responseId = writer.writeWarcResponseRecord(targetUri, ip,
+          httpStatusCode, date, infoId, requestId, payloadDigest, blockDigest,
+          truncatedReason, responseBytes, value.content);
 
       // Write metadata record
       StringBuilder metadatasb = new StringBuilder(4096);
