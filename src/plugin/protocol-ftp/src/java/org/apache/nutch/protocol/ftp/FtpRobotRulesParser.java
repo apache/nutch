@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
@@ -107,6 +108,8 @@ public class FtpRobotRulesParser extends RobotRulesParser {
         ProtocolStatus status = output.getStatus();
 
         if (robotsTxtContent != null) {
+          output.getContent().getMetadata().add(Nutch.FETCH_TIME_KEY,
+              Long.toString(System.currentTimeMillis()));
           robotsTxtContent.add(output.getContent());
         }
 
