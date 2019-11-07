@@ -1414,6 +1414,26 @@
   </description>
 </property>
 
+<property>
+  <name>urlnormalizer.basic.host.idn</name>
+  <value></value>
+  <description>Let urlnormalizer-basic
+  (org.apache.nutch.net.urlnormalizer.basic.BasicURLNormalizer)
+  normalize Internationalized Domain Names (IDNs). Possible values
+  are: `toAscii` - convert the Unicode form to the ASCII (Punycode)
+  representation, `toUnicode` - convert ASCII (Punycode) to Unicode,
+  or if left empty no normalization of IDNs is performed.
+  </description>
+</property>
+
+<property>
+  <name>urlnormalizer.basic.host.trim-trailing-dot</name>
+  <value>false</value>
+  <description>urlnormalizer-basic: Trim a trailing dot in host names:
+  `https://example.org./` is normalized to `https://example.org/`.
+  </description>
+</property>
+
 <!-- mime properties -->
 
 <!--
