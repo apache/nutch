@@ -23,8 +23,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
@@ -32,6 +30,8 @@ import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
 
 /**
@@ -42,7 +42,7 @@ import org.w3c.dom.DocumentFragment;
 public class MetaTagsParser implements HtmlParseFilter {
 
   private static final Logger LOG = LoggerFactory
-		      .getLogger(MethodHandles.lookup().lookupClass());
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
 
@@ -71,7 +71,7 @@ public class MetaTagsParser implements HtmlParseFilter {
     String lcMetatag = metatag.toLowerCase(Locale.ROOT);
     if (metatagset.contains("*") || metatagset.contains(lcMetatag)) {
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Found meta tag: " + lcMetatag + "\t" + value);
+        LOG.debug("Found meta tag: {}\t{}", lcMetatag, value);
       }
       metadata.add("metatag." + lcMetatag, value);
     }
@@ -85,11 +85,12 @@ public class MetaTagsParser implements HtmlParseFilter {
       String[] values) {
     String lcMetatag = metatag.toLowerCase(Locale.ROOT);
     if (metatagset.contains("*") || metatagset.contains(lcMetatag)) {
+      String key = "metatag." + lcMetatag;
       for (String value : values) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Found meta tag: " + lcMetatag + "\t" + value);
+          LOG.debug("Found meta tag: {}\t{}", lcMetatag, value);
         }
-        metadata.add("metatag." + lcMetatag, value);
+        metadata.add(key, value);
       }
     }
   }
@@ -100,11 +101,10 @@ public class MetaTagsParser implements HtmlParseFilter {
     Parse parse = parseResult.get(content.getUrl());
     Metadata metadata = parse.getData().getParseMeta();
 
-    // check in the metadata first : the tika-parser
-    // might have stored the values there already
-    for (String mdName : metadata.names()) {
-      addIndexedMetatags(metadata, mdName, metadata.getValues(mdName));
-    }
+    /*
+     * NUTCH-1559: do not extract meta values from ParseData's metadata to avoid
+     * duplicate metatag values
+     */
 
     Metadata generalMetaTags = metaTags.getGeneralTags();
     for (String tagName : generalMetaTags.names()) {
