@@ -165,8 +165,8 @@ public class WarcWriter {
   }
 
   public URI writeWarcResponseRecord(final URI targetUri, final String ip,
-      final Date date, final URI warcinfoId, final URI relatedId,
-      final String payloadDigest, final String blockDigest,
+      final int httpStatusCode, final Date date, final URI warcinfoId,
+      final URI relatedId, final String payloadDigest, final String blockDigest,
       final String truncated, final byte[] block, Content content)
       throws IOException {
     Map<String, String> extra = new LinkedHashMap<String, String>();
@@ -198,8 +198,8 @@ public class WarcWriter {
   }
 
   public URI writeWarcRevisitRecord(final URI targetUri, final String ip,
-      final Date date, final URI warcinfoId, final URI relatedId,
-      final String warcProfile, final Date refersToDate,
+      final int httpStatusCode, final Date date, final URI warcinfoId,
+      final URI relatedId, final String warcProfile, final Date refersToDate,
       final String payloadDigest, final String blockDigest, byte[] block,
       Content content) throws IOException {
     Map<String, String> extra = new LinkedHashMap<String, String>();

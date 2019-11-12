@@ -18,8 +18,10 @@ package org.commoncrawl.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -92,36 +94,50 @@ public class WarcCdxWriter extends WarcWriter {
   }
 
   public URI writeWarcRevisitRecord(final URI targetUri, final String ip,
-      final Date date, final URI warcinfoId, final URI relatedId,
-      final String warcProfile, final Date refersToDate,
+      final int httpStatusCode, final Date date, final URI warcinfoId,
+      final URI relatedId, final String warcProfile, final Date refersToDate,
       final String payloadDigest, final String blockDigest, byte[] block,
       Content content) throws IOException {
     long offset = countingOut.getByteCount();
-    URI recordId = super.writeWarcRevisitRecord(targetUri, ip, date, warcinfoId,
-        relatedId, warcProfile, refersToDate, payloadDigest, blockDigest, block,
-        content);
+    URI recordId = super.writeWarcRevisitRecord(targetUri, ip, httpStatusCode,
+        date, warcinfoId, relatedId, warcProfile, refersToDate, payloadDigest,
+        blockDigest, block, content);
     long length = (countingOut.getByteCount() - offset);
-    writeCdxLine(targetUri, date, offset, length, payloadDigest, content, true);
+    writeCdxLine(targetUri, date, offset, length, payloadDigest, content, true,
+        null, null);
     return recordId;
   }
 
   public URI writeWarcResponseRecord(final URI targetUri, final String ip,
-      final Date date, final URI warcinfoId, final URI relatedId,
-      final String payloadDigest, final String blockDigest,
+      final int httpStatusCode, final Date date, final URI warcinfoId,
+      final URI relatedId, final String payloadDigest, final String blockDigest,
       final String truncated, final byte[] block, Content content)
       throws IOException {
     long offset = countingOut.getByteCount();
-    URI recordId = super.writeWarcResponseRecord(targetUri, ip, date,
-        warcinfoId, relatedId, payloadDigest, blockDigest, truncated, block,
-        content);
+    URI recordId = super.writeWarcResponseRecord(targetUri, ip, httpStatusCode,
+        date, warcinfoId, relatedId, payloadDigest, blockDigest, truncated,
+        block, content);
     long length = (countingOut.getByteCount() - offset);
-    writeCdxLine(targetUri, date, offset, length, payloadDigest, content, false);
+    String redirectLocation = null;
+    if (isRedirect(httpStatusCode)) {
+      redirectLocation = content.getMetadata().get("Location");
+      if (redirectLocation != null) {
+        try {
+          redirectLocation = new URL(targetUri.toURL(), redirectLocation)
+              .toURI().toString();
+        } catch (URISyntaxException | MalformedURLException e) {
+          redirectLocation = null;
+        }
+      }
+    }
+    writeCdxLine(targetUri, date, offset, length, payloadDigest, content, false,
+        redirectLocation, truncated);
     return recordId;
   }
 
   public void writeCdxLine(final URI targetUri, final Date date, long offset,
-      long length, String payloadDigest, Content content, boolean revisit)
-      throws IOException {
+      long length, String payloadDigest, Content content, boolean revisit,
+      String redirectLocation, String truncated) throws IOException {
     String url = targetUri.toString();
     String surt = url;
     Metadata meta = content.getMetadata();
@@ -164,6 +180,12 @@ public class WarcCdxWriter extends WarcWriter {
     if (val != null) {
       data.put("languages", val);
     }
+    if (truncated != null) {
+      data.put("truncated", truncated);
+    }
+    if (redirectLocation != null) {
+      data.put("redirect", redirectLocation);
+    }
     cdxOut.write(jsonWriter.writeValueAsBytes(data));
     cdxOut.write('\n');
   }
@@ -182,4 +204,8 @@ public class WarcCdxWriter extends WarcWriter {
     return mime;
   }
 
+  protected static boolean isRedirect(int httpStatusCode) {
+    return httpStatusCode >= 300 && httpStatusCode < 400
+        && httpStatusCode != 304;
+  }
 }
