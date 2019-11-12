@@ -42,6 +42,7 @@ import com.tdunning.math.stats.MergingDigest;
 import com.tdunning.math.stats.TDigest;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
@@ -89,12 +90,29 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
   protected String crawlDb;
 
+  private long lastModified = 0;
+
   private void openReaders(String crawlDb, Configuration config)
       throws IOException {
-    if (readers != null)
-      return;
     Path crawlDbPath = new Path(crawlDb, CrawlDb.CURRENT_NAME);
-    readers = MapFileOutputFormat.getReaders(crawlDbPath, config);
+
+    FileStatus stat = crawlDbPath.getFileSystem(config).getFileStatus(crawlDbPath);
+    long lastModified = stat.getModificationTime();
+
+    synchronized (this) {
+      if (readers != null) {
+        if (this.lastModified == lastModified) {
+          // CrawlDB not modified, re-use readers
+          return;
+        } else {
+          // CrawlDB modified, close and re-open readers
+          closeReaders();
+        }
+      }
+
+      this.lastModified = lastModified;
+      readers = MapFileOutputFormat.getReaders(crawlDbPath, config);
+    }
   }
 
   private void closeReaders() {
@@ -627,8 +645,6 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
   protected int process(String line, StringBuilder output) throws Exception {
     Job job = NutchJob.getInstance(getConf());
     Configuration config = job.getConfiguration();
-    // Close readers, so we know we're not working on stale data
-    closeReaders();
     readUrl(this.crawlDb, line, config, output);
     return 0;
   }
