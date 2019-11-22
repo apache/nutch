@@ -27,7 +27,7 @@
   </info>
 
   <configurations>
-    <include file="../../..//ivy/ivy-configurations.xml"/>
+    <include file="../../../ivy/ivy-configurations.xml"/>
   </configurations>
 
   <publications>
@@ -36,10 +36,12 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.elasticsearch" name="elasticsearch" rev="5.3.0" conf="*->default"/>
-    <dependency org="org.elasticsearch.client" name="transport" rev="5.3.0"/>
-    <dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.7" />
-    <dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.7" />
+    <dependency org="org.elasticsearch.client" name="elasticsearch-rest-high-level-client" rev="7.3.0">
+      <!-- exclusions of dependencies provided in Nutch core (ivy/ivy.xml) -->
+      <exclude org="commons-codec" name="commons-codec" />
+      <exclude org="commons-logging" name="commons-logging" />
+      <exclude org="com.tdunning" name="t-digest" />
+    </dependency>
   </dependencies>
   
 </ivy-module>

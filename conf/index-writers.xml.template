@@ -106,8 +106,8 @@
   </writer>
   <writer id="indexer_elastic_1" class="org.apache.nutch.indexwriter.elastic.ElasticIndexWriter">
     <parameters>
-      <param name="host" value=""/>
-      <param name="port" value="9300"/>
+      <param name="host" value="localhost"/>
+      <param name="port" value="9200"/>
       <param name="cluster" value=""/>
       <param name="index" value="nutch"/>
       <param name="max.bulk.docs" value="250"/>
