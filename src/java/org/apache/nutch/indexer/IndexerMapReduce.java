@@ -50,6 +50,24 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 
+/**
+ * <p>
+ * This class is typically invoked from within
+ * {@link org.apache.nutch.indexer.IndexingJob} and handles all MapReduce
+ * functionality required when undertaking indexing.
+ * </p>
+ * <p>
+ * This is a consequence of one or more indexing plugins being invoked which
+ * extend {@link org.apache.nutch.indexer.IndexWriter}.
+ * </p>
+ * <p>
+ * See
+ * {@link org.apache.nutch.indexer.IndexerMapReduce#initMRJob(Path, Path, Collection, JobConf, boolean)}
+ * for details on the specific data structures and parameters required for
+ * indexing.
+ * </p>
+ *
+ */
 public class IndexerMapReduce extends Configured {
 
   private static final Logger LOG = LoggerFactory
@@ -100,7 +118,7 @@ public class IndexerMapReduce extends Configured {
             .normalize(url, URLNormalizers.SCOPE_INDEXER);
         normalized = normalized.trim();
       } catch (Exception e) {
-        LOG.warn("Skipping " + url + ":" + e);
+        LOG.warn("Skipping {}: {}", url, e);
         normalized = null;
       }
     }
@@ -418,12 +436,24 @@ public class IndexerMapReduce extends Configured {
   public static void initMRJob(Path crawlDb, Path linkDb,
       Collection<Path> segments, Job job, boolean addBinaryContent) throws IOException{
 
-    LOG.info("IndexerMapReduce: crawldb: {}", crawlDb);
-
-    if (linkDb != null)
-      LOG.info("IndexerMapReduce: linkdb: {}", linkDb);
-
     Configuration conf = job.getConfiguration();
+
+    if (crawlDb != null) {
+      LOG.info("IndexerMapReduce: crawldb: {}", crawlDb);
+      Path currentCrawlDb = new Path(crawlDb, CrawlDb.CURRENT_NAME);
+      try {
+        if (currentCrawlDb.getFileSystem(conf).exists(currentCrawlDb)) {
+          FileInputFormat.addInputPath(job, currentCrawlDb);
+        } else {
+          LOG.warn(
+              "Ignoring crawlDb for indexing, no crawlDb found in path: {}",
+              crawlDb);
+        }
+      } catch (IOException e) {
+        LOG.warn("Failed to use crawlDb ({}) for indexing", crawlDb, e);
+      }
+    }
+
     for (final Path segment : segments) {
       LOG.info("IndexerMapReduces: adding segment: {}", segment);
       FileInputFormat.addInputPath(job, new Path(segment,
@@ -438,9 +468,8 @@ public class IndexerMapReduce extends Configured {
       }
     }
 
-    FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
-
     if (linkDb != null) {
+      LOG.info("IndexerMapReduce: linkdb: {}", linkDb);
       Path currentLinkDb = new Path(linkDb, LinkDb.CURRENT_NAME);
       try {
         if (currentLinkDb.getFileSystem(conf).exists(currentLinkDb)) {
