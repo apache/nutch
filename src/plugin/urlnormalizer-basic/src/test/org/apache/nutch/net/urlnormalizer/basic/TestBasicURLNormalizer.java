@@ -77,7 +77,7 @@ public class TestBasicURLNormalizer {
     // check that control chars are always encoded into 2 digits
     normalizeTest("http://foo.com/\u0001!", "http://foo.com/%01!");
 
-    // check encoding of spanish chars
+    // check encoding of Spanish chars
     normalizeTest("http://mydomain.com/en Espa\u00F1ol.aspx", "http://mydomain.com/en%20Espa%C3%B1ol.aspx");
   }
   
@@ -212,11 +212,36 @@ public class TestBasicURLNormalizer {
   
   @Test
   public void testCurlyBraces() throws Exception {
-    // check that leading and trailing spaces are removed
+    // check whether curly braces are properly escaped
     normalizeTest("http://foo.com/{{stuff}} ", "http://foo.com/%7B%7Bstuff%7D%7D");
   }
 
+  @Test
+  public void testHostName() throws Exception {
+    // (nothing to normalize in host name)
+    normalizeTest("https://www.example.org/", "https://www.example.org/");
+    // test Internationalized Domain Names
+    BasicURLNormalizer norm = new BasicURLNormalizer();
+    conf = NutchConfiguration.create();
+    conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toAscii");
+    norm.setConf(conf);
+    normalizeTest(norm, "https://нэб.рф/", "https://xn--90ax2c.xn--p1ai/");
+    conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toUnicode");
+    norm.setConf(conf);
+    normalizeTest(norm, "https://xn--90ax2c.xn--p1ai/", "https://нэб.рф/");
+    // test removal of trailing dot
+    conf.setBoolean(BasicURLNormalizer.NORM_HOST_TRIM_TRAILING_DOT, true);
+    norm.setConf(conf);
+    normalizeTest(norm, "https://www.example.org./",
+        "https://www.example.org/");
+  }
+
   private void normalizeTest(String weird, String normal) throws Exception {
+    normalizeTest(this.normalizer, weird, normal);
+  }
+
+  private void normalizeTest(BasicURLNormalizer normalizer, String weird,
+      String normal) throws Exception {
     Assert.assertEquals("normalizing: " + weird, normal,
         normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
     try {

@@ -16,8 +16,26 @@
  */
 
 /**
- * URL normalizer performing basic normalizations: remove default ports
- * and dot segments in path.
+ * URL normalizer performing basic normalizations:
+ * <ul>
+ * <li>remove default ports, e.g., port 80 for <code>http://</code> URLs</li>
+ * <li>remove needless slashes and dot segments in the path component</li>
+ * <li>remove anchors</li>
+ * <li>use percent-encoding (only) where needed</li>
+ * </ul>
+ * 
+ * E.g.,
+ * <code>https://www.example.org/a/../b//./select%2Dlang.php?lang=español#anchor<code>
+ * is normalized to <code>https://www.example.org/b/select-lang.php?lang=espa%C3%B1ol</code>
+ * 
+ * Optional and configurable normalizations are:
+ * <ul>
+ * <li>convert Internationalized Domain Names (IDNs) uniquely either to the
+ * ASCII (Punycode) or Unicode representation, see property
+ * <code>urlnormalizer.basic.host.idn</code></li>
+ * <li>remove a trailing dot from host names, see property
+ * <code>urlnormalizer.basic.host.trim-trailing-dot</code></li>
+ * </ul>
  */
 package org.apache.nutch.net.urlnormalizer.basic;
 
