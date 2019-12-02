@@ -331,15 +331,6 @@
 </property>
 
 <property>
-  <name>http.redirect.max</name>
-  <value>0</value>
-  <description>The maximum number of redirects the fetcher will follow when
-  trying to fetch a page. If set to negative or 0, fetcher won't immediately
-  follow redirected URLs, instead it will record them for later fetching.
-  </description>
-</property>
-
-<property>
   <name>http.useHttp11</name>
   <value>true</value>
   <description>
@@ -1245,6 +1236,27 @@
   <name>fetcher.normalize.urls</name>
   <value>false</value>
   <description>Whether fetcher will normalize URLs (with the configured URL normalizers).</description>
+</property>
+
+<property>
+  <name>http.redirect.max</name>
+  <value>0</value>
+  <description>The maximum number of redirects the fetcher will follow when
+  trying to fetch a page. If set to negative or 0, fetcher won't immediately
+  follow redirected URLs, instead it will record them for later fetching.
+  </description>
+</property>
+
+<property>
+  <name>http.redirect.max.exceeded.skip</name>
+  <value>false</value>
+  <description>
+    Whether to skip the last URL in a redirect chain when when redirects
+    are followed (http.redirect.max > 0) and the maximum number of redirects
+    in a chain is exceeded (redirect_count > http.redirect.max).
+    If not skipped the redirect target URLs are stored as `linked`
+    and fetched in one of the following cycles. See also NUTCH-2748.
+  </description>
 </property>
 
 <!--  any23 plugin properties -->

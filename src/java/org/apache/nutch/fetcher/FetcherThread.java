@@ -88,6 +88,7 @@ public class FetcherThread extends Thread {
   private long maxCrawlDelay;
   private String queueMode;
   private int maxRedirect;
+  private boolean maxRedirectExceededSkip = false;
   private String reprUrl;
   private boolean redirecting;
   private int redirectCount;
@@ -202,7 +203,10 @@ public class FetcherThread extends Thread {
     queueMode = FetchItemQueues.checkQueueMode(queueMode);
     LOG.info("{} {} Using queue mode : {}", getName(),
         Thread.currentThread().getId(), queueMode);
+
     this.maxRedirect = conf.getInt("http.redirect.max", 3);
+    this.maxRedirectExceededSkip = conf
+        .getBoolean("http.redirect.max.exceeded.skip", false);
 
     int maxOutlinksPerPage = conf.getInt("db.max.outlinks.per.page", 100);
     maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
@@ -454,12 +458,18 @@ public class FetcherThread extends Thread {
             if (redirecting && redirectCount > maxRedirect) {
               ((FetchItemQueues) fetchQueues).finishFetchItem(fit);
               if (LOG.isInfoEnabled()) {
-                LOG.info("{} {} - redirect count exceeded {}", getName(),
-                    Thread.currentThread().getId(), fit.url);
+                LOG.info("{} {} - redirect count exceeded {} ({})", getName(),
+                    Thread.currentThread().getId(), fit.url,
+                    maxRedirectExceededSkip ? "skipped" : "linked");
               }
-              output(fit.url, fit.datum, null,
-                  ProtocolStatus.STATUS_REDIR_EXCEEDED,
-                  CrawlDatum.STATUS_FETCH_GONE);
+              if (maxRedirectExceededSkip) {
+                // skip redirect target when redirect count is exceeded
+              } else {
+                Text newUrl = new Text(status.getMessage());
+                CrawlDatum newDatum = createRedirDatum(newUrl, fit,
+                    CrawlDatum.STATUS_LINKED);
+                output(newUrl, newDatum, null, null, CrawlDatum.STATUS_LINKED);
+              }
             }
 
           } while (redirecting && (redirectCount <= maxRedirect));
@@ -555,36 +565,33 @@ public class FetcherThread extends Thread {
       LOG.debug(" - {} redirect to {} (fetching now)", redirType, url);
       return url;
     } else {
-      CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_LINKED,
-          fit.datum.getFetchInterval(), fit.datum.getScore());
-      // transfer existing metadata
-      newDatum.getMetaData().putAll(fit.datum.getMetaData());
-      try {
-        scfilters.initialScore(url, newDatum);
-      } catch (ScoringFilterException e) {
-        e.printStackTrace();
-      }
-      if (reprUrl != null) {
-        newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
-            new Text(reprUrl));
-      }
+      CrawlDatum newDatum = createRedirDatum(url, fit, CrawlDatum.STATUS_LINKED);
       output(url, newDatum, null, null, CrawlDatum.STATUS_LINKED);
       LOG.debug(" - {} redirect to {} (fetching later)", redirType, url);
       return null;
     }
   }
 
-  private FetchItem queueRedirect(Text redirUrl, FetchItem fit)
-      throws ScoringFilterException {
-    CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED,
-        fit.datum.getFetchInterval(), fit.datum.getScore());
-    // transfer all existing metadata to the redirect
+  private CrawlDatum createRedirDatum(Text redirUrl, FetchItem fit, byte status) {
+    CrawlDatum newDatum = new CrawlDatum(status, fit.datum.getFetchInterval(),
+        fit.datum.getScore());
+    // transfer existing metadata
     newDatum.getMetaData().putAll(fit.datum.getMetaData());
-    scfilters.initialScore(redirUrl, newDatum);
+    try {
+      scfilters.initialScore(redirUrl, newDatum);
+    } catch (ScoringFilterException e) {
+      LOG.error("Scoring filtering failed for {}: ", redirUrl, e);
+    }
     if (reprUrl != null) {
       newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
           new Text(reprUrl));
     }
+    return newDatum;
+  }
+
+  private FetchItem queueRedirect(Text redirUrl, FetchItem fit)
+      throws ScoringFilterException {
+    CrawlDatum newDatum = createRedirDatum(redirUrl, fit, CrawlDatum.STATUS_DB_UNFETCHED);
     fit = FetchItem.create(redirUrl, newDatum, queueMode);
     if (fit != null) {
       FetchItemQueue fiq = ((FetchItemQueues) fetchQueues).getFetchItemQueue(fit.queueID);
