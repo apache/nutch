@@ -26,9 +26,6 @@
 
   <!-- Deploy Unit test dependencies -->
   <target name="deps-test">
-    <copy toDir="${build.test}">
-      <fileset dir="${src.test}" excludes="**/*.java"/>
-    </copy>
   </target>
 
 

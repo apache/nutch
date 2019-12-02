@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
@@ -63,6 +64,8 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
   private Path directory;
   private MapFile.Reader[] readers;
 
+  private long lastModified = 0;
+
   public LinkDbReader() {
     //default constructor
   }
@@ -76,6 +79,28 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     this.directory = directory;
   }
 
+  public void openReaders() throws IOException {
+    Path linkDbPath = new Path(directory, LinkDb.CURRENT_NAME);
+
+    FileStatus stat = linkDbPath.getFileSystem(getConf()).getFileStatus(directory);
+    long lastModified = stat.getModificationTime();
+
+    synchronized (this) {
+      if (readers != null) {
+        if (this.lastModified == lastModified) {
+          // CrawlDB not modified, re-use readers
+          return;
+        } else {
+          // CrawlDB modified, close and re-open readers
+          close();
+        }
+      }
+
+      this.lastModified = lastModified;
+      readers = MapFileOutputFormat.getReaders(linkDbPath, getConf());
+    }
+  }
+
   public String[] getAnchors(Text url) throws IOException {
     Inlinks inlinks = getInlinks(url);
     if (inlinks == null)
@@ -84,13 +109,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
   }
 
   public Inlinks getInlinks(Text url) throws IOException {
-
-    if (readers == null) {
-      synchronized (this) {
-        readers = MapFileOutputFormat.getReaders(new Path(directory,
-            LinkDb.CURRENT_NAME), getConf());
-      }
-    }
+    openReaders();
 
     return (Inlinks) MapFileOutputFormat.getEntry(readers, PARTITIONER, url,
         new Inlinks());
@@ -188,6 +207,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
       Iterator<Inlink> it = links.iterator();
       while (it.hasNext()) {
         output.append(it.next().toString());
+        output.append("\n");
       }
     }
     output.append("\n");

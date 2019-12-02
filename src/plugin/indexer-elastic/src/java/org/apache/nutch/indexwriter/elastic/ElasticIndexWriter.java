@@ -17,10 +17,9 @@
 package org.apache.nutch.indexwriter.elastic;
 
 import java.lang.invoke.MethodHandles;
+import java.time.format.DateTimeFormatter;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,25 +27,30 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.message.BasicHeader;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.client.RequestOptions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +60,7 @@ import org.slf4j.LoggerFactory;
 public class ElasticIndexWriter implements IndexWriter {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
+
 
   private static final int DEFAULT_PORT = 9300;
   private static final int DEFAULT_MAX_BULK_DOCS = 250;
@@ -75,8 +80,7 @@ public class ElasticIndexWriter implements IndexWriter {
   private int expBackoffRetries;
 
   private String defaultIndex;
-  private Client client;
-  private Node node;
+  private RestHighLevelClient client;
   private BulkProcessor bulkProcessor;
 
   private long bulkCloseTimeout;
@@ -99,8 +103,8 @@ public class ElasticIndexWriter implements IndexWriter {
     cluster = parameters.get(ElasticConstants.CLUSTER);
     String hosts = parameters.get(ElasticConstants.HOSTS);
 
-    if (StringUtils.isBlank(cluster) && StringUtils.isBlank(hosts)) {
-      String message = "Missing elastic.cluster and elastic.host. At least one of them should be set in index-writers.xml ";
+    if (StringUtils.isBlank(hosts)) {
+      String message = "Missing elastic.host this should be set in index-writers.xml ";
       message += "\n" + describe();
       LOG.error(message);
       throw new RuntimeException(message);
@@ -125,7 +129,10 @@ public class ElasticIndexWriter implements IndexWriter {
 
     LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}",
         maxBulkDocs, maxBulkLength);
-    bulkProcessor = BulkProcessor.builder(client, bulkProcessorListener())
+    bulkProcessor = BulkProcessor.builder(
+        (request, bulkListener) ->
+        client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
+        bulkProcessorListener())
         .setBulkActions(maxBulkDocs)
         .setBulkSize(new ByteSizeValue(maxBulkLength, ByteSizeUnit.BYTES))
         .setConcurrentRequests(1).setBackoffPolicy(BackoffPolicy
@@ -134,50 +141,30 @@ public class ElasticIndexWriter implements IndexWriter {
   }
 
   /**
-   * Generates a TransportClient or NodeClient
+   * Generates a RestHighLevelClient with the hosts given
    */
-  protected Client makeClient(IndexWriterParams parameters) throws IOException {
+  protected RestHighLevelClient makeClient(IndexWriterParams parameters) throws IOException {
     hosts = parameters.getStrings(ElasticConstants.HOSTS);
     port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
 
-    Settings.Builder settingsBuilder = Settings.builder();
+    RestHighLevelClient client = null;
 
-    String options = parameters.get(ElasticConstants.OPTIONS);
-
-    if (options != null) {
-      String[] lines = options.trim().split(",");
-      for (String line : lines) {
-        if (StringUtils.isNotBlank(line)) {
-          String[] parts = line.trim().split("=");
-
-          if (parts.length == 2) {
-            settingsBuilder.put(parts[0].trim(), parts[1].trim());
-          }
-        }
-      }
-    }
-
-    // Set the cluster name and build the settings
-    if (StringUtils.isNotBlank(cluster)) {
-      settingsBuilder.put("cluster.name", cluster);
-    }
-
-    Settings settings = settingsBuilder.build();
-
-    Client client = null;
-
-    // Prefer TransportClient
     if (hosts != null && port > 1) {
-      @SuppressWarnings("resource") TransportClient transportClient = new PreBuiltTransportClient(
-          settings);
-
-      for (String host : hosts)
-        transportClient.addTransportAddress(
-            new InetSocketTransportAddress(InetAddress.getByName(host), port));
-      client = transportClient;
-    } else if (cluster != null) {
-      node = new Node(settings);
-      client = node.client();
+      HttpHost[] hostsList = new HttpHost[hosts.length];
+      int i = 0;
+      for(String host: hosts)	{
+        hostsList[i++] = new HttpHost(host, port);
+      }
+      RestClientBuilder restClientBuilder = RestClient.builder(hostsList);
+      if (StringUtils.isNotBlank(cluster)) {
+        Header[] defaultHeaders = new Header[]{new BasicHeader("cluster.name", cluster)};
+        restClientBuilder.setDefaultHeaders(defaultHeaders);
+      } else	{
+        LOG.debug("No cluster name provided so using default");
+      }
+      client = new RestHighLevelClient(restClientBuilder);
+    } else	{
+      throw new IOException("ElasticRestClient initialization Failed!!!\\n\\nPlease Provide the hosts");
     }
 
     return client;
@@ -215,26 +202,35 @@ public class ElasticIndexWriter implements IndexWriter {
     if (type == null)
       type = "doc";
 
-    // Add each field of this doc to the index source
-    Map<String, Object> source = new HashMap<String, Object>();
+    // Add each field of this doc to the index builder
+    XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
     for (final Map.Entry<String, NutchField> e : doc) {
       final List<Object> values = e.getValue().getValues();
 
       if (values.size() > 1) {
-        source.put(e.getKey(), values);
+        builder.array(e.getKey(), values);
       } else {
-        source.put(e.getKey(), values.get(0));
+        Object value = values.get(0);
+        if (value instanceof java.util.Date) {
+          value = DateTimeFormatter.ISO_INSTANT
+              .format(((java.util.Date) value).toInstant());
+        }
+        builder.field(e.getKey(), value);
       }
     }
+    builder.endObject();
 
-    IndexRequest request = new IndexRequest(defaultIndex, type, id)
-        .source(source);
+    IndexRequest request = new IndexRequest(defaultIndex)
+                                           .id(id)
+                                           .source(builder);
+    request.opType(DocWriteRequest.OpType.INDEX);
+
     bulkProcessor.add(request);
   }
 
   @Override
   public void delete(String key) throws IOException {
-    DeleteRequest request = new DeleteRequest(defaultIndex, "doc", key);
+    DeleteRequest request = new DeleteRequest(defaultIndex, key);
     bulkProcessor.add(request);
   }
 
@@ -259,9 +255,6 @@ public class ElasticIndexWriter implements IndexWriter {
     }
 
     client.close();
-    if (node != null) {
-      node.close();
-    }
   }
 
   /**
@@ -277,10 +270,9 @@ public class ElasticIndexWriter implements IndexWriter {
         "The cluster name to discover. Either host and port must be defined or cluster.",
         this.cluster));
     properties.put(ElasticConstants.HOSTS, new AbstractMap.SimpleEntry<>(
-        "Ordered list of fields (columns) in the CSV fileComma-separated list of "
-            + "hostnames to send documents to using TransportClient. "
+        "Comma-separated list of hostnames to send documents to using TransportClient. "
             + "Either host and port must be defined or cluster.",
-        this.hosts == null ? "" : String.join(",", hosts)));
+            this.hosts == null ? "" : String.join(",", hosts)));
     properties.put(ElasticConstants.PORT, new AbstractMap.SimpleEntry<>(
         "The port to connect to using TransportClient.", this.port));
     properties.put(ElasticConstants.INDEX,
