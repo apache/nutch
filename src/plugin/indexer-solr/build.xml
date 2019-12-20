@@ -19,4 +19,5 @@
 
   <import file="../build-plugin.xml" />
 
+  <copy file="schema.xml" todir="${deploy.dir}" preservelastmodified="true"/>
 </project>
