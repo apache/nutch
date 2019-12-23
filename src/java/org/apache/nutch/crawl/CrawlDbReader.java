@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -75,6 +76,12 @@ import org.apache.nutch.util.SegmentReaderUtil;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.commons.jexl2.Expression;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 /**
  * Read utility for the CrawlDB.
@@ -128,6 +135,26 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       }
     }
     readers = null;
+  }
+
+  public static class JsonIndenter extends MinimalPrettyPrinter {
+
+    /**
+    * 
+    */
+    private static final long serialVersionUID = -4464852619186879060L;
+
+    // @Override
+    public void writeObjectFieldValueSeparator(JsonGenerator jg)
+        throws IOException, JsonGenerationException {
+      jg.writeRaw(": ");
+    }
+
+    // @Override
+    public void writeObjectEntrySeparator(JsonGenerator jg)
+        throws IOException, JsonGenerationException {
+      jg.writeRaw(", ");
+    }
   }
 
   public static class CrawlDatumCsvOutputFormat
@@ -211,9 +238,14 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     protected static class LineRecordWriter
         extends RecordWriter<Text, CrawlDatum> {
       private DataOutputStream out;
-      private ArrayList<String> jsonString = new ArrayList<String>();
+      private ObjectMapper jsonMapper = new ObjectMapper();
+      private ObjectWriter jsonWriter;
+
       public LineRecordWriter(DataOutputStream out) {
         this.out = out;
+        jsonMapper.getFactory()
+            .configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
+        jsonWriter = jsonMapper.writer(new JsonIndenter());
         try {
           out.writeBytes("[");
         } catch (IOException e) {
@@ -222,45 +254,41 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
       public synchronized void write(Text key, CrawlDatum value)
           throws IOException {
-        String fetchTime = new Date(value.getFetchTime()).toString();
-        String modifiedTime = new Date(value.getModifiedTime()).toString();
-        String recordString = "";
-        recordString += "{\n" + "\t\"url\":\"" + key.toString()
-            + "\",\n" + "\t\"statusCode\":" + Integer.toString(value.getStatus())
-            + ",\n" + "\t\"statusName\":\""
-            + CrawlDatum.getStatusName(value.getStatus()) + "\",\n"
-            + "\t\"fetchTime\":\"" + fetchTime + "\",\n" + "\t\"modifiedTime\":\""
-            + modifiedTime + "\",\n" + "\t\"retriesSinceFetch\":"
-            + Integer.toString(value.getRetriesSinceFetch()) + ",\n"
-            + "\t\"retryIntervalSeconds\":"
-            + Float.toString(value.getFetchInterval()) + ",\n"
-            + "\t\"retryIntervalDays\":"
-            + Float.toString(
-                (value.getFetchInterval() / FetchSchedule.SECONDS_PER_DAY))
-            + ",\n" + "\t\"score\":" + Float.toString(value.getScore()) + ",\n"
-            + "\t\"signature\": \"" + (value.getSignature() != null
+        Map<String, Object> data = new LinkedHashMap<String, Object>();
+        data.put("url", key.toString());
+        data.put("statusCode", Integer.toString(value.getStatus()));
+        data.put("statusName", CrawlDatum.getStatusName(value.getStatus()));
+        data.put("fetchTime", new Date(value.getFetchTime()).toString());
+        data.put("modifiedTime", new Date(value.getModifiedTime()).toString());
+        data.put("retriesSinceFetch",
+            Integer.toString(value.getRetriesSinceFetch()));
+        data.put("retryIntervalSeconds",
+            Float.toString(value.getFetchInterval()));
+        data.put("retryIntervalDays", Float.toString(
+            (value.getFetchInterval() / FetchSchedule.SECONDS_PER_DAY)));
+        data.put("score", Float.toString(value.getScore()));
+        data.put("signature",
+            (value.getSignature() != null
                 ? StringUtil.toHexString(value.getSignature())
-                : "null") + "\",\n" + "\t\"metaData\": {\n";
+                : "null"));
+        Map<String, String> metaData = null;
         if (value.getMetaData() != null) {
-          int metaDataSize = value.getMetaData().size();
-          String metaData = "";
+          metaData = new LinkedHashMap<String, String>();
           for (Entry<Writable, Writable> e : value.getMetaData().entrySet()) {
-             metaData += "\t\t\"" + e.getKey().toString() + "\":" + "\"" + e.getValue().toString() + "\"";
-            if (metaDataSize-- > 1)	{
-            	metaData += ",";
-            }
-            metaData += "\n";
+            metaData.put(e.getKey().toString(), e.getValue().toString());
           }
-          recordString = recordString + metaData;
         }
-        recordString += "\t}\n}";
-        jsonString.add(recordString);
+        if (metaData != null) {
+          data.put("metadata", metaData);
+        } else {
+          data.put("metadata", "");
+        }
+        out.write(jsonWriter.writeValueAsBytes(data));
+        out.writeByte('\n');
       }
 
       public synchronized void close(TaskAttemptContext context)
           throws IOException {
-        out.writeBytes(jsonString.stream().collect(Collectors.joining(",")));
-        out.writeByte(']');
         out.close();
       }
     }
@@ -765,7 +793,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       job.setOutputFormatClass(MapFileOutputFormat.class);
     } else if (format.equals("json")) {
       job.setOutputFormatClass(CrawlDatumJsonOutputFormat.class);
-    }else {
+    } else {
       job.setOutputFormatClass(TextOutputFormat.class);
     }
 
@@ -974,7 +1002,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
           .println("\t-stats [-sort] \tprint overall statistics to System.out");
       System.err.println("\t\t[-sort]\tlist status sorted by host");
       System.err.println(
-          "\t-dump <out_dir> [-format normal|csv|crawldb]\tdump the whole db to a text file in <out_dir>");
+          "\t-dump <out_dir> [-format normal|csv|crawldb|json]\tdump the whole db to a text file in <out_dir>");
       System.err.println("\t\t[-format csv]\tdump in Csv format");
       System.err.println(
           "\t\t[-format normal]\tdump in standard format (default option)");
