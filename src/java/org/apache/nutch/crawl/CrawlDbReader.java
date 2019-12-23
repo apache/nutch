@@ -34,7 +34,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -137,20 +136,16 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     readers = null;
   }
 
+  @SuppressWarnings("serial")
   public static class JsonIndenter extends MinimalPrettyPrinter {
 
-    /**
-    * 
-    */
-    private static final long serialVersionUID = -4464852619186879060L;
-
-    // @Override
+    @Override
     public void writeObjectFieldValueSeparator(JsonGenerator jg)
         throws IOException, JsonGenerationException {
       jg.writeRaw(": ");
     }
 
-    // @Override
+    @Override
     public void writeObjectEntrySeparator(JsonGenerator jg)
         throws IOException, JsonGenerationException {
       jg.writeRaw(", ");
@@ -246,36 +241,29 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
         jsonMapper.getFactory()
             .configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
         jsonWriter = jsonMapper.writer(new JsonIndenter());
-        try {
-          out.writeBytes("[");
-        } catch (IOException e) {
-        }
       }
 
       public synchronized void write(Text key, CrawlDatum value)
           throws IOException {
         Map<String, Object> data = new LinkedHashMap<String, Object>();
         data.put("url", key.toString());
-        data.put("statusCode", Integer.toString(value.getStatus()));
+        data.put("statusCode", value.getStatus());
         data.put("statusName", CrawlDatum.getStatusName(value.getStatus()));
         data.put("fetchTime", new Date(value.getFetchTime()).toString());
         data.put("modifiedTime", new Date(value.getModifiedTime()).toString());
-        data.put("retriesSinceFetch",
-            Integer.toString(value.getRetriesSinceFetch()));
-        data.put("retryIntervalSeconds",
-            Float.toString(value.getFetchInterval()));
-        data.put("retryIntervalDays", Float.toString(
-            (value.getFetchInterval() / FetchSchedule.SECONDS_PER_DAY)));
-        data.put("score", Float.toString(value.getScore()));
+        data.put("retriesSinceFetch", value.getRetriesSinceFetch());
+        data.put("retryIntervalSeconds", value.getFetchInterval());
+        data.put("retryIntervalDays", (value.getFetchInterval() / FetchSchedule.SECONDS_PER_DAY));
+        data.put("score", value.getScore());
         data.put("signature",
             (value.getSignature() != null
                 ? StringUtil.toHexString(value.getSignature())
                 : "null"));
-        Map<String, String> metaData = null;
+        Map<String, Object> metaData = null;
         if (value.getMetaData() != null) {
-          metaData = new LinkedHashMap<String, String>();
+          metaData = new LinkedHashMap<String, Object>();
           for (Entry<Writable, Writable> e : value.getMetaData().entrySet()) {
-            metaData.put(e.getKey().toString(), e.getValue().toString());
+            metaData.put(e.getKey().toString(), e.getValue());
           }
         }
         if (metaData != null) {
@@ -1007,6 +995,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       System.err.println(
           "\t\t[-format normal]\tdump in standard format (default option)");
       System.err.println("\t\t[-format crawldb]\tdump as CrawlDB");
+      System.err.println("\t\t[-format json]\tdump in JSON Lines format");
       System.err.println("\t\t[-regex <expr>]\tfilter records with expression");
       System.err.println("\t\t[-retry <num>]\tminimum retry count");
       System.err.println(
