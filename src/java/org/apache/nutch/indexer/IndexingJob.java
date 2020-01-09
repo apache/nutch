@@ -167,15 +167,59 @@ public class IndexingJob extends NutchTool implements Tool {
     }
   }
 
+  private static void usage() {
+    System.err.println(
+        "Usage: Indexer (<crawldb> | -nocrawldb) (<segment> ... | -dir <segments>) [general options]");
+    System.err.println("");
+    System.err.println("Index given segments using configured indexer plugins");
+    System.err.println("");
+    System.err.println(
+        "The CrawlDb is optional but it is required to send deletion requests for duplicates");
+    System.err.println(
+        "and to read the proper document score/boost/weight passed to the indexers.");
+    System.err.println("");
+    System.err.println("Required arguments:");
+    System.err.println("");
+    System.err.println("\t<crawldb>\tpath to CrawlDb, or");
+    System.err.println(
+        "\t-nocrawldb\tflag to indicate that no CrawlDb shall be used");
+    System.err.println("");
+    System.err.println("\t<segment> ...\tpath(s) to segment, or");
+    System.err.println("\t-dir <segments>\tpath to segments/ directory,");
+    System.err.println(
+        "\t               \t(all subdirectories are read as segments)");
+    System.err.println("");
+    System.err.println("General options:");
+    System.err.println("\t");
+    System.err.println(
+        "\t-linkdb <linkdb>\tuse LinkDb to index anchor texts of incoming links");
+    System.err.println(
+        "\t-params k1=v1&k2=v2...\tparameters passed to indexer plugins");
+    System.err.println(
+        "\t                      \t(via property indexer.additional.params)");
+    System.err.println("");
+    System.err.println(
+        "\t-noCommit\tdo not call the commit method of indexer plugins");
+    System.err.println(
+        "\t-deleteGone\tsend deletion requests for 404s, redirects, duplicates");
+    System.err
+        .println("\t-filter   \tskip documents with URL rejected by configured URL filters");
+    System.err.println("\t-normalize\tnormalize URLs before indexing");
+    System.err.println(
+        "\t-addBinaryContent\tindex raw/binary content in field `binaryContent`");
+    System.err.println("\t-base64   \tuse Base64 encoding for binary content");
+    System.err.println("");
+  }
+
   public int run(String[] args) throws Exception {
-    if (args.length < 2) {
-      System.err
-      //.println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
-      .println("Usage: Indexer <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize] [-addBinaryContent] [-base64]");
+    if (args.length == 0) {
+      usage();
       return -1;
     }
 
-    final Path crawlDb = new Path(args[0]);
+    Path crawlDb = null;
+    boolean noCrawlDb = false;
+
     Path linkDb = null;
 
     final List<Path> segments = new ArrayList<>();
@@ -188,10 +232,12 @@ public class IndexingJob extends NutchTool implements Tool {
     boolean addBinaryContent = false;
     boolean base64 = false;
 
-    for (int i = 1; i < args.length; i++) {
+    for (int i = 0; i < args.length; i++) {
       FileSystem fs = null;
       Path dir = null;
-      if (args[i].equals("-linkdb")) {
+      if (args[i].equals("-nocrawldb")) {
+        noCrawlDb = true;
+      } else if (args[i].equals("-linkdb")) {
         linkDb = new Path(args[++i]);
       } else if (args[i].equals("-dir")) {
         dir = new Path(args[++i]);
@@ -218,13 +264,26 @@ public class IndexingJob extends NutchTool implements Tool {
         base64 = true;
       } else if (args[i].equals("-params")) {
         params = args[++i];
+      } else if (crawlDb == null && !noCrawlDb) {
+        /*
+         * expect CrawlDb as first non-option argument unless -nocrawldb is
+         * given
+         */
+        crawlDb = new Path(args[i]);
       } else {
+        // remaining arguments are segments
         dir = new Path(args[i]);
         fs = dir.getFileSystem(getConf());
         if (SegmentChecker.isIndexable(dir,fs)) {
           segments.add(dir);
         }
       }
+    }
+
+    if (segments.size() == 0) {
+      usage();
+      System.err.println("No indexable segments passed as arguments. At least one segment is required!");
+      return -1;
     }
 
     try {
