@@ -54,6 +54,7 @@ import okhttp3.Connection;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.Request;
 
 public class OkHttp extends HttpBase {
@@ -220,6 +221,15 @@ public class OkHttp extends HttpBase {
 
   class HTTPHeadersInterceptor implements Interceptor {
 
+    private String getNormalizedProtocolName(Protocol protocol) {
+      String name = protocol.toString().toUpperCase(Locale.ROOT);
+      if ("H2".equals(name)) {
+        // back-ward compatible protocol version name
+        name = "HTTP/2";
+      }
+      return name;
+    }
+
     @Override
     public okhttp3.Response intercept(Interceptor.Chain chain)
         throws IOException {
@@ -233,12 +243,6 @@ public class OkHttp extends HttpBase {
 
       Request request = chain.request();
       okhttp3.Response response = chain.proceed(request);
-      String httpProtocol = response.protocol().toString()
-          .toUpperCase(Locale.ROOT);
-      if (useHttp2 && "H2".equals(httpProtocol)) {
-        // back-ward compatible protocol name
-        httpProtocol = "HTTP/2";
-      }
 
       StringBuilder requestverbatim = null;
       StringBuilder responseverbatim = null;
@@ -252,7 +256,9 @@ public class OkHttp extends HttpBase {
         if (query != null) {
           requestverbatim.append('?').append(query);
         }
-        requestverbatim.append(' ').append(httpProtocol).append("\r\n");
+        requestverbatim.append(' ')
+            .append(getNormalizedProtocolName(connection.protocol()))
+            .append("\r\n");
 
         Headers headers = request.headers();
 
@@ -269,8 +275,8 @@ public class OkHttp extends HttpBase {
       if (storeHttpHeaders) {
         responseverbatim = new StringBuilder();
 
-        responseverbatim.append(httpProtocol).append(' ')
-            .append(response.code());
+        responseverbatim.append(getNormalizedProtocolName(response.protocol()))
+            .append(' ').append(response.code());
         if (!response.message().isEmpty()) {
           responseverbatim.append(' ').append(response.message());
         }
