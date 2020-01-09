@@ -282,7 +282,7 @@ public class IndexingJob extends NutchTool implements Tool {
 
     if (segments.size() == 0) {
       usage();
-      System.err.println("No segments passed as arguments. At least one segment is required!");
+      System.err.println("No indexable segments passed as arguments. At least one segment is required!");
       return -1;
     }
 

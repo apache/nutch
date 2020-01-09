@@ -452,6 +452,8 @@ public class IndexerMapReduce extends Configured {
       } catch (IOException e) {
         LOG.warn("Failed to use crawlDb ({}) for indexing", crawlDb, e);
       }
+    } else {
+      LOG.info("IndexerMapReduce: no crawldb provided for indexing");
     }
 
     for (final Path segment : segments) {
