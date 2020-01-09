@@ -56,6 +56,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
+import okhttp3.brotli.BrotliInterceptor;
 
 public class OkHttp extends HttpBase {
 
@@ -215,6 +216,9 @@ public class OkHttp extends HttpBase {
     if (storeIPAddress || storeHttpHeaders || storeHttpRequest) {
       builder.addNetworkInterceptor(new HTTPHeadersInterceptor());
     }
+
+    // enable support for Brotli compression (Content-Encoding)
+    builder.addInterceptor(BrotliInterceptor.INSTANCE);
 
     client = builder.build();
   }

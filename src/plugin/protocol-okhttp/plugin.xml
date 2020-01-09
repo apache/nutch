@@ -30,6 +30,8 @@
       <library name="kotlin-stdlib-1.3.61.jar"/>
       <library name="kotlin-stdlib-common-1.3.61.jar"/>
       <library name="annotations-13.0.jar"/>
+      <library name="okhttp-brotli-4.3.1.jar"/>
+      <library name="dec-0.1.2.jar"/>
    </runtime>
 
    <requires>
