@@ -41,7 +41,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   <body>
        <%
 	response.setStatus(302);
-	response.setHeader( "Location", "http://nutch.apache.org");
+	response.setHeader( "Location", "https://nutch.apache.org/");
 	response.setHeader( "Connection", "close" );
 		%> 
     You are sucessfully redirected by JSP<br>

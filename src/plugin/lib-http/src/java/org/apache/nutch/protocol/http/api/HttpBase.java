@@ -102,7 +102,7 @@ public abstract class HttpBase implements Protocol {
 
   /** The Nutch 'User-Agent' request header */
   protected String userAgent = getAgentString("NutchCVS", null, "Nutch",
-      "http://nutch.apache.org/bot.html", "agent@nutch.apache.org");
+      "https://nutch.apache.org/bot.html", "agent@nutch.apache.org");
 
   /** The "Accept-Language" request header value. */
   protected String acceptLanguage = "en-us,en-gb,en;q=0.7,*;q=0.3";

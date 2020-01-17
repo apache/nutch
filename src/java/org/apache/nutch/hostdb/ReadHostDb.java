@@ -50,7 +50,7 @@ import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
 
 /**
- * @see <a href='http://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a>
+ * @see <a href='https://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a>
  */
 public class ReadHostDb extends Configured implements Tool {
 
