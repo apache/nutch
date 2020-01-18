@@ -111,13 +111,6 @@
 			<exclude org="log4j" module="log4j" />
 		</dependency>
 		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.26" conf="test->default" />
-		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" conf="test->default" />
-		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.26" conf="test->default" />
-		<dependency org="tomcat" name="jasper-runtime" rev="5.5.23" conf="test->default" />
-		<dependency org="tomcat" name="jasper-compiler" rev="5.5.23" conf="test->default">
-			<exclude org="ant" name="ant" />
-		</dependency>
-		<!-- end of test artifacts -->
 
 		<!-- web app dependencies -->
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" />
