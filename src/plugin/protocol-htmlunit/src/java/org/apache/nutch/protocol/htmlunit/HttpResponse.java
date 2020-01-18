@@ -30,8 +30,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -40,6 +42,7 @@ import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.protocol.httpclient.DummyX509TrustManager;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
 
@@ -129,10 +132,20 @@ public class HttpResponse implements Response {
       socket.connect(sockAddr, http.getTimeout());
 
       if (scheme == Scheme.HTTPS) {
-        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory
-            .getDefault();
-        SSLSocket sslsocket = (SSLSocket) factory
-            .createSocket(socket, sockHost, sockPort, true);
+
+        // Optionally skip TLS/SSL certificate validation
+        SSLSocketFactory factory;
+        if (http.isTlsCheckCertificates()) {
+          factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        } else {
+          SSLContext sslContext = SSLContext.getInstance("TLS");
+          sslContext.init(null,
+              new TrustManager[] { new DummyX509TrustManager(null) }, null);
+          factory = sslContext.getSocketFactory();
+        }
+
+        SSLSocket sslsocket = (SSLSocket) factory.createSocket(socket, sockHost,
+            sockPort, true);
         sslsocket.setUseClientMode(true);
 
         // Get the protocols and ciphers supported by this JVM
@@ -199,8 +212,8 @@ public class HttpResponse implements Response {
       reqStr.append("\r\n");
 
       if (http.isIfModifiedSinceEnabled() && datum.getModifiedTime() > 0) {
-        reqStr.append("If-Modified-Since: " + HttpDateFormat
-            .toString(datum.getModifiedTime()));
+        reqStr.append("If-Modified-Since: "
+            + HttpDateFormat.toString(datum.getModifiedTime()));
         reqStr.append("\r\n");
       }
       reqStr.append("\r\n");
@@ -216,9 +229,8 @@ public class HttpResponse implements Response {
       req.flush();
 
       PushbackInputStream in = // process response
-          new PushbackInputStream(
-              new BufferedInputStream(socket.getInputStream(),
-                  Http.BUFFER_SIZE), Http.BUFFER_SIZE);
+          new PushbackInputStream(new BufferedInputStream(
+              socket.getInputStream(), Http.BUFFER_SIZE), Http.BUFFER_SIZE);
 
       StringBuffer line = new StringBuffer();
 
@@ -227,7 +239,8 @@ public class HttpResponse implements Response {
         httpHeaders = new StringBuffer();
       }
 
-      headers.add("nutch.fetch.time", Long.toString(System.currentTimeMillis()));
+      headers.add("nutch.fetch.time",
+          Long.toString(System.currentTimeMillis()));
 
       boolean haveSeenNonContinueStatus = false;
       while (!haveSeenNonContinueStatus) {
@@ -243,27 +256,30 @@ public class HttpResponse implements Response {
       // Get Content type header
       String contentType = getHeader(Response.CONTENT_TYPE);
 
-      // handle with HtmlUnit only if content type in HTML or XHTML 
+      // handle with HtmlUnit only if content type in HTML or XHTML
       if (contentType != null) {
-        if (contentType.contains("text/html") || contentType.contains("application/xhtml")) {
+        if (contentType.contains("text/html")
+            || contentType.contains("application/xhtml")) {
           readContentFromHtmlUnit(url);
         } else {
           String transferEncoding = getHeader(Response.TRANSFER_ENCODING);
-          if (transferEncoding != null && "chunked"
-              .equalsIgnoreCase(transferEncoding.trim())) {
+          if (transferEncoding != null
+              && "chunked".equalsIgnoreCase(transferEncoding.trim())) {
             readChunkedContent(in, line);
           } else {
             readPlainContent(in);
           }
 
           String contentEncoding = getHeader(Response.CONTENT_ENCODING);
-          if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
+          if ("gzip".equals(contentEncoding)
+              || "x-gzip".equals(contentEncoding)) {
             content = http.processGzipEncoded(content, url);
           } else if ("deflate".equals(contentEncoding)) {
             content = http.processDeflateEncoded(content, url);
           } else {
             if (Http.LOG.isTraceEnabled()) {
-              Http.LOG.trace("fetched " + content.length + " bytes from " + url);
+              Http.LOG
+                  .trace("fetched " + content.length + " bytes from " + url);
             }
           }
         }
@@ -272,6 +288,8 @@ public class HttpResponse implements Response {
         }
       }
 
+    }catch(Exception e) {
+      Http.LOG.error(e.getLocalizedMessage());
     } finally {
       if (socket != null)
         socket.close();
@@ -313,7 +331,7 @@ public class HttpResponse implements Response {
     String page = HtmlUnitWebDriver.getHtmlPage(url.toString(), conf);
     content = page.getBytes("UTF-8");
   }
-  
+
   private void readPlainContent(InputStream in)
       throws HttpException, IOException {
 
@@ -328,8 +346,7 @@ public class HttpResponse implements Response {
         throw new HttpException("bad content length: " + contentLengthString);
       }
     }
-    if (http.getMaxContent() >= 0 && contentLength > http
-        .getMaxContent()) // limit
+    if (http.getMaxContent() >= 0 && contentLength > http.getMaxContent()) // limit
       // download
       // size
       contentLength = http.getMaxContent();
@@ -408,17 +425,17 @@ public class HttpResponse implements Response {
         break;
       }
 
-      if (http.getMaxContent() >= 0 && (contentBytesRead + chunkLen) > http
-          .getMaxContent())
+      if (http.getMaxContent() >= 0
+          && (contentBytesRead + chunkLen) > http.getMaxContent())
         chunkLen = http.getMaxContent() - contentBytesRead;
 
       // read one chunk
       int chunkBytesRead = 0;
       while (chunkBytesRead < chunkLen) {
 
-        int toRead = (chunkLen - chunkBytesRead) < Http.BUFFER_SIZE ?
-            (chunkLen - chunkBytesRead) :
-            Http.BUFFER_SIZE;
+        int toRead = (chunkLen - chunkBytesRead) < Http.BUFFER_SIZE
+            ? (chunkLen - chunkBytesRead)
+            : Http.BUFFER_SIZE;
         int len = in.read(bytes, 0, toRead);
 
         if (len == -1)
@@ -510,9 +527,9 @@ public class HttpResponse implements Response {
 
       // handle HTTP responses with missing blank line after headers
       int pos;
-      if (((pos = line.indexOf("<!DOCTYPE")) != -1) || (
-          (pos = line.indexOf("<HTML")) != -1) || ((pos = line.indexOf("<html"))
-          != -1)) {
+      if (((pos = line.indexOf("<!DOCTYPE")) != -1)
+          || ((pos = line.indexOf("<HTML")) != -1)
+          || ((pos = line.indexOf("<html")) != -1)) {
 
         in.unread(line.substring(pos).getBytes("UTF-8"));
         line.setLength(pos);
