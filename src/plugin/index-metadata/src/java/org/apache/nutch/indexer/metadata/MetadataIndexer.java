@@ -42,7 +42,7 @@ import org.apache.nutch.parse.Parse;
 public class MetadataIndexer implements IndexingFilter {
   private Configuration conf;
   private String[] dbFieldnames;
-  private Map<String, String> parseFieldnames;
+  private String[] parseFieldnames;
   private String[] contentFieldnames;
   private String separator;
   private Set<String> mvFields;
@@ -70,10 +70,10 @@ public class MetadataIndexer implements IndexingFilter {
 
     // add the fields from parsemd
     if (parseFieldnames != null) {
-      for (String metatag : parseFieldnames.keySet()) {
+      for (String metatag : parseFieldnames) {
         for (String value : parse.getData().getParseMeta().getValues(metatag)) {
           if (value != null)
-            add(doc, parseFieldnames.get(metatag), value);
+            add(doc, metatag, value);
         }
       }
     }
@@ -111,14 +111,12 @@ public class MetadataIndexer implements IndexingFilter {
   public void setConf(Configuration conf) {
     this.conf = conf;
     dbFieldnames = conf.getStrings(db_CONF_PROPERTY);
-    parseFieldnames = new HashMap<String, String>();
-    for (String metatag : conf.getStrings(parse_CONF_PROPERTY)) {
-      parseFieldnames.put(metatag.toLowerCase(Locale.ROOT), metatag);
-    }
+    parseFieldnames = conf.getStrings(parse_CONF_PROPERTY);
     contentFieldnames = conf.getStrings(content_CONF_PROPERTY);
     
     separator = conf.get(separator_CONF_PROPERTY, null);
-    mvFields = new HashSet(Arrays.asList(conf.getStrings(mvfields_CONF_PROPERTY, new String[0])));
+    mvFields = new HashSet<>(
+        Arrays.asList(conf.getStrings(mvfields_CONF_PROPERTY, new String[0])));
     // TODO check conflict between field names e.g. could have same label
     // from different sources
 
