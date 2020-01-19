@@ -34,8 +34,9 @@
 #   --hostdbupdate                        Boolean indicator if we call hostdbupdate or not
 #   --hostdbgenerate                      Boolean indicator if we use hostdb in generate or not
 #
-#   --num-slaves <num_slaves>             Number of slave nodes [default: 1]
-#                                         Note: This can only be set when running in distribution mode
+#   --num-fetchers <num_fetchers>         Number of tasks used for fetching (fetcher map tasks) [default: 1]
+#                                         Note: This can only be set when running in distributed mode and
+#                                               should correspond to the number of worker nodes in the cluster.
 #   --num-tasks <num_tasks>               Number of reducer tasks [default: 2]
 #   --size-fetchlist <size_fetchlist>     Number of URLs to fetch in one iteration [default: 50000]
 #   --time-limit-fetch <time_limit_fetch> Number of minutes allocated to the fetching [default: 180]
@@ -83,10 +84,11 @@ function __print_usage {
   echo -e "  \t\t\t\t\tspecified second is used by default. [default: -1]"
   echo -e "  -s <seed_dir>\t\t\t\tPath to seeds file(s)"
   echo -e "  -sm <sitemap_dir>\t\t\tPath to sitemap URL file(s)"
-  echo -e "  --hostdbupdate\t\t\t\tBoolean flag showing if we either update or not update hostdb for each round"
+  echo -e "  --hostdbupdate\t\t\tBoolean flag showing if we either update or not update hostdb for each round"
   echo -e "  --hostdbgenerate\t\t\tBoolean flag showing if we use hostdb in generate or not"
-  echo -e "  --num-slaves <num_slaves>\t\tNumber of slave nodes [default: 1]"
-  echo -e "  \t\t\t\t\tNote: This can only be set when running in distribution mode"
+  echo -e "  --num-fetchers <num_fetchers>\t\tNumber of tasks used for fetching (fetcher map tasks) [default: 1]"
+  echo -e "  \t\t\t\t\tNote: This can only be set when running in distributed mode and"
+  echo -e "  \t\t\t\t\t      should correspond to the number of worker nodes in the cluster."
   echo -e "  --num-tasks <num_tasks>\t\tNumber of reducer tasks [default: 2]"
   echo -e "  --size-fetchlist <size_fetchlist>\tNumber of URLs to fetch in one iteration [default: 50000]"
   echo -e "  --time-limit-fetch <time_limit_fetch>\tNumber of minutes allocated to the fetching [default: 180]"
@@ -107,8 +109,8 @@ HOSTDBGENERATE=false
 JAVA_PROPERTIES=""
 WAIT=-1 # don't wait if there are no URLs to fetch
 SEEDDIR=""
-NUM_SLAVES=1
-NUM_TASKS=2 # 2 x NUM_SLAVES
+NUM_FETCHERS=1
+NUM_TASKS=2 # 2 x NUM_FETCHERS
 SIZE_FETCHLIST=50000 # 25K x NUM_TASKS
 TIME_LIMIT_FETCH=180
 NUM_THREADS=50
@@ -138,7 +140,12 @@ do
             shift 2
             ;;
         --num-slaves)
-            NUM_SLAVES="${2}"
+            # back-ward compatibility: NUTCH-2759 renamed option --num-slaves to --num-fetchers
+            NUM_FETCHERS="${2}"
+            shift 2
+            ;;
+        --num-fetchers)
+            NUM_FETCHERS="${2}"
             shift 2
             ;;
         --num-tasks)
@@ -203,7 +210,10 @@ if [ -f "${bin}"/../*nutch*.job ]; then
   mode=distributed
 fi
 if [[ "$mode" = "local" ]]; then
-  NUM_SLAVES=1
+  if [[ "$NUM_FETCHERS" -ne 1 ]]; then
+    echo "Ignoring configured number of fetchers (--num_fetchers): a single fetcher task is used when running in local mode."
+  fi
+  NUM_FETCHERS=1
 fi
 
 # note that some of the options listed here could be set in the
@@ -296,9 +306,9 @@ do
 
   echo "Generating a new segment"
   if [[ "$HOSTDBGENERATE" == "true" ]] && __directory_exists "$CRAWL_PATH"/hostdb; then
-   generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_SLAVES -noFilter -hostdb "$CRAWL_PATH"/hostdb)
+   generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_FETCHERS -noFilter -hostdb "$CRAWL_PATH"/hostdb)
   else
-   generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_SLAVES -noFilter)
+   generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_FETCHERS -noFilter)
   fi
 
   echo "$bin/nutch generate ${generate_args[@]}"
