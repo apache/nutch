@@ -280,11 +280,8 @@ public class OkHttp extends HttpBase {
         responseverbatim = new StringBuilder();
 
         responseverbatim.append(getNormalizedProtocolName(response.protocol()))
-            .append(' ').append(response.code());
-        if (!response.message().isEmpty()) {
-          responseverbatim.append(' ').append(response.message());
-        }
-        responseverbatim.append("\r\n");
+            .append(' ').append(response.code()).append(' ')
+            .append(response.message()).append("\r\n");
 
         Headers headers = response.headers();
 
