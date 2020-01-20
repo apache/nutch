@@ -26,6 +26,9 @@ import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,7 +45,6 @@ import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
-import org.apache.nutch.protocol.httpclient.DummyX509TrustManager;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
 
@@ -288,8 +290,8 @@ public class HttpResponse implements Response {
         }
       }
 
-    }catch(Exception e) {
-      Http.LOG.error(e.getLocalizedMessage());
+    }catch(KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+      throw new ProtocolException(e);
     } finally {
       if (socket != null)
         socket.close();
