@@ -49,7 +49,7 @@ import org.apache.nutch.net.URLFilter;
  * Based on UrlValidator code from Apache commons-validator.
  * </p>
  * 
- * @see <a href='http://www.ietf.org/rfc/rfc2396.txt' > Uniform Resource
+ * @see <a href='https://www.ietf.org/rfc/rfc2396.txt' > Uniform Resource
  *      Identifiers (URI): Generic Syntax </a>
  * 
  */

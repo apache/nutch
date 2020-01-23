@@ -20,7 +20,7 @@
 <ivy-module version="1.0">
   <info organisation="org.apache.nutch" module="${ant.project.name}">
     <license name="Apache 2.0"/>
-    <ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org"/>
+    <ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/"/>
     <description>
         Apache Nutch
     </description>

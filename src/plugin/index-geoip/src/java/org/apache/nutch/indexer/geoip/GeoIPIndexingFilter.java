@@ -40,11 +40,11 @@ import com.maxmind.geoip2.WebServiceClient;
  * href="https://github.com/maxmind/GeoIP2-java">GeoIP2-java API</a>.
  * <p>
  * The third party library distribution provides an API for the GeoIP2 <a
- * href="http://dev.maxmind.com/geoip/geoip2/web-services">Precision web
+ * href="https://dev.maxmind.com/geoip/geoip2/web-services/">Precision web
  * services</a> and <a
- * href="http://dev.maxmind.com/geoip/geoip2/downloadable">databases</a>. The
+ * href="https://dev.maxmind.com/geoip/geoip2/downloadable/">databases</a>. The
  * API also works with the free <a
- * href="http://dev.maxmind.com/geoip/geoip2/geolite2/">GeoLite2 databases</a>.
+ * href="https://dev.maxmind.com/geoip/geoip2/geolite2/">GeoLite2 databases</a>.
  * </p>
  * <p>
  * Depending on the service level agreement, you have with the GeoIP service

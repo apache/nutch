@@ -30,11 +30,11 @@ import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
 
 /**
  * RegexURLFilterBase implementation based on the <a
- * href="http://www.brics.dk/automaton/">dk.brics.automaton</a> Finite-State
+ * href="https://www.brics.dk/automaton/">dk.brics.automaton</a> Finite-State
  * Automata for Java<sup>TM</sup>.
  * 
  * @author J&eacute;r&ocirc;me Charron
- * @see <a href="http://www.brics.dk/automaton/">dk.brics.automaton</a>
+ * @see <a href="https://www.brics.dk/automaton/">dk.brics.automaton</a>
  */
 public class AutomatonURLFilter extends RegexURLFilterBase {
   public static final String URLFILTER_AUTOMATON_FILE = "urlfilter.automaton.file";
