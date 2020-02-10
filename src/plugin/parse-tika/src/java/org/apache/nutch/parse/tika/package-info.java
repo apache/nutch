@@ -17,7 +17,7 @@
 
 /**
  * Parse various document formats with help of
- * <a href="http://tika.apache.org/">Apache Tika</a>.
+ * <a href="https://tika.apache.org/">Apache Tika</a>.
  */
 package org.apache.nutch.parse.tika;
 

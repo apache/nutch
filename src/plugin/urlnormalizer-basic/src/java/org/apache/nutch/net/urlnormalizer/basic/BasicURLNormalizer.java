@@ -270,7 +270,7 @@ public class BasicURLNormalizer implements URLNormalizer {
       try {
         file = url.toURI().normalize().toURL().getFile();
         // URI.normalize() does not normalize leading dot segments,
-        // see also http://tools.ietf.org/html/rfc3986#section-5.2.4
+        // see also https://tools.ietf.org/html/rfc3986#section-5.2.4
         int start = 0;
         while (file.startsWith("/..", start)
             && ((start + 3) == file.length() || file.charAt(3) == '/')) {
