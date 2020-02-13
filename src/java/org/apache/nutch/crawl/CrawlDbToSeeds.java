@@ -24,15 +24,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
@@ -55,15 +60,13 @@ public class CrawlDbToSeeds extends CrawlDbReader {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   public static class CrawlDbToSeedsOutputFormat
-      extends FileOutputFormat<Text, CrawlDatum> {
+      extends TextOutputFormat<Text, CrawlDatum> {
 
     protected static class LineRecordWriter
-        extends RecordWriter<Text, CrawlDatum> {
-
-      private DataOutputStream out;
+        extends TextOutputFormat.LineRecordWriter<Text, CrawlDatum> {
 
       public LineRecordWriter(DataOutputStream out) {
-        this.out = out;
+        super(out, "\t");
       }
 
       protected float normalizeScore(float score) {
@@ -73,6 +76,7 @@ public class CrawlDbToSeeds extends CrawlDbReader {
         return score;
       }
 
+      @Override
       public synchronized void write(Text key, CrawlDatum value)
           throws IOException {
         out.writeBytes(key.toString());
@@ -81,19 +85,29 @@ public class CrawlDbToSeeds extends CrawlDbReader {
         out.writeByte('\n');
       }
 
-      public synchronized void close(TaskAttemptContext context)
-          throws IOException {
-        out.close();
-      }
     }
 
     public RecordWriter<Text, CrawlDatum> getRecordWriter(
-        TaskAttemptContext context) throws IOException {
-      String name = getUniqueFile(context, "part", "");
-      Path dir = FileOutputFormat.getOutputPath(context);
-      FileSystem fs = dir.getFileSystem(context.getConfiguration());
-      DataOutputStream fileOut = fs.create(new Path(dir, name), context);
-      return new LineRecordWriter(fileOut);
+        TaskAttemptContext job) throws IOException, InterruptedException {
+      Configuration conf = job.getConfiguration();
+      boolean isCompressed = getCompressOutput(job);
+      CompressionCodec codec = null;
+      String extension = "";
+      if (isCompressed) {
+        Class<? extends CompressionCodec> codecClass = getOutputCompressorClass(
+            job, GzipCodec.class);
+        codec = ReflectionUtils.newInstance(codecClass, conf);
+        extension = codec.getDefaultExtension();
+      }
+      Path file = getDefaultWorkFile(job, extension);
+      FileSystem fs = file.getFileSystem(conf);
+      FSDataOutputStream fileOut = fs.create(file, false);
+      if (isCompressed) {
+        return new LineRecordWriter(
+            new DataOutputStream(codec.createOutputStream(fileOut)));
+      } else {
+        return new LineRecordWriter(fileOut);
+      }
     }
   }
 
