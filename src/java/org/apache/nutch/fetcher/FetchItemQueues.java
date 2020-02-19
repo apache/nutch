@@ -53,6 +53,13 @@ public class FetchItemQueues {
 
   String queueMode;
 
+  enum QueuingStatus {
+    SUCCESSFULLY_QUEUED,
+    ERROR_CREATE_FETCH_ITEM,
+    ABOVE_EXCEPTION_THRESHOLD,
+    HIT_BY_TIMELIMIT;
+  }
+
   public FetchItemQueues(Configuration conf) {
     this.conf = conf;
     this.maxThreads = conf.getInt("fetcher.threads.per.queue", 1);
@@ -94,16 +101,23 @@ public class FetchItemQueues {
     return queues.size();
   }
 
-  public void addFetchItem(Text url, CrawlDatum datum) {
+  public QueuingStatus addFetchItem(Text url, CrawlDatum datum) {
     FetchItem it = FetchItem.create(url, datum, queueMode);
-    if (it != null)
-      addFetchItem(it);
+    if (it != null) {
+      return addFetchItem(it);
+    }
+    return QueuingStatus.ERROR_CREATE_FETCH_ITEM;
   }
 
-  public synchronized void addFetchItem(FetchItem it) {
+  public synchronized QueuingStatus addFetchItem(FetchItem it) {
     FetchItemQueue fiq = getFetchItemQueue(it.queueID);
+    if (maxExceptionsPerQueue != -1
+        && fiq.getExceptionCounter() > maxExceptionsPerQueue) {
+      return QueuingStatus.ABOVE_EXCEPTION_THRESHOLD;
+    }
     fiq.addFetchItem(it);
     totalSize.incrementAndGet();
+    return QueuingStatus.SUCCESSFULLY_QUEUED;
   }
 
   public void finishFetchItem(FetchItem it) {
@@ -196,10 +210,10 @@ public class FetchItemQueues {
     if (fiq == null) {
       return 0;
     }
+    int excCount = fiq.incrementExceptionCounter();
     if (fiq.getQueueSize() == 0) {
       return 0;
     }
-    int excCount = fiq.incrementExceptionCounter();
     if (maxExceptionsPerQueue != -1 && excCount >= maxExceptionsPerQueue) {
       // too many exceptions for items in this queue - purge it
       int deleted = fiq.emptyQueue();

@@ -82,6 +82,10 @@ public class FetchItemQueue {
     return inProgress.get();
   }
 
+  public int getExceptionCounter() {
+    return exceptionCounter.get();
+  }
+
   public int incrementExceptionCounter() {
     return exceptionCounter.incrementAndGet();
   }

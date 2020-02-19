@@ -19,10 +19,13 @@ package org.apache.nutch.fetcher;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.fetcher.FetchItemQueues.QueuingStatus;
 import org.apache.nutch.fetcher.Fetcher.FetcherRun;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
@@ -86,14 +89,14 @@ public class QueueFeeder extends Thread {
   public void run() {
     boolean hasMore = true;
     int cnt = 0;
-    int timelimitcount = 0;
+    Map<QueuingStatus, Integer> queuingStatus = new TreeMap<>();
     while (hasMore) {
       if (System.currentTimeMillis() >= timelimit && timelimit != -1) {
         // enough ... lets' simply read all the entries from the input without
         // processing them
         try {
           hasMore = context.nextKeyValue();
-          timelimitcount++;
+          queuingStatus.compute(QueuingStatus.HIT_BY_TIMELIMIT, (k, v) -> v == null ? 1 : v + 1);
         } catch (IOException e) {
           LOG.error("QueueFeeder error reading input, record " + cnt, e);
           return;
@@ -136,7 +139,13 @@ public class QueueFeeder extends Thread {
             }
             CrawlDatum datum = new CrawlDatum();
             datum.set((CrawlDatum) context.getCurrentValue());
-            queues.addFetchItem(url, datum);
+            QueuingStatus status = queues.addFetchItem(url, datum);
+            queuingStatus.compute(status, (k, v) -> v == null ? 1 : v + 1);
+            if (status == QueuingStatus.ABOVE_EXCEPTION_THRESHOLD) {
+              context
+                  .getCounter("FetcherStatus", "AboveExceptionThresholdInQueue")
+                  .increment(1);
+            }
             cnt++;
             feed--;
           }
@@ -148,7 +157,12 @@ public class QueueFeeder extends Thread {
         }
       }
     }
-    LOG.info("QueueFeeder finished: total {} records hit by time limit : {}",
-        cnt, timelimitcount);
+    LOG.info("QueueFeeder finished: total {} records", cnt);
+    if (queuingStatus.size() > 0) {
+      LOG.info("QueueFeeder queuing status:");
+      for (Map.Entry<QueuingStatus, Integer> e : queuingStatus.entrySet()) {
+        LOG.info("\t{}\t{}", e.getValue(), e.getKey());
+      }
+    }
   }
 }
