@@ -89,14 +89,14 @@ public class QueueFeeder extends Thread {
   public void run() {
     boolean hasMore = true;
     int cnt = 0;
-    Map<QueuingStatus, Integer> queuingStatus = new TreeMap<>();
+    int[] queuingStatus = new int[QueuingStatus.values().length];
     while (hasMore) {
       if (System.currentTimeMillis() >= timelimit && timelimit != -1) {
         // enough ... lets' simply read all the entries from the input without
         // processing them
         try {
           hasMore = context.nextKeyValue();
-          queuingStatus.compute(QueuingStatus.HIT_BY_TIMELIMIT, (k, v) -> v == null ? 1 : v + 1);
+          queuingStatus[QueuingStatus.HIT_BY_TIMELIMIT.ordinal()]++;
         } catch (IOException e) {
           LOG.error("QueueFeeder error reading input, record " + cnt, e);
           return;
@@ -140,7 +140,7 @@ public class QueueFeeder extends Thread {
             CrawlDatum datum = new CrawlDatum();
             datum.set((CrawlDatum) context.getCurrentValue());
             QueuingStatus status = queues.addFetchItem(url, datum);
-            queuingStatus.compute(status, (k, v) -> v == null ? 1 : v + 1);
+            queuingStatus[status.ordinal()]++;
             if (status == QueuingStatus.ABOVE_EXCEPTION_THRESHOLD) {
               context
                   .getCounter("FetcherStatus", "AboveExceptionThresholdInQueue")
@@ -158,11 +158,9 @@ public class QueueFeeder extends Thread {
       }
     }
     LOG.info("QueueFeeder finished: total {} records", cnt);
-    if (queuingStatus.size() > 0) {
-      LOG.info("QueueFeeder queuing status:");
-      for (Map.Entry<QueuingStatus, Integer> e : queuingStatus.entrySet()) {
-        LOG.info("\t{}\t{}", e.getValue(), e.getKey());
-      }
+    LOG.info("QueueFeeder queuing status:");
+    for (QueuingStatus status : QueuingStatus.values()) {
+      LOG.info("\t{}\t{}", queuingStatus[status.ordinal()], status);
     }
   }
 }
