@@ -17,8 +17,10 @@
 package org.apache.nutch.fetcher;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,6 +41,7 @@ public class FetchItemQueues {
 
   public static final String DEFAULT_ID = "default";
   Map<String, FetchItemQueue> queues = new ConcurrentHashMap<>();
+  private Set<String> queuesMaxExceptions = new HashSet<>();
   Iterator<Map.Entry<String, FetchItemQueue>> lastIterator = null;
   AtomicInteger totalSize = new AtomicInteger(0);
   int maxThreads;
@@ -102,6 +105,10 @@ public class FetchItemQueues {
     return queues.size();
   }
 
+  public int getQueueCountMaxExceptions() {
+    return queuesMaxExceptions.size();
+  }
+
   public QueuingStatus addFetchItem(Text url, CrawlDatum datum) {
     FetchItem it = FetchItem.create(url, datum, queueMode);
     if (it != null) {
@@ -111,11 +118,11 @@ public class FetchItemQueues {
   }
 
   public synchronized QueuingStatus addFetchItem(FetchItem it) {
-    FetchItemQueue fiq = getFetchItemQueue(it.queueID);
     if (maxExceptionsPerQueue != -1
-        && fiq.getExceptionCounter() > maxExceptionsPerQueue) {
+        && queuesMaxExceptions.contains(it.queueID)) {
       return QueuingStatus.ABOVE_EXCEPTION_THRESHOLD;
     }
+    FetchItemQueue fiq = getFetchItemQueue(it.queueID);
     fiq.addFetchItem(it);
     totalSize.incrementAndGet();
     return QueuingStatus.SUCCESSFULLY_QUEUED;
@@ -147,19 +154,15 @@ public class FetchItemQueues {
   public synchronized FetchItem getFetchItem() {
 
     Iterator<Map.Entry<String, FetchItemQueue>> it = lastIterator;
-    if (it == null) {
+    if (it == null || !it.hasNext()) {
       it = queues.entrySet().iterator();
     }
 
     while (it.hasNext()) {
       FetchItemQueue fiq = it.next().getValue();
 
-      // reap empty queues,
-      // but keep queues which are above the exception threshold
-      // to ensure that no more items are added to these queues
-      if (fiq.getQueueSize() == 0 && fiq.getInProgressSize() == 0
-          && !(maxExceptionsPerQueue != -1
-              && fiq.getExceptionCounter() > maxExceptionsPerQueue)) {
+      // reap empty queues
+      if (fiq.getQueueSize() == 0 && fiq.getInProgressSize() == 0) {
         it.remove();
         continue;
       }
@@ -235,6 +238,9 @@ public class FetchItemQueues {
       for (int i = 0; i < deleted; i++) {
         totalSize.decrementAndGet();
       }
+      // keep queue IDs to ensure that these queues aren't created and filled
+      // again, see addFetchItem(FetchItem)
+      queuesMaxExceptions.add(queueid);
       return deleted;
     }
     return 0;

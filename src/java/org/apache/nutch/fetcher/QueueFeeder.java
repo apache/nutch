@@ -19,8 +19,6 @@ package org.apache.nutch.fetcher;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
