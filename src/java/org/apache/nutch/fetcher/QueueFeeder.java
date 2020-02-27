@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.fetcher.FetchItemQueues.QueuingStatus;
 import org.apache.nutch.fetcher.Fetcher.FetcherRun;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
@@ -86,14 +87,14 @@ public class QueueFeeder extends Thread {
   public void run() {
     boolean hasMore = true;
     int cnt = 0;
-    int timelimitcount = 0;
+    int[] queuingStatus = new int[QueuingStatus.values().length];
     while (hasMore) {
       if (System.currentTimeMillis() >= timelimit && timelimit != -1) {
         // enough ... lets' simply read all the entries from the input without
         // processing them
         try {
           hasMore = context.nextKeyValue();
-          timelimitcount++;
+          queuingStatus[QueuingStatus.HIT_BY_TIMELIMIT.ordinal()]++;
         } catch (IOException e) {
           LOG.error("QueueFeeder error reading input, record " + cnt, e);
           return;
@@ -136,7 +137,13 @@ public class QueueFeeder extends Thread {
             }
             CrawlDatum datum = new CrawlDatum();
             datum.set((CrawlDatum) context.getCurrentValue());
-            queues.addFetchItem(url, datum);
+            QueuingStatus status = queues.addFetchItem(url, datum);
+            queuingStatus[status.ordinal()]++;
+            if (status == QueuingStatus.ABOVE_EXCEPTION_THRESHOLD) {
+              context
+                  .getCounter("FetcherStatus", "AboveExceptionThresholdInQueue")
+                  .increment(1);
+            }
             cnt++;
             feed--;
           }
@@ -148,7 +155,10 @@ public class QueueFeeder extends Thread {
         }
       }
     }
-    LOG.info("QueueFeeder finished: total {} records hit by time limit : {}",
-        cnt, timelimitcount);
+    LOG.info("QueueFeeder finished: total {} records", cnt);
+    LOG.info("QueueFeeder queuing status:");
+    for (QueuingStatus status : QueuingStatus.values()) {
+      LOG.info("\t{}\t{}", queuingStatus[status.ordinal()], status);
+    }
   }
 }
