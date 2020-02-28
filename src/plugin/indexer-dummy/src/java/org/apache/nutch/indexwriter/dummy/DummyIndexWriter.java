@@ -49,6 +49,7 @@ public class DummyIndexWriter implements IndexWriter {
   private boolean delete = false;
   private String path;
 
+  @Override
   public void open(Configuration conf, String name) throws IOException {
     //Implementation not required
   }
@@ -102,6 +103,7 @@ public class DummyIndexWriter implements IndexWriter {
     writer.write("add\t" + doc.getFieldValue("id") + "\n");
   }
 
+  @Override
   public void close() throws IOException {
     LOG.debug("Closing dummy index file");
     writer.flush();

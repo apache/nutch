@@ -229,6 +229,7 @@ public class CrawlDb extends NutchTool implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 1) {
       System.err

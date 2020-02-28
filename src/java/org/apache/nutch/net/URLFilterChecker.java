@@ -30,6 +30,7 @@ public class URLFilterChecker extends AbstractChecker {
 
   private URLFilters filters = null;
 
+  @Override
   public int run(String[] args) throws Exception {
     usage = "Usage: URLFilterChecker [-Dproperty=value]... [-filterName filterName] (-stdin | -listen <port> [-keepClientCnxOpen]) \n"
         + "\n  -filterName\tURL filter plugin name (eg. urlfilter-regex) to check,"

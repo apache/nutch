@@ -361,6 +361,7 @@ public class NodeDumper extends Configured implements Tool {
   /**
    * Runs the node dumper tool.
    */
+  @Override
   public int run(String[] args) throws Exception {
 
     Options options = new Options();

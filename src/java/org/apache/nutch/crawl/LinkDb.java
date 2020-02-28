@@ -84,6 +84,7 @@ public class LinkDb extends NutchTool implements Tool {
     private URLFilters urlFilters;
     private URLNormalizers urlNormalizers;
 
+    @Override
     public void setup(Mapper<Text, ParseData, Text, Inlinks>.Context context) {
       Configuration conf = context.getConfiguration();
       maxAnchorLength = conf.getInt("linkdb.max.anchor.length", 100);
@@ -98,7 +99,8 @@ public class LinkDb extends NutchTool implements Tool {
       }
     } 
 
-    public void map(Text key, ParseData parseData,
+    @Override
+   public void map(Text key, ParseData parseData,
             Context context)
                     throws IOException, InterruptedException {
       String fromUrl = key.toString();
@@ -333,6 +335,7 @@ public class LinkDb extends NutchTool implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err

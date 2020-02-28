@@ -521,6 +521,7 @@ public class Fetcher extends NutchTool implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
 
     String usage = "Usage: Fetcher <segment> [-threads n]";

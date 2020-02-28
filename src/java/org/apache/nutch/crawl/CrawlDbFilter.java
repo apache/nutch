@@ -52,7 +52,7 @@ public class CrawlDbFilter extends
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-
+  @Override
   public void setup(Mapper<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
     Configuration conf = context.getConfiguration();
     urlFiltering = conf.getBoolean(URL_FILTERING, false);
@@ -69,11 +69,9 @@ public class CrawlDbFilter extends
     }
   }
 
-  public void close() {
-  }
-
   private Text newKey = new Text();
 
+  @Override
   public void map(Text key, CrawlDatum value,
       Context context) throws IOException, InterruptedException {
 

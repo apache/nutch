@@ -56,6 +56,7 @@ public class LinkDbFilter extends Mapper<Text, Inlinks, Text, Inlinks> {
 
   private Text newKey = new Text();
 
+  @Override
   public void setup(Mapper<Text, Inlinks, Text, Inlinks>.Context context) {
     Configuration conf = context.getConfiguration();
     filter = conf.getBoolean(URL_FILTERING, false);
@@ -69,9 +70,7 @@ public class LinkDbFilter extends Mapper<Text, Inlinks, Text, Inlinks> {
     }
   }
 
-  public void close() {
-  }
-
+  @Override
   public void map(Text key, Inlinks value, Context context)
       throws IOException, InterruptedException {
     String url = key.toString();

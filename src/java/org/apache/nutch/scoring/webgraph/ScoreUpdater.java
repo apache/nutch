@@ -226,6 +226,7 @@ public class ScoreUpdater extends Configured implements Tool{
   /**
    * Runs the ScoreUpdater tool.
    */
+  @Override
   public int run(String[] args) throws Exception {
 
     Options options = new Options();

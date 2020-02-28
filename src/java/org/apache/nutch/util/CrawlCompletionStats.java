@@ -67,6 +67,7 @@ public class CrawlCompletionStats extends Configured implements Tool {
   private static final int MODE_HOST = 1;
   private static final int MODE_DOMAIN = 2;
 
+  @Override
   public int run(String[] args) throws Exception {
     Option helpOpt = new Option("h", "help", false, "Show this message");
     @SuppressWarnings("static-access")
@@ -196,10 +197,12 @@ public class CrawlCompletionStats extends Configured implements Tool {
       Mapper<Text, CrawlDatum, Text, LongWritable> {
     int mode = 0;
 
+    @Override
     public void setup(Context context) {
       mode = context.getConfiguration().getInt("domain.statistics.mode", MODE_DOMAIN);
     }
 
+    @Override
     public void map(Text urlText, CrawlDatum datum, Context context)
         throws IOException, InterruptedException {
 
@@ -225,6 +228,7 @@ public class CrawlCompletionStats extends Configured implements Tool {
 
   static class CrawlCompletionStatsReducer extends
       Reducer<Text, LongWritable, LongWritable, Text> {
+    @Override
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
       long total = 0;
@@ -239,6 +243,7 @@ public class CrawlCompletionStats extends Configured implements Tool {
 
   public static class CrawlCompletionStatsCombiner extends
       Reducer<Text, LongWritable, Text, LongWritable> {
+    @Override
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
       long total = 0;

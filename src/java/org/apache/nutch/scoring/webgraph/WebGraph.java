@@ -330,6 +330,7 @@ public class WebGraph extends Configured implements Tool {
       /**
        * Configures the OutlinkDb job reducer. Sets up internal links and link limiting.
        */
+      @Override
       public void setup(Reducer<Text, NutchWritable, Text, LinkDatum>.Context context) {
         Configuration config = context.getConfiguration();
         conf = config;
@@ -340,6 +341,7 @@ public class WebGraph extends Configured implements Tool {
         
       }
    
+      @Override
       public void reduce(Text key, Iterable<NutchWritable> values,
           Context context)
           throws IOException, InterruptedException {
@@ -406,9 +408,6 @@ public class WebGraph extends Configured implements Tool {
         }
       }
     }
-
-    public void close() {
-    }
   }
 
   /**
@@ -431,10 +430,12 @@ public class WebGraph extends Configured implements Tool {
        * Configures job mapper. Sets timestamp for all Inlink LinkDatum objects to the
        * current system time.
        */
+      @Override
       public void setup(Mapper<Text, LinkDatum, Text, LinkDatum>.Context context) {
         timestamp = System.currentTimeMillis();
       }
 
+      @Override
       public void map(Text key, LinkDatum datum,
           Context context)
           throws IOException, InterruptedException {
@@ -465,12 +466,7 @@ public class WebGraph extends Configured implements Tool {
     public static class NodeDbReducer extends 
         Reducer<Text, LinkDatum, Text, Node> {
 
-      /**
-       * Configures job reducer.
-       */
-      public void setup(Reducer<Text, LinkDatum, Text, Node>.Context context) {
-      }
-
+      @Override
       public void reduce(Text key, Iterable<LinkDatum> values,
           Context context) throws IOException, InterruptedException {
 
@@ -732,6 +728,7 @@ public class WebGraph extends Configured implements Tool {
   /**
    * Parses command link arguments and runs the WebGraph jobs.
    */
+  @Override
   public int run(String[] args) throws Exception {
 
     // boolean options

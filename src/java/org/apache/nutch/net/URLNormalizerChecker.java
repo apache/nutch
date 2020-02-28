@@ -31,6 +31,7 @@ public class URLNormalizerChecker extends AbstractChecker {
   private String scope = URLNormalizers.SCOPE_DEFAULT;
   URLNormalizers normalizers;
 
+  @Override
   public int run(String[] args) throws Exception {
     usage = "Usage: URLNormalizerChecker [-Dproperty=value]... [-normalizer <normalizerName>] [-scope <scope>] (-stdin | -listen <port> [-keepClientCnxOpen])\n"
         + "\n  -normalizer\tURL normalizer plugin (eg. urlnormalizer-basic) to check,"

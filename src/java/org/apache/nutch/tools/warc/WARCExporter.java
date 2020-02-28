@@ -90,14 +90,9 @@ public class WARCExporter extends Configured implements Tool {
 
   public static class WARCMapReduce {
 
-    public void close() throws IOException {
-    }
-
     public static class WARCMapper extends 
         Mapper<Text, Writable, Text, NutchWritable> {
-      public void setup(Mapper<Text, Writable, Text, NutchWritable>.Context context) {
-      }
-
+      @Override
       public void map(Text key, Writable value, Context context)
               throws IOException, InterruptedException {
         context.write(key, new NutchWritable(value));
@@ -106,9 +101,7 @@ public class WARCExporter extends Configured implements Tool {
 
     public static class WARCReducer extends
         Reducer<Text, NutchWritable, NullWritable, WARCWritable> {
-      public void setup(Reducer<Text, NutchWritable, NullWritable, WARCWritable>.Context context) {
-      }
-
+      @Override
       public void reduce(Text key, Iterable<NutchWritable> values,
           Context context) throws IOException, InterruptedException {
 
@@ -305,6 +298,7 @@ public class WARCExporter extends Configured implements Tool {
     return 0;
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println(

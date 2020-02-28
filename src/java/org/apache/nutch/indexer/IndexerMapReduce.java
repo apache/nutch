@@ -238,6 +238,7 @@ public class IndexerMapReduce extends Configured {
       }
     }
 
+    @Override
     public void reduce(Text key, Iterable<NutchWritable> values,
         Context context) throws IOException, InterruptedException {
       Inlinks inlinks = null;
@@ -428,9 +429,6 @@ public class IndexerMapReduce extends Configured {
       NutchIndexAction action = new NutchIndexAction(doc, NutchIndexAction.ADD);
       context.write(key, action);
     }
-  }
-
-  public void close() throws IOException {
   }
 
   public static void initMRJob(Path crawlDb, Path linkDb,
