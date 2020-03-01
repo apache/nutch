@@ -34,6 +34,7 @@ public class DummyX509TrustManager implements X509TrustManager {
 
   /**
    * Constructor for DummyX509TrustManager.
+   * it is not secure
    */
   public DummyX509TrustManager(KeyStore keystore)
       throws NoSuchAlgorithmException, KeyStoreException {
