@@ -49,7 +49,6 @@ public class FetchItemQueue {
   long crawlDelay;
   long minCrawlDelay;
   int maxThreads;
-  Configuration conf;
   Text cookie;
   Text variableFetchDelayKey = new Text("_variableFetchDelay_");
   boolean variableFetchDelaySet = false;
@@ -60,7 +59,6 @@ public class FetchItemQueue {
   
   public FetchItemQueue(Configuration conf, int maxThreads, long crawlDelay,
       long minCrawlDelay) {
-    this.conf = conf;
     this.maxThreads = maxThreads;
     this.crawlDelay = crawlDelay;
     this.minCrawlDelay = minCrawlDelay;

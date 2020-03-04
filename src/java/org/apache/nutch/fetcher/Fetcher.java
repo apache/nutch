@@ -167,9 +167,14 @@ public class Fetcher extends NutchTool implements Tool {
       float avgPagesSec = (float) pages.get() / elapsed.floatValue();
       long avgBytesSec = (bytes.get() / 128l) / elapsed.longValue();
 
-      status.append(activeThreads).append(" threads (").append(spinWaiting.get())
-      .append(" waiting), ");
+      status.append(activeThreads).append(" threads (")
+          .append(spinWaiting.get()).append(" waiting), ");
       status.append(fetchQueues.getQueueCount()).append(" queues, ");
+      if (fetchQueues.maxExceptionsPerQueue != -1
+          && fetchQueues.getQueueCountMaxExceptions() > 0) {
+        status.append(fetchQueues.getQueueCountMaxExceptions())
+            .append(" queues.max.except., ");
+      }
       status.append(fetchQueues.getTotalSize()).append(" URLs queued, ");
       status.append(pages).append(" pages, ").append(errors).append(" errors, ");
       status.append(String.format("%.2f", avgPagesSec)).append(" pages/s (");

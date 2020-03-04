@@ -477,4 +477,19 @@ public class TestBadServerResponses {
         (kB * 1024), fetched.getContent().getContent().length);
   }
 
+  /**
+   * NUTCH-2763 store.http.headers: add whitespace in status line after status
+   * code also when message is empty
+   */
+  @Test
+  public void testHttpStatusNoMessage() throws Exception {
+    setUp();
+    String statusLineNoMessage = "HTTP/1.1 200 \r\n";
+    launchServer(statusLineNoMessage + simpleContent);
+    ProtocolOutput fetched = fetchPage("/", 200);
+    assertTrue(
+        "Invalid HTTP status line (see NUTCH-2763, missing whitespace between status code and message)",
+        getHeaders(fetched).startsWith(statusLineNoMessage));
+  }
+
 }
