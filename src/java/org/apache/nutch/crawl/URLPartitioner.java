@@ -71,9 +71,6 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
     return conf;
   }
 
-  public void close() {
-  }
-
   /** Hash by host or domain name or IP address. */
   public int getPartition(Text key, Writable value, int numReduceTasks) {
     String urlString = key.toString();

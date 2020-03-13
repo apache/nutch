@@ -62,6 +62,7 @@ public class DomainStatistics extends Configured implements Tool {
   private static final int MODE_SUFFIX = 3;
   private static final int MODE_TLD = 4;
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 3) {
       System.err.println("Usage: DomainStatistics inputDirs outDir mode [numOfReducer]");
@@ -161,11 +162,13 @@ public class DomainStatistics extends Configured implements Tool {
       Mapper<Text, CrawlDatum, Text, LongWritable> {
     int mode = 0;
 
+    @Override
     public void setup(Context context) {
       mode = context.getConfiguration().getInt("domain.statistics.mode",
           MODE_DOMAIN);
     }
 
+    @Override
     public void map(Text urlText, CrawlDatum datum, Context context)
         throws IOException, InterruptedException {
 
@@ -209,6 +212,7 @@ public class DomainStatistics extends Configured implements Tool {
 
   static class DomainStatisticsReducer extends
       Reducer<Text, LongWritable, LongWritable, Text> {
+    @Override
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
       long total = 0;
@@ -223,6 +227,7 @@ public class DomainStatistics extends Configured implements Tool {
 
   public static class DomainStatisticsCombiner extends
       Reducer<Text, LongWritable, Text, LongWritable> {
+    @Override
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
       long total = 0;

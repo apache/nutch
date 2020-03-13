@@ -578,6 +578,7 @@ public class Generator extends NutchTool implements Tool {
   public static class SelectorInverseMapper
       extends Mapper<FloatWritable, SelectorEntry, Text, SelectorEntry> {
 
+    @Override
     public void map(FloatWritable key, SelectorEntry value, Context context)
         throws IOException, InterruptedException {
       SelectorEntry entry = value;
@@ -588,6 +589,7 @@ public class Generator extends NutchTool implements Tool {
   public static class PartitionReducer
       extends Reducer<Text, SelectorEntry, Text, CrawlDatum> {
 
+    @Override
     public void reduce(Text key, Iterable<SelectorEntry> values,
         Context context) throws IOException, InterruptedException {
       // if using HashComparator, we get only one input key in case of
@@ -606,6 +608,7 @@ public class Generator extends NutchTool implements Tool {
     }
 
     @SuppressWarnings("rawtypes")
+    @Override
     public int compare(WritableComparable a, WritableComparable b) {
       Text url1 = (Text) a;
       Text url2 = (Text) b;
@@ -614,6 +617,7 @@ public class Generator extends NutchTool implements Tool {
       return (hash1 < hash2 ? -1 : (hash1 == hash2 ? 0 : 1));
     }
 
+    @Override
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
       int hash1 = hash(b1, s1, l1);
       int hash2 = hash(b2, s2, l2);
@@ -989,6 +993,7 @@ public class Generator extends NutchTool implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.out.println(

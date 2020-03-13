@@ -362,9 +362,7 @@ public class LinkRank extends Configured implements Tool {
      */
     public static class CountMapper extends
         Mapper<Text, Node, Text, LongWritable> {
-      public void setup(Mapper<Text, Node, Text, LongWritable>.Context context) {
-      }
-
+      @Override
       public void map(Text key, Node value,
           Context context)
           throws IOException, InterruptedException {
@@ -377,9 +375,7 @@ public class LinkRank extends Configured implements Tool {
      */
     public static class CountReducer extends
         Reducer<Text, LongWritable, Text, LongWritable> {
-      public void setup(Reducer<Text, LongWritable, Text, LongWritable>.Context context) {
-      }
-
+      @Override
       public void reduce(Text key, Iterable<LongWritable> values,
           Context context)
           throws IOException, InterruptedException {
@@ -642,9 +638,6 @@ public class LinkRank extends Configured implements Tool {
     super(conf);
   }
 
-  public void close() {
-  }
-
   /**
    * Runs the complete link analysis job. The complete job determins rank one
    * score. Then runs through a given number of invert and analyze iterations,
@@ -736,6 +729,7 @@ public class LinkRank extends Configured implements Tool {
   /**
    * Runs the LinkRank tool.
    */
+  @Override
   public int run(String[] args) throws Exception {
 
     Options options = new Options();

@@ -167,6 +167,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
         }
       }
 
+      @Override
       public synchronized void write(Text key, CrawlDatum value)
           throws IOException {
         out.writeByte('"');
@@ -212,12 +213,14 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
         out.writeByte('\n');
       }
 
+      @Override
       public synchronized void close(TaskAttemptContext context)
           throws IOException {
         out.close();
       }
     }
 
+    @Override
     public RecordWriter<Text, CrawlDatum> getRecordWriter(
         TaskAttemptContext context) throws IOException {
       String name = getUniqueFile(context, "part", "");
@@ -243,6 +246,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
         jsonWriter = jsonMapper.writer(new JsonIndenter());
       }
 
+      @Override
       public synchronized void write(Text key, CrawlDatum value)
           throws IOException {
         Map<String, Object> data = new LinkedHashMap<String, Object>();
@@ -275,12 +279,14 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
         out.writeByte('\n');
       }
 
+      @Override
       public synchronized void close(TaskAttemptContext context)
           throws IOException {
         out.close();
       }
     }
 
+    @Override
     public RecordWriter<Text, CrawlDatum> getRecordWriter(
         TaskAttemptContext context) throws IOException {
       String name = getUniqueFile(context, "part", "");
@@ -343,6 +349,8 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
   public static class CrawlDbStatReducer
       extends Reducer<Text, NutchWritable, Text, NutchWritable> {
+
+    @Override
     public void setup(
         Reducer<Text, NutchWritable, Text, NutchWritable>.Context context) {
     }
@@ -474,6 +482,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     }
   }
 
+  @Override
   public void close() {
     closeReaders();
   }
@@ -976,6 +985,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
   }
 
+  @Override
   public int run(String[] args) throws IOException, InterruptedException,
       ClassNotFoundException, Exception {
     @SuppressWarnings("resource")

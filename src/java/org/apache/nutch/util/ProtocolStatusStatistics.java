@@ -64,6 +64,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
   private static final Text UNFETCHED_TEXT = new Text("UNFETCHED");
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println("Usage: ProtocolStatistics inputDirs outDir [numOfReducer]");
@@ -140,7 +141,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
   static class ProtocolStatusStatisticsMapper extends
       Mapper<Text, CrawlDatum, Text, LongWritable> {
-
+    @Override
     public void map(Text urlText, CrawlDatum datum, Context context)
         throws IOException, InterruptedException {
       if (datum.getMetaData().containsKey(Nutch.PROTOCOL_STATUS_CODE_KEY)) {
@@ -153,6 +154,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
   static class ProtocolStatusStatisticsReducer extends
       Reducer<Text, LongWritable, LongWritable, Text> {
+    @Override
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
       long total = 0;
@@ -167,6 +169,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
   public static class ProtocolStatusStatisticsCombiner extends
       Reducer<Text, LongWritable, Text, LongWritable> {
+    @Override
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
       long total = 0;

@@ -131,6 +131,7 @@ public class Benchmark extends Configured implements Tool {
     }
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     String plugins = "protocol-http|parse-tika|scoring-opic|urlfilter-regex|urlnormalizer-pass";
     int seeds = 1;

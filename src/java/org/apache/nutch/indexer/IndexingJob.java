@@ -211,6 +211,7 @@ public class IndexingJob extends NutchTool implements Tool {
     System.err.println("");
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length == 0) {
       usage();

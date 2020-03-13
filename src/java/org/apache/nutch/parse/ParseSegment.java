@@ -90,10 +90,6 @@ public class ParseSegment extends NutchTool implements Tool {
     }
 
     @Override
-    public void cleanup(Context context){
-    }
-
-    @Override
     public void map(WritableComparable<?> key, Content content,
         Context context)
         throws IOException, InterruptedException {
@@ -282,6 +278,7 @@ public class ParseSegment extends NutchTool implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     Path segment;
 
@@ -312,6 +309,7 @@ public class ParseSegment extends NutchTool implements Tool {
   /*
    * Used for Nutch REST service
    */
+  @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId) throws Exception {
 
     Map<String, Object> results = new HashMap<>();

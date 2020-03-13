@@ -128,6 +128,7 @@ public class Injector extends NutchTool implements Tool {
     private String scope;
     private boolean filterNormalizeAll = false;
 
+    @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
       boolean normalize = conf.getBoolean(CrawlDbFilter.URL_NORMALIZING, true);
@@ -205,6 +206,7 @@ public class Injector extends NutchTool implements Tool {
       }
     }
 
+    @Override
     public void map(Text key, Writable value, Context context)
         throws IOException, InterruptedException {
       if (value instanceof Text) {
@@ -277,6 +279,7 @@ public class Injector extends NutchTool implements Tool {
     private CrawlDatum old = new CrawlDatum();
     private CrawlDatum injected = new CrawlDatum();
 
+    @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
       interval = conf.getInt("db.fetch.interval.default", 2592000);
@@ -302,6 +305,7 @@ public class Injector extends NutchTool implements Tool {
      * 
      * For more details @see NUTCH-1405
      */
+    @Override
     public void reduce(Text key, Iterable<CrawlDatum> values, Context context)
         throws IOException, InterruptedException {
 
@@ -535,6 +539,7 @@ public class Injector extends NutchTool implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       usage();
@@ -578,6 +583,7 @@ public class Injector extends NutchTool implements Tool {
   /**
    * Used by the Nutch REST service
    */
+  @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId)
       throws Exception {
     if(args.size()<1){

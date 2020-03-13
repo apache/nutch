@@ -65,6 +65,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
+  @Override
   public int run(String[] args) throws Exception {
     String url = null;
 

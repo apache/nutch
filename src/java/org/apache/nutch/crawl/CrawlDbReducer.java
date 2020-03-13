@@ -49,6 +49,7 @@ public class CrawlDbReducer extends
   private int maxInterval;
   private FetchSchedule schedule;
 
+  @Override
   public void setup(Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
     Configuration conf = context.getConfiguration();
     retryMax = conf.getInt("db.fetch.retry.max", 3);
@@ -60,9 +61,7 @@ public class CrawlDbReducer extends
     linked = new InlinkPriorityQueue(maxLinks);
   }
 
-  public void close() {
-  }
-
+  @Override
   public void reduce(Text key, Iterable<CrawlDatum> values,
       Context context) throws IOException, InterruptedException {
 
