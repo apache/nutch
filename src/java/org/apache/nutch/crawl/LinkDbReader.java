@@ -115,6 +115,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
         new Inlinks());
   }
 
+  @Override
   public void close() throws IOException {
     if (readers != null) {
       for (int i = 0; i < readers.length; i++) {
@@ -220,6 +221,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err

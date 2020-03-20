@@ -150,6 +150,7 @@ public class SolrIndexWriter implements IndexWriter {
     }
   }
 
+  @Override
   public void delete(String key) throws IOException {
     // escape solr hash separator
     key = key.replaceAll("!", "\\!");
@@ -170,6 +171,7 @@ public class SolrIndexWriter implements IndexWriter {
     write(doc);
   }
 
+  @Override
   public void write(NutchDocument doc) throws IOException {
     final SolrInputDocument inputDoc = new SolrInputDocument();
 
@@ -201,6 +203,7 @@ public class SolrIndexWriter implements IndexWriter {
     }
   }
 
+  @Override
   public void close() throws IOException {
     commit();
 

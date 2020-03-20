@@ -267,6 +267,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     }
   }
 
+  @Override
   public int run(String[] args) throws IOException {
     if (args.length < 1) {
       System.err.println("Usage: DeduplicationJob <crawldb> [-group <none|host|domain>] [-compareOrder <score>,<fetchTime>,<httpsOverHttp>,<urlLength>]");

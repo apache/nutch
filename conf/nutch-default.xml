@@ -1259,6 +1259,19 @@
   </description>
 </property>
 
+<!-- SegmentReader -->
+<property>
+  <name>segment.reader.content.recode</name>
+  <value>false</value>
+  <description>
+    SegmentReader when dumping segments: If true try to recode content
+    of HTML documents from the original encoding to UTF-8. Note, this
+    property can be overwritten by SegmentReader command-line options.
+  </description>
+</property>
+
+
+
 <!--  any23 plugin properties -->
 
 <property>

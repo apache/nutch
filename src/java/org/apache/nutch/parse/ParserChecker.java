@@ -77,6 +77,7 @@ public class ParserChecker extends AbstractChecker {
       .getLogger(MethodHandles.lookup().lookupClass());
   private ScoringFilters scfilters;
 
+  @Override
   public int run(String[] args) throws Exception {
     String url = null;
 

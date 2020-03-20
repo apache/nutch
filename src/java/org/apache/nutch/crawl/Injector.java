@@ -539,6 +539,7 @@ public class Injector extends NutchTool implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       usage();
@@ -582,6 +583,7 @@ public class Injector extends NutchTool implements Tool {
   /**
    * Used by the Nutch REST service
    */
+  @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId)
       throws Exception {
     if(args.size()<1){

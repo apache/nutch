@@ -100,9 +100,6 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
     return conf;
   }
 
-  public void close() {
-  }
-
   public static String getDomainName(String host) {
     return EffectiveTldFinder.getAssignedDomain(host, false, true);
   }

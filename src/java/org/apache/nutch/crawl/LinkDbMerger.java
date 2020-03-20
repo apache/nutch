@@ -82,11 +82,13 @@ public class LinkDbMerger extends Configured implements Tool {
 
     private int maxInlinks;
 
+    @Override
     public void setup(Reducer<Text, Inlinks, Text, Inlinks>.Context context) {
       Configuration conf = context.getConfiguration();
       maxInlinks = conf.getInt("linkdb.max.inlinks", 10000);
     }
 
+    @Override
     public void reduce(Text key, Iterable<Inlinks> values, Context context)
         throws IOException, InterruptedException {
 
@@ -106,9 +108,6 @@ public class LinkDbMerger extends Configured implements Tool {
       context.write(key, result);
 
     }
-  }
-
-  public void close() throws IOException {
   }
 
   public void merge(Path output, Path[] dbs, boolean normalize, boolean filter)
@@ -183,6 +182,7 @@ public class LinkDbMerger extends Configured implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err

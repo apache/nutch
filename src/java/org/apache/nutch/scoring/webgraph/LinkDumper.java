@@ -407,6 +407,7 @@ public class LinkDumper extends Configured implements Tool {
    * Runs the LinkDumper tool. This simply creates the database, to read the
    * values the nested Reader tool must be used.
    */
+  @Override
   public int run(String[] args) throws Exception {
 
     Options options = new Options();

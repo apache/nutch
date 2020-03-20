@@ -363,9 +363,6 @@ public class SegmentMerger extends Configured implements Tool{
     super.setConf(conf);
   }
 
-  public void close() throws IOException {
-  }
-
 
   public static class SegmentMergerMapper extends
   Mapper<Text, MetaWrapper, Text, MetaWrapper> {
@@ -755,6 +752,7 @@ public class SegmentMerger extends Configured implements Tool{
   /**
    * @param args
    */
+  @Override
   public int run(String[] args)  throws Exception {
     if (args.length < 2) {
       System.err

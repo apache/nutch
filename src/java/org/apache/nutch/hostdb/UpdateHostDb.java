@@ -160,6 +160,7 @@ public class UpdateHostDb extends Configured implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println("Usage: UpdateHostDb -hostdb <hostdb> " +

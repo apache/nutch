@@ -106,6 +106,7 @@ public class SitemapProcessor extends Configured implements Tool {
     private CrawlDatum datum = new CrawlDatum();
     private SiteMapParser parser = null;
 
+    @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
       int maxSize = conf.getInt(SITEMAP_SIZE_MAX, SiteMapParser.MAX_BYTES_ALLOWED);
@@ -127,6 +128,7 @@ public class SitemapProcessor extends Configured implements Tool {
       }
     }
 
+    @Override
     public void map(Text key, Writable value, Context context) throws IOException, InterruptedException {
       String url;
 
@@ -308,11 +310,13 @@ public class SitemapProcessor extends Configured implements Tool {
 
     private boolean overwriteExisting = false; // DO NOT ENABLE!!
 
+    @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
       this.overwriteExisting = conf.getBoolean(SITEMAP_OVERWRITE_EXISTING, false);
     }
 
+    @Override
     public void reduce(Text key, Iterable<CrawlDatum> values, Context context)
         throws IOException, InterruptedException {
       sitemapDatum  = null;
@@ -461,6 +465,7 @@ public class SitemapProcessor extends Configured implements Tool {
     System.err.println("\t-noNormalize\t\tturn off URLNormalizer on urls (optional)");
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 3) {
       usage();
