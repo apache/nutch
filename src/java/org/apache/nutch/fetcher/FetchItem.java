@@ -95,9 +95,6 @@ public class FetchItem {
       if (key == null) {
         LOG.warn("Unknown host for url: " + url + ", using URL string as key");
         key = u.toExternalForm();
-      } else if (FetchItemQueues.QUEUE_MODE_HOST_PROTOCOL
-          .equalsIgnoreCase(queueMode)) {
-        key = u.getProtocol().toLowerCase(Locale.ROOT) + "://" + key;
       }
     }
     return new FetchItem(url, u, datum, key, outlinkDepth);

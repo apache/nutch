@@ -51,7 +51,6 @@ public class FetchItemQueues {
   int maxExceptionsPerQueue = -1;
   Configuration conf;
 
-  public static final String QUEUE_MODE_HOST_PROTOCOL = "byHostProtocol";
   public static final String QUEUE_MODE_HOST = "byHost";
   public static final String QUEUE_MODE_DOMAIN = "byDomain";
   public static final String QUEUE_MODE_IP = "byIP";
