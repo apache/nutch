@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hadoop.conf.Configuration;
@@ -30,9 +31,13 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 /**
- * Convenience class - a collection of queues that keeps track of the total
- * number of items, and provides items eligible for fetching from any queue.
+ * A collection of queues that keeps track of the total number of items, and
+ * provides items eligible for fetching from any queue.
  */
 public class FetchItemQueues {
 
@@ -44,6 +49,8 @@ public class FetchItemQueues {
   private Set<String> queuesMaxExceptions = new HashSet<>();
   Iterator<Map.Entry<String, FetchItemQueue>> lastIterator = null;
   AtomicInteger totalSize = new AtomicInteger(0);
+  Cache<Text, Optional<String>> redirectDedupCache = null;
+
   int maxThreads;
   long crawlDelay;
   long minCrawlDelay;
@@ -77,6 +84,16 @@ public class FetchItemQueues {
     this.timelimit = conf.getLong("fetcher.timelimit", -1);
     this.maxExceptionsPerQueue = conf.getInt(
         "fetcher.max.exceptions.per.queue", -1);
+
+    int dedupRedirMaxTime = conf.getInt("fetcher.redirect.dedupcache.seconds",
+        -1);
+    int dedupRedirMaxSize = conf.getInt("fetcher.redirect.dedupcache.size",
+        1000);
+    if (dedupRedirMaxTime > 0 && dedupRedirMaxSize > 0) {
+      redirectDedupCache = CacheBuilder.newBuilder()
+          .maximumSize(dedupRedirMaxSize)
+          .expireAfterWrite(dedupRedirMaxTime, TimeUnit.SECONDS).build();
+    }
   }
 
   /**
@@ -244,6 +261,22 @@ public class FetchItemQueues {
       return deleted;
     }
     return 0;
+  }
+
+  /**
+   * @param redirUrl
+   *          redirect target
+   * @return true if redirects are deduplicated and redirUrl has been queued
+   *         recently
+   */
+  public boolean redirectIsQueuedRecently(Text redirUrl) {
+    if (redirectDedupCache != null) {
+      if (redirectDedupCache.getIfPresent(redirUrl) != null) {
+        return true;
+      }
+      redirectDedupCache.put(redirUrl, Optional.absent());
+    }
+    return false;
   }
 
   public synchronized void dump() {

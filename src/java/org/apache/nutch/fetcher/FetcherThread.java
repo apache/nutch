@@ -455,6 +455,8 @@ public class FetcherThread extends Thread {
 
             if (redirecting && redirectCount > maxRedirect) {
               fetchQueues.finishFetchItem(fit);
+              context.getCounter("FetcherStatus", "redirect_count_exceeded")
+                  .increment(1);
               if (LOG.isInfoEnabled()) {
                 LOG.info("{} {} - redirect count exceeded {} ({})", getName(),
                     Thread.currentThread().getId(), fit.url,
@@ -590,6 +592,13 @@ public class FetcherThread extends Thread {
 
   private FetchItem queueRedirect(Text redirUrl, FetchItem fit)
       throws ScoringFilterException {
+    if (fetchQueues.redirectIsQueuedRecently(redirUrl)) {
+      redirecting = false;
+      context.getCounter("FetcherStatus", "redirect_deduplicated").increment(1);
+      LOG.debug(" - ignoring redirect from {} to {} as duplicate", fit.url,
+          redirUrl);
+      return null;
+    }
     CrawlDatum newDatum = createRedirDatum(redirUrl, fit, CrawlDatum.STATUS_DB_UNFETCHED);
     fit = FetchItem.create(redirUrl, newDatum, queueMode);
     if (fit != null) {
