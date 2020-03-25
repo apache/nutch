@@ -996,6 +996,18 @@
 </property> 
 
 <property>
+ <name>fetcher.min.crawl.delay</name>
+ <value>${fetcher.server.delay}</value>
+ <description>
+ Minimum Crawl-Delay (in seconds) accepted in robots.txt, even if the
+ robots.txt specifies a shorter delay. By default the minimum Crawl-Delay
+ is set to the value of `fetcher.server.delay` which guarantees that
+ a value set in the robots.txt cannot make the crawler more aggressive
+ than the default configuration.
+ </description>
+</property>
+
+<property>
   <name>fetcher.threads.fetch</name>
   <value>10</value>
   <description>The number of FetcherThreads the fetcher should use.

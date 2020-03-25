@@ -86,6 +86,7 @@ public class FetcherThread extends Thread {
   private URLNormalizers normalizers;
   private ProtocolFactory protocolFactory;
   private long maxCrawlDelay;
+  private long minCrawlDelay;
   private String queueMode;
   private int maxRedirect;
   private boolean maxRedirectExceededSkip = false;
@@ -168,6 +169,9 @@ public class FetcherThread extends Thread {
     this.protocolFactory = new ProtocolFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
     this.maxCrawlDelay = conf.getInt("fetcher.max.crawl.delay", 30) * 1000;
+    float crawlDelay = conf.getFloat("fetcher.server.delay", 1.0f);
+    this.minCrawlDelay = (long) (conf.getFloat("fetcher.min.crawl.delay",
+        crawlDelay) * 1000);
     this.activeThreads = activeThreads;
     this.fetchQueues = fetchQueues;
     this.feeder = feeder;
@@ -329,8 +333,8 @@ public class FetcherThread extends Thread {
               if (rules.getCrawlDelay() > maxCrawlDelay && maxCrawlDelay >= 0) {
                 // unblock
                 fetchQueues.finishFetchItem(fit, true);
-                LOG.info("Crawl-Delay for {} too long ({}), skipping", fit.url,
-                    rules.getCrawlDelay());
+                LOG.info("Crawl-Delay for {} too long ({} ms), skipping",
+                    fit.url, rules.getCrawlDelay());
                 output(fit.url, fit.datum, null,
                     ProtocolStatus.STATUS_ROBOTS_DENIED,
                     CrawlDatum.STATUS_FETCH_GONE);
@@ -339,7 +343,14 @@ public class FetcherThread extends Thread {
                 continue;
               } else {
                 FetchItemQueue fiq = fetchQueues.getFetchItemQueue(fit.queueID);
-                fiq.crawlDelay = rules.getCrawlDelay();
+                long crawlDelay = rules.getCrawlDelay();
+                if (crawlDelay < minCrawlDelay) {
+                  LOG.info(
+                      "Crawl-Delay for {} too short ({} ms), adjusting to {} ms",
+                      fit.url, rules.getCrawlDelay(), minCrawlDelay);
+                  crawlDelay = minCrawlDelay;
+                }
+                fiq.crawlDelay = crawlDelay;
                 if (LOG.isDebugEnabled()) {
                   LOG.debug("Crawl delay for queue: " + fit.queueID
                       + " is set to " + fiq.crawlDelay
