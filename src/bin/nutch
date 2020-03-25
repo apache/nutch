@@ -96,6 +96,7 @@ if [ $# = 0 ]; then
   echo "  updatehostdb      update the host db with records from the crawl db"
   echo "  readhostdb        read / dump host db"
   echo "  sitemap           perform Sitemap processing"
+  echo "  showproperties    print Nutch/Hadoop configuration properties to stdout"
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
@@ -304,6 +305,8 @@ elif [ "$COMMAND" = "readhostdb" ] ; then
   CLASS=org.apache.nutch.hostdb.ReadHostDb
 elif [ "$COMMAND" = "sitemap" ] ; then
   CLASS=org.apache.nutch.util.SitemapProcessor
+elif [ "$COMMAND" = "showproperties" ] ; then
+  CLASS=org.apache.nutch.tools.ShowProperties
 else
   CLASS=$COMMAND
 fi
