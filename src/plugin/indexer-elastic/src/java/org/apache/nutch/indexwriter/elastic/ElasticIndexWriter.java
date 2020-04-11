@@ -17,6 +17,11 @@
 package org.apache.nutch.indexwriter.elastic;
 
 import java.lang.invoke.MethodHandles;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import java.util.AbstractMap;
@@ -25,11 +30,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
@@ -47,6 +62,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.client.RequestOptions;
@@ -69,10 +85,15 @@ public class ElasticIndexWriter implements IndexWriter {
   private static final int DEFAULT_EXP_BACKOFF_RETRIES = 10;
   private static final int DEFAULT_BULK_CLOSE_TIMEOUT = 600;
   private static final String DEFAULT_INDEX = "nutch";
+  private static final String DEFAULT_USER = "elastic";
 
   private String cluster;
   private String[] hosts;
   private int port;
+  private Boolean https = null;
+  private String user = null;
+  private String password = null;
+  private Boolean trustAllHostnames = null;
 
   private int maxBulkDocs;
   private int maxBulkLength;
@@ -146,6 +167,14 @@ public class ElasticIndexWriter implements IndexWriter {
   protected RestHighLevelClient makeClient(IndexWriterParams parameters) throws IOException {
     hosts = parameters.getStrings(ElasticConstants.HOSTS);
     port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
+    
+    user = parameters.get(ElasticConstants.USER, DEFAULT_USER);
+    password = parameters.get(ElasticConstants.PASSWORD, "");
+    
+    final CredentialsProvider credentialsProvider =
+        new BasicCredentialsProvider();
+    credentialsProvider.setCredentials(AuthScope.ANY,
+        new UsernamePasswordCredentials(user, password));
 
     RestHighLevelClient client = null;
 
@@ -161,6 +190,17 @@ public class ElasticIndexWriter implements IndexWriter {
         restClientBuilder.setDefaultHeaders(defaultHeaders);
       } else	{
         LOG.debug("No cluster name provided so using default");
+      }
+      //Only add username and password if password is configured
+      if(StringUtils.isNotBlank(password)) {
+        restClientBuilder.setHttpClientConfigCallback(new HttpClientConfigCallback()  {
+          @Override
+          public HttpAsyncClientBuilder customizeHttpClient(
+              HttpAsyncClientBuilder arg0) {
+            return arg0
+                .setDefaultCredentialsProvider(credentialsProvider);
+          }    
+        }); 
       }
       client = new RestHighLevelClient(restClientBuilder);
     } else	{
