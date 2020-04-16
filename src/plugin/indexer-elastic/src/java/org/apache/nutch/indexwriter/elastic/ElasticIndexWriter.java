@@ -86,13 +86,12 @@ public class ElasticIndexWriter implements IndexWriter {
   private static final String DEFAULT_INDEX = "nutch";
   private static final String DEFAULT_USER = "elastic";
 
-  private String cluster;
   private String[] hosts;
   private int port;
   private Boolean https = null;
   private String user = null;
   private String password = null;
-  private Boolean trustAllHostnames = null;
+  private Boolean auth;
 
   private int maxBulkDocs;
   private int maxBulkLength;
@@ -122,7 +121,7 @@ public class ElasticIndexWriter implements IndexWriter {
    */
   @Override
   public void open(IndexWriterParams parameters) throws IOException {
-    cluster = parameters.get(ElasticConstants.CLUSTER);
+
     String hosts = parameters.get(ElasticConstants.HOSTS);
 
     if (StringUtils.isBlank(hosts)) {
@@ -170,6 +169,7 @@ public class ElasticIndexWriter implements IndexWriter {
     hosts = parameters.getStrings(ElasticConstants.HOSTS);
     port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
 
+    auth = parameters.getBoolean(ElasticConstants.USE_AUTH, false);
     user = parameters.get(ElasticConstants.USER, DEFAULT_USER);
     password = parameters.get(ElasticConstants.PASSWORD, "");
 
@@ -186,15 +186,7 @@ public class ElasticIndexWriter implements IndexWriter {
         hostsList[i++] = new HttpHost(host, port);
       }
       RestClientBuilder restClientBuilder = RestClient.builder(hostsList);
-      if (StringUtils.isNotBlank(cluster)) {
-        Header[] defaultHeaders = new Header[] {
-            new BasicHeader("cluster.name", cluster) };
-        restClientBuilder.setDefaultHeaders(defaultHeaders);
-      } else {
-        LOG.debug("No cluster name provided so using default");
-      }
-      // Only add username and password if password is configured
-      if (StringUtils.isNotBlank(password)) {
+      if (auth) {
         restClientBuilder
             .setHttpClientConfigCallback(new HttpClientConfigCallback() {
               @Override
@@ -310,17 +302,17 @@ public class ElasticIndexWriter implements IndexWriter {
   public Map<String, Map.Entry<String, Object>> describe() {
     Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
 
-    properties.put(ElasticConstants.CLUSTER, new AbstractMap.SimpleEntry<>(
-        "The cluster name to discover. Either host and port must be defined or cluster.",
-        this.cluster));
-    properties.put(ElasticConstants.HOSTS, new AbstractMap.SimpleEntry<>(
-        "Comma-separated list of hostnames to send documents to using TransportClient. "
-            + "Either host and port must be defined or cluster.",
-        this.hosts == null ? "" : String.join(",", hosts)));
+    properties.put(ElasticConstants.HOSTS,
+        new AbstractMap.SimpleEntry<>("Comma-separated list of hostnames",
+            this.hosts == null ? "" : String.join(",", hosts)));
     properties.put(ElasticConstants.PORT, new AbstractMap.SimpleEntry<>(
-        "The port to connect to using TransportClient.", this.port));
+        "The port to connect to elastic server.", this.port));
     properties.put(ElasticConstants.INDEX, new AbstractMap.SimpleEntry<>(
         "Default index to send documents to.", this.defaultIndex));
+    properties.put(ElasticConstants.USER, new AbstractMap.SimpleEntry<>(
+        "Username for auth credentials", this.user));
+    properties.put(ElasticConstants.PASSWORD, new AbstractMap.SimpleEntry<>(
+        "Password for auth credentials", this.password));
     properties.put(ElasticConstants.MAX_BULK_DOCS,
         new AbstractMap.SimpleEntry<>(
             "Maximum size of the bulk in number of documents.",

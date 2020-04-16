@@ -20,10 +20,9 @@ public interface ElasticConstants {
   String HOSTS = "host";
   String PORT = "port";
   
-  String USER = "user";
+  String USER = "username";
   String PASSWORD = "password";
-  
-  String CLUSTER = "cluster";
+  String USE_AUTH = "auth";
   String INDEX = "index";
   String MAX_BULK_DOCS = "max.bulk.docs";
   String MAX_BULK_LENGTH = "max.bulk.size";
