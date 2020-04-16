@@ -30,7 +30,7 @@ Each parameter has the form `<param name="<name>" value="<value>"/>` and the par
 
 Parameter Name | Description | Default value
 --|--|--
-host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). Either host and port must be defined or cluster. | 
+host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). Either host and port must be defined. | 
 port | The port to connect to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). | 9300
 index | Default index to send documents to. | nutch
 username | Username for auth credentials | elastic
