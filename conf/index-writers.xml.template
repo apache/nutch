@@ -108,8 +108,10 @@
     <parameters>
       <param name="host" value="localhost"/>
       <param name="port" value="9200"/>
-      <param name="cluster" value=""/>
       <param name="index" value="nutch"/>
+      <param name="username" value="elastic"/>
+      <param name="password" value=""/>
+      <!--<param name="auth" value="false"/>-->
       <param name="max.bulk.docs" value="250"/>
       <param name="max.bulk.size" value="2500500"/>
       <param name="exponential.backoff.millis" value="100"/>
