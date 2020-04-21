@@ -25,6 +25,7 @@
     <property name="ivy.checksums" value="" />
     <property name="ivy.jar.dir" value="${ivy.home}/lib" />
     <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy-${ivy.install.version}.jar" />
+    <ivy:settings id="ivy.instance" file="../../../ivy/ivysettings.xml" />
 
     <target name="download-ivy" unless="offline">
 
