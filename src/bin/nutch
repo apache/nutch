@@ -22,7 +22,7 @@
 #   NUTCH_JAVA_HOME The java implementation to use.  Overrides JAVA_HOME.
 #
 #   NUTCH_HEAPSIZE  The maximum amount of heap to use, in MB. 
-#                   Default is 1000.
+#                   Default is 4096.
 #
 #   NUTCH_OPTS      Extra Java runtime options.
 #                   Multiple options must be separated by white space.
@@ -136,7 +136,7 @@ if [ -f "${NUTCH_HOME}"/*nutch*.job ]; then
 fi
 
 JAVA="$JAVA_HOME/bin/java"
-JAVA_HEAP_MAX=-Xmx1000m 
+JAVA_HEAP_MAX=-Xmx4096m
 
 # check envvars which might override default args
 if [ "$NUTCH_HEAPSIZE" != "" ]; then
