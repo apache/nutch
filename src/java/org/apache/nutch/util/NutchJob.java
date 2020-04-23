@@ -41,7 +41,15 @@ public class NutchJob extends Job {
     return Job.getInstance(conf);
   } 
 
-  /*
+  /**
+   * Clean up the file system in case of a job failure.
+   */
+  public static void cleanupAfterFailure(Path tempDir, FileSystem fs)
+      throws IOException {
+    cleanupAfterFailure(tempDir, null, fs);
+  }
+
+  /**
    * Clean up the file system in case of a job failure.
    */
   public static void cleanupAfterFailure(Path tempDir, Path lock, FileSystem fs)
@@ -50,7 +58,9 @@ public class NutchJob extends Job {
       if (fs.exists(tempDir)) {
         fs.delete(tempDir, true);
       }
-      LockUtil.removeLockFile(fs, lock);
+      if (lock != null) {
+        LockUtil.removeLockFile(fs, lock);
+      }
     } catch (IOException e) {
       LOG.error("NutchJob cleanup failed: {}", e.getMessage());
       throw e;
