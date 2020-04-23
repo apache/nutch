@@ -23,7 +23,13 @@
 #
 # Options:
 #   -i|--index                            Indexes crawl results into a configured indexer
-#   -D                                    A Java property to pass to Nutch calls
+#   -D <propery>=<value>                  A Nutch or Hadoop property to pass to Nutch calls overwriting
+#                                         properties defined in configuration files, e.g.
+#                                           increase content limit to 2MB:
+#                                             -Dhttp.content.limit=2097152
+#                                         (in distributed mode) configure memory of map and reduce tasks:
+#                                           -D mapreduce.map.memory.mb=4608    -D mapreduce.map.java.opts=-Xmx4096m
+#                                           -D mapreduce.reduce.memory.mb=4608 -D mapreduce.reduce.java.opts=-Xmx4096m
 #   -w|--wait <NUMBER[SUFFIX]>            Time to wait before generating a new segment when no URLs
 #                                         are scheduled for fetching. Suffix can be: s for second,
 #                                         m for minute, h for hour and d for day. If no suffix is
@@ -42,9 +48,6 @@
 #   --time-limit-fetch <time_limit_fetch> Number of minutes allocated to the fetching [default: 180]
 #   --num-threads <num_threads>           Number of threads for fetching / sitemap processing [default: 50]
 #
-#
-# UNLIKE THE NUTCH ALL-IN-ONE-CRAWL COMMAND THIS SCRIPT DOES THE LINK INVERSION AND
-# INDEXING FOR EACH SEGMENT
 
 function __to_seconds() {
   NUMBER=$(echo $1 | tr -dc '0-9')
@@ -77,7 +80,13 @@ function __print_usage {
   echo -e ""
   echo -e "Options:"
   echo -e "  -i|--index\t\t\t\tIndexes crawl results into a configured indexer"
-  echo -e "  -D\t\t\t\t\tA Java property to pass to Nutch calls"
+  echo -e "  -D\t\t\t\t\tA Nutch or Hadoop property to pass to Nutch calls overwriting"
+  echo -e "  \t\t\t\t\tproperties defined in configuration files, e.g."
+  echo -e "  \t\t\t\t\tincrease content limit to 2MB:"
+  echo -e "  \t\t\t\t\t  -Dhttp.content.limit=2097152"
+  echo -e "  \t\t\t\t\t(distributed mode only) configure memory of map and reduce tasks:"
+  echo -e "  \t\t\t\t\t  -Dmapreduce.map.memory.mb=4608    -Dmapreduce.map.java.opts=-Xmx4096m"
+  echo -e "  \t\t\t\t\t  -Dmapreduce.reduce.memory.mb=4608 -Dmapreduce.reduce.java.opts=-Xmx4096m"
   echo -e "  -w|--wait <NUMBER[SUFFIX]>\t\tTime to wait before generating a new segment when no URLs"
   echo -e "  \t\t\t\t\tare scheduled for fetching. Suffix can be: s for second,"
   echo -e "  \t\t\t\t\tm for minute, h for hour and d for day. If no suffix is"
@@ -106,7 +115,7 @@ function __print_usage {
 INDEXFLAG=false
 HOSTDBUPDATE=false
 HOSTDBGENERATE=false
-JAVA_PROPERTIES=""
+HADOOP_PROPERTIES=()
 WAIT=-1 # don't wait if there are no URLs to fetch
 SEEDDIR=""
 NUM_FETCHERS=1
@@ -124,7 +133,7 @@ do
             shift
             ;;
         -D)
-            JAVA_PROPERTIES="-D${2} ${JAVA_PROPERTIES}"
+            HADOOP_PROPERTIES=("${HADOOP_PROPERTIES[@]}" -D"${2}")
             shift 2
             ;;
         -s)
@@ -218,7 +227,7 @@ fi
 
 # note that some of the options listed here could be set in the
 # corresponding hadoop site xml param file
-commonOptions="-D mapreduce.job.reduces=$NUM_TASKS -D mapreduce.reduce.speculative=false -D mapreduce.map.speculative=false -D mapreduce.map.output.compress=true"
+commonOptions=("${HADOOP_PROPERTIES[@]}" -Dmapreduce.job.reduces=$NUM_TASKS -Dmapreduce.reduce.speculative=false -Dmapreduce.map.speculative=false -Dmapreduce.map.output.compress=true)
 
  # check that hadoop can be found on the path
 if [ $mode = "distributed" ]; then
@@ -259,20 +268,20 @@ function __directory_exists {
 function __update_hostdb {
   if __directory_exists "$CRAWL_PATH"/crawldb; then
     echo "Updating HostDB"
-    __bin_nutch updatehostdb -crawldb "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb
+    __bin_nutch updatehostdb "${commonOptions[@]}" -crawldb "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb
   fi
 }
 
 # initial injection
 if [[ ! -z $SEEDDIR  ]]; then
   echo "Injecting seed URLs"
-  __bin_nutch inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
+  __bin_nutch inject "${commonOptions[@]}" "$CRAWL_PATH"/crawldb "$SEEDDIR"
 fi
 
 # sitemap processing based on sitemap definition file(s)
 if [[ ! -z $SITEMAPDIR ]]; then
   echo "Processing sitemaps defined in $SITEMAPDIR"
-  __bin_nutch sitemap "$CRAWL_PATH/crawldb" -sitemapUrls "$SITEMAPDIR" -threads $NUM_THREADS
+  __bin_nutch sitemap "${commonOptions[@]}" "$CRAWL_PATH/crawldb" -sitemapUrls "$SITEMAPDIR" -threads $NUM_THREADS
 fi
 
 # main loop : rounds of generate - fetch - parse - update
@@ -300,15 +309,15 @@ do
     # sitemap processing based on HostDB
     if __directory_exists "$CRAWL_PATH"/hostdb; then
       echo "Processing sitemaps based on hosts in HostDB"
-      __bin_nutch sitemap "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $NUM_THREADS
+      __bin_nutch sitemap "${commonOptions[@]}" "$CRAWL_PATH"/crawldb -hostdb "$CRAWL_PATH"/hostdb -threads $NUM_THREADS
     fi
   fi
 
   echo "Generating a new segment"
   if [[ "$HOSTDBGENERATE" == "true" ]] && __directory_exists "$CRAWL_PATH"/hostdb; then
-   generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_FETCHERS -noFilter -hostdb "$CRAWL_PATH"/hostdb)
+   generate_args=("${commonOptions[@]}" "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_FETCHERS -noFilter -hostdb "$CRAWL_PATH"/hostdb)
   else
-   generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_FETCHERS -noFilter)
+   generate_args=("${commonOptions[@]}" "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $SIZE_FETCHLIST -numFetchers $NUM_FETCHERS -noFilter)
   fi
 
   echo "$bin/nutch generate ${generate_args[@]}"
@@ -348,33 +357,33 @@ do
 
   # fetching the segment
   echo "Fetching : $SEGMENT"
-  __bin_nutch fetch $commonOptions -D fetcher.timelimit.mins=$TIME_LIMIT_FETCH "$CRAWL_PATH"/segments/$SEGMENT -threads $NUM_THREADS
+  __bin_nutch fetch "${commonOptions[@]}" -D fetcher.timelimit.mins=$TIME_LIMIT_FETCH "$CRAWL_PATH"/segments/$SEGMENT -threads $NUM_THREADS
 
   # parsing the segment
   echo "Parsing : $SEGMENT"
   # enable the skipping of records for the parsing so that a dodgy document
   # so that it does not fail the full task
   skipRecordsOptions="-D mapreduce.task.skip.start.attempts=2 -D mapreduce.map.skip.maxrecords=1"
-  __bin_nutch parse $commonOptions $skipRecordsOptions "$CRAWL_PATH"/segments/$SEGMENT
+  __bin_nutch parse "${commonOptions[@]}" $skipRecordsOptions "$CRAWL_PATH"/segments/$SEGMENT
 
   # updatedb with this segment
   echo "CrawlDB update"
-  __bin_nutch updatedb $commonOptions "$CRAWL_PATH"/crawldb  "$CRAWL_PATH"/segments/$SEGMENT
+  __bin_nutch updatedb "${commonOptions[@]}" "$CRAWL_PATH"/crawldb  "$CRAWL_PATH"/segments/$SEGMENT
 
 # note that the link inversion - indexing routine can be done within the main loop
 # on a per segment basis
   echo "Link inversion"
-  __bin_nutch invertlinks "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
+  __bin_nutch invertlinks "${commonOptions[@]}" "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
 
   echo "Dedup on crawldb"
-  __bin_nutch dedup "$CRAWL_PATH"/crawldb
+  __bin_nutch dedup "${commonOptions[@]}" "$CRAWL_PATH"/crawldb
 
   if $INDEXFLAG; then
       echo "Indexing $SEGMENT to index"
-      __bin_nutch index $JAVA_PROPERTIES "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
+      __bin_nutch index "${commonOptions[@]}" "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
 
       echo "Cleaning up index if possible"
-      __bin_nutch clean $JAVA_PROPERTIES "$CRAWL_PATH"/crawldb
+      __bin_nutch clean "${commonOptions[@]}" "$CRAWL_PATH"/crawldb
   else
       echo "Skipping indexing ..."
   fi
@@ -389,19 +398,19 @@ do
   # and should be uncommented based on your requirements
   #######################################################
   #echo "Building WebGraph within $CRAWL_PATH on all segments in $CRAWL_PATH/segments/"
-  #__bin_nutch webgraph $commonOptions -filter -normalize -segmentDir "$CRAWL_PATH"/segments/ -webgraphdb "$CRAWL_PATH"
+  #__bin_nutch webgraph "${commonOptions[@]}" -filter -normalize -segmentDir "$CRAWL_PATH"/segments/ -webgraphdb "$CRAWL_PATH"
 
   #echo "Running Loops Job on WebGraph within $CRAWL_PATH"
-  #__bin_nutch org.apache.nutch.scoring.webgraph.Loops $commonOptions -webgraphdb "$CRAWL_PATH"
+  #__bin_nutch org.apache.nutch.scoring.webgraph.Loops "${commonOptions[@]}" -webgraphdb "$CRAWL_PATH"
 
   #echo "Running LinkRank Algorithm on WebGraph within $CRAWL_PATH"
-  #__bin_nutch linkrank $commonOptions -webgraphdb "$CRAWL_PATH"
+  #__bin_nutch linkrank "${commonOptions[@]}" -webgraphdb "$CRAWL_PATH"
 
   #echo "Running ScoreUpdater Job with $CRAWL_PATH/crawldb and  WebGraph within $CRAWL_PATH"
-  #__bin_nutch scoreupdater $commonOptions -crawldb "$CRAWL_PATH"/crawldb -webgraphdb "$CRAWL_PATH"
+  #__bin_nutch scoreupdater "${commonOptions[@]}" -crawldb "$CRAWL_PATH"/crawldb -webgraphdb "$CRAWL_PATH"
 
   #echo "Running NodeDumper on WebGraph within $CRAWL_PATH and dumping output to $CRAWL_PATH/dump/scores"
-  #__bin_nutch nodedumper $commonOptions -scores -topn 1000 -webgraphdb "$CRAWL_PATH" -output "$CRAWL_PATH"/dump/scores
+  #__bin_nutch nodedumper "${commonOptions[@]}" -scores -topn 1000 -webgraphdb "$CRAWL_PATH" -output "$CRAWL_PATH"/dump/scores
 
 done
 
