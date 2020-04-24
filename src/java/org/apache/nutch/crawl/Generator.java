@@ -927,9 +927,8 @@ public class Generator extends NutchTool implements Tool {
   private Path partitionSegment(Path segmentsDir, Path inputDir, int numLists)
       throws IOException, ClassNotFoundException, InterruptedException {
     // invert again, partition by host/domain/IP, sort by url hash
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Generator: Partitioning selected urls for politeness.");
-    }
+    LOG.info("Generator: Partitioning selected urls for politeness.");
+
     Path segment = new Path(segmentsDir, generateSegmentName());
     Path output = new Path(segment, CrawlDatum.GENERATE_DIR_NAME);
 

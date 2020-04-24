@@ -152,13 +152,11 @@ public class ParseSegment extends NutchTool implements Tool {
         try {
           scfilters.passScoreAfterParsing(url, content, parse);
         } catch (ScoringFilterException e) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn("Error passing score: " + url + ": " + e.getMessage());
-          }
+          LOG.warn("Error passing score: {}: {}", url, e.getMessage());
         }
 
         long end = System.currentTimeMillis();
-        LOG.info("Parsed (" + Long.toString(end - start) + "ms):" + url);
+        LOG.info("Parsed ({}ms): {}", (end - start), url);
 
         context.write(
             url,

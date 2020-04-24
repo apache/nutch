@@ -155,10 +155,10 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     throws IOException, InterruptedException, ClassNotFoundException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
-    if (LOG.isInfoEnabled()) {
-      LOG.info("LinkDb dump: starting at " + sdf.format(start));
-      LOG.info("LinkDb dump: db: " + linkdb);
-    }
+
+    LOG.info("LinkDb dump: starting at {}", sdf.format(start));
+    LOG.info("LinkDb dump: db: {}", linkdb);
+
     Path outFolder = new Path(output);
 
     Job job = NutchJob.getInstance(getConf());

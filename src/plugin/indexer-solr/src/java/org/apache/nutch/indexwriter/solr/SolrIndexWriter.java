@@ -235,9 +235,8 @@ public class SolrIndexWriter implements IndexWriter {
   private void push() throws IOException {
     if (inputDocs.size() > 0) {
       try {
-        LOG.info("Indexing " + Integer.toString(inputDocs.size()) + "/"
-            + Integer.toString(totalAdds) + " documents");
-        LOG.info("Deleting " + Integer.toString(numDeletes) + " documents");
+        LOG.info("Indexing {}/{} documents", inputDocs.size(), totalAdds);
+        LOG.info("Deleting {} documents", numDeletes);
         numDeletes = 0;
         UpdateRequest req = new UpdateRequest();
         req.add(inputDocs);
@@ -257,9 +256,9 @@ public class SolrIndexWriter implements IndexWriter {
 
     if (deleteIds.size() > 0) {
       try {
-        LOG.info("SolrIndexer: deleting " + Integer.toString(deleteIds.size())
-            + "/" + Integer.toString(totalDeletes) + " documents");
-
+        LOG.info("SolrIndexer: deleting {}/{} documents", deleteIds.size(),
+            totalDeletes);
+        
         UpdateRequest req = new UpdateRequest();
         req.deleteById(deleteIds);
         req.setAction(UpdateRequest.ACTION.OPTIMIZE, false, false);

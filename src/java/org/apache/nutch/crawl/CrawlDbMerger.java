@@ -131,13 +131,11 @@ public class CrawlDbMerger extends Configured implements Tool {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
-    LOG.info("CrawlDb merge: starting at " + sdf.format(start));
+    LOG.info("CrawlDb merge: starting at {}", sdf.format(start));
 
     Job job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Adding " + dbs[i]);
-      }
+      LOG.info("Adding {}", dbs[i]);
       FileInputFormat.addInputPath(job, new Path(dbs[i], CrawlDb.CURRENT_NAME));
     }
 

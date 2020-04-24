@@ -257,9 +257,9 @@ public class ParserChecker extends AbstractChecker {
         content, parseResult.get(new Text(url)));
 
     if (LOG.isInfoEnabled()) {
-      LOG.info("parsing: " + url);
-      LOG.info("contentType: " + contentType);
-      LOG.info("signature: " + StringUtil.toHexString(signature));
+      LOG.info("parsing: {}", url);
+      LOG.info("contentType: {}", contentType);
+      LOG.info("signature: {}", StringUtil.toHexString(signature));
     }
 
     for (Map.Entry<Text, Parse> entry : parseResult) {

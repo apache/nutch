@@ -106,14 +106,12 @@ public class FreeGenerator extends Configured implements Tool {
             scfilters.injectedScore(url, datum);
           }
         } catch (Exception e) {
-          LOG.warn("Error adding url '" + value.toString() + "', skipping: "
-              + StringUtils.stringifyException(e));
+          LOG.warn("Error adding url '{}', skipping: {}", value,
+              StringUtils.stringifyException(e));
           return;
         }
         if (urlString == null) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("- skipping " + value.toString());
-          }
+          LOG.debug("- skipping {}", value);
           return;
         }
         entry.datum = datum;

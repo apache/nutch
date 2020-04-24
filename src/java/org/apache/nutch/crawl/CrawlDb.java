@@ -98,15 +98,13 @@ public class CrawlDb extends NutchTool implements Tool {
 
     boolean url404Purging = conf.getBoolean(CRAWLDB_PURGE_404, false);
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("CrawlDb update: starting at " + sdf.format(start));
-      LOG.info("CrawlDb update: db: " + crawlDb);
-      LOG.info("CrawlDb update: segments: " + Arrays.asList(segments));
-      LOG.info("CrawlDb update: additions allowed: " + additionsAllowed);
-      LOG.info("CrawlDb update: URL normalizing: " + normalize);
-      LOG.info("CrawlDb update: URL filtering: " + filter);
-      LOG.info("CrawlDb update: 404 purging: " + url404Purging);
-    }
+    LOG.info("CrawlDb update: starting at {}", sdf.format(start));
+    LOG.info("CrawlDb update: db: {}", crawlDb);
+    LOG.info("CrawlDb update: segments: {}", Arrays.asList(segments));
+    LOG.info("CrawlDb update: additions allowed: {}", additionsAllowed);
+    LOG.info("CrawlDb update: URL normalizing: {}", normalize);
+    LOG.info("CrawlDb update: URL filtering: {}", filter);
+    LOG.info("CrawlDb update: 404 purging: {}", url404Purging);
 
     for (int i = 0; i < segments.length; i++) {
       FileSystem sfs = segments[i].getFileSystem(getConf());
@@ -117,16 +115,14 @@ public class CrawlDb extends NutchTool implements Tool {
         if (sfs.exists(parse)) {
           FileInputFormat.addInputPath(job, parse);
         } else {
-          LOG.info(" - adding fetched but unparsed segment " + segments[i]);
+          LOG.info(" - adding fetched but unparsed segment {}", segments[i]);
         }
       } else {
-        LOG.info(" - skipping invalid segment " + segments[i]);
+        LOG.info(" - skipping invalid segment {}", segments[i]);
       }
     }
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("CrawlDb update: Merging segment data into db.");
-    }
+    LOG.info("CrawlDb update: Merging segment data into db.");
 
     FileSystem fs = crawlDb.getFileSystem(getConf());
     Path outPath = FileOutputFormat.getOutputPath(job);
@@ -281,7 +277,7 @@ public class CrawlDb extends NutchTool implements Tool {
           filter, additionsAllowed, force);
       return 0;
     } catch (Exception e) {
-      LOG.error("CrawlDb update: " + StringUtils.stringifyException(e));
+      LOG.error("CrawlDb update: ", e);
       return -1;
     }
   }

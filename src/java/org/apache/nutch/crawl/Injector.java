@@ -235,10 +235,9 @@ public class Injector extends NutchTool implements Tool {
             key.set(url);
             scfilters.injectedScore(key, datum);
           } catch (ScoringFilterException e) {
-            if (LOG.isWarnEnabled()) {
-              LOG.warn("Cannot filter injected score for url " + url
-                  + ", using default (" + e.getMessage() + ")");
-            }
+            LOG.warn(
+                "Cannot filter injected score for url {}, using default ({})",
+                url, e.getMessage());
           }
           context.getCounter("injector", "urls_injected").increment(1);
           context.write(key, datum);
@@ -373,12 +372,10 @@ public class Injector extends NutchTool implements Tool {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Injector: starting at " + sdf.format(start));
-      LOG.info("Injector: crawlDb: " + crawlDb);
-      LOG.info("Injector: urlDir: " + urlDir);
-      LOG.info("Injector: Converting injected urls to crawl db entries.");
-    }
+    LOG.info("Injector: starting at {}", sdf.format(start));
+    LOG.info("Injector: crawlDb: {}", crawlDb);
+    LOG.info("Injector: urlDir: {}", urlDir);
+    LOG.info("Injector: Converting injected urls to crawl db entries.");
 
     // set configuration
     Configuration conf = getConf();
