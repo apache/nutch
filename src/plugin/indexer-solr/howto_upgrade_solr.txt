@@ -1,0 +1,33 @@
+1. Upgrade Solr dependency in src/plugin/indexer-solr/ivy.xml
+
+2. Upgrade the Solr specific dependencies in src/plugin/indexer-solr/plugin.xml
+   To get the list of dependencies and their versions execute:
+    $ cd src/plugin/indexer-solr/
+    $ ant -f ./build-ivy.xml
+    $ ls lib | sed 's/^/    <library name="/g' | sed 's/$/"\/>/g'
+
+   In the plugin.xml replace all lines between
+      <!-- Solr dependencies -->
+   and
+      <!-- end of Solr dependencies -->
+   with the output of the command above.
+
+4. (Optionally) remove overlapping dependencies between indexer-solr and Nutch core dependencies:
+   - check for libs present both in
+       build/lib
+     and
+       build/plugins/indexer-solr/
+     (eventually with different versions)
+   - duplicated libs can be added to the exclusions of transitive dependencies in
+       build/plugins/indexer-solr/ivy.xml
+   - but it should be made sure that the library versions in ivy/ivy.xml correspend to
+     those required by Tika
+
+5. Remove the locally "installed" dependencies in src/plugin/indexer-solr/lib/:
+
+    $ rm -rf lib/
+
+6. Build Nutch and run all unit tests:
+
+    $ cd ../../../
+    $ ant clean runtime test
