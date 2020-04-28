@@ -217,14 +217,15 @@ public class ElasticIndexWriter implements IndexWriter {
       @Override
       public void afterBulk(long executionId, BulkRequest request,
           Throwable failure) {
-        throw new RuntimeException(failure);
+        LOG.error("Elasticsearch indexing failed:", failure);
       }
 
       @Override
       public void afterBulk(long executionId, BulkRequest request,
           BulkResponse response) {
         if (response.hasFailures()) {
-          LOG.warn("Failures occurred during bulk request");
+          LOG.warn("Failures occurred during bulk request: {}",
+              response.buildFailureMessage());
         }
       }
     };
