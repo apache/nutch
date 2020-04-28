@@ -218,7 +218,7 @@ fi
 
 # note that some of the options listed here could be set in the
 # corresponding hadoop site xml param file
-commonOptions="-D mapreduce.job.reduces=$NUM_TASKS -D mapred.child.java.opts=-Xmx1000m -D mapreduce.reduce.speculative=false -D mapreduce.map.speculative=false -D mapreduce.map.output.compress=true"
+commonOptions="-D mapreduce.job.reduces=$NUM_TASKS -D mapreduce.reduce.speculative=false -D mapreduce.map.speculative=false -D mapreduce.map.output.compress=true"
 
  # check that hadoop can be found on the path
 if [ $mode = "distributed" ]; then
