@@ -428,7 +428,7 @@ public class SegmentMerger extends Configured implements Tool{
         mergeFilters = new SegmentMergeFilters(conf);
       }      
       sliceSize = conf.getLong("segment.merger.slice", -1);
-      if ((sliceSize > 0) && (LOG.isInfoEnabled())) {
+      if (sliceSize > 0) {
         LOG.info("Slice size: {} URLs.", sliceSize);
       }
       if (sliceSize > 0) {
@@ -622,9 +622,7 @@ public class SegmentMerger extends Configured implements Tool{
   public void merge(Path out, Path[] segs, boolean filter, boolean normalize,
           long slice) throws IOException, ClassNotFoundException, InterruptedException {
     String segmentName = Generator.generateSegmentName();
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Merging {} segments to {}/{}", segs.length, out, segmentName);
-    }
+    LOG.info("Merging {} segments to {}/{}", segs.length, out, segmentName);
     Job job = NutchJob.getInstance(getConf());
     Configuration conf = job.getConfiguration();
     job.setJobName("mergesegs " + out + "/" + segmentName);
@@ -656,9 +654,7 @@ public class SegmentMerger extends Configured implements Tool{
         segs[i] = null;
         continue;
       }
-      if (LOG.isInfoEnabled()) {
-        LOG.info("SegmentMerger:   adding {}", segs[i]);
-      }
+      LOG.info("SegmentMerger:   adding {}", segs[i]);
       Path cDir = new Path(segs[i], Content.DIR_NAME);
       Path gDir = new Path(segs[i], CrawlDatum.GENERATE_DIR_NAME);
       Path fDir = new Path(segs[i], CrawlDatum.FETCH_DIR_NAME);
@@ -679,20 +675,20 @@ public class SegmentMerger extends Configured implements Tool{
 
       pg = g; pf = f; pp = p; pc = c; ppd = pd; ppt = pt;
     }
-    StringBuilder sb = new StringBuilder();
-    if (c)
-      sb.append(" " + Content.DIR_NAME);
-    if (g)
-      sb.append(" " + CrawlDatum.GENERATE_DIR_NAME);
-    if (f)
-      sb.append(" " + CrawlDatum.FETCH_DIR_NAME);
-    if (p)
-      sb.append(" " + CrawlDatum.PARSE_DIR_NAME);
-    if (pd)
-      sb.append(" " + ParseData.DIR_NAME);
-    if (pt)
-      sb.append(" " + ParseText.DIR_NAME);
     if (LOG.isInfoEnabled()) {
+      StringBuilder sb = new StringBuilder();
+      if (c)
+        sb.append(" " + Content.DIR_NAME);
+      if (g)
+        sb.append(" " + CrawlDatum.GENERATE_DIR_NAME);
+      if (f)
+        sb.append(" " + CrawlDatum.FETCH_DIR_NAME);
+      if (p)
+        sb.append(" " + CrawlDatum.PARSE_DIR_NAME);
+      if (pd)
+        sb.append(" " + ParseData.DIR_NAME);
+      if (pt)
+        sb.append(" " + ParseText.DIR_NAME);
       LOG.info("SegmentMerger: using segment data from: {}", sb.toString());
     }
     for (int i = 0; i < segs.length; i++) {

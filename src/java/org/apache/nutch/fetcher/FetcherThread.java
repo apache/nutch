@@ -303,9 +303,7 @@ public class FetcherThread extends Thread {
                   Thread.currentThread().getId(), fit.url,
                   fetchQueues.getFetchItemQueue(fit.queueID).crawlDelay);
             }
-            if (LOG.isDebugEnabled()) {
-              LOG.debug("redirectCount={}", redirectCount);
-            }
+            LOG.debug("redirectCount={}", redirectCount);
             redirecting = false;
             Protocol protocol = this.protocolFactory.getProtocol(fit.u);
             BaseRobotRules rules = protocol.getRobotRules(fit.url, fit.datum,
@@ -346,11 +344,9 @@ public class FetcherThread extends Thread {
                   crawlDelay = minCrawlDelay;
                 }
                 fiq.crawlDelay = crawlDelay;
-                if (LOG.isDebugEnabled()) {
-                  LOG.debug("Crawl delay for queue: " + fit.queueID
-                      + " is set to " + fiq.crawlDelay
-                      + " as per robots.txt. url: " + fit.url);
-                }
+                LOG.debug(
+                    "Crawl delay for queue: {} is set to {} as per robots.txt. url: ",
+                    fit.queueID, fiq.crawlDelay, fit.url);
               }
             }
             ProtocolOutput output = protocol.getProtocolOutput(fit.url,

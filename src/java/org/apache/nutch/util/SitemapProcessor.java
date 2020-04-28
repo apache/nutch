@@ -357,9 +357,7 @@ public class SitemapProcessor extends Configured implements Tool {
   public void sitemap(Path crawldb, Path hostdb, Path sitemapUrlDir, boolean strict, boolean filter,
                       boolean normalize, int threads) throws Exception {
     long start = System.currentTimeMillis();
-    if (LOG.isInfoEnabled()) {
-      LOG.info("SitemapProcessor: Starting at {}", sdf.format(start));
-    }
+    LOG.info("SitemapProcessor: Starting at {}", sdf.format(start));
 
     FileSystem fs = crawldb.getFileSystem(getConf());
     Path old = new Path(crawldb, "old");

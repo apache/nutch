@@ -659,14 +659,12 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       }
     }
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("CrawlDb statistics start: " + crawlDb);
-    }
+    LOG.info("CrawlDb statistics start: {}", crawlDb);
     TreeMap<String, Writable> stats = processStatJobHelper(crawlDb, config,
         sort);
 
     if (LOG.isInfoEnabled()) {
-      LOG.info("Statistics for CrawlDb: " + crawlDb);
+      LOG.info("Statistics for CrawlDb: {}", crawlDb);
       LongWritable totalCnt = new LongWritable(0);
       if (stats.containsKey("T")) {
         totalCnt = ((LongWritable) stats.get("T"));
@@ -729,10 +727,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
         }
       }
     }
-    if (LOG.isInfoEnabled()) {
-      LOG.info("CrawlDb statistics: done");
-    }
-
+    LOG.info("CrawlDb statistics: done");
   }
 
   public CrawlDatum get(String crawlDb, String url, Configuration config)
@@ -769,10 +764,8 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       Configuration config, String format, String regex, String status,
       Integer retry, String expr, Float sample)
       throws IOException, ClassNotFoundException, InterruptedException {
-    if (LOG.isInfoEnabled()) {
-      LOG.info("CrawlDb dump: starting");
-      LOG.info("CrawlDb db: " + crawlDb);
-    }
+    LOG.info("CrawlDb dump: starting");
+    LOG.info("CrawlDb db: {}", crawlDb);
 
     Path outFolder = new Path(output);
 
@@ -802,7 +795,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       jobConf.setInt("retry", retry);
     if (expr != null) {
       jobConf.set("expr", expr);
-      LOG.info("CrawlDb db: expr: " + expr);
+      LOG.info("CrawlDb db: expr: {}", expr);
     }
     if (sample != null) {
       jobConf.setFloat("sample", sample);
@@ -826,9 +819,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       throw e;
     }
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("CrawlDb dump: done");
-    }
+    LOG.info("CrawlDb dump: done");
   }
 
   public static class CrawlDbDumpMapper
@@ -901,7 +892,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb topN: starting (topN=" + topN + ", min=" + min + ")");
-      LOG.info("CrawlDb db: " + crawlDb);
+      LOG.info("CrawlDb db: {}", crawlDb);
     }
 
     Path outFolder = new Path(output);
@@ -942,9 +933,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       throw e;
     }
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("CrawlDb topN: collecting topN scores.");
-    }
+    LOG.info("CrawlDb topN: collecting topN scores.");
     job = NutchJob.getInstance(config);
     job.setJobName("topN collect " + crawlDb);
     job.getConfiguration().setLong("db.reader.topn", topN);
@@ -979,10 +968,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     }
 
     fs.delete(tempDir, true);
-    if (LOG.isInfoEnabled()) {
-      LOG.info("CrawlDb topN: done");
-    }
-
+    LOG.info("CrawlDb topN: done");
   }
 
   @Override
