@@ -26,7 +26,7 @@
 #   -D <propery>=<value>                  A Nutch or Hadoop property to pass to Nutch calls overwriting
 #                                         properties defined in configuration files, e.g.
 #                                           increase content limit to 2MB:
-#                                             -Dhttp.content.limit=2097152
+#                                             -D http.content.limit=2097152
 #                                         (in distributed mode) configure memory of map and reduce tasks:
 #                                           -D mapreduce.map.memory.mb=4608    -D mapreduce.map.java.opts=-Xmx4096m
 #                                           -D mapreduce.reduce.memory.mb=4608 -D mapreduce.reduce.java.opts=-Xmx4096m
@@ -83,10 +83,10 @@ function __print_usage {
   echo -e "  -D\t\t\t\t\tA Nutch or Hadoop property to pass to Nutch calls overwriting"
   echo -e "  \t\t\t\t\tproperties defined in configuration files, e.g."
   echo -e "  \t\t\t\t\tincrease content limit to 2MB:"
-  echo -e "  \t\t\t\t\t  -Dhttp.content.limit=2097152"
+  echo -e "  \t\t\t\t\t  -D http.content.limit=2097152"
   echo -e "  \t\t\t\t\t(distributed mode only) configure memory of map and reduce tasks:"
-  echo -e "  \t\t\t\t\t  -Dmapreduce.map.memory.mb=4608    -Dmapreduce.map.java.opts=-Xmx4096m"
-  echo -e "  \t\t\t\t\t  -Dmapreduce.reduce.memory.mb=4608 -Dmapreduce.reduce.java.opts=-Xmx4096m"
+  echo -e "  \t\t\t\t\t  -D mapreduce.map.memory.mb=4608    -D mapreduce.map.java.opts=-Xmx4096m"
+  echo -e "  \t\t\t\t\t  -D mapreduce.reduce.memory.mb=4608 -D mapreduce.reduce.java.opts=-Xmx4096m"
   echo -e "  -w|--wait <NUMBER[SUFFIX]>\t\tTime to wait before generating a new segment when no URLs"
   echo -e "  \t\t\t\t\tare scheduled for fetching. Suffix can be: s for second,"
   echo -e "  \t\t\t\t\tm for minute, h for hour and d for day. If no suffix is"
