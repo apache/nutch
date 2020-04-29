@@ -40,7 +40,7 @@
   <name>file.content.limit</name>
   <value>1048576</value>
   <description>The length limit for downloaded content using the file://
-  protocol, in bytes. If this value is nonnegative (>=0), content longer
+  protocol, in bytes. If this value is non-negative (>=0), content longer
   than it will be truncated; otherwise, no truncation at all. Do not
   confuse this setting with the http.content.limit setting.
   </description>
@@ -50,7 +50,7 @@
   <name>file.crawl.parent</name>
   <value>true</value>
   <description>The crawler is not restricted to the directories that you specified in the
-    Urls file but it is jumping into the parent directories as well. For your own crawlings you can
+    URLs file but it is jumping into the parent directories as well. For your own crawlings you can
     change this behavior (set to false) the way that only directories beneath the directories that you specify get
     crawled.</description>
 </property>
@@ -75,7 +75,7 @@
   And it is probably what we want to set most of time, since file:// URLs
   are meant to be local and we can always use them directly at parsing
   and indexing stages. Otherwise file contents will be saved.
-  !! NO IMPLEMENTED YET !!
+  !! NOT IMPLEMENTED YET !!
   </description>
 </property>
 
@@ -216,7 +216,7 @@
   <name>http.content.limit</name>
   <value>1048576</value>
   <description>The length limit for downloaded content using the http/https
-  protocols, in bytes. If this value is nonnegative (>=0), content longer
+  protocols, in bytes. If this value is non-negative (>=0), content longer
   than it will be truncated; otherwise, no truncation at all. Do not
   confuse this setting with the file.content.limit setting.
   </description>
@@ -226,7 +226,7 @@
   <name>http.time.limit</name>
   <value>-1</value>
   <description>The time limit in seconds to fetch a single document.
-  If this value is nonnegative (>=0), the HTTP protocol implementation
+  If this value is non-negative (>=0), the HTTP protocol implementation
   will stop reading from a socket after http.time.limit seconds have
   been spent for fetching this document.  The HTTP response is then
   marked as truncated.  The http.time.limit should be set to a longer
@@ -394,7 +394,7 @@
   <value>true</value>
   <description>Whether Nutch sends an HTTP If-Modified-Since header. It reduces
   bandwidth when enabled by not downloading pages that respond with an HTTP
-  Not-Modified header. URL's that are not downloaded are not passed through
+  Not-Modified header. URLs that are not downloaded are not passed through
   parse or indexing filters. If you regularly modify filters, you should force
   Nutch to also download unmodified pages by disabling this feature.
   </description>
@@ -426,7 +426,7 @@
   <name>ftp.content.limit</name>
   <value>1048576</value>
   <description>The length limit for downloaded content, in bytes.
-  If this value is nonnegative (>=0), content longer than it will be truncated;
+  If this value is non-negative (>=0), content longer than it will be truncated;
   otherwise, no truncation at all.
   Caution: classical ftp RFCs never defines partial transfer and, in fact,
   some ftp servers out there do not handle client side forced close-down very
@@ -460,7 +460,7 @@
   <value>false</value>
   <description>Whether to keep ftp connection. Useful if crawling same host
   again and again. When set to true, it avoids connection, login and dir list
-  parser setup for subsequent urls. If it is set to true, however, you must
+  parser setup for subsequent URLs. If it is set to true, however, you must
   make sure (roughly):
   (1) ftp.timeout is less than ftp.server.timeout
   (2) ftp.timeout is larger than (fetcher.threads.fetch * fetcher.server.delay)
@@ -584,7 +584,7 @@
 <property>
   <name>db.update.purge.orphans</name>
   <value>false</value>
-  <description>If true, updatedb will permanently delete URL's marked
+  <description>If true, updatedb will permanently delete URLs marked
   as orphan from the CrawlDb. The plugin scoring-orphan needs to be
   activated to get records marked as orphan. See the plugin's options
   elsewhere in this document.
@@ -596,7 +596,7 @@
     <value>false</value>
     <description>
 	!Temporary, can be overwritten with the command line!
-	Normalize urls when updating crawldb
+	Normalize URLs when updating crawldb
     </description>
 </property>
 
@@ -605,7 +605,7 @@
     <value>false</value>
     <description>
 	!Temporary, can be overwritten with the command line!
-	Filter urls when updating crawldb
+	Filter URLS when updating crawldb
     </description>
 </property>
 
@@ -749,7 +749,7 @@
 <property>
   <name>db.fetch.retry.max</name>
   <value>3</value>
-  <description>The maximum number of times a url that has encountered
+  <description>The maximum number of times a URL that has encountered
   recoverable errors is generated for fetch.</description>
 </property>
 
@@ -793,7 +793,7 @@
 <property>
   <name>linkdb.max.inlinks</name>
   <value>10000</value>
-  <description>Maximum number of Inlinks per URL to be kept in LinkDb.
+  <description>Maximum number of inlinks per URL to be kept in LinkDb.
   If "invertlinks" finds more inlinks than this number, only the first
   N inlinks will be stored, and the rest will be discarded.
   </description>
@@ -831,8 +831,8 @@
 <property>
   <name>generate.max.count</name>
   <value>-1</value>
-  <description>The maximum number of urls in a single
-  fetchlist.  -1 if unlimited. The urls are counted according
+  <description>The maximum number of URLs in a single
+  fetchlist.  -1 if unlimited. The URLs are counted according
   to the value of the parameter generate.count.mode.
   </description>
 </property>
@@ -1014,7 +1014,7 @@
   <description>Comma-separated list of exceptions not shown with full
   stack trace in logs of fetcher and HTTP protocol implementations.
   The logs may shrink in size significantly, e.g., when for a large
-  unrestriced web crawl unknown hosts are logged shortly without full
+  unrestricted web crawl unknown hosts are logged shortly without full
   stack trace.  The full class name of the exception class (extending
   Throwable) including the package path must be specified.</description>
 </property>
@@ -1116,7 +1116,7 @@
   and follow until the desired depth is reached. A value of 1 means all generated pages are fetched and their first degree
   outlinks are fetched and parsed too. Be careful, this feature is in itself agnostic of the state of the CrawlDB and does not
   know about already fetched pages. A setting larger than 2 will most likely fetch home pages twice in the same fetch cycle.
-  It is highly recommended to set db.ignore.external.links to true to restrict the outlink follower to URL's within the same
+  It is highly recommended to set db.ignore.external.links to true to restrict the outlink follower to URLs within the same
   domain. When disabled (false) the feature is likely to follow duplicates even when depth=1.
   A value of -1 of 0 disables this feature.
   </description>
@@ -1310,8 +1310,8 @@
 <property>
   <name>indexer.score.power</name>
   <value>0.5</value>
-  <description>Determines the power of link analyis scores.  Each
-  pages's boost is set to <i>score<sup>scorePower</sup></i> where
+  <description>Determines the power of link analyis scores. The boost
+  of each page is set to <i>score<sup>scorePower</sup></i> where
   <i>score</i> is its link analysis score and <i>scorePower</i> is the
   value of this parameter.  This is compiled into indexes, so, when
   this is changed, pages must be re-indexed for it to take
@@ -1446,7 +1446,7 @@
 <property>
   <name>plugin.folders</name>
   <value>plugins</value>
-  <description>Directories where nutch plugins are located.  Each
+  <description>Directories where Nutch plugins are located.  Each
   element may be a relative or absolute path.  If absolute, it is used
   as is.  If relative, it is searched for on the classpath.</description>
 </property>
@@ -1748,7 +1748,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <property>
   <name>urlfilter.order</name>
   <value></value>
-  <description>The order by which url filters are applied.
+  <description>The order by which URL filters are applied.
   If empty, all available url filters (as dictated by properties
   plugin-includes and plugin-excludes above) are loaded and applied in system
   defined order. If not empty, only named filters are loaded and applied
@@ -2135,7 +2135,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 <property>
   <name>link.score.updater.clear.score</name>
   <value>0.0f</value>
-  <description>The default score for URL's that are not in the web graph.</description>
+  <description>The default score for URLs that are not in the web graph.</description>
 </property>
 
 <property>
@@ -2556,7 +2556,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <value></value>
   <description>
     Choose the type of Queue being used (ex - RabbitMQ, ActiveMq, Kafka, etc). 
-    Currently there exists an implemtation for RabbitMQ producer. 
+    Currently there exists an implementation for RabbitMQ producer.
   </description>
 </property>
 

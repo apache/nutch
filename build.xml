@@ -784,11 +784,10 @@
     <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
     <copy file="${plugins.dir}/plugin.dtd"
           todir="${build.javadoc}/org/apache/nutch/plugin/doc-files"/>
-  </target>
 
-  <target name="default-doc" description="--> generate default Nutch documentation">
-    <style basedir="${conf.dir}" destdir="${docs.dir}"
-           includes="nutch-default.xml" style="conf/nutch-conf.xsl"/>
+    <!-- Copy the definition of Nutch properties -->
+    <copy file="${conf.dir}/nutch-default.xml" todir="${build.javadoc}/resources/"/>
+    <copy file="${conf.dir}/configuration.xsl" todir="${build.javadoc}/resources/"/>
   </target>
 
     <!-- ================================================================== -->
