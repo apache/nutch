@@ -225,13 +225,17 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err
-          .println("Usage: LinkDbReader <linkdb> (-dump <out_dir> [-regex <regex>]) | -url <url>");
+          .println("Usage: LinkDbReader <linkdb> (-dump <out_dir> [-regex <regex>] | -url <url> | -listen <port>)");
       System.err
           .println("\t-dump <out_dir>\tdump whole link db to a text file in <out_dir>");
       System.err
           .println("\t\t-regex <regex>\trestrict to url's matching expression");
       System.err
           .println("\t-url <url>\tprint information about <url> to System.out");
+      System.err
+          .println("\t-listen <port> [-keepClientCnxOpen]\tlisten on <port> for URLs and");
+      System.err
+          .println("\t\t\tsend information about <url> back");
       return -1;
     }
 
