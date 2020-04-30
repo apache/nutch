@@ -877,6 +877,11 @@
       <fileset dir="runtime/local/plugins"/>
     </copy>
 
+    <copy todir="${bin.dist.version.dir}/plugins">
+      <fileset dir="${plugins.dir}">
+        <include name="**/README.*" />
+      </fileset>
+    </copy>
   </target>
 
   <!-- ================================================================== -->
