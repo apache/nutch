@@ -1221,6 +1221,30 @@
   </description>
 </property>
 
+<property>
+  <name>fetcher.redirect.dedupcache.seconds</name>
+  <value>-1</value>
+  <description>
+    The maximum time in seconds fetcher will cache redirects for
+    deduplication.  If the same redirect URL is seen again withing
+    this time it is skipped. This allows to avoid pathological cases
+    where many or most of the URLs of a host are redirected to the
+    same URL, eg. a page to login, accept cookies, indicating an
+    error.  A value less or equal zero disables redirect deduplication.
+    Caveat: This may break setting cookies via recursive redirect chains.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.redirect.dedupcache.size</name>
+  <value>1000</value>
+  <description>
+    The maximum size of the cache to deduplicate redirects,
+    see `fetcher.redirect.dedupcache.seconds`.
+  </description>
+</property>
+
+
 <!-- SegmentReader -->
 <property>
   <name>segment.reader.content.recode</name>
