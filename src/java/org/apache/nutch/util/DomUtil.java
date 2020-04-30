@@ -22,7 +22,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -33,6 +35,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.xerces.parsers.DOMParser;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -91,16 +94,12 @@ public class DomUtil {
     try {
       transformer = transFactory.newTransformer();
       transformer.setOutputProperty("indent", "yes");
+      transformer.setOutputProperty(OutputKeys.ENCODING,
+          StandardCharsets.UTF_8.name());
       StreamResult result = new StreamResult(os);
       transformer.transform(source, result);
       os.flush();
-    } catch (UnsupportedEncodingException e1) {
-      LOG.error("Error: ", e1);
-    } catch (IOException e1) {
-      LOG.error("Error: ", e1);
-    } catch (TransformerConfigurationException e2) {
-      LOG.error("Error: ", e2);
-    } catch (TransformerException ex) {
+    } catch (IOException | TransformerException ex) {
       LOG.error("Error: ", ex);
     }
   }
@@ -108,7 +107,16 @@ public class DomUtil {
   public static void saveDom(OutputStream os, DocumentFragment doc) {
     NodeList docChildren = doc.getChildNodes();
     for (int i = 0; i < docChildren.getLength(); i++) {
-      saveDom(os, (Element) docChildren.item(i));
+      Node child = docChildren.item(i);
+      if (child instanceof Element) {
+        saveDom(os, (Element) child);
+      } else {
+        try {
+          os.write(child.toString().getBytes(StandardCharsets.UTF_8));
+        } catch (IOException ex) {
+          LOG.error("Error: ", ex);
+        }
+      }
     }
   }
 }

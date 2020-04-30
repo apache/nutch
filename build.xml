@@ -209,6 +209,7 @@
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-debug/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
@@ -717,6 +718,7 @@
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-debug/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
@@ -1128,6 +1130,7 @@
         <source path="${plugins.dir}/parse-tika/src/test/" />
         <source path="${plugins.dir}/parse-zip/src/java/" />
         <source path="${plugins.dir}/parse-zip/src/test/" />
+        <source path="${plugins.dir}/parsefilter-debug/src/java/" />
         <source path="${plugins.dir}/parsefilter-naivebayes/src/java/" />
         <source path="${plugins.dir}/parsefilter-regex/src/java/" />
         <source path="${plugins.dir}/parsefilter-regex/src/test/" />
