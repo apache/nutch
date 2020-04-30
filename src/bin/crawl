@@ -370,8 +370,8 @@ do
   echo "CrawlDB update"
   __bin_nutch updatedb "${commonOptions[@]}" "$CRAWL_PATH"/crawldb  "$CRAWL_PATH"/segments/$SEGMENT
 
-# note that the link inversion - indexing routine can be done within the main loop
-# on a per segment basis
+  # note that the link inversion - indexing routine can be done within the main loop
+  # on a per segment basis
   echo "Link inversion"
   __bin_nutch invertlinks "${commonOptions[@]}" "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
 
@@ -380,10 +380,7 @@ do
 
   if $INDEXFLAG; then
       echo "Indexing $SEGMENT to index"
-      __bin_nutch index "${commonOptions[@]}" "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
-
-      echo "Cleaning up index if possible"
-      __bin_nutch clean "${commonOptions[@]}" "$CRAWL_PATH"/crawldb
+      __bin_nutch index "${commonOptions[@]}" "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT -deleteGone
   else
       echo "Skipping indexing ..."
   fi
