@@ -35,6 +35,9 @@ public class DummyX509TrustManager implements X509TrustManager {
   /**
    * Constructor for DummyX509TrustManager.
    */
+
+   //This class is not secure since it skips certificate verification.
+   //It should be disabled for security purposes.
   public DummyX509TrustManager(KeyStore keystore)
       throws NoSuchAlgorithmException, KeyStoreException {
     super();
