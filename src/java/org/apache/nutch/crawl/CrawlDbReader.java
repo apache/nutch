@@ -979,7 +979,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
     if (args.length < 2) {
       System.err.println(
-          "Usage: CrawlDbReader <crawldb> (-stats | -dump <out_dir> | -topN <nnnn> <out_dir> [<min>] | -url <url>)");
+          "Usage: CrawlDbReader <crawldb> (-stats | -dump <out_dir> | -topN <nnnn> <out_dir> [<min>] | -url <url> | -listen <port>)");
       System.err
           .println("\t<crawldb>\tdirectory name where crawldb is located");
       System.err
@@ -1002,6 +1002,10 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
           "\t\t[-sample <fraction>]\tOnly process a random sample with this ratio");
       System.err
           .println("\t-url <url>\tprint information on <url> to System.out");
+      System.err
+        .println("\t-listen <port> [-keepClientCnxOpen]\tlisten on <port> for URLs and");
+      System.err
+            .println("\t\t\tsend information about <url> back");
       System.err.println(
           "\t-topN <nnnn> <out_dir> [<min>]\tdump top <nnnn> urls sorted by score to <out_dir>");
       System.err
