@@ -16,10 +16,9 @@
  */
 package org.apache.nutch.parse.tika;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.metadata.DublinCore;
-import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseUtil;
@@ -27,40 +26,40 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Before;
 
 /**
- * Unit tests for TestRTFParser.
+ * Base class to extend Tika parser tests from.
  */
-public class TestRTFParser extends TikaParserTest {
+public class TikaParserTest {
 
-  // Make sure sample files are copied to "test.data" as specified in
-  // ./src/plugin/parse-tika/build.xml during plugin compilation.
-  private String rtfFile = "test.rtf";
+  protected String fileSeparator = System.getProperty("file.separator");
 
-  @Test
-  public void testIt() throws ProtocolException, ParseException {
+  /**
+   * Folder with test data, defined in src/plugin/build-plugin.xml. Make sure
+   * that all sample files are copied to "test.data", they must be listed in
+   * src/plugin/parse-tika/build.xml
+   */
+  protected String sampleDir = System.getProperty("test.data", ".");
 
-    String urlString;
-    Protocol protocol;
-    Content content;
-    Parse parse;
+  protected Configuration conf;
 
-    urlString = "file:" + sampleDir + fileSeparator + rtfFile;
-    protocol = new ProtocolFactory(conf).getProtocol(urlString);
-    content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum())
-        .getContent();
-    parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(
-        content.getUrl());
-    String text = parse.getText();
-    Assert.assertTrue(text.contains("The quick brown fox jumps over the lazy dog"));
-
-    String title = parse.getData().getTitle();
-    Metadata meta = parse.getData().getParseMeta();
-
-    Assert.assertEquals("test rft document", title);
-    Assert.assertEquals("tests", meta.get(DublinCore.SUBJECT));
-
+  @Before
+  public void setUp() {
+    conf = NutchConfiguration.create();
+    conf.set("file.content.limit", "-1");
   }
+
+  public String getTextContent(String fileName)
+      throws ProtocolException, ParseException {
+    String urlString = "file:" + sampleDir + fileSeparator + fileName;
+    Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
+    Content content = protocol
+        .getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
+    Parse parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
+        .get(content.getUrl());
+    return parse.getText();
+  }
+
 }
