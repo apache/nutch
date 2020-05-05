@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,28 +16,23 @@
  */
 package org.apache.nutch.parse.tika;
 
+import static org.junit.Assert.*;
+
+import java.io.IOException;
+
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Unit tests for PdfParser.
- */
-public class TestPdfParser extends TikaParserTest {
-
-  // Make sure sample files are copied to "test.data" as specified in
-  // ./src/plugin/parse-tika/build.xml during plugin compilation.
-  private String[] sampleFiles = { "pdftest.pdf", "encrypted.pdf" };
-
-  private String expectedText = "A VERY SMALL PDF FILE";
+public class TestXlsxParser extends TikaParserTest {
 
   @Test
-  public void testIt() throws ProtocolException, ParseException {
-    for (int i = 0; i < sampleFiles.length; i++) {
-      int index = getTextContent(sampleFiles[i]).indexOf(expectedText);
-      Assert.assertTrue(index > 0);
-    }
+  public void testIt() throws ProtocolException, ParseException, IOException {
+    String found = getTextContent("test.xlsx");
+    String expected = "test.txt This is a test for spreadsheets xlsx";
+    // text is distributed over columns and rows, need to normalize white space
+    found = found.replaceAll("\\s+", " ").trim();
+    assertEquals(found, expected);
   }
 
 }
