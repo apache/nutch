@@ -195,7 +195,7 @@ public class UpdateHostDbMapper
       // Filtered out?
       if (buffer == null) {
         context.getCounter("UpdateHostDb", "filtered_records").increment(1);
-        LOG.info("UpdateHostDb: " + key.toString() + " hostdatum has been filtered");
+        LOG.info("UpdateHostDb: {} hostdatum has been filtered", keyStr);
         return;
       }
 
@@ -219,7 +219,7 @@ public class UpdateHostDbMapper
       // Filtered out?
       if (buffer == null) {
         context.getCounter("UpdateHostDb", "filtered_records").increment(1);
-        LOG.info("UpdateHostDb: " + key.toString() + " score has been filtered");
+        LOG.info("UpdateHostDb: {} score has been filtered", keyStr);
         return;
       }
 

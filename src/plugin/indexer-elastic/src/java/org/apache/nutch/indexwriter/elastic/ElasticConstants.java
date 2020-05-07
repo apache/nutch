@@ -19,7 +19,10 @@ package org.apache.nutch.indexwriter.elastic;
 public interface ElasticConstants {
   String HOSTS = "host";
   String PORT = "port";
-  String CLUSTER = "cluster";
+  
+  String USER = "username";
+  String PASSWORD = "password";
+  String USE_AUTH = "auth";
   String INDEX = "index";
   String MAX_BULK_DOCS = "max.bulk.docs";
   String MAX_BULK_LENGTH = "max.bulk.size";

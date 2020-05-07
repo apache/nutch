@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="nutch-conf.xsl"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 
 <!-- Creative Commons' Nutch configuration -->
 
-<nutch-conf>
+<configuration>
 
 <property>
   <name>http.agent.name</name>
@@ -40,4 +40,4 @@
   </description>
 </property>
 
-</nutch-conf>
+</configuration>

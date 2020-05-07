@@ -289,8 +289,8 @@ public class IndexerMapReduce extends Configured {
           parseText = (ParseText) value;
         } else if (value instanceof Content) {
           content = (Content)value;
-        } else if (LOG.isWarnEnabled()) {
-          LOG.warn("Unrecognized type: " + value.getClass());
+        } else {
+          LOG.warn("Unrecognized type: {}", value.getClass());
         }
       }
 
@@ -354,9 +354,7 @@ public class IndexerMapReduce extends Configured {
             inlinks, boost);
       } catch (final ScoringFilterException e) {
         context.getCounter("IndexerStatus", "errors (ScoringFilter)").increment(1);
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Error calculating score {}: {}", key, e);
-        }
+        LOG.warn("Error calculating score {}: {}", key, e);
         return;
       }
       // apply boost to all indexed fields.
@@ -390,7 +388,7 @@ public class IndexerMapReduce extends Configured {
         doc = filters.filter(doc, parse, key, fetchDatum, inlinks);
       } catch (final IndexingException e) {
         if (LOG.isWarnEnabled()) {
-          LOG.warn("Error indexing " + key + ": " + e);
+          LOG.warn("Error indexing " + key + ": ", e);
         }
         context.getCounter("IndexerStatus", "errors (IndexingFilter)").increment(1);
         return;

@@ -190,7 +190,6 @@
       <packageset dir="${plugins.dir}/indexer-cloudsearch/src/java/" />
       <packageset dir="${plugins.dir}/indexer-csv/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
-      <packageset dir="${plugins.dir}/indexer-elastic-rest/src/java/"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
@@ -210,6 +209,7 @@
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-debug/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
@@ -700,7 +700,6 @@
       <packageset dir="${plugins.dir}/indexer-cloudsearch/src/java/" />
       <packageset dir="${plugins.dir}/indexer-csv/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
-      <packageset dir="${plugins.dir}/indexer-elastic-rest/src/java/"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
@@ -720,6 +719,7 @@
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-debug/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
@@ -788,11 +788,10 @@
     <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
     <copy file="${plugins.dir}/plugin.dtd"
           todir="${build.javadoc}/org/apache/nutch/plugin/doc-files"/>
-  </target>
 
-  <target name="default-doc" description="--> generate default Nutch documentation">
-    <style basedir="${conf.dir}" destdir="${docs.dir}"
-           includes="nutch-default.xml" style="conf/nutch-conf.xsl"/>
+    <!-- Copy the definition of Nutch properties -->
+    <copy file="${conf.dir}/nutch-default.xml" todir="${build.javadoc}/resources/"/>
+    <copy file="${conf.dir}/configuration.xsl" todir="${build.javadoc}/resources/"/>
   </target>
 
     <!-- ================================================================== -->
@@ -880,6 +879,11 @@
       <fileset dir="runtime/local/plugins"/>
     </copy>
 
+    <copy todir="${bin.dist.version.dir}/plugins">
+      <fileset dir="${plugins.dir}">
+        <include name="**/README.*" />
+      </fileset>
+    </copy>
   </target>
 
   <!-- ================================================================== -->
@@ -1102,7 +1106,6 @@
         <source path="${plugins.dir}/indexer-csv/src/java"/>
         <source path="${plugins.dir}/indexer-csv/src/test"/>
         <source path="${plugins.dir}/indexer-dummy/src/java/" />
-        <source path="${plugins.dir}/indexer-elastic-rest/src/java/"/>
         <source path="${plugins.dir}/indexer-elastic/src/java/" />
         <source path="${plugins.dir}/indexer-kafka/src/java/" />
         <source path="${plugins.dir}/indexer-rabbit/src/java/" />
@@ -1133,6 +1136,7 @@
         <source path="${plugins.dir}/parse-tika/src/test/" />
         <source path="${plugins.dir}/parse-zip/src/java/" />
         <source path="${plugins.dir}/parse-zip/src/test/" />
+        <source path="${plugins.dir}/parsefilter-debug/src/java/" />
         <source path="${plugins.dir}/parsefilter-naivebayes/src/java/" />
         <source path="${plugins.dir}/parsefilter-regex/src/java/" />
         <source path="${plugins.dir}/parsefilter-regex/src/test/" />

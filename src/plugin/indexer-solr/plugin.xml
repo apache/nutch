@@ -1,47 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one or more
-  contributor license agreements.  See the NOTICE file distributed with
-  this work for additional information regarding copyright ownership.
-  The ASF licenses this file to You under the Apache License, Version 2.0
-  (the "License"); you may not use this file except in compliance with
-  the License.  You may obtain a copy of the License at
-  
-  http://www.apache.org/licenses/LICENSE-2.0
-  
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
 <plugin id="indexer-solr" name="SolrIndexWriter" version="1.0.0"
-  provider-name="nutch.apache.org">
+	provider-name="nutch.apache.org">
 
-  <runtime>
-    <library name="indexer-solr.jar">
-      <export name="*" />
-    </library>
-      <library name="commons-io-2.5.jar"/>
-      <library name="httpclient-4.5.3.jar"/>
-      <library name="httpcore-4.4.6.jar"/>
-      <library name="httpmime-4.5.3.jar"/>
-      <library name="noggit-0.8.jar"/>
-      <library name="solr-solrj-7.3.1.jar"/>
-      <library name="stax2-api-3.1.4.jar"/>
-      <library name="woodstox-core-asl-4.4.1.jar"/>
-      <library name="zookeeper-3.4.11.jar"/>
-  </runtime>
+	<runtime>
+		<library name="indexer-solr.jar">
+			<export name="*" />
+		</library>
+		<!-- Solr dependencies -->
+		<library name="commons-io-2.6.jar" />
+		<library name="netty-buffer-4.1.29.Final.jar" />
+		<library name="netty-codec-4.1.29.Final.jar" />
+		<library name="netty-common-4.1.29.Final.jar" />
+		<library name="netty-handler-4.1.29.Final.jar" />
+		<library name="netty-resolver-4.1.29.Final.jar" />
+		<library name="netty-transport-4.1.29.Final.jar" />
+		<library name="netty-transport-native-epoll-4.1.29.Final.jar" />
+		<library
+			name="netty-transport-native-unix-common-4.1.29.Final.jar" />
+		<library name="commons-math3-3.6.1.jar" />
+		<library name="httpmime-4.5.10.jar" />
+		<library name="httpclient-4.5.10.jar" />
+		<library name="httpcore-4.4.12.jar" />
+		<library name="zookeeper-3.5.5.jar" />
+		<library name="zookeeper-jute-3.5.5.jar" />
+		<library name="stax2-api-3.1.4.jar" />
+		<library name="woodstox-core-asl-4.4.1.jar" />
+		<library name="jetty-alpn-client-9.4.24.v20191120.jar" />
+		<library name="jetty-alpn-java-client-9.4.24.v20191120.jar" />
+		<library name="jetty-client-9.4.24.v20191120.jar" />
+		<library name="jetty-http-9.4.24.v20191120.jar" />
+		<library name="jetty-io-9.4.24.v20191120.jar" />
+		<library name="jetty-util-9.4.24.v20191120.jar" />
+		<library name="http2-client-9.4.24.v20191120.jar" />
+		<library name="http2-common-9.4.24.v20191120.jar" />
+		<library name="http2-hpack-9.4.24.v20191120.jar" />
+		<library
+			name="http2-http-client-transport-9.4.24.v20191120.jar" />
+		<library name="jcl-over-slf4j-1.7.24.jar" />
+		<!-- end of Solr dependencies -->
+		<library name="solr-solrj-8.5.1.jar" />
+	</runtime>
 
-  <requires>
-    <import plugin="nutch-extensionpoints" />
-  </requires>
+	<requires>
+		<import plugin="nutch-extensionpoints" />
+	</requires>
 
-  <extension id="org.apache.nutch.indexer.solr"
-    name="Solr Index Writer"
-    point="org.apache.nutch.indexer.IndexWriter">
-    <implementation id="SolrIndexWriter"
-      class="org.apache.nutch.indexwriter.solr.SolrIndexWriter" />
-  </extension>
+	<extension id="org.apache.nutch.indexer.solr"
+		name="Solr Index Writer" point="org.apache.nutch.indexer.IndexWriter">
+		<implementation id="SolrIndexWriter"
+			class="org.apache.nutch.indexwriter.solr.SolrIndexWriter" />
+	</extension>
 
 </plugin>

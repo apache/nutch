@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-1. Upgrade elasticsearch dependency in src/plugin/indexer-elastic-rest/ivy.xml
+/**
+ * Adds serialized DOM to parse data, useful for debugging, to understand how
+ * the parser implementation interprets a document (not only HTML).
+ */
+package org.apache.nutch.parsefilter.debug;
 
-2. Upgrade the Elasticsearch specific dependencies in src/plugin/indexer-elastic-rest/plugin.xml
-   To get the list of dependencies and their versions execute:
-   $ ant -f ./build-ivy.xml
-   $ ls lib/

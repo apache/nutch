@@ -36,6 +36,8 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import crawlercommons.robots.BaseRobotRules;
+
 /**
  * Scaffolding class for the various Checker implementations. Can process cmdline input, stdin and TCP connections.
  * 
@@ -188,10 +190,21 @@ public abstract class AbstractChecker extends Configured implements Tool {
     }
   }
 
-  protected ProtocolOutput getProtocolOutput(String url, CrawlDatum datum) throws Exception {
+  protected ProtocolOutput getProtocolOutput(String url, CrawlDatum datum,
+      boolean checkRobotsTxt) throws Exception {
     ProtocolFactory factory = new ProtocolFactory(getConf());
     Protocol protocol = factory.getProtocol(url);
     Text turl = new Text(url);
+    if (checkRobotsTxt) {
+      System.err.print("Checking robots.txt ...");
+      BaseRobotRules rules = protocol.getRobotRules(turl, datum, null);
+      if (rules.isAllowed(url)) {
+        System.err.println(" (allowed)");
+      } else {
+        System.err.println("\nDenied by robots.txt: " + url);
+        return null;
+      }
+    }
     return protocol.getProtocolOutput(turl, datum);
   }
 

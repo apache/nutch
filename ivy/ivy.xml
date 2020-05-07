@@ -63,9 +63,9 @@
 		</dependency>
 		<!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="1.22" />
+		<dependency org="org.apache.tika" name="tika-core" rev="1.24.1" />
 		<!-- tika-parsers (without transitive dependencies) is used to detect the charset in text and HTML documents -->
-		<dependency org="org.apache.tika" name="tika-parsers" rev="1.22" transitive="false" />
+		<dependency org="org.apache.tika" name="tika-parsers" rev="1.24.1" transitive="false" />
 
 		<!-- language detection -->
 		<dependency org="org.commoncrawl" name="language-detection-cld2" rev="0.1-SNAPSHOT" />

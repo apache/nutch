@@ -347,9 +347,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     }
 
     // merge with existing crawl db
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Deduplication: Updating status of duplicate urls into crawl db.");
-    }
+    LOG.info("Deduplication: Updating status of duplicate urls into crawl db.");
 
     Job mergeJob = CrawlDb.createJob(getConf(), crawlDb);
     FileInputFormat.addInputPath(mergeJob, tempDir);

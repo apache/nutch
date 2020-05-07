@@ -841,6 +841,14 @@ public class Generator extends NutchTool implements Tool {
           String.format(Locale.ROOT, "%6d", counter.getValue()),
           counter.getName());
     }
+    if (!getConf().getBoolean(GENERATE_UPDATE_CRAWLDB, false)) {
+      /*
+       * generated items are not marked in CrawlDb, and CrawlDb will not
+       * accessed anymore: we already can release the lock
+       */
+      LockUtil.removeLockFile(getConf(), lock);
+      lock = null;
+    }
 
     // read the subdirectories generated in the temp
     // output and turn them into segments
@@ -858,15 +866,13 @@ public class Generator extends NutchTool implements Tool {
       }
     } catch (Exception e) {
       LOG.warn("Generator: exception while partitioning segments, exiting ...");
-      LockUtil.removeLockFile(getConf(), lock);
-      fs.delete(tempDir, true);
+      NutchJob.cleanupAfterFailure(tempDir, lock, fs);
       return null;
     }
 
     if (generatedSegments.size() == 0) {
       LOG.warn("Generator: 0 records selected for fetching, exiting ...");
-      LockUtil.removeLockFile(getConf(), lock);
-      fs.delete(tempDir, true);
+      NutchJob.cleanupAfterFailure(tempDir, lock, fs);
       return null;
     }
 
@@ -913,7 +919,9 @@ public class Generator extends NutchTool implements Tool {
       fs.delete(tempDir2, true);
     }
 
-    LockUtil.removeLockFile(getConf(), lock);
+    if (lock != null) {
+      LockUtil.removeLockFile(getConf(), lock);
+    }
     fs.delete(tempDir, true);
 
     long end = System.currentTimeMillis();
@@ -927,9 +935,8 @@ public class Generator extends NutchTool implements Tool {
   private Path partitionSegment(Path segmentsDir, Path inputDir, int numLists)
       throws IOException, ClassNotFoundException, InterruptedException {
     // invert again, partition by host/domain/IP, sort by url hash
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Generator: Partitioning selected urls for politeness.");
-    }
+    LOG.info("Generator: Partitioning selected urls for politeness.");
+
     Path segment = new Path(segmentsDir, generateSegmentName());
     Path output = new Path(segment, CrawlDatum.GENERATE_DIR_NAME);
 

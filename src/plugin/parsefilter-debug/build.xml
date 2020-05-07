@@ -15,8 +15,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="indexer-elastic-rest" default="jar-core">
+<project name="parsefilter-debug" default="jar-core">
 
-    <import file="../build-plugin.xml"/>
+  <import file="../build-plugin.xml"/>
 
 </project>

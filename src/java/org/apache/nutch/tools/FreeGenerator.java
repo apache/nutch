@@ -106,14 +106,12 @@ public class FreeGenerator extends Configured implements Tool {
             scfilters.injectedScore(url, datum);
           }
         } catch (Exception e) {
-          LOG.warn("Error adding url '" + value.toString() + "', skipping: "
-              + StringUtils.stringifyException(e));
+          LOG.warn("Error adding url '{}', skipping: {}", value,
+              StringUtils.stringifyException(e));
           return;
         }
         if (urlString == null) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("- skipping " + value.toString());
-          }
+          LOG.debug("- skipping {}", value);
           return;
         }
         entry.datum = datum;
@@ -148,27 +146,33 @@ public class FreeGenerator extends Configured implements Tool {
   @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err
-          .println("Usage: FreeGenerator <inputDir> <segmentsDir> [-filter] [-normalize]");
+      System.err.println(
+          "Usage: FreeGenerator <inputDir> <segmentsDir> [-filter] [-normalize] [-numFetchers <n>]");
       System.err
           .println("\tinputDir\tinput directory containing one or more input files.");
       System.err
-          .println("\t\tEach text file contains a list of URLs, one URL per line");
+          .println("\t        \tEach text file contains a list of URLs, one URL per line");
       System.err
           .println("\tsegmentsDir\toutput directory, where new segment will be created");
-      System.err.println("\t-filter\trun current URLFilters on input URLs");
+      System.err.println("\t-filter   \trun current URLFilters on input URLs");
       System.err
           .println("\t-normalize\trun current URLNormalizers on input URLs");
+      System.err.println(
+          "\t-numFetchers <n>\tnumber of generated fetch lists, determines number of fetcher tasks");
       return -1;
     }
     boolean filter = false;
     boolean normalize = false;
+    int numFetchers = -1;
     if (args.length > 2) {
       for (int i = 2; i < args.length; i++) {
         if (args[i].equals("-filter")) {
           filter = true;
         } else if (args[i].equals("-normalize")) {
           normalize = true;
+        } else if ("-numFetchers".equals(args[i])) {
+          numFetchers = Integer.parseInt(args[i + 1]);
+          i++;
         } else {
           LOG.error("Unknown argument: " + args[i] + ", exiting ...");
           return -1;
@@ -193,7 +197,17 @@ public class FreeGenerator extends Configured implements Tool {
     job.setPartitionerClass(URLPartitioner.class);
     job.setReducerClass(FG.FGReducer.class);
     String segName = Generator.generateSegmentName();
-    job.setNumReduceTasks(Integer.parseInt(conf.get("mapreduce.job.maps")));
+    if (numFetchers == -1) {
+      /* for politeness create exactly one partition per fetch task */
+      numFetchers = Integer.parseInt(conf.get("mapreduce.job.maps"));
+    }
+    if ("local".equals(conf.get("mapreduce.framework.name"))
+        && numFetchers != 1) {
+      // override
+      LOG.info(
+          "FreeGenerator: running in local mode, generating exactly one partition.");
+      numFetchers = 1;
+    }
     job.setOutputFormatClass(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
