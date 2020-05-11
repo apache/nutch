@@ -1,9 +1,43 @@
-Apache Nutch README
-===================
+Common Crawl Fork of Apache Nutch
+=================================
+
+Please also have a look at the [Apache Nutch](/apache/nutch) master repository and all information about Apache Nutch given below.
+
+Notable additions in Common Crawls fork of Nutch (not yet pushed to upstream Nutch although this is planned):
+- WARC and CDX writer which also detects the language of HTML pages using the CLD2 language detector
+- Generator2: alternative implementation of Generator allowing to define per-domain and per-host limts and optimized to create many (eg. 100) segments in a single job
+
+How to install additional requirements to build this fork of Nutch:
+- [crawler-commons](/crawler-commons/crawler-commons) development snapshot package:
+  ```
+  git clone git@github.com:crawler-commons/crawler-commons.git
+  cd crawler-commons/
+  # update to current public suffix list
+  wget https://publicsuffix.org/list/public_suffix_list.dat
+  mv public_suffix_list.dat src/main/resources/effective_tld_names.dat
+  mvn install
+  ```
+  To ensure that the latest public suffix list is definitely used (see #17):
+  ```
+  wget https://publicsuffix.org/list/public_suffix_list.dat -O conf/effective_tld_names.dat
+  ```
+- [Java wrapper for CLD2 language detection](/commoncrawl/language-detection-cld2)
+  ```
+  git clone git@github.com:commoncrawl/language-detection-cld2.git
+  cd language-detection-cld2/
+  mvn install
+  ```
+  For runtime, if WARC language detection is enabled (warc.detect.language = true), also the CLD2 shared objects are required, e.g. on Ubuntu
+  ```
+  sudo apt install libcld2-0 libcld2-dev
+  ```
+
+Apache Nutch
+============
 
 <img src="https://nutch.apache.org/assets/img/nutch_logo_tm.png" align="right" width="300" />
 
-For the latest information about Nutch, please visit our website at:
+For the latest information about Nutch, please visit the Nutch website at:
 
    https://nutch.apache.org/
 
