@@ -33,11 +33,8 @@ import org.junit.Test;
 /**
  * Test extraction of image metadata
  */
-public class TestImageMetadata {
+public class TestImageMetadata extends TikaParserTest {
 
-  private String fileSeparator = System.getProperty("file.separator");
-  // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
   private String[] sampleFiles = { "nutch_logo_tm.gif", };
 
