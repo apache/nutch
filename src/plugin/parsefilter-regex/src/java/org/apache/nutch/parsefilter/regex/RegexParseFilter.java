@@ -120,14 +120,8 @@ public class RegexParseFilter implements HtmlParseFilter {
       }
     }
 
-    // domain file and attribute "file" take precedence if defined
-    String file = conf.get("parsefilter.regex.file");
+    String file = conf.get("parsefilter.regex.file", attributeFile);
     String stringRules = conf.get("parsefilter.regex.rules");
-    if (file != null) {
-      // take file
-    } else if (attributeFile != null) {
-      file = attributeFile;
-    }
     Reader reader = null;
     if (stringRules != null) { // takes precedence over files
       reader = new StringReader(stringRules);

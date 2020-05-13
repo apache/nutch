@@ -118,13 +118,8 @@ public class HostURLNormalizer implements URLNormalizer {
     // 1. string rules defined by `urlnormalizer.hosts.rules`
     // 2. rule file name defined by `urlnormalizer.hosts.file"`
     // 3. rule file name defined in plugin.xml (`attributeFile`)
-    String file = conf.get("urlnormalizer.hosts.file");
+    String file = conf.get("urlnormalizer.hosts.file", attributeFile);
     String stringRules = conf.get("urlnormalizer.hosts.rules");
-    if (file != null) {
-      // take file
-    } else if (attributeFile != null) {
-      file = attributeFile;
-    }
     Reader reader = null;
     if (stringRules != null) { // takes precedence over files
       reader = new StringReader(stringRules);

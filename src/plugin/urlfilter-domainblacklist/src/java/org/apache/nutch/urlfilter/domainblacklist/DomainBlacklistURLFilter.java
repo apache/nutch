@@ -59,7 +59,7 @@ import org.apache.nutch.util.domain.DomainSuffix;
  * such as lucene.apache.org and hadoop.apache.org. The third line would exclude
  * only URLs from www.apache.org. There is no specific ordering to entries. The
  * entries are from more general to more specific with the more general
- * overridding the more specific.
+ * overriding the more specific.
  * </p>
  * 
  * The domain file defaults to domainblacklist-urlfilter.txt in the classpath
@@ -131,16 +131,11 @@ public class DomainBlacklistURLFilter implements URLFilter {
     // 2. rule file name defined by `urlfilter.domainblacklist.file`
     // 3. rule file name defined in plugin.xml (`attributeFile`)
     String stringRules = conf.get("urlfilter.domainblacklist.rules");
-    String file = conf.get("urlfilter.domainblacklist.file");
+    String file = conf.get("urlfilter.domainblacklist.file", attributeFile);
     Reader reader = null;
     if (stringRules != null) { // takes precedence over files
       reader = new StringReader(stringRules);
     } else {
-      if (file != null) {
-        // take file
-      } else if (attributeFile != null) {
-        file = attributeFile;
-      }
       LOG.info("Reading {} rules file {}", pluginName, file);
       reader = conf.getConfResourceAsReader(file);
     }

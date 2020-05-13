@@ -276,17 +276,12 @@ public class SuffixURLFilter implements URLFilter {
     // 1. string rules defined by `urlfilter.domainblacklist.rules`
     // 2. rule file name defined by `urlfilter.domainblacklist.file`
     // 3. rule file name defined in plugin.xml (`attributeFile`)
-    String file = conf.get("urlfilter.suffix.file");
+    String file = conf.get("urlfilter.suffix.file", attributeFile);
     String stringRules = conf.get("urlfilter.suffix.rules");
     Reader reader = null;
     if (stringRules != null) { // takes precedence over files
       reader = new StringReader(stringRules);
     } else {
-      if (file != null) {
-        // take file
-      } else if (attributeFile != null) {
-        file = attributeFile;
-      }
       LOG.info("Reading {} rules file {}", pluginName, file);
       reader = conf.getConfResourceAsReader(file);
     }
