@@ -51,20 +51,11 @@ public class RegexParseFilter implements HtmlParseFilter {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
   private static String attributeFile = null;
-  private String regexFile = null;
   
   private Configuration conf;
   
   private static final Map<String,RegexRule> rules = new HashMap<>();
   
-  public RegexParseFilter() {
-    //default constructor
-  }
-  
-  public RegexParseFilter(String regexFile) {
-    this.regexFile = regexFile;
-  }
-
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
     Parse parse = parseResult.get(content.getUrl());
     String html = new String(content.getContent());
@@ -129,15 +120,8 @@ public class RegexParseFilter implements HtmlParseFilter {
       }
     }
 
-    // domain file and attribute "file" take precedence if defined
-    String file = conf.get("parsefilter.regex.file");
+    String file = conf.get("parsefilter.regex.file", attributeFile);
     String stringRules = conf.get("parsefilter.regex.rules");
-    if (regexFile != null) {
-      file = regexFile;
-    }
-    else if (attributeFile != null) {
-      file = attributeFile;
-    }
     Reader reader = null;
     if (stringRules != null) { // takes precedence over files
       reader = new StringReader(stringRules);

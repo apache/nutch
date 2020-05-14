@@ -32,7 +32,8 @@ public class TestHostURLNormalizer {
     Configuration conf = NutchConfiguration.create();
 
     String hostsFile = SAMPLES + SEPARATOR + "hosts.txt";
-    HostURLNormalizer normalizer = new HostURLNormalizer(hostsFile);
+    conf.set("urlnormalizer.hosts.file", hostsFile);
+    HostURLNormalizer normalizer = new HostURLNormalizer();
     normalizer.setConf(conf);
 
     // Force www. sub domain when hitting link without sub domain

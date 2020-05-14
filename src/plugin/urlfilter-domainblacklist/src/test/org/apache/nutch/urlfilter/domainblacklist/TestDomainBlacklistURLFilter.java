@@ -31,8 +31,8 @@ public class TestDomainBlacklistURLFilter {
 
     String domainBlacklistFile = SAMPLES + SEPARATOR + "hosts.txt";
     Configuration conf = NutchConfiguration.create();
-    DomainBlacklistURLFilter domainBlacklistFilter = new DomainBlacklistURLFilter(
-        domainBlacklistFile);
+    conf.set("urlfilter.domainblacklist.file", domainBlacklistFile);
+    DomainBlacklistURLFilter domainBlacklistFilter = new DomainBlacklistURLFilter();
     domainBlacklistFilter.setConf(conf);
     Assert.assertNull(domainBlacklistFilter.filter("http://lucene.apache.org"));
     Assert.assertNull(domainBlacklistFilter.filter("http://hadoop.apache.org"));
