@@ -218,8 +218,14 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       if (tikaMDName.equalsIgnoreCase(Metadata.TITLE))
         continue;
       String[] values = tikamd.getValues(tikaMDName);
-      for (String v : values)
+      for (String v : values) {
         nutchMetadata.add(tikaMDName, v);
+        if (tikaMDName.equalsIgnoreCase("robots")
+            && nutchMetadata.get("robots") == null) {
+          // NUTCH-2720 force lowercase robots directive
+          nutchMetadata.add("robots", v);
+        }
+      }
     }
 
     // no outlinks? try OutlinkExtractor e.g works for mime types where no
