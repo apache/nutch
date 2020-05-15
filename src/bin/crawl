@@ -370,10 +370,19 @@ do
   echo "CrawlDB update"
   __bin_nutch updatedb "${commonOptions[@]}" "$CRAWL_PATH"/crawldb  "$CRAWL_PATH"/segments/$SEGMENT
 
-  # note that the link inversion - indexing routine can be done within the main loop
-  # on a per segment basis
+  echo "HostDB update"
+  if $HOSTDBUPDATE; then
+  __update_hostdb
+  fi
+
+  # Note that all steps below in this loop (link inversion, deduplication, indexing)
+  # can be done
+  # - either inside the loop on a per segment basis
+  # - or after the loop over all segments created in all loop iterations
+  #   (both invertlinks and index accept multiple segments as input)
+  # The latter is more efficient but the index is then updated later.
   echo "Link inversion"
-  __bin_nutch invertlinks "${commonOptions[@]}" "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
+  __bin_nutch invertlinks "${commonOptions[@]}" "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT -noNormalize -nofilter
 
   echo "Dedup on crawldb"
   __bin_nutch dedup "${commonOptions[@]}" "$CRAWL_PATH"/crawldb
@@ -385,30 +394,25 @@ do
       echo "Skipping indexing ..."
   fi
 
-  echo "HostDB update"
-  if $HOSTDBUPDATE; then
-  __update_hostdb
-  fi
-
-  #######################################################
-  # The following commands fall into WebGraph territory
-  # and should be uncommented based on your requirements
-  #######################################################
-  #echo "Building WebGraph within $CRAWL_PATH on all segments in $CRAWL_PATH/segments/"
-  #__bin_nutch webgraph "${commonOptions[@]}" -filter -normalize -segmentDir "$CRAWL_PATH"/segments/ -webgraphdb "$CRAWL_PATH"
-
-  #echo "Running Loops Job on WebGraph within $CRAWL_PATH"
-  #__bin_nutch org.apache.nutch.scoring.webgraph.Loops "${commonOptions[@]}" -webgraphdb "$CRAWL_PATH"
-
-  #echo "Running LinkRank Algorithm on WebGraph within $CRAWL_PATH"
-  #__bin_nutch linkrank "${commonOptions[@]}" -webgraphdb "$CRAWL_PATH"
-
-  #echo "Running ScoreUpdater Job with $CRAWL_PATH/crawldb and  WebGraph within $CRAWL_PATH"
-  #__bin_nutch scoreupdater "${commonOptions[@]}" -crawldb "$CRAWL_PATH"/crawldb -webgraphdb "$CRAWL_PATH"
-
-  #echo "Running NodeDumper on WebGraph within $CRAWL_PATH and dumping output to $CRAWL_PATH/dump/scores"
-  #__bin_nutch nodedumper "${commonOptions[@]}" -scores -topn 1000 -webgraphdb "$CRAWL_PATH" -output "$CRAWL_PATH"/dump/scores
-
 done
+
+#######################################################
+# The following commands fall into WebGraph territory
+# and should be uncommented based on your requirements
+#######################################################
+#echo "Building WebGraph within $CRAWL_PATH on all segments in $CRAWL_PATH/segments/"
+#__bin_nutch webgraph "${commonOptions[@]}" -filter -normalize -segmentDir "$CRAWL_PATH"/segments/ -webgraphdb "$CRAWL_PATH"
+
+#echo "Running Loops Job on WebGraph within $CRAWL_PATH"
+#__bin_nutch org.apache.nutch.scoring.webgraph.Loops "${commonOptions[@]}" -webgraphdb "$CRAWL_PATH"
+
+#echo "Running LinkRank Algorithm on WebGraph within $CRAWL_PATH"
+#__bin_nutch linkrank "${commonOptions[@]}" -webgraphdb "$CRAWL_PATH"
+
+#echo "Running ScoreUpdater Job with $CRAWL_PATH/crawldb and  WebGraph within $CRAWL_PATH"
+#__bin_nutch scoreupdater "${commonOptions[@]}" -crawldb "$CRAWL_PATH"/crawldb -webgraphdb "$CRAWL_PATH"
+
+#echo "Running NodeDumper on WebGraph within $CRAWL_PATH and dumping output to $CRAWL_PATH/dump/scores"
+#__bin_nutch nodedumper "${commonOptions[@]}" -scores -topn 1000 -webgraphdb "$CRAWL_PATH" -output "$CRAWL_PATH"/dump/scores
 
 exit 0
