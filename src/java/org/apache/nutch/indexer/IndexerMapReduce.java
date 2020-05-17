@@ -19,6 +19,8 @@ package org.apache.nutch.indexer;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -274,11 +276,11 @@ public class IndexerMapReduce extends Configured {
           // Handle robots meta? https://issues.apache.org/jira/browse/NUTCH-1434
           if (deleteRobotsNoIndex) {
             // Get the robots meta data
-            String robotsMeta = parseData.getMeta("robots");
+            String robotsMeta = parseData.getMeta(Nutch.ROBOTS_METATAG);
 
             // Has it a noindex for this url?
-            if (robotsMeta != null
-                && robotsMeta.toLowerCase().indexOf("noindex") != -1) {
+            if (robotsMeta != null && robotsMeta.toLowerCase(Locale.ROOT)
+                .indexOf("noindex") != -1) {
               // Delete it!
               context.write(key, DELETE_ACTION);
               context.getCounter("IndexerStatus", "deleted (robots=noindex)").increment(1);
