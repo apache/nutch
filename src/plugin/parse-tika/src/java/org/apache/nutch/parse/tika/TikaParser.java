@@ -220,10 +220,10 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       String[] values = tikamd.getValues(tikaMDName);
       for (String v : values) {
         nutchMetadata.add(tikaMDName, v);
-        if (tikaMDName.equalsIgnoreCase("robots")
-            && nutchMetadata.get("robots") == null) {
+        if (tikaMDName.equalsIgnoreCase(Nutch.ROBOTS_METATAG)
+            && nutchMetadata.get(Nutch.ROBOTS_METATAG) == null) {
           // NUTCH-2720 force lowercase robots directive
-          nutchMetadata.add("robots", v);
+          nutchMetadata.add(Nutch.ROBOTS_METATAG, v);
         }
       }
     }
