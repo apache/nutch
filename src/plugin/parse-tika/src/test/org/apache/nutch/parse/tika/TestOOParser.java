@@ -19,27 +19,16 @@ package org.apache.nutch.parse.tika;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.protocol.*;
-import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.parse.ParseUtil;
-import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.protocol.ProtocolException;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Unit tests for OOParser.
- * 
- * @author Andrzej Bialecki
  */
-public class TestOOParser {
+public class TestOOParser extends TikaParserTest {
 
-  private String fileSeparator = System.getProperty("file.separator");
-  // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
   // ./src/plugin/parse-tika/build.xml during plugin compilation.
   private String[] sampleFiles = { "ootest.odt", "ootest.sxw" };
@@ -50,28 +39,16 @@ public class TestOOParser {
 
   @Test
   public void testIt() throws ProtocolException, ParseException {
-    String urlString;
-    Content content;
-    Parse parse;
-    Configuration conf = NutchConfiguration.create();
-    Protocol protocol;
-    ProtocolFactory factory = new ProtocolFactory(conf);
 
     System.out.println("Expected : " + expectedText);
 
     for (int i = 0; i < sampleFiles.length; i++) {
-      urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
-
+ 
       if (sampleFiles[i].startsWith("ootest") == false)
         continue;
 
-      protocol = factory.getProtocol(urlString);
-      content = protocol.getProtocolOutput(new Text(urlString),
-          new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
-          .get(content.getUrl());
-
-      String text = parse.getText().replaceAll("[ \t\r\n]+", " ").trim();
+      String text = getTextContent(sampleFiles[i]).replaceAll("[ \t\r\n]+", " ")
+          .trim();
 
       // simply test for the presence of a text - the ordering of the elements
       // may differ from what was expected

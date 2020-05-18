@@ -50,17 +50,10 @@ public class ProtocolURLNormalizer implements URLNormalizer {
   private static final String PROTOCOL_DELIMITER = "://";
 
   private static String attributeFile = null;
-  private String protocolsFile = null;
   
   // We record a map of hosts and boolean, the boolean denotes whether the host should
   // have slashes after URL paths. True means slash, false means remove the slash
   private static final Map<String,String> protocolsMap = new HashMap<String,String>();
-
-  public ProtocolURLNormalizer() {}
-
-  public ProtocolURLNormalizer(String protocolsFile) {
-    this.protocolsFile = protocolsFile;
-  }
 
   private synchronized void readConfiguration(Reader configReader) throws IOException {
     if (protocolsMap.size() > 0) {
@@ -126,19 +119,18 @@ public class ProtocolURLNormalizer implements URLNormalizer {
       }
     }
 
-    // domain file and attribute "file" take precedence if defined
-    String file = conf.get("urlnormalizer.protocols.file");
+    // precedence hierarchy for definition of normalizer rules
+    // (first non-empty definition takes precedence):
+    // 1. string rules defined by `urlnormalizer.protocols.rules`
+    // 2. rule file name defined by `urlnormalizer.protocols.file"`
+    // 3. rule file name defined in plugin.xml (`attributeFile`)
+    String file = conf.get("urlnormalizer.protocols.file", attributeFile);
     String stringRules = conf.get("urlnormalizer.protocols.rules");
-    if (protocolsFile != null) {
-      file = protocolsFile;
-    }
-    else if (attributeFile != null) {
-      file = attributeFile;
-    }
     Reader reader = null;
     if (stringRules != null) { // takes precedence over files
       reader = new StringReader(stringRules);
     } else {
+      LOG.info("Reading {} rules file {}", pluginName, file);
       reader = conf.getConfResourceAsReader(file);
     }
     try {
@@ -148,7 +140,7 @@ public class ProtocolURLNormalizer implements URLNormalizer {
       readConfiguration(reader);
     }
     catch (IOException e) {
-      LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
+      LOG.error("Error reading " + pluginName + " rule file " + file, e);
     }
   }
   

@@ -31,7 +31,8 @@ public class TestDomainURLFilter {
 
     String domainFile = SAMPLES + SEPARATOR + "hosts.txt";
     Configuration conf = NutchConfiguration.create();
-    DomainURLFilter domainFilter = new DomainURLFilter(domainFile);
+    conf.set("urlfilter.domain.file", domainFile);
+    DomainURLFilter domainFilter = new DomainURLFilter();
     domainFilter.setConf(conf);
     Assert.assertNotNull(domainFilter.filter("http://lucene.apache.org"));
     Assert.assertNotNull(domainFilter.filter("http://hadoop.apache.org"));
@@ -50,7 +51,8 @@ public class TestDomainURLFilter {
     // https://issues.apache.org/jira/browse/NUTCH-2189
     String domainFile = SAMPLES + SEPARATOR + "this-file-does-not-exist.txt";
     Configuration conf = NutchConfiguration.create();
-    DomainURLFilter domainFilter = new DomainURLFilter(domainFile);
+    conf.set("urlfilter.domain.file", domainFile);
+    DomainURLFilter domainFilter = new DomainURLFilter();
     domainFilter.setConf(conf);
     Assert.assertNotNull(domainFilter.filter("http://lucene.apache.org"));
     Assert.assertNotNull(domainFilter.filter("http://hadoop.apache.org"));

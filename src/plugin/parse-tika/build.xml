@@ -36,6 +36,7 @@
       <include name="*.doc"/>
       <include name="*.gif"/>
       <include name="*.docx"/>
+      <include name="*.xlsx"/>
     </fileset>
   </copy>
   

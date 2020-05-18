@@ -26,7 +26,6 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseUtil;
-import org.apache.nutch.parse.tika.TikaParser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
@@ -34,18 +33,9 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
 
 /**
- * 
- * @author mattmann / jnioche
- * 
- *         Test Suite for the RSS feeds with the {@link TikaParser}.
- * 
+ * Test Suite for the RSS feeds with the {@link TikaParser}.
  */
-public class TestFeedParser {
-
-  private String fileSeparator = System.getProperty("file.separator");
-
-  // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data", ".");
+public class TestFeedParser extends TikaParserTest {
 
   private String[] sampleFiles = { "rsstest.rss" };
 
