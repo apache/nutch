@@ -226,6 +226,7 @@ public class SitemapInjector extends Injector {
       // of the task timeout, do not start processing a subsitemap if fetch
       // and parsing time may hit the task timeout
       int taskTimeout = conf.getInt("mapreduce.task.timeout", 900000) / 1000;
+      maxSitemapFetchTime = (int) (conf.getInt("http.time.limit", 120) * 1.5);
       maxSitemapProcessingTime = taskTimeout - (2 * maxSitemapFetchTime);
       if ((taskTimeout * .8) < maxSitemapProcessingTime) {
         maxSitemapProcessingTime = (int) (taskTimeout * .8);
@@ -652,6 +653,8 @@ public class SitemapInjector extends Injector {
           LOG.warn(
               "Not fetching sitemap with overlong URL: {} ... (truncated, length = {} characters)",
               url.substring(0, maxUrlLength), url.length());
+          context.getCounter("SitemapInjector", "sitemap overlong URL")
+              .increment(1);
           return null;
         }
         String origUrl = url;
