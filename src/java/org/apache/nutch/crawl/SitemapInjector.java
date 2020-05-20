@@ -120,7 +120,7 @@ import crawlercommons.sitemaps.SiteMapURL;
  * <p>
  * SitemapInjector does not support:
  * <ul>
- * <li>follow redirects</li>
+ * <li>[done/implemented] follow redirects</li>
  * <li>no retry scheduling if fetching a sitemap fails</li>
  * <li>be polite and add delays between fetching sitemaps. Usually, there is
  * only one sitemap per host, so this does not matter that much.</li>
@@ -154,6 +154,8 @@ public class SitemapInjector extends Injector {
     protected float maxInterval;
 
     protected int maxRecursiveSitemaps = 50001;
+    /** limit for (deeply) nested sitemap indexes */
+    protected int maxRecursiveSitemapDepth = 3;
     protected long maxUrlsPerSitemapIndex = 50000L * 50000;
 
     /**
@@ -209,6 +211,8 @@ public class SitemapInjector extends Injector {
 
       maxRecursiveSitemaps = conf.getInt("db.injector.sitemap.index_max_size",
           50001);
+      maxRecursiveSitemapDepth = conf
+          .getInt("db.injector.sitemap.index_max_depth", 3);
       maxUrlsPerSitemapIndex = conf.getLong(SITEMAP_MAX_URLS, 50000L * 50000);
       maxHostsPerSitemapIndex = conf.getInt(SITEMAP_MAX_HOSTS, 100);
 
@@ -222,6 +226,7 @@ public class SitemapInjector extends Injector {
       // of the task timeout, do not start processing a subsitemap if fetch
       // and parsing time may hit the task timeout
       int taskTimeout = conf.getInt("mapreduce.task.timeout", 900000) / 1000;
+      maxSitemapFetchTime = (int) (conf.getInt("http.time.limit", 120) * 1.5);
       maxSitemapProcessingTime = taskTimeout - (2 * maxSitemapFetchTime);
       if ((taskTimeout * .8) < maxSitemapProcessingTime) {
         maxSitemapProcessingTime = (int) (taskTimeout * .8);
@@ -464,7 +469,7 @@ public class SitemapInjector extends Injector {
         }
 
         try {
-          processSitemap(sitemap, null);
+          processSitemap(sitemap, null, 0);
         } catch (IOException | InterruptedException e) {
           LOG.warn("failed to process sitemap {}: {}", url,
               StringUtils.stringifyException(e));
@@ -474,11 +479,37 @@ public class SitemapInjector extends Injector {
       }
 
       /**
-       * parse a sitemap (recursively, in case of a sitemap index), and inject
-       * all contained URLs
+       * Parse a sitemap and inject all contained URLs. In case of a sitemap
+       * index, sitemaps are fetched and processed recursively until one of the
+       * configurable limits apply:
+       * <ul>
+       * <li>max. depth (<code>db.injector.sitemap.index_max_depth</code>)</li>
+       * <li>max. processing time (recursively, depends on
+       * <code>mapreduce.task.timeout</code>)</li>
+       * <li>no URLs found at 50% of the processing time</li>
+       * <li>max. number of recursive sitemaps
+       * (<code>db.injector.sitemap.index_max_size</code>)</li>
+       * <li>50% of the max. number of recursive sitemaps failed to process</li>
+       * <li>max. number of URLs for this sitemap
+       * (<code>db.injector.sitemap.max_urls</code>)</li>
+       * </ul>
+       * 
+       * Subsitemaps from a sitemap index are selected randomly but giving
+       * precedence to sitemaps recently published or coming in front of the
+       * list of subsitemaps.
+       * 
+       * @param sitemap
+       *          the sitemap to process
+       * @param processedSitemaps
+       *          set of recursively processed sitemaps, required to skip
+       *          duplicates and to apply limits
+       * @param depth
+       *          the current depth when processing sitemaps recursively
+       * @throws IOException
+       * @throws InterruptedException
        */
       public void processSitemap(AbstractSiteMap sitemap,
-          Set<String> processedSitemaps)
+          Set<String> processedSitemaps, int depth)
           throws IOException, InterruptedException {
 
         if (sitemap.isIndex()) {
@@ -486,6 +517,14 @@ public class SitemapInjector extends Injector {
           if (processedSitemaps == null) {
             processedSitemaps = new HashSet<String>();
             processedSitemaps.add(sitemap.getUrl().toString());
+          }
+          if (++depth > maxRecursiveSitemapDepth) {
+            LOG.warn(
+                "Depth limit reached recursively processing sitemap index {}",
+                sitemap.getUrl());
+            context.getCounter("SitemapInjector",
+                "sitemap index: depth limit reached").increment(1);
+            return;
           }
 
           // choose subsitemaps randomly with a preference for elements in front
@@ -583,7 +622,7 @@ public class SitemapInjector extends Injector {
             try {
               AbstractSiteMap parsedSitemap = parseSitemap(content,
                   nextSitemap);
-              processSitemap(parsedSitemap, processedSitemaps);
+              processSitemap(parsedSitemap, processedSitemaps, depth);
             } catch (Exception e) {
               LOG.warn("failed to parse sitemap {}: {}", nextSitemap.getUrl(),
                   StringUtils.stringifyException(e));
@@ -614,6 +653,8 @@ public class SitemapInjector extends Injector {
           LOG.warn(
               "Not fetching sitemap with overlong URL: {} ... (truncated, length = {} characters)",
               url.substring(0, maxUrlLength), url.length());
+          context.getCounter("SitemapInjector", "sitemap overlong URL")
+              .increment(1);
           return null;
         }
         String origUrl = url;
