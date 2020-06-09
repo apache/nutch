@@ -188,22 +188,25 @@ public final class ParseData extends VersionedWritable {
         && this.parseMeta.equals(other.parseMeta);
   }
 
+  @Override
   public String toString() {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
 
-    buffer.append("Version: " + version + "\n");
-    buffer.append("Status: " + status + "\n");
-    buffer.append("Title: " + title + "\n");
+    buffer.append("Version: ").append(version).append("\n");
+    buffer.append("Status: ").append(status).append("\n");
+    buffer.append("Title: ").append(title ).append("\n");
 
     if (outlinks != null) {
-      buffer.append("Outlinks: " + outlinks.length + "\n");
+      buffer.append("Outlinks: ").append(outlinks.length).append("\n");
       for (int i = 0; i < outlinks.length; i++) {
-        buffer.append("  outlink: " + outlinks[i] + "\n");
+        buffer.append("  outlink: ").append(outlinks[i]).append("\n");
       }
     }
 
-    buffer.append("Content Metadata: " + contentMeta + "\n");
-    buffer.append("Parse Metadata: " + parseMeta + "\n");
+    buffer.append("Content Metadata:\n  ")
+        .append(contentMeta.toString("\n  ", " = ")).append("\n");
+    buffer.append("Parse Metadata:\n  ")
+        .append(parseMeta.toString("\n  ", " = ")).append("\n");
 
     return buffer.toString();
   }
