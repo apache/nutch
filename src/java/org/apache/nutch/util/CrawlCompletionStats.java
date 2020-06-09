@@ -74,7 +74,7 @@ public class CrawlCompletionStats extends Configured implements Tool {
     Option inDirs = OptionBuilder
         .withArgName("inputDirs")
         .isRequired()
-        .withDescription("Comma separated list of crawl directories (e.g., \"./crawl1,./crawl2\")")
+        .withDescription("Comma separated list of crawldb directories (e.g., \"./crawl1/crawldb,./crawl2/crawldb\")")
         .hasArgs()
         .create("inputDirs");
     @SuppressWarnings("static-access")
@@ -153,9 +153,7 @@ public class CrawlCompletionStats extends Configured implements Tool {
 
     String[] inputDirsSpecs = inputDir.split(",");
     for (int i = 0; i < inputDirsSpecs.length; i++) {
-      File completeInputPath = new File(new File(inputDirsSpecs[i]), "crawldb/current");
-      FileInputFormat.addInputPath(job, new Path(completeInputPath.toString()));
-      
+      FileInputFormat.addInputPath(job, new Path(inputDirsSpecs[i], "current"));
     }
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
