@@ -22,7 +22,7 @@ package org.apache.nutch.plugin;
  * 
  * @author J&eacute;r&ocirc;me Charron
  * 
- * @see <a href="http://wiki.apache.org/nutch/AboutPlugins">About Plugins</a>
+ * @see <a href="https://cwiki.apache.org/confluence/display/NUTCH/AboutPlugins">About Plugins</a>
  * @see <a href="package-summary.html#package_description"> plugin package
  *      description</a>
  */

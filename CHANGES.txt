@@ -154,7 +154,7 @@ Release Report: https://s.apache.org/nczS
 Breaking Changes
 
     - indexer plugins are now configured in a single XML file (conf/index-writers.xml),
-      see https://wiki.apache.org/nutch/IndexWriters - setting or overwriting configuration
+      see https://cwiki.apache.org/confluence/display/NUTCH/IndexWriters - setting or overwriting configuration
       parameters via Nutch properties is not possible anymore.
 
 Bug

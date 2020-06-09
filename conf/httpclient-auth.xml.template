@@ -56,7 +56,7 @@
   specified as the value for 'realm' attribute in case of NTLM.
 
  More information on Basic, Digest and NTLM authentication
- support can be located at https://wiki.apache.org/nutch/HttpAuthenticationSchemes
+ support can be located at https://cwiki.apache.org/confluence/display/NUTCH/HttpAuthenticationSchemes
 
  HTTP-POST Authentication Support
  Http Form-based Authentication is a very common used authentication 
@@ -106,7 +106,7 @@
     DEFAULT, RFC_2109, etc.
  
  More information on HTTP POST can be located at
- https://wiki.apache.org/nutch/HttpPostAuthentication
+ https://cwiki.apache.org/confluence/display/NUTCH/HttpPostAuthentication
 
 -->
 
