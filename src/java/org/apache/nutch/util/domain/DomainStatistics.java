@@ -119,8 +119,7 @@ public class DomainStatistics extends Configured implements Tool {
 
     String[] inputDirsSpecs = inputDir.split(",");
     for (int i = 0; i < inputDirsSpecs.length; i++) {
-      File completeInputPath = new File(new File(inputDirsSpecs[i]), "current");
-      FileInputFormat.addInputPath(job, new Path(completeInputPath.toString()));
+      FileInputFormat.addInputPath(job, new Path(inputDirsSpecs[i], "current"));
     }
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
