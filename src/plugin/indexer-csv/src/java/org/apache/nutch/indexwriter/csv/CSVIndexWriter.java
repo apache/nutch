@@ -405,13 +405,12 @@ public class CSVIndexWriter implements IndexWriter {
     if (max > maxFieldLength) {
       max = maxFieldLength;
     }
-    while (nextQuoteChar > 0 && nextQuoteChar < max) {
+    while (nextQuoteChar >= 0 && nextQuoteChar < max) {
       csvout.write(value.substring(start, nextQuoteChar).getBytes(encoding));
       csvout.write(escapeCharacter.bytes);
       csvout.write(quoteCharacter.bytes);
       start = nextQuoteChar + 1;
       nextQuoteChar = quoteCharacter.find(value, start);
-      if (nextQuoteChar > max) break;
     }
     csvout.write(value.substring(start, max).getBytes(encoding));
   }

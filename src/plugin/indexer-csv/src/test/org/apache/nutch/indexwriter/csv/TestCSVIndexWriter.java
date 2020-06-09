@@ -159,6 +159,15 @@ public class TestCSVIndexWriter {
   }
 
   @Test
+  public void testCSVescapeLeadingQuotes() throws IOException {
+    String[] params = { CSVConstants.CSV_FIELDS, "test" };
+    String[] fields = { "test", "\"quote\"" };
+    String csv = getCSV(params, fields);
+    assertEquals("Leading quotes inside a quoted field must be escaped",
+        "\"\"\"quote\"\"\"", csv.trim());
+  }
+
+  @Test
   public void testCSVclipMaxLength() throws IOException {
     String[] params = { CSVConstants.CSV_FIELDS, "test",
         CSVConstants.CSV_MAXFIELDLENGTH, "8" };
