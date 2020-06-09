@@ -1818,7 +1818,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 Add scoring-similarity to the list of active plugins
  in the parameter 'plugin.includes' in order to use it. 
 For more detailed information on the working of this filter 
-visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
+visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter -->
 
 <property>
     <name>scoring.similarity.model</name>
@@ -2060,8 +2060,9 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
         fldname1=/regexp/replacement/flags
         fldname2=/regexp/replacement/flags
 
-    Field names would be one of those from https://wiki.apache.org/nutch/IndexStructure.
-    See https://wiki.apache.org/nutch/IndexReplace for further details.
+    Field names would be one of those from
+      https://cwiki.apache.org/confluence/display/NUTCH/IndexStructure
+    See https://cwiki.apache.org/confluence/display/NUTCH/IndexReplace for further details.
   </description>
 </property>
 

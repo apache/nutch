@@ -13,7 +13,7 @@ Configuration Example
 
 Property format: index.replace.regexp
     The format of the property is a list of regexp replacements, one line per field being
-    modified.  Field names would be one of those from https://wiki.apache.org/nutch/IndexStructure.
+    modified.  Field names would be one of those from https://cwiki.apache.org/confluence/display/NUTCH/IndexStructure
 
     The fieldname precedes the equal sign.  The first character after the equal sign signifies
     the delimiter for the regexp, the replacement value and the flags.

@@ -22,7 +22,7 @@ Each `<writer>` element has two mandatory attributes:
 
 ## Mapping
 
-The mapping section is explained [here](https://wiki.apache.org/nutch/IndexWriters#Mapping_section). The structure of this section is general for all index writers.
+The mapping section is explained [here](https://cwiki.apache.org/confluence/display/NUTCH/IndexWriters#IndexWriters-Mappingsection). The structure of this section is general for all index writers.
 
 ## Parameters
 
