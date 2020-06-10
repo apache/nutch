@@ -103,7 +103,7 @@
          matching across fields.
 
          For more info on customizing your analyzer chain, please see
-         http://wiki.apache.org/solr/AnalyzersTokenizersTokenFilters
+         https://cwiki.apache.org/confluence/display/solr/AnalyzersTokenizersTokenFilters
      -->
 
     <!-- A general text field that has reasonable, generic

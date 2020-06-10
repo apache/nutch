@@ -78,7 +78,7 @@ import crawlercommons.sitemaps.SiteMapURL;
  * </ol>
  *
  * <p>For more details see:
- *      https://wiki.apache.org/nutch/SitemapFeature </p>
+ *      https://cwiki.apache.org/confluence/display/NUTCH/SitemapFeature </p>
  */
 public class SitemapProcessor extends Configured implements Tool {
   public static final Logger LOG = LoggerFactory.getLogger(SitemapProcessor.class);
