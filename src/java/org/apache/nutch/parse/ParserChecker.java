@@ -288,8 +288,8 @@ public class ParserChecker extends AbstractChecker {
         }
       }
 
-      output.append(turl + "\n");
-      output.append(parse.getData() + "\n");
+      output.append(turl).append("\n");
+      output.append(parse.getData()).append("\n");
       if (dumpText) {
         output.append(parse.getText());
       }

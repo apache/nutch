@@ -232,13 +232,28 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
     return true;
   }
 
+  @Override
   public String toString() {
-    StringBuffer buf = new StringBuffer();
+    return toString("=", " ");
+  }
+
+  /**
+   * @param separator
+   *          separator between Metadata's key-value pairs
+   * @param keyValueSeparator
+   *          separator between key and value
+   * @return list of all key-value pairs in Metadata using the provided
+   *         separators
+   */
+  public String toString(String separator, String keyValueSeparator) {
+    StringBuilder buf = new StringBuilder();
     String[] names = names();
     for (int i = 0; i < names.length; i++) {
       String[] values = _getValues(names[i]);
       for (int j = 0; j < values.length; j++) {
-        buf.append(names[i]).append("=").append(values[j]).append(" ");
+        if (buf.length() > 0)
+          buf.append(separator);
+        buf.append(names[i]).append(keyValueSeparator).append(values[j]);
       }
     }
     return buf.toString();
@@ -278,3 +293,4 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
   }
 
 }
+  
