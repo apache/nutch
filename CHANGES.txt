@@ -1,6 +1,86 @@
 # Nutch Change Log
 
-Nutch 1.17 Development
+Nutch 1.17 Release 18/06/2020 (dd/mm/yyyy)
+Release Report: https://s.apache.org/ovhry
+
+Bug
+
+    [NUTCH-1559] - parse-metatags duplicates extracted metatags
+    [NUTCH-2379] - crawl script dedup's crawldb update is slow
+    [NUTCH-2419] - Some URL filters and normalizers do not respect command-line override for rule file
+    [NUTCH-2507] - NutchTutorial wiki pages as a lot of outdated command line calls when it starts with the solr interaction
+    [NUTCH-2511] - SitemapProcessor limited by http.content.limit
+    [NUTCH-2525] - Metadata indexer cannot handle uppercase parse metadata
+    [NUTCH-2567] - parse-metatags writes all meta tags twice
+    [NUTCH-2720] - ROBOTS metatag ignored when capitalized
+    [NUTCH-2745] - Solr schema.xml not shipped in binary release
+    [NUTCH-2748] - Fetch status gone (redirect exceeded) not to overwrite existing items in CrawlDb
+    [NUTCH-2751] - nutch clean does not work with secured solr cloud
+    [NUTCH-2753] - Add -listen option to command-line help of CrawlDbReader and LinkDbReader
+    [NUTCH-2754] - fetcher.max.crawl.delay ignored if exceeding 5 min. / 300 sec.
+    [NUTCH-2760] - protocol-okhttp: properly record HTTP version in request message header
+    [NUTCH-2761] - ivy jar fails to download
+    [NUTCH-2763] - protocol-okhttp (store.http.headers): add whitespace in status line after status code also when message is empty
+    [NUTCH-2770] - Subcollection logic allows empty string as a whitelist value, thus matching every incoming document.
+    [NUTCH-2778] - indexer-elastic to properly log errors
+    [NUTCH-2787] - CrawlDb JSON dump does not export metadata primitive data types correctly
+    [NUTCH-2789] - Documentation: update links to point to cwiki
+    [NUTCH-2790] - CSVIndexWriter does not escape leading quotes properly
+    [NUTCH-2791] - domainstats, protocolstats and crawlcomplete do not handle GCS URLs
+
+New Feature
+
+    [NUTCH-1863] - Add JSON format dump output to readdb command
+
+Improvement
+
+    [NUTCH-1194] - Generator: CrawlDB lock should be released earlier
+    [NUTCH-2002] - ParserChecker and IndexingFiltersChecker to check robots.txt
+    [NUTCH-2184] - Enable IndexingJob to function with no crawldb
+    [NUTCH-2495] - Use -deleteGone instead of clean job in crawler script while indexing
+    [NUTCH-2496] - Speed up link inversion step in crawling script
+    [NUTCH-2501] - allow to set Java heap size when using crawl script in distributed mode
+    [NUTCH-2649] - Optionally skip TLS/SSL certificate validation for protocol-selenium and protocol-htmlunit
+    [NUTCH-2733] - protocol-okhttp: add support for Brotli compression (Content-Encoding)
+    [NUTCH-2739] - indexer-elastic: Upgrade ES and migrate to REST client
+    [NUTCH-2743] - Add list of Nutch properties (nutch-default.xml) to documentation
+    [NUTCH-2746] - Basic URL normalizer to normalize Unicode domain names
+    [NUTCH-2747] - Replace remaining o.a.commons.logging by org.slf4j
+    [NUTCH-2750] - Improve CrawlDbReader & LinkDbReader reader handling
+    [NUTCH-2752] - indexer-solr: Upgrade to latest Solr version
+    [NUTCH-2755] - Remove obsolete plugin indexer-elastic-rest
+    [NUTCH-2757] - indexer-elastic: add authentication options
+    [NUTCH-2758] - Add plugin READMEs to binary release packages
+    [NUTCH-2759] - bin/crawl: Rename option --num-slaves
+    [NUTCH-2762] - Replace http:// URLs by https:// (build files and documentation)
+    [NUTCH-2767] - Fetcher to stop filling queues skipped due to repeated exceptions
+    [NUTCH-2768] - FetcherThread: unnecessary usage of class casts
+    [NUTCH-2772] - Debugging parse filter to show serialized DOM tree
+    [NUTCH-2773] - SegmentReader (-dump or -get): show HTML content as UTF-8
+    [NUTCH-2774] - Annotate methods implementing the Hadoop API by @Override
+    [NUTCH-2775] - Fetcher to guarantee minimum delay even if robots.txt defines shorter Crawl-delay
+    [NUTCH-2776] - Fetcher to temporarily deduplicate followed redirects
+    [NUTCH-2777] - Upgrade to Hadoop 3.1
+    [NUTCH-2779] - Upgrade to Tika 1.24.1
+    [NUTCH-2780] - Upgrade index-solr to use Solr 8.5.1
+    [NUTCH-2781] - Increase default Java heap size
+    [NUTCH-2783] - Use (more) parametrized logging
+    [NUTCH-2784] - Add tool to list Nutch and Hadoop properties
+    [NUTCH-2785] - FreeGenerator: command-line option to define number of generated fetch lists
+    [NUTCH-2788] - ParseData: improve presentation of Metadata in method toString()
+    [NUTCH-2794] - Add additional ciphers to HTTP base's default cipher suite
+
+Test
+
+    [NUTCH-1945] - Test for XLSX parser
+
+Task
+
+    [NUTCH-2434] - Add methods to reset parameters HTMLMetaTags
+
+Sub-task
+
+    [NUTCH-2735] - Update the indexer-solr documentation about the schema.xml usage
 
 
 Nutch 1.16 Release 02/10/2019 (dd/mm/yyyy)
