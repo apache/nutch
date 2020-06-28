@@ -870,7 +870,9 @@ public class FetcherThread extends Thread {
           robotsTxt.getUrl());
       try {
         Text tUrl = new Text(robotsTxt.getUrl());
-        context.write(tUrl, new NutchWritable(robotsTxt));
+        if (storingContent) {
+          context.write(tUrl, new NutchWritable(robotsTxt));
+        }
         if (storingWarc) {
           context.write(tUrl,
               new NutchWritable(new WarcCapture(tUrl, null, robotsTxt)));
