@@ -79,8 +79,11 @@ import org.apache.commons.jexl2.Expression;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * Read utility for the CrawlDB.
@@ -243,6 +246,9 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
         this.out = out;
         jsonMapper.getFactory()
             .configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(Writable.class, new WritableSerializer());
+        jsonMapper.registerModule(module);
         jsonWriter = jsonMapper.writer(new JsonIndenter());
       }
 
@@ -294,6 +300,36 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       FileSystem fs = dir.getFileSystem(context.getConfiguration());
       DataOutputStream fileOut = fs.create(new Path(dir, name), context);
       return new LineRecordWriter(fileOut);
+    }
+
+    public static class WritableSerializer extends JsonSerializer<Writable> {
+      @Override
+      public void serialize(Writable obj, JsonGenerator jgen,
+          SerializerProvider provider) throws IOException {
+        if (obj instanceof org.apache.hadoop.io.NullWritable) {
+          jgen.writeNull();
+        } else if (obj instanceof org.apache.hadoop.io.BooleanWritable) {
+          jgen.writeBoolean(((org.apache.hadoop.io.BooleanWritable) obj).get());
+        } else if (obj instanceof org.apache.hadoop.io.IntWritable) {
+          jgen.writeNumber(((org.apache.hadoop.io.IntWritable) obj).get());
+        } else if (obj instanceof org.apache.hadoop.io.VIntWritable) {
+          jgen.writeNumber(((org.apache.hadoop.io.VIntWritable) obj).get());
+        } else if (obj instanceof org.apache.hadoop.io.LongWritable) {
+          jgen.writeNumber(((org.apache.hadoop.io.LongWritable) obj).get());
+        } else if (obj instanceof org.apache.hadoop.io.VLongWritable) {
+          jgen.writeNumber(((org.apache.hadoop.io.VLongWritable) obj).get());
+        } else if (obj instanceof org.apache.hadoop.io.ByteWritable) {
+          jgen.writeNumber(((org.apache.hadoop.io.ByteWritable) obj).get());
+        } else if (obj instanceof org.apache.hadoop.io.FloatWritable) {
+          jgen.writeNumber(((org.apache.hadoop.io.FloatWritable) obj).get());
+        } else if (obj instanceof org.apache.hadoop.io.DoubleWritable) {
+          jgen.writeNumber(((org.apache.hadoop.io.DoubleWritable) obj).get());
+        } else if (obj instanceof org.apache.hadoop.io.BytesWritable) {
+          jgen.writeBinary(((org.apache.hadoop.io.BytesWritable) obj).getBytes());
+        } else {
+          jgen.writeString(obj.toString());
+        }
+      }
     }
   }
 

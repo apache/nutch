@@ -65,12 +65,12 @@ import org.apache.nutch.util.NutchConfiguration;
  * </p>
  * <p>
  * Documentation can be found on the Nutch
- * <a href="https://wiki.apache.org/nutch/HttpAuthenticationSchemes" >
+ * <a href="https://cwiki.apache.org/confluence/display/NUTCH/HttpAuthenticationSchemes" >
  * HttpAuthenticationSchemes</a> wiki page.
  * </p>
  * <p>
  * The original description of the motivation to support
- * <a href="https://wiki.apache.org/nutch/HttpPostAuthentication" >
+ * <a href="https://cwiki.apache.org/confluence/display/NUTCH/HttpPostAuthentication" >
  * HttpPostAuthentication</a> is also included on the Nutch wiki. Additionally
  * HttpPostAuthentication development is documented at the
  * <a href="https://issues.apache.org/jira/browse/NUTCH-827">NUTCH-827</a> Jira
