@@ -801,7 +801,8 @@ public class SitemapInjector extends Injector {
         AbstractSiteMap sitemap = null;
         try {
           // not a recursive task, should be fast
-          sitemap = task.get(maxSitemapProcessingTime / 20, TimeUnit.SECONDS);
+          sitemap = task.get((1 + maxSitemapProcessingTime / 5),
+              TimeUnit.SECONDS);
         } finally {
           parse = null;
         }
