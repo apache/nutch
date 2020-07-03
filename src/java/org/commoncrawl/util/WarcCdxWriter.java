@@ -18,10 +18,8 @@ package org.commoncrawl.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -34,6 +32,7 @@ import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.archive.url.WaybackURLKeyMaker;
 import org.slf4j.Logger;
@@ -120,15 +119,7 @@ public class WarcCdxWriter extends WarcWriter {
     long length = (countingOut.getByteCount() - offset);
     String redirectLocation = null;
     if (isRedirect(httpStatusCode)) {
-      redirectLocation = content.getMetadata().get("Location");
-      if (redirectLocation != null) {
-        try {
-          redirectLocation = new URL(targetUri.toURL(), redirectLocation)
-              .toURI().toString();
-        } catch (URISyntaxException | MalformedURLException e) {
-          redirectLocation = null;
-        }
-      }
+      redirectLocation = getMeta(content.getMetadata(), "Location");
     }
     writeCdxLine(targetUri, date, offset, length, payloadDigest, content, false,
         redirectLocation, truncated);
@@ -162,21 +153,21 @@ public class WarcCdxWriter extends WarcWriter {
     if (revisit) {
       data.put("mime", "warc/revisit");
     } else {
-      data.put("mime", cleanMimeType(meta.get("Content-Type")));
+      data.put("mime", cleanMimeType(getMeta(meta, Response.CONTENT_TYPE)));
       data.put("mime-detected", content.getContentType());
     }
-    data.put("status", meta.get("HTTP-Status-Code"));
+    data.put("status", meta.get(WarcWriter.HTTP_STATUS_CODE));
     if (payloadDigest != null) {
       data.put("digest", payloadDigest);
     }
     data.put("length", String.format("%d", length));
     data.put("offset", String.format("%d", offset));
     data.put("filename", warcFilename);
-    String val = meta.get("Detected-Charset");
+    String val = meta.get(WarcWriter.DETECTED_CHARSET);
     if (val != null) {
       data.put("charset", val);
     }
-    val = meta.get("Detected-Language");
+    val = meta.get(WarcWriter.DETECTED_LANGUAGE);
     if (val != null) {
       data.put("languages", val);
     }

@@ -32,6 +32,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.protocol.Content;
 
 public class WarcWriter {
@@ -73,6 +74,11 @@ public class WarcWriter {
 
   private static final String CRLF = "\r\n";
   private static final String COLONSP = ": ";
+
+  /* Metadata names to pass from WARC to CDX */
+  protected static final String HTTP_STATUS_CODE = "HTTP-Status-Code";
+  protected static final String DETECTED_CHARSET = "Detected-Charset";
+  protected static final String DETECTED_LANGUAGE = "Detected-Language";
 
   private SimpleDateFormat isoDate;
 
@@ -374,4 +380,19 @@ public class WarcWriter {
       throw new RuntimeException(e);
     }
   }
+
+  protected static String getMeta(Metadata metadata, String name) {
+    String value = metadata.get(name);
+    if (value == null) {
+      // check for case variants
+      for (String n : metadata.names()) {
+        if (n.equalsIgnoreCase(name)) {
+          value = metadata.get(n);
+          break;
+        }
+      }
+    }
+    return value;
+  }
+
 }

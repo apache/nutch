@@ -637,7 +637,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     }
 
     if (generateCdx) {
-      value.content.getMetadata().add("HTTP-Status-Code",
+      value.content.getMetadata().add(WarcWriter.HTTP_STATUS_CODE,
           String.format("%d", httpStatusCode));
     }
 
@@ -660,14 +660,15 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       }
       if (generateCdx) {
         if (ldres.charset != null) {
-          value.content.getMetadata().add("Detected-Charset",
+          value.content.getMetadata().add(WarcWriter.DETECTED_CHARSET,
               ldres.charset.name());
         }
         org.commoncrawl.langdetect.cld2.Result lr = ldres.languages;
         if (lr != null) {
           String codes = lr.getLanguageCodesISO639_3(",", true);
           if (codes != null && !codes.isEmpty()) {
-            value.content.getMetadata().add("Detected-Language", codes);
+            value.content.getMetadata().add(WarcWriter.DETECTED_LANGUAGE,
+                codes);
           }
         }
       }

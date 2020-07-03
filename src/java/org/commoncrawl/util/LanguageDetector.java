@@ -97,7 +97,8 @@ public class LanguageDetector {
 
     String httpContentLanguage = content.getMetadata()
         .get(Response.CONTENT_LANGUAGE);
-    String httpContentType = content.getMetadata().get(Response.CONTENT_TYPE);
+    String httpContentType = WarcWriter.getMeta(content.getMetadata(),
+        Response.CONTENT_TYPE);
 
     Metadata metadata = new Metadata();
     if (httpContentType != null) {
@@ -107,7 +108,7 @@ public class LanguageDetector {
     String text;
     byte[] bytes = content.getContent();
     try (AutoDetectReader charsetDetectReader = new AutoDetectReader(
-        new ByteArrayInputStream(bytes), metadata);) {
+        new ByteArrayInputStream(bytes), metadata)) {
       result.charset = charsetDetectReader.getCharset();
       boolean isValidUtf8 = false;
       if (result.charset.equals(StandardCharsets.UTF_8)) {
