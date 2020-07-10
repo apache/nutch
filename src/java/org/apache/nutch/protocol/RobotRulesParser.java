@@ -380,8 +380,14 @@ public abstract class RobotRulesParser implements Tool {
   private static class TestRobotRulesParser extends RobotRulesParser {
 
     public void setConf(Configuration conf) {
-      // make sure that agent name is set so that setConf() does not complain,
-      // the agent name is later overwritten by command-line argument
+      /*
+       * Make sure that agent name is not empty so that
+       * RobotRulesParser.setConf() does not complain.
+       * 
+       * If provided the agent names passed as command-line argument are
+       * checked, see RobotRulesParser.run(...). Also http.agent.name is then
+       * filled taking the first agent name from command-line.
+       */
       if (conf.get("http.agent.name", "").isEmpty()) {
         String firstRobotsAgent = conf.get("http.robots.agents", "").split(",")[0].trim();
         if (firstRobotsAgent.isEmpty()) {
