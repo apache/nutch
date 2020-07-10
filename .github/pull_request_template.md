@@ -4,7 +4,7 @@ Before opening the pull request, please verify that
 * there is an open issue on the [Nutch issue tracker](https://issues.apache.org/jira/projects/NUTCH) which describes the problem or the improvement. We cannot accept pull requests without an issue because the change wouldn't be listed in the release notes.
 * the issue ID (`NUTCH-XXXX`)
   - is referenced in the title of the pull request
-  - and placed in front of your commit messages
+  - and placed in front of your commit messages surrounded by square brackets (`[NUTCH-XXXX] Issue or pull request title`)
 * commits are squashed into a single one (or few commits for larger changes)
 * Java source code follows [Nutch Eclipse Code Formatting rules](https://github.com/apache/nutch/blob/master/eclipse-codeformat.xml)
 * Nutch is successfully built and unit tests pass by running `ant clean runtime test`
