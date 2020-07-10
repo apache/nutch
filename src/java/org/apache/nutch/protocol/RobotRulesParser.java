@@ -133,7 +133,7 @@ public abstract class RobotRulesParser implements Tool {
 
     String[] confWhiteList = conf.getStrings("http.robot.rules.whitelist");
     if (confWhiteList == null) {
-      LOG.info("robots.txt whitelist not configured.");
+      LOG.debug("robots.txt whitelist not configured.");
     }
     else {
       for (int i = 0; i < confWhiteList.length; i++) {
@@ -262,14 +262,16 @@ public abstract class RobotRulesParser implements Tool {
           "",
           "<agent-names>\tcomma-separated list of agent names",
           "\tused to select rules from the robots.txt file.",
-          "\tIf no agent name is given the property http.agent.name is used.",
-          "\tIf http.agent.name is empty, robots.txt is checked for rules",
-          "\tassigned to the user agent `*' (meaning any other).",
+          "\tIf no agent name is given the properties http.agent.name",
+          "\tand http.robots.agents are used.",
+          "\tIf also http.agent.name and http.robots.agents are empty,",
+          "\trobots.txt is checked for rules assigned to the user",
+          "\tagent `*' (meaning any other).",
           "",
           "Important properties:",
           " -D fetcher.store.robotstxt=true",
           "\toutput content and HTTP meta data of fetched robots.txt (if not a local file)",
-          " -D http.agent.name=...\tsame as argument <agent-names>",
+          " -D http.agent.name=...\t(primary) agent name",
           " -D http.robots.agents=...\tadditional agent names",
           " -D http.robot.rules.whitelist=..."};
       for (String s : help) {
@@ -315,7 +317,8 @@ public abstract class RobotRulesParser implements Tool {
     if (args.length > 2) {
       // set agent name from command-line in configuration and update parser
       String agents = args[2];
-      conf.set("http.agent.name", agents);
+      conf.set("http.robots.agents", agents);
+      conf.set("http.agent.name", agents.split(",")[0]);
       setConf(conf);
     }
 
@@ -376,13 +379,18 @@ public abstract class RobotRulesParser implements Tool {
    */
   private static class TestRobotRulesParser extends RobotRulesParser {
 
-    public TestRobotRulesParser(Configuration conf) {
+    public void setConf(Configuration conf) {
       // make sure that agent name is set so that setConf() does not complain,
       // the agent name is later overwritten by command-line argument
-      if (conf.get("http.agent.name") == null) {
-        conf.set("http.agent.name", "*");
+      if (conf.get("http.agent.name", "").isEmpty()) {
+        String firstRobotsAgent = conf.get("http.robots.agents", "").split(",")[0].trim();
+        if (firstRobotsAgent.isEmpty()) {
+          conf.set("http.agent.name", "*");
+        } else {
+          conf.set("http.agent.name", firstRobotsAgent);
+        }
       }
-      setConf(conf);
+      super.setConf(conf);
     }
 
     /**
@@ -407,7 +415,7 @@ public abstract class RobotRulesParser implements Tool {
           openStream.read(robotsBytes);
           openStream.close();
           rules = robotParser.parseContent(url.toString(), robotsBytes,
-              "text/plain", this.conf.get("http.agent.name"));
+              "text/plain", agentNames);
         } catch (IOException e) {
           LOG.error("Failed to open robots.txt file " + url
               + StringUtils.stringifyException(e));
@@ -421,7 +429,7 @@ public abstract class RobotRulesParser implements Tool {
 
   public static void main(String[] args) throws Exception {
     Configuration conf = NutchConfiguration.create();
-    int res = ToolRunner.run(conf, new TestRobotRulesParser(conf), args);
+    int res = ToolRunner.run(conf, new TestRobotRulesParser(), args);
     System.exit(res);
   }
 
