@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.urlfilter.domainblacklist;
+package org.apache.nutch.urlfilter.domaindenylist;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
-public class TestDomainBlacklistURLFilter {
+public class TestDomainDenylistURLFilter {
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");
@@ -29,21 +29,21 @@ public class TestDomainBlacklistURLFilter {
   @Test
   public void testFilter() throws Exception {
 
-    String domainBlacklistFile = SAMPLES + SEPARATOR + "hosts.txt";
+    String domainDenylistFile = SAMPLES + SEPARATOR + "hosts.txt";
     Configuration conf = NutchConfiguration.create();
-    conf.set("urlfilter.domainblacklist.file", domainBlacklistFile);
-    DomainBlacklistURLFilter domainBlacklistFilter = new DomainBlacklistURLFilter();
-    domainBlacklistFilter.setConf(conf);
-    Assert.assertNull(domainBlacklistFilter.filter("http://lucene.apache.org"));
-    Assert.assertNull(domainBlacklistFilter.filter("http://hadoop.apache.org"));
-    Assert.assertNull(domainBlacklistFilter.filter("http://www.apache.org"));
-    Assert.assertNotNull(domainBlacklistFilter.filter("http://www.google.com"));
-    Assert.assertNotNull(domainBlacklistFilter.filter("http://mail.yahoo.com"));
-    Assert.assertNull(domainBlacklistFilter.filter("http://www.foobar.net"));
-    Assert.assertNull(domainBlacklistFilter.filter("http://www.foobas.net"));
-    Assert.assertNull(domainBlacklistFilter.filter("http://www.yahoo.com"));
-    Assert.assertNull(domainBlacklistFilter.filter("http://www.foobar.be"));
-    Assert.assertNotNull(domainBlacklistFilter.filter("http://www.adobe.com"));
+    conf.set("urlfilter.domaindenylist.file", domainDenylistFile);
+    DomainDenylistURLFilter domainDenylistFilter = new DomainDenylistURLFilter();
+    domainDenylistFilter.setConf(conf);
+    Assert.assertNull(domainDenylistFilter.filter("http://lucene.apache.org"));
+    Assert.assertNull(domainDenylistFilter.filter("http://hadoop.apache.org"));
+    Assert.assertNull(domainDenylistFilter.filter("http://www.apache.org"));
+    Assert.assertNotNull(domainDenylistFilter.filter("http://www.google.com"));
+    Assert.assertNotNull(domainDenylistFilter.filter("http://mail.yahoo.com"));
+    Assert.assertNull(domainDenylistFilter.filter("http://www.foobar.net"));
+    Assert.assertNull(domainDenylistFilter.filter("http://www.foobas.net"));
+    Assert.assertNull(domainDenylistFilter.filter("http://www.yahoo.com"));
+    Assert.assertNull(domainDenylistFilter.filter("http://www.foobar.be"));
+    Assert.assertNotNull(domainDenylistFilter.filter("http://www.adobe.com"));
   }
 
 }
