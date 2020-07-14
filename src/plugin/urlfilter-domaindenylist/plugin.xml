@@ -22,7 +22,7 @@
    provider-name="nutch.org">
 
    <runtime>
-      <library name="urlfilter-denyblacklist.jar">
+      <library name="urlfilter-domaindenylist.jar">
          <export name="*"/>
       </library>
    </runtime>
