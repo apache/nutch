@@ -4,7 +4,7 @@ Nutch 1.18 Development
 
 Breaking Changes
 
-    -  The plugin urlfilter-domainblacklist has been renamed to urlfilter-domaindenylist. And the fields required for the plugin urlfilter.domainblacklist.rules and urlfilter.domainblacklist.file has been replaced with urlfilter.domaindenylist.rules and urlfilter.domaindenylist.file respectively. 
+    -  As part of NUTCH-2805, the plugin urlfilter-domainblacklist has been renamed to urlfilter-domaindenylist. And the fields required for the plugin urlfilter.domainblacklist.rules and urlfilter.domainblacklist.file has been replaced with urlfilter.domaindenylist.rules and urlfilter.domaindenylist.file respectively. See NUTCH-2802 for more details.
 
 Nutch 1.17 Release 18/06/2020 (dd/mm/yyyy)
 Release Report: https://s.apache.org/ovhry
