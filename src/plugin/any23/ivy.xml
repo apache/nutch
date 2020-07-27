@@ -37,6 +37,7 @@
 
   <dependencies>
     <dependency org="org.apache.any23" name="apache-any23-core" rev="2.3" conf="*->default">
+      <exclude org="javax.ws.rs" name="javax.ws.rs-api" />
       <exclude org="org.apache.commons" name="commons-lang" />
       <exclude org="org.apache.commons" name="commons-compress" />
       <exclude org="org.slf4j" name="slf4j-api" />
