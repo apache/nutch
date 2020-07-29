@@ -16,13 +16,13 @@
  limitations under the License.
 -->
 <plugin
-   id="urlfilter-domainblacklist"
-   name="Domain Blacklist URL Filter"
+   id="urlfilter-domaindenylist"
+   name="Domain Denylist URL Filter"
    version="1.0.0"
    provider-name="nutch.org">
 
    <runtime>
-      <library name="urlfilter-domainblacklist.jar">
+      <library name="urlfilter-domaindenylist.jar">
          <export name="*"/>
       </library>
    </runtime>
@@ -31,12 +31,12 @@
       <import plugin="nutch-extensionpoints"/>
    </requires>
 
-   <extension id="org.apache.nutch.net.urlfilter.domainblacklist"
-              name="Nutch Domain Blacklist URL Filter"
+   <extension id="org.apache.nutch.net.urlfilter.domaindenylist"
+              name="Nutch Domain Denylist URL Filter"
               point="org.apache.nutch.net.URLFilter">
-      <implementation id="DomainBlacklistURLFilter"
-        class="org.apache.nutch.urlfilter.domainblacklist.DomainBlacklistURLFilter">
-        <parameter name="file" value="domainblacklist-urlfilter.txt"/>
+      <implementation id="DomainDenylistURLFilter"
+        class="org.apache.nutch.urlfilter.domaindenylist.DomainDenylistURLFilter">
+        <parameter name="file" value="domaindenylist-urlfilter.txt"/>
       </implementation>
    </extension>
 
