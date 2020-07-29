@@ -139,8 +139,8 @@ public class PrefixURLFilter implements URLFilter {
 
     // precedence hierarchy for definition of filter rules
     // (first non-empty definition takes precedence):
-    // 1. string rules defined by `urlfilter.domainblacklist.rules`
-    // 2. rule file name defined by `urlfilter.domainblacklist.file`
+    // 1. string rules defined by `urlfilter.domaindenylist.rules`
+    // 2. rule file name defined by `urlfilter.domaindenylist.file`
     // 3. rule file name defined in plugin.xml (`attributeFile`)
     String file = conf.get("urlfilter.prefix.file", attributeFile);
     String stringRules = conf.get("urlfilter.prefix.rules");

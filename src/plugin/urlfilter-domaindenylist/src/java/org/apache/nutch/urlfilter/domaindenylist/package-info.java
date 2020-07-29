@@ -20,5 +20,5 @@
  * See {@link org.apache.nutch.urlfilter.domain} for the counterpart (include only URLs
  * matching host or domain).
  */
-package org.apache.nutch.urlfilter.domainblacklist;
+package org.apache.nutch.urlfilter.domaindenylist;
 
