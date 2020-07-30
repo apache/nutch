@@ -73,7 +73,8 @@ public class UrlCleaner extends Configured implements Tool {
   }
 
   private static final String CHECK_DOMAIN = "urlcleaner.check.domain";
-  private static final String OUTPUT_TYPE = "urlcleaner.output.key.type";
+  private static final String OUTPUT_KEY_TYPE = "urlcleaner.output.key.type";
+  private static final String SUM_VALUES = "urlcleaner.sum.values";
 
   private Configuration config;
 
@@ -90,6 +91,7 @@ public class UrlCleaner extends Configured implements Tool {
     private boolean checkDomain;
     private boolean needDomain;
     private boolean needHost;
+    private boolean sumValues;
     private OutputKeyType outputType;
 
     @Override
@@ -99,7 +101,8 @@ public class UrlCleaner extends Configured implements Tool {
       urlNormalizers = new URLNormalizers(conf, scope);
       filters = new URLFilters(conf);
       checkDomain = conf.getBoolean(CHECK_DOMAIN, false);
-      outputType = OutputKeyType.get(conf.get(OUTPUT_TYPE));
+      sumValues = conf.getBoolean(SUM_VALUES, false);
+      outputType = OutputKeyType.get(conf.get(OUTPUT_KEY_TYPE));
       LOG.info("check domain names: {}", checkDomain);
       LOG.info("output type: {}", outputType);
       needDomain = checkDomain || outputType == OutputKeyType.DOMAIN
@@ -212,14 +215,42 @@ public class UrlCleaner extends Configured implements Tool {
         break;
       }
 
-      if (outputType != OutputKeyType.URL) {
-        key.set(keyVal);
-        value.set(addVal + "\t" + value.toString());
+      if (sumValues) {
+        if (outputType != OutputKeyType.URL) {
+          key.set(keyVal + "\t" + addVal);
+        }
+        context.write(key, value);
+      } else {
+        if (outputType != OutputKeyType.URL) {
+          key.set(keyVal);
+          value.set(addVal + "\t" + value.toString());
+        }
+        context.write(key, value);
       }
-
-      context.write(key, value);
     }
 
+  }
+
+  public static class UrlCleanerTextSumReducer
+      extends Reducer<Text, Text, Text, Text> {
+
+    private Text result = new Text();
+
+    public void reduce(Text key, Iterable<Text> values, Context context)
+        throws IOException, InterruptedException {
+      long sum = 0;
+      for (Text val : values) {
+        try {
+          long v = Long.parseLong(val.toString());
+          sum += v;
+        } catch (NumberFormatException e) {
+          LOG.error("Value is not a long integer (key: {} value: {})", key, val);
+          sum += 1;
+        }
+      }
+      result.set(Long.toString(sum));
+      context.write(key, result);
+    }
   }
 
   @Override
@@ -233,16 +264,21 @@ public class UrlCleaner extends Configured implements Tool {
   }
 
   public void clean(Path input, Path output, boolean checkDomain,
-      OutputKeyType outputType) throws Exception {
+      OutputKeyType outputKeyType, boolean sumValues) throws Exception {
 
     Configuration conf = getConf();
     conf.setBoolean(CHECK_DOMAIN, checkDomain);
-    conf.set(OUTPUT_TYPE, outputType.toString());
+    conf.set(OUTPUT_KEY_TYPE, outputKeyType.toString());
+    conf.setBoolean(SUM_VALUES, sumValues);
 
     Job job = Job.getInstance(conf, UrlCleaner.class.getName());
     job.setJarByClass(UrlCleaner.class);
     job.setMapperClass(UrlCleanerMapper.class);
-    job.setReducerClass(Reducer.class);
+    if (sumValues) {
+      job.setReducerClass(UrlCleanerTextSumReducer.class);
+    } else {
+      job.setReducerClass(Reducer.class);
+    }
     job.setInputFormatClass(KeyValueTextInputFormat.class);
     job.setOutputFormatClass(TextOutputFormat.class);
     job.setOutputKeyClass(Text.class);
@@ -272,14 +308,15 @@ public class UrlCleaner extends Configured implements Tool {
 
   public void usage() {
     System.err.println(
-        "Usage: UrlCleaner [-D...] [-checkDomain] [-outputKey <...>] <url_dir> <output_dir>\n");
+        "Usage: UrlCleaner [-D...] [-checkDomain] [-sumValues] [-outputKey <...>] <url_dir> <output_dir>\n");
   }
 
   @Override
   public int run(String[] args) throws Exception {
 
     boolean checkDomain = false;
-    OutputKeyType outputType = OutputKeyType.URL;
+    OutputKeyType outputKeyType = OutputKeyType.URL;
+    boolean sumValues = false;
 
     int i = 0;
     for (; i < (args.length - 2); i++) {
@@ -287,7 +324,9 @@ public class UrlCleaner extends Configured implements Tool {
         checkDomain = true;
       } else if (args[i].equals("-outputKey")) {
         String key = args[++i];
-        outputType = OutputKeyType.get(key);
+        outputKeyType = OutputKeyType.get(key);
+      } else if (args[i].equals("-sumValues")) {
+        sumValues = true;
       } else {
         LOG.info("Injector: Found invalid argument \"" + args[i] + "\"\n");
         usage();
@@ -304,7 +343,7 @@ public class UrlCleaner extends Configured implements Tool {
     Path output = new Path(args[1+i]);
 
     try {
-      clean(input, output, checkDomain, outputType);
+      clean(input, output, checkDomain, outputKeyType, sumValues);
     } catch (Exception e) {
       LOG.error("UrlCleaner: " + StringUtils.stringifyException(e));
       return -1;
