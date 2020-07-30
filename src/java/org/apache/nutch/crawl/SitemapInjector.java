@@ -452,6 +452,9 @@ public class SitemapInjector extends Injector {
           return;
         }
         LOG.info("parsed sitemap {} ({})", url, sitemap.getType());
+        context
+            .getCounter("SitemapInjector", "sitemap type: " + sitemap.getType())
+            .increment(1);
 
         if (checkCrossSubmits) {
           String host = sitemap.getUrl().getHost();
