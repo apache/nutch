@@ -17,13 +17,11 @@
 
 name: master pr build
 
-on: 
+on:
   push:
-    branches:
-      -master
+    branches: [ master ]
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
         
 
 jobs:
