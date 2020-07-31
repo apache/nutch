@@ -263,7 +263,7 @@ public class UrlCleaner extends Configured implements Tool {
     config = conf;
   }
 
-  public void clean(Path input, Path output, boolean checkDomain,
+  public void clean(Path[] inputs, Path output, boolean checkDomain,
       OutputKeyType outputKeyType, boolean sumValues) throws Exception {
 
     Configuration conf = getConf();
@@ -284,7 +284,9 @@ public class UrlCleaner extends Configured implements Tool {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Text.class);
 
-    KeyValueTextInputFormat.addInputPath(job, input);
+    for (Path input : inputs) {
+      KeyValueTextInputFormat.addInputPath(job, input);
+    }
     FileOutputFormat.setOutputPath(job, output);
 
     try {
@@ -308,7 +310,7 @@ public class UrlCleaner extends Configured implements Tool {
 
   public void usage() {
     System.err.println(
-        "Usage: UrlCleaner [-D...] [-checkDomain] [-sumValues] [-outputKey <...>] <url_dir> <output_dir>\n");
+        "Usage: UrlCleaner [-D...] [-checkDomain] [-sumValues] [-outputKey <...>] <url_dir>... <output_dir>\n");
   }
 
   @Override
@@ -328,9 +330,7 @@ public class UrlCleaner extends Configured implements Tool {
       } else if (args[i].equals("-sumValues")) {
         sumValues = true;
       } else {
-        LOG.info("Injector: Found invalid argument \"" + args[i] + "\"\n");
-        usage();
-        return -1;
+        break;
       }
     }
 
@@ -339,11 +339,14 @@ public class UrlCleaner extends Configured implements Tool {
       return -1;
     }
 
-    Path input = new Path(args[0+i]);
-    Path output = new Path(args[1+i]);
+    Path[] inputs = new Path[args.length - i - 1];
+    for (int j = 0; j < (args.length - i - 1); j++) {
+      inputs[j] = new Path(args[i + j]);
+    }
+    Path output = new Path(args[args.length - 1]);
 
     try {
-      clean(input, output, checkDomain, outputKeyType, sumValues);
+      clean(inputs, output, checkDomain, outputKeyType, sumValues);
     } catch (Exception e) {
       LOG.error("UrlCleaner: " + StringUtils.stringifyException(e));
       return -1;
