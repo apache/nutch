@@ -270,7 +270,7 @@ public class Generator2 extends Configured implements Tool {
       implements Configurable {
 
     private Configuration conf;
-    private MurmurHash hasher = new MurmurHash();
+    private MurmurHash hasher = (MurmurHash) MurmurHash.getInstance();
     private int seed;
 
     @Override
@@ -285,15 +285,19 @@ public class Generator2 extends Configured implements Tool {
     }
 
     /**
-     * Partition by host / domain, use murmurhash because of poor hashCode
+     * Partition by host / domain, use MurmurHash because of better hashCode
      * distribution
      */
     @Override
     public int getPartition(DomainScorePair key, Writable value,
         int numReduceTasks) {
-      byte[] domain = key.getDomain().getBytes();
-      return (hasher.hash(domain, domain.length, seed) & Integer.MAX_VALUE)
-          % numReduceTasks;
+      Text domain = key.getDomain();
+      /*
+       * Note: the backing byte[] array of Text may include zero bytes or
+       * garbage, must not use more than Text::getLength() bytes
+       */
+      return (hasher.hash(domain.getBytes(), domain.getLength(), seed)
+          & Integer.MAX_VALUE) % numReduceTasks;
     }
 
   }
@@ -446,6 +450,9 @@ public class Generator2 extends Configured implements Tool {
     private boolean byDomainWithHostLimits = false;
     private int maxCountPerHost = -1;
     private int maxHostsPerDomain = -1;
+    private int partition = -1;
+    private int numReduces = 1;
+    private Selector selector = new Selector();
     private Map<String, DomainLimits> domainLimits = null;
 
     public static class DomainLimits {
@@ -459,6 +466,17 @@ public class Generator2 extends Configured implements Tool {
         maxHosts = hosts;
         numPartitions = parts;
       }
+      @Override
+      public String toString() {
+        if (numPartitions > 1) {
+          return String.format(
+              "max. urls = %d, urls/host = %d, hosts = %d, partitions = %d",
+              maxURLs, maxURLsPerHost, maxHosts, numPartitions);
+        } else {
+          return String.format("max. urls = %d, urls/host = %d, hosts = %d",
+              maxURLs, maxURLsPerHost, maxHosts);
+        }
+      }
     }
 
     @Override
@@ -466,10 +484,15 @@ public class Generator2 extends Configured implements Tool {
       conf = context.getConfiguration();
       maxNumSegments = conf.getInt(GENERATOR_MAX_NUM_SEGMENTS, 1);
       maxCount = conf.getInt(GENERATOR_MAX_COUNT, -1);
+      partition = conf.getInt("mapreduce.task.partition", -1);
+      numReduces = conf.getInt("mapreduce.job.reduces", 1);
+      LOG.info("Selecting fetch lists for partition {} (out of {} partitions)",
+          partition, numReduces);
+      selector.setConf(conf);
       if (GENERATOR_COUNT_VALUE_DOMAIN.equals(conf.get(GENERATOR_COUNT_MODE))) {
         maxHostsPerDomain = conf.getInt(GENERATOR_MAX_HOSTS_PER_DOMAIN, -1);
         maxCountPerHost = conf.getInt(GENERATOR_MAX_COUNT_PER_HOST, -1);
-        domainLimits = readLimitsFile(conf);
+        domainLimits = readLimitsFile(conf, partition, numReduces, selector);
         if (domainLimits != null || maxHostsPerDomain > 0
             || maxCountPerHost > 0) {
           byDomainWithHostLimits = true;
@@ -511,12 +534,40 @@ public class Generator2 extends Configured implements Tool {
       return currentSegment;
     }
 
+    /**
+     * Read domain-specific limits into a map
+     * 
+     * @param conf
+     * @param partition
+     *          partition ID of current task: domains not matching the partition
+     *          ID are skipped to keep the map small
+     * @return map <domain, limits>
+     */
     public static Map<String, DomainLimits> readLimitsFile(Configuration conf) {
+      return readLimitsFile(conf, -1, 1, null);
+    }
+
+    /**
+     * Read domain-specific limits into a map
+     * 
+     * @param conf
+     * @param partition
+     *          partition ID of current task: domains not matching the partition
+     *          ID are skipped to keep the map small
+     * @param numReduces
+     *          number of reduce tasks determining number of partitions (fetch
+     *          lists)
+     * @param selector
+     *          Selector to determine partition ID for a given domain
+     * @return map <domain, limits>
+     */
+    private static Map<String, DomainLimits> readLimitsFile(Configuration conf,
+        int partition, int numReduces, Selector selector) {
       String limitsFile = conf.get(GENERATOR_DOMAIN_LIMITS_FILE);
       if (limitsFile != null) {
         LOG.info("Reading domain-specific limits from {}", limitsFile);
         try (Reader limitsReader = conf.getConfResourceAsReader(limitsFile)) {
-          return readLimitsFile(limitsReader);
+          return readLimitsFile(limitsReader, partition, numReduces, selector);
         } catch (IOException e) {
           LOG.error("Failed to read domain-specific limits", e);
         }
@@ -524,13 +575,8 @@ public class Generator2 extends Configured implements Tool {
       return null;
     }
 
-    /**
-     * Reads the domain-specific limits into a map
-     * 
-     * @param limitsReader  reader for limits file
-     */
-    public static Map<String, DomainLimits> readLimitsFile(Reader limitsReader)
-        throws IOException {
+    private static Map<String, DomainLimits> readLimitsFile(Reader limitsReader,
+        int partition, int numReduces, Selector selector) throws IOException {
 
       Map<String, DomainLimits> domainLimits = new HashMap<>();
 
@@ -538,6 +584,7 @@ public class Generator2 extends Configured implements Tool {
 
       String line = null;
       String[] splits = null;
+      int skipped = 0;
 
       // Read all lines
       while ((line = reader.readLine()) != null) {
@@ -560,9 +607,24 @@ public class Generator2 extends Configured implements Tool {
             LOG.warn("Invalid number in line: {} - {}", line, e.getMessage());
             continue;
           }
-          domainLimits.put(StringUtils.lowerCase(splits[0]),
+          String domain = splits[0].toLowerCase(Locale.ROOT);
+          if (partition >= 0) {
+            DomainScorePair key = new DomainScorePair();
+            key.set(domain, .0f);
+            int p = selector.getPartition(key, null, numReduces);
+            if (p != partition) {
+              skipped++;
+              continue;
+            }
+          }
+          domainLimits.put(domain,
               new DomainLimits(urls, urlsHost, hosts, parts));
         }
+      }
+      LOG.info("Loaded domain limits for {} domains", domainLimits.size());
+      if (skipped > 0) {
+        LOG.info(" - skipped {} domains because of unmatched partition ID {}",
+            skipped, partition);
       }
       return domainLimits;
     }
@@ -591,9 +653,16 @@ public class Generator2 extends Configured implements Tool {
         hosts = new HashMap<>();
         segments = new int[maxNumSegments];
         domain = key.getDomain().toString();
+        int p = selector.getPartition(key, null, numReduces);
+        if (p != partition) {
+          LOG.error(
+              "Partition for domain {} not equal task partition: {} <> {}",
+              domain, p, partition);
+        }
         if (domainLimits != null) {
           DomainLimits limits = domainLimits.get(key.domain.toString());
           if (limits != null) {
+            LOG.info("Domain-specific limits for {}: {}", key.domain, limits);
             maxCountPerSegment = limits.maxURLs;
             maxCountPerHostTotal = limits.maxURLsPerHost * maxNumSegments;
             maxHosts = limits.maxHosts;

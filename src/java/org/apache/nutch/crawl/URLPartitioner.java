@@ -93,6 +93,8 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
         partitionsPerDomain.put(e.getKey(), e.getValue().numPartitions);
       }
     }
+    LOG.info("Loaded domain-specific numbers of fetch lists for {} domains",
+        partitionsPerDomain.size());
   }
 
   @Override
