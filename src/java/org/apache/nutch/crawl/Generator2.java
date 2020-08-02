@@ -141,6 +141,11 @@ public class Generator2 extends Configured implements Tool {
       this.score.set(score);
     }
 
+    public void set(Text domain, float score) {
+      this.domain.set(domain);
+      this.score.set(score);
+    }
+
     public Text getDomain() {
       return domain;
     }

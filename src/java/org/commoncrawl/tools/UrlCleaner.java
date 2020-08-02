@@ -236,6 +236,7 @@ public class UrlCleaner extends Configured implements Tool {
 
     private Text result = new Text();
 
+    @Override
     public void reduce(Text key, Iterable<Text> values, Context context)
         throws IOException, InterruptedException {
       long sum = 0;
