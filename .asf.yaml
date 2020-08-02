@@ -1,0 +1,16 @@
+github:
+  description: "Apache Nutch is an extensible and scalable web crawler"
+  homepage: https://nutch.apache.org/
+  labels:
+    - web-crawler
+    - crawling
+    - java
+    - nutch
+    - hadoop
+    - apache
+
+notifications:
+  commits:      commits@nutch.apache.org
+  issues:       dev@nutch.apache.org
+  pullrequests: dev@nutch.apache.org
+  jira_options: link label comment
