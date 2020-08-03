@@ -142,7 +142,7 @@ public class MoreIndexingFilter implements IndexingFilter {
             "MMM dd yyyy HH:mm:ss. zzz", "MMM dd yyyy HH:mm:ss zzz",
             "dd.MM.yyyy HH:mm:ss zzz", "dd MM yyyy HH:mm:ss zzz",
             "dd.MM.yyyy; HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy zzz",
-            "yyyy-MM-dd'T'HH:mm:ssXXX" });
+            "yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd'T'HH:mm:ss" });
         time = parsedDate.getTime();
         // if (LOG.isWarnEnabled()) {
         // LOG.warn(url + ": parsed date: " + date +" to:"+time);
