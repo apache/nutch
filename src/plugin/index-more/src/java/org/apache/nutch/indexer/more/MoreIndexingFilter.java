@@ -82,6 +82,19 @@ public class MoreIndexingFilter implements IndexingFilter {
   private HashMap<String, String> mimeMap = null;
   private boolean mapMimes = false;
   private String mapFieldName;
+  
+  private String[] dateStyles = new String[] {
+            "EEE MMM dd HH:mm:ss yyyy", "EEE MMM dd HH:mm:ss yyyy zzz",
+            "EEE MMM dd HH:mm:ss zzz yyyy", "EEE, MMM dd HH:mm:ss yyyy zzz",
+            "EEE, dd MMM yyyy HH:mm:ss zzz", "EEE,dd MMM yyyy HH:mm:ss zzz",
+            "EEE, dd MMM yyyy HH:mm:sszzz", "EEE, dd MMM yyyy HH:mm:ss",
+            "EEE, dd-MMM-yy HH:mm:ss zzz", "yyyy/MM/dd HH:mm:ss.SSS zzz",
+            "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm:ss zzz", "yyyy/MM/dd",
+            "yyyy.MM.dd HH:mm:ss", "yyyy-MM-dd HH:mm",
+            "MMM dd yyyy HH:mm:ss. zzz", "MMM dd yyyy HH:mm:ss zzz",
+            "dd.MM.yyyy HH:mm:ss zzz", "dd MM yyyy HH:mm:ss zzz",
+            "dd.MM.yyyy; HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy zzz",
+            "yyyy-MM-dd'T'HH:mm:ssXXX" };
 
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
@@ -131,18 +144,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     } catch (ParseException e) {
       // try to parse it as date in alternative format
       try {
-        Date parsedDate = DateUtils.parseDate(date, new String[] {
-            "EEE MMM dd HH:mm:ss yyyy", "EEE MMM dd HH:mm:ss yyyy zzz",
-            "EEE MMM dd HH:mm:ss zzz yyyy", "EEE, MMM dd HH:mm:ss yyyy zzz",
-            "EEE, dd MMM yyyy HH:mm:ss zzz", "EEE,dd MMM yyyy HH:mm:ss zzz",
-            "EEE, dd MMM yyyy HH:mm:sszzz", "EEE, dd MMM yyyy HH:mm:ss",
-            "EEE, dd-MMM-yy HH:mm:ss zzz", "yyyy/MM/dd HH:mm:ss.SSS zzz",
-            "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm:ss zzz", "yyyy/MM/dd",
-            "yyyy.MM.dd HH:mm:ss", "yyyy-MM-dd HH:mm",
-            "MMM dd yyyy HH:mm:ss. zzz", "MMM dd yyyy HH:mm:ss zzz",
-            "dd.MM.yyyy HH:mm:ss zzz", "dd MM yyyy HH:mm:ss zzz",
-            "dd.MM.yyyy; HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy zzz",
-            "yyyy-MM-dd'T'HH:mm:ssXXX" });
+        Date parsedDate = DateUtils.parseDate(date, dateStyles);
         time = parsedDate.getTime();
         // if (LOG.isWarnEnabled()) {
         // LOG.warn(url + ": parsed date: " + date +" to:"+time);
@@ -314,6 +316,39 @@ public class MoreIndexingFilter implements IndexingFilter {
         readConfiguration();
       } catch (Exception e) {
         LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
+      }
+    }
+    
+    URL res = conf.getResource("date-styles.txt");
+    if (res == null) {
+      LOG.warn("Can't find resource: date-styles.txt");
+    } else {
+      try {
+        List lines = FileUtils.readLines(new File(res.getFile()));
+        for (int i = 0; i < lines.size(); i++) {
+          String dateStyle = (String) lines.get(i);
+          
+          if (StringUtils.isBlank(dateStyle)) {
+            lines.remove(i);
+            i--;
+            continue;
+          }
+          
+          dateStyle = StringUtils.trim(dateStyle);
+          
+          if (dateStyle.startsWith("#")) {
+            lines.remove(i);
+            i--;
+            continue;
+          }
+          
+          lines.set(i, dateStyle);
+        }
+        
+        dateStyles = new String[lines.size()];
+        lines.toArray(dateStyles);
+      } catch (IOException e) {
+        LOG.error("Failed to load resource: date-styles.txt");
       }
     }
   }
