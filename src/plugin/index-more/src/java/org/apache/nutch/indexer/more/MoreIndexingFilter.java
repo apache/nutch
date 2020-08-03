@@ -54,6 +54,11 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 
+import java.io.File;
+import java.net.URL;
+import java.util.List;
+import org.apache.commons.io.FileUtils
+
 /**
  * Add (or reset) a few metaData properties as respective fields (if they are
  * available), so that they can be accurately used within the search index.
@@ -83,6 +88,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   private boolean mapMimes = false;
   private String mapFieldName;
   
+  /** Date-styles used to parse date. */
   private String[] dateStyles = new String[] {
             "EEE MMM dd HH:mm:ss yyyy", "EEE MMM dd HH:mm:ss yyyy zzz",
             "EEE MMM dd HH:mm:ss zzz yyyy", "EEE, MMM dd HH:mm:ss yyyy zzz",
