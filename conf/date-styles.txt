@@ -1,0 +1,44 @@
+EEE MMM dd HH:mm:ss yyyy
+EEE MMM dd HH:mm:ss yyyy zzz
+EEE MMM dd HH:mm:ss zzz yyyy
+EEE, MMM dd HH:mm:ss yyyy zzz
+EEE MMM dd HH:mm:ss zzz yyyy
+EEE, MMM dd HH:mm:ss yyyy zzz
+EEE, dd MMM yyyy HH:mm:ss zzz
+EEE,dd MMM yyyy HH:mm:ss zzz
+EEE, dd MMM yyyy HH:mm:ss zzz
+EEE,dd MMM yyyy HH:mm:ss zzz
+EEE, dd MMM yyyy HH:mm:sszzz
+EEE, dd MMM yyyy HH:mm:ss
+EEE, dd MMM yyyy HH:mm:sszzz
+EEE, dd MMM yyyy HH:mm:ss
+EEE, dd-MMM-yy HH:mm:ss zzz
+yyyy/MM/dd HH:mm:ss.SSS zzz
+EEE, dd-MMM-yy HH:mm:ss zzz
+yyyy/MM/dd HH:mm:ss.SSS zzz
+yyyy/MM/dd HH:mm:ss.SSS
+yyyy/MM/dd HH:mm:ss zzz
+yyyy/MM/dd
+yyyy/MM/dd HH:mm:ss.SSS
+yyyy/MM/dd HH:mm:ss zzz
+yyyy/MM/dd
+yyyy.MM.dd HH:mm:ss
+yyyy-MM-dd HH:mm
+yyyy.MM.dd HH:mm:ss
+yyyy-MM-dd HH:mm
+MMM dd yyyy HH:mm:ss. zzz
+MMM dd yyyy HH:mm:ss zzz
+MMM dd yyyy HH:mm:ss. zzz
+MMM dd yyyy HH:mm:ss zzz
+dd.MM.yyyy HH:mm:ss zzz
+dd MM yyyy HH:mm:ss zzz
+dd.MM.yyyy HH:mm:ss zzz
+dd MM yyyy HH:mm:ss zzz
+dd.MM.yyyy; HH:mm:ss
+dd.MM.yyyy HH:mm:ss
+dd.MM.yyyy zzz
+dd.MM.yyyy; HH:mm:ss
+dd.MM.yyyy HH:mm:ss
+dd.MM.yyyy zzz
+yyyy-MM-dd'T'HH:mm:ssXXX
+yyyy-MM-dd'T'HH:mm:ss
