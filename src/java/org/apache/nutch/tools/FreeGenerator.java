@@ -208,6 +208,7 @@ public class FreeGenerator extends Configured implements Tool {
           "FreeGenerator: running in local mode, generating exactly one partition.");
       numFetchers = 1;
     }
+    job.setNumReduceTasks(numFetchers);
     job.setOutputFormatClass(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
