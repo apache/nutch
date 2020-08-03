@@ -325,12 +325,12 @@ public class MoreIndexingFilter implements IndexingFilter {
       }
     }
     
-    URL res = conf.getResource("date-styles.txt");
-    if (res == null) {
+    URL dateStylesResource = conf.getResource("date-styles.txt");
+    if (dateStylesResource == null) {
       LOG.warn("Can't find resource: date-styles.txt");
     } else {
       try {
-        List lines = FileUtils.readLines(new File(res.getFile()));
+        List lines = FileUtils.readLines(new File(dateStylesResource.getFile()));
         for (int i = 0; i < lines.size(); i++) {
           String dateStyle = (String) lines.get(i);
           
