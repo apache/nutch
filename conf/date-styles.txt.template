@@ -16,7 +16,9 @@
 # Set of date time formats
 # used by the plugin index-more when filling the index field `lastModified'.
 #
-# Format (line separated date time patterns following definition in https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html, comment lines start with `#'):
+# Format (line separated date time patterns following definition in
+# https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html,
+# comment lines start with `#'):
 #
 #  <date format> <CR>
 #  <date format2> [<CR> <date format3> ...]
