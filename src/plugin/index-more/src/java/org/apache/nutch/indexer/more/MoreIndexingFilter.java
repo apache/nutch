@@ -106,11 +106,11 @@ public class MoreIndexingFilter implements IndexingFilter {
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
-    String url = url.toString();
+    String url_s = url.toString();
 
-    addTime(doc, parse.getData(), url, datum);
+    addTime(doc, parse.getData(), url_s, datum);
     addLength(doc, parse.getData());
-    addType(doc, parse.getData(), url, datum);
+    addType(doc, parse.getData(), url_s, datum);
     resetTitle(doc, parse.getData());
 
     return doc;
