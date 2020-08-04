@@ -57,7 +57,9 @@ import org.apache.commons.lang.time.DateUtils;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
+import java.util.ArrayList;
 import org.apache.commons.io.FileUtils;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Add (or reset) a few metaData properties as respective fields (if they are
@@ -332,8 +334,9 @@ public class MoreIndexingFilter implements IndexingFilter {
       LOG.warn("Can't find resource: date-styles.txt - Defaults will be used.");
     } else {
       try {
-        List<String> usedLines = new List<String>();
-        for (String dateStyle: FileUtils.readLines(new File(dateStylesResource.getFile()))) {
+        List<String> usedLines = new ArrayList<String>();
+        for (String dateStyle: FileUtils.readLines(new File(dateStylesResource.getFile()),
+            StandardCharsets.US_ASCII)) {
           if (StringUtils.isBlank(dateStyle) || dateStyle.startsWith("#")) {
             continue;
           }
