@@ -57,7 +57,7 @@ import org.apache.commons.lang.time.DateUtils;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
-import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FileUtils;
 
 /**
  * Add (or reset) a few metaData properties as respective fields (if they are
@@ -89,7 +89,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   private String mapFieldName;
   
   /** Date-styles used to parse date. */
-  private String[] dateStyles = new String[] {
+  private String[] defaultDateStyles = new String[] {
             "EEE MMM dd HH:mm:ss yyyy", "EEE MMM dd HH:mm:ss yyyy zzz",
             "EEE MMM dd HH:mm:ss zzz yyyy", "EEE, MMM dd HH:mm:ss yyyy zzz",
             "EEE, dd MMM yyyy HH:mm:ss zzz", "EEE,dd MMM yyyy HH:mm:ss zzz",
@@ -101,6 +101,7 @@ public class MoreIndexingFilter implements IndexingFilter {
             "dd.MM.yyyy HH:mm:ss zzz", "dd MM yyyy HH:mm:ss zzz",
             "dd.MM.yyyy; HH:mm:ss", "dd.MM.yyyy HH:mm:ss", "dd.MM.yyyy zzz",
             "yyyy-MM-dd'T'HH:mm:ssXXX" };
+  private String[] dateStyles = null;
 
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
@@ -327,6 +328,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     
     URL dateStylesResource = conf.getResource("date-styles.txt");
     if (dateStylesResource == null) {
+      dateStyles = defaultDateStyles;
       LOG.warn("Can't find resource: date-styles.txt");
     } else {
       try {
