@@ -329,7 +329,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     URL dateStylesResource = conf.getResource("date-styles.txt");
     if (dateStylesResource == null) {
       dateStyles = defaultDateStyles;
-      LOG.warn("Can't find resource: date-styles.txt");
+      LOG.warn("Can't find resource: date-styles.txt - Defaults will be used.");
     } else {
       try {
         List lines = FileUtils.readLines(new File(dateStylesResource.getFile()));
