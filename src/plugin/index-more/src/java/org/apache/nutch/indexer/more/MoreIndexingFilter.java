@@ -62,16 +62,16 @@ import org.apache.commons.io.FileUtils;
 /**
  * Add (or reset) a few metaData properties as respective fields (if they are
  * available), so that they can be accurately used within the search index.
- * 
+ *
  * 'lastModifed' is indexed to support query by date, 'contentLength' obtains
  * content length from the HTTP header, 'type' field is indexed to support query
  * by type and finally the 'title' field is an attempt to reset the title if a
  * content-disposition hint exists. The logic is that such a presence is
  * indicative that the content provider wants the filename therein to be used as
  * the title.
- * 
+ *
  * Still need to make content-length searchable!
- * 
+ *
  * @author John Xing
  */
 
@@ -87,7 +87,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   private HashMap<String, String> mimeMap = null;
   private boolean mapMimes = false;
   private String mapFieldName;
-  
+
   /** Date-styles used to parse date. */
   private String[] defaultDateStyles = new String[] {
             "EEE MMM dd HH:mm:ss yyyy", "EEE MMM dd HH:mm:ss yyyy zzz",
@@ -106,12 +106,12 @@ public class MoreIndexingFilter implements IndexingFilter {
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
-    String url_s = url.toString();
+    String url = url.toString();
 
-    addTime(doc, parse.getData(), url_s, datum);
-    addLength(doc, parse.getData(), url_s);
-    addType(doc, parse.getData(), url_s, datum);
-    resetTitle(doc, parse.getData(), url_s);
+    addTime(doc, parse.getData(), url, datum);
+    addLength(doc, parse.getData());
+    addType(doc, parse.getData(), url, datum);
+    resetTitle(doc, parse.getData());
 
     return doc;
   }
@@ -146,6 +146,7 @@ public class MoreIndexingFilter implements IndexingFilter {
 
   private long getTime(String date, String url) {
     long time = -1;
+
     try {
       time = HttpDateFormat.toLong(date);
     } catch (ParseException e) {
@@ -153,25 +154,24 @@ public class MoreIndexingFilter implements IndexingFilter {
       try {
         Date parsedDate = DateUtils.parseDate(date, dateStyles);
         time = parsedDate.getTime();
-        // if (LOG.isWarnEnabled()) {
-        // LOG.warn(url + ": parsed date: " + date +" to:"+time);
-        // }
+        LOG.info(url + ": parsed date: " + date +" to: " + time);
       } catch (Exception e2) {
         if (LOG.isWarnEnabled()) {
           LOG.warn(url + ": can't parse erroneous date: " + date);
         }
       }
     }
+
     return time;
   }
 
   // Add Content-Length
-  private NutchDocument addLength(NutchDocument doc, ParseData data, String url) {
+  private NutchDocument addLength(NutchDocument doc, ParseData data) {
     String contentLength = data.getMeta(Response.CONTENT_LENGTH);
 
     if (contentLength != null) {
       // NUTCH-1010 ContentLength not trimmed
-      String trimmed = contentLength.toString().trim();
+      String trimmed = contentLength.trim();
       if (!trimmed.isEmpty())
         doc.add("contentLength", trimmed);
     }
@@ -192,7 +192,7 @@ public class MoreIndexingFilter implements IndexingFilter {
    * all case insensitive. The query filter is implemented in
    * {@link TypeQueryFilter}.
    * </p>
-   * 
+   *
    * @param doc
    * @param data
    * @param url
@@ -205,10 +205,13 @@ public class MoreIndexingFilter implements IndexingFilter {
 
     Writable tcontentType = datum.getMetaData().get(
         new Text(Response.CONTENT_TYPE));
+
     if (tcontentType != null) {
       contentType = tcontentType.toString();
-    } else
+    } else {
       contentType = data.getMeta(Response.CONTENT_TYPE);
+    }
+
     if (contentType == null) {
       // Note by Jerome Charron on 20050415:
       // Content Type not solved by a previous plugin
@@ -233,14 +236,11 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
 
     // Check if we have to map mime types
-    if (mapMimes) {
-      // Check if the current mime is mapped
-      if (mimeMap.containsKey(mimeType)) {
-        if (mapFieldName != null) {
-          doc.add(mapFieldName, mimeMap.get(mimeType));
-        } else {
-          mimeType = mimeMap.get(mimeType);
-        }
+    if (mapMimes && mimeMap.containsKey(mimeType)) {
+      if (mapFieldName != null) {
+        doc.add(mapFieldName, mimeMap.get(mimeType));
+      } else {
+        mimeType = mimeMap.get(mimeType);
       }
     }
 
@@ -264,7 +264,7 @@ public class MoreIndexingFilter implements IndexingFilter {
 
   /**
    * Utility method for splitting mime type into type and subtype.
-   * 
+   *
    * @param mimeType
    * @return
    */
@@ -281,7 +281,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   // Content-Disposition: inline; filename="foo.ppt"
   private Configuration conf;
 
-  static Pattern patterns[] = { null, null };
+  static Pattern[] patterns = { null, null };
 
   static {
     try {
@@ -293,7 +293,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
   }
 
-  private NutchDocument resetTitle(NutchDocument doc, ParseData data, String url) {
+  private NutchDocument resetTitle(NutchDocument doc, ParseData data) {
     String contentDisposition = data.getMeta(Metadata.CONTENT_DISPOSITION);
     if (contentDisposition == null || doc.getFieldValue("title") != null)
       return doc;
@@ -325,36 +325,24 @@ public class MoreIndexingFilter implements IndexingFilter {
         LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
       }
     }
-    
+
     URL dateStylesResource = conf.getResource("date-styles.txt");
     if (dateStylesResource == null) {
       dateStyles = defaultDateStyles;
       LOG.warn("Can't find resource: date-styles.txt - Defaults will be used.");
     } else {
       try {
-        List lines = FileUtils.readLines(new File(dateStylesResource.getFile()));
-        for (int i = 0; i < lines.size(); i++) {
-          String dateStyle = (String) lines.get(i);
-          
-          if (StringUtils.isBlank(dateStyle)) {
-            lines.remove(i);
-            i--;
+        List<String> usedLines = new List<String>();
+        for (String dateStyle: FileUtils.readLines(new File(dateStylesResource.getFile()))) {
+          if (StringUtils.isBlank(dateStyle) || dateStyle.startsWith("#")) {
             continue;
           }
-          
-          dateStyle = StringUtils.trim(dateStyle);
-          
-          if (dateStyle.startsWith("#")) {
-            lines.remove(i);
-            i--;
-            continue;
-          }
-          
-          lines.set(i, dateStyle);
+
+          usedLines.add(StringUtils.trim(dateStyle));
         }
-        
-        dateStyles = new String[lines.size()];
-        lines.toArray(dateStyles);
+
+        dateStyles = new String[usedLines.size()];
+        usedLines.toArray(dateStyles);
       } catch (IOException e) {
         LOG.error("Failed to load resource: date-styles.txt");
       }
@@ -367,16 +355,19 @@ public class MoreIndexingFilter implements IndexingFilter {
 
   private void readConfiguration() throws IOException {
     LOG.info("Reading content type mappings from file contenttype-mapping.txt");
-    BufferedReader reader = new BufferedReader(
-        conf.getConfResourceAsReader("contenttype-mapping.txt"));
-    String line;
-    String parts[];
-    boolean formatWarningShown = false;
+    try(BufferedReader reader = new BufferedReader(
+        conf.getConfResourceAsReader("contenttype-mapping.txt"))) {
+      String line;
+      String[] parts;
+      boolean formatWarningShown = false;
 
-    mimeMap = new HashMap<String, String>();
+      mimeMap = new HashMap<String, String>();
 
-    while ((line = reader.readLine()) != null) {
-      if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
+      while ((line = reader.readLine()) != null) {
+        if (StringUtils.isBlank(line) || line.startsWith("#")) {
+          continue;
+        }
+
         line = line.trim();
         parts = line.split("\t");
 
