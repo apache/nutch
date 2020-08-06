@@ -33,6 +33,9 @@
   <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
   <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
+  <property name="spotbugs.version" value="4.1.1" />
+  <property name="spotbugs.home" value="${basedir}/lib/spotbugs-${spotbugs.version}" />
+  <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
   <!-- the normal classpath -->
   <path id="classpath">
@@ -1017,6 +1020,74 @@
       </fileset>
     </rat:report>
   </target>
+
+  <!-- ================================================================== -->
+  <!-- Spotbugs                                                           -->
+  <!-- ================================================================== -->
+  <target name="spotbugs-download" description="--> download spotbugs jar">
+    <available file="${spotbugs.jar}" property="spotbugs.jar.found"/>
+    <antcall target="spotbugs-download-unchecked"/>
+  </target>
+
+  <target name="spotbugs-download-unchecked" unless="spotbugs.jar.found"
+          description="--> downloads the spotbugs binary (spotbugs-*.tgz).">
+    <get src="https://github.com/spotbugs/spotbugs/releases/download/${spotbugs.version}/spotbugs-${spotbugs.version}.tgz "
+         dest="${basedir}/lib/spotbugs-${spotbugs.version}.tgz" usetimestamp="false" />
+
+    <untar src="${basedir}/lib/spotbugs-${spotbugs.version}.tgz"
+           dest="${basedir}/lib/" compression="gzip">
+    </untar>
+
+    <delete file="${basedir}/lib/spotbugs-${spotbugs.version}.tgz" />
+  </target>
+
+  <taskdef
+    resource="edu/umd/cs/findbugs/anttask/tasks.properties"
+    classpath="${spotbugs.jar}" />
+
+  <target name="spotbugs" depends="jar, compile-plugins, spotbugs-download" description="--> runs spotbugs source code analysis.">
+    <spotbugs home="${spotbugs.home}"
+            output="html"
+            outputFile="${build.dir}/nutch-spotbugs.html"
+            projectName="Apache Nutch Spotbugs Analysis"
+            stylesheet="fancy-hist.xsl" >
+      <auxClasspath>
+        <!-- depency jars required for analysis but not analyzed (not our bugs) -->
+        <pathelement path="${basedir}/${build.dir}/lib"/>
+        <fileset dir="${basedir}/${build.dir}/plugins">
+          <include name="**/*.jar"/>
+        </fileset>
+      </auxClasspath>
+      <sourcePath>
+        <fileset dir="${basedir}/src/java" />
+        <fileset dir="${basedir}/src/plugin">
+          <include name="*/src/java/**/*.java" />
+        </fileset>
+      </sourcePath>
+      <!-- jars to be analyzed:  -->
+      <!-- 1. apache-nutch-*.jar -->
+      <fileset dir="${build.dir}">
+        <include name="${final.name}.jar" />
+      </fileset>
+      <!-- 2. plugin jars, eg. build/feed/feed.jar -->
+      <fileset dir="${build.dir}/">
+        <include name="*/*.jar" />
+        <exclude name="lib/*.jar"/>
+      </fileset>
+    </spotbugs>
+  </target>
+  <path id="eclipse.classpath">
+    <fileset dir="${build.lib.dir}">
+      <include name="*.jar" />
+      <exclude name="ant-eclipse-1.0-jvm1.2.jar" />
+    </fileset>
+    <fileset dir="${build.plugins}">
+      <include name="**/*.jar" />
+    </fileset>
+    <fileset dir="${test.build.lib.dir}">
+      <include name="*.jar" />
+    </fileset>
+  </path>
 
 
   <!-- ================================================================== -->
