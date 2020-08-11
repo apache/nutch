@@ -66,7 +66,6 @@ public class FileResponse {
   private final File file;
   private Configuration conf;
 
-  private MimeUtil MIME;
   private Tika tika;
 
   /** Returns the response code. */
@@ -106,23 +105,21 @@ public class FileResponse {
     this.file = file;
     this.conf = conf;
 
-    MIME = new MimeUtil(conf);
     tika = new Tika();
 
     if (!"file".equals(url.getProtocol()))
       throw new FileException("Not a file url:" + url);
 
     if (File.LOG.isTraceEnabled()) {
-      File.LOG.trace("fetching " + url);
+      File.LOG.trace("fetching {}", url);
     }
 
-    if (url.getPath() != url.getFile()) {
-      if (File.LOG.isWarnEnabled()) {
-        File.LOG.warn("url.getPath() != url.getFile(): " + url);
-      }
+    if (url.getQuery() != null) {
+      File.LOG.warn(
+          "file:// URL may not include a query (query part ignored): {}", url);
     }
 
-    String path = "".equals(url.getPath()) ? "/" : url.getPath();
+    String path = url.getPath().isEmpty() ? "/" : url.getPath();
 
     try {
       // specify the encoding via the config later?

@@ -85,13 +85,12 @@ public class FtpResponse {
     if (!"ftp".equals(url.getProtocol()))
       throw new FtpException("Not a ftp url:" + url);
 
-    if (url.getPath() != url.getFile()) {
-      if (Ftp.LOG.isWarnEnabled()) {
-        Ftp.LOG.warn("url.getPath() != url.getFile(): " + url);
-      }
+    if (url.getQuery() != null) {
+      Ftp.LOG.warn(
+          "ftp:// URL may not include a query (query part ignored): {}", url);
     }
 
-    String path = "".equals(url.getPath()) ? "/" : url.getPath();
+    String path = url.getPath().isEmpty() ? "/" : url.getPath();
 
     try {
 
