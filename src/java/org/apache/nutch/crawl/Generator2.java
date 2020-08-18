@@ -653,6 +653,8 @@ public class Generator2 extends Configured implements Tool {
       }
       int maxHosts = maxHostsPerDomain;
       int maxHostsOverflowCount = 0;
+      int maxUrlsPerHostOverflowCount = 0;
+      boolean maxUrlsOverflow = false;
       String domain = null;
       if (byDomainWithHostLimits) {
         hosts = new HashMap<>();
@@ -681,16 +683,17 @@ public class Generator2 extends Configured implements Tool {
 
       for (SelectorEntry entry : values) {
 
-        hostOrDomainCount++;
-
-        if (maxCountTotal > 0 && hostOrDomainCount > maxCountTotal) {
+        if (maxCountTotal > 0 && hostOrDomainCount >= maxCountTotal) {
           LOG.info(
               "Host or domain {} has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
               key.getDomain(), maxCountTotal, maxNumSegments);
           context.getCounter("Generator", "SKIPPED_DOMAINS_OVERFLOW")
               .increment(1);
+          maxUrlsOverflow = true;
           break;
         }
+
+        hostOrDomainCount++;
 
         if (byDomainWithHostLimits) {
           String host = null;
@@ -730,6 +733,7 @@ public class Generator2 extends Configured implements Tool {
             }
             context.getCounter("Generator", "SKIPPED_URLS_HOST_OVERFLOW")
               .increment(1);
+            maxUrlsPerHostOverflowCount++;
             counts[0]++;
             continue;
           } else if ((counts[2] % keepMinUrlsPerSegment) == 0) {
@@ -774,6 +778,12 @@ public class Generator2 extends Configured implements Tool {
             "Domain {} has more than {} hosts, skipped {} URLs from remaining hosts",
             key.getDomain(), maxHosts, maxHostsOverflowCount);
       }
+
+      // log metrics per host/domain
+      LOG.info(
+          "{} :: selected={}, selected_hosts={}, max_urls_overflow={}, max_hosts_overflow={}, max_urls_per_host_overflow={}",
+          key.getDomain(), hostOrDomainCount, hosts.size(), maxUrlsOverflow,
+          maxHostsOverflowCount, maxUrlsPerHostOverflowCount);
     }
 
   }

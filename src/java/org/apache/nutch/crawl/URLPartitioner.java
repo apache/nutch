@@ -94,7 +94,7 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
       }
     }
     LOG.info("Loaded domain-specific numbers of fetch lists for {} domains",
-        partitionsPerDomain.size());
+        (partitionsPerDomain != null ? partitionsPerDomain.size() : 0));
   }
 
   @Override
