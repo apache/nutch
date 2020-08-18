@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.urlfilter.domainblacklist;
+package org.apache.nutch.urlfilter.domaindenylist;
 
 import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
@@ -62,12 +62,12 @@ import org.apache.nutch.util.domain.DomainSuffix;
  * overriding the more specific.
  * </p>
  * 
- * The domain file defaults to domainblacklist-urlfilter.txt in the classpath
+ * The domain file defaults to domaindenylist-urlfilter.txt in the classpath
  * but can be overridden using the:
  * 
  * <ul>
  * <li>
- * property "urlfilter.domainblacklist.file" in ./conf/nutch-*.xml, and
+ * property "urlfilter.domaindenylist.file" in ./conf/nutch-*.xml, and
  * </li>
  * <li>
  * attribute "file" in plugin.xml of this plugin
@@ -75,7 +75,7 @@ import org.apache.nutch.util.domain.DomainSuffix;
  * </ul>
  * 
  */
-public class DomainBlacklistURLFilter implements URLFilter {
+public class DomainDenylistURLFilter implements URLFilter {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -105,7 +105,7 @@ public class DomainBlacklistURLFilter implements URLFilter {
     this.conf = conf;
 
     // get the extensions for domain urlfilter
-    String pluginName = "urlfilter-domainblacklist";
+    String pluginName = "urlfilter-domaindenylist";
     Extension[] extensions = PluginRepository.get(conf)
         .getExtensionPoint(URLFilter.class.getName()).getExtensions();
     for (int i = 0; i < extensions.length; i++) {
@@ -127,11 +127,11 @@ public class DomainBlacklistURLFilter implements URLFilter {
 
     // precedence hierarchy for definition of filter rules
     // (first non-empty definition takes precedence):
-    // 1. string rules defined by `urlfilter.domainblacklist.rules`
-    // 2. rule file name defined by `urlfilter.domainblacklist.file`
+    // 1. string rules defined by `urlfilter.domaindenylist.rules`
+    // 2. rule file name defined by `urlfilter.domaindenylist.file`
     // 3. rule file name defined in plugin.xml (`attributeFile`)
-    String stringRules = conf.get("urlfilter.domainblacklist.rules");
-    String file = conf.get("urlfilter.domainblacklist.file", attributeFile);
+    String stringRules = conf.get("urlfilter.domaindenylist.rules");
+    String file = conf.get("urlfilter.domaindenylist.file", attributeFile);
     Reader reader = null;
     if (stringRules != null) { // takes precedence over files
       reader = new StringReader(stringRules);

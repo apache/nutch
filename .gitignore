@@ -10,6 +10,7 @@ logs/
 ivy/ivy-2.3.0.jar
 ivy/ivy-2.4.0.jar
 ivy/ivy-2.5.0-rc1.jar
+ivy/ivy-2.5.0.jar
 naivebayes-model
 .naivebayes-model.crc
 .gitconfig

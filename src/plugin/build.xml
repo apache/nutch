@@ -89,7 +89,7 @@
     <ant dir="tld" target="deploy"/>
     <ant dir="urlfilter-automaton" target="deploy"/>
     <ant dir="urlfilter-domain" target="deploy" />
-    <ant dir="urlfilter-domainblacklist" target="deploy" />
+    <ant dir="urlfilter-domaindenylist" target="deploy" />
     <ant dir="urlfilter-fast" target="deploy"/>
     <ant dir="urlfilter-prefix" target="deploy"/>
     <ant dir="urlfilter-regex" target="deploy"/>
@@ -146,7 +146,7 @@
      <ant dir="subcollection" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-domain" target="test"/>
-     <ant dir="urlfilter-domainblacklist" target="test"/>
+     <ant dir="urlfilter-domaindenylist" target="test"/>
      <ant dir="urlfilter-fast" target="test"/>
      <!--ant dir="urlfilter-ignoreexempt" target="test"/-->
      <ant dir="urlfilter-prefix" target="test"/>
@@ -235,7 +235,7 @@
     <ant dir="tld" target="clean"/>
     <ant dir="urlfilter-automaton" target="clean"/>
     <ant dir="urlfilter-domain" target="clean" />
-    <ant dir="urlfilter-domainblacklist" target="clean" />
+    <ant dir="urlfilter-domaindenylist" target="clean" />
     <ant dir="urlfilter-fast" target="clean"/>
     <ant dir="urlfilter-ignoreexempt" target="clean"/>
     <ant dir="urlfilter-prefix" target="clean"/>

@@ -51,7 +51,6 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
-import org.apache.nutch.util.NutchJob;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -287,7 +286,7 @@ public class SitemapProcessor extends Configured implements Tool {
       }
       else if (asm instanceof SiteMapIndex) {
         SiteMapIndex index = (SiteMapIndex) asm;
-        Collection<AbstractSiteMap> sitemapUrls = index.getSitemaps();
+        Collection<AbstractSiteMap> sitemapUrls = index.getSitemaps(true);
 
         if (sitemapUrls.isEmpty()) {
           return;

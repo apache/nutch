@@ -24,47 +24,34 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
 /**
- * class to handle HTTP dates.
+ * Parse and format HTTP dates in HTTP headers, e.g., used to fill the
+ * &quot;If-Modified-Since&quot; request header field.
  * 
- * Modified from FastHttpDateFormat.java in jakarta-tomcat.
+ * HTTP dates use Greenwich Mean Time (GMT) as time zone and a date format like:
  * 
- * @author John Xing
+ * <pre>
+ * Sun, 06 Nov 1994 08:49:37 GMT
+ * </pre>
+ * 
+ * See <a href=
+ * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1">sec. 3.3.1
+ * in RFC 2616</a> and
+ * <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">sec. 7.1.1.1 in
+ * RFC 7231</a>.
  */
 public class HttpDateFormat {
 
   protected static SimpleDateFormat format = new SimpleDateFormat(
       "EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 
+  protected static TimeZone gmt = TimeZone.getTimeZone("GMT");
+
   /**
    * HTTP date uses TimeZone GMT
    */
   static {
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(gmt);
   }
-
-  // HttpDate (long t) {
-  // }
-
-  // HttpDate (String s) {
-  // }
-
-  // /**
-  // * Get the current date in HTTP format.
-  // */
-  // public static String getCurrentDate() {
-  //
-  // long now = System.currentTimeMillis();
-  // if ((now - currentDateGenerated) > 1000) {
-  // synchronized (format) {
-  // if ((now - currentDateGenerated) > 1000) {
-  // currentDateGenerated = now;
-  // currentDate = format.format(new Date(now));
-  // }
-  // }
-  // }
-  // return currentDate;
-  //
-  // }
 
   /**
    * Get the HTTP format of the specified date.
@@ -97,6 +84,7 @@ public class HttpDateFormat {
     Date date;
     synchronized (format) {
       date = format.parse(dateString);
+      format.setTimeZone(gmt);
     }
     return date;
   }
@@ -105,6 +93,7 @@ public class HttpDateFormat {
     long time;
     synchronized (format) {
       time = format.parse(dateString).getTime();
+      format.setTimeZone(gmt);
     }
     return time;
   }
