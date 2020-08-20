@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
@@ -571,6 +572,18 @@ public class Generator2 extends Configured implements Tool {
       String limitsFile = conf.get(GENERATOR_DOMAIN_LIMITS_FILE);
       if (limitsFile != null) {
         LOG.info("Reading domain-specific limits from {}", limitsFile);
+        conf.getResource(limitsFile);
+        Path limitsFilePath = new Path(limitsFile);
+        if (limitsFilePath.toUri().getScheme() != null) {
+          try {
+            FileSystem fs = limitsFilePath.getFileSystem(conf);
+            Reader limitsReader = new InputStreamReader(fs.open(limitsFilePath));
+            return readLimitsFile(limitsReader, partition, numReduces,
+                selector);
+          } catch (IOException e) {
+            LOG.error("Failed to read domain-specific limits", e);
+          }
+        }
         try (Reader limitsReader = conf.getConfResourceAsReader(limitsFile)) {
           return readLimitsFile(limitsReader, partition, numReduces, selector);
         } catch (IOException e) {
@@ -582,6 +595,10 @@ public class Generator2 extends Configured implements Tool {
 
     private static Map<String, DomainLimits> readLimitsFile(Reader limitsReader,
         int partition, int numReduces, Selector selector) throws IOException {
+
+      if (limitsReader == null) {
+        throw new IOException("Limits reader is null");
+      }
 
       Map<String, DomainLimits> domainLimits = new HashMap<>();
 
