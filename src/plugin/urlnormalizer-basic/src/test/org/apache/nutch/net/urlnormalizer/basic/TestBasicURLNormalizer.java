@@ -116,6 +116,11 @@ public class TestBasicURLNormalizer {
     normalizeTest("http://Foo.Com/index.html", "http://foo.com/index.html");
     normalizeTest("http://Foo.Com/index.html", "http://foo.com/index.html");
 
+    // NUTCH-2824 unescape percent characters in host names
+    normalizeTest("https://example%2Ecom/", "https://example.com/");
+    normalizeTest("https://www.0251-sachverst%c3%a4ndiger.de/",
+        "https://www.0251-sachverst\u00e4ndiger.de/");
+
     // check that port number is normalized
     normalizeTest("http://foo.com:80/index.html", "http://foo.com/index.html");
     normalizeTest("http://foo.com:81/", "http://foo.com:81/");
@@ -130,8 +135,8 @@ public class TestBasicURLNormalizer {
     // check that references are removed
     normalizeTest("http://foo.com/foo.html#ref", "http://foo.com/foo.html");
 
-    // // check that encoding is normalized
-    // normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
+    // check that encoding is normalized
+    normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
 
     // check that unnecessary "../" are removed
     normalizeTest("http://foo.com/..", "http://foo.com/");
@@ -226,6 +231,9 @@ public class TestBasicURLNormalizer {
     conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toAscii");
     norm.setConf(conf);
     normalizeTest(norm, "https://нэб.рф/", "https://xn--90ax2c.xn--p1ai/");
+    // verify escaping of percent-encoded characters in IDNs (NUTCH-2824)
+    normalizeTest(norm, "https://www.0251-sachverst%c3%a4ndiger.de/",
+        "https://www.xn--0251-sachverstndiger-ozb.de/");
     conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toUnicode");
     norm.setConf(conf);
     normalizeTest(norm, "https://xn--90ax2c.xn--p1ai/", "https://нэб.рф/");
