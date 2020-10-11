@@ -23,3 +23,4 @@ naivebayes-model
 .idea/
 *.iml
 *.swp
+csvindexwriter
