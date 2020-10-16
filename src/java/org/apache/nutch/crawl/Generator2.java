@@ -85,15 +85,18 @@ import org.slf4j.LoggerFactory;
  * hold in memory. Grouping by IP is not supported.
  * 
  * If fetch lists are grouped by domain (see <code>generate.count.mode</code>)
- * additional limits are configurable (also per domain): max. number of hosts,
- * max. number of URLs per host, number of partitions URLs of a single domain
- * are distributed on.
+ * additional limits are configurable (per domain): max. number of hosts, max.
+ * number of URLs per host, number of partitions URLs of a single domain are
+ * distributed on. The per-domain limits configuration file
+ * (<code>generate.domain.limits.file</code>) can be kept on HDFS and then can
+ * easily hold many millions of domains because reduce tasks load only the
+ * limits required for their partition.
  *
- * URLs of a single host or domain are distributed over multiple segments
- * round-robin but with a configurable number of URLs kept in a single segment
- * (see {@link #GENERATOR_COUNT_KEEP_MIN_IN_SEGMENT}). Keeping a minimum number
- * of same-host/domain URLs together minimizes the overhead caused by DNS
- * lookups and robots.txt fetches, parsing and storing robots.txt rules.
+ * URLs of a single host or domain are distributed over multiple segments but
+ * with a configurable number of URLs kept in a single segment (see
+ * {@link #GENERATOR_COUNT_KEEP_MIN_IN_SEGMENT}). Keeping a minimum number of
+ * same-host/domain URLs together minimizes the overhead caused by DNS lookups
+ * and robots.txt fetches, parsing and storing robots.txt rules.
  * 
  * All segments are partitioned in a single job which saves time when many
  * segments (e.g., <code>-maxNumSegments 100</code>) are generated
