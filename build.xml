@@ -1000,7 +1000,7 @@
   </target>
 
   <!-- target: clean-cache  ============================================= -->
-  <target name="clean-cache" depends=""
+  <target name="clean-cache" depends="ivy-init"
                         description="--> delete ivy cache">
     <ivy:cleancache />
   </target>
