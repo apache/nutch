@@ -46,6 +46,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
@@ -204,6 +205,9 @@ public class Fetcher extends NutchTool implements Tool {
 
       int threadCount = conf.getInt("fetcher.threads.fetch", 10);
       LOG.info("Fetcher: threads: {}", threadCount);
+
+      // NUTCH-2582: adapt Tika MIME detector pool size to thread count
+      MimeUtil.setPoolSize(Math.max(10, threadCount / 2));
 
       int timeoutDivisor = conf.getInt("fetcher.threads.timeout.divisor", 2);
       LOG.info("Fetcher: time-out divisor: {}", timeoutDivisor);

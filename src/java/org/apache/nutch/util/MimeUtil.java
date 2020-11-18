@@ -22,30 +22,24 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 
 import org.apache.hadoop.conf.Configuration;
-
+import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.tika.Tika;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.apache.tika.mime.MimeTypesFactory;
-
+import org.apache.tika.mime.MimeTypesReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.nutch.protocol.ProtocolOutput;
-
 /**
- * @author mattmann
- * @since NUTCH-608
- * 
- *        <p>
- *        This is a facade class to insulate Nutch from its underlying Mime Type
- *        substrate library, <a href="http://incubator.apache.org/tika/">Apache
- *        Tika</a>. Any mime handling code should be placed in this utility
- *        class, and hidden from the Nutch classes that rely on it.
- *        </p>
+ * This is a facade class to insulate Nutch from its underlying Mime Type
+ * substrate library, <a href="https://tika.apache.org/">Apache Tika</a>. Any
+ * Mime handling code should be placed in this utility class, and hidden from
+ * the Nutch classes that rely on it.
  */
 public final class MimeUtil {
 
@@ -63,6 +57,14 @@ public final class MimeUtil {
   /* our log stream */
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
+
+  public static void setPoolSize(int poolSize) {
+    try {
+      MimeTypesReader.setPoolSize(poolSize);
+    } catch (TikaException e) {
+      LOG.error("Failed to set pool size", e);
+    }
+  }
 
   public MimeUtil(Configuration conf) {
     ObjectCache objectCache = ObjectCache.get(conf);

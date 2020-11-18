@@ -17,4 +17,11 @@
 -->
 <properties>
     <service-loader initializableProblemHandler="ignore" loadErrorHandler="warn" />
+    <!--
+        Set pool size of SAX parsers to a higher value if fetcher is
+        parsing with many threads and Tika complains about "Consider
+        increasing the XMLReaderUtils.POOL_SIZE".  Tika's default pool
+        size is 10.  Cf. NUTCH-2578, TIKA-2645, NUTCH-2582.
+    -->
+    <xml-reader-utils poolSize="20" />
 </properties>
