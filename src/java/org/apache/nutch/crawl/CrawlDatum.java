@@ -25,9 +25,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -542,7 +542,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     }
   }
   
-  public boolean evaluate(Expression expr, String url) {
+  public boolean evaluate(JexlExpression expr, String url) {
     if (expr != null && url != null) {
       // Create a context and add data
       JexlContext jcontext = new MapContext();

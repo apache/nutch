@@ -74,7 +74,7 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.SegmentReaderUtil;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TimingUtil;
-import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl3.JexlExpression;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -864,7 +864,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     Matcher matcher = null;
     String status = null;
     Integer retry = null;
-    Expression expr = null;
+    JexlExpression expr = null;
     float sample;
 
     @Override
