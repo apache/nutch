@@ -34,9 +34,9 @@ import java.util.Random;
 import org.apache.hadoop.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -182,7 +182,7 @@ public class Generator extends NutchTool implements Tool {
     private float scoreThreshold = 0f;
     private int intervalThreshold = -1;
     private byte restrictStatus = -1;
-    private Expression expr = null;
+    private JexlExpression expr = null;
 
     @Override
     public void setup(
@@ -306,8 +306,8 @@ public class Generator extends NutchTool implements Tool {
     private URLNormalizers normalizers;
     private static boolean normalise;
     private SequenceFile.Reader[] hostdbReaders = null;
-    private Expression maxCountExpr = null;
-    private Expression fetchDelayExpr = null;
+    private JexlExpression maxCountExpr = null;
+    private JexlExpression fetchDelayExpr = null;
 
     public void open() {
       if (conf.get(GENERATOR_HOSTDB) != null) {
