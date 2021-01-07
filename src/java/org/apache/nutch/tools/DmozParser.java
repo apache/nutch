@@ -277,6 +277,9 @@ public class DmozParser {
 
     SAXParserFactory parserFactory = SAXParserFactory.newInstance();
     SAXParser parser = parserFactory.newSAXParser();
+    parserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    parser.getXMLReader().setFeature("http://xml.org/sax/features/external-general-entities", false);
+    parserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
     XMLReader reader = parser.getXMLReader();
 
     // Create our own processor to receive SAX events
