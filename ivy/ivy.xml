@@ -66,7 +66,7 @@
 		<dependency org="org.apache.tika" name="tika-core" rev="1.25" />
 
 		<dependency org="xml-apis" name="xml-apis" rev="1.4.01"/><!-- force this version as it is required by Tika -->
-		<dependency org="xerces" name="xercesImpl" rev="2.12.0" />
+		<dependency org="xerces" name="xercesImpl" rev="2.12.1" />
 
 		<dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
 
