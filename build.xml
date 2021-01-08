@@ -658,15 +658,14 @@
     <delete file="${basedir}/lib/dependency-check-ant-${dependency-check-ant.version}-release.zip" />
   </target>
 
-  <path id="dependency-check.path">
+  <path id="dependency-check-ant.path">
     <pathelement location="${dependency-check-ant.home}/dependency-check-ant.jar"/>
-    <fileset dir="${build.dir}">
-      <include name="lib/*.jar"/>
-      <include name="plugins/*/*.jar"/>
+    <fileset dir="${dependency-check-ant.home}/lib">
+      <include name="*.jar"/>
     </fileset>
   </path>
   <taskdef resource="dependency-check-taskdefs.properties">
-    <classpath refid="dependency-check.path" />
+    <classpath refid="dependency-check-ant.path" />
   </taskdef>
 
   <target name="report-vulnerabilities" depends="jar, compile-plugins, dependency-check-ant-download" description="--> check dependencies for security vulnerabilities">
