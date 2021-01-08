@@ -37,8 +37,6 @@
   <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
   <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
-  <property name="dependency-check.home" value="${ivy.dir}/dependency-check-ant/"/>
-
   <property name="dependency-check-ant.version" value="6.0.5" />
   <property name="dependency-check-ant.home" value="${basedir}/lib/dependency-check-ant" />
   <property name="dependency-check-ant.jar" value="${dependency-check-ant.home}/dependency-check-ant.jar" />
@@ -660,7 +658,6 @@
     <delete file="${basedir}/lib/dependency-check-ant-${dependency-check-ant.version}-release.zip" />
   </target>
 
-  <property name="dependency-check.home" value="${basedir}/lib/dependency-check-ant"/>
   <path id="dependency-check.path">
     <pathelement location="${dependency-check-ant.home}/dependency-check-ant.jar"/>
     <fileset dir="${build.dir}">
@@ -676,7 +673,6 @@
     <dependency-check projectname="${name}"
                       reportoutputdirectory="${dependency-check-ant.home}"
                       reportformat="ALL">
-        <suppressionfile path="${dependency-check.home}/dependency-check-suppressions.xml" />
         <retirejsFilter regex="copyright.*jeremy long" />
         <fileset dir="${build.dir}">
           <include name="lib/*.jar"/>
