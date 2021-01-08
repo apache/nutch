@@ -32,8 +32,8 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.25" conf="*->master" />
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.25" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.30" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.30" conf="*->master" />
 
 		<!--dependency org="log4j" name="log4j" rev="1.2.15" conf="*->default">
 			<exclude org="javax.jms" name="jms" />
@@ -68,9 +68,9 @@
 		<dependency org="xml-apis" name="xml-apis" rev="1.4.01"/><!-- force this version as it is required by Tika -->
 		<dependency org="xerces" name="xercesImpl" rev="2.12.0" />
 
-		<dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
+		<dependency org="com.ibm.icu" name="icu4j" rev="68.2" />
 
-		<dependency org="com.google.guava" name="guava" rev="25.0-jre" />
+		<dependency org="com.google.guava" name="guava" rev="30.1-jre" />
 
 		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="1.1" />
 
@@ -78,18 +78,18 @@
 			<exclude module="hadoop-client" />
 		</dependency>
 
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.3.3" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.3.3" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.3.3" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.3.3" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.3.3" conf="test->default"/>
-		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.9" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.9.9" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.9.9" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.9.9" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.4.1" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.4.1" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.4.1" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.4.1" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.4.1" conf="test->default"/>
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.12.0" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.12.0" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.12.0" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.12.0" conf="*->default"/>
 
 		<!-- WARC artifacts needed -->
-		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.5" conf="*->default">
+		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.9" conf="*->default">
 			<exclude module="hadoop-core"/>
 			<exclude org="com.google.guava"/>
 			<exclude org="junit"/>
@@ -105,7 +105,7 @@
 		</dependency>
 
 		<!--artifacts needed for testing -->
-		<dependency org="junit" name="junit" rev="4.11" conf="test->default" />
+		<dependency org="junit" name="junit" rev="4.13.1" conf="test->default" />
 		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">
 			<artifact name="mrunit" maven:classifier="hadoop2" />
 			<exclude org="log4j" module="log4j" />
