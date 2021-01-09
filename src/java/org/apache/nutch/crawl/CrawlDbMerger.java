@@ -71,15 +71,14 @@ public class CrawlDbMerger extends Configured implements Tool {
       Reducer<Text, CrawlDatum, Text, CrawlDatum> {
     private FetchSchedule schedule;
 
-    public void close() throws IOException {
-    }
-
+    @Override
     public void setup(
         Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
       Configuration conf = context.getConfiguration();
       schedule = FetchScheduleFactory.getFetchSchedule(conf);
     }
 
+    @Override
     public void reduce(Text key, Iterable<CrawlDatum> values,
         Context context)
         throws IOException, InterruptedException {
@@ -120,7 +119,6 @@ public class CrawlDbMerger extends Configured implements Tool {
   }
 
   public CrawlDbMerger() {
-
   }
 
   public CrawlDbMerger(Configuration conf) {
@@ -133,13 +131,11 @@ public class CrawlDbMerger extends Configured implements Tool {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
-    LOG.info("CrawlDb merge: starting at " + sdf.format(start));
+    LOG.info("CrawlDb merge: starting at {}", sdf.format(start));
 
     Job job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Adding " + dbs[i]);
-      }
+      LOG.info("Adding {}", dbs[i]);
       FileInputFormat.addInputPath(job, new Path(dbs[i], CrawlDb.CURRENT_NAME));
     }
 
@@ -200,6 +196,7 @@ public class CrawlDbMerger extends Configured implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err

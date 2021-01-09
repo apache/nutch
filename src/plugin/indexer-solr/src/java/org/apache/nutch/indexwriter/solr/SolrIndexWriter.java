@@ -18,8 +18,6 @@ package org.apache.nutch.indexwriter.solr;
 
 import java.lang.invoke.MethodHandles;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -76,13 +74,14 @@ public class SolrIndexWriter implements IndexWriter {
 
   @Override
   public void open(Configuration conf, String name) {
-    //Implementation not required
+    // Implementation not required
   }
 
   /**
    * Initializes the internal variables from a given index writer configuration.
    *
-   * @param parameters Params from the index writer configuration.
+   * @param parameters
+   *          Params from the index writer configuration.
    */
   @Override
   public void open(IndexWriterParams parameters) {
@@ -109,10 +108,10 @@ public class SolrIndexWriter implements IndexWriter {
       }
       break;
     case "cloud":
-      CloudSolrClient sc = this.auth ?
-          SolrUtils.getCloudSolrClient(Arrays.asList(urls), this.username,
-              this.password) :
-          SolrUtils.getCloudSolrClient(Arrays.asList(urls));
+      CloudSolrClient sc = this.auth
+          ? SolrUtils.getCloudSolrClient(Arrays.asList(urls), this.username,
+              this.password)
+          : SolrUtils.getCloudSolrClient(Arrays.asList(urls));
       sc.setDefaultCollection(this.collection);
       solrClients.add(sc);
       break;
@@ -152,17 +151,8 @@ public class SolrIndexWriter implements IndexWriter {
     }
   }
 
+  @Override
   public void delete(String key) throws IOException {
-    try {
-      key = URLDecoder.decode(key, "UTF8");
-    } catch (UnsupportedEncodingException e) {
-      LOG.error("Error decoding: " + key);
-      throw new IOException("UnsupportedEncodingException for " + key);
-    } catch (IllegalArgumentException e) {
-      LOG.warn("Could not decode: " + key
-          + ", it probably wasn't encoded in the first place..");
-    }
-
     // escape solr hash separator
     key = key.replaceAll("!", "\\!");
 
@@ -182,6 +172,7 @@ public class SolrIndexWriter implements IndexWriter {
     write(doc);
   }
 
+  @Override
   public void write(NutchDocument doc) throws IOException {
     final SolrInputDocument inputDoc = new SolrInputDocument();
 
@@ -213,6 +204,7 @@ public class SolrIndexWriter implements IndexWriter {
     }
   }
 
+  @Override
   public void close() throws IOException {
     commit();
 
@@ -243,10 +235,8 @@ public class SolrIndexWriter implements IndexWriter {
   private void push() throws IOException {
     if (inputDocs.size() > 0) {
       try {
-        LOG.info(
-            "Indexing " + Integer.toString(inputDocs.size()) + "/" + Integer
-                .toString(totalAdds) + " documents");
-        LOG.info("Deleting " + Integer.toString(numDeletes) + " documents");
+        LOG.info("Indexing {}/{} documents", inputDocs.size(), totalAdds);
+        LOG.info("Deleting {} documents", numDeletes);
         numDeletes = 0;
         UpdateRequest req = new UpdateRequest();
         req.add(inputDocs);
@@ -266,12 +256,21 @@ public class SolrIndexWriter implements IndexWriter {
 
     if (deleteIds.size() > 0) {
       try {
-        LOG.info(
-            "SolrIndexer: deleting " + Integer.toString(deleteIds.size()) + "/"
-                + Integer.toString(totalDeletes) + " documents");
-        for (SolrClient solrClient : solrClients) {
-          solrClient.deleteById(deleteIds);
+        LOG.info("SolrIndexer: deleting {}/{} documents", deleteIds.size(),
+            totalDeletes);
+        
+        UpdateRequest req = new UpdateRequest();
+        req.deleteById(deleteIds);
+        req.setAction(UpdateRequest.ACTION.OPTIMIZE, false, false);
+        req.setParams(params);
+        if (this.auth) {
+          req.setBasicAuthCredentials(this.username, this.password);
         }
+
+        for (SolrClient solrClient : solrClients) {
+          solrClient.request(req);
+        }
+
       } catch (final SolrServerException e) {
         LOG.error("Error deleting: " + deleteIds);
         throw makeIOException(e);
@@ -295,9 +294,11 @@ public class SolrIndexWriter implements IndexWriter {
   }
 
   /**
-   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   * Returns {@link Map} with the specific parameters the IndexWriter instance
+   * can take.
    *
-   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   * @return The values of each row. It must have the form
+   *         <KEY,<DESCRIPTION,VALUE>>.
    */
   @Override
   public Map<String, Entry<String, Object>> describe() {
@@ -325,12 +326,10 @@ public class SolrIndexWriter implements IndexWriter {
     properties.put(SolrConstants.USE_AUTH, new AbstractMap.SimpleEntry<>(
         "Whether to enable HTTP basic authentication for communicating with Solr. Use the username and password properties to configure your credentials.",
         this.auth));
-    properties.put(SolrConstants.USERNAME,
-        new AbstractMap.SimpleEntry<>("The username of Solr server.",
-            this.username));
-    properties.put(SolrConstants.PASSWORD,
-        new AbstractMap.SimpleEntry<>("The password of Solr server.",
-            this.password));
+    properties.put(SolrConstants.USERNAME, new AbstractMap.SimpleEntry<>(
+        "The username of Solr server.", this.username));
+    properties.put(SolrConstants.PASSWORD, new AbstractMap.SimpleEntry<>(
+        "The password of Solr server.", this.password));
 
     return properties;
   }

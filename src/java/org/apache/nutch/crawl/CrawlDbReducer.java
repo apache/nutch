@@ -49,6 +49,7 @@ public class CrawlDbReducer extends
   private int maxInterval;
   private FetchSchedule schedule;
 
+  @Override
   public void setup(Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
     Configuration conf = context.getConfiguration();
     retryMax = conf.getInt("db.fetch.retry.max", 3);
@@ -60,9 +61,7 @@ public class CrawlDbReducer extends
     linked = new InlinkPriorityQueue(maxLinks);
   }
 
-  public void close() {
-  }
-
+  @Override
   public void reduce(Text key, Iterable<CrawlDatum> values,
       Context context) throws IOException, InterruptedException {
 
@@ -161,16 +160,14 @@ public class CrawlDbReducer extends
         try {
           scfilters.orphanedScore(key, old);
         } catch (ScoringFilterException e) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn("Couldn't update orphaned score, key={}: {}", key, e);
-          }
+          LOG.warn("Couldn't update orphaned score, key={}: {}", key, e);
         }
         context.write(key, old);
         context.getCounter("CrawlDB status",
             CrawlDatum.getStatusName(old.getStatus())).increment(1);
       } else {
-        LOG.warn("Missing fetch and old value, signature="
-            + StringUtil.toHexString(signature));
+        LOG.warn("Missing fetch and old value, signature={}",
+            StringUtil.toHexString(signature));
       }
       return;
     }
@@ -207,10 +204,8 @@ public class CrawlDbReducer extends
         try {
           scfilters.initialScore(key, result);
         } catch (ScoringFilterException e) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn("Cannot filter init score for url " + key
-                + ", using default: " + e.getMessage());
-          }
+          LOG.warn("Cannot filter init score for url {}, using default: {}",
+              key, e.getMessage());
           result.setScore(0.0f);
         }
       }
@@ -286,9 +281,7 @@ public class CrawlDbReducer extends
         result = schedule.forceRefetch(key, result, false);
       break;
     case CrawlDatum.STATUS_SIGNATURE:
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Lone CrawlDatum.STATUS_SIGNATURE: " + key);
-      }
+      LOG.warn("Lone CrawlDatum.STATUS_SIGNATURE: {}", key);
       return;
     case CrawlDatum.STATUS_FETCH_RETRY: // temporary failure
       if (oldSet) {
@@ -321,9 +314,7 @@ public class CrawlDbReducer extends
     try {
       scfilters.updateDbScore(key, oldSet ? old : null, result, linkList);
     } catch (Exception e) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't update score, key={}: {}", key, e);
-      }
+      LOG.warn("Couldn't update score, key={}: {}", key, e);
     }
     // remove generation time, if any
     result.getMetaData().remove(Nutch.WRITABLE_GENERATE_TIME_KEY);

@@ -45,6 +45,7 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.html.BoilerpipeContentHandler;
+import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.CompositeParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
@@ -73,9 +74,10 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   private HtmlParseFilters htmlParseFilters;
   private String cachingPolicy;
   private HtmlMapper HTMLMapper;
+  private boolean parseEmbedded = true;
   private boolean upperCaseElementNames = true;
-  private String boilerpipeExtractorName;
   private boolean useBoilerpipe;
+  private String boilerpipeExtractorName;
   private Set<String> boilerpipeMimeTypes;
 
   public ParseResult getParse(Content content) {
@@ -134,6 +136,10 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     LinkContentHandler linkContentHandler = new LinkContentHandler();
 
     ParseContext context = new ParseContext();
+    if (parseEmbedded) {
+      context.set(Parser.class, new AutoDetectParser(tikaConfig));
+    }
+
     TeeContentHandler teeContentHandler = new TeeContentHandler(domHandler,
         linkContentHandler);
 
@@ -212,8 +218,14 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       if (tikaMDName.equalsIgnoreCase(Metadata.TITLE))
         continue;
       String[] values = tikamd.getValues(tikaMDName);
-      for (String v : values)
+      for (String v : values) {
         nutchMetadata.add(tikaMDName, v);
+        if (tikaMDName.equalsIgnoreCase(Nutch.ROBOTS_METATAG)
+            && nutchMetadata.get(Nutch.ROBOTS_METATAG) == null) {
+          // NUTCH-2720 force lowercase robots directive
+          nutchMetadata.add(Nutch.ROBOTS_METATAG, v);
+        }
+      }
     }
 
     // no outlinks? try OutlinkExtractor e.g works for mime types where no
@@ -257,15 +269,17 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       try {
         // see if a Tika config file can be found in the job file
         URL customTikaConfig = conf.getResource(customConfFile);
-        if (customTikaConfig != null)
+        if (customTikaConfig != null) {
           tikaConfig = new TikaConfig(customTikaConfig,
               this.getClass().getClassLoader());
+        }
       } catch (Exception e1) {
         String message = "Problem loading custom Tika configuration from "
             + customConfFile;
         LOG.error(message, e1);
       }
-    } else {
+    }
+    if (tikaConfig == null) {
       try {
         tikaConfig = new TikaConfig(this.getClass().getClassLoader());
       } catch (Exception e2) {
@@ -307,6 +321,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     boilerpipeMimeTypes = new HashSet<>(Arrays
         .asList(conf.getTrimmedStrings("tika.extractor.boilerpipe.mime.types",
             "text/html", "application/xhtml+xml")));
+    parseEmbedded = conf.getBoolean("tika.parse.embedded", true);
   }
 
   public Configuration getConf() {

@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.parse.metatags;
 
+import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -31,6 +33,8 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestMetatagParser {
 
@@ -40,6 +44,9 @@ public class TestMetatagParser {
   private String sampleFileMultival = "testMultivalueMetatags.html";
   private String description = "This is a test of description";
   private String keywords = "This is a test of keywords";
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public Metadata parseMeta(String fileName, Configuration conf) {
     Metadata metadata = null;
@@ -100,4 +107,25 @@ public class TestMetatagParser {
     }
   }
 
+  @Test
+  public void testDuplicatedMetatags() {
+    String[] parsePlugins = { "parse-html", "parse-tika" };
+
+    for (String parsePlugin : parsePlugins) {
+
+      Configuration conf = NutchConfiguration.create();
+      conf.set("plugin.includes",
+          "protocol-file|parse-metatags|" + parsePlugin);
+      conf.set("metatags.names", "keywords");
+      conf.set("index.parse.md", "metatag.keywords");
+
+      Metadata parseMeta = parseMeta(sampleFile, conf);
+
+      LOG.info("metatags ({}): {}", parsePlugin,
+          Arrays.toString(parseMeta.getValues("metatag.keywords")));
+      Assert.assertEquals(
+          "Test document contains a single value of <meta name=keywords>, metatag.keywords should be also single-valued",
+          1, parseMeta.getValues("metatag.keywords").length);
+    }
+  }
 }

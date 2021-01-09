@@ -20,7 +20,7 @@
 <ivy-module version="1.0">
   <info organisation="org.apache.nutch" module="${ant.project.name}">
     <license name="Apache 2.0"/>
-    <ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org"/>
+    <ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/"/>
     <description>
         Apache Nutch
     </description>
@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.any23" name="apache-any23-core" rev="2.2" conf="*->default">
+    <dependency org="org.apache.any23" name="apache-any23-core" rev="2.4" conf="*->default">
       <exclude org="org.apache.commons" name="commons-lang" />
       <exclude org="org.apache.commons" name="commons-compress" />
       <exclude org="org.slf4j" name="slf4j-log4j12" />

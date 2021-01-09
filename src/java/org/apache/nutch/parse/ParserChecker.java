@@ -69,6 +69,7 @@ public class ParserChecker extends AbstractChecker {
   protected URLNormalizers normalizers = null;
   protected boolean dumpText = false;
   protected boolean followRedirects = false;
+  protected boolean checkRobotsTxt = false;
   // used to simulate the metadata propagated from injection
   protected HashMap<String, String> metadata = new HashMap<>();
   protected String forceAsContentType = null;
@@ -77,6 +78,7 @@ public class ParserChecker extends AbstractChecker {
       .getLogger(MethodHandles.lookup().lookupClass());
   private ScoringFilters scfilters;
 
+  @Override
   public int run(String[] args) throws Exception {
     String url = null;
 
@@ -93,9 +95,11 @@ public class ParserChecker extends AbstractChecker {
         + "                  \t before other command-specific options)\n"
         + "  -normalize      \tnormalize URLs\n" //
         + "  -followRedirects\tfollow redirects when fetching URL\n" //
+        + "  -checkRobotsTxt\tfail if the robots.txt disallows fetching\n" //
         + "  -dumpText       \talso show the plain-text extracted by parsers\n" //
         + "  -forceAs <mimeType>\tforce parsing as <mimeType>\n" //
         + "  -md <key>=<value>\tmetadata added to CrawlDatum before parsing\n";
+
     // Print help when no args given
     if (args.length < 1) {
       System.err.println(usage);
@@ -108,6 +112,8 @@ public class ParserChecker extends AbstractChecker {
         normalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_DEFAULT);
       } else if (args[i].equals("-followRedirects")) {
         followRedirects = true;
+      } else if (args[i].equals("-checkRobotsTxt")) {
+        checkRobotsTxt = true;
       } else if (args[i].equals("-forceAs")) {
         forceAsContentType = args[++i];
       } else if (args[i].equals("-dumpText")) {
@@ -171,13 +177,15 @@ public class ParserChecker extends AbstractChecker {
       }
     }
 
-    ProtocolOutput protocolOutput = getProtocolOutput(url, datum);
+    ProtocolOutput protocolOutput = getProtocolOutput(url, datum,
+        checkRobotsTxt);
     Text turl = new Text(url);
-    
+
     // Following redirects and not reached maxRedirects?
     int numRedirects = 0;
-    while (!protocolOutput.getStatus().isSuccess() && followRedirects
-        && protocolOutput.getStatus().isRedirect() && maxRedirects >= numRedirects) {
+    while (protocolOutput != null && !protocolOutput.getStatus().isSuccess()
+        && followRedirects && protocolOutput.getStatus().isRedirect()
+        && maxRedirects >= numRedirects) {
       String[] stuff = protocolOutput.getStatus().getArgs();
       url = stuff[0];
       LOG.info("Follow redirect to {}", url);
@@ -189,8 +197,13 @@ public class ParserChecker extends AbstractChecker {
       turl.set(url);
 
       // try again
-      protocolOutput = getProtocolOutput(url, datum);
+      protocolOutput = getProtocolOutput(url, datum, checkRobotsTxt);
       numRedirects++;
+    }
+
+    if (checkRobotsTxt && protocolOutput == null) {
+      System.err.println("Fetch disallowed by robots.txt");
+      return -1;
     }
 
     if (!protocolOutput.getStatus().isSuccess()) {
@@ -256,9 +269,9 @@ public class ParserChecker extends AbstractChecker {
         content, parseResult.get(new Text(url)));
 
     if (LOG.isInfoEnabled()) {
-      LOG.info("parsing: " + url);
-      LOG.info("contentType: " + contentType);
-      LOG.info("signature: " + StringUtil.toHexString(signature));
+      LOG.info("parsing: {}", url);
+      LOG.info("contentType: {}", contentType);
+      LOG.info("signature: {}", StringUtil.toHexString(signature));
     }
 
     for (Map.Entry<Text, Parse> entry : parseResult) {
@@ -275,8 +288,8 @@ public class ParserChecker extends AbstractChecker {
         }
       }
 
-      output.append(turl + "\n");
-      output.append(parse.getData() + "\n");
+      output.append(turl).append("\n");
+      output.append(parse.getData()).append("\n");
       if (dumpText) {
         output.append(parse.getText());
       }

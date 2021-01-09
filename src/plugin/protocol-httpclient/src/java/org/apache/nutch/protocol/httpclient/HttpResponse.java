@@ -100,9 +100,20 @@ public class HttpResponse implements Response {
     // XXX little danger in retrying...
     // params.setParameter(HttpMethodParams.RETRY_HANDLER, null);
     
-    if (http.isCookieEnabled() && datum.getMetaData().containsKey(http.COOKIE)) {
-      String cookie = ((Text)datum.getMetaData().get(http.COOKIE)).toString();
-      get.addRequestHeader("Cookie", cookie);
+    if (http.isCookieEnabled()) {
+      String cookie = null;
+      
+      if (datum.getMetaData().containsKey(http.COOKIE)) {
+        cookie = ((Text)datum.getMetaData().get(http.COOKIE)).toString();
+      }
+      
+      if (cookie == null) {
+        cookie = http.getCookie(url);
+      }
+      
+      if (cookie != null) {
+        get.addRequestHeader("Cookie", cookie);
+      }
     }
     
     try {

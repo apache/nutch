@@ -14,13 +14,11 @@
 <ivy-module version="1.0" xmlns:maven="http://ant.apache.org/ivy/maven">
 	<info organisation="org.apache.nutch" module="nutch">
 		<license name="Apache 2.0"
-			url="http://www.apache.org/licenses/LICENSE-2.0.txt/" />
-		<ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org" />
-		<description homepage="http://nutch.apache.org">Nutch is an open source web-search
-			software. It builds on
-			Hadoop, Tika and Solr, adding web-specifics,
-			such as a crawler, a link-graph
-			database etc.
+			url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+		<ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/" />
+		<description homepage="https://nutch.apache.org/">Nutch is an open source web-search
+			software. It builds on Hadoop, Tika and Solr, adding web-specifics,
+			such as a crawler, a link-graph database etc.
 		</description>
 	</info>
 
@@ -34,8 +32,8 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.25" conf="*->master" />
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.25" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.30" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.30" conf="*->master" />
 
 		<!--dependency org="log4j" name="log4j" rev="1.2.15" conf="*->default">
 			<exclude org="javax.jms" name="jms" />
@@ -43,16 +41,16 @@
 			<exclude org="com.sun.jmx" name="jmxri" />
 		</dependency-->
 
-		<dependency org="org.apache.commons" name="commons-lang3" rev="3.8.1" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-collections4" rev="4.2" conf="*->master" />
-		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.6" conf="*->master" />
-		<dependency org="commons-codec" name="commons-codec" rev="1.11" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-compress" rev="1.18" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-jexl" rev="2.1.1" />
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.11" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-collections4" rev="4.4" conf="*->master" />
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.13" conf="*->master" />
+		<dependency org="commons-codec" name="commons-codec" rev="1.15" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-compress" rev="1.20" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.1" conf="*->default"/>
 		<dependency org="com.tdunning" name="t-digest" rev="3.2" />
 
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-common" rev="2.7.4" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.1.3" conf="*->default">
 			<exclude org="hsqldb" name="hsqldb" />
 			<exclude org="net.sf.kosmosfs" name="kfs" />
 			<exclude org="net.java.dev.jets3t" name="jets3t" />
@@ -60,35 +58,38 @@
 			<exclude org="org.mortbay.jetty" name="jsp-*" />
 			<exclude org="ant" name="ant" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.7.4" conf="*->default"/>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="2.7.4" conf="*->default"/>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="2.7.4" conf="*->default"/>
+		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.1.3" conf="*->default"/>
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.1.3" conf="*->default"/>
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.1.3" conf="*->default"/>
 		<!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="1.20" />
-		<dependency org="com.ibm.icu" name="icu4j" rev="61.1" />
+		<dependency org="org.apache.tika" name="tika-core" rev="1.25" />
 
-		<dependency org="xerces" name="xercesImpl" rev="2.11.0" />
-		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
+		<dependency org="xml-apis" name="xml-apis" rev="1.4.01"/><!-- force this version as it is required by Tika -->
+		<dependency org="xerces" name="xercesImpl" rev="2.12.0" />
 
-		<dependency org="com.google.guava" name="guava" rev="25.0-jre" />
+		<dependency org="com.ibm.icu" name="icu4j" rev="68.2" />
 
-		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="1.0" />
+		<dependency org="com.google.guava" name="guava" rev="30.1-jre" />
 
-		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0" />
+		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="1.1" />
 
-		<!--dependency org="org.apache.cxf" name="cxf" rev="3.0.4" conf="*->default"/-->
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.2.7" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.2.7" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.2.7" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.2.7" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.2.7" conf="test->default"/>
-		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.9.7" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.9.7" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.9.7" conf="*->default"/>
+		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0">
+			<exclude module="hadoop-client" />
+		</dependency>
+
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.4.1" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.4.1" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.4.1" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.4.1" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.4.1" conf="test->default"/>
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.12.0" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.12.0" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.12.0" conf="*->default"/>
+		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.12.0" conf="*->default"/>
 
 		<!-- WARC artifacts needed -->
-		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.5" conf="*->default">
+		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.9" conf="*->default">
 			<exclude module="hadoop-core"/>
 			<exclude org="com.google.guava"/>
 			<exclude org="junit"/>
@@ -104,7 +105,7 @@
 		</dependency>
 
 		<!--artifacts needed for testing -->
-		<dependency org="junit" name="junit" rev="4.11" conf="test->default" />
+		<dependency org="junit" name="junit" rev="4.13.1" conf="test->default" />
 		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">
 			<artifact name="mrunit" maven:classifier="hadoop2" />
 			<exclude org="log4j" module="log4j" />

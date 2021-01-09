@@ -16,55 +16,26 @@
  */
 package org.apache.nutch.parse.tika;
 
-import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ProtocolException;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.util.NutchConfiguration;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.protocol.ProtocolException;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Unit tests for PdfParser.
- * 
- * @author John Xing
  */
-public class TestPdfParser {
+public class TestPdfParser extends TikaParserTest {
 
-  private String fileSeparator = System.getProperty("file.separator");
-  // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
-  // ./src/plugin/parse-pdf/build.xml during plugin compilation.
-  // Check ./src/plugin/parse-pdf/sample/README.txt for what they are.
+  // ./src/plugin/parse-tika/build.xml during plugin compilation.
   private String[] sampleFiles = { "pdftest.pdf", "encrypted.pdf" };
 
   private String expectedText = "A VERY SMALL PDF FILE";
 
   @Test
   public void testIt() throws ProtocolException, ParseException {
-    String urlString;
-    Protocol protocol;
-    Content content;
-    Parse parse;
-
     for (int i = 0; i < sampleFiles.length; i++) {
-      urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
-
-      Configuration conf = NutchConfiguration.create();
-      protocol = new ProtocolFactory(conf).getProtocol(urlString);
-      content = protocol.getProtocolOutput(new Text(urlString),
-          new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
-          .get(content.getUrl());
-
-      int index = parse.getText().indexOf(expectedText);
+      int index = getTextContent(sampleFiles[i]).indexOf(expectedText);
       Assert.assertTrue(index > 0);
     }
   }

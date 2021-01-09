@@ -52,6 +52,12 @@ public interface Nutch {
 
 	public static final String FETCH_STATUS_KEY = "_fst_";
 
+  /**
+   * Name to store the <a href="https://www.robotstxt.org/meta.html">robots
+   * metatag</a> in {@link org.apache.nutch.parse.ParseData}'s metadata.
+   */
+  public static final String ROBOTS_METATAG = "robots";
+
 	/**
 	 * Sites may request that search engines don't provide access to cached
 	 * documents.

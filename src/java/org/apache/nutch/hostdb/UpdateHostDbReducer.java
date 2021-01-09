@@ -349,7 +349,7 @@ public class UpdateHostDbReducer
       return;
     } else {
       context.getCounter("UpdateHostDb", "skipped_not_eligible").increment(1);
-      LOG.info("UpdateHostDb: " + key.toString() + ": skipped_not_eligible");
+      LOG.info("UpdateHostDb: {}: skipped_not_eligible", key);
     }
 
     // Write the host datum if it wasn't written by the resolver thread
@@ -415,7 +415,8 @@ public class UpdateHostDbReducer
       try {
         // Wait for the executor to shut down completely
         if (!executor.isTerminated()) {
-          LOG.info("UpdateHostDb: resolver threads waiting: " + Integer.toString(executor.getPoolSize()));
+          LOG.info("UpdateHostDb: resolver threads waiting: {}",
+              executor.getPoolSize());
           Thread.sleep(1000);
         } else {
           // All is well, get out

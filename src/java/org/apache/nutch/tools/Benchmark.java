@@ -17,6 +17,7 @@
 package org.apache.nutch.tools;
 
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,8 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -42,9 +41,13 @@ import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Benchmark extends Configured implements Tool {
-  private static final Log LOG = LogFactory.getLog(Benchmark.class);
+  
+  private static final Logger LOG = LoggerFactory
+	      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static void main(String[] args) throws Exception {
     Configuration conf = NutchConfiguration.create();
@@ -128,6 +131,7 @@ public class Benchmark extends Configured implements Tool {
     }
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     String plugins = "protocol-http|parse-tika|scoring-opic|urlfilter-regex|urlnormalizer-pass";
     int seeds = 1;
@@ -170,7 +174,7 @@ public class Benchmark extends Configured implements Tool {
       } else if (args[i].equalsIgnoreCase("-maxPerHost")) {
         maxPerHost = Integer.parseInt(args[++i]);
       } else {
-        LOG.fatal("Invalid argument: '" + args[i] + "'");
+        LOG.error("Invalid argument: '" + args[i] + "'");
         return -1;
       }
     }

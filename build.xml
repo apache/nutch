@@ -15,7 +15,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="${name}" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+<project name="${name}" default="runtime"
+         xmlns:ivy="antlib:org.apache.ivy.ant"
+         xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+         xmlns:rat="antlib:org.apache.rat.anttasks"
+         xmlns="antlib:org.apache.tools.ant">
 
   <!-- Load all the default properties, and any the user wants    -->
   <!-- to contribute (without having to type -D or edit this file -->
@@ -33,6 +37,15 @@
   <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
   <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
+  <property name="dependency-check.home" value="${ivy.dir}/dependency-check-ant/"/>
+
+  <property name="spotbugs.version" value="4.1.1" />
+  <property name="spotbugs.home" value="${basedir}/lib/spotbugs-${spotbugs.version}" />
+  <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
+
+  <property name="apache-rat.version" value="0.13" />
+  <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
+  <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
 
   <!-- the normal classpath -->
   <path id="classpath">
@@ -190,7 +203,6 @@
       <packageset dir="${plugins.dir}/indexer-cloudsearch/src/java/" />
       <packageset dir="${plugins.dir}/indexer-csv/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
-      <packageset dir="${plugins.dir}/indexer-elastic-rest/src/java/"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
@@ -210,6 +222,7 @@
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-debug/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
@@ -231,7 +244,7 @@
       <packageset dir="${plugins.dir}/tld/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-domaindenylist/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-fast/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
@@ -353,6 +366,17 @@
     <artifact:mvn>
       <arg value="test"/>
       <arg value="-e"/>
+      <arg value="-o"/>
+      <!-- run offline (-o): must not download dependencies as this is
+           done from http://repo1.maven.org/ hardwired in
+           maven-ant-tasks-2.1.3.jar, see NUTCH-2722.
+
+           Dependencies and plugins need to be resolved and cached locally beforehand
+           by running
+             `mvn dependency:resolve`
+           resp.
+             `mvn dependency:resolve-plugins`
+           after the pom.xml has been generated. -->
     </artifact:mvn>
   </target>
 
@@ -620,7 +644,6 @@
   <!--   https://jeremylong.github.io/DependencyCheck/dependency-check-ant/index.html     -->
   <!-- get http://dl.bintray.com/jeremy-long/owasp/dependency-check-ant-3.3.2-release.zip -->
   <!-- and unzip in directory ./ivy/                                                      -->
-  <property name="dependency-check.home" value="${ivy.dir}/dependency-check-ant/"/>
   <path id="dependency-check.path">
     <pathelement location="${dependency-check.home}/dependency-check-ant.jar"/>
     <fileset dir="${dependency-check.home}/lib" erroronmissingdir="false">
@@ -689,7 +712,6 @@
       <packageset dir="${plugins.dir}/indexer-cloudsearch/src/java/" />
       <packageset dir="${plugins.dir}/indexer-csv/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
-      <packageset dir="${plugins.dir}/indexer-elastic-rest/src/java/"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
@@ -709,6 +731,7 @@
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/parsefilter-debug/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-naivebayes/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
@@ -730,7 +753,7 @@
       <packageset dir="${plugins.dir}/tld/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-domaindenylist/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-fast/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-ignoreexempt/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
@@ -777,11 +800,10 @@
     <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
     <copy file="${plugins.dir}/plugin.dtd"
           todir="${build.javadoc}/org/apache/nutch/plugin/doc-files"/>
-  </target>
 
-  <target name="default-doc" description="--> generate default Nutch documentation">
-    <style basedir="${conf.dir}" destdir="${docs.dir}"
-           includes="nutch-default.xml" style="conf/nutch-conf.xsl"/>
+    <!-- Copy the definition of Nutch properties -->
+    <copy file="${conf.dir}/nutch-default.xml" todir="${build.javadoc}/resources/"/>
+    <copy file="${conf.dir}/configuration.xsl" todir="${build.javadoc}/resources/"/>
   </target>
 
     <!-- ================================================================== -->
@@ -869,6 +891,11 @@
       <fileset dir="runtime/local/plugins"/>
     </copy>
 
+    <copy todir="${bin.dist.version.dir}/plugins">
+      <fileset dir="${plugins.dir}">
+        <include name="**/README.*" />
+      </fileset>
+    </copy>
   </target>
 
   <!-- ================================================================== -->
@@ -975,7 +1002,7 @@
   </target>
 
   <!-- target: clean-cache  ============================================= -->
-  <target name="clean-cache" depends=""
+  <target name="clean-cache" depends="ivy-init"
                         description="--> delete ivy cache">
     <ivy:cleancache />
   </target>
@@ -987,23 +1014,109 @@
   <!-- ================================================================== -->
   <!-- RAT targets                                                        -->
   <!-- ================================================================== -->
-  <target name="rat-sources-typedef" description="--> run RAT antlib task">
-    <typedef resource="org/apache/rat/anttasks/antlib.xml" >
-      <classpath>
-        <fileset dir="." includes="rat*.jar"/>
-      </classpath>
-    </typedef>
+  <target name="apache-rat-download" description="--> download Apache Rat jar">
+    <available file="${apache-rat.jar}" property="apache-rat.jar.found"/>
+    <antcall target="apache-rat-download-unchecked"/>
   </target>
 
-  <target name="rat-sources" depends="rat-sources-typedef"
+  <target name="apache-rat-download-unchecked" unless="apache-rat.jar.found"
+          description="--> downloads the Apache Rat jar">
+    <get src="https://www.apache.org/dist/creadur/apache-rat-${apache-rat.version}/apache-rat-${apache-rat.version}-bin.tar.gz"
+         dest="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz" usetimestamp="false" />
+
+    <untar src="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz"
+           dest="${ivy.dir}/" compression="gzip">
+    </untar>
+
+    <delete file="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz" />
+  </target>
+
+  <taskdef
+      uri="antlib:org.apache.rat.anttasks"
+      resource="org/apache/rat/anttasks/antlib.xml">
+    <classpath>
+      <pathelement location="${apache-rat.jar}" />
+    </classpath>
+  </taskdef>
+
+  <target name="rat-sources" depends="init, apache-rat-download"
     description="--> runs RAT tasks over src/java">
-    <rat:report xmlns:rat="antlib:org.apache.rat.anttasks">
+    <rat:report
+        reportFile="${build.dir}/apache-rat-report.txt">
       <fileset dir="src">
         <include name="java/**/*"/>
         <include name="plugin/**/src/**/*"/>
       </fileset>
     </rat:report>
   </target>
+
+  <!-- ================================================================== -->
+  <!-- Spotbugs                                                           -->
+  <!-- ================================================================== -->
+  <target name="spotbugs-download" description="--> download spotbugs jar">
+    <available file="${spotbugs.jar}" property="spotbugs.jar.found"/>
+    <antcall target="spotbugs-download-unchecked"/>
+  </target>
+
+  <target name="spotbugs-download-unchecked" unless="spotbugs.jar.found"
+          description="--> downloads the spotbugs binary (spotbugs-*.tgz).">
+    <get src="https://github.com/spotbugs/spotbugs/releases/download/${spotbugs.version}/spotbugs-${spotbugs.version}.tgz "
+         dest="${basedir}/lib/spotbugs-${spotbugs.version}.tgz" usetimestamp="false" />
+
+    <untar src="${basedir}/lib/spotbugs-${spotbugs.version}.tgz"
+           dest="${basedir}/lib/" compression="gzip">
+    </untar>
+
+    <delete file="${basedir}/lib/spotbugs-${spotbugs.version}.tgz" />
+  </target>
+
+  <taskdef
+    resource="edu/umd/cs/findbugs/anttask/tasks.properties"
+    classpath="${spotbugs.jar}" />
+
+  <target name="spotbugs" depends="jar, compile-plugins, spotbugs-download" description="--> runs spotbugs source code analysis.">
+    <spotbugs home="${spotbugs.home}"
+            output="html"
+            outputFile="${build.dir}/nutch-spotbugs.html"
+            projectName="Apache Nutch Spotbugs Analysis"
+            stylesheet="fancy-hist.xsl" >
+      <auxClasspath>
+        <!-- depency jars required for analysis but not analyzed (not our bugs) -->
+        <pathelement path="${basedir}/${build.dir}/lib"/>
+        <fileset dir="${basedir}/${build.dir}/plugins">
+          <include name="**/*.jar"/>
+        </fileset>
+      </auxClasspath>
+      <sourcePath>
+        <fileset dir="${basedir}/src/java" />
+        <fileset dir="${basedir}/src/plugin">
+          <include name="*/src/java/**/*.java" />
+        </fileset>
+      </sourcePath>
+      <!-- jars to be analyzed:  -->
+      <!-- 1. apache-nutch-*.jar -->
+      <fileset dir="${build.dir}">
+        <include name="${final.name}.jar" />
+      </fileset>
+      <!-- 2. plugin jars, eg. build/feed/feed.jar -->
+      <fileset dir="${build.dir}/">
+        <include name="*/*.jar" />
+        <exclude name="lib/*.jar"/>
+      </fileset>
+    </spotbugs>
+  </target>
+  <path id="eclipse.classpath">
+    <fileset dir="${build.lib.dir}">
+      <include name="*.jar" />
+      <exclude name="ant-eclipse-1.0-jvm1.2.jar" />
+    </fileset>
+    <fileset dir="${build.plugins}">
+      <include name="**/*.jar" />
+    </fileset>
+    <fileset dir="${test.build.lib.dir}">
+      <include name="*.jar" />
+    </fileset>
+  </path>
 
 
   <!-- ================================================================== -->
@@ -1091,9 +1204,7 @@
         <source path="${plugins.dir}/indexer-csv/src/java"/>
         <source path="${plugins.dir}/indexer-csv/src/test"/>
         <source path="${plugins.dir}/indexer-dummy/src/java/" />
-        <source path="${plugins.dir}/indexer-elastic-rest/src/java/"/>
         <source path="${plugins.dir}/indexer-elastic/src/java/" />
-        <source path="${plugins.dir}/indexer-elastic/src/test/" />
         <source path="${plugins.dir}/indexer-kafka/src/java/" />
         <source path="${plugins.dir}/indexer-rabbit/src/java/" />
         <source path="${plugins.dir}/indexer-solr/src/java/" />
@@ -1123,6 +1234,7 @@
         <source path="${plugins.dir}/parse-tika/src/test/" />
         <source path="${plugins.dir}/parse-zip/src/java/" />
         <source path="${plugins.dir}/parse-zip/src/test/" />
+        <source path="${plugins.dir}/parsefilter-debug/src/java/" />
         <source path="${plugins.dir}/parsefilter-naivebayes/src/java/" />
         <source path="${plugins.dir}/parsefilter-regex/src/java/" />
         <source path="${plugins.dir}/parsefilter-regex/src/test/" />
@@ -1154,8 +1266,8 @@
         <source path="${plugins.dir}/urlfilter-automaton/src/test/" />
         <source path="${plugins.dir}/urlfilter-domain/src/java/" />
         <source path="${plugins.dir}/urlfilter-domain/src/test/" />
-        <source path="${plugins.dir}/urlfilter-domainblacklist/src/java/" />
-        <source path="${plugins.dir}/urlfilter-domainblacklist/src/test/" />
+        <source path="${plugins.dir}/urlfilter-domaindenylist/src/java/" />
+        <source path="${plugins.dir}/urlfilter-domaindenylist/src/test/" />
         <source path="${plugins.dir}/urlfilter-fast/src/java/"/>
         <source path="${plugins.dir}/urlfilter-fast/src/test/"/>
         <source path="${plugins.dir}/urlfilter-ignoreexempt/src/java/" />

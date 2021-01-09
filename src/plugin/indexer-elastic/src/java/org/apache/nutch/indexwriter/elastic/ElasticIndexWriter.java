@@ -17,37 +17,56 @@
 package org.apache.nutch.indexwriter.elastic;
 
 import java.lang.invoke.MethodHandles;
-import java.io.BufferedReader;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.time.format.DateTimeFormatter;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.client.RequestOptions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,10 +84,14 @@ public class ElasticIndexWriter implements IndexWriter {
   private static final int DEFAULT_EXP_BACKOFF_RETRIES = 10;
   private static final int DEFAULT_BULK_CLOSE_TIMEOUT = 600;
   private static final String DEFAULT_INDEX = "nutch";
+  private static final String DEFAULT_USER = "elastic";
 
-  private String cluster;
   private String[] hosts;
   private int port;
+  private Boolean https = null;
+  private String user = null;
+  private String password = null;
+  private Boolean auth;
 
   private int maxBulkDocs;
   private int maxBulkLength;
@@ -76,8 +99,7 @@ public class ElasticIndexWriter implements IndexWriter {
   private int expBackoffRetries;
 
   private String defaultIndex;
-  private Client client;
-  private Node node;
+  private RestHighLevelClient client;
   private BulkProcessor bulkProcessor;
 
   private long bulkCloseTimeout;
@@ -86,22 +108,24 @@ public class ElasticIndexWriter implements IndexWriter {
 
   @Override
   public void open(Configuration conf, String name) throws IOException {
-    //Implementation not required
+    // Implementation not required
   }
 
   /**
    * Initializes the internal variables from a given index writer configuration.
    *
-   * @param parameters Params from the index writer configuration.
-   * @throws IOException Some exception thrown by writer.
+   * @param parameters
+   *          Params from the index writer configuration.
+   * @throws IOException
+   *           Some exception thrown by writer.
    */
   @Override
   public void open(IndexWriterParams parameters) throws IOException {
-    cluster = parameters.get(ElasticConstants.CLUSTER);
+
     String hosts = parameters.get(ElasticConstants.HOSTS);
 
-    if (StringUtils.isBlank(cluster) && StringUtils.isBlank(hosts)) {
-      String message = "Missing elastic.cluster and elastic.host. At least one of them should be set in index-writers.xml ";
+    if (StringUtils.isBlank(hosts)) {
+      String message = "Missing elastic.host this should be set in index-writers.xml ";
       message += "\n" + describe();
       LOG.error(message);
       throw new RuntimeException(message);
@@ -111,73 +135,71 @@ public class ElasticIndexWriter implements IndexWriter {
         DEFAULT_BULK_CLOSE_TIMEOUT);
     defaultIndex = parameters.get(ElasticConstants.INDEX, DEFAULT_INDEX);
 
-    maxBulkDocs = parameters
-        .getInt(ElasticConstants.MAX_BULK_DOCS, DEFAULT_MAX_BULK_DOCS);
-    maxBulkLength = parameters
-        .getInt(ElasticConstants.MAX_BULK_LENGTH, DEFAULT_MAX_BULK_LENGTH);
-    expBackoffMillis = parameters
-        .getInt(ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
-            DEFAULT_EXP_BACKOFF_MILLIS);
-    expBackoffRetries = parameters
-        .getInt(ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
-            DEFAULT_EXP_BACKOFF_RETRIES);
+    maxBulkDocs = parameters.getInt(ElasticConstants.MAX_BULK_DOCS,
+        DEFAULT_MAX_BULK_DOCS);
+    maxBulkLength = parameters.getInt(ElasticConstants.MAX_BULK_LENGTH,
+        DEFAULT_MAX_BULK_LENGTH);
+    expBackoffMillis = parameters.getInt(
+        ElasticConstants.EXPONENTIAL_BACKOFF_MILLIS,
+        DEFAULT_EXP_BACKOFF_MILLIS);
+    expBackoffRetries = parameters.getInt(
+        ElasticConstants.EXPONENTIAL_BACKOFF_RETRIES,
+        DEFAULT_EXP_BACKOFF_RETRIES);
 
     client = makeClient(parameters);
 
     LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}",
         maxBulkDocs, maxBulkLength);
-    bulkProcessor = BulkProcessor.builder(client, bulkProcessorListener())
+    bulkProcessor = BulkProcessor
+        .builder((request, bulkListener) -> client.bulkAsync(request,
+            RequestOptions.DEFAULT, bulkListener), bulkProcessorListener())
         .setBulkActions(maxBulkDocs)
         .setBulkSize(new ByteSizeValue(maxBulkLength, ByteSizeUnit.BYTES))
-        .setConcurrentRequests(1).setBackoffPolicy(BackoffPolicy
-            .exponentialBackoff(TimeValue.timeValueMillis(expBackoffMillis),
-                expBackoffRetries)).build();
+        .setConcurrentRequests(1)
+        .setBackoffPolicy(BackoffPolicy.exponentialBackoff(
+            TimeValue.timeValueMillis(expBackoffMillis), expBackoffRetries))
+        .build();
   }
 
   /**
-   * Generates a TransportClient or NodeClient
+   * Generates a RestHighLevelClient with the hosts given
    */
-  protected Client makeClient(IndexWriterParams parameters) throws IOException {
+  protected RestHighLevelClient makeClient(IndexWriterParams parameters)
+      throws IOException {
     hosts = parameters.getStrings(ElasticConstants.HOSTS);
     port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
 
-    Settings.Builder settingsBuilder = Settings.builder();
+    auth = parameters.getBoolean(ElasticConstants.USE_AUTH, false);
+    user = parameters.get(ElasticConstants.USER, DEFAULT_USER);
+    password = parameters.get(ElasticConstants.PASSWORD, "");
 
-    BufferedReader reader = new BufferedReader(
-        config.getConfResourceAsReader("elasticsearch.conf"));
-    String line;
-    String[] parts;
-    while ((line = reader.readLine()) != null) {
-      if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        parts = line.trim().split("=");
+    final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+    credentialsProvider.setCredentials(AuthScope.ANY,
+        new UsernamePasswordCredentials(user, password));
 
-        if (parts.length == 2) {
-          settingsBuilder.put(parts[0].trim(), parts[1].trim());
-        }
-      }
-    }
+    RestHighLevelClient client = null;
 
-    // Set the cluster name and build the settings
-    if (StringUtils.isNotBlank(cluster)) {
-      settingsBuilder.put("cluster.name", cluster);
-    }
-
-    Settings settings = settingsBuilder.build();
-
-    Client client = null;
-
-    // Prefer TransportClient
     if (hosts != null && port > 1) {
-      @SuppressWarnings("resource")
-      TransportClient transportClient = new PreBuiltTransportClient(settings);
-
-      for (String host : hosts)
-        transportClient.addTransportAddress(
-            new InetSocketTransportAddress(InetAddress.getByName(host), port));
-      client = transportClient;
-    } else if (cluster != null) {
-      node = new Node(settings);
-      client = node.client();
+      HttpHost[] hostsList = new HttpHost[hosts.length];
+      int i = 0;
+      for (String host : hosts) {
+        hostsList[i++] = new HttpHost(host, port);
+      }
+      RestClientBuilder restClientBuilder = RestClient.builder(hostsList);
+      if (auth) {
+        restClientBuilder
+            .setHttpClientConfigCallback(new HttpClientConfigCallback() {
+              @Override
+              public HttpAsyncClientBuilder customizeHttpClient(
+                  HttpAsyncClientBuilder arg0) {
+                return arg0.setDefaultCredentialsProvider(credentialsProvider);
+              }
+            });
+      }
+      client = new RestHighLevelClient(restClientBuilder);
+    } else {
+      throw new IOException(
+          "ElasticRestClient initialization Failed!!!\\n\\nPlease Provide the hosts");
     }
 
     return client;
@@ -195,14 +217,15 @@ public class ElasticIndexWriter implements IndexWriter {
       @Override
       public void afterBulk(long executionId, BulkRequest request,
           Throwable failure) {
-        throw new RuntimeException(failure);
+        LOG.error("Elasticsearch indexing failed:", failure);
       }
 
       @Override
       public void afterBulk(long executionId, BulkRequest request,
           BulkResponse response) {
         if (response.hasFailures()) {
-          LOG.warn("Failures occurred during bulk request");
+          LOG.warn("Failures occurred during bulk request: {}",
+              response.buildFailureMessage());
         }
       }
     };
@@ -215,26 +238,34 @@ public class ElasticIndexWriter implements IndexWriter {
     if (type == null)
       type = "doc";
 
-    // Add each field of this doc to the index source
-    Map<String, Object> source = new HashMap<String, Object>();
+    // Add each field of this doc to the index builder
+    XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
     for (final Map.Entry<String, NutchField> e : doc) {
       final List<Object> values = e.getValue().getValues();
 
       if (values.size() > 1) {
-        source.put(e.getKey(), values);
+        builder.array(e.getKey(), values);
       } else {
-        source.put(e.getKey(), values.get(0));
+        Object value = values.get(0);
+        if (value instanceof java.util.Date) {
+          value = DateTimeFormatter.ISO_INSTANT
+              .format(((java.util.Date) value).toInstant());
+        }
+        builder.field(e.getKey(), value);
       }
     }
+    builder.endObject();
 
-    IndexRequest request = new IndexRequest(defaultIndex, type, id)
-        .source(source);
+    IndexRequest request = new IndexRequest(defaultIndex).id(id)
+        .source(builder);
+    request.opType(DocWriteRequest.OpType.INDEX);
+
     bulkProcessor.add(request);
   }
 
   @Override
   public void delete(String key) throws IOException {
-    DeleteRequest request = new DeleteRequest(defaultIndex, "doc", key);
+    DeleteRequest request = new DeleteRequest(defaultIndex, key);
     bulkProcessor.add(request);
   }
 
@@ -259,33 +290,30 @@ public class ElasticIndexWriter implements IndexWriter {
     }
 
     client.close();
-    if (node != null) {
-      node.close();
-    }
   }
 
   /**
-   * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
+   * Returns {@link Map} with the specific parameters the IndexWriter instance
+   * can take.
    *
-   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   * @return The values of each row. It must have the form
+   *         <KEY,<DESCRIPTION,VALUE>>.
    */
   @Override
   public Map<String, Map.Entry<String, Object>> describe() {
     Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
 
-    properties.put(ElasticConstants.CLUSTER, new AbstractMap.SimpleEntry<>(
-        "The cluster name to discover. Either host and port must be defined or cluster.",
-        this.cluster));
-    properties.put(ElasticConstants.HOSTS, new AbstractMap.SimpleEntry<>(
-        "Ordered list of fields (columns) in the CSV fileComma-separated list of "
-            + "hostnames to send documents to using TransportClient. "
-            + "Either host and port must be defined or cluster.",
-        this.hosts == null ? "" : String.join(",", hosts)));
+    properties.put(ElasticConstants.HOSTS,
+        new AbstractMap.SimpleEntry<>("Comma-separated list of hostnames",
+            this.hosts == null ? "" : String.join(",", hosts)));
     properties.put(ElasticConstants.PORT, new AbstractMap.SimpleEntry<>(
-        "The port to connect to using TransportClient.", this.port));
-    properties.put(ElasticConstants.INDEX,
-        new AbstractMap.SimpleEntry<>("Default index to send documents to.",
-            this.defaultIndex));
+        "The port to connect to elastic server.", this.port));
+    properties.put(ElasticConstants.INDEX, new AbstractMap.SimpleEntry<>(
+        "Default index to send documents to.", this.defaultIndex));
+    properties.put(ElasticConstants.USER, new AbstractMap.SimpleEntry<>(
+        "Username for auth credentials", this.user));
+    properties.put(ElasticConstants.PASSWORD, new AbstractMap.SimpleEntry<>(
+        "Password for auth credentials", this.password));
     properties.put(ElasticConstants.MAX_BULK_DOCS,
         new AbstractMap.SimpleEntry<>(
             "Maximum size of the bulk in number of documents.",

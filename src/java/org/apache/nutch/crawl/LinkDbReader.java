@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
@@ -63,6 +64,8 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
   private Path directory;
   private MapFile.Reader[] readers;
 
+  private long lastModified = 0;
+
   public LinkDbReader() {
     //default constructor
   }
@@ -76,6 +79,28 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     this.directory = directory;
   }
 
+  public void openReaders() throws IOException {
+    Path linkDbPath = new Path(directory, LinkDb.CURRENT_NAME);
+
+    FileStatus stat = linkDbPath.getFileSystem(getConf()).getFileStatus(directory);
+    long lastModified = stat.getModificationTime();
+
+    synchronized (this) {
+      if (readers != null) {
+        if (this.lastModified == lastModified) {
+          // CrawlDB not modified, re-use readers
+          return;
+        } else {
+          // CrawlDB modified, close and re-open readers
+          close();
+        }
+      }
+
+      this.lastModified = lastModified;
+      readers = MapFileOutputFormat.getReaders(linkDbPath, getConf());
+    }
+  }
+
   public String[] getAnchors(Text url) throws IOException {
     Inlinks inlinks = getInlinks(url);
     if (inlinks == null)
@@ -84,18 +109,13 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
   }
 
   public Inlinks getInlinks(Text url) throws IOException {
-
-    if (readers == null) {
-      synchronized (this) {
-        readers = MapFileOutputFormat.getReaders(new Path(directory,
-            LinkDb.CURRENT_NAME), getConf());
-      }
-    }
+    openReaders();
 
     return (Inlinks) MapFileOutputFormat.getEntry(readers, PARTITIONER, url,
         new Inlinks());
   }
 
+  @Override
   public void close() throws IOException {
     if (readers != null) {
       for (int i = 0; i < readers.length; i++) {
@@ -135,10 +155,10 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     throws IOException, InterruptedException, ClassNotFoundException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
-    if (LOG.isInfoEnabled()) {
-      LOG.info("LinkDb dump: starting at " + sdf.format(start));
-      LOG.info("LinkDb dump: db: " + linkdb);
-    }
+
+    LOG.info("LinkDb dump: starting at {}", sdf.format(start));
+    LOG.info("LinkDb dump: db: {}", linkdb);
+
     Path outFolder = new Path(output);
 
     Job job = NutchJob.getInstance(getConf());
@@ -188,6 +208,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
       Iterator<Inlink> it = links.iterator();
       while (it.hasNext()) {
         output.append(it.next().toString());
+        output.append("\n");
       }
     }
     output.append("\n");
@@ -200,16 +221,21 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err
-          .println("Usage: LinkDbReader <linkdb> (-dump <out_dir> [-regex <regex>]) | -url <url>");
+          .println("Usage: LinkDbReader <linkdb> (-dump <out_dir> [-regex <regex>] | -url <url> | -listen <port>)");
       System.err
           .println("\t-dump <out_dir>\tdump whole link db to a text file in <out_dir>");
       System.err
           .println("\t\t-regex <regex>\trestrict to url's matching expression");
       System.err
           .println("\t-url <url>\tprint information about <url> to System.out");
+      System.err
+          .println("\t-listen <port> [-keepClientCnxOpen]\tlisten on <port> for URLs and");
+      System.err
+          .println("\t\t\tsend information about <url> back");
       return -1;
     }
 

@@ -97,6 +97,7 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
     }
   }
 
+  @Override
   public OutputCommitter getOutputCommitter(TaskAttemptContext context) 
       throws IOException {
     Path path = FileOutputFormat.getOutputPath(context);
@@ -108,9 +109,6 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
     Configuration conf = context.getConfiguration();
     Path out = FileOutputFormat.getOutputPath(context);
     FileSystem fs = out.getFileSystem(context.getConfiguration());
-    if ((out == null) && (context.getNumReduceTasks() != 0)) {
-      throw new IOException("Output directory not set in JobContext.");
-    }
     if (fs == null) {
       fs = out.getFileSystem(conf);
     }
@@ -132,6 +130,7 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
     return result.toString();
   }
 
+  @Override
   public RecordWriter<Text, Parse> getRecordWriter(TaskAttemptContext context)
       throws IOException {
     Configuration conf = context.getConfiguration();
@@ -216,6 +215,7 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
 
     return new RecordWriter<Text, Parse>() {
 
+      @Override
       public void write(Text key, Parse parse) throws IOException {
 
         String fromUrl = key.toString();
@@ -374,6 +374,7 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
         }
       }
 
+      @Override
       public void close(TaskAttemptContext context) throws IOException {
         if (textOut != null)
           textOut.close();

@@ -20,16 +20,19 @@ import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
@@ -46,9 +49,12 @@ import org.slf4j.LoggerFactory;
  * percent-encoding</a> in URL paths</li>
  * </ul>
  */
-public class BasicURLNormalizer extends Configured implements URLNormalizer {
+public class BasicURLNormalizer implements URLNormalizer {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
+
+  public final static String NORM_HOST_IDN = "urlnormalizer.basic.host.idn";
+  public final static String NORM_HOST_TRIM_TRAILING_DOT = "urlnormalizer.basic.host.trim-trailing-dot";
 
   /**
    * Pattern to detect whether a URL path could be normalized. Contains one of
@@ -128,6 +134,43 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         || (0x30 <= c && c <= 0x39);
   }
 
+  private static boolean isAscii(String str) {
+    char[] chars = str.toCharArray();
+    for (char c : chars) {
+      if (c > 127) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private Configuration conf;
+
+  private boolean hostIDNtoASCII;
+  private boolean hostASCIItoIDN;
+  private boolean hostTrimTrailingDot;
+
+  public void BasicUrlNormalizer() {
+  }
+
+  @Override
+  public Configuration getConf() {
+    return conf;
+  }
+
+  @Override
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    String normIdn = conf.get(NORM_HOST_IDN, "");
+    if (normIdn.equalsIgnoreCase("toAscii")) {
+      hostIDNtoASCII = true;
+    } else if (normIdn.equalsIgnoreCase("toUnicode")) {
+      hostASCIItoIDN = true;
+    }
+    hostTrimTrailingDot = conf.getBoolean(NORM_HOST_TRIM_TRAILING_DOT, false);
+  }
+
+  @Override
   public String normalize(String urlString, String scope)
       throws MalformedURLException {
     
@@ -153,7 +196,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         || "ftp".equals(protocol)) {
 
       if (host != null && url.getAuthority() != null) {
-        String newHost = host.toLowerCase(Locale.ROOT); // lowercase host
+        String newHost = normalizeHostName(host);
         if (!host.equals(newHost)) {
           host = newHost;
           changed = true;
@@ -229,7 +272,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
       try {
         file = url.toURI().normalize().toURL().getFile();
         // URI.normalize() does not normalize leading dot segments,
-        // see also http://tools.ietf.org/html/rfc3986#section-5.2.4
+        // see also https://tools.ietf.org/html/rfc3986#section-5.2.4
         int start = 0;
         while (file.startsWith("/..", start)
             && ((start + 3) == file.length() || file.charAt(3) == '/')) {
@@ -351,6 +394,52 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     }
     
     return sb.toString();
+  }
+
+  private String normalizeHostName(String host) throws MalformedURLException {
+
+    // 1. unescape percent-encoded characters in host name
+    if (host.indexOf('%') != -1) {
+      try {
+        host = URLDecoder.decode(host, StandardCharsets.UTF_8.toString());
+      } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+        LOG.debug("Failed to convert percent-encoded host name {}: ", host, e);
+        throw (MalformedURLException) new MalformedURLException(
+            "Invalid percent-encoded host name " + host + ": " + e.getMessage())
+                .initCause(e);
+      }
+    }
+
+    // 2. lowercase host name
+    host = host.toLowerCase(Locale.ROOT);
+
+    // 3. if configured: convert between Unicode and ASCII forms
+    //    for Internationalized Domain Names (IDNs)
+    if (hostIDNtoASCII && !isAscii(host)) {
+      try {
+        host = IDN.toASCII(host);
+      } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+        // IllegalArgumentException: thrown if the input string contains
+        // non-convertible Unicode codepoints
+        // IndexOutOfBoundsException: thrown (undocumented) if one "label"
+        // (non-ASCII dot-separated segment) is longer than 256 characters,
+        // cf. https://bugs.openjdk.java.net/browse/JDK-6806873
+        LOG.debug("Failed to convert IDN host {}: ", host, e);
+        throw (MalformedURLException) new MalformedURLException(
+            "Invalid IDN " + host + ": " + e.getMessage()).initCause(e);
+      }
+    } else if (hostASCIItoIDN && host.contains("xn--")) {
+      host = IDN.toUnicode(host);
+    }
+
+    // 4. optionally trim a trailing dot
+    if (hostTrimTrailingDot) {
+      if (host.endsWith(".")) {
+        host = host.substring(0, host.length()-1);
+      }
+    }
+
+    return host;
   }
 
   public static void main(String args[]) throws IOException {

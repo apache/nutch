@@ -68,6 +68,13 @@ public class HTMLMetaTags {
   }
 
   /**
+   * Sets <code>noFollow</code> to <code>false</code>.
+   */
+  public void setFollow() {
+    noFollow = false;
+  }
+
+  /**
    * Sets <code>noIndex</code> to <code>true</code>.
    */
   public void setNoIndex() {
@@ -75,10 +82,24 @@ public class HTMLMetaTags {
   }
 
   /**
+   * Sets <code>noIndex</code> to <code>false</code>.
+   */
+  public void setIndex() {
+    noIndex = false;
+  }
+
+  /**
    * Sets <code>noCache</code> to <code>true</code>.
    */
   public void setNoCache() {
     noCache = true;
+  }
+
+  /**
+   * Sets <code>noCache</code> to <code>false</code>.
+   */
+  public void setCache() {
+    noCache = false;
   }
 
   /**

@@ -40,7 +40,7 @@
   <name>file.content.limit</name>
   <value>1048576</value>
   <description>The length limit for downloaded content using the file://
-  protocol, in bytes. If this value is nonnegative (>=0), content longer
+  protocol, in bytes. If this value is non-negative (>=0), content longer
   than it will be truncated; otherwise, no truncation at all. Do not
   confuse this setting with the http.content.limit setting.
   </description>
@@ -50,7 +50,7 @@
   <name>file.crawl.parent</name>
   <value>true</value>
   <description>The crawler is not restricted to the directories that you specified in the
-    Urls file but it is jumping into the parent directories as well. For your own crawlings you can
+    URLs file but it is jumping into the parent directories as well. For your own crawlings you can
     change this behavior (set to false) the way that only directories beneath the directories that you specify get
     crawled.</description>
 </property>
@@ -75,7 +75,7 @@
   And it is probably what we want to set most of time, since file:// URLs
   are meant to be local and we can always use them directly at parsing
   and indexing stages. Otherwise file contents will be saved.
-  !! NO IMPLEMENTED YET !!
+  !! NOT IMPLEMENTED YET !!
   </description>
 </property>
 
@@ -164,7 +164,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-1.16-SNAPSHOT</value>
+  <value>Nutch-1.18-SNAPSHOT</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -190,6 +190,14 @@
 </property>
 
 <property>
+  <name>http.agent.host.cookie.file</name>
+  <value>cookies.txt</value>
+  <description>
+    File containing per-host configured cookies.
+  </description>
+</property>
+
+<property>
   <name>http.agent.host</name>
   <value></value>
   <description>Name or IP address of the host on which the Nutch crawler
@@ -208,7 +216,7 @@
   <name>http.content.limit</name>
   <value>1048576</value>
   <description>The length limit for downloaded content using the http/https
-  protocols, in bytes. If this value is nonnegative (>=0), content longer
+  protocols, in bytes. If this value is non-negative (>=0), content longer
   than it will be truncated; otherwise, no truncation at all. Do not
   confuse this setting with the file.content.limit setting.
   </description>
@@ -218,7 +226,7 @@
   <name>http.time.limit</name>
   <value>-1</value>
   <description>The time limit in seconds to fetch a single document.
-  If this value is nonnegative (>=0), the HTTP protocol implementation
+  If this value is non-negative (>=0), the HTTP protocol implementation
   will stop reading from a socket after http.time.limit seconds have
   been spent for fetching this document.  The HTTP response is then
   marked as truncated.  The http.time.limit should be set to a longer
@@ -323,15 +331,6 @@
 </property>
 
 <property>
-  <name>http.redirect.max</name>
-  <value>0</value>
-  <description>The maximum number of redirects the fetcher will follow when
-  trying to fetch a page. If set to negative or 0, fetcher won't immediately
-  follow redirected URLs, instead it will record them for later fetching.
-  </description>
-</property>
-
-<property>
   <name>http.useHttp11</name>
   <value>true</value>
   <description>
@@ -395,7 +394,7 @@
   <value>true</value>
   <description>Whether Nutch sends an HTTP If-Modified-Since header. It reduces
   bandwidth when enabled by not downloading pages that respond with an HTTP
-  Not-Modified header. URL's that are not downloaded are not passed through
+  Not-Modified header. URLs that are not downloaded are not passed through
   parse or indexing filters. If you regularly modify filters, you should force
   Nutch to also download unmodified pages by disabling this feature.
   </description>
@@ -427,7 +426,7 @@
   <name>ftp.content.limit</name>
   <value>1048576</value>
   <description>The length limit for downloaded content, in bytes.
-  If this value is nonnegative (>=0), content longer than it will be truncated;
+  If this value is non-negative (>=0), content longer than it will be truncated;
   otherwise, no truncation at all.
   Caution: classical ftp RFCs never defines partial transfer and, in fact,
   some ftp servers out there do not handle client side forced close-down very
@@ -461,7 +460,7 @@
   <value>false</value>
   <description>Whether to keep ftp connection. Useful if crawling same host
   again and again. When set to true, it avoids connection, login and dir list
-  parser setup for subsequent urls. If it is set to true, however, you must
+  parser setup for subsequent URLs. If it is set to true, however, you must
   make sure (roughly):
   (1) ftp.timeout is less than ftp.server.timeout
   (2) ftp.timeout is larger than (fetcher.threads.fetch * fetcher.server.delay)
@@ -585,7 +584,7 @@
 <property>
   <name>db.update.purge.orphans</name>
   <value>false</value>
-  <description>If true, updatedb will permanently delete URL's marked
+  <description>If true, updatedb will permanently delete URLs marked
   as orphan from the CrawlDb. The plugin scoring-orphan needs to be
   activated to get records marked as orphan. See the plugin's options
   elsewhere in this document.
@@ -597,7 +596,7 @@
     <value>false</value>
     <description>
 	!Temporary, can be overwritten with the command line!
-	Normalize urls when updating crawldb
+	Normalize URLs when updating crawldb
     </description>
 </property>
 
@@ -606,7 +605,7 @@
     <value>false</value>
     <description>
 	!Temporary, can be overwritten with the command line!
-	Filter urls when updating crawldb
+	Filter URLS when updating crawldb
     </description>
 </property>
 
@@ -750,7 +749,7 @@
 <property>
   <name>db.fetch.retry.max</name>
   <value>3</value>
-  <description>The maximum number of times a url that has encountered
+  <description>The maximum number of times a URL that has encountered
   recoverable errors is generated for fetch.</description>
 </property>
 
@@ -794,7 +793,7 @@
 <property>
   <name>linkdb.max.inlinks</name>
   <value>10000</value>
-  <description>Maximum number of Inlinks per URL to be kept in LinkDb.
+  <description>Maximum number of inlinks per URL to be kept in LinkDb.
   If "invertlinks" finds more inlinks than this number, only the first
   N inlinks will be stored, and the rest will be discarded.
   </description>
@@ -832,8 +831,8 @@
 <property>
   <name>generate.max.count</name>
   <value>-1</value>
-  <description>The maximum number of urls in a single
-  fetchlist.  -1 if unlimited. The urls are counted according
+  <description>The maximum number of URLs in a single
+  fetchlist.  -1 if unlimited. The URLs are counted according
   to the value of the parameter generate.count.mode.
   </description>
 </property>
@@ -854,8 +853,9 @@
   generate/fetch/update cycles may overlap, setting this to true ensures
   that generate will create different fetchlists even without intervening
   updatedb-s, at the cost of running an additional job to update CrawlDB.
-  If false, running generate twice without intervening
-  updatedb will generate identical fetchlists.</description>
+  If false, running generate twice without intervening updatedb will
+  generate identical fetchlists. See also crawl.gen.delay which defines
+  how long items already generated are blocked.</description>
 </property>
 
 <property>
@@ -896,6 +896,13 @@
   See https://issues.apache.org/jira/browse/NUTCH-2368</description>
 </property>
 
+<property>
+  <name>generate.restrict.status</name>
+  <value></value>
+  <description>Select only entries of this status, see
+  https://issues.apache.org/jira/browse/NUTCH-1248</description>
+</property>
+
 <!-- urlpartitioner properties -->
 
 <property>
@@ -912,8 +919,9 @@
   <description>
    This value, expressed in milliseconds, defines how long we should keep the lock on records 
    in CrawlDb that were just selected for fetching. If these records are not updated 
-   in the meantime, the lock is canceled, i.e. they become eligible for selecting. 
-   Default value of this is 7 days (604800000 ms).
+   in the meantime, the lock is canceled, i.e. they become eligible for selecting again.
+   Default value of this is 7 days (604800000 ms). If generate.update.crawldb is false
+   the property crawl.gen.delay has no effect.
   </description>
 </property>
 
@@ -951,6 +959,18 @@
 </property> 
 
 <property>
+ <name>fetcher.min.crawl.delay</name>
+ <value>${fetcher.server.delay}</value>
+ <description>
+ Minimum Crawl-Delay (in seconds) accepted in robots.txt, even if the
+ robots.txt specifies a shorter delay. By default the minimum Crawl-Delay
+ is set to the value of `fetcher.server.delay` which guarantees that
+ a value set in the robots.txt cannot make the crawler more aggressive
+ than the default configuration.
+ </description>
+</property>
+
+<property>
   <name>fetcher.threads.fetch</name>
   <value>10</value>
   <description>The number of FetcherThreads the fetcher should use.
@@ -986,6 +1006,17 @@
   <name>fetcher.verbose</name>
   <value>false</value>
   <description>If true, fetcher will log more verbosely.</description>
+</property>
+
+<property>
+  <name>http.log.exceptions.suppress.stack</name>
+  <value>java.net.UnknownHostException,java.net.NoRouteToHostException</value>
+  <description>Comma-separated list of exceptions not shown with full
+  stack trace in logs of fetcher and HTTP protocol implementations.
+  The logs may shrink in size significantly, e.g., when for a large
+  unrestricted web crawl unknown hosts are logged shortly without full
+  stack trace.  The full class name of the exception class (extending
+  Throwable) including the package path must be specified.</description>
 </property>
 
 <property>
@@ -1085,7 +1116,7 @@
   and follow until the desired depth is reached. A value of 1 means all generated pages are fetched and their first degree
   outlinks are fetched and parsed too. Be careful, this feature is in itself agnostic of the state of the CrawlDB and does not
   know about already fetched pages. A setting larger than 2 will most likely fetch home pages twice in the same fetch cycle.
-  It is highly recommended to set db.ignore.external.links to true to restrict the outlink follower to URL's within the same
+  It is highly recommended to set db.ignore.external.links to true to restrict the outlink follower to URLs within the same
   domain. When disabled (false) the feature is likely to follow duplicates even when depth=1.
   A value of -1 of 0 disables this feature.
   </description>
@@ -1169,6 +1200,64 @@
   <description>Whether fetcher will normalize URLs (with the configured URL normalizers).</description>
 </property>
 
+<property>
+  <name>http.redirect.max</name>
+  <value>0</value>
+  <description>The maximum number of redirects the fetcher will follow when
+  trying to fetch a page. If set to negative or 0, fetcher won't immediately
+  follow redirected URLs, instead it will record them for later fetching.
+  </description>
+</property>
+
+<property>
+  <name>http.redirect.max.exceeded.skip</name>
+  <value>false</value>
+  <description>
+    Whether to skip the last URL in a redirect chain when when redirects
+    are followed (http.redirect.max > 0) and the maximum number of redirects
+    in a chain is exceeded (redirect_count > http.redirect.max).
+    If not skipped the redirect target URLs are stored as `linked`
+    and fetched in one of the following cycles. See also NUTCH-2748.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.redirect.dedupcache.seconds</name>
+  <value>-1</value>
+  <description>
+    The maximum time in seconds fetcher will cache redirects for
+    deduplication.  If the same redirect URL is seen again withing
+    this time it is skipped. This allows to avoid pathological cases
+    where many or most of the URLs of a host are redirected to the
+    same URL, eg. a page to login, accept cookies, indicating an
+    error.  A value less or equal zero disables redirect deduplication.
+    Caveat: This may break setting cookies via recursive redirect chains.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.redirect.dedupcache.size</name>
+  <value>1000</value>
+  <description>
+    The maximum size of the cache to deduplicate redirects,
+    see `fetcher.redirect.dedupcache.seconds`.
+  </description>
+</property>
+
+
+<!-- SegmentReader -->
+<property>
+  <name>segment.reader.content.recode</name>
+  <value>false</value>
+  <description>
+    SegmentReader when dumping segments: If true try to recode content
+    of HTML documents from the original encoding to UTF-8. Note, this
+    property can be overwritten by SegmentReader command-line options.
+  </description>
+</property>
+
+
+
 <!--  any23 plugin properties -->
 
 <property>
@@ -1245,8 +1334,8 @@
 <property>
   <name>indexer.score.power</name>
   <value>0.5</value>
-  <description>Determines the power of link analyis scores.  Each
-  pages's boost is set to <i>score<sup>scorePower</sup></i> where
+  <description>Determines the power of link analyis scores. The boost
+  of each page is set to <i>score<sup>scorePower</sup></i> where
   <i>score</i> is its link analysis score and <i>scorePower</i> is the
   value of this parameter.  This is compiled into indexes, so, when
   this is changed, pages must be re-indexed for it to take
@@ -1295,6 +1384,20 @@
   </description>
 </property>
 
+<property>
+  <name>indexer.indexwriters.file</name>
+  <value>index-writers.xml</value>
+  <description>The configuration file for index writers.</description>
+</property>
+
+<!-- Exchanges properties -->
+
+<property>
+  <name>exchanges.exchanges.file</name>
+  <value>exchanges.xml</value>
+  <description>The configuration file used by the Exchange component.</description>
+</property>
+
 <!-- URL normalizer properties -->
 
 <property>
@@ -1319,6 +1422,26 @@
   <value>1</value>
   <description>Optionally loop through normalizers several times, to make
   sure that all transformations have been performed.
+  </description>
+</property>
+
+<property>
+  <name>urlnormalizer.basic.host.idn</name>
+  <value></value>
+  <description>Let urlnormalizer-basic
+  (org.apache.nutch.net.urlnormalizer.basic.BasicURLNormalizer)
+  normalize Internationalized Domain Names (IDNs). Possible values
+  are: `toAscii` - convert the Unicode form to the ASCII (Punycode)
+  representation, `toUnicode` - convert ASCII (Punycode) to Unicode,
+  or if left empty no normalization of IDNs is performed.
+  </description>
+</property>
+
+<property>
+  <name>urlnormalizer.basic.host.trim-trailing-dot</name>
+  <value>false</value>
+  <description>urlnormalizer-basic: Trim a trailing dot in host names:
+  `https://example.org./` is normalized to `https://example.org/`.
   </description>
 </property>
 
@@ -1347,7 +1470,7 @@
 <property>
   <name>plugin.folders</name>
   <value>plugins</value>
-  <description>Directories where nutch plugins are located.  Each
+  <description>Directories where Nutch plugins are located.  Each
   element may be a relative or absolute path.  If absolute, it is used
   as is.  If relative, it is searched for on the classpath.</description>
 </property>
@@ -1594,6 +1717,14 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>tika.parse.embedded</name>
+  <value>true</value>
+  <description>
+    Whether parse-tika shall parse embedded documents (even recursively).
+  </description>
+</property>
+
 <!-- urlfilter plugin properties -->
 
 <property>
@@ -1641,7 +1772,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <property>
   <name>urlfilter.order</name>
   <value></value>
-  <description>The order by which url filters are applied.
+  <description>The order by which URL filters are applied.
   If empty, all available url filters (as dictated by properties
   plugin-includes and plugin-excludes above) are loaded and applied in system
   defined order. If not empty, only named filters are loaded and applied
@@ -1687,7 +1818,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 Add scoring-similarity to the list of active plugins
  in the parameter 'plugin.includes' in order to use it. 
 For more detailed information on the working of this filter 
-visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
+visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter -->
 
 <property>
     <name>scoring.similarity.model</name>
@@ -1929,8 +2060,9 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
         fldname1=/regexp/replacement/flags
         fldname2=/regexp/replacement/flags
 
-    Field names would be one of those from https://wiki.apache.org/nutch/IndexStructure.
-    See https://wiki.apache.org/nutch/IndexReplace for further details.
+    Field names would be one of those from
+      https://cwiki.apache.org/confluence/display/NUTCH/IndexStructure
+    See https://cwiki.apache.org/confluence/display/NUTCH/IndexReplace for further details.
   </description>
 </property>
 
@@ -2028,7 +2160,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
 <property>
   <name>link.score.updater.clear.score</name>
   <value>0.0f</value>
-  <description>The default score for URL's that are not in the web graph.</description>
+  <description>The default score for URLs that are not in the web graph.</description>
 </property>
 
 <property>
@@ -2038,376 +2170,6 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   the readers. This should not be an issue once Nutch is ported to the new MapReduce API
   but for now this parameter should prevent such cases.
   </description>
-</property>
-
-<!-- solr index properties -->
-
-<property>
-  <name>solr.server.type</name>
-  <value>http</value>
-  <description>
-    Specifies the SolrServer implementation to use. This is a string value
-    of one of the following 'cloud', 'concurrent', 'http' or 'lb'.
-    The values represent CloudSolrServer, ConcurrentUpdateSolrServer, 
-    HttpSolrServer or LBHttpSolrServer respectively.
-  </description>
-</property>
-
-<property>
-  <name>solr.server.url</name>
-  <value>http://127.0.0.1:8983/solr/</value>
-  <description>
-      Defines the Solr URL into which data should be indexed using the
-      indexer-solr plugin.
-  </description>
-</property>
-
-<property>
-  <name>solr.zookeeper.url</name>
-  <value></value>
-  <description>
-      Defines the Zookeeper URL which is an essential setting to be used 
-      when using SolrCloud. This should be a fully qualified URL similar to
-      the property provided within 'solr.server.url' above.
-  </description>
-</property>
-
-<property>
-  <name>solr.loadbalance.urls</name>
-  <value></value>
-  <description>
-      A comma-separated value representing the Solr servers to be used when
-      initiating LBHttpSolrServer as the SolrServer implementation. 
-  </description>
-</property>
-
-<property>
-  <name>solr.mapping.file</name>
-  <value>solrindex-mapping.xml</value>
-  <description>
-  Defines the name of the file that will be used in the mapping of internal
-  Nutch field names to solr index fields as specified in the target Solr schema.
-  </description>
-</property>
-
-<property> 
-  <name>solr.commit.size</name>
-  <value>250</value>
-  <description>
-  Defines the number of documents to send to Solr in a single update batch.
-  Decrease when handling very large documents to prevent Nutch from running
-  out of memory. NOTE: It does not explicitly trigger a server side commit.
-  </description>
-</property>
-
-<property>
-  <name>solr.commit.index</name>
-  <value>true</value>
-  <description>
-  When closing the indexer, trigger a commit to the Solr server. 
-  </description>
-</property>
-
-<property>
-  <name>solr.auth</name>
-  <value>false</value>
-  <description>
-  Whether to enable HTTP basic authentication for communicating with Solr.
-  Use the solr.auth.username and solr.auth.password properties to configure
-  your credentials.
-  </description>
-</property>
-
-<!-- Elasticsearch properties -->
-
-<property>
-  <name>elastic.host</name>
-  <value></value>
-  <description>Comma-separated list of hostnames to send documents to using
-  TransportClient. Either host and port must be defined or cluster.</description>
-</property>
-
-<property> 
-  <name>elastic.port</name>
-  <value>9300</value>
-  <description>The port to connect to using TransportClient.</description>
-</property>
-
-<property> 
-  <name>elastic.cluster</name>
-  <value></value>
-  <description>The cluster name to discover. Either host and port must be defined
-  or cluster.</description>
-</property>
-
-<property> 
-  <name>elastic.index</name>
-  <value>nutch</value> 
-  <description>Default index to send documents to.</description>
-</property>
-
-<property> 
-  <name>elastic.max.bulk.docs</name>
-  <value>250</value> 
-  <description>Maximum size of the bulk in number of documents.</description>
-</property>
-
-<property> 
-  <name>elastic.max.bulk.size</name>
-  <value>2500500</value> 
-  <description>Maximum size of the bulk in bytes.</description>
-</property>
-
-<property>
-  <name>elastic.exponential.backoff.millis</name>
-  <value>100</value>
-  <description>Initial delay for the BulkProcessor's exponential backoff policy.
-  </description>
-</property>
-
-<property>
-  <name>elastic.exponential.backoff.retries</name>
-  <value>10</value>
-  <description>Number of times the BulkProcessor's exponential backoff policy
-  should retry bulk operations.</description>
-</property>
-
-<property>
-  <name>elastic.bulk.close.timeout</name>
-  <value>600</value>
-  <description>Number of seconds allowed for the BulkProcessor to complete its
-  last operation.</description>
-</property>
-
-<!-- RabbitMQ indexer properties -->
-
-<property>
-  <name>rabbitmq.indexer.server.uri</name>
-  <value>amqp://guest:guest@localhost:5672/</value>
-  <description>
-    URI with connection parameters in the form
-    amqp://username:password@hostname:port/virtualHost
-    Where:
-    username is the username for RabbitMQ server.
-    password is the password for RabbitMQ server.
-    hostname is where the RabbitMQ server is running.
-    port is where the RabbitMQ server is listening.
-    virtualHost is where where the exchange is and the user has access.
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.binding</name>
-  <value>false</value>
-  <description>
-    Whether the relationship between an exchange and a queue is created
-    automatically. Default "false".
-
-    NOTE: Binding between exchanges is not supported.
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.binding.arguments</name>
-  <value></value>
-  <description>
-    Arguments used in binding. It must have the form key1=value1,key2=value2.
-    This value is only used when the exchange's type is headers and
-    the value of 'rabbitmq.indexer.binding' property is true. In other cases
-    is ignored.
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.exchange.name</name>
-  <value></value>
-  <description>
-    Name for the exchange where the messages will be sent. Default "".
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.exchange.options</name>
-  <value>type=direct,durable=true</value>
-  <description>
-    Options used when the exchange is created.
-    Only used when the value of 'rabbitmq.indexer.binding' property is true.
-    Default "type=direct,durable=true".
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.queue.name</name>
-  <value>nutch.queue</value>
-  <description>
-    Name of the queue used to create the binding. Default "nutch.queue".
-    Only used when the value of 'rabbitmq.indexer.binding' property is true.
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.queue.options</name>
-  <value>durable=true,exclusive=false,auto-delete=false</value>
-  <description>
-    Options used when the queue is created.
-    Only used when the value of 'rabbitmq.indexer.binding' property is true.
-    Default "durable=true,exclusive=false,auto-delete=false".
-
-    It must have the form
-    durable={durable},exclusive={exclusive},auto-delete={auto-delete},arguments={arguments}
-    where:
-    durable is true or false
-    exclusive is true or false
-    auto-delete is true or false
-    arguments must be the for {key1:value1;key2:value2}
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.routingkey</name>
-  <value></value>
-  <description>
-    The routing key used to publish messages to specific queues.
-    It is only used when the exchange type is "topic" or "direct". Default
-    is the value of 'rabbitmq.indexer.queue.name' property.
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.commit.mode</name>
-  <value>multiple</value>
-  <description>
-    "single" if a message contains only one document. In this case a header
-    with the action (write, update or delete) will be added.
-    "multiple" if a message contains all documents. Default "multiple".
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.commit.size</name>
-  <value>250</value>
-  <description>
-    Amount of documents to send into each message if the value of
-    'rabbitmq.indexer.commit.mode' property is "multiple". Default "250".
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.headers.static</name>
-  <value></value>
-  <description>
-    Headers to add to each message. It must have the form key1=value1,key2=value2.
-  </description>
-</property>
-
-<property>
-  <name>rabbitmq.indexer.headers.dynamic</name>
-  <value></value>
-  <description>
-    Document's fields to add as headers to each message. It must have the form field1,field2.
-  </description>
-</property>
-
-<!--elasticsearch rest properties-->
-<property>
-    <name>elastic.rest.host</name>
-    <value></value>
-    <description>
-      The hostname or a list of comma separated hostnames to send documents to
-      using Elasticsearch Jest. Both host and port must be defined.
-    </description>
-</property>
-
-<property>
-    <name>elastic.rest.port</name>
-    <value></value>
-    <description>The port to connect to using Elasticsearch Jest.</description>
-</property>
-
-<property>
-    <name>elastic.rest.index</name>
-    <value>nutch</value>
-    <description>Default index to send documents to.</description>
-</property>
-
-<property>
-    <name>elastic.rest.index.languages</name>
-    <value></value>
-    <description>
-        A list of strings denoting the supported languages (e.g. `en,de,fr,it`).
-        If this value is empty all documents will be sent to index ${elastic.rest.index}.
-        If not empty the Rest client will distribute documents in different indices based on their `lang` property.
-        Indices are named with the following schema: ${elastic.rest.index}${elastic.rest.index.separator}${lang} (e.g. `nutch_de`).
-        Entries with an unsupported `lang` value will be added to index ${elastic.rest.index}${elastic.rest.index.separator}${elastic.rest.index.sink} (e.g. `nutch_others`).
-    </description>
-</property>
-
-<property>
-    <name>elastic.rest.index.separator</name>
-    <value>_</value>
-    <description>
-        Default value is `_`. Is used only if `elastic.rest.index.languages` is defined to build the index name (i.e. ${elastic.rest.index}${elastic.rest.index.separator}${lang}). 
-    </description>
-</property>
-
-<property>
-    <name>elastic.rest.index.sink</name>
-    <value>others</value>
-    <description>
-        Default value is `others`. Is used only if `elastic.rest.index.languages` is defined to build the index name where to store documents with unsupported languages (i.e. ${elastic.rest.index}${elastic.rest.index.separator}${elastic.rest.index.sink}).
-    </description>
-</property>
-
-<property>
-    <name>elastic.rest.type</name>
-    <value>doc</value>
-    <description>Default type to send documents to.</description>
-</property>
-
-<property>
-    <name>elastic.rest.max.bulk.docs</name>
-    <value>250</value>
-    <description>Maximum size of the bulk in number of documents.</description>
-</property>
-
-<property>
-    <name>elastic.rest.max.bulk.size</name>
-    <value>26214400</value>
-    <description>Maximum size of the bulk in bytes.</description>
-</property>
-
-<property>
-    <name>elastic.rest.https</name>
-    <value>false</value>
-    <description>
-        "true" to enable https, "false" to disable https
-        If you've disabled http access (by forcing https), be sure to
-        set this to true, otherwise you might get "connection reset by peer".
-    </description>
-</property>
-
-<property>
-    <name>elastic.rest.user</name>
-    <value></value>
-    <description>Username for auth credentials (only used when https is enabled)</description>
-</property>
-
-<property>
-    <name>elastic.rest.password</name>
-    <value></value>
-    <description>Password for auth credentials (only used when https is enabled)</description>
-</property>
-
-<property>
-    <name>elastic.rest.trustallhostnames</name>
-    <value>false</value>
-    <description>
-        "true" to trust elasticsearch server's certificate even if its listed domain name does not
-        match the domain they are hosted on
-        "false" to check if the elasticsearch server's certificate's listed domain is the same domain
-        that it is hosted on, and if it doesn't, then fail to index
-        (only used when https is enabled)
-    </description>
 </property>
 
 <!-- subcollection properties -->
@@ -2819,7 +2581,7 @@ visit https://wiki.apache.org/nutch/SimilarityScoringFilter-->
   <value></value>
   <description>
     Choose the type of Queue being used (ex - RabbitMQ, ActiveMq, Kafka, etc). 
-    Currently there exists an implemtation for RabbitMQ producer. 
+    Currently there exists an implementation for RabbitMQ producer.
   </description>
 </property>
 
@@ -2989,6 +2751,14 @@ If true (default) the Sitemap parser rejects URLs not sharing the same
   <value>3</value>
   <description>
     Maximum number of redirects to follow.
+   </description>
+</property>
+
+<property>
+  <name>sitemap.size.max</name>
+  <value>52428800</value>
+  <description>
+    Maximum sitemap size in bytes.
    </description>
 </property>
 </configuration>

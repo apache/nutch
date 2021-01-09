@@ -58,6 +58,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
   protected URLNormalizers normalizers = null;
   protected boolean dumpText = false;
   protected boolean followRedirects = false;
+  protected boolean checkRobotsTxt = false;
   protected boolean doIndex = false;
   // used to simulate the metadata propagated from injection
   protected HashMap<String, String> metadata = new HashMap<>();
@@ -65,6 +66,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
+  @Override
   public int run(String[] args) throws Exception {
     String url = null;
 
@@ -81,6 +83,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
         + "                  \t before other command-specific options)\n"
         + "  -normalize      \tnormalize URLs\n" //
         + "  -followRedirects\tfollow redirects when fetching URL\n" //
+        + "  -checkRobotsTxt\tfail if the robots.txt disallows fetching\n" //
         + "  -dumpText       \tshow the entire plain-text content,\n" //"
         + "                  \tnot only the first 100 characters\n" //
         + "  -doIndex        \tpass document to configured index writers\n" //
@@ -102,6 +105,8 @@ public class IndexingFiltersChecker extends AbstractChecker {
         normalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_DEFAULT);
       } else if (args[i].equals("-followRedirects")) {
         followRedirects = true;
+      } else if (args[i].equals("-checkRobotsTxt")) {
+        checkRobotsTxt = true;
       } else if (args[i].equals("-dumpText")) {
         dumpText = true;
       } else if (args[i].equals("-doIndex")) {
@@ -163,13 +168,15 @@ public class IndexingFiltersChecker extends AbstractChecker {
       }
     }
 
-    ProtocolOutput protocolOutput = getProtocolOutput(url, datum);
+    ProtocolOutput protocolOutput = getProtocolOutput(url, datum,
+        checkRobotsTxt);
     Text turl = new Text(url);
-    
+
     // Following redirects and not reached maxRedirects?
     int numRedirects = 0;
-    while (!protocolOutput.getStatus().isSuccess() && followRedirects
-        && protocolOutput.getStatus().isRedirect() && maxRedirects >= numRedirects) {
+    while (protocolOutput != null && !protocolOutput.getStatus().isSuccess()
+        && followRedirects && protocolOutput.getStatus().isRedirect()
+        && maxRedirects >= numRedirects) {
       String[] stuff = protocolOutput.getStatus().getArgs();
       url = stuff[0];
       LOG.info("Follow redirect to {}", url);
@@ -181,8 +188,13 @@ public class IndexingFiltersChecker extends AbstractChecker {
       turl.set(url);
 
       // try again
-      protocolOutput = getProtocolOutput(url, datum);
+      protocolOutput = getProtocolOutput(url, datum, checkRobotsTxt);
       numRedirects++;
+    }
+
+    if (checkRobotsTxt && protocolOutput == null) {
+      System.err.println("Fetch disallowed by robots.txt");
+      return -1;
     }
 
     if (!protocolOutput.getStatus().isSuccess()) {

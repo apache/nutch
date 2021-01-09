@@ -18,7 +18,9 @@ package org.apache.nutch.parse.tika;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Locale;
 
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -66,7 +68,7 @@ public class HTMLMetaProcessor {
         // Retrieves name, http-equiv and content attribues
         for (int i = 0; i < attrs.getLength(); i++) {
           Node attr = attrs.item(i);
-          String attrName = attr.getNodeName().toLowerCase();
+          String attrName = attr.getNodeName().toLowerCase(Locale.ROOT);
           if (attrName.equals("name")) {
             nameNode = attr;
           } else if (attrName.equals("http-equiv")) {
@@ -78,10 +80,11 @@ public class HTMLMetaProcessor {
 
         if (nameNode != null) {
           if (contentNode != null) {
-            String name = nameNode.getNodeValue().toLowerCase();
+            String name = nameNode.getNodeValue().toLowerCase(Locale.ROOT);
             metaTags.getGeneralTags().add(name, contentNode.getNodeValue());
-            if ("robots".equals(name)) {
-              String directives = contentNode.getNodeValue().toLowerCase();
+            if (Nutch.ROBOTS_METATAG.equals(name)) {
+              String directives = contentNode.getNodeValue()
+                  .toLowerCase(Locale.ROOT);
               int index = directives.indexOf("none");
 
               if (index >= 0) {
@@ -112,12 +115,14 @@ public class HTMLMetaProcessor {
             } // end if (name == robots)
             // meta names added/transformed by Tika
             else if (name.equals("pragma")) {
-              String content = contentNode.getNodeValue().toLowerCase();
+              String content = contentNode.getNodeValue()
+                  .toLowerCase(Locale.ROOT);
               if (content.contains("no-cache")) {
                 metaTags.setNoCache();
               }
             } else if (name.equals("refresh")) {
-              String content = contentNode.getNodeValue().toLowerCase();
+              String content = contentNode.getNodeValue()
+                  .toLowerCase(Locale.ROOT);
               setRefresh(metaTags, content, currURL);
             } else if (name.equals("content-location")) {
               String urlString = contentNode.getNodeValue();
@@ -138,11 +143,11 @@ public class HTMLMetaProcessor {
 
         if (equivNode != null) {
           if (contentNode != null) {
-            String name = equivNode.getNodeValue().toLowerCase();
+            String name = equivNode.getNodeValue().toLowerCase(Locale.ROOT);
             String content = contentNode.getNodeValue();
             metaTags.getHttpEquivTags().setProperty(name, content);
             if ("pragma".equals(name)) {
-              content = content.toLowerCase();
+              content = content.toLowerCase(Locale.ROOT);
               int index = content.indexOf("no-cache");
               if (index >= 0)
                 metaTags.setNoCache();
@@ -203,7 +208,7 @@ public class HTMLMetaProcessor {
     }
     URL refreshUrl = null;
     if (metaTags.getRefresh() && idx != -1) { // set the URL
-      idx = content.toLowerCase().indexOf("url=");
+      idx = content.toLowerCase(Locale.ROOT).indexOf("url=");
       if (idx == -1) { // assume a mis-formatted entry with just the
                        // url
         idx = content.indexOf(';') + 1;

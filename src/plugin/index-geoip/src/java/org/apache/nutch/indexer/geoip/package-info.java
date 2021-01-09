@@ -20,10 +20,10 @@
  * advantage of the 
  * <a href="https://github.com/maxmind/GeoIP2-java">GeoIP2-java API</a>.</p>
  * <p>The third party library distribution provides an API for the GeoIP2 
- * <a href="http://dev.maxmind.com/geoip/geoip2/web-services">Precision web services</a> 
- * and <a href="http://dev.maxmind.com/geoip/geoip2/downloadable">databases</a>. 
+ * <a href="https://dev.maxmind.com/geoip/geoip2/web-services/">Precision web services</a> 
+ * and <a href="https://dev.maxmind.com/geoip/geoip2/downloadable/">databases</a>. 
  * The API also works with the free 
- * <a href="http://dev.maxmind.com/geoip/geoip2/geolite2/">GeoLite2 databases</a>.
+ * <a href="https://dev.maxmind.com/geoip/geoip2/geolite2/">GeoLite2 databases</a>.
  *
  */
 package org.apache.nutch.indexer.geoip;

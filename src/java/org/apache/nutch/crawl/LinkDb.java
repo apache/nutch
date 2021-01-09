@@ -84,6 +84,7 @@ public class LinkDb extends NutchTool implements Tool {
     private URLFilters urlFilters;
     private URLNormalizers urlNormalizers;
 
+    @Override
     public void setup(Mapper<Text, ParseData, Text, Inlinks>.Context context) {
       Configuration conf = context.getConfiguration();
       maxAnchorLength = conf.getInt("linkdb.max.anchor.length", 100);
@@ -98,7 +99,8 @@ public class LinkDb extends NutchTool implements Tool {
       }
     } 
 
-    public void map(Text key, ParseData parseData,
+    @Override
+   public void map(Text key, ParseData parseData,
             Context context)
                     throws IOException, InterruptedException {
       String fromUrl = key.toString();
@@ -196,17 +198,15 @@ public class LinkDb extends NutchTool implements Tool {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
-    if (LOG.isInfoEnabled()) {
-      LOG.info("LinkDb: starting at {}", sdf.format(start));
-      LOG.info("LinkDb: linkdb: {}", linkDb);
-      LOG.info("LinkDb: URL normalize: {}", normalize);
-      LOG.info("LinkDb: URL filter: {}", filter);
-      if (conf.getBoolean(IGNORE_INTERNAL_LINKS, true)) {
-        LOG.info("LinkDb: internal links will be ignored.");
-      }
-      if (conf.getBoolean(IGNORE_EXTERNAL_LINKS, false)) {
-        LOG.info("LinkDb: external links will be ignored.");
-      }
+    LOG.info("LinkDb: starting at {}", sdf.format(start));
+    LOG.info("LinkDb: linkdb: {}", linkDb);
+    LOG.info("LinkDb: URL normalize: {}", normalize);
+    LOG.info("LinkDb: URL filter: {}", filter);
+    if (conf.getBoolean(IGNORE_INTERNAL_LINKS, true)) {
+      LOG.info("LinkDb: internal links will be ignored.");
+    }
+    if (conf.getBoolean(IGNORE_EXTERNAL_LINKS, false)) {
+      LOG.info("LinkDb: external links will be ignored.");
     }
     if (conf.getBoolean(IGNORE_INTERNAL_LINKS, true)
             && conf.getBoolean(IGNORE_EXTERNAL_LINKS, false)) {
@@ -217,9 +217,7 @@ public class LinkDb extends NutchTool implements Tool {
     }
 
     for (int i = 0; i < segments.length; i++) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("LinkDb: adding segment: {}", segments[i]);
-      }
+      LOG.info("LinkDb: adding segment: {}", segments[i]);
       FileInputFormat.addInputPath(job, new Path(segments[i],
               ParseData.DIR_NAME));
     }
@@ -240,9 +238,8 @@ public class LinkDb extends NutchTool implements Tool {
     }
 
     if (fs.exists(currentLinkDb)) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("LinkDb: merging with existing linkdb: {}", linkDb);
-      }
+      LOG.info("LinkDb: merging with existing linkdb: {}", linkDb);
+
       // try to merge
       Path newLinkDb = FileOutputFormat.getOutputPath(job);
       job = LinkDbMerger.createMergeJob(getConf(), linkDb, normalize, filter);
@@ -333,6 +330,7 @@ public class LinkDb extends NutchTool implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err

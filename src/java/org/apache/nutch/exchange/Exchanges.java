@@ -96,8 +96,10 @@ public class Exchanges {
    * @return An array with each exchange's configuration.
    */
   private ExchangeConfig[] loadConfigurations(Configuration conf) {
+    String filename = conf.get("exchanges.exchanges.file",
+        "exchanges.xml");
     InputSource inputSource = new InputSource(
-        conf.getConfResourceAsInputStream("exchanges.xml"));
+        conf.getConfResourceAsInputStream(filename));
 
     final List<ExchangeConfig> configList = new LinkedList<>();
 
@@ -120,7 +122,7 @@ public class Exchanges {
       }
 
     } catch (SAXException | IOException | ParserConfigurationException e) {
-      LOG.warn(e.toString());
+      LOG.error(e.toString());
     }
 
     return configList.toArray(new ExchangeConfig[0]);

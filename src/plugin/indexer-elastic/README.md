@@ -22,7 +22,7 @@ Each `<writer>` element has two mandatory attributes:
 
 ## Mapping
 
-The mapping section is explained [here](https://wiki.apache.org/nutch/IndexWriters#Mapping_section). The structure of this section is general for all index writers.
+The mapping section is explained [here](https://cwiki.apache.org/confluence/display/NUTCH/IndexWriters#IndexWriters-Mappingsection). The structure of this section is general for all index writers.
 
 ## Parameters
 
@@ -30,10 +30,12 @@ Each parameter has the form `<param name="<name>" value="<value>"/>` and the par
 
 Parameter Name | Description | Default value
 --|--|--
-host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). Either host and port must be defined or cluster. | 
+host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). Either host and port must be defined. | 
 port | The port to connect to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). | 9300
-cluster | The cluster name to discover. Either host and port must be defined or cluster. | 
 index | Default index to send documents to. | nutch
+username | Username for auth credentials | elastic
+password | Password for auth credentials | ""
+auth | Whether to enable HTTP basic authentication with elastic. Use `username` and `password` properties to configure your credentials. | false
 max.bulk.docs | Maximum size of the bulk in number of documents. | 250
 max.bulk.size | Maximum size of the bulk in bytes. | 2500500
 exponential.backoff.millis | Initial delay for the [BulkProcessor](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/action/bulk/BulkProcessor.html) exponential backoff policy. | 100

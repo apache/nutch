@@ -16,42 +16,29 @@
  */
 package org.apache.nutch.parse.tika;
 
-// Nutch imports
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.DublinCore;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.util.NutchConfiguration;
-
-// Hadoop imports
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Unit tests for TestRTFParser. (Adapted from John Xing msword unit tests).
- * 
- * @author Andy Hedges
+ * Unit tests for TestRTFParser.
  */
-public class TestRTFParser {
+public class TestRTFParser extends TikaParserTest {
 
-  private String fileSeparator = System.getProperty("file.separator");
-  // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data", ".");
   // Make sure sample files are copied to "test.data" as specified in
-  // ./src/plugin/parse-rtf/build.xml during plugin compilation.
-  // Check ./src/plugin/parse-rtf/sample/README.txt for what they are.
+  // ./src/plugin/parse-tika/build.xml during plugin compilation.
   private String rtfFile = "test.rtf";
 
-  @Ignore("There seems to be an issue with line 71 e.g. text.trim()")
   @Test
   public void testIt() throws ProtocolException, ParseException {
 
@@ -60,7 +47,6 @@ public class TestRTFParser {
     Content content;
     Parse parse;
 
-    Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + rtfFile;
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
     content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum())
@@ -68,8 +54,7 @@ public class TestRTFParser {
     parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(
         content.getUrl());
     String text = parse.getText();
-    Assert.assertEquals("The quick brown fox jumps over the lazy dog",
-        text.trim());
+    Assert.assertTrue(text.contains("The quick brown fox jumps over the lazy dog"));
 
     String title = parse.getData().getTitle();
     Metadata meta = parse.getData().getParseMeta();

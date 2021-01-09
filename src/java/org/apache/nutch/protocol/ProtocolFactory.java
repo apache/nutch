@@ -215,4 +215,20 @@ public class ProtocolFactory {
     return false;
   }
 
+  /** Get a {@link Protocol} instance of the specified extension ID. */
+  /**
+   * @param id
+   *          protocol plugin ID, e.g.,
+   *          <code>org.apache.nutch.protocol.http</code>
+   * @return protocol instance for the given ID
+   * @throws PluginRuntimeException
+   *           if plugin not found or failed to instantiate
+   */
+  public Protocol getProtocolById(String id) throws PluginRuntimeException {
+    Extension ext = getExtensionById(id);
+    if (ext == null) {
+      throw new PluginRuntimeException("ID " + id + " not found");
+    }
+    return getProtocolInstanceByExtension(ext);
+  }
 }

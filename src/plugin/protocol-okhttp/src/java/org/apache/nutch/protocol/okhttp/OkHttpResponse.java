@@ -84,11 +84,20 @@ public class OkHttpResponse implements Response {
           HttpDateFormat.toString(datum.getModifiedTime()));
     }
 
-    if (okhttp.isCookieEnabled()
-        && datum.getMetaData().containsKey(HttpBase.COOKIE)) {
-      String cookie = ((Text) datum.getMetaData().get(HttpBase.COOKIE))
-          .toString();
-      rb.header("Cookie", cookie);
+    if (okhttp.isCookieEnabled()) {
+      String cookie = null;
+      
+      if (datum.getMetaData().containsKey(HttpBase.COOKIE)) {
+        cookie = ((Text)datum.getMetaData().get(HttpBase.COOKIE)).toString();
+      }
+      
+      if (cookie == null) {
+        cookie = okhttp.getCookie(url);
+      }
+      
+      if (cookie != null) {
+        rb.header("Cookie", cookie);
+      }
     }
 
     Request request = rb.build();
@@ -155,9 +164,14 @@ public class OkHttpResponse implements Response {
     BufferedSource source = responseBody.source();
     int bytesRequested = 0;
     int bufferGrowStepBytes = 8192;
-    while (source.buffer().size() < maxContentBytes) {
+    while (source.buffer().size() <= maxContentBytes) {
       bytesRequested += Math.min(bufferGrowStepBytes,
-          (maxContentBytes - bytesRequested));
+          /*
+           * request one byte more than required to reliably detect truncated
+           * content, but beware of integer overflows
+           */
+          (maxContentBytes == Integer.MAX_VALUE ? maxContentBytes
+              : (1 + maxContentBytes)) - bytesRequested);
       boolean success = false;
       try {
         success = source.request(bytesRequested);
@@ -165,6 +179,8 @@ public class OkHttpResponse implements Response {
         if (partialAsTruncated && source.buffer().size() > 0) {
           // treat already fetched content as truncated
           truncated.setReason(TruncatedContentReason.DISCONNECT);
+          LOG.info("Truncated content for {}, partial fetch caused by:", url,
+              e);
         } else {
           throw e;
         }
@@ -182,7 +198,7 @@ public class OkHttpResponse implements Response {
         truncated.setReason(TruncatedContentReason.TIME);
         break;
       }
-      if (source.buffer().size() > maxContentBytes) {
+      if (source.buffer().size() >= maxContentBytes) {
         LOG.debug("content limit reached");
       }
       // okhttp may fetch more content than requested, forward requested bytes

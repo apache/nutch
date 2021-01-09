@@ -128,6 +128,7 @@ public class Injector extends NutchTool implements Tool {
     private String scope;
     private boolean filterNormalizeAll = false;
 
+    @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
       boolean normalize = conf.getBoolean(CrawlDbFilter.URL_NORMALIZING, true);
@@ -205,6 +206,7 @@ public class Injector extends NutchTool implements Tool {
       }
     }
 
+    @Override
     public void map(Text key, Writable value, Context context)
         throws IOException, InterruptedException {
       if (value instanceof Text) {
@@ -233,10 +235,9 @@ public class Injector extends NutchTool implements Tool {
             key.set(url);
             scfilters.injectedScore(key, datum);
           } catch (ScoringFilterException e) {
-            if (LOG.isWarnEnabled()) {
-              LOG.warn("Cannot filter injected score for url " + url
-                  + ", using default (" + e.getMessage() + ")");
-            }
+            LOG.warn(
+                "Cannot filter injected score for url {}, using default ({})",
+                url, e.getMessage());
           }
           context.getCounter("injector", "urls_injected").increment(1);
           context.write(key, datum);
@@ -277,6 +278,7 @@ public class Injector extends NutchTool implements Tool {
     private CrawlDatum old = new CrawlDatum();
     private CrawlDatum injected = new CrawlDatum();
 
+    @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
       interval = conf.getInt("db.fetch.interval.default", 2592000);
@@ -302,6 +304,7 @@ public class Injector extends NutchTool implements Tool {
      * 
      * For more details @see NUTCH-1405
      */
+    @Override
     public void reduce(Text key, Iterable<CrawlDatum> values, Context context)
         throws IOException, InterruptedException {
 
@@ -369,12 +372,10 @@ public class Injector extends NutchTool implements Tool {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Injector: starting at " + sdf.format(start));
-      LOG.info("Injector: crawlDb: " + crawlDb);
-      LOG.info("Injector: urlDir: " + urlDir);
-      LOG.info("Injector: Converting injected urls to crawl db entries.");
-    }
+    LOG.info("Injector: starting at {}", sdf.format(start));
+    LOG.info("Injector: crawlDb: {}", crawlDb);
+    LOG.info("Injector: urlDir: {}", urlDir);
+    LOG.info("Injector: Converting injected urls to crawl db entries.");
 
     // set configuration
     Configuration conf = getConf();
@@ -535,6 +536,7 @@ public class Injector extends NutchTool implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       usage();
@@ -578,6 +580,7 @@ public class Injector extends NutchTool implements Tool {
   /**
    * Used by the Nutch REST service
    */
+  @Override
   public Map<String, Object> run(Map<String, Object> args, String crawlId)
       throws Exception {
     if(args.size()<1){

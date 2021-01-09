@@ -266,6 +266,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     }
   }
 
+  @Override
   public int run(String[] args) throws IOException {
     if (args.length < 1) {
       System.err.println("Usage: DeduplicationJob <crawldb> [-group <none|host|domain>] [-compareOrder <score>,<fetchTime>,<httpsOverHttp>,<urlLength>]");
@@ -345,9 +346,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     }
 
     // merge with existing crawl db
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Deduplication: Updating status of duplicate urls into crawl db.");
-    }
+    LOG.info("Deduplication: Updating status of duplicate urls into crawl db.");
 
     Job mergeJob = CrawlDb.createJob(getConf(), crawlDb);
     FileInputFormat.addInputPath(mergeJob, tempDir);

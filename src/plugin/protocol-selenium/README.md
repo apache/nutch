@@ -3,14 +3,14 @@ Nutch Selenium
 
 # Introduction
 
-This plugin allows you to fetch Javascript pages using [Selenium](http://www.seleniumhq.org/), while relying on the rest of the awesome Nutch stack!
+This plugin allows you to fetch Javascript pages using [Selenium](https://selenium.dev/), while relying on the rest of the awesome Nutch stack!
 
 The underlying code is based on the nutch-htmlunit plugin, which was in turn based on nutch-httpclient.
 
 There are essentially two ways in which Nutch can be used with Selenium.
 
  * Locally (on each node) as a self contained process, or
- * via the RemoteWebDriver which connects to [Selenium-Grid](http://www.seleniumhq.org/docs/07_selenium_grid.jsp). A grid consists of a single hub, and one or more nodes.
+ * via the RemoteWebDriver which connects to [Selenium-Grid](https://selenium.dev/documentation/en/grid/). A grid consists of a single hub, and one or more nodes.
 
 # Installation
 
@@ -43,7 +43,7 @@ sudo export DISPLAY=:11
 
 Using the Selenium Grid will allow you to parallelize the job by facilitating access of several instances of browsers whether on one machine or on several machines. Note that grid facilitates heterogeneity with regards to browser types used. However, these steps have been tested using a homogenous Selenium Grid with Firefox and PhantomJS browsers.
 
- * Download the [Selenium Standalone Server](http://www.seleniumhq.org/download/) and follow the installation instructions.
+ * Download the [Selenium Standalone Server](https://selenium.dev/downloads/) and follow the installation instructions.
 
  * Some important configurations to note while setting up the selenium-hub and the selenium-nodes are:
     * For the hub:
@@ -54,7 +54,7 @@ Using the Selenium Grid will allow you to parallelize the job by facilitating ac
       - browserName=<browser>, maxInstances (the max number of instances of the same version browser to allow per a system)
       - browserName=<browser>, maxSession (the max number of sessions of any type of browser/version to allow per a system)
 
-  * Go headless with your selenium Grid installation. There are different ways to this. See [this resource](http://elementalselenium.com/tips/38-headless) for further details.
+  * Go headless with your selenium Grid installation. There are different ways to this. See [this resource](https://elementalselenium.com/tips/38-headless) for further details.
 
   * For Nutch efficiency, and optimization of the grid, consider editing the following configs in **nutch-site.xml**
     - fetcher.threads.per.queue (change value to the value of the maxSession config on the hub)
@@ -184,7 +184,7 @@ Using the Selenium Grid will allow you to parallelize the job by facilitating ac
 </property>
 ```
  * If you've selected 'remote' value for the 'selenium.driver' property, ensure that you've configured
- the additional properties based on your [Selenium-Grid installation](http://www.seleniumhq.org/docs/07_selenium_grid.jsp#installation).
+ the additional properties based on your [Selenium-Grid installation](https://selenium.dev/documentation/en/grid/setting_up_your_own_grid/).
 
  * Compile nutch
 ```

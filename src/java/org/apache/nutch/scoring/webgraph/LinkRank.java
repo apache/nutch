@@ -18,6 +18,7 @@ package org.apache.nutch.scoring.webgraph;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -46,6 +48,8 @@ import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
+import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
@@ -128,14 +132,42 @@ public class LinkRank extends Configured implements Tool {
 
     // read the first (and only) line from the file which should be the
     // number of links in the web graph
-    LOG.info("Reading numlinks temp file");
-    FSDataInputStream readLinks = fs.open(new Path(numLinksPath, "part-r-00000"));
-    BufferedReader buffer = new BufferedReader(new InputStreamReader(readLinks));
+    FileStatus[] numLinksFiles = fs.listStatus(numLinksPath);
+    if (numLinksFiles.length == 0) {
+      throw new IOException("Failed to read numlinks temp file: "
+          + " no file found in " + numLinksPath);
+    } else if (numLinksFiles.length > 1) {
+      throw new IOException("Failed to read numlinks temp file: "
+          + " expected only one file but found " + numLinksFiles.length
+          + " files in folder " + numLinksPath);
+    }
+    Path numLinksFile = numLinksFiles[0].getPath();
+    LOG.info("Reading numlinks temp file {}", numLinksFile);
+    FSDataInputStream readLinks = fs.open(numLinksFile);
+    CompressionCodecFactory cf = new CompressionCodecFactory(conf);
+    CompressionCodec codec = cf.getCodec(numLinksFiles[0].getPath());
+    InputStream streamLinks;
+    if (codec == null) {
+      LOG.debug("No compression codec found for {}, trying uncompressed",
+          numLinksFile);
+      streamLinks = readLinks;
+    } else {
+      LOG.info("Compression codec of numlinks temp file: {}",
+          codec.getDefaultExtension());
+      readLinks.seek(0);
+      streamLinks = codec.createInputStream(readLinks);
+    }
+    BufferedReader buffer = new BufferedReader(
+        new InputStreamReader(streamLinks));
+
     String numLinksLine = buffer.readLine();
     readLinks.close();
 
     // check if there are links to process, if none, webgraph might be empty
     if (numLinksLine == null || numLinksLine.length() == 0) {
+      LOG.error(
+          "Failed to determine number of links because of empty line in input {}",
+          numLinksFile);
       fs.delete(numLinksPath, true);
       throw new IOException("No links to process, is the webgraph empty?");
     }
@@ -330,9 +362,7 @@ public class LinkRank extends Configured implements Tool {
      */
     public static class CountMapper extends
         Mapper<Text, Node, Text, LongWritable> {
-      public void setup(Mapper<Text, Node, Text, LongWritable>.Context context) {
-      }
-
+      @Override
       public void map(Text key, Node value,
           Context context)
           throws IOException, InterruptedException {
@@ -345,9 +375,7 @@ public class LinkRank extends Configured implements Tool {
      */
     public static class CountReducer extends
         Reducer<Text, LongWritable, Text, LongWritable> {
-      public void setup(Reducer<Text, LongWritable, Text, LongWritable>.Context context) {
-      }
-
+      @Override
       public void reduce(Text key, Iterable<LongWritable> values,
           Context context)
           throws IOException, InterruptedException {
@@ -610,9 +638,6 @@ public class LinkRank extends Configured implements Tool {
     super(conf);
   }
 
-  public void close() {
-  }
-
   /**
    * Runs the complete link analysis job. The complete job determins rank one
    * score. Then runs through a given number of invert and analyze iterations,
@@ -704,6 +729,7 @@ public class LinkRank extends Configured implements Tool {
   /**
    * Runs the LinkRank tool.
    */
+  @Override
   public int run(String[] args) throws Exception {
 
     Options options = new Options();

@@ -180,6 +180,7 @@ public class CleaningJob implements Tool {
         + TimingUtil.elapsedTime(start, end));
   }
 
+  @Override
   public int run(String[] args) throws IOException {
     if (args.length < 1) {
       String usage = "Usage: CleaningJob <crawldb> [-noCommit]";

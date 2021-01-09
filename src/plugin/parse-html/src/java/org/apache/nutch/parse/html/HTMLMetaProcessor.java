@@ -18,6 +18,7 @@ package org.apache.nutch.parse.html;
 
 import java.net.URL;
 
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -79,7 +80,7 @@ public class HTMLMetaProcessor {
           if (contentNode != null) {
             String name = nameNode.getNodeValue().toLowerCase();
             metaTags.getGeneralTags().add(name, contentNode.getNodeValue());
-            if ("robots".equals(name)) {
+            if (Nutch.ROBOTS_METATAG.equals(name)) {
               String directives = contentNode.getNodeValue().toLowerCase();
               int index = directives.indexOf("none");
 

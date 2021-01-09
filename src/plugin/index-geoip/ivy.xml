@@ -20,7 +20,7 @@
 <ivy-module version="1.0">
   <info organisation="org.apache.nutch" module="${ant.project.name}">
     <license name="Apache 2.0"/>
-    <ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org"/>
+    <ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/"/>
     <description>
         Apache Nutch
     </description>
@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="com.maxmind.geoip2" name="geoip2" rev="2.10.0" >
+    <dependency org="com.maxmind.geoip2" name="geoip2" rev="2.12.0" >
       <!-- Exlude due to classpath issues -->
       <exclude org="org.apache.httpcomponents" name="httpclient" />
       <exclude org="org.apache.httpcomponents" name="httpcore" />

@@ -46,6 +46,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
@@ -163,9 +164,14 @@ public class Fetcher extends NutchTool implements Tool {
       float avgPagesSec = (float) pages.get() / elapsed.floatValue();
       long avgBytesSec = (bytes.get() / 128l) / elapsed.longValue();
 
-      status.append(activeThreads).append(" threads (").append(spinWaiting.get())
-      .append(" waiting), ");
+      status.append(activeThreads).append(" threads (")
+          .append(spinWaiting.get()).append(" waiting), ");
       status.append(fetchQueues.getQueueCount()).append(" queues, ");
+      if (fetchQueues.maxExceptionsPerQueue != -1
+          && fetchQueues.getQueueCountMaxExceptions() > 0) {
+        status.append(fetchQueues.getQueueCountMaxExceptions())
+            .append(" queues.max.except., ");
+      }
       status.append(fetchQueues.getTotalSize()).append(" URLs queued, ");
       status.append(pages).append(" pages, ").append(errors).append(" errors, ");
       status.append(String.format("%.2f", avgPagesSec)).append(" pages/s (");
@@ -194,14 +200,13 @@ public class Fetcher extends NutchTool implements Tool {
       QueueFeeder feeder; 
 
       int threadCount = conf.getInt("fetcher.threads.fetch", 10);
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Fetcher: threads: {}", threadCount);
-      }
+      LOG.info("Fetcher: threads: {}", threadCount);
+
+      // NUTCH-2582: adapt Tika MIME detector pool size to thread count
+      MimeUtil.setPoolSize(Math.max(10, threadCount / 2));
 
       int timeoutDivisor = conf.getInt("fetcher.threads.timeout.divisor", 2);
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Fetcher: time-out divisor: {}", timeoutDivisor);
-      }
+      LOG.info("Fetcher: time-out divisor: {}", timeoutDivisor);
 
       int queueDepthMuliplier = conf.getInt(
           "fetcher.queue.depth.multiplier", 50);
@@ -235,17 +240,15 @@ public class Fetcher extends NutchTool implements Tool {
 
       int throughputThresholdNumRetries = 0;
 
-      int throughputThresholdPages = conf.getInt(
-          "fetcher.throughput.threshold.pages", -1);
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Fetcher: throughput threshold: {}", throughputThresholdPages);
-      }
-      int throughputThresholdMaxRetries = conf.getInt(
-          "fetcher.throughput.threshold.retries", 5);
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Fetcher: throughput threshold retries: {}",
-            throughputThresholdMaxRetries);
-      }
+      int throughputThresholdPages = conf
+          .getInt("fetcher.throughput.threshold.pages", -1);
+      LOG.info("Fetcher: throughput threshold: {}", throughputThresholdPages);
+
+      int throughputThresholdMaxRetries = conf
+          .getInt("fetcher.throughput.threshold.retries", 5);
+      LOG.info("Fetcher: throughput threshold retries: {}",
+          throughputThresholdMaxRetries);
+
       long throughputThresholdTimeLimit = conf.getLong(
           "fetcher.throughput.threshold.check.after", -1);
 
@@ -299,8 +302,9 @@ public class Fetcher extends NutchTool implements Tool {
           // Check if we're dropping below the threshold
           if (pagesLastSec < throughputThresholdPages) {
             throughputThresholdNumRetries++;
-            LOG.warn("{}: dropping below configured threshold of {} pages per second",
-                Integer.toString(throughputThresholdNumRetries), Integer.toString(throughputThresholdPages));
+            LOG.warn(
+                "{}: dropping below configured threshold of {} pages per second",
+                throughputThresholdNumRetries, throughputThresholdPages);
 
             // Quit if we dropped below threshold too many times
             if (throughputThresholdNumRetries == throughputThresholdMaxRetries) {
@@ -452,8 +456,7 @@ public class Fetcher extends NutchTool implements Tool {
 
     int maxOutlinkDepth = getConf().getInt("fetcher.follow.outlinks.depth", -1);
     if (maxOutlinkDepth > 0) {
-      LOG.info("Fetcher: following outlinks up to depth: {}",
-          Integer.toString(maxOutlinkDepth));
+      LOG.info("Fetcher: following outlinks up to depth: {}", maxOutlinkDepth);
 
       int maxOutlinkDepthNumLinks = getConf().getInt(
           "fetcher.follow.outlinks.num.links", 4);
@@ -467,7 +470,7 @@ public class Fetcher extends NutchTool implements Tool {
       }
 
       LOG.info("Fetcher: maximum outlinks to follow: {}",
-          Integer.toString(totalOutlinksToFollow));
+          totalOutlinksToFollow);
     }
 
     Job job = NutchJob.getInstance(getConf());
@@ -516,6 +519,7 @@ public class Fetcher extends NutchTool implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
 
     String usage = "Usage: Fetcher <segment> [-threads n]";

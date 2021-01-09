@@ -19,6 +19,8 @@ package org.apache.nutch.indexer;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -50,6 +52,24 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 
+/**
+ * <p>
+ * This class is typically invoked from within
+ * {@link org.apache.nutch.indexer.IndexingJob} and handles all MapReduce
+ * functionality required when undertaking indexing.
+ * </p>
+ * <p>
+ * This is a consequence of one or more indexing plugins being invoked which
+ * extend {@link org.apache.nutch.indexer.IndexWriter}.
+ * </p>
+ * <p>
+ * See
+ * {@link org.apache.nutch.indexer.IndexerMapReduce#initMRJob(Path, Path, Collection, JobConf, boolean)}
+ * for details on the specific data structures and parameters required for
+ * indexing.
+ * </p>
+ *
+ */
 public class IndexerMapReduce extends Configured {
 
   private static final Logger LOG = LoggerFactory
@@ -100,7 +120,7 @@ public class IndexerMapReduce extends Configured {
             .normalize(url, URLNormalizers.SCOPE_INDEXER);
         normalized = normalized.trim();
       } catch (Exception e) {
-        LOG.warn("Skipping " + url + ":" + e);
+        LOG.warn("Skipping {}: {}", url, e);
         normalized = null;
       }
     }
@@ -220,6 +240,7 @@ public class IndexerMapReduce extends Configured {
       }
     }
 
+    @Override
     public void reduce(Text key, Iterable<NutchWritable> values,
         Context context) throws IOException, InterruptedException {
       Inlinks inlinks = null;
@@ -255,11 +276,11 @@ public class IndexerMapReduce extends Configured {
           // Handle robots meta? https://issues.apache.org/jira/browse/NUTCH-1434
           if (deleteRobotsNoIndex) {
             // Get the robots meta data
-            String robotsMeta = parseData.getMeta("robots");
+            String robotsMeta = parseData.getMeta(Nutch.ROBOTS_METATAG);
 
             // Has it a noindex for this url?
-            if (robotsMeta != null
-                && robotsMeta.toLowerCase().indexOf("noindex") != -1) {
+            if (robotsMeta != null && robotsMeta.toLowerCase(Locale.ROOT)
+                .indexOf("noindex") != -1) {
               // Delete it!
               context.write(key, DELETE_ACTION);
               context.getCounter("IndexerStatus", "deleted (robots=noindex)").increment(1);
@@ -270,8 +291,8 @@ public class IndexerMapReduce extends Configured {
           parseText = (ParseText) value;
         } else if (value instanceof Content) {
           content = (Content)value;
-        } else if (LOG.isWarnEnabled()) {
-          LOG.warn("Unrecognized type: " + value.getClass());
+        } else {
+          LOG.warn("Unrecognized type: {}", value.getClass());
         }
       }
 
@@ -335,9 +356,7 @@ public class IndexerMapReduce extends Configured {
             inlinks, boost);
       } catch (final ScoringFilterException e) {
         context.getCounter("IndexerStatus", "errors (ScoringFilter)").increment(1);
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Error calculating score {}: {}", key, e);
-        }
+        LOG.warn("Error calculating score {}: {}", key, e);
         return;
       }
       // apply boost to all indexed fields.
@@ -371,7 +390,7 @@ public class IndexerMapReduce extends Configured {
         doc = filters.filter(doc, parse, key, fetchDatum, inlinks);
       } catch (final IndexingException e) {
         if (LOG.isWarnEnabled()) {
-          LOG.warn("Error indexing " + key + ": " + e);
+          LOG.warn("Error indexing " + key + ": ", e);
         }
         context.getCounter("IndexerStatus", "errors (IndexingFilter)").increment(1);
         return;
@@ -412,18 +431,29 @@ public class IndexerMapReduce extends Configured {
     }
   }
 
-  public void close() throws IOException {
-  }
-
   public static void initMRJob(Path crawlDb, Path linkDb,
       Collection<Path> segments, Job job, boolean addBinaryContent) throws IOException{
 
-    LOG.info("IndexerMapReduce: crawldb: {}", crawlDb);
-
-    if (linkDb != null)
-      LOG.info("IndexerMapReduce: linkdb: {}", linkDb);
-
     Configuration conf = job.getConfiguration();
+
+    if (crawlDb != null) {
+      LOG.info("IndexerMapReduce: crawldb: {}", crawlDb);
+      Path currentCrawlDb = new Path(crawlDb, CrawlDb.CURRENT_NAME);
+      try {
+        if (currentCrawlDb.getFileSystem(conf).exists(currentCrawlDb)) {
+          FileInputFormat.addInputPath(job, currentCrawlDb);
+        } else {
+          LOG.warn(
+              "Ignoring crawlDb for indexing, no crawlDb found in path: {}",
+              crawlDb);
+        }
+      } catch (IOException e) {
+        LOG.warn("Failed to use crawlDb ({}) for indexing", crawlDb, e);
+      }
+    } else {
+      LOG.info("IndexerMapReduce: no crawldb provided for indexing");
+    }
+
     for (final Path segment : segments) {
       LOG.info("IndexerMapReduces: adding segment: {}", segment);
       FileInputFormat.addInputPath(job, new Path(segment,
@@ -438,9 +468,8 @@ public class IndexerMapReduce extends Configured {
       }
     }
 
-    FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
-
     if (linkDb != null) {
+      LOG.info("IndexerMapReduce: linkdb: {}", linkDb);
       Path currentLinkDb = new Path(linkDb, LinkDb.CURRENT_NAME);
       try {
         if (currentLinkDb.getFileSystem(conf).exists(currentLinkDb)) {

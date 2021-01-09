@@ -31,7 +31,8 @@ public class TestProtocolURLNormalizer extends TestCase {
     Configuration conf = NutchConfiguration.create();
 
     String protocolsFile = SAMPLES + SEPARATOR + "protocols.txt";
-    ProtocolURLNormalizer normalizer = new ProtocolURLNormalizer(protocolsFile);
+    conf.set("urlnormalizer.protocols.file", protocolsFile);
+    ProtocolURLNormalizer normalizer = new ProtocolURLNormalizer();
     normalizer.setConf(conf);
 
     // No change

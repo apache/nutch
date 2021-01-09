@@ -16,9 +16,9 @@
  */
 
 /**
- * This packages uses the <a href="http://any23.apache.org">Apache Any23</a> library
+ * This packages uses the <a href="https://any23.apache.org/">Apache Any23</a> library
  * for parsing and extracting structured data in RDF format from a
  * variety of Web documents. The supported formats can be found
- * at <a href="http://any23.apache.org">Apache Any23</a>.
+ * at <a href="https://any23.apache.org/">Apache Any23</a>.
  */
 package org.apache.nutch.any23;

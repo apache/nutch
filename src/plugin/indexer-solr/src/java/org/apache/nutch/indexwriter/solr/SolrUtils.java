@@ -37,21 +37,21 @@ public class SolrUtils {
     return sc;
   }
 
-  static CloudSolrClient getCloudSolrClient(List<String> urls, String username, String password) {
+  static CloudSolrClient getCloudSolrClient(List<String> urls, String username,
+      String password) {
     // Building http client
     CredentialsProvider provider = new BasicCredentialsProvider();
-    UsernamePasswordCredentials credentials
-        = new UsernamePasswordCredentials(username, password);
+    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
+        username, password);
     provider.setCredentials(AuthScope.ANY, credentials);
 
     HttpClient client = HttpClientBuilder.create()
-        .setDefaultCredentialsProvider(provider)
-        .build();
+        .setDefaultCredentialsProvider(provider).build();
 
     // Building the client
     CloudSolrClient sc = new CloudSolrClient.Builder(urls)
         .withParallelUpdates(true).withHttpClient(client).build();
-        sc.connect();
+    sc.connect();
     return sc;
   }
 

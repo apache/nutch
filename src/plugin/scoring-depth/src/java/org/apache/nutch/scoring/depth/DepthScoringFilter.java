@@ -16,13 +16,14 @@
  */
 package org.apache.nutch.scoring.depth;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.IntWritable;
@@ -43,7 +44,9 @@ import org.apache.nutch.scoring.ScoringFilterException;
  * effectively stopping further crawling along this path.
  */
 public class DepthScoringFilter extends Configured implements ScoringFilter {
-  private static final Log LOG = LogFactory.getLog(DepthScoringFilter.class);
+
+  private static final Logger LOG = LoggerFactory
+		      .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String DEPTH_KEY = "_depth_";
   public static final Text DEPTH_KEY_W = new Text(DEPTH_KEY);

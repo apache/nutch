@@ -77,7 +77,7 @@ public class TestBasicURLNormalizer {
     // check that control chars are always encoded into 2 digits
     normalizeTest("http://foo.com/\u0001!", "http://foo.com/%01!");
 
-    // check encoding of spanish chars
+    // check encoding of Spanish chars
     normalizeTest("http://mydomain.com/en Espa\u00F1ol.aspx", "http://mydomain.com/en%20Espa%C3%B1ol.aspx");
   }
   
@@ -116,6 +116,11 @@ public class TestBasicURLNormalizer {
     normalizeTest("http://Foo.Com/index.html", "http://foo.com/index.html");
     normalizeTest("http://Foo.Com/index.html", "http://foo.com/index.html");
 
+    // NUTCH-2824 unescape percent characters in host names
+    normalizeTest("https://example%2Ecom/", "https://example.com/");
+    normalizeTest("https://www.0251-sachverst%c3%a4ndiger.de/",
+        "https://www.0251-sachverst\u00e4ndiger.de/");
+
     // check that port number is normalized
     normalizeTest("http://foo.com:80/index.html", "http://foo.com/index.html");
     normalizeTest("http://foo.com:81/", "http://foo.com:81/");
@@ -130,8 +135,8 @@ public class TestBasicURLNormalizer {
     // check that references are removed
     normalizeTest("http://foo.com/foo.html#ref", "http://foo.com/foo.html");
 
-    // // check that encoding is normalized
-    // normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
+    // check that encoding is normalized
+    normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
 
     // check that unnecessary "../" are removed
     normalizeTest("http://foo.com/..", "http://foo.com/");
@@ -212,11 +217,56 @@ public class TestBasicURLNormalizer {
   
   @Test
   public void testCurlyBraces() throws Exception {
-    // check that leading and trailing spaces are removed
+    // check whether curly braces are properly escaped
     normalizeTest("http://foo.com/{{stuff}} ", "http://foo.com/%7B%7Bstuff%7D%7D");
   }
 
+  @Test
+  public void testHostName() throws Exception {
+    // (nothing to normalize in host name)
+    normalizeTest("https://www.example.org/", "https://www.example.org/");
+    // test Internationalized Domain Names
+    BasicURLNormalizer norm = new BasicURLNormalizer();
+    conf = NutchConfiguration.create();
+    conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toAscii");
+    norm.setConf(conf);
+    normalizeTest(norm, "https://нэб.рф/", "https://xn--90ax2c.xn--p1ai/");
+    // verify escaping of percent-encoded characters in IDNs (NUTCH-2824)
+    normalizeTest(norm, "https://www.0251-sachverst%c3%a4ndiger.de/",
+        "https://www.xn--0251-sachverstndiger-ozb.de/");
+    conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toUnicode");
+    norm.setConf(conf);
+    normalizeTest(norm, "https://xn--90ax2c.xn--p1ai/", "https://нэб.рф/");
+    // test removal of trailing dot
+    conf.setBoolean(BasicURLNormalizer.NORM_HOST_TRIM_TRAILING_DOT, true);
+    norm.setConf(conf);
+    normalizeTest(norm, "https://www.example.org./",
+        "https://www.example.org/");
+  }
+
+  /**
+   * Test that normalizer throws MalformedURLException for invalid URLs
+   */
+  @Test
+  public void testInvalidURLs() throws Exception {
+    // invalid percent-encoded sequence in host name
+    normalizeTestAssertThrowsMalformedURLException("https://example%2Xcom/");
+    // not a valid UTF-8 sequence in host name
+    // (only validated if parsed as Internationalized Domain Name)
+    BasicURLNormalizer norm = new BasicURLNormalizer();
+    conf = NutchConfiguration.create();
+    conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toAscii");
+    norm.setConf(conf);
+    normalizeTestAssertThrowsMalformedURLException(norm,
+        "https://abc%FEdef.org/");
+  }
+
   private void normalizeTest(String weird, String normal) throws Exception {
+    normalizeTest(this.normalizer, weird, normal);
+  }
+
+  private void normalizeTest(BasicURLNormalizer normalizer, String weird,
+      String normal) throws Exception {
     Assert.assertEquals("normalizing: " + weird, normal,
         normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
     try {
@@ -225,6 +275,23 @@ public class TestBasicURLNormalizer {
       Assert.fail("Output of normalization fails to validate as URL or URI: "
           + e.getMessage());
     }
+  }
+
+  private void normalizeTestAssertThrowsMalformedURLException(String weird) throws Exception {
+    normalizeTestAssertThrowsMalformedURLException(this.normalizer, weird);
+  }
+
+  private void normalizeTestAssertThrowsMalformedURLException(
+      BasicURLNormalizer normalizer, String weird) throws Exception {
+    String normalized = null;
+    try {
+      normalized = normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT);
+    } catch (MalformedURLException e) {
+      // ok, expected
+      return;
+    }
+    Assert.fail("Expected MalformedURLException was not thrown on " + weird
+        + " (normalized: " + normalized + ")");
   }
 
   public static void main(String[] args) throws Exception {

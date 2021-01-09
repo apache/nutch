@@ -44,13 +44,14 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.SegmentReaderUtil;
 
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.MapContext;
 
 /**
- * @see <a href='http://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a>
+ * @see <a href='https://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a>
  */
 public class ReadHostDb extends Configured implements Tool {
 
@@ -67,8 +68,9 @@ public class ReadHostDb extends Configured implements Tool {
     protected boolean dumpHomepages = false;
     protected boolean fieldHeader = true;
     protected Text emptyText = new Text();
-    protected Expression expr = null;
+    protected JexlExpression expr = null;
 
+    @Override
     public void setup(Context context) {
       dumpHomepages = context.getConfiguration().getBoolean(HOSTDB_DUMP_HOMEPAGES, false);
       dumpHostnames = context.getConfiguration().getBoolean(HOSTDB_DUMP_HOSTNAMES, false);
@@ -76,17 +78,14 @@ public class ReadHostDb extends Configured implements Tool {
       String expr = context.getConfiguration().get(HOSTDB_FILTER_EXPRESSION);
       if (expr != null) {
         // Create or retrieve a JexlEngine
-        JexlEngine jexl = new JexlEngine();
-        
-        // Dont't be silent and be strict
-        jexl.setSilent(true);
-        jexl.setStrict(true);
+        JexlEngine jexl = new JexlBuilder().silent(true).strict(true).create();
         
         // Create an expression object
         this.expr = jexl.createExpression(expr);
       }
     }
 
+    @Override
     public void map(Text key, HostDatum datum, Context context) throws IOException, InterruptedException {
       if (fieldHeader && !dumpHomepages && !dumpHostnames) {
         context.write(new Text("hostname"), new Text("unfetched\tfetched\tgone\tredirTemp\tredirPerm\tnotModified\tnumRecords\tdnsFail\tcnxFail\tsumFail\tscore\tlastCheck\thomepage\tmetadata"));
@@ -242,6 +241,7 @@ public class ReadHostDb extends Configured implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println("Usage: ReadHostDb <hostdb> [-get <url>] [<output> [-dumpHomepages | -dumpHostnames | -expr <expr.>]]");

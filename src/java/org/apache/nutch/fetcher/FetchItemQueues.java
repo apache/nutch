@@ -17,9 +17,12 @@
 package org.apache.nutch.fetcher;
 
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hadoop.conf.Configuration;
@@ -28,9 +31,13 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 /**
- * Convenience class - a collection of queues that keeps track of the total
- * number of items, and provides items eligible for fetching from any queue.
+ * A collection of queues that keeps track of the total number of items, and
+ * provides items eligible for fetching from any queue.
  */
 public class FetchItemQueues {
 
@@ -38,8 +45,12 @@ public class FetchItemQueues {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   public static final String DEFAULT_ID = "default";
-  Map<String, FetchItemQueue> queues = new HashMap<>();
+  Map<String, FetchItemQueue> queues = new ConcurrentHashMap<>();
+  private Set<String> queuesMaxExceptions = new HashSet<>();
+  Iterator<Map.Entry<String, FetchItemQueue>> lastIterator = null;
   AtomicInteger totalSize = new AtomicInteger(0);
+  Cache<Text, Optional<String>> redirectDedupCache = null;
+
   int maxThreads;
   long crawlDelay;
   long minCrawlDelay;
@@ -52,6 +63,13 @@ public class FetchItemQueues {
   public static final String QUEUE_MODE_IP = "byIP";
 
   String queueMode;
+
+  enum QueuingStatus {
+    SUCCESSFULLY_QUEUED,
+    ERROR_CREATE_FETCH_ITEM,
+    ABOVE_EXCEPTION_THRESHOLD,
+    HIT_BY_TIMELIMIT;
+  }
 
   public FetchItemQueues(Configuration conf) {
     this.conf = conf;
@@ -66,6 +84,16 @@ public class FetchItemQueues {
     this.timelimit = conf.getLong("fetcher.timelimit", -1);
     this.maxExceptionsPerQueue = conf.getInt(
         "fetcher.max.exceptions.per.queue", -1);
+
+    int dedupRedirMaxTime = conf.getInt("fetcher.redirect.dedupcache.seconds",
+        -1);
+    int dedupRedirMaxSize = conf.getInt("fetcher.redirect.dedupcache.size",
+        1000);
+    if (dedupRedirMaxTime > 0 && dedupRedirMaxSize > 0) {
+      redirectDedupCache = CacheBuilder.newBuilder()
+          .maximumSize(dedupRedirMaxSize)
+          .expireAfterWrite(dedupRedirMaxTime, TimeUnit.SECONDS).build();
+    }
   }
 
   /**
@@ -94,16 +122,27 @@ public class FetchItemQueues {
     return queues.size();
   }
 
-  public void addFetchItem(Text url, CrawlDatum datum) {
-    FetchItem it = FetchItem.create(url, datum, queueMode);
-    if (it != null)
-      addFetchItem(it);
+  public int getQueueCountMaxExceptions() {
+    return queuesMaxExceptions.size();
   }
 
-  public synchronized void addFetchItem(FetchItem it) {
+  public QueuingStatus addFetchItem(Text url, CrawlDatum datum) {
+    FetchItem it = FetchItem.create(url, datum, queueMode);
+    if (it != null) {
+      return addFetchItem(it);
+    }
+    return QueuingStatus.ERROR_CREATE_FETCH_ITEM;
+  }
+
+  public synchronized QueuingStatus addFetchItem(FetchItem it) {
+    if (maxExceptionsPerQueue != -1
+        && queuesMaxExceptions.contains(it.queueID)) {
+      return QueuingStatus.ABOVE_EXCEPTION_THRESHOLD;
+    }
     FetchItemQueue fiq = getFetchItemQueue(it.queueID);
     fiq.addFetchItem(it);
     totalSize.incrementAndGet();
+    return QueuingStatus.SUCCESSFULLY_QUEUED;
   }
 
   public void finishFetchItem(FetchItem it) {
@@ -130,10 +169,15 @@ public class FetchItemQueues {
   }
 
   public synchronized FetchItem getFetchItem() {
-    Iterator<Map.Entry<String, FetchItemQueue>> it = queues.entrySet()
-        .iterator();
+
+    Iterator<Map.Entry<String, FetchItemQueue>> it = lastIterator;
+    if (it == null || !it.hasNext()) {
+      it = queues.entrySet().iterator();
+    }
+
     while (it.hasNext()) {
       FetchItemQueue fiq = it.next().getValue();
+
       // reap empty queues
       if (fiq.getQueueSize() == 0 && fiq.getInProgressSize() == 0) {
         it.remove();
@@ -142,9 +186,12 @@ public class FetchItemQueues {
       FetchItem fit = fiq.getFetchItem();
       if (fit != null) {
         totalSize.decrementAndGet();
+        lastIterator = it;
         return fit;
       }
     }
+
+    lastIterator = null;
     return null;
   }
 
@@ -196,10 +243,10 @@ public class FetchItemQueues {
     if (fiq == null) {
       return 0;
     }
+    int excCount = fiq.incrementExceptionCounter();
     if (fiq.getQueueSize() == 0) {
       return 0;
     }
-    int excCount = fiq.incrementExceptionCounter();
     if (maxExceptionsPerQueue != -1 && excCount >= maxExceptionsPerQueue) {
       // too many exceptions for items in this queue - purge it
       int deleted = fiq.emptyQueue();
@@ -208,9 +255,28 @@ public class FetchItemQueues {
       for (int i = 0; i < deleted; i++) {
         totalSize.decrementAndGet();
       }
+      // keep queue IDs to ensure that these queues aren't created and filled
+      // again, see addFetchItem(FetchItem)
+      queuesMaxExceptions.add(queueid);
       return deleted;
     }
     return 0;
+  }
+
+  /**
+   * @param redirUrl
+   *          redirect target
+   * @return true if redirects are deduplicated and redirUrl has been queued
+   *         recently
+   */
+  public boolean redirectIsQueuedRecently(Text redirUrl) {
+    if (redirectDedupCache != null) {
+      if (redirectDedupCache.getIfPresent(redirUrl) != null) {
+        return true;
+      }
+      redirectDedupCache.put(redirUrl, Optional.absent());
+    }
+    return false;
   }
 
   public synchronized void dump() {

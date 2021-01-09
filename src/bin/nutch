@@ -17,12 +17,12 @@
 # 
 # The Nutch command script
 #
-# Environment Variables
+# Environment Variables (local mode only)
 #
 #   NUTCH_JAVA_HOME The java implementation to use.  Overrides JAVA_HOME.
 #
 #   NUTCH_HEAPSIZE  The maximum amount of heap to use, in MB. 
-#                   Default is 1000.
+#                   Default is 4096.
 #
 #   NUTCH_OPTS      Extra Java runtime options.
 #                   Multiple options must be separated by white space.
@@ -33,6 +33,13 @@
 #
 #   NUTCH_CONF_DIR  Path(s) to configuration files (default: $NUTCH_HOME/conf).
 #                   Multiple paths must be separated by a colon ':'.
+#
+# Note: environment variables are only used in local mode. When running Nutch
+#       on a Hadoop cluster (distributed mode), the corresponding settings
+#       are configured by Hadoop configuration properties set globally for the
+#       cluster or per Nutch job. For the complete list of properties, see
+#         https://hadoop.apache.org/docs/stable3/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml
+#         https://hadoop.apache.org/docs/stable3/hadoop-yarn/hadoop-yarn-common/yarn-default.xml
 #
 cygwin=false
 case "`uname`" in
@@ -53,8 +60,8 @@ done
 
 # if no args specified, show usage
 if [ $# = 0 ]; then
-  echo "nutch 1.16-SNAPSHOT"
-  echo "Usage: nutch COMMAND"
+  echo "nutch 1.18-SNAPSHOT"
+  echo "Usage: nutch COMMAND [-Dproperty=value]... [command-specific args]..."
   echo "where COMMAND is one of:"
   echo "  readdb            read / dump crawl db"
   echo "  mergedb           merge crawldb-s, with optional filtering"
@@ -96,6 +103,7 @@ if [ $# = 0 ]; then
   echo "  updatehostdb      update the host db with records from the crawl db"
   echo "  readhostdb        read / dump host db"
   echo "  sitemap           perform Sitemap processing"
+  echo "  showproperties    print Nutch/Hadoop configuration properties to stdout"
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
@@ -136,7 +144,7 @@ if [ -f "${NUTCH_HOME}"/*nutch*.job ]; then
 fi
 
 JAVA="$JAVA_HOME/bin/java"
-JAVA_HEAP_MAX=-Xmx1000m 
+JAVA_HEAP_MAX=-Xmx4096m
 
 # check envvars which might override default args
 if [ "$NUTCH_HEAPSIZE" != "" ]; then
@@ -304,6 +312,8 @@ elif [ "$COMMAND" = "readhostdb" ] ; then
   CLASS=org.apache.nutch.hostdb.ReadHostDb
 elif [ "$COMMAND" = "sitemap" ] ; then
   CLASS=org.apache.nutch.util.SitemapProcessor
+elif [ "$COMMAND" = "showproperties" ] ; then
+  CLASS=org.apache.nutch.tools.ShowProperties
 else
   CLASS=$COMMAND
 fi

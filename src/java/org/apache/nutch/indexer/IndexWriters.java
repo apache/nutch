@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.indexer;
 
-import de.vandermeer.asciitable.AT_ColumnWidthCalculator;
 import de.vandermeer.asciitable.AT_Row;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.skb.interfaces.document.TableRowType;
@@ -115,8 +114,10 @@ public class IndexWriters {
    * @param conf Nutch configuration instance.
    */
   private IndexWriterConfig[] loadWritersConfiguration(Configuration conf) {
+    String filename = conf.get("indexer.indexwriters.file",
+        "index-writers.xml");
     InputStream ssInputStream = conf
-        .getConfResourceAsInputStream("index-writers.xml");
+        .getConfResourceAsInputStream(filename);
     InputSource inputSource = new InputSource(ssInputStream);
 
     try {
@@ -136,7 +137,7 @@ public class IndexWriters {
 
       return indexWriterConfigs;
     } catch (SAXException | IOException | ParserConfigurationException e) {
-      LOG.warn(e.toString());
+      LOG.error(e.toString());
       return new IndexWriterConfig[0];
     }
   }
@@ -218,6 +219,10 @@ public class IndexWriters {
 
   public void write(NutchDocument doc) throws IOException {
     for (String indexWriterId : getIndexWriters(doc)) {
+      if (!this.indexWriters.containsKey(indexWriterId)) {
+        LOG.warn("Index writer {} is not present. Maybe the plugin is not in plugin.includes or there is a misspelling.", indexWriterId);
+        continue;
+      }
       NutchDocument mappedDocument = mapDocument(doc,
           this.indexWriters.get(indexWriterId).getIndexWriterConfig()
               .getMapping());
@@ -228,6 +233,10 @@ public class IndexWriters {
 
   public void update(NutchDocument doc) throws IOException {
     for (String indexWriterId : getIndexWriters(doc)) {
+      if (!this.indexWriters.containsKey(indexWriterId)) {
+        LOG.warn("Index writer {} is not present. Maybe the plugin is not in plugin.includes or there is a misspelling.", indexWriterId);
+        continue;
+      }
       NutchDocument mappedDocument = mapDocument(doc,
           this.indexWriters.get(indexWriterId).getIndexWriterConfig()
               .getMapping());
@@ -277,26 +286,27 @@ public class IndexWriters {
       // Building the table
       AsciiTable at = new AsciiTable();
       at.getRenderer().setCWC((rows, colNumbers, tableWidth) -> {
+        /*
+         * first and third column (configuration param names and values) usually
+         * require less width than the second column which contains the
+         * description
+         */
         int maxLengthFirstColumn = 0;
-        int maxLengthLastColumn = 0;
+        int maxLengthThirdColumn = 0;
         for (AT_Row row : rows) {
           if (row.getType() == TableRowType.CONTENT) {
-            // First column
-            int lengthFirstColumn = row.getCells().get(0).toString().length();
-            if (lengthFirstColumn > maxLengthFirstColumn) {
-              maxLengthFirstColumn = lengthFirstColumn;
-            }
-
-            // Last column
-            int lengthLastColumn = row.getCells().get(2).toString().length();
-            if (lengthLastColumn > maxLengthLastColumn) {
-              maxLengthLastColumn = lengthLastColumn;
-            }
+            maxLengthFirstColumn = Math.max(row.getCells().get(0).toString().length(), maxLengthFirstColumn);
+            maxLengthThirdColumn = Math.max(row.getCells().get(2).toString().length(), maxLengthThirdColumn);
           }
         }
-        return new int[] { maxLengthFirstColumn,
-            tableWidth - maxLengthFirstColumn - maxLengthLastColumn,
-            maxLengthLastColumn };
+        // reset max. lengths if exceeding one third of the table width
+        maxLengthFirstColumn = Math.min((tableWidth / 3), maxLengthFirstColumn);
+        maxLengthThirdColumn = Math.min(
+            ((tableWidth - maxLengthFirstColumn) / 2), maxLengthThirdColumn);
+        int widthSecondColumn = tableWidth - maxLengthFirstColumn
+            - maxLengthThirdColumn;
+        return new int[] { maxLengthFirstColumn, widthSecondColumn,
+            maxLengthThirdColumn };
       });
 
       // Getting the properties
@@ -314,7 +324,7 @@ public class IndexWriters {
       at.addRule();
 
       // Rendering the table
-      builder.append(at.render(150)).append("\n\n");
+      builder.append(at.render(120)).append("\n\n");
     }
 
     return builder.toString();

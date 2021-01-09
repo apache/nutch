@@ -64,6 +64,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
   private static final Text UNFETCHED_TEXT = new Text("UNFETCHED");
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println("Usage: ProtocolStatistics inputDirs outDir [numOfReducer]");
@@ -81,8 +82,8 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
     int numOfReducers = 1;
 
-    if (args.length > 3) {
-      numOfReducers = Integer.parseInt(args[3]);
+    if (args.length > 2) {
+      numOfReducers = Integer.parseInt(args[2]);
     }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -99,8 +100,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
     String[] inputDirsSpecs = inputDir.split(",");
     for (int i = 0; i < inputDirsSpecs.length; i++) {
-      File completeInputPath = new File(new File(inputDirsSpecs[i]), "current");
-      FileInputFormat.addInputPath(job, new Path(completeInputPath.toString()));
+      FileInputFormat.addInputPath(job, new Path(inputDirsSpecs[i], "current"));
     }
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
@@ -140,7 +140,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
   static class ProtocolStatusStatisticsMapper extends
       Mapper<Text, CrawlDatum, Text, LongWritable> {
-
+    @Override
     public void map(Text urlText, CrawlDatum datum, Context context)
         throws IOException, InterruptedException {
       if (datum.getMetaData().containsKey(Nutch.PROTOCOL_STATUS_CODE_KEY)) {
@@ -153,6 +153,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
   static class ProtocolStatusStatisticsReducer extends
       Reducer<Text, LongWritable, LongWritable, Text> {
+    @Override
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
       long total = 0;
@@ -167,6 +168,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
 
   public static class ProtocolStatusStatisticsCombiner extends
       Reducer<Text, LongWritable, Text, LongWritable> {
+    @Override
     public void reduce(Text key, Iterable<LongWritable> values, Context context)
         throws IOException, InterruptedException {
       long total = 0;

@@ -19,6 +19,7 @@ package org.apache.nutch.collection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
@@ -239,8 +240,10 @@ public class Subcollection extends Configured implements URLFilter {
     while (st.hasMoreElements()) {
       String line = (String) st.nextElement();
       line = line.trim();
+      if (line.isEmpty())
+        continue;
       if (caseInsensitive) {
-        line = line.toLowerCase();
+        line = line.toLowerCase(Locale.ROOT);
       }
       list.add(line);
     }
