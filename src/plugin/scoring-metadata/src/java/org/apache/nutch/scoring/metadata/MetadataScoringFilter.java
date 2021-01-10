@@ -31,6 +31,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilter;
+import org.apache.nutch.scoring.AbstractScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
 
 
@@ -39,7 +40,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
  * 
  * {@link org.apache.nutch.scoring.metadata}
  */
-public class MetadataScoringFilter extends Configured implements ScoringFilter {
+public class MetadataScoringFilter extends AbstractScoringFilter  {
 
   public static final String METADATA_DATUM   = "scoring.db.md";
   public static final String METADATA_CONTENT = "scoring.content.md";
@@ -125,40 +126,9 @@ public class MetadataScoringFilter extends Configured implements ScoringFilter {
     }
   }
 
-  /** Boilerplate */
-  public float generatorSortValue(Text url, CrawlDatum datum, float initSort)
-      throws ScoringFilterException {
-    return initSort;
-  }
-
-  /** Boilerplate */
-  public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
-      CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
-      throws ScoringFilterException {
-    return initScore;
-  }
-
-  /** Boilerplate */
-  public void initialScore(Text url, CrawlDatum datum)
-      throws ScoringFilterException {
-    return;
-  }
-
-  /** Boilerplate */
-  public void injectedScore(Text url, CrawlDatum datum)
-      throws ScoringFilterException {
-    return;
-  }
-
-  /** Boilerplate */
-  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
-      List<CrawlDatum> inlinked) throws ScoringFilterException {
-    return;
-  }
-
   /**
    * handles conf assignment and pulls the value assignment from the
-   * "urlmeta.tags" property
+   * "scoring.db.md", "scoring.content.md" and "scoring.parse.md" properties.
    */
   public void setConf(Configuration conf) {
     super.setConf(conf);
@@ -169,10 +139,5 @@ public class MetadataScoringFilter extends Configured implements ScoringFilter {
     datumMetadata = conf.getStrings(METADATA_DATUM);
     contentMetadata = conf.getStrings(METADATA_CONTENT);
     parseMetadata = conf.getStrings(METADATA_PARSED);
-  }
-
-  /** Boilerplate */
-  public Configuration getConf() {
-    return conf;
   }
 }

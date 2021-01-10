@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-public class MetadataScoringFilterTest {
+public class TestMetadataScoringFilter {
 
   @Before
   public void setUp() throws Exception {
