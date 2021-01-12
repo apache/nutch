@@ -651,7 +651,7 @@
     <get src="https://github.com/jeremylong/DependencyCheck/releases/download/v${dependency-check-ant.version}/dependency-check-ant-${dependency-check-ant.version}-release.zip"
          dest="${ivy.dir}/dependency-check-ant-${dependency-check-ant.version}-release.zip" usetimestamp="false" />
 
-    <unzip src="${dependency-check-ant.home}/dependency-check-ant-${dependency-check-ant.version}-release.zip"
+    <unzip src="${ivy.dir}/dependency-check-ant-${dependency-check-ant.version}-release.zip"
            dest="${ivy.dir}">
     </unzip>
 
