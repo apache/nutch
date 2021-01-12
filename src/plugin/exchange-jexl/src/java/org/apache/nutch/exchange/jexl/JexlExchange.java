@@ -16,9 +16,9 @@
  */
 package org.apache.nutch.exchange.jexl;
 
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.exchange.Exchange;
 import org.apache.nutch.indexer.NutchDocument;
@@ -32,7 +32,7 @@ public class JexlExchange implements Exchange {
 
   private Configuration conf;
 
-  private Expression expression;
+  private JexlExpression expression;
 
   /**
    * Initializes the internal variables.

@@ -48,6 +48,8 @@
 #   --time-limit-fetch <time_limit_fetch> Number of minutes allocated to the fetching [default: 180]
 #   --num-threads <num_threads>           Number of threads for fetching / sitemap processing [default: 50]
 #
+#   -dedup-group <none|host|domain>       Deduplication group method [default: none]
+#
 
 function __to_seconds() {
   NUMBER=$(echo $1 | tr -dc '0-9')
@@ -107,6 +109,7 @@ function __print_usage {
   echo -e "  \t\t\t\t\t  - never [default]"
   echo -e "  \t\t\t\t\t  - always (processing takes place in every iteration)"
   echo -e "  \t\t\t\t\t  - once (processing only takes place in the first iteration)"
+  echo -e "  -dedup-group <none|host|domain>\tDeduplication group method [default: none]"
 
   exit 1
 }
@@ -124,6 +127,7 @@ SIZE_FETCHLIST=50000 # 25K x NUM_TASKS
 TIME_LIMIT_FETCH=180
 NUM_THREADS=50
 SITEMAPS_FROM_HOSTDB_FREQUENCY=never
+DEDUP_GROUP=none
 
 while [[ $# > 0 ]]
 do
@@ -177,6 +181,10 @@ do
             SITEMAPS_FROM_HOSTDB_FREQUENCY="${2}"
             shift 2
             ;;
+        --dedup-group)
+            DEDUP_GROUP="${2}"
+            shift 2
+            ;;
         --hostdbupdate)
             HOSTDBUPDATE=true
             shift
@@ -193,6 +201,12 @@ done
 
 if [[ ! "$SITEMAPS_FROM_HOSTDB_FREQUENCY" =~ ^(never|always|once)$ ]]; then
   echo "Error: --sitemaps-from-hostdb <frequency> has to be one of never, always, once."
+  echo -e ""
+  __print_usage
+fi
+
+if [[ ! "$DEDUP_GROUP" =~ ^(none|host|domain)$ ]]; then
+  echo "Error: --dedup-group <mode> has to be one of none, host, domain."
   echo -e ""
   __print_usage
 fi
@@ -385,7 +399,7 @@ do
   __bin_nutch invertlinks "${commonOptions[@]}" "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT -noNormalize -nofilter
 
   echo "Dedup on crawldb"
-  __bin_nutch dedup "${commonOptions[@]}" "$CRAWL_PATH"/crawldb
+  __bin_nutch dedup "${commonOptions[@]}" "$CRAWL_PATH"/crawldb -group "$DEDUP_GROUP"
 
   if $INDEXFLAG; then
       echo "Indexing $SEGMENT to index"
