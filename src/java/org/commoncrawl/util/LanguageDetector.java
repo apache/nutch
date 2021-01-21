@@ -102,7 +102,7 @@ public class LanguageDetector {
 
     Metadata metadata = new Metadata();
     if (httpContentType != null) {
-      LOG.info("  Content-Type: {}", httpContentType);
+      LOG.debug("  Content-Type: {}", httpContentType);
       metadata.add(Metadata.CONTENT_TYPE, httpContentType);
     }
     String text;
