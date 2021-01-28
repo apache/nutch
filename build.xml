@@ -41,6 +41,8 @@
   <property name="dependency-check-ant.home" value="${ivy.dir}/dependency-check-ant" />
   <property name="dependency-check-ant.jar" value="${dependency-check-ant.home}/dependency-check-ant.jar" />
 
+  <property environment="env"/>
+
   <property name="spotbugs.version" value="4.1.1" />
   <property name="spotbugs.home" value="${basedir}/lib/spotbugs-${spotbugs.version}" />
   <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
@@ -313,8 +315,9 @@
   </ivy:makepom>
 
   <!-- sign and deploy the main artifact -->
-  <artifact:mvn>
-    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
+  <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
+    <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
+    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
     <arg value="-Durl=${maven-repository-url}" />
     <arg value="-DrepositoryId=${maven-repository-id}" />
     <arg value="-DpomFile=pom.xml" />
@@ -323,8 +326,9 @@
   </artifact:mvn>
 
   <!-- sign and deploy the sources artifact -->
-  <artifact:mvn>
-    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
+  <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
+    <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
+    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
     <arg value="-Durl=${maven-repository-url}" />
     <arg value="-DrepositoryId=${maven-repository-id}" />
     <arg value="-DpomFile=pom.xml" />
@@ -334,8 +338,9 @@
   </artifact:mvn>
 
   <!-- sign and deploy the javadoc artifact -->
-  <artifact:mvn>
-    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
+  <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
+    <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
+    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
     <arg value="-Durl=${maven-repository-url}" />
     <arg value="-DrepositoryId=${maven-repository-id}" />
     <arg value="-DpomFile=pom.xml" />
@@ -364,10 +369,12 @@
       </dependency>
     </artifact:dependencies-->
 
-    <artifact:mvn>
-      <arg value="test"/>
+    <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
+      <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
+      <arg value="package"/>
+      <arg value="-DskipTests"/>
       <arg value="-e"/>
-      <arg value="-o"/>
+      <!--arg value="-o"/-->
       <!-- run offline (-o): must not download dependencies as this is
            done from http://repo1.maven.org/ hardwired in
            maven-ant-tasks-2.1.3.jar, see NUTCH-2722.

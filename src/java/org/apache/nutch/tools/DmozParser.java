@@ -276,8 +276,11 @@ public class DmozParser {
               throws IOException, SAXException, ParserConfigurationException {
 
     SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+    parserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    parserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
     SAXParser parser = parserFactory.newSAXParser();
     XMLReader reader = parser.getXMLReader();
+    reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
 
     // Create our own processor to receive SAX events
     RDFProcessor rp = new RDFProcessor(reader, subsetDenom, includeAdult, skew,
