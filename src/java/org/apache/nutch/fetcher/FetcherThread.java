@@ -386,7 +386,7 @@ public class FetcherThread extends Thread {
               if (pstatus != null && pstatus.isSuccess()
                   && pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
                 String newUrl = pstatus.getMessage();
-                int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
+                int refreshTime = Integer.parseInt(pstatus.getArgs()[1]);
                 Text redirUrl = handleRedirect(fit, newUrl,
                     refreshTime < Fetcher.PERM_REFRESH_TIME,
                     Fetcher.CONTENT_REDIR);

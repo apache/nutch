@@ -150,9 +150,6 @@ public class BasicURLNormalizer implements URLNormalizer {
   private boolean hostASCIItoIDN;
   private boolean hostTrimTrailingDot;
 
-  public void BasicUrlNormalizer() {
-  }
-
   @Override
   public Configuration getConf() {
     return conf;

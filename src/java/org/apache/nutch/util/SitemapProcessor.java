@@ -487,7 +487,7 @@ public class SitemapProcessor extends Configured implements Tool {
         LOG.info("SitemapProcessor: sitemap urls dir: {}", urlDir);
       }
       else if (args[i].equals("-threads")) {
-        threads = Integer.valueOf(args[++i]);
+        threads = Integer.parseInt(args[++i]);
         LOG.info("SitemapProcessor: threads: {}", threads);
       }
       else if (args[i].equals("-noStrict")) {

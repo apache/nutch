@@ -271,7 +271,7 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
         if (pstatus != null && pstatus.isSuccess()
             && pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
           String newUrl = pstatus.getMessage();
-          int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
+          int refreshTime = Integer.parseInt(pstatus.getArgs()[1]);
           newUrl = filterNormalize(fromUrl, newUrl, origin,
               ignoreInternalLinks, ignoreExternalLinks, ignoreExternalLinksMode, filters, exemptionFilters, normalizers,
               URLNormalizers.SCOPE_FETCHER);
