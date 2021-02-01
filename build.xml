@@ -41,8 +41,8 @@
 
   <property name="dependency-check.home" value="${ivy.dir}/dependency-check-ant/"/>
 
-  <property name="spotbugs.version" value="4.1.1" />
-  <property name="spotbugs.home" value="${basedir}/lib/spotbugs-${spotbugs.version}" />
+  <property name="spotbugs.version" value="4.2.0" />
+  <property name="spotbugs.home" value="${ivy.dir}/spotbugs-${spotbugs.version}" />
   <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
   <property name="apache-rat.version" value="0.13" />
@@ -1066,20 +1066,19 @@
   <target name="spotbugs-download-unchecked" unless="spotbugs.jar.found"
           description="--> downloads the spotbugs binary (spotbugs-*.tgz).">
     <get src="https://github.com/spotbugs/spotbugs/releases/download/${spotbugs.version}/spotbugs-${spotbugs.version}.tgz "
-         dest="${basedir}/lib/spotbugs-${spotbugs.version}.tgz" usetimestamp="false" />
+         dest="${ivy.dir}/spotbugs-${spotbugs.version}.tgz" usetimestamp="false" />
 
-    <untar src="${basedir}/lib/spotbugs-${spotbugs.version}.tgz"
-           dest="${basedir}/lib/" compression="gzip">
+    <untar src="${ivy.dir}/spotbugs-${spotbugs.version}.tgz"
+           dest="${ivy.dir}" compression="gzip">
     </untar>
 
-    <delete file="${basedir}/lib/spotbugs-${spotbugs.version}.tgz" />
+    <delete file="${ivy.dir}/spotbugs-${spotbugs.version}.tgz" />
   </target>
 
-  <taskdef
-    resource="edu/umd/cs/findbugs/anttask/tasks.properties"
-    classpath="${spotbugs.jar}" />
-
   <target name="spotbugs" depends="jar, compile-plugins, spotbugs-download" description="--> runs spotbugs source code analysis.">
+    <taskdef
+        resource="edu/umd/cs/findbugs/anttask/tasks.properties"
+        classpath="${spotbugs.jar}" />
     <spotbugs home="${spotbugs.home}"
             output="html"
             outputFile="${build.dir}/nutch-spotbugs.html"
