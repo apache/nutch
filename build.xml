@@ -37,9 +37,11 @@
   <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
   <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
-  <property environment="env"/>
+  <property name="dependency-check-ant.version" value="6.1.0" />
+  <property name="dependency-check-ant.home" value="${ivy.dir}/dependency-check-ant" />
+  <property name="dependency-check-ant.jar" value="${dependency-check-ant.home}/dependency-check-ant.jar" />
 
-  <property name="dependency-check.home" value="${ivy.dir}/dependency-check-ant/"/>
+  <property environment="env"/>
 
   <property name="spotbugs.version" value="4.2.0" />
   <property name="spotbugs.home" value="${ivy.dir}/spotbugs-${spotbugs.version}" />
@@ -646,24 +648,38 @@
   </target>
 
   <!-- Check dependencies for security vulnerabilities                                    -->
-  <!-- requires installation of OWASP dependency check tool, see                          -->
-  <!--   https://jeremylong.github.io/DependencyCheck/dependency-check-ant/index.html     -->
-  <!-- get http://dl.bintray.com/jeremy-long/owasp/dependency-check-ant-3.3.2-release.zip -->
-  <!-- and unzip in directory ./ivy/                                                      -->
-  <path id="dependency-check.path">
-    <pathelement location="${dependency-check.home}/dependency-check-ant.jar"/>
-    <fileset dir="${dependency-check.home}/lib" erroronmissingdir="false">
+  <target name="dependency-check-ant-download" description="--> download dependency-check-ant jar">
+    <available file="${dependency-check-ant.jar}" property="dependency-check-ant.jar.found"/>
+    <antcall target="dependency-check-ant-download-unchecked"/>
+  </target>
+
+  <target name="dependency-check-ant-download-unchecked" unless="dependency-check-ant.jar.found"
+          description="--> downloads the dependency-check-ant binary (dependency-check-ant-*.zip).">
+    <get src="https://github.com/jeremylong/DependencyCheck/releases/download/v${dependency-check-ant.version}/dependency-check-ant-${dependency-check-ant.version}-release.zip"
+         dest="${ivy.dir}/dependency-check-ant-${dependency-check-ant.version}-release.zip" usetimestamp="false" />
+
+    <unzip src="${ivy.dir}/dependency-check-ant-${dependency-check-ant.version}-release.zip"
+           dest="${ivy.dir}">
+    </unzip>
+
+    <delete file="${ivy.dir}/dependency-check-ant-${dependency-check-ant.version}-release.zip" />
+  </target>
+
+  <path id="dependency-check-ant.path">
+    <pathelement location="${dependency-check-ant.home}/dependency-check-ant.jar"/>
+    <fileset dir="${dependency-check-ant.home}/lib">
       <include name="*.jar"/>
     </fileset>
   </path>
-  <taskdef resource="dependency-check-taskdefs.properties" onerror="ignore">
-    <classpath refid="dependency-check.path" />
-  </taskdef>
-  <target name="report-vulnerabilities" description="--> check dependencies for security vulnerabilities">
+
+  <target name="report-vulnerabilities" depends="jar, compile-plugins, dependency-check-ant-download" description="--> check dependencies for security vulnerabilities">
+    <taskdef resource="dependency-check-taskdefs.properties">
+      <classpath refid="dependency-check-ant.path" />
+    </taskdef>
     <dependency-check projectname="${name}"
-                      reportoutputdirectory="${build.dir}"
+                      reportoutputdirectory="${dependency-check-ant.home}"
                       reportformat="ALL">
-        <suppressionfile path="${dependency-check.home}/dependency-check-suppressions.xml" />
+        <suppressionfile path="${dependency-check-ant.home}/dependency-check-suppressions.xml" />
         <retirejsFilter regex="copyright.*jeremy long" />
         <fileset dir="${build.dir}">
           <include name="lib/*.jar"/>
