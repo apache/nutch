@@ -104,6 +104,7 @@ public class HTMLMetaTags {
 
   /**
    * Sets <code>refresh</code> to the supplied value.
+   * @param refresh value to set
    */
   public void setRefresh(boolean refresh) {
     this.refresh = refresh;
@@ -111,6 +112,7 @@ public class HTMLMetaTags {
 
   /**
    * Sets the <code>baseHref</code>.
+   * @param baseHref value to set
    */
   public void setBaseHref(URL baseHref) {
     this.baseHref = baseHref;
@@ -118,6 +120,7 @@ public class HTMLMetaTags {
 
   /**
    * Sets the <code>refreshHref</code>.
+   * @param refreshHref value to set
    */
   public void setRefreshHref(URL refreshHref) {
     this.refreshHref = refreshHref;
@@ -125,41 +128,46 @@ public class HTMLMetaTags {
 
   /**
    * Sets the <code>refreshTime</code>.
+   * @param refreshTime value to set
    */
   public void setRefreshTime(int refreshTime) {
     this.refreshTime = refreshTime;
   }
 
   /**
-   * A convenience method. Returns the current value of <code>noIndex</code>.
+   * Get the current value of <code>noIndex</code>.
+   * @return true if no index is desired, false otherwise
    */
   public boolean getNoIndex() {
     return noIndex;
   }
 
   /**
-   * A convenience method. Returns the current value of <code>noFollow</code>.
+   * Get the current value of <code>noFollow</code>.
+   * @return true if no follow is desired, false otherwise
    */
   public boolean getNoFollow() {
     return noFollow;
   }
 
   /**
-   * A convenience method. Returns the current value of <code>noCache</code>.
+   * Get the current value of <code>noCache</code>.
+   * @return true if no cache is desired, false otherwise
    */
   public boolean getNoCache() {
     return noCache;
   }
 
   /**
-   * A convenience method. Returns the current value of <code>refresh</code>.
+   * Get the current value of <code>refresh</code>.
+   * @return true if refresh is desired, false otherwise
    */
   public boolean getRefresh() {
     return refresh;
   }
 
   /**
-   * A convenience method. Returns the <code>baseHref</code>, if set, or
+   * @return the <code>baseHref</code>, if set, or
    * <code>null</code> otherwise.
    */
   public URL getBaseHref() {
@@ -167,17 +175,17 @@ public class HTMLMetaTags {
   }
 
   /**
-   * A convenience method. Returns the <code>refreshHref</code>, if set, or
+   * @return the <code>refreshHref</code>, if set, or
    * <code>null</code> otherwise. The value may be invalid if
-   * {@link #getRefresh()}returns <code>false</code>.
+   * {@link #getRefresh()} returns <code>false</code>.
    */
   public URL getRefreshHref() {
     return refreshHref;
   }
 
   /**
-   * A convenience method. Returns the current value of <code>refreshTime</code>
-   * . The value may be invalid if {@link #getRefresh()}returns
+   * @return the current value of <code>refreshTime</code>
+   * . The value may be invalid if {@link #getRefresh()} returns
    * <code>false</code>.
    */
   public int getRefreshTime() {
@@ -185,7 +193,7 @@ public class HTMLMetaTags {
   }
 
   /**
-   * Returns all collected values of the general meta tags. Property names are
+   * @return all collected values of the general meta tags. Property names are
    * tag names, property values are "content" values.
    */
   public Metadata getGeneralTags() {
@@ -193,7 +201,7 @@ public class HTMLMetaTags {
   }
 
   /**
-   * Returns all collected values of the "http-equiv" meta tags. Property names
+   * @return all collected values of the "http-equiv" meta tags. Property names
    * are tag names, property values are "content" values.
    */
   public Properties getHttpEquivTags() {

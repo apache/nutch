@@ -36,7 +36,18 @@ public class IndexingFilters {
             INDEXINGFILTER_ORDER);
   }
 
-  /** Run all defined filters. */
+  /**
+   * Run all defined filters. Note, may return null if the the document
+   * was filtered
+   * @see IndexingFilter#filter(NutchDocument, Parse, Text, CrawlDatum, Inlinks)
+   * @param doc the {@link NutchDocument} to process with filters
+   * @param parse corresponding {@link Parse} object for the document
+   * @param url corresponding {@link org.apache.hadoop.io.Text} url for the document
+   * @param datum corresponding {@link CrawlDatum} for the document
+   * @param inlinks corresponding {@link Inlinks} for the document
+   * @return the {@link NutchDocument}, null it the document was filtered
+   * @throws IndexingException if an error occurs within a filter
+   */
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
     for (int i = 0; i < this.indexingFilters.length; i++) {
@@ -45,7 +56,6 @@ public class IndexingFilters {
       if (doc == null)
         return null;
     }
-
     return doc;
   }
 

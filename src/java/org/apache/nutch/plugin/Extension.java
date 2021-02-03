@@ -39,9 +39,13 @@ public class Extension {
    * @param pDescriptor
    *          a plugin descriptor
    * @param pExtensionPoint
-   *          an extension porin
+   *          an extension point
    * @param pId
    *          an unique id of the plugin
+   * @param pExtensionClass the class extending the extension point
+   * @param conf a populated {@link org.apache.hadoop.conf.Configuration}
+   * @param pluginRepository a {@link PluginRepository} containing 
+   * all plugin artifacts
    */
   public Extension(PluginDescriptor pDescriptor, String pExtensionPoint,
       String pId, String pExtensionClass, Configuration conf,
@@ -127,7 +131,8 @@ public class Extension {
   }
 
   /**
-   * Returns the Id of the extension point, that is implemented by this
+   * Get target point
+   * @return the Id of the extension point, that is implemented by this
    * extension.
    */
   public String getTargetPoint() {
@@ -144,6 +149,7 @@ public class Extension {
    * plugins.
    * 
    * @return Object An instance of the extension implementation
+   * @throws PluginRuntimeException if there is a fatal runtime error
    */
   public Object getExtensionInstance() throws PluginRuntimeException {
     // Must synchronize here to make sure creation and initialization
@@ -180,7 +186,7 @@ public class Extension {
   }
 
   /**
-   * return the plugin descriptor.
+   * Get the plugin descriptor.
    * 
    * @return PluginDescriptor
    */
@@ -192,7 +198,7 @@ public class Extension {
    * Sets the plugin descriptor and is only used until model creation at system
    * start up.
    * 
-   * @param pDescriptor
+   * @param pDescriptor a instantiated {@link org.apache.nutch.plugin.PluginDescriptor}
    */
   public void setDescriptor(PluginDescriptor pDescriptor) {
     fDescriptor = pDescriptor;

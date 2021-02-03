@@ -64,7 +64,7 @@ import org.apache.nutch.scoring.ScoringFilters;
  * </p>
  * <p>
  * See
- * {@link org.apache.nutch.indexer.IndexerMapReduce#initMRJob(Path, Path, Collection, JobConf, boolean)}
+ * {@link #initMRJob(Path, Path, Collection, Job, boolean)}
  * for details on the specific data structures and parameters required for
  * indexing.
  * </p>

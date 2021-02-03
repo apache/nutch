@@ -34,7 +34,13 @@ public class URLFilters {
     return this.filters;
   }
 
-  /** Run all defined filters. Assume logical AND. */
+  /** 
+   * Run all defined filters. Assume logical AND.
+   * @param urlString to execute filters on
+   * @return filtered result
+   * @throws URLFilterException if there is an issue executing
+   * any URLFilter implementations.
+   */
   public String filter(String urlString) throws URLFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       if (urlString == null)

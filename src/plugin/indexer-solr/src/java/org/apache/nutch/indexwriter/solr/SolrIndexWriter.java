@@ -297,8 +297,7 @@ public class SolrIndexWriter implements IndexWriter {
    * Returns {@link Map} with the specific parameters the IndexWriter instance
    * can take.
    *
-   * @return The values of each row. It must have the form
-   *         <KEY,<DESCRIPTION,VALUE>>.
+   * @return The values of each row. It must have the form <code>&#60;KEY,&#60;DESCRIPTION,VALUE&#62;&#62;</code>.
    */
   @Override
   public Map<String, Entry<String, Object>> describe() {

@@ -47,8 +47,7 @@ import org.w3c.dom.DocumentFragment;
  * uses the <a href="https://any23.apache.org/">Apache Any23</a> library
  * for parsing and extracting structured data in RDF format from a
  * variety of Web documents. The supported formats can be found at <a href="https://any23.apache.org/">Apache Any23</a>.
- * <p>In this implementation triples are written as Notation3 e.g.
- * <code><http://www.bbc.co.uk/news/scotland/> <http://iptc.org/std/rNews/2011-10-07#datePublished> "2014/03/31 13:53:03"@en-gb .</code>
+ * <p>In this implementation triples are written as <a href="https://www.w3.org/TeamSubmission/n3/">Notation3</a> 
  * and triples are identified within output triple streams by the presence of '\n'.
  * The presence of the '\n' is a characteristic specific to N3 serialization in Any23.
  * In order to use another/other writers implementing the

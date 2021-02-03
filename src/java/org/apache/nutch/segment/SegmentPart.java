@@ -51,9 +51,9 @@ public class SegmentPart {
   /**
    * Create SegmentPart from a FileSplit.
    * 
-   * @param split
-   * @return A {@link SegmentPart} resultant from a {@link FileSplit}.
-   * @throws IOException
+   * @param split a {@link FileSplit} segment part
+   * @return a {@link SegmentPart} resultant from a {@link FileSplit}.
+   * @throws IOException if there is a fatal error locating the split  
    */
   public static SegmentPart get(FileSplit split) throws IOException {
     return get(split.getPath().toString());

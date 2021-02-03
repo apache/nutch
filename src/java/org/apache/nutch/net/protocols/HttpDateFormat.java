@@ -59,6 +59,8 @@ public class HttpDateFormat {
 
   /**
    * Get the HTTP format of the specified date.
+   * @param date a {@link java.util.Date} for conversion
+   * @return the String HTTP representation of the date
    */
   public static String toString(Date date) {
     return FORMAT.format(date.toInstant());

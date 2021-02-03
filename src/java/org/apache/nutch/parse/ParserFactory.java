@@ -100,6 +100,8 @@ public final class ParserFactory {
    *         <code>plugin.includes</code>, then this ordered Array would consist
    *         of two {@link Parser} interfaces,
    *         <code>[parse-html, parse-rtf]</code>.
+   * @throws ParserNotFound if there is a runtime error locating a parser for the
+   * given content type and url
    */
   public Parser[] getParsers(String contentType, String url)
       throws ParserNotFound {

@@ -204,8 +204,8 @@ public class IndexWriters {
   /**
    * Initializes the internal variables of index writers.
    *
-   * @param conf Nutch configuration.
-   * @param name
+   * @param conf Nutch configuration
+   * @param name target name of the {@link IndexWriter} to be opened
    * @throws IOException Some exception thrown by some writer.
    */
   public void open(Configuration conf, String name) throws IOException {

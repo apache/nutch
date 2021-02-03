@@ -94,7 +94,6 @@ import org.apache.nutch.util.NutchJob;
  * {@link org.apache.nutch.crawl.Generator} doesn't ensure that fetchlist parts
  * for each map task are disjoint.
  * </p>
- * <p>
  * <h4>Duplicate content</h4>
  * Merging segments removes older content whenever possible (see below).
  * However, this is NOT the same as de-duplication, which in addition removes
@@ -109,8 +108,8 @@ import org.apache.nutch.util.NutchJob;
  * segments be named in an increasing lexicographic order as their creation time
  * increases.
  * </p>
- * <p>
  * <h4>Merging and indexes</h4>
+ * <p>
  * Merged segment gets a different name. Since Indexer embeds segment names in
  * indexes, any indexes originally created for the input segments will NOT work
  * with the merged segment. Newly created merged segment(s) need to be indexed
@@ -746,7 +745,8 @@ public class SegmentMerger extends Configured implements Tool{
   }
 
   /**
-   * @param args
+   * Run this tool
+   * @param args input arguments for the tool, running with no argument provides args information
    */
   @Override
   public int run(String[] args)  throws Exception {

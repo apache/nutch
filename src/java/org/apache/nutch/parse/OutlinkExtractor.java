@@ -49,10 +49,8 @@ public class OutlinkExtractor {
   /**
    * Regex pattern to get URLs within a plain text.
    * 
-   * @see <a
-   *      href="http://www.truerwords.net/articles/ut/urlactivation.html">http://www.truerwords.net/articles/ut/urlactivation.html
-
-   *      </a>
+   * @see documentation on <a href="http://web.archive.org/web/20190220011657/http://www.truerwords.net/articles/ut/urlactivation.html">
+   * urlactivation</a>
    */
   private static final Pattern URL_PATTERN = Pattern.compile(
       "([A-Za-z][A-Za-z0-9+.-]{1,120}:[A-Za-z0-9/](([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2}){1,333}(#([a-zA-Z0-9][a-zA-Z0-9$_.+!*,;/?:@&~=%-]{0,1000}))?)");
@@ -64,7 +62,7 @@ public class OutlinkExtractor {
    * 
    * @param plainText
    *          the plain text from wich URLs should be extracted.
-   * 
+   * @param conf a populated {@link Configuration}
    * @return Array of <code>Outlink</code>s within found in plainText
    */
   public static Outlink[] getOutlinks(final String plainText,
@@ -80,7 +78,7 @@ public class OutlinkExtractor {
    *          the plain text from wich URLs should be extracted.
    * @param anchor
    *          the anchor of the url
-   * 
+   * @param conf a populated {@link Configuration}
    * @return Array of <code>Outlink</code>s within found in plainText
    */
   public static Outlink[] getOutlinks(final String plainText, String anchor,

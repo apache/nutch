@@ -185,9 +185,12 @@
       windowtitle="${name} ${version} API"
       doctitle="${name} ${version} API"
       bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
+      failonerror="true"
+      failonwarning="true"
       >
       <arg value="${javadoc.proxy.host}"/>
       <arg value="${javadoc.proxy.port}"/>
+      <arg value="--allow-script-in-comments"/>
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/any23/src/java/" />
@@ -273,7 +276,7 @@
 
       <classpath refid="classpath"/>
       <classpath>
-        <fileset dir="${plugins.dir}" >
+        <fileset dir="${build.plugins}" >
           <include name="**/*.jar"/>
         </fileset>
       </classpath>
@@ -292,6 +295,7 @@
       <group title="Indexer Plugins" packages="${plugins.indexer}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
     </javadoc>
+
     <jar jarfile="${maven-javadoc-jar}">
       <fileset dir="${release.dir}/javadoc" />
     </jar>
@@ -704,6 +708,7 @@
       </condition>
     </fail>
     <mkdir dir="${build.javadoc}"/>
+    <mkdir dir="${build.javadoc}/resources"/>
     <javadoc
       overview="${src.dir}/overview.html"
       destdir="${build.javadoc}"
@@ -713,9 +718,12 @@
       windowtitle="${name} ${version} API"
       doctitle="${name} ${version} API"
       bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
+      failonerror="true"
+      failonwarning="true"
       >
       <arg value="${javadoc.proxy.host}"/>
       <arg value="${javadoc.proxy.port}"/>
+      <arg value="--allow-script-in-comments"/>
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/any23/src/java/" />
@@ -801,7 +809,7 @@
 
       <classpath refid="classpath"/>
       <classpath>
-        <fileset dir="${plugins.dir}" >
+        <fileset dir="${build.plugins}" >
           <include name="**/*.jar"/>
         </fileset>
       </classpath>
@@ -829,7 +837,7 @@
     <copy file="${conf.dir}/configuration.xsl" todir="${build.javadoc}/resources/"/>
   </target>
 
-    <!-- ================================================================== -->
+  <!-- ================================================================== -->
   <!-- D I S T R I B U T I O N                                            -->
   <!-- ================================================================== -->
   <!--                                                                    -->

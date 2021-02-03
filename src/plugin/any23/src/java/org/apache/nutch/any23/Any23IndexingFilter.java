@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * <p>This implementation of {@link org.apache.nutch.indexer.IndexingFilter}
  * adds a <i>triple(s)</i> field to the {@link org.apache.nutch.indexer.NutchDocument}.</p>
  * <p>Triples are extracted via <a href="https://any23.apache.org/">Apache Any23</a>.</p>
- * @see {@link org.apache.nutch.any23.Any23ParseFilter}.
+ * @see org.apache.nutch.any23.Any23ParseFilter
  */
 public class Any23IndexingFilter implements IndexingFilter {
 

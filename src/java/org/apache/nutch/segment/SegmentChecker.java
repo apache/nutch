@@ -41,6 +41,14 @@ public class SegmentChecker {
 
   /**
    * Check if the segment is indexable. May add new check methods here.
+   * @param segmentPath path to an individual segment on disk
+   * @param fs the {@link org.apache.hadoop.fs.FileSystem} that the 
+   * segment resides on
+   * @return true if the checks pass and the segment can be indexed, 
+   * false otherwise
+   * @throws IOException if there is an I/O error locating or 
+   * checking either the segment contents or locating it on 
+   * the filesystem
    */
   public static boolean isIndexable(Path segmentPath, FileSystem fs)
       throws IOException {
@@ -62,6 +70,13 @@ public class SegmentChecker {
 
   /**
    * Check the segment to see if it is valid based on the sub directories.
+   * @param segmentPath path to an individual segment on disk
+   * @param fs the {@link org.apache.hadoop.fs.FileSystem} that the 
+   * segment resides on
+   * @return true if the checks pass false otherwise
+   * @throws IOException if there is an I/O error locating or 
+   * checking either the segment contents or locating it on 
+   * the filesystem
    */
   public static boolean checkSegmentDir(Path segmentPath, FileSystem fs)
       throws IOException {
@@ -124,6 +139,14 @@ public class SegmentChecker {
 
   /**
    * Check the segment to see if it is has been parsed before.
+   * @param segment path to an individual segment on disk
+   * @param fs the {@link org.apache.hadoop.fs.FileSystem} that the 
+   * segment resides on
+   * @return true if the checks pass and the segment has been parsed, 
+   * false otherwise
+   * @throws IOException if there is an I/O error locating or 
+   * checking either the segment contents or locating it on 
+   * the filesystem
    */
   public static boolean isParsed(Path segment, FileSystem fs)
       throws IOException {

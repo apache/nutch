@@ -55,7 +55,8 @@ public class AjaxURLNormalizer implements URLNormalizer {
   /**
    * Attempts to normalize the input URL string
    *
-   * @param String urlString
+   * @param urlString a String to process
+   * @param scope used when indexing URLs
    * @return String
    */
   public String normalize(String urlString, String scope) throws MalformedURLException {
@@ -80,7 +81,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
    * Returns a normalized input URL. #! querystrings are transformed
    * to a _escaped_fragment_ form.
    *
-   * @param String urlString
+   * @param urlString a String to process
    * @return String
    */
   protected String normalizeHashedFragment(String urlString) throws MalformedURLException {
@@ -109,7 +110,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
    * Returns a normalized input URL. _escaped_fragment_ querystrings are
    * transformed to a #! form.
    *
-   * @param String urlString
+   * @param urlString a String to process
    * @return String
    */
   protected String normalizeEscapedFragment(String urlString) throws MalformedURLException {
@@ -167,7 +168,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
   /**
    * Unescape some exotic characters in the fragment part
    *
-   * @param String fragmentPart
+   * @param fragmentPart a String to process
    * @return String
    */
   protected String unescape(String fragmentPart) {
@@ -183,7 +184,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
   /**
    * Escape some exotic characters in the fragment part
    *
-   * @param String fragmentPart
+   * @param fragmentPart a String to process
    * @return String
    */
   protected String escape(String fragmentPart) {
@@ -218,7 +219,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
   }
 
   /**
-   * @param Configuration conf
+   * @param conf a populated {@link Configuration}
    */
   public void setConf(Configuration conf) {
     this.conf = conf;

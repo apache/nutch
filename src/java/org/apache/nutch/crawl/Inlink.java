@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
-/* An incoming link to a page. */
+/** An incoming link to a page. */
 public class Inlink implements Writable {
 
   private String fromUrl;
@@ -42,7 +42,11 @@ public class Inlink implements Writable {
     anchor = Text.readString(in);
   }
 
-  /** Skips over one Inlink in the input. */
+  /**
+   * Skips over one Inlink in the input.
+   * @param in the tuple containing the fromUrl and anchor data
+   * @throws IOException if there is an error reading the Inlink tuple
+   */
   public static void skip(DataInput in) throws IOException {
     Text.skip(in); // skip fromUrl
     Text.skip(in); // skip anchor

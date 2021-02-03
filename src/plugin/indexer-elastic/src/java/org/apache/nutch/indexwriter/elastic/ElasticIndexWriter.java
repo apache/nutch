@@ -297,7 +297,7 @@ public class ElasticIndexWriter implements IndexWriter {
    * can take.
    *
    * @return The values of each row. It must have the form
-   *         <KEY,<DESCRIPTION,VALUE>>.
+   *         &#60;KEY,&#60;DESCRIPTION,VALUE&#62;&#62;.
    */
   @Override
   public Map<String, Map.Entry<String, Object>> describe() {
