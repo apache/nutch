@@ -15,19 +15,6 @@
  * limitations under the License.
  */
 
-/*
- * Adopted by John Xing for Nutch Project from
- * http://blog.fivesight.com/prb/space/Call+an+External+Command+from+Java/,
- * which explains the code in detail.
- * [Original author is moving his site to http://mult.ifario.us/   -peb]
- *
- * Comments by John Xing on 20040621:
- * (1) EDU.oswego.cs.dl.util.concurrent.* is in j2sdk 1.5 now.
- *     Modifications are needed if we move to j2sdk 1.5.
- * (2) The original looks good, not much to change.
- *
- * This code is in the public domain and comes with no warranty.  
- */
 package org.apache.nutch.util;
 
 import java.io.IOException;
@@ -86,9 +73,10 @@ public class CommandRunner {
   }
 
   /**
-   * 
+   * Execute the command
    * @return process exit value (return code) or -1 if timed out.
-   * @throws IOException
+   * @throws IOException if there is a fatal error interfacing 
+   * with the environment in which the application is running. 
    */
   public int exec() throws IOException {
     Process proc = Runtime.getRuntime().exec(_command);

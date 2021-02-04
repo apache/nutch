@@ -32,7 +32,7 @@ public interface JobManager {
 
   /**
    * Creates specified job
-   * @param jobConfig
+   * @param jobConfig a job-specific {@link JobConfig} 
    * @return JobInfo
    */
   public JobInfo create(JobConfig jobConfig);

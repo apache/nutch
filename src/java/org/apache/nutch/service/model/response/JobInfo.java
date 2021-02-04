@@ -23,8 +23,6 @@ import org.apache.nutch.service.model.request.JobConfig;
 
 /**
  * This is the response object containing Job information
- * 
- *
  */
 public class JobInfo {
 
