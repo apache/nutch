@@ -37,7 +37,7 @@ public class URLUtil {
    * @param target
    *          target url (may be relative)
    * @return resolved absolute url.
-   * @throws MalformedURLException
+   * @throws MalformedURLException if the input base URL is malformed
    */
   public static URL resolveURL(URL base, String target)
       throws MalformedURLException {
@@ -84,13 +84,15 @@ public class URLUtil {
       .compile("(\\d{1,3}\\.){3}(\\d{1,3})");
 
   /**
-   * Returns the domain name of the url. The domain name of a url is the
+   * Get the domain name of the url. The domain name of a url is the
    * substring of the url's hostname, w/o subdomain names. As an example <br>
    * <code>
-   *  getDomainName(conf, new URL(http://lucene.apache.org/))
+   *  getDomainName(new URL(http://lucene.apache.org/))
    *  </code><br>
    * will return <br>
-   * <code> apache.org</code>
+   * <code>apache.org</code>
+   * @param url A input {@link URL} to extract the domain from
+   * @return the domain name string
    * */
   public static String getDomainName(URL url) {
     DomainSuffixes tlds = DomainSuffixes.getInstance();
@@ -122,8 +124,9 @@ public class URLUtil {
    *  </code><br>
    * will return <br>
    * <code> apache.org</code>
-   * 
-   * @throws MalformedURLException
+   * @param url A input url string to extract the domain from
+   * @return the domain name
+   * @throws MalformedURLException if the input url is malformed
    */
   public static String getDomainName(String url) throws MalformedURLException {
     return getDomainName(new URL(url));
@@ -139,7 +142,10 @@ public class URLUtil {
    * will return <br>
    * <code> org</code>
    * 
-   * @throws MalformedURLException
+   * @param url A input {@link URL} to extract the top 
+   * level domain name from
+   * @return the top level domain name
+   * @throws MalformedURLException if the input url is malformed
    */
   public static String getTopLevelDomainName(URL url)
       throws MalformedURLException {
@@ -162,7 +168,10 @@ public class URLUtil {
    * will return <br>
    * <code> org</code>
    * 
-   * @throws MalformedURLException
+   * @param url A input url string to extract the top 
+   * level domain name from
+   * @return the top level domain name
+   * @throws MalformedURLException if the input url is malformed
    */
   public static String getTopLevelDomainName(String url)
       throws MalformedURLException {
@@ -174,6 +183,8 @@ public class URLUtil {
    * <code> isSameDomain(new URL("http://lucene.apache.org")
    * , new URL("http://people.apache.org/"))
    * <br> will return true. </code>
+   * @param url1 first {@link URL} to compare domain name
+   * @param url2 second {@link URL} to compare domain name
    * 
    * @return true if the domain names are equal
    */
@@ -186,9 +197,10 @@ public class URLUtil {
    * <code> isSameDomain("http://lucene.apache.org"
    * ,"http://people.apache.org/")
    * <br> will return true. </code>
-   * 
+   * @param url1 first url string to compare domain name
+   * @param url2 second url string to compare domain name
    * @return true if the domain names are equal
-   * @throws MalformedURLException
+   * @throws MalformedURLException if either of the input urls are malformed
    */
   public static boolean isSameDomainName(String url1, String url2)
       throws MalformedURLException {
@@ -198,6 +210,8 @@ public class URLUtil {
   /**
    * Returns the {@link DomainSuffix} corresponding to the last public part of
    * the hostname
+   * @param url a {@link URL} to extract the domain suffix from
+   * @return a {@link org.apache.nutch.util.domain.DomainSuffix}
    */
   public static DomainSuffix getDomainSuffix(URL url) {
     DomainSuffixes tlds = DomainSuffixes.getInstance();
@@ -222,13 +236,20 @@ public class URLUtil {
   /**
    * Returns the {@link DomainSuffix} corresponding to the last public part of
    * the hostname
+   * @param url a {@link URL} to extract the domain suffix from
+   * @return a {@link org.apache.nutch.util.domain.DomainSuffix}
+   * @throws MalformedURLException if the input url string is malformed
    */
   public static DomainSuffix getDomainSuffix(String url)
       throws MalformedURLException {
     return getDomainSuffix(new URL(url));
   }
 
-  /** Partitions of the hostname of the url by "." */
+  /**
+   * Partitions of the hostname of the url by "."
+   * @param url a {@link URL} to extract host segments from
+   * @return a string array of host segments
+   */
   public static String[] getHostSegments(URL url) {
     String host = url.getHost();
     // return whole hostname, if it is an ipv4
@@ -240,8 +261,9 @@ public class URLUtil {
 
   /**
    * Partitions of the hostname of the url by "."
-   * 
-   * @throws MalformedURLException
+   * @param url a url string to extract host segments from
+   * @return a string array of host segments
+   * @throws MalformedURLException if the input url string is malformed
    */
   public static String[] getHostSegments(String url)
       throws MalformedURLException {
@@ -497,7 +519,10 @@ public class URLUtil {
     }
   }
 
-  /** For testing */
+  /**
+   * For testing
+   * @param args print with no args to get help
+   */
   public static void main(String[] args) {
 
     if (args.length != 1) {

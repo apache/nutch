@@ -81,7 +81,7 @@ public class Any23IndexingFilter implements IndexingFilter {
    * @return filtered NutchDocument
    * @see org.apache.nutch.indexer.IndexingFilter#filter(NutchDocument, Parse, Text, CrawlDatum, Inlinks)
    *
-   * @throws IndexingException
+   * @throws IndexingException if there is a fatl error whilst indexing
    */
   @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {

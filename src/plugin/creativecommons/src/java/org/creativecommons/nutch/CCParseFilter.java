@@ -65,7 +65,15 @@ public class CCParseFilter implements HtmlParseFilter {
       this.base = base;
     }
 
-    /** Scan the document adding attributes to metadata. */
+    /**
+     * Scan the document adding attributes to metadata.
+     * @param doc the {@link org.w3c.dom.Node} to walk and process
+     * @param base canonical url
+     * @param metadata url {@link org.apache.nutch.metadata.Metadata}
+     * @param conf a populated {@link org.apache.hadoop.conf.Configuration}
+     * @throws ParseException if there is a fatal error or if 
+     * <code>creativecommons.exclude.unlicensed</code> is set to true
+     */
     public static void walk(Node doc, URL base, Metadata metadata,
         Configuration conf) throws ParseException {
 
@@ -86,7 +94,7 @@ public class CCParseFilter implements HtmlParseFilter {
         licenseLocation = "a";
         licenseUrl = walker.anchorLicense.toString();
       } else if (conf.getBoolean("creativecommons.exclude.unlicensed", false)) {
-        throw new ParseException("No CC license.  Excluding.");
+        throw new ParseException("No CC license. Excluding.");
       }
 
       // add license to metadata

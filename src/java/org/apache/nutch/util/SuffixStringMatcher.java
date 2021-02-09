@@ -28,6 +28,7 @@ public class SuffixStringMatcher extends TrieStringMatcher {
   /**
    * Creates a new <code>PrefixStringMatcher</code> which will match
    * <code>String</code>s with any suffix in the supplied array.
+   * @param suffixes A array containing string suffixes
    */
   public SuffixStringMatcher(String[] suffixes) {
     super();
@@ -39,6 +40,7 @@ public class SuffixStringMatcher extends TrieStringMatcher {
    * Creates a new <code>PrefixStringMatcher</code> which will match
    * <code>String</code>s with any suffix in the supplied
    * <code>Collection</code>
+   * @param suffixes A {@link Collection} containing string suffixes
    */
   public SuffixStringMatcher(Collection<String> suffixes) {
     super();

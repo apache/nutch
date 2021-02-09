@@ -36,15 +36,15 @@ import org.w3c.dom.NodeList;
  */
 public class NodeWalker {
 
-  // the root node the the stack holding the nodes
+  // the root node of the stack holding the nodes
   private Node currentNode;
   private NodeList currentChildren;
   private Stack<Node> nodes;
 
   /**
-   * Starts the <code>Node</code> tree from the root node.
+   * Starts the {@link org.w3c.dom.Node} tree from the root node.
    * 
-   * @param rootNode
+   * @param rootNode A root node which will contain all nodes
    */
   public NodeWalker(Node rootNode) {
 

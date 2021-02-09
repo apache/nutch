@@ -54,7 +54,6 @@ import org.w3c.dom.DocumentFragment;
  * <a href="https://any23.apache.org/apidocs/index.html?org/apache/any23/writer/TripleHandler.html">TripleHandler</a>
  * interface, we will most likely need to identify an alternative data characteristic
  * which we can use to split triples streams.</p>
- * <p>
  */
 public class Any23ParseFilter implements HtmlParseFilter {
 

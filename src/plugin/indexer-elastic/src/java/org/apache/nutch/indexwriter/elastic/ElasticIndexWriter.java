@@ -17,11 +17,6 @@
 package org.apache.nutch.indexwriter.elastic;
 
 import java.lang.invoke.MethodHandles;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import java.util.AbstractMap;
@@ -30,21 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLContext;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.TrustStrategy;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
@@ -163,6 +151,10 @@ public class ElasticIndexWriter implements IndexWriter {
 
   /**
    * Generates a RestHighLevelClient with the hosts given
+   * @param parameters implementation specific {@link org.apache.nutch.indexer.IndexWriterParams}
+   * @return an initialized {@link org.elasticsearch.client.RestHighLevelClient}
+   * @throws IOException if there is an error reading the 
+   * {@link org.apache.nutch.indexer.IndexWriterParams}
    */
   protected RestHighLevelClient makeClient(IndexWriterParams parameters)
       throws IOException {
@@ -207,6 +199,7 @@ public class ElasticIndexWriter implements IndexWriter {
 
   /**
    * Generates a default BulkProcessor.Listener
+   * @return {@link BulkProcessor.Listener}
    */
   protected BulkProcessor.Listener bulkProcessorListener() {
     return new BulkProcessor.Listener() {

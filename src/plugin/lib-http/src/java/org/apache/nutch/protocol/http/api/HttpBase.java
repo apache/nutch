@@ -47,7 +47,6 @@ import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.DeflateUtils;
-import org.apache.nutch.util.URLUtil;
 import org.apache.hadoop.util.StringUtils;
 
 import org.apache.hadoop.conf.Configuration;
@@ -192,7 +191,11 @@ public abstract class HttpBase implements Protocol {
     this(null);
   }
 
-  /** Creates a new instance of HttpBase */
+  /**
+   * Creates a new instance of HttpBase
+   * @param logger the {@link org.slf4j.Logger} to use
+   * in this HttpBase
+   */
   public HttpBase(Logger logger) {
     if (logger != null) {
       this.logger = logger;
@@ -200,7 +203,6 @@ public abstract class HttpBase implements Protocol {
     robots = new HttpRobotRulesParser();
   }
 
-  // Inherited Javadoc
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.proxyHost = conf.get("http.proxy.host");
@@ -371,7 +373,6 @@ public abstract class HttpBase implements Protocol {
     logConf();
   }
 
-  // Inherited Javadoc
   public Configuration getConf() {
     return this.conf;
   }
@@ -526,6 +527,7 @@ public abstract class HttpBase implements Protocol {
   /**
    * The time limit to download the entire content, in seconds. See the property
    * <code>http.time.limit</code>.
+   * @return the maximum duration
    */
   public int getMaxDuration() {
     return maxDuration;
@@ -534,6 +536,7 @@ public abstract class HttpBase implements Protocol {
   /**
    * Whether to save partial fetches as truncated content, cf. the property
    * <code>http.partial.truncated</code>.
+   * @return true if partially fetched truncated content is stored
    */
   public boolean isStorePartialAsTruncated() {
     return partialAsTruncated;

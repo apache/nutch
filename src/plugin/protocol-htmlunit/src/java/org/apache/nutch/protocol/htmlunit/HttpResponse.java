@@ -73,11 +73,12 @@ public class HttpResponse implements Response {
   /**
    * Default public constructor.
    *
-   * @param http
-   * @param url
-   * @param datum
-   * @throws ProtocolException
-   * @throws IOException
+   * @param http a initialized {@link HttpBase} record for the given url
+   * @param url the canonical url
+   * @param datum the {@link org.apache.nutch.crawl.CrawlDatum} for the url
+   * @throws ProtocolException if the protocol scheme is http/https
+   * @throws IOException if a fatal error occurs in operating the
+   * {@link SSLSocket} or {@link Socket}
    */
   public HttpResponse(HttpBase http, URL url, CrawlDatum datum)
       throws ProtocolException, IOException {
