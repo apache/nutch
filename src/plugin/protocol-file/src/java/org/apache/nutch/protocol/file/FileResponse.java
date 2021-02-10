@@ -22,7 +22,6 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
@@ -31,7 +30,7 @@ import org.apache.tika.Tika;
 
 import org.apache.hadoop.conf.Configuration;
 
-/************************************
+/**
  * FileResponse.java mimics file replies as http response. It tries its best to
  * follow http's way for headers, response codes as well as exceptions.
  * 
@@ -53,7 +52,7 @@ import org.apache.hadoop.conf.Configuration;
  * (4) No funcy POSIX file attributes yet. May never need?
  * 
  * @author John Xing
- ***********************************/
+ */
 public class FileResponse {
 
   private String orig;
@@ -68,12 +67,19 @@ public class FileResponse {
 
   private Tika tika;
 
-  /** Returns the response code. */
+  /**
+   * Get the response code.
+   * @return the int response code
+   */
   public int getCode() {
     return code;
   }
 
-  /** Returns the value of a named header. */
+  /**
+   * Returns the value of a named header.
+   * @param name header key to retrieve a value for
+   * @return the header value
+   */
   public String getHeader(String name) {
     return headers.get(name);
   }
@@ -90,12 +96,12 @@ public class FileResponse {
   /**
    * Default public constructor
    * 
-   * @param url
-   * @param datum
-   * @param file
-   * @param conf
-   * @throws FileException
-   * @throws IOException
+   * @param url the canonical URL associated with the response
+   * @param datum crawl information for the URL
+   * @param file the actual File containing content for the url
+   * @param conf a populated {@link Configuration}
+   * @throws FileException if the input file does not use file protocol
+   * @throws IOException if there is a fatal I/O error obtaining the input file 
    */
   public FileResponse(URL url, CrawlDatum datum, File file, Configuration conf)
       throws FileException, IOException {

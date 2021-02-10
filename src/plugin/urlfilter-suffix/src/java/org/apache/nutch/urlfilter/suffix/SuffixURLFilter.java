@@ -83,7 +83,7 @@ import java.net.MalformedURLException;
  * The configuration shown below will accept all URLs with '.html' or '.htm'
  * suffixes (case-sensitive - '.HTML' or '.HTM' will be rejected), and prohibit
  * all other suffixes.
- * <p>
+ * </p>
  * 
  * <pre>
  *  # this is a comment
@@ -100,7 +100,7 @@ import java.net.MalformedURLException;
  * <p>
  * The configuration shown below will accept all URLs except common graphical
  * formats.
- * <p>
+ * </p>
  * 
  * <pre>
  *  # this is a comment

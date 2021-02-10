@@ -47,7 +47,7 @@ public class SubcollectionIndexingFilter extends Configured implements
   }
 
   /**
-   * @param conf
+   * @param conf A populated {@link Configuration}
    */
   public void setConf(Configuration conf) {
     this.conf = conf;

@@ -127,9 +127,9 @@ public class CollectionManager extends Configured {
   }
 
   /**
-   * Returns named subcollection
+   * Get the named subcollection
    * 
-   * @param id
+   * @param id the id of a subcollection ot retrieve
    * @return Named SubCollection (or null if not existing)
    */
   public Subcollection getSubColection(final String id) {
@@ -141,6 +141,8 @@ public class CollectionManager extends Configured {
    * 
    * @param id
    *          Id of SubCollection to delete
+   * @throws IOException If there is an error retrieving and deleting
+   * the subcollection from the collection.
    */
   public void deleteSubCollection(final String id) throws IOException {
     final Subcollection subCol = getSubColection(id);
@@ -152,6 +154,8 @@ public class CollectionManager extends Configured {
   /**
    * Create a new subcollection.
    * 
+   * @param id
+   *          Id of SubCollection to create
    * @param name
    *          Name of SubCollection to create
    * @return Created SubCollection or null if allready existed
@@ -172,7 +176,7 @@ public class CollectionManager extends Configured {
    * 
    * @param url
    *          The url to test against Collections
-   * @return Subcollections
+   * @return A {@link List} of {@link Subcollection}'s
    */
   public List<Subcollection> getSubCollections(final String url) {
     List<Subcollection> collections = new ArrayList<Subcollection>();
@@ -203,7 +207,10 @@ public class CollectionManager extends Configured {
   /**
    * Save collections into file
    * 
-   * @throws IOException
+   * @throws IOException If there is a fatal error flushing or 
+   * closing the {@link FileOutputStream} associated with the save 
+   * process.
+   * 
    */
   public void save() throws IOException {
     try {

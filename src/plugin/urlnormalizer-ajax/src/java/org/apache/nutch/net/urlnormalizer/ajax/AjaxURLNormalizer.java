@@ -58,6 +58,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
    * @param urlString a String to process
    * @param scope used when indexing URLs
    * @return String
+   * @throws MalformedURLException if the urlString is malformed
    */
   public String normalize(String urlString, String scope) throws MalformedURLException {
     LOG.info(scope + " // " + urlString);
@@ -83,6 +84,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
    *
    * @param urlString a String to process
    * @return String
+   * @throws MalformedURLException if the urlString is malformed
    */
   protected String normalizeHashedFragment(String urlString) throws MalformedURLException {
     URL u = new URL(urlString);
@@ -112,6 +114,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
    *
    * @param urlString a String to process
    * @return String
+   * @throws MalformedURLException if the urlString is malformed
    */
   protected String normalizeEscapedFragment(String urlString) throws MalformedURLException {
     URL u = new URL(urlString);

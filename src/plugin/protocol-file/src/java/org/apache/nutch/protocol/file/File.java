@@ -87,6 +87,7 @@ public class File implements Protocol {
 
   /**
    * Set the length after at which content is truncated.
+   * @param maxContentLength max content in bytes
    */
   public void setMaxContentLength(int maxContentLength) {
     this.maxContentLength = maxContentLength;
@@ -160,6 +161,9 @@ public class File implements Protocol {
 
   /**
    * Quick way for running this class. Useful for debugging.
+   * @param args run with no args to print help
+   * @throws Exception if there is a fatal error running this class
+   * with the given input
    */
   public static void main(String[] args) throws Exception {
     int maxContentLength = Integer.MIN_VALUE;
