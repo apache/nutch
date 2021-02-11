@@ -359,8 +359,8 @@ public class UpdateHostDbReducer
   /**
     * Determines whether a record should be checked.
     *
-    * @param datum
-    * @return boolean
+    * @param datum a {@link HostDatum} to check for eligibility
+    * @return true if it should be checked, false otherwise
     */
   protected boolean shouldCheck(HostDatum datum) {
     // Whether a new record is to be checked
@@ -385,8 +385,8 @@ public class UpdateHostDbReducer
   /**
     * Determines whether a record is eligible for recheck.
     *
-    * @param datum
-    * @return boolean
+    * @param datum a {@link HostDatum} to check for eligibility
+    * @return true if eligible for recheck, false otherwise
     */
   protected boolean isEligibleForCheck(HostDatum datum) {
     // Whether an existing host, known or unknown, if forced to be rechecked

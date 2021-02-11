@@ -58,12 +58,32 @@ public class FetchItem {
   /**
    * Create an item. Queue id will be created based on <code>queueMode</code>
    * argument, either as a protocol + hostname pair, protocol + IP address
-   * pair or protocol+domain pair.
+   * pair or protocol+domain pair. Sets outlink depth to 0.
+   * @param url URL of fetch item
+   * @param datum webpage information associated with the URL
+   * @param queueMode either byHost, byDomain or byIP.
+   * @see FetchItemQueues#QUEUE_MODE_DOMAIN
+   * @see FetchItemQueues#QUEUE_MODE_HOST
+   * @see FetchItemQueues#QUEUE_MODE_IP
+   * @return a {@link FetchItem} with outlinks depth of 0
    */
   public static FetchItem create(Text url, CrawlDatum datum, String queueMode) {
     return create(url, datum, queueMode, 0);
   }
 
+  /**
+   * Create an item. Queue id will be created based on <code>queueMode</code>
+   * argument, either as a protocol + hostname pair, protocol + IP address
+   * pair or protocol+domain pair. Configurable outlink depth.
+   * @param url URL of fetch item
+   * @param datum webpage information associated with the URL
+   * @param queueMode either byHost, byDomain or byIP
+   * @param outlinkDepth the desired depth of outlink for this given FetchItem
+   * @see FetchItemQueues#QUEUE_MODE_DOMAIN
+   * @see FetchItemQueues#QUEUE_MODE_HOST
+   * @see FetchItemQueues#QUEUE_MODE_IP
+   * @return a {@link FetchItem}
+   */
   public static FetchItem create(Text url, CrawlDatum datum,
       String queueMode, int outlinkDepth) {
     URL u = null;

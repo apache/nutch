@@ -633,6 +633,7 @@ public class LinkRank extends Configured implements Tool {
 
   /**
    * Configurable constructor.
+   * @param conf a populated {@link org.apache.hadoop.conf.Configuration}
    */
   public LinkRank(Configuration conf) {
     super(conf);
@@ -648,7 +649,10 @@ public class LinkRank extends Configured implements Tool {
    *          The WebGraph to run link analysis on.
    * 
    * @throws IOException
-   *           If an error occurs during link analysis.
+   *           If a fatal I/O runtime error occurs during link analysis.
+   * @throws InterruptedException if the Job is interrupted during execution
+   * @throws ClassNotFoundException if classes required to run 
+   * the Job cannot be located
    */
   public void analyze(Path webGraphDb) throws IOException, 
       ClassNotFoundException, InterruptedException {

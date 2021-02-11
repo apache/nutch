@@ -42,7 +42,13 @@ public class ResolverThread implements Runnable {
   protected int purgeFailedHostsThreshold;
 
   /**
-   * Constructor.
+   * Overloaded constructor.
+   * @param host name of the host to lookup
+   * @param datum accompanying host information
+   * @param context {@link org.apache.hadoop.mapreduce.Reducer.Context} for
+   * writing custom counters and output.
+   * @param purgeFailedHostsThreshold int value which marks the maximum failed
+   * DNS lookups before a given host is purged from the hostdb
    */
   public ResolverThread(String host, HostDatum datum,
     Context context, int purgeFailedHostsThreshold) {

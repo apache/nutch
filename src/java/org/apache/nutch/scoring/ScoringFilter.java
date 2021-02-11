@@ -52,7 +52,8 @@ public interface ScoringFilter extends Configurable, Pluggable {
    *          url of the page
    * @param datum
    *          new datum. Filters will modify it in-place.
-   * @throws ScoringFilterException
+   * @throws ScoringFilterException if there is a fatal error 
+   * setting an initial score for newly injected pages 
    */
   public void injectedScore(Text url, CrawlDatum datum)
       throws ScoringFilterException;
@@ -68,7 +69,8 @@ public interface ScoringFilter extends Configurable, Pluggable {
    *          url of the page
    * @param datum
    *          new datum. Filters will modify it in-place.
-   * @throws ScoringFilterException
+   * @throws ScoringFilterException if there is a fatal error 
+   * setting an initial score for newly discovered pages 
    */
   public void initialScore(Text url, CrawlDatum datum)
       throws ScoringFilterException;
@@ -83,6 +85,10 @@ public interface ScoringFilter extends Configurable, Pluggable {
    *          page's datum, should not be modified
    * @param initSort
    *          initial sort value, or a value from previous filters in chain
+   * @return a sort value for use in sorting and selecting the
+   * top N scoring pages during fetchlist generation
+   * @throws ScoringFilterException if there is a fatal error 
+   * preparing the sort value 
    */
   public float generatorSortValue(Text url, CrawlDatum datum, float initSort)
       throws ScoringFilterException;
@@ -101,6 +107,9 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * @param content
    *          instance of content. Implementations may modify this in-place,
    *          primarily by setting some metadata properties.
+   * @throws ScoringFilterException if there is a fatal error 
+   * injecting score information from the current datum into
+   * {@link org.apache.nutch.protocol.Content} metadata
    */
   public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content)
       throws ScoringFilterException;
@@ -119,6 +128,8 @@ public interface ScoringFilter extends Configurable, Pluggable {
    *          target instance to copy the score information to. Implementations
    *          may modify this in-place, primarily by setting some metadata
    *          properties.
+   * @throws ScoringFilterException if there is a fatal error 
+   * processing score data in subsequent steps after parsing
    */
   public void passScoreAfterParsing(Text url, Content content, Parse parse)
       throws ScoringFilterException;
@@ -146,7 +157,8 @@ public interface ScoringFilter extends Configurable, Pluggable {
    *         with status {@link CrawlDatum#STATUS_LINKED}, which contains
    *         adjustments to be applied to the original CrawlDatum score(s) and
    *         metadata. This can be null if not needed.
-   * @throws ScoringFilterException
+   * @throws ScoringFilterException there is a fatal error distributing 
+   * score data from the current page to all of its outlinks 
    */
   public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
       ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
@@ -173,7 +185,8 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * @param inlinked
    *          (partial) list of CrawlDatum-s (with their scores) from links
    *          pointing to this page, found in the current update batch.
-   * @throws ScoringFilterException
+   * @throws ScoringFilterException there is a fatal error calculating 
+   * a new score of {@link CrawlDatum} during CrawlDb update
    */
   public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
       List<CrawlDatum> inlinked) throws ScoringFilterException;
@@ -186,7 +199,10 @@ public interface ScoringFilter extends Configurable, Pluggable {
    *          URL of the page
    * @param datum
    *          CrawlDatum for page
-   * @throws ScoringFilterException
+   * @throws ScoringFilterException if there is a fatal error whilst
+   * changing the score or status of {@link CrawlDatum} during
+   * {@link org.apache.nutch.crawl.CrawlDb} update, when the URL is 
+   * neither fetched nor has any inlinks
    */
   public default void orphanedScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
@@ -224,7 +240,8 @@ public interface ScoringFilter extends Configurable, Pluggable {
    *         argument to the next scoring filter in chain. NOTE: implementations
    *         may also express other scoring strategies by modifying the indexed
    *         document directly.
-   * @throws ScoringFilterException
+   * @throws ScoringFilterException if there is a fatal error whilst calculating
+   * the indexed document score/boost
    */
   public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)

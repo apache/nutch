@@ -34,6 +34,12 @@ public class DummyX509TrustManager implements X509TrustManager {
 
   /**
    * Constructor for DummyX509TrustManager.
+   * @param keystore a initialized {@link java.security.KeyStore}
+   * @throws NoSuchAlgorithmException if there is a fatal error obtaining a
+   * {@link javax.net.ssl.TrustManagerFactory} for the default algorithm.
+   * @see TrustManagerFactory#getDefaultAlgorithm()
+   * @throws KeyStoreException if there is a fatal error initializing the 
+   * {@link javax.net.ssl.TrustManagerFactory} with the provided keystore.
    */
   public DummyX509TrustManager(KeyStore keystore)
       throws NoSuchAlgorithmException, KeyStoreException {
@@ -51,6 +57,8 @@ public class DummyX509TrustManager implements X509TrustManager {
   /**
    * @see javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[],
    *      String)
+   * @param certificates a {@link java.security.cert.X509Certificate} array
+   * @return true if trusted, false otherwise
    */
   public boolean isClientTrusted(X509Certificate[] certificates) {
     return true;
@@ -59,6 +67,8 @@ public class DummyX509TrustManager implements X509TrustManager {
   /**
    * @see javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[],
    *      String)
+   * @param certificates a {@link java.security.cert.X509Certificate} array
+   * @return true if trusted, false otherwise
    */
   public boolean isServerTrusted(X509Certificate[] certificates) {
     return true;
@@ -66,6 +76,7 @@ public class DummyX509TrustManager implements X509TrustManager {
 
   /**
    * @see javax.net.ssl.X509TrustManager#getAcceptedIssuers()
+   * @return a {@link java.security.cert.X509Certificate} array
    */
   public X509Certificate[] getAcceptedIssuers() {
     return this.standardTrustManager.getAcceptedIssuers();

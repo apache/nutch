@@ -81,6 +81,9 @@ public class HeadingsParseFilter implements HtmlParseFilter {
 
   /**
    * Finds the specified element and returns its value
+   * @param doc the input {@link org.w3c.dom.DocumentFragment} to process
+   * @param element the element to find in the DocumentFragment
+   * @return a {@link java.util.List} containing headings
    */
   protected List<String> getElement(DocumentFragment doc, String element) {
     List<String> headings = new ArrayList<>();
@@ -107,6 +110,8 @@ public class HeadingsParseFilter implements HtmlParseFilter {
 
   /**
    * Returns the text value of the specified Node and child nodes
+   * @param node the input {@link Node} to extract a value(s) for
+   * @return the whitespace-stripped String node value(s)
    */
   protected static String getNodeValue(Node node) {
     StringBuilder buffer = new StringBuilder();

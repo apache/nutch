@@ -68,9 +68,8 @@ public class OrphanScoringFilter extends AbstractScoringFilter {
    *          CrawlDatum
    * @param datum
    *          new CrawlDatum
-   * @param inLinks
+   * @param inlinks
    *          list of inlinked CrawlDatums
-   * @return void
    */
   public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
       List<CrawlDatum> inlinks) throws ScoringFilterException {

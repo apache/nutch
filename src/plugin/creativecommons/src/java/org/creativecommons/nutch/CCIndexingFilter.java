@@ -86,6 +86,8 @@ public class CCIndexingFilter implements IndexingFilter {
    * Add the features represented by a license URL. Urls are of the form
    * "http://creativecommons.org/licenses/xx-xx/xx/xx", where "xx" names a
    * license feature.
+   * @param doc a {@link org.apache.nutch.indexer.NutchDocument} to augment
+   * @param urlString the url to extract features from
    */
   public void addUrlFeatures(NutchDocument doc, String urlString) {
     try {

@@ -89,22 +89,42 @@ public class Ftp implements Protocol {
     robots = new FtpRobotRulesParser();
   }
 
-  /** Set the timeout. */
+  /**
+   * Set the timeout.
+   * @param to a maximum timeout in milliseconds
+   */
   public void setTimeout(int to) {
     timeout = to;
   }
 
-  /** Set the point at which content is truncated. */
+  /**
+   * Set the length after at which content is truncated.
+   * @param length max content length in bytes
+   */
   public void setMaxContentLength(int length) {
     maxContentLength = length;
   }
 
-  /** Set followTalk */
+  /**
+   * Set followTalk i.e. to log dialogue between our client and remote
+   * server. Useful for debugging.
+   * @param followTalk if true will follow, false by default
+   */
   public void setFollowTalk(boolean followTalk) {
     this.followTalk = followTalk;
   }
 
-  /** Set keepConnection */
+  /**
+   * Whether to keep ftp connection. Useful if crawling same host
+   * again and again. When set to true, it avoids connection, login and dir list
+   * parser setup for subsequent URLs. If it is set to true, however, you must
+   * make sure (roughly):
+   * (1) ftp.timeout is less than ftp.server.timeout
+   * (2) ftp.timeout is larger than (fetcher.threads.fetch * fetcher.server.delay)
+   * Otherwise there will be too many "delete client because idled too long"
+   * messages in thread logs.
+   * @param keepConnection if true we will keep the connection, false by default
+   */
   public void setKeepConnection(boolean keepConnection) {
     this.keepConnection = keepConnection;
   }
@@ -177,7 +197,11 @@ public class Ftp implements Protocol {
     }
   }
 
-  /** For debugging. */
+  /** 
+   * For debugging.
+   * @param args run with no args for help
+   * @throws Exception if there is an error running this program
+   */
   public static void main(String[] args) throws Exception {
     int timeout = Integer.MIN_VALUE;
     int maxContentLength = Integer.MIN_VALUE;

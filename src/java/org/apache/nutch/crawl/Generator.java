@@ -35,6 +35,7 @@ import org.apache.hadoop.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.jexl3.JexlExpression;
+import org.antlr.v4.parse.ANTLRParser.throwsSpec_return;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.hadoop.mapreduce.Counter;
@@ -708,9 +709,34 @@ public class Generator extends NutchTool implements Tool {
   }
 
   /**
-   * old signature used for compatibility - does not specify whether or not to
+   * This is an old signature used for compatibility - does not specify whether or not to
    * normalise and set the number of segments to 1
+   * @param dbDir
+   *          Crawl database directory
+   * @param segments
+   *          Segments directory
+   * @param numLists
+   *          Number of reduce tasks
+   * @param topN
+   *          Number of top URLs to be selected
+   * @param curTime
+   *          Current time in milliseconds
+   * @param filter whether to apply filtering operation
+   * @param force if true, and the target lockfile exists, consider it valid. If false
+   *          and the target file exists, throw an IOException.
+   * @deprecated since 1.19 use 
+   * {@link #generate(Path, Path, int, long, long, boolean, boolean, boolean, int, String, String)}
+   * or {@link #generate(Path, Path, int, long, long, boolean, boolean, boolean, int, String)}
+   * in the instance that no hostdb is available
+   * @throws IOException if an I/O exception occurs.
+   * @see LockUtil#createLockFile(Configuration, Path, boolean)
+   * @throws InterruptedException if a thread is waiting, sleeping, or 
+   * otherwise occupied, and the thread is interrupted, either before or 
+   * during the activity.
+   * @throws ClassNotFoundException if runtime class(es) are not available
+   * @return Path to generated segment or null if no entries were selected
    **/
+  @Deprecated
   public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
       long curTime, boolean filter, boolean force)
       throws IOException, InterruptedException, ClassNotFoundException {
@@ -718,6 +744,37 @@ public class Generator extends NutchTool implements Tool {
         force, 1, null);
   }
 
+  /**
+   * This signature should be used in the instance that no hostdb is available.
+   * Generate fetchlists in one or more segments. Whether to filter URLs or not
+   * is read from the &quot;generate.filter&quot; property set for the job from
+   * command-line. If the property is not found, the URLs are filtered. Same for
+   * the normalisation.
+   * @param dbDir
+   *          Crawl database directory
+   * @param segments
+   *          Segments directory
+   * @param numLists
+   *          Number of reduce tasks
+   * @param topN
+   *          Number of top URLs to be selected
+   * @param curTime
+   *          Current time in milliseconds
+   * @param filter whether to apply filtering operation
+   * @param norm whether to apply normilization operation
+   * @param force if true, and the target lockfile exists, consider it valid. If false
+   *          and the target file exists, throw an IOException.
+   * @param maxNumSegments maximum number of segments to generate
+   * @param expr a Jexl expression to use in the Generator job.
+   * @see JexlUtil#parseExpression(String)
+   * @throws IOException if an I/O exception occurs.
+   * @see LockUtil#createLockFile(Configuration, Path, boolean)
+   * @throws InterruptedException if a thread is waiting, sleeping, or 
+   * otherwise occupied, and the thread is interrupted, either before or 
+   * during the activity.
+   * @throws ClassNotFoundException if runtime class(es) are not available
+   * @return Path to generated segment or null if no entries were selected
+   **/
   public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
       long curTime, boolean filter, boolean norm, boolean force,
       int maxNumSegments, String expr)
@@ -742,11 +799,22 @@ public class Generator extends NutchTool implements Tool {
    *          Number of top URLs to be selected
    * @param curTime
    *          Current time in milliseconds
-   * 
+   * @param filter whether to apply filtering operation
+   * @param norm whether to apply normilization operation
+   * @param force if true, and the target lockfile exists, consider it valid. If false
+   *          and the target file exists, throw an IOException.
+   * @param maxNumSegments maximum number of segments to generate
+   * @param expr a Jexl expression to use in the Generator job.
+   * @param hostdb name of a hostdb from which to execute Jexl expressions in a bid
+   * to determine the maximum URL count and/or fetch delay per host.
+   * @see JexlUtil#parseExpression(String)
+   * @throws IOException if an I/O exception occurs.
+   * @see LockUtil#createLockFile(Configuration, Path, boolean)
+   * @throws InterruptedException if a thread is waiting, sleeping, or 
+   * otherwise occupied, and the thread is interrupted, either before or 
+   * during the activity.
+   * @throws ClassNotFoundException if runtime class(es) are not available
    * @return Path to generated segment or null if no entries were selected
-   * 
-   * @throws IOException
-   *           When an I/O error occurs
    */
   public Path[] generate(Path dbDir, Path segments, int numLists, long topN,
       long curTime, boolean filter, boolean norm, boolean force,
@@ -993,6 +1061,8 @@ public class Generator extends NutchTool implements Tool {
 
   /**
    * Generate a fetchlist from the crawldb.
+   * @param args array of arguments for this job
+   * @throws Exception if there is an error running the job
    */
   public static void main(String args[]) throws Exception {
     int res = ToolRunner.run(NutchConfiguration.create(), new Generator(),

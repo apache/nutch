@@ -34,7 +34,6 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.util.ReflectionUtils;
-import org.apache.hadoop.util.StringUtils;
 
 /**
  * The <code>ArchRecordReader</code> class provides a record reader which reads
@@ -131,6 +130,7 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
 
   /**
    * Creates a new instance of the <code>Text</code> object for the key.
+   * @return {@link Text}
    */
   public Text createKey() {
     return ReflectionUtils.newInstance(Text.class, conf);
@@ -138,6 +138,7 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
 
   /**
    * Creates a new instance of the <code>BytesWritable</code> object for the key
+   * @return {@link BytesWritable}
    */
   public BytesWritable createValue() {
     return ReflectionUtils.newInstance(BytesWritable.class, conf);
@@ -147,6 +148,8 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
    * Returns the current position in the file.
    * 
    * @return The long of the current position in the file.
+   * @throws IOException if there is a fatal I/O error reading 
+   * the position within the {@link FSDataInputStream}
    */
   public long getPos() throws IOException {
     return in.getPos();

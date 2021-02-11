@@ -83,11 +83,9 @@ public class ArcSegmentCreator extends Configured implements Tool {
   }
 
   /**
-   * <p>
    * Constructor that sets the job configuration.
-   * </p>
    * 
-   * @param conf
+   * @param conf a populated {@link Configuration}
    */
   public ArcSegmentCreator(Configuration conf) {
     setConf(conf);
@@ -110,9 +108,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
   }
 
   /**
-   * <p>
    * Logs any error that occurs during conversion.
-   * </p>
    * 
    * @param url
    *          The url we are parsing.
@@ -138,7 +134,6 @@ public class ArcSegmentCreator extends Configured implements Tool {
     private int interval;
 
     /**
-     * <p>
      * Parses the raw content of a single record to create output. This method is
      * almost the same as the {@link org.apache.nutch.Fetcher#output} method in
      * terms of processing and output.
@@ -264,10 +259,8 @@ public class ArcSegmentCreator extends Configured implements Tool {
     }
 
     /**
-     * <p>
      * Configures the job mapper. Sets the url filters, scoring filters, url normalizers
      * and other relevant data.
-     * </p>
      * 
      * @param context
      *          The task context.
@@ -284,9 +277,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
     }
 
     /**
-     * <p>
      * Runs the Map job to translate an arc record into output for Nutch segments.
-     * </p>
      * 
      * @param key
      *          The arc record header.
@@ -359,9 +350,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
   }
 
   /**
-   * <p>
    * Creates the arc files to segments job.
-   * </p>
    * 
    * @param arcFiles
    *          The path to the directory holding the arc files
@@ -370,6 +359,9 @@ public class ArcSegmentCreator extends Configured implements Tool {
    * 
    * @throws IOException
    *           If an IO error occurs while running the job.
+   * @throws InterruptedException if this {@link Job} is interrupted
+   * @throws ClassNotFoundException if there is an error locating a
+   * class during runtime
    */
   public void createSegments(Path arcFiles, Path segmentsOutDir)
       throws IOException, InterruptedException, ClassNotFoundException {

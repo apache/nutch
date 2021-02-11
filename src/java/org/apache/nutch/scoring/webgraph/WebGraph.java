@@ -141,6 +141,7 @@ public class WebGraph extends Configured implements Tool {
 
     /**
      * Configurable constructor.
+     * @param conf a populated {@link Configuration}
      */
     public OutlinkDb(Configuration conf) {
       setConf(conf);
@@ -509,6 +510,9 @@ public class WebGraph extends Configured implements Tool {
    * 
    * @throws IOException
    *           If an error occurs while processing the WebGraph.
+   * @throws InterruptedException if the Job is interrupted during execution
+   * @throws ClassNotFoundException if classes required to run 
+   * the Job cannot be located
    */
   public void createWebGraph(Path webGraphDb, Path[] segments,
       boolean normalize, boolean filter) throws IOException, 

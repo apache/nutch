@@ -31,14 +31,16 @@ public interface NutchPublisher extends Configurable, Pluggable {
 
   /**
    * Use implementation specific configurations
-   * @param conf	{@link org.apache.hadoop.conf.Configuration Configuration} to be used
+   * @param conf {@link org.apache.hadoop.conf.Configuration} to be used
+   * @return true if set, false otherwise
    */
   public boolean setConfig(Configuration conf);
 
   /**
    * This method publishes the event. Make sure that the event is a Java POJO to avoid 
    * Jackson JSON conversion errors. Currently we use the FetcherThreadEvent
-   * @param event
+   * @param event the {@link java.lang.Object} (event) to publish
+   * @param conf {@link org.apache.hadoop.conf.Configuration} to be used
    */
   public void publish(Object event, Configuration conf);
 

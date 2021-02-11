@@ -153,6 +153,8 @@ public class Http extends HttpBase {
    * 
    * @param args
    *          Command line arguments
+   * @throws Exception if a fatal error is encountered whilst running
+   * the program
    */
   public static void main(String[] args) throws Exception {
     Http http = new Http();

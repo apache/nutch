@@ -42,8 +42,8 @@ public interface NutchClient {
   /**
    * Create seed list and return seed directory location
    * 
-   * @param seedList
-   * @return
+   * @param seedList a populated {@link org.apache.nutch.webui.model.SeedList}
+   * @return a JSON HTTP response indicating the seed creation result
    */
   public String createSeed(SeedList seedList);
 }

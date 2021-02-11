@@ -106,8 +106,13 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
   }
 
   /**
-   * Constructor which can be passed the file name, so it doesn't look in the
-   * configuration files for it.
+   * Constructor which can be passed the configuration file name, 
+   * so it doesn't look in other configuration files for it.
+   * @param conf A populated {@link Configuration}
+   * @param filename A specific configuration file
+   * @throws IOException if there is an error locatingf the specified input file
+   * @throws PatternSyntaxException If there is an error whilst interpreting 
+   * rule patterns.
    */
   public RegexURLNormalizer(Configuration conf, String filename)
       throws IOException, PatternSyntaxException {
@@ -158,6 +163,9 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
   /**
    * This function does the replacements by iterating through all the regex
    * patterns. It accepts a string url as input and returns the altered string.
+   * @param urlString A url string to process
+   * @param scope The identifier for a specific scoped rule 
+   * @return The altered string
    */
   public String regexNormalize(String urlString, String scope) {
     HashMap<String, List<Rule>> scopedRules = getScopedRules();
@@ -276,7 +284,13 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     return rules;
   }
 
-  /** Spits out patterns and substitutions that are in the configuration file. */
+  /**
+   * Spits out patterns and substitutions that are in the configuration file.
+   * @param args accepts one argument which is a scope
+   * @throws IOException Can be thrown by {@link RegexURLNormalizer#normalize(String, String)}
+   * @throws PatternSyntaxException If there is an error with the provided scope 
+   * rule pattern.
+   */
   public static void main(String args[]) throws PatternSyntaxException,
       IOException {
     RegexURLNormalizer normalizer = new RegexURLNormalizer();

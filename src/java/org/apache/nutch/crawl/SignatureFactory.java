@@ -37,9 +37,14 @@ public class SignatureFactory {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private SignatureFactory() {
-  } // no public ctor
+  } // no public constructor
 
-  /** Return the default Signature implementation. */
+  /**
+   * Return the {@link Signature} implementation for a given 
+   * {@link Configuration}, or {@link MD5Signature} by default.
+   * @param conf a populated {@link Configuration}
+   * @return the {@link Signature} implementation
+   */
   public synchronized static Signature getSignature(Configuration conf) {
     String clazz = conf.get("db.signature.class", MD5Signature.class.getName());
     ObjectCache objectCache = ObjectCache.get(conf);

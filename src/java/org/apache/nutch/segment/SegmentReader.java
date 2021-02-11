@@ -461,7 +461,14 @@ public class SegmentReader extends Configured implements Tool {
     return res;
   }
 
-  /** Try to get HTML encoding from parse metadata */
+  /**
+   * Try to get HTML encoding from parse metadata. Try
+   * {@link Metadata#CHAR_ENCODING_FOR_CONVERSION}, then
+   * {@link Metadata#CONTENT_ENCODING} then fallback
+   * {@link java.nio.charset.StandardCharsets#UTF_8}
+   * @param parseMeta a populated {@link Metadata}
+   * @return {@link Charset} 
+   */
   public static Charset getCharset(Metadata parseMeta) {
     Charset cs = StandardCharsets.UTF_8;
     String charset = parseMeta.get(Metadata.CHAR_ENCODING_FOR_CONVERSION);

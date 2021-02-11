@@ -26,7 +26,6 @@ import org.apache.wicket.model.IModel;
  * 
  * @author feodor
  * 
- * @param <T>
  */
 public class CpmIteratorAdapter<T> extends ModelIteratorAdapter<T> {
   public CpmIteratorAdapter(Iterable<T> iterable) {

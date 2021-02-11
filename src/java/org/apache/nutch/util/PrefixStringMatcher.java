@@ -32,6 +32,7 @@ public class PrefixStringMatcher extends TrieStringMatcher {
    * Creates a new <code>PrefixStringMatcher</code> which will match
    * <code>String</code>s with any prefix in the supplied array. Zero-length
    * <code>Strings</code> are ignored.
+   * @param prefixes A array containing string prefixes
    */
   public PrefixStringMatcher(String[] prefixes) {
     super();
@@ -42,8 +43,8 @@ public class PrefixStringMatcher extends TrieStringMatcher {
   /**
    * Creates a new <code>PrefixStringMatcher</code> which will match
    * <code>String</code>s with any prefix in the supplied
-   * <code>Collection</code>.
-   * 
+   * {@link Collection}.
+   * @param prefixes A collection containing string prefixes
    * @throws ClassCastException
    *           if any <code>Object</code>s in the collection are not
    *           <code>String</code>s

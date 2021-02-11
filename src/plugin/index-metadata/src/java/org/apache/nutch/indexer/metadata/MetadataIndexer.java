@@ -17,10 +17,7 @@
 package org.apache.nutch.indexer.metadata;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
@@ -37,7 +34,7 @@ import org.apache.nutch.parse.Parse;
  * Indexer which can be configured to extract metadata from the crawldb, parse
  * metadata or content metadata. You can specify the properties "index.db.md",
  * "index.parse.md" or "index.content.md" who's values are comma-delimited
- * <value>key1,key2,key3</value>.
+ * <code>key1,key2,key3</code>.
  */
 public class MetadataIndexer implements IndexingFilter {
   private Configuration conf;

@@ -32,7 +32,10 @@ public interface Protocol extends Pluggable, Configurable {
   public final static String X_POINT_ID = Protocol.class.getName();
 
   /**
-   * Returns the {@link Content} for a fetchlist entry.
+   * Get the {@link ProtocolOutput} for a given url and crawldatum
+   * @param url canonical url
+   * @param datum associated {@link org.apache.nutch.crawl.CrawlDatum}
+   * @return the {@link ProtocolOutput}
    */
   ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum);
 

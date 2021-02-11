@@ -64,6 +64,9 @@ public class HttpBasicAuthentication implements HttpAuthentication,
    * 
    * @param challenge
    *          WWW-Authenticate header from web server
+   * @param conf a populated {@link Configuration}
+   * @throws HttpAuthenticationException if the authentication fails or if the
+   * password or username is null
    */
   protected HttpBasicAuthentication(String challenge, Configuration conf)
       throws HttpAuthenticationException {
@@ -155,6 +158,7 @@ public class HttpBasicAuthentication implements HttpAuthentication,
    *          The challenge string provided by the webserver. This is the text
    *          which follows the WWW-Authenticate header, including the Basic
    *          tag.
+   * @param conf a populated {@link Configuration}
    * @return An HttpBasicAuthentication object or null if unable to generate
    *         appropriate credentials.
    */

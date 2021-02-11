@@ -85,7 +85,6 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
 
   private boolean acceptMode = true;
 
-  // Inherited JavaDoc
   @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
@@ -132,11 +131,6 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
     return doc;
   }
 
-  /*
-   * -----------------------------
-   * <implementation:Configurable> *
-   * -----------------------------
-   */
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
@@ -204,9 +198,9 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
 
   /**
    * Main method for invoking this tool
-   *
-   * @throws IOException
-   * @throws IndexingException
+   * @param args run with no arguments to print help
+   * @throws IOException if there is a fatal I/O error processing the input args
+   * @throws IndexingException if there is a fatal error whils indexing
    */
   public static void main(String[] args) throws IOException, IndexingException {
     Option helpOpt = new Option("h", "help", false, "show this help message");

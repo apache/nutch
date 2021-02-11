@@ -183,6 +183,7 @@ public class WARCUtils {
    * @param headers
    *          HTTP 1.1 or 1.0 response header string, CR-LF-separated lines,
    *          first line is status line
+   * @param contentLength Effective uncompressed and unchunked length of content
    * @return safe HTTP response header
    */
   public static final String fixHttpHeaders(String headers, int contentLength) {

@@ -46,8 +46,8 @@ public class ParseUtil {
   private ExecutorService executorService;
 
   /**
-   * 
-   * @param conf
+   * Overloaded constructor
+   * @param conf a populated {@link org.apache.hadoop.conf.Configuration}
    */
   public ParseUtil(Configuration conf) {
     this.parserFactory = new ParserFactory(conf);

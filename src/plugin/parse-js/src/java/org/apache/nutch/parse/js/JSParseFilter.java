@@ -278,8 +278,8 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
    * method takes two arguments e.g. o.a.n.parse.js.JSParseFilter file.js
    * baseURL
    * 
-   * @param args
-   * @throws Exception
+   * @param args run with no args to get help
+   * @throws Exception if there is a fatal error running the class with the given input
    */
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {
