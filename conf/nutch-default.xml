@@ -1921,8 +1921,8 @@ visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter 
   </description>
 </property>
 
-<!-- scoring-adaptive -->
 
+<!-- scoring-adaptive -->
 <property>
   <name>scoring.adaptive.factor.fetchtime</name>
   <value>.01</value>
@@ -2019,6 +2019,38 @@ visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter 
     fall-back) if there is no last seen time tracked in the CrawlDatum.
    </description>
 </property>
+<!-- end of scoring-adaptive plugin properties -->
+
+
+<!-- scoring metadata properties
+Add scoring-metadata to the list of active plugins
+ in the parameter 'plugin.includes' in order to use it.
+ -->
+<property>
+  <name>scoring.db.md</name>
+  <value></value>
+  <description> 
+  Comma-separated list of keys to be taken from crawldb metadata of a url to the fetched content metadata.
+  </description>
+</property>
+
+<property>
+  <name>scoring.content.md</name>
+  <value></value>
+  <description> 
+  Comma-separated list of keys to be taken from content metadata of a url and put as metadata in the parse data.
+  </description>
+</property>
+
+<property>
+  <name>scoring.parse.md</name>
+  <value></value>
+  <description> 
+  Comma-separated list of keys to be taken from metadata of the parse data of a url and propogated as metadata to the url outlinks.
+  </description>
+</property>
+
+
 
 <!-- language-identifier plugin properties -->
 
