@@ -341,7 +341,7 @@ public class Fetcher extends NutchTool implements Tool {
 
             int averageBdwPerThread = 0;
             if (activeThreads.get() > 0)
-              averageBdwPerThread = Math.round(bpsSinceLastCheck
+              averageBdwPerThread = (int) (bpsSinceLastCheck
                   / activeThreads.get());
 
             LOG.info("averageBdwPerThread : {} kbps", (averageBdwPerThread / 1000));
@@ -517,7 +517,11 @@ public class Fetcher extends NutchTool implements Tool {
         TimingUtil.logDateMillis(end), TimingUtil.elapsedTime(start, end));
   }
 
-  /** Run the fetcher. */
+  /**
+   * Run the fetcher.
+   * @param args input parameters for the job
+   * @throws Exception if a fatal error arises whilst running the job
+   */
   public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(NutchConfiguration.create(), new Fetcher(), args);
     System.exit(res);

@@ -72,6 +72,9 @@ public class ProtocolLogUtil implements Configurable {
    * without stack trace, usually done for frequent exceptions with obvious
    * reasons (e.g., UnknownHostException), configurable by
    * <code>http.log.exceptions.suppress.stack</code>
+   * @param t a {@link java.lang.Throwable} implementation associated with protocol activity
+   * @return true if exception is configured to be logged as short message
+   * without stack trace
    */
   public boolean logShort(Throwable t) {
     if (exceptionsLogShort.contains(t.getClass())) {

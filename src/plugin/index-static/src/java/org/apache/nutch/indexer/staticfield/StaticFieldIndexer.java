@@ -123,6 +123,8 @@ public class StaticFieldIndexer implements IndexingFilter {
 
   /**
    * Escapes any character that needs escaping so it can be used in a regexp.
+   * @param in input string to escape-process 
+   * @return the escaped string which can be used un regex operations
    */
   protected String regexEscape(String in) {
     String result = in;

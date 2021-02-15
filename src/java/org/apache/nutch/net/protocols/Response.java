@@ -72,19 +72,35 @@ public interface Response extends HttpHeaders {
     UNSPECIFIED
   };
 
-  /** Returns the URL used to retrieve this response. */
+  /**
+   * Get the URL used to retrieve this response.
+   * @return {@link java.net.URL}
+   */
   public URL getUrl();
 
-  /** Returns the response code. */
+  /**
+   * Get the response code.
+   * @return protocol response code (int)
+   * */
   public int getCode();
 
-  /** Returns the value of a named header. */
+  /**
+   * Get the value of a named header.
+   * @param name key of the header you wish to retreive
+   * @return header value
+   */
   public String getHeader(String name);
 
-  /** Returns all the headers. */
+  /**
+   * Get all the headers.
+   * @return populated headers {@link org.apache.nutch.metadata.Metadata}
+   */
   public Metadata getHeaders();
 
-  /** Returns the full content of the response. */
+  /**
+   * Get the full content of the response.
+   * @return a byte array representing the response content
+   */
   public byte[] getContent();
 
 }

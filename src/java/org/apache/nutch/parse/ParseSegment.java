@@ -169,9 +169,9 @@ public class ParseSegment extends NutchTool implements Tool {
   /**
    * Checks if the page's content is truncated.
    * 
-   * @param content
+   * @param content the response {@link org.apache.nutch.protocol.Content}
    * @return If the page is truncated <code>true</code>. When it is not, or when
-   *         it could be determined, <code>false</code>.
+   *         it couldn't be determined, <code>false</code>.
    */
   public static boolean isTruncated(Content content) {
     byte[] contentBytes = content.getContent();

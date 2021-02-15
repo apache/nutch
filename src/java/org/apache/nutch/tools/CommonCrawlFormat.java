@@ -34,30 +34,36 @@ import java.util.List;
 public interface CommonCrawlFormat extends Closeable {
 
   /**
-   * @throws IOException
+   * Get a string representation of the JSON structure of the URL content.
+   * @return the JSON URL content string
+   * @throws IOException if there is a fatal I/O error obtaining JSON data
    */
-  //public String getJsonData(boolean mapAll) throws IOException;
   public String getJsonData() throws IOException;
 
   /**
-   * Returns a string representation of the JSON structure of the URL content
+   * Returns a string representation of the JSON structure of the URL content.
+   * Takes into consideration both the {@link Content} and {@link Metadata}
    *
-   * @param url
-   * @param content
-   * @param metadata
-   * @return
+   * @param url the canonical url
+   * @param content url {@link Content}
+   * @param metadata url {@link Metadata}
+   * @return the JSON URL content string
+   * @throws IOException if there is a fatal I/O error obtaining JSON data
    */
   public String getJsonData(String url, Content content, Metadata metadata)
       throws IOException;
 
   /**
-   * Returns a string representation of the JSON structure of the URL content
-   * takes into account the parsed metadata about the URL
-   *
-   * @param url
-   * @param content
-   * @param metadata
-   * @return
+   * Returns a string representation of the JSON structure of the URL content.
+   * Takes into consideration the {@link Content}, {@link Metadata} and
+   * {@link ParseData}.
+   * 
+   * @param url the canonical url
+   * @param content url {@link Content}
+   * @param metadata url {@link Metadata}
+   * @param parseData url {@link ParseData}
+   * @return the JSON URL content string
+   * @throws IOException if there is a fatal I/O error obtaining JSON data
    */
   public String getJsonData(String url, Content content, Metadata metadata,
       ParseData parseData) throws IOException;

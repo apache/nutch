@@ -69,26 +69,34 @@ public final class ParseData extends VersionedWritable {
     this.parseMeta = parseMeta;
   }
 
-  //
-  // Accessor methods
-  //
-
-  /** The status of parsing the page. */
+  /**
+   * Get the status of parsing the page.
+   * @return the {@link ParseStatus}
+   */
   public ParseStatus getStatus() {
     return status;
   }
 
-  /** The title of the page. */
+  /**
+   * Get the title of the page.
+   * @return the title as a {@link String}
+   */
   public String getTitle() {
     return title;
   }
 
-  /** The outlinks of the page. */
+  /**
+   * Get the outlinks of the page.
+   * @return an array of {@link org.apache.nutch.parse.Outlink}'s
+   */
   public Outlink[] getOutlinks() {
     return outlinks;
   }
 
-  /** The original Metadata retrieved from content */
+  /**
+   * The original {@link Metadata} retrieved from content
+   * @return the original content {@link Metadata}
+   */
   public Metadata getContentMeta() {
     return contentMeta;
   }
@@ -97,6 +105,7 @@ public final class ParseData extends VersionedWritable {
    * Other content properties. This is the place to find format-specific
    * properties. Different parser implementations for different content types
    * will populate this differently.
+   * @return a {@link Metadata}
    */
   public Metadata getParseMeta() {
     return parseMeta;
@@ -114,6 +123,8 @@ public final class ParseData extends VersionedWritable {
    * Get a metadata single value. This method first looks for the metadata value
    * in the parse metadata. If no value is found it the looks for the metadata
    * in the content metadata.
+   * @param name the metadata key for which to retrieve a value
+   * @return the (string) metadata value
    * 
    * @see #getContentMeta()
    * @see #getParseMeta()
@@ -125,10 +136,6 @@ public final class ParseData extends VersionedWritable {
     }
     return value;
   }
-
-  //
-  // Writable methods
-  //
 
   public byte getVersion() {
     return version;
@@ -173,10 +180,6 @@ public final class ParseData extends VersionedWritable {
     parseText.readFields(in);
     return parseText;
   }
-
-  //
-  // other methods
-  //
 
   public boolean equals(Object o) {
     if (!(o instanceof ParseData))

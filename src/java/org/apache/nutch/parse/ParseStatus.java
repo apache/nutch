@@ -117,12 +117,25 @@ public class ParseStatus implements Writable {
     this(majorCode, minorCode, (String[]) null);
   }
 
-  /** Simplified constructor for passing just a text message. */
+  /**
+   * Simplified constructor for passing just a text message.
+   * @param majorCode one of {@link #NOTPARSED}, {@link #SUCCESS}
+   * or {@link #FAILED}
+   * @param minorCode one of {@link #SUCCESS_REDIRECT}, {@link #FAILED_EXCEPTION},
+   * {@link #FAILED_TRUNCATED}, {@link #FAILED_INVALID_FORMAT},
+   * {@link #FAILED_MISSING_PARTS}, or {@link #FAILED_MISSING_CONTENT}
+   * @param message a message string to accompany the parse codes
+   */
   public ParseStatus(int majorCode, int minorCode, String message) {
     this(majorCode, minorCode, new String[] { message });
   }
 
-  /** Simplified constructor for passing just a text message. */
+  /**
+   * Simplified constructor for passing just a text message.
+   * @param majorCode one of {@link #NOTPARSED}, {@link #SUCCESS}
+   * or {@link #FAILED}
+   * @param message a message string to accompany the parse codes
+   */
   public ParseStatus(int majorCode, String message) {
     this(majorCode, 0, new String[] { message });
   }
@@ -167,16 +180,15 @@ public class ParseStatus implements Writable {
   }
 
   /**
-   * A convenience method. Returns true if majorCode is SUCCESS, false
+   * @return true if majorCode is SUCCESS, false
    * otherwise.
    */
-
   public boolean isSuccess() {
     return majorCode == SUCCESS;
   }
 
   /**
-   * A convenience method. Return a String representation of the first argument,
+   * @return a String representation of the first argument,
    * or null.
    */
   public String getMessage() {
@@ -198,16 +210,19 @@ public class ParseStatus implements Writable {
   }
 
   /**
-   * A convenience method. Creates an empty Parse instance, which returns this
-   * status.
+   * Creates an empty {@link Parse} instance containing the status
+   * @param conf a {@link Configuration}
+   * @return the empty {@link Parse} object
    */
   public Parse getEmptyParse(Configuration conf) {
     return new EmptyParseImpl(this, conf);
   }
 
   /**
-   * A convenience method. Creates an empty ParseResult, which contains this
-   * status.
+   * Creates an empty {@link ParseResult} for a given URL
+   * @param url canonical url
+   * @param conf a {@link Configuration}
+   * @return the empty {@link Parse} object
    */
   public ParseResult getEmptyParseResult(String url, Configuration conf) {
     return ParseResult.createParseResult(url, getEmptyParse(conf));

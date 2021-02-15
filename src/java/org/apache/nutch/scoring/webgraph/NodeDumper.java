@@ -258,8 +258,8 @@ public class NodeDumper extends Configured implements Tool {
       @Override
       public void setup(Reducer<Text, FloatWritable, Text, FloatWritable>.Context context) {
         conf = context.getConfiguration();
-	topn = conf.getLong("topn", Long.MAX_VALUE);
-	sum = conf.getBoolean("sum", false);
+        topn = conf.getLong("topn", Long.MAX_VALUE);
+        sum = conf.getBoolean("sum", false);
       }
 
     }
@@ -269,12 +269,24 @@ public class NodeDumper extends Configured implements Tool {
    * Runs the process to dump the top urls out to a text file.
    * 
    * @param webGraphDb
-   *          The WebGraph from which to pull values.
-   * 
-   * @param topN
-   * @param output
-   * 
-   * @throws IOException
+   *          The {@link org.apache.nutch.scoring.webgraph.WebGraph} 
+   *          from which to pull values.
+   * @param type the node property type to dump, one of 
+   * {@link NodeDumper.DumpType#INLINKS}, {@link NodeDumper.DumpType#OUTLINKS} 
+   * or {@link NodeDumper.DumpType#SCORES}
+   * @param topN maximum value of top links to dump
+   * @param output a {@link org.apache.hadoop.fs.Path} to write output to
+   * @param asEff if true set equals-sign as separator for 
+   * <a href="https://lucene.apache.org/solr/api/org/apache/solr/schema/ExternalFileField.html">
+   * Solr's ExternalFileField</a>, false otherwise
+   * @param nameType either {@link NodeDumper.NameType#HOST} or 
+   * {@link NodeDumper.NameType#DOMAIN}
+   * @param aggrType the aggregation type, either 
+   * {@link NodeDumper.AggrType#MAX} or {@link NodeDumper.AggrType#SUM}
+   * @param asSequenceFile true output will be written as 
+   * {@link SequenceFileOutputFormat}, otherwise default 
+   * {@link TextOutputFormat}
+   * @throws Exception
    *           If an error occurs while dumping the top values.
    */
   public void dumpNodes(Path webGraphDb, DumpType type, long topN, Path output,

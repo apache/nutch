@@ -46,7 +46,7 @@ public class SeedResource extends AbstractResource {
 
   /**
    * Gets the list of seedFiles already created 
-   * @return
+   * @return {@link Map} of &lt;String, SeedList&gt;
    */
   @GET
   @Path("/")
@@ -63,8 +63,8 @@ public class SeedResource extends AbstractResource {
   
   /**
    * Method creates seed list file and returns temporary directory path
-   * @param seedList
-   * @return
+   * @param seedList a populated {@link SeedList}
+   * @return path to seedfile
    */
   @POST
   @Path("/create")

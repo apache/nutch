@@ -48,8 +48,13 @@ public class URLExemptionFilters {
         URLExemptionFilter.X_POINT_ID);
   }
 
-
-  /** Run all defined filters. Assume logical AND. */
+  /**
+   * Run all defined filters. Assume logical AND.
+   * An URL is exempted when all the filters accept it to pass through
+   * @param fromUrl the source url which generated the outlink
+   * @param toUrl the destination url which needs to be checked for exemption
+   * @return true is exempted, false otherwise
+   */
   public boolean isExempted(String fromUrl, String toUrl) {
     if (filters.length < 1) {
       //at least one filter should be on

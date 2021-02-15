@@ -30,6 +30,8 @@ public class TimingUtil {
   /**
    * Convert epoch milliseconds ({@link System#currentTimeMillis()}) into date
    * string (local time zone) used for logging
+   * @param millis A epoch milliseconds representation
+   * @return a local time zone date string
    */
   public static String logDateMillis(long millis) {
     return logDateFormat.format(

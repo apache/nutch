@@ -100,6 +100,7 @@ public class Model {
    * @param content The text to tokenize
    * @param mingram Value of mingram for tokenizing
    * @param maxgram Value of maxgram for tokenizing
+   * @return The created {@link DocVector}
    */
   public static DocVector createDocVector(String content, int mingram, int maxgram) {
     LuceneTokenizer tokenizer;

@@ -84,6 +84,9 @@ public class NodeReader extends Configured {
    * Runs the NodeReader tool. The command line arguments must contain a
    * webgraphdb path and a url. The url must match the normalized url that is
    * contained in the NodeDb of the WebGraph.
+   * @param args input parameters for running this tool, run with 
+   * "help" for information
+   * @throws Exception if there is a fatal error running this tool
    */
   public static void main(String[] args) throws Exception {
 

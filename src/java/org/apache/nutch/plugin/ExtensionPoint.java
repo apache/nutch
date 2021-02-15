@@ -105,7 +105,8 @@ public class ExtensionPoint {
   /**
    * Install a coresponding extension to this extension point.
    * 
-   * @param extension
+   * @param extension the new {@link org.apache.nutch.plugin.Extension}
+   * to install
    */
   public void addExtension(Extension extension) {
     fExtensions.add(extension);

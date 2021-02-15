@@ -46,7 +46,7 @@ public class Http extends HttpBase {
   /**
    * Set the {@link org.apache.hadoop.conf.Configuration} object.
    * 
-   * @param conf
+   * @param conf a popultaed {@link Configuration}
    */
   public void setConf(Configuration conf) {
     super.setConf(conf);

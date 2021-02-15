@@ -70,15 +70,15 @@ public class Classify {
       BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
           fs.open(new Path("naivebayes-model"))));
 
-      uniquewords_size = Integer.valueOf(bufferedReader.readLine());
+      uniquewords_size = Integer.parseInt(bufferedReader.readLine());
       bufferedReader.readLine();
 
-      numof_ir = Integer.valueOf(bufferedReader.readLine());
-      numwords_ir = Integer.valueOf(bufferedReader.readLine());
+      numof_ir = Integer.parseInt(bufferedReader.readLine());
+      numwords_ir = Integer.parseInt(bufferedReader.readLine());
       wordfreq_ir = unflattenToHashmap(bufferedReader.readLine());
       bufferedReader.readLine();
-      numof_r = Integer.valueOf(bufferedReader.readLine());
-      numwords_r = Integer.valueOf(bufferedReader.readLine());
+      numof_r = Integer.parseInt(bufferedReader.readLine());
+      numwords_r = Integer.parseInt(bufferedReader.readLine());
       wordfreq_r = unflattenToHashmap(bufferedReader.readLine());
 
       ismodel = true;

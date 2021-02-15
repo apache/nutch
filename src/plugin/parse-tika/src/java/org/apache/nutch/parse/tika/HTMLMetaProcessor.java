@@ -42,6 +42,10 @@ public class HTMLMetaProcessor {
   /**
    * Sets the indicators in <code>robotsMeta</code> to appropriate values, based
    * on any META tags found under the given <code>node</code>.
+   * @param metaTags a {@link HTMLMetaTags} to populate with tags discovered in the 
+   * given Node
+   * @param node a DOM {@link Node} to process and extract metadata from
+   * @param currURL the cononical URL associated with the metatags and Node
    */
   public static final void getMetaTags(HTMLMetaTags metaTags, Node node,
       URL currURL) {

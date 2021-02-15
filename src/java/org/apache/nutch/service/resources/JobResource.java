@@ -36,9 +36,9 @@ import org.apache.nutch.service.model.response.JobInfo.State;
 public class JobResource extends AbstractResource {
 
   /**
-   * Get job history
-   * @param crawlId
-   * @return A nested JSON object of all the jobs created
+   * Get job history for a given job regardless of the jobs state
+   * @param crawlId a crawlId
+   * @return A nested JSON object of all the jobs created for that crawlId
    */
   @GET
   @Path(value = "/")
@@ -64,8 +64,8 @@ public class JobResource extends AbstractResource {
   /**
    * Stop Job
    * @param id Job ID
-   * @param crawlId
-   * @return
+   * @param crawlId Crawl ID
+   * @return true if stopped, false otherwise
    */
   @GET
   @Path(value = "/{id}/stop")

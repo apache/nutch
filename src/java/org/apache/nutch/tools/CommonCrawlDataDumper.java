@@ -197,7 +197,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
    *             containing one or more segments from which we wish to generate
    *             CBOR data from. Optionally, 3) a list of mimetypes and the 4)
    *             the gzip option may be provided.
-   * @throws Exception
+   * @throws Exception if there is an error running this {@link NutchTool}
    */
   public static void main(String[] args) throws Exception {
     Configuration conf = NutchConfiguration.create();
@@ -206,12 +206,16 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   }
 
   /**
-   * Constructor
+   * Configurable constructor
+   * @param config A populated {@link CommonCrawlConfig}
    */
   public CommonCrawlDataDumper(CommonCrawlConfig config) {
     this.config = config;
   }
 
+  /**
+   * Constructor
+   */
   public CommonCrawlDataDumper() {
   }
 
@@ -227,8 +231,10 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
    * @param linkdb         Path to linkdb.
    * @param gzip           a boolean flag indicating whether the CBOR content should also
    *                       be gzipped.
+   * @param mimeTypes a string array of mimeTypes to filter on, everything else is excluded
    * @param epochFilename  if {@code true}, output files will be names using the epoch time (in milliseconds).
    * @param extension      a file extension to use with output documents.
+   * @param warc if true write as warc format
    * @throws Exception if any exception occurs.
    */
   public void dump(File outputDir, File segmentRootDir, File linkdb, boolean gzip,

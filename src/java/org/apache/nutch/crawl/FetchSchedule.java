@@ -114,7 +114,9 @@ public interface FetchSchedule extends Configurable {
    * 
    * @param datum
    *          datum instance to be adjusted.
-   * 
+   * @param prevFetchTime previous fetch time.
+   * @param prevModifiedTime previous modified time.
+   * @param fetchTime current fetch time.
    * @return adjusted page information, including all original information.
    *         NOTE: this may be a different instance than @see CrawlDatum, but
    *         implementations should make sure that it contains at least all
@@ -153,7 +155,7 @@ public interface FetchSchedule extends Configurable {
 
   /**
    * Calculates last fetch time of the given CrawlDatum.
-   * 
+   * @param datum page information.
    * @return the date as a long.
    */
   public long calculateLastFetchTime(CrawlDatum datum);

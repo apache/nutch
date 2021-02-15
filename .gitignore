@@ -11,6 +11,7 @@ ivy/ivy-2.3.0.jar
 ivy/ivy-2.4.0.jar
 ivy/ivy-2.5.0-rc1.jar
 ivy/ivy-2.5.0.jar
+ivy/spotbugs-*/
 naivebayes-model
 .naivebayes-model.crc
 .gitconfig
@@ -24,3 +25,5 @@ naivebayes-model
 *.iml
 *.swp
 csvindexwriter
+lib/spotbugs-*
+ivy/dependency-check-ant/*

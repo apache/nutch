@@ -36,8 +36,8 @@ public class AdminResource extends AbstractResource{
       .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
-   * To get the status of the Nutch Server 
-   * @return
+   * Get the status of the Nutch Server 
+   * @return {@link NutchServerInfo} for the running service
    */
   @GET
   @Path(value="/")
@@ -53,7 +53,7 @@ public class AdminResource extends AbstractResource{
   /**
    * Stop the Nutch server
    * @param force If set to true, it will kill any running jobs
-   * @return
+   * @return a message indicating shutdown status
    */
   @GET
   @Path(value="/stop")

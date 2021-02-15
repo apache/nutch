@@ -159,6 +159,8 @@ public class ResolveUrls {
 
   /**
    * Runs the resolve urls tool.
+   * @param args the input arguments for this tool. Running 
+   * with 'help' will print parameter options.
    */
   public static void main(String[] args) {
 

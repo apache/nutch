@@ -43,8 +43,9 @@ public class Plugin {
   protected Configuration conf;
 
   /**
-   * Constructor
-   * 
+   * Overloaded constructor
+   * @param pDescriptor a plugin descriptor
+   * @param conf a populated {@link org.apache.hadoop.conf.Configuration}
    */
   public Plugin(PluginDescriptor pDescriptor, Configuration conf) {
     setDescriptor(pDescriptor);

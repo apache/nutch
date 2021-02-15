@@ -152,9 +152,14 @@ public abstract class TrieStringMatcher {
   }
 
   /**
-   * Returns the next {@link TrieNode} visited, given that you are at
-   * <code>node</code>, and the the next character in the input is the
-   * <code>idx</code>'th character of <code>s</code>.
+   * Get the next {@link TrieNode} visited, given that you are at
+   * <code>node</code>, and that the next character in the input is the
+   * <code>idx</code>'th character of <code>s</code>. Can return null.
+   * @see TrieNode#getChild(char)
+   * @param node Input {@link TrieNode} containing child nodes
+   * @param s String to match character at indexed position
+   * @param idx Indexed position in input string
+   * @return child {@link TrieNode}
    */
   protected final TrieNode matchChar(TrieNode node, String s, int idx) {
     return node.getChild(s.charAt(idx));
@@ -164,6 +169,7 @@ public abstract class TrieStringMatcher {
    * Adds any necessary nodes to the trie so that the given <code>String</code>
    * can be decoded and the last character is represented by a terminal node.
    * Zero-length <code>Strings</code> are ignored.
+   * @param s String to be decoded.
    */
   protected final void addPatternForward(String s) {
     TrieNode node = root;
@@ -180,6 +186,7 @@ public abstract class TrieStringMatcher {
    * Adds any necessary nodes to the trie so that the given <code>String</code>
    * can be decoded <em>in reverse</em> and the first character is represented
    * by a terminal node. Zero-length <code>Strings</code> are ignored.
+   * @param s String to be decoded.
    */
   protected final void addPatternBackward(String s) {
     TrieNode node = root;
@@ -193,6 +200,8 @@ public abstract class TrieStringMatcher {
   /**
    * Returns true if the given <code>String</code> is matched by a pattern in
    * the trie
+   * @param input A String to be matched by a pattern
+   * @return true if there is a match, flase otherwise
    */
   public abstract boolean matches(String input);
 
@@ -200,6 +209,8 @@ public abstract class TrieStringMatcher {
    * Returns the shortest substring of <code>input</code> that is
    * matched by a pattern in the trie, or <code>null</code> if no match
    * exists.
+   * @param input A String to be matched by a pattern
+   * @return shortest string match or null if no match is made
    */
   public abstract String shortestMatch(String input);
 
@@ -207,6 +218,8 @@ public abstract class TrieStringMatcher {
    * Returns the longest substring of <code>input</code> that is
    * matched by a pattern in the trie, or <code>null</code> if no match
    * exists.
+   * @param input A String to be matched by a pattern
+   * @return longest string match or null if no match is made
    */
   public abstract String longestMatch(String input);
 

@@ -146,7 +146,9 @@ public class SWFParser implements Parser {
   }
 
   /**
-   * Arguments are: 0. Name of input SWF file.
+   * @param args arguments are: 0. Name of input SWF file.
+   * @throws IOException if there is a fatal error processing the input
+   * file
    */
   public static void main(String[] args) throws IOException {
     FileInputStream in = new FileInputStream(args[0]);

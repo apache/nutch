@@ -55,12 +55,19 @@ public class FtpResponse {
   private final Ftp ftp;
   private Configuration conf;
 
-  /** Returns the response code. */
+  /**
+   * Get the response code.
+   * @return the int response code
+   */
   public int getCode() {
     return code;
   }
 
-  /** Returns the value of a named header. */
+  /**
+   * Returns the value of a named header.
+   * @param name header key to retrieve a value for
+   * @return the header value
+   */
   public String getHeader(String name) {
     return headers.get(name);
   }

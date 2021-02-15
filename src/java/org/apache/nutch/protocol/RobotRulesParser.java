@@ -160,6 +160,8 @@ public abstract class RobotRulesParser implements Tool {
 
   /**
    * Check whether a URL belongs to a whitelisted host.
+   * @param url a {@link java.net.URL} to check against rules
+   * @return true if allowed, false otherwise
    */
   public boolean isWhiteListed(URL url) {
     boolean match = false;

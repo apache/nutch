@@ -76,7 +76,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
   /**
    * Checks whether the result is empty.
    * 
-   * @return
+   * @return true if empty, false otherwise
    */
   public boolean isEmpty() {
     return parseMap.isEmpty();
@@ -84,6 +84,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
 
   /**
    * Return the number of parse outputs (both successful and failed)
+   * @return an int representing the parse map size
    */
   public int size() {
     return parseMap.size();
@@ -166,6 +167,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
   /**
    * A convenience method which returns true only if all parses are successful.
    * Parse success is determined by {@link ParseStatus#isSuccess()}.
+   * @return true if overall result is a success, false otherwise
    */
   public boolean isSuccess() {
     for (Iterator<Entry<Text, Parse>> i = iterator(); i.hasNext();) {
@@ -180,6 +182,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
   /**
    * A convenience method which returns true if at least one of the parses is
    * successful. Parse success is determined by {@link ParseStatus#isSuccess()}.
+   * @return true if atleast one result is a success, false otherwise
    */
   public boolean isAnySuccess() {
     for (Iterator<Entry<Text, Parse>> i = iterator(); i.hasNext();) {

@@ -39,9 +39,10 @@ public class JobWorker implements Runnable{
 
   /**
    * To initialize JobWorker thread with the Job Configurations provided by user.
-   * @param jobConfig
-   * @param conf
-   * @param tool - NutchTool to run 
+   * @param jobConfig job-specific {@link JobConfig}
+   * @param conf a populated {@link Configuration}
+   * @param tool {!{@link NutchTool} to run
+   * return JobWorker
    */
   public JobWorker(JobConfig jobConfig, Configuration conf, NutchTool tool) {
     this.jobConfig = jobConfig;

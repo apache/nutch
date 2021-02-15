@@ -213,8 +213,9 @@ public class HostDatum implements Writable, Cloneable {
    }
 
   /**
-   * returns a MapWritable if it was set or read in @see readFields(DataInput),
-   * returns empty map in case CrawlDatum was freshly created (lazily instantiated).
+   * Get Host metadata.
+   * @return a {@link MapWritable} if it was set or read in {@link #readFields(DataInput)},
+   * OR returns empty map in case {@link HostDatum} was freshly created (lazily instantiated).
    */
   public org.apache.hadoop.io.MapWritable getMetaData() {
     if (this.metaData == null) this.metaData = new org.apache.hadoop.io.MapWritable();

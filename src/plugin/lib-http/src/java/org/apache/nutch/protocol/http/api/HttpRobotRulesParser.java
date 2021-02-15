@@ -56,7 +56,11 @@ public class HttpRobotRulesParser extends RobotRulesParser {
     allowForbidden = conf.getBoolean("http.robots.403.allow", true);
   }
 
-  /** Compose unique key to store and access robot rules in cache for given URL */
+  /**
+   * Compose unique key to store and access robot rules in cache for given URL
+   * @param url to generate a unique key for
+   * @return the cached unique key
+   */
   protected static String getCacheKey(URL url) {
     String protocol = url.getProtocol().toLowerCase(); // normalize to lower
                                                        // case
