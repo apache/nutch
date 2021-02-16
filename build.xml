@@ -186,6 +186,7 @@
       doctitle="${name} ${version} API"
       bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
       failonerror="true"
+      failonwarning="true"
       >
       <arg value="${javadoc.proxy.host}"/>
       <arg value="${javadoc.proxy.port}"/>
@@ -269,9 +270,9 @@
 
       <link href="${javadoc.link.java}"/>
       <link href="${javadoc.link.hadoop}"/>
-      <link href="${javadoc.link.lucene.core}"/>
+      <!--link href="${javadoc.link.lucene.core}"/>
       <link href="${javadoc.link.lucene.analyzers-common}"/>
-      <link href="${javadoc.link.solr-solrj}"/>
+      <link href="${javadoc.link.solr-solrj}"/-->
 
       <classpath refid="classpath"/>
       <classpath>
@@ -718,6 +719,7 @@
       doctitle="${name} ${version} API"
       bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
       failonerror="true"
+      failonwarning="true"
       >
       <arg value="${javadoc.proxy.host}"/>
       <arg value="${javadoc.proxy.port}"/>
@@ -809,6 +811,7 @@
       <classpath>
         <fileset dir="${build.plugins}" >
           <include name="**/*.jar"/>
+          <exclude name="any23/javax.annotation-api*.jar"/>
         </fileset>
       </classpath>
 
