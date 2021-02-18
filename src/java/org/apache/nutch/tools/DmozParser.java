@@ -54,6 +54,9 @@ import org.apache.nutch.util.NutchConfiguration;
  * RDF into a flat file of URLs to be injected. 
  */
 public class DmozParser {
+
+  private static final Random RANDOM = new Random();
+
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -134,7 +137,7 @@ public class DmozParser {
       this.includeAdult = includeAdult;
       this.topicPattern = topicPattern;
 
-      this.hashSkew = skew != 0 ? skew : new Random().nextInt();
+      this.hashSkew = skew != 0 ? skew : RANDOM.nextInt();
     }
 
     //

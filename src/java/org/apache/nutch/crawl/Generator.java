@@ -35,7 +35,6 @@ import org.apache.hadoop.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.jexl3.JexlExpression;
-import org.antlr.v4.parse.ANTLRParser.throwsSpec_return;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.hadoop.mapreduce.Counter;
@@ -89,6 +88,8 @@ import org.apache.nutch.util.URLUtil;
  * host to limit the entries.
  **/
 public class Generator extends NutchTool implements Tool {
+
+  private static final Random RANDOM = new Random();
 
   protected static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -1013,7 +1014,7 @@ public class Generator extends NutchTool implements Tool {
     Job job = NutchJob.getInstance(getConf());
     job.setJobName("generate: partition " + segment);
     Configuration conf = job.getConfiguration();
-    conf.setInt("partition.url.seed", new Random().nextInt());
+    conf.setInt("partition.url.seed", RANDOM.nextInt());
 
     FileInputFormat.addInputPath(job, inputDir);
     job.setInputFormatClass(SequenceFileInputFormat.class);
