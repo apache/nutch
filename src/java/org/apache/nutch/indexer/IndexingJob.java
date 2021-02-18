@@ -54,6 +54,8 @@ import org.slf4j.LoggerFactory;
 
 public class IndexingJob extends NutchTool implements Tool {
 
+  private static final Random RANDOM = new Random();
+
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -136,7 +138,7 @@ public class IndexingJob extends NutchTool implements Tool {
     job.setReduceSpeculativeExecution(false);
 
     final Path tmp = new Path("tmp_" + System.currentTimeMillis() + "-"
-        + new Random().nextInt());
+        + RANDOM.nextInt());
 
     FileOutputFormat.setOutputPath(job, tmp);
     try {

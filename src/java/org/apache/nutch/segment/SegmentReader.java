@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,8 @@ import org.apache.nutch.util.SegmentReaderUtil;
 
 /** Dump the content of a segment. */
 public class SegmentReader extends Configured implements Tool {
+
+  private static final Random RANDOM = new Random();
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -220,7 +223,7 @@ public class SegmentReader extends Configured implements Tool {
     job.setJarByClass(SegmentReader.class);
 
     Path tempDir = new Path(conf.get("hadoop.tmp.dir", "/tmp") + "/segread-"
-        + new java.util.Random().nextInt());
+        + RANDOM.nextInt());
     FileSystem fs = tempDir.getFileSystem(conf);
     fs.delete(tempDir, true);
 
