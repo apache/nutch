@@ -516,139 +516,145 @@ public class SitemapInjector extends Injector {
           throws IOException, InterruptedException {
 
         if (sitemap.isIndex()) {
-          SiteMapIndex sitemapIndex = (SiteMapIndex) sitemap;
-          if (processedSitemaps == null) {
-            processedSitemaps = new HashSet<String>();
-            processedSitemaps.add(sitemap.getUrl().toString());
+          processSitemapIndex((SiteMapIndex) sitemap, processedSitemaps, depth);
+          return;
+        }
+
+        context.getCounter("SitemapInjector", "sitemaps processed")
+            .increment(1);
+        injectURLs((SiteMap) sitemap);
+        if (totalUrls >= maxUrls) {
+          LOG.warn("URL limit reached, skipped remaining urls of {}",
+              sitemap.getUrl());
+          context
+              .getCounter("SitemapInjector", "sitemap index: URL limit reached")
+              .increment(1);
+        }
+        sitemap.setProcessed(true);
+      }
+
+      private void processSitemapIndex(SiteMapIndex sitemapIndex,
+          Set<String> processedSitemaps, int depth)
+          throws IOException, InterruptedException {
+        if (processedSitemaps == null) {
+          processedSitemaps = new HashSet<String>();
+          processedSitemaps.add(sitemapIndex.getUrl().toString());
+        }
+        if (++depth > maxRecursiveSitemapDepth) {
+          LOG.warn(
+              "Depth limit reached recursively processing sitemap index {}",
+              sitemapIndex.getUrl());
+          context.getCounter("SitemapInjector",
+              "sitemap index: depth limit reached").increment(1);
+          return;
+        }
+
+        // choose subsitemaps randomly with a preference for elements in front
+        // and recently published sitemaps
+        PriorityQueue<ScoredSitemap> sitemaps = new PriorityQueue<>();
+        int subSitemaps = 0;
+        for (AbstractSiteMap s : sitemapIndex.getSitemaps()) {
+          subSitemaps++;
+          double publishScore = 0.3;
+          if (s.getLastModified() != null) {
+            double elapsedMonthsSincePublished = (System.currentTimeMillis()
+                - s.getLastModified().getTime())
+                / (1000.0 * 60 * 60 * 24 * 30);
+            publishScore = (1.0
+                / Math.log(1.0 + elapsedMonthsSincePublished));
           }
-          if (++depth > maxRecursiveSitemapDepth) {
+          double score = (1.0 / subSitemaps) + publishScore + Math.random();
+          sitemaps.add(new ScoredSitemap(score, s));
+        }
+
+        int failedSubSitemaps = 0;
+        while (sitemaps.size() > 0) {
+
+          long elapsed = (System.currentTimeMillis() - startTime) / 1000;
+          if (elapsed > maxSitemapProcessingTime) {
             LOG.warn(
-                "Depth limit reached recursively processing sitemap index {}",
-                sitemap.getUrl());
+                "Max. processing time reached, skipped remaining sitemaps of sitemap index {}",
+                sitemapIndex.getUrl());
             context.getCounter("SitemapInjector",
-                "sitemap index: depth limit reached").increment(1);
+                "sitemap index: time limit reached").increment(1);
+            return;
+          }
+          if ((totalUrls == 0)
+              && (elapsed > (maxSitemapProcessingTime / 2))) {
+            LOG.warn(
+                "Half of processing time elapsed and no URLs injected, skipped remaining sitemaps of sitemap index {}",
+                sitemapIndex.getUrl());
+            context
+                .getCounter("SitemapInjector",
+                    "sitemap index: no URLs after 50% of time limit")
+                .increment(1);
+            return;
+          }
+          if (failedSubSitemaps > (maxRecursiveSitemaps / 2)) {
+            // do not spend too much time to fetch broken subsitemaps
+            LOG.warn(
+                "Too many failures, skipped remaining sitemaps of sitemap index {}",
+                sitemapIndex.getUrl());
+            context.getCounter("SitemapInjector",
+                "sitemap index: too many failures").increment(1);
             return;
           }
 
-          // choose subsitemaps randomly with a preference for elements in front
-          // and recently published sitemaps
-          PriorityQueue<ScoredSitemap> sitemaps = new PriorityQueue<>();
-          int subSitemaps = 0;
-          for (AbstractSiteMap s : sitemapIndex.getSitemaps()) {
-            subSitemaps++;
-            double publishScore = 0.3;
-            if (s.getLastModified() != null) {
-              double elapsedMonthsSincePublished = (System.currentTimeMillis()
-                  - s.getLastModified().getTime())
-                  / (1000.0 * 60 * 60 * 24 * 30);
-              publishScore = (1.0
-                  / Math.log(1.0 + elapsedMonthsSincePublished));
-            }
-            double score = (1.0 / subSitemaps) + publishScore + Math.random();
-            sitemaps.add(new ScoredSitemap(score, s));
-          }
-
-          int failedSubSitemaps = 0;
-          while (sitemaps.size() > 0) {
-
-            long elapsed = (System.currentTimeMillis() - startTime) / 1000;
-            if (elapsed > maxSitemapProcessingTime) {
-              LOG.warn(
-                  "Max. processing time reached, skipped remaining sitemaps of sitemap index {}",
-                  sitemap.getUrl());
-              context.getCounter("SitemapInjector",
-                  "sitemap index: time limit reached").increment(1);
-              return;
-            }
-            if ((totalUrls == 0)
-                && (elapsed > (maxSitemapProcessingTime / 2))) {
-              LOG.warn(
-                  "Half of processing time elapsed and no URLs injected, skipped remaining sitemaps of sitemap index {}",
-                  sitemap.getUrl());
-              context
-                  .getCounter("SitemapInjector",
-                      "sitemap index: no URLs after 50% of time limit")
-                  .increment(1);
-              return;
-            }
-            if (failedSubSitemaps > (maxRecursiveSitemaps / 2)) {
-              // do not spend too much time to fetch broken subsitemaps
-              LOG.warn(
-                  "Too many failures, skipped remaining sitemaps of sitemap index {}",
-                  sitemap.getUrl());
-              context.getCounter("SitemapInjector",
-                  "sitemap index: too many failures").increment(1);
-              return;
-            }
-
-            AbstractSiteMap nextSitemap = sitemaps.poll().sitemap;
-            context.getCounter("SitemapInjector", "sitemap indexes processed")
-                .increment(1);
-
-            String url = nextSitemap.getUrl().toString();
-            if (processedSitemaps.contains(url)) {
-              LOG.warn("skipped recursive sitemap URL {}", url);
-              context.getCounter("SitemapInjector",
-                  "skipped recursive sitemap URLs").increment(1);
-              nextSitemap.setProcessed(true);
-              continue;
-            }
-            if (processedSitemaps.size() > maxRecursiveSitemaps) {
-              LOG.warn(
-                  "{} sitemaps processed for {}, skipped remaining sitemaps",
-                  processedSitemaps.size(), sitemap.getUrl());
-              context
-                  .getCounter("SitemapInjector", "sitemap index limit reached")
-                  .increment(1);
-              return;
-            }
-            if (totalUrls >= maxUrls) {
-              LOG.warn(
-                  "URL limit reached, skipped remaining sitemaps of sitemap index {}",
-                  sitemap.getUrl());
-              context.getCounter("SitemapInjector",
-                  "sitemap index: URL limit reached").increment(1);
-              return;
-            }
-
-            processedSitemaps.add(url);
-
-            Content content = getContent(url);
-            if (content == null) {
-              nextSitemap.setProcessed(true);
-              context.getCounter("SitemapInjector", "sitemaps failed to fetch")
-                  .increment(1);
-              failedSubSitemaps++;
-              continue;
-            }
-
-            try {
-              AbstractSiteMap parsedSitemap = parseSitemap(content,
-                  nextSitemap);
-              processSitemap(parsedSitemap, processedSitemaps, depth);
-            } catch (Exception e) {
-              LOG.warn("failed to parse sitemap {}: {}", nextSitemap.getUrl(),
-                  StringUtils.stringifyException(e));
-              context.getCounter("SitemapInjector", "sitemaps failed to parse")
-                  .increment(1);
-              failedSubSitemaps++;
-            }
-            nextSitemap.setProcessed(true);
-          }
-
-        } else {
-          context.getCounter("SitemapInjector", "sitemaps processed")
+          AbstractSiteMap nextSitemap = sitemaps.poll().sitemap;
+          context.getCounter("SitemapInjector", "sitemap index: processed sitemaps")
               .increment(1);
-          injectURLs((SiteMap) sitemap);
+
+          String url = nextSitemap.getUrl().toString();
+          if (processedSitemaps.contains(url)) {
+            LOG.warn("skipped duplicated or recursive sitemap URL {}", url);
+            context.getCounter("SitemapInjector",
+                "skipped duplicated or recursive sitemap URLs").increment(1);
+            nextSitemap.setProcessed(true);
+            continue;
+          }
+          if (processedSitemaps.size() > maxRecursiveSitemaps) {
+            LOG.warn(
+                "{} sitemaps processed for {}, skipped remaining sitemaps",
+                processedSitemaps.size(), sitemapIndex.getUrl());
+            context
+                .getCounter("SitemapInjector", "sitemap index limit reached")
+                .increment(1);
+            return;
+          }
           if (totalUrls >= maxUrls) {
-            LOG.warn("URL limit reached, skipped remaining urls of {}",
-                sitemap.getUrl());
+            LOG.warn(
+                "URL limit reached, skipped remaining sitemaps of sitemap index {}",
+                sitemapIndex.getUrl());
             context.getCounter("SitemapInjector",
                 "sitemap index: URL limit reached").increment(1);
             return;
           }
-          sitemap.setProcessed(true);
+
+          processedSitemaps.add(url);
+
+          Content content = getContent(url);
+          if (content == null) {
+            nextSitemap.setProcessed(true);
+            context.getCounter("SitemapInjector", "sitemaps failed to fetch")
+                .increment(1);
+            failedSubSitemaps++;
+            continue;
+          }
+
+          try {
+            AbstractSiteMap parsedSitemap = parseSitemap(content,
+                nextSitemap);
+            processSitemap(parsedSitemap, processedSitemaps, depth);
+          } catch (Exception e) {
+            LOG.warn("failed to parse sitemap {}: {}", nextSitemap.getUrl(),
+                StringUtils.stringifyException(e));
+            context.getCounter("SitemapInjector", "sitemaps failed to parse")
+                .increment(1);
+            failedSubSitemaps++;
+          }
+          nextSitemap.setProcessed(true);
         }
+        sitemapIndex.setProcessed(true);
       }
 
       private Content getContent(String url) {
