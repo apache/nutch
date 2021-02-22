@@ -234,7 +234,9 @@ public class FileDumper {
                     File fullOutputDir = new File(org.apache.commons.lang3.StringUtils.join(Arrays.copyOf(splitPath, splitPath.length - 1), "/"));
 
                     if (!fullOutputDir.exists()) {
-                      fullOutputDir.mkdirs();
+                      if(!fullOutputDir.mkdirs());
+                        throw new Exception("Unable to create: ["
+                              + fullOutputDir.getAbsolutePath() + "]"); 
                     }
                   } else {
                     outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
