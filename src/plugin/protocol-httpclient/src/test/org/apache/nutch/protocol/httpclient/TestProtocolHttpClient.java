@@ -16,61 +16,36 @@
  */
 package org.apache.nutch.protocol.httpclient;
 
-import java.net.URL;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+
+import org.apache.commons.codec.binary.Base64;
+
+import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
+
 import org.junit.Test;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.handler.ContextHandler;
-import org.mortbay.jetty.servlet.ServletHandler;
-import org.mortbay.jetty.servlet.SessionHandler;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.net.protocols.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Test cases for protocol-httpclient.
+ * Test cases for protocol-httpclient. See also
+ * src/test/conf/httpclient-auth-test.xml
  */
-public class TestProtocolHttpClient {
+public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
 
-  private Server server;
-  private Configuration conf;
-  private static final String RES_DIR = System.getProperty("test.data", ".");
-  private int port;
-  private Http http = new Http();
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
-  @Before
-  public void setUp() throws Exception {
-
-    ContextHandler context = new ContextHandler();
-    context.setContextPath("/");
-    context.setResourceBase(RES_DIR);
-    ServletHandler sh = new ServletHandler();
-    sh.addServletWithMapping("org.apache.jasper.servlet.JspServlet", "*.jsp");
-    context.addHandler(sh);
-    context.addHandler(new SessionHandler());
-
-    server = new Server();
-    server.addHandler(context);
-
-    conf = new Configuration();
-    conf.addResource("nutch-default.xml");
-    conf.addResource("nutch-site-test.xml");
-
-    http = new Http();
-    http.setConf(conf);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    server.stop();
-    for (int i = 0; i < 5; i++) {
-      if (!server.isStopped()) {
-       Thread.sleep(1000);
-      }
-    }
+  @Override
+  protected String getPluginClassName() {
+    return "org.apache.nutch.protocol.httpclient.Http";
   }
 
   /**
@@ -81,9 +56,40 @@ public class TestProtocolHttpClient {
    */
   @Test
   public void testCookies() throws Exception {
-    startServer(47500);
-    fetchPage("/cookies.jsp", 200);
-    fetchPage("/cookies.jsp?cookie=yes", 200);
+    int port = 47500;
+    String responseSetCookies = responseHeader //
+        + "Set-Cookie: var1=val1\r\n" //
+        + "Set-Cookie: var2=val2\r\n" //
+        + "Content-Type: text/html\r\n\r\n" //
+        + "<html>\n" //
+        + "<head><title>Cookies Set</title></head>" //
+        + "<body><p>Cookies have been set.</p></body>" //
+        + "</html>";
+    String response = responseHeader //
+        + "Content-Type: text/html\r\n\r\n" //
+        + "<html>\n" //
+        + "<head><title>Cookies Found</title></head>" //
+        + "<body><p>Cookies found!</p></body>" //
+        + "</html>";
+    Map<String, byte[]> responses = new TreeMap<>();
+    responses.put("/cookies.jsp",
+        responseSetCookies.getBytes(StandardCharsets.UTF_8));
+    responses.put("/cookies.jsp?cookies=yes",
+        response.getBytes(StandardCharsets.UTF_8));
+    launchServer(port, (String requestPath) -> {
+      return responses.get(requestPath);
+    }, (List<String> requestLines) -> {
+      // verify whether cookies are set by httpclient
+      if (requestLines.get(0).contains("?cookies=yes")) {
+        return requestLines.stream().anyMatch((String line) -> {
+          return line.startsWith("Cookie:") && line.contains("var1=val1")
+              && line.contains("var2=val2");
+        });
+      }
+      return true;
+    });
+    fetchPage(port, "/cookies.jsp", 200, "text/html");
+    fetchPage(port, "/cookies.jsp?cookies=yes", 200, "text/html");
   }
 
   /**
@@ -94,10 +100,157 @@ public class TestProtocolHttpClient {
    */
   @Test
   public void testNoPreemptiveAuth() throws Exception {
-    startServer(47500);
-    fetchPage("/noauth.jsp", 200);
+    int port = 47500;
+    String response = responseHeader //
+        + "Content-Type: text/html\r\n\r\n" //
+        + "<html>\n" //
+        + "<head><title>No authorization headers found</title></head>" //
+        + "<body>" //
+        + "<p>No authorization headers found.</p>" //
+        + "</body>" //
+        + "</html>";
+    launchServer(port, (String requestPath) -> {
+      return response.getBytes(UTF_8);
+    }, (List<String> requestLines) -> {
+      // verify that no "Authentication" header is sent
+      return requestLines.stream().noneMatch((String line) -> {
+        if (line.startsWith("Authorization:")) {
+          LOG.error("Found `Authorization` header, none expected!");
+          return true;
+        }
+        LOG.debug("Verified header: {}", line);
+        return false;
+      });
+    });
+    fetchPage(port, "/noauth.jsp", 200, "text/html");
   }
 
+  // see old basic.jsp, digest.jsp, ntlm.jsp
+  private static byte[] authenticationResponder(String requestPath, String[] requestHeaders) {
+
+    String authenticationType = "BASIC";
+    if (requestPath.startsWith("/digest.jsp")) {
+      authenticationType = "DIGEST";
+    } else if (requestPath.startsWith("/ntlm.jsp")) {
+      authenticationType = "NTLM";
+    }
+
+    char id = 'x';
+    if (requestPath.endsWith("?case=1")) {
+      id = '1';
+    } else if (requestPath.endsWith("?case=2")) {
+      id = '2';
+    }
+
+    String authHeader = getHeader(requestHeaders, "Authorization");
+    boolean authenticated = false;
+    String authReq = "Basic realm=\"realm" + id + "\"";
+    if (authHeader != null) {
+      if (authHeader.toUpperCase().startsWith("BASIC")) {
+        authenticationType = "BASIC";
+        String creds[] = new String(Base64.decodeBase64(authHeader.substring(6)), UTF_8).split(":", 2);
+        if (creds[0].equals("user" + id) && creds[1].equals("pass" + id)) {
+          authenticated = true;
+        }
+
+      } else if (authHeader.toUpperCase().startsWith("DIGEST")) {
+        authenticationType = "DIGEST";
+        Map<String, String> map = new HashMap<>();
+        StringTokenizer tokenizer = new StringTokenizer(
+            authHeader.substring(7).trim(), ",");
+        while (tokenizer.hasMoreTokens()) {
+          String[] param = tokenizer.nextToken().trim().split("=", 2);
+          if (param[1].charAt(0) == '"') {
+            param[1] = param[1].substring(1, param[1].length() - 1);
+          }
+          map.put(param[0], param[1]);
+        }
+        String username = "user" + id;
+        if (username.equals(map.get("username"))) {
+          authenticated = true;
+        }
+
+      } else if (authHeader.toUpperCase().startsWith("NTLM")) {
+        authenticationType = "NTLM";
+        String username = null;
+        String domain = null;
+        String host = null;
+        byte[] msg = Base64.decodeBase64(authHeader.substring(5));
+        if (msg[8] == 1) {
+          byte[] type2msg = {
+              'N', 'T', 'L', 'M', 'S', 'S', 'P', 0, // NTLMSSP Signature
+              2, 0, 0, 0,                           // Type 2 Indicator
+              10, 0, 10, 0, 32, 0, 0, 0,            // length, offset
+              0x00, 0x02, (byte) 0x81, 0,           // Flags
+              1, 2, 3, 4, 5, 6, 7, 8,               // Challenge
+              'N', 'U', 'T', 'C', 'H' // NUTCH (Domain)
+          };
+          // request authentication
+          authReq = "NTLM " + Base64.encodeBase64String(type2msg);
+        } else if (msg[8] == 3) {
+          int length;
+          int offset;
+
+          // Get domain name
+          length = msg[30] + msg[31] * 256;
+          offset = msg[32] + msg[33] * 256;
+          domain = new String(msg, offset, length);
+
+          // Get user name
+          length = msg[38] + msg[39] * 256;
+          offset = msg[40] + msg[41] * 256;
+          username = new String(msg, offset, length);
+
+          // Get password
+          length = msg[46] + msg[47] * 256;
+          offset = msg[48] + msg[49] * 256;
+          host = new String(msg, offset, length);
+
+          if ("ntlm_user".equalsIgnoreCase(username)
+              && "NUTCH".equalsIgnoreCase(domain)) {
+            authenticated = true;
+          }
+        }
+      }
+    }
+
+    if (!authenticated) {
+      LOG.info("Requesting authentication for realm{} and type {}", id,
+          authenticationType);
+
+      if ("DIGEST".equals(authenticationType)) {
+        String qop = "qop=\"auth,auth-int\"";
+        String nonce = "nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\"";
+        String opaque = "opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"";
+        authReq = "Digest realm=\"realm" + id + "\", " + qop + ", " + nonce
+            + ", " + opaque;
+
+      } else if ("NTLM".equals(authenticationType)) {
+        if (!authReq.startsWith("NTLM")) {
+          authReq = "NTLM";
+        }
+      }
+      
+      String requestAuthorization = "HTTP/1.1 401 Unauthorized\r\n" //
+          + "WWW-Authenticate: " + authReq + "\r\n" //
+          + "\r\n";
+      return requestAuthorization.getBytes(UTF_8);
+    }
+
+    LOG.info("User user{} (realm{}, auth. type {}) successfully authenticated",
+        id, id, authenticationType);
+    String responseAuthenticated = responseHeader //
+        + "Content-Type: text/html\r\n\r\n" //
+        + "<html>" //
+        + "<head><title>" + authenticationType //
+        + " Authentication Test</title></head>" //
+        + "<body>" //
+        + "<p>Hi user" + id + ", you have been successfully authenticated.</p>" //
+        + "</body>" //
+        + "</html>";
+    return responseAuthenticated.getBytes(UTF_8);    
+  }
+  
   /**
    * Tests default credentials.
    * 
@@ -106,8 +259,12 @@ public class TestProtocolHttpClient {
    */
   @Test
   public void testDefaultCredentials() throws Exception {
-    startServer(47502);
-    fetchPage("/basic.jsp", 200);
+    // the behavior when connecting to port 47502
+    // is not configured in httpclient-auth-test.xml
+    // which means that authentication is requested first
+    int port = 47502;
+    launchServer(port, TestProtocolHttpClient::authenticationResponder, null);
+    fetchPage(port, "/basic.jsp", 200, "text/html");
   }
 
   /**
@@ -118,11 +275,11 @@ public class TestProtocolHttpClient {
    */
   @Test
   public void testBasicAuth() throws Exception {
-    startServer(47500);
-    fetchPage("/basic.jsp", 200);
-    fetchPage("/basic.jsp?case=1", 200);
-    fetchPage("/basic.jsp?case=2", 200);
-    server.start();
+    int port = 47500;
+    launchServer(port, TestProtocolHttpClient::authenticationResponder, null);
+    fetchPage(port, "/basic.jsp", 200, "text/html");
+    fetchPage(port, "/basic.jsp?case=1", 200, "text/html");
+    fetchPage(port, "/basic.jsp?case=2", 200, "text/html");
   }
 
   /**
@@ -135,10 +292,11 @@ public class TestProtocolHttpClient {
    */
   @Test
   public void testOtherRealmsNoAuth() throws Exception {
-    startServer(47501);
-    fetchPage("/basic.jsp", 200);
-    fetchPage("/basic.jsp?case=1", 401);
-    fetchPage("/basic.jsp?case=2", 401);
+    int port = 47501;
+    launchServer(port, TestProtocolHttpClient::authenticationResponder, null);
+    fetchPage(port, "/basic.jsp", 200, "text/html");
+    fetchPage(port, "/basic.jsp?case=1", 401, "text/html");
+    fetchPage(port, "/basic.jsp?case=2", 401, "text/html");
   }
 
   /**
@@ -149,8 +307,9 @@ public class TestProtocolHttpClient {
    */
   @Test
   public void testDigestAuth() throws Exception {
-    startServer(47500);
-    fetchPage("/digest.jsp", 200);
+    int port = 47500;
+    launchServer(port, TestProtocolHttpClient::authenticationResponder, null);
+    fetchPage(port, "/digest.jsp", 200, "text/html");
   }
 
   /**
@@ -161,56 +320,9 @@ public class TestProtocolHttpClient {
    */
   @Test
   public void testNtlmAuth() throws Exception {
-    startServer(47501);
-    fetchPage("/ntlm.jsp", 200);
+    int port = 47501;
+    launchServer(port, TestProtocolHttpClient::authenticationResponder, null);
+    fetchPage(port, "/ntlm.jsp", 200, "text/html");
   }
 
-  /**
-   * Starts the Jetty server at a specified port.
-   *
-   * Will try up to 10 ports to find an available port to use.
-   *
-   * @param portno
-   *          Port number.
-   * @throws Exception
-   *           When an error occurs.
-   */
-  private void startServer(int portno) throws Exception {
-    SocketConnector listener = new SocketConnector();
-    listener.setHost("127.0.0.1");
-    server.addConnector(listener);
-    for (int p = portno; p < portno + 10; p++) {
-      port = portno;
-      listener.setPort(port);
-      try {
-        server.start();
-        break;
-      } catch (Exception e) {
-        if (p == portno + 9) {
-          throw e;
-        }
-      }
-    }
-  }
-
-  /**
-   * Fetches the specified <code>page</code> from the local Jetty server and
-   * checks whether the HTTP response status code matches with the expected
-   * code.
-   * 
-   * @param page
-   *          Page to be fetched.
-   * @param expectedCode
-   *          HTTP response status code expected while fetching the page.
-   * @throws Exception
-   *           When an error occurs or test case fails.
-   */
-  private void fetchPage(String page, int expectedCode) throws Exception {
-    URL url = new URL("http", "127.0.0.1", port, page);
-    Response response = null;
-    response = http.getResponse(url, new CrawlDatum(), true);
-
-    int code = response.getCode();
-    Assert.assertEquals("HTTP Status Code for " + url, expectedCode, code);
-  }
 }
