@@ -26,7 +26,7 @@ import org.apache.nutch.crawl.NutchWritable;
 
 /**
  * This is a simple decorator that adds metadata to any Writable-s that can be
- * serialized by <tt>NutchWritable</tt>. This is useful when data needs to be
+ * serialized by {@link NutchWritable}. This is useful when data needs to be
  * temporarily enriched during processing, but this temporary metadata doesn't
  * need to be permanently stored after the job is done.
  * 
