@@ -45,7 +45,7 @@ public interface SegmentMergeFilter {
    * @param parseData directory and data produced by the parse phase
    * @param parseText directory and data produced by the parse phase
    * @param linked all LINKED values from the latest segment
-   * @return <tt>true</tt> values for this <tt>key</tt> (URL) should be merged
+   * @return <code>true</code> values for this <code>key</code> (URL) should be merged
    *         into the new segment.
    */
   public boolean filter(Text key, CrawlDatum generateData,
