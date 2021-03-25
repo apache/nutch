@@ -321,6 +321,10 @@ public class HttpResponse implements Response {
                   + code + ":",
               e);
           content = null;
+          if (httpHeaders != null) {
+            httpHeaders.append("\r\n");
+            headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
+          }
         } else {
           // If the page is a "200 OK" response, we do not want to go further
           // with processing the invalid payload.

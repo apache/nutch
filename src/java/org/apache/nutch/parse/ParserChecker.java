@@ -43,22 +43,22 @@ import org.slf4j.LoggerFactory;
  * to aid debugging. The tool enables us to retrieve the following data from any
  * url:
  * <ol>
- * <li><tt>contentType</tt>: The URL {@link org.apache.nutch.protocol.Content}
+ * <li><code>contentType</code>: The URL {@link org.apache.nutch.protocol.Content}
  * type.</li>
- * <li><tt>signature</tt>: Digest is used to identify pages (like unique ID) and
+ * <li><code>signature</code>: Digest is used to identify pages (like unique ID) and
  * is used to remove duplicates during the dedup procedure. It is calculated
  * using {@link org.apache.nutch.crawl.MD5Signature} or
  * {@link org.apache.nutch.crawl.TextProfileSignature}.</li>
- * <li><tt>Version</tt>: From {@link org.apache.nutch.parse.ParseData}.</li>
- * <li><tt>Status</tt>: From {@link org.apache.nutch.parse.ParseData}.</li>
- * <li><tt>Title</tt>: of the URL</li>
- * <li><tt>Outlinks</tt>: associated with the URL</li>
- * <li><tt>Content Metadata</tt>: such as <i>X-AspNet-Version</i>, <i>Date</i>,
+ * <li><code>Version</code>: From {@link org.apache.nutch.parse.ParseData}.</li>
+ * <li><code>Status</code>: From {@link org.apache.nutch.parse.ParseData}.</li>
+ * <li><code>Title</code>: of the URL</li>
+ * <li><code>Outlinks</code>: associated with the URL</li>
+ * <li><code>Content Metadata</code>: such as <i>X-AspNet-Version</i>, <i>Date</i>,
  * <i>Content-length</i>, <i>servedBy</i>, <i>Content-Type</i>,
  * <i>Cache-Control</i>, etc.</li>
- * <li><tt>Parse Metadata</tt>: such as <i>CharEncodingForConversion</i>,
+ * <li><code>Parse Metadata</code>: such as <i>CharEncodingForConversion</i>,
  * <i>OriginalCharEncoding</i>, <i>language</i>, etc.</li>
- * <li><tt>ParseText</tt>: The page parse text which varies in length depdnecing
+ * <li><code>ParseText</code>: The page parse text which varies in length depdnecing
  * on <code>content.length</code> configuration.</li>
  * </ol>
  * 

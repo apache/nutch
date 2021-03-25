@@ -16,124 +16,39 @@
  */
 package org.apache.nutch.protocol.http;
 
-import static org.junit.Assert.assertEquals;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.net.URL;
+import java.util.Map;
+import java.util.TreeMap;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ProtocolOutput;
-import org.junit.After;
+import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.junit.Test;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
  * Test cases for protocol-http
  */
-public class TestProtocolHttp {
-  private static final String RES_DIR = System.getProperty("test.data", ".");
+public class TestProtocolHttp extends AbstractHttpProtocolPluginTest {
 
-  private Http http;
-  private Server server;
-  private Context root;
-  private Configuration conf;
-  private int port;
-
-  public void setUp(boolean redirection) throws Exception {
-    conf = new Configuration();
-    conf.addResource("nutch-default.xml");
-    conf.addResource("nutch-site-test.xml");
-
-    http = new Http();
-    http.setConf(conf);
-
-    server = new Server();
-
-    if (redirection) {
-      root = new Context(server, "/redirection", Context.SESSIONS);
-      root.setAttribute("newContextURL", "/redirect");
-    } else {
-      root = new Context(server, "/", Context.SESSIONS);
-    }
-
-    ServletHolder sh = new ServletHolder(
-        org.apache.jasper.servlet.JspServlet.class);
-    root.addServlet(sh, "*.jsp");
-    root.setResourceBase(RES_DIR);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    server.stop();
+  @Override
+  protected String getPluginClassName() {
+    return "org.apache.nutch.protocol.http.Http";
   }
 
   @Test
   public void testStatusCode() throws Exception {
-    startServer(47504, false);
-    fetchPage("/basic-http.jsp", 200);
+    Map<String, byte[]> responses = new TreeMap<>();
+    responses.put("/basic-http.jsp",
+        (responseHeader + simpleContent).getBytes(UTF_8));
+    responses.put("/redirect301.jsp", redirect301.getBytes(UTF_8));
+    responses.put("/redirect302.jsp", redirect302.getBytes(UTF_8));
+    responses.put("/brokenpage.jsp", serverError.getBytes(UTF_8));
+    launchServer(responses);
+
+    fetchPage("/basic-http.jsp", 200, "text/html");
     fetchPage("/redirect301.jsp", 301);
     fetchPage("/redirect302.jsp", 302);
     fetchPage("/nonexists.html", 404);
     fetchPage("/brokenpage.jsp", 500);
   }
 
-  @Test
-  public void testRedirectionJetty() throws Exception {
-    // Redirection via Jetty
-    startServer(47503, true);
-    fetchPage("/redirection", 302);
-  }
-
-  /**
-   * Starts the Jetty server at a specified port and redirection parameter.
-   * 
-   * @param portno
-   *          Port number.
-   * @param redirection
-   *          whether redirection
-   */
-  private void startServer(int portno, boolean redirection) throws Exception {
-    port = portno;
-    setUp(redirection);
-    SelectChannelConnector connector = new SelectChannelConnector();
-    connector.setHost("127.0.0.1");
-    connector.setPort(port);
-
-    server.addConnector(connector);
-    server.start();
-  }
-
-  /**
-   * Fetches the specified <code>page</code> from the local Jetty server and
-   * checks whether the HTTP response status code matches with the expected
-   * code. Also use jsp pages for redirection.
-   * 
-   * @param page
-   *          Page to be fetched.
-   * @param expectedCode
-   *          HTTP response status code expected while fetching the page.
-   */
-  private void fetchPage(String page, int expectedCode) throws Exception {
-    URL url = new URL("http", "127.0.0.1", port, page);
-    CrawlDatum crawlDatum = new CrawlDatum();
-    Response response = http.getResponse(url, crawlDatum, true);
-    ProtocolOutput out = http.getProtocolOutput(new Text(url.toString()),
-        crawlDatum);
-    Content content = out.getContent();
-    assertEquals("HTTP Status Code for " + url, expectedCode,
-        response.getCode());
-
-    if (page.compareTo("/nonexists.html") != 0
-        && page.compareTo("/brokenpage.jsp") != 0
-        && page.compareTo("/redirection") != 0) {
-      assertEquals("ContentType " + url, "text/html",
-          content.getContentType());
-    }
-  }
 }

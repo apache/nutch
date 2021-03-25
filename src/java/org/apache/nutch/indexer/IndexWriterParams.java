@@ -24,10 +24,10 @@ import java.util.Map;
 public class IndexWriterParams extends HashMap<String, String> {
 
   /**
-   * Constructs a new <tt>HashMap</tt> with the same mappings as the
-   * specified <tt>Map</tt>.  The <tt>HashMap</tt> is created with
+   * Constructs a new <code>HashMap</code> with the same mappings as the
+   * specified <code>Map</code>.  The <code>HashMap</code> is created with
    * default load factor (0.75) and an initial capacity sufficient to
-   * hold the mappings in the specified <tt>Map</tt>.
+   * hold the mappings in the specified <code>Map</code>.
    *
    * @param m the map whose mappings are to be placed in this map
    * @throws NullPointerException if the specified map is null
