@@ -533,13 +533,20 @@ public class Generator2 extends Configured implements Tool {
           continue;
         segmentIncrement = prime[i];
       }
+      LOG.info("Segment increment for {} segments = {}", maxNumSegments,
+          segmentIncrement);
+    }
+
+    private int nextSegment(int segment) {
+      segment += segmentIncrement;
+      if (segment >= maxNumSegments) {
+        segment = (segment % maxNumSegments);
+      }
+      return segment;
     }
 
     private int nextSegment() {
-      currentSegment += segmentIncrement;
-      if (currentSegment >= maxNumSegments) {
-        currentSegment = (currentSegment % maxNumSegments);
-      }
+      currentSegment = nextSegment(currentSegment);
       return currentSegment;
     }
 
@@ -575,7 +582,6 @@ public class Generator2 extends Configured implements Tool {
       String limitsFile = conf.get(GENERATOR_DOMAIN_LIMITS_FILE);
       if (limitsFile != null) {
         LOG.info("Reading domain-specific limits from {}", limitsFile);
-        conf.getResource(limitsFile);
         Path limitsFilePath = new Path(limitsFile);
         if (limitsFilePath.toUri().getScheme() != null) {
           try {
@@ -699,6 +705,11 @@ public class Generator2 extends Configured implements Tool {
       int maxCountTotal = -1;
       if (maxCountPerSegment > 0) {
         maxCountTotal = maxCountPerSegment * maxNumSegments;
+        if (keepMinUrlsPerSegment > maxCountPerSegment) {
+          // if more URLs are allowed per segment and host,
+          // need to allow this number also per domain
+          maxCountPerSegment = keepMinUrlsPerSegment;
+        }
       }
 
       for (SelectorEntry entry : values) {
@@ -739,7 +750,12 @@ public class Generator2 extends Configured implements Tool {
             }
             counts = new int[3];
             counts[0] = 0;
-            counts[1] = nextSegment();
+            if (hosts.isEmpty()) {
+              // first host in domain
+              counts[1] = segment;
+            } else {
+              counts[1] = nextSegment();
+            }
             counts[2] = 0;
             hosts.put(host, counts);
           } else if (maxCountPerHostTotal > 0 && counts[0] >= maxCountPerHostTotal) {
@@ -757,7 +773,7 @@ public class Generator2 extends Configured implements Tool {
             counts[0]++;
             continue;
           } else if ((counts[2] % keepMinUrlsPerSegment) == 0) {
-            counts[1] = nextSegment();
+            counts[1] = nextSegment(counts[1]);
             counts[2] = 0;
           }
           segment = counts[1];
