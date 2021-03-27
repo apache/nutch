@@ -4,6 +4,10 @@
 # protocol. Useful in cases where a host accepts both http and https, doubling
 # the site's size.
 #
+# Also all hosts of a domain can be addressed by adding a "host" pattern
+# starting with "*.". E.g., "*.wikipedia.org" will match all subdomains of
+# the domain "wikipedia.org"
+#
 # Note: if the URL includes a port number, the protocol is left unchanged.
 #
 # format: <host>\t<protocol>\n

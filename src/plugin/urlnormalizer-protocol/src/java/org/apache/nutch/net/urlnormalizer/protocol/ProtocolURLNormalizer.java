@@ -18,26 +18,38 @@ package org.apache.nutch.net.urlnormalizer.protocol;
 
 import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
+import org.apache.nutch.util.SuffixStringMatcher;
 
 /**
- * @author markus@openindex.io
+ * URL normalizer to normalize the protocol for all URLs of a given host or
+ * domain, e.g. normalize <code>http://nutch.apache.org/path/</code> to
+ * <code>https://www.apache.org/path/</code> if it's known that the host
+ * <code>nutch.apache.org</code> supports https and http-URLs either cause
+ * duplicate content or are redirected to https.
+ * 
+ * See {@link org.apache.nutch.net.urlnormalizer.protocol} for details and
+ * configuration.
  */
 public class ProtocolURLNormalizer implements URLNormalizer {
 
@@ -46,11 +58,20 @@ public class ProtocolURLNormalizer implements URLNormalizer {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private static String attributeFile = null;
+  private String attributeFile = null;
   
-  // We record a map of hosts and boolean, the boolean denotes whether the host should
-  // have slashes after URL paths. True means slash, false means remove the slash
-  private static final Map<String,String> protocolsMap = new HashMap<String,String>();
+  // We record a map of hosts and the protocol string to be used for this host
+  private final Map<String,String> protocolsMap = new HashMap<>();
+
+  // Unify protocol strings to reduce the memory footprint (usually there are only
+  // two values (http and https)
+  private final Map<String,String> protocols = new TreeMap<>();
+
+  // Map of domain suffixes and protocol to be used for all hosts below this domain
+  private final Map<String,String> domainProtocolsMap = new HashMap<>();
+  // Matcher for domain suffixes
+  private SuffixStringMatcher domainMatcher = null;
+
 
   private synchronized void readConfiguration(Reader configReader) throws IOException {
     if (protocolsMap.size() > 0) {
@@ -73,10 +94,32 @@ public class ProtocolURLNormalizer implements URLNormalizer {
 
         host = line.substring(0, delimiterIndex);
         protocol = line.substring(delimiterIndex + 1).trim();
-        
-        protocolsMap.put(host, protocol);
+
+        /*
+         * dedup protocol values to reduce memory footprint of map: equal
+         * strings are represented by the same string object
+         */
+        protocols.putIfAbsent(protocol, protocol);
+        protocol = protocols.get(protocol);
+
+        if (host.startsWith("*.")) {
+          // domain pattern (eg. "*.example.com"):
+          // - use ".example.com" for suffix matching,
+          //   including the leading dot to avoid mismatches
+          //   ("www.myexample.com")
+          domainProtocolsMap.put(host.substring(1), protocol);
+          // but also match the bare domain name "example.com"
+          protocolsMap.put(host.substring(2), protocol);
+        } else {
+          protocolsMap.put(host, protocol);
+        }
       }
     }
+    if (domainProtocolsMap.size() > 0) {
+      domainMatcher = new SuffixStringMatcher(domainProtocolsMap.keySet());
+    }
+    LOG.info("Configuration file read: rules for {} hosts and {} domains",
+        protocolsMap.size(), domainProtocolsMap.size());
   }
 
   public Configuration getConf() {
@@ -99,7 +142,7 @@ public class ProtocolURLNormalizer implements URLNormalizer {
     }
 
     // handle blank non empty input
-    if (attributeFile != null && attributeFile.trim().equals("")) {
+    if (attributeFile != null && attributeFile.trim().isEmpty()) {
       attributeFile = null;
     }
 
@@ -124,7 +167,7 @@ public class ProtocolURLNormalizer implements URLNormalizer {
     String file = conf.get("urlnormalizer.protocols.file", attributeFile);
     String stringRules = conf.get("urlnormalizer.protocols.rules");
     Reader reader = null;
-    if (stringRules != null) { // takes precedence over files
+    if (stringRules != null && !stringRules.isEmpty()) { // takes precedence over files
       reader = new StringReader(stringRules);
     } else {
       LOG.info("Reading {} rules file {}", pluginName, file);
@@ -132,11 +175,12 @@ public class ProtocolURLNormalizer implements URLNormalizer {
     }
     try {
       if (reader == null) {
-        reader = new FileReader(file);
+        Path path = new Path(file);
+        FileSystem fs = path.getFileSystem(conf);
+        reader = new InputStreamReader(fs.open(path));
       }
       readConfiguration(reader);
-    }
-    catch (IOException e) {
+    } catch (IOException | IllegalArgumentException e) {
       LOG.error("Error reading " + pluginName + " rule file " + file, e);
     }
   }
@@ -158,17 +202,23 @@ public class ProtocolURLNormalizer implements URLNormalizer {
       return url;
     }
 
+    String requiredProtocol = null;
+
     // Do we have a rule for this host?
-    if (protocolsMap.containsKey(host)) {    
-      String protocol = u.getProtocol();
-      String requiredProtocol = protocolsMap.get(host);
-      
-      // Incorrect protocol?
-      if (!protocol.equals(requiredProtocol)) {
-        // Rebuild URL with new protocol
-        url = new URL(requiredProtocol, host, u.getPort(), u.getFile())
-            .toString();
-      }
+    if (protocolsMap.containsKey(host)) {
+      requiredProtocol = protocolsMap.get(host);
+    } else if (domainMatcher != null) {
+      String domainMatch = domainMatcher.longestMatch(host);
+      if (domainMatch != null) {
+        requiredProtocol = domainProtocolsMap.get(domainMatch);
+     }
+    }
+
+    // Incorrect protocol?
+    if (requiredProtocol != null && !u.getProtocol().equals(requiredProtocol)) {
+      // Rebuild URL with new protocol
+      url = new URL(requiredProtocol, host, u.getPort(), u.getFile())
+          .toString();
     }
 
     return url;

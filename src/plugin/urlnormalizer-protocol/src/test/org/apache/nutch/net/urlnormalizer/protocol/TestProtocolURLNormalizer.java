@@ -69,5 +69,19 @@ public class TestProtocolURLNormalizer extends TestCase {
         "http://example.io:8080/path?q=uery", URLNormalizers.SCOPE_DEFAULT));
     assertEquals("https://example.org:8443/path", normalizer.normalize(
         "https://example.org:8443/path", URLNormalizers.SCOPE_DEFAULT));
+
+    // verify normalization of all subdomains (host pattern *.example.com)
+    assertEquals("https://example.com/", normalizer
+        .normalize("http://example.com/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("https://www.example.com/", normalizer
+        .normalize("http://www.example.com/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("https://www.subdomain.example.com/", normalizer.normalize(
+        "http://www.subdomain.example.com/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://myexample.com/", normalizer
+        .normalize("http://myexample.com/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://www.subdomain.example.com:8080/path?q=uery",
+        normalizer.normalize(
+            "http://www.subdomain.example.com:8080/path?q=uery",
+            URLNormalizers.SCOPE_DEFAULT));
   }
 }
