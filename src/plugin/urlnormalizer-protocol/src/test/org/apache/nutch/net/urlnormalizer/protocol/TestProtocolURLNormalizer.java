@@ -36,19 +36,38 @@ public class TestProtocolURLNormalizer extends TestCase {
     normalizer.setConf(conf);
 
     // No change
-    assertEquals("http://example.org/", normalizer.normalize("https://example.org/", URLNormalizers.SCOPE_DEFAULT));
-    assertEquals("http://example.net/", normalizer.normalize("https://example.net/", URLNormalizers.SCOPE_DEFAULT));
-    
+    assertEquals("http://example.org/", normalizer
+        .normalize("https://example.org/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.net/", normalizer
+        .normalize("https://example.net/", URLNormalizers.SCOPE_DEFAULT));
+
     // https to http
-    assertEquals("http://example.org/", normalizer.normalize("https://example.org/", URLNormalizers.SCOPE_DEFAULT));
-    assertEquals("http://example.net/", normalizer.normalize("https://example.net/", URLNormalizers.SCOPE_DEFAULT));
-    
+    assertEquals("http://example.org/", normalizer
+        .normalize("https://example.org/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.net/", normalizer
+        .normalize("https://example.net/", URLNormalizers.SCOPE_DEFAULT));
+
     // no change
-    assertEquals("https://example.io/", normalizer.normalize("https://example.io/", URLNormalizers.SCOPE_DEFAULT));
-    assertEquals("https://example.nl/", normalizer.normalize("https://example.nl/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("https://example.io/", normalizer
+        .normalize("https://example.io/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("https://example.nl/", normalizer
+        .normalize("https://example.nl/", URLNormalizers.SCOPE_DEFAULT));
     
     // http to https
-    assertEquals("https://example.io/", normalizer.normalize("http://example.io/", URLNormalizers.SCOPE_DEFAULT));
-    assertEquals("https://example.nl/", normalizer.normalize("http://example.nl/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("https://example.io/", normalizer
+        .normalize("http://example.io/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("https://example.nl/", normalizer
+        .normalize("http://example.nl/", URLNormalizers.SCOPE_DEFAULT));
+
+    // verify proper (de)serialization of URLs
+    assertEquals("https://example.io/path?q=uery", normalizer.normalize(
+        "http://example.io/path?q=uery", URLNormalizers.SCOPE_DEFAULT));
+
+    // verify that URLs including a port are left unchanged (port and protocol
+    // are kept)
+    assertEquals("http://example.io:8080/path?q=uery", normalizer.normalize(
+        "http://example.io:8080/path?q=uery", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("https://example.org:8443/path", normalizer.normalize(
+        "https://example.org:8443/path", URLNormalizers.SCOPE_DEFAULT));
   }
 }

@@ -46,9 +46,6 @@ public class ProtocolURLNormalizer implements URLNormalizer {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private static final char QUESTION_MARK = '?';
-  private static final String PROTOCOL_DELIMITER = "://";
-
   private static String attributeFile = null;
   
   // We record a map of hosts and boolean, the boolean denotes whether the host should
@@ -155,6 +152,12 @@ public class ProtocolURLNormalizer implements URLNormalizer {
     // Get the host
     String host = u.getHost();
 
+    // Is there a (non-default) port set?
+    if (u.getPort() != -1) {
+      // do not change the protocol if the port is set
+      return url;
+    }
+
     // Do we have a rule for this host?
     if (protocolsMap.containsKey(host)) {    
       String protocol = u.getProtocol();
@@ -163,18 +166,8 @@ public class ProtocolURLNormalizer implements URLNormalizer {
       // Incorrect protocol?
       if (!protocol.equals(requiredProtocol)) {
         // Rebuild URL with new protocol
-        StringBuilder buffer = new StringBuilder(requiredProtocol);
-        buffer.append(PROTOCOL_DELIMITER);
-        buffer.append(host);
-        buffer.append(u.getPath());
-        
-        String queryString = u.getQuery();
-        if (queryString != null) {
-          buffer.append(QUESTION_MARK);
-          buffer.append(queryString);
-        }
-        
-        url = buffer.toString();
+        url = new URL(requiredProtocol, host, u.getPort(), u.getFile())
+            .toString();
       }
     }
 
