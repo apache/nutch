@@ -4,4 +4,6 @@
 # protocol. Useful in cases where a host accepts both http and https, doubling
 # the site's size.
 #
+# Note: if the URL includes a port number, the protocol is left unchanged.
+#
 # format: <host>\t<protocol>\n
