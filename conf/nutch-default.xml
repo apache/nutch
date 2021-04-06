@@ -1445,6 +1445,21 @@
   </description>
 </property>
 
+<property>
+  <name>urlnormalizer.protocols.file</name>
+  <value>protocols.txt</value>
+  <description>urlnormalizer-protocol configuration file</description>
+</property>
+
+<property>
+  <name>urlnormalizer.protocols.rules</name>
+  <value></value>
+  <description>urlnormalizer-protocol rule definitions: if not empty,
+  takes precedence over rules defined in the rule file (see
+  urlnormalizer.protocols.file)</description>
+</property>
+
+
 <!-- mime properties -->
 
 <!--
