@@ -144,7 +144,7 @@ public class WarcWriter {
 
     settings.put("format", "WARC File Format 1.1");
     settings.put("conformsTo",
-        "http://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/");
+        "https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/");
 
     writeWarcKeyValue(sb, settings);
 
