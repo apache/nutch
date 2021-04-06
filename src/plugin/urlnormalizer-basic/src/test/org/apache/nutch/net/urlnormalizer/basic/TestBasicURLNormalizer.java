@@ -123,6 +123,8 @@ public class TestBasicURLNormalizer {
 
     // check that port number is normalized
     normalizeTest("http://foo.com:80/index.html", "http://foo.com/index.html");
+    normalizeTest("https://foo.com:443/index.html",
+        "https://foo.com/index.html");
     normalizeTest("http://foo.com:81/", "http://foo.com:81/");
     // check that empty port is removed
     normalizeTest("http://example.com:/", "http://example.com/");
