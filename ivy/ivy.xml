@@ -1,20 +1,24 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='utf-8'?>
 
-<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
-	license agreements. See the NOTICE file distributed with this work for additional 
-	information regarding copyright ownership. The ASF licenses this file to 
-	You under the Apache License, Version 2.0 (the "License"); you may not use 
-	this file except in compliance with the License. You may obtain a copy of 
-	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
-	by applicable law or agreed to in writing, software distributed under the 
-	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
-	OF ANY KIND, either express or implied. See the License for the specific 
-	language governing permissions and limitations under the License. -->
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
 
-<ivy-module version="1.0" xmlns:maven="http://ant.apache.org/ivy/maven">
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<ivy-module xmlns:ns0="http://ant.apache.org/ivy/maven" version="1.0">
 	<info organisation="org.apache.nutch" module="nutch">
-		<license name="Apache 2.0"
-			url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
+		<license name="Apache 2.0" url="https://www.apache.org/licenses/LICENSE-2.0.txt" />
 		<ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/" />
 		<description homepage="https://nutch.apache.org/">Nutch is an open source web-search
 			software. It builds on Hadoop, Tika and Solr, adding web-specifics,
@@ -46,7 +50,7 @@
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.13" conf="*->master" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.15" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-compress" rev="1.20" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.1" conf="*->default"/>
+		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.1" conf="*->default" />
 		<dependency org="com.tdunning" name="t-digest" rev="3.2" />
 
 		<!-- Hadoop Dependencies -->
@@ -58,14 +62,14 @@
 			<exclude org="org.mortbay.jetty" name="jsp-*" />
 			<exclude org="ant" name="ant" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.1.3" conf="*->default"/>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.1.3" conf="*->default"/>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.1.3" conf="*->default"/>
+		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.1.3" conf="*->default" />
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.1.3" conf="*->default" />
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.1.3" conf="*->default" />
 		<!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.apache.tika" name="tika-core" rev="1.25" />
 
-		<dependency org="xml-apis" name="xml-apis" rev="1.4.01"/><!-- force this version as it is required by Tika -->
+		<dependency org="xml-apis" name="xml-apis" rev="1.4.01" /><!-- force this version as it is required by Tika -->
 		<dependency org="xerces" name="xercesImpl" rev="2.12.1" />
 
 		<dependency org="com.ibm.icu" name="icu4j" rev="68.2" />
@@ -78,36 +82,36 @@
 			<exclude module="hadoop-client" />
 		</dependency>
 
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.4.1" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.4.1" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.4.1" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.4.1" conf="*->default"/>
-		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.4.1" conf="test->default"/>
-		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.12.0" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.12.0" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.12.0" conf="*->default"/>
-		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.12.0" conf="*->default"/>
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.4.1" conf="*->default" />
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.4.1" conf="*->default" />
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.4.1" conf="*->default" />
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.4.1" conf="*->default" />
+		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.4.1" conf="test->default" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.12.0" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.12.0" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.12.0" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.12.0" conf="*->default" />
 
 		<!-- WARC artifacts needed -->
 		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.9" conf="*->default">
-			<exclude module="hadoop-core"/>
-			<exclude org="com.google.guava"/>
-			<exclude org="junit"/>
+			<exclude module="hadoop-core" />
+			<exclude org="com.google.guava" />
+			<exclude org="junit" />
 			<!-- Exclude dependencies with incompatible license (see https://www.apache.org/legal/resolved.html#category-x) -->
-			<exclude org="org.json"/><!-- JSON License -->
+			<exclude org="org.json" /><!-- JSON License -->
 			<!--
 				Exclusion of the following dependencies disables support of WARC generation by
 				"bin/nutch commoncrawldump -warc ..."
 				Please remove these exclusion and recompile Nutch to generate WARC files using the tool "commoncrawldump".
 			-->
-			<exclude org="it.unimi.dsi" module="dsiutils"/><!-- LGPL 2.1 -->
-			<exclude org="org.gnu.inet" module="libidn"/><!-- LGPL 2.1 -->
+			<exclude org="it.unimi.dsi" module="dsiutils" /><!-- LGPL 2.1 -->
+			<exclude org="org.gnu.inet" module="libidn" /><!-- LGPL 2.1 -->
 		</dependency>
 
 		<!--artifacts needed for testing -->
 		<dependency org="junit" name="junit" rev="4.13.1" conf="test->default" />
 		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">
-			<artifact name="mrunit" maven:classifier="hadoop2" />
+			<artifact name="mrunit" ns0:classifier="hadoop2" />
 			<exclude org="log4j" module="log4j" />
 		</dependency>
 		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.26" conf="test->default" />
@@ -126,11 +130,11 @@
 		<dependency org="com.h2database" name="h2" rev="1.4.197" conf="*->default" />
 		<dependency org="org.eclipse.persistence" name="javax.persistence" rev="2.2.0" conf="*->default" />
 
-		<dependency org="org.apache.wicket" name="wicket-core" rev="6.17.0" conf="*->default" />
+		<dependency org="org.apache.wicket" name="wicket-core" rev="7.18.0" conf="*->default" />
 		<dependency org="org.apache.wicket" name="wicket-spring" rev="6.17.0" conf="*->default" />
 		<dependency org="de.agilecoders.wicket" name="wicket-bootstrap-core" rev="0.9.2" conf="*->default" />
 		<dependency org="de.agilecoders.wicket" name="wicket-bootstrap-extensions" rev="0.9.2" conf="*->default">
-			<exclude org="org.json"/>
+			<exclude org="org.json" />
 		</dependency>
 
 		<!-- RabbitMQ dependencies -->
@@ -138,17 +142,17 @@
 
 		<!--Added Because of Elasticsearch JEST client-->
 		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
-		<dependency org="org.apache.httpcomponents" name="httpcore-nio" rev="4.4.9"/>
-		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.9"/>
-		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.5"/>
+		<dependency org="org.apache.httpcomponents" name="httpcore-nio" rev="4.4.9" />
+		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.9" />
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.5" />
 
-		<dependency org="de.vandermeer" name="asciitable" rev="0.3.2"/>
+		<dependency org="de.vandermeer" name="asciitable" rev="0.3.2" />
 
 		<!--global exclusion -->
 		<exclude module="jmxtools" />
 		<exclude module="jms" />
 		<exclude module="jmxri" />
-		<exclude org="com.thoughtworks.xstream"/>
+		<exclude org="com.thoughtworks.xstream" />
 
 	</dependencies>
 
