@@ -1,21 +1,25 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='utf-8'?>
 
-<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
-	license agreements. See the NOTICE file distributed with this work for additional 
-	information regarding copyright ownership. The ASF licenses this file to 
-	You under the Apache License, Version 2.0 (the "License"); you may not use 
-	this file except in compliance with the License. You may obtain a copy of 
-	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
-	by applicable law or agreed to in writing, software distributed under the 
-	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
-	OF ANY KIND, either express or implied. See the License for the specific 
-	language governing permissions and limitations under the License. -->
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
 
 <ivy-module version="1.0">
 	<info organisation="org.apache.nutch" module="${ant.project.name}">
 		<license name="Apache 2.0" />
-		<ivyauthor name="Apache Nutch Team"
-			url="https://nutch.apache.org/" />
+		<ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/" />
 		<description>
 			Apache Nutch
 		</description>
@@ -31,17 +35,14 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.apache.solr" name="solr-solrj"
-			rev="8.5.1">
+		<dependency org="org.apache.solr" name="solr-solrj" rev="8.5.1">
 			<!-- exclusions of dependencies provided by Nutch core -->
 			<exclude org="org.apache.commons" name="commons-codec" />
 			<exclude org="org.apache.commons" name="commons-logging" />
 			<exclude org="org.slf4j" name="slf4j-api" />
 		</dependency>
-		<dependency org="org.apache.httpcomponents" name="httpmime"
-			rev="4.5.10" conf="*->default" />
-		<dependency org="org.apache.httpcomponents" name="httpcore"
-			rev="4.4.12" conf="*->default" />
+		<dependency org="org.apache.httpcomponents" name="httpmime" rev="4.5.13" conf="*->default" />
+		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.12" conf="*->default" />
 	</dependencies>
 
 </ivy-module>
