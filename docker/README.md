@@ -18,7 +18,7 @@ Current configuration of this image consists of components:
 
 ##  Base Image
 
-* [ubuntu:18.04](https://hub.docker.com/_/ubuntu/)
+* [alpine:3.13](https://hub.docker.com/_/alpine/)
 
 ## Tips
 

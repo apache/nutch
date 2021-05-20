@@ -13,18 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:18.04
+FROM alpine:3.13
 MAINTAINER Apache Nutch Committers <dev@nutch.apache.org>
 
 WORKDIR /root/
 
 
 # Install dependencies
-RUN apt update
-RUN apt install -y ant git openjdk-8-jdk-headless
-
-# Set up JAVA_HOME
-RUN echo 'export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64' >> $HOME/.bashrc
+RUN apk update
+RUN apk --no-cache add apache-ant git openjdk11
 
 # Checkout and build the Nutch master branch (1.x)
 RUN git clone https://github.com/apache/nutch.git nutch_source && cd nutch_source && ant runtime
