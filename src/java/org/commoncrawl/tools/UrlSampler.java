@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * 
  * Input:
  * <ul>
- * <li>URL and count of inlinks used to calculate seeds
+ * <li>URL and inlink count
  * 
  * <pre>
  * &lt;url&gt; \t &lt;inlink_count&gt;
@@ -162,7 +162,7 @@ public class UrlSampler extends Configured implements Tool {
         LOG.error("Value is not a long integer (url: {} value: {})", url,
             value);
       }
-      outputKey.set(domain, (float) (Math.random() * 1 + count));
+      outputKey.set(domain, (float) (Math.random() * count));
       outputValue.set(key, count);
       context.write(outputKey, outputValue);
     }
