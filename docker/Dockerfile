@@ -18,13 +18,16 @@ MAINTAINER Apache Nutch Committers <dev@nutch.apache.org>
 
 WORKDIR /root/
 
-
 # Install dependencies
 RUN apk update
-RUN apk --no-cache add apache-ant git openjdk11
+RUN apk --no-cache add apache-ant bash git openjdk11
 
 # Checkout and build the Nutch master branch (1.x)
-RUN git clone https://github.com/apache/nutch.git nutch_source && cd nutch_source && ant runtime
+RUN git clone https://github.com/apache/nutch.git nutch_source && \
+     cd nutch_source && \
+     ant runtime && \
+     rm -rf build/ && \
+     rm -rf /root/.ivy2/
 
 # Convenience symlink to Nutch runtime local
 RUN ln -s nutch_source/runtime/local $HOME/nutch
