@@ -1,5 +1,12 @@
 # Nutch Dockerfile #
 
+![Docker Pulls](https://img.shields.io/docker/pulls/apache/nutch?style=for-the-badge)
+![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/apache/nutch?style=for-the-badge)
+![Docker Image Version (latest semver)](https://img.shields.io/docker/v/apache/nutch?style=for-the-badge)
+![MicroBadger Layers](https://img.shields.io/microbadger/layers/apache/nutch?style=for-the-badge)
+![Docker Stars](https://img.shields.io/docker/stars/apache/nutch?style=for-the-badge)
+![Docker Automated build](https://img.shields.io/docker/automated/apache/nutch?style=for-the-badge)
+
 Get up and running quickly with Nutch on Docker.
 
 ## What is Nutch?
@@ -18,7 +25,7 @@ Current configuration of this image consists of components:
 
 ##  Base Image
 
-* [ubuntu:18.04](https://hub.docker.com/_/ubuntu/)
+* [alpine:3.13](https://hub.docker.com/_/alpine/)
 
 ## Tips
 
