@@ -22,6 +22,8 @@ WORKDIR /root/
 RUN apk update
 RUN apk --no-cache add apache-ant bash git openjdk11
 
+RUN echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk' >> $HOME/.bashrc
+
 # Checkout and build the Nutch master branch (1.x)
 RUN git clone https://github.com/apache/nutch.git nutch_source && \
      cd nutch_source && \
