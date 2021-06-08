@@ -287,7 +287,8 @@ public class UrlSampler extends Configured implements Tool {
 
   private void sample(Path[] inputs, Path output) throws Exception {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
+        Locale.ROOT);
     long start = System.currentTimeMillis();
     LOG.info("UrlSampler: starting at {}", sdf.format(start));
 

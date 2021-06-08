@@ -21,9 +21,11 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
@@ -43,6 +45,7 @@ import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.TimingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -267,6 +270,11 @@ public class UrlCleaner extends Configured implements Tool {
   public void clean(Path[] inputs, Path output, boolean checkDomain,
       OutputKeyType outputKeyType, boolean sumValues) throws Exception {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
+        Locale.ROOT);
+    long start = System.currentTimeMillis();
+    LOG.info("UrlCleaner: starting at {}", sdf.format(start));
+
     Configuration conf = getConf();
     conf.setBoolean(CHECK_DOMAIN, checkDomain);
     conf.set(OUTPUT_KEY_TYPE, outputKeyType.toString());
@@ -307,6 +315,9 @@ public class UrlCleaner extends Configured implements Tool {
       throw e;
     }
 
+    long end = System.currentTimeMillis();
+    LOG.info("UrlCleaner: finished at {}, elapsed: {}", sdf.format(end),
+        TimingUtil.elapsedTime(start, end));
   }
 
   public void usage() {

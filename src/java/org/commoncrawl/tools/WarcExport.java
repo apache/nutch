@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class WarcExport extends Configured implements Tool {
   public static Logger LOG = LoggerFactory.getLogger(WarcExport.class);
@@ -173,7 +174,8 @@ public class WarcExport extends Configured implements Tool {
     job.setOutputFormatClass(WarcOutputFormat.class);
     WarcOutputFormat.setOutputPath(job, outputDir);
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
+        Locale.ROOT);
     long start = System.currentTimeMillis();
     LOG.info("WarcExport: starting at {}", sdf.format(start));
 
