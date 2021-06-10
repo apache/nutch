@@ -198,10 +198,12 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   int orphanTimeAny;
   int orphanTimeLastSeenDefault;
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     curTime = conf.getLong(Generator.GENERATOR_CUR_TIME,
@@ -288,6 +290,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   }
 
   /** Add injected timestamp to metadata */
+  @Override
   public void injectedScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
     datum.getMetaData().put(WRITABLE_LAST_SEEN_TIME,
@@ -295,6 +298,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   }
 
   /** Add detection timestamp to metadata (URL found as outlink) */
+  @Override
   public void initialScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
     datum.getMetaData().put(WRITABLE_LAST_SEEN_TIME,
@@ -305,6 +309,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
    * Use {@link CrawlDatum#getScore()} but be adaptive to page status and
    * fetch time.
    */
+  @Override
   public float generatorSortValue(Text url, CrawlDatum datum, float initSort)
       throws ScoringFilterException {
     initSort *= datum.getScore();
@@ -352,6 +357,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     return initSort;
   }
 
+  @Override
   public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
       List<CrawlDatum> inlinks) throws ScoringFilterException {
 
@@ -366,6 +372,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     }
   }
 
+  @Override
   public void orphanedScore(Text url, CrawlDatum datum) {
     orphanedScore(url, datum, null);
   }
