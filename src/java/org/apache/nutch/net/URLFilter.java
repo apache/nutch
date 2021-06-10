@@ -21,17 +21,23 @@ import org.apache.hadoop.conf.Configurable;
 import org.apache.nutch.plugin.Pluggable;
 
 /**
- * Interface used to limit which URLs enter Nutch. Used by the injector and the
- * db updater.
+ * Interface used to limit which URLs enter Nutch. Used per default by injector,
+ * fetcher and parser for all URLs seen first (seeds, outlinks, redirects). URL
+ * filters can be optionally enabled for many more Nutch tools.
  */
-
 public interface URLFilter extends Pluggable, Configurable {
+
   /** The name of the extension point. */
   public final static String X_POINT_ID = URLFilter.class.getName();
 
-  /*
+  /**
    * Interface for a filter that transforms a URL: it can pass the original URL
    * through or "delete" the URL by returning null
+   * 
+   * @param urlString
+   *          the URL string the filter is applied on
+   * @return the original URL string if the URL is accepted by the filter or
+   *         null in case the URL is rejected
    */
   public String filter(String urlString);
 }

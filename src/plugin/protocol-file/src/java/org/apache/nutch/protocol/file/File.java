@@ -70,6 +70,7 @@ public class File implements Protocol {
   /**
    * Set the {@link Configuration} object
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.maxContentLength = conf.getInt("file.content.limit", 1024 * 1024);
@@ -81,6 +82,7 @@ public class File implements Protocol {
   /**
    * Get the {@link Configuration} object
    */
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
@@ -105,6 +107,7 @@ public class File implements Protocol {
    * @return {@link ProtocolOutput} object for the content of the file indicated
    *         by url
    */
+  @Override
   public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
     String urlString = url.toString();
     try {

@@ -19,7 +19,11 @@ package org.apache.nutch.net;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.plugin.PluginRepository;
 
-/** Creates and caches {@link URLFilter} implementing plugins. */
+/**
+ * Creates and caches plugins implementing {@link URLFilter}. Filters URLs using
+ * the active filters defined by the properties "plugin.includes",
+ * "plugin.excludes" and "urlfilter.order".
+ */
 public class URLFilters {
 
   public static final String URLFILTER_ORDER = "urlfilter.order";
@@ -34,12 +38,15 @@ public class URLFilters {
     return this.filters;
   }
 
-  /** 
-   * Run all defined filters. Assume logical AND.
-   * @param urlString to execute filters on
+  /**
+   * Run all defined filters. Assume logical AND. To control performance, the
+   * ULFilter classes can be ordered by the property "urlfilter.order".
+   * 
+   * @param urlString
+   *          to execute filters on
    * @return filtered result
-   * @throws URLFilterException if there is an issue executing
-   * any URLFilter implementations.
+   * @throws URLFilterException
+   *           if there is an issue executing any URLFilter implementations.
    */
   public String filter(String urlString) throws URLFilterException {
     for (int i = 0; i < this.filters.length; i++) {

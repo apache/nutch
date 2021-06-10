@@ -100,6 +100,7 @@ public class FeedParser implements Parser {
    *         present in the feed file that this {@link Parser} dealt with.
    * 
    */
+  @Override
   public ParseResult getParse(Content content) {
     SyndFeed feed = null;
     ParseResult parseResult = new ParseResult(content.getUrl());
@@ -162,6 +163,7 @@ public class FeedParser implements Parser {
    *          {@link Parser}.
    * 
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.parserFactory = new ParserFactory(conf);
@@ -176,6 +178,7 @@ public class FeedParser implements Parser {
    * @return The {@link Configuration} object used to configure this
    *         {@link Parser}.
    */
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

@@ -17,19 +17,16 @@
 package org.apache.nutch.scoring.urlmeta;
 
 import java.util.Collection;
-import java.util.Map.Entry;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.scoring.AbstractScoringFilter;
 import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
 
@@ -38,11 +35,10 @@ import org.apache.nutch.scoring.ScoringFilterException;
  * 
  * {@link org.apache.nutch.scoring.urlmeta}
  */
-public class URLMetaScoringFilter extends Configured implements ScoringFilter {
+public class URLMetaScoringFilter extends AbstractScoringFilter {
 
   private static final String CONF_PROPERTY = "urlmeta.tags";
   private static String[] urlMetaTags;
-  private Configuration conf;
 
   /**
    * This will take the metatags that you have listed in your "urlmeta.tags"
@@ -52,6 +48,7 @@ public class URLMetaScoringFilter extends Configured implements ScoringFilter {
    * 
    * @see ScoringFilter#distributeScoreToOutlinks
    */
+  @Override
   public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
       ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
       CrawlDatum adjust, int allCount) throws ScoringFilterException {
@@ -84,6 +81,7 @@ public class URLMetaScoringFilter extends Configured implements ScoringFilter {
    * @see ScoringFilter#passScoreBeforeParsing
    * @see URLMetaScoringFilter#passScoreAfterParsing
    */
+  @Override
   public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content) {
     if (urlMetaTags == null || content == null || datum == null)
       return;
@@ -105,6 +103,7 @@ public class URLMetaScoringFilter extends Configured implements ScoringFilter {
    * @see URLMetaScoringFilter#passScoreBeforeParsing
    * @see ScoringFilter#passScoreAfterParsing
    */
+  @Override
   public void passScoreAfterParsing(Text url, Content content, Parse parse) {
     if (urlMetaTags == null || content == null || parse == null)
       return;
@@ -119,41 +118,11 @@ public class URLMetaScoringFilter extends Configured implements ScoringFilter {
     }
   }
 
-  /** Boilerplate */
-  public float generatorSortValue(Text url, CrawlDatum datum, float initSort)
-      throws ScoringFilterException {
-    return initSort;
-  }
-
-  /** Boilerplate */
-  public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
-      CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
-      throws ScoringFilterException {
-    return initScore;
-  }
-
-  /** Boilerplate */
-  public void initialScore(Text url, CrawlDatum datum)
-      throws ScoringFilterException {
-    return;
-  }
-
-  /** Boilerplate */
-  public void injectedScore(Text url, CrawlDatum datum)
-      throws ScoringFilterException {
-    return;
-  }
-
-  /** Boilerplate */
-  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
-      List<CrawlDatum> inlinked) throws ScoringFilterException {
-    return;
-  }
-
   /**
    * handles conf assignment and pulls the value assignment from the
    * "urlmeta.tags" property
    */
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
 
@@ -163,8 +132,4 @@ public class URLMetaScoringFilter extends Configured implements ScoringFilter {
     urlMetaTags = conf.getStrings(CONF_PROPERTY);
   }
 
-  /** Boilerplate */
-  public Configuration getConf() {
-    return conf;
-  }
 }

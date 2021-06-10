@@ -277,6 +277,7 @@ public class CCParseFilter implements HtmlParseFilter {
    * Adds metadata or otherwise modifies a parse of an HTML document, given the
    * DOM tree of a page.
    */
+  @Override
   public ParseResult filter(Content content, ParseResult parseResult,
       HTMLMetaTags metaTags, DocumentFragment doc) {
 
@@ -307,10 +308,12 @@ public class CCParseFilter implements HtmlParseFilter {
     return parseResult;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

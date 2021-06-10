@@ -101,6 +101,7 @@ public class DomainDenylistURLFilter implements URLFilter {
   /**
    * Sets the configuration.
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -150,10 +151,12 @@ public class DomainDenylistURLFilter implements URLFilter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
 
+  @Override
   public String filter(String url) {
     try {
       // match for suffix, domain, and host in that order. more general will

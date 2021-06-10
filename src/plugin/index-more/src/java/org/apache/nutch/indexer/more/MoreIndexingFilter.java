@@ -105,6 +105,7 @@ public class MoreIndexingFilter implements IndexingFilter {
             "yyyy-MM-dd'T'HH:mm:ssXXX" };
   private String[] dateStyles = null;
 
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
@@ -311,6 +312,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     return doc;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     MIME = new MimeUtil(conf);
@@ -352,6 +354,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

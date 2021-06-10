@@ -64,6 +64,7 @@ public class FeedIndexingFilter implements IndexingFilter {
    * And sends them to the {@link org.apache.nutch.indexer Indexer} for indexing within the Nutch index.
    * 
    */
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
     ParseData parseData = parse.getData();
@@ -107,6 +108,7 @@ public class FeedIndexingFilter implements IndexingFilter {
    * @return the {@link Configuration} object used to configure this
    *         {@link IndexingFilter}.
    */
+  @Override
   public Configuration getConf() {
     return conf;
   }
@@ -119,6 +121,7 @@ public class FeedIndexingFilter implements IndexingFilter {
    *          The {@link Configuration} object used to configure this
    *          {@link IndexingFilter}.
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }

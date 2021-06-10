@@ -168,6 +168,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
   protected abstract Reader getRulesReader(Configuration conf)
       throws IOException;
 
+  @Override
   public String filter(String url) {
     String host = null;
     String domain = null;
@@ -205,6 +206,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
     return null;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     Reader reader = null;
@@ -226,6 +228,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

@@ -302,10 +302,12 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       System.out.println(" - " + links[i]);
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

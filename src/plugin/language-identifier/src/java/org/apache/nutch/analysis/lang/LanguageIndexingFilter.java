@@ -60,6 +60,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
   }
 
   // Inherited JavaDoc
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
@@ -84,11 +85,13 @@ public class LanguageIndexingFilter implements IndexingFilter {
     return doc;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     indexLangs = new HashSet<>(conf.getStringCollection("lang.index.languages"));
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

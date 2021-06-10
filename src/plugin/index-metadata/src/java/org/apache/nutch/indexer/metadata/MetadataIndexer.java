@@ -49,6 +49,7 @@ public class MetadataIndexer implements IndexingFilter {
   private static final String separator_CONF_PROPERTY = "index.metadata.separator";
   private static final String mvfields_CONF_PROPERTY = "index.metadata.multivalued.fields";
   
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
@@ -105,6 +106,7 @@ public class MetadataIndexer implements IndexingFilter {
     }
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     dbFieldnames = conf.getStrings(db_CONF_PROPERTY);
@@ -119,6 +121,7 @@ public class MetadataIndexer implements IndexingFilter {
 
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
