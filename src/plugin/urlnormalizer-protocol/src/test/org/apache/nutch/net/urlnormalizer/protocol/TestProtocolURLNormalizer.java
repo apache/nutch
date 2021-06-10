@@ -83,5 +83,14 @@ public class TestProtocolURLNormalizer extends TestCase {
         normalizer.normalize(
             "http://www.subdomain.example.com:8080/path?q=uery",
             URLNormalizers.SCOPE_DEFAULT));
+
+    // No change because of invalid rules in protocols.txt
+    // (verify that these rules are skipped)
+    assertEquals("http://invalid-rule3.example.top/", normalizer
+        .normalize("http://invalid-rule3.example.top/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://invalid-rule2.example.top/", normalizer
+        .normalize("http://invalid-rule2.example.top/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://invalid-rule3.example.top/", normalizer
+        .normalize("http://invalid-rule3.example.top/", URLNormalizers.SCOPE_DEFAULT));
   }
 }
