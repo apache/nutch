@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.elasticsearch.client" name="elasticsearch-rest-high-level-client" rev="7.3.0">
+    <dependency org="org.elasticsearch.client" name="elasticsearch-rest-high-level-client" rev="7.11.1">
       <!-- exclusions of dependencies provided in Nutch core (ivy/ivy.xml) -->
       <exclude org="commons-codec" name="commons-codec" />
       <exclude org="commons-logging" name="commons-logging" />

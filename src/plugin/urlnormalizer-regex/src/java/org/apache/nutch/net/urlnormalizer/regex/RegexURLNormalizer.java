@@ -52,7 +52,7 @@ import org.xml.sax.InputSource;
  * which is useful for stripping session IDs from URLs.
  * 
  * <p>
- * This class uses the <tt>urlnormalizer.regex.file</tt> property. It should be
+ * This class uses the <code>urlnormalizer.regex.file</code> property. It should be
  * set to the file name of an xml file which should contain the patterns and
  * substitutions to be done on encountered URLs.
  * </p>
