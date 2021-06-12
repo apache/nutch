@@ -58,6 +58,7 @@ public class MetadataScoringFilter extends AbstractScoringFilter  {
    * 
    * @see ScoringFilter#distributeScoreToOutlinks
    */
+  @Override
   public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
       ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
       CrawlDatum adjust, int allCount) throws ScoringFilterException {
@@ -90,6 +91,7 @@ public class MetadataScoringFilter extends AbstractScoringFilter  {
    * @see ScoringFilter#passScoreBeforeParsing
    * @see MetadataScoringFilter#passScoreAfterParsing
    */
+  @Override
   public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content) {
     if (datumMetadata == null || content == null || datum == null)
       return;
@@ -112,6 +114,7 @@ public class MetadataScoringFilter extends AbstractScoringFilter  {
    * @see MetadataScoringFilter#passScoreBeforeParsing
    * @see ScoringFilter#passScoreAfterParsing
    */
+  @Override
   public void passScoreAfterParsing(Text url, Content content, Parse parse) {
     if (contentMetadata == null || content == null || parse == null)
       return;
@@ -130,6 +133,7 @@ public class MetadataScoringFilter extends AbstractScoringFilter  {
    * handles conf assignment and pulls the value assignment from the
    * "scoring.db.md", "scoring.content.md" and "scoring.parse.md" properties.
    */
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
 

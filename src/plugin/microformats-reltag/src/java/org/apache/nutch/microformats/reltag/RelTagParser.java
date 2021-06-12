@@ -58,6 +58,7 @@ public class RelTagParser implements HtmlParseFilter {
   /**
    * Scan the HTML document looking at possible rel-tags
    */
+  @Override
   public ParseResult filter(Content content, ParseResult parseResult,
       HTMLMetaTags metaTags, DocumentFragment doc) {
 
@@ -136,10 +137,12 @@ public class RelTagParser implements HtmlParseFilter {
 
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

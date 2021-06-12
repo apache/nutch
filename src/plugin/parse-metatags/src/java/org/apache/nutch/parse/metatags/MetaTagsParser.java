@@ -48,6 +48,7 @@ public class MetaTagsParser implements HtmlParseFilter {
 
   private Set<String> metatagset = new HashSet<String>();
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     // specify whether we want a specific subset of metadata
@@ -58,6 +59,7 @@ public class MetaTagsParser implements HtmlParseFilter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
@@ -95,6 +97,7 @@ public class MetaTagsParser implements HtmlParseFilter {
     }
   }
 
+  @Override
   public ParseResult filter(Content content, ParseResult parseResult,
       HTMLMetaTags metaTags, DocumentFragment doc) {
 

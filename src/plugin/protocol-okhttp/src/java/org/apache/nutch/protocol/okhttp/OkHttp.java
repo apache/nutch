@@ -106,6 +106,7 @@ public class OkHttp extends HttpBase {
     super(LOG);
   }
 
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
 
@@ -328,6 +329,7 @@ public class OkHttp extends HttpBase {
     return client;
   }
 
+  @Override
   protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
       throws ProtocolException, IOException {
     return new OkHttpResponse(this, url, datum);

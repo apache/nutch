@@ -180,6 +180,7 @@ public class Subcollection extends Configured implements URLFilter {
    * 
    * @see org.apache.nutch.net.URLFilter#filter(java.lang.String)
    */
+  @Override
   public String filter(String urlString) {
     // first the blacklist
     Iterator<String> i = blackList.iterator();

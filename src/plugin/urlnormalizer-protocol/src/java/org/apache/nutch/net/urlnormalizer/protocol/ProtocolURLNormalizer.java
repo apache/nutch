@@ -122,10 +122,12 @@ public class ProtocolURLNormalizer implements URLNormalizer {
         protocolsMap.size(), domainProtocolsMap.size());
   }
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -185,11 +187,8 @@ public class ProtocolURLNormalizer implements URLNormalizer {
     }
   }
   
+  @Override
   public String normalize(String url, String scope) throws MalformedURLException {
-    return normalize(url, null, scope);
-  }
-
-  public String normalize(String url, CrawlDatum crawlDatum, String scope) throws MalformedURLException {
     // Get URL repr.
     URL u = new URL(url);
     

@@ -60,6 +60,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
    * @return String
    * @throws MalformedURLException if the urlString is malformed
    */
+  @Override
   public String normalize(String urlString, String scope) throws MalformedURLException {
     LOG.info(scope + " // " + urlString);
   
@@ -224,6 +225,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
   /**
    * @param conf a populated {@link Configuration}
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
@@ -231,6 +233,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
   /**
    * @return Configuration
    */
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

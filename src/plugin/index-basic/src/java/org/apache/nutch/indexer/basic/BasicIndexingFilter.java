@@ -68,6 +68,7 @@ public class BasicIndexingFilter implements IndexingFilter {
    *          The {@link Inlinks} containing anchor text
    * @return filtered NutchDocument
    */
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
@@ -135,6 +136,7 @@ public class BasicIndexingFilter implements IndexingFilter {
   /**
    * Set the {@link Configuration} object
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.MAX_TITLE_LENGTH = conf.getInt("indexer.max.title.length", 100);
@@ -145,6 +147,7 @@ public class BasicIndexingFilter implements IndexingFilter {
   /**
    * Get the {@link Configuration} object
    */
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

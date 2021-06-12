@@ -33,9 +33,7 @@ import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.util.domain.DomainSuffix;
 
 /**
- * Adds the Top level domain extensions to the index
- * 
- * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
+ * Adds the top-level domain extensions to the index
  */
 public class TLDIndexingFilter implements IndexingFilter {
   private static final Logger LOG = LoggerFactory
@@ -43,6 +41,7 @@ public class TLDIndexingFilter implements IndexingFilter {
 
   private Configuration conf;
 
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text urlText,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
@@ -59,10 +58,12 @@ public class TLDIndexingFilter implements IndexingFilter {
     return doc;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

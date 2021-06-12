@@ -66,6 +66,7 @@ public class PrefixURLFilter implements URLFilter {
     trie = readConfiguration(new StringReader(stringRules));
   }
 
+  @Override
   public String filter(String url) {
     if (trie.shortestMatch(url) == null)
       return null;
@@ -115,6 +116,7 @@ public class PrefixURLFilter implements URLFilter {
     }
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -165,6 +167,7 @@ public class PrefixURLFilter implements URLFilter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
