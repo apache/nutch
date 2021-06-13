@@ -101,6 +101,7 @@ public class DomainURLFilter implements URLFilter {
   /**
    * Sets the configuration.
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -149,10 +150,12 @@ public class DomainURLFilter implements URLFilter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
 
+  @Override
   public String filter(String url) {
     // https://issues.apache.org/jira/browse/NUTCH-2189
     if (domainSet.size() == 0) return url;

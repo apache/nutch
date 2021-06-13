@@ -49,6 +49,7 @@ public class SubcollectionIndexingFilter extends Configured implements
   /**
    * @param conf A populated {@link Configuration}
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     fieldName = conf.get("subcollection.default.fieldname", "subcollection");
@@ -60,6 +61,7 @@ public class SubcollectionIndexingFilter extends Configured implements
   /**
    * @return Configuration
    */
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
@@ -91,6 +93,7 @@ public class SubcollectionIndexingFilter extends Configured implements
     }
   }
 
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
     // Check for subcollection overrride in HTML metadata

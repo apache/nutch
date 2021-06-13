@@ -203,6 +203,7 @@ public abstract class HttpBase implements Protocol {
     robots = new HttpRobotRulesParser();
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.proxyHost = conf.get("http.proxy.host");
@@ -373,10 +374,12 @@ public abstract class HttpBase implements Protocol {
     logConf();
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
 
+  @Override
   public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
 
     String urlString = url.toString();

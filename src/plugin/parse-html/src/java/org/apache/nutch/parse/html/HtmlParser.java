@@ -143,6 +143,7 @@ public class HtmlParser implements Parser {
 
   private String cachingPolicy;
 
+  @Override
   public ParseResult getParse(Content content) {
     HTMLMetaTags metaTags = new HTMLMetaTags();
 

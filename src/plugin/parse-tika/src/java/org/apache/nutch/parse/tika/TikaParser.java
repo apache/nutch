@@ -80,6 +80,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   private String boilerpipeExtractorName;
   private Set<String> boilerpipeMimeTypes;
 
+  @Override
   public ParseResult getParse(Content content) {
     HTMLDocumentImpl doc = new HTMLDocumentImpl();
     doc.setErrorChecking(false);
@@ -257,6 +258,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     return filteredParse;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.tikaConfig = null;
@@ -324,6 +326,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     parseEmbedded = conf.getBoolean("tika.parse.embedded", true);
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

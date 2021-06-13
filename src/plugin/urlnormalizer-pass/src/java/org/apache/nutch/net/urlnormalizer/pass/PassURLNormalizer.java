@@ -32,15 +32,18 @@ public class PassURLNormalizer implements URLNormalizer {
 
   private Configuration conf;
 
+  @Override
   public String normalize(String urlString, String scope)
       throws MalformedURLException {
     return urlString;
   }
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }

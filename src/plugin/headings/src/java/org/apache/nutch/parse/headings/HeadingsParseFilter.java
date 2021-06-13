@@ -45,6 +45,7 @@ public class HeadingsParseFilter implements HtmlParseFilter {
   private String[] headings;
   private boolean multiValued = false;
 
+  @Override
   public ParseResult filter(Content content, ParseResult parseResult,
       HTMLMetaTags metaTags, DocumentFragment doc) {
     Parse parse = parseResult.get(content.getUrl());
@@ -68,6 +69,7 @@ public class HeadingsParseFilter implements HtmlParseFilter {
     return parseResult;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -75,6 +77,7 @@ public class HeadingsParseFilter implements HtmlParseFilter {
     multiValued = conf.getBoolean("headings.multivalued", false);
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

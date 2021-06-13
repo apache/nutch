@@ -77,10 +77,12 @@ public class HostURLNormalizer implements URLNormalizer {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -137,6 +139,7 @@ public class HostURLNormalizer implements URLNormalizer {
     }
   }
 
+  @Override
   public String normalize(String urlString, String scope)
       throws MalformedURLException {
     String host = new URL(urlString).getHost();

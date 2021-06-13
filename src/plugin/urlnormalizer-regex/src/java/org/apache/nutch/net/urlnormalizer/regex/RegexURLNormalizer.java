@@ -123,6 +123,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     }
   }
 
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
     if (conf == null)
@@ -202,6 +203,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     return urlString;
   }
 
+  @Override
   public String normalize(String urlString, String scope)
       throws MalformedURLException {
     return regexNormalize(urlString, scope);

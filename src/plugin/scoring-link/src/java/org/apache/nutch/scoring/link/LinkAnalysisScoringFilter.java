@@ -16,9 +16,7 @@
  */
 package org.apache.nutch.scoring.link;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
@@ -27,41 +25,31 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.scoring.ScoringFilter;
+import org.apache.nutch.scoring.AbstractScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
 
-public class LinkAnalysisScoringFilter implements ScoringFilter {
+public class LinkAnalysisScoringFilter extends AbstractScoringFilter {
 
-  private Configuration conf;
   private float normalizedScore = 1.00f;
   private float initialScore = 0.0f;
 
   public LinkAnalysisScoringFilter() {
-
   }
 
-  public Configuration getConf() {
-    return conf;
-  }
-
+  @Override
   public void setConf(Configuration conf) {
-    this.conf = conf;
+    super.setConf(conf);
     normalizedScore = conf.getFloat("link.analyze.normalize.score", 1.00f);
   }
 
-  public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
-      ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
-      CrawlDatum adjust, int allCount) throws ScoringFilterException {
-    return adjust;
-  }
-
+  @Override
   public float generatorSortValue(Text url, CrawlDatum datum, float initSort)
       throws ScoringFilterException {
     return datum.getScore() * initSort;
   }
 
+  @Override
   public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
       throws ScoringFilterException {
@@ -71,29 +59,23 @@ public class LinkAnalysisScoringFilter implements ScoringFilter {
     return (normalizedScore * dbDatum.getScore());
   }
 
+  @Override
   public void initialScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
     datum.setScore(initialScore);
   }
 
-  public void injectedScore(Text url, CrawlDatum datum)
-      throws ScoringFilterException {
-  }
-
+  @Override
   public void passScoreAfterParsing(Text url, Content content, Parse parse)
       throws ScoringFilterException {
     parse.getData().getContentMeta()
         .set(Nutch.SCORE_KEY, content.getMetadata().get(Nutch.SCORE_KEY));
   }
 
+  @Override
   public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content)
       throws ScoringFilterException {
     content.getMetadata().set(Nutch.SCORE_KEY, "" + datum.getScore());
-  }
-
-  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
-      List<CrawlDatum> inlinked) throws ScoringFilterException {
-    // nothing to do
   }
 
 }

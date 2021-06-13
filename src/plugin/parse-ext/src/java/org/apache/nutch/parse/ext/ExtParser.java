@@ -66,6 +66,7 @@ public class ExtParser implements Parser {
   public ExtParser() {
   }
 
+  @Override
   public ParseResult getParse(Content content) {
 
     String contentType = content.getContentType();
@@ -141,6 +142,7 @@ public class ExtParser implements Parser {
         parseData));
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     Extension[] extensions = PluginRepository.get(conf)
@@ -177,6 +179,7 @@ public class ExtParser implements Parser {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
