@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -69,9 +70,14 @@ public class ProtocolURLNormalizer implements URLNormalizer {
 
   // Map of domain suffixes and protocol to be used for all hosts below this domain
   private final Map<String,String> domainProtocolsMap = new HashMap<>();
+
   // Matcher for domain suffixes
   private SuffixStringMatcher domainMatcher = null;
 
+  // validator for protocols/schemes following RFC 1630
+  private final static Pattern PROTOCOL_VALIDATOR = Pattern.compile(
+      "^[a-z](?:[a-z0-9$\\-_@.&!*\"'(),]|%[0-9a-f]{2})*$",
+      Pattern.CASE_INSENSITIVE);
 
   private synchronized void readConfiguration(Reader configReader) throws IOException {
     if (protocolsMap.size() > 0) {
@@ -82,18 +88,30 @@ public class ProtocolURLNormalizer implements URLNormalizer {
     String line, host;
     String protocol;
     int delimiterIndex;
+    int lineNumber = 0;
 
     while ((line = reader.readLine()) != null) {
+      lineNumber++;
+      line = line.trim();
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line = line.trim();
         delimiterIndex = line.indexOf(" ");
         // try tabulator
         if (delimiterIndex == -1) {
           delimiterIndex = line.indexOf("\t");
         }
+        if (delimiterIndex == -1) {
+          LOG.warn("Invalid line {}, no delimiter between <host/domain> and <protocol> found: {}", lineNumber, line);
+          continue;
+        }
 
         host = line.substring(0, delimiterIndex);
         protocol = line.substring(delimiterIndex + 1).trim();
+
+        if (!PROTOCOL_VALIDATOR.matcher(protocol).matches()) {
+          LOG.warn("Skipping rule with protocol not following RFC 1630 in line {}: {}",
+              lineNumber, line);
+          continue;
+        }
 
         /*
          * dedup protocol values to reduce memory footprint of map: equal
@@ -172,13 +190,14 @@ public class ProtocolURLNormalizer implements URLNormalizer {
     if (stringRules != null && !stringRules.isEmpty()) { // takes precedence over files
       reader = new StringReader(stringRules);
     } else {
-      LOG.info("Reading {} rules file {}", pluginName, file);
+      LOG.info("Reading {} rules file {} from Java class path", pluginName, file);
       reader = conf.getConfResourceAsReader(file);
     }
     try {
       if (reader == null) {
         Path path = new Path(file);
         FileSystem fs = path.getFileSystem(conf);
+        LOG.info("Reading {} rules file {}", pluginName, path.toUri());
         reader = new InputStreamReader(fs.open(path));
       }
       readConfiguration(reader);
