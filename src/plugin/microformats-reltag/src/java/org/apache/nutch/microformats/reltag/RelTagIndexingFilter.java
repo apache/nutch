@@ -38,7 +38,7 @@ public class RelTagIndexingFilter implements IndexingFilter {
 
   private Configuration conf;
 
-  // Inherited JavaDoc
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
@@ -54,22 +54,14 @@ public class RelTagIndexingFilter implements IndexingFilter {
     return doc;
   }
 
-  /*
-   * ----------------------------- * <implementation:Configurable> *
-   * -----------------------------
-   */
-
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
-
-  /*
-   * ------------------------------ * </implementation:Configurable> *
-   * ------------------------------
-   */
 
 }

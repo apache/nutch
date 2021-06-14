@@ -648,7 +648,7 @@
           <typefound uri="antlib:org.apache.ivy.ant" name="cleancache" />
         </not>
       </condition>
-      You need Apache Ivy 2.0 or later from http://ant.apache.org/
+      You need Apache Ivy 2.5.0 or later from https://ant.apache.org/
       It could not be loaded from ${ivy.repo.url}
     </fail>
   </target>

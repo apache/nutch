@@ -138,6 +138,7 @@ public class DepthScoringFilter extends Configured implements ScoringFilter {
     return initSort * (1 + mul);
   }
 
+  @Override
   public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
       throws ScoringFilterException {

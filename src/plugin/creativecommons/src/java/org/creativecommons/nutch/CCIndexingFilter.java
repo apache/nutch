@@ -49,6 +49,7 @@ public class CCIndexingFilter implements IndexingFilter {
 
   private Configuration conf;
 
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
@@ -115,10 +116,12 @@ public class CCIndexingFilter implements IndexingFilter {
     doc.add(FIELD, feature);
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

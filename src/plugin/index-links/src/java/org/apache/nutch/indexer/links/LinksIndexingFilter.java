@@ -156,6 +156,7 @@ public class LinksIndexingFilter implements IndexingFilter {
       }
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     filterOutlinks = conf.getBoolean(LINKS_OUTLINKS_HOST, false);
@@ -164,6 +165,7 @@ public class LinksIndexingFilter implements IndexingFilter {
     indexHost = conf.getBoolean(LINKS_ONLY_HOSTS, false);
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

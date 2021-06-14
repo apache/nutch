@@ -140,6 +140,7 @@ public class Ftp implements Protocol {
    * 
    * @return {@link ProtocolOutput} object for the url
    */
+  @Override
   public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
     String urlString = url.toString();
     try {
@@ -186,6 +187,7 @@ public class Ftp implements Protocol {
     }
   }
 
+  @Override
   protected void finalize() {
     try {
       if (this.client != null && this.client.isConnected()) {
@@ -272,6 +274,7 @@ public class Ftp implements Protocol {
   /**
    * Set the {@link Configuration} object
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.maxContentLength = conf.getInt("ftp.content.limit", 1024 * 1024);
@@ -287,6 +290,7 @@ public class Ftp implements Protocol {
   /**
    * Get the {@link Configuration} object
    */
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

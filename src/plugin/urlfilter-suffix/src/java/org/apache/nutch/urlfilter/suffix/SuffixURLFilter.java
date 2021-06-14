@@ -141,6 +141,7 @@ public class SuffixURLFilter implements URLFilter {
     readConfiguration(reader);
   }
 
+  @Override
   public String filter(String url) {
     if (url == null)
       return null;
@@ -249,6 +250,7 @@ public class SuffixURLFilter implements URLFilter {
     }
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -293,6 +295,7 @@ public class SuffixURLFilter implements URLFilter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

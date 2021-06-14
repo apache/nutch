@@ -2785,7 +2785,11 @@ Add scoring-metadata to the list of active plugins
   <name>publisher.order</name>
   <value></value>
   <description>
-    The order in which the publisher queues would be loaded
+    The order in which the publisher queues would be loaded.  If
+    empty, all available publishers (see properties plugin-includes
+    and plugin-excludes) are loaded and applied in system defined
+    order. If not empty, only named publishers are loaded and applied
+    in the given order.
   </description>
 </property>
 

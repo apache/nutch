@@ -85,6 +85,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
    * -html.shtml#language) <li>3. meta http-equiv (content-language)
    * (http://www.w3.org/TR/REC-html40/struct/global.html#h-7.4.4.2) <br></ul>
    */
+  @Override
   public ParseResult filter(Content content, ParseResult parseResult,
       HTMLMetaTags metaTags, DocumentFragment doc) {
     String lang = null;
@@ -300,6 +301,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
 
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     contentMaxlength = conf.getInt("lang.analyze.max.length", -1);
@@ -314,6 +316,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

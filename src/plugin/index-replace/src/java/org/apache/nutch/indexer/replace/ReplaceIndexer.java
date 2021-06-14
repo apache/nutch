@@ -102,9 +102,7 @@ public class ReplaceIndexer implements IndexingFilter {
 
   private Configuration conf;
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     FIELDREPLACERS_BY_HOST.clear();
@@ -116,9 +114,7 @@ public class ReplaceIndexer implements IndexingFilter {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
@@ -233,9 +229,7 @@ public class ReplaceIndexer implements IndexingFilter {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 

@@ -19,3 +19,13 @@ example.io	https
 example.nl	https
 
 *.example.com	https
+
+# invalid input to verify whether this is handled nicely by the configuration file reader
+# no host/domain
+	https
+# no protocol
+invalid-rule1.example.top
+# more than two fields (skip rule)
+invalid-rule2.example.top	https	http
+# invalid protocol, not following RFC 1630 (skip rule)
+invalid-rule3.example.top	@mail
