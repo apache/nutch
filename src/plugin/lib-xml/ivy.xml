@@ -1,7 +1,6 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='utf-8'?>
 
-<!--
-   Licensed to the Apache Software Foundation (ASF) under one or more
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
    The ASF licenses this file to You under the Apache License, Version 2.0
@@ -19,26 +18,26 @@
 
 <ivy-module version="1.0">
   <info organisation="org.apache.nutch" module="${ant.project.name}">
-    <license name="Apache 2.0"/>
-    <ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/"/>
+    <license name="Apache 2.0" />
+    <ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/" />
     <description>
         Apache Nutch
     </description>
   </info>
 
   <configurations>
-    <include file="../../..//ivy/ivy-configurations.xml"/>
+    <include file="../../..//ivy/ivy-configurations.xml" />
   </configurations>
 
   <publications>
     <!--get the artifact from our module name-->
-    <artifact conf="master"/>
+    <artifact conf="master" />
   </publications>
 
   <dependencies>
-    <dependency org="org.jdom" name="jdom" rev="1.1" conf="*->default"/>
-    <dependency org="jaxen" name="jaxen" rev="1.1.1" conf="*->master"/>
-    <dependency org="xerces" name="xercesImpl" rev="2.11.0" conf="*->master"/>
+    <dependency org="org.jdom" name="jdom" rev="2.0.2" conf="*->default" />
+    <dependency org="jaxen" name="jaxen" rev="1.2.0" conf="*->master" />
+    <dependency org="xerces" name="xercesImpl" rev="2.11.0" conf="*->master" />
   </dependencies>
   
 </ivy-module>
