@@ -1,6 +1,5 @@
-<?xml version="1.0" ?>
-
-<!--
+<?xml version='1.0' encoding='utf-8'?>
+<!-- 
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
    this work for additional information regarding copyright ownership.
@@ -16,27 +15,26 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-
 <ivy-module version="1.0">
   <info organisation="org.apache.nutch" module="${ant.project.name}">
-    <license name="Apache 2.0"/>
-    <ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/"/>
+    <license name="Apache 2.0" />
+    <ivyauthor name="Apache Nutch Team" url="https://nutch.apache.org/" />
     <description>
         Apache Nutch
     </description>
   </info>
 
   <configurations>
-    <include file="../../../ivy/ivy-configurations.xml"/>
+    <include file="../../../ivy/ivy-configurations.xml" />
   </configurations>
 
   <publications>
     <!--get the artifact from our module name-->
-    <artifact conf="master"/>
+    <artifact conf="master" />
   </publications>
 
   <dependencies>
-    <dependency org="org.elasticsearch.client" name="elasticsearch-rest-high-level-client" rev="7.11.1">
+    <dependency org="org.elasticsearch.client" name="elasticsearch-rest-high-level-client" rev="7.13.2">
       <!-- exclusions of dependencies provided in Nutch core (ivy/ivy.xml) -->
       <exclude org="commons-codec" name="commons-codec" />
       <exclude org="commons-logging" name="commons-logging" />
