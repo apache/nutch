@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.BiPredicate;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configurable;
@@ -61,6 +62,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.hash.MurmurHash;
+import org.apache.nutch.crawl.Generator2.SelectorReducer.DomainLimits;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
@@ -554,17 +556,40 @@ public class Generator2 extends Configured implements Tool {
      * Read domain-specific limits into a map
      * 
      * @param conf
-     * @param partition
-     *          partition ID of current task: domains not matching the partition
-     *          ID are skipped to keep the map small
+     * @param acceptor
+     *          predicate to select limits: the BiPredicate is passed a pair
+     *          <domain, limits> to decided whether it shall load the limits
+     *          rules for a particular domain
      * @return map <domain, limits>
      */
-    public static Map<String, DomainLimits> readLimitsFile(Configuration conf) {
-      return readLimitsFile(conf, -1, 1, null);
+    public static Map<String, DomainLimits> readLimitsFile(Configuration conf,
+        BiPredicate<String, DomainLimits> acceptor) {
+      String limitsFile = conf.get(GENERATOR_DOMAIN_LIMITS_FILE);
+      if (limitsFile != null) {
+        LOG.info("Reading domain-specific limits from {}", limitsFile);
+        Path limitsFilePath = new Path(limitsFile);
+        if (limitsFilePath.toUri().getScheme() != null) {
+          try {
+            FileSystem fs = limitsFilePath.getFileSystem(conf);
+            Reader limitsReader = new InputStreamReader(fs.open(limitsFilePath));
+            return readLimitsFile(limitsReader, acceptor);
+          } catch (IOException e) {
+            LOG.error("Failed to read domain-specific limits", e);
+          }
+        }
+        try (Reader limitsReader = conf.getConfResourceAsReader(limitsFile)) {
+          return readLimitsFile(limitsReader, acceptor);
+        } catch (IOException e) {
+          LOG.error("Failed to read domain-specific limits", e);
+        }
+      }
+      return null;
     }
 
     /**
-     * Read domain-specific limits into a map
+     * Read domain-specific limits into a map. Read selectively only those limits
+     * which are applicable for the given partition (the domain is processed in
+     * the given partition).
      * 
      * @param conf
      * @param partition
@@ -579,31 +604,22 @@ public class Generator2 extends Configured implements Tool {
      */
     private static Map<String, DomainLimits> readLimitsFile(Configuration conf,
         int partition, int numReduces, Selector selector) {
-      String limitsFile = conf.get(GENERATOR_DOMAIN_LIMITS_FILE);
-      if (limitsFile != null) {
-        LOG.info("Reading domain-specific limits from {}", limitsFile);
-        Path limitsFilePath = new Path(limitsFile);
-        if (limitsFilePath.toUri().getScheme() != null) {
-          try {
-            FileSystem fs = limitsFilePath.getFileSystem(conf);
-            Reader limitsReader = new InputStreamReader(fs.open(limitsFilePath));
-            return readLimitsFile(limitsReader, partition, numReduces,
-                selector);
-          } catch (IOException e) {
-            LOG.error("Failed to read domain-specific limits", e);
-          }
-        }
-        try (Reader limitsReader = conf.getConfResourceAsReader(limitsFile)) {
-          return readLimitsFile(limitsReader, partition, numReduces, selector);
-        } catch (IOException e) {
-          LOG.error("Failed to read domain-specific limits", e);
-        }
+      BiPredicate<String, DomainLimits> domainAcceptor = (String d,
+          DomainLimits l) -> true;
+      if (partition >= 0) {
+        LOG.info(" - filtering domains by partition ID {}", partition);
+        domainAcceptor = (String domain, DomainLimits limits) -> {
+          DomainScorePair key = new DomainScorePair();
+          key.set(domain, .0f);
+          int p = selector.getPartition(key, null, numReduces);
+          return p == partition;
+        };
       }
-      return null;
+      return readLimitsFile(conf, domainAcceptor);
     }
 
     private static Map<String, DomainLimits> readLimitsFile(Reader limitsReader,
-        int partition, int numReduces, Selector selector) throws IOException {
+        BiPredicate<String, DomainLimits> acceptor) throws IOException {
 
       if (limitsReader == null) {
         throw new IOException("Limits reader is null");
@@ -639,23 +655,18 @@ public class Generator2 extends Configured implements Tool {
             continue;
           }
           String domain = splits[0].toLowerCase(Locale.ROOT);
-          if (partition >= 0) {
-            DomainScorePair key = new DomainScorePair();
-            key.set(domain, .0f);
-            int p = selector.getPartition(key, null, numReduces);
-            if (p != partition) {
-              skipped++;
-              continue;
-            }
+          DomainLimits limits = new DomainLimits(urls, urlsHost, hosts, parts);
+          if (!acceptor.test(domain, limits)) {
+            skipped++;
+            continue;
           }
-          domainLimits.put(domain,
-              new DomainLimits(urls, urlsHost, hosts, parts));
+          domainLimits.put(domain, limits);
         }
       }
       LOG.info("Loaded domain limits for {} domains", domainLimits.size());
       if (skipped > 0) {
-        LOG.info(" - skipped {} domains because of unmatched partition ID {}",
-            skipped, partition);
+        LOG.info(" - {} per-domain limits were rejected by acceptor predicate",
+            skipped);
       }
       return domainLimits;
     }
@@ -1040,7 +1051,11 @@ public class Generator2 extends Configured implements Tool {
           random.nextInt(Integer.MAX_VALUE));
       numLists = conf.getInt("num.lists", 1);
       partitioner.setConf(conf);
-      partitioner.setDomainLimits(SelectorReducer.readLimitsFile(conf));
+      BiPredicate<String, DomainLimits> acceptor = (String domain,
+          DomainLimits limits) -> {
+        return limits.numPartitions > 1;
+      };
+      partitioner.setDomainLimits(SelectorReducer.readLimitsFile(conf, acceptor));
     }
 
     public void map(Text key, SelectorEntry value, Context context)
