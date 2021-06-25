@@ -32,4 +32,4 @@ RUN git clone https://github.com/apache/nutch.git nutch_source && \
      rm -rf /root/.ivy2/
 
 # Convenience symlink to Nutch runtime local
-RUN ln -s nutch_source/runtime/local $HOME/nutch
+RUN ln -s nutch_source/runtime/local/bin/nutch $HOME/nutch
