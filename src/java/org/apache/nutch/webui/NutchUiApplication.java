@@ -18,6 +18,7 @@ package org.apache.nutch.webui;
 
 import org.apache.nutch.webui.pages.DashboardPage;
 import org.apache.nutch.webui.pages.assets.NutchUiCssReference;
+import org.apache.wicket.RuntimeConfigurationType;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
@@ -59,6 +60,11 @@ public class NutchUiApplication extends WebApplication implements
 
     getComponentInstantiationListeners().add(
         new SpringComponentInjector(this, context));
+  }
+
+  @Override
+  public RuntimeConfigurationType getConfigurationType() {
+    return RuntimeConfigurationType.DEPLOYMENT;
   }
 
   private void configureTheme(BootstrapSettings settings) {
