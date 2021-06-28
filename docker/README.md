@@ -57,7 +57,7 @@ Start docker
 
 Start up an image and attach to it
 
-    docker run -t -i -d --name nutchcontainer apache/nutch /bin/bash
+    docker run -t -i -d -p 8080:8080 -p 8081:8081 --name nutchcontainer apache/nutch /bin/bash
     docker attach --sig-proxy=false nutchcontainer
 
 Nutch is located in ~/nutch and is almost ready to run.
