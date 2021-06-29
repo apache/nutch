@@ -45,21 +45,58 @@ The easiest way to do this:
 
 2. Build from files in this directory:
 
-	$(boot2docker shellinit | grep export)
-	docker build -t apache/nutch .
+```bash
+$(boot2docker shellinit | grep export)
+docker build -t apache/nutch . --build-arg SERVER_PORT=8081 --build-arg SERVER_HOST=localhost --build-arg WEBAPP_PORT=8085
+```
 
 ## Usage
 
 Start docker
+```bash
+boot2docker up
+$(boot2docker shellinit | grep export)
+```
 
-	boot2docker up
-	$(boot2docker shellinit | grep export)
+Start up an image
 
-Start up an image and attach to it
+```bash
+docker run -t -i -d -p 8080:8080 -p 8081:8081 --name nutchcontainer apache/nutch
+c5401810e50a606f43256b4b24602443508bd9badcf2b7493bd97839834571fc
 
-    docker run -t -i -d -p 8080:8080 -p 8081:8081 --name nutchcontainer apache/nutch /bin/bash
-    docker attach --sig-proxy=false nutchcontainer
+docker logs c5401810e50a606f43256b4b24602443508bd9badcf2b7493bd97839834571fc
+2021-06-29 19:14:32,922 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2021-06-29 19:14:32,925 INFO supervisord started with pid 1
+2021-06-29 19:14:33,929 INFO spawned: 'nutchserver' with pid 8
+2021-06-29 19:14:33,932 INFO spawned: 'nutchwebapp' with pid 9
+2021-06-29 19:14:36,012 INFO success: nutchserver entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
+2021-06-29 19:14:36,012 INFO success: nutchwebapp entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
+```
 
-Nutch is located in ~/nutch and is almost ready to run.
-You will need to set seed URLs and update the configuration with your crawler's Agent Name.
+...and attach to it
+
+```bash
+docker exec -it c5401810e50a606f43256b4b24602443508bd9badcf2b7493bd97839834571fc /bin/bash
+```
+
+View supervisord logs
+```bash
+cat /tmp/supervisord.log
+2021-06-29 19:14:32,922 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2021-06-29 19:14:32,925 INFO supervisord started with pid 1
+2021-06-29 19:14:33,929 INFO spawned: 'nutchserver' with pid 8
+2021-06-29 19:14:33,932 INFO spawned: 'nutchwebapp' with pid 9
+2021-06-29 19:14:36,012 INFO success: nutchserver entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
+2021-06-29 19:14:36,012 INFO success: nutchwebapp entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
+```
+
+View nutch subprocess logs
+
+```bash
+ls /var/log/supervisord/
+nutchserver_stderr.log  nutchserver_stdout.log  nutchwebapp_stderr.log  nutchwebapp_stdout.log
+```
+
+Nutch is located in `$NUTCH_HOME` and is almost ready to run.
+You will need to set seed URLs and update the `http.agent.name` configuration property in `$NUTCH_HOME/conf/nutch-site.xml` with your crawler's Agent Name.
 For additional "getting started" information checkout the [Nutch Tutorial](https://cwiki.apache.org/confluence/display/NUTCH/NutchTutorial).
