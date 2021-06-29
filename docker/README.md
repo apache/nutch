@@ -47,7 +47,7 @@ The easiest way to do this:
 
 ```bash
 $(boot2docker shellinit | grep export)
-docker build -t apache/nutch . --build-arg SERVER_PORT=8081 --build-arg SERVER_HOST=localhost --build-arg WEBAPP_PORT=8085
+docker build -t apache/nutch . --build-arg SERVER_PORT=8081 --build-arg SERVER_HOST=localhost --build-arg WEBAPP_PORT=8080
 ```
 
 ## Usage
@@ -73,7 +73,9 @@ docker logs c5401810e50a606f43256b4b24602443508bd9badcf2b7493bd97839834571fc
 2021-06-29 19:14:36,012 INFO success: nutchwebapp entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
 ```
 
-...and attach to it
+You can now access the webapp at `http://localhost:8080`
+
+Attach to the container
 
 ```bash
 docker exec -it c5401810e50a606f43256b4b24602443508bd9badcf2b7493bd97839834571fc /bin/bash
@@ -90,7 +92,7 @@ cat /tmp/supervisord.log
 2021-06-29 19:14:36,012 INFO success: nutchwebapp entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
 ```
 
-View nutch subprocess logs
+View supervisord subprocess logs
 
 ```bash
 ls /var/log/supervisord/
