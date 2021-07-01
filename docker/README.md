@@ -47,25 +47,25 @@ The easiest way to do this:
 
 There are three build **modes** which can be activated using the `--build-arg MODE=0` flag. All values used here are defaults.
  * 0 == Nutch master branch source install with `crawl` and `nutch` scripts on `$PATH`
- * 1 == Same as mode 0 with addition of **Nutch REST Server**; additional build args `--build-arg SERVER_PORT=8081` and `--build-arg SERVER_HOST=localhost`
+ * 1 == Same as mode 0 with addition of **Nutch REST Server**; additional build args `--build-arg SERVER_PORT=8081` and `--build-arg SERVER_HOST=0.0.0.0`
  * 2 == Same as mode 1 with addition of **Nutch WebApp**; additional build args `--build-arg WEBAPP_PORT=8080`
 
-For example, if you wanted to install Nutch master branch and run both the Nutch REST server and webapp with default settings, then run the following
+For example, if you wanted to install Nutch master branch and run both the Nutch REST server and webapp then run the following
 
 ```bash
-$(boot2docker shellinit | grep export)
-docker build -t apache/nutch . --build-arg MODE=0 --build-arg SERVER_PORT=8081 --build-arg SERVER_HOST=localhost --build-arg WEBAPP_PORT=8080
+$(boot2docker shellinit | grep export) #may not be necessary
+docker build -t apache/nutch . --build-arg MODE=2 --build-arg SERVER_PORT=8081 --build-arg SERVER_HOST=0.0.0.0 --build-arg WEBAPP_PORT=8080
 ```
 
 ## Usage
 
-Start docker
+If not already running, start docker
 ```bash
 boot2docker up
 $(boot2docker shellinit | grep export)
 ```
 
-Start up an image
+Run a container
 
 ```bash
 docker run -t -i -d -p 8080:8080 -p 8081:8081 --name nutchcontainer apache/nutch
@@ -80,7 +80,14 @@ docker logs c5401810e50a606f43256b4b24602443508bd9badcf2b7493bd97839834571fc
 2021-06-29 19:14:36,012 INFO success: nutchwebapp entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
 ```
 
-...and attach to it
+You can now access the webapp at `http://localhost:8080` and you can interact with the REST API e.g.
+
+```bash
+curl http://localhost:8080/admin
+{"startDate":1625118207995,"configuration":["default"],"jobs":[],"runningJobs":[]}
+```
+
+Attach to the container
 
 ```bash
 docker exec -it c5401810e50a606f43256b4b24602443508bd9badcf2b7493bd97839834571fc /bin/bash
@@ -97,7 +104,7 @@ cat /tmp/supervisord.log
 2021-06-29 19:14:36,012 INFO success: nutchwebapp entered RUNNING state, process has stayed up for > than 2 seconds (startsecs)
 ```
 
-View nutch subprocess logs
+View supervisord subprocess logs
 
 ```bash
 ls /var/log/supervisord/

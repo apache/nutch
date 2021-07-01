@@ -25,7 +25,7 @@ ARG BUILD_MODE=0
 FROM alpine:3.13 AS base
 
 ARG SERVER_PORT=8081
-ARG SERVER_HOST=localhost
+ARG SERVER_HOST=0.0.0.0
 ARG WEBAPP_PORT=8080
 
 LABEL maintainer="Apache Nutch Developers <dev@nutch.apache.org>"
