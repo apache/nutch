@@ -48,7 +48,6 @@ RUN apk --no-cache add apache-ant bash git openjdk11 supervisor
 RUN echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk' >> $HOME/.bashrc
 ENV JAVA_HOME='/usr/lib/jvm/java-11-openjdk'
 ENV NUTCH_HOME='/root/nutch_source/runtime/local'
-ENV BUILD_MODE=$BUILD_MODE
 
 # Checkout and build the Nutch master branch (1.x)
 RUN git clone https://github.com/apache/nutch.git nutch_source && \
