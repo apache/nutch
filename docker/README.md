@@ -45,7 +45,7 @@ The easiest way to do this:
 
 2. Build from files in this directory:
 
-There are three build **modes** which can be activated using the `--build-arg MODE=0` flag. All values used here are defaults.
+There are three build **modes** which can be activated using the `--build-arg BUILD_MODE=0` flag. All values used here are defaults.
  * 0 == Nutch master branch source install with `crawl` and `nutch` scripts on `$PATH`
  * 1 == Same as mode 0 with addition of **Nutch REST Server**; additional build args `--build-arg SERVER_PORT=8081` and `--build-arg SERVER_HOST=0.0.0.0`
  * 2 == Same as mode 1 with addition of **Nutch WebApp**; additional build args `--build-arg WEBAPP_PORT=8080`
@@ -54,7 +54,7 @@ For example, if you wanted to install Nutch master branch and run both the Nutch
 
 ```bash
 $(boot2docker shellinit | grep export) #may not be necessary
-docker build -t apache/nutch . --build-arg MODE=2 --build-arg SERVER_PORT=8081 --build-arg SERVER_HOST=0.0.0.0 --build-arg WEBAPP_PORT=8080
+docker build -t apache/nutch . --build-arg BUILD_MODE=2 --build-arg SERVER_PORT=8081 --build-arg SERVER_HOST=0.0.0.0 --build-arg WEBAPP_PORT=8080
 ```
 
 ## Usage
