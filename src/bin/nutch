@@ -98,7 +98,6 @@ if [ $# = 0 ]; then
   echo "  plugin            load a plugin and run one of its classes main()"
   echo "  junit             runs the given JUnit test"
   echo "  startserver       runs the Nutch Server on localhost:8081"
-  echo "  webapp            run a local Nutch Web Application on locahost:8080"
   echo "  warc              exports crawled data from segments at the WARC format"
   echo "  updatehostdb      update the host db with records from the crawl db"
   echo "  readhostdb        read / dump host db"
@@ -302,8 +301,6 @@ elif [ "$COMMAND" = "junit" ] ; then
   CLASS=org.junit.runner.JUnitCore
 elif [ "$COMMAND" = "startserver" ] ; then
   CLASS=org.apache.nutch.service.NutchServer
-elif [ "$COMMAND" = "webapp" ] ; then
-  CLASS=org.apache.nutch.webui.NutchUiServer
 elif [ "$COMMAND" = "warc" ] ; then
   CLASS=org.apache.nutch.tools.warc.WARCExporter
 elif [ "$COMMAND" = "updatehostdb" ] ; then
