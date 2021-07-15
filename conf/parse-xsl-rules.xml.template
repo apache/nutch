@@ -1,0 +1,18 @@
+<!-- parse-xsl-rules.xml - Configuration file for plugin parse-xsl -->
+<rules filterUrlsWithNoRule="false">
+
+  <!--
+      If an URL matches the pattern of a rule, 
+      the associated transformer is used to extract fields via XSL
+      statements from the document behind this URL. 
+
+      Depending on the value of the attribute filterUrlsWithNoRule
+      documents which are not matched by any of the rules are
+      - either skipped from indexing (if filterUrlsWithNoRule == true)
+      - or kept without any fields filled by XSL transformations.
+  -->
+  <rule matches=".*">
+    <transformer file="parse-xsl-transform.xsl" />
+  </rule>
+
+</rules>
