@@ -44,17 +44,14 @@ import org.slf4j.LoggerFactory;
  * index as CSV or tab-separated plain text table. Format (encoding, separators,
  * etc.) is configurable by a couple of options, see output of
  * {@link #describe()}.
- * 
- * <p>
- * Note: works only in local mode, to be used with index option
- * <code>-noCommit</code>.
- * </p>
+ *
  */
 public class CSVIndexWriter implements IndexWriter {
 
   public static final Logger LOG = LoggerFactory
       .getLogger(CSVIndexWriter.class);
 
+  private String filename = "nutch.csv";
   private Configuration config;
 
   /** ordered list of fields (columns) in the CSV file */
@@ -192,7 +189,7 @@ public class CSVIndexWriter implements IndexWriter {
 
   @Override
   public void open(Configuration conf, String name) throws IOException {
-
+    filename = name;
   }
 
   /**
@@ -227,7 +224,7 @@ public class CSVIndexWriter implements IndexWriter {
     LOG.info("Writing output to {}", outputPath);
     Path outputDir = new Path(outputPath);
     fs = outputDir.getFileSystem(config);
-    csvLocalOutFile = new Path(outputDir, "nutch.csv");
+    csvLocalOutFile = new Path(outputDir, filename);
     if (!fs.exists(outputDir)) {
       fs.mkdirs(outputDir);
     }

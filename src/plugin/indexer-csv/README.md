@@ -1,7 +1,7 @@
 indexer-csv plugin for Nutch 
 ============================
 
-**indexer-csv plugin** is used for writing documents to a CSV file. It does not work in distributed mode, the output is written to the local filesystem, not to HDFS, see [NUTCH-1541](https://issues.apache.org/jira/browse/NUTCH-1541). The configuration for the index writers is on **conf/index-writers.xml** file, included in the official Nutch distribution and it's as follow:
+**indexer-csv plugin** is used for writing documents to a CSV file. The configuration for the index writers is on **conf/index-writers.xml** file, included in the official Nutch distribution and it's as follow:
 
 ```xml
 <writer id="<writer_id>" class="org.apache.nutch.indexwriter.csv.CSVIndexWriter">
