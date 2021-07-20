@@ -1232,6 +1232,39 @@
 </property>
 
 <property>
+  <name>fetcher.robotstxt.archiving.filter.url</name>
+  <value>false</value>
+  <description>Skip archiving of a robots.txt response if the URL is
+  rejected by URL filters.</description>
+</property>
+
+<property>
+  <name>fetcher.robotstxt.archiving.filter.mime</name>
+  <value>false</value>
+  <description>Skip archiving of a robots.txt response if the detected
+  MIME type does not match one listed in the property
+  fetcher.robotstxt.archiving.filter.mime.accept</description>
+</property>
+
+<property>
+  <name>fetcher.robotstxt.archiving.filter.mime.accept</name>
+  <value>text/plain,text/x-robots</value>
+  <description>Comma-separated list of MIME types allowed for
+  successfully fetched robots.txt responses. Only used if
+  fetcher.robotstxt.archiving.filter.mime is true.</description>
+</property>
+
+<property>
+  <name>fetcher.robotstxt.archiving.check.robotstxt</name>
+  <value>false</value>
+  <description>Verify whether a redirected robots.txt is allowed by
+  the robots.txt of the target host. If not skip archiving the
+  robots.txt response.  Not applied if the URL file part (path and
+  query) is `/robots.txt` as this path is assumed to be always
+  allowed.</description>
+</property>
+
+<property>
 	<name>fetcher.publisher</name>
 	<value>false</value>
 	<description>Set this value to true if you want to use an implementation of the Publisher/Subscriber model. Make sure to set corresponding

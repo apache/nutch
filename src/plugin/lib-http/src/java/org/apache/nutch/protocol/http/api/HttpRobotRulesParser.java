@@ -210,6 +210,8 @@ public class HttpRobotRulesParser extends RobotRulesParser {
         getConf());
     content.getMetadata().add(Nutch.FETCH_TIME_KEY,
         Long.toString(System.currentTimeMillis()));
+    content.getMetadata().add(Nutch.FETCH_STATUS_KEY,
+        Integer.toString(robotsResponse.getCode()));
     robotsTxtContent.add(content);
   }
 

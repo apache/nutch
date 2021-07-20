@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -57,6 +58,7 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.protocol.ProtocolNotFound;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -142,6 +144,10 @@ public class FetcherThread extends Thread {
   private AtomicLong bytes;
   
   private List<Content> robotsTxtContent = null;
+  private boolean robotsTxtArchivingFilterUrl = false;
+  private boolean robotsTxtArchivingFilterMime = false;
+  private boolean robotsTxtArchivingCheckRobotsTxt = false;
+  private Set<String> robotsTxtArchivingAcceptedMimeTypes = new HashSet<>();
 
   //Used by the REST service
   private FetchNode fetchNode;
@@ -230,6 +236,16 @@ public class FetcherThread extends Thread {
     if (conf.getBoolean("fetcher.store.robotstxt", false)) {
       if (storingContent || storingWarc) {
         robotsTxtContent = new LinkedList<>();
+        robotsTxtArchivingFilterUrl = conf
+            .getBoolean("fetcher.robotstxt.archiving.filter.url", false);
+        robotsTxtArchivingFilterMime = conf
+            .getBoolean("fetcher.robotstxt.archiving.filter.mime", false);
+        robotsTxtArchivingCheckRobotsTxt = conf
+            .getBoolean("fetcher.robotstxt.archiving.check.robotstxt", false);
+        if (robotsTxtArchivingFilterMime) {
+          robotsTxtArchivingAcceptedMimeTypes.addAll(conf.getStringCollection(
+              "fetcher.robotstxt.archiving.filter.mime.accept"));
+        }
       } else {
         LOG.warn(
             "{} {} Ignoring fetcher.store.robotstxt because not storing content (fetcher.store.content)!",
@@ -873,7 +889,7 @@ public class FetcherThread extends Thread {
         if (storingContent) {
           context.write(tUrl, new NutchWritable(robotsTxt));
         }
-        if (storingWarc) {
+        if (storingWarc && robotsTxtArchivingIsAllowed(robotsTxt)) {
           context.write(tUrl,
               new NutchWritable(new WarcCapture(tUrl, null, robotsTxt)));
         }
@@ -881,6 +897,67 @@ public class FetcherThread extends Thread {
         LOG.error("fetcher caught:", e);
       }
     }
+  }
+
+  private boolean robotsTxtArchivingIsAllowed(Content robotsTxt) {
+    if (robotsTxtArchivingFilterUrl) {
+      try {
+        if (urlFilters.filter(robotsTxt.getUrl()) == null) {
+          LOG.info("Archiving of robots.txt {} skipped by URL filters",
+              robotsTxt.getUrl());
+          context.getCounter("RobotsTxtArchiving", "filtered").increment(1);
+          return false;
+        }
+      } catch (URLFilterException e) {
+        return true;
+      }
+    }
+
+    if (robotsTxtArchivingFilterMime) {
+      int status = 200;
+      try {
+        status = Integer
+            .parseInt(robotsTxt.getMetadata().get(Nutch.FETCH_STATUS_KEY));
+      } catch (NumberFormatException e) {
+        // ignore
+      }
+      if (status == 200) {
+        String contentType = robotsTxt.getContentType();
+        if (contentType != null) {
+          if (!robotsTxtArchivingAcceptedMimeTypes.contains(contentType)) {
+            LOG.info("Archiving of robots.txt {} ({}) skipped by MIME filter",
+                robotsTxt.getUrl(), contentType);
+            context.getCounter("RobotsTxtArchiving", "filtered_mime")
+                .increment(1);
+            return false;
+          }
+        }
+      }
+    }
+
+    if (robotsTxtArchivingCheckRobotsTxt) {
+      String url = robotsTxt.getUrl();
+      try {
+        URL u = new URL(url);
+        if (!u.getFile().equals("/robots.txt")) {
+          Protocol protocol = protocolFactory.getProtocol(u);
+          BaseRobotRules rules = protocol.getRobotRules(new Text(url), null,
+              null);
+          if (!rules.isAllowed(url)) {
+            LOG.info(
+                "Archiving of redirected robots.txt {} ({}) not allowed by robots.txt",
+                robotsTxt.getUrl(), robotsTxt.getContentType());
+            context.getCounter("RobotsTxtArchiving", "robots_denied")
+                .increment(1);
+            return false;
+          }
+        }
+      } catch (MalformedURLException | ProtocolNotFound e) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private void updateStatus(int bytesInPage) throws IOException {
