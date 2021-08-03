@@ -14,7 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<Configuration status="info" name="Nutch" packages="">
+<Configuration status="INFO" name="Nutch" packages="">
   <Properties>
     <Property name="hadoop.log.dir">./logs</Property>
     <Property name="hadoop.log.file">hadoop.log</Property>
@@ -36,9 +36,12 @@
     </Console>
   </Appenders>
   <Loggers>
-    <Root level="info">
+    <Root level="INFO" additivity="false">
       <AppenderRef ref="RollingFile"/>
       <AppenderRef ref="STDOUT"/>
     </Root>
+    <Logger name="org.apache.hadoop" level="WARN" additivity="false">
+      <Appender-ref ref="RollingFile" level="WARN" />
+    </Logger>
   </Loggers>
 </Configuration>
