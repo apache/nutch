@@ -126,7 +126,7 @@
      <ant dir="index-replace" target="test"/>
      <ant dir="index-static" target="test"/>
      <ant dir="indexer-csv" target="test"/>
-     <ant dir="language-identifier" target="test"/>
+<!--<ant dir="language-identifier" target="test"/>-->
      <ant dir="lib-http" target="test"/>
      <ant dir="lib-regex-filter" target="test"/>
      <ant dir="mimetype-filter" target="test"/>

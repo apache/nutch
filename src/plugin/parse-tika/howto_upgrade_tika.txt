@@ -30,7 +30,11 @@
 
     $ rm -rf lib/
 
-6. Build Nutch and run all unit tests:
+6. Repeat steps 2-5 for the language-identifier plugin which also depends on Tika modules
+
+    $ cd ../language-identifier/
+
+7. Build Nutch and run all unit tests:
 
     $ cd ../../../
     $ ant clean runtime test
