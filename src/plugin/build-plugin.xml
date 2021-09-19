@@ -55,11 +55,14 @@
     <pathelement location="${build.classes}"/>
     <fileset refid="lib.jars"/>
     <pathelement location="${nutch.root}/build/classes"/>
-    <fileset dir="${nutch.root}/build/lib">
+    <!-- manually managed dependencies of a plugin -->
+    <path refid="plugin.deps"/>
+    <!-- plugin dependencies managed by ivy -->
+    <fileset dir="${deploy.dir}">
       <include name="*.jar" />
     </fileset>
-    <path refid="plugin.deps"/>
-    <fileset dir="${deploy.dir}">
+    <!-- Nutch core dependencies -->
+    <fileset dir="${nutch.root}/build/lib">
       <include name="*.jar" />
     </fileset>
   </path>
@@ -71,7 +74,7 @@
     <pathelement location="${nutch.root}/src/test"/>
     <pathelement location="${conf.dir}"/>
     <pathelement location="${nutch.root}/build"/>
-    <!-- test dependencies specific to current plugin -->
+    <!-- test dependencies specific to the current plugin -->
     <fileset dir="${build.test.lib}">
       <include name="*.jar" />
     </fileset>
