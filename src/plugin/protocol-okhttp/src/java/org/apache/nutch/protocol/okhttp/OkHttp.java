@@ -365,7 +365,13 @@ public class OkHttp extends HttpBase {
     return customRequestHeaders;
   }
 
-  /** Distribute hosts over clients by host name */
+  /**
+   * Distribute hosts over clients by host name
+   * 
+   * @param url
+   *          URL to fetch
+   * @return client responsible to fetch the given URL
+   */
   protected OkHttpClient getClient(URL url) {
     if (clients.length == 1) {
       return clients[0];
