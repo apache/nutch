@@ -408,6 +408,27 @@
   </description>
 </property>
 
+<property>
+  <name>http.connection.pool.okhttp</name>
+  <value></value>
+  <description>
+    (EXPERT) List of 3 integer values [M,N,T]: Instantiate
+    protocol-okhttp with M connection pools of size N and a keep-alive
+    time of T seconds.  The product M*N should approx. correspond to
+    the number of crawled hosts in one fetcher task during the
+    keep-alive time.  Because OkHttp's connection pool (v4.9.1) is not
+    optimized for fast look-up of connections, the pool size N should
+    not exceed 1000.  To allow for efficient pooling, multiple pools
+    are instantiated and connections are distributed over the pools by
+    target host name.  If the property is undefined or empty a single
+    pool is used with OkHttp's default size and keep-alive time. For
+    OkHttp 4.9.1 the default is equivalent to a configuration value
+    &quot;1,5,300&quot; - one pool with 5 idle connections and 300
+    sec. keep-alive time.  See also NUTCH-2896 and
+    https://square.github.io/okhttp/3.x/okhttp/okhttp3/ConnectionPool.html
+  </description>
+</property>
+
 <!-- FTP properties -->
 
 <property>

@@ -101,7 +101,7 @@ public class OkHttpResponse implements Response {
     }
 
     Request request = rb.build();
-    okhttp3.Call call = okhttp.getClient().newCall(request);
+    okhttp3.Call call = okhttp.getClient(url).newCall(request);
 
     // ensure that Response and underlying ResponseBody are closed
     try (okhttp3.Response response = call.execute()) {

@@ -32,6 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -51,6 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import okhttp3.Authenticator;
 import okhttp3.Connection;
+import okhttp3.ConnectionPool;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -65,7 +67,8 @@ public class OkHttp extends HttpBase {
 
   private final List<String[]> customRequestHeaders = new LinkedList<>();
 
-  private OkHttpClient client;
+  /** clients, each holding a separate connection pool */
+  private OkHttpClient[] clients;
 
   private static final TrustManager[] trustAllCerts = new TrustManager[] {
       new X509TrustManager() {
@@ -221,7 +224,44 @@ public class OkHttp extends HttpBase {
     // enable support for Brotli compression (Content-Encoding)
     builder.addInterceptor(BrotliInterceptor.INSTANCE);
 
-    client = builder.build();
+    // instantiate connection pool(s), cf.
+    // https://square.github.io/okhttp/3.x/okhttp/okhttp3/ConnectionPool.html
+    int numConnectionPools = 1;
+    Supplier<ConnectionPool> poolSupplier = null;
+    if (conf.get("http.connection.pool.okhttp", "").isEmpty()) {
+      // empty pool configuration: use a single pool of default size
+    } else {
+      int[] poolConfig = {};
+      try {
+        poolConfig = conf.getInts("http.connection.pool.okhttp");
+      } catch (NumberFormatException e) {
+        // will show warning below
+      }
+      if (poolConfig.length == 3 && poolConfig[0] > 0
+          && poolConfig[1] > 0 && poolConfig[2] > 0) {
+        numConnectionPools = poolConfig[0];
+        int size = poolConfig[1];
+        int time = poolConfig[2];
+        poolSupplier = () -> new ConnectionPool(size, time, TimeUnit.SECONDS);
+        LOG.info(
+            "Using {} connection pool{} with max. {} idle connections "
+                + "and {} sec. connection keep-alive time",
+            poolConfig[0], (poolConfig[0] > 1 ? "s" : ""), poolConfig[1],
+            poolConfig[2]);
+      } else {
+        LOG.warn(
+            "Ignoring invalid connection pool configuration 'http.connection.pool.okhttp': '{}'",
+            conf.get("http.connection.pool.okhttp"));
+      }
+    }
+    if (poolSupplier == null) {
+      poolSupplier = ConnectionPool::new;
+      LOG.info("Using single connection pool with default settings");
+    }
+    clients = new OkHttpClient[numConnectionPools];
+    for (int i = 0; i < numConnectionPools; i++) {
+      clients[i] = builder.connectionPool(poolSupplier.get()).build();
+    }
   }
 
   class HTTPHeadersInterceptor implements Interceptor {
@@ -325,8 +365,19 @@ public class OkHttp extends HttpBase {
     return customRequestHeaders;
   }
 
-  protected OkHttpClient getClient() {
-    return client;
+  /**
+   * Distribute hosts over clients by host name
+   * 
+   * @param url
+   *          URL to fetch
+   * @return client responsible to fetch the given URL
+   */
+  protected OkHttpClient getClient(URL url) {
+    if (clients.length == 1) {
+      return clients[0];
+    }
+    int hash = url.getHost().hashCode();
+    return clients[(hash & Integer.MAX_VALUE) % clients.length];
   }
 
   @Override
