@@ -19,6 +19,7 @@ package org.apache.nutch.indexwriter.elastic;
 public interface ElasticConstants {
   String HOSTS = "host";
   String PORT = "port";
+  String SCHEME = "scheme";
   
   String USER = "username";
   String PASSWORD = "password";
