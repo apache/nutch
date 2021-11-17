@@ -39,6 +39,7 @@
       <exclude org="commons-codec" name="commons-codec" />
       <exclude org="commons-logging" name="commons-logging" />
       <exclude org="com.tdunning" name="t-digest" />
+      <exclude org="org.apache.logging.log4j" name="log4j-api" />
     </dependency>
   </dependencies>
   
