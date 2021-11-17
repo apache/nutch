@@ -72,7 +72,7 @@
 
 		<dependency org="com.google.guava" name="guava" rev="30.1-jre" />
 
-		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="1.1" />
+		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="1.2" />
 
 		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0">
 			<exclude module="hadoop-client" />
