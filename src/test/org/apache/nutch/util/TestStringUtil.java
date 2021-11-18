@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.util;
 
+import java.util.regex.Pattern;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +38,6 @@ public class TestStringUtil {
 
     ps = StringUtil.rightPad(s, 15);
     Assert.assertTrue((s + "      ").equals(ps));
-
   }
 
   @Test
@@ -54,7 +55,28 @@ public class TestStringUtil {
 
     ps = StringUtil.leftPad(s, 15);
     Assert.assertTrue(("      " + s).equals(ps));
+  }
 
+  @Test
+  public void testMaskPasswords() {
+    String secret = "password";
+    String masked = StringUtil.mask(secret);
+    Assert.assertNotEquals(secret, masked);
+    Assert.assertEquals(secret.length(), masked.length());
+
+    char mask = 'X';
+    masked = StringUtil.mask(secret, mask);
+    Assert.assertNotEquals(secret, masked);
+    Assert.assertEquals(secret.length(), masked.length());
+    masked.chars().forEach((c) -> Assert.assertEquals(mask, c));
+
+    String strWithSecret = "amqp://username:password@example.org:5672/virtualHost";
+    Pattern maskPasswordPattern = Pattern.compile("^amqp://[^:]+:([^@]+)@");
+    masked = StringUtil.mask(strWithSecret, maskPasswordPattern, mask);
+    Assert.assertNotEquals(strWithSecret, masked);
+    Assert.assertEquals(strWithSecret.length(), masked.length());
+    Assert.assertFalse(masked.contains(secret));
+    Assert.assertTrue(masked.contains(StringUtil.mask(secret, mask)));
   }
 
 }

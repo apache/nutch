@@ -34,6 +34,7 @@ import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.IndexerMapReduce;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
+import org.apache.nutch.util.StringUtil;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
@@ -328,7 +329,7 @@ public class SolrIndexWriter implements IndexWriter {
     properties.put(SolrConstants.USERNAME, new AbstractMap.SimpleEntry<>(
         "The username of Solr server.", this.username));
     properties.put(SolrConstants.PASSWORD, new AbstractMap.SimpleEntry<>(
-        "The password of Solr server.", this.password));
+        "The password of Solr server.", StringUtil.mask(this.password)));
 
     return properties;
   }
