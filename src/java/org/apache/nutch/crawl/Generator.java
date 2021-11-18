@@ -34,7 +34,7 @@ import java.util.Random;
 import org.apache.hadoop.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.JexlScript;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.hadoop.mapreduce.Counter;
@@ -184,7 +184,7 @@ public class Generator extends NutchTool implements Tool {
     private float scoreThreshold = 0f;
     private int intervalThreshold = -1;
     private byte restrictStatus = -1;
-    private JexlExpression expr = null;
+    private JexlScript expr = null;
 
     @Override
     public void setup(
@@ -255,7 +255,7 @@ public class Generator extends NutchTool implements Tool {
 
       // check expr
       if (expr != null) {
-        if (!crawlDatum.evaluate(expr, key.toString())) {
+        if (!crawlDatum.execute(expr, key.toString())) {
           context.getCounter("Generator", "EXPR_REJECTED").increment(1);
           return;
         }
@@ -308,8 +308,8 @@ public class Generator extends NutchTool implements Tool {
     private URLNormalizers normalizers;
     private static boolean normalise;
     private SequenceFile.Reader[] hostdbReaders = null;
-    private JexlExpression maxCountExpr = null;
-    private JexlExpression fetchDelayExpr = null;
+    private JexlScript maxCountExpr = null;
+    private JexlScript fetchDelayExpr = null;
 
     public void open() {
       if (conf.get(GENERATOR_HOSTDB) != null) {
@@ -437,7 +437,7 @@ public class Generator extends NutchTool implements Tool {
           } else {
             if (maxCountExpr != null) {
               long variableMaxCount = Math
-                  .round((double) maxCountExpr.evaluate(createContext(host)));
+                  .round((double) maxCountExpr.execute(createContext(host)));
               LOG.info("Generator: variable maxCount: {} for {}",
                   variableMaxCount, hostname);
               maxCount = (int) variableMaxCount;
@@ -445,7 +445,7 @@ public class Generator extends NutchTool implements Tool {
 
             if (fetchDelayExpr != null) {
               long variableFetchDelay = Math
-                  .round((double) fetchDelayExpr.evaluate(createContext(host)));
+                  .round((double) fetchDelayExpr.execute(createContext(host)));
               LOG.info("Generator: variable fetchDelay: {} ms for {}",
                   variableFetchDelay, hostname);
               variableFetchDelayWritable = new LongWritable(variableFetchDelay);

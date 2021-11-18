@@ -46,7 +46,7 @@ import org.apache.nutch.util.SegmentReaderUtil;
 
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.JexlScript;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.MapContext;
 
@@ -68,7 +68,7 @@ public class ReadHostDb extends Configured implements Tool {
     protected boolean dumpHomepages = false;
     protected boolean fieldHeader = true;
     protected Text emptyText = new Text();
-    protected JexlExpression expr = null;
+    protected JexlScript expr = null;
 
     @Override
     public void setup(Context context) {
@@ -81,7 +81,7 @@ public class ReadHostDb extends Configured implements Tool {
         JexlEngine jexl = new JexlBuilder().silent(true).strict(true).create();
         
         // Create an expression object
-        this.expr = jexl.createExpression(expr);
+        this.expr = jexl.createScript(expr);
       }
     }
 
@@ -128,7 +128,7 @@ public class ReadHostDb extends Configured implements Tool {
         
         // Filter this record if evaluation did not pass
         try {
-          if (!Boolean.TRUE.equals(expr.evaluate(jcontext))) {
+          if (!Boolean.TRUE.equals(expr.execute(jcontext))) {
             return;
           }
         } catch (Exception e) {
