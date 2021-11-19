@@ -49,7 +49,10 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseSegment;
+import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.tools.WARCUtils;
 import org.apache.nutch.util.HadoopFSUtil;
@@ -58,6 +61,9 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import com.martinkl.warc.WARCRecord;
 import com.martinkl.warc.WARCWritable;
@@ -70,13 +76,12 @@ import com.martinkl.warc.mapreduce.WARCOutputFormat;
  * Generates elements of type response if the configuration 'store.http.headers'
  * was set to true during the fetching and the http headers were stored
  * verbatim; generates elements of type 'resource' otherwise.
- **/
-
+ */
 public class WARCExporter extends Configured implements Tool {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
-
+  private static final String ONLY_SUCCESSFUL_RESPONSES = "warc.exporter.only.successful.responses";
   private static final String CRLF = "\r\n";
   private static final byte[] CRLF_BYTES = { 13, 10 };
 
@@ -90,25 +95,32 @@ public class WARCExporter extends Configured implements Tool {
 
   public static class WARCMapReduce {
 
-    public static class WARCMapper extends 
-        Mapper<Text, Writable, Text, NutchWritable> {
+    public static class WARCMapper
+        extends Mapper<Text, Writable, Text, NutchWritable> {
       @Override
       public void map(Text key, Writable value, Context context)
-              throws IOException, InterruptedException {
+          throws IOException, InterruptedException {
         context.write(key, new NutchWritable(value));
       }
     }
 
-    public static class WARCReducer extends
-        Reducer<Text, NutchWritable, NullWritable, WARCWritable> {
+    public static class WARCReducer
+        extends Reducer<Text, NutchWritable, NullWritable, WARCWritable> {
+
+      // Metadata to JSON
+      Gson gson = new Gson();
+
       @Override
       public void reduce(Text key, Iterable<NutchWritable> values,
           Context context) throws IOException, InterruptedException {
-
+        boolean onlySuccessfulResponses = context.getConfiguration()
+            .getBoolean(ONLY_SUCCESSFUL_RESPONSES, false);
+        ParseData parseData = null;
+        ParseText parseText = null;
         Content content = null;
         CrawlDatum cd = null;
-        SimpleDateFormat warcdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",
-        Locale.ENGLISH);
+        SimpleDateFormat warcdf = new SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
 
         // aggregate the values found
         for (NutchWritable val : values) {
@@ -119,6 +131,14 @@ public class WARCExporter extends Configured implements Tool {
           }
           if (value instanceof CrawlDatum) {
             cd = (CrawlDatum) value;
+            continue;
+          }
+          if (value instanceof ParseData) {
+            parseData = (ParseData) value;
+            continue;
+          }
+          if (value instanceof ParseText) {
+            parseText = (ParseText) value;
             continue;
           }
         }
@@ -136,9 +156,21 @@ public class WARCExporter extends Configured implements Tool {
           return;
         }
 
+        if (onlySuccessfulResponses) {
+          // Empty responses is everything that was not a regular response
+          if (!(cd.getStatus() == CrawlDatum.STATUS_FETCH_SUCCESS
+              || cd.getStatus() == CrawlDatum.STATUS_FETCH_NOTMODIFIED)) {
+            context.getCounter("WARCExporter", "omitted empty response")
+                .increment(1);
+            return;
+          }
+        }
+
         // were the headers stored as is? Can write a response element then
-        String headersVerbatim = content.getMetadata().get("_response.headers_");
-        headersVerbatim = WARCUtils.fixHttpHeaders(headersVerbatim, content.getContent().length);
+        String headersVerbatim = content.getMetadata()
+            .get("_response.headers_");
+        headersVerbatim = WARCUtils.fixHttpHeaders(headersVerbatim,
+            content.getContent().length);
         byte[] httpheaders = new byte[0];
         if (StringUtils.isNotBlank(headersVerbatim)) {
           // check that ends with an empty line
@@ -148,12 +180,12 @@ public class WARCExporter extends Configured implements Tool {
           httpheaders = headersVerbatim.getBytes();
         }
 
+        String mainId = UUID.randomUUID().toString();
         StringBuilder buffer = new StringBuilder();
         buffer.append(WARCRecord.WARC_VERSION);
         buffer.append(CRLF);
-
         buffer.append("WARC-Record-ID").append(": ").append("<urn:uuid:")
-            .append(UUID.randomUUID().toString()).append(">").append(CRLF);
+            .append(mainId).append(">").append(CRLF);
 
         int contentLength = 0;
         if (content != null) {
@@ -167,24 +199,25 @@ public class WARCExporter extends Configured implements Tool {
             .append(Integer.toString(contentLength)).append(CRLF);
 
         Date fetchedDate = new Date(cd.getFetchTime());
-        buffer.append("WARC-Date").append(": ").append(warcdf.format(fetchedDate))
-            .append(CRLF);
+        buffer.append("WARC-Date").append(": ")
+            .append(warcdf.format(fetchedDate)).append(CRLF);
 
         // check if http headers have been stored verbatim
         // if not generate a response instead
-        String WARCTypeValue = "resource";
+        String warcTypeValue = "resource";
 
         if (StringUtils.isNotBlank(headersVerbatim)) {
-          WARCTypeValue = "response";
+          warcTypeValue = "response";
         }
 
-        buffer.append("WARC-Type").append(": ").append(WARCTypeValue)
+        buffer.append("WARC-Type").append(": ").append(warcTypeValue)
             .append(CRLF);
 
         // "WARC-IP-Address" if present
         String IP = content.getMetadata().get("_ip_");
         if (StringUtils.isNotBlank(IP)) {
-          buffer.append("WARC-IP-Address").append(": ").append("IP").append(CRLF);
+          buffer.append("WARC-IP-Address").append(": ").append("IP")
+              .append(CRLF);
         }
 
         // detect if truncated only for fetch success
@@ -208,7 +241,7 @@ public class WARCExporter extends Configured implements Tool {
         }
 
         // provide a ContentType if type response
-        if (WARCTypeValue.equals("response")) {
+        if (warcTypeValue.equals("response")) {
           buffer.append("Content-Type: application/http; msgtype=response")
               .append(CRLF);
         }
@@ -237,16 +270,164 @@ public class WARCExporter extends Configured implements Tool {
           context.write(NullWritable.get(), new WARCWritable(record));
           context.getCounter("WARCExporter", "records generated").increment(1);
         } catch (IOException | IllegalStateException exception) {
-          LOG.error("Exception when generating WARC record for {} : {}", key,
+          LOG.error(
+              "Exception when generating WARC resource record for {} : {}", key,
               exception.getMessage());
           context.getCounter("WARCExporter", "exception").increment(1);
         }
 
+        // Do we need to emit a metadata record too?
+        if (parseData != null) {
+          // Header builder
+          buffer = new StringBuilder();
+
+          JsonObject jsonObject = new JsonObject();
+          jsonObject.add("contentMeta",
+              metadataToJson(parseData.getContentMeta()));
+          jsonObject.add("parseMeta", metadataToJson(parseData.getParseMeta()));
+
+          // Payload builder
+          StringBuilder payload = new StringBuilder();
+          payload.append(gson.toJson(jsonObject));
+          payload.append(CRLF);
+
+          buffer.append(WARCRecord.WARC_VERSION);
+          buffer.append(CRLF);
+          buffer.append("WARC-Record-ID").append(": ").append("<urn:uuid:")
+              .append(UUID.randomUUID().toString()).append(">").append(CRLF);
+          buffer.append("WARC-Refers-To").append(": ").append("<urn:uuid:")
+              .append(mainId).append(">").append(CRLF);
+          buffer.append("WARC-Date").append(": ")
+              .append(warcdf.format(fetchedDate)).append(CRLF);
+          buffer.append("WARC-Type").append(": ").append("metadata")
+              .append(CRLF);
+          buffer.append("Content-Type").append(": ").append("application/json")
+              .append(CRLF);
+
+          contentLength = payload.toString().getBytes("UTF-8").length;
+          buffer.append("Content-Length").append(": ")
+              .append(Integer.toString(contentLength)).append(CRLF);
+
+          try {
+            String normalised = key.toString().replaceAll(" ", "%20");
+            URI uri = URI.create(normalised);
+            buffer.append("WARC-Target-URI").append(": ")
+                .append(uri.toASCIIString()).append(CRLF);
+          } catch (Exception e) {
+            LOG.error("Invalid URI {} ", key);
+            context.getCounter("WARCExporter", "invalid URI").increment(1);
+            return;
+          }
+
+          bos = new ByteArrayOutputStream();
+          bos.write(buffer.toString().getBytes("UTF-8"));
+          bos.write(CRLF_BYTES); // separate header and payload
+          bos.write(payload.toString().getBytes("UTF-8"));
+          bos.write(CRLF_BYTES);
+          bos.write(CRLF_BYTES); // separation between records
+
+          try {
+            DataInput in = new DataInputStream(
+                new ByteArrayInputStream(bos.toByteArray()));
+            WARCRecord record = new WARCRecord(in);
+            context.write(NullWritable.get(), new WARCWritable(record));
+            context.getCounter("WARCExporter", "records generated")
+                .increment(1);
+          } catch (IOException | IllegalStateException exception) {
+            LOG.error(
+                "Exception when generating WARC metadata record for {} : {}",
+                key, exception.getMessage(), exception);
+            context.getCounter("WARCExporter", "exception").increment(1);
+          }
+        }
+
+        // Do we need to emit a text record too?
+        if (parseText != null) {
+          // Header builder
+          buffer = new StringBuilder();
+
+          // Payload builder
+          StringBuilder payload = new StringBuilder();
+          payload.append(parseText);
+          payload.append(CRLF);
+
+          buffer.append(WARCRecord.WARC_VERSION);
+          buffer.append(CRLF);
+          buffer.append("WARC-Record-ID").append(": ").append("<urn:uuid:")
+              .append(UUID.randomUUID().toString()).append(">").append(CRLF);
+          buffer.append("WARC-Refers-To").append(": ").append("<urn:uuid:")
+              .append(mainId).append(">").append(CRLF);
+          buffer.append("WARC-Date").append(": ")
+              .append(warcdf.format(fetchedDate)).append(CRLF);
+          buffer.append("WARC-Type").append(": ").append("conversion")
+              .append(CRLF);
+          buffer.append("Content-Type").append(": ").append("text/plain")
+              .append(CRLF);
+
+          contentLength = payload.toString().getBytes("UTF-8").length;
+          buffer.append("Content-Length").append(": ")
+              .append(Integer.toString(contentLength)).append(CRLF);
+
+          try {
+            String normalised = key.toString().replaceAll(" ", "%20");
+            URI uri = URI.create(normalised);
+            buffer.append("WARC-Target-URI").append(": ")
+                .append(uri.toASCIIString()).append(CRLF);
+          } catch (Exception e) {
+            LOG.error("Invalid URI {} ", key);
+            context.getCounter("WARCExporter", "invalid URI").increment(1);
+            return;
+          }
+
+          bos = new ByteArrayOutputStream();
+          bos.write(buffer.toString().getBytes("UTF-8"));
+          bos.write(CRLF_BYTES); // separate header and payload
+          bos.write(payload.toString().getBytes("UTF-8"));
+          bos.write(CRLF_BYTES);
+          bos.write(CRLF_BYTES); // separation between records
+
+          try {
+            DataInput in = new DataInputStream(
+                new ByteArrayInputStream(bos.toByteArray()));
+            WARCRecord record = new WARCRecord(in);
+            context.write(NullWritable.get(), new WARCWritable(record));
+            context.getCounter("WARCExporter", "records generated")
+                .increment(1);
+          } catch (IOException | IllegalStateException exception) {
+            LOG.error(
+                "Exception when generating WARC metadata record for {} : {}",
+                key, exception.getMessage(), exception);
+            context.getCounter("WARCExporter", "exception").increment(1);
+          }
+        }
+      }
+
+      /**
+       * Adds keys/values of a Nuta metadata container to a JsonObject.
+       *
+       * @param meta
+       *          Nutch metadata container
+       * @return json object
+       */
+      protected JsonObject metadataToJson(Metadata meta) {
+        JsonObject obj = new JsonObject();
+
+        for (String key : meta.names()) {
+          if (meta.isMultiValued(key)) {
+            obj.add(key, gson.toJsonTree(meta.getValues(key)));
+          } else {
+            obj.addProperty(key, meta.get(key));
+          }
+        }
+
+        return obj;
       }
     }
   }
 
-  public int generateWARC(String output, List<Path> segments) throws IOException{
+  public int generateWARC(String output, List<Path> segments,
+      boolean onlySuccessfulResponses, boolean includeParseData,
+      boolean includeParseText) throws IOException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("WARCExporter: starting at {}", sdf.format(start));
@@ -254,11 +435,24 @@ public class WARCExporter extends Configured implements Tool {
     final Job job = NutchJob.getInstance(getConf());
     job.setJobName("warc-exporter " + output);
 
+    job.getConfiguration().setBoolean(ONLY_SUCCESSFUL_RESPONSES,
+        onlySuccessfulResponses);
+
     for (final Path segment : segments) {
       LOG.info("warc-exporter: adding segment: {}", segment);
       FileInputFormat.addInputPath(job, new Path(segment, Content.DIR_NAME));
       FileInputFormat.addInputPath(job,
           new Path(segment, CrawlDatum.FETCH_DIR_NAME));
+
+      if (includeParseData) {
+        FileInputFormat.addInputPath(job,
+            new Path(segment, ParseData.DIR_NAME));
+      }
+
+      if (includeParseText) {
+        FileInputFormat.addInputPath(job,
+            new Path(segment, ParseText.DIR_NAME));
+      }
     }
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
@@ -302,13 +496,28 @@ public class WARCExporter extends Configured implements Tool {
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println(
-          "Usage: WARCExporter <output> (<segment> ... | -dir <segments>)");
+          "Usage: WARCExporter <output> (<segment> ... | -dir <segments>) [-onlySuccessfulResponses] [-includeParseData] [-includeParseText]");
       return -1;
     }
 
+    boolean onlySuccessfulResponses = false;
+    boolean includeParseData = false;
+    boolean includeParseText = false;
     final List<Path> segments = new ArrayList<>();
 
     for (int i = 1; i < args.length; i++) {
+      if (args[i].equals("-onlySuccessfulResponses")) {
+        onlySuccessfulResponses = true;
+        continue;
+      }
+      if (args[i].equals("-includeParseData")) {
+        includeParseData = true;
+        continue;
+      }
+      if (args[i].equals("-includeParseText")) {
+        includeParseText = true;
+        continue;
+      }
       if (args[i].equals("-dir")) {
         Path dir = new Path(args[++i]);
         FileSystem fs = dir.getFileSystem(getConf());
@@ -323,7 +532,8 @@ public class WARCExporter extends Configured implements Tool {
       }
     }
 
-    return generateWARC(args[0], segments);
+    return generateWARC(args[0], segments, onlySuccessfulResponses,
+        includeParseData, includeParseText);
   }
 
   public static void main(String[] args) throws Exception {
