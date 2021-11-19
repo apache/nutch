@@ -65,7 +65,7 @@ public class UpdateHostDbReducer
   protected static int[] percentiles;
   protected static Text[] numericFieldWritables;
   protected static Text[] stringFieldWritables;
-  protected static AbstractCrawlDatumProcessor[] crawlDatumProcessors;
+  protected static CrawlDatumProcessor[] crawlDatumProcessors;
   
   protected BlockingQueue<Runnable> queue = new SynchronousQueue<>();
   protected ThreadPoolExecutor executor = null;
@@ -92,7 +92,7 @@ public class UpdateHostDbReducer
 
     // Initialize classes for each CrawlDatumProcessor's class name
     if (crawlDatumProcessorClassnames != null) {
-      crawlDatumProcessors = new AbstractCrawlDatumProcessor[crawlDatumProcessorClassnames.length];
+      crawlDatumProcessors = new CrawlDatumProcessor[crawlDatumProcessorClassnames.length];
 
       for (int i = 0; i < crawlDatumProcessorClassnames.length; i++) {
         LOG.info("Instantiating custom CrawlDatumProcessor {}",
@@ -100,12 +100,12 @@ public class UpdateHostDbReducer
 
         // Get the class
         try {
-          Class<? extends AbstractCrawlDatumProcessor> processorClass = Class
+          Class<? extends CrawlDatumProcessor> processorClass = Class
               .forName(crawlDatumProcessorClassnames[i])
-              .asSubclass(AbstractCrawlDatumProcessor.class);
+              .asSubclass(CrawlDatumProcessor.class);
 
           // Create an instance
-          AbstractCrawlDatumProcessor processorImpl = processorClass
+          CrawlDatumProcessor processorImpl = processorClass
               .getConstructor(Configuration.class).newInstance(conf);
 
           // Add to array
@@ -293,7 +293,7 @@ public class UpdateHostDbReducer
 
         // Run count phase for optional custom crawldatum processors
         if (crawlDatumProcessors != null) {
-          for (AbstractCrawlDatumProcessor processor : crawlDatumProcessors) {
+          for (CrawlDatumProcessor processor : crawlDatumProcessors) {
             processor.count(buffer);
           }
         }
@@ -393,7 +393,7 @@ public class UpdateHostDbReducer
 
     // Run finalize phase for optional custom crawldatum processors
     if (crawlDatumProcessors != null) {
-      for (AbstractCrawlDatumProcessor processor : crawlDatumProcessors) {
+      for (CrawlDatumProcessor processor : crawlDatumProcessors) {
         processor.finalize(hostDatum);
       }
     }

@@ -21,7 +21,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 /**
  * These are instantiated once for each host.
  */
-public interface AbstractCrawlDatumProcessor {
+public interface CrawlDatumProcessor {
 
   /**
    * Process a single crawl datum instance to aggregate custom counts.

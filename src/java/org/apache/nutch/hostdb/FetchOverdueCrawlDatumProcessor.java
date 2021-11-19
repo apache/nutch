@@ -27,8 +27,7 @@ import org.apache.nutch.crawl.CrawlDatum;
  * are overdue for fetching, e.g. new unfetched URLs that haven't been fetched
  * within two days.
  */
-public class FetchOverdueCrawlDatumProcessor
-    implements AbstractCrawlDatumProcessor {
+public class FetchOverdueCrawlDatumProcessor implements CrawlDatumProcessor {
 
   protected final Configuration conf;
   protected long overDueTimeLimit = 60 * 60 * 24 * 2 * 1000l; // two days
