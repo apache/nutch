@@ -16,27 +16,26 @@
  */
 package org.apache.nutch.hostdb;
 
-import org.apache.hadoop.conf.Configuration;
-
 import org.apache.nutch.crawl.CrawlDatum;
 
 /**
- * These are instaniated once for each host.
+ * These are instantiated once for each host.
  */
 public interface AbstractCrawlDatumProcessor {
 
   /**
-   * Process a single crawl datum instance.
+   * Process a single crawl datum instance to aggregate custom counts.
    *
    * @param crawlDatum
    */
   public void count(CrawlDatum crawlDatum);
-  
+
   /**
-   * Process the final host datum inst
+   * Process the final host datum instance and store the aggregated custom
+   * counts in the HostDatum.
    *
    * @param hostDatum
    */
   public void finalize(HostDatum hostDatum);
-  
+
 }

@@ -86,24 +86,34 @@ public class UpdateHostDbReducer
     numericFields = conf.getStrings(UpdateHostDb.HOSTDB_NUMERIC_FIELDS);
     stringFields = conf.getStrings(UpdateHostDb.HOSTDB_STRING_FIELDS);
     percentiles = conf.getInts(UpdateHostDb.HOSTDB_PERCENTILES);
-    String[] crawlDatumProcessorClassnames = conf.getStrings(UpdateHostDb.HOSTDB_CRAWLDATUM_PROCESSORS, null);
-    
+
+    String[] crawlDatumProcessorClassnames = conf
+        .getStrings(UpdateHostDb.HOSTDB_CRAWLDATUM_PROCESSORS);
+
     // Initialize classes for each CrawlDatumProcessor's class name
     if (crawlDatumProcessorClassnames != null) {
       crawlDatumProcessors = new AbstractCrawlDatumProcessor[crawlDatumProcessorClassnames.length];
-      
+
       for (int i = 0; i < crawlDatumProcessorClassnames.length; i++) {
+        LOG.info("Instantiating custom CrawlDatumProcessor {}",
+            crawlDatumProcessorClassnames[i]);
+
         // Get the class
         try {
-          Class<? extends AbstractCrawlDatumProcessor> processorClass = Class.forName(crawlDatumProcessorClassnames[i]).asSubclass(AbstractCrawlDatumProcessor.class);
-          
+          Class<? extends AbstractCrawlDatumProcessor> processorClass = Class
+              .forName(crawlDatumProcessorClassnames[i])
+              .asSubclass(AbstractCrawlDatumProcessor.class);
+
           // Create an instance
-          AbstractCrawlDatumProcessor processorImpl = processorClass.getConstructor(Configuration.class).newInstance(conf);
-          
+          AbstractCrawlDatumProcessor processorImpl = processorClass
+              .getConstructor(Configuration.class).newInstance(conf);
+
           // Add to array
           crawlDatumProcessors[i] = processorImpl;
         } catch (Exception e) {
-          LOG.error("Unable to instantiate crawldatum processor: " + crawlDatumProcessorClassnames[i] + " because: " + e.getMessage(), e);
+          LOG.error("Unable to instantiate crawldatum processor: "
+              + crawlDatumProcessorClassnames[i] + " because: "
+              + e.getMessage(), e);
         }
       }
     }
@@ -280,7 +290,7 @@ public class UpdateHostDbReducer
             }
           }
         }
-        
+
         // Run count phase for optional custom crawldatum processors
         if (crawlDatumProcessors != null) {
           for (AbstractCrawlDatumProcessor processor : crawlDatumProcessors) {
@@ -288,7 +298,7 @@ public class UpdateHostDbReducer
           }
         }
       }
-      
+
       // 
       else if (value instanceof HostDatum) {
         HostDatum buffer = (HostDatum)value;
@@ -380,7 +390,7 @@ public class UpdateHostDbReducer
       context.getCounter("UpdateHostDb", "skipped_not_eligible").increment(1);
       LOG.info("UpdateHostDb: {}: skipped_not_eligible", key);
     }
-    
+
     // Run finalize phase for optional custom crawldatum processors
     if (crawlDatumProcessors != null) {
       for (AbstractCrawlDatumProcessor processor : crawlDatumProcessors) {

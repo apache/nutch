@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.hostdb;
 
-import java.util.Date;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -25,52 +23,41 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 
 /**
- * Simple custom crawl datum processor that counts the number of records
- * that are overdue for fetching, e.g. new unfetched URLs that haven't
- * been fetched within two days.
+ * Simple custom crawl datum processor that counts the number of records that
+ * are overdue for fetching, e.g. new unfetched URLs that haven't been fetched
+ * within two days.
  */
-public class FetchOverdueCrawlDatumProcessor implements AbstractCrawlDatumProcessor {
+public class FetchOverdueCrawlDatumProcessor
+    implements AbstractCrawlDatumProcessor {
 
   protected final Configuration conf;
   protected long overDueTimeLimit = 60 * 60 * 24 * 2 * 1000l; // two days
   protected long overDueTime;
   protected long numOverDue = 0;
-  
-  /**
-   * Constructs a new ExampleCrawlDatumProcessor.
-   */
+
   public FetchOverdueCrawlDatumProcessor(Configuration conf) {
     this.conf = conf;
-    
-    overDueTimeLimit = conf.getLong("crawl.datum.processor.overdue.time.limit", 60 * 60 * 24 * 2 * 1000l);
+
+    overDueTimeLimit = conf.getLong("crawl.datum.processor.overdue.time.limit",
+        60 * 60 * 24 * 2 * 1000l);
     overDueTime = System.currentTimeMillis() - overDueTimeLimit;
   }
 
-  /**
-   * Process a single crawl datum instance.
-   *
-   * @param crawlDatum
-   */
   @Override
   public void count(CrawlDatum crawlDatum) {
     // Only compute overdue time for unfetched records
     if (crawlDatum.getStatus() == CrawlDatum.STATUS_DB_UNFETCHED) {
       // Does this fetch time exceed overDueTime?
-      
+
       if (crawlDatum.getFetchTime() < overDueTime) {
         numOverDue++;
       }
     }
   }
-  
-  /**
-   * Process the final host datum instance.
-   *
-   * @param hostDatum
-   */
+
   @Override
   public void finalize(HostDatum hostDatum) {
-    hostDatum.getMetaData().put(new Text("num.overdue"), new LongWritable(numOverDue));
+    hostDatum.getMetaData().put(new Text("num.overdue"),
+        new LongWritable(numOverDue));
   }
 }
- 
