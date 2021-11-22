@@ -17,15 +17,15 @@
 package org.apache.nutch.analysis.lang;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
-// Nutch imports
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.tika.language.LanguageIdentifier;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -102,48 +102,45 @@ public class TestHTMLLanguageParser {
   }
 
   @Test
-  public void testLanguageIndentifier() {
-    try {
-      long total = 0;
-      LanguageIdentifier identifier;
-      BufferedReader in = new BufferedReader(new InputStreamReader(this
-          .getClass().getResourceAsStream("test-referencial.txt")));
-      String line = null;
-      while ((line = in.readLine()) != null) {
-        String[] tokens = line.split(";");
-        if (!tokens[0].equals("")) {
-          StringBuilder content = new StringBuilder();
-          // Test each line of the file...
-          BufferedReader testFile = new BufferedReader(new InputStreamReader(
-              this.getClass().getResourceAsStream(tokens[0]), "UTF-8"));
-          String testLine = null, lang = null;
-          while ((testLine = testFile.readLine()) != null) {
-            content.append(testLine + "\n");
-            testLine = testLine.trim();
-            if (testLine.length() > 256) {
-              identifier = new LanguageIdentifier(testLine);
-              lang = identifier.getLanguage();
-              Assert.assertEquals(tokens[1], lang);
-            }
+  public void testLanguageIndentifier() throws IOException {
+    long total = 0;
+    HTMLLanguageParser identifier = new HTMLLanguageParser();
+    Configuration conf = new Configuration();
+    conf.set("lang.extraction.policy", "identify");
+    identifier.setConf(conf);
+    BufferedReader in = new BufferedReader(new InputStreamReader(
+        this.getClass().getResourceAsStream("test-referencial.txt")));
+    String line = null;
+    while ((line = in.readLine()) != null) {
+      String[] tokens = line.split(";");
+      if (!tokens[0].equals("")) {
+        StringBuilder content = new StringBuilder();
+        // Test each line of the file...
+        BufferedReader testFile = new BufferedReader(new InputStreamReader(
+            this.getClass().getResourceAsStream(tokens[0]), "UTF-8"));
+        String testLine = null, lang = null;
+        while ((testLine = testFile.readLine()) != null) {
+          content.append(testLine + "\n");
+          testLine = testLine.trim();
+          if (testLine.length() > 256) {
+            lang = identifier.identifyLanguage(testLine);
+            Assert.assertEquals(tokens[1], lang);
           }
-          testFile.close();
-
-          // Test the whole file
-          long start = System.currentTimeMillis();
-          System.out.println(content.toString());
-          identifier = new LanguageIdentifier(content.toString());
-          lang = identifier.getLanguage();
-          System.out.println(lang);
-          total += System.currentTimeMillis() - start;
-          Assert.assertEquals(tokens[1], lang);
         }
+        testFile.close();
+
+        // Test the whole file
+        long start = System.currentTimeMillis();
+        System.out.println(content.substring(0,
+            (content.length() > 48 ? 48 : content.length())));
+        lang = identifier.identifyLanguage(content);
+        System.out.println(lang);
+        total += System.currentTimeMillis() - start;
+        Assert.assertEquals(tokens[1], lang);
       }
-      in.close();
-      System.out.println("Total Time=" + total);
-    } catch (Exception e) {
-      e.printStackTrace();
-      Assert.fail(e.toString());
     }
+    in.close();
+    System.out.println("Total Time=" + total);
   }
 
 }

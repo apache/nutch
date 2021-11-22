@@ -41,11 +41,11 @@
 		<dependency org="org.apache.logging.log4j" name="log4j-slf4j-impl" rev="2.14.1" conf="*->master" />
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.31" conf="*->master" />
 
-		<dependency org="org.apache.commons" name="commons-lang3" rev="3.11" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.12.0" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-collections4" rev="4.4" conf="*->master" />
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.13" conf="*->master" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.15" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-compress" rev="1.20" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-compress" rev="1.21" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.1" conf="*->default" />
 		<dependency org="com.tdunning" name="t-digest" rev="3.2" />
 		<dependency org="org.codehaus.jettison" name="jettison" rev="1.4.0"/>
@@ -63,9 +63,9 @@
 		</dependency>
 		<!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="1.25" />
-		<!-- tika-parsers (without transitive dependencies) is used to detect the charset in text and HTML documents -->
-		<dependency org="org.apache.tika" name="tika-parsers" rev="1.25" transitive="false" />
+		<dependency org="org.apache.tika" name="tika-core" rev="2.1.0" />
+		<!-- tika-parser-text-module (without transitive dependencies) is used to detect the charset in text and HTML documents -->
+		<dependency org="org.apache.tika" name="tika-parser-text-module" rev="2.1.0" transitive="false" />
 
 		<!-- language detection -->
 		<dependency org="org.commoncrawl" name="language-detection-cld2" rev="0.1-SNAPSHOT" />

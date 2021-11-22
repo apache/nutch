@@ -18,7 +18,6 @@ package org.apache.nutch.parse.tika;
 
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.metadata.DublinCore;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
@@ -27,6 +26,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.tika.metadata.OfficeOpenXMLCore;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,7 +60,7 @@ public class TestRTFParser extends TikaParserTest {
     Metadata meta = parse.getData().getParseMeta();
 
     Assert.assertEquals("test rft document", title);
-    Assert.assertEquals("tests", meta.get(DublinCore.SUBJECT));
+    Assert.assertEquals("tests", meta.get(OfficeOpenXMLCore.SUBJECT.getName()));
 
   }
 }

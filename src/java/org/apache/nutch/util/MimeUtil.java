@@ -27,6 +27,7 @@ import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -189,7 +190,7 @@ public final class MimeUtil {
       String magicType = null;
       // pass URL (file name) and (cleansed) content type from protocol to Tika
       Metadata tikaMeta = new Metadata();
-      tikaMeta.add(Metadata.RESOURCE_NAME_KEY, url);
+      tikaMeta.add(TikaCoreProperties.RESOURCE_NAME_KEY, url);
       tikaMeta.add(Metadata.CONTENT_TYPE,
           (cleanedMimeType != null ? cleanedMimeType : typeName));
       try {
