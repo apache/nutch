@@ -81,7 +81,15 @@ ant eclipse
 
 and follow the instructions in [Importing existing projects](https://help.eclipse.org/2019-06/topic/org.eclipse.platform.doc.user/tasks/tasks-importproject.htm).
 
-IntelliJ IDEA users can also import Eclipse projects using the ["Eclipser" plugin](https://www.tutorialspoint.com/intellij_idea/intellij_idea_migrating_from_eclipse.htm)https://plugins.jetbrains.com/plugin/7153-eclipser), see also [Importing Eclipse Projects into IntelliJ IDEA](https://www.jetbrains.com/help/idea/migrating-from-eclipse-to-intellij-idea.html#migratingEclipseProject).
+For Intellij IDEA, first install the [IvyIDEA Plugin](https://plugins.jetbrains.com/plugin/3612-ivyidea). then run ```ant eclipse```. 
+
+Then open the project in IntelliJ. You may see popups like "Ant build scripts found", "Frameworks detected - IvyIDEA Framework detected". Just follow the simple steps in these dialogs.  
+
+You must [configure the nutch-site.xml](https://cwiki.apache.org/confluence/display/NUTCH/RunNutchInEclipse) before running. Make sure, you've added ```http.agent.name``` and ```plugin.folders``` properties. The plugin.folders normally points to ```<project_root>/build/plugins```. 
+
+Now create a Java Application Configuration, choose org.apache.nutch.crawl.Injector, add two paths as arguments. First one is the crawldb directory, second one is the URL directory where, the injector can read urls. Now run your configuration. 
+
+If we still see the ```No plugins found on paths of property plugin.folders="plugins"```, update the plugin.folders in the nutch-default.xml, this is a quick fix, but should not be used.
 
 
 Export Control

@@ -65,6 +65,7 @@ public class UpdateHostDbReducer
   protected static int[] percentiles;
   protected static Text[] numericFieldWritables;
   protected static Text[] stringFieldWritables;
+  protected static CrawlDatumProcessor[] crawlDatumProcessors;
   
   protected BlockingQueue<Runnable> queue = new SynchronousQueue<>();
   protected ThreadPoolExecutor executor = null;
@@ -85,6 +86,37 @@ public class UpdateHostDbReducer
     numericFields = conf.getStrings(UpdateHostDb.HOSTDB_NUMERIC_FIELDS);
     stringFields = conf.getStrings(UpdateHostDb.HOSTDB_STRING_FIELDS);
     percentiles = conf.getInts(UpdateHostDb.HOSTDB_PERCENTILES);
+
+    String[] crawlDatumProcessorClassnames = conf
+        .getStrings(UpdateHostDb.HOSTDB_CRAWLDATUM_PROCESSORS);
+
+    // Initialize classes for each CrawlDatumProcessor's class name
+    if (crawlDatumProcessorClassnames != null) {
+      crawlDatumProcessors = new CrawlDatumProcessor[crawlDatumProcessorClassnames.length];
+
+      for (int i = 0; i < crawlDatumProcessorClassnames.length; i++) {
+        LOG.info("Instantiating custom CrawlDatumProcessor {}",
+            crawlDatumProcessorClassnames[i]);
+
+        // Get the class
+        try {
+          Class<? extends CrawlDatumProcessor> processorClass = Class
+              .forName(crawlDatumProcessorClassnames[i])
+              .asSubclass(CrawlDatumProcessor.class);
+
+          // Create an instance
+          CrawlDatumProcessor processorImpl = processorClass
+              .getConstructor(Configuration.class).newInstance(conf);
+
+          // Add to array
+          crawlDatumProcessors[i] = processorImpl;
+        } catch (Exception e) {
+          LOG.error("Unable to instantiate crawldatum processor: "
+              + crawlDatumProcessorClassnames[i] + " because: "
+              + e.getMessage(), e);
+        }
+      }
+    }
     
     // What fields do we need to collect metadata from
     if (numericFields != null) {
@@ -258,8 +290,15 @@ public class UpdateHostDbReducer
             }
           }
         }
+
+        // Run count phase for optional custom crawldatum processors
+        if (crawlDatumProcessors != null) {
+          for (CrawlDatumProcessor processor : crawlDatumProcessors) {
+            processor.count(buffer);
+          }
+        }
       }
-      
+
       // 
       else if (value instanceof HostDatum) {
         HostDatum buffer = (HostDatum)value;
@@ -350,6 +389,13 @@ public class UpdateHostDbReducer
     } else {
       context.getCounter("UpdateHostDb", "skipped_not_eligible").increment(1);
       LOG.info("UpdateHostDb: {}: skipped_not_eligible", key);
+    }
+
+    // Run finalize phase for optional custom crawldatum processors
+    if (crawlDatumProcessors != null) {
+      for (CrawlDatumProcessor processor : crawlDatumProcessors) {
+        processor.finalize(hostDatum);
+      }
     }
 
     // Write the host datum if it wasn't written by the resolver thread

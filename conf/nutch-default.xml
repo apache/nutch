@@ -2823,6 +2823,17 @@ Add scoring-metadata to the list of active plugins
   </description>
 </property>
 
+<property>
+  <name>hostdb.crawldatum.processors</name>
+  <value></value>
+  <description>
+    Comma-separated list of custom per-host statistic
+    aggregators. Aggregator classes must implement the interface
+    org.apache.nutch.hostdb.CrawlDatumProcessor and are called during
+    HostDB construction.
+  </description>
+</property>
+
 <!-- publisher properties 
       Do not forget to add the name of your publisher implementation 
       in plugin.includes ex- publish-rabbitmq -->

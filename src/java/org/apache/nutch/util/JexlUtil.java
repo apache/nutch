@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
-import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.JexlScript;
 import org.apache.commons.lang.time.DateUtils;
 
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class JexlUtil {
    * @param expr string JEXL expression
    * @return parsed JEXL expression or null in case of parse error
    */
-  public static JexlExpression parseExpression(String expr) {
+  public static JexlScript parseExpression(String expr) {
     if (expr == null) return null;
     
     try {
@@ -68,7 +68,7 @@ public class JexlUtil {
 
       JexlEngine jexl = new JexlBuilder().silent(true).strict(true).create();
 
-      return jexl.createExpression(expr);
+      return jexl.createScript(expr);
     } catch (Exception e) {
       LOG.error(e.getMessage());
     }

@@ -74,7 +74,7 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.SegmentReaderUtil;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TimingUtil;
-import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.JexlScript;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -864,7 +864,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     Matcher matcher = null;
     String status = null;
     Integer retry = null;
-    JexlExpression expr = null;
+    JexlScript expr = null;
     float sample;
 
     @Override
@@ -913,7 +913,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
       // check expr
       if (expr != null) {
-        if (!value.evaluate(expr, key.toString())) {
+        if (!value.execute(expr, key.toString())) {
           return;
         }
       }
@@ -1033,7 +1033,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       System.err.println(
           "\t\t[-status <status>]\tfilter records by CrawlDatum status");
       System.err.println(
-          "\t\t[-expr <expr>]\tJexl expression to evaluate for this record");
+          "\t\t[-expr <expr>]\tJexl expression to execute for this record");
       System.err.println(
           "\t\t[-sample <fraction>]\tOnly process a random sample with this ratio");
       System.err

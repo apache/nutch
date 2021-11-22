@@ -940,6 +940,7 @@
       destfile="${src.dist.version.dir}.tar.gz">
       <tarfileset dir="${src.dist.version.dir}" mode="664" prefix="${final.name}">
         <exclude name="src/bin/*" />
+        <exclude name="ivy/ivy*.jar" />
         <include name="**" />
       </tarfileset>
       <tarfileset dir="${src.dist.version.dir}" mode="755" prefix="${final.name}">
@@ -972,6 +973,7 @@
      destfile="${src.dist.version.dir}.zip">
    <zipfileset dir="${src.dist.version.dir}" filemode="664" prefix="${final.name}">
        <exclude name="src/bin/*" />
+        <exclude name="ivy/ivy*.jar" />
        <include name="**" />
    </zipfileset>
    <zipfileset dir="${src.dist.version.dir}" filemode="755" prefix="${final.name}">
@@ -1065,16 +1067,15 @@
     <delete file="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz" />
   </target>
 
-  <taskdef
-      uri="antlib:org.apache.rat.anttasks"
-      resource="org/apache/rat/anttasks/antlib.xml">
-    <classpath>
-      <pathelement location="${apache-rat.jar}" />
-    </classpath>
-  </taskdef>
-
   <target name="rat-sources" depends="init, apache-rat-download"
     description="--> runs RAT tasks over src/java">
+    <taskdef
+        uri="antlib:org.apache.rat.anttasks"
+        resource="org/apache/rat/anttasks/antlib.xml">
+      <classpath>
+        <pathelement location="${apache-rat.jar}" />
+      </classpath>
+    </taskdef>
     <rat:report
         reportFile="${build.dir}/apache-rat-report.txt">
       <fileset dir="src">

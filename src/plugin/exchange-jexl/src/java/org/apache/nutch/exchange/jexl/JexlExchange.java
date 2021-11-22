@@ -16,7 +16,7 @@
  */
 package org.apache.nutch.exchange.jexl;
 
-import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.JexlScript;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.hadoop.conf.Configuration;
@@ -32,7 +32,7 @@ public class JexlExchange implements Exchange {
 
   private Configuration conf;
 
-  private JexlExpression expression;
+  private JexlScript expression;
 
   /**
    * Initializes the internal variables.
@@ -57,7 +57,7 @@ public class JexlExchange implements Exchange {
     jexlContext.set("doc", doc);
 
     try {
-      if (Boolean.TRUE.equals(expression.evaluate(jexlContext))) {
+      if (Boolean.TRUE.equals(expression.execute(jexlContext))) {
         return true;
       }
     } catch (Exception ignored) {
