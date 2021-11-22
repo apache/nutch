@@ -2625,8 +2625,8 @@ Add scoring-metadata to the list of active plugins
   <description>
     Comma-separated list of custom per-host statistic
     aggregators. Aggregator classes must implement the interface
-    org.apache.nutch.hostdb.AbstractCrawlDatumProcessor and are called
-    during HostDB construction.
+    org.apache.nutch.hostdb.CrawlDatumProcessor and are called during
+    HostDB construction.
   </description>
 </property>
 
