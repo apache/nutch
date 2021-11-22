@@ -27,6 +27,7 @@ public interface CrawlDatumProcessor {
    * Process a single crawl datum instance to aggregate custom counts.
    *
    * @param crawlDatum
+   *          CrawlDatum instance to count information from
    */
   public void count(CrawlDatum crawlDatum);
 
@@ -35,6 +36,7 @@ public interface CrawlDatumProcessor {
    * counts in the HostDatum.
    *
    * @param hostDatum
+   *          HostDatum instance to hold the aggregated custom counts
    */
   public void finalize(HostDatum hostDatum);
 
