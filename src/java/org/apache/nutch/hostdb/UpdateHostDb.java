@@ -67,6 +67,7 @@ public class UpdateHostDb extends Configured implements Tool {
   public static final String HOSTDB_NUMERIC_FIELDS = "hostdb.numeric.fields";
   public static final String HOSTDB_STRING_FIELDS = "hostdb.string.fields";
   public static final String HOSTDB_PERCENTILES = "hostdb.percentiles";
+  public static final String HOSTDB_CRAWLDATUM_PROCESSORS = "hostdb.crawldatum.processors";
   
   private void updateHostDb(Path hostDb, Path crawlDb, Path topHosts,
     boolean checkFailed, boolean checkNew, boolean checkKnown,
