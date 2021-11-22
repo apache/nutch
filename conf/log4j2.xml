@@ -47,5 +47,8 @@
     <Logger name="org.apache.hadoop" level="WARN" additivity="false">
       <Appender-ref ref="RollingFile" level="WARN" />
     </Logger>
+    <Logger name="org.apache.hadoop.mapreduce.Job" level="INFO" additivity="false">
+      <Appender-ref ref="RollingFile" level="INFO" />
+    </Logger>
   </Loggers>
 </Configuration>
