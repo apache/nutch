@@ -64,12 +64,14 @@
 		<!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.apache.tika" name="tika-core" rev="2.1.0" />
-		<!-- tika-parser-text-module (without transitive dependencies) is used to detect the charset in text and HTML documents -->
+		<!-- Tika parser text and html modules (without transitive dependencies) are used to detect
+		     the charset in text resp. HTML documents -->
 		<dependency org="org.apache.tika" name="tika-parser-text-module" rev="2.1.0" transitive="false" />
+		<dependency org="org.apache.tika" name="tika-parser-html-module" rev="2.1.0" transitive="false" />
 
 		<!-- language detection -->
 		<dependency org="org.commoncrawl" name="language-detection-cld2" rev="0.1-SNAPSHOT" />
-		<dependency org="net.java.dev.jna" name="jna" rev="5.6.0" />
+		<dependency org="net.java.dev.jna" name="jna" rev="5.10.0" />
 
 		<dependency org="xml-apis" name="xml-apis" rev="1.4.01" /><!-- force this version as it is required by Tika -->
 		<dependency org="xerces" name="xercesImpl" rev="2.12.1" />

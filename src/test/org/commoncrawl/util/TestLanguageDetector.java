@@ -64,7 +64,7 @@ public class TestLanguageDetector {
     if (addCharsetHint) {
       doc += "\n<meta charset=\"" + charset.name() + "\">";
     }
-    doc += headerEnd + title + footer;
+    doc += headerEnd + body + footer;
     content.setContent(doc.getBytes(charset));
     LanguageDetector.Result res = detector.detectLanguage(uri, content);
     assertEquals("charset detection failed for " + language, charset, res.charset);
