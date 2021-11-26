@@ -28,7 +28,10 @@ import java.util.Set;
 
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
+import org.apache.tika.detect.AutoDetectReader;
 import org.apache.tika.detect.CompositeEncodingDetector;
+import org.apache.tika.detect.EncodingDetector;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.html.HtmlEncodingDetector;
 import org.apache.tika.parser.txt.Icu4jEncodingDetector;
@@ -54,7 +57,7 @@ public class LanguageDetector {
 
   protected Flags flags = new Flags();
 
-  protected CompositeEncodingDetector charsetDetector = new CompositeEncodingDetector(
+  protected EncodingDetector charsetDetector = new CompositeEncodingDetector(
       Arrays.asList(new HtmlEncodingDetector(), new Icu4jEncodingDetector()));
 
   public void setBestEffort(boolean bestEffort) {
@@ -113,8 +116,9 @@ public class LanguageDetector {
     String text;
     byte[] bytes = content.getContent();
 
-    try (ByteArrayInputStream is = new ByteArrayInputStream(bytes)) {
-      result.charset = charsetDetector.detect(is, metadata);
+    try (AutoDetectReader charsetDetectReader = new AutoDetectReader(
+        new ByteArrayInputStream(bytes), metadata, charsetDetector)) {
+      result.charset = charsetDetectReader.getCharset();
       boolean isValidUtf8 = false;
       if (result.charset.equals(StandardCharsets.UTF_8)) {
         // need to validate UTF-8 because CLD2 may segfault on invalid UTF-8
@@ -131,7 +135,7 @@ public class LanguageDetector {
         text = new String(bytes, result.charset);
         bytes = Cld2.encodeNative(text);
       }
-    } catch (IOException e) {
+    } catch (IOException | TikaException e) {
       LOG.error("Failed to convert charset:", e);
       result.errorReason = "Failed to convert charset " + e.getMessage();
       result.errorStatus = Status.CHARSET_DETECTION_FAILED;
