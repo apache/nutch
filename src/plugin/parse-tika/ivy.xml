@@ -40,9 +40,7 @@
       <!-- exclusions of dependencies provided in Nutch core (ivy/ivy.xml) -->
       <exclude org="org.apache.tika" name="tika-core" />
       <exclude org="org.apache.commons" name="commons-lang3" />
-      <exclude org="commons-codec" name="commons-codec" />
       <exclude org="org.apache.commons" name="commons-collections4" />
-      <exclude org="org.apache.commons" name="commons-compress" />
       <exclude org="commons-io" name="commons-io" />
       <exclude org="commons-logging" name="commons-logging" />
       <exclude org="org.slf4j" name="slf4j-api" />
@@ -50,6 +48,10 @@
            are no instances in the child/plugin class loader -->
       <exclude org="xerces" name="xercesImpl" />
       <exclude org="xml-apis" name="xml-apis" />
+      <!-- common-codec and commons-compress must be included -->
+      <!--exclude org="org.apache.commons" name="commons-codec" /-->
+      <!--exclude org="commons-codec" name="commons-codec" /-->
+      <!--exclude org="org.apache.commons" name="commons-compress" /-->
     </dependency>
   </dependencies>
   
