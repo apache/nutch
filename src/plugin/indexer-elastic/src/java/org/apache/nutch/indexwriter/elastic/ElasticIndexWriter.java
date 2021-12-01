@@ -37,6 +37,7 @@ import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
+import org.apache.nutch.util.StringUtil;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BackoffPolicy;
@@ -306,7 +307,7 @@ public class ElasticIndexWriter implements IndexWriter {
     properties.put(ElasticConstants.USER, new AbstractMap.SimpleEntry<>(
         "Username for auth credentials", this.user));
     properties.put(ElasticConstants.PASSWORD, new AbstractMap.SimpleEntry<>(
-        "Password for auth credentials", this.password));
+        "Password for auth credentials", StringUtil.mask(this.password)));
     properties.put(ElasticConstants.MAX_BULK_DOCS,
         new AbstractMap.SimpleEntry<>(
             "Maximum size of the bulk in number of documents.",
