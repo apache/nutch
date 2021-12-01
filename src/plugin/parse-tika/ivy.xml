@@ -36,27 +36,22 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.tika" name="tika-parsers" rev="1.25" conf="*->default">
+    <dependency org="org.apache.tika" name="tika-parsers-standard-package" rev="2.1.0" conf="*->default">
       <!-- exclusions of dependencies provided in Nutch core (ivy/ivy.xml) -->
       <exclude org="org.apache.tika" name="tika-core" />
-      <exclude org="org.apache.httpcomponents" name="httpclient" />
-      <exclude org="org.apache.httpcomponents" name="httpcore" />
-      <exclude org="commons-lang" name="commons-lang" />
       <exclude org="org.apache.commons" name="commons-lang3" />
-      <exclude org="org.apache.commons" name="commons-codec" />
-      <exclude org="commons-codec" name="commons-codec" /><!-- older versions are published with org=commons-codec -->
       <exclude org="org.apache.commons" name="commons-collections4" />
-      <exclude org="org.apache.commons" name="commons-compress" />
-      <exclude org="org.apache.cxf" name="cxf-core" />
-      <exclude org="org.apache.cxf" name="cxf-rt-transports-http" />
-      <exclude org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" />
-      <exclude org="com.fasterxml.jackson.core" name="jackson-core" />
-      <exclude org="com.fasterxml.jackson.core" name="jackson-databind" />
-      <exclude org="com.fasterxml.jackson.core" name="jackson-annotations" />
-      <exclude org="com.google.protobuf" name="protobuf-java" />
-      <exclude org="org.slf4j" name="slf4j-log4j12" />
+      <exclude org="commons-io" name="commons-io" />
+      <exclude org="commons-logging" name="commons-logging" />
       <exclude org="org.slf4j" name="slf4j-api" />
-      <exclude org="xml-apis" name="xml-apis" /><!-- must be provided in core as it is used also by tika-core -->
+      <!-- exclusion of Xerces and xml-apis is mandatory so that there
+           are no instances in the child/plugin class loader -->
+      <exclude org="xerces" name="xercesImpl" />
+      <exclude org="xml-apis" name="xml-apis" />
+      <!-- common-codec and commons-compress must be included -->
+      <!--exclude org="org.apache.commons" name="commons-codec" /-->
+      <!--exclude org="commons-codec" name="commons-codec" /-->
+      <!--exclude org="org.apache.commons" name="commons-compress" /-->
     </dependency>
   </dependencies>
   
