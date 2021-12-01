@@ -437,7 +437,11 @@ public class Fetcher extends NutchTool implements Tool {
         } while (activeThreads.get() > 0);
         LOG.info("-activeThreads={}", activeThreads);
       } finally {
-        cleanup(innerContext);
+        try {
+          cleanup(innerContext);
+        } catch (InterruptedException e) {
+          LOG.info("Clean up interrupted");
+        }
       }
     }
   }
