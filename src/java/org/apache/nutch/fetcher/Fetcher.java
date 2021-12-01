@@ -191,7 +191,8 @@ public class Fetcher extends NutchTool implements Tool {
     }	  
 
     @Override
-    public void run(Context innerContext) throws IOException {
+    public void run(Context innerContext)
+        throws IOException, InterruptedException {
 
       setup(innerContext);
       try {
@@ -437,11 +438,7 @@ public class Fetcher extends NutchTool implements Tool {
         } while (activeThreads.get() > 0);
         LOG.info("-activeThreads={}", activeThreads);
       } finally {
-        try {
-          cleanup(innerContext);
-        } catch (InterruptedException e) {
-          LOG.info("Clean up interrupted");
-        }
+        cleanup(innerContext);
       }
     }
   }
