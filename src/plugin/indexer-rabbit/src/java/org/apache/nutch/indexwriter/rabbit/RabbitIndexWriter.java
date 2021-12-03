@@ -27,6 +27,7 @@ import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.rabbitmq.RabbitMQClient;
 import org.apache.nutch.rabbitmq.RabbitMQMessage;
+import org.apache.nutch.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class RabbitIndexWriter implements IndexWriter {
 
@@ -220,9 +222,10 @@ public class RabbitIndexWriter implements IndexWriter {
   public Map<String, Map.Entry<String, Object>> describe() {
     Map<String, Map.Entry<String, Object>> properties = new LinkedHashMap<>();
 
+    Pattern maskPasswordPattern = Pattern.compile("^amqp://[^:]+:([^@]+)@");
     properties.put(RabbitMQConstants.SERVER_URI, new AbstractMap.SimpleEntry<>(
         "URI with connection parameters in the form amqp://<username>:<password>@<hostname>:<port>/<virtualHost>",
-        this.uri));
+        StringUtil.mask(this.uri, maskPasswordPattern, '*')));
     properties.put(RabbitMQConstants.BINDING, new AbstractMap.SimpleEntry<>(
         "Whether the relationship between an exchange and a queue is created automatically. "
             + "NOTE: Binding between exchanges is not supported.",

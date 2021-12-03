@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.StringUtil;
 import org.apache.hadoop.conf.Configurable;
 
 /**
@@ -80,9 +81,10 @@ public class HttpBasicAuthentication implements HttpAuthentication,
         + ".password");
 
     if (LOG.isTraceEnabled()) {
-      LOG.trace("BasicAuthentication challenge is " + challenge);
-      LOG.trace("BasicAuthentication username=" + username);
-      LOG.trace("BasicAuthentication password=" + password);
+      LOG.trace("BasicAuthentication challenge is {}", challenge);
+      LOG.trace("BasicAuthentication username={}", username);
+      LOG.trace("BasicAuthentication password={} (masked)",
+          StringUtil.mask(password));
     }
 
     if (username == null) {

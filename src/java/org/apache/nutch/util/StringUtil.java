@@ -16,6 +16,9 @@
  */
 package org.apache.nutch.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * A collection of String processing utility methods.
  */
@@ -156,6 +159,57 @@ public class StringUtil {
     return value.replaceAll("�", "");
   }
 
+  /**
+   * Mask sensitive strings - passwords, etc.
+   * 
+   * @param str input string
+   * @return the masked string, all characters replaced by <code>*</code>
+   */
+  public static String mask(final String str) {
+    return mask(str, '*');
+  }
+
+  /**
+   * Mask sensitive strings - passwords, etc.
+   * 
+   * @param str input string
+   * @param mask
+   *          char used for masking
+   * @return the masked string, all characters replaced by the mask character
+   */
+  public static String mask(final String str, final char mask) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < str.length(); i++) {
+      sb.append(mask);
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Mask sensitive strings - passwords, etc.
+   * 
+   * @param str input string
+   * @param pattern
+   *          pattern which defines capturing groups to be masked in input
+   * @param mask
+   *          char used for masking
+   * @return the masked string, all characters matched in capturing groups of
+   *         the pattern replaced by the mask character
+   */
+  public static String mask(final String str, final Pattern pattern,
+      final char mask) {
+    StringBuilder sb = new StringBuilder(str);
+    Matcher matcher = pattern.matcher(sb);
+    while (matcher.find()) {
+      for (int i = 1; i <= matcher.groupCount(); i++) {
+        for (int j = matcher.start(i); j < matcher.end(i); j++) {
+          sb.setCharAt(j, mask);
+        }
+      }
+    }
+    return sb.toString();
+  }
+
   public static void main(String[] args) {
     if (args.length != 1)
       System.out.println("Usage: StringUtil <encoding name>");
@@ -163,4 +217,5 @@ public class StringUtil {
       System.out.println(args[0] + " is resolved to "
           + EncodingDetector.resolveEncodingAlias(args[0]));
   }
+
 }
