@@ -118,7 +118,7 @@
 </property>
 
 <property>
-  <name>http.robot.rules.whitelist</name>
+  <name>http.robot.rules.allowlist</name>
   <value></value>
   <description>Comma separated list of hostnames or IP addresses to ignore 
   robot rules parsing for. Use with care and only if you are explicitly
