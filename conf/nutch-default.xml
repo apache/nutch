@@ -1003,12 +1003,6 @@
 </property>
 
 <property>
-  <name>fetcher.verbose</name>
-  <value>false</value>
-  <description>If true, fetcher will log more verbosely.</description>
-</property>
-
-<property>
   <name>http.log.exceptions.suppress.stack</name>
   <value>java.net.UnknownHostException,java.net.NoRouteToHostException</value>
   <description>Comma-separated list of exceptions not shown with full
@@ -2197,12 +2191,6 @@ Add scoring-metadata to the list of active plugins
   <description>Whether to delete gone pages from the web graph.</description>
 </property>
 
-<property> 
-  <name>link.loops.depth</name>
-  <value>2</value>
-  <description>The depth for the loops algorithm.</description>
-</property>
-
 <property>
   <name>link.score.updater.clear.score</name>
   <value>0.0f</value>
@@ -2630,18 +2618,12 @@ Add scoring-metadata to the list of active plugins
   </description>
 </property>
 
-<!-- publisher properties 
-      Do not forget to add the name of your publisher implementation 
-      in plugin.includes ex- publish-rabbitmq -->
-<property>
-  <name>publisher.queue.type</name>
-  <value></value>
-  <description>
-    Choose the type of Queue being used (ex - RabbitMQ, ActiveMq, Kafka, etc). 
-    Currently there exists an implementation for RabbitMQ producer.
-  </description>
-</property>
+<!-- publisher properties
 
+Note: a publisher implementation is enabled by adding the
+corresponding plugin to plugin.includes. Currently, there exists only
+one publisher implementation for RabbitMQ (plugin publish-rabbitmq).
+-->
 <property>
   <name>publisher.order</name>
   <value></value>
