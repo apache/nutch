@@ -66,7 +66,11 @@ public class DomainSuffixes {
     domains.put(tld.getDomain(), tld);
   }
 
-  /** return whether the extension is a registered domain entry */
+  /**
+   * Return whether the extension is a registered domain entry
+   * @param extension a String extension
+   * @return true if input is a registered domain entry, false otherwise
+   */
   public boolean isDomainSuffix(String extension) {
     return domains.containsKey(extension);
   }
@@ -78,6 +82,7 @@ public class DomainSuffixes {
    * 
    * @param extension
    *          of the domain
+   * @return {@link DomainSuffix}
    */
   public DomainSuffix get(String extension) {
     return domains.get(extension);

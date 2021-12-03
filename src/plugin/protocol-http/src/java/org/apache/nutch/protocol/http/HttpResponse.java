@@ -66,11 +66,12 @@ public class HttpResponse implements Response {
   /**
    * Default public constructor.
    *
-   * @param http
-   * @param url
-   * @param datum
-   * @throws ProtocolException
-   * @throws IOException
+   * @param http the {@link HttpBase} for this URL
+   * @param url the canonical URL associated with the response
+   * @param datum crawl information for the URL
+   * @throws ProtocolException if the URL does not use HTTP protocol
+   * @throws IOException if there is a fatal I/O error, typically to do
+   * with Socket's
    */
   public HttpResponse(HttpBase http, URL url, CrawlDatum datum)
       throws ProtocolException, IOException {
@@ -320,6 +321,10 @@ public class HttpResponse implements Response {
                   + code + ":",
               e);
           content = null;
+          if (httpHeaders != null) {
+            httpHeaders.append("\r\n");
+            headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
+          }
         } else {
           // If the page is a "200 OK" response, we do not want to go further
           // with processing the invalid payload.

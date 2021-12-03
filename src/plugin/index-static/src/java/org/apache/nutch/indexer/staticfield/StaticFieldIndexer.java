@@ -59,6 +59,7 @@ public class StaticFieldIndexer implements IndexingFilter {
    *          The {@link Inlinks} containing anchor text
    * @return filtered NutchDocument
    */
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
@@ -99,6 +100,7 @@ public class StaticFieldIndexer implements IndexingFilter {
   /**
    * Set the {@link Configuration} object
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -117,12 +119,15 @@ public class StaticFieldIndexer implements IndexingFilter {
   /**
    * Get the {@link Configuration} object
    */
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
 
   /**
    * Escapes any character that needs escaping so it can be used in a regexp.
+   * @param in input string to escape-process 
+   * @return the escaped string which can be used un regex operations
    */
   protected String regexEscape(String in) {
     String result = in;

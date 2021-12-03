@@ -41,6 +41,8 @@ public class DeflateUtils {
    * Returns an inflated copy of the input array. If the deflated input has been
    * truncated or corrupted, a best-effort attempt is made to inflate as much as
    * possible. If no data can be extracted <code>null</code> is returned.
+   * @param in Deflated byte array
+   * @return An inflated copy of the input array, otherwise null
    */
   public static final byte[] inflateBestEffort(byte[] in) {
     return inflateBestEffort(in, Integer.MAX_VALUE);
@@ -51,6 +53,9 @@ public class DeflateUtils {
    * <code>sizeLimit</code> bytes, if necessary. If the deflated input has been
    * truncated or corrupted, a best-effort attempt is made to inflate as much as
    * possible. If no data can be extracted <code>null</code> is returned.
+   * @param in Deflated byte array
+   * @param sizeLimit Maximum size (bytes) allowed for inflated copy
+   * @return An inflated copy of the input array, otherwise null
    */
   public static final byte[] inflateBestEffort(byte[] in, int sizeLimit) {
     // decompress using InflaterInputStream
@@ -90,7 +95,8 @@ public class DeflateUtils {
 
   /**
    * Returns an inflated copy of the input array.
-   * 
+   * @param in Deflated byte array
+   * @return An inflated copy of the input array, otherwise null
    * @throws IOException
    *           if the input cannot be properly decompressed
    */
@@ -116,6 +122,8 @@ public class DeflateUtils {
 
   /**
    * Returns a deflated copy of the input array.
+   * @param in Inflated byte array
+   * @return A deflated copy of the input array, otherwise null
    */
   public static final byte[] deflate(byte[] in) {
     // compress using DeflaterOutputStream

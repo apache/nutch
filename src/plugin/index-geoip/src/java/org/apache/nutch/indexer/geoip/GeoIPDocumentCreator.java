@@ -54,7 +54,12 @@ import com.maxmind.geoip2.record.Traits;
  */
 public class GeoIPDocumentCreator {
 
-  /** Add field to document but only if value isn't null */
+  /**
+   * Add field to document but only if value isn't null
+   * @param doc the {@link NutchDocument} to augment
+   * @param name the name of the target field
+   * @param value the String value to associate with the target field
+   */
   public static void addIfNotNull(NutchDocument doc, String name,
       String value) {
     if (value != null) {
@@ -62,7 +67,13 @@ public class GeoIPDocumentCreator {
     }
   }
 
-  /** Add field to document but only if value isn't null */
+  /**
+   * Add field to document but only if value isn't null
+   * @param doc the {@link NutchDocument} to augment
+   * @param name the name of the target field
+   * @param value the {@link java.lang.Integer} value to 
+   * associate with the target field
+   */
   public static void addIfNotNull(NutchDocument doc, String name,
       Integer value) {
     if (value != null) {

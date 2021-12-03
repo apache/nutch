@@ -25,9 +25,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlScript;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -199,8 +199,10 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   }
 
   /**
-   * Returns either the time of the last fetch, or the next fetch time,
-   * depending on whether Fetcher or CrawlDbReducer set the time.
+   * Get the fetch time.
+   * @return long value indicating either the time of the last 
+   * fetch, or the next fetch time, depending on whether Fetcher 
+   * or CrawlDbReducer set the time.
    */
   public long getFetchTime() {
     return fetchTime;
@@ -209,6 +211,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   /**
    * Sets either the time of the last fetch or the next fetch time, depending on
    * whether Fetcher or CrawlDbReducer set the time.
+   * @param fetchTime the fetch time to set.
    */
   public void setFetchTime(long fetchTime) {
     this.fetchTime = fetchTime;
@@ -278,7 +281,9 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   }
 
   /**
-   * returns a MapWritable if it was set or read in @see readFields(DataInput),
+   * Get CrawlDatum metadata
+   * @see CrawlDatum#readFields(DataInput)
+   * @return a MapWritable if it was set or read in #readFields(DataInput),
    * returns empty map in case CrawlDatum was freshly created (lazily
    * instantiated).
    */
@@ -379,7 +384,10 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     }
   }
 
-  /** Copy the contents of another instance into this instance. */
+  /**
+   * Copy the contents of another instance into this instance.
+   * @param that an existing {@link CrawlDatum}
+   */
   public void set(CrawlDatum that) {
     this.status = that.status;
     this.fetchTime = that.fetchTime;
@@ -400,7 +408,14 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   // compare methods
   //
 
-  /** Sort by decreasing score. */
+  /**
+   * Sort two {@link CrawlDatum} objects by decreasing score.
+   * @param that an existing {@link CrawlDatum}
+   * @return 1 if any one field (score, status, fetchTime, retries,
+   * fetchInterval or modifiedTime) of the new {@link CrawlDatum}
+   * minus the correspoinding field of the existing {@link CrawlDatum}
+   * is greater than 0, otherwise return -1.
+   */
   public int compareTo(CrawlDatum that) {
     if (that.score != this.score)
       return (that.score - this.score) > 0 ? 1 : -1;
@@ -524,7 +539,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     int res = 0;
     if (signature != null) {
       for (int i = 0; i < signature.length / 4; i += 4) {
-        res ^= (signature[i] << 24 + signature[i + 1] << 16 + signature[i + 2] << 8 + signature[i + 3]);
+        res ^= ((signature[i] << 24) + (signature[i + 1] << 16)
+            + (signature[i + 2] << 8) + signature[i + 3]);
       }
     }
     if (metaData != null) {
@@ -542,7 +558,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     }
   }
   
-  public boolean evaluate(Expression expr, String url) {
+  public boolean execute(JexlScript expr, String url) {
     if (expr != null && url != null) {
       // Create a context and add data
       JexlContext jcontext = new MapContext();
@@ -585,7 +601,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       }
                   
       try {
-        if (Boolean.TRUE.equals(expr.evaluate(jcontext))) {
+        if (Boolean.TRUE.equals(expr.execute(jcontext))) {
           return true;
         }
       } catch (Exception e) {

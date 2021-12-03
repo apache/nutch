@@ -26,14 +26,18 @@ import org.apache.hadoop.fs.PathFilter;
 public class HadoopFSUtil {
 
   /**
-   * Returns PathFilter that passes all paths through.
+   * Get a path filter which allows all paths.
+   * @return {@link PathFilter}
    */
   public static PathFilter getPassAllFilter() {
     return arg0 -> true;
   }
 
   /**
-   * Returns PathFilter that passes directories through.
+   * Get a path filter which allows all directories.
+   * @param fs A {@link org.apache.hadoop.fs.FileSystem} used
+   * to determine directories.
+   * @return {@link PathFilter}
    */
   public static PathFilter getPassDirectoriesFilter(final FileSystem fs) {
     return path -> {
@@ -47,6 +51,9 @@ public class HadoopFSUtil {
 
   /**
    * Turns an array of FileStatus into an array of Paths.
+   * May return null if input is null.
+   * @param stats A {@link org.apache.hadoop.fs.FileStatus} array
+   * @return {@link org.apache.hadoop.fs.Path} array
    */
   public static Path[] getPaths(FileStatus[] stats) {
     if (stats == null) {

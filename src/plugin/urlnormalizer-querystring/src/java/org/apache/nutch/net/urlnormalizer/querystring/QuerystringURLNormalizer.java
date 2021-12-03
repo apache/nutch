@@ -39,14 +39,17 @@ public class QuerystringURLNormalizer implements URLNormalizer {
   public QuerystringURLNormalizer() {
   }
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public String normalize(String urlString, String scope)
       throws MalformedURLException {
     URL url = new URL(urlString);

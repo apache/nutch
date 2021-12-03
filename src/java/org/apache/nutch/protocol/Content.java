@@ -196,11 +196,10 @@ public final class Content implements Writable {
     return content;
   }
 
-  //
-  // Accessor methods
-  //
-
-  /** The url fetched. */
+  /**
+   * The url fetched.
+   * @return the fetched url
+   */
   public String getUrl() {
     return url;
   }
@@ -208,12 +207,16 @@ public final class Content implements Writable {
   /**
    * The base url for relative links contained in the content. Maybe be
    * different from url if the request redirected.
+   * @return the base url
    */
   public String getBaseUrl() {
     return base;
   }
 
-  /** The binary content retrieved. */
+  /**
+   * The binary content retrieved.
+   * @return content as a byte[]
+   */
   public byte[] getContent() {
     return content;
   }
@@ -227,6 +230,7 @@ public final class Content implements Writable {
    * 
    * @see <a href="http://www.iana.org/assignments/media-types/">
    *      http://www.iana.org/assignments/media-types/</a>
+   * @return content type
    */
   public String getContentType() {
     return contentType;
@@ -236,12 +240,18 @@ public final class Content implements Writable {
     this.contentType = contentType;
   }
 
-  /** Other protocol-specific data. */
+  /**
+   * Other protocol-specific data.
+   * @return additional {@link org.apache.nutch.metadata.Metadata}
+   */
   public Metadata getMetadata() {
     return metadata;
   }
 
-  /** Other protocol-specific data. */
+  /**
+   * Other protocol-specific data.
+   * @param metadata a populated {@link Metadata} object to set
+   */
   public void setMetadata(Metadata metadata) {
     this.metadata = metadata;
   }

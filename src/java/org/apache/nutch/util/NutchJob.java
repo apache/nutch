@@ -43,6 +43,12 @@ public class NutchJob extends Job {
 
   /**
    * Clean up the file system in case of a job failure.
+   * @param tempDir The temporary directory which needs to be 
+   * deleted/cleaned-up.
+   * @param fs The {@link org.apache.hadoop.fs.FileSystem} on which 
+   * the tempDir resides.
+   * @throws IOException Occurs if there is fatal I/O error whilst performing
+   * the cleanup.
    */
   public static void cleanupAfterFailure(Path tempDir, FileSystem fs)
       throws IOException {
@@ -51,6 +57,14 @@ public class NutchJob extends Job {
 
   /**
    * Clean up the file system in case of a job failure.
+   * @param tempDir The temporary directory which needs to be 
+   * deleted/cleaned-up.
+   * @param lock A lockfile if one exists.
+   * @see LockUtil#removeLockFile(FileSystem, Path)
+   * @param fs The {@link org.apache.hadoop.fs.FileSystem} on which 
+   * the tempDir resides.
+   * @throws IOException Occurs if there is fatal I/O error whilst performing
+   * the cleanup.
    */
   public static void cleanupAfterFailure(Path tempDir, Path lock, FileSystem fs)
          throws IOException {

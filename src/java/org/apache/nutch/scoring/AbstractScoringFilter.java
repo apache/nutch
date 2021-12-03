@@ -28,48 +28,55 @@ import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.scoring.ScoringFilter;
-import org.apache.nutch.scoring.ScoringFilterException;
 
 public abstract class AbstractScoringFilter implements ScoringFilter {
 
   private Configuration conf;
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public void injectedScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
   }
 
+  @Override
   public void initialScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
   }
 
+  @Override
   public float generatorSortValue(Text url, CrawlDatum datum, float initSort)
       throws ScoringFilterException {
     return initSort;
   }
 
+  @Override
   public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content)
       throws ScoringFilterException {
   }
 
+  @Override
   public void passScoreAfterParsing(Text url, Content content, Parse parse)
       throws ScoringFilterException {
   }
 
+  @Override
   public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
       ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
       CrawlDatum adjust, int allCount) throws ScoringFilterException {
     return adjust;
   }
 
+  @Override
   public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
       List<CrawlDatum> inlinked) throws ScoringFilterException {
   }

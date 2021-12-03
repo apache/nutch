@@ -46,9 +46,13 @@ public class LuceneTokenizer {
    * @param content - The text to tokenize
    * @param tokenizer - the type of tokenizer to use CLASSIC or DEFAULT 
    * @param useStopFilter - if set to true the token stream will be filtered using default Lucene stopset 
-   * @param stemFilterType - Type of stemming to perform 
+   * @param stemFilterType a preferred {@link StemFilterType} to use. Can be one
+   * of {@link LuceneAnalyzerUtil.StemFilterType#PORTERSTEM_FILTER},
+   * {@link LuceneAnalyzerUtil.StemFilterType#ENGLISHMINIMALSTEM_FILTER}, or
+   * {@link LuceneAnalyzerUtil.StemFilterType#NONE}
    */
-  public LuceneTokenizer(String content, TokenizerType tokenizer, boolean useStopFilter, StemFilterType stemFilterType) {
+  public LuceneTokenizer(String content, TokenizerType tokenizer, boolean useStopFilter, 
+          StemFilterType stemFilterType) {
     this.tokenizer = tokenizer;
     this.stemFilterType = stemFilterType;
     if(useStopFilter) {
@@ -64,9 +68,13 @@ public class LuceneTokenizer {
    * @param stopWords - Provide a set of user defined stop words
    * @param addToDefault - If set to true, the stopSet words will be added to the Lucene default stop set.
    * If false, then only the user provided words will be used as the stop set
-   * @param stemFilterType
+   * @param stemFilterType a preferred {@link StemFilterType} to use. Can be one
+   * of {@link LuceneAnalyzerUtil.StemFilterType#PORTERSTEM_FILTER},
+   * {@link LuceneAnalyzerUtil.StemFilterType#ENGLISHMINIMALSTEM_FILTER}, or
+   * {@link LuceneAnalyzerUtil.StemFilterType#NONE}
    */
-  public LuceneTokenizer(String content, TokenizerType tokenizer, List<String> stopWords, boolean addToDefault, StemFilterType stemFilterType) {
+  public LuceneTokenizer(String content, TokenizerType tokenizer, List<String> stopWords, 
+          boolean addToDefault, StemFilterType stemFilterType) {
     this.tokenizer = tokenizer;
     this.stemFilterType = stemFilterType;
     if(addToDefault) {
@@ -83,8 +91,8 @@ public class LuceneTokenizer {
   }
 
   /**
-   * Returns the tokenStream created by the Tokenizer
-   * @return
+   * get the tokenStream created by {@link org.apache.lucene.analysis.Tokenizer}
+   * @return The {@link TokenStream}
    */
   public TokenStream getTokenStream() {
     return tokenStream;

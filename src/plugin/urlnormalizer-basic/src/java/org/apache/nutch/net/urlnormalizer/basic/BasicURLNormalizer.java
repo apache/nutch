@@ -20,10 +20,12 @@ import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.IDN;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
@@ -147,9 +149,6 @@ public class BasicURLNormalizer implements URLNormalizer {
   private boolean hostIDNtoASCII;
   private boolean hostASCIItoIDN;
   private boolean hostTrimTrailingDot;
-
-  public void BasicUrlNormalizer() {
-  }
 
   @Override
   public Configuration getConf() {
@@ -396,10 +395,22 @@ public class BasicURLNormalizer implements URLNormalizer {
 
   private String normalizeHostName(String host) throws MalformedURLException {
 
-    // 1. lowercase host name
+    // 1. unescape percent-encoded characters in host name
+    if (host.indexOf('%') != -1) {
+      try {
+        host = URLDecoder.decode(host, StandardCharsets.UTF_8.toString());
+      } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+        LOG.debug("Failed to convert percent-encoded host name {}: ", host, e);
+        throw (MalformedURLException) new MalformedURLException(
+            "Invalid percent-encoded host name " + host + ": " + e.getMessage())
+                .initCause(e);
+      }
+    }
+
+    // 2. lowercase host name
     host = host.toLowerCase(Locale.ROOT);
 
-    // 2. if configured: convert between Unicode and ASCII forms
+    // 3. if configured: convert between Unicode and ASCII forms
     //    for Internationalized Domain Names (IDNs)
     if (hostIDNtoASCII && !isAscii(host)) {
       try {
@@ -418,7 +429,7 @@ public class BasicURLNormalizer implements URLNormalizer {
       host = IDN.toUnicode(host);
     }
 
-    // 3. optionally trim a trailing dot
+    // 4. optionally trim a trailing dot
     if (hostTrimTrailingDot) {
       if (host.endsWith(".")) {
         host = host.substring(0, host.length()-1);

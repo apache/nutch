@@ -204,8 +204,8 @@ public class IndexWriters {
   /**
    * Initializes the internal variables of index writers.
    *
-   * @param conf Nutch configuration.
-   * @param name
+   * @param conf Nutch configuration
+   * @param name target name of the {@link IndexWriter} to be opened
    * @throws IOException Some exception thrown by some writer.
    */
   public void open(Configuration conf, String name) throws IOException {
@@ -286,26 +286,27 @@ public class IndexWriters {
       // Building the table
       AsciiTable at = new AsciiTable();
       at.getRenderer().setCWC((rows, colNumbers, tableWidth) -> {
+        /*
+         * first and third column (configuration param names and values) usually
+         * require less width than the second column which contains the
+         * description
+         */
         int maxLengthFirstColumn = 0;
-        int maxLengthLastColumn = 0;
+        int maxLengthThirdColumn = 0;
         for (AT_Row row : rows) {
           if (row.getType() == TableRowType.CONTENT) {
-            // First column
-            int lengthFirstColumn = row.getCells().get(0).toString().length();
-            if (lengthFirstColumn > maxLengthFirstColumn) {
-              maxLengthFirstColumn = lengthFirstColumn;
-            }
-
-            // Last column
-            int lengthLastColumn = row.getCells().get(2).toString().length();
-            if (lengthLastColumn > maxLengthLastColumn) {
-              maxLengthLastColumn = lengthLastColumn;
-            }
+            maxLengthFirstColumn = Math.max(row.getCells().get(0).toString().length(), maxLengthFirstColumn);
+            maxLengthThirdColumn = Math.max(row.getCells().get(2).toString().length(), maxLengthThirdColumn);
           }
         }
-        return new int[] { maxLengthFirstColumn,
-            tableWidth - maxLengthFirstColumn - maxLengthLastColumn,
-            maxLengthLastColumn };
+        // reset max. lengths if exceeding one third of the table width
+        maxLengthFirstColumn = Math.min((tableWidth / 3), maxLengthFirstColumn);
+        maxLengthThirdColumn = Math.min(
+            ((tableWidth - maxLengthFirstColumn) / 2), maxLengthThirdColumn);
+        int widthSecondColumn = tableWidth - maxLengthFirstColumn
+            - maxLengthThirdColumn;
+        return new int[] { maxLengthFirstColumn, widthSecondColumn,
+            maxLengthThirdColumn };
       });
 
       // Getting the properties
@@ -323,7 +324,7 @@ public class IndexWriters {
       at.addRule();
 
       // Rendering the table
-      builder.append(at.render(150)).append("\n\n");
+      builder.append(at.render(120)).append("\n\n");
     }
 
     return builder.toString();

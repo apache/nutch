@@ -46,7 +46,7 @@ public class ReaderResouce {
 
   /**
    * Read a sequence file
-   * @param readerConf 
+   * @param readerConf A initialized {@link ReaderConfig}
    * @param nrows Number of rows to read. If not specified all rows will be read
    * @param start Specify a starting line number to read the file from
    * @param end The line number to read the file till
@@ -87,12 +87,12 @@ public class ReaderResouce {
 
   /**
    * Read link object 
-   * @param readerConf
-   * @param nrows
-   * @param start
-   * @param end
-   * @param count
-   * @return
+   * @param readerConf A initialized {@link ReaderConfig}
+   * @param nrows Number of rows to read. If not specified all rows will be read
+   * @param start Specify a starting line number to read the file from
+   * @param end The line number to read the file till
+   * @param count Boolean value. If true, this endpoint will return the number of lines in the line
+   * @return Appropriate HTTP response based on the query
    */
   @Path("/link/read")
   @POST
@@ -110,7 +110,7 @@ public class ReaderResouce {
 
   /**
    * Get schema of the Node object
-   * @return
+   * @return JSON object specifying the schema of the responses returned by the Node Reader
    */
   @Path("/node")
   @GET
@@ -129,12 +129,12 @@ public class ReaderResouce {
 
   /**
    * Read Node object as stored in the Nutch Webgraph
-   * @param readerConf
-   * @param nrows
-   * @param start
-   * @param end
-   * @param count
-   * @return
+   * @param readerConf A initialized {@link ReaderConfig}
+   * @param nrows Number of rows to read. If not specified all rows will be read
+   * @param start Specify a starting line number to read the file from
+   * @param end The line number to read the file till
+   * @param count Boolean value. If true, this endpoint will return the number of lines in the line
+   * @return Appropriate HTTP response based on the query
    */
   @Path("/node/read")
   @POST

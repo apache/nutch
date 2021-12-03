@@ -58,6 +58,7 @@ public class NutchConfiguration {
    * Create a {@link Configuration} for Nutch. This will load the standard Nutch
    * resources, <code>nutch-default.xml</code> and <code>nutch-site.xml</code>
    * overrides.
+   * @return A populated {@link org.apache.hadoop.conf.Configuration}
    */
   public static Configuration create() {
     Configuration conf = new Configuration();
@@ -75,6 +76,7 @@ public class NutchConfiguration {
    *          properties. Otherwise these resources won't be used.
    * @param nutchProperties
    *          a set of properties to define (or override)
+   * @return A populated {@link org.apache.hadoop.conf.Configuration}
    */
   public static Configuration create(boolean addNutchResources,
       Properties nutchProperties) {

@@ -46,6 +46,7 @@ public class OrphanScoringFilter extends AbstractScoringFilter {
   private long markGoneAfter = DEFAULT_GONE_TIME;
   private long markOrphanAfter = DEFAULT_ORPHAN_TIME;
 
+  @Override
   public void setConf(Configuration conf) {
     markGoneAfter = conf.getInt("scoring.orphan.mark.gone.after",
         DEFAULT_GONE_TIME);
@@ -68,10 +69,10 @@ public class OrphanScoringFilter extends AbstractScoringFilter {
    *          CrawlDatum
    * @param datum
    *          new CrawlDatum
-   * @param inLinks
+   * @param inlinks
    *          list of inlinked CrawlDatums
-   * @return void
    */
+  @Override
   public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
       List<CrawlDatum> inlinks) throws ScoringFilterException {
 
@@ -87,6 +88,7 @@ public class OrphanScoringFilter extends AbstractScoringFilter {
     }
   }
 
+  @Override
   public void orphanedScore(Text url, CrawlDatum datum) {
     // Already has an orphaned time?
     if (datum.getMetaData().containsKey(ORPHAN_KEY_WRITABLE)) {

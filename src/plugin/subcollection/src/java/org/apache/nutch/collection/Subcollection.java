@@ -80,9 +80,10 @@ public class Subcollection extends Configured implements URLFilter {
    * public Constructor
    * 
    * @param id
-   *          id of SubCollection
+   *          Id of SubCollection
    * @param name
-   *          name of SubCollection
+   *          Name of SubCollection
+   * @param conf A populated {@link Configuration}
    */
   public Subcollection(String id, String name, Configuration conf) {
     this(id, name, null, conf);
@@ -92,9 +93,11 @@ public class Subcollection extends Configured implements URLFilter {
    * public Constructor
    * 
    * @param id
-   *          id of SubCollection
+   *          Id of SubCollection
    * @param name
-   *          name of SubCollection
+   *          Name of SubCollection
+   * @param key SubCollection key
+   * @param conf A populated {@link Configuration}
    */
   public Subcollection(String id, String name, String key, Configuration conf) {
     this(conf);
@@ -177,6 +180,7 @@ public class Subcollection extends Configured implements URLFilter {
    * 
    * @see org.apache.nutch.net.URLFilter#filter(java.lang.String)
    */
+  @Override
   public String filter(String urlString) {
     // first the blacklist
     Iterator<String> i = blackList.iterator();
@@ -199,7 +203,8 @@ public class Subcollection extends Configured implements URLFilter {
   /**
    * Initialize Subcollection from dom element
    * 
-   * @param collection
+   * @param collection A DOM {@link org.w3c.dom.Element} for use 
+   * in creating the {@link Subcollection}
    */
   public void initialize(Element collection) {
     this.id = DOMUtil.getChildText(
@@ -226,11 +231,11 @@ public class Subcollection extends Configured implements URLFilter {
   }
 
   /**
-   * Create a list of patterns from chunk of text, patterns are separated with
-   * newline
+   * Create a list of patterns from a chunk of text, patterns are separated 
+   * with a newline
    * 
-   * @param list
-   * @param text
+   * @param list An initialized {@link List} to insert String patterns.
+   * @param text A chunkl fo text (hopefully) containing patterns.
    */
   protected void parseList(List<String> list, String text) {
     list.clear();

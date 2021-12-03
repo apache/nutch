@@ -58,10 +58,12 @@ public class OPICScoringFilter implements ScoringFilter {
   private float externalScoreFactor;
   private boolean countFiltered;
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     scorePower = conf.getFloat("indexer.score.power", 0.5f);
@@ -70,6 +72,7 @@ public class OPICScoringFilter implements ScoringFilter {
     countFiltered = conf.getBoolean("db.score.count.filtered", false);
   }
 
+  @Override
   public void injectedScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
   }
@@ -78,18 +81,21 @@ public class OPICScoringFilter implements ScoringFilter {
    * Set to 0.0f (unknown value) - inlink contributions will bring it to a
    * correct level. Newly discovered pages have at least one inlink.
    */
+  @Override
   public void initialScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
     datum.setScore(0.0f);
   }
 
   /** Use {@link CrawlDatum#getScore()}. */
+  @Override
   public float generatorSortValue(Text url, CrawlDatum datum, float initSort)
       throws ScoringFilterException {
     return datum.getScore() * initSort;
   }
 
   /** Increase the score by a sum of inlinked scores. */
+  @Override
   public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
       List<CrawlDatum> inlinked) throws ScoringFilterException {
     float adjust = 0.0f;
@@ -103,11 +109,13 @@ public class OPICScoringFilter implements ScoringFilter {
   }
 
   /** Store a float value of CrawlDatum.getScore() under Fetcher.SCORE_KEY. */
+  @Override
   public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content) {
     content.getMetadata().set(Nutch.SCORE_KEY, "" + datum.getScore());
   }
 
   /** Copy the value from Content metadata under Fetcher.SCORE_KEY to parseData. */
+  @Override
   public void passScoreAfterParsing(Text url, Content content, Parse parse) {
     parse.getData().getContentMeta()
         .set(Nutch.SCORE_KEY, content.getMetadata().get(Nutch.SCORE_KEY));
@@ -117,6 +125,7 @@ public class OPICScoringFilter implements ScoringFilter {
    * Get a float value from Fetcher.SCORE_KEY, divide it by the number of
    * outlinks and apply.
    */
+  @Override
   public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
       ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
       CrawlDatum adjust, int allCount) throws ScoringFilterException {
@@ -163,6 +172,7 @@ public class OPICScoringFilter implements ScoringFilter {
   }
 
   /** Dampen the boost value by scorePower. */
+  @Override
   public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
       throws ScoringFilterException {

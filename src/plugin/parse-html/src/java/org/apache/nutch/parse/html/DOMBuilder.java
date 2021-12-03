@@ -130,6 +130,8 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * 
    * @param newNode
    *          New node to append
+   * @throws org.xml.sax.SAXException if text is found before 
+   * the document element
    */
   protected void append(Node newNode) throws org.xml.sax.SAXException {
 
@@ -427,6 +429,8 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    *          Index to start of characters in the array
    * @param length
    *          Number of characters in the array
+   * @throws org.xml.sax.SAXException if text is found before 
+   * the document element
    */
   public void charactersRaw(char ch[], int start, int length)
       throws org.xml.sax.SAXException {
@@ -467,6 +471,8 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * @param name
    *          The name of the entity that is ending.
    * @see #startEntity
+   * @throws org.xml.sax.SAXException if text is found before 
+   * the document element
    */
   public void endEntity(String name) throws org.xml.sax.SAXException {
   }
@@ -476,6 +482,8 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    * 
    * @param name
    *          name of the entity reference
+   * @throws org.xml.sax.SAXException if text is found before 
+   * the document element
    */
   public void entityReference(String name) throws org.xml.sax.SAXException {
     append(m_doc.createEntityReference(name));
@@ -629,6 +637,8 @@ public class DOMBuilder implements ContentHandler, LexicalHandler {
    *          The number of characters to read from the array.
    * @see #ignorableWhitespace
    * @see org.xml.sax.Locator
+   * @throws org.xml.sax.SAXException if text is found before 
+   * the document element
    */
   public void cdata(char ch[], int start, int length)
       throws org.xml.sax.SAXException {

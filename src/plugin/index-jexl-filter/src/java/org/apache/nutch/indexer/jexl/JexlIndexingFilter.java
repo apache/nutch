@@ -20,9 +20,9 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl3.JexlScript;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -48,7 +48,7 @@ public class JexlIndexingFilter implements IndexingFilter {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf;
-  private Expression expr;
+  private JexlScript expr;
 
   @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
@@ -92,11 +92,11 @@ public class JexlIndexingFilter implements IndexingFilter {
     jcontext.set("doc", context);
 
     try {
-      if (Boolean.TRUE.equals(expr.evaluate(jcontext))) {
+      if (Boolean.TRUE.equals(expr.execute(jcontext))) {
         return doc;
       }
     } catch (Exception e) {
-      LOG.warn("Failed evaluating JEXL {}", expr.getExpression(), e);
+      LOG.warn("Failed evaluating JEXL {}", expr.getSourceText(), e);
     }
     return null;
   }

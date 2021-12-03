@@ -104,6 +104,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
     return false;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     inputFilePath = conf.get(TRAINFILE_MODELFILTER);
@@ -150,6 +151,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
 
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

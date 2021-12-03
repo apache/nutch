@@ -50,7 +50,10 @@ public class ZipTextExtractor {
 
   private Configuration conf;
 
-  /** Creates a new instance of ZipTextExtractor */
+  /**
+   * Creates a new instance of ZipTextExtractor
+   * @param conf a populated {@link Configuration}
+   */
   public ZipTextExtractor(Configuration conf) {
     this.conf = conf;
   }

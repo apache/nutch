@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,8 @@ import org.apache.nutch.util.SegmentReaderUtil;
 
 /** Dump the content of a segment. */
 public class SegmentReader extends Configured implements Tool {
+
+  private static final Random RANDOM = new Random();
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -220,7 +223,7 @@ public class SegmentReader extends Configured implements Tool {
     job.setJarByClass(SegmentReader.class);
 
     Path tempDir = new Path(conf.get("hadoop.tmp.dir", "/tmp") + "/segread-"
-        + new java.util.Random().nextInt());
+        + RANDOM.nextInt());
     FileSystem fs = tempDir.getFileSystem(conf);
     fs.delete(tempDir, true);
 
@@ -461,7 +464,14 @@ public class SegmentReader extends Configured implements Tool {
     return res;
   }
 
-  /** Try to get HTML encoding from parse metadata */
+  /**
+   * Try to get HTML encoding from parse metadata. Try
+   * {@link Metadata#CHAR_ENCODING_FOR_CONVERSION}, then
+   * {@link Metadata#CONTENT_ENCODING} then fallback
+   * {@link java.nio.charset.StandardCharsets#UTF_8}
+   * @param parseMeta a populated {@link Metadata}
+   * @return {@link Charset} 
+   */
   public static Charset getCharset(Metadata parseMeta) {
     Charset cs = StandardCharsets.UTF_8;
     String charset = parseMeta.get(Metadata.CHAR_ENCODING_FOR_CONVERSION);

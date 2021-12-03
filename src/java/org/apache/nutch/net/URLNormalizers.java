@@ -42,7 +42,7 @@ import org.apache.nutch.util.ObjectCache;
  * This class uses a "chained filter" pattern to run defined normalizers.
  * Different lists of normalizers may be defined for different "scopes", or
  * contexts where they are used (note however that they need to be activated
- * first through <tt>plugin.include</tt> property).
+ * first through <code>plugin.include</code> property).
  * 
  * <p>
  * There is one global scope defined by default, which consists of all active
@@ -82,7 +82,7 @@ import org.apache.nutch.util.ObjectCache;
  * executed at the beginning. By default this loop is executed just once - if
  * you want to ensure that all possible combinations have been applied you may
  * want to run this loop up to the number of activated normalizers. This loop
- * count can be configured through <tt>urlnormalizer.loop.count</tt> property.
+ * count can be configured through <code>urlnormalizer.loop.count</code> property.
  * As soon as the url is unchanged the loop will stop and return the result.
  * </p>
  * 

@@ -20,30 +20,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.util.NutchConfiguration;
-import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -53,138 +37,18 @@ import org.slf4j.LoggerFactory;
  * Test cases for protocol-http - robustness regarding bad server responses:
  * malformed HTTP header lines, etc. See, NUTCH-2549.
  */
-public class TestBadServerResponses {
+public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private Protocol http;
-  private ServerSocket server;
-  private Configuration conf;
-  private int port = 47506;
-
-  private static final String responseHeader = "HTTP/1.1 200 OK\r\n";
-  private static final String simpleContent = "Content-Type: text/html\r\n\r\nThis is a text.";
-
-  public void setUp() throws Exception {
-    conf = NutchConfiguration.create();
-    conf.addResource("nutch-default.xml");
-    // plugin tests specific config file - adds protocol-okhttp to
-    // plugin.includes
-    conf.addResource("nutch-site-test.xml");
-    conf.setBoolean("store.http.headers", true);
-
-    http = new ProtocolFactory(conf)
-        .getProtocolById("org.apache.nutch.protocol.okhttp.OkHttp");
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    server.close();
-  }
-
-  public static String getHeaders(ProtocolOutput response) {
-    return response.getContent().getMetadata().get(Response.RESPONSE_HEADERS);
-  }
-
-  public static String getHeader(ProtocolOutput response, String header) {
-    for (String line : getHeaders(response).split("\r\n")) {
-      String[] parts = line.split(": ", 1);
-      if (parts[0].equals(header)) {
-        return parts[1];
-      }
-    }
-    return null;
-  }
-
-  /**
-     * Starts the test server at a specified port and constant response.
-     * 
-     * @param portno
-     *          Port number.
-     * @param response
-     *          response sent on every request
-     */
-  private void runServer(int port, byte[] response) throws Exception {
-    server = new ServerSocket();
-    server.bind(new InetSocketAddress("127.0.0.1", port));
-    Pattern requestPattern = Pattern.compile("(?i)^GET\\s+(\\S+)");
-    while (true) {
-      LOG.info("Listening on port {}", port);
-      Socket socket = server.accept();
-      LOG.info("Connection received");
-      try (
-          BufferedReader in = new BufferedReader(new InputStreamReader(
-              socket.getInputStream(), StandardCharsets.UTF_8))) {
-
-        String line;
-        while ((line = in.readLine()) != null) {
-          LOG.info("Request: {}", line);
-          if (line.trim().isEmpty()) {
-            break;
-          }
-          Matcher m = requestPattern.matcher(line);
-          if (m.find()) {
-            LOG.info("Requested {}", m.group(1));
-            if (!m.group(1).startsWith("/")) {
-              response = "HTTP/1.1 400 Bad request\r\n\r\n".getBytes(StandardCharsets.UTF_8);
-            }
-          }
-        }
-        socket.getOutputStream().write(response);
-      } catch (Exception e) {
-        LOG.warn("Exception in test server:", e);
-      }
-    }
-  }
-
-  private void launchServer(String response) throws InterruptedException {
-    launchServer(response.getBytes(StandardCharsets.UTF_8));
-  }
-
-  private void launchServer(byte[] response) throws InterruptedException {
-    Thread serverThread = new Thread(() -> {
-      try {
-        runServer(port, response);
-      } catch (Exception e) {
-        LOG.warn("Test server died:", e);
-      }
-    });
-    serverThread.start();
-    Thread.sleep(50);
-  }
-
-  /**
-   * Fetches the specified <code>page</code> from the local test server and
-   * checks whether the HTTP response status code matches with the expected
-   * code.
-   * 
-   * @param page
-   *          Page to be fetched.
-   * @param expectedCode
-   *          HTTP response status code expected while fetching the page.
-   */
-  private ProtocolOutput fetchPage(String page, int expectedCode)
-      throws MalformedURLException {
-    URL url = new URL("http", "127.0.0.1", port, page);
-    LOG.info("Fetching {}", url);
-    CrawlDatum crawlDatum = new CrawlDatum();
-    ProtocolOutput out = http.getProtocolOutput(new Text(url.toString()),
-        crawlDatum);
-    int httpStatusCode = -1;
-    if (crawlDatum.getMetaData().containsKey(Nutch.PROTOCOL_STATUS_CODE_KEY)) {
-      httpStatusCode = Integer.parseInt(crawlDatum.getMetaData()
-          .get(Nutch.PROTOCOL_STATUS_CODE_KEY).toString());
-    }
-
-    assertEquals("HTTP Status Code for " + url, expectedCode, httpStatusCode);
-
-    return out;
+  @Override
+  protected String getPluginClassName() {
+    return "org.apache.nutch.protocol.okhttp.OkHttp";
   }
 
   @Test
   public void testBadHttpServer() throws Exception {
-    setUp();
     // test with trivial well-formed content, to make sure the server is
     // responding
     launchServer(responseHeader + simpleContent);
@@ -196,8 +60,8 @@ public class TestBadServerResponses {
    */
   @Test
   public void testRequestNotStartingWithSlash() throws Exception {
-    setUp();
-    launchServer(responseHeader + simpleContent);
+    launchServer("/?171", responseHeader + simpleContent);
+    // request ?171 should be normalized to /?171
     fetchPage("?171", 200);
   }
 
@@ -207,7 +71,6 @@ public class TestBadServerResponses {
    */
   @Test
   public void testContentLengthNotANumber() throws Exception {
-    setUp();
     launchServer(
         responseHeader + "Content-Length: thousand\r\n" + simpleContent);
     fetchPage("/", 200);
@@ -219,7 +82,6 @@ public class TestBadServerResponses {
   @Ignore("Fails with okhttp 3.10.0")
   @Test
   public void testHeaderWithColon() throws Exception {
-    setUp();
     launchServer("HTTP/1.1 200: OK\r\n" + simpleContent);
     fetchPage("/", 200);
   }
@@ -229,7 +91,6 @@ public class TestBadServerResponses {
    */
   @Test
   public void testHeaderSpellChecking() throws Exception {
-    setUp();
     launchServer(responseHeader + "Client-Transfer-Encoding: chunked\r\n"
         + simpleContent);
     fetchPage("/", 200);
@@ -242,7 +103,6 @@ public class TestBadServerResponses {
   @Ignore("Fails with okhttp 3.10.0")
   @Test
   public void testIgnoreErrorInRedirectPayload() throws Exception {
-    setUp();
     launchServer("HTTP/1.1 302 Found\r\nLocation: http://example.com/\r\n"
         + "Transfer-Encoding: chunked\r\n\r\nNot a valid chunk.");
     ProtocolOutput fetched = fetchPage("/", 302);
@@ -257,7 +117,6 @@ public class TestBadServerResponses {
   @Ignore("Fails with okhttp 3.10.0")
   @Test
   public void testNoStatusLine() throws Exception {
-    setUp();
     String text = "This is a text containing non-ASCII characters: \u00e4\u00f6\u00fc\u00df";
     launchServer(text);
     ProtocolOutput fetched = fetchPage("/", 200);
@@ -282,7 +141,6 @@ public class TestBadServerResponses {
   @Ignore("Fails with okhttp 3.10.0")
   @Test
   public void testMultiLineHeader() throws Exception {
-    setUp();
     launchServer(responseHeader
         + "Set-Cookie: UserID=JohnDoe;\r\n  Max-Age=3600;\r\n  Version=1\r\n"
         + simpleContent);
@@ -299,7 +157,6 @@ public class TestBadServerResponses {
    * responses
    */
   public void testOverlongHeader() throws Exception {
-    setUp();
     StringBuilder response = new StringBuilder();
     response.append(responseHeader);
     for (int i = 0; i < 80; i++) {
@@ -323,7 +180,6 @@ public class TestBadServerResponses {
    */
   @Test
   public void testChunkedContent() throws Exception {
-    setUp();
     StringBuilder response = new StringBuilder();
     response.append(responseHeader);
     response.append("Content-Type: text/html\r\n");
@@ -358,7 +214,6 @@ public class TestBadServerResponses {
    */
   @Test
   public void testTruncationMarking() throws Exception {
-    setUp();
     int[] kBs = { 63, 64, 65 };
     for (int kB : kBs) {
       StringBuilder response = new StringBuilder();
@@ -394,7 +249,6 @@ public class TestBadServerResponses {
    */
   @Test
   public void testTruncationMarkingGzip() throws Exception {
-    setUp();
     int[] kBs = { 63, 64, 65 };
     for (int kB : kBs) {
       StringBuilder payload = new StringBuilder();
@@ -417,7 +271,7 @@ public class TestBadServerResponses {
       response.write(responseHead.toString().getBytes(StandardCharsets.UTF_8));
       response.write(bytes.toByteArray());
 
-      launchServer(response.toByteArray());
+      launchServer("/", response.toByteArray());
       ProtocolOutput fetched = fetchPage("/", 200);
       assertEquals("Content not truncated according to http.content.limit",
           Math.min(kB * 1024, 65536), fetched.getContent().getContent().length);
@@ -439,7 +293,6 @@ public class TestBadServerResponses {
    */
   @Test
   public void testPartialContentTruncated() throws Exception {
-    setUp();
     conf.setBoolean("http.partial.truncated", true);
     http.setConf(conf);
     String testContent = "This is a text.";
@@ -454,7 +307,6 @@ public class TestBadServerResponses {
 
   @Test
   public void testNoContentLimit() throws Exception {
-    setUp();
     conf.setInt("http.content.limit", -1);
     http.setConf(conf);
     StringBuilder response = new StringBuilder();

@@ -54,6 +54,7 @@ public class ZipParser implements Parser {
   public ZipParser() {
   }
 
+  @Override
   public ParseResult getParse(final Content content) {
 
     String resultText = null;
@@ -109,10 +110,12 @@ public class ZipParser implements Parser {
         resultText, parseData));
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

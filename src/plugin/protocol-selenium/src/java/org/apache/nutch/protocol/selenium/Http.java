@@ -26,8 +26,6 @@ import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.nutch.protocol.selenium.HttpResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

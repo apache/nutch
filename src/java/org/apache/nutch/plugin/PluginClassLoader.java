@@ -43,12 +43,13 @@ public class PluginClassLoader extends URLClassLoader {
   private ClassLoader system = getSystemClassLoader();
 
   /**
-   * Construtor
+   * Overloaded constructor
    * 
    * @param urls
    *          Array of urls with own libraries and all exported libraries of
-   *          plugins that are required to this plugin
-   * @param parent
+   *          plugins that are required for this plugin
+   * @param parent the parent {@link java.lang.ClassLoader} responsible for 
+   * loading classes defined in urls.
    */
   public PluginClassLoader(URL[] urls, ClassLoader parent) {
     super(urls, parent);

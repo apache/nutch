@@ -47,7 +47,6 @@ import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.DeflateUtils;
-import org.apache.nutch.util.URLUtil;
 import org.apache.hadoop.util.StringUtils;
 
 import org.apache.hadoop.conf.Configuration;
@@ -61,7 +60,7 @@ public abstract class HttpBase implements Protocol {
   public static final Text RESPONSE_TIME = new Text("_rs_");
 
   public static final Text COOKIE = new Text("Cookie");
-  
+
   public static final int BUFFER_SIZE = 8 * 1024;
 
   private static final byte[] EMPTY_CONTENT = new byte[0];
@@ -69,7 +68,7 @@ public abstract class HttpBase implements Protocol {
   private HttpRobotRulesParser robots = null;
 
   private ArrayList<String> userAgentNames = null;
-  
+
   /** Mapping hostnames to cookies */
   private Map<String, String> hostCookies = null;
 
@@ -78,12 +77,12 @@ public abstract class HttpBase implements Protocol {
 
   /** The proxy port. */
   protected int proxyPort = 8080;
-  
+
   /** The proxy port. */
   protected Proxy.Type proxyType = Proxy.Type.HTTP;
 
   /** The proxy exception list. */
-  protected HashMap<String,String> proxyException = new HashMap<>();
+  protected HashMap<String, String> proxyException = new HashMap<>();
 
   /** Indicates if a proxy is used */
   protected boolean useProxy = false;
@@ -177,11 +176,14 @@ public abstract class HttpBase implements Protocol {
 
   /** Which TLS/SSL cipher suites to support */
   protected Set<String> tlsPreferredCipherSuites;
-  
+
   /** Configuration directive for If-Modified-Since HTTP header */
   protected boolean enableIfModifiedsinceHeader = true;
-  
-  /** Controls whether or not to set Cookie HTTP header based on CrawlDatum metadata */
+
+  /**
+   * Controls whether or not to set Cookie HTTP header based on CrawlDatum
+   * metadata
+   */
   protected boolean enableCookieHeader = true;
 
   /** Creates a new instance of HttpBase */
@@ -189,7 +191,11 @@ public abstract class HttpBase implements Protocol {
     this(null);
   }
 
-  /** Creates a new instance of HttpBase */
+  /**
+   * Creates a new instance of HttpBase
+   * @param logger the {@link org.slf4j.Logger} to use
+   * in this HttpBase
+   */
   public HttpBase(Logger logger) {
     if (logger != null) {
       this.logger = logger;
@@ -197,19 +203,19 @@ public abstract class HttpBase implements Protocol {
     robots = new HttpRobotRulesParser();
   }
 
-  // Inherited Javadoc
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.proxyHost = conf.get("http.proxy.host");
     this.proxyPort = conf.getInt("http.proxy.port", 8080);
     this.proxyType = Proxy.Type.valueOf(conf.get("http.proxy.type", "HTTP"));
-    this.proxyException = arrayToMap(conf.getStrings("http.proxy.exception.list"));
+    this.proxyException = arrayToMap(
+        conf.getStrings("http.proxy.exception.list"));
     this.useProxy = (proxyHost != null && proxyHost.length() > 0);
     this.timeout = conf.getInt("http.timeout", 10000);
     this.maxContent = conf.getInt("http.content.limit", 1024 * 1024);
     this.maxDuration = conf.getInt("http.time.limit", -1);
-    this.partialAsTruncated = conf
-        .getBoolean("http.partial.truncated", false);
+    this.partialAsTruncated = conf.getBoolean("http.partial.truncated", false);
     this.userAgent = getAgentString(conf.get("http.agent.name"),
         conf.get("http.agent.version"), conf.get("http.agent.description"),
         conf.get("http.agent.url"), conf.get("http.agent.email"));
@@ -227,8 +233,10 @@ public abstract class HttpBase implements Protocol {
     this.storeIPAddress = conf.getBoolean("store.ip.address", false);
     this.storeHttpRequest = conf.getBoolean("store.http.request", false);
     this.storeHttpHeaders = conf.getBoolean("store.http.headers", false);
-    this.enableIfModifiedsinceHeader = conf.getBoolean("http.enable.if.modified.since.header", true);
-    this.enableCookieHeader = conf.getBoolean("http.enable.cookie.header", true);
+    this.enableIfModifiedsinceHeader = conf
+        .getBoolean("http.enable.if.modified.since.header", true);
+    this.enableCookieHeader = conf.getBoolean("http.enable.cookie.header",
+        true);
     this.robots.setConf(conf);
 
     this.logUtil.setConf(conf);
@@ -267,19 +275,20 @@ public abstract class HttpBase implements Protocol {
         }
       }
       if (userAgentNames == null) {
-        logger
-            .warn("Falling back to fixed user agent set via property http.agent.name");
+        logger.warn(
+            "Falling back to fixed user agent set via property http.agent.name");
       }
     }
-    
+
     // If cookies are enabled, try to load a per-host cookie file
     if (enableCookieHeader) {
-      String cookieFile = conf.get("http.agent.host.cookie.file", "cookies.txt");
+      String cookieFile = conf.get("http.agent.host.cookie.file",
+          "cookies.txt");
       BufferedReader br = null;
       try {
         Reader reader = conf.getConfResourceAsReader(cookieFile);
         br = new BufferedReader(reader);
-        hostCookies = new HashMap<String,String>();
+        hostCookies = new HashMap<String, String>();
         String word = "";
         while ((word = br.readLine()) != null) {
           if (!word.trim().isEmpty()) {
@@ -294,8 +303,8 @@ public abstract class HttpBase implements Protocol {
           }
         }
       } catch (Exception e) {
-        logger.warn("Failed to read http.agent.host.cookie.file {}: {}", cookieFile,
-            StringUtils.stringifyException(e));
+        logger.warn("Failed to read http.agent.host.cookie.file {}: {}",
+            cookieFile, StringUtils.stringifyException(e));
         hostCookies = null;
       } finally {
         if (br != null) {
@@ -309,16 +318,12 @@ public abstract class HttpBase implements Protocol {
     }
 
     String[] protocols = conf.getStrings("http.tls.supported.protocols",
-        "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3");
+        "TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3");
     String[] ciphers = conf.getStrings("http.tls.supported.cipher.suites",
-        "ECDHE-ECDSA-AES128-GCM-SHA256",
-        "ECDHE-RSA-AES128-GCM-SHA256",
-        "ECDHE-ECDSA-AES256-GCM-SHA384",
-        "ECDHE-RSA-AES256-GCM-SHA384",
-        "ECDHE-ECDSA-CHACHA20-POLY1305",
-        "ECDHE-RSA-CHACHA20-POLY1305",
-        "DHE-RSA-AES128-GCM-SHA256",
-        "DHE-RSA-AES256-GCM-SHA384",
+        "ECDHE-ECDSA-AES128-GCM-SHA256", "ECDHE-RSA-AES128-GCM-SHA256",
+        "ECDHE-ECDSA-AES256-GCM-SHA384", "ECDHE-RSA-AES256-GCM-SHA384",
+        "ECDHE-ECDSA-CHACHA20-POLY1305", "ECDHE-RSA-CHACHA20-POLY1305",
+        "DHE-RSA-AES128-GCM-SHA256", "DHE-RSA-AES256-GCM-SHA384",
         "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
         "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
         "TLS_RSA_WITH_AES_256_CBC_SHA256",
@@ -329,8 +334,8 @@ public abstract class HttpBase implements Protocol {
         "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
         "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA",
         "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
-        "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA",
-        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+        "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
         "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
         "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
         "TLS_RSA_WITH_AES_128_CBC_SHA256",
@@ -341,11 +346,10 @@ public abstract class HttpBase implements Protocol {
         "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
         "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA",
         "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
-        "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-        "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-        "SSL_RSA_WITH_RC4_128_SHA", "TLS_ECDH_ECDSA_WITH_RC4_128_SHA",
-        "TLS_ECDH_RSA_WITH_RC4_128_SHA",
+        "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+        "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+        "TLS_ECDHE_RSA_WITH_RC4_128_SHA", "SSL_RSA_WITH_RC4_128_SHA",
+        "TLS_ECDH_ECDSA_WITH_RC4_128_SHA", "TLS_ECDH_RSA_WITH_RC4_128_SHA",
         "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
         "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
         "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
@@ -360,7 +364,9 @@ public abstract class HttpBase implements Protocol {
         "SSL_DHE_DSS_WITH_DES_CBC_SHA", "TLS_KRB5_WITH_RC4_128_SHA",
         "TLS_KRB5_WITH_RC4_128_MD5", "TLS_KRB5_WITH_3DES_EDE_CBC_SHA",
         "TLS_KRB5_WITH_3DES_EDE_CBC_MD5", "TLS_KRB5_WITH_DES_CBC_SHA",
-        "TLS_KRB5_WITH_DES_CBC_MD5");
+        "TLS_KRB5_WITH_DES_CBC_MD5", "TLS_AES_256_GCM_SHA384",
+        "TLS_CHACHA20_POLY1305_SHA256", "TLS_AES_128_GCM_SHA256",
+        "TLS_AES_128_CCM_8_SHA256", "TLS_AES_128_CCM_SHA256");
 
     tlsPreferredProtocols = new HashSet<String>(Arrays.asList(protocols));
     tlsPreferredCipherSuites = new HashSet<String>(Arrays.asList(ciphers));
@@ -368,11 +374,12 @@ public abstract class HttpBase implements Protocol {
     logConf();
   }
 
-  // Inherited Javadoc
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
 
+  @Override
   public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
 
     String urlString = url.toString();
@@ -389,7 +396,7 @@ public abstract class HttpBase implements Protocol {
 
       int code = response.getCode();
       datum.getMetaData().put(Nutch.PROTOCOL_STATUS_CODE_KEY,
-        new Text(Integer.toString(code)));
+          new Text(Integer.toString(code)));
 
       byte[] content = response.getContent();
       Content c = new Content(u.toString(), u.toString(),
@@ -433,18 +440,19 @@ public abstract class HttpBase implements Protocol {
         if (logger.isTraceEnabled()) {
           logger.trace("400 Bad request: " + u);
         }
-        return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, u));
+        return new ProtocolOutput(c,
+            new ProtocolStatus(ProtocolStatus.GONE, u));
       } else if (code == 401) { // requires authorization, but no valid auth
                                 // provided.
         if (logger.isTraceEnabled()) {
           logger.trace("401 Authentication Required");
         }
-        return new ProtocolOutput(c, new ProtocolStatus(
-            ProtocolStatus.ACCESS_DENIED, "Authentication required: "
-                + urlString));
+        return new ProtocolOutput(c,
+            new ProtocolStatus(ProtocolStatus.ACCESS_DENIED,
+                "Authentication required: " + urlString));
       } else if (code == 404) {
-        return new ProtocolOutput(c, new ProtocolStatus(
-            ProtocolStatus.NOTFOUND, u));
+        return new ProtocolOutput(c,
+            new ProtocolStatus(ProtocolStatus.NOTFOUND, u));
       } else if (code == 410) { // permanently GONE
         return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE,
             "Http: " + code + " url=" + u));
@@ -494,11 +502,11 @@ public abstract class HttpBase implements Protocol {
   public int getTimeout() {
     return timeout;
   }
-  
+
   public boolean isIfModifiedSinceEnabled() {
     return enableIfModifiedsinceHeader;
   }
-  
+
   public boolean isCookieEnabled() {
     return enableCookieHeader;
   }
@@ -522,6 +530,7 @@ public abstract class HttpBase implements Protocol {
   /**
    * The time limit to download the entire content, in seconds. See the property
    * <code>http.time.limit</code>.
+   * @return the maximum duration
    */
   public int getMaxDuration() {
     return maxDuration;
@@ -530,6 +539,7 @@ public abstract class HttpBase implements Protocol {
   /**
    * Whether to save partial fetches as truncated content, cf. the property
    * <code>http.partial.truncated</code>.
+   * @return true if partially fetched truncated content is stored
    */
   public boolean isStorePartialAsTruncated() {
     return partialAsTruncated;
@@ -542,19 +552,20 @@ public abstract class HttpBase implements Protocol {
     }
     return userAgent;
   }
-  
+
   /**
-   * If per-host cookies are configured, this method will look it up
-   * for the given url.
+   * If per-host cookies are configured, this method will look it up for the
+   * given url.
    *
-   * @param url the url to look-up a cookie for
+   * @param url
+   *          the url to look-up a cookie for
    * @return the cookie or null
    */
   public String getCookie(URL url) {
     if (hostCookies != null) {
       return hostCookies.get(url.getHost());
     }
-    
+
     return null;
   }
 
@@ -729,8 +740,8 @@ public abstract class HttpBase implements Protocol {
         url = args[i];
     }
 
-    ProtocolOutput out = http
-        .getProtocolOutput(new Text(url), new CrawlDatum());
+    ProtocolOutput out = http.getProtocolOutput(new Text(url),
+        new CrawlDatum());
     Content content = out.getContent();
 
     System.out.println("Status: " + out.getStatus());
@@ -752,10 +763,12 @@ public abstract class HttpBase implements Protocol {
       List<Content> robotsTxtContent) {
     return robots.getRobotRulesSet(this, url, robotsTxtContent);
   }
-  
+
   /**
    * Transforming a String[] into a HashMap for faster searching
-   * @param input String[]
+   * 
+   * @param input
+   *          String[]
    * @return a new HashMap
    */
   private HashMap<String, String> arrayToMap(String[] input) {

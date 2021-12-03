@@ -36,7 +36,7 @@ import org.apache.nutch.protocol.Content;
 /**
  * This class wraps all {@link SegmentMergeFilter} extensions in a single object
  * so it is easier to operate on them. If any of extensions returns
- * <tt>false</tt> this one will return <tt>false</tt> as well.
+ * <code>false</code> this one will return <code>false</code> as well.
  * 
  */
 public class SegmentMergeFilters {
@@ -63,8 +63,15 @@ public class SegmentMergeFilters {
   /**
    * Iterates over all {@link SegmentMergeFilter} extensions and if any of them
    * returns false, it will return false as well.
-   * 
-   * @return <tt>true</tt> values for this <tt>key</tt> (URL) should be merged
+   * @param key the segment record key
+   * @param generateData directory and data produced by the generation phase
+   * @param fetchData directory and data produced by the fetch phase
+   * @param sigData directory and data produced by the parse phase
+   * @param content directory and data produced by the parse phase
+   * @param parseData directory and data produced by the parse phase
+   * @param parseText directory and data produced by the parse phase
+   * @param linked all LINKED values from the latest segment
+   * @return <code>true</code> values for this <code>key</code> (URL) should be merged
    *         into the new segment.
    */
   public boolean filter(Text key, CrawlDatum generateData,

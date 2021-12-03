@@ -127,10 +127,11 @@ public class FileDumper {
    * @param mimeTypeStats
    *          a flag indicating whether mimetype stats should be displayed
    *          instead of dumping files.
-   * @throws Exception
+   * @param reverseURLDump whether to reverse the URLs when they are written to disk
+   * @throws Exception if there is a fatal error dumping files to disk
    */
-  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean flatDir, boolean mimeTypeStats, boolean reverseURLDump)
-      throws Exception {
+  public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean 
+          flatDir, boolean mimeTypeStats, boolean reverseURLDump) throws Exception {
     if (mimeTypes == null)
       LOG.info("Accepting all mimetypes.");
     // total file counts
@@ -233,7 +234,9 @@ public class FileDumper {
                     File fullOutputDir = new File(org.apache.commons.lang3.StringUtils.join(Arrays.copyOf(splitPath, splitPath.length - 1), "/"));
 
                     if (!fullOutputDir.exists()) {
-                      fullOutputDir.mkdirs();
+                      if(!fullOutputDir.mkdirs());
+                        throw new Exception("Unable to create: ["
+                              + fullOutputDir.getAbsolutePath() + "]"); 
                     }
                   } else {
                     outputFullPath = String.format("%s/%s", fullDir, DumpFileUtil.createFileName(md5Ofurl, baseName, extension));
@@ -300,7 +303,7 @@ public class FileDumper {
    * @param args
    *          1) output directory (which will be created) to host the raw data
    *          and 2) a directory containing one or more segments.
-   * @throws Exception
+   * @throws Exception if there is a fatal error running this tool
    */
   public static void main(String[] args) throws Exception {
     // boolean options

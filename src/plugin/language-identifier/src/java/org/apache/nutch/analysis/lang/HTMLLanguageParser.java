@@ -31,7 +31,8 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NodeWalker;
-import org.apache.tika.language.LanguageIdentifier;
+import org.apache.tika.langdetect.optimaize.OptimaizeLangDetector;
+import org.apache.tika.language.detect.LanguageResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
@@ -49,6 +50,8 @@ public class HTMLLanguageParser implements HtmlParseFilter {
   private int contentMaxlength = -1;
 
   private boolean onlyCertain = false;
+
+  private OptimaizeLangDetector languageDetector;
 
   /* A static Map of ISO-639 language codes */
   private static Map<String, String> LANGUAGES_MAP = new HashMap<String, String>();
@@ -85,6 +88,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
    * -html.shtml#language) <li>3. meta http-equiv (content-language)
    * (http://www.w3.org/TR/REC-html40/struct/global.html#h-7.4.4.2) <br></ul>
    */
+  @Override
   public ParseResult filter(Content content, ParseResult parseResult,
       HTMLMetaTags metaTags, DocumentFragment doc) {
     String lang = null;
@@ -135,42 +139,51 @@ public class HTMLLanguageParser implements HtmlParseFilter {
     return lang;
   }
 
-  /** Use statistical language identification to extract page language */
   private String identifyLanguage(Parse parse) {
-    StringBuilder text = new StringBuilder();
+
     if (parse == null)
       return null;
 
+    StringBuilder text = new StringBuilder();
+
     String title = parse.getData().getTitle();
     if (title != null) {
-      text.append(title.toString());
+      text.append(title);
+      text.append(' ');
     }
 
     String content = parse.getText();
     if (content != null) {
-      text.append(" ").append(content.toString());
+      text.append(content);
     }
 
-    // trim content?
-    String titleandcontent = text.toString();
-
-    if (this.contentMaxlength != -1
-        && titleandcontent.length() > this.contentMaxlength)
-      titleandcontent = titleandcontent.substring(0, contentMaxlength);
-
-    LanguageIdentifier identifier = new LanguageIdentifier(titleandcontent);
-
-    if (onlyCertain) {
-      if (identifier.isReasonablyCertain())
-        return identifier.getLanguage();
-      else
-        return null;
+    if (contentMaxlength != -1 && text.length() > contentMaxlength) {
+      text.setLength(contentMaxlength);
     }
-    return identifier.getLanguage();
+
+    return identifyLanguage(text);
   }
 
-  // Check in the metadata whether the language has already been stored there
-  // by Tika
+  /** Use statistical language identification to extract page language */
+  String identifyLanguage(CharSequence text) {
+    LanguageResult result = null;
+
+    synchronized (this) {
+      languageDetector.reset();
+      result = languageDetector.detect(text);
+    }
+
+    if (onlyCertain && !result.isReasonablyCertain()) {
+      return null;
+    }
+
+    return result.getLanguage();
+  }
+
+  /**
+   * Check in the metadata whether the language has already been stored there by
+   * Tika
+   */
   private static String getLanguageFromMetadata(Metadata meta) {
     if (meta == null)
       return null;
@@ -300,6 +313,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
 
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     contentMaxlength = conf.getInt("lang.analyze.max.length", -1);
@@ -312,8 +326,13 @@ public class HTMLLanguageParser implements HtmlParseFilter {
         identify = i;
       }
     }
+    if (identify >= 0) {
+      languageDetector = new OptimaizeLangDetector();
+      languageDetector.loadModels();
+    }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

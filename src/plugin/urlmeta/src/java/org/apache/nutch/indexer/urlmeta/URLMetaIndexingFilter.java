@@ -75,6 +75,7 @@ public class URLMetaIndexingFilter implements IndexingFilter {
    * 
    * @see IndexingFilter#filter
    */
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
     if (conf != null)
@@ -93,7 +94,7 @@ public class URLMetaIndexingFilter implements IndexingFilter {
     return doc;
   }
 
-  /** Boilerplate */
+  @Override
   public Configuration getConf() {
     return conf;
   }
@@ -102,6 +103,7 @@ public class URLMetaIndexingFilter implements IndexingFilter {
    * handles conf assignment and pulls the value assignment from the
    * "urlmeta.tags" property
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 

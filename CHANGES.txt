@@ -1,8 +1,55 @@
 # Nutch Change Log
 
-Nutch 1.18 Development
+Nutch 1.18 Release 14/01/2021 (dd/mm/yyyy)
+Release Report: https://s.apache.org/lqara
 
+Breaking Changes
 
+    - As part of NUTCH-2805, the plugin urlfilter-domainblacklist has been renamed to urlfilter-domaindenylist. And the fields required for the plugin urlfilter.domainblacklist.rules and urlfilter.domainblacklist.file has been replaced with urlfilter.domaindenylist.rules and urlfilter.domaindenylist.file respectively. See NUTCH-2802 for more details.
+
+Sub-task
+
+    [NUTCH-2671] - Upgrade ant ivy library
+    [NUTCH-2672] - Ant build erronously installs *-test.jar instead *.jar for target "nightly"
+    [NUTCH-2805] - Rename plugin urlfilter-domainblacklist
+    [NUTCH-2809] - Upgrade any23 plugin dependency to 2.4
+    [NUTCH-2816] - Add Spotbugs target to ant build
+    [NUTCH-2817] - Avoid check for equality of URL path and file part using ==/!=
+    [NUTCH-2829] - Fix ant target "clean-cache"
+
+Bug
+
+    [NUTCH-2669] - Reliable solution for javax.ws packaging.type
+    [NUTCH-2697] - Upgrade Ivy to fix the issue of an unset packaging.type property
+    [NUTCH-2801] - RobotsRulesParser command-line checker to use http.robots.agents as fall-back
+    [NUTCH-2810] - FreeGenerator to actually apply configured number of fetch lists
+    [NUTCH-2813] - MoreIndexingFilter - can't parse erroneous date - 2019-07-03T10:28:14
+    [NUTCH-2814] - HttpDateFormat's internal time zone may change after parsing a date
+    [NUTCH-2818] - Ant build: upgrade Apache Rat report task
+    [NUTCH-2823] - IllegalStateException in IndexWriters.describe() when validating url param for SolrIndexer
+    [NUTCH-2824] - urlnormalizer-basic to unescape percent-encoded host names
+
+Improvement
+
+    [NUTCH-1190] - MoreIndexingFilter refactor: move data formats used to parse "lastModified" to a config file.
+    [NUTCH-2582] - Set pool size of XML SAX parsers used for MIME detection in Tika 1.19
+    [NUTCH-2730] - SitemapProcessor to treat sitemap URLs as Set instead of List
+    [NUTCH-2782] - protocol-http / lib-http: support TLSv1.3
+    [NUTCH-2796] - Upgrade to crawler-commons 1.1
+    [NUTCH-2799] - Add .asf.yaml file
+    [NUTCH-2833] - Upgrade to Tika 1.25
+    [NUTCH-2835] - Upgrade commons-jexl from 2 --> 3
+    [NUTCH-2836] - Upgrade various commons dependencies
+    [NUTCH-2837] - Update multiple dependencies
+    [NUTCH-2841] - Upgrade xercesImpl dependency
+
+Wish
+
+    [NUTCH-2834] - Deduplication mode via command line in crawl script
+
+Task
+
+    [NUTCH-2830] - Upgrade any23 to v2.4
 
 Nutch 1.17 Release 18/06/2020 (dd/mm/yyyy)
 Release Report: https://s.apache.org/ovhry

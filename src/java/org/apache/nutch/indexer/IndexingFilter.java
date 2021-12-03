@@ -51,7 +51,7 @@ public interface IndexingFilter extends Pluggable, Configurable {
    *          page inlinks
    * @return modified (or a new) document instance, or null (meaning the
    *         document should be discarded)
-   * @throws IndexingException
+   * @throws IndexingException if an error occurs during during filtering
    */
   NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException;

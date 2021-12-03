@@ -128,6 +128,7 @@ public class Http extends HttpBase {
    * @param conf
    *          Configuration
    */
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
     Http.conf = conf;
@@ -153,6 +154,8 @@ public class Http extends HttpBase {
    * 
    * @param args
    *          Command line arguments
+   * @throws Exception if a fatal error is encountered whilst running
+   * the program
    */
   public static void main(String[] args) throws Exception {
     Http http = new Http();
@@ -172,6 +175,7 @@ public class Http extends HttpBase {
    *          Follow redirects if and only if true
    * @return HTTP response
    */
+  @Override
   protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
       throws ProtocolException, IOException {
     resolveCredentials(url);

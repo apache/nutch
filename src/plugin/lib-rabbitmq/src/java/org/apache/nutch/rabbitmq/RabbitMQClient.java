@@ -109,7 +109,7 @@ public class RabbitMQClient {
    *
    * @param exchangeName     The exchange's name.
    * @param exchangeOptions  Options used when the exchange is created.
-   *                         <br />
+   *                         <p>
    *                         It must have the form type={type},durable={durable} where:
    *                         <ul>
    *                         <li>{type} is fanout, direct, headers or topic</li>
@@ -117,7 +117,7 @@ public class RabbitMQClient {
    *                         </ul>
    * @param queueName        The queue's name.
    * @param queueOptions     Options used when the queue is created.
-   *                         <br />
+   *                         <p>
    *                         It must have the form durable={type},exclusive={durable},auto-delete={durable},arguments={durable} where:
    *                         <ul>
    *                         <li>durable is true or false</li>
@@ -127,7 +127,7 @@ public class RabbitMQClient {
    *                         </ul>
    * @param bindingKey       The routine key to use for the binding.
    * @param bindingArguments This parameter is only used when the exchange's type is headers. In other cases is ignored.
-   *                         <br />
+   *                         <p>
    *                         It must have the form key1=value1,key2=value2
    * @throws IOException If there is some issue creating the relationship.
    */

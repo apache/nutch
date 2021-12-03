@@ -55,12 +55,19 @@ public class FtpResponse {
   private final Ftp ftp;
   private Configuration conf;
 
-  /** Returns the response code. */
+  /**
+   * Get the response code.
+   * @return the int response code
+   */
   public int getCode() {
     return code;
   }
 
-  /** Returns the value of a named header. */
+  /**
+   * Returns the value of a named header.
+   * @param name header key to retrieve a value for
+   * @return the header value
+   */
   public String getHeader(String name) {
     return headers.get(name);
   }
@@ -85,13 +92,12 @@ public class FtpResponse {
     if (!"ftp".equals(url.getProtocol()))
       throw new FtpException("Not a ftp url:" + url);
 
-    if (url.getPath() != url.getFile()) {
-      if (Ftp.LOG.isWarnEnabled()) {
-        Ftp.LOG.warn("url.getPath() != url.getFile(): " + url);
-      }
+    if (url.getQuery() != null) {
+      Ftp.LOG.warn(
+          "ftp:// URL may not include a query (query part ignored): {}", url);
     }
 
-    String path = "".equals(url.getPath()) ? "/" : url.getPath();
+    String path = url.getPath().isEmpty() ? "/" : url.getPath();
 
     try {
 

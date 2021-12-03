@@ -48,7 +48,7 @@ public class NutchServerPoolExecutor extends ThreadPoolExecutor{
       runningWorkers.offer(((JobWorker) runnable));
     }
   }
-  @SuppressWarnings("unlikely-arg-type")
+
   @Override
   protected void afterExecute(Runnable runnable, Throwable throwable) {
     super.afterExecute(runnable, throwable);
@@ -69,9 +69,9 @@ public class NutchServerPoolExecutor extends ThreadPoolExecutor{
   }
 
   /**
-   * Find the Job Worker Thread
-   * @param jobId
-   * @return
+   * Find the Job Worker Thread.
+   * @param jobId a jobId allows locating a specific worker thread
+   * @return a {@link JobWorker} or else null
    */
   public JobWorker findWorker(String jobId) {
     synchronized (runningWorkers) {
@@ -85,24 +85,24 @@ public class NutchServerPoolExecutor extends ThreadPoolExecutor{
   }
 
   /**
-   * Gives the Job history
-   * @return
+   * Get the Job history
+   * @return a {@link Collection} of {@link JobInfo}'s
    */
   public Collection<JobInfo> getJobHistory() {
     return getJobsInfo(workersHistory);
   }
 
   /**
-   * Gives the list of currently running jobs
-   * @return
+   * Get the list of currently running jobs
+   * @return a {@link Collection} of {@link JobInfo}'s
    */
   public Collection<JobInfo> getJobRunning() {
     return getJobsInfo(runningWorkers);
   }
 
   /**
-   * Gives all jobs(currently running and completed)
-   * @return
+   * get all jobs (currently running and completed)
+   * @return a {@link Collection} of {@link JobInfo}'s
    */
   @SuppressWarnings("unchecked")
   public Collection<JobInfo> getAllJobs() {

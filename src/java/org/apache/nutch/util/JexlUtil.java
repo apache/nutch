@@ -21,8 +21,9 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlScript;
 import org.apache.commons.lang.time.DateUtils;
 
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class JexlUtil {
    * @param expr string JEXL expression
    * @return parsed JEXL expression or null in case of parse error
    */
-  public static Expression parseExpression(String expr) {
+  public static JexlScript parseExpression(String expr) {
     if (expr == null) return null;
     
     try {
@@ -65,12 +66,9 @@ public class JexlUtil {
         expr = expr.replace(date, Long.toString(time));
       }
 
-      JexlEngine jexl = new JexlEngine();
+      JexlEngine jexl = new JexlBuilder().silent(true).strict(true).create();
 
-      jexl.setSilent(true);
-      jexl.setStrict(true);
-
-      return jexl.createExpression(expr);
+      return jexl.createScript(expr);
     } catch (Exception e) {
       LOG.error(e.getMessage());
     }

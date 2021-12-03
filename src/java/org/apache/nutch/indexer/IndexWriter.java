@@ -31,6 +31,9 @@ public interface IndexWriter extends Pluggable, Configurable {
   final static String X_POINT_ID = IndexWriter.class.getName();
 
   /**
+   * @param conf Nutch configuration
+   * @param name target name of the {@link IndexWriter} to be opened
+   * @throws IOException Some exception thrown by some writer.
    * @deprecated use {@link #open(IndexWriterParams)}} instead.  
    */
   @Deprecated
@@ -57,7 +60,7 @@ public interface IndexWriter extends Pluggable, Configurable {
   /**
    * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
    *
-   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   * @return The values of each row. It must have the form &#60;KEY,&#60;DESCRIPTION,VALUE&#62;&#62;.
    */
   Map<String, Map.Entry<String, Object>> describe();
 }

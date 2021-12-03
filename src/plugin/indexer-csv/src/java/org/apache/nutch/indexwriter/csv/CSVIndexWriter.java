@@ -325,7 +325,7 @@ public class CSVIndexWriter implements IndexWriter {
   /**
    * Returns {@link Map} with the specific parameters the IndexWriter instance can take.
    *
-   * @return The values of each row. It must have the form <KEY,<DESCRIPTION,VALUE>>.
+   * @return The values of each row. It must have the form &#60;KEY,&#60;DESCRIPTION,VALUE&#62;&#62;.
    */
   @Override
   public Map<String, Map.Entry<String, Object>> describe() {

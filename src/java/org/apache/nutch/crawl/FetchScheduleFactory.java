@@ -30,9 +30,15 @@ public class FetchScheduleFactory {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   private FetchScheduleFactory() {
-  } // no public ctor
+  } // no public constructor
 
-  /** Return the FetchSchedule implementation. */
+  /**
+   * Return the FetchSchedule implementation specified within
+   * the given {@link Configuration}, or {@link DefaultFetchSchedule}
+   * by default.
+   * @param conf a populated {@link Configuration} object
+   * @return a synchronized, static {@link FetchSchedule}
+   */
   public synchronized static FetchSchedule getFetchSchedule(Configuration conf) {
     String clazz = conf.get("db.fetch.schedule.class",
         DefaultFetchSchedule.class.getName());

@@ -49,9 +49,9 @@ public class TestAny23ParseFilter {
   
   private String file2 = "microdata_basic.html";
 
-  private static final int EXPECTED_TRIPLES_1 = 68;
+  private static final int EXPECTED_TRIPLES_1 = 79;
   
-  private static final int EXPECTED_TRIPLES_2 = 38;
+  private static final int EXPECTED_TRIPLES_2 = 40;
   
   @Before
   public void setUp() {

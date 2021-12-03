@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.StringUtil;
 import org.apache.hadoop.conf.Configurable;
 
 /**
@@ -64,6 +65,9 @@ public class HttpBasicAuthentication implements HttpAuthentication,
    * 
    * @param challenge
    *          WWW-Authenticate header from web server
+   * @param conf a populated {@link Configuration}
+   * @throws HttpAuthenticationException if the authentication fails or if the
+   * password or username is null
    */
   protected HttpBasicAuthentication(String challenge, Configuration conf)
       throws HttpAuthenticationException {
@@ -77,9 +81,10 @@ public class HttpBasicAuthentication implements HttpAuthentication,
         + ".password");
 
     if (LOG.isTraceEnabled()) {
-      LOG.trace("BasicAuthentication challenge is " + challenge);
-      LOG.trace("BasicAuthentication username=" + username);
-      LOG.trace("BasicAuthentication password=" + password);
+      LOG.trace("BasicAuthentication challenge is {}", challenge);
+      LOG.trace("BasicAuthentication username={}", username);
+      LOG.trace("BasicAuthentication password={} (masked)",
+          StringUtil.mask(password));
     }
 
     if (username == null) {
@@ -155,6 +160,7 @@ public class HttpBasicAuthentication implements HttpAuthentication,
    *          The challenge string provided by the webserver. This is the text
    *          which follows the WWW-Authenticate header, including the Basic
    *          tag.
+   * @param conf a populated {@link Configuration}
    * @return An HttpBasicAuthentication object or null if unable to generate
    *         appropriate credentials.
    */

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * <p>This implementation of {@link org.apache.nutch.indexer.IndexingFilter}
  * adds a <i>triple(s)</i> field to the {@link org.apache.nutch.indexer.NutchDocument}.</p>
  * <p>Triples are extracted via <a href="https://any23.apache.org/">Apache Any23</a>.</p>
- * @see {@link org.apache.nutch.any23.Any23ParseFilter}.
+ * @see org.apache.nutch.any23.Any23ParseFilter
  */
 public class Any23IndexingFilter implements IndexingFilter {
 
@@ -81,7 +81,7 @@ public class Any23IndexingFilter implements IndexingFilter {
    * @return filtered NutchDocument
    * @see org.apache.nutch.indexer.IndexingFilter#filter(NutchDocument, Parse, Text, CrawlDatum, Inlinks)
    *
-   * @throws IndexingException
+   * @throws IndexingException if there is a fatl error whilst indexing
    */
   @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {

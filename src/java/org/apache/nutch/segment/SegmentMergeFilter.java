@@ -37,8 +37,15 @@ public interface SegmentMergeFilter {
   /**
    * The filtering method which gets all information being merged for a given
    * key (URL).
-   * 
-   * @return <tt>true</tt> values for this <tt>key</tt> (URL) should be merged
+   * @param key the segment record key
+   * @param generateData directory and data produced by the generation phase
+   * @param fetchData directory and data produced by the fetch phase
+   * @param sigData directory and data produced by the parse phase
+   * @param content directory and data produced by the parse phase
+   * @param parseData directory and data produced by the parse phase
+   * @param parseText directory and data produced by the parse phase
+   * @param linked all LINKED values from the latest segment
+   * @return <code>true</code> values for this <code>key</code> (URL) should be merged
    *         into the new segment.
    */
   public boolean filter(Text key, CrawlDatum generateData,

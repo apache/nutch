@@ -36,7 +36,7 @@ public class TableUtil {
    * @param urlString
    *          url to be reversed
    * @return Reversed url
-   * @throws MalformedURLException
+   * @throws MalformedURLException if the input urlString is malformed
    */
   public static String reverseUrl(String urlString)
       throws MalformedURLException {

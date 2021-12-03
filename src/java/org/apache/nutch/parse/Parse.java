@@ -26,12 +26,19 @@ public interface Parse {
   /**
    * The textual content of the page. This is indexed, searched, and used when
    * generating snippets.
+   * @return the entire text String
    */
   String getText();
 
-  /** Other data extracted from the page. */
+  /**
+   * Other data extracted from the page.
+   * @return a populated {@link ParseData} object
+   */
   ParseData getData();
 
-  /** Indicates if the parse is coming from a url or a sub-url */
+  /**
+   * Indicates if the parse is coming from a url or a sub-url
+   * @return true if canonical, false otherwise
+   */
   boolean isCanonical();
 }

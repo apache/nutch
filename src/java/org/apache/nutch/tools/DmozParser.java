@@ -54,6 +54,9 @@ import org.apache.nutch.util.NutchConfiguration;
  * RDF into a flat file of URLs to be injected. 
  */
 public class DmozParser {
+
+  private static final Random RANDOM = new Random();
+
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -134,7 +137,7 @@ public class DmozParser {
       this.includeAdult = includeAdult;
       this.topicPattern = topicPattern;
 
-      this.hashSkew = skew != 0 ? skew : new Random().nextInt();
+      this.hashSkew = skew != 0 ? skew : RANDOM.nextInt();
     }
 
     //
@@ -270,14 +273,29 @@ public class DmozParser {
   /**
    * Iterate through all the items in this structured DMOZ file. Add each URL to
    * the web db.
+   * @param dmozFile the input DMOZ {@link File}
+   * @param subsetDenom Subset denominator filter
+   * @param includeAdult To include adult content or not.
+   * @param skew skew factor the the subset denominator filter.
+   * Only emit with a chance of 1/denominator
+   * @param topicPattern a {@link java.util.regex.Pattern} which 
+   * will match again "r:id" element
+   * @throws IOException if there is a fatal error reading the input DMOZ file
+   * @throws SAXException can be thrown if there is an error configuring the 
+   * internal {@link SAXParser} or {@link XMLReader}
+   * @throws ParserConfigurationException can be thrown if there is an 
+   * error configuring the internal {@link SAXParserFactory}
    */
   public void parseDmozFile(File dmozFile, int subsetDenom,
       boolean includeAdult, int skew, Pattern topicPattern) 
               throws IOException, SAXException, ParserConfigurationException {
 
     SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+    parserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    parserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
     SAXParser parser = parserFactory.newSAXParser();
     XMLReader reader = parser.getXMLReader();
+    reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
 
     // Create our own processor to receive SAX events
     RDFProcessor rp = new RDFProcessor(reader, subsetDenom, includeAdult, skew,
@@ -324,6 +342,9 @@ public class DmozParser {
    * Command-line access. User may add URLs via a flat text file or the
    * structured DMOZ file. By default, we ignore Adult material (as categorized
    * by DMOZ).
+   * @param argv input arguments for this tool. If less than one 
+   * argument is provided the tool will print help.
+   * @throws Exception if there is a fatal error
    */
   public static void main(String[] argv) throws Exception {
     if (argv.length < 1) {

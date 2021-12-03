@@ -34,16 +34,17 @@ public class CloudSearchUtils {
     }
   }
 
-  /** Returns a normalised doc ID based on the URL of a document **/
+  /**
+   * Returns a normalised doc ID based on the URL of a document
+   * @param url the document url to obtain an ID for
+   * @return A unique ID for the document. A document ID can contain any
+   * letter or number and the following characters: _ - = # ; : / ? @
+   * &amp;. Document IDs must be at least 1 and no more than 128
+   * characters long.
+   * @see <a href="https://docs.aws.amazon.com/cloudsearch/latest/developerguide/preparing-data.html#creating-document-batches">
+   * creating-document-batches</a>
+   */
   public static String getID(String url) {
-
-    // the document needs an ID
-    // @see
-    // http://docs.aws.amazon.com/cloudsearch/latest/developerguide/preparing-data.html#creating-document-batches
-    // A unique ID for the document. A document ID can contain any
-    // letter or number and the following characters: _ - = # ; : / ? @
-    // &. Document IDs must be at least 1 and no more than 128
-    // characters long.
     byte[] dig = digester.digest(url.getBytes(StandardCharsets.UTF_8));
     String ID = Hex.encodeHexString(dig);
     // is that even possible?

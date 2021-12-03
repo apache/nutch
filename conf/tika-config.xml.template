@@ -16,5 +16,26 @@
   limitations under the License.
 -->
 <properties>
+
+    <!-- suppress Tika warnings on stderr -->
     <service-loader initializableProblemHandler="ignore" loadErrorHandler="warn" />
+
+    <!--
+        Set pool size of SAX parsers to a higher value if fetcher is
+        parsing with many threads and Tika complains about "Consider
+        increasing the XMLReaderUtils.POOL_SIZE".  Tika's default pool
+        size is 10.  Cf. NUTCH-2578, TIKA-2645, NUTCH-2582.
+    -->
+    <!-- work-around for TIKA-3551: add maxEntityExpansions="20" (default value) -->
+    <xml-reader-utils poolSize="20" maxEntityExpansions="20" />
+
+    <!-- disable TesseractOCRParser (it's enabled by default in Tika) -->
+    <parsers>
+        <parser class="org.apache.tika.parser.DefaultParser">
+            <parser-exclude class="org.apache.tika.parser.ocr.TesseractOCRParser"/>
+        </parser>
+        <parser class="org.apache.tika.parser.CompositeParser">
+            <parser-exclude class="org.apache.tika.parser.ocr.TesseractOCRParser"/>
+        </parser>
+    </parsers>
 </properties>

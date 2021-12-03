@@ -324,6 +324,8 @@ public class EncodingDetector {
    * 
    * @param contentType
    *          a content type header
+   * @return a trimmed string representation of the 'charset=' value, 
+   * null if this is not available
    */
   public static String parseCharacterEncoding(String contentType) {
     if (contentType == null)

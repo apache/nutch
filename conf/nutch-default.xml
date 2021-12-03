@@ -164,7 +164,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-1.18-SNAPSHOT</value>
+  <value>Nutch-1.19-SNAPSHOT</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -1445,6 +1445,21 @@
   </description>
 </property>
 
+<property>
+  <name>urlnormalizer.protocols.file</name>
+  <value>protocols.txt</value>
+  <description>urlnormalizer-protocol configuration file</description>
+</property>
+
+<property>
+  <name>urlnormalizer.protocols.rules</name>
+  <value></value>
+  <description>urlnormalizer-protocol rule definitions: if not empty,
+  takes precedence over rules defined in the rule file (see
+  urlnormalizer.protocols.file)</description>
+</property>
+
+
 <!-- mime properties -->
 
 <!--
@@ -1870,6 +1885,37 @@ visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter 
   pages are marked as gone. Default is 40 days.
   </description>
 </property>
+
+
+<!-- scoring metadata properties
+Add scoring-metadata to the list of active plugins
+ in the parameter 'plugin.includes' in order to use it.
+ -->
+<property>
+  <name>scoring.db.md</name>
+  <value></value>
+  <description> 
+  Comma-separated list of keys to be taken from crawldb metadata of a url to the fetched content metadata.
+  </description>
+</property>
+
+<property>
+  <name>scoring.content.md</name>
+  <value></value>
+  <description> 
+  Comma-separated list of keys to be taken from content metadata of a url and put as metadata in the parse data.
+  </description>
+</property>
+
+<property>
+  <name>scoring.parse.md</name>
+  <value></value>
+  <description> 
+  Comma-separated list of keys to be taken from metadata of the parse data of a url and propogated as metadata to the url outlinks.
+  </description>
+</property>
+
+
 
 <!-- language-identifier plugin properties -->
 
@@ -2573,6 +2619,17 @@ visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter 
   </description>
 </property>
 
+<property>
+  <name>hostdb.crawldatum.processors</name>
+  <value></value>
+  <description>
+    Comma-separated list of custom per-host statistic
+    aggregators. Aggregator classes must implement the interface
+    org.apache.nutch.hostdb.CrawlDatumProcessor and are called during
+    HostDB construction.
+  </description>
+</property>
+
 <!-- publisher properties 
       Do not forget to add the name of your publisher implementation 
       in plugin.includes ex- publish-rabbitmq -->
@@ -2589,7 +2646,11 @@ visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter 
   <name>publisher.order</name>
   <value></value>
   <description>
-    The order in which the publisher queues would be loaded
+    The order in which the publisher queues would be loaded.  If
+    empty, all available publishers (see properties plugin-includes
+    and plugin-excludes) are loaded and applied in system defined
+    order. If not empty, only named publishers are loaded and applied
+    in the given order.
   </description>
 </property>
 

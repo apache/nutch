@@ -72,15 +72,12 @@ public class UpdateHostDbMapper
   }
 
   /**
-   * Filters and or normalizes the input URL
+   * Filters and or normalizes the input hostname
    *
-   * @param url
-   * @return String
+   * @param url the input hostname
+   * @return the processed hostname, or null if there was a fatal error
    */
   protected String filterNormalize(String url) {
-    // We actually receive a hostname here so let's make a URL
-    // TODO: we force shop.fcgroningen to be https, how do we know that here?
-    // http://issues.openindex.io/browse/SPIDER-40
     url = "http://" + url + "/";
 
     try {
@@ -102,9 +99,10 @@ public class UpdateHostDbMapper
     * Mapper ingesting records from the HostDB, CrawlDB and plaintext host
     * scores file. Statistics and scores are passed on.
     *
-    * @param key
-    * @param value
-    * @param context
+    * @param key record {@link org.apache.hadoop.io.Text} key
+    * @param value associated {@link org.apache.hadoop.io.Writable} object
+    * @param context {@link org.apache.hadoop.mapreduce.Reducer.Context} for
+    * writing custom counters and output.
     */
   @Override
   public void map(Text key, Writable value,

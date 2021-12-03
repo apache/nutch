@@ -108,9 +108,13 @@ public class FieldReplacer {
    * Field replacer with the input and output field the same.
    *
    * @param fieldName
+   *          the name of the source field to operate on. Required.
    * @param pattern
+   *          the pattern the field must match. Required.
    * @param replacement
+   *          the replacement string
    * @param flags
+   *          the Integer flags value, or null if no flags are needed
    */
   public FieldReplacer(String fieldName, String pattern, String replacement,
       Integer flags) {
@@ -136,7 +140,7 @@ public class FieldReplacer {
   /**
    * Does this FieldReplacer have a valid fieldname and pattern?
    *
-   * @return
+   * @return true if fieldname and pattern are valid, false otherwise
    */
   public boolean isValid() {
     return this.isValid;
@@ -152,8 +156,8 @@ public class FieldReplacer {
    * not different then eiher the pattern didn't match or the replacement was a
    * no-op.
    *
-   * @param value
-   * @return
+   * @param value the value to replace
+   * @return the replaced value
    */
   public String replace(String value) {
     if (this.isValid) {

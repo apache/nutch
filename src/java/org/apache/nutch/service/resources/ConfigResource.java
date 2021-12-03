@@ -88,7 +88,7 @@ public class ConfigResource extends AbstractResource{
 
   /**
    * Create new configuration.
-   * @param newConfig 
+   * @param newConfig a new populated {@link NutchConfig}
    * @return The name of the new configuration created
    */
   @POST

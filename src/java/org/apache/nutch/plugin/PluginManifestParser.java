@@ -105,6 +105,8 @@ public class PluginManifestParser {
   /**
    * Return the named plugin folder. If the name is absolute then it is
    * returned. Otherwise, for relative names, the classpath is scanned.
+   * @param name the name of a plugin folder
+   * @return the plugin directory as a {@link File} 
    */
   public File getPluginFolder(String name) {
     File directory = new File(name);

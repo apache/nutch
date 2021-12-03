@@ -56,6 +56,7 @@ public class RegexParseFilter implements HtmlParseFilter {
   
   private static final Map<String,RegexRule> rules = new HashMap<>();
   
+  @Override
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
     Parse parse = parseResult.get(content.getUrl());
     String html = new String(content.getContent());
@@ -87,6 +88,7 @@ public class RegexParseFilter implements HtmlParseFilter {
     return parseResult;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -139,6 +141,7 @@ public class RegexParseFilter implements HtmlParseFilter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

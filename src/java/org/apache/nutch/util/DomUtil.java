@@ -20,13 +20,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -51,7 +49,7 @@ public class DomUtil {
   /**
    * Returns parsed dom tree or null if any error
    * 
-   * @param is
+   * @param is XML {@link InputStream}
    * @return A parsed DOM tree from the given {@link InputStream}.
    */
   public static Element getDom(InputStream is) {
@@ -81,10 +79,10 @@ public class DomUtil {
   }
 
   /**
-   * save dom into ouputstream
+   * Save dom into {@link OutputStream}
    * 
-   * @param os
-   * @param e
+   * @param os Output DOM XML stream to save to
+   * @param e A specific DOM {@link org.w3c.dom.Element} to save
    */
   public static void saveDom(OutputStream os, Element e) {
 
@@ -104,6 +102,12 @@ public class DomUtil {
     }
   }
 
+  /**
+   * Save dom into {@link OutputStream}
+   * 
+   * @param os Output DOM XML stream to save to
+   * @param doc A specific DOM {@link org.w3c.dom.DocumentFragment} to save
+   */
   public static void saveDom(OutputStream os, DocumentFragment doc) {
     NodeList docChildren = doc.getChildNodes();
     for (int i = 0; i < docChildren.getLength(); i++) {

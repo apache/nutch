@@ -26,7 +26,7 @@ import org.apache.nutch.crawl.NutchWritable;
 
 /**
  * This is a simple decorator that adds metadata to any Writable-s that can be
- * serialized by <tt>NutchWritable</tt>. This is useful when data needs to be
+ * serialized by {@link NutchWritable}. This is useful when data needs to be
  * temporarily enriched during processing, but this temporary metadata doesn't
  * need to be permanently stored after the job is done.
  * 
@@ -56,39 +56,36 @@ public class MetaWrapper extends NutchWritable {
 
   /**
    * Get all metadata.
+   * @return a populated {@link Metadata} object
    */
   public Metadata getMetadata() {
     return metadata;
   }
 
   /**
-   * Add metadata. See {@link Metadata#add(String, String)} for more
-   * information.
-   * 
-   * @param name
-   *          metadata name
-   * @param value
-   *          metadata value
+   * Add metadata.
+   * @see Metadata#add(String, String)
+   * @param name metadata name to add
+   * @param value metadata value to add
    */
   public void addMeta(String name, String value) {
     metadata.add(name, value);
   }
 
   /**
-   * Set metadata. See {@link Metadata#set(String, String)} for more
-   * information.
-   * 
-   * @param name
-   * @param value
+   * Set metadata.
+   * @see Metadata#set(String, String)
+   * @param name metadata key to set
+   * @param value metadata value to set
    */
   public void setMeta(String name, String value) {
     metadata.set(name, value);
   }
 
   /**
-   * Get metadata. See {@link Metadata#get(String)} for more information.
-   * 
-   * @param name
+   * Get metadata value for a given key.
+   * @see Metadata#getValues(String)
+   * @param name key to retrieve a value for
    * @return metadata value
    */
   public String getMeta(String name) {
@@ -96,11 +93,10 @@ public class MetaWrapper extends NutchWritable {
   }
 
   /**
-   * Get multiple metadata. See {@link Metadata#getValues(String)} for more
-   * information.
-   * 
-   * @param name
-   * @return multiple values
+   * Get multiple metadata values for a given key.
+   * @see Metadata#getValues(String)
+   * @param name key to retrieve values for
+   * @return a string array containing metadata values
    */
   public String[] getMetaValues(String name) {
     return metadata.getValues(name);

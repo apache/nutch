@@ -46,8 +46,9 @@ public class Http extends HttpBase {
   /**
    * Set the {@link org.apache.hadoop.conf.Configuration} object.
    * 
-   * @param conf
+   * @param conf a populated {@link Configuration}
    */
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
   }
@@ -58,6 +59,7 @@ public class Http extends HttpBase {
     main(http, args);
   }
 
+  @Override
   protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
       throws ProtocolException, IOException {
     return new HttpResponse(this, url, datum);

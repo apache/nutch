@@ -49,6 +49,7 @@ public class CCIndexingFilter implements IndexingFilter {
 
   private Configuration conf;
 
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
@@ -86,6 +87,8 @@ public class CCIndexingFilter implements IndexingFilter {
    * Add the features represented by a license URL. Urls are of the form
    * "http://creativecommons.org/licenses/xx-xx/xx/xx", where "xx" names a
    * license feature.
+   * @param doc a {@link org.apache.nutch.indexer.NutchDocument} to augment
+   * @param urlString the url to extract features from
    */
   public void addUrlFeatures(NutchDocument doc, String urlString) {
     try {
@@ -113,10 +116,12 @@ public class CCIndexingFilter implements IndexingFilter {
     doc.add(FIELD, feature);
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

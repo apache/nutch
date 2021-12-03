@@ -57,14 +57,15 @@ public class PluginDescriptor {
   private Configuration fConf;
 
   /**
-   * Constructor
+   * Overloaded constructor
    * 
-   * @param pId
-   * @param pVersion
-   * @param pName
-   * @param pProviderName
-   * @param pPluginclazz
-   * @param pPath
+   * @param pId set plugin ID
+   * @param pVersion set plugin version
+   * @param pName set plugin name
+   * @param pProviderName set plugin provider name
+   * @param pPluginclazz set plugin Class
+   * @param pPath set plugin path
+   * @param conf a populated {@link org.apache.hadoop.conf.Configuration}
    */
   public PluginDescriptor(String pId, String pVersion, String pName,
       String pProviderName, String pPluginclazz, String pPath,
@@ -82,7 +83,8 @@ public class PluginDescriptor {
   }
 
   /**
-   * @param pPath
+   * Set the plugin path
+   * @param pPath plugin path
    */
   private void setPath(String pPath) {
     fPluginPath = pPath;
@@ -149,7 +151,7 @@ public class PluginDescriptor {
   /**
    * Adds a extension.
    * 
-   * @param pExtension
+   * @param pExtension a {@link org.apache.nutch.plugin.Extension}
    */
   public void addExtension(Extension pExtension) {
     fExtensions.add(pExtension);
@@ -178,7 +180,7 @@ public class PluginDescriptor {
   /**
    * Adds a extension point.
    * 
-   * @param extensionPoint
+   * @param extensionPoint a {@link org.apache.nutch.plugin.ExtensionPoint}
    */
   public void addExtensionPoint(ExtensionPoint extensionPoint) {
     fExtensionPoints.add(extensionPoint);
@@ -216,11 +218,15 @@ public class PluginDescriptor {
   /**
    * Adds a exported library with a relative path to the plugin directory. We
    * automatically escape characters that are illegal in URLs. It is recommended
-   * that code converts an abstract pathname into a URL by first converting it
-   * into a URI, via the toURI method, and then converting the URI into a URL
-   * via the URI.toURL method.
+   * that code converts an abstract pathname into a {@link java.net.URL} by 
+   * first converting it into a {@link java.net.URI}, via the 
+   * {@link java.net.URL#toURI()} method, and then converting the 
+   * {@link java.net.URI} into a {@link java.net.URL} via the 
+   * {@link java.net.URI#toURL()} method.
    * 
-   * @param pLibPath
+   * @param pLibPath path to a exported library relative to the plugin directory
+   * @throws MalformedURLException if the pLibPath is not a relative path 
+   * (to the plugin directory) 
    */
   public void addExportedLibRelative(String pLibPath)
       throws MalformedURLException {
@@ -239,7 +245,7 @@ public class PluginDescriptor {
   }
 
   /**
-   * Returns a array exported librareis as URLs
+   * Returns a array of exported libs as URLs
    * 
    * @return URL[]
    */
@@ -248,13 +254,17 @@ public class PluginDescriptor {
   }
 
   /**
-   * Adds a exported library with a relative path to the plugin directory. We
+   * Adds a non-exported library with a relative path to the plugin directory. We
    * automatically escape characters that are illegal in URLs. It is recommended
-   * that code converts an abstract pathname into a URL by first converting it
-   * into a URI, via the toURI method, and then converting the URI into a URL
-   * via the URI.toURL method.
+   * that code converts an abstract pathname into a {@link java.net.URL} by 
+   * first converting it into a {@link java.net.URI}, via the 
+   * {@link java.net.URL#toURI()} method, and then converting the 
+   * {@link java.net.URI} into a {@link java.net.URL} via the 
+   * {@link java.net.URI#toURL()} method.
    * 
-   * @param pLibPath
+   * @param pLibPath path to a exported library relative to the plugin directory
+   * @throws MalformedURLException if the pLibPath is not a relative path 
+   * (to the plugin directory) 
    */
   public void addNotExportedLibRelative(String pLibPath)
       throws MalformedURLException {
@@ -328,12 +338,13 @@ public class PluginDescriptor {
 
   /**
    * Returns a I18N'd resource string. The resource bundles could be stored in
-   * root directory of a plugin in the well know i18n file name conventions.
+   * root directory of a plugin in the well known i18n file name conventions.
    * 
-   * @param pKey
-   * @param pLocale
-   * @return String
-   * @throws IOException
+   * @param pKey a plugin key
+   * @param pLocale the required {@link java.util.Locale}
+   * @return a string for the given key from the 
+   * {@link java.util.ResourceBundle} bundle or one of its parents
+   * @throws IOException if there is an error obtaining the key
    */
   public String getResourceString(String pKey, Locale pLocale)
       throws IOException {

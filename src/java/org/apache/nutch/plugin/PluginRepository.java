@@ -37,8 +37,8 @@ import org.apache.nutch.util.ObjectCache;
 /**
  * The plugin repositority is a registry of all plugins.
  * 
- * At system boot up a repositority is builded by parsing the mainifest files of
- * all plugins. Plugins that require not existing other plugins are not
+ * At system boot up a repositority is built by parsing the mainifest files of
+ * all plugins. Plugins that require other plugins which do not exist are not
  * registed. For each plugin a plugin descriptor instance will be created. The
  * descriptor represents all meta information about a plugin. So a plugin
  * instance will be created later when it is required, this allow lazy plugin
@@ -63,8 +63,8 @@ public class PluginRepository {
       .getLogger(MethodHandles.lookup().lookupClass());
 
   /**
-   * @throws RuntimeException
-   * @see java.lang.Object#Object()
+   * @param conf a populated {@link Configuration}
+   * @throws RuntimeException if a fatal runtime error is encountered 
    */
   public PluginRepository(Configuration conf) throws RuntimeException {
     fActivatedPlugins = new HashMap<>();
@@ -97,6 +97,8 @@ public class PluginRepository {
   }
 
   /**
+   * Get a cached instance of the {@link org.apache.nutch.plugin.PluginRepository}
+   * @param conf a populated {@link Configuration}
    * @return a cached instance of the plugin repository
    */
   public static synchronized PluginRepository get(Configuration conf) {
@@ -230,7 +232,7 @@ public class PluginRepository {
   /**
    * Returns the descriptor of one plugin identified by a plugin id.
    * 
-   * @param pPluginId
+   * @param pPluginId a pluginId for which the descriptor will be retrieved
    * @return PluginDescriptor
    */
   public PluginDescriptor getPluginDescriptor(String pPluginId) {
@@ -243,9 +245,9 @@ public class PluginRepository {
   }
 
   /**
-   * Returns a extension point indentified by a extension point id.
+   * Returns a extension point identified by a extension point id.
    * 
-   * @param pXpId
+   * @param pXpId an extension point id
    * @return a extentsion point
    */
   public ExtensionPoint getExtensionPoint(String pXpId) {
@@ -262,9 +264,10 @@ public class PluginRepository {
    * extensions of the same plugin. This class loader use all exported libraries
    * from the dependend plugins and all plugin libraries.
    * 
-   * @param pDescriptor
-   * @return Plugin
-   * @throws PluginRuntimeException
+   * @param pDescriptor a {@link PluginDescriptor} for which to retrieve a 
+   * {@link Plugin} instance
+   * @return a {@link Plugin} instance
+   * @throws PluginRuntimeException if there is a fatal runtime plugin error
    */
   public Plugin getPluginInstance(PluginDescriptor pDescriptor)
       throws PluginRuntimeException {
@@ -483,7 +486,7 @@ public class PluginRepository {
    *          plugin ID (needs to be activated in the configuration), and the
    *          class name. The rest of arguments is passed to the main method of
    *          the selected class.
-   * @throws Exception
+   * @throws Exception if there is an error running this Class
    */
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {

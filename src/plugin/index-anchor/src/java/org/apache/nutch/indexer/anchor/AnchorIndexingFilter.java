@@ -46,6 +46,7 @@ public class AnchorIndexingFilter implements IndexingFilter {
   /**
    * Set the {@link Configuration} object
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -56,6 +57,7 @@ public class AnchorIndexingFilter implements IndexingFilter {
   /**
    * Get the {@link Configuration} object
    */
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
@@ -77,6 +79,7 @@ public class AnchorIndexingFilter implements IndexingFilter {
    *          The {@link Inlinks} containing anchor text
    * @return filtered NutchDocument
    */
+  @Override
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 

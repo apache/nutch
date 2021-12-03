@@ -164,7 +164,7 @@ public class OkHttpResponse implements Response {
     BufferedSource source = responseBody.source();
     int bytesRequested = 0;
     int bufferGrowStepBytes = 8192;
-    while (source.buffer().size() <= maxContentBytes) {
+    while (source.getBuffer().size() <= maxContentBytes) {
       bytesRequested += Math.min(bufferGrowStepBytes,
           /*
            * request one byte more than required to reliably detect truncated
@@ -176,7 +176,7 @@ public class OkHttpResponse implements Response {
       try {
         success = source.request(bytesRequested);
       } catch (IOException e) {
-        if (partialAsTruncated && source.buffer().size() > 0) {
+        if (partialAsTruncated && source.getBuffer().size() > 0) {
           // treat already fetched content as truncated
           truncated.setReason(TruncatedContentReason.DISCONNECT);
           LOG.info("Truncated content for {}, partial fetch caused by:", url,
@@ -187,7 +187,7 @@ public class OkHttpResponse implements Response {
       }
       if (LOG.isDebugEnabled()) {
         LOG.debug("total bytes requested = {}, buffered = {}", bytesRequested,
-            source.buffer().size());
+            source.getBuffer().size());
       }
       if (!success) {
         LOG.debug("source exhausted, no more data to read");
@@ -198,13 +198,13 @@ public class OkHttpResponse implements Response {
         truncated.setReason(TruncatedContentReason.TIME);
         break;
       }
-      if (source.buffer().size() >= maxContentBytes) {
+      if (source.getBuffer().size() >= maxContentBytes) {
         LOG.debug("content limit reached");
       }
       // okhttp may fetch more content than requested, forward requested bytes
-      bytesRequested = (int) source.buffer().size();
+      bytesRequested = (int) source.getBuffer().size();
     }
-    int bytesBuffered = (int) source.buffer().size();
+    int bytesBuffered = (int) source.getBuffer().size();
     int bytesToCopy = bytesBuffered;
     if (maxContent >= 0 && bytesToCopy > maxContent) {
       // okhttp's internal buffer is larger than maxContent
@@ -212,11 +212,11 @@ public class OkHttpResponse implements Response {
       bytesToCopy = maxContentBytes;
     }
     byte[] arr = new byte[bytesToCopy];
-    source.buffer().readFully(arr);
+    source.getBuffer().readFully(arr);
     if (LOG.isDebugEnabled()) {
       LOG.debug(
           "copied {} bytes out of {} buffered, remaining {} bytes in buffer",
-          bytesToCopy, bytesBuffered, source.buffer().size());
+          bytesToCopy, bytesBuffered, source.getBuffer().size());
     }
     return arr;
   }

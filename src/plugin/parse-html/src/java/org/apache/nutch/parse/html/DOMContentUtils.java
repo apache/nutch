@@ -117,6 +117,11 @@ public class DOMContentUtils {
    * 
    * <p>
    * 
+   * @param sb a {@link StringBuffer} used to store content text 
+   * found beneath the DOM node... if any exists
+   * @param node a DOM {@link Node} to check for content text
+   * @param abortOnNestedAnchors true to abort if nested anchors 
+   * are encountered, false otherwise
    * @return true if nested anchors were found
    */
   public boolean getText(StringBuffer sb, Node node,
@@ -130,7 +135,9 @@ public class DOMContentUtils {
   /**
    * This is a convinience method, equivalent to
    * {@link #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
-   * 
+   * @param sb a {@link StringBuffer} used to store content text 
+   * found beneath the DOM node... if any exists
+   * @param node a DOM {@link Node} to check for content text
    */
   public void getText(StringBuffer sb, Node node) {
     getText(sb, node, false);
@@ -235,7 +242,9 @@ public class DOMContentUtils {
    * This method takes a {@link StringBuffer} and a DOM {@link Node}, and will
    * append the content text found beneath the first <code>title</code> node to
    * the <code>StringBuffer</code>.
-   * 
+   * @param sb a {@link StringBuffer} used to store content text 
+   * found beneath the DOM node... if any exists
+   * @param node a DOM {@link Node} to check for content text
    * @return true if a title node was found, false otherwise
    */
   public boolean getTitle(StringBuffer sb, Node node) {
@@ -263,7 +272,11 @@ public class DOMContentUtils {
     return false;
   }
 
-  /** If Node contains a BASE tag then it's HREF is returned. */
+  /**
+   * If Node contains a BASE tag then it's HREF is returned.
+   * @param node a DOM {@link Node} to check for a BASE tag
+   * @return HREF if one exists
+   */
   public String getBase(Node node) {
 
     NodeWalker walker = new NodeWalker(node);
@@ -370,6 +383,11 @@ public class DOMContentUtils {
    * Links without inner structure (tags, text, etc) are discarded, as are links
    * which contain only single nested links and empty text nodes (this is a
    * common DOM-fixup artifact, at least with nekohtml).
+   * 
+   * @param base the canonical {@link URL}
+   * @param outlinks the {@link ArrayList} of {@link Outlink}'s associated 
+   * with the base URL
+   * @param node a {@link Node} under which to discover anchors
    */
   public void getOutlinks(URL base, ArrayList<Outlink> outlinks, Node node) {
 

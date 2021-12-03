@@ -188,7 +188,9 @@ public class CrawlDbMerger extends Configured implements Tool {
   }
 
   /**
-   * @param args
+   * Run the tool.
+   * @param args job parameters
+   * @throws Exception if there is an issue executing this job
    */
   public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(NutchConfiguration.create(), new CrawlDbMerger(),

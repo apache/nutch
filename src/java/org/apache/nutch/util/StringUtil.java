@@ -16,15 +16,22 @@
  */
 package org.apache.nutch.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * A collection of String processing utility methods.
  */
 public class StringUtil {
 
   /**
-   * Returns a copy of <code>s</code> padded with trailing spaces so that it's
-   * length is <code>length</code>. Strings already <code>length</code>
-   * characters long or longer are not altered.
+   * Returns a copy of <code>s</code> (right padded) with trailing 
+   * spaces so that it's length is <code>length</code>. 
+   * Strings already <code>length</code> characters long or longer 
+   * are not altered.
+   * @param s input string to be copied and processed
+   * @param length desired final length of padded string
+   * @return the resulting padded string
    */
   public static String rightPad(String s, int length) {
     StringBuffer sb = new StringBuffer(s);
@@ -34,9 +41,12 @@ public class StringUtil {
   }
 
   /**
-   * Returns a copy of <code>s</code> padded with leading spaces so that it's
-   * length is <code>length</code>. Strings already <code>length</code>
-   * characters long or longer are not altered.
+   * Returns a copy of <code>s</code> (left padded) with leading 
+   * spaces so that it's length is <code>length</code>. Strings 
+   * already <code>length</code> characters long or longer are not altered.
+   * @param s input string to be copied and processed 
+   * @param length desired final length of padded string
+   * @return the resulting padded string
    */
   public static String leftPad(String s, int length) {
     StringBuffer sb = new StringBuffer();
@@ -53,7 +63,8 @@ public class StringUtil {
    * Convenience call for {@link #toHexString(byte[], String, int)}, where
    * <code>sep = null; lineLen = Integer.MAX_VALUE</code>.
    * 
-   * @param buf
+   * @param buf input data for which to generate a hex string
+   * @return the hex string
    */
   public static String toHexString(byte[] buf) {
     return toHexString(buf, null, Integer.MAX_VALUE);
@@ -63,14 +74,14 @@ public class StringUtil {
    * Get a text representation of a byte[] as hexadecimal String, where each
    * pair of hexadecimal digits corresponds to consecutive bytes in the array.
    * 
-   * @param buf
-   *          input data
+   * @param buf input data for which to generate a hex string
    * @param sep
    *          separate every pair of hexadecimal digits with this separator, or
    *          null if no separation is needed.
    * @param lineLen
    *          break the output String into lines containing output for lineLen
    *          bytes.
+   * @return the hex string
    */
   public static String toHexString(byte[] buf, String sep, int lineLen) {
     if (buf == null)
@@ -132,16 +143,71 @@ public class StringUtil {
 
   /**
    * Checks if a string is empty (ie is null or empty).
+   * @param str the String to check for being empty or null
+   * @return true if empty or null, false otherwise
    */
   public static boolean isEmpty(String str) {
     return (str == null) || (str.equals(""));
   }
 
   /**
-   * Simple character substitution which cleans all � chars from a given String.
+   * Simple character substitution which cleans/removes all � chars from a given String.
+   * @param value the String to clean
+   * @return substituted cleaned string
    */
   public static String cleanField(String value) {
     return value.replaceAll("�", "");
+  }
+
+  /**
+   * Mask sensitive strings - passwords, etc.
+   * 
+   * @param str input string
+   * @return the masked string, all characters replaced by <code>*</code>
+   */
+  public static String mask(final String str) {
+    return mask(str, '*');
+  }
+
+  /**
+   * Mask sensitive strings - passwords, etc.
+   * 
+   * @param str input string
+   * @param mask
+   *          char used for masking
+   * @return the masked string, all characters replaced by the mask character
+   */
+  public static String mask(final String str, final char mask) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < str.length(); i++) {
+      sb.append(mask);
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Mask sensitive strings - passwords, etc.
+   * 
+   * @param str input string
+   * @param pattern
+   *          pattern which defines capturing groups to be masked in input
+   * @param mask
+   *          char used for masking
+   * @return the masked string, all characters matched in capturing groups of
+   *         the pattern replaced by the mask character
+   */
+  public static String mask(final String str, final Pattern pattern,
+      final char mask) {
+    StringBuilder sb = new StringBuilder(str);
+    Matcher matcher = pattern.matcher(sb);
+    while (matcher.find()) {
+      for (int i = 1; i <= matcher.groupCount(); i++) {
+        for (int j = matcher.start(i); j < matcher.end(i); j++) {
+          sb.setCharAt(j, mask);
+        }
+      }
+    }
+    return sb.toString();
   }
 
   public static void main(String[] args) {
@@ -151,4 +217,5 @@ public class StringUtil {
       System.out.println(args[0] + " is resolved to "
           + EncodingDetector.resolveEncodingAlias(args[0]));
   }
+
 }

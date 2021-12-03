@@ -19,6 +19,11 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache</groupId>
+    <artifactId>apache</artifactId>
+    <version>23</version>
+  </parent>
   <groupId>${ivy.pom.groupId}</groupId>
   <artifactId>${ivy.pom.artifactId}</artifactId>
   <packaging>${ivy.pom.packaging}</packaging>
@@ -46,6 +51,10 @@
       <name>MireDot Releases</name>
       <url>http://nexus.qmino.com/content/repositories/miredot</url>
     </pluginRepository>
+    <pluginRepository> 
+      <id>maven2</id> 
+      <url>https://repo.maven.apache.org/maven2/</url> 
+    </pluginRepository> 
   </pluginRepositories>
 
   <developers>
@@ -119,9 +128,10 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
           <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
+            <source>11</source>
+            <target>11</target>
           </configuration>
         </plugin>
       </plugins>
@@ -130,7 +140,7 @@
       <plugin>
         <groupId>com.qmino</groupId>
         <artifactId>miredot-plugin</artifactId>
-        <version>2.0.1</version>
+        <version>2.4.0</version>
         <executions>
           <execution>
             <goals>

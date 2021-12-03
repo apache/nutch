@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This handler clicks all the <a hfer="javascript:void(null);"> tags
+ * This handler clicks all the <code><a href="javascript:void(null);"></a></code> tags
  * because it considers them as not usual links but ajax links/interactions. This uses the same logic of 
  * DefalultMultiInteractionHandler. 
  */

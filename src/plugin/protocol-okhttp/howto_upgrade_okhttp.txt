@@ -1,0 +1,27 @@
+1. Upgrade OkHttp dependency in src/plugin/protocol-okhttp/ivy.xml
+
+2. Upgrade OkHttp's own dependencies in src/plugin/protocol-okhttp/plugin.xml
+
+   To get the list of dependencies and their versions execute in the Nutch root
+   folder:
+    $ ant clean runtime
+    $ ls build/plugins/protocol-okhttp/ \
+         | grep '\.jar$' \
+         | grep -vF protocol-okhttp.jar \
+         | sed 's/^/      <library name="/g' | sed 's/$/"\/>/g'
+
+   In the plugin.xml replace all lines between
+      <!-- dependencies of OkHttp -->
+   and
+      <!-- end of dependencies of OkHttp -->
+   with the output of the command above.
+
+3. Build Nutch and run all unit tests:
+
+    $ ant clean runtime test
+
+   At least, run the protocol-okhttp unit tests:
+
+    $ ant test-plugin -Dplugin=protocol-okhttp
+
+4. (optionally but recommended) Run a test crawl using protocol-okhttp

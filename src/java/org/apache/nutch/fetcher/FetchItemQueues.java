@@ -235,7 +235,7 @@ public class FetchItemQueues {
    * Increment the exception counter of a queue in case of an exception e.g.
    * timeout; when higher than a given threshold simply empty the queue.
    * 
-   * @param queueid
+   * @param queueid a queue identifier to locate and check 
    * @return number of purged items
    */
   public synchronized int checkExceptionThreshold(String queueid) {

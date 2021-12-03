@@ -26,10 +26,10 @@ import org.apache.nutch.parse.Outlink;
 
 /**
  * This class is used to capture the various events occurring 
- * at fetch time. These events are sent to a queue implementing the publisher
- *
+ * at fetch time. These events are sent to a 
+ * {@link org.apache.nutch.publisher.NutchPublisher} implementation.
  */
-public class FetcherThreadEvent implements Serializable{
+public class FetcherThreadEvent implements Serializable {
 
   /** Type of event to specify start, end or reporting of a fetch item.  **/
   public static enum PublishEventType {START, END, REPORT}
@@ -41,8 +41,8 @@ public class FetcherThreadEvent implements Serializable{
   
   /**
    * Constructor to create an event to be published
-   * @param eventType	Type of {@link #eventType event} being created 
-   * @param url	URL of the fetched page to which this event belongs to
+   * @param eventType Type of {@link #eventType event} being created 
+   * @param url URL of the fetched page to which this event belongs to
    */
   public FetcherThreadEvent(PublishEventType eventType, String url) {
     this.eventType = eventType;
@@ -60,7 +60,7 @@ public class FetcherThreadEvent implements Serializable{
   
   /**
    * Set event type of this object
-   * @param eventType	Set {@link #eventType event} type
+   * @param eventType Set {@link #eventType event} type
    */
   public void setEventType(PublishEventType eventType) {
     this.eventType = eventType;
@@ -68,16 +68,16 @@ public class FetcherThreadEvent implements Serializable{
   
   /**
    * Get event data
-   * @return
+   * @return a Map of event data
    */
   public Map<String, Object> getEventData() {
     return eventData;
   }
   /** 
    * Set metadata to this even
-   * @param eventData	A map containing important information relevant 
-   * 					to this event (fetched page).
-   * 					Ex - score, title, outlinks, content-type, etc
+   * @param eventData A map containing important information relevant 
+   * to this event (fetched page).
+   * Exeample - score, title, outlinks, content-type, etc
    */
   public void setEventData(Map<String, Object> eventData) {
     this.eventData = eventData;

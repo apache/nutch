@@ -25,7 +25,7 @@
  * </ul>
  * 
  * E.g.,
- * <code>https://www.example.org/a/../b//./select%2Dlang.php?lang=español#anchor<code>
+ * <code>https://www.example.org/a/../b//./select%2Dlang.php?lang=español#anchor</code>
  * is normalized to <code>https://www.example.org/b/select-lang.php?lang=espa%C3%B1ol</code>
  * 
  * Optional and configurable normalizations are:

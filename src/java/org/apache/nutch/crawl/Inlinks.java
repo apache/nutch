@@ -82,8 +82,9 @@ public class Inlinks implements Writable {
   }
 
   /**
-   * Return the set of anchor texts. Only a single anchor with a given text is
+   * Get all anchor texts. Only a single anchor with a given text is
    * permitted from a given domain.
+   * @return the set of anchor texts. 
    */
   public String[] getAnchors() {
     HashMap<String, Set<String>> domainToAnchors = new HashMap<>();

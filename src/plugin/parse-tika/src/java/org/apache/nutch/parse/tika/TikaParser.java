@@ -43,8 +43,9 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.protocol.Content;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
-import org.apache.tika.parser.html.BoilerpipeContentHandler;
+import org.apache.tika.sax.boilerpipe.BoilerpipeContentHandler;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.CompositeParser;
 import org.apache.tika.parser.ParseContext;
@@ -80,6 +81,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   private String boilerpipeExtractorName;
   private Set<String> boilerpipeMimeTypes;
 
+  @Override
   public ParseResult getParse(Content content) {
     HTMLDocumentImpl doc = new HTMLDocumentImpl();
     doc.setErrorChecking(false);
@@ -88,7 +90,6 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     return getParse(content, doc, root);
   }
 
-  @SuppressWarnings("deprecation")
   ParseResult getParse(Content content, HTMLDocumentImpl doc,
       DocumentFragment root) {
     String mimeType = content.getContentType();
@@ -215,7 +216,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     // populate Nutch metadata with Tika metadata
     String[] TikaMDNames = tikamd.names();
     for (String tikaMDName : TikaMDNames) {
-      if (tikaMDName.equalsIgnoreCase(Metadata.TITLE))
+      if (tikaMDName.equalsIgnoreCase(TikaCoreProperties.TITLE.toString()))
         continue;
       String[] values = tikamd.getValues(tikaMDName);
       for (String v : values) {
@@ -257,6 +258,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     return filteredParse;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.tikaConfig = null;
@@ -324,6 +326,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     parseEmbedded = conf.getBoolean("tika.parse.embedded", true);
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

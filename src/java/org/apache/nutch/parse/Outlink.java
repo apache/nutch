@@ -26,7 +26,7 @@ import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
-/* An outgoing link from a page. */
+/** An outgoing link from a page. */
 public class Outlink implements Writable {
 
   private String toUrl;
@@ -55,7 +55,12 @@ public class Outlink implements Writable {
       md = null;
   }
 
-  /** Skips over one Outlink in the input. */
+  /**
+   * Skips over one Outlink in the input.
+   * @param in the {@link DataInput} tuple stream holding the
+   * toUrl and archor pair.
+   * @throws IOException if there is an error processing the {@link DataInput}
+   */
   public static void skip(DataInput in) throws IOException {
     Text.skip(in); // skip toUrl
     Text.skip(in); // skip anchor

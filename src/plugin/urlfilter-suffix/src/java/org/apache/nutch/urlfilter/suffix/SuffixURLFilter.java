@@ -83,7 +83,7 @@ import java.net.MalformedURLException;
  * The configuration shown below will accept all URLs with '.html' or '.htm'
  * suffixes (case-sensitive - '.HTML' or '.HTM' will be rejected), and prohibit
  * all other suffixes.
- * <p>
+ * </p>
  * 
  * <pre>
  *  # this is a comment
@@ -100,7 +100,7 @@ import java.net.MalformedURLException;
  * <p>
  * The configuration shown below will accept all URLs except common graphical
  * formats.
- * <p>
+ * </p>
  * 
  * <pre>
  *  # this is a comment
@@ -141,6 +141,7 @@ public class SuffixURLFilter implements URLFilter {
     readConfiguration(reader);
   }
 
+  @Override
   public String filter(String url) {
     if (url == null)
       return null;
@@ -249,6 +250,7 @@ public class SuffixURLFilter implements URLFilter {
     }
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -273,8 +275,8 @@ public class SuffixURLFilter implements URLFilter {
 
     // precedence hierarchy for definition of filter rules
     // (first non-empty definition takes precedence):
-    // 1. string rules defined by `urlfilter.domainblacklist.rules`
-    // 2. rule file name defined by `urlfilter.domainblacklist.file`
+    // 1. string rules defined by `urlfilter.domaindenylist.rules`
+    // 2. rule file name defined by `urlfilter.domaindenylist.file`
     // 3. rule file name defined in plugin.xml (`attributeFile`)
     String file = conf.get("urlfilter.suffix.file", attributeFile);
     String stringRules = conf.get("urlfilter.suffix.rules");
@@ -293,6 +295,7 @@ public class SuffixURLFilter implements URLFilter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

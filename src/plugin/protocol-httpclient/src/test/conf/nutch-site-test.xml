@@ -20,6 +20,11 @@
 <configuration>
 
 <property>
+  <name>plugin.includes</name>
+  <value>protocol-httpclient</value>
+</property>
+
+<property>
   <name>http.robots.agents</name>
   <value>Nutch-Test,*</value>
   <description></description>

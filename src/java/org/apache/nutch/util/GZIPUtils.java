@@ -40,6 +40,8 @@ public class GZIPUtils {
    * Returns an gunzipped copy of the input array. If the gzipped input has been
    * truncated or corrupted, a best-effort attempt is made to unzip as much as
    * possible. If no data can be extracted <code>null</code> is returned.
+   * @param in byte array to gunzipped
+   * @return the gunzipped byte array, or null
    */
   public static final byte[] unzipBestEffort(byte[] in) {
     return unzipBestEffort(in, Integer.MAX_VALUE);
@@ -50,6 +52,9 @@ public class GZIPUtils {
    * <code>sizeLimit</code> bytes, if necessary. If the gzipped input has been
    * truncated or corrupted, a best-effort attempt is made to unzip as much as
    * possible. If no data can be extracted <code>null</code> is returned.
+   * @param in Byte array to gunzip
+   * @param sizeLimit Maximum size allowed for gunzipped byte array
+   * @return the gunzipped byte array, or null
    */
   public static final byte[] unzipBestEffort(byte[] in, int sizeLimit) {
     try {
@@ -91,7 +96,8 @@ public class GZIPUtils {
 
   /**
    * Returns an gunzipped copy of the input array.
-   * 
+   * @param in Byte array to gunzip
+   * @return the gunzipped byte array
    * @throws IOException
    *           if the input cannot be properly decompressed
    */
@@ -116,6 +122,8 @@ public class GZIPUtils {
 
   /**
    * Returns an gzipped copy of the input array.
+   * @param in Byte array to zip
+   * @return the zipped byte array
    */
   public static final byte[] zip(byte[] in) {
     try {

@@ -44,10 +44,11 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.SegmentReaderUtil;
 
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlScript;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.MapContext;
 
 /**
  * @see <a href='https://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a>
@@ -67,7 +68,7 @@ public class ReadHostDb extends Configured implements Tool {
     protected boolean dumpHomepages = false;
     protected boolean fieldHeader = true;
     protected Text emptyText = new Text();
-    protected Expression expr = null;
+    protected JexlScript expr = null;
 
     @Override
     public void setup(Context context) {
@@ -77,14 +78,10 @@ public class ReadHostDb extends Configured implements Tool {
       String expr = context.getConfiguration().get(HOSTDB_FILTER_EXPRESSION);
       if (expr != null) {
         // Create or retrieve a JexlEngine
-        JexlEngine jexl = new JexlEngine();
-        
-        // Dont't be silent and be strict
-        jexl.setSilent(true);
-        jexl.setStrict(true);
+        JexlEngine jexl = new JexlBuilder().silent(true).strict(true).create();
         
         // Create an expression object
-        this.expr = jexl.createExpression(expr);
+        this.expr = jexl.createScript(expr);
       }
     }
 
@@ -131,7 +128,7 @@ public class ReadHostDb extends Configured implements Tool {
         
         // Filter this record if evaluation did not pass
         try {
-          if (!Boolean.TRUE.equals(expr.evaluate(jcontext))) {
+          if (!Boolean.TRUE.equals(expr.execute(jcontext))) {
             return;
           }
         } catch (Exception e) {
