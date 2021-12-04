@@ -51,7 +51,6 @@ import org.apache.nutch.util.TimingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
 import com.timgroup.statsd.StatsDClient;
 
 import java.io.IOException;
@@ -86,7 +85,7 @@ import java.util.Random;
  * </pre>
  **/
 public class Injector extends NutchTool implements Tool {
-  static final Logger LOG = LoggerFactory
+  private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
   /** property to pass value of command-line option -filterNormalizeAll to mapper */
