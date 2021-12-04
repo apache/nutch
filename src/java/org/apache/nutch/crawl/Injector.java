@@ -152,7 +152,8 @@ public class Injector extends NutchTool implements Tool {
       this.curTime = conf.getLong("injector.current.time",
           System.currentTimeMillis());
       this.url404Purging = conf.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false);
-      if(conf.getBoolean("statsd.activate", false)) {
+      this.statsDActivate = conf.getBoolean("statsd.activate", false);
+      if(this.statsDActivate) {
         this.statsDClient = MetricsUtil.createNonBlockingStatsDClient(
                 conf.get("statsd.hostname", "localhost"),
                 conf.getInt("statsd.port", 8125),
@@ -253,6 +254,8 @@ public class Injector extends NutchTool implements Tool {
                 url, e.getMessage());
           }
           context.getCounter("injector", "urls_injected").increment(1);
+          if(this.statsDActivate);
+            this.statsDClient.incrementCounter("Injector.seed_status.new", 1);
           context.write(key, datum);
         }
       } else if (value instanceof CrawlDatum) {
@@ -263,6 +266,8 @@ public class Injector extends NutchTool implements Tool {
         // remove 404 urls
         if (this.url404Purging && CrawlDatum.STATUS_DB_GONE == datum.getStatus()) {
           context.getCounter("injector", "urls_purged_404").increment(1);
+          if(this.statsDActivate);
+            this.statsDClient.incrementCounter("Injector.seed_status.purged", 1);
           return;
         }
 
@@ -270,6 +275,8 @@ public class Injector extends NutchTool implements Tool {
           String url = filterNormalize(key.toString());
           if (url == null) {
             context.getCounter("injector", "urls_purged_filter").increment(1);
+            if(this.statsDActivate);
+              this.statsDClient.incrementCounter("Injector.seed_status.filtered", 1);
           } else {
             key.set(url);
             context.write(key, datum);
@@ -290,6 +297,8 @@ public class Injector extends NutchTool implements Tool {
     private boolean update = false;
     private CrawlDatum old = new CrawlDatum();
     private CrawlDatum injected = new CrawlDatum();
+    private StatsDClient statsDClient;
+    private boolean statsDActivate;
 
     @Override
     public void setup(Context context) {
@@ -300,6 +309,13 @@ public class Injector extends NutchTool implements Tool {
       this.update = conf.getBoolean("db.injector.update", false);
       LOG.info("Injector: overwrite: " + this.overwrite);
       LOG.info("Injector: update: " + this.update);
+      this.statsDActivate = conf.getBoolean("statsd.activate", false);
+      if(this.statsDActivate) {
+        this.statsDClient = MetricsUtil.createNonBlockingStatsDClient(
+                conf.get("statsd.hostname", "localhost"),
+                conf.getInt("statsd.port", 8125),
+                conf.get("statsd.prefix", "nutch"));
+      }
     }
 
     /**
@@ -356,6 +372,8 @@ public class Injector extends NutchTool implements Tool {
       }
       if (injectedSet && oldSet) {
         context.getCounter("injector", "urls_merged").increment(1);
+        if(this.statsDActivate);
+          this.statsDClient.incrementCounter("Injector.seed_status.merged", 1);
       }
       context.write(key, result);
     }
