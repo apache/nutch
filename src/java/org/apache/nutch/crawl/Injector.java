@@ -42,6 +42,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.LockUtil;
+import org.apache.nutch.util.MetricsUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
@@ -49,6 +50,9 @@ import org.apache.nutch.util.TimingUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.timgroup.statsd.NonBlockingStatsDClientBuilder;
+import com.timgroup.statsd.StatsDClient;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -82,7 +86,7 @@ import java.util.Random;
  * </pre>
  **/
 public class Injector extends NutchTool implements Tool {
-  private static final Logger LOG = LoggerFactory
+  static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
   /** property to pass value of command-line option -filterNormalizeAll to mapper */
@@ -127,36 +131,44 @@ public class Injector extends NutchTool implements Tool {
     private boolean url404Purging;
     private String scope;
     private boolean filterNormalizeAll = false;
+    private StatsDClient statsDClient;
+    private boolean statsDActivate;
 
     @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
       boolean normalize = conf.getBoolean(CrawlDbFilter.URL_NORMALIZING, true);
       boolean filter = conf.getBoolean(CrawlDbFilter.URL_FILTERING, true);
-      filterNormalizeAll = conf.getBoolean(URL_FILTER_NORMALIZE_ALL, false);
+      this.filterNormalizeAll = conf.getBoolean(URL_FILTER_NORMALIZE_ALL, false);
       if (normalize) {
-        scope = conf.get(URL_NORMALIZING_SCOPE, URLNormalizers.SCOPE_INJECT);
-        urlNormalizers = new URLNormalizers(conf, scope);
+        this.scope = conf.get(URL_NORMALIZING_SCOPE, URLNormalizers.SCOPE_INJECT);
+        this.urlNormalizers = new URLNormalizers(conf, this.scope);
       }
-      interval = conf.getInt("db.fetch.interval.default", 2592000);
+      this.interval = conf.getInt("db.fetch.interval.default", 2592000);
       if (filter) {
-        filters = new URLFilters(conf);
+        this.filters = new URLFilters(conf);
       }
-      scfilters = new ScoringFilters(conf);
-      scoreInjected = conf.getFloat("db.score.injected", 1.0f);
-      curTime = conf.getLong("injector.current.time",
+      this.scfilters = new ScoringFilters(conf);
+      this.scoreInjected = conf.getFloat("db.score.injected", 1.0f);
+      this.curTime = conf.getLong("injector.current.time",
           System.currentTimeMillis());
-      url404Purging = conf.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false);
+      this.url404Purging = conf.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false);
+      if(conf.getBoolean("statsd.activate", false)) {
+        this.statsDClient = MetricsUtil.createNonBlockingStatsDClient(
+                conf.get("statsd.hostname", "localhost"),
+                conf.getInt("statsd.port", 8125),
+                conf.get("statsd.prefix", "nutch"));
+      }
     }
 
     /* Filter and normalize the input url */
     private String filterNormalize(String url) {
       if (url != null) {
         try {
-          if (urlNormalizers != null)
-            url = urlNormalizers.normalize(url, scope); // normalize the url
-          if (filters != null)
-            url = filters.filter(url); // filter the url
+          if (this.urlNormalizers != null)
+            url = this.urlNormalizers.normalize(url, this.scope); // normalize the url
+          if (this.filters != null)
+            url = this.filters.filter(url); // filter the url
         } catch (Exception e) {
           LOG.warn("Skipping " + url + ":" + e);
           url = null;
@@ -169,7 +181,7 @@ public class Injector extends NutchTool implements Tool {
      * Extract metadata that could be passed along with url in a seeds file.
      * Metadata must be key-value pair(s) and separated by a TAB_CHARACTER
      */
-    private void processMetaData(String metadata, CrawlDatum datum,
+    private static void processMetaData(String metadata, CrawlDatum datum,
         String url) {
       String[] splits = metadata.split(TAB_CHARACTER);
 
@@ -220,12 +232,14 @@ public class Injector extends NutchTool implements Tool {
         url = filterNormalize(url);
         if (url == null) {
           context.getCounter("injector", "urls_filtered").increment(1);
+          if(this.statsDActivate);
+            this.statsDClient.incrementCounter("Injector.seed_status.filtered", 1);
         } else {
           CrawlDatum datum = new CrawlDatum();
           datum.setStatus(CrawlDatum.STATUS_INJECTED);
-          datum.setFetchTime(curTime);
-          datum.setScore(scoreInjected);
-          datum.setFetchInterval(interval);
+          datum.setFetchTime(this.curTime);
+          datum.setScore(this.scoreInjected);
+          datum.setFetchInterval(this.interval);
 
           String metadata = value.toString().trim();
           if (metadata.length() > 0)
@@ -233,7 +247,7 @@ public class Injector extends NutchTool implements Tool {
 
           try {
             key.set(url);
-            scfilters.injectedScore(key, datum);
+            this.scfilters.injectedScore(key, datum);
           } catch (ScoringFilterException e) {
             LOG.warn(
                 "Cannot filter injected score for url {}, using default ({})",
@@ -248,12 +262,12 @@ public class Injector extends NutchTool implements Tool {
         CrawlDatum datum = (CrawlDatum) value;
 
         // remove 404 urls
-        if (url404Purging && CrawlDatum.STATUS_DB_GONE == datum.getStatus()) {
+        if (this.url404Purging && CrawlDatum.STATUS_DB_GONE == datum.getStatus()) {
           context.getCounter("injector", "urls_purged_404").increment(1);
           return;
         }
 
-        if (filterNormalizeAll) {
+        if (this.filterNormalizeAll) {
           String url = filterNormalize(key.toString());
           if (url == null) {
             context.getCounter("injector", "urls_purged_filter").increment(1);
@@ -281,12 +295,12 @@ public class Injector extends NutchTool implements Tool {
     @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
-      interval = conf.getInt("db.fetch.interval.default", 2592000);
-      scoreInjected = conf.getFloat("db.score.injected", 1.0f);
-      overwrite = conf.getBoolean("db.injector.overwrite", false);
-      update = conf.getBoolean("db.injector.update", false);
-      LOG.info("Injector: overwrite: " + overwrite);
-      LOG.info("Injector: update: " + update);
+      this.interval = conf.getInt("db.fetch.interval.default", 2592000);
+      this.scoreInjected = conf.getFloat("db.score.injected", 1.0f);
+      this.overwrite = conf.getBoolean("db.injector.overwrite", false);
+      this.update = conf.getBoolean("db.injector.update", false);
+      LOG.info("Injector: overwrite: " + this.overwrite);
+      LOG.info("Injector: update: " + this.update);
     }
 
     /**
@@ -315,30 +329,30 @@ public class Injector extends NutchTool implements Tool {
       // newly injected record. All other statuses correspond to an old record.
       for (CrawlDatum val : values) {
         if (val.getStatus() == CrawlDatum.STATUS_INJECTED) {
-          injected.set(val);
-          injected.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
+          this.injected.set(val);
+          this.injected.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
           injectedSet = true;
         } else {
-          old.set(val);
+          this.old.set(val);
           oldSet = true;
         }
       }
 
       CrawlDatum result;
-      if (injectedSet && (!oldSet || overwrite)) {
+      if (injectedSet && (!oldSet || this.overwrite)) {
         // corresponds to rules (1) and (3.a) in the method description
-        result = injected;
+        result = this.injected;
       } else {
         // corresponds to rules (2) and (3.b) in the method description
-        result = old;
+        result = this.old;
 
-        if (injectedSet && update) {
+        if (injectedSet && this.update) {
           // corresponds to rule (3.b.ii) in the method description
-          old.putAllMetaData(injected);
-          old.setScore(injected.getScore() != scoreInjected
-              ? injected.getScore() : old.getScore());
-          old.setFetchInterval(injected.getFetchInterval() != interval
-              ? injected.getFetchInterval() : old.getFetchInterval());
+          this.old.putAllMetaData(this.injected);
+          this.old.setScore(this.injected.getScore() != this.scoreInjected
+              ? this.injected.getScore() : this.old.getScore());
+          this.old.setFetchInterval(this.injected.getFetchInterval() != this.interval
+              ? this.injected.getFetchInterval() : this.old.getFetchInterval());
         }
       }
       if (injectedSet && oldSet) {
@@ -487,7 +501,7 @@ public class Injector extends NutchTool implements Tool {
     }
   }
 
-  public void usage() {
+  public static void usage() {
     System.err.println(
         "Usage: Injector [-D...] <crawldb> <url_dir> [-overwrite|-update] [-noFilter] [-noNormalize] [-filterNormalizeAll]\n");
     System.err.println(

@@ -2822,4 +2822,31 @@ If true (default) the Sitemap parser rejects URLs not sharing the same
     Maximum sitemap size in bytes.
    </description>
 </property>
+
+<!-- StatsD metrics properties -->
+
+<property>
+  <name>statsd.activate</name>
+  <value>false</value>
+  <description>Whether to send Nutch application metrics to StatsD.</description>
+</property>
+
+<property>
+  <name>statsd.hostname</name>
+  <value>localhost</value>
+  <description>StatsD server host listening for messages.</description>
+</property>
+
+<property>
+  <name>statsd.port</name>
+  <value>8125</value>
+  <description>StatsD server port listening for messages.</description>
+</property>
+
+<property>
+  <name>statsd.prefix</name>
+  <value>nutch</value>
+  <description>Global prefix to use for sending Nutch stats to StatsD.</description>
+</property>
+
 </configuration>
