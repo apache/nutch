@@ -29,7 +29,8 @@
 #
 #   NUTCH_LOG_DIR   Log directory (default: $NUTCH_HOME/logs)
 #
-#   NUTCH_LOGFILE   Log file (default: hadoop.log)
+#   NUTCH_LOGFILE   Log file (default: nutch.log - if overridden, do not forget
+#                   to change the log file rotation patterns in conf/log4j2.xml)
 #
 #   NUTCH_CONF_DIR  Path(s) to configuration files (default: $NUTCH_HOME/conf).
 #                   Multiple paths must be separated by a colon ':'.
