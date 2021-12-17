@@ -134,6 +134,7 @@
 		<exclude module="jms" />
 		<exclude module="jmxri" />
 		<exclude module="slf4j-log4j12" />
+		<exclude module="log4j" /><!-- exclude log4j 1.x -->
 		<exclude org="com.thoughtworks.xstream" />
 
 	</dependencies>
