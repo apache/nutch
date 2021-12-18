@@ -23,8 +23,7 @@
      (eventually with different versions)
    - duplicated libs can be added to the exclusions of transitive dependencies in
        build/plugins/parse-tika/ivy.xml
-   - but it should be made sure that the library versions in ivy/ivy.xml correspond to
-     those required by Tika
+   - but the library versions in ivy/ivy.xml MUST correspond to those required by Tika
 
 5. Remove the locally "installed" dependencies in src/plugin/parse-tika/lib/:
 
