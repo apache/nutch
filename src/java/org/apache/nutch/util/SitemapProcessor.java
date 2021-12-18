@@ -63,21 +63,29 @@ import crawlercommons.sitemaps.SiteMapParser;
 import crawlercommons.sitemaps.SiteMapURL;
 
 /**
- * <p>Performs Sitemap processing by fetching sitemap links, parsing the content and merging
- * the urls from Sitemap (with the metadata) with the existing crawldb.</p>
+ * <p>
+ * Performs <a href="https://sitemaps.org/">sitemap</a> processing by fetching
+ * sitemap links, parsing the content and merging the URLs from sitemaps (with
+ * the metadata) into the CrawlDb.
+ * </p>
  *
- * <p>There are two use cases supported in Nutch's Sitemap processing:</p>
+ * <p>
+ * There are two use cases supported in Nutch's sitemap processing:
+ * </p>
  * <ol>
- *  <li>Sitemaps are considered as "remote seed lists". Crawl administrators can prepare a
- *     list of sitemap links and get only those sitemap pages. This suits well for targeted
- *     crawl of specific hosts.</li>
- *  <li>For open web crawl, it is not possible to track each host and get the sitemap links
- *     manually. Nutch would automatically get the sitemaps for all the hosts seen in the
- *     crawls and inject the urls from sitemap to the crawldb.</li>
+ * <li>Sitemaps are considered as "remote seed lists". Crawl administrators can
+ * prepare a list of sitemap links and inject and fetch only the pages listed in
+ * the sitemaps. This suits well for targeted crawl of specific hosts.</li>
+ * <li>For an open web crawl, it is not possible to track each host and get the
+ * sitemap links manually. Nutch automatically detects the sitemaps for all
+ * hosts seen in the crawls and present in the HostDb and injects the URLs from
+ * the sitemaps into the CrawlDb.</li>
  * </ol>
  *
- * <p>For more details see:
- *      https://cwiki.apache.org/confluence/display/NUTCH/SitemapFeature </p>
+ * <p>
+ * For more details see:
+ * https://cwiki.apache.org/confluence/display/NUTCH/SitemapFeature
+ * </p>
  */
 public class SitemapProcessor extends Configured implements Tool {
   public static final Logger LOG = LoggerFactory.getLogger(SitemapProcessor.class);
@@ -181,7 +189,7 @@ public class SitemapProcessor extends Configured implements Tool {
     private void generateSitemapsFromHostname(String host, Context context) {
       try {
         // For entry from hostdb, get sitemap url(s) from robots.txt, fetch the sitemap,
-        // extract urls and emit those
+        // extract URLs and emit those
 
         // try different combinations of schemes one by one till we get rejection in all cases
         String url;
@@ -385,8 +393,13 @@ public class SitemapProcessor extends Configured implements Tool {
     if (sitemapUrlDir != null)
       MultipleInputs.addInputPath(job, sitemapUrlDir, KeyValueTextInputFormat.class);
 
-    if (hostdb != null)
+    if (hostdb != null) {
       MultipleInputs.addInputPath(job, new Path(hostdb, CURRENT_NAME), SequenceFileInputFormat.class);
+      if (conf.getStrings("http.robot.rules.allowlist") != null) {
+        LOG.warn("Non-empty property \"http.robot.rules.allowlist\":"
+            + " sitemap discovery via robots.txt is not possible for the listed hosts!");
+      }
+    }
 
     FileOutputFormat.setOutputPath(job, tempCrawlDb);
 

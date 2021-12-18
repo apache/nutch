@@ -22,19 +22,7 @@
 
 <configuration>
 
-<!-- general properties  -->
-
-<property>
-  <name>store.ip.address</name>
-  <value>false</value>
-  <description>Enables us to capture the specific IP address 
-  (InetSocketAddress) of the host which we connect to via 
-  the given protocol. Currently supported is protocol-ftp and
-  http.
-  </description>
-</property>
-
-<!-- file properties -->
+<!-- protocol-file properties -->
 
 <property>
   <name>file.content.limit</name>
@@ -123,6 +111,12 @@
   <description>Comma separated list of hostnames or IP addresses to ignore 
   robot rules parsing for. Use with care and only if you are explicitly
   allowed by the site owner to ignore the site's robots.txt!
+  Also keep in mind: ignoring the robots.txt rules means that no robots.txt
+  file is requested which may cause the following side effects:
+  (1) undesired content (duplicates, private pages, etc.) excluded via
+      robotst.txt rules is crawled,
+  (2) the Crawl-Delay directive is ignored and
+  (3) no sitemaps are detected.
   </description>
 </property>
 
@@ -346,8 +340,8 @@
     supported, if false use always HTTP/1.1.
 
     NOTE: HTTP/2 is currently only supported by protocol-okhttp and
-    requires at runtime Java 9 or a modified Java 8 with support for
-    ALPN (Application Layer Protocol Negotiation).
+    requires at runtime Java 9 and upwards or a modified Java 8 with
+    support for ALPN (Application Layer Protocol Negotiation).
   </description>
 </property>
 
@@ -1000,12 +994,6 @@
   is 'byHost', also takes 'byDomain' or 'byIP'. Crawl delays are
   implemented on the level of fetcher queues.
   </description>
-</property>
-
-<property>
-  <name>fetcher.verbose</name>
-  <value>false</value>
-  <description>If true, fetcher will log more verbosely.</description>
 </property>
 
 <property>
@@ -2197,12 +2185,6 @@ Add scoring-metadata to the list of active plugins
   <description>Whether to delete gone pages from the web graph.</description>
 </property>
 
-<property> 
-  <name>link.loops.depth</name>
-  <value>2</value>
-  <description>The depth for the loops algorithm.</description>
-</property>
-
 <property>
   <name>link.score.updater.clear.score</name>
   <value>0.0f</value>
@@ -2460,12 +2442,26 @@ Add scoring-metadata to the list of active plugins
   </description>
 </property>
 
+<!-- general (HTTP) protocol plugin properties  -->
+
+<property>
+  <name>store.ip.address</name>
+  <value>false</value>
+  <description>Enables us to capture the specific IP address
+  (InetSocketAddress) of the host which we connect to via the given
+  protocol. Currently supported by: protocol-ftp, protocol-http,
+  protocol-okhttp, protocol-htmlunit, protocol-selenium.  Note that
+  the IP address is required by the plugin index-geoip and when
+  writing WARC files.
+  </description>
+</property>
+
 <property>
   <name>store.http.request</name>
   <value>false</value>
   <description>
-    Store the raw request made by Nutch, required to use the CommonCrawlDataDumper
-    tool for the WARC format.
+    Store the HTTP request headers sent by Nutch. Useful for debugging and
+    required when writing WARC files.
   </description>
 </property>
 
@@ -2473,8 +2469,8 @@ Add scoring-metadata to the list of active plugins
   <name>store.http.headers</name>
   <value>false</value>
   <description>
-    Store the raw headers received by Nutch from the server, required to use the 
-    CommonCrawlDataDumper tool for the WARC format.
+    Store the HTTP response headers received by Nutch from the
+    server. Useful for debugging and required when writing WARC files.
   </description>
 </property>
 
@@ -2630,18 +2626,12 @@ Add scoring-metadata to the list of active plugins
   </description>
 </property>
 
-<!-- publisher properties 
-      Do not forget to add the name of your publisher implementation 
-      in plugin.includes ex- publish-rabbitmq -->
-<property>
-  <name>publisher.queue.type</name>
-  <value></value>
-  <description>
-    Choose the type of Queue being used (ex - RabbitMQ, ActiveMq, Kafka, etc). 
-    Currently there exists an implementation for RabbitMQ producer.
-  </description>
-</property>
+<!-- publisher properties
 
+Note: a publisher implementation is enabled by adding the
+corresponding plugin to plugin.includes. Currently, there exists only
+one publisher implementation for RabbitMQ (plugin publish-rabbitmq).
+-->
 <property>
   <name>publisher.order</name>
   <value></value>
