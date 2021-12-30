@@ -80,7 +80,8 @@
     </fileset>
     <!-- global test dependencies -->
     <fileset dir="${nutch.root}/build/test/lib">
-      <include name="*.jar" />
+      <include name="junit*.jar" />
+      <include name="hamcrest*.jar" />
     </fileset>
     <path refid="classpath"/>
   </path>
