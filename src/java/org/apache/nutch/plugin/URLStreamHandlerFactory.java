@@ -21,7 +21,6 @@ import java.net.URL;
 import java.net.URLStreamHandler;
 import java.util.ArrayList;
 
-import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,24 +48,25 @@ public class URLStreamHandlerFactory
    * a memory leak, this class must not keep references to PluginRepository
    * but use WeakReference which allows PluginRepository to still be
    * garbage collected. The prize is we need to clean the list for
-   * outdated references which is done in the {@link removeInvalidRefs} method.  
+   * outdated references which is done in the {@link #removeInvalidRefs()} method.
    */
   private ArrayList<WeakReference<PluginRepository>> prs;
   
   static {
     instance = new URLStreamHandlerFactory();
     URL.setURLStreamHandlerFactory(instance);
-    LOG.info("Registered URLStreamHandlerFactory with the JVM.");
+    LOG.debug("Registered URLStreamHandlerFactory with the JVM.");
   }
   
   private URLStreamHandlerFactory() {
-    LOG.debug("URLStreamHandlerFactory()");
     prs = new ArrayList<>();
   }
 
-  /** Return the singleton instance of this class. */
+  /** 
+   * Get the singleton instance of this class.
+   * @return a {@link org.apache.nutch.plugin.URLStreamHandlerFactory} instance 
+   */
   public static URLStreamHandlerFactory getInstance() {
-    LOG.debug("getInstance()");
     return instance;
   }
   
@@ -75,7 +75,6 @@ public class URLStreamHandlerFactory
    * @param pr The PluginRepository to be registered.
    */
   public void registerPluginRepository(PluginRepository pr) {
-    LOG.debug("registerPluginRepository(...)");
     prs.add(new WeakReference<PluginRepository>(pr));
     
     removeInvalidRefs();
@@ -83,13 +82,12 @@ public class URLStreamHandlerFactory
 
   @Override
   public URLStreamHandler createURLStreamHandler(String protocol) {
-    LOG.debug("createURLStreamHandler({})", protocol);
+    LOG.debug("Creating URLStreamHandler for protocol: {}", protocol);
     
     removeInvalidRefs();
     
     // find the 'correct' PluginRepository. For now we simply take the first.
     // then ask it to return the URLStreamHandler
-
     for(WeakReference<PluginRepository> ref: prs) {
       PluginRepository pr = ref.get();
       if(pr != null) {
@@ -112,6 +110,6 @@ public class URLStreamHandlerFactory
         prs.remove(ref);
       }
     }
-    LOG.debug("removed {} references, remaining {}", copy.size()-prs.size(), prs.size());
+    LOG.debug("Removed the following invalid references: '{}' Remaining: '{}'", copy.size()-prs.size(), prs.size());
   }
 }

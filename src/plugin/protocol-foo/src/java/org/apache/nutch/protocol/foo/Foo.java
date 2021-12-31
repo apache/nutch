@@ -25,7 +25,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
-import org.apache.nutch.plugin.URLStreamHandlerFactory;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
@@ -44,12 +43,11 @@ public class Foo implements Protocol {
   @Override
   public Configuration getConf() {
     LOG.debug("getConf()");
-    return conf;
+    return this.conf;
   }
 
   @Override
   public void setConf(Configuration conf) {
-    LOG.debug("setConf(...)");
     this.conf = conf;
   }
 
@@ -129,7 +127,7 @@ public class Foo implements Protocol {
     } catch (MalformedURLException mue) {
       LOG.error("Could not retrieve {}", url);
       LOG.error("", mue);
-      // clain STATUS_GONE to tell nutch to never ever re-request this URL
+      // claim STATUS_GONE to tell nutch to never ever re-request this URL
       return new ProtocolOutput(null, ProtocolStatus.STATUS_GONE);
     }
   }
@@ -137,8 +135,7 @@ public class Foo implements Protocol {
   @Override
   public BaseRobotRules getRobotRules(Text url, CrawlDatum datum,
       List<Content> robotsTxtContent) {
-    LOG.debug(
-        "getRobotRules({}, {}, {})", url, datum, robotsTxtContent);
+    LOG.debug("getRobotRules({}, {}, {})", url, datum, robotsTxtContent);
     return RobotRulesParser.EMPTY_RULES;
   }
 }

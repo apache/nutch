@@ -29,10 +29,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.hadoop.conf.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -40,8 +39,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * The <code>PluginManifestParser</code> parser just parse the manifest file in
- * all plugin directories.
+ * The <code>PluginManifestParser</code> provides a mechanism for
+ * parsing Nutch plugin manifest files (<code>plugin.xml</code>) contained
+ * in a {@link java.lang.String[]} of plugin directories.
  * 
  * @author joa23
  */
@@ -50,18 +50,15 @@ public class PluginManifestParser {
   private static final String ATTR_CLASS = "class";
   private static final String ATTR_ID = "id";
 
-  protected static final Logger LOG = LoggerFactory
-      .getLogger(PluginManifestParser.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(PluginManifestParser.class);
 
-  private static final boolean WINDOWS = System.getProperty("os.name")
-      .startsWith("Windows");
+  private static final boolean WINDOWS = System.getProperty("os.name").startsWith("Windows");
 
   private Configuration conf;
 
   private PluginRepository pluginRepository;
 
-  public PluginManifestParser(Configuration conf,
-      PluginRepository pluginRepository) {
+  public PluginManifestParser(Configuration conf, PluginRepository pluginRepository) {
     this.conf = conf;
     this.pluginRepository = pluginRepository;
   }
@@ -73,8 +70,7 @@ public class PluginManifestParser {
    *          folders to search plugins from
    * @return A {@link Map} of all found {@link PluginDescriptor}s.
    */
-  public Map<String, PluginDescriptor> parsePluginFolder(
-      String[] pluginFolders) {
+  public Map<String, PluginDescriptor> parsePluginFolder(String[] pluginFolders) {
     Map<String, PluginDescriptor> map = new HashMap<>();
 
     if (pluginFolders == null) {
@@ -86,18 +82,17 @@ public class PluginManifestParser {
       if (directory == null) {
         continue;
       }
-      LOG.info("Plugins: looking in: " + directory.getAbsolutePath());
+      LOG.info("Plugins: looking in: {}", directory.getAbsolutePath());
       for (File oneSubFolder : directory.listFiles()) {
         if (oneSubFolder.isDirectory()) {
           String manifestPath = oneSubFolder.getAbsolutePath() + File.separator
-              + "plugin.xml";
+                  + "plugin.xml";
           try {
-            LOG.debug("parsing: " + manifestPath);
+            LOG.debug("Parsing: {}", manifestPath);
             PluginDescriptor p = parseManifestFile(manifestPath);
             map.put(p.getPluginId(), p);
           } catch (Exception e) {
-            LOG.warn("Error while loading plugin `" + manifestPath + "` "
-                + e.toString());
+            LOG.warn("Error while loading plugin {}: {}", manifestPath, e.toString());
           }
         }
       }
@@ -116,13 +111,13 @@ public class PluginManifestParser {
     if (!directory.isAbsolute()) {
       URL url = PluginManifestParser.class.getClassLoader().getResource(name);
       if (url == null && directory.exists() && directory.isDirectory()
-          && directory.listFiles().length > 0) {
+              && directory.listFiles().length > 0) {
         return directory; // relative path that is not in the classpath
       } else if (url == null) {
-        LOG.warn("Plugins: directory not found: " + name);
+        LOG.warn("Plugins: directory not found: {}", name);
         return null;
       } else if (!"file".equals(url.getProtocol())) {
-        LOG.warn("Plugins: not a file: url. Can't load plugins from: " + url);
+        LOG.warn("Plugins: not a file: url. Can't load plugins from: {}", url);
         return null;
       }
       String path = url.getPath();
@@ -134,7 +129,7 @@ public class PluginManifestParser {
       }
       directory = new File(path);
     } else if (!directory.exists()) {
-      LOG.warn("Plugins: directory not found: " + name);
+      LOG.warn("Plugins: directory not found: {}", name);
       return null;
     }
     return directory;
@@ -148,8 +143,8 @@ public class PluginManifestParser {
    * @throws MalformedURLException
    */
   private PluginDescriptor parseManifestFile(String pManifestPath)
-      throws MalformedURLException, SAXException, IOException,
-      ParserConfigurationException {
+          throws MalformedURLException, SAXException, IOException,
+          ParserConfigurationException {
     Document document = parseXML(new File(pManifestPath).toURI().toURL());
     String pPath = new File(pManifestPath).getParent();
     return parsePlugin(document, pPath);
@@ -164,7 +159,7 @@ public class PluginManifestParser {
    * @throws DocumentException
    */
   private Document parseXML(URL url)
-      throws SAXException, IOException, ParserConfigurationException {
+          throws SAXException, IOException, ParserConfigurationException {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder = factory.newDocumentBuilder();
     return builder.parse(url.openStream());
@@ -175,7 +170,7 @@ public class PluginManifestParser {
    * @throws MalformedURLException
    */
   private PluginDescriptor parsePlugin(Document pDocument, String pPath)
-      throws MalformedURLException {
+          throws MalformedURLException {
     Element rootElement = pDocument.getDocumentElement();
     String id = rootElement.getAttribute(ATTR_ID);
     String name = rootElement.getAttribute(ATTR_NAME);
@@ -186,9 +181,9 @@ public class PluginManifestParser {
       pluginClazz = rootElement.getAttribute(ATTR_CLASS);
     }
     PluginDescriptor pluginDescriptor = new PluginDescriptor(id, version, name,
-        providerName, pluginClazz, pPath, this.conf);
-    LOG.debug("plugin: id=" + id + " name=" + name + " version=" + version
-        + " provider=" + providerName + "class=" + pluginClazz);
+            providerName, pluginClazz, pPath, this.conf);
+    LOG.debug("plugin: id={} name={} version={} provider={} class={}", 
+            id, name, version, providerName, pluginClazz);
     parseExtension(rootElement, pluginDescriptor);
     parseExtensionPoints(rootElement, pluginDescriptor);
     parseLibraries(rootElement, pluginDescriptor);
@@ -202,7 +197,7 @@ public class PluginManifestParser {
    * @throws MalformedURLException
    */
   private void parseRequires(Element pRootElement, PluginDescriptor pDescriptor)
-      throws MalformedURLException {
+          throws MalformedURLException {
 
     NodeList nodelist = pRootElement.getElementsByTagName("requires");
     if (nodelist.getLength() > 0) {
@@ -226,7 +221,7 @@ public class PluginManifestParser {
    * @throws MalformedURLException
    */
   private void parseLibraries(Element pRootElement,
-      PluginDescriptor pDescriptor) throws MalformedURLException {
+          PluginDescriptor pDescriptor) throws MalformedURLException {
     NodeList nodelist = pRootElement.getElementsByTagName("runtime");
     if (nodelist.getLength() > 0) {
 
@@ -251,7 +246,7 @@ public class PluginManifestParser {
    * @param pluginDescriptor
    */
   private void parseExtensionPoints(Element pRootElement,
-      PluginDescriptor pPluginDescriptor) {
+          PluginDescriptor pPluginDescriptor) {
     NodeList list = pRootElement.getElementsByTagName("extension-point");
     if (list != null) {
       for (int i = 0; i < list.getLength(); i++) {
@@ -270,7 +265,7 @@ public class PluginManifestParser {
    * @param pluginDescriptor
    */
   private void parseExtension(Element pRootElement,
-      PluginDescriptor pPluginDescriptor) {
+          PluginDescriptor pPluginDescriptor) {
     NodeList extensions = pRootElement.getElementsByTagName("extension");
     if (extensions != null) {
       for (int i = 0; i < extensions.getLength(); i++) {
@@ -289,14 +284,14 @@ public class PluginManifestParser {
             String extensionClass = oneImplementation.getAttribute(ATTR_CLASS);
             LOG.debug("impl: point=" + pointId + " class=" + extensionClass);
             Extension extension = new Extension(pPluginDescriptor, pointId, id,
-                extensionClass, this.conf, this.pluginRepository);
+                    extensionClass, this.conf, this.pluginRepository);
             NodeList parameters = oneImplementation
-                .getElementsByTagName("parameter");
+                    .getElementsByTagName("parameter");
             if (parameters != null) {
               for (int k = 0; k < parameters.getLength(); k++) {
                 Element param = (Element) parameters.item(k);
                 extension.addAttribute(param.getAttribute(ATTR_NAME),
-                    param.getAttribute("value"));
+                        param.getAttribute("value"));
               }
             }
             pPluginDescriptor.addExtension(extension);

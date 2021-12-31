@@ -21,36 +21,37 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.WeakHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.ObjectCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * The plugin repositority is a registry of all plugins.
+ * <p>The plugin repositority is a registry of all plugins.</p>
  * 
- * At system boot up a repositority is built by parsing the mainifest files of
+ * <p>At system boot up a repositority is built by parsing the mainifest files of
  * all plugins. Plugins that require other plugins which do not exist are not
  * registed. For each plugin a plugin descriptor instance will be created. The
  * descriptor represents all meta information about a plugin. So a plugin
  * instance will be created later when it is required, this allow lazy plugin
- * loading.
+ * loading.</p>
  *
- * As protocol-plugins need to be registered with the JVM as well, this class
- * also acts as URLStreamHanderFactory that registers with the JVM and supports
- * all the new protocols as if they were native. Details how the JVM creates
- * URLs can be seen in the API documentation for the URL constructor.
+ * <p>As protocol-plugins need to be registered with the JVM as well, this class
+ * also acts as an {@link java.net.URLStreamHandlerFactory} that registers with
+ * the JVM and supports all the new protocols as if they were native. Details of
+ * how the JVM creates URLs can be seen in the API documentation for the
+ * <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/net/URL.html#%3Cinit%3E(java.lang.String,java.lang.String,int,java.lang.String)">URL constructor</a>.</p>
  */
 public class PluginRepository implements URLStreamHandlerFactory {
   private static final WeakHashMap<String, PluginRepository> CACHE = new WeakHashMap<>();
@@ -67,8 +68,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   private Configuration conf;
 
-  protected static final Logger LOG = LoggerFactory
-      .getLogger(MethodHandles.lookup().lookupClass());
+  protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   /**
    * @param conf a populated {@link Configuration}
@@ -81,19 +81,19 @@ public class PluginRepository implements URLStreamHandlerFactory {
     this.auto = conf.getBoolean("plugin.auto-activation", true);
     String[] pluginFolders = conf.getStrings("plugin.folders");
     PluginManifestParser manifestParser = new PluginManifestParser(this.conf,
-        this);
+            this);
     Map<String, PluginDescriptor> allPlugins = manifestParser
-        .parsePluginFolder(pluginFolders);
+            .parsePluginFolder(pluginFolders);
     if (allPlugins.isEmpty()) {
       LOG.warn("No plugins found on paths of property plugin.folders=\"{}\"",
-          conf.get("plugin.folders"));
+              conf.get("plugin.folders"));
     }
     Pattern excludes = Pattern.compile(conf.get("plugin.excludes", ""));
     Pattern includes = Pattern.compile(conf.get("plugin.includes", ""));
     Map<String, PluginDescriptor> filteredPlugins = filter(excludes, includes,
-        allPlugins);
+            allPlugins);
     fRegisteredPlugins = getDependencyCheckedPlugins(filteredPlugins,
-        this.auto ? allPlugins : filteredPlugins);
+            this.auto ? allPlugins : filteredPlugins);
     installExtensionPoints(fRegisteredPlugins);
     try {
       installExtensions(fRegisteredPlugins);
@@ -143,7 +143,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @param pRegisteredPlugins
    */
   private void installExtensions(List<PluginDescriptor> pRegisteredPlugins)
-      throws PluginRuntimeException {
+          throws PluginRuntimeException {
 
     for (PluginDescriptor descriptor : pRegisteredPlugins) {
       for (Extension extension : descriptor.getExtensions()) {
@@ -151,7 +151,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
         ExtensionPoint point = getExtensionPoint(xpId);
         if (point == null) {
           throw new PluginRuntimeException("Plugin (" + descriptor.getPluginId()
-              + "), " + "extension point: " + xpId + " does not exist.");
+          + "), " + "extension point: " + xpId + " does not exist.");
         }
         point.addExtension(extension);
       }
@@ -159,10 +159,10 @@ public class PluginRepository implements URLStreamHandlerFactory {
   }
 
   private void getPluginCheckedDependencies(PluginDescriptor plugin,
-      Map<String, PluginDescriptor> plugins,
-      Map<String, PluginDescriptor> dependencies,
-      Map<String, PluginDescriptor> branch)
-      throws MissingDependencyException, CircularDependencyException {
+          Map<String, PluginDescriptor> plugins,
+          Map<String, PluginDescriptor> dependencies,
+          Map<String, PluginDescriptor> branch)
+                  throws MissingDependencyException, CircularDependencyException {
 
     if (dependencies == null) {
       dependencies = new HashMap<>();
@@ -177,23 +177,23 @@ public class PluginRepository implements URLStreamHandlerFactory {
       PluginDescriptor dependency = plugins.get(id);
       if (dependency == null) {
         throw new MissingDependencyException(
-            "Missing dependency " + id + " for plugin " + plugin.getPluginId());
+                "Missing dependency " + id + " for plugin " + plugin.getPluginId());
       }
       if (branch.containsKey(id)) {
         throw new CircularDependencyException("Circular dependency detected "
-            + id + " for plugin " + plugin.getPluginId());
+                + id + " for plugin " + plugin.getPluginId());
       }
       dependencies.put(id, dependency);
       getPluginCheckedDependencies(plugins.get(id), plugins, dependencies,
-          branch);
+              branch);
     }
 
     branch.remove(plugin.getPluginId());
   }
 
   private Map<String, PluginDescriptor> getPluginCheckedDependencies(
-      PluginDescriptor plugin, Map<String, PluginDescriptor> plugins)
-      throws MissingDependencyException, CircularDependencyException {
+          PluginDescriptor plugin, Map<String, PluginDescriptor> plugins)
+                  throws MissingDependencyException, CircularDependencyException {
     Map<String, PluginDescriptor> dependencies = new HashMap<>();
     Map<String, PluginDescriptor> branch = new HashMap<>();
     getPluginCheckedDependencies(plugin, plugins, dependencies, branch);
@@ -208,8 +208,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @return List
    */
   private List<PluginDescriptor> getDependencyCheckedPlugins(
-      Map<String, PluginDescriptor> filtered,
-      Map<String, PluginDescriptor> all) {
+          Map<String, PluginDescriptor> filtered,
+          Map<String, PluginDescriptor> all) {
     if (filtered == null) {
       return null;
     }
@@ -220,7 +220,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
         checked.putAll(getPluginCheckedDependencies(plugin, all));
         checked.put(plugin.getPluginId(), plugin);
       } catch (MissingDependencyException mde) {
-        // Logger exception and ignore plugin
+        // Log exception and ignore plugin
         LOG.warn(mde.getMessage());
       } catch (CircularDependencyException cde) {
         // Simply ignore this plugin
@@ -237,7 +237,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    */
   public PluginDescriptor[] getPluginDescriptors() {
     return fRegisteredPlugins
-        .toArray(new PluginDescriptor[fRegisteredPlugins.size()]);
+            .toArray(new PluginDescriptor[fRegisteredPlugins.size()]);
   }
 
   /**
@@ -266,14 +266,14 @@ public class PluginRepository implements URLStreamHandlerFactory {
   }
 
   /**
-   * Returns a instance of a plugin. Plugin instances are cached. So a plugin
+   * <p>Returns a instance of a plugin. Plugin instances are cached. So a plugin
    * exist only as one instance. This allow a central management of plugin own
-   * resources.
+   * resources.</p>
    * 
-   * After creating the plugin instance the startUp() method is invoked. The
+   * <p>After creating the plugin instance the startUp() method is invoked. The
    * plugin use a own classloader that is used as well by all instance of
    * extensions of the same plugin. This class loader use all exported libraries
-   * from the dependend plugins and all plugin libraries.
+   * from the dependend plugins and all plugin libraries.</p>
    * 
    * @param pDescriptor a {@link PluginDescriptor} for which to retrieve a 
    * {@link Plugin} instance
@@ -281,7 +281,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @throws PluginRuntimeException if there is a fatal runtime plugin error
    */
   public Plugin getPluginInstance(PluginDescriptor pDescriptor)
-      throws PluginRuntimeException {
+          throws PluginRuntimeException {
     if (fActivatedPlugins.containsKey(pDescriptor.getPluginId()))
       return fActivatedPlugins.get(pDescriptor.getPluginId());
     try {
@@ -291,11 +291,11 @@ public class PluginRepository implements URLStreamHandlerFactory {
       // Suggested by Stefan Groschupf <sg@media-style.com>
       synchronized (pDescriptor) {
         Class<?> pluginClass = getCachedClass(pDescriptor,
-            pDescriptor.getPluginClass());
+                pDescriptor.getPluginClass());
         Constructor<?> constructor = pluginClass.getConstructor(
-            new Class<?>[] { PluginDescriptor.class, Configuration.class });
+                new Class<?>[] { PluginDescriptor.class, Configuration.class });
         Plugin plugin = (Plugin) constructor
-            .newInstance(new Object[] { pDescriptor, this.conf });
+                .newInstance(new Object[] { pDescriptor, this.conf });
         plugin.startUp();
         fActivatedPlugins.put(pDescriptor.getPluginId(), plugin);
         return plugin;
@@ -313,11 +313,13 @@ public class PluginRepository implements URLStreamHandlerFactory {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**
+   * Attempts to shut down all activated plugins.
+   * @deprecated
+   * @see <a href="https://openjdk.java.net/jeps/421">JEP 421: Deprecate Finalization for Removal</a>
    * @see java.lang.Object#finalize()
    */
+  @Deprecated
   public void finalize() throws Throwable {
     shutDownActivatedPlugins();
   }
@@ -334,7 +336,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
   }
 
   public Class getCachedClass(PluginDescriptor pDescriptor, String className)
-      throws ClassNotFoundException {
+          throws ClassNotFoundException {
     Map<PluginClassLoader, Class> descMap = CLASS_CACHE.get(className);
     if (descMap == null) {
       descMap = new HashMap<>();
@@ -383,7 +385,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @return map of plugins matching the configuration
    */
   private Map<String, PluginDescriptor> filter(Pattern excludes,
-      Pattern includes, Map<String, PluginDescriptor> plugins) {
+          Pattern includes, Map<String, PluginDescriptor> plugins) {
 
     Map<String, PluginDescriptor> map = new HashMap<>();
 
@@ -430,7 +432,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @return array of plugin instances
    */
   public synchronized Object[] getOrderedPlugins(Class<?> clazz,
-      String xPointId, String orderProperty) {
+          String xPointId, String orderProperty) {
     Object[] filters;
     ObjectCache objectCache = ObjectCache.get(conf);
     filters = (Object[]) objectCache.getObject(clazz.getName());
@@ -446,7 +448,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
       try {
         ExtensionPoint point = PluginRepository.get(conf)
-            .getExtensionPoint(xPointId);
+                .getExtensionPoint(xPointId);
         if (point == null)
           throw new RuntimeException(xPointId + " not found.");
         Extension[] extensions = point.getExtensions();
@@ -464,8 +466,9 @@ public class PluginRepository implements URLStreamHandlerFactory {
         for (String orderedFilter : orderOfFilters) {
           Object f = filterMap.get(orderedFilter);
           if (f == null) {
-            LOG.error("{} : {} declared in configuration property {} but not found in an active plugin - ignoring.", clazz.getSimpleName(), orderedFilter
-                , orderProperty);
+            LOG.error("{} : {} declared in configuration property {} "
+                    + "but not found in an active plugin - ignoring.", 
+                    clazz.getSimpleName(), orderedFilter, orderProperty);
             continue;
           }
           sorted.add(f);
@@ -475,7 +478,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
           filter[i] = sorted.get(i);
           if (LOG.isTraceEnabled()) {
             LOG.trace("{} : filters[{}] = {}", clazz.getSimpleName() , i,
-                filter[i].getClass());
+                    filter[i].getClass());
           }
         }
         objectCache.setObject(clazz.getName(), filter);
@@ -501,7 +504,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println(
-          "Usage: PluginRepository pluginId className [arg1 arg2 ...]");
+              "Usage: PluginRepository pluginId className [arg1 arg2 ...]");
       return;
     }
     Configuration conf = NutchConfiguration.create();
@@ -519,7 +522,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
       clazz = Class.forName(args[1], true, cl);
     } catch (Exception e) {
       System.err.println(
-          "Could not load the class '" + args[1] + ": " + e.getMessage());
+              "Could not load the class '" + args[1] + ": " + e.getMessage());
       return;
     }
     Method m = null;
@@ -527,7 +530,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
       m = clazz.getMethod("main", new Class<?>[] { args.getClass() });
     } catch (Exception e) {
       System.err.println("Could not find the 'main(String[])' method in class "
-          + args[1] + ": " + e.getMessage());
+              + args[1] + ": " + e.getMessage());
       return;
     }
     String[] subargs = new String[args.length - 2];
@@ -545,15 +548,16 @@ public class PluginRepository implements URLStreamHandlerFactory {
   }
 
   /**
-   * Invoked whenever a java.net.URL needs to be instantiated. Tries to find a
-   * suitable extension and allow it to provide a URLStreamHandler. This is done
-   * by several attempts:
+   * <p>Invoked whenever a {@link java.net.URL} needs to be instantiated. Tries to find a
+   * suitable extension and allows it to provide a {@link java.net.URLStreamHandler}.</p> 
+   * This is done by several attempts:
    * <ul>
    * <li>Find a protocol plugin that implements the desired protocol. If found,
-   * instantiate it so eventually the plugin can install a URLStreamHandler
+   * instantiate it so eventually the plugin can install a {@link java.net.URLStreamHandler}
    * through a static hook.</li>
-   * <li>If the plugin specifies a URLStreamHandler in its <tt>plugin.xml</tt>,
-   * return an instance of this URLStreamHandler. Example:
+   * <li>If the plugin specifies a {@link java.net.URLStreamHandler} in its 
+   * <code>plugin.xml</code> manifest, return an instance of this 
+   * {@link java.net.URLStreamHandler}. Example:
    * 
    * <pre>
    *  ...
@@ -563,28 +567,27 @@ public class PluginRepository implements URLStreamHandlerFactory {
    *  &lt;/implementation&gt;
    *  ...
    * </pre>
-   * 
    * </li>
-   * <li>if all else fails, return null. This will fallback to the JVM's method
-   * of evaluating the system property <tt>java.protocol.handler.pkgs</tt>.</li>
+   * <li>If all else fails, return null. This will fallback to the JVM's method
+   * of evaluating the system property <code>java.protocol.handler.pkgs</code>.</li>
    * </ul>
    * 
    * @return the URLStreamHandler found, or null.
    * @see java.net.URL
+   * @see <a href="https://issues.apache.org/jira/browse/NUTCH-2429">NUTCH-2429</a>
    */
   public URLStreamHandler createURLStreamHandler(String protocol) {
-    LOG.debug("createURLStreamHandler({})", protocol);
+    LOG.debug("Creating URLStreamHandler for protocol: {}", protocol);
 
     if (fExtensionPoints != null) {
       ExtensionPoint ep = fExtensionPoints
-          .get("org.apache.nutch.protocol.Protocol");
+              .get("org.apache.nutch.protocol.Protocol");
       if (ep != null) {
         Extension[] extensions = ep.getExtensions();
         for (Extension extension : extensions) {
           String p = extension.getAttribute("protocolName");
-          LOG.trace("Found {}", p);
           if (p.equals(protocol)) {
-            LOG.debug("suitable {}", p);
+            LOG.debug("Suitable protocolName attribute located: {}", p);
 
             // instantiate the plugin. This allows it to execute a static hook,
             // if present. Extensions and PluginInstances are cached already, so we
@@ -592,36 +595,34 @@ public class PluginRepository implements URLStreamHandlerFactory {
             Object extinst = null;
             try {
               extinst = extension.getExtensionInstance();
-              LOG.debug("found {}", extinst.getClass().getName());
+              LOG.debug("Located extension instance class: {}", extinst.getClass().getName());
             } catch (Exception e) {
               LOG.warn("Could not find {}", extension.getId(), e);
             }
 
             // return the handler here, if possible
             String handlerClass = extension.getAttribute("urlStreamHandler");
-            LOG.debug("urlStreamHandler={}", handlerClass);
+            LOG.debug("Located URLStreamHandler: {}", handlerClass);
             if (handlerClass != null) {
-              // instantiate the handler and return it
-              ClassLoader cl = this.getClass().getClassLoader(); // the nutch
-                                                                 // classloader
-              LOG.trace("Using nutch classloader {}", cl);
+              // the nutch classloader
+              ClassLoader cl = this.getClass().getClassLoader();
               if (extinst != null) {
-                cl = extinst.getClass().getClassLoader(); // the extension's
-                                                          // classloader
-                LOG.trace("Using extension classloader {}", cl);
+                // the extension's classloader
+                cl = extinst.getClass().getClassLoader();
               }
 
               try {
-                Class clazz = cl.loadClass(handlerClass);
-                return (URLStreamHandler) clazz.newInstance();
+                // instantiate the handler and return it
+                Class<?> clazz = cl.loadClass(handlerClass);
+                return (URLStreamHandler) clazz.getDeclaredConstructor().newInstance();
               } catch (Exception e) {
-                LOG.error("Could not instantiate protocol {} handler class {} defined by extension {}", protocol, handlerClass, extension.getId(), e);
+                LOG.error("Could not instantiate protocol {} handler class {} defined by extension {}", 
+                        protocol, handlerClass, extension.getId(), e);
                 return null;
               }
             }
 
-            LOG.debug(
-                "suitable protocol extension found that did not declare a handler");
+            LOG.debug("suitable protocol extension found that did not declare a handler");
             return null;
           }
         }

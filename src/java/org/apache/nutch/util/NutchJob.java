@@ -19,12 +19,13 @@ package org.apache.nutch.util;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.nutch.plugin.PluginRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** A {@link Job} for Nutch jobs. */
 public class NutchJob extends Job {
@@ -35,6 +36,11 @@ public class NutchJob extends Job {
   @SuppressWarnings("deprecation")
   public NutchJob(Configuration conf, String jobName) throws IOException {
     super(conf, jobName);
+    if (conf != null) {
+      // initialize plugins early to register URL stream handlers to support
+      // custom protocol implementations
+      PluginRepository.get(conf);
+    }
   }
 
   public static Job getInstance(Configuration conf) throws IOException {
