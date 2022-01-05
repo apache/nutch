@@ -325,8 +325,8 @@ public class DeduplicationJob extends NutchTool implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "Crawl job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
+        String message = "Crawl job did not succeed, job id: " + job.getJobID()
+            + ", job status:" + job.getStatus().getState() + ", reason: "
             + job.getStatus().getFailureInfo();
         LOG.error(message);
         fs.delete(tempDir, true);
@@ -359,8 +359,8 @@ public class DeduplicationJob extends NutchTool implements Tool {
     try {
       boolean success = mergeJob.waitForCompletion(true);
       if (!success) {
-        String message = "Crawl job did not succeed, job status:"
-            + mergeJob.getStatus().getState() + ", reason: "
+        String message = "Crawl job did not succeed, job id: " + job.getJobID()
+            + ", job status:" + mergeJob.getStatus().getState() + ", reason: "
             + mergeJob.getStatus().getFailureInfo();
         LOG.error(message);
         fs.delete(tempDir, true);

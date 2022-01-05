@@ -891,9 +891,9 @@ public class Generator extends NutchTool implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "Generator job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = "Generator job did not succeed, job id: "
+            + job.getJobID() + ", job status:" + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         NutchJob.cleanupAfterFailure(tempDir, lock, fs);
         throw new RuntimeException(message);
@@ -969,9 +969,9 @@ public class Generator extends NutchTool implements Tool {
       try {
         boolean success = job.waitForCompletion(true);
         if (!success) {
-          String message = "Generator job did not succeed, job status:"
-              + job.getStatus().getState() + ", reason: "
-              + job.getStatus().getFailureInfo();
+          String message = "Generator job did not succeed, job id: "
+              + job.getJobID() + " job status:" + job.getStatus().getState()
+              + ", reason: " + job.getStatus().getFailureInfo();
           LOG.error(message);
           NutchJob.cleanupAfterFailure(tempDir, lock, fs);
           NutchJob.cleanupAfterFailure(tempDir2, lock, fs);
@@ -1035,9 +1035,9 @@ public class Generator extends NutchTool implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "Generator job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = "Generator job did not succeed, job id: "
+            + job.getJobID() + " job status:" + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }

@@ -164,9 +164,9 @@ public class CleaningJob implements Tool {
     try{
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "CleaningJob did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = "CleaningJob did not succeed, job id: "
+            + job.getJobID() + ", job status:" + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }

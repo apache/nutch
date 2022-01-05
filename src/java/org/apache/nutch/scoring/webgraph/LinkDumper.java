@@ -355,9 +355,9 @@ public class LinkDumper extends Configured implements Tool {
       LOG.info("LinkDumper: running inverter");
       boolean success = inverter.waitForCompletion(true);
       if (!success) {
-        String message = "LinkDumper inverter job did not succeed, job status:"
-            + inverter.getStatus().getState() + ", reason: "
-            + inverter.getStatus().getFailureInfo();
+        String message = "LinkDumper inverter job did not succeed, job id: "
+            + inverter.getJobID() + ", job status:" + inverter.getStatus().getState()
+            + ", reason: " + inverter.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -385,9 +385,9 @@ public class LinkDumper extends Configured implements Tool {
       LOG.info("LinkDumper: running merger");
       boolean success = merger.waitForCompletion(true);
       if (!success) {
-        String message = "LinkDumper merger job did not succeed, job status:"
-            + merger.getStatus().getState() + ", reason: "
-            + merger.getStatus().getFailureInfo();
+        String message = "LinkDumper merger job did not succeed, job id: "
+            + merger.getJobID() + ", job status:" + merger.getStatus().getState()
+            + ", reason: " + merger.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }

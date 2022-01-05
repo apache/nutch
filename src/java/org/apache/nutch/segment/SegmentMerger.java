@@ -732,9 +732,9 @@ public class SegmentMerger extends Configured implements Tool{
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "SegmentMerger job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = "SegmentMerger job did not succeed, job id: "
+            + job.getJobID() + ", job status:" + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }

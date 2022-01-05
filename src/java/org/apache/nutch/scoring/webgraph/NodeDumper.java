@@ -349,9 +349,9 @@ public class NodeDumper extends Configured implements Tool {
       LOG.info("NodeDumper: running");
       boolean success = dumper.waitForCompletion(true);
       if (!success) {
-        String message = "NodeDumper job did not succeed, job status:"
-            + dumper.getStatus().getState() + ", reason: "
-            + dumper.getStatus().getFailureInfo();
+        String message = "NodeDumper job did not succeed, job id: "
+            + dumper.getJobID() + ", job status:" + dumper.getStatus().getState()
+            + ", reason: " + dumper.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }

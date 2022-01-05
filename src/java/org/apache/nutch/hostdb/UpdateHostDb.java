@@ -132,9 +132,9 @@ public class UpdateHostDb extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "UpdateHostDb job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = "UpdateHostDb job did not succeed, job id: "
+            + job.getJobID() + ", job status:" + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         NutchJob.cleanupAfterFailure(tempHostDb, lock, fs);
         throw new RuntimeException(message);

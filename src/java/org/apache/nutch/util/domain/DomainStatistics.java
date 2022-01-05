@@ -139,9 +139,9 @@ public class DomainStatistics extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "Injector job did not succeed, job status: "
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = "Injector job did not succeed, job id: "
+            + job.getJobID() + ", job status: " + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         // throw exception so that calling routine can exit with error
         throw new RuntimeException(message);

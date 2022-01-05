@@ -183,9 +183,9 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     try{
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "LinkDbRead job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = "LinkDbRead job did not succeed, job id: "
+            + job.getJobID() + ", job status:" + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }

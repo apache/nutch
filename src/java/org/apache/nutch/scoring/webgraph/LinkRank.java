@@ -117,9 +117,9 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = counter.waitForCompletion(true);
       if (!success) {
-        String message = "Link counter job did not succeed, job status:"
-            + counter.getStatus().getState() + ", reason: "
-            + counter.getStatus().getFailureInfo();
+        String message = "Link counter job did not succeed, job id: "
+            + counter.getJobID() + ", job status:" + counter.getStatus().getState()
+            + ", reason: " + counter.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -216,7 +216,8 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = initializer.waitForCompletion(true);
       if (!success) {
-        String message = "Initialization job did not succeed, job status:"
+        String message = "Initialization job did not succeed, job id: "
+            + initializer.getJobID() + ", job status:"
             + initializer.getStatus().getState() + ", reason: "
             + initializer.getStatus().getFailureInfo();
         LOG.error(message);
@@ -270,9 +271,9 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = inverter.waitForCompletion(true);
       if (!success) {
-        String message = "Inverter job did not succeed, job status:"
-            + inverter.getStatus().getState() + ", reason: "
-            + inverter.getStatus().getFailureInfo();
+        String message = "Inverter job did not succeed, job id: "
+            + inverter.getJobID() + ", job status:" + inverter.getStatus().getState()
+            + ", reason: " + inverter.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -334,9 +335,9 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = analyzer.waitForCompletion(true);
       if (!success) {
-        String message = "Analysis job did not succeed, job status:"
-            + analyzer.getStatus().getState() + ", reason: "
-            + analyzer.getStatus().getFailureInfo();
+        String message = "Analysis job did not succeed, job id: "
+            + analyzer.getJobID() + ", job status:" + analyzer.getStatus().getState()
+            + ", reason: " + analyzer.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }

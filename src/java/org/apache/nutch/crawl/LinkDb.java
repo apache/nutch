@@ -224,8 +224,8 @@ public class LinkDb extends NutchTool implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "LinkDb job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
+        String message = "LinkDb job did not succeed, job id: " + job.getJobID()
+            + ", job status:" + job.getStatus().getState() + ", reason: "
             + job.getStatus().getFailureInfo();
         LOG.error(message);
         LockUtil.removeLockFile(fs, lock);
@@ -248,7 +248,7 @@ public class LinkDb extends NutchTool implements Tool {
       try {
         boolean success = job.waitForCompletion(true);
         if (!success) {
-          String message = "LinkDb job did not succeed, job status:"
+          String message = "LinkDb job did not succeed, job id: "+job.getJobID()+", job status:"
               + job.getStatus().getState() + ", reason: "
               + job.getStatus().getFailureInfo();
           LOG.error(message);
