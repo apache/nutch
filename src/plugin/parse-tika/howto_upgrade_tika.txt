@@ -33,6 +33,8 @@
 
     $ cd ../language-identifier/
 
+It should be noted that Any23 also has a dependency on Tika so you may wish to check that there are no classpath conflicts in the any23 plugin as well.
+
 7. Build Nutch and run all unit tests:
 
     $ cd ../../../

@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class Any23IndexingFilter implements IndexingFilter {
 
   /** Logging instance */
-  public static final Logger LOG = LoggerFactory.getLogger(Any23IndexingFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Any23IndexingFilter.class);
   
   public static final String STRUCTURED_DATA = "structured_data";
 
@@ -106,7 +106,7 @@ public class Any23IndexingFilter implements IndexingFilter {
     return doc;
   }
   
-  private String keyToShortKey(String key) {
+  private static String keyToShortKey(String key) {
     if (key.startsWith("<") && key.endsWith(">")) {
       key = key.substring(1, key.length() - 1);
     }

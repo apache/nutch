@@ -35,7 +35,7 @@
     <ant dir="lib-selenium" target="deploy"/>
     <ant dir="lib-xml" target="deploy"/>
     <!-- real plugins -->
-    <!--ant dir="any23" target="deploy"/-->
+    <ant dir="any23" target="deploy"/>
     <ant dir="creativecommons" target="deploy"/>
     <ant dir="feed" target="deploy"/>
     <ant dir="headings" target="deploy"/>
@@ -113,7 +113,7 @@
   <!-- ====================================================== -->
   <target name="test">
     <parallel threadCount="2">
-     <!--ant dir="any23" target="test"/-->
+     <ant dir="any23" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="feed" target="test"/>
      <ant dir="headings" target="test"/>
