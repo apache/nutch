@@ -1272,6 +1272,7 @@
         <source path="${plugins.dir}/parsefilter-regex/src/test/" />
         <source path="${plugins.dir}/protocol-file/src/java/" />
         <source path="${plugins.dir}/protocol-file/src/test/" />
+        <source path="${plugins.dir}/protocol-foo/src/java/" />
         <source path="${plugins.dir}/protocol-ftp/src/java/" />
         <source path="${plugins.dir}/protocol-htmlunit/src/java/" />
         <source path="${plugins.dir}/protocol-http/src/java/" />

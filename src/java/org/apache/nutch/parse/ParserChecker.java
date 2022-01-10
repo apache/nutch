@@ -28,6 +28,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.URLNormalizers;
+import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.scoring.ScoringFilters;
@@ -105,6 +106,10 @@ public class ParserChecker extends AbstractChecker {
       System.err.println(usage);
       System.exit(-1);
     }
+
+    // initialize plugins early to register URL stream handlers to support
+    // custom protocol implementations
+    PluginRepository.get(getConf());
 
     int numConsumed;
     for (int i = 0; i < args.length; i++) {

@@ -62,7 +62,7 @@ import org.w3c.dom.DocumentFragment;
 public class Any23ParseFilter implements HtmlParseFilter {
 
   /** Logging instance */
-  static final Logger LOG = LoggerFactory.getLogger(Any23ParseFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Any23ParseFilter.class);
 
   private Configuration conf = null;
 

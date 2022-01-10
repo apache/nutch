@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,21 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.indexwriter.elastic;
+package org.apache.nutch.protocol.foo;
 
-public interface ElasticConstants {
-  String HOSTS = "host";
-  String PORT = "port";
-  String SCHEME = "scheme";
-  
-  String USER = "username";
-  String PASSWORD = "password";
-  String USE_AUTH = "auth";
-  String INDEX = "index";
-  String MAX_BULK_DOCS = "max.bulk.docs";
-  String MAX_BULK_LENGTH = "max.bulk.size";
-  String EXPONENTIAL_BACKOFF_MILLIS = "exponential.backoff.millis";
-  String EXPONENTIAL_BACKOFF_RETRIES = "exponential.backoff.retries";
-  String BULK_CLOSE_TIMEOUT = "bulk.close.timeout";
-  String OPTIONS = "options";
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+
+public class Handler extends URLStreamHandler {
+
+  protected URLConnection openConnection(URL u) {
+    throw new UnsupportedOperationException("not yet implemented");
+  }
 }

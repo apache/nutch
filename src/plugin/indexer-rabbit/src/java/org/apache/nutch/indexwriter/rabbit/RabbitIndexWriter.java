@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 
 public class RabbitIndexWriter implements IndexWriter {
 
-  public static final Logger LOG = LoggerFactory
+  private static final Logger LOG = LoggerFactory
       .getLogger(RabbitIndexWriter.class);
 
   private String uri;
