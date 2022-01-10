@@ -32,6 +32,7 @@ Parameter Name | Description | Default value
 --|--|--
 host | Comma-separated list of hostnames to send documents to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). Either host and port must be defined. | 
 port | The port to connect to using [TransportClient](https://static.javadoc.io/org.elasticsearch/elasticsearch/5.3.0/org/elasticsearch/client/transport/TransportClient.html). | 9300
+scheme | The scheme (http or https) to connect to elastic server. | http
 index | Default index to send documents to. | nutch
 username | Username for auth credentials | elastic
 password | Password for auth credentials | ""

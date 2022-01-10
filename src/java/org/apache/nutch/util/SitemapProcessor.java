@@ -41,7 +41,6 @@ import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.hostdb.HostDatum;
 import org.apache.nutch.net.URLFilters;
@@ -51,7 +50,6 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,13 +80,11 @@ import crawlercommons.sitemaps.SiteMapURL;
  * the sitemaps into the CrawlDb.</li>
  * </ol>
  *
- * <p>
- * For more details see:
- * https://cwiki.apache.org/confluence/display/NUTCH/SitemapFeature
- * </p>
+ * @see
+ * <a href="https://cwiki.apache.org/confluence/display/NUTCH/SitemapFeature">SitemapFeature</a>
  */
 public class SitemapProcessor extends Configured implements Tool {
-  public static final Logger LOG = LoggerFactory.getLogger(SitemapProcessor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SitemapProcessor.class);
   public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   public static final String CURRENT_NAME = "current";

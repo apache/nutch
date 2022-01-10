@@ -24,12 +24,9 @@ import java.util.Map;
 public class IndexWriterParams extends HashMap<String, String> {
 
   /**
-   * Constructs a new <code>HashMap</code> with the same mappings as the
-   * specified <code>Map</code>.  The <code>HashMap</code> is created with
-   * default load factor (0.75) and an initial capacity sufficient to
-   * hold the mappings in the specified <code>Map</code>.
+   * Fill IndexWriterParams from map.
    *
-   * @param m the map whose mappings are to be placed in this map
+   * @param m the map to take params from
    * @throws NullPointerException if the specified map is null
    */
   public IndexWriterParams(Map<? extends String, ? extends String> m) {

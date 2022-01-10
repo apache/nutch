@@ -77,10 +77,10 @@ public class ElasticIndexWriter implements IndexWriter {
 
   private String[] hosts;
   private int port;
-  private Boolean https = null;
+  private String scheme = HttpHost.DEFAULT_SCHEME_NAME;
   private String user = null;
   private String password = null;
-  private Boolean auth;
+  private boolean auth;
 
   private int maxBulkDocs;
   private int maxBulkLength;
@@ -140,8 +140,10 @@ public class ElasticIndexWriter implements IndexWriter {
     LOG.debug("Creating BulkProcessor with maxBulkDocs={}, maxBulkLength={}",
         maxBulkDocs, maxBulkLength);
     bulkProcessor = BulkProcessor
-        .builder((request, bulkListener) -> client.bulkAsync(request,
-            RequestOptions.DEFAULT, bulkListener), bulkProcessorListener())
+        .builder(
+            (request, bulkListener) -> client.bulkAsync(request,
+                RequestOptions.DEFAULT, bulkListener),
+            bulkProcessorListener(), "nutch-indexer-elastic")
         .setBulkActions(maxBulkDocs)
         .setBulkSize(new ByteSizeValue(maxBulkLength, ByteSizeUnit.BYTES))
         .setConcurrentRequests(1)
@@ -161,7 +163,7 @@ public class ElasticIndexWriter implements IndexWriter {
       throws IOException {
     hosts = parameters.getStrings(ElasticConstants.HOSTS);
     port = parameters.getInt(ElasticConstants.PORT, DEFAULT_PORT);
-
+    scheme = parameters.get(ElasticConstants.SCHEME, HttpHost.DEFAULT_SCHEME_NAME);
     auth = parameters.getBoolean(ElasticConstants.USE_AUTH, false);
     user = parameters.get(ElasticConstants.USER, DEFAULT_USER);
     password = parameters.get(ElasticConstants.PASSWORD, "");
@@ -176,7 +178,7 @@ public class ElasticIndexWriter implements IndexWriter {
       HttpHost[] hostsList = new HttpHost[hosts.length];
       int i = 0;
       for (String host : hosts) {
-        hostsList[i++] = new HttpHost(host, port);
+        hostsList[i++] = new HttpHost(host, port, scheme);
       }
       RestClientBuilder restClientBuilder = RestClient.builder(hostsList);
       if (auth) {
@@ -302,6 +304,8 @@ public class ElasticIndexWriter implements IndexWriter {
             this.hosts == null ? "" : String.join(",", hosts)));
     properties.put(ElasticConstants.PORT, new AbstractMap.SimpleEntry<>(
         "The port to connect to elastic server.", this.port));
+    properties.put(ElasticConstants.SCHEME, new AbstractMap.SimpleEntry<>(
+        "The scheme (http or https) to connect to elastic server.", this.scheme));
     properties.put(ElasticConstants.INDEX, new AbstractMap.SimpleEntry<>(
         "Default index to send documents to.", this.defaultIndex));
     properties.put(ElasticConstants.USER, new AbstractMap.SimpleEntry<>(
