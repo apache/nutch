@@ -86,7 +86,7 @@ public abstract class RobotRulesParser implements Tool {
   protected String agentNames;
 
   /** set of host names or IPs to be explicitly excluded from robots.txt checking */
-  protected Set<String> whiteList = new HashSet<>();
+  protected Set<String> allowList = new HashSet<>();
   
   /* Matcher user for efficiently matching URLs against a set of suffixes. */
   private SuffixStringMatcher matcher = null;
@@ -131,22 +131,21 @@ public abstract class RobotRulesParser implements Tool {
       agentNames = sb.toString();
     }
 
-    String[] confWhiteList = conf.getStrings("http.robot.rules.whitelist");
-    if (confWhiteList == null) {
-      LOG.debug("robots.txt whitelist not configured.");
-    }
-    else {
-      for (int i = 0; i < confWhiteList.length; i++) {
-        if (confWhiteList[i].isEmpty()) {
-      	  LOG.info("Empty whitelisted URL skipped!");
+    String[] confAllowList = conf.getStrings("http.robot.rules.allowlist");
+    if (confAllowList == null) {
+      LOG.debug("robots.txt allowlist not configured.");
+    } else {
+      for (int i = 0; i < confAllowList.length; i++) {
+        if (confAllowList[i].isEmpty()) {
+      	  LOG.info("Empty allowlisted URL skipped!");
       	  continue;
         }
-        whiteList.add(confWhiteList[i]);
+        allowList.add(confAllowList[i]);
       }
       
-      if (whiteList.size() > 0) {
-        matcher = new SuffixStringMatcher(whiteList);
-        LOG.info("Whitelisted hosts: " + whiteList);
+      if (allowList.size() > 0) {
+        matcher = new SuffixStringMatcher(allowList);
+        LOG.info("Allowlisted hosts: " + allowList);
       }
     }
   }
@@ -159,11 +158,11 @@ public abstract class RobotRulesParser implements Tool {
   }
 
   /**
-   * Check whether a URL belongs to a whitelisted host.
+   * Check whether a URL belongs to a allowlisted host.
    * @param url a {@link java.net.URL} to check against rules
-   * @return true if allowed, false otherwise
+   * @return true if always allowed (robots.txt rules are ignored), false otherwise
    */
-  public boolean isWhiteListed(URL url) {
+  public boolean isAllowListed(URL url) {
     boolean match = false;
     String urlString = url.getHost();
     
@@ -275,7 +274,7 @@ public abstract class RobotRulesParser implements Tool {
           "\toutput content and HTTP meta data of fetched robots.txt (if not a local file)",
           " -D http.agent.name=...\t(primary) agent name",
           " -D http.robots.agents=...\tadditional agent names",
-          " -D http.robot.rules.whitelist=..."};
+          " -D http.robot.rules.allowlist=..."};
       for (String s : help) {
         System.err.println(s);
       }
@@ -352,8 +351,8 @@ public abstract class RobotRulesParser implements Tool {
           // testPath can be just a path or a complete URL
           URL url = new URL(testPath);
           String status;
-          if (isWhiteListed(url)) {
-            status = "whitelisted";
+          if (isAllowListed(url)) {
+            status = "allowlisted";
           } else if (rules.isAllowed(testPath)) {
             status = "allowed";
           } else {

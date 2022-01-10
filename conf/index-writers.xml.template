@@ -108,6 +108,7 @@
     <parameters>
       <param name="host" value="localhost"/>
       <param name="port" value="9200"/>
+      <param name="scheme" value="http"/><!-- http or https -->
       <param name="index" value="nutch"/>
       <param name="username" value="elastic"/>
       <param name="password" value=""/>

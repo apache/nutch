@@ -79,8 +79,8 @@ public class FtpRobotRulesParser extends RobotRulesParser {
                                                        // case
     String host = url.getHost().toLowerCase(); // normalize to lower case
 
-    if (LOG.isTraceEnabled() && isWhiteListed(url)) {
-      LOG.trace("Ignoring robots.txt (host is whitelisted) for URL: {}", url);
+    if (LOG.isTraceEnabled() && isAllowListed(url)) {
+      LOG.trace("Ignoring robots.txt (host is allowlisted) for URL: {}", url);
     }
 
     BaseRobotRules robotRules = CACHE.get(protocol + ":" + host);
@@ -93,12 +93,12 @@ public class FtpRobotRulesParser extends RobotRulesParser {
 
     boolean cacheRule = true;
 
-    if (isWhiteListed(url)) {
-      // check in advance whether a host is whitelisted
+    if (isAllowListed(url)) {
+      // check in advance whether a host is allowlisted
       // (we do not need to fetch robots.txt)
       robotRules = EMPTY_RULES;
-      LOG.info("Whitelisted host found for: {}", url);
-      LOG.info("Ignoring robots.txt for all URLs from whitelisted host: {}", host);
+      LOG.info("Allowlisted host found for: {}", url);
+      LOG.info("Ignoring robots.txt for all URLs from allowlisted host: {}", host);
 
     } else {
       try {

@@ -36,10 +36,10 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.14.1" conf="*->master" />
-		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.14.1" conf="*->master" />
-		<dependency org="org.apache.logging.log4j" name="log4j-slf4j-impl" rev="2.14.1" conf="*->master" />
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.31" conf="*->master" />
+		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.17.0" conf="*->master" />
+		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.17.0" conf="*->master" />
+		<dependency org="org.apache.logging.log4j" name="log4j-slf4j-impl" rev="2.17.0" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.32" conf="*->master" />
 
 		<dependency org="org.apache.commons" name="commons-lang3" rev="3.12.0" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-collections4" rev="4.4" conf="*->master" />
@@ -142,6 +142,7 @@
 		<exclude module="jms" />
 		<exclude module="jmxri" />
 		<exclude module="slf4j-log4j12" />
+		<exclude module="log4j" /><!-- exclude log4j 1.x -->
 		<exclude org="com.thoughtworks.xstream" />
 
 	</dependencies>

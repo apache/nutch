@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class Any23IndexingFilter implements IndexingFilter {
 
   /** Logging instance */
-  public static final Logger LOG = LoggerFactory.getLogger(Any23IndexingFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Any23IndexingFilter.class);
   
   public static final String STRUCTURED_DATA = "structured_data";
 
