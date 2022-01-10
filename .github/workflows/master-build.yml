@@ -38,4 +38,4 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
       - name: Build with Ant
-        run: ant clean test -buildfile build.xml
+        run: ant clean nightly javadoc -buildfile build.xml
