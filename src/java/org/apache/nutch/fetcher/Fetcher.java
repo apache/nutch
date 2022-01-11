@@ -223,7 +223,13 @@ public class Fetcher extends NutchTool implements Tool {
           feeder.setTimeLimit(timelimit);
         feeder.start();
 
+        int startDelay = conf.getInt("fetcher.threads.start.delay", 10);
         for (int i = 0; i < threadCount; i++) { // spawn threads
+          if (startDelay > 0 && i > 0) {
+            // short delay to avoid that DNS or other resources are temporarily
+            // exhausted by all threads fetching simultaneously the first pages
+            Thread.sleep(startDelay);
+          }
           FetcherThread t = new FetcherThread(conf, getActiveThreads(),
               fetchQueues, feeder, spinWaiting, lastRequestStart, innerContext,
               errors, segmentName, parsing, storingContent, pages, bytes);
