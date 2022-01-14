@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * with the latest timestamp is kept. If the documents have the same timestamp
  * then the one with the shortest URL is kept. The documents marked as duplicate
  * can then be deleted with the command CleaningJob.
- ***/
+ */
 public class DeduplicationJob extends NutchTool implements Tool {
 
   private static final Logger LOG = LoggerFactory
@@ -69,6 +70,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
   protected final static Text urlKey = new Text("_URLTEMPKEY_");
   protected final static String DEDUPLICATION_GROUP_MODE = "deduplication.group.mode";
   protected final static String DEDUPLICATION_COMPARE_ORDER = "deduplication.compare.order";
+  protected final static String UTF_8 = StandardCharsets.UTF_8.toString();
 
   public static class DBFilter extends
       Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum> {
@@ -77,13 +79,12 @@ public class DeduplicationJob extends NutchTool implements Tool {
 
     @Override
     public void setup(Mapper<Text, CrawlDatum, BytesWritable, CrawlDatum>.Context context) {
-      Configuration arg0 = context.getConfiguration();
-      groupMode = arg0.get(DEDUPLICATION_GROUP_MODE);
+      Configuration conf = context.getConfiguration();
+      groupMode = conf.get(DEDUPLICATION_GROUP_MODE);
     }
 
     @Override
-    public void map(Text key, CrawlDatum value,
-        Context context)
+    public void map(Text key, CrawlDatum value, Context context)
         throws IOException, InterruptedException {
 
       if (value.getStatus() == CrawlDatum.STATUS_DB_FETCHED
@@ -122,13 +123,14 @@ public class DeduplicationJob extends NutchTool implements Tool {
     }
   }
 
-  public static class DedupReducer<K extends Writable> extends
-      Reducer<K, CrawlDatum, Text, CrawlDatum> {
+  public static class DedupReducer<K extends Writable>
+      extends Reducer<K, CrawlDatum, Text, CrawlDatum> {
 
-    private String[] compareOrder;
+    protected String[] compareOrder;
     
     @Override
-    public void setup(Reducer<K, CrawlDatum, Text, CrawlDatum>.Context context) {
+    public void setup(
+        Reducer<K, CrawlDatum, Text, CrawlDatum>.Context context) {
       Configuration conf = context.getConfiguration();
       compareOrder = conf.get(DEDUPLICATION_COMPARE_ORDER).split(",");
     }
@@ -144,8 +146,8 @@ public class DeduplicationJob extends NutchTool implements Tool {
     }
 
     @Override
-    public void reduce(K key, Iterable<CrawlDatum> values,
-        Context context) throws IOException, InterruptedException {
+    public void reduce(K key, Iterable<CrawlDatum> values, Context context)
+        throws IOException, InterruptedException {
       CrawlDatum existingDoc = null;
 
       for (CrawlDatum newDoc : values) {
@@ -165,8 +167,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
       }
     }
 
-    protected CrawlDatum getDuplicate(CrawlDatum existingDoc, CrawlDatum newDoc)
-        throws IOException {
+    protected CrawlDatum getDuplicate(CrawlDatum existingDoc, CrawlDatum newDoc) {
       for (int i = 0; i < compareOrder.length; i++) {
         switch (compareOrder[i]) {
         case "score":
@@ -204,17 +205,21 @@ public class DeduplicationJob extends NutchTool implements Tool {
           }
           break;
         case "urlLength":
-          // same time? keep the one which has the shortest URL
-          String urlExisting;
-          String urlnewDoc;
+          // keep the one which has the shortest URL
+          // normalized by decoding percent-encoded sequences
+          String urlExisting = existingDoc.getMetaData().get(urlKey).toString();
+          String urlnewDoc = newDoc.getMetaData().get(urlKey).toString();
           try {
-            urlExisting = URLDecoder.decode(
-                existingDoc.getMetaData().get(urlKey).toString(), "UTF8");
-            urlnewDoc = URLDecoder
-                .decode(newDoc.getMetaData().get(urlKey).toString(), "UTF8");
-          } catch (UnsupportedEncodingException e) {
-            LOG.error("Error decoding: " + urlKey);
-            throw new IOException("UnsupportedEncodingException for " + urlKey);
+            urlExisting = URLDecoder.decode(urlExisting, UTF_8);
+          } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+            LOG.error("Error decoding: {}", urlExisting, e);
+            // use the encoded URL
+          }
+          try {
+            urlnewDoc = URLDecoder.decode(urlnewDoc, UTF_8);
+          } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+            LOG.error("Error decoding: {}", urlnewDoc, e);
+            // use the encoded URL
           }
           if (urlExisting.length() < urlnewDoc.length()) {
             // mark new one as duplicate

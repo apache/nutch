@@ -14,40 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.crawl;
-
-import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.TreeSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.nio.file.Files;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.MapFile.Writer.Option;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestCrawlDbDeduplication {
   private static final Logger LOG = LoggerFactory
@@ -73,6 +59,7 @@ public class TestCrawlDbDeduplication {
     for (FileStatus s : fs.listStatus(testCrawlDb)) {
       LOG.info("{}", s);
     }
+    reader = new CrawlDbReader();
   }
 
   @After
@@ -92,33 +79,40 @@ public class TestCrawlDbDeduplication {
   public void testDeduplication() throws Exception {
     String[] args = new String[3];
     args[0] = testCrawlDb.toString();
-    args[1] = "compareOrder";
+    args[1] = "-compareOrder";
     args[2] = "fetchTime,urlLength,score";
     int result = ToolRunner.run(conf, new DeduplicationJob(), args);
     Assert.assertEquals("DeduplicationJob did not succeed", 0, result);
-    reader = new CrawlDbReader();
     String url1 = "http://nutch.apache.org/";
     String url2 = "https://nutch.apache.org/";
-    CrawlDatum datum1 = reader.get(testCrawlDb.toString(), url1, conf);
-    CrawlDatum datum2 = reader.get(testCrawlDb.toString(), url2, conf);
-    Assert.assertNotNull("No CrawlDatum found in CrawlDb for " + url1, datum1);
-    Assert.assertNotNull("No CrawlDatum found in CrawlDb for " + url2, datum2);
     // url1 has been fetched earlier, so it should "survive" as "db_fetched":
-    Assert.assertEquals(CrawlDatum.STATUS_DB_FETCHED, datum1.getStatus());
-    Assert.assertEquals(CrawlDatum.STATUS_DB_DUPLICATE, datum2.getStatus());
-    reader.close();
-    fs.delete(testCrawlDb, true);
+    checkStatus(url1, CrawlDatum.STATUS_DB_FETCHED);
+    checkStatus(url2, CrawlDatum.STATUS_DB_DUPLICATE);
+  }
+
+  @Test
+  public void testDeduplicationHttpsOverHttp() throws Exception {
+    String[] args = new String[3];
+    args[0] = testCrawlDb.toString();
+    args[1] = "-compareOrder";
+    args[2] = "httpsOverHttp,fetchTime,urlLength,score";
+    int result = ToolRunner.run(conf, new DeduplicationJob(), args);
+    Assert.assertEquals("DeduplicationJob did not succeed", 0, result);
+    String url1 = "http://nutch.apache.org/";
+    String url2 = "https://nutch.apache.org/";
+    // url2 is https://, so it should "survive" as "db_fetched":
+    checkStatus(url1, CrawlDatum.STATUS_DB_DUPLICATE);
+    checkStatus(url2, CrawlDatum.STATUS_DB_FETCHED);
   }
 
   @Test
   public void testDedupRedirects() throws Exception {
     String[] args = new String[3];
     args[0] = testCrawlDb.toString();
-    args[1] = "compareOrder";
+    args[1] = "-compareOrder";
     args[2] = "fetchTime,urlLength,score";
     int result = ToolRunner.run(conf, new DedupRedirectsJob(), args);
     Assert.assertEquals("DedupRedirectsJob did not succeed", 0, result);
-    reader = new CrawlDbReader();
     // url3 was fetched with status 200, so it should "survive" as "db_fetched"
     // while url1 and url2 both redirect to url3 and should be duplicates
     String url1 = "http://en.wikipedia.org/wiki/URL_redirection";
@@ -134,16 +128,61 @@ public class TestCrawlDbDeduplication {
     // => leave as redirect in CrawlDb for now
     String url5 = "https:/wikipedia.org/wiki/URL_forwarding";
     checkStatus(url5, CrawlDatum.STATUS_DB_REDIR_PERM);
-    reader.close();
-    fs.delete(testCrawlDb, true);
   }
 
   private void checkStatus(String url, byte status) throws IOException {
     CrawlDatum datum = reader.get(testCrawlDb.toString(), url, conf);
     Assert.assertNotNull("No CrawlDatum found in CrawlDb for " + url, datum);
     Assert.assertEquals(
-        "Exspected status for " + url + ": " + CrawlDatum.getStatusName(status),
+        "Expected status for " + url + ": " + CrawlDatum.getStatusName(status),
         status, datum.getStatus());
+  }
+
+  static class TestDedupReducer extends DeduplicationJob.DedupReducer<Text> {
+
+    void setCompareOrder(String compareOrder) {
+      this.compareOrder = compareOrder.split(",");
+    }
+
+    String getDuplicate(String one, String two) {
+      CrawlDatum d1 = new CrawlDatum();
+      d1.getMetaData().put(DeduplicationJob.urlKey, new Text(one));
+      CrawlDatum d2 = new CrawlDatum();
+      d2.getMetaData().put(DeduplicationJob.urlKey, new Text(two));
+      CrawlDatum dup = getDuplicate(d1, d2);
+      if (dup == null) {
+        return null;
+      }
+      return dup.getMetaData().get(DeduplicationJob.urlKey).toString();
+    }
+  }
+
+  public String getDuplicateURL(String compareOrder, String url1, String url2) {
+    TestDedupReducer dedup = new TestDedupReducer();
+    dedup.setCompareOrder(compareOrder);
+    return dedup.getDuplicate(url1, url2);
+  }
+
+  @Test
+  public void testCompareURLs() {
+    // test same protocol, same length: no decision possible
+    String url0 = "https://example.com/";
+    Assert.assertNull(getDuplicateURL("httpsOverHttp,urlLength", url0, url0));
+    String url1 = "http://nutch.apache.org/";
+    String url2 = "https://nutch.apache.org/";
+    // test httpsOverHttp
+    Assert.assertEquals(url1, getDuplicateURL("httpsOverHttp", url1, url2));
+    // test urlLength
+    Assert.assertEquals(url2, getDuplicateURL("urlLength", url1, url2));
+    // test urlLength with percent-encoded URLs
+    // "b%C3%BCcher" (unescaped "bücher") is shorter than "buecher"
+    String url3 = "https://example.com/b%C3%BCcher";
+    String url4 = "https://example.com/buecher";
+    Assert.assertEquals(url4, getDuplicateURL("urlLength", url3, url4));
+    // test NUTCH-2935: should not throw error on invalid percent-encoding
+    String url5 = "https://example.com/%YR";
+    String url6 = "https://example.com/%YR%YR";
+    Assert.assertEquals(url6, getDuplicateURL("urlLength", url5, url6));
   }
 
 }
