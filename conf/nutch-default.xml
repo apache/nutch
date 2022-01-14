@@ -976,6 +976,15 @@
 </property>
 
 <property>
+  <name>fetcher.threads.start.delay</name>
+  <value>10</value>
+  <description>Delay in milliseconds between starting Fetcher threads
+  to avoid that all threads simultaneously fetch the first pages and
+  cause that DNS or other resources are temporarily exhausted.
+  </description>
+</property>
+
+<property>
   <name>fetcher.threads.per.queue</name>
   <value>1</value>
   <description>This number is the maximum number of threads that
