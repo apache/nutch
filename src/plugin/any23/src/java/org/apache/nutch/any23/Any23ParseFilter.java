@@ -20,13 +20,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Collections;
-import java.util.Arrays;
 
 import org.apache.any23.Any23;
 import org.apache.any23.extractor.ExtractionException;
+import org.apache.any23.filter.IgnoreAccidentalRDFa;
+import org.apache.any23.filter.IgnoreTitlesOfEmptyDocuments;
+import org.apache.any23.mime.TikaMIMETypeDetector;
+import org.apache.any23.mime.purifier.WhiteSpacesPurifier;
 import org.apache.any23.writer.BenchmarkTripleHandler;
 import org.apache.any23.writer.NTriplesWriter;
 import org.apache.any23.writer.TripleHandler;
@@ -76,7 +80,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
     Set<String> triples = null;
 
     Any23Parser(String url, String htmlContent, String contentType, String... extractorNames) throws TripleHandlerException {
-      triples = new TreeSet<>();
+      this.triples = new TreeSet<>();
       try {
         parse(url, htmlContent, contentType, extractorNames);
       } catch (URISyntaxException e) {
@@ -91,33 +95,32 @@ public class Any23ParseFilter implements HtmlParseFilter {
      * Maintains a {@link java.util.Set} containing the triples
      * @return a {@link java.util.Set} of triples.
      */
-    private Set<String> getTriples() {
-      return triples;
+    Set<String> getTriples() {
+      return this.triples;
     }
 
-    private void parse(String url, String htmlContent, String contentType, String... extractorNames) throws URISyntaxException, IOException, TripleHandlerException {
+    private void parse(String url, String htmlContent, String contentType, String... extractorNames)
+            throws URISyntaxException, IOException, TripleHandlerException {
       Any23 any23 = new Any23(extractorNames);
-      any23.setMIMETypeDetector(null);
+      any23.setMIMETypeDetector(new TikaMIMETypeDetector(new WhiteSpacesPurifier()));
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      try {
-        TripleHandler tHandler = new NTriplesWriter(baos);
-        BenchmarkTripleHandler bHandler = new BenchmarkTripleHandler(tHandler);
+      try (TripleHandler tHandler = new IgnoreTitlesOfEmptyDocuments(
+              new IgnoreAccidentalRDFa(
+                      new NTriplesWriter(baos))); 
+              BenchmarkTripleHandler bHandler = new BenchmarkTripleHandler(tHandler)) {
         try {
           any23.extract(htmlContent, url, contentType, "UTF-8", bHandler);
         } catch (IOException e) {
           LOG.error("Error while reading the source", e);
         } catch (ExtractionException e) {
           LOG.error("Error while extracting structured data", e);
-        } finally {
-          tHandler.close();
-          bHandler.close();
         }
 
         LOG.debug("Any23 BenchmarkTripleHandler.report: " + bHandler.report());
 
         String n3 = baos.toString("UTF-8");
         String[] triplesStrings = n3.split("\n");
-        Collections.addAll(triples, triplesStrings);
+        Collections.addAll(this.triples, triplesStrings);
       } catch (IOException e) {
         LOG.error("Unexpected IOException", e);
       }
@@ -139,8 +142,8 @@ public class Any23ParseFilter implements HtmlParseFilter {
    */
   @Override
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
-    String[] extractorNames = conf.getStrings(ANY_23_EXTRACTORS_CONF, "html-head-meta");
-    String[] supportedContentTypes = conf.getStrings(ANY_23_CONTENT_TYPES_CONF, "text/html", "application/xhtml+xml");
+    String[] extractorNames = this.conf.getStrings(ANY_23_EXTRACTORS_CONF, "html-head-meta");
+    String[] supportedContentTypes = this.conf.getStrings(ANY_23_CONTENT_TYPES_CONF, "text/html", "application/xhtml+xml");
     String contentType = content.getContentType();
     if (supportedContentTypes != null && !Arrays.asList(supportedContentTypes).contains(contentType)) {
       LOG.debug("Ignoring document at {} because it has an unsupported Content-Type {}", content.getUrl(), contentType);

@@ -63,7 +63,7 @@
 		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.1.3" conf="*->default" />
 		<!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="2.1.0" />
+		<dependency org="org.apache.tika" name="tika-core" rev="2.2.1" />
 
 		<dependency org="xml-apis" name="xml-apis" rev="1.4.01" /><!-- force this version as it is required by Tika -->
 		<dependency org="xerces" name="xercesImpl" rev="2.12.1" />
