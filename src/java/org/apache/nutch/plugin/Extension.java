@@ -140,13 +140,15 @@ public class Extension {
   }
 
   /**
-   * Return an instance of the extension implementatio. Before we create a
+   * Return an instance of the extension implementation. Before we create a
    * extension instance we startup the plugin if it is not already done. The
    * plugin instance and the extension instance use the same
-   * <code>PluginClassLoader</code>. Each Plugin use its own classloader. The
-   * PluginClassLoader knows only own <i>Plugin runtime libraries </i> setuped
-   * in the plugin manifest file and exported libraries of the depenedend
-   * plugins.
+   * {@link org.apache.nutch.plugin.PluginClassLoader}.
+   * Each Plugin use its own classloader. The
+   * {@link org.apache.nutch.plugin.PluginClassLoader} knows only its own
+   * <i>plugin runtime libraries</i> defined
+   * in the <code>plugin.xml</code> manifest file and exported libraries
+   * of the dependent plugins.
    * 
    * @return Object An instance of the extension implementation
    * @throws PluginRuntimeException if there is a fatal runtime error

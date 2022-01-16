@@ -55,15 +55,15 @@ public class OkHttpResponse implements Response {
     }
 
     public void setReason(TruncatedContentReason val) {
-      value = val;
+      this.value = val;
    }
 
     public TruncatedContentReason getReason() {
-       return value;
+       return this.value;
     }
 
     public boolean booleanValue() {
-      return value != TruncatedContentReason.NOT_TRUNCATED;
+      return this.value != TruncatedContentReason.NOT_TRUNCATED;
     }
   }
 
@@ -123,7 +123,7 @@ public class OkHttpResponse implements Response {
           response.message());
 
       TruncatedContent truncated = new TruncatedContent();
-      content = toByteArray(response.body(), truncated, okhttp.getMaxContent(),
+      this.content = toByteArray(response.body(), truncated, okhttp.getMaxContent(),
           okhttp.getMaxDuration(), okhttp.isStorePartialAsTruncated());
       responsemetadata.add(FETCH_TIME,
           Long.toString(System.currentTimeMillis()));
@@ -135,11 +135,11 @@ public class OkHttpResponse implements Response {
         responsemetadata.set(TRUNCATED_CONTENT_REASON,
             truncated.getReason().toString().toLowerCase(Locale.ROOT));
         LOG.debug("HTTP content truncated to {} bytes (reason: {})",
-            content.length, truncated.getReason());
+            this.content.length, truncated.getReason());
       }
 
-      code = response.code();
-      headers = responsemetadata;
+      this.code = response.code();
+      this.headers = responsemetadata;
     }
   }
 
@@ -179,7 +179,7 @@ public class OkHttpResponse implements Response {
         if (partialAsTruncated && source.getBuffer().size() > 0) {
           // treat already fetched content as truncated
           truncated.setReason(TruncatedContentReason.DISCONNECT);
-          LOG.info("Truncated content for {}, partial fetch caused by:", url,
+          LOG.info("Truncated content for {}, partial fetch caused by:", this.url,
               e);
         } else {
           throw e;
@@ -222,23 +222,23 @@ public class OkHttpResponse implements Response {
   }
 
   public URL getUrl() {
-    return url;
+    return this.url;
   }
 
   public int getCode() {
-    return code;
+    return this.code;
   }
 
   public String getHeader(String name) {
-    return headers.get(name);
+    return this.headers.get(name);
   }
 
   public Metadata getHeaders() {
-    return headers;
+    return this.headers;
   }
 
   public byte[] getContent() {
-    return content;
+    return this.content;
   }
 
 }

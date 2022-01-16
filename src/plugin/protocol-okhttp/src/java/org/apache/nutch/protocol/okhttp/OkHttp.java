@@ -112,7 +112,7 @@ public class OkHttp extends HttpBase {
 
     // protocols in order of preference
     List<okhttp3.Protocol> protocols = new ArrayList<>();
-    if (useHttp2) {
+    if (this.useHttp2) {
       protocols.add(okhttp3.Protocol.HTTP_2);
     }
     protocols.add(okhttp3.Protocol.HTTP_1_1);
@@ -121,11 +121,11 @@ public class OkHttp extends HttpBase {
         .protocols(protocols) //
         .retryOnConnectionFailure(true) //
         .followRedirects(false) //
-        .connectTimeout(timeout, TimeUnit.MILLISECONDS)
-        .writeTimeout(timeout, TimeUnit.MILLISECONDS)
-        .readTimeout(timeout, TimeUnit.MILLISECONDS);
+        .connectTimeout(this.timeout, TimeUnit.MILLISECONDS)
+        .writeTimeout(this.timeout, TimeUnit.MILLISECONDS)
+        .readTimeout(this.timeout, TimeUnit.MILLISECONDS);
 
-    if (!tlsCheckCertificate) {
+    if (!this.tlsCheckCertificate) {
       builder.sslSocketFactory(trustAllSslSocketFactory,
           (X509TrustManager) trustAllCerts[0]);
       builder.hostnameVerifier(new HostnameVerifier() {
@@ -136,23 +136,23 @@ public class OkHttp extends HttpBase {
       });
     }
 
-    if (!accept.isEmpty()) {
-      getCustomRequestHeaders().add(new String[] { "Accept", accept });
+    if (!this.accept.isEmpty()) {
+      getCustomRequestHeaders().add(new String[] { "Accept", this.accept });
     }
 
-    if (!acceptLanguage.isEmpty()) {
+    if (!this.acceptLanguage.isEmpty()) {
       getCustomRequestHeaders()
-          .add(new String[] { "Accept-Language", acceptLanguage });
+          .add(new String[] { "Accept-Language", this.acceptLanguage });
     }
 
-    if (!acceptCharset.isEmpty()) {
+    if (!this.acceptCharset.isEmpty()) {
       getCustomRequestHeaders()
-          .add(new String[] { "Accept-Charset", acceptCharset });
+          .add(new String[] { "Accept-Charset", this.acceptCharset });
     }
 
-    if (useProxy) {
-      Proxy proxy = new Proxy(proxyType,
-          new InetSocketAddress(proxyHost, proxyPort));
+    if (this.useProxy) {
+      Proxy proxy = new Proxy(this.proxyType,
+          new InetSocketAddress(this.proxyHost, this.proxyPort));
       String proxyUsername = conf.get("http.proxy.username");
       if (proxyUsername == null) {
         ProxySelector selector = new ProxySelector() {
@@ -172,9 +172,9 @@ public class OkHttp extends HttpBase {
           @Override
           public List<Proxy> select(URI uri) {
             if (useProxy(uri)) {
-              return proxyList;
+              return this.proxyList;
             }
-            return noProxyList;
+            return this.noProxyList;
           }
 
           @Override
@@ -192,7 +192,7 @@ public class OkHttp extends HttpBase {
          * ProxySelector class with proxy auth. If a proxy username is present,
          * the configured proxy will be used for ALL requests.
          */
-        if (proxyException.size() > 0) {
+        if (this.proxyException.size() > 0) {
           LOG.warn(
               "protocol-okhttp does not respect 'http.proxy.exception.list' setting when "
                   + "'http.proxy.username' is set. This is a limitation of the current okhttp3 "
@@ -214,14 +214,14 @@ public class OkHttp extends HttpBase {
       }
     }
 
-    if (storeIPAddress || storeHttpHeaders || storeHttpRequest) {
+    if (this.storeIPAddress || this.storeHttpHeaders || this.storeHttpRequest) {
       builder.addNetworkInterceptor(new HTTPHeadersInterceptor());
     }
 
     // enable support for Brotli compression (Content-Encoding)
     builder.addInterceptor(BrotliInterceptor.INSTANCE);
 
-    client = builder.build();
+    this.client = builder.build();
   }
 
   class HTTPHeadersInterceptor implements Interceptor {
@@ -241,7 +241,7 @@ public class OkHttp extends HttpBase {
 
       Connection connection = chain.connection();
       String ipAddress = null;
-      if (storeIPAddress) {
+      if (OkHttp.this.storeIPAddress) {
         InetAddress address = connection.socket().getInetAddress();
         ipAddress = address.getHostAddress();
       }
@@ -252,7 +252,7 @@ public class OkHttp extends HttpBase {
       StringBuilder requestverbatim = null;
       StringBuilder responseverbatim = null;
 
-      if (storeHttpRequest) {
+      if (OkHttp.this.storeHttpRequest) {
         requestverbatim = new StringBuilder();
 
         requestverbatim.append(request.method()).append(' ');
@@ -277,7 +277,7 @@ public class OkHttp extends HttpBase {
         requestverbatim.append("\r\n");
       }
 
-      if (storeHttpHeaders) {
+      if (OkHttp.this.storeHttpHeaders) {
         responseverbatim = new StringBuilder();
 
         responseverbatim.append(getNormalizedProtocolName(response.protocol()))
@@ -322,11 +322,11 @@ public class OkHttp extends HttpBase {
   }
 
   protected List<String[]> getCustomRequestHeaders() {
-    return customRequestHeaders;
+    return this.customRequestHeaders;
   }
 
   protected OkHttpClient getClient() {
-    return client;
+    return this.client;
   }
 
   @Override

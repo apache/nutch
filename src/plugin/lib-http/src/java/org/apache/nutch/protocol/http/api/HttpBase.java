@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.ProtocolLogUtil;
 import org.apache.nutch.net.protocols.Response;
@@ -200,7 +201,7 @@ public abstract class HttpBase implements Protocol {
     if (logger != null) {
       this.logger = logger;
     }
-    robots = new HttpRobotRulesParser();
+    this.robots = new HttpRobotRulesParser();
   }
 
   @Override
@@ -211,7 +212,7 @@ public abstract class HttpBase implements Protocol {
     this.proxyType = Proxy.Type.valueOf(conf.get("http.proxy.type", "HTTP"));
     this.proxyException = arrayToMap(
         conf.getStrings("http.proxy.exception.list"));
-    this.useProxy = (proxyHost != null && proxyHost.length() > 0);
+    this.useProxy = (this.proxyHost != null && this.proxyHost.length() > 0);
     this.timeout = conf.getInt("http.timeout", 10000);
     this.maxContent = conf.getInt("http.content.limit", 1024 * 1024);
     this.maxDuration = conf.getInt("http.time.limit", -1);
@@ -219,10 +220,10 @@ public abstract class HttpBase implements Protocol {
     this.userAgent = getAgentString(conf.get("http.agent.name"),
         conf.get("http.agent.version"), conf.get("http.agent.description"),
         conf.get("http.agent.url"), conf.get("http.agent.email"));
-    this.acceptLanguage = conf.get("http.accept.language", acceptLanguage)
+    this.acceptLanguage = conf.get("http.accept.language", this.acceptLanguage)
         .trim();
-    this.acceptCharset = conf.get("http.accept.charset", acceptCharset).trim();
-    this.accept = conf.get("http.accept", accept).trim();
+    this.acceptCharset = conf.get("http.accept.charset", this.acceptCharset).trim();
+    this.accept = conf.get("http.accept", this.accept).trim();
     this.mimeTypes = new MimeUtil(conf);
     // backward-compatible default setting
     this.useHttp11 = conf.getBoolean("http.useHttp11", true);
@@ -244,27 +245,28 @@ public abstract class HttpBase implements Protocol {
     // NUTCH-1941: read list of alternating agent names
     if (conf.getBoolean("http.agent.rotate", false)) {
       String agentsFile = conf.get("http.agent.rotate.file", "agents.txt");
+      @SuppressWarnings("resource")
       BufferedReader br = null;
       try {
         Reader reader = conf.getConfResourceAsReader(agentsFile);
         br = new BufferedReader(reader);
-        userAgentNames = new ArrayList<String>();
+        this.userAgentNames = new ArrayList<String>();
         String word = "";
         while ((word = br.readLine()) != null) {
           if (!word.trim().isEmpty())
-            userAgentNames.add(word.trim());
+            this.userAgentNames.add(word.trim());
         }
 
-        if (userAgentNames.size() == 0) {
-          logger.warn("Empty list of user agents in http.agent.rotate.file {}",
+        if (this.userAgentNames.size() == 0) {
+          this.logger.warn("Empty list of user agents in http.agent.rotate.file {}",
               agentsFile);
-          userAgentNames = null;
+          this.userAgentNames = null;
         }
 
       } catch (Exception e) {
-        logger.warn("Failed to read http.agent.rotate.file {}: {}", agentsFile,
+        this.logger.warn("Failed to read http.agent.rotate.file {}: {}", agentsFile,
             StringUtils.stringifyException(e));
-        userAgentNames = null;
+        this.userAgentNames = null;
       } finally {
         if (br != null) {
           try {
@@ -274,28 +276,29 @@ public abstract class HttpBase implements Protocol {
           }
         }
       }
-      if (userAgentNames == null) {
-        logger.warn(
+      if (this.userAgentNames == null) {
+        this.logger.warn(
             "Falling back to fixed user agent set via property http.agent.name");
       }
     }
 
     // If cookies are enabled, try to load a per-host cookie file
-    if (enableCookieHeader) {
+    if (this.enableCookieHeader) {
       String cookieFile = conf.get("http.agent.host.cookie.file",
           "cookies.txt");
+      @SuppressWarnings("resource")
       BufferedReader br = null;
       try {
         Reader reader = conf.getConfResourceAsReader(cookieFile);
         br = new BufferedReader(reader);
-        hostCookies = new HashMap<String, String>();
+        this.hostCookies = new HashMap<String, String>();
         String word = "";
         while ((word = br.readLine()) != null) {
           if (!word.trim().isEmpty()) {
             if (word.indexOf("#") == -1) { // skip comment
               String[] parts = word.split("\t");
               if (parts.length == 2) {
-                hostCookies.put(parts[0], parts[1]);
+                this.hostCookies.put(parts[0], parts[1]);
               } else {
                 LOG.warn("Unable to parse cookie file correctly at: " + word);
               }
@@ -303,9 +306,9 @@ public abstract class HttpBase implements Protocol {
           }
         }
       } catch (Exception e) {
-        logger.warn("Failed to read http.agent.host.cookie.file {}: {}",
+        this.logger.warn("Failed to read http.agent.host.cookie.file {}: {}",
             cookieFile, StringUtils.stringifyException(e));
-        hostCookies = null;
+        this.hostCookies = null;
       } finally {
         if (br != null) {
           try {
@@ -368,8 +371,8 @@ public abstract class HttpBase implements Protocol {
         "TLS_CHACHA20_POLY1305_SHA256", "TLS_AES_128_GCM_SHA256",
         "TLS_AES_128_CCM_8_SHA256", "TLS_AES_128_CCM_SHA256");
 
-    tlsPreferredProtocols = new HashSet<String>(Arrays.asList(protocols));
-    tlsPreferredCipherSuites = new HashSet<String>(Arrays.asList(ciphers));
+    this.tlsPreferredProtocols = new HashSet<String>(Arrays.asList(protocols));
+    this.tlsPreferredCipherSuites = new HashSet<String>(Arrays.asList(ciphers));
 
     logConf();
   }
@@ -401,7 +404,7 @@ public abstract class HttpBase implements Protocol {
       byte[] content = response.getContent();
       Content c = new Content(u.toString(), u.toString(),
           (content == null ? EMPTY_CONTENT : content),
-          response.getHeader("Content-Type"), response.getHeaders(), mimeTypes);
+          response.getHeader("Content-Type"), response.getHeaders(), this.mimeTypes);
 
       if (code == 200) { // got a good response
         return new ProtocolOutput(c); // return it
@@ -437,15 +440,15 @@ public abstract class HttpBase implements Protocol {
         // handle this in the higher layer.
         return new ProtocolOutput(c, new ProtocolStatus(protocolStatusCode, u));
       } else if (code == 400) { // bad request, mark as GONE
-        if (logger.isTraceEnabled()) {
-          logger.trace("400 Bad request: " + u);
+        if (this.logger.isTraceEnabled()) {
+          this.logger.trace("400 Bad request: " + u);
         }
         return new ProtocolOutput(c,
             new ProtocolStatus(ProtocolStatus.GONE, u));
       } else if (code == 401) { // requires authorization, but no valid auth
                                 // provided.
-        if (logger.isTraceEnabled()) {
-          logger.trace("401 Authentication Required");
+        if (this.logger.isTraceEnabled()) {
+          this.logger.trace("401 Authentication Required");
         }
         return new ProtocolOutput(c,
             new ProtocolStatus(ProtocolStatus.ACCESS_DENIED,
@@ -461,10 +464,10 @@ public abstract class HttpBase implements Protocol {
             ProtocolStatus.EXCEPTION, "Http code=" + code + ", url=" + u));
       }
     } catch (Throwable e) {
-      if (logger.isDebugEnabled() || !logUtil.logShort(e)) {
-        logger.error("Failed to get protocol output", e);
+      if (this.logger.isDebugEnabled() || !this.logUtil.logShort(e)) {
+        this.logger.error("Failed to get protocol output", e);
       } else {
-        logger.error("Failed to get protocol output: {}",
+        this.logger.error("Failed to get protocol output: {}",
             e.getClass().getName());
       }
       return new ProtocolOutput(null, new ProtocolStatus(e));
@@ -477,11 +480,11 @@ public abstract class HttpBase implements Protocol {
    */
 
   public String getProxyHost() {
-    return proxyHost;
+    return this.proxyHost;
   }
 
   public int getProxyPort() {
-    return proxyPort;
+    return this.proxyPort;
   }
 
   public boolean useProxy(URL url) {
@@ -493,38 +496,38 @@ public abstract class HttpBase implements Protocol {
   }
 
   public boolean useProxy(String host) {
-    if (useProxy && proxyException.containsKey(host)) {
+    if (this.useProxy && this.proxyException.containsKey(host)) {
       return false;
     }
-    return useProxy;
+    return this.useProxy;
   }
 
   public int getTimeout() {
-    return timeout;
+    return this.timeout;
   }
 
   public boolean isIfModifiedSinceEnabled() {
-    return enableIfModifiedsinceHeader;
+    return this.enableIfModifiedsinceHeader;
   }
 
   public boolean isCookieEnabled() {
-    return enableCookieHeader;
+    return this.enableCookieHeader;
   }
 
   public boolean isStoreIPAddress() {
-    return storeIPAddress;
+    return this.storeIPAddress;
   }
 
   public boolean isStoreHttpRequest() {
-    return storeHttpRequest;
+    return this.storeHttpRequest;
   }
 
   public boolean isStoreHttpHeaders() {
-    return storeHttpHeaders;
+    return this.storeHttpHeaders;
   }
 
   public int getMaxContent() {
-    return maxContent;
+    return this.maxContent;
   }
 
   /**
@@ -533,7 +536,7 @@ public abstract class HttpBase implements Protocol {
    * @return the maximum duration
    */
   public int getMaxDuration() {
-    return maxDuration;
+    return this.maxDuration;
   }
 
   /**
@@ -542,15 +545,15 @@ public abstract class HttpBase implements Protocol {
    * @return true if partially fetched truncated content is stored
    */
   public boolean isStorePartialAsTruncated() {
-    return partialAsTruncated;
+    return this.partialAsTruncated;
   }
 
   public String getUserAgent() {
-    if (userAgentNames != null) {
-      return userAgentNames
-          .get(ThreadLocalRandom.current().nextInt(userAgentNames.size()));
+    if (this.userAgentNames != null) {
+      return this.userAgentNames
+          .get(ThreadLocalRandom.current().nextInt(this.userAgentNames.size()));
     }
-    return userAgent;
+    return this.userAgent;
   }
 
   /**
@@ -562,8 +565,8 @@ public abstract class HttpBase implements Protocol {
    * @return the cookie or null
    */
   public String getCookie(URL url) {
-    if (hostCookies != null) {
-      return hostCookies.get(url.getHost());
+    if (this.hostCookies != null) {
+      return this.hostCookies.get(url.getHost());
     }
 
     return null;
@@ -575,38 +578,37 @@ public abstract class HttpBase implements Protocol {
    * @return The value of the header "Accept-Language" header.
    */
   public String getAcceptLanguage() {
-    return acceptLanguage;
+    return this.acceptLanguage;
   }
 
   public String getAcceptCharset() {
-    return acceptCharset;
+    return this.acceptCharset;
   }
 
   public String getAccept() {
-    return accept;
+    return this.accept;
   }
 
   public boolean getUseHttp11() {
-    return useHttp11;
+    return this.useHttp11;
   }
 
   public boolean isTlsCheckCertificates() {
-    return tlsCheckCertificate;
+    return this.tlsCheckCertificate;
   }
 
   public Set<String> getTlsPreferredCipherSuites() {
-    return tlsPreferredCipherSuites;
+    return this.tlsPreferredCipherSuites;
   }
 
   public Set<String> getTlsPreferredProtocols() {
-    return tlsPreferredProtocols;
+    return this.tlsPreferredProtocols;
   }
 
   private static String getAgentString(String agentName, String agentVersion,
       String agentDesc, String agentURL, String agentEmail) {
 
     if ((agentName == null) || (agentName.trim().length() == 0)) {
-      // TODO : NUTCH-258
       if (LOG.isErrorEnabled()) {
         LOG.error("No User-Agent string set (http.agent.name)!");
       }
@@ -645,16 +647,16 @@ public abstract class HttpBase implements Protocol {
   }
 
   protected void logConf() {
-    if (logger.isInfoEnabled()) {
-      logger.info("http.proxy.host = " + proxyHost);
-      logger.info("http.proxy.port = " + proxyPort);
-      logger.info("http.proxy.exception.list = " + useProxy);
-      logger.info("http.timeout = " + timeout);
-      logger.info("http.content.limit = " + maxContent);
-      logger.info("http.agent = " + userAgent);
-      logger.info("http.accept.language = " + acceptLanguage);
-      logger.info("http.accept = " + accept);
-      logger.info("http.enable.cookie.header = " + isCookieEnabled());
+    if (this.logger.isInfoEnabled()) {
+      this.logger.info("http.proxy.host = " + this.proxyHost);
+      this.logger.info("http.proxy.port = " + this.proxyPort);
+      this.logger.info("http.proxy.exception.list = " + this.useProxy);
+      this.logger.info("http.timeout = " + this.timeout);
+      this.logger.info("http.content.limit = " + this.maxContent);
+      this.logger.info("http.agent = " + this.userAgent);
+      this.logger.info("http.accept.language = " + this.acceptLanguage);
+      this.logger.info("http.accept = " + this.accept);
+      this.logger.info("http.enable.cookie.header = " + isCookieEnabled());
     }
   }
 
@@ -748,7 +750,7 @@ public abstract class HttpBase implements Protocol {
     if (content != null) {
       System.out.println("Content Type: " + content.getContentType());
       System.out.println("Content Length: "
-          + content.getMetadata().get(Response.CONTENT_LENGTH));
+          + content.getMetadata().get(HttpHeaders.CONTENT_LENGTH));
       System.out.println("Content:");
       String text = new String(content.getContent());
       System.out.println(text);
@@ -761,7 +763,7 @@ public abstract class HttpBase implements Protocol {
   @Override
   public BaseRobotRules getRobotRules(Text url, CrawlDatum datum,
       List<Content> robotsTxtContent) {
-    return robots.getRobotRulesSet(this, url, robotsTxtContent);
+    return this.robots.getRobotRulesSet(this, url, robotsTxtContent);
   }
 
   /**
@@ -771,7 +773,7 @@ public abstract class HttpBase implements Protocol {
    *          String[]
    * @return a new HashMap
    */
-  private HashMap<String, String> arrayToMap(String[] input) {
+  private static HashMap<String, String> arrayToMap(String[] input) {
     if (input == null || input.length == 0) {
       return new HashMap<String, String>();
     }

@@ -19,6 +19,7 @@ package org.apache.nutch.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -50,7 +51,7 @@ public class PluginManifestParser {
   private static final String ATTR_CLASS = "class";
   private static final String ATTR_ID = "id";
 
-  protected static final Logger LOG = LoggerFactory.getLogger(PluginManifestParser.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private static final boolean WINDOWS = System.getProperty("os.name").startsWith("Windows");
 

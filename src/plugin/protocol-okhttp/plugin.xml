@@ -26,15 +26,15 @@
          <export name="*"/>
       </library>
       <!-- dependencies of OkHttp -->
-      <library name="okhttp-4.9.1.jar"/>
-      <library name="okhttp-brotli-4.9.1.jar"/>
-      <library name="okio-2.8.0.jar"/>
+      <library name="annotations-13.0.jar"/>
+      <library name="dec-0.1.2.jar"/>
       <library name="kotlin-stdlib-1.4.10.jar"/>
       <library name="kotlin-stdlib-common-1.4.10.jar"/>
       <library name="kotlin-stdlib-jdk7-1.4.10.jar"/>
       <library name="kotlin-stdlib-jdk8-1.4.10.jar"/>
-      <library name="annotations-13.0.jar"/>
-      <library name="dec-0.1.2.jar"/>
+      <library name="okhttp-4.9.3.jar"/>
+      <library name="okhttp-brotli-4.9.3.jar"/>
+      <library name="okio-2.8.0.jar"/>
       <!-- end of dependencies of OkHttp -->
    </runtime>
 
@@ -54,7 +54,7 @@
 
       <implementation id="org.apache.nutch.protocol.okhttp.OkHttp"
                        class="org.apache.nutch.protocol.okhttp.OkHttp">
-           <parameter name="protocolName" value="https"/>
+        <parameter name="protocolName" value="https"/>
       </implementation>
 
    </extension>
