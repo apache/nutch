@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.any23;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -41,7 +42,8 @@ import org.slf4j.LoggerFactory;
 public class Any23IndexingFilter implements IndexingFilter {
 
   /** Logging instance */
-  private static final Logger LOG = LoggerFactory.getLogger(Any23IndexingFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
   
   public static final String STRUCTURED_DATA = "structured_data";
 

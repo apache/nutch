@@ -976,15 +976,6 @@
 </property>
 
 <property>
-  <name>fetcher.threads.start.delay</name>
-  <value>10</value>
-  <description>Delay in milliseconds between starting Fetcher threads
-  to avoid that all threads simultaneously fetch the first pages and
-  cause that DNS or other resources are temporarily exhausted.
-  </description>
-</property>
-
-<property>
   <name>fetcher.threads.per.queue</name>
   <value>1</value>
   <description>This number is the maximum number of threads that
@@ -1260,13 +1251,25 @@
 <property>
     <name>any23.extractors</name>
     <value>html-microdata</value>
-    <description>Comma-separated list of Any23 extractors (a list of extractors is available here: http://any23.apache.org/getting-started.html)</description>
+    <description>Comma-separated list of Any23 extractors (a list of extractors is available here: https://any23.apache.org/getting-started.html#the-extractordocumentation-tool)</description>
 </property>
 
 <property>
     <name>any23.content_types</name>
     <value>text/html,application/xhtml+xml</value>
     <description>Comma-separated list of content-types onto which Any23 extractors should be applied (see http://www.iana.org/assignments/media-types/). If empty, all content-types are supported.</description>
+</property>
+
+<property>
+    <name>any23.repository</name>
+    <value></value>
+    <description>A comma-separated RDF4J repository and ID to write Any23 extractions to. Under the hood we use Any23's RepositoryWriter https://any23.apache.org/apidocs/org/apache/any23/writer/RepositoryWriter.html. An example value would be 'https://rdf4j.host.com:7200,NUTCHGRAPH'</description>
+</property>
+
+<property>
+    <name>any23.repository.credentials</name>
+    <value></value>
+    <description>Username and password to interact with the SPARQL endpoint defined in 'any23.repository'. Separate username and password with a comma e.g. 'username,password'.</description>
 </property>
 
 <!-- moreindexingfilter plugin properties -->

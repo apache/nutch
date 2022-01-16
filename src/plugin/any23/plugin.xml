@@ -129,6 +129,7 @@
       <library name="rdf4j-queryresultio-binary-3.7.4.jar"/>
       <library name="rdf4j-queryresultio-sparqlxml-3.7.4.jar"/>
       <library name="rdf4j-repository-api-3.7.4.jar"/>
+      <library name="rdf4j-repository-http-3.7.4.jar"/>
       <library name="rdf4j-repository-sail-3.7.4.jar"/>
       <library name="rdf4j-repository-sparql-3.7.4.jar"/>
       <library name="rdf4j-rio-api-3.7.4.jar"/>
@@ -155,6 +156,7 @@
       <library name="semargl-rdf-0.7.jar"/>
       <library name="semargl-rdf4j-0.7.jar"/>
       <library name="semargl-rdfa-0.7.jar"/>
+      <library name="slf4j-api-1.7.32.jar"/>
       <library name="snakeyaml-1.30.jar"/>
       <library name="tagsoup-1.2.1.jar"/>
       <library name="tika-core-2.2.1.jar"/>

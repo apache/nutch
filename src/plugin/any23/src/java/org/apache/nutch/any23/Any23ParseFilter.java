@@ -18,10 +18,14 @@ package org.apache.nutch.any23;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -32,16 +36,24 @@ import org.apache.any23.filter.IgnoreTitlesOfEmptyDocuments;
 import org.apache.any23.mime.TikaMIMETypeDetector;
 import org.apache.any23.mime.purifier.WhiteSpacesPurifier;
 import org.apache.any23.writer.BenchmarkTripleHandler;
+import org.apache.any23.writer.CompositeTripleHandler;
 import org.apache.any23.writer.NTriplesWriter;
+import org.apache.any23.writer.RepositoryWriter;
 import org.apache.any23.writer.TripleHandler;
 import org.apache.any23.writer.TripleHandlerException;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.http.client.HttpClient;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.http.HTTPRepository;
+import org.eclipse.rdf4j.repository.http.config.HTTPRepositoryConfig;
+import org.eclipse.rdf4j.repository.http.config.HTTPRepositoryFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
@@ -50,19 +62,26 @@ import org.w3c.dom.DocumentFragment;
  * <p>This implementation of {@link org.apache.nutch.parse.HtmlParseFilter}
  * uses the <a href="https://any23.apache.org/">Apache Any23</a> library
  * for parsing and extracting structured data in RDF format from a
- * variety of Web documents. The supported formats can be found at <a href="https://any23.apache.org/">Apache Any23</a>.
- * <p>In this implementation triples are written as <a href="https://www.w3.org/TeamSubmission/n3/">Notation3</a> 
+ * variety of Web documents. The supported formats can be found at 
+ * <a href="https://any23.apache.org/supported-formats.html">Apache Any23</a>.
+ * <p>In this implementation triples are written as 
+ * <a href="https://www.w3.org/TeamSubmission/n3/">Notation3</a> 
  * and triples are identified within output triple streams by the presence of '\n'.
  * The presence of the '\n' is a characteristic specific to N3 serialization in Any23.
  * In order to use another/other writers implementing the
  * <a href="https://any23.apache.org/apidocs/index.html?org/apache/any23/writer/TripleHandler.html">TripleHandler</a>
  * interface, we will most likely need to identify an alternative data characteristic
  * which we can use to split triples streams.</p>
+ * Optionally, in additional to performing data extractions this plugin
+ * can also be configured to write data into an Rdf4j-compliant repository.
+ * @see <a href="https://issues.apache.org/jira/browse/NUTCH-2938">
+ * https://issues.apache.org/jira/browse/NUTCH-2938</a>
  */
 public class Any23ParseFilter implements HtmlParseFilter {
 
   /** Logging instance */
-  private static final Logger LOG = LoggerFactory.getLogger(Any23ParseFilter.class);
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   private Configuration conf = null;
 
@@ -79,10 +98,10 @@ public class Any23ParseFilter implements HtmlParseFilter {
 
     Set<String> triples = null;
 
-    Any23Parser(String url, String htmlContent, String contentType, String... extractorNames) throws TripleHandlerException {
+    Any23Parser(Configuration conf, String url, String htmlContent, String contentType, String... extractorNames) throws TripleHandlerException {
       this.triples = new TreeSet<>();
       try {
-        parse(url, htmlContent, contentType, extractorNames);
+        parse(conf, url, htmlContent, contentType, extractorNames);
       } catch (URISyntaxException e) {
         LOG.error("Error parsing URI: {}", url, e);
         throw new RuntimeException(e.getReason());
@@ -99,15 +118,42 @@ public class Any23ParseFilter implements HtmlParseFilter {
       return this.triples;
     }
 
-    private void parse(String url, String htmlContent, String contentType, String... extractorNames)
+    private void parse(Configuration conf, String url, String htmlContent, String contentType, String... extractorNames)
             throws URISyntaxException, IOException, TripleHandlerException {
       Any23 any23 = new Any23(extractorNames);
+      any23.setHTTPUserAgent(conf.get("http.agent.name"));
       any23.setMIMETypeDetector(new TikaMIMETypeDetector(new WhiteSpacesPurifier()));
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       try (TripleHandler tHandler = new IgnoreTitlesOfEmptyDocuments(
               new IgnoreAccidentalRDFa(
                       new NTriplesWriter(baos))); 
-              BenchmarkTripleHandler bHandler = new BenchmarkTripleHandler(tHandler)) {
+              BenchmarkTripleHandler bHandler = new BenchmarkTripleHandler(tHandler);
+              CompositeTripleHandler cHandler = new CompositeTripleHandler()) {
+        cHandler.addChild(bHandler);
+        cHandler.addChild(tHandler);
+        //persist Any23 output into SPARQL repository?
+        String repo = conf.getStrings("any23.repository");
+        if (repo != null) {
+          String[] credentialStrings = conf.getStrings("any23.repository.credentials");
+          HTTPRepository repository = new HTTPRepository(repo[0], repo[1]);
+          repository.setUsernameAndPassword(credentialStrings[0], credentialStrings[1]);
+          repository.init();
+          if (repository.isInitialized()) {
+            try (RepositoryWriter rWriter = new RepositoryWriter(repository.getConnection())) {
+              cHandler.addChild(rWriter);
+              try {
+                any23.extract(htmlContent, url, contentType, "UTF-8", cHandler);
+              } catch (IOException e) {
+                LOG.error("Error while reading the source", e);
+              } catch (ExtractionException e) {
+                LOG.error("Error while extracting structured data", e);
+              }
+            } catch (TripleHandlerException the) {
+              LOG.error("Error during initializaion of RepositoryWriter TripleHandler: ", the.getMessage());
+            }
+          }
+          repository.shutDown();
+        }
         try {
           any23.extract(htmlContent, url, contentType, "UTF-8", bHandler);
         } catch (IOException e) {
@@ -125,6 +171,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
         LOG.error("Unexpected IOException", e);
       }
     }
+    
   }
 
   @Override
@@ -153,7 +200,7 @@ public class Any23ParseFilter implements HtmlParseFilter {
     Any23Parser parser;
     try {
       String htmlContent = new String(content.getContent(), Charset.forName("UTF-8"));
-      parser = new Any23Parser(content.getUrl(), htmlContent, contentType, extractorNames);
+      parser = new Any23Parser(this.conf, content.getUrl(), htmlContent, contentType, extractorNames);
     } catch (TripleHandlerException e) {
       throw new RuntimeException("Error running Any23 parser: " + e.getMessage());
     }

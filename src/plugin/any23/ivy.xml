@@ -43,6 +43,7 @@
       <exclude org="org.slf4j" name="slf4j-api" />
       <exclude org="xerces" />
     </dependency>
+    <dependency org="org.eclipse.rdf4j" name="rdf4j-repository-http" rev="3.7.4" conf="*->default" />
     <dependency org="org.apache.commons" name="commons-rdf-api" rev="0.5.0" conf="*->default"/>
   </dependencies>
 
