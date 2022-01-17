@@ -287,7 +287,16 @@ public class FetchItemQueues {
     return 0;
   }
 
-  /** See {@link #checkExceptionThreshold(String, int, long)} */
+  /**
+   * Increment the exception counter of a queue in case of an exception e.g.
+   * timeout; when higher than a given threshold simply empty the queue.
+   * 
+   * @see #checkExceptionThreshold(String, int, long)
+   * 
+   * @param queueid
+   *          queue identifier to locate and check
+   * @return number of purged items
+   */
   public int checkExceptionThreshold(String queueid) {
     return checkExceptionThreshold(queueid, this.maxExceptionsPerQueue, -1);
   }
