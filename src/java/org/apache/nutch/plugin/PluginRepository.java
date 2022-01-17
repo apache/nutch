@@ -605,8 +605,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
             // return the handler here, if possible
             String handlerClass = extension.getAttribute("urlStreamHandler");
-            LOG.debug("Located URLStreamHandler: {}", handlerClass);
             if (handlerClass != null) {
+              LOG.debug("Located URLStreamHandler: {}", handlerClass);
               // the nutch classloader
               ClassLoader cl = this.getClass().getClassLoader();
               if (extinst != null) {
