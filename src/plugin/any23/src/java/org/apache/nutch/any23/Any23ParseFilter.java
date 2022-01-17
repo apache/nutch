@@ -131,11 +131,11 @@ public class Any23ParseFilter implements HtmlParseFilter {
         cHandler.addChild(bHandler);
         cHandler.addChild(tHandler);
         //persist Any23 output into SPARQL repository?
-        String repo = conf.getStrings("any23.repository");
+        String[] repo = conf.getStrings("any23.repository");
         if (repo != null) {
-          String[] credentialStrings = conf.getStrings("any23.repository.credentials");
+          String[] creds = conf.getStrings("any23.repository.credentials");
           HTTPRepository repository = new HTTPRepository(repo[0], repo[1]);
-          repository.setUsernameAndPassword(credentialStrings[0], credentialStrings[1]);
+          repository.setUsernameAndPassword(creds[0], creds[1]);
           repository.init();
           if (repository.isInitialized()) {
             try (RepositoryWriter rWriter = new RepositoryWriter(repository.getConnection())) {
