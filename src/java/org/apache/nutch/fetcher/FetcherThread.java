@@ -325,7 +325,7 @@ public class FetcherThread extends Thread {
             if (rules.isDeferVisits()) {
               LOG.info("Defer visits for queue {} : {}", fit.queueID, fit.url);
               // retry the fetch item
-              if (fetchQueues.timelimitReached()) {
+              if (fetchQueues.timelimitExceeded()) {
                 fetchQueues.finishFetchItem(fit, true);
               } else {
                 fetchQueues.addFetchItem(fit);
@@ -335,8 +335,9 @@ public class FetcherThread extends Thread {
                   fit.getQueueID(), this.robotsDeferVisitsRetries + 1,
                   this.robotsDeferVisitsDelay);
               if (killedURLs != 0) {
-                context.getCounter("FetcherStatus",
-                    "DroppedRobotsTxtDeferVisits").increment(killedURLs);
+                context
+                    .getCounter("FetcherStatus", "robots_defer_visits_dropped")
+                    .increment(killedURLs);
               }
               continue;
             }
@@ -628,7 +629,7 @@ public class FetcherThread extends Thread {
       LOG.debug(" - ignoring redirect from {} to {} as duplicate", fit.url,
           redirUrl);
       return null;
-    } else if (fetchQueues.timelimitReached()) {
+    } else if (fetchQueues.timelimitExceeded()) {
       redirecting = false;
       context.getCounter("FetcherStatus", "hitByTimeLimit").increment(1);
       LOG.debug(" - ignoring redirect from {} to {} - timelimit reached",
@@ -817,7 +818,7 @@ public class FetcherThread extends Thread {
 
           // Only process depth N outlinks
           if (maxOutlinkDepth > 0 && outlinkDepth < maxOutlinkDepth
-              && !fetchQueues.timelimitReached()) {
+              && !fetchQueues.timelimitExceeded()) {
             FetchItem ft = FetchItem.create(url, null, queueMode);
             FetchItemQueue queue = fetchQueues.getFetchItemQueue(ft.queueID);
             queue.alreadyFetched.add(url.toString().hashCode());

@@ -195,7 +195,11 @@ public class FetchItemQueues {
     return null;
   }
 
-  public boolean timelimitReached() {
+  /**
+   * @return true if the fetcher timelimit is defined and has been exceeded
+   *         ({@code fetcher.timelimit.mins} minutes after fetching started)
+   */
+  public boolean timelimitExceeded() {
     return timelimit != -1 && System.currentTimeMillis() >= timelimit;
   }
 
@@ -203,7 +207,7 @@ public class FetchItemQueues {
   public synchronized int checkTimelimit() {
     int count = 0;
 
-    if (timelimitReached()) {
+    if (timelimitExceeded()) {
       // emptying the queues
       count = emptyQueues();
 
@@ -283,6 +287,7 @@ public class FetchItemQueues {
     return 0;
   }
 
+  /** See {@link #checkExceptionThreshold(String, int, long)} */
   public int checkExceptionThreshold(String queueid) {
     return checkExceptionThreshold(queueid, this.maxExceptionsPerQueue, -1);
   }
