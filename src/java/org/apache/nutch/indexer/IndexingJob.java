@@ -28,18 +28,18 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.segment.SegmentChecker;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -145,7 +145,9 @@ public class IndexingJob extends NutchTool implements Tool {
       try{
         boolean success = job.waitForCompletion(true);
         if (!success) {
-          String message = NutchJob.getJobFailureLogMessage("Indexing", job);
+          String message = "Indexing job did not succeed, job id: "
+              + job.getJobID() + ", job status:" + job.getStatus().getState()
+              + ", reason: " + job.getStatus().getFailureInfo();
           LOG.error(message);
           throw new RuntimeException(message);
         }

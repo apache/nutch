@@ -41,6 +41,7 @@ import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.hostdb.HostDatum;
 import org.apache.nutch.net.URLFilters;
@@ -50,6 +51,7 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -400,8 +402,10 @@ public class SitemapProcessor extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage(
-            "SitemapProcessor_" + crawldb.toString(), job);
+        String message = "SitemapProcessor_" + crawldb.toString()
+            + " job did not succeed, job id: " + job.getJobID()
+            + ", job status: " + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
         LOG.error(message);
         NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
         // throw exception so that calling routine can exit with error

@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -32,6 +31,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -45,9 +46,9 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.apache.hadoop.util.StringUtils;
@@ -57,8 +58,6 @@ import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The LinkDumper tool creates a database of node to inlink information that can
@@ -356,8 +355,9 @@ public class LinkDumper extends Configured implements Tool {
       LOG.info("LinkDumper: running inverter");
       boolean success = inverter.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("LinkDumper inverter",
-            inverter);
+        String message = "LinkDumper inverter job did not succeed, job id: "
+            + inverter.getJobID() + ", job status:" + inverter.getStatus().getState()
+            + ", reason: " + inverter.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -385,8 +385,9 @@ public class LinkDumper extends Configured implements Tool {
       LOG.info("LinkDumper: running merger");
       boolean success = merger.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("LinkDumper merger",
-            merger);
+        String message = "LinkDumper merger job did not succeed, job id: "
+            + merger.getJobID() + ", job status:" + merger.getStatus().getState()
+            + ", reason: " + merger.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }

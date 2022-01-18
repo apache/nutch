@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -35,8 +37,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
@@ -53,8 +55,6 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TimingUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
 public class LinkDb extends NutchTool implements Tool {
@@ -224,7 +224,9 @@ public class LinkDb extends NutchTool implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("LinkDb", job);
+        String message = "LinkDb job did not succeed, job id: " + job.getJobID()
+            + ", job status:" + job.getStatus().getState() + ", reason: "
+            + job.getStatus().getFailureInfo();
         LOG.error(message);
         LockUtil.removeLockFile(fs, lock);
         throw new RuntimeException(message);
@@ -246,7 +248,9 @@ public class LinkDb extends NutchTool implements Tool {
       try {
         boolean success = job.waitForCompletion(true);
         if (!success) {
-          String message = NutchJob.getJobFailureLogMessage("LinkDb", job);
+          String message = "LinkDb job did not succeed, job id: "+job.getJobID()+", job status:"
+              + job.getStatus().getState() + ", reason: "
+              + job.getStatus().getFailureInfo();
           LOG.error(message);
           NutchJob.cleanupAfterFailure(newLinkDb, lock, fs);
           throw new RuntimeException(message);

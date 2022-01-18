@@ -553,7 +553,9 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("CrawlDbReader", job);
+        String message = "CrawlDbReader job did not succeed, job id: "
+            + job.getJobID() + ", job status:" + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         fileSystem.delete(tmpFolder, true);
         throw new RuntimeException(message);
@@ -842,7 +844,9 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("CrawlDbReader", job);
+        String message = "CrawlDbReader job did not succeed, job id: "
+            + job.getJobID() + ", job status:" + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -952,7 +956,9 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("CrawlDbReader", job);
+        String message = "CrawlDbReader job did not succeed, job id: "
+            + job.getJobID() + ", job status:" + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         fs.delete(tempDir, true);
         throw new RuntimeException(message);
@@ -984,7 +990,9 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("CrawlDbReader", job);
+        String message = "CrawlDbReader job did not succeed, job id: "
+            + job.getJobID() + ", job status:" + job.getStatus().getState()
+            + ", reason: " + job.getStatus().getFailureInfo();
         LOG.error(message);
         fs.delete(tempDir, true);
         throw new RuntimeException(message);

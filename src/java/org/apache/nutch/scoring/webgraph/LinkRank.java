@@ -35,6 +35,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -48,13 +50,13 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionCodecFactory;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.StringUtils;
@@ -65,8 +67,6 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LinkRank extends Configured implements Tool {
 
@@ -117,8 +117,9 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = counter.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("Link counter",
-            counter);
+        String message = "Link counter job did not succeed, job id: "
+            + counter.getJobID() + ", job status:" + counter.getStatus().getState()
+            + ", reason: " + counter.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -215,8 +216,10 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = initializer.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("Initialization",
-            initializer);
+        String message = "Initialization job did not succeed, job id: "
+            + initializer.getJobID() + ", job status:"
+            + initializer.getStatus().getState() + ", reason: "
+            + initializer.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -268,7 +271,9 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = inverter.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("Inverter", inverter);
+        String message = "Inverter job did not succeed, job id: "
+            + inverter.getJobID() + ", job status:" + inverter.getStatus().getState()
+            + ", reason: " + inverter.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -330,7 +335,9 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = analyzer.waitForCompletion(true);
       if (!success) {
-        String message = NutchJob.getJobFailureLogMessage("Analysis", analyzer);
+        String message = "Analysis job did not succeed, job id: "
+            + analyzer.getJobID() + ", job status:" + analyzer.getStatus().getState()
+            + ", reason: " + analyzer.getStatus().getFailureInfo();
         LOG.error(message);
         throw new RuntimeException(message);
       }
