@@ -100,7 +100,7 @@ public class NutchJob extends Job {
       throws IOException, InterruptedException {
     if (job != null) {
       return String.format(JOB_FAILURE_LOG_FORMAT, name, job.getJobID(),
-          job.getStatus(), job.getStatus().getFailureInfo());
+          job.getStatus().getState(), job.getStatus().getFailureInfo());
     }
     return "";
   }
