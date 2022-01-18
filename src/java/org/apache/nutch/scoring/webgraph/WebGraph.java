@@ -34,29 +34,27 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.BooleanWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -69,6 +67,8 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates three databases, one for inlinks, one for outlinks, and a node
@@ -603,10 +603,8 @@ public class WebGraph extends Configured implements Tool {
       LOG.info("OutlinkDb: running");
       boolean success = outlinkJob.waitForCompletion(true);
       if (!success) {
-        String message = "OutlinkDb job did not succeed, job id: "
-            + outlinkJob.getJobID() + ", job status:"
-            + outlinkJob.getStatus().getState() + ", reason: "
-            + outlinkJob.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("OutlinkDb",
+            outlinkJob);
         LOG.error(message);
         NutchJob.cleanupAfterFailure(tempOutlinkDb, lock, fs);
         throw new RuntimeException(message);
@@ -652,10 +650,8 @@ public class WebGraph extends Configured implements Tool {
       LOG.info("InlinkDb: running");
       boolean success = inlinkJob.waitForCompletion(true);
       if (!success) {
-        String message = "InlinkDb job did not succeed, job id:"
-            + inlinkJob.getJobID() + ", job status:"
-            + inlinkJob.getStatus().getState() + ", reason: "
-            + inlinkJob.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("InlinkDb",
+            inlinkJob);
         LOG.error(message);
         NutchJob.cleanupAfterFailure(tempInlinkDb, lock, fs);
         throw new RuntimeException(message);
@@ -700,9 +696,7 @@ public class WebGraph extends Configured implements Tool {
       LOG.info("NodeDb: running");
       boolean success = nodeJob.waitForCompletion(true);
       if (!success) {
-        String message = "NodeDb job did not succeed, job id: " + nodeJob.getJobID()
-            + ", job status:" + nodeJob.getStatus().getState() + ", reason: "
-            + nodeJob.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("NodeDb", nodeJob);
         LOG.error(message);
         // remove lock file and and temporary directory if an error occurs
         NutchJob.cleanupAfterFailure(tempNodeDb, lock, fs);

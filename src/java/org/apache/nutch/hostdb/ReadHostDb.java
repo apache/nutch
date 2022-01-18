@@ -21,8 +21,11 @@ import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlScript;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -32,23 +35,20 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.TimingUtil;
+import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.SegmentReaderUtil;
-
-import org.apache.commons.jexl3.JexlBuilder;
-import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.JexlScript;
-import org.apache.commons.jexl3.JexlEngine;
-import org.apache.commons.jexl3.MapContext;
+import org.apache.nutch.util.TimingUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @see <a href='https://commons.apache.org/proper/commons-jexl/reference/syntax.html'>Commons</a>
@@ -197,9 +197,7 @@ public class ReadHostDb extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "ReadHostDb job did not succeed, job id: "
-            + job.getJobID() + ", job status: " + job.getStatus().getState()
-            + ", reason: " + job.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("ReadHostDb", job);
         LOG.error(message);
         // throw exception so that calling routine can exit with error
         throw new RuntimeException(message);

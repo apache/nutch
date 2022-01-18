@@ -22,15 +22,15 @@ import java.util.Random;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -41,7 +41,6 @@ import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,9 +131,7 @@ public class UpdateHostDb extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "UpdateHostDb job did not succeed, job id: "
-            + job.getJobID() + ", job status:" + job.getStatus().getState()
-            + ", reason: " + job.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("UpdateHostDb", job);
         LOG.error(message);
         NutchJob.cleanupAfterFailure(tempHostDb, lock, fs);
         throw new RuntimeException(message);

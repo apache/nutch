@@ -16,41 +16,37 @@
  */
 package org.apache.nutch.crawl;
 
+import java.io.Closeable;
 import java.io.IOException;
-
 import java.lang.invoke.MethodHandles;
+import java.text.SimpleDateFormat;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// Commons Logging imports
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.hadoop.conf.Configuration;
-
 import org.apache.nutch.util.AbstractChecker;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
-
-import java.text.SimpleDateFormat;
-import java.util.Iterator;
-import java.io.Closeable;
+// Commons Logging imports
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Read utility for the LinkDb.
@@ -183,9 +179,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
     try{
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "LinkDbRead job did not succeed, job id: "
-            + job.getJobID() + ", job status:" + job.getStatus().getState()
-            + ", reason: " + job.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("LinkDbRead", job);
         LOG.error(message);
         throw new RuntimeException(message);
       }
