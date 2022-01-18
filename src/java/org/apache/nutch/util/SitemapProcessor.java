@@ -402,10 +402,8 @@ public class SitemapProcessor extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "SitemapProcessor_" + crawldb.toString()
-            + " job did not succeed, job id: " + job.getJobID()
-            + ", job status: " + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage(
+            "SitemapProcessor_" + crawldb.toString(), job);
         LOG.error(message);
         NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
         // throw exception so that calling routine can exit with error

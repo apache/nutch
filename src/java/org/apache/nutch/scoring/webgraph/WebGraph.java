@@ -603,10 +603,8 @@ public class WebGraph extends Configured implements Tool {
       LOG.info("OutlinkDb: running");
       boolean success = outlinkJob.waitForCompletion(true);
       if (!success) {
-        String message = "OutlinkDb job did not succeed, job id: "
-            + outlinkJob.getJobID() + ", job status:"
-            + outlinkJob.getStatus().getState() + ", reason: "
-            + outlinkJob.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("OutlinkDb",
+            outlinkJob);
         LOG.error(message);
         NutchJob.cleanupAfterFailure(tempOutlinkDb, lock, fs);
         throw new RuntimeException(message);
@@ -652,10 +650,8 @@ public class WebGraph extends Configured implements Tool {
       LOG.info("InlinkDb: running");
       boolean success = inlinkJob.waitForCompletion(true);
       if (!success) {
-        String message = "InlinkDb job did not succeed, job id:"
-            + inlinkJob.getJobID() + ", job status:"
-            + inlinkJob.getStatus().getState() + ", reason: "
-            + inlinkJob.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("InlinkDb",
+            inlinkJob);
         LOG.error(message);
         NutchJob.cleanupAfterFailure(tempInlinkDb, lock, fs);
         throw new RuntimeException(message);
@@ -700,9 +696,7 @@ public class WebGraph extends Configured implements Tool {
       LOG.info("NodeDb: running");
       boolean success = nodeJob.waitForCompletion(true);
       if (!success) {
-        String message = "NodeDb job did not succeed, job id: " + nodeJob.getJobID()
-            + ", job status:" + nodeJob.getStatus().getState() + ", reason: "
-            + nodeJob.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("NodeDb", nodeJob);
         LOG.error(message);
         // remove lock file and and temporary directory if an error occurs
         NutchJob.cleanupAfterFailure(tempNodeDb, lock, fs);

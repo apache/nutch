@@ -39,6 +39,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
@@ -139,9 +140,7 @@ public class DomainStatistics extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "Injector job did not succeed, job id: "
-            + job.getJobID() + ", job status: " + job.getStatus().getState()
-            + ", reason: " + job.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("Injector", job);
         LOG.error(message);
         // throw exception so that calling routine can exit with error
         throw new RuntimeException(message);
