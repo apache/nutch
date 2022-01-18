@@ -106,7 +106,7 @@ public class Any23IndexingFilter implements IndexingFilter {
     return doc;
   }
   
-  private String keyToShortKey(String key) {
+  private static String keyToShortKey(String key) {
     if (key.startsWith("<") && key.endsWith(">")) {
       key = key.substring(1, key.length() - 1);
     }

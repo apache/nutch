@@ -77,6 +77,19 @@ public abstract class RobotRulesParser implements Tool {
   public static BaseRobotRules FORBID_ALL_RULES = new SimpleRobotRules(
       RobotRulesMode.ALLOW_NONE);
 
+  /**
+   * A {@link BaseRobotRules} object appropriate for use when the
+   * {@code robots.txt} file failed to fetch with a 503 &quot;Internal Server
+   * Error&quot; (or other 5xx) status code. The crawler should suspend crawling
+   * for a certain (but not too long) time, see property
+   * <code>http.robots.503.defer.visits</code>.
+   */
+  public static final BaseRobotRules DEFER_VISIT_RULES = new SimpleRobotRules(
+      RobotRulesMode.ALLOW_NONE);
+  static {
+    DEFER_VISIT_RULES.setDeferVisits(true);
+  }
+
   private static SimpleRobotRulesParser robotParser = new SimpleRobotRulesParser();
   static {
     robotParser.setMaxCrawlDelay(Long.MAX_VALUE);

@@ -23,8 +23,7 @@
      (eventually with different versions)
    - duplicated libs can be added to the exclusions of transitive dependencies in
        build/plugins/parse-tika/ivy.xml
-   - but it should be made sure that the library versions in ivy/ivy.xml correspond to
-     those required by Tika
+   - but the library versions in ivy/ivy.xml MUST correspond to those required by Tika
 
 5. Remove the locally "installed" dependencies in src/plugin/parse-tika/lib/:
 
@@ -33,6 +32,8 @@
 6. Repeat steps 2-5 for the language-identifier plugin which also depends on Tika modules
 
     $ cd ../language-identifier/
+
+It should be noted that Any23 also has a dependency on Tika so you may wish to check that there are no classpath conflicts in the any23 plugin as well.
 
 7. Build Nutch and run all unit tests:
 

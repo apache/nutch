@@ -130,6 +130,32 @@
 </property>
 
 <property>
+  <name>http.robots.503.defer.visits</name>
+  <value>true</value>
+  <description>Temporarily suspend fetching from a host if the
+  robots.txt response is HTTP 503 or any other 5xx server error. See
+  also http.robots.503.defer.visits.delay and
+  http.robots.503.defer.visits.retries</description>
+</property>
+
+<property>
+  <name>http.robots.503.defer.visits.delay</name>
+  <value>300000</value>
+  <description>Time in milliseconds to suspend crawling a host if the
+  robots.txt response is HTTP 5xx - see
+  http.robots.503.defer.visits.</description>
+</property>
+
+<property>
+  <name>http.robots.503.defer.visits.retries</name>
+  <value>3</value>
+  <description>Number of retries crawling a host if the robots.txt
+  response is HTTP 5xx - see http.robots.503.defer.visits. After n
+  retries the host queue is dropped for this segment/cycle.
+  </description>
+</property>
+
+<property>
   <name>http.agent.description</name>
   <value></value>
   <description>Further description of our bot- this text is used in
