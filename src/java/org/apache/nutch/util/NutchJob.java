@@ -92,7 +92,9 @@ public class NutchJob extends Job {
    *          Job Object for Job details
    * @return job failure log message
    * @throws IOException
+   *           Can occur during fetching job status
    * @throws InterruptedException
+   *           Can occur during fetching job status
    */
   public static String getJobFailureLogMessage(String name, Job job)
       throws IOException, InterruptedException {
