@@ -41,6 +41,7 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.SegmentReaderUtil;
 
@@ -197,9 +198,7 @@ public class ReadHostDb extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "ReadHostDb job did not succeed, job status: "
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("ReadHostDb", job);
         LOG.error(message);
         // throw exception so that calling routine can exit with error
         throw new RuntimeException(message);

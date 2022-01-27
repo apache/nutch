@@ -188,9 +188,8 @@ public class ScoreUpdater extends Configured implements Tool{
     try {
       boolean success = updater.waitForCompletion(true);
       if (!success) {
-        String message = "Update CrawlDb from WebGraph job did not succeed, job status:"
-            + updater.getStatus().getState() + ", reason: "
-            + updater.getStatus().getFailureInfo();
+        String message = NutchJob
+            .getJobFailureLogMessage("Update CrawlDb from WebGraph", updater);
         LOG.error(message);
         // remove the temp crawldb on error
         FileSystem fs = newCrawlDb.getFileSystem(conf);

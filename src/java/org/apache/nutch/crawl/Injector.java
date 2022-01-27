@@ -435,9 +435,7 @@ public class Injector extends NutchTool implements Tool {
       // run the job
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "Injector job did not succeed, job status: "
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("Injector", job);
         LOG.error(message);
         NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
         // throw exception so that calling routine can exit with error

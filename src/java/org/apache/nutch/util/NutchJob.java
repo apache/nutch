@@ -33,6 +33,8 @@ public class NutchJob extends Job {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
+  private static final String JOB_FAILURE_LOG_FORMAT = "%s job did not succeed, job id: %s, job status: %s, reason: %s";
+
   @SuppressWarnings("deprecation")
   public NutchJob(Configuration conf, String jobName) throws IOException {
     super(conf, jobName);
@@ -85,6 +87,28 @@ public class NutchJob extends Job {
       LOG.error("NutchJob cleanup failed: {}", e.getMessage());
       throw e;
     }
+  }
+
+  /**
+   * Method to return job failure log message. To be used across all Jobs
+   * 
+   * @param name
+   *          Name/Type of the job
+   * @param job
+   *          Job Object for Job details
+   * @return job failure log message
+   * @throws IOException
+   *           Can occur during fetching job status
+   * @throws InterruptedException
+   *           Can occur during fetching job status
+   */
+  public static String getJobFailureLogMessage(String name, Job job)
+      throws IOException, InterruptedException {
+    if (job != null) {
+      return String.format(JOB_FAILURE_LOG_FORMAT, name, job.getJobID(),
+          job.getStatus().getState(), job.getStatus().getFailureInfo());
+    }
+    return "";
   }
 
 }

@@ -474,9 +474,7 @@ public class WARCExporter extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "WARCExporter job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("WARCExporter", job);
         LOG.error(message);
         throw new RuntimeException(message);
       }
