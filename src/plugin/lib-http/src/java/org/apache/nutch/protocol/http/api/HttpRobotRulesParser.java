@@ -41,7 +41,9 @@ public class HttpRobotRulesParser extends RobotRulesParser {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
+
   protected boolean allowForbidden = false;
+  protected boolean deferVisits503 = false;
 
   HttpRobotRulesParser() {
   }
@@ -53,6 +55,7 @@ public class HttpRobotRulesParser extends RobotRulesParser {
   public void setConf(Configuration conf) {
     super.setConf(conf);
     allowForbidden = conf.getBoolean("http.robots.403.allow", true);
+    deferVisits503 = conf.getBoolean("http.robots.503.defer.visits", true);
   }
 
   /**
@@ -110,7 +113,7 @@ public class HttpRobotRulesParser extends RobotRulesParser {
     if (robotRules != null) {
       return robotRules; // cached rule
     } else if (LOG.isTraceEnabled()) {
-      LOG.trace("cache miss " + url);
+      LOG.trace("cache miss {}", url);
     }
 
     boolean cacheRule = true;
@@ -163,9 +166,15 @@ public class HttpRobotRulesParser extends RobotRulesParser {
           robotRules = FORBID_ALL_RULES; // use forbid all
         else if (response.getCode() >= 500) {
           cacheRule = false; // try again later to fetch robots.txt
-          robotRules = EMPTY_RULES;
-        } else
+          if (deferVisits503) {
+            // signal fetcher to suspend crawling for this host
+            robotRules = DEFER_VISIT_RULES;
+          } else {
+            robotRules = EMPTY_RULES;
+          }
+        } else {
           robotRules = EMPTY_RULES; // use default rules
+        }
       } catch (Throwable t) {
         if (LOG.isInfoEnabled()) {
           LOG.info("Couldn't get robots.txt for " + url + ": " + t.toString());

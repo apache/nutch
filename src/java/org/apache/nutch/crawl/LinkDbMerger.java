@@ -124,9 +124,7 @@ public class LinkDbMerger extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "LinkDbMerge job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("LinkDbMerge", job);
         LOG.error(message);
         throw new RuntimeException(message);
       }

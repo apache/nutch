@@ -144,9 +144,7 @@ public class CrawlDbMerger extends Configured implements Tool {
     try {
       boolean success = job.waitForCompletion(true);
       if (!success) {
-        String message = "CrawlDbMerger job did not succeed, job status:"
-            + job.getStatus().getState() + ", reason: "
-            + job.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("CrawlDbMerger", job);
         LOG.error(message);
         NutchJob.cleanupAfterFailure(outPath, lock, fs);
         throw new RuntimeException(message);
