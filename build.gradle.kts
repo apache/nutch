@@ -51,8 +51,32 @@ publishing {
 ant.importBuild("build.xml") {old ->"ant-${old}"}
 
 
-tasks.register("clean-default-lib")
+tasks.register<Delete>("clean-default-lib")
 {
     description = "--> clean the project libraries directory (dependencies)"
-    delete("build/lib")
+    delete("./build/lib")
+}
+
+tasks.register<Delete>("clean-test-lib")
+{
+    description = "--> clean the project test libraries directory (dependencies)"
+    delete("./build/test/lib")
+}
+
+tasks.register<Delete>("clean-build")
+{
+    description = "--> clean the project built files"
+    delete("./build")
+}
+
+tasks.register<Delete>("clean-dist")
+{
+    description = "--> clean the project dist files"
+    delete("./dist")
+}
+
+tasks.register<Delete>("clean-runtime")
+{
+    description = "--> clean the project runtime area"
+    delete("./runtime")
 }
