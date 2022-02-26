@@ -53,5 +53,6 @@ ant.importBuild("build.xml") {old ->"ant-${old}"}
 
 tasks.register("clean-default-lib")
 {
+    description = "--> clean the project libraries directory (dependencies)"
     delete("build/lib")
 }
