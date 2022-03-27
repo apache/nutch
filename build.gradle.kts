@@ -67,33 +67,66 @@ publishing {
 
 ant.importBuild("build.xml") {old ->"ant-${old}"}
 
+// the normal classpath
+val classpathCollection: FileCollection = layout.files(
+    file(project.properties["build.classes"]),
+    fileTree(mapOf("dir" to project.properties["build.lib.dir"], "include" to listOf("*.jar")))
+)
+val classpath: String = classpathCollection.asPath
+
+// ant target "init" renamed to "init-nutch" to avoid gradle naming conflits
+tasks.register<Copy>("init-nutch") {
+    doLast {
+        // making six directories
+        mkdir(project.properties["build.dir"])
+        mkdir(project.properties["build.classes"])
+        mkdir(project.properties["release.dir"])
+        mkdir(project.properties["test.build.dir"])
+        mkdir(project.properties["test.build.classes"])
+        mkdir(project.properties["test.build.lib.dir"])
+
+        // incomplete: changing datetime for all **/*.template in conf.dir
+        fileTree(mapOf("dir" to project.properties["conf.dir"], "include" to listOf("**/*.template"))).forEach{ file: File ->
+            println(file)
+            // FIX: cannot find touch or datetime equivalent
+            // file.lastModified() = Date("01/25/1971 2:00 pm")
+        }
+
+        // renaming from *.template to * for all files in folders in conf.dir
+        fileTree(project.properties["conf.dir"]).matching { include("**/*.template") }.forEach { file: File -> 
+            rename { fileName: String ->
+                fileName.replace(".template", "")
+            }
+        }
+    }
+}
 
 tasks.register<Delete>("clean-default-lib")
 {
-    description = "--> clean the project libraries directory (dependencies)"
-    delete("./build/lib")
+    description = "clean the project libraries directory (dependencies)"
+    delete(project.properties["build.lib.dir"])
 }
 
 tasks.register<Delete>("clean-test-lib")
 {
-    description = "--> clean the project test libraries directory (dependencies)"
-    delete("./build/test/lib")
+    description = "clean the project test libraries directory (dependencies)"
+    delete(project.properties["test.build.lib.dir"])
 }
 
 tasks.register<Delete>("clean-build")
 {
-    description = "--> clean the project built files"
-    delete("./build")
+    description = "clean the project built files"
+    delete(project.properties["build.dir"])
 }
 
 tasks.register<Delete>("clean-dist")
 {
-    description = "--> clean the project dist files"
-    delete("./dist")
+    description = "clean the project dist files"
+    delete(project.properties["dist.dir"])
 }
 
 tasks.register<Delete>("clean-runtime")
 {
-    description = "--> clean the project runtime area"
-    delete("./runtime")
+    description = "clean the project runtime area"
+    delete(project.properties["runtime.dir"])
 }
