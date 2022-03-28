@@ -26,8 +26,10 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     `maven-publish`
-    application
+    id("application")
 }
+
+
 
 repositories {
     // Use Maven Central for resolving dependencies.

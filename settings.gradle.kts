@@ -25,4 +25,4 @@
  */
 
 rootProject.name = "nutch"
-include("nutch")
+include("src:plugin:sample-plugin","src:plugin:tld" )
