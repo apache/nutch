@@ -42,15 +42,6 @@ dependencies {
     implementation("com.google.guava:guava:30.0-jre")
 }
 
-/*
-buildscript {
-    dependencies {
-        // Classpath
-        classpath("${project.properties["build.classes"]}")
-    }
-}
-*/
-
 application {
     // Define the main class for the application.
     //mainClass.set("nutch.App")
@@ -74,11 +65,6 @@ publishing {
 }
 
 ant.importBuild("build.xml") {old ->"ant-${old}"}
-
-tasks.register("REEE")
-{
-    println(project.properties["build.classes"])
-}
 
 tasks.register<Delete>("clean-default-lib")
 {
