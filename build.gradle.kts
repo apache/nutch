@@ -27,6 +27,7 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     `maven-publish`
     application
+    java
 }
 
 repositories {
@@ -70,31 +71,31 @@ ant.importBuild("build.xml") {old ->"ant-${old}"}
 tasks.register<Delete>("clean-default-lib")
 {
     description = "clean the project libraries directory (dependencies)"
-    delete("./build/lib")
+    delete("${project.properties["build.lib.dir"]}")
 }
 
 tasks.register<Delete>("clean-test-lib")
 {
     description = "clean the project test libraries directory (dependencies)"
-    delete("./build/test/lib")
+    delete("${project.properties["test.build.lib.dir"]}")
 }
 
 tasks.register<Delete>("clean-build")
 {
     description = "clean the project built files"
-    delete("./build")
+    delete("${project.properties["build.dir"]}")
 }
 
 tasks.register<Delete>("clean-dist")
 {
     description = "clean the project dist files"
-    delete("./dist")
+    delete("${project.properties["dist.dir"]}")
 }
 
 tasks.register<Delete>("clean-runtime")
 {
     description = "clean the project runtime area"
-    delete("./runtime")
+    delete("${project.properties["runtime.dir"]}")
 }
 
 tasks.register<Copy>("copy-libs")
@@ -114,15 +115,19 @@ tasks.register<GradleBuild>("compile-plugins")
     // tasks = listOf("deploy")
 }
 
-//TODO is this needed? Gradle has its own default jar task...
-tasks.register<org.gradle.jvm.tasks.Jar>("nutch-jar")
-{
+tasks.jar {
     description = "make nutch.jar"
+    dependsOn("compile-core")
+
     from(layout.buildDirectory.dir("${project.properties["conf.dir"]}/nutch-default.xml"))
     into(layout.buildDirectory.dir("${project.properties["build.classes"]}"))
 
     from(layout.buildDirectory.dir("${project.properties["conf.dir"]}/nutch-site.xml"))
     into(layout.buildDirectory.dir("${project.properties["build.classes"]}"))
+
+    //TODO this is meant to replace <jar jarfile="${build.dir}/${final.name}.jar" basedir="${build.classes}">
+    destinationDirectory.set(file("${project.properties["build.dir"]}/${project.properties["final.name"]}.jar"))
+    from(layout.buildDirectory.dir(project.properties["build.classes"] as String))
 }
 
 tasks.register<Copy>("runtime")
