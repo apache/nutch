@@ -64,6 +64,7 @@ publishing {
     }
 }
 
+//TODO delete once Gradle build system is fully implemented
 ant.importBuild("build.xml") {old ->"ant-${old}"}
 
 tasks.register<Delete>("clean-default-lib")
@@ -98,19 +99,23 @@ tasks.register<Delete>("clean-runtime")
 
 tasks.register<Copy>("copy-libs")
 {
-    description = "copy the libs in lib, which are not ivy enabled"
+    description = "copy the libs in lib"
     from(layout.buildDirectory.dir("${project.properties["lib.dir"]}"))
     include("**/*.jar")
     into(layout.buildDirectory.dir("${project.properties["build.lib.dir"]}"))
 }
 
-tasks.register("compile-plugins")
+tasks.register<GradleBuild>("compile-plugins")
 {
     description = "compile plugins only"
-    dependsOn("init","resolve-default","deploy")
+    dependsOn("init","resolve-default")
+    //TODO Once plugins are finished, uncomment the following lines:
+    // dir = file("src/plugin")
+    // tasks = listOf("deploy")
 }
 
-tasks.register<org.gradle.jvm.tasks.Jar>("jar")
+//TODO is this needed? Gradle has its own default jar task...
+tasks.register<org.gradle.jvm.tasks.Jar>("nutch-jar")
 {
     description = "make nutch.jar"
     from(layout.buildDirectory.dir("${project.properties["conf.dir"]}/nutch-default.xml"))
@@ -123,6 +128,7 @@ tasks.register<org.gradle.jvm.tasks.Jar>("jar")
 tasks.register<Copy>("runtime")
 {
     description = "default target for running Nutch"
+    dependsOn("jar","job")
     mkdir("${project.properties["runtime.dir"]}")
     mkdir("${project.properties["runtime.local"]}")
     mkdir("${project.properties["runtime.deploy"]}")
