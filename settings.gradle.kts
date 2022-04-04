@@ -25,4 +25,6 @@
  */
 
 rootProject.name = "nutch"
-include("src:plugin:sample-plugin","src:plugin:tld" )
+includeBuild("src/plugin/sample-plugin")
+includeBuild("src/plugin/tld")
+includeBuild("src/plugin/language-identifier")
