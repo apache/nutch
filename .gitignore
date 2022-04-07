@@ -33,3 +33,8 @@ ivy/dependency-check-ant/*
 
 # Ignore Gradle build output directory
 build
+
+# Ignore Gradle Wrapper
+gradle/
+gradlew
+gradlew.bat
