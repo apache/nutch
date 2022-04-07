@@ -28,7 +28,10 @@ plugins {
     `maven-publish`
     application
     java
+
 }
+
+
 
 repositories {
     // Use Maven Central for resolving dependencies.
