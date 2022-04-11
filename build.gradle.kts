@@ -73,7 +73,19 @@ val classpathCollection: FileCollection = layout.files(
     file(project.properties["build.classes"]),
     fileTree(mapOf("dir" to project.properties["build.lib.dir"], "include" to listOf("*.jar")))
 )
-val classpath: String = classpathCollection.asPath
+val classPath: String = classpathCollection.asPath
+
+// test classpath
+val testClasspathCollection: FileCollection = layout.files(
+    file(project.properties["test.build.classes"]),
+    file(project.properties["conf.dir"]),
+    file(project.properties["test.src.dir"]),
+    file(project.properties["build.plugins"]), // plugins.classpath.dir
+    classpathCollection,
+    file(layout.buildDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.job")),
+    fileTree(mapOf("dir" to project.properties["build.lib.dir"], "include" to listOf("*.jar"))),
+    fileTree(mapOf("dir" to project.properties["test.build.lib.dir"], "include" to listOf("*.jar")))
+)
 
 // ant target "init" renamed to "init-nutch" to avoid gradle naming conflits
 tasks.register<Copy>("init-nutch") {
@@ -94,6 +106,69 @@ tasks.register<Copy>("init-nutch") {
             }
         }
     }
+}
+
+tasks.register("compile")
+{
+    description = "Compile all Java files"
+    dependsOn("compile-core","compile-plugins")
+}
+
+tasks.register<JavaCompile>("compile-core") 
+{
+    description = "Compile core Java files only"
+    dependsOn("init-nutch","resolve-default")
+
+    source = fileTree(layout.buildDirectory.dir("${project.properties["src.dir"]}"))
+    include("org/apache/nutch/**/*.java")
+    destinationDirectory.set(layout.buildDirectory.dir("${project.properties["build.classes"]}"))
+    classpath = classpathCollection
+    sourceCompatibility = "${project.properties["javac.version"]}"
+    targetCompatibility = "${project.properties["javac.version"]}"
+    
+    options.annotationProcessorPath = classpathCollection
+    options.sourcepath = layout.files("${project.properties["src.dir"]}")
+    options.compilerArgs.add("-Xlint-path")
+    options.encoding = "${project.properties["build.encoding"]}"
+    options.isDebug = "${project.properties["javac.debug"]}" == "on"
+    options.isDeprecation = "${project.properties["javac.deprecation"]}" == "on"
+
+    // Deprecated?
+    // options.isOptimize = "${project.properties["javac.optimize"]}" == "on"
+
+    copy {
+        from(layout.buildDirectory.dir("${project.properties["src.dir"]}"))
+        include("**/*.html")
+        include("**/*.css")
+        include("**/*.properties")
+        into(layout.buildDirectory.dir("${project.properties["build.classes"]}"))
+    }
+}
+
+tasks.register<JavaExec>("proxy") 
+{
+    description = "Run nutch proxy"
+    dependsOn("compile-core-test","job")
+
+    mainClass.set("org.apache.nutch.tools.proxy.ProxyTestbed")
+    classpath = testClasspathCollection
+    args("-fake")
+    jvmArgs("-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+}
+
+tasks.register<JavaExec>("benchmark")
+{
+    description = "Run nutch benchmarking analysis"
+
+    mainClass.set("org.apache.nutch.tools.Benchmark")
+    classpath = testClasspathCollection
+    jvmArgs("-Xmx512m -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+    args("-maxPerHost")
+    args("10")
+    args("-seeds")
+    args("1")
+    args("-depth")
+    args("5")
 }
 
 tasks.register<Delete>("clean-default-lib")
@@ -137,7 +212,7 @@ tasks.register<Copy>("copy-libs")
 tasks.register<GradleBuild>("compile-plugins")
 {
     description = "compile plugins only"
-    dependsOn("init","resolve-default")
+    dependsOn("init-nutch","resolve-default")
     //TODO Once plugins are finished, uncomment the following lines:
     // dir = file("src/plugin")
     // tasks = listOf("deploy")
