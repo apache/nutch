@@ -250,7 +250,6 @@ tasks.register<JavaCompile>("compile-core-test")
     options.isDebug = "${project.properties["javac.debug"]}" == "on"
     options.encoding = "${project.properties["build.encoding"]}"
     options.isDeprecation = "${project.properties["javac.deprecation"]}" == "on"
-    //TODO No optimize flag in Gradle, consider deleting option in gradle.properties
 }
 
 tasks.test.configure()
