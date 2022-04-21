@@ -28,7 +28,10 @@ plugins {
     `maven-publish`
     application
     java
+
 }
+
+
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -66,11 +69,11 @@ publishing {
 }
 
 //TODO delete once Gradle build system is fully implemented
-ant.importBuild("build.xml") {old ->"ant-${old}"}
+// ant.importBuild("build.xml") {old ->"ant-${old}"}
 
 // the normal classpath
 val classpathCollection: FileCollection = layout.files(
-    file(project.properties["build.classes"]),
+    file("${project.properties["build.classes"]}"),
     fileTree(mapOf("dir" to project.properties["build.lib.dir"], "include" to listOf("*.jar")))
 )
 val classPath: String = classpathCollection.asPath
@@ -181,6 +184,16 @@ tasks.javadoc {
 }
 */
 
+tasks.clean {
+    description = "Clean the project"
+    dependsOn("clean-build","clean-lib","clean-dist","clean-runtime")
+}
+
+tasks.register("clean-lib") {
+    description = "Clean the project libraries directories (dependencies: default + test)"
+    dependsOn("clean-default-lib","clean-test-lib")
+}
+
 tasks.register<Delete>("clean-default-lib")
 {
     description = "Clean the project libraries directory (dependencies)"
@@ -213,7 +226,7 @@ tasks.register<Delete>("clean-runtime")
 
 tasks.register<Copy>("copy-libs")
 {
-    description = "copy the libs in lib"
+    description = "Copy the libs in lib"
     from(layout.buildDirectory.dir("${project.properties["lib.dir"]}"))
     include("**/*.jar")
     into(layout.buildDirectory.dir("${project.properties["build.lib.dir"]}"))
@@ -221,7 +234,7 @@ tasks.register<Copy>("copy-libs")
 
 tasks.register<GradleBuild>("compile-plugins")
 {
-    description = "compile plugins only"
+    description = "Compile plugins only"
     dependsOn("init-nutch","resolve-default")
     //TODO Once plugins are finished, uncomment the following lines:
     // dir = file("src/plugin")
@@ -229,7 +242,7 @@ tasks.register<GradleBuild>("compile-plugins")
 }
 
 tasks.jar {
-    description = "make nutch.jar"
+    description = "Make nutch.jar"
     dependsOn("compile-core")
 
     from(layout.buildDirectory.dir("${project.properties["conf.dir"]}/nutch-default.xml"))
@@ -245,7 +258,7 @@ tasks.jar {
 
 tasks.register<Copy>("runtime")
 {
-    description = "default target for running Nutch"
+    description = "Default target for running Nutch"
     dependsOn("jar","job")
     mkdir("${project.properties["runtime.dir"]}")
     mkdir("${project.properties["runtime.local"]}")
@@ -290,7 +303,7 @@ tasks.register<Copy>("runtime")
 
 tasks.register<Jar>("job")
 {
-    description = "make nutch.job jar"
+    description = "Make nutch.job jar"
     dependsOn("compile")
     from(
         zipTree("${project.properties["build.classes"]}").matching {
@@ -317,7 +330,7 @@ tasks.register<Jar>("job")
 
 tasks.register<JavaCompile>("compile-core-test")
 {
-    description = "compile test code"
+    description = "Compile test code"
     dependsOn("init-nutch","compile-core","resolve-test")
     source = fileTree(layout.buildDirectory.dir("${project.properties["test.src.dir"]}"))
     include("org/apache/nutch/**/*.java")
@@ -336,6 +349,6 @@ tasks.register<JavaCompile>("compile-core-test")
 
 tasks.test.configure()
 {
-    description = "run JUnit tests"
+    description = "Run JUnit tests"
     dependsOn("test-core","test-plugins")
 }
