@@ -80,10 +80,10 @@ val classPath: String = classpathCollection.asPath
 
 // test classpath
 val testClasspathCollection: FileCollection = layout.files(
-    file(project.properties["test.build.classes"]),
-    file(project.properties["conf.dir"]),
-    file(project.properties["test.src.dir"]),
-    file(project.properties["build.plugins"]),
+    file("${project.properties["test.build.classes"]}"),
+    file("${project.properties["conf.dir"]}"),
+    file("${project.properties["test.src.dir"]}"),
+    file("${project.properties["build.plugins"]}"),
     classpathCollection,
     file(layout.buildDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.job")),
     fileTree(mapOf("dir" to project.properties["build.lib.dir"], "include" to listOf("*.jar"))),
@@ -95,15 +95,15 @@ tasks.register<Copy>("init-nutch") {
     description = "Stuff required by all targets"
 
     // making six directories
-    mkdir(project.properties["build.dir"])
-    mkdir(project.properties["build.classes"])
+    mkdir("${project.properties["build.dir"]}")
+    mkdir("${project.properties["build.classes"]}")
     mkdir("${project.properties["build.dir"]}/release")
-    mkdir(project.properties["test.build.dir"])
-    mkdir(project.properties["test.build.classes"])
-    mkdir(project.properties["test.build.lib.dir"])
+    mkdir("${project.properties["test.build.dir"]}")
+    mkdir("${project.properties["test.build.classes"]}")
+    mkdir("${project.properties["test.build.lib.dir"]}")
 
     // renaming from *.template to * for all files in folders in conf.dir
-    fileTree(project.properties["conf.dir"]).matching { include("**/*.template") }.forEach { file: File -> 
+    fileTree("${project.properties["conf.dir"]}").matching { include("**/*.template") }.forEach { file: File ->
         rename { fileName: String ->
             fileName.replace(".template", "")
         }
@@ -245,15 +245,15 @@ tasks.jar {
     description = "Make nutch.jar"
     dependsOn("compile-core")
 
-    from(layout.buildDirectory.dir("${project.properties["conf.dir"]}/nutch-default.xml"))
-    into(layout.buildDirectory.dir("${project.properties["build.classes"]}"))
+    from("${project.properties["conf.dir"]}/nutch-default.xml")
+    into("${project.properties["build.classes"]}")
 
-    from(layout.buildDirectory.dir("${project.properties["conf.dir"]}/nutch-site.xml"))
-    into(layout.buildDirectory.dir("${project.properties["build.classes"]}"))
+    from("${project.properties["conf.dir"]}/nutch-site.xml")
+    into("${project.properties["build.classes"]}")
 
     //TODO this is meant to replace <jar jarfile="${build.dir}/${final.name}.jar" basedir="${build.classes}">
     destinationDirectory.set(file("${project.properties["build.dir"]}/${project.properties["final.name"]}.jar"))
-    from(layout.buildDirectory.dir(project.properties["build.classes"] as String))
+    from(project.properties["build.classes"] as String)
 }
 
 tasks.register<Copy>("runtime")
