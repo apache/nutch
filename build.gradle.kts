@@ -27,7 +27,11 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     `maven-publish`
     application
+    java
+
 }
+
+
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -64,65 +68,198 @@ publishing {
     }
 }
 
-ant.importBuild("build.xml") {old ->"ant-${old}"}
+//TODO delete once Gradle build system is fully implemented
+// ant.importBuild("build.xml") {old ->"ant-${old}"}
+
+// the normal classpath
+val classpathCollection: FileCollection = layout.files(
+    file("${project.properties["build.classes"]}"),
+    fileTree(mapOf("dir" to project.properties["build.lib.dir"], "include" to listOf("*.jar")))
+)
+val classPath: String = classpathCollection.asPath
+
+// test classpath
+val testClasspathCollection: FileCollection = layout.files(
+    file(project.properties["test.build.classes"]),
+    file(project.properties["conf.dir"]),
+    file(project.properties["test.src.dir"]),
+    file(project.properties["build.plugins"]),
+    classpathCollection,
+    file(layout.buildDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.job")),
+    fileTree(mapOf("dir" to project.properties["build.lib.dir"], "include" to listOf("*.jar"))),
+    fileTree(mapOf("dir" to project.properties["test.build.lib.dir"], "include" to listOf("*.jar")))
+)
+
+// ant target "init" renamed to "init-nutch" to avoid gradle naming conflits
+tasks.register<Copy>("init-nutch") {
+    description = "Stuff required by all targets"
+
+    // making six directories
+    mkdir(project.properties["build.dir"])
+    mkdir(project.properties["build.classes"])
+    mkdir("${project.properties["build.dir"]}/release")
+    mkdir(project.properties["test.build.dir"])
+    mkdir(project.properties["test.build.classes"])
+    mkdir(project.properties["test.build.lib.dir"])
+
+    // renaming from *.template to * for all files in folders in conf.dir
+    fileTree(project.properties["conf.dir"]).matching { include("**/*.template") }.forEach { file: File -> 
+        rename { fileName: String ->
+            fileName.replace(".template", "")
+        }
+    }
+}
+
+tasks.register("resolve-default")
+{
+    description = "Resolve and retrieve dependencies"
+    dependsOn("clean-default-lib","init-nutch","copy-libs")
+}
+
+tasks.register("compile")
+{
+    description = "Compile all Java files"
+    dependsOn("compile-core","compile-plugins")
+}
+
+tasks.register<JavaCompile>("compile-core") 
+{
+    description = "Compile core Java files only"
+    dependsOn("init-nutch","resolve-default")
+
+    source = fileTree(layout.buildDirectory.dir("${project.properties["src.dir"]}"))
+    include("org/apache/nutch/**/*.java")
+    destinationDirectory.set(layout.buildDirectory.dir("${project.properties["build.classes"]}"))
+    classpath = classpathCollection
+    sourceCompatibility = "${project.properties["javac.version"]}"
+    targetCompatibility = "${project.properties["javac.version"]}"
+    
+    options.annotationProcessorPath = classpathCollection
+    options.sourcepath = layout.files("${project.properties["src.dir"]}")
+    options.compilerArgs.add("-Xlint-path")
+    options.encoding = "${project.properties["build.encoding"]}"
+    options.isDebug = "${project.properties["javac.debug"]}" == "on"
+    options.isDeprecation = "${project.properties["javac.deprecation"]}" == "on"
+
+    copy {
+        from(layout.buildDirectory.dir("${project.properties["src.dir"]}"))
+        include("**/*.html")
+        include("**/*.css")
+        include("**/*.properties")
+        into(layout.buildDirectory.dir("${project.properties["build.classes"]}"))
+    }
+}
+
+tasks.register<JavaExec>("proxy") 
+{
+    description = "Run nutch proxy"
+    dependsOn("compile-core-test","job")
+
+    mainClass.set("org.apache.nutch.tools.proxy.ProxyTestbed")
+    classpath = testClasspathCollection
+    args("-fake")
+    jvmArgs("-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+}
+
+tasks.register<JavaExec>("benchmark")
+{
+    description = "Run nutch benchmarking analysis"
+
+    mainClass.set("org.apache.nutch.tools.Benchmark")
+    classpath = testClasspathCollection
+    jvmArgs("-Xmx512m -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+    args("-maxPerHost")
+    args("10")
+    args("-seeds")
+    args("1")
+    args("-depth")
+    args("5")
+}
+
+/*
+tasks.javadoc {
+    description = "Generate Javadoc"
+    mkdir("${project.properties["build.javadoc"]}")
+    mkdir("${project.properties["build.javadoc"]}/resources")
+}
+*/
+
+tasks.clean {
+    description = "Clean the project"
+    dependsOn("clean-build","clean-lib","clean-dist","clean-runtime")
+}
+
+tasks.register("clean-lib") {
+    description = "Clean the project libraries directories (dependencies: default + test)"
+    dependsOn("clean-default-lib","clean-test-lib")
+}
 
 tasks.register<Delete>("clean-default-lib")
 {
-    description = "clean the project libraries directory (dependencies)"
-    delete("./build/lib")
+    description = "Clean the project libraries directory (dependencies)"
+    delete("${project.properties["build.lib.dir"]}")
 }
 
 tasks.register<Delete>("clean-test-lib")
 {
-    description = "clean the project test libraries directory (dependencies)"
-    delete("./build/test/lib")
+    description = "Clean the project test libraries directory (dependencies)"
+    delete("${project.properties["test.build.lib.dir"]}")
 }
 
 tasks.register<Delete>("clean-build")
 {
-    description = "clean the project built files"
-    delete("./build")
+    description = "Clean the project built files"
+    delete("${project.properties["build.dir"]}")
 }
 
 tasks.register<Delete>("clean-dist")
 {
-    description = "clean the project dist files"
-    delete("./dist")
+    description = "Clean the project dist files"
+    delete("${project.properties["dist.dir"]}")
 }
 
 tasks.register<Delete>("clean-runtime")
 {
-    description = "clean the project runtime area"
-    delete("./runtime")
+    description = "Clean the project runtime area"
+    delete("${project.properties["runtime.dir"]}")
 }
 
 tasks.register<Copy>("copy-libs")
 {
-    description = "copy the libs in lib, which are not ivy enabled"
+    description = "Copy the libs in lib"
     from(layout.buildDirectory.dir("${project.properties["lib.dir"]}"))
     include("**/*.jar")
     into(layout.buildDirectory.dir("${project.properties["build.lib.dir"]}"))
 }
 
-tasks.register("compile-plugins")
+tasks.register<GradleBuild>("compile-plugins")
 {
-    description = "compile plugins only"
-    dependsOn("init","resolve-default","deploy")
+    description = "Compile plugins only"
+    dependsOn("init-nutch","resolve-default")
+    //TODO Once plugins are finished, uncomment the following lines:
+    // dir = file("src/plugin")
+    // tasks = listOf("deploy")
 }
 
-tasks.register<org.gradle.jvm.tasks.Jar>("jar")
-{
-    description = "make nutch.jar"
+tasks.jar {
+    description = "Make nutch.jar"
+    dependsOn("compile-core")
+
     from(layout.buildDirectory.dir("${project.properties["conf.dir"]}/nutch-default.xml"))
     into(layout.buildDirectory.dir("${project.properties["build.classes"]}"))
 
     from(layout.buildDirectory.dir("${project.properties["conf.dir"]}/nutch-site.xml"))
     into(layout.buildDirectory.dir("${project.properties["build.classes"]}"))
+
+    //TODO this is meant to replace <jar jarfile="${build.dir}/${final.name}.jar" basedir="${build.classes}">
+    destinationDirectory.set(file("${project.properties["build.dir"]}/${project.properties["final.name"]}.jar"))
+    from(layout.buildDirectory.dir(project.properties["build.classes"] as String))
 }
 
 tasks.register<Copy>("runtime")
 {
-    description = "default target for running Nutch"
+    description = "Default target for running Nutch"
+    dependsOn("jar","job")
     mkdir("${project.properties["runtime.dir"]}")
     mkdir("${project.properties["runtime.local"]}")
     mkdir("${project.properties["runtime.deploy"]}")
@@ -162,4 +299,56 @@ tasks.register<Copy>("runtime")
             commandLine("chmod","ugo+x","${project.properties["runtime.local"]}/bin")
         }
     }
+}
+
+tasks.register<Jar>("job")
+{
+    description = "Make nutch.job jar"
+    dependsOn("compile")
+    from(
+        zipTree("${project.properties["build.classes"]}").matching {
+            exclude("nutch-default.xml","nutch-site.xml")
+        },
+        zipTree("${project.properties["conf.dir"]}").matching {
+            exclude("*.template","hadoop*.*")
+        },
+        zipTree("${project.properties["build.lib.dir"]}").matching {
+            eachFile {
+                relativePath = RelativePath(true,"lib")
+            }
+            include("**/*.jar")
+            exclude("hadoop-*.jar,slf4j*.jar","log4j*.jar")
+        },
+        zipTree("${project.properties["build.plugins"]}").matching {
+            eachFile {
+                relativePath = RelativePath(true,"classes","plugins")
+            }
+        }
+    )
+    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.job"))
+}
+
+tasks.register<JavaCompile>("compile-core-test")
+{
+    description = "Compile test code"
+    dependsOn("init-nutch","compile-core","resolve-test")
+    source = fileTree(layout.buildDirectory.dir("${project.properties["test.src.dir"]}"))
+    include("org/apache/nutch/**/*.java")
+    destinationDirectory.set(layout.projectDirectory.dir("${project.properties["build.classes"]}"))
+    classpath = classpathCollection
+    sourceCompatibility = "${project.properties["javac.version"]}"
+    targetCompatibility = "${project.properties["javac.version"]}"
+
+    options.annotationProcessorPath = classpathCollection
+    options.sourcepath = layout.files("${project.properties["src.dir"]}")
+    options.compilerArgs.add("-Xlint:-path")
+    options.isDebug = "${project.properties["javac.debug"]}" == "on"
+    options.encoding = "${project.properties["build.encoding"]}"
+    options.isDeprecation = "${project.properties["javac.deprecation"]}" == "on"
+}
+
+tasks.test.configure()
+{
+    description = "Run JUnit tests"
+    dependsOn("test-core","test-plugins")
 }
