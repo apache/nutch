@@ -180,9 +180,12 @@ tasks.register<Copy>("init-nutch") {
     }
 }
 
-tasks.register("resolve-default") {
+tasks.register<Sync>("resolve-default") {
     description = "Resolve and retrieve dependencies"
     dependsOn("clean-default-lib","init-nutch","copy-libs")
+    from(configurations.compileClasspath)
+    from(configurations.runtimeClasspath)
+    into(layout.buildDirectory.dir("${project.properties["lib.dir"]}"))
 }
 
 tasks.register("compile") {
