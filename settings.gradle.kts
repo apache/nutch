@@ -25,6 +25,8 @@
  */
 
 rootProject.name = "nutch"
+/* TODO uncomment when plugins are completed
 includeBuild("src/plugin/sample-plugin")
 includeBuild("src/plugin/tld")
 includeBuild("src/plugin/language-identifier")
+*/

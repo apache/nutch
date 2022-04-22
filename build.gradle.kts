@@ -303,29 +303,31 @@ tasks.register<Copy>("runtime")
 
 tasks.register<Jar>("job")
 {
+    //TODO there is no support to create a ".job" directly
     description = "Make nutch.job jar"
     dependsOn("compile")
+
     from(
-        zipTree("${project.properties["build.classes"]}").matching {
+        files("${project.properties["build.classes"]}") {
             exclude("nutch-default.xml","nutch-site.xml")
         },
-        zipTree("${project.properties["conf.dir"]}").matching {
+        files("${project.properties["conf.dir"]}") {
             exclude("*.template","hadoop*.*")
         },
-        zipTree("${project.properties["build.lib.dir"]}").matching {
+        files("${project.properties["build.lib.dir"]}") {
             eachFile {
                 relativePath = RelativePath(true,"lib")
             }
             include("**/*.jar")
             exclude("hadoop-*.jar,slf4j*.jar","log4j*.jar")
         },
-        zipTree("${project.properties["build.plugins"]}").matching {
+        files("${project.properties["build.plugins"]}") {
             eachFile {
                 relativePath = RelativePath(true,"classes","plugins")
             }
         }
     )
-    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.job"))
+    into("${project.properties["build.dir"]}/${project.properties["final.name"]}.job")
 }
 
 tasks.register<JavaCompile>("compile-core-test")
