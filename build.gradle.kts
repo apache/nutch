@@ -199,7 +199,6 @@ tasks.register<JavaCompile>("compile-core") {
 
     source = fileTree("${project.properties["src.dir"]}")
     include("org/apache/nutch/**/*.java")
-    // destinationDirectory = DirectoryProperty("${project.properties["build.classes"]}")
     destinationDirectory.set(layout.projectDirectory.dir("${project.properties["build.classes"]}"))
     classpath = classpathCollection
     sourceCompatibility = "${project.properties["javac.version"]}"
