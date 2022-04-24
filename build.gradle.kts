@@ -363,6 +363,18 @@ tasks.register<Copy>("runtime") {
         from(layout.projectDirectory.dir("${project.properties["build.dir"]}/test"))
     }
 
+    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/bin"))
+    into(layout.buildDirectory.dir("src/bin"))
+
+    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/lib"))
+    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/lib"))
+
+    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/plugins"))
+    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/plugins"))
+
+    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/test"))
+    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/test"))
+
     doLast {
         project.exec {
             commandLine("chmod","ugo+x","${project.properties["runtime.deploy"]}/bin")
@@ -576,11 +588,8 @@ tasks.javadoc {
 
 tasks.register<Copy>("package-src")
 {
-    //TODO This function is untested because of the dependency on the javadoc target
     description = "Generate source distribution package"
     dependsOn("runtime","javadoc")
-
-    destinationDir = file(".")
 
     mkdir("${project.properties["dist.dir"]}")
     mkdir("${project.properties["src.dist.version.dir"]}")
@@ -627,7 +636,6 @@ tasks.register<Zip>("zip-src")
         files("${project.properties["src.dist.version.dir"]}") {
             fileMode = 664
             exclude("src/bin/*")
-            //TODO delete the following line once Ivy is removed completely
             exclude("ivy/ivy*.jar")
             include("**")
         },
