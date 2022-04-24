@@ -363,8 +363,8 @@ tasks.register<Copy>("runtime") {
         from(layout.projectDirectory.dir("${project.properties["build.dir"]}/test"))
     }
 
-    doLast() {
-        project.exec() {
+    doLast {
+        project.exec {
             commandLine("chmod","ugo+x","${project.properties["runtime.deploy"]}/bin")
             commandLine("chmod","ugo+x","${project.properties["runtime.local"]}/bin")
         }
@@ -420,4 +420,215 @@ tasks.register<JavaCompile>("compile-core-test") {
 tasks.test.configure() {
     description = "Run JUnit tests"
     dependsOn("test-core","test-plugins")
+}
+
+tasks.javadoc {
+    //TODO This function is untested because the equivalent ant target does not work
+    description = "generate Javadoc"
+    dependsOn("compile")
+
+    val version:String = System.getProperty("java.version")
+    if("1.7.0_25".compareTo(version) >= 0)
+        throw GradleException(
+            "Unsupported Java version: ${version}. Javadoc requires Java version 7u25 " +
+            "or greater. See https://issues.apache.org/jira/browse/NUTCH-1590"
+        )
+
+    mkdir("${project.properties["build.javadoc"]}")
+    mkdir("${project.properties["build.javadoc"]}/resources")
+
+    options {
+        overview = "${project.properties["src.dir"]}/overview.html"
+        destinationDirectory = file("${project.properties["build.javadoc"]}")
+        windowTitle = "${project.properties["name"]} ${project.properties["version"]} API"
+        isFailOnError = true
+        //TODO isFailOnWarning = true
+
+        val dc = StandardJavadocDocletOptions()
+        dc.isAuthor = true
+        dc.isVersion = true
+        dc.isUse = true
+        dc.docTitle = windowTitle
+        dc.bottom = "Copyright &amp;copy; ${project.properties["year"]} The Apache Software Foundation"
+        dc.addStringOption("${project.properties["javadoc.proxy.host"]}")
+        dc.addStringOption("${project.properties["javadoc.proxy.port"]}")
+        dc.addBooleanOption("--allow-script-in-comments")
+        dc.links(
+            "${project.properties["javadoc.link.java"]}",
+            "${project.properties["javadoc.link.hadoop"]}"
+        )
+        dc.classpath = files("${project.properties["build.plugins"]}") {
+            include("**/*.jar")
+            exclude("any23/javax.annotation-api*.jar")
+        }.distinct()
+        dc.groups = mutableMapOf(
+            "Core"                    to mutableListOf("org.apache.nutch.*"),
+            "Plugins API"             to mutableListOf("${project.properties["plugins.api"]}"),
+            "Protocol Plugins"        to mutableListOf("${project.properties["plugins.protocol"]}"),
+            "URL Filter Plugins"      to mutableListOf("${project.properties["plugins.urlfilter"]}"),
+            "URL Normalizer Plugins"  to mutableListOf("${project.properties["plugins.urlnormalizer"]}"),
+            "Scoring Plugins"         to mutableListOf("${project.properties["plugins.scoring"]}"),
+            "Parse Plugins"           to mutableListOf("${project.properties["plugins.parse"]}"),
+            "Parse Filter Plugins"    to mutableListOf("${project.properties["plugins.parsefilter"]}"),
+            "Publisher Plugins"       to mutableListOf("${project.properties["plugins.publisher"]}"),
+            "Exchange Plugins"        to mutableListOf("${project.properties["plugins.exchange"]}"),
+            "Indexing Filter Plugins" to mutableListOf("${project.properties["plugins.index"]}"),
+            "Indexer Plugins"         to mutableListOf("${project.properties["plugins.indexer"]}"),
+            "Misc. Plugins"           to mutableListOf("${project.properties["plugins.misc"]}")
+        )
+        // TODO it is unclear if this actually gets applied to the javadoc options
+        doclet = dc.doclet
+    }
+
+    //TODO this is meant to replace the <packageset> tags
+    include(
+        "${project.properties["src.dir"]}",
+        "${project.properties["plugins.dir"]}/any23/src/java/",
+        "${project.properties["plugins.dir"]}/creativecommons/src/java",
+        "${project.properties["plugins.dir"]}/feed/src/java",
+        "${project.properties["plugins.dir"]}/headings/src/java",
+        "${project.properties["plugins.dir"]}/exchange-jexl/src/java",
+        "${project.properties["plugins.dir"]}/index-anchor/src/java",
+        "${project.properties["plugins.dir"]}/index-basic/src/java",
+        "${project.properties["plugins.dir"]}/index-geoip/src/java",
+        "${project.properties["plugins.dir"]}/index-jexl-filter/src/java",
+        "${project.properties["plugins.dir"]}/index-links/src/java",
+        "${project.properties["plugins.dir"]}/index-metadata/src/java",
+        "${project.properties["plugins.dir"]}/index-more/src/java",
+        "${project.properties["plugins.dir"]}/index-replace/src/java",
+        "${project.properties["plugins.dir"]}/index-static/src/java",
+        "${project.properties["plugins.dir"]}/indexer-cloudsearch/src/java/",
+        "${project.properties["plugins.dir"]}/indexer-csv/src/java",
+        "${project.properties["plugins.dir"]}/indexer-dummy/src/java",
+        "${project.properties["plugins.dir"]}/indexer-elastic/src/java/",
+        "${project.properties["plugins.dir"]}/indexer-kafka/src/java/",
+        "${project.properties["plugins.dir"]}/indexer-rabbit/src/java",
+        "${project.properties["plugins.dir"]}/indexer-solr/src/java",
+        "${project.properties["plugins.dir"]}/language-identifier/src/java",
+        "${project.properties["plugins.dir"]}/lib-htmlunit/src/java",
+        "${project.properties["plugins.dir"]}/lib-http/src/java",
+        "${project.properties["plugins.dir"]}/lib-rabbitmq/src/java",
+        "${project.properties["plugins.dir"]}/lib-regex-filter/src/java",
+        "${project.properties["plugins.dir"]}/lib-selenium/src/java",
+        "${project.properties["plugins.dir"]}/microformats-reltag/src/java",
+        "${project.properties["plugins.dir"]}/mimetype-filter/src/java",
+        "${project.properties["plugins.dir"]}/parse-ext/src/java",
+        "${project.properties["plugins.dir"]}/parse-html/src/java",
+        "${project.properties["plugins.dir"]}/parse-js/src/java",
+        "${project.properties["plugins.dir"]}/parse-metatags/src/java",
+        "${project.properties["plugins.dir"]}/parse-swf/src/java",
+        "${project.properties["plugins.dir"]}/parse-tika/src/java",
+        "${project.properties["plugins.dir"]}/parse-zip/src/java",
+        "${project.properties["plugins.dir"]}/parsefilter-debug/src/java",
+        "${project.properties["plugins.dir"]}/parsefilter-naivebayes/src/java",
+        "${project.properties["plugins.dir"]}/parsefilter-regex/src/java",
+        "${project.properties["plugins.dir"]}/protocol-file/src/java",
+        "${project.properties["plugins.dir"]}/protocol-ftp/src/java",
+        "${project.properties["plugins.dir"]}/protocol-htmlunit/src/java",
+        "${project.properties["plugins.dir"]}/protocol-http/src/java",
+        "${project.properties["plugins.dir"]}/protocol-httpclient/src/java",
+        "${project.properties["plugins.dir"]}/protocol-interactiveselenium/src/java",
+        "${project.properties["plugins.dir"]}/protocol-okhttp/src/java",
+        "${project.properties["plugins.dir"]}/protocol-selenium/src/java",
+        "${project.properties["plugins.dir"]}/publish-rabbitmq/src/java",
+        "${project.properties["plugins.dir"]}/scoring-depth/src/java",
+        "${project.properties["plugins.dir"]}/scoring-link/src/java",
+        "${project.properties["plugins.dir"]}/scoring-opic/src/java",
+        "${project.properties["plugins.dir"]}/scoring-orphan/src/java",
+        "${project.properties["plugins.dir"]}/scoring-similarity/src/java",
+        "${project.properties["plugins.dir"]}/scoring-metadata/src/java",
+        "${project.properties["plugins.dir"]}/subcollection/src/java",
+        "${project.properties["plugins.dir"]}/tld/src/java",
+        "${project.properties["plugins.dir"]}/urlfilter-automaton/src/java",
+        "${project.properties["plugins.dir"]}/urlfilter-domain/src/java",
+        "${project.properties["plugins.dir"]}/urlfilter-domaindenylist/src/java",
+        "${project.properties["plugins.dir"]}/urlfilter-fast/src/java",
+        "${project.properties["plugins.dir"]}/urlfilter-ignoreexempt/src/java",
+        "${project.properties["plugins.dir"]}/urlfilter-prefix/src/java",
+        "${project.properties["plugins.dir"]}/urlfilter-regex/src/java",
+        "${project.properties["plugins.dir"]}/urlfilter-suffix/src/java",
+        "${project.properties["plugins.dir"]}/urlfilter-validator/src/java",
+        "${project.properties["plugins.dir"]}/urlmeta/src/java",
+        "${project.properties["plugins.dir"]}/urlnormalizer-ajax/src/java",
+        "${project.properties["plugins.dir"]}/urlnormalizer-basic/src/java",
+        "${project.properties["plugins.dir"]}/urlnormalizer-host/src/java",
+        "${project.properties["plugins.dir"]}/urlnormalizer-pass/src/java",
+        "${project.properties["plugins.dir"]}/urlnormalizer-protocol/src/java",
+        "${project.properties["plugins.dir"]}/urlnormalizer-querystring/src/java",
+        "${project.properties["plugins.dir"]}/urlnormalizer-regex/src/java",
+        "${project.properties["plugins.dir"]}/urlnormalizer-slash/src/java"
+    )
+
+    copy {
+        from("${project.properties["plugins.dir"]}/plugin.dtd")
+        into("${project.properties["build.javadoc"]}/org/apache/nutch/plugin/doc-files")
+    }
+    copy {
+        from(
+            "${project.properties["conf.dir"]}/nutch-default.xml",
+            "${project.properties["conf.dir"]}/configuration.xsl"
+        )
+        into("${project.properties["build.javadoc"]}/resources/")
+    }
+}
+
+tasks.register<Copy>("package-src")
+{
+    //TODO This function is untested because of the dependency on the javadoc target
+    description = "generate source distribution package"
+    dependsOn("runtime","javadoc")
+
+    mkdir("${project.properties["dist.dir"]}")
+    mkdir("${project.properties["src.dist.version.dir"]}")
+    mkdir("${project.properties["src.dist.version.dir"]}/lib")
+    mkdir("${project.properties["src.dist.version.dir"]}/docs")
+    mkdir("${project.properties["src.dist.version.dir"]}/docs/api")
+    mkdir("${project.properties["src.dist.version.dir"]}/ivy")
+
+    from("lib") {
+        includeEmptyDirs = false
+        into("${project.properties["src.dist.version.dir"]}/lib")
+    }
+    from("${project.properties["conf.dir"]}") {
+        exclude("**/*.template")
+        into("${project.properties["src.dist.version.dir"]}/conf")
+    }
+    from("${project.properties["build.javadoc"]}") {
+        into("${project.properties["src.dist.version.dir"]}/docs/api")
+    }
+    from(".") {
+        include("*.txt")
+        into("${project.properties["src.dist.version.dir"]}")
+    }
+    from("src") {
+        includeEmptyDirs = true
+        into("${project.properties["src.dist.version.dir"]}/src")
+    }
+    //TODO skipped Ivy copy, now deprecated
+    from(".") {
+        //TODO replaced Ant files with Gradle files
+        include("build.gradle.kts","gradle.properties","settings.gradle.kts")
+        into("${project.properties["src.dist.version.dir"]}/")
+    }
+}
+tasks.register<Zip>("zip-src")
+{
+    description = "generate src.zip distribution package"
+    dependsOn("package-src")
+
+    archiveFileName.set("${project.properties["src.dist.version.dir"]}.zip")
+    destinationDirectory.set(layout.buildDirectory.dir("${project.properties["final.name"]}"))
+
+    from(
+        files("${project.properties["src.dist.version.dir"]}") {
+            fileMode = 664
+            exclude("src/bin/*")
+            exclude("ivy/ivy*.jar")
+            include("**")
+        },
+        files("${project.properties["src.dist.version.dir"]}") {
+            fileMode = 755
+            include("src/bin/*")
+        }
+    )
 }
