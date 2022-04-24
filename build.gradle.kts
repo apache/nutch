@@ -427,7 +427,7 @@ tasks.test.configure() {
 
 tasks.javadoc {
     //TODO This function is untested because the equivalent ant target does not work
-    description = "generate Javadoc"
+    description = "Generate Javadoc"
     dependsOn("compile")
 
     val version:String = System.getProperty("java.version")
@@ -578,7 +578,7 @@ tasks.javadoc {
 tasks.register<Copy>("package-src")
 {
     //TODO This function is untested because of the dependency on the javadoc target
-    description = "generate source distribution package"
+    description = "Generate source distribution package"
     dependsOn("runtime","javadoc")
 
     destinationDir = file(".")
@@ -618,7 +618,7 @@ tasks.register<Copy>("package-src")
 }
 tasks.register<Zip>("zip-src")
 {
-    description = "generate src.zip distribution package"
+    description = "Generate src.zip distribution package"
     dependsOn("package-src")
 
     archiveFileName.set("${project.properties["src.dist.version.dir"]}.zip")
