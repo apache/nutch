@@ -218,6 +218,9 @@ tasks.register<JavaCompile>("compile-core") {
         include("**/*.properties")
         into("${project.properties["build.classes"]}")
     }
+    doLast {
+        delete("${project.properties["build.dir"]}/tmp")
+    }
 }
 
 tasks.register<JavaExec>("proxy") {
@@ -306,15 +309,15 @@ tasks.jar {
     description = "Make nutch.jar"
     dependsOn("compile-core")
 
-    from("${project.properties["conf.dir"]}/nutch-default.xml")
-    into("${project.properties["build.classes"]}")
+    copy {
+        from("${project.properties["conf.dir"]}/nutch-default.xml")
+        from("${project.properties["conf.dir"]}/nutch-site.xml")
+        into("${project.properties["build.classes"]}")
+    }
 
-    from("${project.properties["conf.dir"]}/nutch-site.xml")
-    into("${project.properties["build.classes"]}")
-
-    //TODO this is meant to replace <jar jarfile="${build.dir}/${final.name}.jar" basedir="${build.classes}">
-    destinationDirectory.set(file("${project.properties["build.dir"]}/${project.properties["final.name"]}.jar"))
-    from(project.properties["build.classes"] as String)
+    archiveFileName.set("${project.properties["final.name"]}.jar")
+    destinationDirectory.set(layout.projectDirectory.dir("${project.properties["build.dir"]}"))
+    from(files("${project.properties["build.classes"]}"))
 }
 
 tasks.register<Copy>("runtime")
@@ -325,34 +328,37 @@ tasks.register<Copy>("runtime")
     mkdir("${project.properties["runtime.local"]}")
     mkdir("${project.properties["runtime.deploy"]}")
 
-    from(layout.buildDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.job"))
-    into(layout.buildDirectory.dir("${project.properties["runtime.deploy"]}"))
+    into(layout.projectDirectory)
 
-    from(layout.buildDirectory.dir("${project.properties["runtime.deploy"]}/bin"))
-    into(layout.buildDirectory.dir("src/bin"))
-
-    from(layout.buildDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.jar"))
-    into(layout.buildDirectory.dir("${project.properties["runtime.local"]}/lib"))
-
-    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/lib/native"))
-    into(layout.buildDirectory.dir("lib/native"))
-
-    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/conf")) {
-        exclude("*.template")
+    into("${project.properties["runtime.deploy"]}") {
+        from(layout.projectDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.job"))
     }
-    into(layout.buildDirectory.dir("${project.properties["conf.dir"]}/lib"))
-
-    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/bin"))
-    into(layout.buildDirectory.dir("src/bin"))
-
-    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/lib"))
-    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/lib"))
-
-    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/plugins"))
-    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/plugins"))
-
-    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/test"))
-    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/test"))
+    into("${project.properties["runtime.deploy"]}/bin") {
+        from(layout.projectDirectory.dir("src/bin"))
+    }
+    into("${project.properties["runtime.local"]}/lib") {
+        from(layout.projectDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.jar"))
+    }
+    into("${project.properties["runtime.local"]}/lib/native") {
+        from(layout.projectDirectory.dir("lib/native"))
+    }
+    into("${project.properties["runtime.local"]}/conf") {
+        from(layout.projectDirectory.dir("${project.properties["conf.dir"]}")) {
+            exclude("*.template")
+        }
+    }
+    into("${project.properties["runtime.local"]}/bin") {
+        from(layout.projectDirectory.dir("src/bin"))
+    }
+    into("${project.properties["runtime.local"]}/lib") {
+        from(layout.projectDirectory.dir("${project.properties["build.dir"]}/lib"))
+    }
+    into("${project.properties["runtime.local"]}/plugins") {
+        from(layout.projectDirectory.dir("${project.properties["build.dir"]}/plugins"))
+    }
+    into("${project.properties["runtime.local"]}/test") {
+        from(layout.projectDirectory.dir("${project.properties["build.dir"]}/test"))
+    }
 
     doLast() {
         project.exec() {
@@ -368,6 +374,9 @@ tasks.register<Jar>("job")
     description = "Make nutch.job jar"
     dependsOn("compile")
 
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveFileName.set("${project.properties["final.name"]}.job")
+    destinationDirectory.set(layout.projectDirectory.dir("${project.properties["build.dir"]}"))
     from(
         files("${project.properties["build.classes"]}") {
             exclude("nutch-default.xml","nutch-site.xml")
@@ -388,14 +397,16 @@ tasks.register<Jar>("job")
             }
         }
     )
-    into("${project.properties["build.dir"]}/${project.properties["final.name"]}.job")
+    doLast {
+        delete("${project.properties["build.dir"]}/tmp")
+    }
 }
 
 tasks.register<JavaCompile>("compile-core-test")
 {
     description = "Compile test code"
     dependsOn("init-nutch","compile-core","resolve-test")
-    source = fileTree(layout.buildDirectory.dir("${project.properties["test.src.dir"]}"))
+    source = fileTree(layout.projectDirectory.dir("${project.properties["test.src.dir"]}"))
     include("org/apache/nutch/**/*.java")
     destinationDirectory.set(layout.projectDirectory.dir("${project.properties["build.classes"]}"))
     classpath = classpathCollection
