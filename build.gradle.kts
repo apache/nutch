@@ -376,23 +376,26 @@ tasks.register<Jar>("job") {
     dependsOn("compile")
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    archiveFileName.set("${project.properties["final.name"]}.job")
-    destinationDirectory.set(layout.projectDirectory.dir("${project.properties["build.dir"]}"))
-    from(layout.projectDirectory.dir("${project.properties["build.classes"]}")) {
-        exclude("nutch-default.xml","nutch-site.xml")
-    }
-    from(layout.projectDirectory.dir("${project.properties["conf.dir"]}")) {
-        exclude("*.template","hadoop*.*")
-    }
-    from(layout.projectDirectory.dir("${project.properties["build.lib.dir"]}")) {
-        include("**/*.jar")
-        exclude("hadoop-*.jar","slf4j*.jar","log4j*.jar")
-        into("lib")
-    }
-    from(layout.projectDirectory.dir("${project.properties["build.plugins"]}")) {
-        exclude("nutch-default.xml","nutch-site.xml")
-        into("classes/plugins")
-    }
+    from(
+        files("${project.properties["build.classes"]}") {
+            exclude("nutch-default.xml","nutch-site.xml")
+        },
+        files("${project.properties["conf.dir"]}") {
+            exclude("*.template","hadoop*.*")
+        },
+        files("${project.properties["build.lib.dir"]}") {
+            eachFile {
+                relativePath = RelativePath(true,"lib")
+            }
+            include("**/*.jar")
+            exclude("hadoop-*.jar,slf4j*.jar","log4j*.jar")
+        },
+        files("${project.properties["build.plugins"]}") {
+            eachFile {
+                relativePath = RelativePath(true,"classes","plugins")
+            }
+        }
+    )
     doLast {
         delete("${project.properties["build.dir"]}/tmp")
     }
@@ -578,6 +581,8 @@ tasks.register<Copy>("package-src")
     description = "generate source distribution package"
     dependsOn("runtime","javadoc")
 
+    destinationDir = file(".")
+
     mkdir("${project.properties["dist.dir"]}")
     mkdir("${project.properties["src.dist.version.dir"]}")
     mkdir("${project.properties["src.dist.version.dir"]}/lib")
@@ -623,6 +628,7 @@ tasks.register<Zip>("zip-src")
         files("${project.properties["src.dist.version.dir"]}") {
             fileMode = 664
             exclude("src/bin/*")
+            //TODO delete the following line once Ivy is removed completely
             exclude("ivy/ivy*.jar")
             include("**")
         },
