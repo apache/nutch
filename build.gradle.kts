@@ -426,7 +426,6 @@ tasks.test.configure() {
 }
 
 tasks.javadoc {
-    //TODO This function is untested because the equivalent ant target does not work
     description = "Generate Javadoc"
     dependsOn("compile")
 
