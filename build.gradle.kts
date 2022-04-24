@@ -591,6 +591,8 @@ tasks.register<Copy>("package-src")
     description = "Generate source distribution package"
     dependsOn("runtime","javadoc")
 
+    destinationDir = file(".")
+
     mkdir("${project.properties["dist.dir"]}")
     mkdir("${project.properties["src.dist.version.dir"]}")
     mkdir("${project.properties["src.dist.version.dir"]}/lib")
@@ -636,6 +638,7 @@ tasks.register<Zip>("zip-src")
         files("${project.properties["src.dist.version.dir"]}") {
             fileMode = 664
             exclude("src/bin/*")
+            //TODO delete the following line once Ivy is removed completely
             exclude("ivy/ivy*.jar")
             include("**")
         },
