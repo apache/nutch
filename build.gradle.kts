@@ -194,7 +194,7 @@ tasks.register<Sync>("resolve-test") {
     dependsOn("clean-test-lib","init-nutch","copy-libs")
     from(configurations.testCompileClasspath)
     from(configurations.testRuntimeClasspath)
-    into(layout.buildDirectory.dir("${project.properties["test.lib.dir"]}"))
+    into(layout.projectDirectory.dir("${project.properties["test.build.lib.dir"]}"))
 }
 
 tasks.register("compile") {
@@ -205,14 +205,12 @@ tasks.register("compile") {
 tasks.register<JavaCompile>("compile-core") {
     description = "Compile core Java files only"
     dependsOn("init-nutch","resolve-default","compileJava")
-
     source = fileTree("${project.properties["src.dir"]}")
     include("org/apache/nutch/**/*.java")
     destinationDirectory.set(layout.projectDirectory.dir("${project.properties["build.classes"]}"))
     classpath = classpathCollection
     sourceCompatibility = "${project.properties["javac.version"]}"
     targetCompatibility = "${project.properties["javac.version"]}"
-    
     options.annotationProcessorPath = classpathCollection
     options.sourcepath = layout.files("${project.properties["src.dir"]}")
     options.compilerArgs.add("-Xlint:-path")
@@ -253,13 +251,6 @@ tasks.register<JavaExec>("benchmark") {
     args("-depth")
     args("5")
 }
-
-// tasks.javadoc {
-//     description = "Generate Javadoc"
-//     dependsOn("compile")
-//     mkdir("${project.properties["build.javadoc"]}")
-//     mkdir("${project.properties["build.javadoc"]}/resources")
-// }
 
 tasks.clean {
     description = "Clean the project"
@@ -321,18 +312,17 @@ tasks.jar {
             file(layout.projectDirectory.dir("${project.properties["conf.dir"]}/nutch-default.xml")),
             file(layout.projectDirectory.dir("${project.properties["conf.dir"]}/nutch-site.xml"))
         )
-        // from("${project.properties["conf.dir"]}/nutch-default.xml")
-        // from("${project.properties["conf.dir"]}/nutch-site.xml")
         into("${project.properties["build.classes"]}")
     }
-
     archiveFileName.set("${project.properties["final.name"]}.jar")
     destinationDirectory.set(layout.projectDirectory.dir("${project.properties["build.dir"]}"))
     from(files("${project.properties["build.classes"]}"))
+    doLast {
+        delete("${project.properties["build.dir"]}/tmp")
+    }
 }
 
-tasks.register<Copy>("runtime")
-{
+tasks.register<Copy>("runtime") {
     description = "Default target for running Nutch"
     dependsOn("jar","job")
     mkdir("${project.properties["runtime.dir"]}")
@@ -348,10 +338,6 @@ tasks.register<Copy>("runtime")
         from(layout.projectDirectory.dir("src/bin"))
     }
     into("${project.properties["runtime.local"]}/lib") {
-        // from(
-        //    file(layout.projectDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.jar")),
-        //    files("${project.properties["build.lib.dir"]}")
-        // )
         from(layout.projectDirectory.dir("${project.properties["build.dir"]}/${project.properties["final.name"]}.jar"))
     }
     into("${project.properties["runtime.local"]}/lib/native") {
@@ -383,9 +369,7 @@ tasks.register<Copy>("runtime")
     }
 }
 
-tasks.register<Jar>("job")
-{
-    //TODO there is no support to create a ".job" directly
+tasks.register<Jar>("job") {
     description = "Make nutch.job jar"
     dependsOn("compile")
 
@@ -417,8 +401,7 @@ tasks.register<Jar>("job")
     }
 }
 
-tasks.register<JavaCompile>("compile-core-test")
-{
+tasks.register<JavaCompile>("compile-core-test") {
     description = "Compile test code"
     dependsOn("init-nutch","compile-core","resolve-test","compileTestJava")
 
@@ -437,8 +420,7 @@ tasks.register<JavaCompile>("compile-core-test")
     options.isDeprecation = "${project.properties["javac.deprecation"]}" == "on"
 }
 
-tasks.test.configure()
-{
+tasks.test.configure() {
     description = "Run JUnit tests"
     dependsOn("test-core","test-plugins")
 }
