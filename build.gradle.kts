@@ -16,9 +16,10 @@
 */
 
 plugins {
-    `maven-publish`
     application
+    base
     java
+    `maven-publish`
 }
 
 repositories {
@@ -214,6 +215,7 @@ tasks.register<JavaCompile>("compile-core") {
     options.annotationProcessorPath = classpathCollection
     options.sourcepath = layout.files("${project.properties["src.dir"]}")
     options.compilerArgs.add("-Xlint:-path")
+    options.compilerArgs.add("-Xpkginfo:always")
     options.encoding = "${project.properties["build.encoding"]}"
     options.isDebug = "${project.properties["javac.debug"]}" == "on"
     options.isDeprecation = "${project.properties["javac.deprecation"]}" == "on"
@@ -376,26 +378,21 @@ tasks.register<Jar>("job") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveFileName.set("${project.properties["final.name"]}.job")
     destinationDirectory.set(layout.projectDirectory.dir("${project.properties["build.dir"]}"))
-    from(
-        files("${project.properties["build.classes"]}") {
-            exclude("nutch-default.xml","nutch-site.xml")
-        },
-        files("${project.properties["conf.dir"]}") {
-            exclude("*.template","hadoop*.*")
-        },
-        files("${project.properties["build.lib.dir"]}") {
-            eachFile {
-                relativePath = RelativePath(true,"lib")
-            }
-            include("**/*.jar")
-            exclude("hadoop-*.jar,slf4j*.jar","log4j*.jar")
-        },
-        files("${project.properties["build.plugins"]}") {
-            eachFile {
-                relativePath = RelativePath(true,"classes","plugins")
-            }
-        }
-    )
+    from(layout.projectDirectory.dir("${project.properties["build.classes"]}")) {
+        exclude("nutch-default.xml","nutch-site.xml")
+    }
+    from(layout.projectDirectory.dir("${project.properties["conf.dir"]}")) {
+        exclude("*.template","hadoop*.*")
+    }
+    from(layout.projectDirectory.dir("${project.properties["build.lib.dir"]}")) {
+        include("**/*.jar")
+        exclude("hadoop-*.jar","slf4j*.jar","log4j*.jar")
+        into("lib")
+    }
+    from(layout.projectDirectory.dir("${project.properties["build.plugins"]}")) {
+        exclude("nutch-default.xml","nutch-site.xml")
+        into("classes/plugins")
+    }
     doLast {
         delete("${project.properties["build.dir"]}/tmp")
     }
