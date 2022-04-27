@@ -363,20 +363,8 @@ tasks.register<Copy>("runtime") {
         from(layout.projectDirectory.dir("${project.properties["build.dir"]}/test"))
     }
 
-    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/bin"))
-    into(layout.buildDirectory.dir("src/bin"))
-
-    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/lib"))
-    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/lib"))
-
-    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/plugins"))
-    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/plugins"))
-
-    from(layout.buildDirectory.dir("${project.properties["runtime.local"]}/test"))
-    into(layout.buildDirectory.dir("${project.properties["build.dir"]}/test"))
-
-    doLast {
-        project.exec {
+    doLast() {
+        project.exec() {
             commandLine("chmod","ugo+x","${project.properties["runtime.deploy"]}/bin")
             commandLine("chmod","ugo+x","${project.properties["runtime.local"]}/bin")
         }
@@ -388,26 +376,23 @@ tasks.register<Jar>("job") {
     dependsOn("compile")
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from(
-        files("${project.properties["build.classes"]}") {
-            exclude("nutch-default.xml","nutch-site.xml")
-        },
-        files("${project.properties["conf.dir"]}") {
-            exclude("*.template","hadoop*.*")
-        },
-        files("${project.properties["build.lib.dir"]}") {
-            eachFile {
-                relativePath = RelativePath(true,"lib")
-            }
-            include("**/*.jar")
-            exclude("hadoop-*.jar,slf4j*.jar","log4j*.jar")
-        },
-        files("${project.properties["build.plugins"]}") {
-            eachFile {
-                relativePath = RelativePath(true,"classes","plugins")
-            }
-        }
-    )
+    archiveFileName.set("${project.properties["final.name"]}.job")
+    destinationDirectory.set(layout.projectDirectory.dir("${project.properties["build.dir"]}"))
+    from(layout.projectDirectory.dir("${project.properties["build.classes"]}")) {
+        exclude("nutch-default.xml","nutch-site.xml")
+    }
+    from(layout.projectDirectory.dir("${project.properties["conf.dir"]}")) {
+        exclude("*.template","hadoop*.*")
+    }
+    from(layout.projectDirectory.dir("${project.properties["build.lib.dir"]}")) {
+        include("**/*.jar")
+        exclude("hadoop-*.jar","slf4j*.jar","log4j*.jar")
+        into("lib")
+    }
+    from(layout.projectDirectory.dir("${project.properties["build.plugins"]}")) {
+        exclude("nutch-default.xml","nutch-site.xml")
+        into("classes/plugins")
+    }
     doLast {
         delete("${project.properties["build.dir"]}/tmp")
     }
@@ -456,7 +441,7 @@ tasks.javadoc {
         destinationDirectory = file("${project.properties["build.javadoc"]}")
         windowTitle = "${project.properties["name"]} ${project.properties["version"]} API"
         isFailOnError = true
-        //TODO isFailOnWarning = true
+        //isFailOnWarning = true
 
         val dc = StandardJavadocDocletOptions()
         dc.isAuthor = true
@@ -494,7 +479,6 @@ tasks.javadoc {
         doclet = dc.doclet
     }
 
-    //TODO this is meant to replace the <packageset> tags
     include(
         "${project.properties["src.dir"]}",
         "${project.properties["plugins.dir"]}/any23/src/java/",
@@ -619,9 +603,7 @@ tasks.register<Copy>("package-src")
         includeEmptyDirs = true
         into("${project.properties["src.dist.version.dir"]}/src")
     }
-    //TODO skipped Ivy copy, now deprecated
     from(".") {
-        //TODO replaced Ant files with Gradle files
         include("build.gradle.kts","gradle.properties","settings.gradle.kts")
         into("${project.properties["src.dist.version.dir"]}/")
     }
@@ -639,7 +621,7 @@ tasks.register<Zip>("zip-src")
             fileMode = 664
             exclude("src/bin/*")
             //TODO delete the following line once Ivy is removed completely
-            exclude("ivy/ivy*.jar")
+            exclude("ivy")
             include("**")
         },
         files("${project.properties["src.dist.version.dir"]}") {
