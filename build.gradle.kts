@@ -164,6 +164,7 @@ val testClasspathCollection: FileCollection = layout.files(
 
 // legacy ant target "init" renamed to "init-nutch" to avoid gradle naming conflicts
 tasks.register<Copy>("init-nutch") {
+    group = "gradleBuildSystem"
     description = "Stuff required by all targets"
 
     // making six directories
@@ -184,6 +185,7 @@ tasks.register<Copy>("init-nutch") {
 }
 
 tasks.register<Sync>("resolve-default") {
+    group = "gradleBuildSystem"
     description = "Resolve and retrieve dependencies"
     dependsOn("clean-default-lib","init-nutch","copy-libs")
     from(configurations.compileClasspath)
@@ -192,6 +194,7 @@ tasks.register<Sync>("resolve-default") {
 }
 
 tasks.register<Sync>("resolve-test") {
+    group = "gradleBuildSystem"
     description = "Resolve and retrieve dependencies"
     dependsOn("clean-test-lib","init-nutch","copy-libs")
     from(configurations.testCompileClasspath)
@@ -200,11 +203,13 @@ tasks.register<Sync>("resolve-test") {
 }
 
 tasks.register("compile") {
+    group = "gradleBuildSystem"
     description = "Compile all Java files"
     dependsOn("compile-core","compile-plugins")
 }
 
 tasks.register<JavaCompile>("compile-core") {
+    group = "gradleBuildSystem"
     description = "Compile core Java files only"
     dependsOn("init-nutch","resolve-default","compileJava")
     source = fileTree("${project.properties["src.dir"]}")
@@ -232,6 +237,7 @@ tasks.register<JavaCompile>("compile-core") {
 }
 
 tasks.register<JavaExec>("proxy") {
+    group = "gradleBuildSystem"
     description = "Run nutch proxy"
     dependsOn("compile-core-test","job")
 
@@ -242,6 +248,7 @@ tasks.register<JavaExec>("proxy") {
 }
 
 tasks.register<JavaExec>("benchmark") {
+    group = "gradleBuildSystem"
     description = "Run nutch benchmarking analysis"
 
     mainClass.set("org.apache.nutch.tools.Benchmark")
@@ -256,41 +263,49 @@ tasks.register<JavaExec>("benchmark") {
 }
 
 tasks.clean {
+    group = "gradleBuildSystem"
     description = "Clean the project"
     dependsOn("clean-build","clean-lib","clean-dist","clean-runtime")
 }
 
 tasks.register("clean-lib") {
+    group = "gradleBuildSystem"
     description = "Clean the project libraries directories (dependencies: default + test)"
     dependsOn("clean-default-lib","clean-test-lib")
 }
 
 tasks.register<Delete>("clean-default-lib") {
+    group = "gradleBuildSystem"
     description = "Clean the project libraries directory (dependencies)"
     delete("${project.properties["build.lib.dir"]}")
 }
 
 tasks.register<Delete>("clean-test-lib") {
+    group = "gradleBuildSystem"
     description = "Clean the project test libraries directory (dependencies)"
     delete("${project.properties["test.build.lib.dir"]}")
 }
 
 tasks.register<Delete>("clean-build") {
+    group = "gradleBuildSystem"
     description = "Clean the project built files"
     delete("${project.properties["build.dir"]}")
 }
 
 tasks.register<Delete>("clean-dist") {
+    group = "gradleBuildSystem"
     description = "Clean the project dist files"
     delete("${project.properties["dist.dir"]}")
 }
 
 tasks.register<Delete>("clean-runtime") {
+    group = "gradleBuildSystem"
     description = "Clean the project runtime area"
     delete("${project.properties["runtime.dir"]}")
 }
 
 tasks.register<Copy>("copy-libs") {
+    group = "gradleBuildSystem"
     description = "Copy the libs in lib"
     from("${project.properties["lib.dir"]}") {
         include("**/*.jar")
@@ -299,6 +314,7 @@ tasks.register<Copy>("copy-libs") {
 }
 
 tasks.register<GradleBuild>("compile-plugins") {
+    group = "gradleBuildSystem"
     description = "Compile plugins only"
     dependsOn("init-nutch","resolve-default")
     //TODO Once plugins are finished, uncomment the following lines:
@@ -307,6 +323,7 @@ tasks.register<GradleBuild>("compile-plugins") {
 }
 
 tasks.jar {
+    group = "gradleBuildSystem"
     description = "Make nutch.jar"
     dependsOn("compile-core")
 
@@ -326,6 +343,7 @@ tasks.jar {
 }
 
 tasks.register<Copy>("runtime") {
+    group = "gradleBuildSystem"
     description = "Default target for running Nutch"
     dependsOn("jar","job")
     mkdir("${project.properties["runtime.dir"]}")
@@ -373,6 +391,7 @@ tasks.register<Copy>("runtime") {
 }
 
 tasks.register<Jar>("job") {
+    group = "gradleBuildSystem"
     description = "Make nutch.job jar"
     dependsOn("compile")
 
@@ -400,6 +419,7 @@ tasks.register<Jar>("job") {
 }
 
 tasks.register<JavaCompile>("compile-core-test") {
+    group = "gradleBuildSystem"
     description = "Compile test code"
     dependsOn("init-nutch","compile-core","resolve-test","compileTestJava")
 
@@ -418,7 +438,7 @@ tasks.register<JavaCompile>("compile-core-test") {
     options.isDeprecation = "${project.properties["javac.deprecation"]}" == "on"
 }
 
-tasks.test.configure() {
+tasks.test.configure {
     description = "Run JUnit tests"
     dependsOn("test-core","test-plugins")
 }
@@ -486,6 +506,7 @@ tasks.register<Exec>("javadoc-dummy") {
     )
 }
 tasks.javadoc.configure {
+    group = "gradleBuildSystem"
     description = "Generate Javadoc"
     dependsOn("javadoc-dummy")
 }
@@ -639,6 +660,7 @@ tasks.javadoc.configure {
 
 tasks.register<Copy>("package-src")
 {
+    group = "gradleBuildSystem"
     description = "Generate source distribution package"
     dependsOn("runtime","javadoc")
 
@@ -677,6 +699,7 @@ tasks.register<Copy>("package-src")
 }
 tasks.register<Zip>("zip-src")
 {
+    group = "gradleBuildSystem"
     description = "Generate src.zip distribution package"
     dependsOn("package-src")
 
