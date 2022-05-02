@@ -117,9 +117,8 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = counter.waitForCompletion(true);
       if (!success) {
-        String message = "Link counter job did not succeed, job status:"
-            + counter.getStatus().getState() + ", reason: "
-            + counter.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("Link counter",
+            counter);
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -216,9 +215,8 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = initializer.waitForCompletion(true);
       if (!success) {
-        String message = "Initialization job did not succeed, job status:"
-            + initializer.getStatus().getState() + ", reason: "
-            + initializer.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("Initialization",
+            initializer);
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -270,9 +268,7 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = inverter.waitForCompletion(true);
       if (!success) {
-        String message = "Inverter job did not succeed, job status:"
-            + inverter.getStatus().getState() + ", reason: "
-            + inverter.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("Inverter", inverter);
         LOG.error(message);
         throw new RuntimeException(message);
       }
@@ -334,9 +330,7 @@ public class LinkRank extends Configured implements Tool {
     try {
       boolean success = analyzer.waitForCompletion(true);
       if (!success) {
-        String message = "Analysis job did not succeed, job status:"
-            + analyzer.getStatus().getState() + ", reason: "
-            + analyzer.getStatus().getFailureInfo();
+        String message = NutchJob.getJobFailureLogMessage("Analysis", analyzer);
         LOG.error(message);
         throw new RuntimeException(message);
       }
