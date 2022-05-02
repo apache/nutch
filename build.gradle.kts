@@ -469,32 +469,36 @@ tasks.javadoc.configure {
             fileTree(mapOf("dir" to project.properties["build.plugins"], "include" to listOf("**/*.jar"), "exclude" to listOf("any23/javax.annotation-api*.jar")))
         )
     )
-    options.overview = "${project.properties["src.dir"]}/overview.html"
-    options.windowTitle = "${project.properties["projname"]} ${project.properties["version"]} API"
-    (options as StandardJavadocDocletOptions).docTitle = options.windowTitle
-    (options as StandardJavadocDocletOptions).bottom = "Copyright \u00a9 ${project.properties["year"]} The Apache Software Foundation"
-    (options as StandardJavadocDocletOptions).isAuthor = true
-    (options as StandardJavadocDocletOptions).isVersion = true
-    (options as StandardJavadocDocletOptions).isUse = true
-    (options as StandardJavadocDocletOptions).links("${project.properties["javadoc.link.java"]}","${project.properties["javadoc.link.hadoop"]}")
-    (options as StandardJavadocDocletOptions).groups = mutableMapOf(
-            "Core"                    to mutableListOf("org.apache.nutch.*"),
-            "Plugins API"             to "${project.properties["plugins.api"]}"          .split(":"),
-            "Protocol Plugins"        to "${project.properties["plugins.protocol"]}"     .split(":"),
-            "URL Filter Plugins"      to "${project.properties["plugins.urlfilter"]}"    .split(":"),
-            "URL Normalizer Plugins"  to "${project.properties["plugins.urlnormalizer"]}".split(":"),
-            "Scoring Plugins"         to "${project.properties["plugins.scoring"]}"      .split(":"),
-            "Parse Plugins"           to "${project.properties["plugins.parse"]}"        .split(":"),
-            "Parse Filter Plugins"    to "${project.properties["plugins.parsefilter"]}"  .split(":"),
-            "Publisher Plugins"       to "${project.properties["plugins.publisher"]}"    .split(":"),
-            "Exchange Plugins"        to "${project.properties["plugins.exchange"]}"     .split(":"),
-            "Indexing Filter Plugins" to "${project.properties["plugins.index"]}"        .split(":"),
-            "Indexer Plugins"         to "${project.properties["plugins.indexer"]}"      .split(":"),
-            "Misc. Plugins"           to "${project.properties["plugins.misc"]}"         .split(":")
-        )
-    (options as StandardJavadocDocletOptions).addBooleanOption("-allow-script-in-comments", true)
-    (options as StandardJavadocDocletOptions).addStringOption("${project.properties["javadoc.proxy.host"]}")
-    (options as StandardJavadocDocletOptions).addStringOption("${project.properties["javadoc.proxy.port"]}")
+    options {
+        this as StandardJavadocDocletOptions
+        overview = "${project.properties["src.dir"]}/overview.html"
+        windowTitle = "${project.properties["projname"]} ${project.properties["version"]} API"
+        docTitle = windowTitle
+        bottom = "Copyright \u00a9 ${project.properties["year"]} The Apache Software Foundation"
+        isAuthor = true
+        isVersion = true
+        isUse = true
+        links("${project.properties["javadoc.link.java"]}","${project.properties["javadoc.link.hadoop"]}")
+        groups = mutableMapOf(
+                "Core"                    to mutableListOf("org.apache.nutch.*"),
+                "Plugins API"             to "${project.properties["plugins.api"]}"          .split(":"),
+                "Protocol Plugins"        to "${project.properties["plugins.protocol"]}"     .split(":"),
+                "URL Filter Plugins"      to "${project.properties["plugins.urlfilter"]}"    .split(":"),
+                "URL Normalizer Plugins"  to "${project.properties["plugins.urlnormalizer"]}".split(":"),
+                "Scoring Plugins"         to "${project.properties["plugins.scoring"]}"      .split(":"),
+                "Parse Plugins"           to "${project.properties["plugins.parse"]}"        .split(":"),
+                "Parse Filter Plugins"    to "${project.properties["plugins.parsefilter"]}"  .split(":"),
+                "Publisher Plugins"       to "${project.properties["plugins.publisher"]}"    .split(":"),
+                "Exchange Plugins"        to "${project.properties["plugins.exchange"]}"     .split(":"),
+                "Indexing Filter Plugins" to "${project.properties["plugins.index"]}"        .split(":"),
+                "Indexer Plugins"         to "${project.properties["plugins.indexer"]}"      .split(":"),
+                "Misc. Plugins"           to "${project.properties["plugins.misc"]}"         .split(":")
+            )
+        addBooleanOption("-allow-script-in-comments", true)
+        addStringOption("${project.properties["javadoc.proxy.host"]}")
+        addStringOption("${project.properties["javadoc.proxy.port"]}")
+    }
+    
 
     doLast {
         copy {
@@ -508,6 +512,7 @@ tasks.javadoc.configure {
             )
             into("${project.properties["build.javadoc"]}/resources")
         }
+        delete("${project.properties["build.dir"]}/tmp")
     }
 }
 
@@ -556,7 +561,7 @@ tasks.register<Zip>("zip-src") {
     dependsOn("package-src")
 
     archiveFileName.set("${project.properties["src.dist.version.dir"]}.zip")
-    destinationDirectory.set(layout.buildDirectory.dir("${project.properties["final.name"]}"))
+    destinationDirectory.set(layout.projectDirectory)
 
     from(
         files("${project.properties["src.dist.version.dir"]}") {
