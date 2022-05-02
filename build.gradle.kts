@@ -20,6 +20,7 @@ plugins {
     base
     java
     `maven-publish`
+    `java-library`
 }
 
 repositories {
@@ -163,6 +164,7 @@ val testClasspathCollection: FileCollection = layout.files(
 
 // legacy ant target "init" renamed to "init-nutch" to avoid gradle naming conflicts
 tasks.register<Copy>("init-nutch") {
+    group = "gradleBuildSystem"
     description = "Stuff required by all targets"
 
     // making six directories
@@ -183,6 +185,7 @@ tasks.register<Copy>("init-nutch") {
 }
 
 tasks.register<Sync>("resolve-default") {
+    group = "gradleBuildSystem"
     description = "Resolve and retrieve dependencies"
     dependsOn("clean-default-lib","init-nutch","copy-libs")
     from(configurations.compileClasspath)
@@ -191,6 +194,7 @@ tasks.register<Sync>("resolve-default") {
 }
 
 tasks.register<Sync>("resolve-test") {
+    group = "gradleBuildSystem"
     description = "Resolve and retrieve dependencies"
     dependsOn("clean-test-lib","init-nutch","copy-libs")
     from(configurations.testCompileClasspath)
@@ -199,11 +203,13 @@ tasks.register<Sync>("resolve-test") {
 }
 
 tasks.register("compile") {
+    group = "gradleBuildSystem"
     description = "Compile all Java files"
     dependsOn("compile-core","compile-plugins")
 }
 
 tasks.register<JavaCompile>("compile-core") {
+    group = "gradleBuildSystem"
     description = "Compile core Java files only"
     dependsOn("init-nutch","resolve-default","compileJava")
     source = fileTree("${project.properties["src.dir"]}")
@@ -231,6 +237,7 @@ tasks.register<JavaCompile>("compile-core") {
 }
 
 tasks.register<JavaExec>("proxy") {
+    group = "gradleBuildSystem"
     description = "Run nutch proxy"
     dependsOn("compile-core-test","job")
 
@@ -241,6 +248,7 @@ tasks.register<JavaExec>("proxy") {
 }
 
 tasks.register<JavaExec>("benchmark") {
+    group = "gradleBuildSystem"
     description = "Run nutch benchmarking analysis"
 
     mainClass.set("org.apache.nutch.tools.Benchmark")
@@ -255,41 +263,49 @@ tasks.register<JavaExec>("benchmark") {
 }
 
 tasks.clean {
+    group = "gradleBuildSystem"
     description = "Clean the project"
     dependsOn("clean-build","clean-lib","clean-dist","clean-runtime")
 }
 
 tasks.register("clean-lib") {
+    group = "gradleBuildSystem"
     description = "Clean the project libraries directories (dependencies: default + test)"
     dependsOn("clean-default-lib","clean-test-lib")
 }
 
 tasks.register<Delete>("clean-default-lib") {
+    group = "gradleBuildSystem"
     description = "Clean the project libraries directory (dependencies)"
     delete("${project.properties["build.lib.dir"]}")
 }
 
 tasks.register<Delete>("clean-test-lib") {
+    group = "gradleBuildSystem"
     description = "Clean the project test libraries directory (dependencies)"
     delete("${project.properties["test.build.lib.dir"]}")
 }
 
 tasks.register<Delete>("clean-build") {
+    group = "gradleBuildSystem"
     description = "Clean the project built files"
     delete("${project.properties["build.dir"]}")
 }
 
 tasks.register<Delete>("clean-dist") {
+    group = "gradleBuildSystem"
     description = "Clean the project dist files"
     delete("${project.properties["dist.dir"]}")
 }
 
 tasks.register<Delete>("clean-runtime") {
+    group = "gradleBuildSystem"
     description = "Clean the project runtime area"
     delete("${project.properties["runtime.dir"]}")
 }
 
 tasks.register<Copy>("copy-libs") {
+    group = "gradleBuildSystem"
     description = "Copy the libs in lib"
     from("${project.properties["lib.dir"]}") {
         include("**/*.jar")
@@ -298,6 +314,7 @@ tasks.register<Copy>("copy-libs") {
 }
 
 tasks.register<GradleBuild>("compile-plugins") {
+    group = "gradleBuildSystem"
     description = "Compile plugins only"
     dependsOn("init-nutch","resolve-default")
     //TODO Once plugins are finished, uncomment the following lines:
@@ -306,6 +323,7 @@ tasks.register<GradleBuild>("compile-plugins") {
 }
 
 tasks.jar {
+    group = "gradleBuildSystem"
     description = "Make nutch.jar"
     dependsOn("compile-core")
 
@@ -325,6 +343,7 @@ tasks.jar {
 }
 
 tasks.register<Copy>("runtime") {
+    group = "gradleBuildSystem"
     description = "Default target for running Nutch"
     dependsOn("jar","job")
     mkdir("${project.properties["runtime.dir"]}")
@@ -372,6 +391,7 @@ tasks.register<Copy>("runtime") {
 }
 
 tasks.register<Jar>("job") {
+    group = "gradleBuildSystem"
     description = "Make nutch.job jar"
     dependsOn("compile")
 
@@ -399,6 +419,7 @@ tasks.register<Jar>("job") {
 }
 
 tasks.register<JavaCompile>("compile-core-test") {
+    group = "gradleBuildSystem"
     description = "Compile test code"
     dependsOn("init-nutch","compile-core","resolve-test","compileTestJava")
 
@@ -417,161 +438,82 @@ tasks.register<JavaCompile>("compile-core-test") {
     options.isDeprecation = "${project.properties["javac.deprecation"]}" == "on"
 }
 
-tasks.test.configure() {
+tasks.test.configure {
     description = "Run JUnit tests"
     dependsOn("test-core","test-plugins")
 }
 
-tasks.javadoc {
-    description = "Generate Javadoc"
+// Dummy target. This just ensures that the compile target always happens before the command line invocation
+tasks.register<Exec>("javadocs") {
     dependsOn("compile")
 
     val version:String = System.getProperty("java.version")
     if("1.7.0_25".compareTo(version) >= 0)
         throw GradleException(
             "Unsupported Java version: ${version}. Javadoc requires Java version 7u25 " +
-            "or greater. See https://issues.apache.org/jira/browse/NUTCH-1590"
+                    "or greater. See https://issues.apache.org/jira/browse/NUTCH-1590"
         )
 
-    mkdir("${project.properties["build.javadoc"]}")
-    mkdir("${project.properties["build.javadoc"]}/resources")
+    val org:String = "org.apache.nutch."
+    val pkg:String = org+"crawl:"+
+            org+"exchange:"+
+            org+"fetcher:"+
+            org+"hostdb:"+
+            org+"indexer:"+
+            org+"metadata:"+
+            org+"net:"+
+            org+"parse:"+
+            org+"plugin:"+
+            org+"protocol:"+
+            org+"publisher:"+
+            org+"scoring:"+
+            org+"segment:"+
+            org+"service:"+
+            org+"tools:"+
+            org+"util"
 
-    options {
-        overview = "${project.properties["src.dir"]}/overview.html"
-        destinationDirectory = file("${project.properties["build.javadoc"]}")
-        windowTitle = "${project.properties["name"]} ${project.properties["version"]} API"
-        isFailOnError = true
-        //isFailOnWarning = true
-
-        val dc = StandardJavadocDocletOptions()
-        dc.isAuthor = true
-        dc.isVersion = true
-        dc.isUse = true
-        dc.docTitle = windowTitle
-        dc.bottom = "Copyright &amp;copy; ${project.properties["year"]} The Apache Software Foundation"
-        dc.addStringOption("${project.properties["javadoc.proxy.host"]}")
-        dc.addStringOption("${project.properties["javadoc.proxy.port"]}")
-        dc.addBooleanOption("--allow-script-in-comments")
-        dc.links(
-            "${project.properties["javadoc.link.java"]}",
-            "${project.properties["javadoc.link.hadoop"]}"
-        )
-        dc.classpath = files("${project.properties["build.plugins"]}") {
-            include("**/*.jar")
-            exclude("any23/javax.annotation-api*.jar")
-        }.distinct()
-        dc.groups = mutableMapOf(
-            "Core"                    to mutableListOf("org.apache.nutch.*"),
-            "Plugins API"             to mutableListOf("${project.properties["plugins.api"]}"),
-            "Protocol Plugins"        to mutableListOf("${project.properties["plugins.protocol"]}"),
-            "URL Filter Plugins"      to mutableListOf("${project.properties["plugins.urlfilter"]}"),
-            "URL Normalizer Plugins"  to mutableListOf("${project.properties["plugins.urlnormalizer"]}"),
-            "Scoring Plugins"         to mutableListOf("${project.properties["plugins.scoring"]}"),
-            "Parse Plugins"           to mutableListOf("${project.properties["plugins.parse"]}"),
-            "Parse Filter Plugins"    to mutableListOf("${project.properties["plugins.parsefilter"]}"),
-            "Publisher Plugins"       to mutableListOf("${project.properties["plugins.publisher"]}"),
-            "Exchange Plugins"        to mutableListOf("${project.properties["plugins.exchange"]}"),
-            "Indexing Filter Plugins" to mutableListOf("${project.properties["plugins.index"]}"),
-            "Indexer Plugins"         to mutableListOf("${project.properties["plugins.indexer"]}"),
-            "Misc. Plugins"           to mutableListOf("${project.properties["plugins.misc"]}")
-        )
-        // TODO it is unclear if this actually gets applied to the javadoc options
-        doclet = dc.doclet
-    }
-
-    include(
-        "${project.properties["src.dir"]}",
-        "${project.properties["plugins.dir"]}/any23/src/java/",
-        "${project.properties["plugins.dir"]}/creativecommons/src/java",
-        "${project.properties["plugins.dir"]}/feed/src/java",
-        "${project.properties["plugins.dir"]}/headings/src/java",
-        "${project.properties["plugins.dir"]}/exchange-jexl/src/java",
-        "${project.properties["plugins.dir"]}/index-anchor/src/java",
-        "${project.properties["plugins.dir"]}/index-basic/src/java",
-        "${project.properties["plugins.dir"]}/index-geoip/src/java",
-        "${project.properties["plugins.dir"]}/index-jexl-filter/src/java",
-        "${project.properties["plugins.dir"]}/index-links/src/java",
-        "${project.properties["plugins.dir"]}/index-metadata/src/java",
-        "${project.properties["plugins.dir"]}/index-more/src/java",
-        "${project.properties["plugins.dir"]}/index-replace/src/java",
-        "${project.properties["plugins.dir"]}/index-static/src/java",
-        "${project.properties["plugins.dir"]}/indexer-cloudsearch/src/java/",
-        "${project.properties["plugins.dir"]}/indexer-csv/src/java",
-        "${project.properties["plugins.dir"]}/indexer-dummy/src/java",
-        "${project.properties["plugins.dir"]}/indexer-elastic/src/java/",
-        "${project.properties["plugins.dir"]}/indexer-kafka/src/java/",
-        "${project.properties["plugins.dir"]}/indexer-rabbit/src/java",
-        "${project.properties["plugins.dir"]}/indexer-solr/src/java",
-        "${project.properties["plugins.dir"]}/language-identifier/src/java",
-        "${project.properties["plugins.dir"]}/lib-htmlunit/src/java",
-        "${project.properties["plugins.dir"]}/lib-http/src/java",
-        "${project.properties["plugins.dir"]}/lib-rabbitmq/src/java",
-        "${project.properties["plugins.dir"]}/lib-regex-filter/src/java",
-        "${project.properties["plugins.dir"]}/lib-selenium/src/java",
-        "${project.properties["plugins.dir"]}/microformats-reltag/src/java",
-        "${project.properties["plugins.dir"]}/mimetype-filter/src/java",
-        "${project.properties["plugins.dir"]}/parse-ext/src/java",
-        "${project.properties["plugins.dir"]}/parse-html/src/java",
-        "${project.properties["plugins.dir"]}/parse-js/src/java",
-        "${project.properties["plugins.dir"]}/parse-metatags/src/java",
-        "${project.properties["plugins.dir"]}/parse-swf/src/java",
-        "${project.properties["plugins.dir"]}/parse-tika/src/java",
-        "${project.properties["plugins.dir"]}/parse-zip/src/java",
-        "${project.properties["plugins.dir"]}/parsefilter-debug/src/java",
-        "${project.properties["plugins.dir"]}/parsefilter-naivebayes/src/java",
-        "${project.properties["plugins.dir"]}/parsefilter-regex/src/java",
-        "${project.properties["plugins.dir"]}/protocol-file/src/java",
-        "${project.properties["plugins.dir"]}/protocol-ftp/src/java",
-        "${project.properties["plugins.dir"]}/protocol-htmlunit/src/java",
-        "${project.properties["plugins.dir"]}/protocol-http/src/java",
-        "${project.properties["plugins.dir"]}/protocol-httpclient/src/java",
-        "${project.properties["plugins.dir"]}/protocol-interactiveselenium/src/java",
-        "${project.properties["plugins.dir"]}/protocol-okhttp/src/java",
-        "${project.properties["plugins.dir"]}/protocol-selenium/src/java",
-        "${project.properties["plugins.dir"]}/publish-rabbitmq/src/java",
-        "${project.properties["plugins.dir"]}/scoring-depth/src/java",
-        "${project.properties["plugins.dir"]}/scoring-link/src/java",
-        "${project.properties["plugins.dir"]}/scoring-opic/src/java",
-        "${project.properties["plugins.dir"]}/scoring-orphan/src/java",
-        "${project.properties["plugins.dir"]}/scoring-similarity/src/java",
-        "${project.properties["plugins.dir"]}/scoring-metadata/src/java",
-        "${project.properties["plugins.dir"]}/subcollection/src/java",
-        "${project.properties["plugins.dir"]}/tld/src/java",
-        "${project.properties["plugins.dir"]}/urlfilter-automaton/src/java",
-        "${project.properties["plugins.dir"]}/urlfilter-domain/src/java",
-        "${project.properties["plugins.dir"]}/urlfilter-domaindenylist/src/java",
-        "${project.properties["plugins.dir"]}/urlfilter-fast/src/java",
-        "${project.properties["plugins.dir"]}/urlfilter-ignoreexempt/src/java",
-        "${project.properties["plugins.dir"]}/urlfilter-prefix/src/java",
-        "${project.properties["plugins.dir"]}/urlfilter-regex/src/java",
-        "${project.properties["plugins.dir"]}/urlfilter-suffix/src/java",
-        "${project.properties["plugins.dir"]}/urlfilter-validator/src/java",
-        "${project.properties["plugins.dir"]}/urlmeta/src/java",
-        "${project.properties["plugins.dir"]}/urlnormalizer-ajax/src/java",
-        "${project.properties["plugins.dir"]}/urlnormalizer-basic/src/java",
-        "${project.properties["plugins.dir"]}/urlnormalizer-host/src/java",
-        "${project.properties["plugins.dir"]}/urlnormalizer-pass/src/java",
-        "${project.properties["plugins.dir"]}/urlnormalizer-protocol/src/java",
-        "${project.properties["plugins.dir"]}/urlnormalizer-querystring/src/java",
-        "${project.properties["plugins.dir"]}/urlnormalizer-regex/src/java",
-        "${project.properties["plugins.dir"]}/urlnormalizer-slash/src/java"
+    isIgnoreExitValue = true
+    commandLine(
+        "javadoc",
+        "-d", "build/docs/api",
+        "-sourcepath", "src/java",
+        "-classpath", "${project.properties["plugins.dir"]}/*;${project.properties["build.lib.dir"]}/*",
+        "-author",
+        "-windowtitle", "\"${project.properties["name"]} ${project.properties["version"]} API\"",
+        "-doctitle", "\"${project.properties["name"]} ${project.properties["version"]} API\"",
+        "-bottom", "\"Copyright &amp;copy; ${project.properties["year"]} The Apache Software Foundation\"",
+        "-link", "${project.properties["javadoc.link.java"]}",
+        "-link", "${project.properties["javadoc.link.hadoop"]}",
+        "-group", "\"Core\"", "org.apache.nutch.*",
+        "-group", "\"Plugins Api\"", "\"${project.properties["plugins.api"]}\"",
+        "-group", "\"Protocol Plugins\"", "\"${project.properties["plugins.protocol"]}\"",
+        "-group", "\"URL Filter Plugins\"", "\"${project.properties["plugins.urlfilter"]}\"",
+        "-group", "\"URL Normalizer Plugins\"", "\"${project.properties["plugins.urlnormalizer"]}\"",
+        "-group", "\"Scoring Plugins\"", "\"${project.properties["plugins.scoring"]}\"",
+        "-group", "\"Parse Plugins\"", "\"${project.properties["plugins.parse"]}\"",
+        "-group", "\"Parse Filter Plugins\"", "\"${project.properties["plugins.parsefilter"]}\"",
+        "-group", "\"Publisher Plugins\"", "\"${project.properties["plugins.publisher"]}\"",
+        "-group", "\"Exchange Plugins\"", "\"${project.properties["plugins.exchange"]}\"",
+        "-group", "\"Indexing Filter Plugins\"", "\"${project.properties["plugins.index"]}\"",
+        "-group", "\"Indexer Plugins\"", "\"${project.properties["plugins.indexer"]}\"",
+        "-group", "\"Misc. Plugins\"", "\"${project.properties["plugins.misc"]}\"",
+        "-overview", "\"${project.properties["src.dir"]}/overview.html\"",
+        "-use",
+        "--allow-script-in-comments",
+        "-J-DproxyPort=",
+        "-J-DproxyHost=",
+        "-subpackages",pkg
     )
-
-    copy {
-        from("${project.properties["plugins.dir"]}/plugin.dtd")
-        into("${project.properties["build.javadoc"]}/org/apache/nutch/plugin/doc-files")
-    }
-    copy {
-        from(
-            "${project.properties["conf.dir"]}/nutch-default.xml",
-            "${project.properties["conf.dir"]}/configuration.xsl"
-        )
-        into("${project.properties["build.javadoc"]}/resources/")
-    }
+}
+tasks.javadoc.configure {
+    group = "gradleBuildSystem"
+    description = "Generate Javadoc"
+    dependsOn("javadocs")
 }
 
 tasks.register<Copy>("package-src")
 {
+    group = "gradleBuildSystem"
     description = "Generate source distribution package"
     dependsOn("runtime","javadoc")
 
@@ -610,6 +552,7 @@ tasks.register<Copy>("package-src")
 }
 tasks.register<Zip>("zip-src")
 {
+    group = "gradleBuildSystem"
     description = "Generate src.zip distribution package"
     dependsOn("package-src")
 
