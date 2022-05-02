@@ -433,6 +433,7 @@ tasks.register<JavaCompile>("compile-core-test") {
     options.annotationProcessorPath = testClasspathCollection
     options.sourcepath = layout.files("${project.properties["src.dir"]}")
     options.compilerArgs.add("-Xlint:-path")
+    options.compilerArgs.add("-Xpkginfo:always")
     options.encoding = "${project.properties["build.encoding"]}"
     options.isDebug = "${project.properties["javac.debug"]}" == "on"
     options.isDeprecation = "${project.properties["javac.deprecation"]}" == "on"
@@ -443,76 +444,74 @@ tasks.test.configure {
     dependsOn("test-core","test-plugins")
 }
 
-// Dummy target. This just ensures that the compile target always happens before the command line invocation
-tasks.register<Exec>("javadocs") {
+
+tasks.javadoc.configure {
+    group = "gradleBuildSystem"
+    description = "Generate Javadoc"
     dependsOn("compile")
 
     val version:String = System.getProperty("java.version")
     if("1.7.0_25".compareTo(version) >= 0)
         throw GradleException(
             "Unsupported Java version: ${version}. Javadoc requires Java version 7u25 " +
-                    "or greater. See https://issues.apache.org/jira/browse/NUTCH-1590"
+            "or greater. See https://issues.apache.org/jira/browse/NUTCH-1590"
         )
 
-    val org:String = "org.apache.nutch."
-    val pkg:String = org+"crawl:"+
-            org+"exchange:"+
-            org+"fetcher:"+
-            org+"hostdb:"+
-            org+"indexer:"+
-            org+"metadata:"+
-            org+"net:"+
-            org+"parse:"+
-            org+"plugin:"+
-            org+"protocol:"+
-            org+"publisher:"+
-            org+"scoring:"+
-            org+"segment:"+
-            org+"service:"+
-            org+"tools:"+
-            org+"util"
+    mkdir("${project.properties["build.javadoc"]}")
+    mkdir("${project.properties["build.javadoc"]}/resources")
 
-    isIgnoreExitValue = true
-    commandLine(
-        "javadoc",
-        "-d", "build/docs/api",
-        "-sourcepath", "src/java",
-        "-classpath", "${project.properties["plugins.dir"]}/*;${project.properties["build.lib.dir"]}/*",
-        "-author",
-        "-windowtitle", "\"${project.properties["name"]} ${project.properties["version"]} API\"",
-        "-doctitle", "\"${project.properties["name"]} ${project.properties["version"]} API\"",
-        "-bottom", "\"Copyright &amp;copy; ${project.properties["year"]} The Apache Software Foundation\"",
-        "-link", "${project.properties["javadoc.link.java"]}",
-        "-link", "${project.properties["javadoc.link.hadoop"]}",
-        "-group", "\"Core\"", "org.apache.nutch.*",
-        "-group", "\"Plugins Api\"", "\"${project.properties["plugins.api"]}\"",
-        "-group", "\"Protocol Plugins\"", "\"${project.properties["plugins.protocol"]}\"",
-        "-group", "\"URL Filter Plugins\"", "\"${project.properties["plugins.urlfilter"]}\"",
-        "-group", "\"URL Normalizer Plugins\"", "\"${project.properties["plugins.urlnormalizer"]}\"",
-        "-group", "\"Scoring Plugins\"", "\"${project.properties["plugins.scoring"]}\"",
-        "-group", "\"Parse Plugins\"", "\"${project.properties["plugins.parse"]}\"",
-        "-group", "\"Parse Filter Plugins\"", "\"${project.properties["plugins.parsefilter"]}\"",
-        "-group", "\"Publisher Plugins\"", "\"${project.properties["plugins.publisher"]}\"",
-        "-group", "\"Exchange Plugins\"", "\"${project.properties["plugins.exchange"]}\"",
-        "-group", "\"Indexing Filter Plugins\"", "\"${project.properties["plugins.index"]}\"",
-        "-group", "\"Indexer Plugins\"", "\"${project.properties["plugins.indexer"]}\"",
-        "-group", "\"Misc. Plugins\"", "\"${project.properties["plugins.misc"]}\"",
-        "-overview", "\"${project.properties["src.dir"]}/overview.html\"",
-        "-use",
-        "--allow-script-in-comments",
-        "-J-DproxyPort=",
-        "-J-DproxyHost=",
-        "-subpackages",pkg
+    source(fileTree("${project.properties["src.dir"]}"))
+    // todo: add plugins to source
+    include("**/*.java")
+    setDestinationDir(file("${project.properties["build.javadoc"]}"))
+    classpath = classpathCollection.plus(
+        layout.files(
+            fileTree(mapOf("dir" to project.properties["build.plugins"], "include" to listOf("**/*.jar"), "exclude" to listOf("any23/javax.annotation-api*.jar")))
+        )
     )
-}
-tasks.javadoc.configure {
-    group = "gradleBuildSystem"
-    description = "Generate Javadoc"
-    dependsOn("javadocs")
+    options.overview = "${project.properties["src.dir"]}/overview.html"
+    options.windowTitle = "${project.properties["projname"]} ${project.properties["version"]} API"
+    (options as StandardJavadocDocletOptions).docTitle = options.windowTitle
+    (options as StandardJavadocDocletOptions).bottom = "Copyright \u00a9 ${project.properties["year"]} The Apache Software Foundation"
+    (options as StandardJavadocDocletOptions).isAuthor = true
+    (options as StandardJavadocDocletOptions).isVersion = true
+    (options as StandardJavadocDocletOptions).isUse = true
+    (options as StandardJavadocDocletOptions).links("${project.properties["javadoc.link.java"]}","${project.properties["javadoc.link.hadoop"]}")
+    (options as StandardJavadocDocletOptions).groups = mutableMapOf(
+            "Core"                    to mutableListOf("org.apache.nutch.*"),
+            "Plugins API"             to "${project.properties["plugins.api"]}"          .split(":"),
+            "Protocol Plugins"        to "${project.properties["plugins.protocol"]}"     .split(":"),
+            "URL Filter Plugins"      to "${project.properties["plugins.urlfilter"]}"    .split(":"),
+            "URL Normalizer Plugins"  to "${project.properties["plugins.urlnormalizer"]}".split(":"),
+            "Scoring Plugins"         to "${project.properties["plugins.scoring"]}"      .split(":"),
+            "Parse Plugins"           to "${project.properties["plugins.parse"]}"        .split(":"),
+            "Parse Filter Plugins"    to "${project.properties["plugins.parsefilter"]}"  .split(":"),
+            "Publisher Plugins"       to "${project.properties["plugins.publisher"]}"    .split(":"),
+            "Exchange Plugins"        to "${project.properties["plugins.exchange"]}"     .split(":"),
+            "Indexing Filter Plugins" to "${project.properties["plugins.index"]}"        .split(":"),
+            "Indexer Plugins"         to "${project.properties["plugins.indexer"]}"      .split(":"),
+            "Misc. Plugins"           to "${project.properties["plugins.misc"]}"         .split(":")
+        )
+    (options as StandardJavadocDocletOptions).addBooleanOption("-allow-script-in-comments", true)
+    (options as StandardJavadocDocletOptions).addStringOption("${project.properties["javadoc.proxy.host"]}")
+    (options as StandardJavadocDocletOptions).addStringOption("${project.properties["javadoc.proxy.port"]}")
+
+    doLast {
+        copy {
+            from(file(layout.projectDirectory.dir("${project.properties["plugins.dir"]}/plugin.dtd")))
+            into("${project.properties["build.javadoc"]}/org/apache/nutch/plugin/doc-files")
+        }
+        copy {
+            from(
+                file(layout.projectDirectory.dir("${project.properties["conf.dir"]}/nutch-default.xml")),
+                file(layout.projectDirectory.dir("${project.properties["conf.dir"]}/configuration.xsl"))
+            )
+            into("${project.properties["build.javadoc"]}/resources")
+        }
+    }
 }
 
-tasks.register<Copy>("package-src")
-{
+tasks.register<Copy>("package-src") {
     group = "gradleBuildSystem"
     description = "Generate source distribution package"
     dependsOn("runtime","javadoc")
@@ -550,8 +549,8 @@ tasks.register<Copy>("package-src")
         into("${project.properties["src.dist.version.dir"]}/")
     }
 }
-tasks.register<Zip>("zip-src")
-{
+
+tasks.register<Zip>("zip-src") {
     group = "gradleBuildSystem"
     description = "Generate src.zip distribution package"
     dependsOn("package-src")
