@@ -444,7 +444,7 @@ tasks.test.configure {
 }
 
 // Dummy target. This just ensures that the compile target always happens before the command line invocation
-tasks.register<Exec>("javadoc-dummy") {
+tasks.register<Exec>("javadocs") {
     dependsOn("compile")
 
     val version:String = System.getProperty("java.version")
@@ -508,7 +508,7 @@ tasks.register<Exec>("javadoc-dummy") {
 tasks.javadoc.configure {
     group = "gradleBuildSystem"
     description = "Generate Javadoc"
-    dependsOn("javadoc-dummy")
+    dependsOn("javadocs")
 }
 
 tasks.register<Copy>("package-src")
