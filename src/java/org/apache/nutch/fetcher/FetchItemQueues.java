@@ -85,8 +85,8 @@ public class FetchItemQueues {
     this.timelimit = conf.getLong("fetcher.timelimit", -1);
     this.maxExceptionsPerQueue = conf.getInt(
         "fetcher.max.exceptions.per.queue", -1);
-    this.exceptionsPerQueueDelay = conf
-        .getLong("fetcher.exceptions.per.queue.delay", -1);
+    this.exceptionsPerQueueDelay = (long) (conf
+        .getFloat("fetcher.exceptions.per.queue.delay", .0f) * 1000);
 
     int dedupRedirMaxTime = conf.getInt("fetcher.redirect.dedupcache.seconds",
         -1);
@@ -272,10 +272,17 @@ public class FetchItemQueues {
       fiq.nextFetchTime.getAndAdd(delay);
       LOG.info("* queue: {} >> delayed next fetch by {} ms", queueid, delay);
     } else if (exceptionsPerQueueDelay > 0) {
-      // delay the next fetch by a time span growing at log scale
-      // with the number of observed exceptions
-      long exceptionDelay = (long) (exceptionsPerQueueDelay
-          * Math.log(1 + excCount) / Math.log(2));
+      /*
+       * Delay the next fetch by a time span growing exponentially with the
+       * number of observed exceptions. This dynamic delay is added to the
+       * constant delay. In order to avoid overflows, the exponential backoff is
+       * capped at 2**31
+       */
+      long exceptionDelay = exceptionsPerQueueDelay;
+      if (excCount > 1) {
+        // double the initial delay with every observed exception
+        exceptionDelay *= 2L << Math.min((excCount - 2), 31);
+      }
       fiq.nextFetchTime.getAndAdd(exceptionDelay);
       LOG.info(
           "* queue: {} >> delayed next fetch by {} ms after {} exceptions in queue",
