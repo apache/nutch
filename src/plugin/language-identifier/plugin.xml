@@ -35,8 +35,8 @@
       <library name="jsr305-3.0.2.jar"/>
       <library name="language-detector-0.6.jar"/>
       <library name="listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
-      <library name="tika-langdetect-optimaize-2.2.1.jar"/>
-   </runtime>
+      <library name="tika-langdetect-optimaize-2.3.0.jar"/>
+    </runtime>
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
