@@ -187,8 +187,10 @@ public class FetchItemQueues {
         if (!feederAlive) {
           // no more fetch items added
           it.remove();
-        } else if (maxExceptionsPerQueue > -1 && fiq.exceptionCounter.get() > 0) {
+        } else if ((maxExceptionsPerQueue > -1 || exceptionsPerQueueDelay > 0)
+            && fiq.exceptionCounter.get() > 0) {
           // keep queue because the exceptions counter is bound to it
+          // and is required to skip or delay items on this queue
         } else if (fiq.nextFetchTime.get() > System.currentTimeMillis()) {
           // keep queue to have it blocked in case new fetch items of this queue
           // are added by the QueueFeeder
