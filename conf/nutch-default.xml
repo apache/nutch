@@ -1139,10 +1139,25 @@
 <property>
   <name>fetcher.max.exceptions.per.queue</name>
   <value>-1</value>
-  <description>The maximum number of protocol-level exceptions (e.g. timeouts) per
-  host (or IP) queue. Once this value is reached, any remaining entries from this
-  queue are purged, effectively stopping the fetching from this host/IP. The default
-  value of -1 deactivates this limit.
+  <description>The maximum number of protocol-level exceptions
+  (e.g. timeouts) or HTTP status codes mapped to ProtocolStatus.EXCEPTION
+  per host (or IP) queue. Once this value is reached, any remaining entries
+  from this queue are purged, effectively stopping the fetching from this
+  host/IP. The default value of -1 deactivates this limit.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.exceptions.per.queue.delay</name>
+  <value>${fetcher.server.delay}</value>
+  <description>Initial value (in seconds) of an additional dynamic
+  delay slowing down fetches from a queue after an exception has
+  occurred (see also fetcher.max.exceptions.per.queue). Starting with
+  the initial value the delay doubles with every observed exception:
+
+    delay = fetcher.exceptions.per.queue.delay * 2^num_exception_in_queue
+
+  An initial value of 0.0 disables this exponential backoff mechanism.
   </description>
 </property>
 
