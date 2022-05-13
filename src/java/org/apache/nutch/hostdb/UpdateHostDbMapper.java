@@ -173,11 +173,8 @@ public class UpdateHostDbMapper
         // Get the protocol
         String protocol = URLUtil.getProtocol(url);
         
-        // Get the proposed homepage URL
-        String homepage = protocol + "://" + buffer + "/";
-
         // Check if the current key is equals the host
-        if (keyStr.equals(homepage)) {
+        if (URLUtil.isHomePageOf(url, buffer)) {
           // Check if this is a redirect to the real home page
           if (crawlDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM ||
             crawlDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
@@ -204,6 +201,8 @@ public class UpdateHostDbMapper
                   keyStr, args[0]);
             }
           } else {
+            // need to construct the URL anew as the hostname may be change by normalization
+            String homepage = protocol + "://" + buffer + "/";
             hostDatum.setHomepageUrl(homepage);
             context.write(host, new NutchWritable(hostDatum));
             LOG.debug("UpdateHostDb: homepage: {}", homepage);

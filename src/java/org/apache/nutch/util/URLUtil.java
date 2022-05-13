@@ -545,4 +545,22 @@ public class URLUtil {
       ex.printStackTrace();
     }
   }
+
+  /**
+   * Test whether a URL is the home page or root page of a host. This is the
+   * case if the URL path is <code>/</code> and query, port, fragment, userinfo
+   * are empty resp. not given. In other words the URL is: <code>protocol://hostName/</code>
+   * 
+   * @param url
+   * @param hostName
+   * @return true if the URL is the home or root page of the host
+   */
+  public static boolean isHomePageOf(URL url, String hostName) {
+    return url.getPath().equals("/") //
+        && url.getHost().equals(hostName) //
+        && url.getQuery() == null //
+        && url.getPort() == -1 //
+        && url.getRef() == null //
+        && url.getUserInfo() == null;
+  }
 }
