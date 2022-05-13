@@ -347,26 +347,28 @@ public class Generator extends NutchTool implements Tool {
       context.set("conf", conf);
 
       // Set metadata variables
-      for (Map.Entry<Writable, Writable> entry : datum.getMetaData()
-          .entrySet()) {
-        Object value = entry.getValue();
+      if (datum.hasMetaData()) {
+        for (Map.Entry<Writable, Writable> entry : datum.getMetaData()
+            .entrySet()) {
+          Object value = entry.getValue();
 
-        if (value instanceof FloatWritable) {
-          FloatWritable fvalue = (FloatWritable) value;
-          Text tkey = (Text) entry.getKey();
-          context.set(tkey.toString(), fvalue.get());
-        }
+          if (value instanceof FloatWritable) {
+            FloatWritable fvalue = (FloatWritable) value;
+            Text tkey = (Text) entry.getKey();
+            context.set(tkey.toString(), fvalue.get());
+          }
 
-        if (value instanceof IntWritable) {
-          IntWritable ivalue = (IntWritable) value;
-          Text tkey = (Text) entry.getKey();
-          context.set(tkey.toString(), ivalue.get());
-        }
+          if (value instanceof IntWritable) {
+            IntWritable ivalue = (IntWritable) value;
+            Text tkey = (Text) entry.getKey();
+            context.set(tkey.toString(), ivalue.get());
+          }
 
-        if (value instanceof Text) {
-          Text tvalue = (Text) value;
-          Text tkey = (Text) entry.getKey();
-          context.set(tkey.toString().replace("-", "_"), tvalue.toString());
+          if (value instanceof Text) {
+            Text tvalue = (Text) value;
+            Text tkey = (Text) entry.getKey();
+            context.set(tkey.toString().replace("-", "_"), tvalue.toString());
+          }
         }
       }
 

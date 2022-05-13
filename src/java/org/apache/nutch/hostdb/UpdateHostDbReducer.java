@@ -324,7 +324,7 @@ public class UpdateHostDbReducer
         }
         
         // Check metadata
-        if (!buffer.getMetaData().isEmpty()) {
+        if (buffer.hasMetaData()) {
           hostDatum.setMetaData(buffer.getMetaData());
         }
 

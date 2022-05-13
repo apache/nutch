@@ -16,8 +16,10 @@
  */
 package org.apache.nutch.hostdb;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map.Entry;
@@ -35,12 +37,23 @@ public class HostDatum implements Writable, Cloneable {
   protected Date lastCheck = new Date(0);
   protected String homepageUrl = new String();
 
-  protected MapWritable metaData = new MapWritable();
+  protected MapWritable metaData = null;
+  protected static final byte[] emptyMetaDataWritableSerialized;
+  static {
+    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    DataOutputStream outStream = new DataOutputStream(buffer);
+    MapWritable emptyMetaData = new MapWritable();
+    try {
+      emptyMetaData.write(outStream);
+      outStream.close();
+    } catch (IOException e) {}
+    emptyMetaDataWritableSerialized = buffer.toByteArray();
+  }
 
   // Records the number of times DNS look-up failed, may indicate host no longer exists
   protected long dnsFailures = 0;
 
-  // Records the number of connection failures, may indicate our netwerk being blocked by firewall
+  // Records the number of connection failures, may indicate our network being blocked by firewall
   protected long connectionFailures = 0;
 
   protected long unfetched = 0;
@@ -129,7 +142,7 @@ public class HostDatum implements Writable, Cloneable {
   }
 
   public boolean hasHomepageUrl() {
-    return homepageUrl.length() > 0;
+    return homepageUrl.isEmpty();
   }
 
   public String getHomepageUrl() {
@@ -197,18 +210,20 @@ public class HostDatum implements Writable, Cloneable {
     setNotModified(0);
   }
 
-   public void setMetaData(org.apache.hadoop.io.MapWritable mapWritable) {
-     this.metaData = new org.apache.hadoop.io.MapWritable(mapWritable);
+   public void setMetaData(MapWritable mapWritable) {
+     this.metaData = new MapWritable(mapWritable);
    }
 
    /**
-    * Add all metadata from other CrawlDatum to this CrawlDatum.
+    * Add all metadata from other HostDatum to this HostDatum.
     *
     * @param other HostDatum
     */
    public void putAllMetaData(HostDatum other) {
-     for (Entry<Writable, Writable> e : other.getMetaData().entrySet()) {
-       getMetaData().put(e.getKey(), e.getValue());
+     if (other.hasMetaData()) {
+       for (Entry<Writable, Writable> e : other.getMetaData().entrySet()) {
+         getMetaData().put(e.getKey(), e.getValue());
+       }
      }
    }
 
@@ -217,9 +232,15 @@ public class HostDatum implements Writable, Cloneable {
    * @return a {@link MapWritable} if it was set or read in {@link #readFields(DataInput)},
    * OR returns empty map in case {@link HostDatum} was freshly created (lazily instantiated).
    */
-  public org.apache.hadoop.io.MapWritable getMetaData() {
-    if (this.metaData == null) this.metaData = new org.apache.hadoop.io.MapWritable();
+  public MapWritable getMetaData() {
+    if (this.metaData == null)
+      this.metaData = new MapWritable();
     return this.metaData;
+  }
+
+  /** @return true if host has (non-empty) metadata */
+  public boolean hasMetaData() {
+    return this.metaData != null && !this.metaData.isEmpty();
   }
 
   @Override
@@ -260,7 +281,11 @@ public class HostDatum implements Writable, Cloneable {
     redirPerm = in.readLong();
     gone = in.readLong();
 
-    metaData = new org.apache.hadoop.io.MapWritable();
+    if (metaData == null) {
+      metaData = new MapWritable();
+    } else {
+      metaData.clear();
+    }
     metaData.readFields(in);
   }
 
@@ -280,7 +305,11 @@ public class HostDatum implements Writable, Cloneable {
     out.writeLong(redirPerm);
     out.writeLong(gone);
 
-    metaData.write(out);
+    if (hasMetaData()) {
+      metaData.write(out);
+    } else {
+      out.write(emptyMetaDataWritableSerialized);
+    }
   }
 
   @Override
@@ -312,12 +341,15 @@ public class HostDatum implements Writable, Cloneable {
     buf.append("\t");
     buf.append(homepageUrl);
     buf.append("\t");
-    for (Entry<Writable, Writable> e : getMetaData().entrySet()) {
-      buf.append(e.getKey().toString());
-      buf.append(':');
-      buf.append(e.getValue().toString());
-      buf.append("|||");
+    if (hasMetaData()) {
+      for (Entry<Writable, Writable> e : getMetaData().entrySet()) {
+        buf.append(e.getKey().toString());
+        buf.append(':');
+        buf.append(e.getValue().toString());
+        buf.append("|||");
+      }
     }
     return buf.toString();
   }
+
 }
