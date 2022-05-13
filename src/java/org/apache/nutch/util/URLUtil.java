@@ -20,6 +20,7 @@ import java.net.IDN;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.apache.nutch.util.domain.DomainSuffix;
@@ -430,7 +431,7 @@ public class URLUtil {
    */
   public static String getHost(String url) {
     try {
-      return new URL(url).getHost().toLowerCase();
+      return new URL(url).getHost().toLowerCase(Locale.ROOT);
     } catch (MalformedURLException e) {
       return null;
     }

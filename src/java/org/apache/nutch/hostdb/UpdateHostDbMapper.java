@@ -72,23 +72,38 @@ public class UpdateHostDbMapper
   }
 
   /**
-   * Filters and or normalizes the input hostname
+   * Filters and or normalizes the input hostname by applying the configured URL
+   * filters and normalizers the URL &quot;http://hostname/&quot;.
    *
-   * @param url the input hostname
-   * @return the processed hostname, or null if there was a fatal error
+   * @param hostName
+   *          the input hostname
+   * @return the normalized hostname, or null if the URL is excluded by URL
+   *         filters or failed to be normalized converted
    */
-  protected String filterNormalize(String url) {
-    url = "http://" + url + "/";
+  protected String filterNormalize(String hostName) {
+
+    if (!filter && !normalize) {
+      // nothing to do
+      return hostName;
+    }
+
+    String url = "http://" + hostName + "/";
+    String normalizedUrl = url;
 
     try {
       if (normalize)
-        url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
+        normalizedUrl = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
       if (filter)
-        url = filters.filter(url);
-      if (url == null)
+        normalizedUrl = filters.filter(normalizedUrl);
+      if (normalizedUrl == null)
         return null;
     } catch (Exception e) {
       return null;
+    }
+
+    if (normalizedUrl.equals(url)) {
+      // URL did not change during normalization
+      return hostName;
     }
 
     // Turn back to host
@@ -114,13 +129,15 @@ public class UpdateHostDbMapper
 
     // Check if we process records from the CrawlDB
     if (key instanceof Text && value instanceof CrawlDatum) {
+      String hostName = URLUtil.getHost(keyStr);
+
       // Get the normalized and filtered host of this URL
-      buffer = filterNormalize(URLUtil.getHost(keyStr));
+      buffer = filterNormalize(hostName);
 
       // Filtered out?
       if (buffer == null) {
         context.getCounter("UpdateHostDb", "filtered_records").increment(1);
-        LOG.info("UpdateHostDb: " + URLUtil.getHost(keyStr) + " crawldatum has been filtered");
+        LOG.info("UpdateHostDb: {} crawldatum has been filtered", hostName);
         return;
       }
 
