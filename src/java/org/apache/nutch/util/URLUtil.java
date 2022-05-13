@@ -422,19 +422,26 @@ public class URLUtil {
   }
 
   /**
-   * Returns the lowercased hostname for the url or null if the url is not well
+   * Returns the lowercased hostname for the URL or null if the URL is not well-formed
    * formed.
    * 
    * @param url
-   *          The url to check.
-   * @return String The hostname for the url.
+   *          The URL to check.
+   * @return String the hostname for the URL.
    */
   public static String getHost(String url) {
     try {
-      return new URL(url).getHost().toLowerCase(Locale.ROOT);
+      return getHost(new URL(url));
     } catch (MalformedURLException e) {
       return null;
     }
+  }
+
+  /**
+   * Returns the lowercased hostname for the URL.
+   */
+  public static String getHost(URL url) {
+    return url.getHost().toLowerCase(Locale.ROOT);
   }
 
   /**

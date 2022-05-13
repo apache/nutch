@@ -18,6 +18,8 @@ package org.apache.nutch.hostdb;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
@@ -128,8 +130,16 @@ public class UpdateHostDbMapper
     String keyStr = key.toString();
 
     // Check if we process records from the CrawlDB
-    if (key instanceof Text && value instanceof CrawlDatum) {
-      String hostName = URLUtil.getHost(keyStr);
+    if (value instanceof CrawlDatum) {
+
+      URL url;
+      try {
+        url = new URL(keyStr);
+      } catch (MalformedURLException e) {
+        context.getCounter("UpdateHostDb", "malformed_url").increment(1);
+        return;
+      }
+      String hostName = URLUtil.getHost(url);
 
       // Get the normalized and filtered host of this URL
       buffer = filterNormalize(hostName);
@@ -143,7 +153,7 @@ public class UpdateHostDbMapper
 
       // Set the host of this URL
       host.set(buffer);
-      crawlDatum = (CrawlDatum)value;
+      crawlDatum = (CrawlDatum) value;
       hostDatum = new HostDatum();
 
       /**
@@ -161,7 +171,7 @@ public class UpdateHostDbMapper
       // Do not resolve homepages when the root URL is unfetched
       if (crawlDatum.getStatus() != CrawlDatum.STATUS_DB_UNFETCHED) {
         // Get the protocol
-        String protocol = URLUtil.getProtocol(keyStr);
+        String protocol = URLUtil.getProtocol(url);
         
         // Get the proposed homepage URL
         String homepage = protocol + "://" + buffer + "/";
@@ -173,8 +183,8 @@ public class UpdateHostDbMapper
             crawlDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
 
             // Obtain the repr url for this redirect via protocolstatus from the metadata
-            ProtocolStatus z = (ProtocolStatus)crawlDatum.getMetaData().
-              get(Nutch.WRITABLE_PROTO_STATUS_KEY);
+            ProtocolStatus z = (ProtocolStatus) crawlDatum.getMetaData()
+                .get(Nutch.WRITABLE_PROTO_STATUS_KEY);
 
             // Get the protocol status' arguments
             args = z.getArgs();
@@ -201,10 +211,9 @@ public class UpdateHostDbMapper
 
       // Always emit crawl datum
       context.write(host, new NutchWritable(crawlDatum));
-    }
 
-    // Check if we got a record from the hostdb
-    if (key instanceof Text && value instanceof HostDatum) {
+    } else if (value instanceof HostDatum) {
+      // we got a record from the hostdb
       buffer = filterNormalize(keyStr);
 
       // Filtered out?
@@ -225,10 +234,10 @@ public class UpdateHostDbMapper
       }
 
       context.write(key, new NutchWritable(hostDatum));
-    }
 
-    // Check if we got a record with host scores
-    if (key instanceof Text && value instanceof Text) {
+    } else if (value instanceof Text) {
+      // a record with host scores
+
       buffer = filterNormalize(keyStr);
 
       // Filtered out?
