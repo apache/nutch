@@ -27,7 +27,7 @@ import org.apache.hadoop.conf.Configuration;
  * provide a API and invoke one or a set of installed extensions.
  * 
  * Each plugin may extend the base <code>Plugin</code>. <code>Plugin</code>
- * instances are used as the point of life cycle managemet of plugin related
+ * instances are used as the point of life cycle management of plugin related
  * functionality.
  * 
  * The <code>Plugin</code> will be started up and shutdown by the nutch plugin

@@ -35,13 +35,13 @@ import org.slf4j.LoggerFactory;
  */
 public class URLStreamHandlerFactory
     implements java.net.URLStreamHandlerFactory {
-  
+
   protected static final Logger LOG = LoggerFactory
       .getLogger(URLStreamHandlerFactory.class);
-  
+
   /** The singleton instance. */
   private static URLStreamHandlerFactory instance;
-  
+
   /** Here we register all PluginRepositories.
    * In this class we do not know why several instances of PluginRepository
    * are kept, nor do we know how long they will be used. To prevent
@@ -51,64 +51,67 @@ public class URLStreamHandlerFactory
    * outdated references which is done in the {@link #removeInvalidRefs()} method.
    */
   private ArrayList<WeakReference<PluginRepository>> prs;
-  
+
   static {
     instance = new URLStreamHandlerFactory();
     URL.setURLStreamHandlerFactory(instance);
     LOG.debug("Registered URLStreamHandlerFactory with the JVM.");
   }
-  
+
   private URLStreamHandlerFactory() {
     this.prs = new ArrayList<>();
   }
 
   /** 
    * Get the singleton instance of this class.
-   * @return a {@link org.apache.nutch.plugin.URLStreamHandlerFactory} instance 
+   * @return a {@link org.apache.nutch.plugin.URLStreamHandlerFactory} instance
    */
   public static URLStreamHandlerFactory getInstance() {
     return instance;
   }
-  
+
   /** Use this method once a new PluginRepository was created to register it.
    * 
    * @param pr The PluginRepository to be registered.
    */
   public void registerPluginRepository(PluginRepository pr) {
     this.prs.add(new WeakReference<PluginRepository>(pr));
-    
+
     removeInvalidRefs();
   }
 
   @Override
   public URLStreamHandler createURLStreamHandler(String protocol) {
     LOG.debug("Creating URLStreamHandler for protocol: {}", protocol);
-    
+
     removeInvalidRefs();
-    
+
     // find the 'correct' PluginRepository. For now we simply take the first.
     // then ask it to return the URLStreamHandler
-    for(WeakReference<PluginRepository> ref: this.prs) {
+    for (WeakReference<PluginRepository> ref : this.prs) {
       PluginRepository pr = ref.get();
-      if(pr != null) {
+      if (pr != null) {
         // found PluginRepository. Let's get the URLStreamHandler...
-        return pr.createURLStreamHandler(protocol);
+        URLStreamHandler handler = pr.createURLStreamHandler(protocol);
+        return handler;
       }
     }
+
     return null;
   }
 
-  /** Maintains the list of PluginRepositories by
-   * removing the references whose referents have been
-   * garbage collected meanwhile.
+  /**
+   * Maintains the list of PluginRepositories by removing the references whose
+   * referents have been garbage collected meanwhile.
    */
   private void removeInvalidRefs() {
     ArrayList<WeakReference<PluginRepository>> copy = new ArrayList<>(this.prs);
-    for(WeakReference<PluginRepository> ref: copy) {
-      if(ref.get() == null) {
+    for (WeakReference<PluginRepository> ref : copy) {
+      if (ref.get() == null) {
         this.prs.remove(ref);
       }
     }
-    LOG.debug("Removed '{}' invalid references. '{}' remaining.", copy.size()-this.prs.size(), this.prs.size());
+    LOG.debug("Removed '{}' invalid references. '{}' remaining.",
+        copy.size() - this.prs.size(), this.prs.size());
   }
 }
