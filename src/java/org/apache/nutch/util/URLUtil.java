@@ -439,6 +439,10 @@ public class URLUtil {
 
   /**
    * Returns the lowercased hostname for the URL.
+   * 
+   * @param url
+   *          The URL to check.
+   * @return String the hostname for the URL.
    */
   public static String getHost(URL url) {
     return url.getHost().toLowerCase(Locale.ROOT);
@@ -549,10 +553,13 @@ public class URLUtil {
   /**
    * Test whether a URL is the home page or root page of a host. This is the
    * case if the URL path is <code>/</code> and query, port, fragment, userinfo
-   * are empty resp. not given. In other words the URL is: <code>protocol://hostName/</code>
+   * are empty resp. not given. In other words the URL is:
+   * <code>protocol://hostName/</code>
    * 
    * @param url
+   *          the URL to test
    * @param hostName
+   *          the host name to test the URL on
    * @return true if the URL is the home or root page of the host
    */
   public static boolean isHomePageOf(URL url, String hostName) {
