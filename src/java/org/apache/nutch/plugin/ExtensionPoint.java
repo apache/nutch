@@ -44,7 +44,7 @@ public class ExtensionPoint {
     setId(pId);
     setName(pName);
     setSchema(pSchema);
-    fExtensions = new ArrayList<>();
+    this.fExtensions = new ArrayList<>();
   }
 
   /**
@@ -53,7 +53,7 @@ public class ExtensionPoint {
    * @return String
    */
   public String getId() {
-    return ftId;
+    return this.ftId;
   }
 
   /**
@@ -62,7 +62,7 @@ public class ExtensionPoint {
    * @return String
    */
   public String getName() {
-    return fName;
+    return this.fName;
   }
 
   /**
@@ -71,7 +71,7 @@ public class ExtensionPoint {
    * @return String
    */
   public String getSchema() {
-    return fSchema;
+    return this.fSchema;
   }
 
   /**
@@ -81,7 +81,7 @@ public class ExtensionPoint {
    *          extension point id
    */
   private void setId(String pId) {
-    ftId = pId;
+    this.ftId = pId;
   }
 
   /**
@@ -90,7 +90,7 @@ public class ExtensionPoint {
    * @param pName
    */
   private void setName(String pName) {
-    fName = pName;
+    this.fName = pName;
   }
 
   /**
@@ -99,7 +99,7 @@ public class ExtensionPoint {
    * @param pSchema
    */
   private void setSchema(String pSchema) {
-    fSchema = pSchema;
+    this.fSchema = pSchema;
   }
 
   /**
@@ -109,7 +109,7 @@ public class ExtensionPoint {
    * to install
    */
   public void addExtension(Extension extension) {
-    fExtensions.add(extension);
+    this.fExtensions.add(extension);
   }
 
   /**
@@ -118,7 +118,7 @@ public class ExtensionPoint {
    * @return Extension[]
    */
   public Extension[] getExtensions() {
-    return fExtensions.toArray(new Extension[fExtensions.size()]);
+    return this.fExtensions.toArray(new Extension[this.fExtensions.size()]);
   }
 
 }

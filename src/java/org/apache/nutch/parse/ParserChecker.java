@@ -114,15 +114,15 @@ public class ParserChecker extends AbstractChecker {
     int numConsumed;
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-normalize")) {
-        normalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_DEFAULT);
+        this.normalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_DEFAULT);
       } else if (args[i].equals("-followRedirects")) {
-        followRedirects = true;
+        this.followRedirects = true;
       } else if (args[i].equals("-checkRobotsTxt")) {
-        checkRobotsTxt = true;
+        this.checkRobotsTxt = true;
       } else if (args[i].equals("-forceAs")) {
-        forceAsContentType = args[++i];
+        this.forceAsContentType = args[++i];
       } else if (args[i].equals("-dumpText")) {
-        dumpText = true;
+        this.dumpText = true;
       } else if (args[i].equals("-md")) {
         String k = null, v = null;
         String nextOne = args[++i];
@@ -132,7 +132,7 @@ public class ParserChecker extends AbstractChecker {
           v = nextOne.substring(firstEquals + 1);
         } else
           k = nextOne;
-        metadata.put(k, v);
+        this.metadata.put(k, v);
       } else if ((numConsumed = super.parseArgs(args, i)) > 0) {
         i += numConsumed - 1;
       } else if (i != args.length - 1) {
@@ -144,7 +144,7 @@ public class ParserChecker extends AbstractChecker {
       }
     }
 
-    scfilters = new ScoringFilters(getConf());
+    this.scfilters = new ScoringFilters(getConf());
     
     if (url != null) {
       return super.processSingle(url);
@@ -155,25 +155,25 @@ public class ParserChecker extends AbstractChecker {
   }
 
   protected int process(String url, StringBuilder output) throws Exception {
-    if (normalizers != null) {
-      url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
+    if (this.normalizers != null) {
+      url = this.normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
     }
 
     LOG.info("fetching: " + url);
 
     CrawlDatum datum = new CrawlDatum();
 
-    Iterator<String> iter = metadata.keySet().iterator();
+    Iterator<String> iter = this.metadata.keySet().iterator();
     while (iter.hasNext()) {
       String key = iter.next();
-      String value = metadata.get(key);
+      String value = this.metadata.get(key);
       if (value == null)
         value = "";
       datum.getMetaData().put(new Text(key), new Text(value));
     }
 
     int maxRedirects = getConf().getInt("http.redirect.max", 3);
-    if (followRedirects) {
+    if (this.followRedirects) {
       if (maxRedirects == 0) {
         LOG.info("Following max. 3 redirects (ignored http.redirect.max == 0)");
         maxRedirects = 3;
@@ -183,30 +183,30 @@ public class ParserChecker extends AbstractChecker {
     }
 
     ProtocolOutput protocolOutput = getProtocolOutput(url, datum,
-        checkRobotsTxt);
+        this.checkRobotsTxt);
     Text turl = new Text(url);
 
     // Following redirects and not reached maxRedirects?
     int numRedirects = 0;
     while (protocolOutput != null && !protocolOutput.getStatus().isSuccess()
-        && followRedirects && protocolOutput.getStatus().isRedirect()
+        && this.followRedirects && protocolOutput.getStatus().isRedirect()
         && maxRedirects >= numRedirects) {
       String[] stuff = protocolOutput.getStatus().getArgs();
       url = stuff[0];
       LOG.info("Follow redirect to {}", url);
 
-      if (normalizers != null) {
-        url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
+      if (this.normalizers != null) {
+        url = this.normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
       }
 
       turl.set(url);
 
       // try again
-      protocolOutput = getProtocolOutput(url, datum, checkRobotsTxt);
+      protocolOutput = getProtocolOutput(url, datum, this.checkRobotsTxt);
       numRedirects++;
     }
 
-    if (checkRobotsTxt && protocolOutput == null) {
+    if (this.checkRobotsTxt && protocolOutput == null) {
       System.err.println("Fetch disallowed by robots.txt");
       return -1;
     }
@@ -231,9 +231,9 @@ public class ParserChecker extends AbstractChecker {
     }
 
     String contentType;
-    if (forceAsContentType != null) {
-      content.setContentType(forceAsContentType);
-      contentType = forceAsContentType;
+    if (this.forceAsContentType != null) {
+      content.setContentType(this.forceAsContentType);
+      contentType = this.forceAsContentType;
     } else {
       contentType = content.getContentType();
     }
@@ -253,7 +253,7 @@ public class ParserChecker extends AbstractChecker {
 
     // call the scoring filters
     try {
-      scfilters.passScoreBeforeParsing(turl, datum, content);
+      this.scfilters.passScoreBeforeParsing(turl, datum, content);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Couldn't pass score before parsing, url " + turl + " (" + e
@@ -284,7 +284,7 @@ public class ParserChecker extends AbstractChecker {
       Parse parse = entry.getValue();
       // call the scoring filters
       try {
-        scfilters.passScoreAfterParsing(turl, content, parse);
+        this.scfilters.passScoreAfterParsing(turl, content, parse);
       } catch (Exception e) {
         if (LOG.isWarnEnabled()) {
           LOG.warn("Couldn't pass score after parsing, url " + turl + " (" + e
@@ -295,7 +295,7 @@ public class ParserChecker extends AbstractChecker {
 
       output.append(turl).append("\n");
       output.append(parse.getData()).append("\n");
-      if (dumpText) {
+      if (this.dumpText) {
         output.append(parse.getText());
       }
     }

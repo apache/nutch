@@ -40,7 +40,7 @@
       <implementation id="org.apache.nutch.protocol.foo.Foo"
                       class="org.apache.nutch.protocol.foo.Foo">
         <parameter name="protocolName" value="foo"/>
-		<parameter name="urlStreamHandler" value="org.apache.nutch.protocol.foo.Handler"/>
+        <parameter name="urlStreamHandler" value="org.apache.nutch.protocol.foo.Handler"/>
       </implementation>
       
    </extension>
