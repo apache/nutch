@@ -111,19 +111,22 @@ public class ReadHostDb extends Configured implements Tool {
         jcontext.set("connectionFailures", datum.getConnectionFailures());
         
         // Set metadata variables
-        for (Map.Entry<Writable, Writable> entry : datum.getMetaData().entrySet()) {
-          Object value = entry.getValue();
-          
-          if (value instanceof FloatWritable) {
-            FloatWritable fvalue = (FloatWritable)value;
-            Text tkey = (Text)entry.getKey();
-            jcontext.set(tkey.toString(), fvalue.get());
-          }
-          
-          if (value instanceof IntWritable) {
-            IntWritable ivalue = (IntWritable)value;
-            Text tkey = (Text)entry.getKey();
-            jcontext.set(tkey.toString(), ivalue.get());
+        if (datum.hasMetaData()) {
+          for (Map.Entry<Writable, Writable> entry : datum.getMetaData()
+              .entrySet()) {
+            Object value = entry.getValue();
+
+            if (value instanceof FloatWritable) {
+              FloatWritable fvalue = (FloatWritable) value;
+              Text tkey = (Text) entry.getKey();
+              jcontext.set(tkey.toString(), fvalue.get());
+            }
+
+            if (value instanceof IntWritable) {
+              IntWritable ivalue = (IntWritable) value;
+              Text tkey = (Text) entry.getKey();
+              jcontext.set(tkey.toString(), ivalue.get());
+            }
           }
         }
         

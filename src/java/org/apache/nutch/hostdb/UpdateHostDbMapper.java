@@ -18,6 +18,8 @@ package org.apache.nutch.hostdb;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
@@ -72,23 +74,38 @@ public class UpdateHostDbMapper
   }
 
   /**
-   * Filters and or normalizes the input hostname
+   * Filters and or normalizes the input hostname by applying the configured URL
+   * filters and normalizers the URL &quot;http://hostname/&quot;.
    *
-   * @param url the input hostname
-   * @return the processed hostname, or null if there was a fatal error
+   * @param hostName
+   *          the input hostname
+   * @return the normalized hostname, or null if the URL is excluded by URL
+   *         filters or failed to be normalized converted
    */
-  protected String filterNormalize(String url) {
-    url = "http://" + url + "/";
+  protected String filterNormalize(String hostName) {
+
+    if (!filter && !normalize) {
+      // nothing to do
+      return hostName;
+    }
+
+    String url = "http://" + hostName + "/";
+    String normalizedUrl = url;
 
     try {
       if (normalize)
-        url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
+        normalizedUrl = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
       if (filter)
-        url = filters.filter(url);
-      if (url == null)
+        normalizedUrl = filters.filter(normalizedUrl);
+      if (normalizedUrl == null)
         return null;
     } catch (Exception e) {
       return null;
+    }
+
+    if (normalizedUrl.equals(url)) {
+      // URL did not change during normalization
+      return hostName;
     }
 
     // Turn back to host
@@ -113,20 +130,30 @@ public class UpdateHostDbMapper
     String keyStr = key.toString();
 
     // Check if we process records from the CrawlDB
-    if (key instanceof Text && value instanceof CrawlDatum) {
+    if (value instanceof CrawlDatum) {
+
+      URL url;
+      try {
+        url = new URL(keyStr);
+      } catch (MalformedURLException e) {
+        context.getCounter("UpdateHostDb", "malformed_url").increment(1);
+        return;
+      }
+      String hostName = URLUtil.getHost(url);
+
       // Get the normalized and filtered host of this URL
-      buffer = filterNormalize(URLUtil.getHost(keyStr));
+      buffer = filterNormalize(hostName);
 
       // Filtered out?
       if (buffer == null) {
         context.getCounter("UpdateHostDb", "filtered_records").increment(1);
-        LOG.info("UpdateHostDb: " + URLUtil.getHost(keyStr) + " crawldatum has been filtered");
+        LOG.debug("UpdateHostDb: {} crawldatum has been filtered", hostName);
         return;
       }
 
       // Set the host of this URL
       host.set(buffer);
-      crawlDatum = (CrawlDatum)value;
+      crawlDatum = (CrawlDatum) value;
       hostDatum = new HostDatum();
 
       /**
@@ -144,20 +171,17 @@ public class UpdateHostDbMapper
       // Do not resolve homepages when the root URL is unfetched
       if (crawlDatum.getStatus() != CrawlDatum.STATUS_DB_UNFETCHED) {
         // Get the protocol
-        String protocol = URLUtil.getProtocol(keyStr);
+        String protocol = URLUtil.getProtocol(url);
         
-        // Get the proposed homepage URL
-        String homepage = protocol + "://" + buffer + "/";
-
         // Check if the current key is equals the host
-        if (keyStr.equals(homepage)) {
+        if (URLUtil.isHomePageOf(url, buffer)) {
           // Check if this is a redirect to the real home page
           if (crawlDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM ||
             crawlDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
 
             // Obtain the repr url for this redirect via protocolstatus from the metadata
-            ProtocolStatus z = (ProtocolStatus)crawlDatum.getMetaData().
-              get(Nutch.WRITABLE_PROTO_STATUS_KEY);
+            ProtocolStatus z = (ProtocolStatus) crawlDatum.getMetaData()
+                .get(Nutch.WRITABLE_PROTO_STATUS_KEY);
 
             // Get the protocol status' arguments
             args = z.getArgs();
@@ -167,33 +191,36 @@ public class UpdateHostDbMapper
 
             // Am i a redirect?
             if (reprUrl != null) {
-              LOG.info("UpdateHostDb: homepage: " + keyStr + " redirects to: " + args[0]);
+              LOG.debug("UpdateHostDb: homepage: {} redirects to: {}", keyStr,
+                  args[0]);
               context.write(host, new NutchWritable(hostDatum));
               hostDatum.setHomepageUrl(reprUrl);
             } else {
-              LOG.info("UpdateHostDb: homepage: " + keyStr + 
-                " redirects to: " + args[0] + " but has been filtered out");
+              LOG.debug(
+                  "UpdateHostDb: homepage: {} redirects to: {} but has been filtered out",
+                  keyStr, args[0]);
             }
           } else {
+            // need to construct the URL anew as the hostname may be change by normalization
+            String homepage = protocol + "://" + buffer + "/";
             hostDatum.setHomepageUrl(homepage);
             context.write(host, new NutchWritable(hostDatum));
-            LOG.info("UpdateHostDb: homepage: " + homepage);
+            LOG.debug("UpdateHostDb: homepage: {}", homepage);
           }
         }
       }
 
       // Always emit crawl datum
       context.write(host, new NutchWritable(crawlDatum));
-    }
 
-    // Check if we got a record from the hostdb
-    if (key instanceof Text && value instanceof HostDatum) {
+    } else if (value instanceof HostDatum) {
+      // we got a record from the hostdb
       buffer = filterNormalize(keyStr);
 
       // Filtered out?
       if (buffer == null) {
         context.getCounter("UpdateHostDb", "filtered_records").increment(1);
-        LOG.info("UpdateHostDb: {} hostdatum has been filtered", keyStr);
+        LOG.debug("UpdateHostDb: {} hostdatum has been filtered", keyStr);
         return;
       }
 
@@ -208,16 +235,16 @@ public class UpdateHostDbMapper
       }
 
       context.write(key, new NutchWritable(hostDatum));
-    }
 
-    // Check if we got a record with host scores
-    if (key instanceof Text && value instanceof Text) {
+    } else if (value instanceof Text) {
+      // a record with host scores
+
       buffer = filterNormalize(keyStr);
 
       // Filtered out?
       if (buffer == null) {
         context.getCounter("UpdateHostDb", "filtered_records").increment(1);
-        LOG.info("UpdateHostDb: {} score has been filtered", keyStr);
+        LOG.debug("UpdateHostDb: {} score has been filtered", keyStr);
         return;
       }
 
