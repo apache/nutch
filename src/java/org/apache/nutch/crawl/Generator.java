@@ -238,10 +238,11 @@ public class Generator extends NutchTool implements Tool {
       LongWritable oldGenTime = (LongWritable) crawlDatum.getMetaData()
           .get(Nutch.WRITABLE_GENERATE_TIME_KEY);
       if (oldGenTime != null) { // awaiting fetch & update
-        if (oldGenTime.get() + genDelay > curTime) // still wait for
+        if (oldGenTime.get() + genDelay > curTime) { // still wait for
           // update
           context.getCounter("Generator", "WAIT_FOR_UPDATE").increment(1);
-        return;
+          return;
+        }
       }
       float sort = 1.0f;
       try {
