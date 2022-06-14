@@ -87,21 +87,6 @@ public class OkHttp extends HttpBase {
         }
       } };
 
-  private static final SSLContext trustAllSslContext;
-
-  static {
-    try {
-      trustAllSslContext = SSLContext.getInstance("SSL");
-      trustAllSslContext.init(null, trustAllCerts,
-          new java.security.SecureRandom());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private static final SSLSocketFactory trustAllSslSocketFactory = trustAllSslContext
-      .getSocketFactory();
-
   public OkHttp() {
     super(LOG);
   }
@@ -126,8 +111,18 @@ public class OkHttp extends HttpBase {
         .readTimeout(this.timeout, TimeUnit.MILLISECONDS);
 
     if (!this.tlsCheckCertificate) {
-      builder.sslSocketFactory(trustAllSslSocketFactory,
-          (X509TrustManager) trustAllCerts[0]);
+      try {
+        SSLContext trustAllSslContext = SSLContext.getInstance("TLS");
+        trustAllSslContext.init(null, trustAllCerts, null);
+        SSLSocketFactory trustAllSslSocketFactory = trustAllSslContext
+            .getSocketFactory();
+        builder.sslSocketFactory(trustAllSslSocketFactory,
+            (X509TrustManager) trustAllCerts[0]);
+      } catch (Exception e) {
+        LOG.error(
+            "Failed to disable TLS certificate verification (property http.tls.certificates.check)",
+            e);
+      }
       builder.hostnameVerifier(new HostnameVerifier() {
         @Override
         public boolean verify(String hostname, SSLSession session) {
