@@ -541,8 +541,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   /**
    * Registers this PluginRepository to be invoked whenever URLs have to be
-   * parsed. This allows to check the registered protocol plugins for uncommon
-   * protocols.
+   * parsed. This allows to check the registered protocol plugins for custom
+   * protocols not covered by standard {@link URLStreamHandler}s of the JVM.
    */
   private void registerURLStreamHandlerFactory() {
     org.apache.nutch.plugin.URLStreamHandlerFactory.getInstance().registerPluginRepository(this);
