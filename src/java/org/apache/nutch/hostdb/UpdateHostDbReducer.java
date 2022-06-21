@@ -58,6 +58,7 @@ public class UpdateHostDbReducer
   protected static boolean checkFailed = false;
   protected static boolean checkNew = false;
   protected static boolean checkKnown = false;
+  protected static boolean checkAny = false;
   protected static boolean force = false;
   protected static long now = new Date().getTime();
   protected static String[] numericFields;
@@ -82,6 +83,7 @@ public class UpdateHostDbReducer
     checkFailed = conf.getBoolean(UpdateHostDb.HOSTDB_CHECK_FAILED, false);
     checkNew = conf.getBoolean(UpdateHostDb.HOSTDB_CHECK_NEW, false);
     checkKnown = conf.getBoolean(UpdateHostDb.HOSTDB_CHECK_KNOWN, false);
+    checkAny = checkNew || checkKnown || checkFailed;
     force = conf.getBoolean(UpdateHostDb.HOSTDB_FORCE_CHECK, false);
     numericFields = conf.getStrings(UpdateHostDb.HOSTDB_NUMERIC_FIELDS);
     stringFields = conf.getStrings(UpdateHostDb.HOSTDB_STRING_FIELDS);
@@ -133,12 +135,14 @@ public class UpdateHostDbReducer
       }
     }
 
-    // Initialize the thread pool with our queue
-    executor = new ThreadPoolExecutor(numResolverThreads, numResolverThreads,
-      5, TimeUnit.SECONDS, queue);
+    if (checkAny) {
+      // Initialize the thread pool with our queue
+      executor = new ThreadPoolExecutor(numResolverThreads, numResolverThreads,
+          5, TimeUnit.SECONDS, queue);
 
-    // Run all threads in the pool
-    executor.prestartAllCoreThreads();
+      // Run all threads in the pool
+      executor.prestartAllCoreThreads();
+    }
   }
 
   /**
@@ -284,7 +288,7 @@ public class UpdateHostDbReducer
                     counts.put(numericFields[i], 1l);
                   }
                 } catch (Exception e) {
-                  LOG.error(e.getMessage() + " when processing values for " + key.toString());
+                  LOG.error("{} when processing values for {}", e.getMessage(), key);
                 }
               }
             }
@@ -324,7 +328,7 @@ public class UpdateHostDbReducer
         }
         
         // Check metadata
-        if (!buffer.getMetaData().isEmpty()) {
+        if (buffer.hasMetaData()) {
           hostDatum.setMetaData(buffer.getMetaData());
         }
 
@@ -386,9 +390,9 @@ public class UpdateHostDbReducer
 
       // Do not progress, the datum will be written in the resolver thread
       return;
-    } else {
+    } else if (checkAny) {
       context.getCounter("UpdateHostDb", "skipped_not_eligible").increment(1);
-      LOG.info("UpdateHostDb: {}: skipped_not_eligible", key);
+      LOG.debug("UpdateHostDb: {}: skipped_not_eligible", key);
     }
 
     // Run finalize phase for optional custom crawldatum processors
@@ -449,6 +453,10 @@ public class UpdateHostDbReducer
     */
   @Override
   public void cleanup(Context context) {
+    if (executor == null)
+      // no DNS resolver threads running
+      return;
+
     LOG.info("UpdateHostDb: feeder finished, waiting for shutdown");
 
     // If we're here all keys have been fed and we can issue a shut down

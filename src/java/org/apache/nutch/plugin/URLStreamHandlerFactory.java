@@ -59,7 +59,7 @@ public class URLStreamHandlerFactory
   }
   
   private URLStreamHandlerFactory() {
-    prs = new ArrayList<>();
+    this.prs = new ArrayList<>();
   }
 
   /** 
@@ -75,7 +75,7 @@ public class URLStreamHandlerFactory
    * @param pr The PluginRepository to be registered.
    */
   public void registerPluginRepository(PluginRepository pr) {
-    prs.add(new WeakReference<PluginRepository>(pr));
+    this.prs.add(new WeakReference<PluginRepository>(pr));
     
     removeInvalidRefs();
   }
@@ -88,7 +88,7 @@ public class URLStreamHandlerFactory
     
     // find the 'correct' PluginRepository. For now we simply take the first.
     // then ask it to return the URLStreamHandler
-    for(WeakReference<PluginRepository> ref: prs) {
+    for(WeakReference<PluginRepository> ref: this.prs) {
       PluginRepository pr = ref.get();
       if(pr != null) {
         // found PluginRepository. Let's get the URLStreamHandler...
@@ -103,13 +103,12 @@ public class URLStreamHandlerFactory
    * garbage collected meanwhile.
    */
   private void removeInvalidRefs() {
-    LOG.debug("removeInvalidRefs()");
-    ArrayList<WeakReference<PluginRepository>> copy = new ArrayList<>(prs);
+    ArrayList<WeakReference<PluginRepository>> copy = new ArrayList<>(this.prs);
     for(WeakReference<PluginRepository> ref: copy) {
       if(ref.get() == null) {
-        prs.remove(ref);
+        this.prs.remove(ref);
       }
     }
-    LOG.debug("Removed the following invalid references: '{}' Remaining: '{}'", copy.size()-prs.size(), prs.size());
+    LOG.debug("Removed '{}' invalid references. '{}' remaining.", copy.size()-this.prs.size(), this.prs.size());
   }
 }

@@ -238,10 +238,11 @@ public class Generator extends NutchTool implements Tool {
       LongWritable oldGenTime = (LongWritable) crawlDatum.getMetaData()
           .get(Nutch.WRITABLE_GENERATE_TIME_KEY);
       if (oldGenTime != null) { // awaiting fetch & update
-        if (oldGenTime.get() + genDelay > curTime) // still wait for
+        if (oldGenTime.get() + genDelay > curTime) { // still wait for
           // update
           context.getCounter("Generator", "WAIT_FOR_UPDATE").increment(1);
-        return;
+          return;
+        }
       }
       float sort = 1.0f;
       try {
@@ -347,26 +348,28 @@ public class Generator extends NutchTool implements Tool {
       context.set("conf", conf);
 
       // Set metadata variables
-      for (Map.Entry<Writable, Writable> entry : datum.getMetaData()
-          .entrySet()) {
-        Object value = entry.getValue();
+      if (datum.hasMetaData()) {
+        for (Map.Entry<Writable, Writable> entry : datum.getMetaData()
+            .entrySet()) {
+          Object value = entry.getValue();
 
-        if (value instanceof FloatWritable) {
-          FloatWritable fvalue = (FloatWritable) value;
-          Text tkey = (Text) entry.getKey();
-          context.set(tkey.toString(), fvalue.get());
-        }
+          if (value instanceof FloatWritable) {
+            FloatWritable fvalue = (FloatWritable) value;
+            Text tkey = (Text) entry.getKey();
+            context.set(tkey.toString(), fvalue.get());
+          }
 
-        if (value instanceof IntWritable) {
-          IntWritable ivalue = (IntWritable) value;
-          Text tkey = (Text) entry.getKey();
-          context.set(tkey.toString(), ivalue.get());
-        }
+          if (value instanceof IntWritable) {
+            IntWritable ivalue = (IntWritable) value;
+            Text tkey = (Text) entry.getKey();
+            context.set(tkey.toString(), ivalue.get());
+          }
 
-        if (value instanceof Text) {
-          Text tvalue = (Text) value;
-          Text tkey = (Text) entry.getKey();
-          context.set(tkey.toString().replace("-", "_"), tvalue.toString());
+          if (value instanceof Text) {
+            Text tvalue = (Text) value;
+            Text tkey = (Text) entry.getKey();
+            context.set(tkey.toString().replace("-", "_"), tvalue.toString());
+          }
         }
       }
 

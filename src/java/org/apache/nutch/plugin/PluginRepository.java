@@ -64,6 +64,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   private HashMap<String, Plugin> fActivatedPlugins;
 
+  @SuppressWarnings("rawtypes")
   private static final Map<String, Map<PluginClassLoader, Class>> CLASS_CACHE = new HashMap<>();
 
   private Configuration conf;
@@ -75,8 +76,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @throws RuntimeException if a fatal runtime error is encountered 
    */
   public PluginRepository(Configuration conf) throws RuntimeException {
-    fActivatedPlugins = new HashMap<>();
-    fExtensionPoints = new HashMap<>();
+    this.fActivatedPlugins = new HashMap<>();
+    this.fExtensionPoints = new HashMap<>();
     this.conf = new Configuration(conf);
     this.auto = conf.getBoolean("plugin.auto-activation", true);
     String[] pluginFolders = conf.getStrings("plugin.folders");
@@ -92,11 +93,11 @@ public class PluginRepository implements URLStreamHandlerFactory {
     Pattern includes = Pattern.compile(conf.get("plugin.includes", ""));
     Map<String, PluginDescriptor> filteredPlugins = filter(excludes, includes,
             allPlugins);
-    fRegisteredPlugins = getDependencyCheckedPlugins(filteredPlugins,
+    this.fRegisteredPlugins = getDependencyCheckedPlugins(filteredPlugins,
             this.auto ? allPlugins : filteredPlugins);
-    installExtensionPoints(fRegisteredPlugins);
+    installExtensionPoints(this.fRegisteredPlugins);
     try {
-      installExtensions(fRegisteredPlugins);
+      installExtensions(this.fRegisteredPlugins);
     } catch (PluginRuntimeException e) {
       LOG.error("Could not install extensions.", e.toString());
       throw new RuntimeException(e.getMessage());
@@ -134,7 +135,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
       for (ExtensionPoint point : plugin.getExtenstionPoints()) {
         String xpId = point.getId();
         LOG.debug("Adding extension point {}", xpId);
-        fExtensionPoints.put(xpId, point);
+        this.fExtensionPoints.put(xpId, point);
       }
     }
   }
@@ -236,8 +237,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @return PluginDescriptor[]
    */
   public PluginDescriptor[] getPluginDescriptors() {
-    return fRegisteredPlugins
-            .toArray(new PluginDescriptor[fRegisteredPlugins.size()]);
+    return this.fRegisteredPlugins
+            .toArray(new PluginDescriptor[this.fRegisteredPlugins.size()]);
   }
 
   /**
@@ -248,7 +249,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    */
   public PluginDescriptor getPluginDescriptor(String pPluginId) {
 
-    for (PluginDescriptor descriptor : fRegisteredPlugins) {
+    for (PluginDescriptor descriptor : this.fRegisteredPlugins) {
       if (descriptor.getPluginId().equals(pPluginId))
         return descriptor;
     }
@@ -282,8 +283,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
    */
   public Plugin getPluginInstance(PluginDescriptor pDescriptor)
           throws PluginRuntimeException {
-    if (fActivatedPlugins.containsKey(pDescriptor.getPluginId()))
-      return fActivatedPlugins.get(pDescriptor.getPluginId());
+    if (this.fActivatedPlugins.containsKey(pDescriptor.getPluginId()))
+      return this.fActivatedPlugins.get(pDescriptor.getPluginId());
     try {
       // Must synchronize here to make sure creation and initialization
       // of a plugin instance are done by one and only one thread.
@@ -297,7 +298,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
         Plugin plugin = (Plugin) constructor
                 .newInstance(new Object[] { pDescriptor, this.conf });
         plugin.startUp();
-        fActivatedPlugins.put(pDescriptor.getPluginId(), plugin);
+        this.fActivatedPlugins.put(pDescriptor.getPluginId(), plugin);
         return plugin;
       }
     } catch (ClassNotFoundException e) {
@@ -318,6 +319,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @deprecated
    * @see <a href="https://openjdk.java.net/jeps/421">JEP 421: Deprecate Finalization for Removal</a>
    * @see java.lang.Object#finalize()
+   * @deprecated
    */
   @Deprecated
   public void finalize() throws Throwable {
@@ -330,12 +332,13 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @throws PluginRuntimeException
    */
   private void shutDownActivatedPlugins() throws PluginRuntimeException {
-    for (Plugin plugin : fActivatedPlugins.values()) {
+    for (Plugin plugin : this.fActivatedPlugins.values()) {
       plugin.shutDown();
     }
   }
 
-  public Class getCachedClass(PluginDescriptor pDescriptor, String className)
+  @SuppressWarnings("rawtypes")
+  public static Class getCachedClass(PluginDescriptor pDescriptor, String className)
           throws ClassNotFoundException {
     Map<PluginClassLoader, Class> descMap = CLASS_CACHE.get(className);
     if (descMap == null) {
@@ -355,19 +358,19 @@ public class PluginRepository implements URLStreamHandlerFactory {
     LOG.info("Plugin Auto-activation mode: [{}]", this.auto);
     LOG.info("Registered Plugins:");
 
-    if ((fRegisteredPlugins == null) || (fRegisteredPlugins.size() == 0)) {
+    if ((this.fRegisteredPlugins == null) || (this.fRegisteredPlugins.size() == 0)) {
       LOG.info("\tNONE");
     } else {
-      for (PluginDescriptor plugin : fRegisteredPlugins) {
+      for (PluginDescriptor plugin : this.fRegisteredPlugins) {
         LOG.info("\t{} ({})", plugin.getName(), plugin.getPluginId());
       }
     }
 
     LOG.info("Registered Extension-Points:");
-    if ((fExtensionPoints == null) || (fExtensionPoints.size() == 0)) {
+    if ((this.fExtensionPoints == null) || (this.fExtensionPoints.size() == 0)) {
       LOG.info("\tNONE");
     } else {
-      for (ExtensionPoint ep : fExtensionPoints.values()) {
+      for (ExtensionPoint ep : this.fExtensionPoints.values()) {
         LOG.info("\t ({})", ep.getName(), ep.getId());
       }
     }
@@ -384,7 +387,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    *          Map of plugins
    * @return map of plugins matching the configuration
    */
-  private Map<String, PluginDescriptor> filter(Pattern excludes,
+  private static Map<String, PluginDescriptor> filter(Pattern excludes,
           Pattern includes, Map<String, PluginDescriptor> plugins) {
 
     Map<String, PluginDescriptor> map = new HashMap<>();
@@ -434,11 +437,11 @@ public class PluginRepository implements URLStreamHandlerFactory {
   public synchronized Object[] getOrderedPlugins(Class<?> clazz,
           String xPointId, String orderProperty) {
     Object[] filters;
-    ObjectCache objectCache = ObjectCache.get(conf);
+    ObjectCache objectCache = ObjectCache.get(this.conf);
     filters = (Object[]) objectCache.getObject(clazz.getName());
 
     if (filters == null) {
-      String order = conf.get(orderProperty);
+      String order = this.conf.get(orderProperty);
       List<String> orderOfFilters = new ArrayList<>();
       boolean userDefinedOrder = false;
       if (order != null && !order.trim().isEmpty()) {
@@ -447,7 +450,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
       }
 
       try {
-        ExtensionPoint point = PluginRepository.get(conf)
+        ExtensionPoint point = PluginRepository.get(this.conf)
                 .getExtensionPoint(xPointId);
         if (point == null)
           throw new RuntimeException(xPointId + " not found.");
@@ -579,8 +582,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
   public URLStreamHandler createURLStreamHandler(String protocol) {
     LOG.debug("Creating URLStreamHandler for protocol: {}", protocol);
 
-    if (fExtensionPoints != null) {
-      ExtensionPoint ep = fExtensionPoints
+    if (this.fExtensionPoints != null) {
+      ExtensionPoint ep = this.fExtensionPoints
               .get("org.apache.nutch.protocol.Protocol");
       if (ep != null) {
         Extension[] extensions = ep.getExtensions();
@@ -602,8 +605,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
             // return the handler here, if possible
             String handlerClass = extension.getAttribute("urlStreamHandler");
-            LOG.debug("Located URLStreamHandler: {}", handlerClass);
             if (handlerClass != null) {
+              LOG.debug("Located URLStreamHandler: {}", handlerClass);
               // the nutch classloader
               ClassLoader cl = this.getClass().getClassLoader();
               if (extinst != null) {
@@ -622,11 +625,11 @@ public class PluginRepository implements URLStreamHandlerFactory {
               }
             }
 
-            LOG.debug("suitable protocol extension found that did not declare a handler");
+            LOG.debug("Suitable protocol extension found that did not declare a handler");
             return null;
           }
         }
-        LOG.debug("No suitable protocol extensions registered");
+        LOG.debug("No suitable protocol extensions registered for protocol: {}", protocol);
       } else {
         LOG.debug("No protocol extensions registered?");
       }

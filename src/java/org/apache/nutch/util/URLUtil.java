@@ -20,6 +20,7 @@ import java.net.IDN;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.apache.nutch.util.domain.DomainSuffix;
@@ -421,19 +422,30 @@ public class URLUtil {
   }
 
   /**
-   * Returns the lowercased hostname for the url or null if the url is not well
+   * Returns the lowercased hostname for the URL or null if the URL is not well-formed
    * formed.
    * 
    * @param url
-   *          The url to check.
-   * @return String The hostname for the url.
+   *          The URL to check.
+   * @return String the hostname for the URL.
    */
   public static String getHost(String url) {
     try {
-      return new URL(url).getHost().toLowerCase();
+      return getHost(new URL(url));
     } catch (MalformedURLException e) {
       return null;
     }
+  }
+
+  /**
+   * Returns the lowercased hostname for the URL.
+   * 
+   * @param url
+   *          The URL to check.
+   * @return String the hostname for the URL.
+   */
+  public static String getHost(URL url) {
+    return url.getHost().toLowerCase(Locale.ROOT);
   }
 
   /**
@@ -536,5 +548,26 @@ public class URLUtil {
     } catch (MalformedURLException ex) {
       ex.printStackTrace();
     }
+  }
+
+  /**
+   * Test whether a URL is the home page or root page of a host. This is the
+   * case if the URL path is <code>/</code> and query, port, fragment, userinfo
+   * are empty resp. not given. In other words the URL is:
+   * <code>protocol://hostName/</code>
+   * 
+   * @param url
+   *          the URL to test
+   * @param hostName
+   *          the host name to test the URL on
+   * @return true if the URL is the home or root page of the host
+   */
+  public static boolean isHomePageOf(URL url, String hostName) {
+    return url.getPath().equals("/") //
+        && url.getHost().equals(hostName) //
+        && url.getQuery() == null //
+        && url.getPort() == -1 //
+        && url.getRef() == null //
+        && url.getUserInfo() == null;
   }
 }
