@@ -38,11 +38,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>The plugin repositority is a registry of all plugins.</p>
+ * <p>The plugin repository is a registry of all plugins.</p>
  * 
- * <p>At system boot up a repositority is built by parsing the mainifest files of
+ * <p>At system boot up a repository is built by parsing the manifest files of
  * all plugins. Plugins that require other plugins which do not exist are not
- * registed. For each plugin a plugin descriptor instance will be created. The
+ * registered. For each plugin a plugin descriptor instance will be created. The
  * descriptor represents all meta information about a plugin. So a plugin
  * instance will be created later when it is required, this allow lazy plugin
  * loading.</p>
@@ -64,8 +64,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   private HashMap<String, Plugin> fActivatedPlugins;
 
-  @SuppressWarnings("rawtypes")
-  private static final Map<String, Map<PluginClassLoader, Class>> CLASS_CACHE = new HashMap<>();
+  private static final Map<String, Map<PluginClassLoader, Class<?>>> CLASS_CACHE = new HashMap<>();
 
   private Configuration conf;
 
@@ -267,14 +266,14 @@ public class PluginRepository implements URLStreamHandlerFactory {
   }
 
   /**
-   * <p>Returns a instance of a plugin. Plugin instances are cached. So a plugin
-   * exist only as one instance. This allow a central management of plugin own
+   * <p>Returns an instance of a plugin. Plugin instances are cached. So a plugin
+   * exist only as one instance. This allow a central management of plugin's own
    * resources.</p>
    * 
    * <p>After creating the plugin instance the startUp() method is invoked. The
    * plugin use a own classloader that is used as well by all instance of
    * extensions of the same plugin. This class loader use all exported libraries
-   * from the dependend plugins and all plugin libraries.</p>
+   * from the dependent plugins and all plugin libraries.</p>
    * 
    * @param pDescriptor a {@link PluginDescriptor} for which to retrieve a 
    * {@link Plugin} instance
@@ -337,16 +336,15 @@ public class PluginRepository implements URLStreamHandlerFactory {
     }
   }
 
-  @SuppressWarnings("rawtypes")
-  public static Class getCachedClass(PluginDescriptor pDescriptor, String className)
+  public Class<?> getCachedClass(PluginDescriptor pDescriptor, String className)
           throws ClassNotFoundException {
-    Map<PluginClassLoader, Class> descMap = CLASS_CACHE.get(className);
+    Map<PluginClassLoader, Class<?>> descMap = CLASS_CACHE.get(className);
     if (descMap == null) {
       descMap = new HashMap<>();
       CLASS_CACHE.put(className, descMap);
     }
     PluginClassLoader loader = pDescriptor.getClassLoader();
-    Class clazz = descMap.get(loader);
+    Class<?> clazz = descMap.get(loader);
     if (clazz == null) {
       clazz = loader.loadClass(className);
       descMap.put(loader, clazz);
@@ -543,8 +541,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   /**
    * Registers this PluginRepository to be invoked whenever URLs have to be
-   * parsed. This allows to check the registered protocol plugins for uncommon
-   * protocols.
+   * parsed. This allows to check the registered protocol plugins for custom
+   * protocols not covered by standard {@link URLStreamHandler}s of the JVM.
    */
   private void registerURLStreamHandlerFactory() {
     org.apache.nutch.plugin.URLStreamHandlerFactory.getInstance().registerPluginRepository(this);

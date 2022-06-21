@@ -143,15 +143,15 @@ public class Extension {
    * Return an instance of the extension implementation. Before we create a
    * extension instance we startup the plugin if it is not already done. The
    * plugin instance and the extension instance use the same
-   * {@link org.apache.nutch.plugin.PluginClassLoader}.
-   * Each Plugin use its own classloader. The
-   * {@link org.apache.nutch.plugin.PluginClassLoader} knows only its own
-   * <i>plugin runtime libraries</i> defined
-   * in the <code>plugin.xml</code> manifest file and exported libraries
-   * of the dependent plugins.
+   * {@link org.apache.nutch.plugin.PluginClassLoader}. Each Plugin uses its own
+   * classloader. The {@link org.apache.nutch.plugin.PluginClassLoader} knows
+   * only its own <i>plugin runtime libraries</i> defined in the
+   * <code>plugin.xml</code> manifest file and exported libraries of the
+   * dependent plugins.
    * 
    * @return Object An instance of the extension implementation
-   * @throws PluginRuntimeException if there is a fatal runtime error
+   * @throws PluginRuntimeException
+   *           if there is a fatal runtime error
    */
   public Object getExtensionInstance() throws PluginRuntimeException {
     // Must synchronize here to make sure creation and initialization
