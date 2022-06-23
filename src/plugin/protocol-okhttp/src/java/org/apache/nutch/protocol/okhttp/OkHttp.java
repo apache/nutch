@@ -212,6 +212,11 @@ public class OkHttp extends HttpBase {
       }
     }
 
+    IPFilterRules ipFilterRules = new IPFilterRules(conf);
+    if (!ipFilterRules.isEmpty()) {
+      builder.addNetworkInterceptor(new HTTPFilterIPAddressInterceptor(ipFilterRules));
+    }
+
     if (this.storeIPAddress || this.storeHttpHeaders || this.storeHttpRequest) {
       builder.addNetworkInterceptor(new HTTPHeadersInterceptor());
     }
@@ -256,6 +261,36 @@ public class OkHttp extends HttpBase {
     this.clients = new OkHttpClient[numConnectionPools];
     for (int i = 0; i < numConnectionPools; i++) {
       this.clients[i] = builder.connectionPool(poolSupplier.get()).build();
+    }
+  }
+
+  class HTTPFilterIPAddressInterceptor implements Interceptor {
+
+    IPFilterRules rules;
+
+    public HTTPFilterIPAddressInterceptor(IPFilterRules rules) {
+      this.rules = rules;
+    }
+
+    @Override
+    public okhttp3.Response intercept(Interceptor.Chain chain)
+        throws IOException {
+
+      Connection connection = chain.connection();
+      InetAddress address = connection.socket().getInetAddress();
+
+      boolean accept = rules.accept(address);
+
+      Request request = chain.request();
+
+      if (accept) {
+        return chain.proceed(request);
+      }
+
+      LOG.warn("Blocked connection to IP address {}: {}",
+          address.getHostAddress(), request.url());
+      throw new IOException(
+          "Forbidden connection to IP address " + address.getHostAddress());
     }
   }
 
