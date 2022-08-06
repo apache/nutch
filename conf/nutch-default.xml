@@ -2112,7 +2112,8 @@ Add scoring-metadata to the list of active plugins
   'domainDatabase', 'ispDatabase' or 'insightsService'. If you wish to use any one of the 
   Database options, you should make one of GeoIP2-City.mmdb, GeoIP2-Connection-Type.mmdb, 
   GeoIP2-Domain.mmdb or GeoIP2-ISP.mmdb files respectively available on the classpath and
-  available at runtime.
+  available at runtime. Alternatively, also the GeoLite2 IP databases (GeoLite2-*.mmdb)
+  can be used.
   </description>
 </property>
 
