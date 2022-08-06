@@ -356,7 +356,7 @@
     <field name="cityGeoNameId" type="int" stored="true" indexed="true" />
     <field name="continentCode" type="string" stored="true" indexed="true" />
     <field name="continentGeoNameId" type="int" stored="true" indexed="true" />
-    <field name="contentName" type="string" stored="true" indexed="true" />
+    <field name="continentName" type="string" stored="true" indexed="true" />
     <field name="countryIsoCode" type="string" stored="true" indexed="true"/>
     <field name="countryName" type="string" stored="true" indexed="true" />
     <field name="countryConfidence" type="int" stored="true" indexed="true"/>
@@ -379,7 +379,6 @@
     <field name="org" type="string" stored="true" indexed="true" />
     <field name="userType" type="string" stored="true" indexed="true" />
     <field name="isAnonProxy" type="boolean" stored="true" indexed="true" />
-    <field name="isSatelitteProv" type="boolean" stored="true" indexed="true" />
     <field name="connType" type="string" stored="true" indexed="true" />
     <field name="location" type="location" stored="true" indexed="true" />
 

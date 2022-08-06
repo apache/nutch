@@ -87,7 +87,8 @@ import com.maxmind.geoip2.WebServiceClient;
  *   'domainDatabase', 'ispDatabase' or 'insightsService'. If you wish to use any one of the 
  *   Database options, you should make one of GeoIP2-City.mmdb, GeoIP2-Connection-Type.mmdb, 
  *   GeoIP2-Domain.mmdb or GeoIP2-ISP.mmdb files respectively available on the Hadoop classpath 
- *   and available at runtime. This can be achieved by adding it to $NUTCH_HOME/conf
+ *   and available at runtime. This can be achieved by adding it to `$NUTCH_HOME/conf`.
+ *   Alternatively, also the GeoLite2 IP databases (GeoLite2-*.mmdb) can be used.
  *   </description>
  * </property>
  * 
@@ -152,24 +153,29 @@ public class GeoIPIndexingFilter implements IndexingFilter {
           conf.getInt("index.geoip.userid", 12345),
           conf.get("index.geoip.licensekey")).build();
     } else {
-      String db = null;
+      String dbSuffix = null;
       if (usage.equalsIgnoreCase("cityDatabase")) {
-        db = "GeoIP2-City.mmdb";
+        dbSuffix = "-City.mmdb";
       } else if (usage.equalsIgnoreCase("connectionTypeDatabase")) {
-        db = "GeoIP2-Connection-Type.mmdb";
+        dbSuffix = "-Connection-Type.mmdb";
       } else if (usage.equalsIgnoreCase("domainDatabase")) {
-        db = "GeoIP2-Domain.mmdb";
+        dbSuffix = "-Domain.mmdb";
       } else if (usage.equalsIgnoreCase("ispDatabase")) {
-        db = "GeoIP2-ISP.mmdb";
+        dbSuffix = "-ISP.mmdb";
       }
-      URL dbFileUrl = conf.getResource(db);
-      if (dbFileUrl == null) {
-        LOG.error("GeoDb file {} not found on classpath", db);
-      } else {
-        try {
-          buildDb(new File(dbFileUrl.getFile()));
-        } catch (Exception e) {
-          LOG.error("Failed to read geoDb file {}: ", db, e);
+      String[] dbPrefixes = {"GeoIP2", "GeoLite2"};
+      for (String dbPrefix : dbPrefixes) {
+        String db = dbPrefix + dbSuffix;
+        URL dbFileUrl = conf.getResource(db);
+        if (dbFileUrl == null) {
+          LOG.error("GeoDb file {} not found on classpath", db);
+        } else {
+          try {
+            LOG.info("Reading GeoDb file {}", db);
+            buildDb(new File(dbFileUrl.getFile()));
+          } catch (Exception e) {
+            LOG.error("Failed to read geoDb file {}: ", db, e);
+          }
         }
       }
     }
