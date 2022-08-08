@@ -25,14 +25,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
@@ -181,6 +187,7 @@ public class ElasticIndexWriter implements IndexWriter {
         hostsList[i++] = new HttpHost(host, port, scheme);
       }
       RestClientBuilder restClientBuilder = RestClient.builder(hostsList);
+
       if (auth) {
         restClientBuilder
             .setHttpClientConfigCallback(new HttpClientConfigCallback() {
@@ -191,6 +198,28 @@ public class ElasticIndexWriter implements IndexWriter {
               }
             });
       }
+
+      // In case of HTTPS, set the client up for ignoring problems with self-signed
+      // certificates and stuff
+      if ("https".equals(scheme)) {
+        try {
+          SSLContextBuilder sslBuilder = SSLContexts.custom();
+          sslBuilder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
+          final SSLContext sslContext = sslBuilder.build();
+
+          restClientBuilder.setHttpClientConfigCallback(new HttpClientConfigCallback() {
+            @Override
+            public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+              // ignore issues with self-signed certificates
+              httpClientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+              return httpClientBuilder.setSSLContext(sslContext);
+            }
+          });
+        } catch (Exception e) {
+          LOG.error("Error setting up SSLContext because: " + e.getMessage(), e);
+        }
+      }
+
       client = new RestHighLevelClient(restClientBuilder);
     } else {
       throw new IOException(
