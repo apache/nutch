@@ -51,10 +51,6 @@
 		<plugin id="parse-js" />
 	</mimeType>
 
-	<mimeType name="application/x-shockwave-flash">
-		<plugin id="parse-swf" />
-	</mimeType>
-
 	<mimeType name="application/zip">
 		<plugin id="parse-zip" />
 	</mimeType>
@@ -93,8 +89,6 @@
 		<alias name="parse-js" extension-id="JSParser" />
 		<alias name="feed"
 			extension-id="org.apache.nutch.parse.feed.FeedParser" />
-		<alias name="parse-swf"
-			extension-id="org.apache.nutch.parse.swf.SWFParser" />
 		<alias name="parse-zip"
 			extension-id="org.apache.nutch.parse.zip.ZipParser" />
 	</aliases>

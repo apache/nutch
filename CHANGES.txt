@@ -1,5 +1,11 @@
 # Nutch Change Log
 
+Breaking Changes
+
+    - the plugin parse-swf for parsing Shockwave/Adobe Flash conent was removed (NUTCH-2861)
+
+
+
 Nutch 1.18 Release 14/01/2021 (dd/mm/yyyy)
 Release Report: https://s.apache.org/lqara
 
