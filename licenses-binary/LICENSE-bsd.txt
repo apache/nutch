@@ -1,0 +1,206 @@
+(source: http://www.linfo.org/bsdlicense.html)
+
+
+
+
+BSD license definition
+
+
+The BSD license is a class of extremely simple and very liberal licenses for computer software that was originally developed at the University of California at Berkeley (UCB). It was first used in 1980 for the Berkeley Source Distribution (BSD), also known as BSD UNIX, an enhanced version of the original UNIX operating system that was first written in 1969 by Ken Thompson at Bell Labs. 
+
+
+The only restrictions placed on users of software released under a typical BSD license are that if they redistribute such software in any form, with or without modification, they must include in the redistribution (1) the original copyright notice, (2) a list of two simple restrictions and (3) a disclaimer of liability. These restrictions can be summarized as (1) one should not claim that they wrote the software if they did not write it and (2) one should not sue the developer if the software does not function as expected or as desired. Some BSD licenses additionally include a clause that restricts the use of the name of the project (or the names of its contributors) for endorsing or promoting derivative works. 
+
+
+The most basic definition of a derivative work is a product that is based on, or incorporates, one or more already existing works. This can become a complex issue, particularly with regard to software, but the primary indicator that a software program is a derivative of another program is if it includes source code from the original program, even if the source code has been modified, including improving, extending, reordering or translating it into another programming language. 
+
+
+Source code is the version of software (usually an application program or an operating system) as it is originally written (i.e., typed into a computer) by a human in plain text  (i.e., human readable alphanumeric characters). Source code can be written in any of hundreds of programming languages, some of the most popular of which are C, C++ and Java.
+
+
+Due to the extremely minimal restrictions of BSD-style licenses, software released under such licenses can be freely modified and used in proprietary (i.e., commercial) software for which the source code is kept secret. 
+
+
+It is possible for a product to be distributed under a BSD-style license and for some other license to apply as well. This was, in fact, the case with very early versions of BSD UNIX, which included both new code written at UCB and code from the original versions of UNIX written at Bell Labs.
+
+
+BSD-style licenses have been very successful, and they are now widely used for a variety of software. Among the many products released under this class of licenses are all of the major modern descendants of the original BSD UNIX, i.e., FreeBSD, OpenBSD, NetBSD and Darwin (the foundation of the Mac OS X). BSD-licensed software is also commonly included in Linux distributions (i.e., versions) and has even been incorporated into some of the Microsoft Windows operating systems.
+
+
+BSD Licenses Versus the GPL
+
+	
+The GPL (GNU General Public License) is by far the most widely used license for free software (i.e., software whose source code is available at no cost for anyone to use for any purpose). The Linux kernel (i.e., the core of the operating system) as well as much of the other software generally included in Linux distributions have been released under the terms of the GPL. 
+
+
+Although far fewer programs are released under BSD-style licenses, this class of licenses is disproportionately important because of the widespread use of BSD-licensed code in both free and proprietary operating systems.
+
+
+Possibly the biggest difference between the GPL and BSD licenses is the fact that the former is a copyleft license and the latter is not. Copyleft is the application of copyright law to permit the free creation of derivative works but requiring that such works be redistributable under the same terms (i.e., the same license) as the original work.
+
+
+Closely related to this is the fact that, in sharp contrast to the GPL, BSD-style licenses do not require that derivative works based on BSD-licensed software make the source code for such derivative works freely available. This allows the direct incorporation of code from open source projects (i.e., from BSD-licensed software) into closed source projects. The GPL, however, specifically states: "This General Public License does not permit incorporating your program into proprietary programs."
+
+
+A third difference is that the GPL is a single, copyrighted  (by the Free Software Foundation, Inc.) license with no variants. BSD-style licenses, in contrast, are commonly modified for the specific situation.
+
+
+In many cases, the use of open source code can allow companies to develop products more quickly and with less expense than if they wrote them with entirely original code. The fact that derivative products of BSD-licensed software are not required to be open source can be very useful for developers who want to create commercial products from open source code but who want to keep their modifications and/or extensions secret. Interestingly, companies that initially develop closed source products based on BSD-licensed code tend to be more likely to eventually make their source code publicly available than are companies that develop products that do not incorporate code code.
+
+
+The issue of which license provides greater freedom and does the most to promote the development of improved software is highly controversial. In spite of the seeming simplicity of the licenses, there are no simple answers.
+
+
+One of the most controversial properties of the GPL is its viral nature. This means that once some useful modification or addition to a GPL licensed program has been released, the source code of the modified or extended program must likewise be made freely available. That is, the GPL is a mechanism that deprives developers of the freedom to make their source code secret at some future date, although the developer can still use such code in commercial products. Critics of the GPL claim that this diminishes or destroys the commercial value of software because others can produce products that incorporate the same code.
+
+
+GPL advocates claim that although the GPL is contagious in theory, it is not necessarily so in practice. Rather, they assert, it merely  places restrictions on the code's re-use, as do BSD-style licenses.
+
+
+One thing about both the GPL and the BSD-style licenses for which there is widespread agreement is that both have problems. Neither is perfect, and perhaps no license can be perfect. There is also considerable agreement that there are benefits both to software developers and to society as a whole from the choice provided by the existence of a variety of types of free software licenses, including the GPL and BSD-style licenses.
+
+
+The "Advertising Clause"
+
+
+The original version of the BSD license contained the so called advertising clause, which stated that all advertising materials that mention features of or use of the software must display the acknowledgment: "This product includes software developed by the University of California, Berkeley and its contributors."
+
+
+One of the problems with this clause arose from the fact that people who made changes to the source code often wanted to have their names added to the acknowledgment. This could easily result in large and cumbersome acknowledgments for products with numerous contributors and for software distributions consisting of multiple individual projects.
+
+
+A second problem was legal incompatibility with the terms of the GPL. This is because the GPL prohibits the addition of restrictions beyond those that it already imposes. Thus it was necessary to segregate GPL and BSD-licensed software within projects. 
+
+
+Initially, the "obnoxious BSD advertising clause," as it was referred to by GPL advocates, was used only for the BSD UNIX license. That did not cause any major problems because it was only necessary to include a single sentence of acknowledgment in any advertisement.
+
+
+However, the fact that other software developers did not copy the clause verbatim, but replaced the phrase "University of California" with the name of their own organization or persons involved in it, resulted in a proliferation of slightly different licenses and a consequently serious problem when many such programs were assembled to form a larger work or an operating system. For example, if an operating system or other program required fifty slightly different  acknowledgment sentences, each naming a different developer or group of developers, such advertising alone might require a full page. Not only would this be very tedious reading, but it could also be costly.
+
+
+In June 1999, after two years of discussion, the Office of Technology Licensing at UCB finally proclaimed: "Effective immediately, licensees and distributors are no longer required to include the acknowledgment within advertising materials. Accordingly, the foregoing paragraph of those BSD Unix files containing it is hereby deleted in its entirety." 
+
+
+This was clearly very useful. However, it could not eliminate the legacy of the advertising clause, as similar clauses still exist in the licenses of many programs that followed the old BSD license; only the developers of such packages can change them.
+
+
+Examples of BSD-Style Licenses
+
+
+Below are three examples of BSD-style licenses: (1) the BSD license as it is used by the FreeBSD operating system, (2) a BSD license as it is used by Sudo (a free utility program for Unix-like operating systems) and (3) a template of a BSD-style license that can be applied to any appropriate project:
+
+
+(1) The BSD license as it is used by the FreeBSD Unix operating system:
+
+
+
+Copyright 1994-2004 The FreeBSD Project. All rights reserved.
+
+ 
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the
+following conditions are met:
+
+
+1. Redistributions of source code must retain the above
+copyright notice, this list of conditions and the following
+disclaimer.
+
+
+2. Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials
+provided with the distribution.
+
+
+THIS SOFTWARE IS PROVIDED BY THE FREEBSD PROJECT "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+SHALL THE FREEBSD PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+OF SUCH DAMAGE.
+
+
+The views and conclusions contained in the software and
+documentation are those of the authors and should not be
+interpreted as representing official policies, either expressed
+or implied, of the FreeBSD Project.
+
+
+
+
+(2) The BSD-style license for Sudo, a small utility that allows designated users to have temporary root (i.e., administrative) access to run specified privileged commands. This software, while released under a BSD-style license, also incorporates other software that had earlier been released under a BSD-style license (referred to below as a UCB license) by UCB. Moreover, it contains a third condition, which restricts the use of the name of the author for endorsements or promotions of products derived from the software, and a fourth condition, which restricts the use of the name of the software on products derived from the software.
+
+
+
+ 
+Sudo License
+
+Sudo is distributed under the following BSD-style license:
+
+Copyright (c) 1994-1996,1998-2003 Todd C. Miller  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+ 1. Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+   3. The name of the author may not be used to endorse or promote products derived from this software without specific prior written permission from the author.
+
+   4. Products derived from this software may not be called "Sudo" nor may "Sudo" appear in their names without specific prior written
+permission from the author.
+
+   THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+   OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+   Sponsored in part by the Defense Advanced Research Projects Agency (DARPA) and Air Force Research Laboratory, Air Force Materiel Command, USAF, under agreement number F39502-99-1-0512.
+
+Additionally, lsearch.c, fnmatch.c, getcwd.c, snprintf.c strcasecmp.c and fnmatch.3 bear the following UCB license:
+
+   Copyright (c) 1987, 1989, 1990, 1991, 1993, 1994 The Regents of the University of California.  All rights reserved.
+
+   Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+   1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+   2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+   3. Neither the name of the University nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+
+
+
+(3) A template for a BSD-style license. [YEAR], [COPYRIGHT OWNER] and [LICENSOR] are to be replaced by the actual year of copyright, the owner of the copyright and the licensor. The copyright owner and licensor may be the same, as in the case of the license for FreeBSD (as shown above).  
+
+
+
+Copyright © [YEAR] [COPYRIGHT OWNER]. All Rights Reserved.
+
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above  copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. The name of the author may not be used to endorse or promote products derived from this software without specific prior written permission.
+
+
+THIS SOFTWARE IS PROVIDED BY [LICENSOR] "AS IS" AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
