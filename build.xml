@@ -880,6 +880,12 @@
     <copy todir="${src.dist.version.dir}/" file="build.xml"/>
     <copy todir="${src.dist.version.dir}/" file="default.properties"/>
 
+    <copy todir="${src.dist.version.dir}/" file="LICENSE-binary"/>
+    <copy todir="${src.dist.version.dir}/" file="NOTICE-binary"/>
+    <copy todir="${src.dist.version.dir}/licenses-binary" includeEmptyDirs="true">
+      <fileset dir="licenses-binary"/>
+    </copy>
+
   </target>
 
  <target name="package-bin" depends="runtime, javadoc" description="--> generate binary distribution package">
@@ -916,6 +922,12 @@
       <fileset dir=".">
         <include name="*.txt" />
       </fileset>
+    </copy>
+
+    <copy todir="${bin.dist.version.dir}/" file="LICENSE-binary"/>
+    <copy todir="${bin.dist.version.dir}/" file="NOTICE-binary"/>
+    <copy todir="${bin.dist.version.dir}/licenses-binary" includeEmptyDirs="true">
+      <fileset dir="licenses-binary"/>
     </copy>
 
     <copy todir="${bin.dist.version.dir}/plugins" includeEmptyDirs="true">
