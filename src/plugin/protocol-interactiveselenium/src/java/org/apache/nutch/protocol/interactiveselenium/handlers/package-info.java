@@ -16,8 +16,8 @@
  */
 
 /**
- * Protocol plugin for HTTP/HTTPS based on
- * <a href="https://github.com/square/okhttp">okhttp</a>, supports HTTP 1.1
- * and/or http/2.
+ * Handler implementations to interact with
+ * <a href="https://www.selenium.dev/">Selenium</a> for
+ * {@link org.apache.nutch.protocol.interactiveselenium}.
  */
-package org.apache.nutch.protocol.okhttp;
+package org.apache.nutch.protocol.interactiveselenium.handlers;
