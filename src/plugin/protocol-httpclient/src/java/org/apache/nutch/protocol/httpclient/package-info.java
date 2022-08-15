@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-/** 
- * Protocol plugin which supports retrieving documents via the 
- * HTTP andHTTPS protocols, optionally with Basic, Digest and 
- * NTLM authentication schemes for web server as well as 
- * proxy server. It handles cookies within a single fetch 
- * operation. This plugin is based on Jakarta Commons 
- * HttpClient library.
+/**
+ * Protocol plugin which supports retrieving documents via the HTTP andHTTPS
+ * protocols, optionally with Basic, Digest and NTLM authentication schemes for
+ * web server as well as proxy server. It handles cookies within a single fetch
+ * operation and offers support for POST authentication via HTML forms. This
+ * plugin is based on the <a href="https://hc.apache.org/">Apache HttpClient</a>
+ * library.
  */
 package org.apache.nutch.protocol.httpclient;

@@ -15,5 +15,8 @@
  * limitations under the License.
  */
 
-/** Protocol plugin which supports retrieving documents via selenium. */
+/**
+ * Protocol plugin which supports retrieving documents using and interacting
+ * with <a href="https://www.selenium.dev/">Selenium</a>.
+ */
 package org.apache.nutch.protocol.interactiveselenium;
