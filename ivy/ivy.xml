@@ -50,7 +50,7 @@
 		<dependency org="com.tdunning" name="t-digest" rev="3.2" />
 
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.3.3" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.3.4" conf="*->default">
 			<exclude org="hsqldb" name="hsqldb" />
 			<exclude org="net.sf.kosmosfs" name="kfs" />
 			<exclude org="net.java.dev.jets3t" name="jets3t" />
@@ -58,9 +58,9 @@
 			<exclude org="org.mortbay.jetty" name="jsp-*" />
 			<exclude org="ant" name="ant" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.3.3" conf="*->default" />
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.3.3" conf="*->default" />
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.3.3" conf="*->default" />
+		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.3.4" conf="*->default" />
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.3.4" conf="*->default" />
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.3.4" conf="*->default" />
 		<!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.apache.tika" name="tika-core" rev="2.3.0" />
