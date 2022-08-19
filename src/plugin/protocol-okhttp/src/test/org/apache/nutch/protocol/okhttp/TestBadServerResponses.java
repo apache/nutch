@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Test cases for protocol-http - robustness regarding bad server responses:
+ * Test cases for protocol-okhttp - robustness regarding bad server responses:
  * malformed HTTP header lines, etc. See, NUTCH-2549.
  */
 public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {

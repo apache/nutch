@@ -31,7 +31,7 @@ import org.junit.Test;
 import com.google.common.net.InetAddresses;
 
 /**
- * Test cases for protocol-http
+ * Test cases for protocol-okhttp IP address filtering
  */
 public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
 
