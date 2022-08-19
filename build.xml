@@ -37,7 +37,7 @@
   <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
   <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
-  <property name="dependency-check-ant.version" value="6.1.0" />
+  <property name="dependency-check-ant.version" value="7.1.1" />
   <property name="dependency-check-ant.home" value="${ivy.dir}/dependency-check-ant" />
   <property name="dependency-check-ant.jar" value="${dependency-check-ant.home}/dependency-check-ant.jar" />
 
