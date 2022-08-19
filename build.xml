@@ -47,7 +47,7 @@
   <property name="spotbugs.home" value="${ivy.dir}/spotbugs-${spotbugs.version}" />
   <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
-  <property name="apache-rat.version" value="0.13" />
+  <property name="apache-rat.version" value="0.14" />
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
 
@@ -226,7 +226,6 @@
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
       <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
-      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-debug/src/java"/>
@@ -760,7 +759,6 @@
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
       <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
-      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-debug/src/java"/>
@@ -882,6 +880,12 @@
     <copy todir="${src.dist.version.dir}/" file="build.xml"/>
     <copy todir="${src.dist.version.dir}/" file="default.properties"/>
 
+    <copy todir="${src.dist.version.dir}/" file="LICENSE-binary"/>
+    <copy todir="${src.dist.version.dir}/" file="NOTICE-binary"/>
+    <copy todir="${src.dist.version.dir}/licenses-binary" includeEmptyDirs="true">
+      <fileset dir="licenses-binary"/>
+    </copy>
+
   </target>
 
  <target name="package-bin" depends="runtime, javadoc" description="--> generate binary distribution package">
@@ -918,6 +922,12 @@
       <fileset dir=".">
         <include name="*.txt" />
       </fileset>
+    </copy>
+
+    <copy todir="${bin.dist.version.dir}/" file="LICENSE-binary"/>
+    <copy todir="${bin.dist.version.dir}/" file="NOTICE-binary"/>
+    <copy todir="${bin.dist.version.dir}/licenses-binary" includeEmptyDirs="true">
+      <fileset dir="licenses-binary"/>
     </copy>
 
     <copy todir="${bin.dist.version.dir}/plugins" includeEmptyDirs="true">
@@ -1261,8 +1271,6 @@
         <source path="${plugins.dir}/parse-js/src/test/" />
         <source path="${plugins.dir}/parse-metatags/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/test/" />
-        <source path="${plugins.dir}/parse-swf/src/java/" />
-        <source path="${plugins.dir}/parse-swf/src/test/" />
         <source path="${plugins.dir}/parse-tika/src/java/" />
         <source path="${plugins.dir}/parse-tika/src/test/" />
         <source path="${plugins.dir}/parse-zip/src/java/" />

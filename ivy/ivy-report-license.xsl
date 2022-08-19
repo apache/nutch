@@ -21,7 +21,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:output method="text"/>
 <xsl:template match="/ivy-report">
-  <xsl:text>Name&#x09;Organization&#x09;Revision&#x09;PubDate&#x09;Licenses...&#x0a;</xsl:text>
+  <xsl:text>Name&#x09;Organization&#x09;Revision&#x09;PubDate&#x09;Homepage&#x09;Licenses...&#x0a;</xsl:text>
   <xsl:for-each select="dependencies/module">
     <xsl:value-of select="@name"/>
     <xsl:text>&#x09;</xsl:text>
@@ -31,6 +31,8 @@
       <xsl:value-of select="../@name"/>
       <xsl:text>&#x09;</xsl:text>
       <xsl:value-of select="../@pubdate"/>
+      <xsl:text>&#x09;</xsl:text>
+      <xsl:value-of select="../@homepage"/>
       <xsl:text>&#x09;</xsl:text>
       <xsl:value-of select="@name"/>
       <xsl:text>&#x09;</xsl:text>
