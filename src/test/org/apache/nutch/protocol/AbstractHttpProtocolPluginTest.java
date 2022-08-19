@@ -28,7 +28,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -60,6 +59,17 @@ public abstract class AbstractHttpProtocolPluginTest {
   protected Protocol http;
   protected ServerSocket server;
   protected Configuration conf;
+
+  /** Protocol / URL scheme used to send/receive test requests */
+  protected String protocol = "http";
+
+  /**
+   * URL host name used to represent localhost when sending/receiving test
+   * requests
+   */
+  protected String localHost = "127.0.0.1";
+
+  /** Port used to send/receive test requests */
   protected int defaultPort = 47505;
 
   protected static final String responseHeader = "HTTP/1.1 200 OK\r\n";
@@ -103,7 +113,9 @@ public abstract class AbstractHttpProtocolPluginTest {
 
   @After
   public void tearDown() throws Exception {
-    server.close();
+    if (server != null) {
+      server.close();
+    }
   }
 
   /**
@@ -123,13 +135,13 @@ public abstract class AbstractHttpProtocolPluginTest {
       BiFunction<String, String[], byte[]> responder,
       Predicate<List<String>> requestChecker) throws Exception {
     server = new ServerSocket();
-    server.bind(new InetSocketAddress("127.0.0.1", port));
+    server.bind(new InetSocketAddress(localHost, port));
     Pattern requestPattern = Pattern.compile("(?i)^GET\\s+(\\S+)");
     while (true) {
       LOG.info("Listening on port {}", port);
       if (server.isClosed()) {
         server = new ServerSocket();
-        server.bind(new InetSocketAddress("127.0.0.1", port));
+        server.bind(new InetSocketAddress(localHost, port));
       }
       Socket socket = server.accept();
       LOG.info("Connection received");
@@ -259,7 +271,7 @@ public abstract class AbstractHttpProtocolPluginTest {
    */
   protected ProtocolOutput fetchPage(int port, String page, int expectedCode,
       String expectedContentType) throws Exception {
-    URL url = new URL("http", "127.0.0.1", port, page);
+    URL url = new URL(protocol, localHost, port, page);
     LOG.info("Fetching {}", url);
     CrawlDatum crawlDatum = new CrawlDatum();
     ProtocolOutput protocolOutput = http

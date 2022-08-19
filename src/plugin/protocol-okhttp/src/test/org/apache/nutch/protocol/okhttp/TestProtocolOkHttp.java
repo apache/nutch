@@ -25,7 +25,7 @@ import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.junit.Test;
 
 /**
- * Test cases for protocol-http
+ * Test cases for protocol-okhttp
  */
 public class TestProtocolOkHttp extends AbstractHttpProtocolPluginTest {
 
