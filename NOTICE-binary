@@ -408,12 +408,9 @@ ROME (http://rometools.github.io/rome/)
 rome-utils (http://rometools.github.io/rome-utils/)
 - license: The Apache Software License, Version 2.0
 
-# com.squareup.okhttp:okhttp
-OkHttp (https://square.github.io/okhttp/)
-- license: Apache 2.0
 # com.squareup.okhttp3:okhttp
 OkHttp (https://square.github.io/okhttp/)
-- license: Apache 2.0
+- license: The Apache Software License, Version 2.0
 # com.squareup.okhttp3:okhttp-brotli
 okhttp-brotli (https://square.github.io/okhttp/)
 - license: The Apache Software License, Version 2.0
@@ -459,6 +456,11 @@ jersey-guice
 JAXB RI (http://jaxb.java.net/)
 - license: CDDL 1.1
   (licenses-binary/LICENSE-cddl-1.1.txt)
+
+# com.sun.xml.messaging.saaj:saaj-impl
+Jakarta SOAP Implementation
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
 
 # com.tdunning:t-digest
 T-Digest (https://github.com/tdunning/t-digest)
@@ -526,6 +528,11 @@ Jakarta Annotations API (https://projects.eclipse.org/projects/ee4j.ca)
 - license: EPL 2.0
   (licenses-binary/LICENSE-epl-2.0.txt)
 
+# jakarta.jws:jakarta.jws-api
+Jakarta Web Services Metadata API (https://github.com/eclipse-ee4j/jws-api)
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
 # jakarta.ws.rs:jakarta.ws.rs-api
 jakarta.ws.rs-api (https://github.com/eclipse-ee4j/jaxrs-api)
 - license: EPL 2.0
@@ -533,6 +540,16 @@ jakarta.ws.rs-api (https://github.com/eclipse-ee4j/jaxrs-api)
 
 # jakarta.xml.bind:jakarta.xml.bind-api
 Jakarta XML Binding API
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# jakarta.xml.soap:jakarta.xml.soap-api
+Jakarta SOAP with Attachments API (https://github.com/eclipse-ee4j/saaj-api)
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# jakarta.xml.ws:jakarta.xml.ws-api
+Jakarta XML Web Services API (https://github.com/eclipse-ee4j/jax-ws-api)
 - license: Eclipse Distribution License - v 1.0
   (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
 
@@ -708,16 +725,9 @@ Animal Sniffer Annotations
   (licenses-binary/LICENSE-mit-license.txt)
 
 # org.codehaus.woodstox:stax2-api
-Stax2 API (http://wiki.fasterxml.com/WoodstoxStax2)
-- license: The BSD License
-  (licenses-binary/LICENSE-bsd-2-clause.txt)
-# org.codehaus.woodstox:stax2-api
 Stax2 API (http://github.com/FasterXML/stax2-api)
 - license: The BSD License
   (licenses-binary/LICENSE-bsd-2-clause.txt)
-# org.codehaus.woodstox:woodstox-core-asl
-Woodstox (http://woodstox.codehaus.org)
-- license: The Apache Software License, Version 2.0
 
 # org.codelibs:jhighlight
 JHighlight (https://github.com/codelibs/jhighlight)
@@ -733,9 +743,6 @@ Jetty :: ALPN :: JDK9 Client Implementation
 # org.eclipse.jetty:jetty-client
 Jetty :: Asynchronous HTTP Client (http://www.eclipse.org/jetty)
 - license: Apache Software License - Version 2.0
-# org.eclipse.jetty:jetty-client
-Jetty :: Asynchronous HTTP Client
-- license: Apache Software License - Version 2.0
 # org.eclipse.jetty:jetty-continuation
 Jetty :: Continuation
 - license: Apache Software License - Version 2.0
@@ -743,15 +750,9 @@ Jetty :: Continuation
 Jetty :: Http Utility (http://www.eclipse.org/jetty)
 - license: Apache Software License - Version 2.0
 # org.eclipse.jetty:jetty-http
-Jetty :: Http Utility
-- license: Apache Software License - Version 2.0
-# org.eclipse.jetty:jetty-io
 Jetty :: IO Utility (http://www.eclipse.org/jetty)
 - license: Apache Software License - Version 2.0
 # org.eclipse.jetty:jetty-io
-Jetty :: IO Utility
-- license: Apache Software License - Version 2.0
-# org.eclipse.jetty:jetty-security
 Jetty :: Security
 - license: Apache Software License - Version 2.0
 # org.eclipse.jetty:jetty-server
@@ -764,8 +765,6 @@ Jetty :: Servlet Handling
 Jetty :: Utilities (http://www.eclipse.org/jetty)
 - license: Apache Software License - Version 2.0
 # org.eclipse.jetty:jetty-util
-Jetty :: Utilities
-- license: Apache Software License - Version 2.0
 # org.eclipse.jetty:jetty-util-ajax
 Jetty :: Utilities :: Ajax(JSON)
 - license: Apache Software License - Version 2.0
@@ -955,16 +954,8 @@ Apache Tika plugin for Ogg, Vorbis and FLAC (https://github.com/Gagravarr/Vorbis
 JAXB Runtime (https://eclipse-ee4j.github.io/jaxb-ri/)
 - license: Eclipse Distribution License - v 1.0
   (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
-# org.glassfish.jaxb:jaxb-runtime
-JAXB Runtime
-- license: Eclipse Distribution License - v 1.0
-  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
 # org.glassfish.jaxb:txw2
 TXW2 Runtime (https://eclipse-ee4j.github.io/jaxb-ri/)
-- license: Eclipse Distribution License - v 1.0
-  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
-# org.glassfish.jaxb:txw2
-TXW2 Runtime
 - license: Eclipse Distribution License - v 1.0
   (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
 
@@ -1012,6 +1003,11 @@ JLine Bundle
 jsoup Java HTML Parser (https://jsoup.org/)
 - license: The MIT License
   (licenses-binary/LICENSE-mit-license.txt)
+
+# org.jvnet.staxex:stax-ex
+Extended StAX API
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
 
 # org.lz4:lz4-java
 LZ4 and xxHash (https://github.com/lz4/lz4-java)
