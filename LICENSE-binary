@@ -253,7 +253,6 @@ com.pff:java-libpst
 com.rabbitmq:amqp-client
 com.rometools:rome
 com.rometools:rome-utils
-com.squareup.okhttp:okhttp
 com.squareup.okhttp3:okhttp
 com.squareup.okhttp3:okhttp-brotli
 com.squareup.okio:okio
@@ -285,12 +284,33 @@ io.netty:netty
 io.netty:netty-all
 io.netty:netty-buffer
 io.netty:netty-codec
+io.netty:netty-codec-dns
+io.netty:netty-codec-haproxy
+io.netty:netty-codec-http
+io.netty:netty-codec-http2
+io.netty:netty-codec-memcache
+io.netty:netty-codec-mqtt
+io.netty:netty-codec-redis
+io.netty:netty-codec-smtp
+io.netty:netty-codec-socks
+io.netty:netty-codec-stomp
+io.netty:netty-codec-xml
 io.netty:netty-common
 io.netty:netty-handler
+io.netty:netty-handler-proxy
 io.netty:netty-resolver
+io.netty:netty-resolver-dns
+io.netty:netty-resolver-dns-classes-macos
+io.netty:netty-resolver-dns-native-macos
 io.netty:netty-transport
+io.netty:netty-transport-classes-epoll
+io.netty:netty-transport-classes-kqueue
 io.netty:netty-transport-native-epoll
+io.netty:netty-transport-native-kqueue
 io.netty:netty-transport-native-unix-common
+io.netty:netty-transport-rxtx
+io.netty:netty-transport-sctp
+io.netty:netty-transport-udt
 javax.inject:javax.inject
 joda-time:joda-time
 net.arnx:jsonic
@@ -340,6 +360,7 @@ org.apache.cxf:cxf-rt-transports-http-jetty
 org.apache.cxf:cxf-rt-ws-addr
 org.apache.cxf:cxf-rt-ws-policy
 org.apache.cxf:cxf-rt-wsdl
+org.apache.geronimo.specs:geronimo-jta_1.1_spec
 org.apache.hadoop:hadoop-annotations
 org.apache.hadoop:hadoop-auth
 org.apache.hadoop:hadoop-common
@@ -451,7 +472,6 @@ org.codehaus.jackson:jackson-core-asl
 org.codehaus.jackson:jackson-jaxrs
 org.codehaus.jackson:jackson-mapper-asl
 org.codehaus.jackson:jackson-xc
-org.codehaus.woodstox:woodstox-core-asl
 org.eclipse.jetty:jetty-alpn-client
 org.eclipse.jetty:jetty-alpn-java-client
 org.eclipse.jetty:jetty-client
@@ -651,7 +671,6 @@ EPL 2.0
 
 jakarta.annotation:jakarta.annotation-api
 jakarta.ws.rs:jakarta.ws.rs-api
-javax.ws.rs:javax.ws.rs-api
 
 
 Eclipse Distribution License v1.0
@@ -661,8 +680,12 @@ Eclipse Distribution License v1.0
 
 com.sun.activation:jakarta.activation
 com.sun.istack:istack-commons-runtime
+com.sun.xml.messaging.saaj:saaj-impl
 jakarta.activation:jakarta.activation-api
+jakarta.jws:jakarta.jws-api
 jakarta.xml.bind:jakarta.xml.bind-api
+jakarta.xml.soap:jakarta.xml.soap-api
+jakarta.xml.ws:jakarta.xml.ws-api
 org.eclipse.rdf4j:rdf4j-http-client
 org.eclipse.rdf4j:rdf4j-http-protocol
 org.eclipse.rdf4j:rdf4j-model
@@ -699,6 +722,7 @@ org.eclipse.rdf4j:rdf4j-sail-memory
 org.eclipse.rdf4j:rdf4j-util
 org.glassfish.jaxb:jaxb-runtime
 org.glassfish.jaxb:txw2
+org.jvnet.staxex:stax-ex
 
 
 GNU General Public License, version 2 (GPL2), with the classpath exception

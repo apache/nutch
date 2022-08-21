@@ -32,16 +32,23 @@
 
 	<dependencies>
 		<dependency org="org.apache.solr" name="solr-solrj"
-			rev="8.5.1">
+			          rev="8.11.2" conf="*->default">
 			<!-- exclusions of dependencies provided by Nutch core -->
-			<exclude org="org.apache.commons" name="commons-codec" />
-			<exclude org="org.apache.commons" name="commons-logging" />
+			<exclude org="commons-codec" name="commons-codec" />
+			<exclude org="commons-logging" name="commons-logging" />
 			<exclude org="org.slf4j" name="slf4j-api" />
 		</dependency>
 		<dependency org="org.apache.httpcomponents" name="httpmime"
-			rev="4.5.10" conf="*->default" />
+			          rev="4.5.13" conf="*->default">
+			<!-- exclusions of dependencies provided by Nutch core -->
+			<exclude org="commons-codec" name="commons-codec" />
+			<exclude org="commons-logging" name="commons-logging" />
+		</dependency>
 		<dependency org="org.apache.httpcomponents" name="httpcore"
-			rev="4.4.12" conf="*->default" />
+			          rev="4.4.15" conf="*->default">
+			<!-- exclusions of dependencies provided by Nutch core -->
+			<exclude org="commons-logging" name="commons-logging" />
+		</dependency>
 	</dependencies>
 
 </ivy-module>

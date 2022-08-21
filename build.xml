@@ -37,7 +37,7 @@
   <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
   <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
-  <property name="dependency-check-ant.version" value="6.1.0" />
+  <property name="dependency-check-ant.version" value="7.1.1" />
   <property name="dependency-check-ant.home" value="${ivy.dir}/dependency-check-ant" />
   <property name="dependency-check-ant.jar" value="${dependency-check-ant.home}/dependency-check-ant.jar" />
 
@@ -305,73 +305,61 @@
     </jar>
   </target>
 
-  <!-- ================================================================== -->
-  <!-- Deploy to Apache Nexus                                             -->
-  <!-- ================================================================== -->
-  <!--                                                                    -->
-  <!-- ================================================================== -->
-  <target name="deploy" depends="release" description="--> deploy to Apache Nexus">
-
-  <!-- generate a pom file -->
-  <ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml" templatefile="ivy/mvn.template">
-     <mapping conf="default" scope="compile"/>
-     <mapping conf="runtime" scope="runtime"/>
-  </ivy:makepom>
-
-  <!-- sign and deploy the main artifact -->
-  <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
-    <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
-    <arg value="-Durl=${maven-repository-url}" />
-    <arg value="-DrepositoryId=${maven-repository-id}" />
-    <arg value="-DpomFile=pom.xml" />
-    <arg value="-Dfile=${maven-jar}" />
-    <arg value="-Papache-release" />
-  </artifact:mvn>
-
-  <!-- sign and deploy the sources artifact -->
-  <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
-    <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
-    <arg value="-Durl=${maven-repository-url}" />
-    <arg value="-DrepositoryId=${maven-repository-id}" />
-    <arg value="-DpomFile=pom.xml" />
-    <arg value="-Dfile=${maven-sources-jar}" />
-    <arg value="-Dclassifier=sources" />
-    <arg value="-Papache-release" />
-  </artifact:mvn>
-
-  <!-- sign and deploy the javadoc artifact -->
-  <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
-    <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
-    <arg value="-Durl=${maven-repository-url}" />
-    <arg value="-DrepositoryId=${maven-repository-id}" />
-    <arg value="-DpomFile=pom.xml" />
-    <arg value="-Dfile=${maven-javadoc-jar}" />
-    <arg value="-Dclassifier=javadoc" />
-    <arg value="-Papache-release" />
-  </artifact:mvn>
-  </target>
-
-  <!-- ================================================================== -->
-  <!-- Generate REST API Documentation with Miredot                       -->
-  <!-- ================================================================== -->
-  <target name="restdocs" description="--> generate REST API Documentation with Miredot">
-
+  <target name="makepom" depends="" description="--> generate pom file for deployment">
     <!-- generate a pom file -->
     <ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml" templatefile="ivy/mvn.template">
       <mapping conf="default" scope="compile"/>
       <mapping conf="runtime" scope="runtime"/>
     </ivy:makepom>
+  </target>
 
-    <!--artifact:dependencies pathId="dependency.classpath">
-      <dependency groupId="log4j" artifactId="log4j" version="1.2.15" >
-        <exclusion groupId="javax.jms" artifactId="jms" />
-        <exclusion groupId="com.sun.jdmk" artifactId="jmxtools" />
-        <exclusion groupId="com.sun.jmx" artifactId="jmxri" />
-      </dependency>
-    </artifact:dependencies-->
+  <!-- ================================================================== -->
+  <!-- Deploy to Apache Nexus                                             -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="deploy" depends="release, makepom" description="--> deploy to Apache Nexus">
+
+    <!-- sign and deploy the main artifact -->
+    <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
+      <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
+      <arg value="-Durl=${maven-repository-url}" />
+      <arg value="-DrepositoryId=${maven-repository-id}" />
+      <arg value="-DpomFile=pom.xml" />
+      <arg value="-Dfile=${maven-jar}" />
+      <arg value="-Papache-release" />
+    </artifact:mvn>
+
+    <!-- sign and deploy the sources artifact -->
+    <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
+      <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
+      <arg value="-Durl=${maven-repository-url}" />
+      <arg value="-DrepositoryId=${maven-repository-id}" />
+      <arg value="-DpomFile=pom.xml" />
+      <arg value="-Dfile=${maven-sources-jar}" />
+      <arg value="-Dclassifier=sources" />
+      <arg value="-Papache-release" />
+    </artifact:mvn>
+
+    <!-- sign and deploy the javadoc artifact -->
+    <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
+      <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
+      <arg value="-Durl=${maven-repository-url}" />
+      <arg value="-DrepositoryId=${maven-repository-id}" />
+      <arg value="-DpomFile=pom.xml" />
+      <arg value="-Dfile=${maven-javadoc-jar}" />
+      <arg value="-Dclassifier=javadoc" />
+      <arg value="-Papache-release" />
+    </artifact:mvn>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Generate REST API Documentation with Miredot                       -->
+  <!-- ================================================================== -->
+  <target name="restdocs" depends="makepom" description="--> generate REST API Documentation with Miredot">
 
     <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
       <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
@@ -569,13 +557,13 @@
   <!-- target: resolve  ================================================= -->
   <target name="resolve-default" depends="clean-default-lib, init" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="default" log="download-only"/>
-    <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision](-[classifier]).[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
   </target>
 
   <target name="resolve-test" depends="clean-test-lib, init" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="test" log="download-only"/>
-    <ivy:retrieve pattern="${test.build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <ivy:retrieve pattern="${test.build.lib.dir}/[artifact]-[revision](-[classifier]).[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
   </target>
 
