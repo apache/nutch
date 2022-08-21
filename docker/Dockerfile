@@ -94,6 +94,12 @@ ENV SERVER_PORT=$SERVER_PORT
 ENV SERVER_HOST=$SERVER_HOST
 ENV WEBAPP_PORT=$WEBAPP_PORT
 
+# Install the webapp
+RUN apk --no-cache add maven
+RUN git clone https://github.com/apache/nutch-webapp.git nutch_webapp && \
+     cd nutch_webapp && \
+     mvn package
+
 # Arrange necessary setup for supervisord
 RUN mkdir -p /var/log/supervisord
 COPY ./config/supervisord_startserver_webapp.conf /etc/supervisord.conf
