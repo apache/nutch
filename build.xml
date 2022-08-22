@@ -16,6 +16,7 @@
  limitations under the License.
 -->
 <project name="${name}" default="runtime"
+         xmlns:if="ant:if"
          xmlns:ivy="antlib:org.apache.ivy.ant"
          xmlns:artifact="antlib:org.apache.maven.artifact.ant"
          xmlns:rat="antlib:org.apache.rat.anttasks"
@@ -50,6 +51,10 @@
   <property name="apache-rat.version" value="0.14" />
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
+
+  <condition property="using.jdk.11">
+    <matches string="${java.version}" pattern="11.+" casesensitive="false" />
+  </condition>
 
   <!-- the normal classpath -->
   <path id="classpath">
@@ -164,17 +169,6 @@
   <!-- build the main artifact -->
   <jar jarfile="${maven-jar}" basedir="${build.classes}" />
 
-    <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
-      <condition>
-        <or>
-          <matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" />
-          <matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" />
-          <equals arg1="${ant.java.version}" arg2="1.6" />
-          <equals arg1="${ant.java.version}" arg2="1.5" />
-        </or>
-      </condition>
-    </fail>
-
     <!-- build the javadoc artifact -->
     <javadoc
       destdir="${release.dir}/javadoc"
@@ -191,9 +185,15 @@
       <arg value="${javadoc.proxy.host}"/>
       <arg value="${javadoc.proxy.port}"/>
       <arg value="--allow-script-in-comments"/>
+      <!--
+          argument -no-module-directories required on JDK 11
+          otherwise the Javascript search is broken,
+          see https://bugs.openjdk.org/browse/JDK-8215291
+      -->
+      <arg value="--no-module-directories" if:set="using.jdk.11"/>
 
       <packageset dir="${src.dir}"/>
-      <packageset dir="${plugins.dir}/any23/src/java/" />
+      <packageset dir="${plugins.dir}/any23/src/java/"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
@@ -684,16 +684,6 @@
   <!-- Documentation                                                      -->
   <!-- ================================================================== -->
   <target name="javadoc" depends="compile" description="--> generate Javadoc">
-    <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
-      <condition>
-        <or>
-          <matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" />
-          <matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" />
-          <equals arg1="${ant.java.version}" arg2="1.6" />
-          <equals arg1="${ant.java.version}" arg2="1.5" />
-        </or>
-      </condition>
-    </fail>
     <mkdir dir="${build.javadoc}"/>
     <mkdir dir="${build.javadoc}/resources"/>
     <javadoc
@@ -712,6 +702,12 @@
       <arg value="${javadoc.proxy.host}"/>
       <arg value="${javadoc.proxy.port}"/>
       <arg value="--allow-script-in-comments"/>
+      <!--
+          argument -no-module-directories required on JDK 11
+          otherwise the Javascript search is broken,
+          see https://bugs.openjdk.org/browse/JDK-8215291
+      -->
+      <arg value="--no-module-directories" if:set="using.jdk.11"/>
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/any23/src/java/" />
