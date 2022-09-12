@@ -1,5 +1,119 @@
 # Nutch Change Log
 
+Nutch 1.19 Release 22/08/2022 (dd/mm/yyyy)
+Release Report: https://s.apache.org/lf6li
+
+Breaking Changes
+
+    - Nutch is built on JDK 11 (NUTCH-2857)
+    - the Nutch WebApp was moved to a separate repository (NUTCH-2886)
+      see https://github.com/apache/nutch-webapp
+          https://gitbox.apache.org/repos/asf?p=nutch-webapp.git
+    - the plugin parse-swf for parsing Shockwave/Adobe Flash content was removed (NUTCH-2861)
+
+Sub-task
+
+    [NUTCH-2819] - Move spotbugs "installation" directory to avoid that spotbugs is shipped in Nutch runtime
+    [NUTCH-2846] - Fix various bugs spotted by NUTCH-2815
+    [NUTCH-2850] - Method ignores exceptional return value
+    [NUTCH-2851] - Random object created and used only once
+    [NUTCH-2855] - Update org.elasticsearch.client
+
+Bug
+
+    [NUTCH-2290] - Update licenses of bundled libraries
+    [NUTCH-2512] - Nutch does not build under JDK9
+    [NUTCH-2821] - Deduplicate licenses in LICENSE.txt file
+    [NUTCH-2822] - Split the LICENSE.txt file into two files for source resp. binary releases
+    [NUTCH-2831] - Elastic indexer does not support SSL
+    [NUTCH-2843] - Duplicate declaration of dependencies in ivy.xml
+    [NUTCH-2858] - urlnormalizer-protocol: URL port is lost during normalization
+    [NUTCH-2862] - Do not include Ivy jar in source release package
+    [NUTCH-2863] - Injector to parse command-line flags case-insensitive
+    [NUTCH-2866] - MetaData.toString() should return "key=value ..."
+    [NUTCH-2868] - urlnormalizer-protocol fails with StringIndexOutOfBoundsException when reading invalid line in configuration file
+    [NUTCH-2881] - bug in 'nutch' symlink in docker container
+    [NUTCH-2889] - nutch indexer-elasticsearch plugin, doesn't work with https protocol
+    [NUTCH-2890] - Protocol-okhttp: upgrade okhttp to 4.9.1 to address infinite connection retries
+    [NUTCH-2894] - Java plugin compilation classpath: priorize plugin dependencies
+    [NUTCH-2899] - Remove needless warning about missing o/a/rat/anttasks/antlib.xml
+    [NUTCH-2902] - Jexl parsing error on statements
+    [NUTCH-2905] - Mask sensitive strings in log output of index writers
+    [NUTCH-2910] - FetchItemQueues overloaded constructor also interprets fetcher timeout as -1 e.g. no-timeout.
+    [NUTCH-2915] - Upgrade to log4j 2.15.0
+    [NUTCH-2916] - Fix log file rotation / rename default log file
+    [NUTCH-2917] - Remove transitive dependency to log4j 1.x
+    [NUTCH-2922] - Upgrade to log4j 2.17.0
+    [NUTCH-2935] - DeduplicationJob: failure on URLs with invalid percent encoding
+    [NUTCH-2936] - Early registration of URL stream handlers provided by plugins may fail Hadoop jobs running in distributed mode if protocol-okhttp is used
+    [NUTCH-2945] - Solr Index Writer pluging schema.xml missing a copyToField
+    [NUTCH-2947] - Fetcher: keep state of empty fetch queues unless queue feeder is finished
+    [NUTCH-2949] - Tasks of a multi-threaded map runner may fail because of slow creation of URL stream handlers
+    [NUTCH-2951] - Crawl datum with metadata WRITABLE_GENERATE_TIME_KEY awaits fetching forever
+    [NUTCH-2955] - indexer-solr: replace deprecated/removed field type solr.LatLonType
+    [NUTCH-2969] - Javadoc: Javascript search is not working when built on JDK 11
+
+New Feature
+
+    [NUTCH-2901] - migrate to maven or gradle
+
+Improvement
+
+    [NUTCH-1403] - Add default ScoringFilter for manipulating metadata
+    [NUTCH-2429] - Fix Plugin System to allow protocol plugins to bundle their URLStreamHandlers
+    [NUTCH-2449] - Usage of Tika LanguageIdentifier in language-identifier plugin
+    [NUTCH-2573] - Suspend crawling if robots.txt fails to fetch with 5xx status
+    [NUTCH-2795] - CrawlDbReader: compress CrawlDb dumps if configured
+    [NUTCH-2807] - SitemapProcessor to warn that ignoring robots.txt affects detection of sitemaps
+    [NUTCH-2808] - Document side effects of ignoring robots.txt
+    [NUTCH-2840] - Fix 'report-vulnerabilities' ant target in build.xml
+    [NUTCH-2842] - Fix Javadoc warnings, errors and add Javadoc check to Github Action and Jenkins
+    [NUTCH-2845] - Update urlfilter-suffix rules
+    [NUTCH-2847] - HttpDateFormat: Simplify based on new Java 8 DateTime API
+    [NUTCH-2849] - Replace remaining package.html files with package-info.java
+    [NUTCH-2857] - Upgrade from JDK1.8 --> JDK11
+    [NUTCH-2859] - urlnormalizer-protocol: allow to normalize domains
+    [NUTCH-2861] - Remove parse-swf
+    [NUTCH-2864] - Upgrade Dockerfile to use JDK 11
+    [NUTCH-2865] - WARC exporter support for metadata and dropping empty responses
+    [NUTCH-2867] - Support for custom HostDb aggregators
+    [NUTCH-2869] - Add @Override annotations to Nutch plugins
+    [NUTCH-2879] - fireant upgrade dependency hadoop-hdfs in ivy/ivy.xml from 3.1.3 to 3.3.1
+    [NUTCH-2882] - Configure NutchUiServer for DEPLOYMENT and improve logging
+    [NUTCH-2885] - Upgrade to Log4j2
+    [NUTCH-2886] - Move Nutch WebApp to separate repository
+    [NUTCH-2891] - Upgrade to Tika 2.1
+    [NUTCH-2892] - Upgrade to Any23 2.5
+    [NUTCH-2893] - fireant upgrade dependency elasticsearch-rest-high-level-client in src/plugin/indexer-elastic/ivy.xml from 7.11.1 to 7.13.2
+    [NUTCH-2896] - Protocol-okhttp: make connection pool configurable
+    [NUTCH-2898] - IDE Setup for nutch with Intellij IDEA is not well documented
+    [NUTCH-2903] - Unable to Connect to Elasticsearch over HTTPS
+    [NUTCH-2904] - Upgrade to crawler-commons 1.2
+    [NUTCH-2908] - Log mapreduce job messages and counters in local mode
+    [NUTCH-2911] - Add cleanup call in Fetcher.java
+    [NUTCH-2914] - nutch-default.xml: remove obsolete and unused properties
+    [NUTCH-2918] - Upgrade to log4j 2.16.0
+    [NUTCH-2919] - NUTCH-2919 Upgrade to Tika 2.2.1 and Any23 2.6
+    [NUTCH-2923] - Add Job Id in Job Failure messages
+    [NUTCH-2929] - Fetcher: start threads slowly to avoid that resources are temporarily exhausted
+    [NUTCH-2930] - Protocol-okhttp: implement IP filter
+    [NUTCH-2946] - Fetcher: optionally slow down fetching from hosts with repeated exceptions
+    [NUTCH-2948] - Upgrade dependencies to Any23 2.7 and Tika 2.3.0
+    [NUTCH-2950] - UpdateHostDb: performance improvements
+    [NUTCH-2952] - Upgrade core dependencies (Hadoop 3.3.3, log4j 2.17.2)
+    [NUTCH-2953] - Indexer Elastic to ignore SSL issues
+    [NUTCH-2956] - index-geoip: dependency upgrades and improvements
+    [NUTCH-2957] - indexer-solr / Solr schema: add fall-back field definitions for unknown index fields
+    [NUTCH-2958] - Upgrade to crawler-commons 1.3
+    [NUTCH-2962] - Update and complete package info of protocol plugins
+    [NUTCH-2963] - Upgrade dependencies before release of 1.19
+
+Task
+
+    [NUTCH-2826] - Migrate Nutch Site from Apache CMS to Hugo
+    [NUTCH-2870] - fireant upgrade dependency junit in ivy/ivy.xml from 4.13.1 to 4.13.2
+
+
 Nutch 1.18 Release 14/01/2021 (dd/mm/yyyy)
 Release Report: https://s.apache.org/lqara
 

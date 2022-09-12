@@ -15,23 +15,26 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
+
 <!--
-    Description: This document contains Solr 4.x schema definition to
+    Description: This document contains Solr schema definition to
     be used with Solr integration currently built into Nutch.
     This schema is not minimal, there are some useful field type definitions left,
     and the set of fields and their flags (indexed/stored/term vectors) can be
-    further optimized depending on needs.  See
-    http://svn.apache.org/viewvc/lucene/dev/trunk/solr/example/solr/conf/schema.xml?view=markup
+    further optimized depending on needs. See
+    https://github.com/apache/solr/blob/main/solr/server/solr/configsets/_default/conf/managed-schema.xml
     for more info.
 -->
 
-<schema name="nutch" version="1.5">
+<schema name="nutch" version="1.6">
 
   <types>
 
     <!-- The StrField type is not analyzed, but indexed/stored verbatim. -->
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+    <fieldType name="strings" class="solr.StrField" sortMissingLast="true" multiValued="true" docValues="true" />
 
+    <!--Binary data type. The data should be sent/retrieved in as Base64 encoded Strings -->
     <fieldtype name="binary" class="solr.BinaryField"/>
 
 
@@ -87,11 +90,11 @@
       -->
     <fieldType name="date" class="solr.TrieDateField" omitNorms="true" precisionStep="0" positionIncrementGap="0"/>
     
-    <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
+    <fieldType name="location" class="solr.LatLonPointSpatialField"/>
     
     <!-- A Trie based date field for faster date range queries and date faceting. -->
     <fieldType name="tdate" class="solr.TrieDateField" omitNorms="true" precisionStep="6" positionIncrementGap="0"/>
-     <fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0" multiValued="true"/>
+    <fieldType name="tdates" class="solr.TrieDateField" docValues="true" precisionStep="6" positionIncrementGap="0" multiValued="true"/>
 
 
     <!-- solr.TextField allows the specification of custom text analyzers
@@ -293,7 +296,7 @@
     </fieldType>
 
     <!-- since fields of this type are by default not stored or indexed,
-         any data added to them will be ignored outright.  --> 
+         any data added to them will be ignored outright.  -->
     <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
 
     <!-- boolean type: "true" or "false" -->
@@ -356,7 +359,7 @@
     <field name="cityGeoNameId" type="int" stored="true" indexed="true" />
     <field name="continentCode" type="string" stored="true" indexed="true" />
     <field name="continentGeoNameId" type="int" stored="true" indexed="true" />
-    <field name="contentName" type="string" stored="true" indexed="true" />
+    <field name="continentName" type="string" stored="true" indexed="true" />
     <field name="countryIsoCode" type="string" stored="true" indexed="true"/>
     <field name="countryName" type="string" stored="true" indexed="true" />
     <field name="countryConfidence" type="int" stored="true" indexed="true"/>
@@ -379,7 +382,6 @@
     <field name="org" type="string" stored="true" indexed="true" />
     <field name="userType" type="string" stored="true" indexed="true" />
     <field name="isAnonProxy" type="boolean" stored="true" indexed="true" />
-    <field name="isSatelitteProv" type="boolean" stored="true" indexed="true" />
     <field name="connType" type="string" stored="true" indexed="true" />
     <field name="location" type="location" stored="true" indexed="true" />
 
@@ -424,8 +426,11 @@
     <!-- field containing segment's raw binary content if indexed with -addBinaryContent -->
     <field name="binaryContent" type="binary" stored="true" indexed="false"/>
 
- </fields>
- <uniqueKey>id</uniqueKey>
+    <!-- fall-back fields for fields not defined by the schema -->
+    <dynamicField name="*_str" type="strings" stored="false" docValues="true" indexed="false" useDocValuesAsStored="false"/>
+  </fields>
+
+  <uniqueKey>id</uniqueKey>
 
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
@@ -437,4 +442,5 @@
  <copyField source="anchor" dest="text"/>
  <copyField source="author" dest="text"/>
  <copyField source="latLon" dest="location"/>
+
 </schema>

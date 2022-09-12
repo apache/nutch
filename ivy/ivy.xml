@@ -36,22 +36,21 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.17.0" conf="*->master" />
-		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.17.0" conf="*->master" />
-		<dependency org="org.apache.logging.log4j" name="log4j-slf4j-impl" rev="2.17.0" conf="*->master" />
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.32" conf="*->master" />
+		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.18.0" conf="*->master" />
+		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.18.0" conf="*->master" />
+		<dependency org="org.apache.logging.log4j" name="log4j-slf4j-impl" rev="2.18.0" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.36" conf="*->master" />
 
 		<dependency org="org.apache.commons" name="commons-lang3" rev="3.12.0" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-collections4" rev="4.4" conf="*->master" />
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.13" conf="*->master" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.15" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-compress" rev="1.21" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.1" conf="*->default" />
-		<dependency org="com.tdunning" name="t-digest" rev="3.2" />
-		<dependency org="org.codehaus.jettison" name="jettison" rev="1.4.0"/>
+		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.2.1" conf="*->default" />
+		<dependency org="com.tdunning" name="t-digest" rev="3.3" />
 
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-client" rev="3.2.2" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.3.4" conf="*->default">
 			<exclude org="hsqldb" name="hsqldb" />
 			<exclude org="net.sf.kosmosfs" name="kfs" />
 			<exclude org="net.java.dev.jets3t" name="jets3t" />
@@ -61,6 +60,9 @@
 			<exclude org="com.squareup.okhttp" name="*" />
 			<exclude org="ant" name="ant" />
 		</dependency>
+		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.3.4" conf="*->default" />
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.3.4" conf="*->default" />
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.3.4" conf="*->default" />
 		<!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.apache.tika" name="tika-core" rev="2.3.0" />
@@ -74,28 +76,28 @@
 		<dependency org="net.java.dev.jna" name="jna" rev="5.10.0" />
 
 		<dependency org="xml-apis" name="xml-apis" rev="1.4.01" /><!-- force this version as it is required by Tika -->
-		<dependency org="xerces" name="xercesImpl" rev="2.12.1" />
+		<dependency org="xerces" name="xercesImpl" rev="2.12.2" />
 
-		<dependency org="com.ibm.icu" name="icu4j" rev="68.2" />
+		<dependency org="com.ibm.icu" name="icu4j" rev="71.1" />
 
-		<dependency org="com.google.guava" name="guava" rev="30.1-jre" />
+		<dependency org="com.google.guava" name="guava" rev="31.1-jre" />
 
 		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="1.4-SNAPSHOT" />
 
-		<dependency org="com.google.code.gson" name="gson" rev="2.8.9"/>
+		<dependency org="com.google.code.gson" name="gson" rev="2.9.1"/>
 		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0">
 			<exclude module="hadoop-client" />
 		</dependency>
 
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.4.1" conf="*->default" />
-		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.4.1" conf="*->default" />
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.4.1" conf="*->default" />
-		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.4.1" conf="*->default" />
-		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.4.1" conf="test->default" />
-		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.12.0" conf="*->default" />
-		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.12.0" conf="*->default" />
-		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.12.0" conf="*->default" />
-		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.12.0" conf="*->default" />
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="3.5.3" conf="*->default" />
+		<dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="3.5.3" conf="*->default" />
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.5.3" conf="*->default" />
+		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.5.3" conf="*->default" />
+		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.5.3" conf="test->default" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.13.3" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.13.3" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.13.3" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.13.3" conf="*->default" />
 
 		<!-- WARC artifacts needed -->
 		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.9" conf="*->default">
@@ -119,21 +121,14 @@
 			<artifact name="mrunit" ns0:classifier="hadoop2" />
 			<exclude org="log4j" module="log4j" />
 		</dependency>
+
 		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.26" conf="test->default" />
-
-		<!-- web app dependencies -->
-		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" />
-
-		<dependency org="org.apache.commons" name="commons-collections4" rev="4.1" conf="*->default" />
-
-		<!-- RabbitMQ dependencies -->
-		<dependency org="com.rabbitmq" name="amqp-client" rev="5.2.0" conf="*->default" />
+		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" conf="test->default" />
 
 		<!--Added Because of Elasticsearch JEST client-->
 		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
-		<dependency org="org.apache.httpcomponents" name="httpcore-nio" rev="4.4.9" />
+		<dependency org="org.apache.httpcomponents" name="httpcore-nio" rev="4.4.14" />
 		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.14" />
-		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.5" />
 
 		<dependency org="de.vandermeer" name="asciitable" rev="0.3.2" />
 

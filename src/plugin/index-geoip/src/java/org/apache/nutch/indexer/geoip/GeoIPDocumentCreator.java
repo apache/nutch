@@ -17,13 +17,17 @@
 package org.apache.nutch.indexer.geoip;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.apache.nutch.indexer.NutchDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.WebServiceClient;
+import com.maxmind.geoip2.exception.AddressNotFoundException;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.InsightsResponse;
 import com.maxmind.geoip2.model.CityResponse;
@@ -54,6 +58,9 @@ import com.maxmind.geoip2.record.Traits;
  */
 public class GeoIPDocumentCreator {
 
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
+
   /**
    * Add field to document but only if value isn't null
    * @param doc the {@link NutchDocument} to augment
@@ -61,21 +68,7 @@ public class GeoIPDocumentCreator {
    * @param value the String value to associate with the target field
    */
   public static void addIfNotNull(NutchDocument doc, String name,
-      String value) {
-    if (value != null) {
-      doc.add(name, value);
-    }
-  }
-
-  /**
-   * Add field to document but only if value isn't null
-   * @param doc the {@link NutchDocument} to augment
-   * @param name the name of the target field
-   * @param value the {@link java.lang.Integer} value to 
-   * associate with the target field
-   */
-  public static void addIfNotNull(NutchDocument doc, String name,
-      Integer value) {
+      Object value) {
     if (value != null) {
       doc.add(name, value);
     }
@@ -87,7 +80,6 @@ public class GeoIPDocumentCreator {
     addIfNotNull(doc, "ip", serverIp);
     InsightsResponse response = client
         .insights(InetAddress.getByName(serverIp));
-    // CityResponse response = client.city(InetAddress.getByName(serverIp));
 
     City city = response.getCity();
     addIfNotNull(doc, "cityName", city.getName()); // 'Minneapolis'
@@ -103,7 +95,7 @@ public class GeoIPDocumentCreator {
     addIfNotNull(doc, "countryIsoCode", country.getIsoCode()); // 'US'
     addIfNotNull(doc, "countryName", country.getName()); // 'United States'
     addIfNotNull(doc, "countryConfidence", country.getConfidence()); // 99
-    addIfNotNull(doc, "countryGeoName", country.getGeoNameId());
+    addIfNotNull(doc, "countryGeoNameId", country.getGeoNameId());
 
     Location location = response.getLocation();
     addIfNotNull(doc, "latLon", location.getLatitude() + "," + location.getLongitude()); // 44.9733,
@@ -121,7 +113,7 @@ public class GeoIPDocumentCreator {
 
     Subdivision subdivision = response.getMostSpecificSubdivision();
     addIfNotNull(doc, "subDivName", subdivision.getName()); // 'Minnesota'
-    addIfNotNull(doc, "subDivIdoCode", subdivision.getIsoCode()); // 'MN'
+    addIfNotNull(doc, "subDivIsoCode", subdivision.getIsoCode()); // 'MN'
     addIfNotNull(doc, "subDivConfidence", subdivision.getConfidence()); // 90
     addIfNotNull(doc, "subDivGeoNameId", subdivision.getGeoNameId());
 
@@ -169,7 +161,13 @@ public class GeoIPDocumentCreator {
   public static NutchDocument createDocFromDomainDb(String serverIp,
       NutchDocument doc, DatabaseReader reader) throws UnknownHostException,
       IOException, GeoIp2Exception {
-    DomainResponse response = reader.domain(InetAddress.getByName(serverIp));
+    DomainResponse response;
+    try {
+      response = reader.domain(InetAddress.getByName(serverIp));
+    } catch (AddressNotFoundException e) {
+      LOG.debug("IP address not found: {}", serverIp);
+      return doc;
+    }
     addIfNotNull(doc, "ip", serverIp);
     addIfNotNull(doc, "domain", response.getDomain());
     return doc;
@@ -189,7 +187,14 @@ public class GeoIPDocumentCreator {
       NutchDocument doc, DatabaseReader reader) throws UnknownHostException,
       IOException, GeoIp2Exception {
     addIfNotNull(doc, "ip", serverIp);
-    CityResponse response = reader.city(InetAddress.getByName(serverIp));
+
+    CityResponse response;
+    try {
+      response = reader.city(InetAddress.getByName(serverIp));
+    } catch (AddressNotFoundException e) {
+      LOG.debug("IP address not found: {}", serverIp);
+      return doc;
+    }
 
     City city = response.getCity();
     addIfNotNull(doc, "cityName", city.getName()); // 'Minneapolis'
@@ -206,7 +211,7 @@ public class GeoIPDocumentCreator {
     addIfNotNull(doc, "countryIsoCode", country.getIsoCode()); // 'US'
     addIfNotNull(doc, "countryName", country.getName()); // 'United States'
     addIfNotNull(doc, "countryConfidence", country.getConfidence()); // 99
-    addIfNotNull(doc, "countryGeoName", country.getGeoNameId());
+    addIfNotNull(doc, "countryGeoNameId", country.getGeoNameId());
 
     Location location = response.getLocation();
     addIfNotNull(doc, "latLon", location.getLatitude() + "," + location.getLongitude()); // 44.9733,
@@ -224,7 +229,7 @@ public class GeoIPDocumentCreator {
 
     Subdivision subdivision = response.getMostSpecificSubdivision();
     addIfNotNull(doc, "subDivName", subdivision.getName()); // 'Minnesota'
-    addIfNotNull(doc, "subDivIdoCode", subdivision.getIsoCode()); // 'MN'
+    addIfNotNull(doc, "subDivIsoCode", subdivision.getIsoCode()); // 'MN'
     addIfNotNull(doc, "subDivConfidence", subdivision.getConfidence()); // 90
     addIfNotNull(doc, "subDivGeoNameId", subdivision.getGeoNameId());
     return doc;

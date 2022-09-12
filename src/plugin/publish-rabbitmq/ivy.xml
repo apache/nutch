@@ -34,5 +34,5 @@
     <!--get the artifact from our module name-->
     <artifact conf="master"/>
   </publications>
-  
+
 </ivy-module>

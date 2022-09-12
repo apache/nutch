@@ -1,0 +1,1166 @@
+Apache Nutch
+Copyright 2005 and onwards The Apache Software Foundation
+
+This product includes software developed at The Apache Software
+Foundation (http://www.apache.org/).
+
+
+Export Control Notice
+---------------------
+
+This distribution includes cryptographic software.  The country in
+which you currently reside may have restrictions on the import,
+possession, use, and/or re-export to another country, of
+encryption software.  BEFORE using any encryption software, please
+check your country's laws, regulations and policies concerning the
+import, possession, or use, and re-export of encryption software, to
+see if this is permitted.  See <http://www.wassenaar.org/> for more
+information.
+
+The U.S. Government Department of Commerce, Bureau of Industry and
+Security (BIS), has classified this software as Export Commodity
+Control Number (ECCN) 5D002.C.1, which includes information security
+software using or performing cryptographic functions with asymmetric
+algorithms.  The form and manner of this Apache Software Foundation
+distribution makes it eligible for export under the License Exception
+ENC Technology Software Unrestricted (TSU) exception (see the BIS
+Export Administration Regulations, Section 740.13) for both object
+code and source code.
+
+The following provides more details on the included cryptographic software:
+
+The plugins parse-tika and any23 use Apache Tika and the Bouncy Castle
+generic encryption libraries for extracting text content and metadata
+from encrypted PDF files. See <https://www.bouncycastle.org/> for more
+details on Bouncy Castle and <https://tika.apache.org/> for details
+on Apache Tika.
+
+
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for
+// ------------------------------------------------------------------
+
+
+Apache projects
+---------------
+
+Apache Any23 (https://any23.apache.org/)
+  see https://github.com/apache/any23/blob/master/NOTICE.txt
+
+Apache Avro (https://avro.apache.org)
+  see https://github.com/apache/avro/blob/master/NOTICE.txt
+
+Apache CXF (https://cxf.apache.org)
+  see https://github.com/apache/cxf/blob/main/distribution/src/main/appended-resources/META-INF/NOTICE
+
+Apache Commons BeanUtils (https://commons.apache.org/proper/commons-beanutils/)
+  see https://github.com/apache/commons-beanutils/blob/master/NOTICE.txt
+
+Apache Commons CSV (https://commons.apache.org/proper/commons-csv/)
+  see https://github.com/apache/commons-csv/blob/master/NOTICE.txt
+
+Apache Commons Codec (https://commons.apache.org/proper/commons-codec/)
+  see https://github.com/apache/commons-codec/blob/master/NOTICE.txt
+
+Apache Commons Collections (https://commons.apache.org/proper/commons-collections/)
+  see https://github.com/apache/commons-collections/blob/master/NOTICE.txt
+
+Apache Commons Compress (https://commons.apache.org/proper/commons-compress/)
+  see https://github.com/apache/commons-compress/blob/master/NOTICE.txt
+
+Apache Commons Configuration (https://commons.apache.org/proper/commons-configuration/)
+  see https://github.com/apache/commons-configuration/blob/master/NOTICE.txt
+
+Apache Commons Daemon (http://commons.apache.org/daemon/)
+  see https://github.com/apache/commons-daemon/blob/master/NOTICE.txt
+
+Apache Commons Exec (http://commons.apache.org/proper/commons-exec/)
+  see https://github.com/apache/commons-exec/blob/master/NOTICE.txt
+
+Apache Commons IO (https://commons.apache.org/proper/commons-io/)
+  see https://github.com/apache/commons-io/blob/master/NOTICE.txt
+
+Apache Commons JEXL (https://commons.apache.org/jexl/)
+  see https://github.com/apache/commons-jexl/blob/master/NOTICE.txt
+
+Apache Commons Lang (https://commons.apache.org/proper/commons-lang/)
+  see https://github.com/apache/commons-lang/blob/master/NOTICE.txt
+
+Apache Commons Logging (http://commons.apache.org/proper/commons-logging/)
+  see https://github.com/apache/commons-logging/blob/master/NOTICE.txt
+
+Apache Commons Math (http://commons.apache.org/proper/commons-math/)
+  see https://github.com/apache/commons-math/blob/master/NOTICE
+
+Apache Commons RDF (https://commons.apache.org/proper/commons-rdf/)
+  see https://github.com/apache/commons-rdf/blob/master/NOTICE
+
+Apache Commons Text (https://commons.apache.org/proper/commons-text)
+  see https://github.com/apache/commons-text/blob/master/NOTICE.txt
+
+Apache Curator (https://curator.apache.org/)
+  see https://github.com/apache/curator/blob/master/NOTICE
+
+Apache Hadoop (https://hadoop.apache.org/)
+  see https://github.com/apache/hadoop/blob/trunk/NOTICE.txt
+  see https://github.com/apache/hadoop/blob/trunk/NOTICE-binary
+
+Apache HttpComponents Core (https://hc.apache.org/)
+  see https://github.com/apache/httpcomponents-core/blob/master/NOTICE.txt
+  see https://github.com/apache/httpcomponents-client/blob/master/NOTICE.txt
+
+Apache Kafka (https://kafka.apache.org)
+  see https://github.com/apache/kafka/blob/trunk/NOTICE
+  see https://github.com/apache/kafka/blob/trunk/NOTICE-binary
+
+Apache Kerby (https://directory.apache.org/kerby/)
+  see https://github.com/apache/directory-kerby/blob/trunk/NOTICE
+
+Apache Log4j (https://logging.apache.org/)
+  see https://github.com/apache/logging-log4j2/blob/release-2.x/NOTICE.txt
+
+Apache Lucene (https://lucene.apache.org/)
+  see https://github.com/apache/lucene/blob/main/NOTICE.txt
+
+Apache Mahout (https://mahout.apache.org/)
+  see https://github.com/apache/mahout/blob/trunk/NOTICE
+
+Apache Neethi (https://ws.apache.org/neethi/)
+  see https://github.com/apache/ws-neethi/blob/master/src/main/appended-resources/META-INF/NOTICE
+
+Apache PDFBox (https://pdfbox.apache.org/)
+  see https://github.com/apache/pdfbox/blob/trunk/NOTICE.txt
+
+Apache POI (https://poi.apache.org/)
+  see https://github.com/apache/poi/blob/trunk/legal/NOTICE
+
+Apache Solr (https://solr.apache.org/)
+  see https://github.com/apache/solr/blob/main/NOTICE.txt
+
+Apache Tika (https://tika.apache.org/)
+  see https://github.com/apache/tika/blob/main/NOTICE.txt
+
+Apache XMLBeans (https://xmlbeans.apache.org/)
+  see https://github.com/apache/xmlbeans/blob/trunk/NOTICE.txt
+
+Apache XMLSchema (http://ws.apache.org/xmlschema/)
+  see https://github.com/apache/ws-xmlschema/blob/master/src/main/appended-resources/META-INF/NOTICE
+
+Apache Yetus (https://yetus.apache.org/)
+  see https://github.com/apache/yetus/blob/main/NOTICE
+
+Apache ZooKeeper (https://zookeeper.apache.org)
+  see https://github.com/apache/zookeeper/blob/master/NOTICE.txt
+
+
+Other software
+--------------
+
+# aopalliance:aopalliance
+AOP alliance (http://aopalliance.sourceforge.net)
+- license: Public Domain
+  (licenses-binary/LICENSE-public-domain.txt)
+
+# ch.qos.reload4j:reload4j
+reload4j (https://reload4j.qos.ch)
+- license: The Apache Software License, Version 2.0
+
+# com.101tec:zkclient
+ZkClient (https://github.com/sgroschupf/zkclient)
+- license: The Apache Software License, Version 2.0
+
+# com.adobe.xmp:xmpcore
+Adobe XMPCore (https://www.adobe.com/devnet/xmp/library/eula-xmp-library-java.html)
+- license: The BSD 3-Clause License (BSD3)
+  (licenses-binary/LICENSE-bsd-3-clause.txt)
+
+# com.amazonaws:aws-java-sdk-cloudsearch
+AWS Java SDK for Amazon CloudSearch (https://aws.amazon.com/sdkforjava)
+- license: Apache License, Version 2.0
+# com.amazonaws:aws-java-sdk-core
+AWS SDK for Java - Core (https://aws.amazon.com/sdkforjava)
+- license: Apache License, Version 2.0
+
+# com.beust:jcommander
+jcommander (https://jcommander.org)
+- license: Apache License, Version 2.0
+
+# com.carrotsearch:hppc
+HPPC Collections
+- license: The Apache Software License, Version 2.0
+
+# com.codeborne:phantomjsdriver
+PhantomJSDriver (https://github.com/detro/ghostdriver)
+- license: The BSD 2-Clause License
+  (licenses-binary/LICENSE-bsd-2-clause.txt)
+
+# com.drewnoakes:metadata-extractor
+metadata-extractor (https://drewnoakes.com/code/exif/)
+- license: The Apache Software License, Version 2.0
+
+# com.epam:parso
+parso (https://github.com/epam/parso)
+- license: Apache License v2
+
+# com.fasterxml.jackson.core:jackson-annotations
+Jackson-annotations (http://github.com/FasterXML/jackson)
+- license: The Apache Software License, Version 2.0
+# com.fasterxml.jackson.core:jackson-core
+Jackson-core (https://github.com/FasterXML/jackson-core)
+- license: The Apache Software License, Version 2.0
+# com.fasterxml.jackson.core:jackson-core
+Jackson-core (https://github.com/FasterXML/jackson)
+- license: The Apache Software License, Version 2.0
+# com.fasterxml.jackson.core:jackson-databind
+jackson-databind (http://github.com/FasterXML/jackson)
+- license: The Apache Software License, Version 2.0
+
+# com.fasterxml.jackson.dataformat:jackson-dataformat-cbor
+Jackson dataformat: CBOR (http://github.com/FasterXML/jackson-dataformats-binary)
+- license: The Apache Software License, Version 2.0
+# com.fasterxml.jackson.dataformat:jackson-dataformat-smile
+Jackson dataformat: Smile (http://github.com/FasterXML/jackson-dataformats-binary)
+- license: The Apache Software License, Version 2.0
+# com.fasterxml.jackson.dataformat:jackson-dataformat-yaml
+Jackson-dataformat-YAML (https://github.com/FasterXML/jackson-dataformats-text)
+- license: The Apache Software License, Version 2.0
+
+# com.fasterxml.jackson.jaxrs:jackson-jaxrs-base
+Jackson-JAXRS: base
+- license: The Apache Software License, Version 2.0
+# com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider
+Jackson-JAXRS: JSON
+- license: The Apache Software License, Version 2.0
+
+# com.fasterxml.jackson.module:jackson-module-jaxb-annotations
+Jackson module: Old JAXB Annotations (javax.xml.bind) (https://github.com/FasterXML/jackson-modules-base)
+- license: The Apache Software License, Version 2.0
+
+# com.fasterxml.woodstox:woodstox-core
+Woodstox (https://github.com/FasterXML/woodstox)
+- license: The Apache License, Version 2.0
+
+# com.github.ben-manes.caffeine:caffeine
+Caffeine cache (https://github.com/ben-manes/caffeine)
+- license: Apache License, Version 2.0
+
+# com.github.crawler-commons:crawler-commons
+Crawler-commons (https://github.com/crawler-commons/crawler-commons)
+- license: Apache License, Version 2.0
+
+# com.github.jai-imageio:jai-imageio-core
+Java Advanced Imaging Image I/O Tools API core (standalone) (https://github.com/jai-imageio/jai-imageio-core)
+- license: BSD 3-clause License w/nuclear disclaimer
+
+# com.github.jsonld-java:jsonld-java
+JSONLD Java :: Core
+- license: Revised BSD License
+
+# com.github.junrar:junrar
+Java Unrar (https://github.com/junrar/junrar)
+- license: UnRar License
+  (licenses-binary/LICENSE-unrar-license.txt)
+
+# com.github.mangstadt:vinnie
+vinnie (http://github.com/mangstadt/vinnie)
+- license: MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+
+# com.github.spullara.mustache.java:compiler
+compiler (http://github.com/spullara/mustache.java)
+- license: Apache License 2.0
+
+# com.github.stephenc.jcip:jcip-annotations
+JCIP Annotations under Apache License (http://stephenc.github.com/jcip-annotations)
+- license: Apache License, Version 2.0
+
+# com.github.virtuald:curvesapi
+curvesapi (https://github.com/virtuald/curvesapi)
+- license: BSD License
+  (licenses-binary/LICENSE-bsd-3-clause.txt)
+
+# com.github.vsonnier:hppcrt
+HPPC-RT Collections
+- license: The Apache Software License, Version 2.0
+
+# com.google.code.findbugs:jsr305
+FindBugs-jsr305 (http://findbugs.sourceforge.net/)
+- license: The Apache Software License, Version 2.0
+
+# com.google.code.gson:gson
+Gson
+- license: Apache 2.0
+
+# com.google.errorprone:error_prone_annotations
+error-prone annotations
+- license: Apache 2.0
+
+# com.google.guava:failureaccess
+Guava InternalFutureFailureAccess and InternalFutures
+- license: The Apache Software License, Version 2.0
+# com.google.guava:guava
+Guava: Google Core Libraries for Java
+- license: Apache License, Version 2.0
+# com.google.guava:guava
+Guava: Google Core Libraries for Java (https://github.com/google/guava)
+- license: Apache License, Version 2.0
+# com.google.guava:guava
+Guava: Google Core Libraries for Java
+- license: The Apache Software License, Version 2.0
+# com.google.guava:listenablefuture
+Guava ListenableFuture only
+- license: The Apache Software License, Version 2.0
+
+# com.google.inject:guice
+Google Guice - Core Library
+- license: The Apache Software License, Version 2.0
+
+# com.google.inject.extensions:guice-servlet
+Google Guice - Extensions - Servlet
+- license: The Apache Software License, Version 2.0
+
+# com.google.j2objc:j2objc-annotations
+J2ObjC Annotations (https://github.com/google/j2objc/)
+- license: The Apache Software License, Version 2.0
+
+# com.google.protobuf:protobuf-java
+Protocol Buffer Java API (http://code.google.com/p/protobuf)
+- license: New BSD license
+  (licenses-binary/LICENSE-bsd-2-clause.txt)
+
+# com.google.re2j:re2j
+re2j (http://github.com/google/re2j)
+- license: The Go license
+  (licenses-binary/LICENSE-the-go-license.txt)
+
+# com.googlecode.juniversalchardet:juniversalchardet
+juniversalchardet (http://juniversalchardet.googlecode.com/)
+- license: Mozilla Public License 1.1 (MPL 1.1)
+  (licenses-binary/LICENSE-mozilla-public-license-1.1-mpl-1.1.txt)
+
+# com.googlecode.plist:dd-plist
+dd-plist (http://www.github.com/3breadt/dd-plist)
+- license: MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+
+# com.healthmarketscience.jackcess:jackcess
+Jackcess (https://jackcess.sourceforge.io)
+- license: Apache License, Version 2.0
+# com.healthmarketscience.jackcess:jackcess-encrypt
+Jackcess Encrypt (http://jackcessencrypt.sf.net)
+- license: Apache License, Version 2.0
+
+# com.ibm.icu:icu4j
+ICU4J (https://icu.unicode.org/)
+- license: Unicode/ICU License
+  (licenses-binary/LICENSE-unicode-icu-license.txt)
+
+# com.intellij:annotations
+IntelliJ IDEA Annotations (http://www.jetbrains.org)
+- license: Apache License 2
+
+# com.jcraft:jsch
+JSch (http://www.jcraft.com/jsch/)
+- license: Revised BSD
+
+# com.martinkl.warc:warc-hadoop
+WARC Input and Output Formats for Hadoop (https://github.com/ept/warc-hadoop)
+- license: The MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+
+# com.maxmind.db:maxmind-db
+MaxMind DB Reader (http://dev.maxmind.com/)
+- license: Apache License 2.0
+
+# com.maxmind.geoip2:geoip2
+MaxMind GeoIP2 API (https://dev.maxmind.com/geoip?lang=en)
+- license: Apache License, Version 2.0
+
+# com.nimbusds:nimbus-jose-jwt
+Nimbus JOSE+JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt)
+- license: The Apache Software License, Version 2.0
+
+# com.opera:operadriver
+OperaDriver (http://opera.com/developer/tools/operadriver/)
+- license: The Apache Software License, Version 2.0
+# com.opera:operalaunchers
+OperaLaunchers (http://opera.com/developer/tools/operadriver/)
+- license: The Apache Software License, Version 2.0
+
+# com.optimaize.languagedetector:language-detector
+language-detector (https://github.com/optimaize/language-detector)
+- license: Apache 2
+
+# com.pff:java-libpst
+java-libpst (https://github.com/rjohnsondev/java-libpst)
+- license: The Apache Software License, Version 2.0
+
+# com.rabbitmq:amqp-client
+RabbitMQ Java Client (http://www.rabbitmq.com)
+- license: ASL 2.0
+
+# com.rometools:rome
+ROME (http://rometools.github.io/rome/)
+- license: The Apache Software License, Version 2.0
+# com.rometools:rome-utils
+rome-utils (http://rometools.github.io/rome-utils/)
+- license: The Apache Software License, Version 2.0
+
+# com.squareup.okhttp3:okhttp
+OkHttp (https://square.github.io/okhttp/)
+- license: The Apache Software License, Version 2.0
+# com.squareup.okhttp3:okhttp-brotli
+okhttp-brotli (https://square.github.io/okhttp/)
+- license: The Apache Software License, Version 2.0
+
+# com.squareup.okio:okio
+Okio (https://github.com/square/okio/)
+- license: The Apache Software License, Version 2.0
+
+# com.sun.activation:jakarta.activation
+Jakarta Activation
+- license: EDL 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# com.sun.istack:istack-commons-runtime
+istack common utility code runtime
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# com.sun.jersey:jersey-client
+# com.sun.jersey:jersey-core
+jersey-core
+- license: CDDL 1.1
+  (licenses-binary/LICENSE-cddl-1.1.txt)
+# com.sun.jersey:jersey-json
+jersey-json
+- license: CDDL 1.1
+  (licenses-binary/LICENSE-cddl-1.1.txt)
+# com.sun.jersey:jersey-server
+jersey-server
+- license: CDDL 1.1
+  (licenses-binary/LICENSE-cddl-1.1.txt)
+# com.sun.jersey:jersey-servlet
+jersey-servlet
+- license: CDDL 1.1
+  (licenses-binary/LICENSE-cddl-1.1.txt)
+
+# com.sun.jersey.contribs:jersey-guice
+jersey-guice
+- license: CDDL 1.1
+  (licenses-binary/LICENSE-cddl-1.1.txt)
+
+# com.sun.xml.bind:jaxb-impl
+JAXB RI (http://jaxb.java.net/)
+- license: CDDL 1.1
+  (licenses-binary/LICENSE-cddl-1.1.txt)
+
+# com.sun.xml.messaging.saaj:saaj-impl
+Jakarta SOAP Implementation
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# com.tdunning:t-digest
+T-Digest (https://github.com/tdunning/t-digest)
+- license: The Apache Software License, Version 2.0
+
+# com.thoughtworks.paranamer:paranamer
+ParaNamer Core
+- license: BSD
+  (licenses-binary/LICENSE-bsd.txt)
+
+# com.thoughtworks.xstream:xstream
+XStream Core
+- license: BSD style
+
+# com.typesafe.scala-logging:scala-logging_2.12
+Apache 2.0 License (https://github.com/typesafehub/scala-logging)
+- license: Apache 2.0 License
+
+# com.yammer.metrics:metrics-core
+Metrics Core Library
+- license: Apache License 2.0
+
+# com.zaxxer:SparseBitSet
+SparseBitSet (https://github.com/brettwooldridge/SparseBitSet)
+- license: The Apache Software License, Version 2.0
+
+# de.l3s.boilerpipe:boilerpipe
+Apache License 2.0 (http://code.google.com/p/boilerpipe/)
+- license: Apache License 2.0
+
+# de.vandermeer:ascii-utf-themes
+ASCII and UTF Themes (https://github.com/vdmeer/ascii-utf-themes)
+- license: Apache 2
+# de.vandermeer:asciitable
+ASCII Table (https://github.com/vdmeer/asciitable)
+- license: Apache 2
+# de.vandermeer:char-translation
+Character Translation (https://github.com/vdmeer/char-translation)
+- license: Apache 2
+# de.vandermeer:skb-interfaces
+SKB Interfaces (http://www.vandermeer.de/projects/skb/java/core/interfaces)
+- license: Apache 2
+
+# dk.brics:automaton
+dk.brics.automaton (https://www.brics.dk/automaton)
+- license: BSD
+  (licenses-binary/LICENSE-bsd-2-clause.txt)
+
+# dnsjava:dnsjava
+dnsjava (http://www.dnsjava.org)
+- license: BSD 2-Clause license
+  (licenses-binary/LICENSE-bsd-2-clause.txt)
+
+# io.netty:netty
+Netty (http://netty.io/)
+- license: Apache License, Version 2.0
+
+# jakarta.activation:jakarta.activation-api
+JavaBeans Activation Framework API jar
+- license: EDL 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# jakarta.annotation:jakarta.annotation-api
+Jakarta Annotations API (https://projects.eclipse.org/projects/ee4j.ca)
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+
+# jakarta.jws:jakarta.jws-api
+Jakarta Web Services Metadata API (https://github.com/eclipse-ee4j/jws-api)
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# jakarta.ws.rs:jakarta.ws.rs-api
+jakarta.ws.rs-api (https://github.com/eclipse-ee4j/jaxrs-api)
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+
+# jakarta.xml.bind:jakarta.xml.bind-api
+Jakarta XML Binding API
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# jakarta.xml.soap:jakarta.xml.soap-api
+Jakarta SOAP with Attachments API (https://github.com/eclipse-ee4j/saaj-api)
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# jakarta.xml.ws:jakarta.xml.ws-api
+Jakarta XML Web Services API (https://github.com/eclipse-ee4j/jax-ws-api)
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# javax.activation:activation
+JavaBeans Activation Framework (JAF) (http://java.sun.com/products/javabeans/jaf/index.jsp)
+- license: Common Development and Distribution License (CDDL) v1.0
+  (licenses-binary/LICENSE-cddl-v1.0.txt)
+
+# javax.inject:javax.inject
+javax.inject (http://code.google.com/p/atinject/)
+- license: The Apache Software License, Version 2.0
+
+# javax.servlet:javax.servlet-api
+Java Servlet API (http://servlet-spec.java.net)
+- license: CDDL + GPLv2 with classpath exception
+  (licenses-binary/LICENSE-cddl-gplv2-ce.txt)
+
+# javax.ws.rs:javax.ws.rs-api
+javax.ws.rs-api (https://github.com/eclipse-ee4j/jaxrs-api)
+- license: EPL 2.0
+  (licenses-binary/LICENSE-epl-2.0.txt)
+# javax.ws.rs:jsr311-api
+jsr311-api (https://jsr311.dev.java.net)
+- license: CDDL License
+  (licenses-binary/LICENSE-cddl-license.txt)
+
+# javax.xml.bind:jaxb-api
+Java Architecture for XML Binding (http://jaxb.java.net/)
+- license: CDDL 1.1
+  (licenses-binary/LICENSE-cddl-1.1.txt)
+# javax.xml.bind:jaxb-api
+JAXB API bundle for GlassFish V3 (https://jaxb.dev.java.net/)
+- license: CDDL 1.1
+  (licenses-binary/LICENSE-cddl-1.1.txt)
+
+# javax.xml.stream:stax-api
+Streaming API for XML
+- license: GNU General Public Library
+
+# joda-time:joda-time
+Joda-Time (https://www.joda.org/joda-time/)
+- license: Apache License, Version 2.0
+
+# net.arnx:jsonic
+jsonic (http://jsonic.sourceforge.jp/)
+- license: The Apache Software License, Version 2.0
+
+# net.bytebuddy:byte-buddy
+Byte Buddy (without dependencies)
+- license: The Apache Software License, Version 2.0
+
+# net.minidev:accessors-smart
+ASM based accessors helper used by json-smart (https://urielch.github.io/)
+- license: The Apache Software License, Version 2.0
+# net.minidev:json-smart
+JSON Small and Fast Parser (https://urielch.github.io/)
+- license: The Apache Software License, Version 2.0
+
+# net.sf.biweekly:biweekly
+biweekly (http://github.com/mangstadt/biweekly)
+- license: FreeBSD License
+  (licenses-binary/LICENSE-bsd-2-clause.txt)
+
+# net.sf.jopt-simple:jopt-simple
+JOpt Simple (http://jopt-simple.github.io/jopt-simple)
+- license: The MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+
+# net.sourceforge.htmlunit:htmlunit
+HtmlUnit (http://htmlunit.sourceforge.net)
+- license: Apache License, Version 2.0
+# net.sourceforge.htmlunit:htmlunit-core-js
+HtmlUnit Core JS (http://htmlunit.sourceforge.net)
+- license: Mozilla Public License, Version 2.0
+  (licenses-binary/LICENSE-mozilla-public-license-version-2.0.txt)
+# net.sourceforge.htmlunit:htmlunit-cssparser
+HtmlUnit CSS Parser (https://github.com/HtmlUnit/htmlunit-cssparser)
+- license: Apache License, Version 2.0
+# net.sourceforge.htmlunit:neko-htmlunit
+HtmlUnit NekoHtml (http://htmlunit.sourceforge.net)
+- license: Apache License, Version 2.0
+
+# net.sourceforge.nekohtml:nekohtml
+Neko HTML (http://nekohtml.sourceforge.net/)
+- license: The Apache Software License, Version 2.0
+
+# net.sourceforge.owlapi:owlapi-api
+OWLAPI :: Interfaces
+- license: Apache License Version 2.0, January 2004
+# net.sourceforge.owlapi:owlapi-apibinding
+OWLAPI :: Binding and Config
+- license: Apache License Version 2.0, January 2004
+# net.sourceforge.owlapi:owlapi-impl
+OWLAPI :: Default Implementation
+- license: Apache License Version 2.0, January 2004
+# net.sourceforge.owlapi:owlapi-oboformat
+OWLAPI :: OBO Format (http://code.google.com/p/oboformat/)
+- license: The BSD 3-Clause License
+  (licenses-binary/LICENSE-bsd-3-clause.txt)
+# net.sourceforge.owlapi:owlapi-parsers
+OWLAPI :: Parsers
+- license: Apache License Version 2.0, January 2004
+# net.sourceforge.owlapi:owlapi-rio
+OWLAPI :: RDF4J Rio
+- license: Apache License Version 2.0, January 2004
+# net.sourceforge.owlapi:owlapi-tools
+OWLAPI :: Atomic Decomposition and Explanation
+- license: Apache License Version 2.0, January 2004
+
+# org.antlr:ST4
+StringTemplate 4 (http://www.stringtemplate.org)
+- license: BSD licence
+  (licenses-binary/LICENSE-bsd-licence.txt)
+# org.antlr:antlr-runtime
+ANTLR 3 Runtime (http://www.antlr.org)
+- license: BSD licence
+  (licenses-binary/LICENSE-bsd-licence.txt)
+# org.antlr:antlr4
+ANTLR 4 Tool
+- license: The BSD License
+
+# org.bouncycastle:bcmail-jdk15on
+Bouncy Castle S/MIME API (https://www.bouncycastle.org/java.html)
+- license: Bouncy Castle Licence
+  (licenses-binary/LICENSE-bouncy-castle-licence.txt)
+# org.bouncycastle:bcpkix-jdk15on
+Bouncy Castle PKIX, CMS, EAC, TSP, PKCS, OCSP, CMP, and CRMF APIs (https://www.bouncycastle.org/java.html)
+- license: Bouncy Castle Licence
+  (licenses-binary/LICENSE-bouncy-castle-licence.txt)
+# org.bouncycastle:bcprov-jdk15on
+Bouncy Castle Provider (https://www.bouncycastle.org/java.html)
+- license: Bouncy Castle Licence
+  (licenses-binary/LICENSE-bouncy-castle-licence.txt)
+# org.bouncycastle:bcutil-jdk15on
+Bouncy Castle ASN.1 Extension and Utility APIs (https://www.bouncycastle.org/java.html)
+- license: Bouncy Castle Licence
+  (licenses-binary/LICENSE-bouncy-castle-licence.txt)
+
+# org.brotli:dec
+${project.groupId}:${project.artifactId}
+- license: MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+
+# org.ccil.cowan.tagsoup:tagsoup
+TagSoup (http://home.ccil.org/~cowan/XML/tagsoup/)
+- license: Apache License 2.0
+
+# org.checkerframework:checker-compat-qual
+Checker Qual (http://checkerframework.org)
+- license: GNU General Public License, version 2 (GPL2), with the classpath exception
+  (licenses-binary/LICENSE-gnu-general-public-license-version-2-gpl2-with-the-classpath-exception.txt)
+# org.checkerframework:checker-qual
+Checker Qual (https://checkerframework.org)
+- license: The MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+
+# org.codehaus.jackson:jackson-core-asl
+Jackson (http://jackson.codehaus.org)
+- license: The Apache Software License, Version 2.0
+# org.codehaus.jackson:jackson-jaxrs
+JAX-RS provider for JSON content type (http://jackson.codehaus.org)
+- license: The Apache Software License, Version 2.0
+# org.codehaus.jackson:jackson-mapper-asl
+Data Mapper for Jackson (http://jackson.codehaus.org)
+- license: The Apache Software License, Version 2.0
+# org.codehaus.jackson:jackson-xc
+Xml Compatibility extensions for Jackson (http://jackson.codehaus.org)
+- license: The Apache Software License, Version 2.0
+
+# org.codehaus.mojo:animal-sniffer-annotations
+Animal Sniffer Annotations
+- license: MIT license
+  (licenses-binary/LICENSE-mit-license.txt)
+
+# org.codehaus.woodstox:stax2-api
+Stax2 API (http://github.com/FasterXML/stax2-api)
+- license: The BSD License
+  (licenses-binary/LICENSE-bsd-2-clause.txt)
+
+# org.codelibs:jhighlight
+JHighlight (https://github.com/codelibs/jhighlight)
+- license: CDDL, v1.0
+  (licenses-binary/LICENSE-cddl-v1.0.txt)
+
+# org.eclipse.jetty:jetty-alpn-client
+Jetty :: ALPN :: Client
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-alpn-java-client
+Jetty :: ALPN :: JDK9 Client Implementation
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-client
+Jetty :: Asynchronous HTTP Client (http://www.eclipse.org/jetty)
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-continuation
+Jetty :: Continuation
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-http
+Jetty :: Http Utility (http://www.eclipse.org/jetty)
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-http
+Jetty :: IO Utility (http://www.eclipse.org/jetty)
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-io
+Jetty :: Security
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-server
+Jetty :: Server Core
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-servlet
+Jetty :: Servlet Handling
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-util
+Jetty :: Utilities (http://www.eclipse.org/jetty)
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-util
+# org.eclipse.jetty:jetty-util-ajax
+Jetty :: Utilities :: Ajax(JSON)
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-webapp
+Jetty :: Webapp Application Support
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-xml
+Jetty :: XML utilities (http://www.eclipse.org/jetty)
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty:jetty-xml
+Jetty :: XML utilities
+- license: Apache Software License - Version 2.0
+
+# org.eclipse.jetty.http2:http2-client
+Jetty :: HTTP2 :: Client
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty.http2:http2-common
+Jetty :: HTTP2 :: Common
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty.http2:http2-hpack
+Jetty :: HTTP2 :: HPACK
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty.http2:http2-http-client-transport
+Jetty :: HTTP2 :: HTTP Client Transport
+- license: Apache Software License - Version 2.0
+
+# org.eclipse.jetty.websocket:websocket-api
+Jetty :: Websocket :: API
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty.websocket:websocket-client
+Jetty :: Websocket :: Client
+- license: Apache Software License - Version 2.0
+# org.eclipse.jetty.websocket:websocket-common
+Jetty :: Websocket :: Common
+- license: Apache Software License - Version 2.0
+
+# org.eclipse.rdf4j:rdf4j-http-client
+RDF4J: HTTP client
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-http-protocol
+RDF4J: HTTP protocol
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-model
+RDF4J: Model
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-model-api
+RDF4J: Model API
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-model-vocabulary
+RDF4J: RDF Vocabularies
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-query
+RDF4J: Query
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-queryalgebra-evaluation
+RDF4J: Query algebra - evaluation
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-queryalgebra-model
+RDF4J: Query algebra - model
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-queryparser-api
+RDF4J: Query parser - API
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-queryparser-sparql
+RDF4J: Query parser - SPARQL
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-queryresultio-api
+RDF4J: Query result IO - API
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-queryresultio-binary
+RDF4J: Query result IO - binary
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-queryresultio-sparqlxml
+RDF4J: Query result IO - SPARQL/XML
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-repository-api
+RDF4J: Repository - API
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-repository-sail
+RDF4J: SailRepository
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-repository-sparql
+RDF4J: SPARQL Repository
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-api
+RDF4J: Rio - API
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-binary
+RDF4J: Rio - Binary
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-datatypes
+RDF4J: Rio - Datatypes
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-hdt
+RDF4J: Rio - HDT
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-jsonld
+RDF4J: Rio - JSON-LD
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-languages
+RDF4J: Rio - Languages
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-n3
+RDF4J: Rio - N3 (writer-only)
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-nquads
+RDF4J: Rio - N-Quads
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-ntriples
+RDF4J: Rio - N-Triples
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-rdfjson
+RDF4J: Rio - RDF/JSON
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-rdfxml
+RDF4J: Rio - RDF/XML
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-trig
+RDF4J: Rio - TriG
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-trix
+RDF4J: Rio - TriX
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-rio-turtle
+RDF4J: Rio - Turtle
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-sail-api
+RDF4J: Sail API
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-sail-base
+RDF4J: Sail base implementations
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-sail-memory
+RDF4J: MemoryStore
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.eclipse.rdf4j:rdf4j-util
+RDF4J: util
+- license: Eclipse Distribution License v1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# org.fusesource.leveldbjni:leveldbjni-all
+LevelDB JNI (https://github.com/fusesource/leveldbjni)
+- license: The BSD 3-Clause License
+  (licenses-binary/LICENSE-bsd-3-clause.txt)
+
+# org.gagravarr:vorbis-java-core
+Ogg and Vorbis for Java, Core (https://github.com/Gagravarr/VorbisJava)
+- license: The Apache Software License, Version 2.0
+# org.gagravarr:vorbis-java-tika
+Apache Tika plugin for Ogg, Vorbis and FLAC (https://github.com/Gagravarr/VorbisJava)
+- license: The Apache Software License, Version 2.0
+
+# org.glassfish.jaxb:jaxb-runtime
+JAXB Runtime (https://eclipse-ee4j.github.io/jaxb-ri/)
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+# org.glassfish.jaxb:txw2
+TXW2 Runtime (https://eclipse-ee4j.github.io/jaxb-ri/)
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# org.hdrhistogram:HdrHistogram
+HdrHistogram (http://hdrhistogram.github.io/HdrHistogram/)
+- license: Public Domain, per Creative Commons CC0
+  (licenses-binary/LICENSE-public-domain-per-creative-commons-cc0.txt)
+
+# org.htmlparser:htmlparser
+HTML Parser (http://htmlparser.org)
+- license: Common Public License
+  (licenses-binary/LICENSE-common-public-license.txt)
+
+# org.ini4j:ini4j
+ini4j (http://www.ini4j.org)
+- license: Apache 2
+
+# org.jdom:jdom
+JDOM (http://www.jdom.org)
+- license: Similar to Apache License but with the acknowledgment clause removed
+
+# org.jetbrains:annotations
+IntelliJ IDEA Annotations (http://www.jetbrains.org)
+- license: The Apache Software License, Version 2.0
+
+# org.jetbrains.kotlin:kotlin-stdlib
+org.jetbrains.kotlin:kotlin-stdlib (https://kotlinlang.org/)
+- license: The Apache License, Version 2.0
+# org.jetbrains.kotlin:kotlin-stdlib-common
+org.jetbrains.kotlin:kotlin-stdlib-common (https://kotlinlang.org/)
+- license: The Apache License, Version 2.0
+# org.jetbrains.kotlin:kotlin-stdlib-jdk7
+org.jetbrains.kotlin:kotlin-stdlib-jdk7 (https://kotlinlang.org/)
+- license: The Apache License, Version 2.0
+# org.jetbrains.kotlin:kotlin-stdlib-jdk8
+org.jetbrains.kotlin:kotlin-stdlib-jdk8 (https://kotlinlang.org/)
+- license: The Apache License, Version 2.0
+
+# org.jline:jline
+JLine Bundle
+- license: The BSD License
+  (licenses-binary/LICENSE-bsd-2-clause.txt)
+
+# org.jsoup:jsoup
+jsoup Java HTML Parser (https://jsoup.org/)
+- license: The MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+
+# org.jvnet.staxex:stax-ex
+Extended StAX API
+- license: Eclipse Distribution License - v 1.0
+  (licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+# org.lz4:lz4-java
+LZ4 and xxHash (https://github.com/lz4/lz4-java)
+- license: The Apache Software License, Version 2.0
+
+# org.mapdb:mapdb
+mapdb (http://www.mapdb.org)
+- license: The Apache Software License, Version 2.0
+
+# org.netpreserve.commons:webarchive-commons
+webarchive-commons (https://github.com/iipc/webarchive-commons)
+- license: The Apache Software License, Version 2.0
+
+# org.ow2.asm:asm
+asm (http://asm.ow2.io/)
+- license: BSD-3-Clause
+  (licenses-binary/LICENSE-bsd-3-clause.txt)
+
+# org.rypt:f8
+F8 (https://github.com/HansBrende/f8)
+- license: The MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+
+# org.scala-lang:scala-library
+BSD 3-Clause (http://www.scala-lang.org/)
+- license: BSD 3-Clause
+  (licenses-binary/LICENSE-bsd-3-clause.txt)
+# org.scala-lang:scala-reflect
+BSD 3-Clause (http://www.scala-lang.org/)
+- license: BSD 3-Clause
+  (licenses-binary/LICENSE-bsd-3-clause.txt)
+
+# org.seleniumhq.selenium:htmlunit-driver
+htmlunit-driver (https://github.com/SeleniumHQ/htmlunit-driver)
+- license: The Apache Software License, Version 2.0
+# org.seleniumhq.selenium:selenium-api
+selenium-api (http://www.seleniumhq.org/)
+- license: The Apache Software License, Version 2.0
+# org.seleniumhq.selenium:selenium-chrome-driver
+selenium-chrome-driver (http://www.seleniumhq.org/)
+- license: The Apache Software License, Version 2.0
+# org.seleniumhq.selenium:selenium-edge-driver
+selenium-edge-driver (http://www.seleniumhq.org/)
+- license: The Apache Software License, Version 2.0
+# org.seleniumhq.selenium:selenium-firefox-driver
+selenium-firefox-driver (http://www.seleniumhq.org/)
+- license: The Apache Software License, Version 2.0
+# org.seleniumhq.selenium:selenium-ie-driver
+selenium-ie-driver (http://www.seleniumhq.org/)
+- license: The Apache Software License, Version 2.0
+# org.seleniumhq.selenium:selenium-java
+selenium-java (http://www.seleniumhq.org/)
+- license: The Apache Software License, Version 2.0
+# org.seleniumhq.selenium:selenium-opera-driver
+selenium-opera-driver (http://www.seleniumhq.org/)
+- license: The Apache Software License, Version 2.0
+# org.seleniumhq.selenium:selenium-remote-driver
+selenium-remote-driver (http://www.seleniumhq.org/)
+- license: The Apache Software License, Version 2.0
+# org.seleniumhq.selenium:selenium-safari-driver
+selenium-safari-driver (http://www.seleniumhq.org/)
+- license: The Apache Software License, Version 2.0
+# org.seleniumhq.selenium:selenium-support
+selenium-support (http://www.seleniumhq.org/)
+- license: The Apache Software License, Version 2.0
+
+# org.semarglproject:semargl-core
+Semargl: Core
+- license: Apache Public License 2.0
+# org.semarglproject:semargl-rdf
+Semargl: RDF
+- license: Apache Public License 2.0
+# org.semarglproject:semargl-rdf4j
+Semargl: RDF4J Integration
+- license: Apache Public License 2.0
+# org.semarglproject:semargl-rdfa
+Semargl: RDFa
+- license: Apache Public License 2.0
+
+# org.slf4j:jcl-over-slf4j
+JCL 1.2 implemented over SLF4J (http://www.slf4j.org)
+- license: Apache License, Version 2.0
+# org.slf4j:jcl-over-slf4j
+JCL 1.2 implemented over SLF4J (http://www.slf4j.org)
+- license: MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+# org.slf4j:slf4j-api
+SLF4J API Module (http://www.slf4j.org)
+- license: MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+# org.slf4j:slf4j-reload4j
+SLF4J Reload4j Binding (http://reload4j.qos.ch)
+- license: MIT License
+  (licenses-binary/LICENSE-mit-license.txt)
+
+# org.tallison:jmatio
+JMatIO (https://github.com/tballison/jmatio)
+- license: BSD
+  (licenses-binary/LICENSE-bsd.txt)
+
+# org.tukaani:xz
+XZ for Java (https://tukaani.org/xz/java.html)
+- license: Public Domain
+  (licenses-binary/LICENSE-public-domain.txt)
+
+# org.xerial.snappy:snappy-java
+snappy-java (https://github.com/xerial/snappy-java)
+- license: The Apache Software License, Version 2.0
+# org.xerial.snappy:snappy-java
+Apache-2.0 (https://github.com/xerial/snappy-java)
+- license: Apache-2.0
+
+# org.yaml:snakeyaml
+SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml)
+- license: Apache License, Version 2.0
+# org.yaml:snakeyaml
+SnakeYAML (http://www.snakeyaml.org)
+- license: Apache License, Version 2.0
+
+# stax:stax-api
+StAX API (http://stax.codehaus.org/)
+- license: The Apache Software License, Version 2.0
+
+# wsdl4j:wsdl4j
+WSDL4J (http://sf.net/projects/wsdl4j)
+- license: CPL
+  (licenses-binary/LICENSE-cpl.txt)
+
+# xalan:serializer
+Xalan Java Serializer (http://xml.apache.org/xalan-j/)
+- license: The Apache Software License, Version 2.0
+# xalan:xalan
+Xalan Java (http://xml.apache.org/xalan-j/)
+- license: The Apache Software License, Version 2.0
+
+# xerces:xercesImpl
+Xerces2-j (https://xerces.apache.org/xerces2-j/)
+- license: The Apache Software License, Version 2.0
+
+# xml-apis:xml-apis
+XML Commons External Components XML APIs (http://xml.apache.org/commons/components/external/)
+- license: The Apache Software License, Version 2.0
+
+# xml-resolver:xml-resolver
+XML Commons Resolver Component (http://xml.apache.org/commons/components/resolver/)
+- license: The Apache Software License, Version 2.0
+
+# xmlpull:xmlpull
+XML Pull Parsing API (http://www.xmlpull.org)
+- license: Public Domain
+  (licenses-binary/LICENSE-public-domain.txt)
+
+# xpp3:xpp3_min
+MXP1: Xml Pull Parser 3rd Edition (XPP3) (http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/)
+- license: Indiana University Extreme! Lab Software License, vesion 1.1.1
+  (licenses-binary/LICENSE-indiana-university-extreme-lab-software-license-vesion-1.1.1.txt)

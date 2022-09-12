@@ -515,9 +515,9 @@ public class Injector extends NutchTool implements Tool {
         " -update   \tUpdate existing crawldb records with the injected records. Old metadata is preserved");
     System.err.println();
     System.err.println(
-        " -nonormalize\tDo not normalize URLs before injecting");
+        " -noNormalize\tDo not normalize URLs before injecting");
     System.err.println(
-        " -nofilter \tDo not apply URL filters to injected URLs");
+        " -noFilter \tDo not apply URL filters to injected URLs");
     System.err.println(
         " -filterNormalizeAll\n"
         + "           \tNormalize and filter all URLs including the URLs of existing CrawlDb records");
@@ -548,18 +548,18 @@ public class Injector extends NutchTool implements Tool {
     boolean filterNormalizeAll = false;
 
     for (int i = 2; i < args.length; i++) {
-      if (args[i].equals("-overwrite")) {
+      if (args[i].equalsIgnoreCase("-overwrite")) {
         overwrite = true;
-      } else if (args[i].equals("-update")) {
+      } else if (args[i].equalsIgnoreCase("-update")) {
         update = true;
-      } else if (args[i].equals("-noNormalize")) {
+      } else if (args[i].equalsIgnoreCase("-noNormalize")) {
         normalize = false;
-      } else if (args[i].equals("-noFilter")) {
+      } else if (args[i].equalsIgnoreCase("-noFilter")) {
         filter = false;
-      } else if (args[i].equals("-filterNormalizeAll")) {
+      } else if (args[i].equalsIgnoreCase("-filterNormalizeAll")) {
         filterNormalizeAll = true;
       } else {
-        LOG.info("Injector: Found invalid argument \"" + args[i] + "\"\n");
+        LOG.error("Injector: Found invalid argument \"{}\"", args[i]);
         usage();
         return -1;
       }

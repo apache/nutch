@@ -15,5 +15,11 @@
  * limitations under the License.
  */
 
-/** Protocol plugin which supports retrieving documents via the http protocol.*/
+/**
+ * Protocol plugin which supports retrieving documents via HTTP/HTTPS using
+ * <a href="https://www.selenium.dev/">Selenium</a> and the
+ * <a href="https://github.com/SeleniumHQ/htmlunit-driver">HtmlUnitDriver web
+ * driver</a> for the for the
+ * <a href="https://htmlunit.sourceforge.io/">HtmlUnit</a> headless browser.
+ */
 package org.apache.nutch.protocol.htmlunit;

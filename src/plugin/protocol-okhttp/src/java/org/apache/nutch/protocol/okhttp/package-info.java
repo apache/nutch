@@ -16,6 +16,8 @@
  */
 
 /**
- * Protocol plugin based on <a href="https://github.com/square/okhttp">okhttp</a>, supports http, https, http/2.
+ * Protocol plugin for HTTP/HTTPS based on
+ * <a href="https://github.com/square/okhttp">okhttp</a>, supports HTTP 1.1
+ * and/or http/2.
  */
 package org.apache.nutch.protocol.okhttp;

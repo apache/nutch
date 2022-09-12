@@ -17,6 +17,6 @@
 
 /** 
  * Common API used by HTTP plugins ({@link org.apache.nutch.protocol.http http},
- * {@link org.apache.nutch.protocol.httpclient httpclient})
+ * {@link org.apache.nutch.protocol.httpclient httpclient}, etc.)
  */
 package org.apache.nutch.protocol.http.api;

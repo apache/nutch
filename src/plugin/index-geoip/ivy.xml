@@ -36,12 +36,11 @@
   </publications>
 
   <dependencies>
-    <dependency org="com.maxmind.geoip2" name="geoip2" rev="2.12.0" >
-      <!-- Exlude due to classpath issues -->
-      <exclude org="org.apache.httpcomponents" name="httpclient" />
-      <exclude org="org.apache.httpcomponents" name="httpcore" />
-      <exclude org="commons-codec" name="commons-codec" />
-      <exclude org="commons-logging" name="commons-logging" />
+    <dependency org="com.maxmind.geoip2" name="geoip2" rev="3.0.1">
+      <!-- Exlude libs provided in Nutch core -->
+      <exclude org="com.fasterxml.jackson.core" name="jackson-annotations" />
+      <exclude org="com.fasterxml.jackson.core" name="jackson-databind" />
+      <exclude org="com.fasterxml.jackson.core" name="jackson-core" />
     </dependency>
   </dependencies>
   

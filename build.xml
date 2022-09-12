@@ -16,6 +16,7 @@
  limitations under the License.
 -->
 <project name="${name}" default="runtime"
+         xmlns:if="ant:if"
          xmlns:ivy="antlib:org.apache.ivy.ant"
          xmlns:artifact="antlib:org.apache.maven.artifact.ant"
          xmlns:rat="antlib:org.apache.rat.anttasks"
@@ -37,7 +38,7 @@
   <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
   <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
-  <property name="dependency-check-ant.version" value="6.1.0" />
+  <property name="dependency-check-ant.version" value="7.1.1" />
   <property name="dependency-check-ant.home" value="${ivy.dir}/dependency-check-ant" />
   <property name="dependency-check-ant.jar" value="${dependency-check-ant.home}/dependency-check-ant.jar" />
 
@@ -47,9 +48,13 @@
   <property name="spotbugs.home" value="${ivy.dir}/spotbugs-${spotbugs.version}" />
   <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
-  <property name="apache-rat.version" value="0.13" />
+  <property name="apache-rat.version" value="0.14" />
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
+
+  <condition property="using.jdk.11">
+    <matches string="${java.version}" pattern="11.+" casesensitive="false" />
+  </condition>
 
   <!-- the normal classpath -->
   <path id="classpath">
@@ -164,17 +169,6 @@
   <!-- build the main artifact -->
   <jar jarfile="${maven-jar}" basedir="${build.classes}" />
 
-    <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
-      <condition>
-        <or>
-          <matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" />
-          <matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" />
-          <equals arg1="${ant.java.version}" arg2="1.6" />
-          <equals arg1="${ant.java.version}" arg2="1.5" />
-        </or>
-      </condition>
-    </fail>
-
     <!-- build the javadoc artifact -->
     <javadoc
       destdir="${release.dir}/javadoc"
@@ -191,9 +185,15 @@
       <arg value="${javadoc.proxy.host}"/>
       <arg value="${javadoc.proxy.port}"/>
       <arg value="--allow-script-in-comments"/>
+      <!--
+          argument -no-module-directories required on JDK 11
+          otherwise the Javascript search is broken,
+          see https://bugs.openjdk.org/browse/JDK-8215291
+      -->
+      <arg value="--no-module-directories" if:set="using.jdk.11"/>
 
       <packageset dir="${src.dir}"/>
-      <packageset dir="${plugins.dir}/any23/src/java/" />
+      <packageset dir="${plugins.dir}/any23/src/java/"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
@@ -226,7 +226,6 @@
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
       <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
-      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-debug/src/java"/>
@@ -307,73 +306,61 @@
     </jar>
   </target>
 
-  <!-- ================================================================== -->
-  <!-- Deploy to Apache Nexus                                             -->
-  <!-- ================================================================== -->
-  <!--                                                                    -->
-  <!-- ================================================================== -->
-  <target name="deploy" depends="release" description="--> deploy to Apache Nexus">
-
-  <!-- generate a pom file -->
-  <ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml" templatefile="ivy/mvn.template">
-     <mapping conf="default" scope="compile"/>
-     <mapping conf="runtime" scope="runtime"/>
-  </ivy:makepom>
-
-  <!-- sign and deploy the main artifact -->
-  <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
-    <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
-    <arg value="-Durl=${maven-repository-url}" />
-    <arg value="-DrepositoryId=${maven-repository-id}" />
-    <arg value="-DpomFile=pom.xml" />
-    <arg value="-Dfile=${maven-jar}" />
-    <arg value="-Papache-release" />
-  </artifact:mvn>
-
-  <!-- sign and deploy the sources artifact -->
-  <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
-    <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
-    <arg value="-Durl=${maven-repository-url}" />
-    <arg value="-DrepositoryId=${maven-repository-id}" />
-    <arg value="-DpomFile=pom.xml" />
-    <arg value="-Dfile=${maven-sources-jar}" />
-    <arg value="-Dclassifier=sources" />
-    <arg value="-Papache-release" />
-  </artifact:mvn>
-
-  <!-- sign and deploy the javadoc artifact -->
-  <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
-    <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-    <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
-    <arg value="-Durl=${maven-repository-url}" />
-    <arg value="-DrepositoryId=${maven-repository-id}" />
-    <arg value="-DpomFile=pom.xml" />
-    <arg value="-Dfile=${maven-javadoc-jar}" />
-    <arg value="-Dclassifier=javadoc" />
-    <arg value="-Papache-release" />
-  </artifact:mvn>
-  </target>
-
-  <!-- ================================================================== -->
-  <!-- Generate REST API Documentation with Miredot                       -->
-  <!-- ================================================================== -->
-  <target name="restdocs" description="--> generate REST API Documentation with Miredot">
-
+  <target name="makepom" depends="" description="--> generate pom file for deployment">
     <!-- generate a pom file -->
     <ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml" templatefile="ivy/mvn.template">
       <mapping conf="default" scope="compile"/>
       <mapping conf="runtime" scope="runtime"/>
     </ivy:makepom>
+  </target>
 
-    <!--artifact:dependencies pathId="dependency.classpath">
-      <dependency groupId="log4j" artifactId="log4j" version="1.2.15" >
-        <exclusion groupId="javax.jms" artifactId="jms" />
-        <exclusion groupId="com.sun.jdmk" artifactId="jmxtools" />
-        <exclusion groupId="com.sun.jmx" artifactId="jmxri" />
-      </dependency>
-    </artifact:dependencies-->
+  <!-- ================================================================== -->
+  <!-- Deploy to Apache Nexus                                             -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="deploy" depends="release, makepom" description="--> deploy to Apache Nexus">
+
+    <!-- sign and deploy the main artifact -->
+    <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
+      <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
+      <arg value="-Durl=${maven-repository-url}" />
+      <arg value="-DrepositoryId=${maven-repository-id}" />
+      <arg value="-DpomFile=pom.xml" />
+      <arg value="-Dfile=${maven-jar}" />
+      <arg value="-Papache-release" />
+    </artifact:mvn>
+
+    <!-- sign and deploy the sources artifact -->
+    <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
+      <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
+      <arg value="-Durl=${maven-repository-url}" />
+      <arg value="-DrepositoryId=${maven-repository-id}" />
+      <arg value="-DpomFile=pom.xml" />
+      <arg value="-Dfile=${maven-sources-jar}" />
+      <arg value="-Dclassifier=sources" />
+      <arg value="-Papache-release" />
+    </artifact:mvn>
+
+    <!-- sign and deploy the javadoc artifact -->
+    <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
+      <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
+      <arg value="-Durl=${maven-repository-url}" />
+      <arg value="-DrepositoryId=${maven-repository-id}" />
+      <arg value="-DpomFile=pom.xml" />
+      <arg value="-Dfile=${maven-javadoc-jar}" />
+      <arg value="-Dclassifier=javadoc" />
+      <arg value="-Papache-release" />
+    </artifact:mvn>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Generate REST API Documentation with Miredot                       -->
+  <!-- ================================================================== -->
+  <target name="restdocs" depends="makepom" description="--> generate REST API Documentation with Miredot">
 
     <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
       <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
@@ -571,13 +558,13 @@
   <!-- target: resolve  ================================================= -->
   <target name="resolve-default" depends="clean-default-lib, init" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="default" log="download-only"/>
-    <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision](-[classifier]).[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
   </target>
 
   <target name="resolve-test" depends="clean-test-lib, init" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="test" log="download-only"/>
-    <ivy:retrieve pattern="${test.build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <ivy:retrieve pattern="${test.build.lib.dir}/[artifact]-[revision](-[classifier]).[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
   </target>
 
@@ -698,16 +685,6 @@
   <!-- Documentation                                                      -->
   <!-- ================================================================== -->
   <target name="javadoc" depends="compile" description="--> generate Javadoc">
-    <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
-      <condition>
-        <or>
-          <matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" />
-          <matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" />
-          <equals arg1="${ant.java.version}" arg2="1.6" />
-          <equals arg1="${ant.java.version}" arg2="1.5" />
-        </or>
-      </condition>
-    </fail>
     <mkdir dir="${build.javadoc}"/>
     <mkdir dir="${build.javadoc}/resources"/>
     <javadoc
@@ -726,6 +703,12 @@
       <arg value="${javadoc.proxy.host}"/>
       <arg value="${javadoc.proxy.port}"/>
       <arg value="--allow-script-in-comments"/>
+      <!--
+          argument -no-module-directories required on JDK 11
+          otherwise the Javascript search is broken,
+          see https://bugs.openjdk.org/browse/JDK-8215291
+      -->
+      <arg value="--no-module-directories" if:set="using.jdk.11"/>
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/any23/src/java/" />
@@ -761,7 +744,6 @@
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
       <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
-      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
       <packageset dir="${plugins.dir}/parsefilter-debug/src/java"/>
@@ -884,6 +866,12 @@
     <copy todir="${src.dist.version.dir}/" file="build.xml"/>
     <copy todir="${src.dist.version.dir}/" file="default.properties"/>
 
+    <copy todir="${src.dist.version.dir}/" file="LICENSE-binary"/>
+    <copy todir="${src.dist.version.dir}/" file="NOTICE-binary"/>
+    <copy todir="${src.dist.version.dir}/licenses-binary" includeEmptyDirs="true">
+      <fileset dir="licenses-binary"/>
+    </copy>
+
   </target>
 
  <target name="package-bin" depends="runtime, javadoc" description="--> generate binary distribution package">
@@ -920,6 +908,12 @@
       <fileset dir=".">
         <include name="*.txt" />
       </fileset>
+    </copy>
+
+    <copy todir="${bin.dist.version.dir}/" file="LICENSE-binary"/>
+    <copy todir="${bin.dist.version.dir}/" file="NOTICE-binary"/>
+    <copy todir="${bin.dist.version.dir}/licenses-binary" includeEmptyDirs="true">
+      <fileset dir="licenses-binary"/>
     </copy>
 
     <copy todir="${bin.dist.version.dir}/plugins" includeEmptyDirs="true">
@@ -1263,8 +1257,6 @@
         <source path="${plugins.dir}/parse-js/src/test/" />
         <source path="${plugins.dir}/parse-metatags/src/java/" />
         <source path="${plugins.dir}/parse-metatags/src/test/" />
-        <source path="${plugins.dir}/parse-swf/src/java/" />
-        <source path="${plugins.dir}/parse-swf/src/test/" />
         <source path="${plugins.dir}/parse-tika/src/java/" />
         <source path="${plugins.dir}/parse-tika/src/test/" />
         <source path="${plugins.dir}/parse-zip/src/java/" />

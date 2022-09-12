@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * <li><code>http.filter.ipaddress.exclude</code> defines excluded IP address
  * ranges.
  * </ul>
- * 
+ *
  * IP ranges can be defined as
  * <ul>
  * <li>IP address, e.g. <code>127.0.0.1</code> or <code>::1</code> (IPv6)</li>
@@ -49,10 +49,10 @@ import org.slf4j.LoggerFactory;
  * addresses for which {@link InetAddress#isLoopbackAddress()} is true</li>
  * <li><code>sitelocal</code> applies to all IP
  * addresses for which {@link InetAddress#isSiteLocalAddress()} is true</li>
- * </ul> 
+ * </ul>
  *
  * Multiple IP ranges are separated by a comma, e.g. <code>loopback,sitelocal,fd00::/8</code>
- * 
+ *
  */
 public class IPFilterRules {
 

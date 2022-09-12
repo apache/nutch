@@ -16,7 +16,8 @@
  */
 
 /**
- * Parse Flash SWF files.
+ * Handler implementations to interact with
+ * <a href="https://www.selenium.dev/">Selenium</a> for
+ * {@link org.apache.nutch.protocol.interactiveselenium}.
  */
-package org.apache.nutch.parse.swf;
-
+package org.apache.nutch.protocol.interactiveselenium.handlers;

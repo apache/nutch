@@ -1,0 +1,810 @@
+
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+
+
+--------------------------------------------------------------------------------
+This product bundles some components that are also licensed under
+the Apache License Version 2.0:
+
+
+ch.qos.reload4j:reload4j
+com.101tec:zkclient
+com.amazonaws:aws-java-sdk-cloudsearch
+com.amazonaws:aws-java-sdk-core
+com.beust:jcommander
+com.carrotsearch:hppc
+com.drewnoakes:metadata-extractor
+com.epam:parso
+com.fasterxml.jackson.core:jackson-annotations
+com.fasterxml.jackson.core:jackson-core
+com.fasterxml.jackson.core:jackson-databind
+com.fasterxml.jackson.dataformat:jackson-dataformat-cbor
+com.fasterxml.jackson.dataformat:jackson-dataformat-smile
+com.fasterxml.jackson.dataformat:jackson-dataformat-yaml
+com.fasterxml.jackson.jaxrs:jackson-jaxrs-base
+com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider
+com.fasterxml.jackson.module:jackson-module-jaxb-annotations
+com.fasterxml.woodstox:woodstox-core
+com.github.ben-manes.caffeine:caffeine
+com.github.crawler-commons:crawler-commons
+com.github.spullara.mustache.java:compiler
+com.github.stephenc.jcip:jcip-annotations
+com.github.vsonnier:hppcrt
+com.google.code.findbugs:jsr305
+com.google.code.gson:gson
+com.google.errorprone:error_prone_annotations
+com.google.guava:failureaccess
+com.google.guava:guava
+com.google.guava:listenablefuture
+com.google.inject:guice
+com.google.inject.extensions:guice-servlet
+com.google.j2objc:j2objc-annotations
+com.healthmarketscience.jackcess:jackcess
+com.healthmarketscience.jackcess:jackcess-encrypt
+com.intellij:annotations
+com.maxmind.db:maxmind-db
+com.maxmind.geoip2:geoip2
+com.nimbusds:nimbus-jose-jwt
+com.opera:operadriver
+com.opera:operalaunchers
+com.optimaize.languagedetector:language-detector
+com.pff:java-libpst
+com.rabbitmq:amqp-client
+com.rometools:rome
+com.rometools:rome-utils
+com.squareup.okhttp3:okhttp
+com.squareup.okhttp3:okhttp-brotli
+com.squareup.okio:okio
+com.tdunning:t-digest
+com.typesafe.scala-logging:scala-logging_2.12
+com.yammer.metrics:metrics-core
+com.zaxxer:SparseBitSet
+commons-beanutils:commons-beanutils
+commons-beanutils:commons-beanutils-core
+commons-cli:commons-cli
+commons-codec:commons-codec
+commons-collections:commons-collections
+commons-configuration:commons-configuration
+commons-daemon:commons-daemon
+commons-digester:commons-digester
+commons-el:commons-el
+commons-httpclient:commons-httpclient
+commons-io:commons-io
+commons-jxpath:commons-jxpath
+commons-lang:commons-lang
+commons-logging:commons-logging
+commons-net:commons-net
+de.l3s.boilerpipe:boilerpipe
+de.vandermeer:ascii-utf-themes
+de.vandermeer:asciitable
+de.vandermeer:char-translation
+de.vandermeer:skb-interfaces
+io.netty:netty
+io.netty:netty-all
+io.netty:netty-buffer
+io.netty:netty-codec
+io.netty:netty-codec-dns
+io.netty:netty-codec-haproxy
+io.netty:netty-codec-http
+io.netty:netty-codec-http2
+io.netty:netty-codec-memcache
+io.netty:netty-codec-mqtt
+io.netty:netty-codec-redis
+io.netty:netty-codec-smtp
+io.netty:netty-codec-socks
+io.netty:netty-codec-stomp
+io.netty:netty-codec-xml
+io.netty:netty-common
+io.netty:netty-handler
+io.netty:netty-handler-proxy
+io.netty:netty-resolver
+io.netty:netty-resolver-dns
+io.netty:netty-resolver-dns-classes-macos
+io.netty:netty-resolver-dns-native-macos
+io.netty:netty-transport
+io.netty:netty-transport-classes-epoll
+io.netty:netty-transport-classes-kqueue
+io.netty:netty-transport-native-epoll
+io.netty:netty-transport-native-kqueue
+io.netty:netty-transport-native-unix-common
+io.netty:netty-transport-rxtx
+io.netty:netty-transport-sctp
+io.netty:netty-transport-udt
+javax.inject:javax.inject
+joda-time:joda-time
+net.arnx:jsonic
+net.bytebuddy:byte-buddy
+net.minidev:accessors-smart
+net.minidev:json-smart
+net.sourceforge.htmlunit:htmlunit
+net.sourceforge.htmlunit:htmlunit-cssparser
+net.sourceforge.htmlunit:neko-htmlunit
+net.sourceforge.nekohtml:nekohtml
+net.sourceforge.owlapi:owlapi-api
+net.sourceforge.owlapi:owlapi-apibinding
+net.sourceforge.owlapi:owlapi-impl
+net.sourceforge.owlapi:owlapi-parsers
+net.sourceforge.owlapi:owlapi-rio
+net.sourceforge.owlapi:owlapi-tools
+org.apache.any23:apache-any23-api
+org.apache.any23:apache-any23-core
+org.apache.any23:apache-any23-csvutils
+org.apache.any23:apache-any23-encoding
+org.apache.any23:apache-any23-mime
+org.apache.avro:avro
+org.apache.commons:commons-collections4
+org.apache.commons:commons-compress
+org.apache.commons:commons-configuration2
+org.apache.commons:commons-csv
+org.apache.commons:commons-exec
+org.apache.commons:commons-jexl3
+org.apache.commons:commons-lang3
+org.apache.commons:commons-math
+org.apache.commons:commons-math3
+org.apache.commons:commons-rdf-api
+org.apache.commons:commons-text
+org.apache.curator:curator-client
+org.apache.curator:curator-framework
+org.apache.curator:curator-recipes
+org.apache.cxf:cxf-core
+org.apache.cxf:cxf-rt-bindings-soap
+org.apache.cxf:cxf-rt-bindings-xml
+org.apache.cxf:cxf-rt-databinding-jaxb
+org.apache.cxf:cxf-rt-frontend-jaxrs
+org.apache.cxf:cxf-rt-frontend-jaxws
+org.apache.cxf:cxf-rt-frontend-simple
+org.apache.cxf:cxf-rt-security
+org.apache.cxf:cxf-rt-transports-http
+org.apache.cxf:cxf-rt-transports-http-jetty
+org.apache.cxf:cxf-rt-ws-addr
+org.apache.cxf:cxf-rt-ws-policy
+org.apache.cxf:cxf-rt-wsdl
+org.apache.geronimo.specs:geronimo-jta_1.1_spec
+org.apache.hadoop:hadoop-annotations
+org.apache.hadoop:hadoop-auth
+org.apache.hadoop:hadoop-common
+org.apache.hadoop:hadoop-hdfs
+org.apache.hadoop:hadoop-hdfs-client
+org.apache.hadoop:hadoop-mapreduce-client-common
+org.apache.hadoop:hadoop-mapreduce-client-core
+org.apache.hadoop:hadoop-mapreduce-client-jobclient
+org.apache.hadoop:hadoop-yarn-api
+org.apache.hadoop:hadoop-yarn-client
+org.apache.hadoop:hadoop-yarn-common
+org.apache.hadoop.thirdparty:hadoop-shaded-guava
+org.apache.hadoop.thirdparty:hadoop-shaded-protobuf_3_7
+org.apache.httpcomponents:fluent-hc
+org.apache.httpcomponents:httpasyncclient
+org.apache.httpcomponents:httpclient
+org.apache.httpcomponents:httpclient-cache
+org.apache.httpcomponents:httpclient-osgi
+org.apache.httpcomponents:httpcore
+org.apache.httpcomponents:httpcore-nio
+org.apache.httpcomponents:httpcore-osgi
+org.apache.httpcomponents:httpmime
+org.apache.james:apache-mime4j-core
+org.apache.james:apache-mime4j-dom
+org.apache.kafka:connect-api
+org.apache.kafka:connect-json
+org.apache.kafka:kafka-clients
+org.apache.kafka:kafka_2.12
+org.apache.kerby:kerb-admin
+org.apache.kerby:kerb-client
+org.apache.kerby:kerb-common
+org.apache.kerby:kerb-core
+org.apache.kerby:kerb-crypto
+org.apache.kerby:kerb-identity
+org.apache.kerby:kerb-server
+org.apache.kerby:kerb-simplekdc
+org.apache.kerby:kerb-util
+org.apache.kerby:kerby-asn1
+org.apache.kerby:kerby-config
+org.apache.kerby:kerby-pkix
+org.apache.kerby:kerby-util
+org.apache.kerby:kerby-xdr
+org.apache.kerby:token-provider
+org.apache.logging.log4j:log4j-api
+org.apache.logging.log4j:log4j-core
+org.apache.logging.log4j:log4j-slf4j-impl
+org.apache.lucene:lucene-analyzers-common
+org.apache.lucene:lucene-backward-codecs
+org.apache.lucene:lucene-core
+org.apache.lucene:lucene-grouping
+org.apache.lucene:lucene-highlighter
+org.apache.lucene:lucene-join
+org.apache.lucene:lucene-memory
+org.apache.lucene:lucene-misc
+org.apache.lucene:lucene-queries
+org.apache.lucene:lucene-queryparser
+org.apache.lucene:lucene-sandbox
+org.apache.lucene:lucene-spatial-extras
+org.apache.lucene:lucene-spatial3d
+org.apache.lucene:lucene-suggest
+org.apache.mahout:mahout-core
+org.apache.mahout:mahout-math
+org.apache.neethi:neethi
+org.apache.pdfbox:fontbox
+org.apache.pdfbox:jbig2-imageio
+org.apache.pdfbox:jempbox
+org.apache.pdfbox:pdfbox
+org.apache.pdfbox:pdfbox-debugger
+org.apache.pdfbox:pdfbox-tools
+org.apache.pdfbox:xmpbox
+org.apache.poi:poi
+org.apache.poi:poi-ooxml
+org.apache.poi:poi-ooxml-lite
+org.apache.poi:poi-scratchpad
+org.apache.solr:solr-commons-csv
+org.apache.solr:solr-solrj
+org.apache.tika:tika-core
+org.apache.tika:tika-langdetect-optimaize
+org.apache.tika:tika-parser-apple-module
+org.apache.tika:tika-parser-audiovideo-module
+org.apache.tika:tika-parser-cad-module
+org.apache.tika:tika-parser-code-module
+org.apache.tika:tika-parser-crypto-module
+org.apache.tika:tika-parser-digest-commons
+org.apache.tika:tika-parser-font-module
+org.apache.tika:tika-parser-html-commons
+org.apache.tika:tika-parser-html-module
+org.apache.tika:tika-parser-image-module
+org.apache.tika:tika-parser-mail-commons
+org.apache.tika:tika-parser-mail-module
+org.apache.tika:tika-parser-microsoft-module
+org.apache.tika:tika-parser-miscoffice-module
+org.apache.tika:tika-parser-news-module
+org.apache.tika:tika-parser-ocr-module
+org.apache.tika:tika-parser-pdf-module
+org.apache.tika:tika-parser-pkg-module
+org.apache.tika:tika-parser-text-module
+org.apache.tika:tika-parser-xml-module
+org.apache.tika:tika-parser-xmp-commons
+org.apache.tika:tika-parser-zip-commons
+org.apache.tika:tika-parsers-standard-package
+org.apache.ws.xmlschema:xmlschema-core
+org.apache.xmlbeans:xmlbeans
+org.apache.yetus:audience-annotations
+org.apache.zookeeper:zookeeper
+org.apache.zookeeper:zookeeper-jute
+org.ccil.cowan.tagsoup:tagsoup
+org.codehaus.jackson:jackson-core-asl
+org.codehaus.jackson:jackson-jaxrs
+org.codehaus.jackson:jackson-mapper-asl
+org.codehaus.jackson:jackson-xc
+org.eclipse.jetty:jetty-alpn-client
+org.eclipse.jetty:jetty-alpn-java-client
+org.eclipse.jetty:jetty-client
+org.eclipse.jetty:jetty-continuation
+org.eclipse.jetty:jetty-http
+org.eclipse.jetty:jetty-io
+org.eclipse.jetty:jetty-security
+org.eclipse.jetty:jetty-server
+org.eclipse.jetty:jetty-servlet
+org.eclipse.jetty:jetty-util
+org.eclipse.jetty:jetty-util-ajax
+org.eclipse.jetty:jetty-webapp
+org.eclipse.jetty:jetty-xml
+org.eclipse.jetty.http2:http2-client
+org.eclipse.jetty.http2:http2-common
+org.eclipse.jetty.http2:http2-hpack
+org.eclipse.jetty.http2:http2-http-client-transport
+org.eclipse.jetty.websocket:websocket-api
+org.eclipse.jetty.websocket:websocket-client
+org.eclipse.jetty.websocket:websocket-common
+org.elasticsearch:jna
+org.elasticsearch.client:elasticsearch-rest-client
+org.gagravarr:vorbis-java-core
+org.gagravarr:vorbis-java-tika
+org.ini4j:ini4j
+org.jetbrains:annotations
+org.jetbrains.kotlin:kotlin-stdlib
+org.jetbrains.kotlin:kotlin-stdlib-common
+org.jetbrains.kotlin:kotlin-stdlib-jdk7
+org.jetbrains.kotlin:kotlin-stdlib-jdk8
+org.lz4:lz4-java
+org.mapdb:mapdb
+org.netpreserve.commons:webarchive-commons
+org.seleniumhq.selenium:htmlunit-driver
+org.seleniumhq.selenium:selenium-api
+org.seleniumhq.selenium:selenium-chrome-driver
+org.seleniumhq.selenium:selenium-edge-driver
+org.seleniumhq.selenium:selenium-firefox-driver
+org.seleniumhq.selenium:selenium-ie-driver
+org.seleniumhq.selenium:selenium-java
+org.seleniumhq.selenium:selenium-opera-driver
+org.seleniumhq.selenium:selenium-remote-driver
+org.seleniumhq.selenium:selenium-safari-driver
+org.seleniumhq.selenium:selenium-support
+org.semarglproject:semargl-core
+org.semarglproject:semargl-rdf
+org.semarglproject:semargl-rdf4j
+org.semarglproject:semargl-rdfa
+org.slf4j:jcl-over-slf4j
+org.xerial.snappy:snappy-java
+org.yaml:snakeyaml
+stax:stax-api
+xalan:serializer
+xalan:xalan
+xerces:xercesImpl
+xml-apis:xml-apis
+xml-resolver:xml-resolver
+
+
+--------------------------------------------------------------------------------
+This product bundles various third-party components under other open
+source licenses. This section summarizes those components and their
+licenses. See licenses-binary/ for text of these licenses.
+
+
+
+
+BSD
+---
+
+(licenses-binary/LICENSE-bsd.txt)
+
+com.thoughtworks.paranamer:paranamer
+org.tallison:jmatio
+
+
+BSD 2-Clause
+------------
+
+(licenses-binary/LICENSE-bsd-2-clause.txt)
+
+com.codeborne:phantomjsdriver
+com.google.protobuf:protobuf-java
+dk.brics:automaton
+dnsjava:dnsjava
+net.sf.biweekly:biweekly
+org.codehaus.woodstox:stax2-api
+org.jline:jline
+
+
+BSD 3-Clause
+------------
+
+(licenses-binary/LICENSE-bsd-3-clause.txt)
+
+com.adobe.xmp:xmpcore
+com.github.virtuald:curvesapi
+net.sourceforge.owlapi:owlapi-oboformat
+org.fusesource.leveldbjni:leveldbjni-all
+org.ow2.asm:asm
+org.scala-lang:scala-library
+org.scala-lang:scala-reflect
+
+
+BSD 3-clause License w/nuclear disclaimer
+-----------------------------------------
+
+com.github.jai-imageio:jai-imageio-core
+
+
+BSD licence
+-----------
+
+(licenses-binary/LICENSE-bsd-licence.txt)
+
+org.antlr:ST4
+org.antlr:antlr-runtime
+
+
+BSD style
+---------
+
+com.thoughtworks.xstream:xstream
+
+
+Bouncy Castle Licence
+---------------------
+
+(licenses-binary/LICENSE-bouncy-castle-licence.txt)
+
+org.bouncycastle:bcmail-jdk15on
+org.bouncycastle:bcpkix-jdk15on
+org.bouncycastle:bcprov-jdk15on
+org.bouncycastle:bcutil-jdk15on
+
+
+CDDL 1.0
+--------
+
+(licenses-binary/LICENSE-cddl-v1.0.txt)
+
+javax.activation:activation
+org.codelibs:jhighlight
+
+
+CDDL 1.1
+--------
+
+(licenses-binary/LICENSE-cddl-1.1.txt)
+
+com.sun.jersey:jersey-core
+com.sun.jersey:jersey-json
+com.sun.jersey:jersey-server
+com.sun.jersey:jersey-servlet
+com.sun.jersey.contribs:jersey-guice
+com.sun.xml.bind:jaxb-impl
+javax.xml.bind:jaxb-api
+
+
+CDDL License
+------------
+
+(licenses-binary/LICENSE-cddl-license.txt)
+
+javax.ws.rs:jsr311-api
+
+
+CDDL/GPLv2+CE
+-------------
+
+(licenses-binary/LICENSE-cddl-gplv2-ce.txt)
+
+javax.activation:javax.activation-api
+javax.servlet:javax.servlet-api
+
+
+CPL
+---
+
+(licenses-binary/LICENSE-cpl.txt)
+
+wsdl4j:wsdl4j
+
+
+Common Public License
+---------------------
+
+(licenses-binary/LICENSE-common-public-license.txt)
+
+org.htmlparser:htmlparser
+
+
+EPL 2.0
+-------
+
+(licenses-binary/LICENSE-epl-2.0.txt)
+
+jakarta.annotation:jakarta.annotation-api
+jakarta.ws.rs:jakarta.ws.rs-api
+
+
+Eclipse Distribution License v1.0
+---------------------------------
+
+(licenses-binary/LICENSE-eclipse-distribution-license-v1.0.txt)
+
+com.sun.activation:jakarta.activation
+com.sun.istack:istack-commons-runtime
+com.sun.xml.messaging.saaj:saaj-impl
+jakarta.activation:jakarta.activation-api
+jakarta.jws:jakarta.jws-api
+jakarta.xml.bind:jakarta.xml.bind-api
+jakarta.xml.soap:jakarta.xml.soap-api
+jakarta.xml.ws:jakarta.xml.ws-api
+org.eclipse.rdf4j:rdf4j-http-client
+org.eclipse.rdf4j:rdf4j-http-protocol
+org.eclipse.rdf4j:rdf4j-model
+org.eclipse.rdf4j:rdf4j-model-api
+org.eclipse.rdf4j:rdf4j-model-vocabulary
+org.eclipse.rdf4j:rdf4j-query
+org.eclipse.rdf4j:rdf4j-queryalgebra-evaluation
+org.eclipse.rdf4j:rdf4j-queryalgebra-model
+org.eclipse.rdf4j:rdf4j-queryparser-api
+org.eclipse.rdf4j:rdf4j-queryparser-sparql
+org.eclipse.rdf4j:rdf4j-queryresultio-api
+org.eclipse.rdf4j:rdf4j-queryresultio-binary
+org.eclipse.rdf4j:rdf4j-queryresultio-sparqlxml
+org.eclipse.rdf4j:rdf4j-repository-api
+org.eclipse.rdf4j:rdf4j-repository-sail
+org.eclipse.rdf4j:rdf4j-repository-sparql
+org.eclipse.rdf4j:rdf4j-rio-api
+org.eclipse.rdf4j:rdf4j-rio-binary
+org.eclipse.rdf4j:rdf4j-rio-datatypes
+org.eclipse.rdf4j:rdf4j-rio-hdt
+org.eclipse.rdf4j:rdf4j-rio-jsonld
+org.eclipse.rdf4j:rdf4j-rio-languages
+org.eclipse.rdf4j:rdf4j-rio-n3
+org.eclipse.rdf4j:rdf4j-rio-nquads
+org.eclipse.rdf4j:rdf4j-rio-ntriples
+org.eclipse.rdf4j:rdf4j-rio-rdfjson
+org.eclipse.rdf4j:rdf4j-rio-rdfxml
+org.eclipse.rdf4j:rdf4j-rio-trig
+org.eclipse.rdf4j:rdf4j-rio-trix
+org.eclipse.rdf4j:rdf4j-rio-turtle
+org.eclipse.rdf4j:rdf4j-sail-api
+org.eclipse.rdf4j:rdf4j-sail-base
+org.eclipse.rdf4j:rdf4j-sail-memory
+org.eclipse.rdf4j:rdf4j-util
+org.glassfish.jaxb:jaxb-runtime
+org.glassfish.jaxb:txw2
+org.jvnet.staxex:stax-ex
+
+
+GNU General Public License, version 2 (GPL2), with the classpath exception
+--------------------------------------------------------------------------
+
+(licenses-binary/LICENSE-gnu-general-public-license-version-2-gpl2-with-the-classpath-exception.txt)
+
+org.checkerframework:checker-compat-qual
+
+
+Indiana University Extreme! Lab Software License, vesion 1.1.1
+--------------------------------------------------------------
+
+(licenses-binary/LICENSE-indiana-university-extreme-lab-software-license-vesion-1.1.1.txt)
+
+xpp3:xpp3_min
+
+
+MIT License
+-----------
+
+(licenses-binary/LICENSE-mit-license.txt)
+
+com.github.mangstadt:vinnie
+com.googlecode.plist:dd-plist
+com.martinkl.warc:warc-hadoop
+net.sf.jopt-simple:jopt-simple
+org.brotli:dec
+org.checkerframework:checker-qual
+org.codehaus.mojo:animal-sniffer-annotations
+org.jsoup:jsoup
+org.rypt:f8
+org.slf4j:jcl-over-slf4j
+org.slf4j:slf4j-api
+org.slf4j:slf4j-reload4j
+
+
+Mozilla Public License 1.1 (MPL 1.1)
+------------------------------------
+
+(licenses-binary/LICENSE-mozilla-public-license-1.1-mpl-1.1.txt)
+
+com.googlecode.juniversalchardet:juniversalchardet
+
+
+Mozilla Public License, Version 2.0
+-----------------------------------
+
+(licenses-binary/LICENSE-mozilla-public-license-version-2.0.txt)
+
+net.sourceforge.htmlunit:htmlunit-core-js
+
+
+Public Domain
+-------------
+
+(licenses-binary/LICENSE-public-domain.txt)
+
+aopalliance:aopalliance
+org.tukaani:xz
+xmlpull:xmlpull
+
+
+Public Domain, per Creative Commons CC0
+---------------------------------------
+
+(licenses-binary/LICENSE-public-domain-per-creative-commons-cc0.txt)
+
+org.hdrhistogram:HdrHistogram
+
+
+UnRar License
+-------------
+
+(licenses-binary/LICENSE-unrar-license.txt)
+
+com.github.junrar:junrar
+
+
+Unicode/ICU License
+-------------------
+
+(licenses-binary/LICENSE-unicode-icu-license.txt)
+
+com.ibm.icu:icu4j
