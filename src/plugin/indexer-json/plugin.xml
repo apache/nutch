@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="indexer-json" name="JsonIndexWriter" version="1.0.0"
+        provider-name="elio.earth">
+
+    <runtime>
+        <library name="indexer-json.jar">
+            <export name="*" />
+        </library>
+        <library name="json-simple-1.1.1.jar"/>
+    </runtime>
+
+    <requires>
+        <import plugin="nutch-extensionpoints" />
+    </requires>
+
+    <extension id="earth.elio.nutch.indexer.json"
+               name="JSON Index Writer"
+               point="org.apache.nutch.indexer.IndexWriter">
+        <implementation id="JsonIndexWriter"
+                        class="earth.elio.nutch.indexwriter.json.JsonIndexWriter" />
+    </extension>
+
+</plugin>

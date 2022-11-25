@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+
+<ivy-module version="1.0">
+    <info organisation="earth.elio.nutch" module="${ant.project.name}">
+        <license name="Apache 2.0"/>
+        <ivyauthor name="Elio Engineering" url="https://elio.earth/"/>
+        <description>
+            Elio Technologies PBC
+        </description>
+    </info>
+
+    <configurations>
+        <include file="../../..//ivy/ivy-configurations.xml"/>
+    </configurations>
+
+    <publications>
+        <!--get the artifact from our module name-->
+        <artifact conf="master"/>
+    </publications>
+
+    <dependencies>
+        <dependency org="net.minidev" name="json-smart"
+                    rev="2.4.8" conf="*->default">
+        </dependency>
+    </dependencies>
+
+</ivy-module>

@@ -25,5 +25,8 @@ naivebayes-model
 *.iml
 *.swp
 csvindexwriter
+jsonindexwriter
+crawl
 lib/spotbugs-*
 ivy/dependency-check-ant/*
+dist/

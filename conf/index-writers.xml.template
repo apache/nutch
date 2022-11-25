@@ -158,4 +158,15 @@
       <remove />
     </mapping>
   </writer>
+  <writer id="indexer_json_1" class="earth.elio.nutch.indexwriter.json.JsonIndexWriter">
+    <parameters>
+      <param name="fields" value="id,url,title,content,tstamp,segment,digest,host,boost"/>
+      <param name="base_output_path" value="jsonindexwriter"/>
+    </parameters>
+    <mapping>
+      <copy />
+      <rename />
+      <remove />
+    </mapping>
+  </writer>
 </writers>

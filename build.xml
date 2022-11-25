@@ -211,6 +211,7 @@
       <packageset dir="${plugins.dir}/indexer-csv/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-json/src/java"/>
       <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
@@ -728,6 +729,7 @@
       <packageset dir="${plugins.dir}/indexer-csv/src/java"/>
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-json/src/java"/>
       <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
@@ -1232,6 +1234,7 @@
         <source path="${plugins.dir}/indexer-csv/src/test"/>
         <source path="${plugins.dir}/indexer-dummy/src/java/" />
         <source path="${plugins.dir}/indexer-elastic/src/java/" />
+        <source path="${plugins.dir}/indexer-json/src/java"/>
         <source path="${plugins.dir}/indexer-kafka/src/java/" />
         <source path="${plugins.dir}/indexer-rabbit/src/java/" />
         <source path="${plugins.dir}/indexer-solr/src/java/" />

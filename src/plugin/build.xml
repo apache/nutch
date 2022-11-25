@@ -56,6 +56,7 @@
     <ant dir="indexer-kafka" target="deploy"/>
     <ant dir="indexer-rabbit" target="deploy"/>
     <ant dir="indexer-solr" target="deploy"/>
+    <ant dir="indexer-json" target="deploy"/>
     <ant dir="language-identifier" target="deploy"/>
     <ant dir="microformats-reltag" target="deploy"/>
     <ant dir="mimetype-filter" target="deploy"/>
@@ -193,6 +194,7 @@
     <ant dir="indexer-csv" target="clean"/>
     <ant dir="indexer-dummy" target="clean"/>
     <ant dir="indexer-elastic" target="clean"/>
+    <ant dir="indexer-json" target="clean"/>
     <ant dir="indexer-kafka" target="clean"/>
     <ant dir="indexer-rabbit" target="clean"/>
     <ant dir="indexer-solr" target="clean"/>
