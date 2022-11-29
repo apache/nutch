@@ -37,9 +37,9 @@ import org.slf4j.LoggerFactory;
 import net.minidev.json.JSONObject;
 
 /**
- * DummyIndexWriter. This pluggable indexer writes &lt;action&gt;\t&lt;url&gt;\n lines to a
- * plain text file for debugging purposes. Possible actions are delete, update
- * and add.
+ * JsonIndexWriter. This pluggable indexer writes the fields configured to a file in json-lines
+ * format (one json object per line) separated by newlines. It takes the configured base output path
+ * and writes the files to a unique location so that it can be run in parallel.
  */
 public class JsonIndexWriter implements IndexWriter {
 
