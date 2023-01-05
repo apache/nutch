@@ -103,6 +103,11 @@ public class TestDOMContentUtils {
           + "<a href=\"http://www.nutch.org\" rel=\"nofollow\"> ignore </a>"
           + "<a rel=\"nofollow\" href=\"http://www.nutch.org\"> ignore </a>"
           + "</body></html>"),
+      // multiple space-separated rel values (NUTCH-2634)
+      new String("<html><head></head><body>"
+          + "<a href=\"http://www.nutch.org\" rel=\"noreferrer nofollow\"> ignore </a>"
+          + "<a rel=\"nofollow noreferrer\" href=\"http://www.nutch.org\"> ignore </a>"
+          + "</body></html>"),
       // test that POST form actions are skipped
       new String("<html><head></head><body>"
           + "<form method='POST' action='/search.jsp'><input type=text>"
@@ -132,13 +137,13 @@ public class TestDOMContentUtils {
           + "<source src=\"movie.mp4\" type=\"video/mp4\">"
           + "</video>" + "</body></html>"), };
 
-  private static int SKIP = 9;
+  private static int SKIP = 10;
 
   private static String[] testBaseHrefs = { "http://www.nutch.org",
       "http://www.nutch.org/docs/foo.html", "http://www.nutch.org/docs/",
       "http://www.nutch.org/docs/", "http://www.nutch.org/frames/",
       "http://www.nutch.org/maps/", "http://www.nutch.org/whitespace/",
-      "http://www.nutch.org//", "http://www.nutch.org/",
+      "http://www.nutch.org//", "http://www.nutch.org//", "http://www.nutch.org/",
       "http://www.nutch.org/", "http://www.nutch.org/",
       "http://www.nutch.org/;something", "http://www.nutch.org/",
       "http://www.nutch.org/" };
@@ -159,12 +164,13 @@ public class TestDOMContentUtils {
           + "Tabs are spaces too. This is a break -> and the line after break . "
           + "one two three space here space there no space "
           + "one two two three three four put some text here and there. "
-          + "End this madness ! . . . .", "ignore ignore", "test1 test2",
+          + "End this madness ! . . . .",
+      "ignore ignore", "ignore ignore", "test1 test2",
       "test1 test2", "title anchor1 anchor2 anchor3",
       "title anchor1 anchor2 anchor3 anchor4 anchor5", "title", "" };
 
   private static final String[] answerTitle = { "title", "title", "",
-      "my title", "my title", "my title", "my title", "", "", "", "title",
+      "my title", "my title", "my title", "my title", "", "", "", "", "title",
       "title", "title", "" };
 
   // note: should be in page-order
@@ -218,7 +224,8 @@ public class TestDOMContentUtils {
               new Outlink("http://www.nutch.org/bot.html", ""),
               new Outlink("http://www.nutch.org/docs/index.html", ""), },
           { new Outlink("http://www.nutch.org/index.html", "whitespace test"), },
-          {},
+          {}, // nofollow
+          {}, // nofollow, multiple rel attributes
           { new Outlink("http://www.nutch.org/dummy.jsp", "test2"), },
           {},
           { new Outlink("http://www.nutch.org/;x", "anchor1"),
