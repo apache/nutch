@@ -86,6 +86,10 @@
     <javac includeantruntime="false" />
   </presetdef>
 
+  <target name="dependencytree" depends="resolve-default" description="Show dependency tree">
+    <ivy:dependencytree />
+  </target>
+
   <!-- ====================================================== -->
   <!-- Stuff needed by all targets                            -->
   <!-- ====================================================== -->
