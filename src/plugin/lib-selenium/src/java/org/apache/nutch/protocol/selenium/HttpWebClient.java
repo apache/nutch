@@ -59,10 +59,6 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.openqa.selenium.opera.OperaOptions;
-import org.openqa.selenium.opera.OperaDriver;
-//import com.opera.core.systems.OperaDriver;
-
 public class HttpWebClient {
 
   private static final Logger LOG = LoggerFactory
@@ -88,13 +84,6 @@ public class HttpWebClient {
             "/root/chromedriver");
         driver = createChromeWebDriver(chromeDriverPath, enableHeadlessMode);
         break;
-      // case "opera":
-      // // This class is provided as a convenience for easily testing the
-      // Chrome browser.
-      // String operaDriverPath = conf.get("selenium.grid.binary",
-      // "/root/operadriver");
-      // driver = createOperaWebDriver(operaDriverPath, enableHeadlessMode);
-      // break;
       case "remote":
         String seleniumHubHost = conf.get("selenium.hub.host", "localhost");
         int seleniumHubPort = Integer
@@ -180,23 +169,6 @@ public class HttpWebClient {
       chromeOptions.addArguments("--headless");
     }
     WebDriver driver = new ChromeDriver(chromeOptions);
-    return driver;
-  }
-
-  public static WebDriver createOperaWebDriver(String operaDriverPath,
-      boolean enableHeadlessMode) {
-    // if not specified, WebDriver will search your path for operadriver
-    System.setProperty("webdriver.opera.driver", operaDriverPath);
-    OperaOptions operaOptions = new OperaOptions();
-    // operaOptions.setBinary("/usr/bin/opera");
-    operaOptions.addArguments("--no-sandbox");
-    operaOptions.addArguments("--disable-extensions");
-    // be sure to set selenium.enable.headless to true if no monitor attached
-    // to your server
-    if (enableHeadlessMode) {
-      operaOptions.addArguments("--headless");
-    }
-    WebDriver driver = new OperaDriver(operaOptions);
     return driver;
   }
 
