@@ -37,16 +37,8 @@
 
   <dependencies>
     <!-- begin selenium dependencies -->
-    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="3.141.59" />
-    <dependency org="org.seleniumhq.selenium" name="htmlunit-driver" rev="2.35.1" />
-    
-    <dependency org="com.opera" name="operadriver" rev="1.5">
-      <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
-    </dependency>
-    <dependency org="com.codeborne" name="phantomjsdriver" rev="1.2.1" >
-      <exclude org="org.seleniumhq.selenium" name="selenium-remote-driver" />
-      <exclude org="org.seleniumhq.selenium" name="selenium-java" />
-    </dependency>
+    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="4.7.2" />
+    <dependency org="org.seleniumhq.selenium" name="htmlunit-driver" rev="4.7.0" />
     <!-- end selenium dependencies -->
   </dependencies>
   

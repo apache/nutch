@@ -18,6 +18,7 @@ package org.apache.nutch.protocol.interactiveselenium.handlers;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.time.Duration;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
@@ -47,7 +48,7 @@ public class DefaultClickAllAjaxLinksHandler implements InteractiveSeleniumHandl
 
       driver.findElement(By.tagName("body")).getAttribute("innerHTML");
       Configuration conf = NutchConfiguration.create();
-      new WebDriverWait(driver, conf.getLong("libselenium.page.load.delay", 3));
+      new WebDriverWait(driver, Duration.ofSeconds(conf.getLong("libselenium.page.load.delay", 3)));
 
       List<WebElement> atags = driver.findElements(By.tagName("a"));
       int numberofajaxlinks = atags.size();
@@ -72,8 +73,8 @@ public class DefaultClickAllAjaxLinksHandler implements InteractiveSeleniumHandl
 
           // refreshing the handlers as the page was interacted with
           driver.navigate().refresh();
-          new WebDriverWait(driver, conf.getLong("libselenium.page.load.delay",
-              3));
+          new WebDriverWait(driver, Duration.ofSeconds(
+                  conf.getLong("libselenium.page.load.delay", 3)));
           atags = driver.findElements(By.tagName("a"));
         }
       }
