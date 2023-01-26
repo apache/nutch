@@ -750,7 +750,7 @@ public class Generator extends NutchTool implements Tool {
    * @param curTime
    *          Current time in milliseconds
    * @param filter whether to apply filtering operation
-   * @param norm whether to apply normilization operation
+   * @param norm whether to apply normalization operation
    * @param force if true, and the target lockfile exists, consider it valid. If false
    *          and the target file exists, throw an IOException.
    * @param maxNumSegments maximum number of segments to generate
@@ -768,7 +768,7 @@ public class Generator extends NutchTool implements Tool {
       long curTime, boolean filter, boolean norm, boolean force,
       int maxNumSegments, String expr)
       throws IOException, InterruptedException, ClassNotFoundException {
-    return generate(dbDir, segments, numLists, topN, curTime, filter, true,
+    return generate(dbDir, segments, numLists, topN, curTime, filter, norm,
         force, 1, expr, null);
   }
 
@@ -789,7 +789,7 @@ public class Generator extends NutchTool implements Tool {
    * @param curTime
    *          Current time in milliseconds
    * @param filter whether to apply filtering operation
-   * @param norm whether to apply normilization operation
+   * @param norm whether to apply normalization operation
    * @param force if true, and the target lockfile exists, consider it valid. If false
    *          and the target file exists, throw an IOException.
    * @param maxNumSegments maximum number of segments to generate
