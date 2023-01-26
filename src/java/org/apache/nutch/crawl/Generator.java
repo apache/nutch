@@ -769,7 +769,7 @@ public class Generator extends NutchTool implements Tool {
       int maxNumSegments, String expr)
       throws IOException, InterruptedException, ClassNotFoundException {
     return generate(dbDir, segments, numLists, topN, curTime, filter, norm,
-        force, 1, expr, null);
+        force, maxNumSegments, expr, null);
   }
 
   /**
