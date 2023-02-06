@@ -76,7 +76,7 @@ import org.apache.nutch.util.NutchJob;
  * <p>
  * Also, it's possible to slice the resulting segment into chunks of fixed size.
  * </p>
- * <h3>Important Notes</h3> <h4>Which parts are merged?</h4>
+ * <h2>Important Notes</h2> <h3>Which parts are merged?</h3>
  * <p>
  * It doesn't make sense to merge data from segments, which are at different
  * stages of processing (e.g. one unfetched segment, one fetched but not parsed,

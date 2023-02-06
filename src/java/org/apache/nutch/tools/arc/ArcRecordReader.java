@@ -42,9 +42,8 @@ import org.apache.hadoop.util.ReflectionUtils;
  * Arc files are essentially tars of gzips. Each record in an arc file is a
  * compressed gzip. Multiple records are concatenated together to form a
  * complete arc.</p> 
- * <p>For more information on the arc file format 
- * @see <a href='http://www.archive.org/web/researcher/ArcFileFormat.php'>ArcFileFormat</a>.
- * </p>
+ * <p>For more information on the arc file format </p>
+ * @see <a href='http://www.archive.org/web/researcher/ArcFileFormat.php'>ArcFileFormat</a><p>.</p>
  * 
  * <p>
  * Arc files are used by the internet archive and grub projects.
