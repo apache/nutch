@@ -2209,6 +2209,22 @@ Add scoring-metadata to the list of active plugins
   </description>
 </property>
 
+
+<!-- parse-xsl plugin properties -->
+<property>
+  <name>parser.xsl.rulesFile</name>
+  <value>parse-xsl-rules.xml</value>
+  <description>
+    Rule file for plugin parse-xsl: it may contain multiple
+    rules. Every rule assigns a XSL transformer to all documents
+    matched by a given URL pattern. Transformers are specified
+    in separate XML files referenced from the rule file.
+    A transformer can specify multiple index fields to be filled
+    by XSL statements from the DOM tree of the parsed document.
+  </description>
+</property>
+
+
 <!-- Temporary Hadoop 0.17.x workaround. -->
 
 <property>

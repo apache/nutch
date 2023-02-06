@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:documents="http://www.example.org/documents/"
+	targetNamespace="http://www.example.org/documents/">
+
+	<!-- Root element -->
+	<element name="documents">
+		<complexType>
+			<sequence maxOccurs="unbounded" minOccurs="0">
+				<element name="document" type="documents:TDocument"></element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<complexType name="TDocument">
+		<sequence maxOccurs="unbounded" minOccurs="0">
+			<element name="field" type="documents:TField"></element>
+		</sequence>
+	</complexType>
+
+	<complexType name="TField">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="name" type="string"></attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+</schema>

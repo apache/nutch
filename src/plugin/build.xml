@@ -65,6 +65,7 @@
     <ant dir="parse-js" target="deploy"/>
     <ant dir="parse-metatags" target="deploy"/>
     <ant dir="parse-tika" target="deploy"/>
+    <ant dir="parse-xsl" target="deploy"/>
     <ant dir="parse-zip" target="deploy"/>
     <ant dir="parsefilter-debug" target="deploy"/>
     <ant dir="parsefilter-naivebayes" target="deploy"/>
@@ -135,6 +136,7 @@
      <ant dir="parse-js" target="test"/>
      <ant dir="parse-metatags" target="test"/>
      <ant dir="parse-tika" target="test"/>
+     <ant dir="parse-xsl" target="test"/>
      <ant dir="parse-zip" target="test"/>
      <ant dir="parsefilter-regex" target="test"/>
      <ant dir="protocol-file" target="test"/>
@@ -212,6 +214,7 @@
     <ant dir="parse-js" target="clean"/>
     <ant dir="parse-metatags" target="clean"/>
     <ant dir="parse-tika" target="clean"/>
+    <ant dir="parse-xsl" target="clean"/>
     <ant dir="parse-zip" target="clean"/>
     <ant dir="parsefilter-debug" target="clean" />
     <ant dir="parsefilter-naivebayes" target="clean" />
