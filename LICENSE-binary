@@ -505,6 +505,7 @@ org.jetbrains.kotlin:kotlin-stdlib-jdk8
 org.lz4:lz4-java
 org.mapdb:mapdb
 org.netpreserve.commons:webarchive-commons
+org.opensearch.client:opensearch-rest-high-level-client
 org.seleniumhq.selenium:htmlunit-driver
 org.seleniumhq.selenium:selenium-api
 org.seleniumhq.selenium:selenium-chrome-driver
