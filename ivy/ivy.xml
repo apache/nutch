@@ -112,7 +112,6 @@
 			<exclude org="log4j" module="log4j" />
 		</dependency>
 
-		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.26" conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" conf="test->default" />
 
 		<!--Added Because of Elasticsearch JEST client-->
