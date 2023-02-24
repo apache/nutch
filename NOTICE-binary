@@ -1021,6 +1021,10 @@ mapdb (http://www.mapdb.org)
 webarchive-commons (https://github.com/iipc/webarchive-commons)
 - license: The Apache Software License, Version 2.0
 
+# org.opensearch.client:opensearch-rest-high-level-client
+opensearch-rest-high-level-client (https://opensearch.org/)
+- license: The Apache Software License, Version 2.0
+
 # org.ow2.asm:asm
 asm (http://asm.ow2.io/)
 - license: BSD-3-Clause
