@@ -102,7 +102,12 @@
     <mkdir dir="${test.build.classes}"/>
     <mkdir dir="${test.build.lib.dir}"/>
 
-    <touch datetime="01/25/1971 2:00 pm">
+    <touch millis="33660000000">
+      <!-- touch templates back in time to ensure that
+           custom-configured configuration files are never overwritten
+           even if the template was updated. Use millis instead of
+           datetime="01/25/1971 2:00:00 pm" to avoid issues with
+           non-English locales -->
       <fileset dir="${conf.dir}" includes="**/*.template"/>
     </touch>
 
