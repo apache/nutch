@@ -253,9 +253,6 @@ public class OpenSearch1xIndexWriter implements IndexWriter {
   }
 
   private SSLContext createSSLContext() throws GeneralSecurityException, IOException {
-    if (trustStorePath == null && keyStorePath == null) {
-      return SSLContexts.createDefault();
-    }
 
     SSLContextBuilder sslBuilder = SSLContexts.custom();
     Optional<KeyStore> trustStore = loadStore(trustStorePath, trustStorePassword, trustStoreType);
@@ -283,8 +280,8 @@ public class OpenSearch1xIndexWriter implements IndexWriter {
     if (StringUtils.isAllBlank(storePath)) {
       return Optional.empty();
     }
-    if (StringUtils.isAllBlank(storePassword)) {
-      throw new IllegalArgumentException("must include a password for store: " + storePath);
+    if (storePassword == null) {
+      throw new IllegalArgumentException("must include a non-null password for store: " + storePath);
     }
 
     KeyStore store = KeyStore.getInstance(storeType);
