@@ -136,10 +136,12 @@
       <param name="index" value="nutch"/>
       <param name="username" value="admin"/>
       <param name="password" value="admin"/>
-      <!--<param name="auth" value="false"/>-->
       <param name="trust.store.path" value=""/>
       <param name="trust.store.password" value=""/>
       <param name="trust.store.type" value="JKS"/>
+      <param name="key.store.path" value=""/>
+      <param name="key.store.password" value=""/>
+      <param name="key.store.type" value="JKS"/>
       <param name="max.bulk.docs" value="250"/>
       <param name="max.bulk.size" value="2500500"/>
       <param name="exponential.backoff.millis" value="100"/>
