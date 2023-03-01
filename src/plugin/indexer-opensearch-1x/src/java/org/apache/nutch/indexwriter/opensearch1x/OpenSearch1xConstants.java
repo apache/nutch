@@ -20,14 +20,14 @@ public interface OpenSearch1xConstants {
   String HOSTS = "host";
   String PORT = "port";
   String SCHEME = "scheme";
-
   String USER = "username";
   String PASSWORD = "password";
-  String USE_AUTH = "auth";
-
   String TRUST_STORE_PATH = "trust.store.path";
   String TRUST_STORE_PASSWORD = "trust.store.password";
   String TRUST_STORE_TYPE = "trust.store.type";
+  String KEY_STORE_PATH = "key.store.path";
+  String KEY_STORE_PASSWORD = "key.store.password";
+  String KEY_STORE_TYPE = "key.store.type";
   String INDEX = "index";
   String MAX_BULK_DOCS = "max.bulk.docs";
   String MAX_BULK_LENGTH = "max.bulk.size";
