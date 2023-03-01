@@ -194,6 +194,10 @@ public class OpenSearch1xIndexWriter implements IndexWriter {
     keyStorePath = parameters.get(OpenSearch1xConstants.KEY_STORE_PATH);
     keyStorePassword = parameters.get(OpenSearch1xConstants.KEY_STORE_PASSWORD);
     keyStoreType = parameters.get(OpenSearch1xConstants.KEY_STORE_TYPE, "JKS");
+
+    if (! StringUtils.isAllBlank(user) && password == null) {
+      throw new IllegalArgumentException("Must specify a password, even if empty, if a 'user' is specified.");
+    }
     boolean basicAuth = user != null && password != null;
 
     final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -262,9 +266,9 @@ public class OpenSearch1xIndexWriter implements IndexWriter {
       sslBuilder.loadTrustMaterial(trustStore.get(), null);
     } else {
       LOG.warn("You haven't set up a trust store. We're effectively turning off " +
-          " tls.  This is 'Not a good idea'(tm). See a getting started guide: " +
-          "https://opensearch.org/blog/connecting-java-high-level-rest-client-with-opensearch-over-https/ "+
-          " or in more depth: https://opensearch.org/docs/latest/security/configuration/tls/");
+          " tls.  This is a 'Bad Idea'(TM). See a getting started guide: '" +
+          "https://opensearch.org/blog/connecting-java-high-level-rest-client-with-opensearch-over-https/' "+
+          " or in more depth: 'https://opensearch.org/docs/latest/security/configuration/tls/'");
       sslBuilder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
     }
 
