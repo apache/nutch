@@ -14,26 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.tools.proxy;
 
-import java.io.IOException;
+/**
+ * Index writer plugin for <a href="https://opensearch.org">OpenSearch</a>.
+ */
+package org.apache.nutch.indexwriter.opensearch1x;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
-
-import org.mortbay.jetty.Request;
-
-public class NotFoundHandler extends AbstractTestbedHandler {
-
-  @Override
-  public void handle(Request req, HttpServletResponse res, String target,
-      int dispatch) throws IOException, ServletException {
-    // don't pass it down the chain
-    req.setHandled(true);
-    res.addHeader("X-Handled-By", getClass().getSimpleName());
-    addMyHeader(res, "URI", req.getUri().toString());
-    res.sendError(HttpServletResponse.SC_NOT_FOUND, "Not found: "
-        + req.getUri().toString());
-  }
-
-}

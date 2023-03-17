@@ -102,7 +102,12 @@
     <mkdir dir="${test.build.classes}"/>
     <mkdir dir="${test.build.lib.dir}"/>
 
-    <touch datetime="01/25/1971 2:00 pm">
+    <touch millis="33660000000">
+      <!-- touch templates back in time to ensure that
+           custom-configured configuration files are never overwritten
+           even if the template was updated. Use millis instead of
+           datetime="01/25/1971 2:00:00 pm" to avoid issues with
+           non-English locales -->
       <fileset dir="${conf.dir}" includes="**/*.template"/>
     </touch>
 
@@ -216,6 +221,7 @@
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-opensearch-1x/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
@@ -464,39 +470,6 @@
   </target>
 
   <!-- ================================================================== -->
-  <!-- Run Nutch proxy                                                    -->
-  <!-- ================================================================== -->
-
-  <target name="proxy" depends="compile-core-test, job" description="--> run nutch proxy">
-    <java classname="org.apache.nutch.tools.proxy.ProxyTestbed" fork="true">
-      <classpath refid="test.classpath"/>
-      <arg value="-fake"/>
-<!--
-      <arg value="-delay"/>
-      <arg value="-200"/>
--->
-      <jvmarg line="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
-    </java>
-  </target>
-
-  <!-- ================================================================== -->
-  <!-- Run Nutch benchmarking analysis                                    -->
-  <!-- ================================================================== -->
-
-  <target name="benchmark" description="--> run nutch benchmarking analysis">
-    <java classname="org.apache.nutch.tools.Benchmark" fork="true">
-      <classpath refid="test.classpath"/>
-      <jvmarg line="-Xmx512m -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
-      <arg value="-maxPerHost"/>
-      <arg value="10"/>
-      <arg value="-seeds"/>
-      <arg value="1"/>
-      <arg value="-depth"/>
-      <arg value="5"/>
-    </java>
-  </target>
-
-  <!-- ================================================================== -->
   <!-- Run unit tests                                                     -->
   <!-- ================================================================== -->
   <target name="test" depends="test-core, test-plugins" description="--> run JUnit tests"/>
@@ -734,6 +707,7 @@
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-opensearch-1x/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
@@ -1239,6 +1213,7 @@
         <source path="${plugins.dir}/indexer-dummy/src/java/" />
         <source path="${plugins.dir}/indexer-elastic/src/java/" />
         <source path="${plugins.dir}/indexer-kafka/src/java/" />
+        <source path="${plugins.dir}/indexer-opensearch-1x/src/java/" />
         <source path="${plugins.dir}/indexer-rabbit/src/java/" />
         <source path="${plugins.dir}/indexer-solr/src/java/" />
         <source path="${plugins.dir}/language-identifier/src/java/" />
