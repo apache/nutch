@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
@@ -96,6 +97,16 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   public static final String ADAPTIVE_FETCH_TIME_SORT_FACTOR = "scoring.adaptive.factor.fetchtime";
 
   /**
+   * Random factor added to the sort value factor for pages to be (re)fetched based on the time,
+   * see {@link #ADAPTIVE_FETCH_TIME_SORT_FACTOR}:
+   * <pre>
+   * generator_sort_value += (factor * days_elapsed * (1.0 + random_factor * Random.nextGaussian()))
+   * </pre>
+   * With a value of 0.0 no random factor is added.
+   */
+  public static final String ADAPTIVE_FETCH_TIME_SORT_FACTOR_RANDOM = "scoring.adaptive.factor.fetchtime.random";
+
+  /**
    * Generator sort value factor for pages to be (re)fetched based on the time
    * (in days) elapsed since the time a URL has been seen as seed or link.
    * URLs not seen since long are penalized by this factor (opposed to
@@ -108,6 +119,22 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
    */
   public static final String ADAPTIVE_LAST_SEEN_TIME_SORT_FACTOR = "scoring.adaptive.factor.lastseentime";
 
+  /**
+   * Configuration file to adjust the generator sort value by fetch status.
+   * 
+   * Format:
+   * <pre>
+   * status \t sortvalue
+   * </pre>
+   * 
+   * For example:
+   * <pre>
+   * db_unfetched .1
+   * db_gone -.5
+   * </pre>
+   * The sort value is added to other sort values (score, fetch time).
+   * It may be negative to penalize fetch items.
+   */
   public static final String ADAPTIVE_STATUS_SORT_FACTOR_FILE = "scoring.adaptive.sort.by_status.file";
 
   /**
@@ -184,6 +211,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   private long curTime;
 
   private float adaptiveFetchTimeSort;
+  private float adaptiveFetchTimeSortRandom;
   private float adaptiveLastSeenTimeSort;
   private float adaptiveFetchRetryPenalty;
   private float adaptiveBoostInjected;
@@ -210,6 +238,8 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
         System.currentTimeMillis());
     adaptiveFetchTimeSort = conf.getFloat(ADAPTIVE_FETCH_TIME_SORT_FACTOR,
         .01f);
+    adaptiveFetchTimeSortRandom = conf
+        .getFloat(ADAPTIVE_FETCH_TIME_SORT_FACTOR_RANDOM, .0f);
     adaptiveLastSeenTimeSort = conf.getFloat(ADAPTIVE_LAST_SEEN_TIME_SORT_FACTOR,
         .005f);
     adaptiveFetchRetryPenalty = conf.getFloat(ADAPTIVE_FETCH_RETRY_PENALTY,
@@ -322,7 +352,13 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
     }
     if (adaptiveFetchTimeSort > 0.0f) {
       // boost/penalize by time elapsed since the scheduled fetch time
-      initSort += adaptiveFetchTimeSort * daysSinceScheduledFetch;
+      if (adaptiveFetchTimeSortRandom > .0f) {
+        initSort += adaptiveFetchTimeSort * daysSinceScheduledFetch
+            * (1.0 + adaptiveFetchTimeSortRandom
+                * ThreadLocalRandom.current().nextGaussian());
+      } else {
+        initSort += adaptiveFetchTimeSort * daysSinceScheduledFetch;
+      }
     }
     if (statusSortMap.containsKey(status)) {
       // boost/penalize by fetch status

@@ -2072,6 +2072,17 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <property>
+  <name>scoring.adaptive.factor.fetchtime.random</name>
+  <value>.0</value>
+  <description>
+    Random factor added to the sort value factor for pages to be
+    (re)fetched based on the time, see scoring.adaptive.factor.fetchtime:
+      `generator_sort_value += (factor * days_elapsed * (1.0 + random_factor * Random.nextGaussian()))`
+    With a value of 0.0 no random factor is added.
+  </description>
+</property>
+
+<property>
   <name>scoring.adaptive.factor.lastseentime</name>
   <value>.005</value>
   <description>
