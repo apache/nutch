@@ -420,6 +420,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       targetUri = new URI(url);
     } catch (URISyntaxException e) {
       LOG.error("Cannot write WARC record, invalid URI: {}", url);
+      context.getCounter(WARC_WRITER_COUNTER_GROUP,
+          "skipped records (invalid URI)").increment(1);
       return;
     }
 
@@ -434,12 +436,16 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       }
       LOG.warn("Cannot write WARC record, no content for {}{}", value.url,
           reason);
+      context.getCounter(WARC_WRITER_COUNTER_GROUP,
+          "skipped records (no content)").increment(1);
       return;
     }
 
     if (deduplicate) {
       if (lastURL.equals(url)) {
         LOG.info("Skipping duplicate record: {}", value.url);
+        context.getCounter(WARC_WRITER_COUNTER_GROUP,
+            "skipped records (duplicate)").increment(1);
         return;
       }
       lastURL = url;
@@ -467,6 +473,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       if (pstatus == null) {
         LOG.warn("Cannot write WARC record, no protocol status for {}",
             value.url);
+        context.getCounter(WARC_WRITER_COUNTER_GROUP,
+            "skipped records (no protocol status)").increment(1);
         return;
       }
       switch (pstatus.getCode()) {
@@ -495,6 +503,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
         if (value.content.getMetadata()
             .get(Response.RESPONSE_HEADERS) == null) {
           LOG.warn("Unknown or ambiguous protocol status: {}", pstatus);
+          context.getCounter(WARC_WRITER_COUNTER_GROUP,
+              "skipped records (unknown protocol status)").increment(1);
           return;
         }
       }
