@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
@@ -93,6 +94,11 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   private boolean generateCdx;
   private boolean deduplicate;
   private boolean detectLanguage;
+  private boolean skipByContent;
+  Pattern mimetypeSkipPattern;
+  float mimetypeSkipFactor = .0f;
+  float truncatedSkipFactor = .0f;
+  int maxContent = Integer.MAX_VALUE;
   private String lastURL = ""; // for deduplication
 
   public WarcRecordWriter(Configuration conf, Path outputPath, int partition,
@@ -138,6 +144,13 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     generateCdx = conf.getBoolean("warc.export.cdx", false);
     deduplicate = conf.getBoolean("warc.deduplicate", false);
     detectLanguage = conf.getBoolean("warc.detect.language", false);
+    mimetypeSkipPattern = conf.getPattern("warc.skip.mimetype.pattern", null);
+    mimetypeSkipFactor = conf.getFloat("warc.skip.mimetype.factor", .0f);
+    truncatedSkipFactor = conf.getFloat("warc.skip.mimetype.truncated.factor", .0f);
+    maxContent = conf.getInt("http.content.limit", Integer.MAX_VALUE);
+    if ((mimetypeSkipPattern != null && mimetypeSkipFactor > .0f) || truncatedSkipFactor > .0f) {
+      skipByContent = true;
+    }
 
     Path warcPath = new Path(new Path(outputPath, "warc"), filename);
     warcOut = fs.create(warcPath);
@@ -439,6 +452,30 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       context.getCounter(WARC_WRITER_COUNTER_GROUP,
           "skipped records (no content)").increment(1);
       return;
+    }
+
+    if (skipByContent) {
+      float factor = .0f;
+      if (mimetypeSkipFactor > .0f && mimetypeSkipPattern.matcher(value.content.getContentType()).find()) {
+        factor += mimetypeSkipFactor;
+      }
+      if (factor > .0f) {
+        factor *= value.content.getContent().length / (1.0 * maxContent);
+        String truncated = value.content.getMetadata().get(Response.TRUNCATED_CONTENT_REASON);
+        if (truncatedSkipFactor > .0f && truncated != null) {
+          factor += truncatedSkipFactor;
+        }
+        if (ThreadLocalRandom.current().nextFloat() < factor) {
+          LOG.info(
+              "Skipped record by content (truncated: {}, content-type: {}, length: {}): {}",
+              (truncated != null ? truncated : "-"),
+              value.content.getContentType(), value.content.getContent().length,
+              value.url);
+          context.getCounter(WARC_WRITER_COUNTER_GROUP,
+              "skipped records (by content)").increment(1);
+          return;
+        }
+      }
     }
 
     if (deduplicate) {
