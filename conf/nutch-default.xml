@@ -3099,4 +3099,163 @@ one publisher implementation for RabbitMQ (plugin publish-rabbitmq).
    </description>
 </property>
 
+<!-- Common Crawl WARC writer -->
+<!-- see also
+     fetcher.store.warc
+     fetcher.store.404s
+     fetcher.store.robotstxt
+-->
+<!-- temporary properties, set from job or environment
+     warc.export.hostname
+     warc.export.date
+     warc.export.date.end
+-->
+<property>
+  <name>warc.export.operator</name>
+  <value></value>
+  <description>
+    Information put into the "operator" field of the WARC info record
+    (see https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#warcinfo).
+  </description>
+</property>
+
+<property>
+  <name>warc.export.publisher</name>
+  <value></value>
+  <description>
+    Information put into the "publisher" field of the WARC info record
+    (see https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#warcinfo).
+  </description>
+</property>
+
+<property>
+  <name>warc.export.software</name>
+  <value></value>
+  <description>
+    Information put into the "software" field of the WARC info record
+    (see https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#warcinfo).
+  </description>
+</property>
+
+<property>
+  <name>warc.export.description</name>
+  <value></value>
+  <description>
+    Information put into the "description" field of the WARC info record
+    (see https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#warcinfo).
+  </description>
+</property>
+
+<property>
+  <name>warc.export.isPartOf</name>
+  <value></value>
+  <description>
+    Information put into the "isPartOf" field of the WARC info record
+    (see https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#warcinfo).
+  </description>
+</property>
+
+<property>
+  <name>warc.deduplicate</name>
+  <value>false</value>
+  <description>
+    Deduplicate WARC records.
+  </description>
+</property>
+
+<property>
+  <name>warc.export.crawldiagnostics</name>
+  <value>true</value>
+  <description>
+    If true, the WARC writer also writes WARC files with
+    &quot;unsuccessful&quot; fetched (HTTP 404, redirects, etc.).
+  </description>
+</property>
+
+<property>
+  <name>warc.export.robotstxt</name>
+  <value>true</value>
+  <description>
+    If true, the WARC writer also writes robots.txt WARC files.
+  </description>
+</property>
+
+<property>
+  <name>warc.export.cdx</name>
+  <value>true</value>
+  <description>
+    If true, the WARC writer also writes a CDX file along with every
+    WARC file. The CDX file holds an index of WARC response records.
+  </description>
+</property>
+
+<property>
+  <name>warc.export.prefix</name>
+  <value></value>
+  <description>
+    WARC file name prefix. The WARC file name is:
+    prefix-date-enddate-partition.warc.gz
+  </description>
+</property>
+
+<property>
+  <name>warc.export.path</name>
+  <value></value>
+  <description>
+    Path to filesystem directory where WARC files are placed.
+  </description>
+</property>
+
+<property>
+  <name>warc.export.cdx.path</name>
+  <value></value>
+  <description>
+    Path to filesystem directory where CDX files are placed.
+  </description>
+</property>
+
+<property>
+  <name>warc.detect.language</name>
+  <value>false</value>
+  <description>
+    If true, detect the content language of HTML captures using
+    CLD2. Note: the CDL2 library needs to be installed, see
+    https://github.com/commoncrawl/language-detection-cld2
+  </description>
+</property>
+
+<property>
+  <name>warc.skip.mimetype.pattern</name>
+  <value></value>
+  <description>
+    Regular expression pattern to match content (MIME) types which are
+    randomly skipped to reduce the storage footprint of
+    &quot;undesired&quot; file formats.  E.g., the pattern
+    `application/(?:x-(?:7z-compressed|bzip2?|lzip|tar)|z(?:std|ip)|gzip)`
+    would select compressed content and archives to be skipped randomly.
+    See also `warc.skip.mimetype.factor` and `warc.skip.mimetype.truncated.factor`.
+  </description>
+</property>
+
+<property>
+  <name>warc.skip.mimetype.factor</name>
+  <value>0.0</value>
+  <description>
+    Factor to configure the likelihood that captures of matched MIME
+    types (see `warc.skip.mimetype.pattern`) are skipped. The factor
+    is multiplied by the quotient of content size and max. content
+    size (http.content.limit). That is, larger captures are more
+    likely skipped.
+  </description>
+</property>
+
+<property>
+  <name>warc.skip.mimetype.truncated.factor</name>
+  <value>0.0</value>
+  <description>
+    Additional factor added if page content is truncated.
+    See `warc.skip.mimetype.factor`.
+  </description>
+</property>
+
 </configuration>
