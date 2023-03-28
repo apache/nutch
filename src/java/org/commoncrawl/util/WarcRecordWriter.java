@@ -20,6 +20,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
@@ -51,6 +52,7 @@ import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolStatus;
@@ -100,7 +102,8 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   float mimetypeSkipFactor = .0f;
   float truncatedSkipFactor = .0f;
   int maxContent = Integer.MAX_VALUE;
-  private String lastURL = ""; // for deduplication
+  private String precedingURL = ""; // for deduplication
+  private URLNormalizers urlNormalizers;
 
   public WarcRecordWriter(Configuration conf, Path outputPath, int partition,
       TaskAttemptContext context) throws IOException {
@@ -152,6 +155,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     if ((mimetypeSkipPattern != null && mimetypeSkipFactor > .0f) || truncatedSkipFactor > .0f) {
       skipByContent = true;
     }
+    urlNormalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_INDEXER);
 
     Path warcPath = new Path(new Path(outputPath, "warc"), filename);
     warcOut = fs.create(warcPath);
@@ -427,17 +431,6 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
   @Override
   public synchronized void write(Text key, WarcCapture value)
       throws IOException {
-    URI targetUri;
-
-    String url = value.url.toString();
-    try {
-      targetUri = new URI(url);
-    } catch (URISyntaxException e) {
-      LOG.error("Cannot write WARC record, invalid URI: {}", url);
-      context.getCounter(WARC_WRITER_COUNTER_GROUP,
-          "skipped records (invalid URI)").increment(1);
-      return;
-    }
 
     if (value.content == null) {
       String reason = "";
@@ -453,6 +446,41 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       context.getCounter(WARC_WRITER_COUNTER_GROUP,
           "skipped records (no content)").increment(1);
       return;
+    }
+
+    URI targetUri = null;
+    String url = value.url.toString();
+    try {
+      targetUri = new URI(url);
+    } catch (URISyntaxException e) {
+      if (value.datum != null
+          && value.datum.getStatus() == CrawlDatum.STATUS_FETCH_SUCCESS) {
+        // if a successful capture, try to normalize the URL
+        String urlNorm = null;
+        try {
+          urlNorm = urlNormalizers.normalize(url, URLNormalizers.SCOPE_INDEXER);
+        } catch (MalformedURLException ee) {
+          // ignore, log exception observed on original URL
+        }
+        if (urlNorm != null && !url.equals(urlNorm)) {
+          try {
+            targetUri = new URI(urlNorm);
+            LOG.info("Normalized URL to valid URI: {} -> {}", url, urlNorm);
+            context
+                .getCounter(WARC_WRITER_COUNTER_GROUP,
+                    "fixed records (invalid URI successfully normalized)")
+                .increment(1);
+          } catch (URISyntaxException ee) {
+            // ignore, log exception observed on original URL
+          }
+        }
+      }
+      if (targetUri == null) {
+        LOG.error("Cannot write WARC record, invalid URI: {}", url);
+        context.getCounter(WARC_WRITER_COUNTER_GROUP,
+            "skipped records (invalid URI)").increment(1);
+        return;
+      }
     }
 
     if (skipByContent) {
@@ -480,7 +508,9 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
     }
 
     if (deduplicate) {
-      if (lastURL.equals(url)) {
+      // given that the reducer input is sorted, a comparison with the preceding
+      // URL is sufficient
+      if (precedingURL.equals(url)) {
         // LOG.info("Skipping duplicate record: {}", value.url);
         try {
           String status = "?";
@@ -513,7 +543,7 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
             "skipped records (duplicate)").increment(1);
         return;
       }
-      lastURL = url;
+      precedingURL = url;
     }
 
     String ip = "0.0.0.0";
