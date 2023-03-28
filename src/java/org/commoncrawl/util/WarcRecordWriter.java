@@ -29,6 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -480,7 +481,34 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
 
     if (deduplicate) {
       if (lastURL.equals(url)) {
-        LOG.info("Skipping duplicate record: {}", value.url);
+        // LOG.info("Skipping duplicate record: {}", value.url);
+        try {
+          String status = "?";
+          if (value.datum != null) {
+            ProtocolStatus pstatus = (ProtocolStatus) value.datum.getMetaData()
+                .get(Nutch.WRITABLE_PROTO_STATUS_KEY);
+            status = pstatus.getName();
+          }
+          Instant date = null;
+          if (value.datum != null) {
+            date = Instant.ofEpochMilli(value.datum.getFetchTime());
+          } else {
+            String fetchTime = value.content.getMetadata()
+                .get(Nutch.FETCH_TIME_KEY);
+            if (fetchTime != null) {
+              try {
+                date = Instant.ofEpochMilli(Long.parseLong(fetchTime));
+              } catch (NumberFormatException e) {
+                LOG.error("Invalid fetch time '{}' in content metadata of {}",
+                    fetchTime, value.url.toString());
+              }
+            }
+          }
+          LOG.info("Skipping duplicate record: {} ({}, status: {}, size: {})",
+              value.url, date, status, value.content.getContent().length);
+        } catch (Throwable t) {
+          LOG.error(t.getMessage());
+        }
         context.getCounter(WARC_WRITER_COUNTER_GROUP,
             "skipped records (duplicate)").increment(1);
         return;
@@ -674,8 +702,9 @@ class WarcRecordWriter extends RecordWriter<Text, WarcCapture> {
       infoId = crawlDiagnosticsWarcinfoId;
     }
 
-    LOG.info("WARC {} record {}", (notModified ? "revisit" : "response"),
-        targetUri);
+    LOG.info("WARC {} record {} ({}, status: {}, size: {})",
+        (notModified ? "revisit" : "response"), targetUri, date, httpStatusCode,
+        value.content.getContent().length);
 
     URI requestId = null;
     if (verbatimRequestHeaders != null) {
