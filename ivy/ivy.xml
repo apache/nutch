@@ -50,14 +50,7 @@
 		<dependency org="com.tdunning" name="t-digest" rev="3.3" />
 
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.3.4" conf="*->default">
-			<exclude org="hsqldb" name="hsqldb" />
-			<exclude org="net.sf.kosmosfs" name="kfs" />
-			<exclude org="net.java.dev.jets3t" name="jets3t" />
-			<exclude org="org.eclipse.jdt" name="core" />
-			<exclude org="org.mortbay.jetty" name="jsp-*" />
-			<exclude org="ant" name="ant" />
-		</dependency>
+		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.3.4" conf="*->default" />
 		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.3.4" conf="*->default" />
 		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.3.4" conf="*->default" />
 		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.3.4" conf="*->default" />
@@ -112,8 +105,8 @@
 			<exclude org="log4j" module="log4j" />
 		</dependency>
 
-		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.26" conf="test->default" />
-		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.26" conf="test->default" />
+		<!-- Jetty used to serve test pages for unit tests, but is also provided as dependency of Hadoop -->
+		<dependency org="org.eclipse.jetty" name="jetty-server" rev="9.4.50.v20221201" conf="test->default" />
 
 		<!--Added Because of Elasticsearch JEST client-->
 		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->
