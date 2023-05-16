@@ -303,19 +303,22 @@ public class FetchItemQueues {
           "* queue: {} >> delayed next fetch by {} ms after {} exceptions in queue",
           queueid, exceptionDelay, excCount);
     }
-    if (fiq.getQueueSize() == 0) {
-      return 0;
-    }
-    if (maxExceptions!= -1 && excCount >= maxExceptions) {
+    if (maxExceptions != -1 && excCount >= maxExceptions) {
       // too many exceptions for items in this queue - purge it
       int deleted = fiq.emptyQueue();
-      LOG.info(
-          "* queue: {} >> removed {} URLs from queue because {} exceptions occurred",
-          queueid, deleted, excCount);
-      totalSize.getAndAdd(-deleted);
-      // keep queue IDs to ensure that these queues aren't created and filled
-      // again, see addFetchItem(FetchItem)
-      queuesMaxExceptions.add(queueid);
+      if (deleted > 0) {
+        LOG.info(
+            "* queue: {} >> removed {} URLs from queue because {} exceptions occurred",
+            queueid, deleted, excCount);
+        totalSize.getAndAdd(-deleted);
+      }
+      if (feederAlive) {
+        LOG.info("* queue: {} >> blocked after {} exceptions", queueid,
+            excCount);
+        // keep queue IDs to ensure that these queues aren't created and filled
+        // again, see addFetchItem(FetchItem)
+        queuesMaxExceptions.add(queueid);
+      }
       return deleted;
     }
     return 0;
