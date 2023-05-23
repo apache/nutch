@@ -29,6 +29,16 @@
       <param name="auth" value="false"/>
       <param name="username" value="username"/>
       <param name="password" value="password"/>
+      <!-- Name for Authorization HTTP header
+           <param name="auth.header.name" value="Bearer"/>
+           HTTP header -> Authorization: Bearer 1234567890
+      -->
+      <param name="auth.header.name" value=""/>
+      <!-- Value for Authorization HTTP header
+           <param name="auth.header.value" value="1234567890"/>
+           HTTP header -> Authorization: Bearer 1234567890
+      -->
+      <param name="auth.header.value" value=""/>
     </parameters>
     <mapping>
       <copy>

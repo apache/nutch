@@ -22,10 +22,12 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicHeader;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class SolrUtils {
@@ -39,7 +41,7 @@ public class SolrUtils {
 
   static CloudSolrClient getCloudSolrClient(List<String> urls, String username,
       String password) {
-    // Building http client
+    // Building HTTP client
     CredentialsProvider provider = new BasicCredentialsProvider();
     UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
         username, password);
@@ -55,8 +57,98 @@ public class SolrUtils {
     return sc;
   }
 
+  /**
+   * Creates a new SolrClient, passing an Authorization header on the requests'
+   * HTTP Header:
+   * 
+   * <pre>
+   * Authorization: headerName headerValue
+   * </pre>
+   * 
+   * ie.
+   * 
+   * <pre>
+   * Authorization: Bearer XXXXXXXXXXX
+   * </pre>
+   * 
+   * @param url
+   *          Sorl URL
+   * @param headerName
+   *          Header name send on the Authorization: Bearer, Token, etc.
+   * @param headerValue
+   *          Header value send on the Authorization: JWT_TOKEN
+   * @return CloudSolrClient
+   */
+  static CloudSolrClient getCloudSolrClientHeaderAuthorization(
+      List<String> urls, String headerName, String headerValue) {
+    // Building http client
+    HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+    httpClientBuilder.setDefaultHeaders(Arrays.asList(
+        new BasicHeader("Authorization", headerName + " " + headerValue)));
+    // Building the client
+    CloudSolrClient sc = new CloudSolrClient.Builder(urls)
+        .withParallelUpdates(true).withHttpClient(httpClientBuilder.build())
+        .build();
+    sc.connect();
+    return sc;
+  }
+
   static SolrClient getHttpSolrClient(String url) {
     return new HttpSolrClient.Builder(url).build();
+  }
+
+  /**
+   * Creates a new SolrClient, passing an Authorization header on the requests'
+   * HTTP Header:
+   * 
+   * <pre>
+   * Authorization: headerName headerValue
+   * </pre>
+   * 
+   * ie.
+   * 
+   * <pre>
+   * Authorization: Bearer XXXXXXXXXXX
+   * </pre>
+   * 
+   * @param url
+   *          Solr URL
+   * @param headerName
+   *          Header name send on the Authorization: Bearer, Token, etc.
+   * @param headerValue
+   *          Header value send on the Authorization: JWT_TOKEN
+   * @return SolrClient
+   */
+  static SolrClient getHttpSolrClientHeaderAuthorization(String url,
+      String headerName, String headerValue) {
+    HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+    httpClientBuilder.setDefaultHeaders(Arrays.asList(
+        new BasicHeader("Authorization", headerName + " " + headerValue)));
+    return new HttpSolrClient.Builder(url)
+        .withHttpClient(httpClientBuilder.build()).build();
+  }
+
+  /**
+   * Creates a new SolrClient, using Basic Authentication.
+   * 
+   * @param url
+   *          Solr URL
+   * @param username
+   *          Username
+   * @param password
+   *          Password
+   * @return SolrClient
+   */
+  static SolrClient getHttpSolrClient(String url, String username,
+      String password) {
+    CredentialsProvider provider = new BasicCredentialsProvider();
+    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
+        username, password);
+    provider.setCredentials(AuthScope.ANY, credentials);
+    HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+    httpClientBuilder.setDefaultCredentialsProvider(provider);
+    return new HttpSolrClient.Builder(url)
+        .withHttpClient(httpClientBuilder.build()).build();
   }
 
   static String stripNonCharCodepoints(String input) {
