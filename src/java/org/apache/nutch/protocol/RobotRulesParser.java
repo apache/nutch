@@ -24,12 +24,12 @@ import java.io.LineNumberReader;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +96,7 @@ public abstract class RobotRulesParser implements Tool {
   }
 
   protected Configuration conf;
-  protected String agentNames;
+  protected Set<String> agentNames;
 
   /** set of host names or IPs to be explicitly excluded from robots.txt checking */
   protected Set<String> allowList = new HashSet<>();
@@ -122,26 +122,24 @@ public abstract class RobotRulesParser implements Tool {
     if (agentName == null || (agentName = agentName.trim()).isEmpty()) {
       throw new RuntimeException("Agent name not configured!");
     }
-    agentNames = agentName;
+    agentNames = new HashSet<>();
+    agentNames.add(agentName.toLowerCase());
 
     // If there are any other agents specified, append those to the list of
     // agents
-    String otherAgents = conf.get("http.robots.agents");
-    if (otherAgents != null && !otherAgents.trim().isEmpty()) {
-      StringTokenizer tok = new StringTokenizer(otherAgents, ",");
-      StringBuilder sb = new StringBuilder(agentNames);
-      while (tok.hasMoreTokens()) {
-        String str = tok.nextToken().trim();
-        if (str.equals("*") || str.equals(agentName)) {
-          // skip wildcard "*" or agent name itself
-          // (required for backward compatibility, cf. NUTCH-1715 and
-          // NUTCH-1718)
+    String[] otherAgents = conf.getStrings("http.robots.agents");
+    if (otherAgents != null && otherAgents.length > 0) {
+      for (String otherAgent : otherAgents) {
+        otherAgent = otherAgent.toLowerCase();
+        if (otherAgent.equals("*") || otherAgent.equalsIgnoreCase(agentName)) {
+          /*
+           * skip wildcard "*" or agent name itself (required for backward
+           * compatibility, cf. NUTCH-1715 and NUTCH-1718)
+           */
         } else {
-          sb.append(",").append(str);
+          agentNames.add(otherAgent);
         }
       }
-
-      agentNames = sb.toString();
     }
 
     String[] confAllowList = conf.getStrings("http.robot.rules.allowlist");
@@ -191,7 +189,7 @@ public abstract class RobotRulesParser implements Tool {
    * crawler commons
    * 
    * @param url
-   *          A string containing url
+   *          The robots.txt URL
    * @param content
    *          Contents of the robots file in a byte array
    * @param contentType
@@ -201,9 +199,30 @@ public abstract class RobotRulesParser implements Tool {
    *          matching
    * @return BaseRobotRules object
    */
+  @Deprecated
   public BaseRobotRules parseRules(String url, byte[] content,
       String contentType, String robotName) {
     return robotParser.parseContent(url, content, contentType, robotName);
+  }
+
+  /**
+   * Parses the robots content using the {@link SimpleRobotRulesParser} from
+   * crawler commons
+   * 
+   * @param url
+   *          The robots.txt URL
+   * @param content
+   *          Contents of the robots file in a byte array
+   * @param contentType
+   *          The content type of the robots file
+   * @param robotNames
+   *          A collection containing all the robots agent names used by parser
+   *          for matching
+   * @return BaseRobotRules object
+   */
+  public BaseRobotRules parseRules(String url, byte[] content,
+      String contentType, Collection<String> robotNames) {
+    return robotParser.parseContent(url, content, contentType, robotNames);
   }
 
   /**
