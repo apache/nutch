@@ -1328,6 +1328,15 @@
 </property>
 
 <property>
+  <name>fetcher.robotstxt.archiving.filter.url.always</name>
+  <value>false</value>
+  <description>Skip archiving of a robots.txt response also if the
+  combination of URL path and query equals /robots.txt and the URL is
+  rejected by URL filters. According to the robots.txt RFC 9309
+  &quot;the /robots.txt URI is implicitly allowed.&quot;</description>
+</property>
+
+<property>
   <name>fetcher.robotstxt.archiving.filter.mime</name>
   <value>false</value>
   <description>Skip archiving of a robots.txt response if the detected
