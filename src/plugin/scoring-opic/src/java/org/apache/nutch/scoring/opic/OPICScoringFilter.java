@@ -84,7 +84,8 @@ public class OPICScoringFilter implements ScoringFilter {
   @Override
   public void initialScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
-    datum.setScore(0.0f);
+    // TODO: allow to pass score to redirects
+    // datum.setScore(0.0f);
   }
 
   /** Use {@link CrawlDatum#getScore()}. */
