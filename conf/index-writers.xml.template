@@ -26,9 +26,14 @@
       <param name="collection" value=""/>
       <param name="weight.field" value=""/>
       <param name="commitSize" value="1000"/>
+      <!-- enable authentication. In addition, set username and
+           password for basic authentication, or pass the Bearer
+           token via Authentication header. See below.
+      -->
       <param name="auth" value="false"/>
-      <param name="username" value="username"/>
-      <param name="password" value="password"/>
+      <!-- username and password for basic authentication -->
+      <param name="username" value=""/>
+      <param name="password" value=""/>
       <!-- Name for Authorization HTTP header
            <param name="auth.header.name" value="Bearer"/>
            HTTP header -> Authorization: Bearer 1234567890
