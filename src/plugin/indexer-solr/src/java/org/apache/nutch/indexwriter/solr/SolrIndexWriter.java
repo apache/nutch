@@ -16,8 +16,8 @@
  */
 package org.apache.nutch.indexwriter.solr;
 
-import java.lang.invoke.MethodHandles;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -72,6 +72,8 @@ public class SolrIndexWriter implements IndexWriter {
   private boolean auth;
   private String username;
   private String password;
+  private String authHeaderName;
+  private String authHeaderValue;
 
   @Override
   public void open(Configuration conf, String name) {
@@ -99,20 +101,40 @@ public class SolrIndexWriter implements IndexWriter {
     this.auth = parameters.getBoolean(SolrConstants.USE_AUTH, false);
     this.username = parameters.get(SolrConstants.USERNAME);
     this.password = parameters.get(SolrConstants.PASSWORD);
+    this.authHeaderName = parameters.get(SolrConstants.AUTH_HEADER_NAME, "");
+    this.authHeaderValue = parameters.get(SolrConstants.AUTH_HEADER_VALUE, "");
 
     this.solrClients = new ArrayList<>();
 
     switch (type) {
     case "http":
       for (String url : urls) {
-        solrClients.add(SolrUtils.getHttpSolrClient(url));
+        if (this.auth && !StringUtil.isEmpty(this.authHeaderName)
+            && !StringUtil.isEmpty(this.authHeaderValue)) {
+          solrClients.add(SolrUtils.getHttpSolrClientHeaderAuthorization(url,
+              this.authHeaderName, this.authHeaderValue));
+        } else if (this.auth && !StringUtil.isEmpty(this.username)
+            && !StringUtil.isEmpty(this.password)) {
+          solrClients.add(
+              SolrUtils.getHttpSolrClient(url, this.username, this.password));
+        } else {
+          solrClients.add(SolrUtils.getHttpSolrClient(url));
+        }
       }
       break;
     case "cloud":
-      CloudSolrClient sc = this.auth
-          ? SolrUtils.getCloudSolrClient(Arrays.asList(urls), this.username,
-              this.password)
-          : SolrUtils.getCloudSolrClient(Arrays.asList(urls));
+      CloudSolrClient sc;
+      if (this.auth && !StringUtil.isEmpty(this.authHeaderName)
+          && !StringUtil.isEmpty(this.authHeaderValue)) {
+        sc = SolrUtils.getCloudSolrClientHeaderAuthorization(
+            Arrays.asList(urls), this.authHeaderName, this.authHeaderValue);
+      } else if (this.auth && !StringUtil.isEmpty(this.username)
+          && !StringUtil.isEmpty(this.password)) {
+        sc = SolrUtils.getCloudSolrClient(Arrays.asList(urls), this.username,
+            this.password);
+      } else {
+        sc = SolrUtils.getCloudSolrClient(Arrays.asList(urls));
+      }
       sc.setDefaultCollection(this.collection);
       solrClients.add(sc);
       break;
@@ -219,7 +241,8 @@ public class SolrIndexWriter implements IndexWriter {
     push();
     try {
       for (SolrClient solrClient : solrClients) {
-        if (this.auth) {
+        if (this.auth && !StringUtil.isEmpty(this.username)
+            && !StringUtil.isEmpty(this.password)) {
           UpdateRequest req = new UpdateRequest();
           req.setAction(UpdateRequest.ACTION.COMMIT, true, true);
           req.setBasicAuthCredentials(this.username, this.password);
@@ -243,7 +266,8 @@ public class SolrIndexWriter implements IndexWriter {
         req.add(inputDocs);
         req.setAction(UpdateRequest.ACTION.OPTIMIZE, false, false);
         req.setParams(params);
-        if (this.auth) {
+        if (this.auth && !StringUtil.isEmpty(this.username)
+            && !StringUtil.isEmpty(this.password)) {
           req.setBasicAuthCredentials(this.username, this.password);
         }
         for (SolrClient solrClient : solrClients) {
@@ -264,7 +288,8 @@ public class SolrIndexWriter implements IndexWriter {
         req.deleteById(deleteIds);
         req.setAction(UpdateRequest.ACTION.OPTIMIZE, false, false);
         req.setParams(params);
-        if (this.auth) {
+        if (this.auth && !StringUtil.isEmpty(this.username)
+            && !StringUtil.isEmpty(this.password)) {
           req.setBasicAuthCredentials(this.username, this.password);
         }
 
@@ -326,6 +351,10 @@ public class SolrIndexWriter implements IndexWriter {
     properties.put(SolrConstants.USE_AUTH, new AbstractMap.SimpleEntry<>(
         "Whether to enable HTTP basic authentication for communicating with Solr. Use the username and password properties to configure your credentials.",
         this.auth));
+    properties.put(SolrConstants.AUTH_HEADER_NAME, new AbstractMap.SimpleEntry<>(
+        "The authentication header content name.", this.authHeaderName));
+    properties.put(SolrConstants.AUTH_HEADER_VALUE, new AbstractMap.SimpleEntry<>(
+        "The authentication header content value.", StringUtil.mask(this.authHeaderValue)));
     properties.put(SolrConstants.USERNAME, new AbstractMap.SimpleEntry<>(
         "The username of Solr server.", this.username));
     properties.put(SolrConstants.PASSWORD, new AbstractMap.SimpleEntry<>(
