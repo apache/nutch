@@ -66,12 +66,14 @@ public class WarcCdxWriter extends WarcWriter {
   public static class JsonIndenter extends MinimalPrettyPrinter {
 
     // @Override
+    @Override
     public void writeObjectFieldValueSeparator(JsonGenerator jg)
         throws IOException, JsonGenerationException {
       jg.writeRaw(": ");
     }
 
     // @Override
+    @Override
     public void writeObjectEntrySeparator(JsonGenerator jg)
         throws IOException, JsonGenerationException {
       jg.writeRaw(", ");
@@ -92,6 +94,7 @@ public class WarcCdxWriter extends WarcWriter {
     jsonWriter = jsonMapper.writer(new JsonIndenter());
   }
 
+  @Override
   public URI writeWarcRevisitRecord(final URI targetUri, final String ip,
       final int httpStatusCode, final Date date, final URI warcinfoId,
       final URI relatedId, final String warcProfile, final Date refersToDate,
@@ -107,6 +110,7 @@ public class WarcCdxWriter extends WarcWriter {
     return recordId;
   }
 
+  @Override
   public URI writeWarcResponseRecord(final URI targetUri, final String ip,
       final int httpStatusCode, final Date date, final URI warcinfoId,
       final URI relatedId, final String payloadDigest, final String blockDigest,
@@ -129,7 +133,7 @@ public class WarcCdxWriter extends WarcWriter {
   public void writeCdxLine(final URI targetUri, final Date date, long offset,
       long length, String payloadDigest, Content content, boolean revisit,
       String redirectLocation, String truncated) throws IOException {
-    String url = targetUri.toString();
+    String url = targetUri.toASCIIString();
     String surt = url;
     Metadata meta = content.getMetadata();
     try {

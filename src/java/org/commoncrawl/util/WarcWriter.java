@@ -162,7 +162,7 @@ public class WarcWriter {
     Map<String, String> extra = new LinkedHashMap<String, String>();
     extra.put(WARC_WARCINFO_ID, "<" + warcinfoId.toString() + ">");
     extra.put(WARC_IP_ADDRESS, ip);
-    extra.put(WARC_TARGET_URI, targetUri.toString());
+    extra.put(WARC_TARGET_URI, targetUri.toASCIIString());
 
     URI recordId = getRecordId();
     writeRecord(WARC_REQUEST, date, "application/http; msgtype=request",
