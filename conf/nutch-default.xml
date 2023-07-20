@@ -1918,6 +1918,22 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>scoring.depth.override.pattern</name>
+  <value></value>
+  <description>URLs matching this pattern pass a different max depth value
+  to their outlinks configured in scoring.depth.max.override.
+  </description>
+</property>
+
+<property>
+  <name>scoring.depth.max.override</name>
+  <value></value>
+  <description>This max depth value is passed to outlinks matching the pattern
+  configured in scoring.depth.override.pattern.
+  </description>
+</property>
+
 <!-- scoring similarity properties
  Add scoring-similarity to the list of active plugins
  in the parameter 'plugin.includes' in order to use it.
