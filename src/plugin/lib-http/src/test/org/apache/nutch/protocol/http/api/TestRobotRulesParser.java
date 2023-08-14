@@ -22,10 +22,11 @@ import org.junit.Test;
 import crawlercommons.robots.BaseRobotRules;
 
 /**
- * JUnit test case which tests 1. that robots filtering is performed correctly
- * as per the agent name 2. that crawl delay is extracted correctly from the
- * robots file
- * 
+ * JUnit test case which tests
+ * <ol>
+ * <li>that robots filtering is performed correctly as per the agent name</li>
+ * <li>that crawl delay is extracted correctly from the robots.txt file</li>
+ * </ol>
  */
 public class TestRobotRulesParser {
 
@@ -35,19 +36,22 @@ public class TestRobotRulesParser {
   private static final String UNKNOWN_AGENT = "AgentABC";
   private static final String CR = "\r";
 
-  private static final String ROBOTS_STRING = "User-Agent: Agent1 #foo" + CR
-      + "Disallow: /a" + CR + "Disallow: /b/a" + CR + "#Disallow: /c"
-      + CR
-      + "Crawl-delay: 10"
-      + CR // set crawl delay for Agent1 as 10 sec
-      + "" + CR + "" + CR + "User-Agent: Agent2" + CR + "Disallow: /a/bloh"
-      + CR + "Disallow: /c" + CR + "Disallow: /foo" + CR + "Crawl-delay: 20"
-      + CR + "" + CR + "User-Agent: *" + CR + "Disallow: /foo/bar/" + CR; // no
-                                                                          // crawl
-                                                                          // delay
-                                                                          // for
-                                                                          // other
-                                                                          // agents
+  private static final String ROBOTS_STRING = //
+      "User-Agent: Agent1 #foo" + CR //
+          + "Disallow: /a" + CR //
+          + "Disallow: /b/a" + CR //
+          + "#Disallow: /c" + CR //
+          + "Crawl-delay: 10" + CR // set crawl delay for Agent1 as 10 seconds
+          + "" + CR //
+          + "" + CR //
+          + "User-Agent: Agent2" + CR //
+          + "Disallow: /a/bloh" + CR //
+          + "Disallow: /c" + CR //
+          + "Disallow: /foo" + CR //
+          + "Crawl-delay: 20" + CR // Agent2: 20 seconds
+          + "" + CR //
+          + "User-Agent: *" + CR //
+          + "Disallow: /foo/bar/" + CR; // no crawl delay for other agents
 
   private static final String[] TEST_PATHS = new String[] {
       "http://example.com/a", "http://example.com/a/bloh/foo.html",
@@ -55,7 +59,8 @@ public class TestRobotRulesParser {
       "http://example.com/b/a/index.html",
       "http://example.com/foo/bar/baz.html" };
 
-  private static final boolean[] RESULTS = new boolean[] { false, // /a
+  private static final boolean[] RESULTS = new boolean[] { //
+      false, // /a
       false, // /a/bloh/foo.html
       true, // /b
       true, // /c
@@ -106,7 +111,7 @@ public class TestRobotRulesParser {
    */
   @Test
   public void testCrawlDelay() {
-    // for SINGLE_AGENT, the crawl delay of 10 sec ie. 10000 msec must be
+    // for SINGLE_AGENT, the crawl delay of 10 seconds, i.e. 10000 msec must be
     // returned by the parser
     rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, SINGLE_AGENT);
