@@ -63,6 +63,7 @@ public class DOMContentUtils {
       this.childLen = childLen;
     }
 
+    @Override
     public String toString() {
       return "LP[el=" + elName + ",attr=" + attrName + ",len=" + childLen + "]";
     }

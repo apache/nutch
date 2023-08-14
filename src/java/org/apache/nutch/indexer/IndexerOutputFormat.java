@@ -46,6 +46,7 @@ public class IndexerOutputFormat
 
     return new RecordWriter<Text, NutchIndexAction>() {
 
+      @Override
       public void close(TaskAttemptContext context) throws IOException {
         // do the commits once and for all the reducers in one go
         boolean noCommit = conf
@@ -56,6 +57,7 @@ public class IndexerOutputFormat
         writers.close();
       }
 
+      @Override
       public void write(Text key, NutchIndexAction indexAction)
           throws IOException {
         if (indexAction.action == NutchIndexAction.ADD) {

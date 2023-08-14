@@ -96,6 +96,7 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
         }
       }
 
+      @Override
       public void write(Text key, NutchWritable value) throws IOException, InterruptedException {
 
         Writable w = value.get();
@@ -108,6 +109,7 @@ public class FetcherOutputFormat extends FileOutputFormat<Text, NutchWritable> {
           parseOut.write(key, (Parse) w);
       }
 
+      @Override
       public void close(TaskAttemptContext context) throws IOException, InterruptedException {
         fetchOut.close();
         if (contentOut != null) {

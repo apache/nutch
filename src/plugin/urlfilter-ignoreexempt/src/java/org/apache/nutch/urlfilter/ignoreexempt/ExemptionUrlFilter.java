@@ -69,6 +69,7 @@ public class ExemptionUrlFilter extends RegexURLFilter
   /**
    * Gets reader for regex rules
    */
+  @Override
   protected Reader getRulesReader(Configuration conf)
       throws IOException {
     String fileRules = conf.get(DB_IGNORE_EXTERNAL_EXEMPTIONS_FILE);

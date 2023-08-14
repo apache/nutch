@@ -265,6 +265,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
      * @param context
      *          The task context.
      */
+    @Override
     public void setup(Mapper<Text, BytesWritable, Text, NutchWritable>.Context context) { 
       // set the url filters, scoring filters the parse util and the url
       // normalizers
@@ -286,6 +287,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
      * @param context
      *          The context of the mapreduce job.
      */
+    @Override
     public void map(Text key, BytesWritable bytes,
         Context context) throws IOException, InterruptedException {
 
@@ -412,6 +414,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
 
     String usage = "Usage: ArcSegmentCreator <arcFiles> <segmentsOutDir>";

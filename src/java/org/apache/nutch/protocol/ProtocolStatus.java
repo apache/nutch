@@ -164,6 +164,7 @@ public class ProtocolStatus implements Writable {
     return res;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     byte version = in.readByte();
     switch (version) {
@@ -182,6 +183,7 @@ public class ProtocolStatus implements Writable {
     }
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
     out.writeByte(VERSION);
     out.writeByte((byte) code);
@@ -253,6 +255,7 @@ public class ProtocolStatus implements Writable {
     this.lastModified = lastModified;
   }
 
+  @Override
   public boolean equals(Object o) {
     if (o == null)
       return false;
@@ -279,6 +282,7 @@ public class ProtocolStatus implements Writable {
     return true;
   }
 
+  @Override
   public String toString() {
     StringBuffer res = new StringBuffer();
     res.append(codeToName.get(Integer.valueOf(code)) + "(" + code

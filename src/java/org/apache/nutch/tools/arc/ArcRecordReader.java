@@ -122,6 +122,7 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
   /**
    * Closes the record reader resources.
    */
+  @Override
   public void close() throws IOException {
     this.in.close();
   }
@@ -159,6 +160,7 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
    * 
    * @return The percentage of progress as a float from 0 to 1.
    */
+  @Override
   public float getProgress() throws IOException {
 
     // if we haven't even started
@@ -170,18 +172,22 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
     }
   }
 
+  @Override
   public BytesWritable getCurrentValue(){
     return new BytesWritable();
   }
 
+  @Override
   public Text getCurrentKey(){
     return new Text();
   }
 
+  @Override
   public boolean nextKeyValue(){
     return false;
   }
   
+  @Override
   public void initialize(InputSplit split, TaskAttemptContext context){
       
   }

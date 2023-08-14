@@ -144,6 +144,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
   /**
    * Iterate over all entries in the &lt;url, Parse&gt; map.
    */
+  @Override
   public Iterator<Entry<Text, Parse>> iterator() {
     return parseMap.entrySet().iterator();
   }

@@ -335,6 +335,7 @@ public class CloudSearchIndexWriter implements IndexWriter {
     }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }

@@ -90,6 +90,7 @@ public class CSVIndexWriter implements IndexWriter {
       bytes = sepStr.getBytes(encoding);
     }
 
+    @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
       for (char c : chars) {

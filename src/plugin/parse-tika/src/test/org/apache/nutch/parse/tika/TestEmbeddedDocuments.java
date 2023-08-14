@@ -33,6 +33,7 @@ public class TestEmbeddedDocuments extends TikaParserTest {
 
   private String expectedText = "When in the Course of human events";
 
+  @Override
   @Before
   public void setUp() {
     super.setUp();

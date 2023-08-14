@@ -52,6 +52,7 @@ public class HttpRobotRulesParser extends RobotRulesParser {
     setConf(conf);
   }
 
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
     allowForbidden = conf.getBoolean("http.robots.403.allow", true);

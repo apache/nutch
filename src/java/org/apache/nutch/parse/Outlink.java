@@ -44,6 +44,7 @@ public class Outlink implements Writable {
     md = null;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     toUrl = Text.readString(in);
     anchor = Text.readString(in);
@@ -72,6 +73,7 @@ public class Outlink implements Writable {
     }
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
     Text.writeString(out, toUrl);
     Text.writeString(out, anchor);
@@ -109,6 +111,7 @@ public class Outlink implements Writable {
     this.md = md;
   }
 
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof Outlink))
       return false;
@@ -116,6 +119,7 @@ public class Outlink implements Writable {
     return this.toUrl.equals(other.toUrl) && this.anchor.equals(other.anchor);
   }
 
+  @Override
   public String toString() {
     StringBuffer repr = new StringBuffer("toUrl: ");
     repr.append(toUrl);

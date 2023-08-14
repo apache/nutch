@@ -129,6 +129,7 @@ public abstract class TrieStringMatcher {
       return null;
     }
 
+    @Override
     public int compareTo(TrieNode other) {
       if (this.nodeChar < other.nodeChar)
         return -1;

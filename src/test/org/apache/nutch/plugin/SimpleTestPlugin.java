@@ -37,6 +37,7 @@ public class SimpleTestPlugin extends Plugin {
   /*
    * @see org.apache.nutch.plugin.Plugin#startUp()
    */
+  @Override
   public void startUp() throws PluginRuntimeException {
     System.err.println("start up Plugin: " + getDescriptor().getPluginId());
 
@@ -47,6 +48,7 @@ public class SimpleTestPlugin extends Plugin {
    * 
    * @see org.apache.nutch.plugin.Plugin#shutDown()
    */
+  @Override
   public void shutDown() throws PluginRuntimeException {
     System.err.println("shutdown Plugin: " + getDescriptor().getPluginId());
 

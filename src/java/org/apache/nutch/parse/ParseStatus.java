@@ -150,6 +150,7 @@ public class ParseStatus implements Writable {
     return res;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     byte version = in.readByte();
     switch (version) {
@@ -168,6 +169,7 @@ public class ParseStatus implements Writable {
     }
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
     out.writeByte(VERSION);
     out.writeByte(majorCode);
@@ -228,6 +230,7 @@ public class ParseStatus implements Writable {
     return ParseResult.createParseResult(url, getEmptyParse(conf));
   }
 
+  @Override
   public String toString() {
     StringBuffer res = new StringBuffer();
     String name = null;
@@ -268,6 +271,7 @@ public class ParseStatus implements Writable {
     this.minorCode = minorCode;
   }
 
+  @Override
   public boolean equals(Object o) {
     if (o == null)
       return false;
@@ -306,14 +310,17 @@ public class ParseStatus implements Writable {
           new Metadata());
     }
 
+    @Override
     public ParseData getData() {
       return data;
     }
 
+    @Override
     public String getText() {
       return "";
     }
 
+    @Override
     public boolean isCanonical() {
       return true;
     }

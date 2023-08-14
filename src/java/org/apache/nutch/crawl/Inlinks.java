@@ -53,6 +53,7 @@ public class Inlinks implements Writable {
     inlinks.clear();
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     int length = in.readInt();
     inlinks.clear();
@@ -61,6 +62,7 @@ public class Inlinks implements Writable {
     }
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
     out.writeInt(inlinks.size());
     Iterator<Inlink> it = inlinks.iterator();
@@ -69,6 +71,7 @@ public class Inlinks implements Writable {
     }
   }
 
+  @Override
   public String toString() {
     StringBuilder buffer = new StringBuilder();
     buffer.append("Inlinks:\n");

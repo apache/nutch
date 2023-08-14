@@ -206,6 +206,7 @@ public class Extension {
     fDescriptor = pDescriptor;
   }
 
+  @Override
   public String toString() {
     return getId() + ", " + getClazz() + ", " + getTargetPoint();
   }

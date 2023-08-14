@@ -125,6 +125,7 @@ public class CommonCrawlFormatWARC extends AbstractCommonCrawlFormat {
     writer = new WARCWriter(SERIALNO, settings);
   }
 
+  @Override
   public String getJsonData(String url, Content content, Metadata metadata,
       ParseData parseData) throws IOException {
     this.url = url;
