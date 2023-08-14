@@ -34,6 +34,7 @@ public class DefalultMultiInteractionHandler implements
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
+  @Override
   public String processDriver(WebDriver driver) {
     // loop and get multiple pages in this string
     String accumulatedData = "";
@@ -49,6 +50,7 @@ public class DefalultMultiInteractionHandler implements
     return accumulatedData;
   }
 
+  @Override
   public boolean shouldProcessURL(String URL) {
     return true;
   }

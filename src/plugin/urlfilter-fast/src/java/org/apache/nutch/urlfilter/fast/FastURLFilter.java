@@ -268,6 +268,7 @@ public class FastURLFilter implements URLFilter {
       return pattern.matcher(url.toString()).find();
     }
 
+    @Override
     public String toString() {
        return pattern.toString();
     }
@@ -278,6 +279,7 @@ public class FastURLFilter implements URLFilter {
       super(regex);
     }
 
+    @Override
     public boolean match(URL url) {
       String haystack = url.getPath();
       return pattern.matcher(haystack).find();
@@ -297,6 +299,7 @@ public class FastURLFilter implements URLFilter {
       return instance;
     }
 
+    @Override
     public boolean match(URL url) {
       return true;
     }
@@ -307,6 +310,7 @@ public class FastURLFilter implements URLFilter {
       super(regex);
     }
 
+    @Override
     public boolean match(URL url) {
       String haystack = url.getFile();
       return pattern.matcher(haystack).find();

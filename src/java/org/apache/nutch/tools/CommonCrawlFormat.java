@@ -86,5 +86,6 @@ public interface CommonCrawlFormat extends Closeable {
    * Optional method that could be implemented if the actual format needs some
    * close procedure.
    */
+  @Override
   public abstract void close();
 }

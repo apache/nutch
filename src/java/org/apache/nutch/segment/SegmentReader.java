@@ -307,6 +307,7 @@ public class SegmentReader extends Configured implements Tool {
     ArrayList<Thread> threads = new ArrayList<>();
     if (co)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getMapRecords(new Path(segment,
@@ -319,6 +320,7 @@ public class SegmentReader extends Configured implements Tool {
       });
     if (fe)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getMapRecords(new Path(segment,
@@ -331,6 +333,7 @@ public class SegmentReader extends Configured implements Tool {
       });
     if (ge)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getSeqRecords(new Path(segment,
@@ -343,6 +346,7 @@ public class SegmentReader extends Configured implements Tool {
       });
     if (pa)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getSeqRecords(new Path(segment,
@@ -355,6 +359,7 @@ public class SegmentReader extends Configured implements Tool {
       });
     if (pd)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getMapRecords(new Path(segment,
@@ -367,6 +372,7 @@ public class SegmentReader extends Configured implements Tool {
       });
     if (pt)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getMapRecords(new Path(segment,

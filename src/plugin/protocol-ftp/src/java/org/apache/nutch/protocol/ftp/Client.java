@@ -228,6 +228,7 @@ public class Client extends FTP {
    * @exception IOException
    *              If an error occurs while disconnecting.
    ***/
+  @Override
   public void disconnect() throws IOException {
     __initDefaults();
     super.disconnect();

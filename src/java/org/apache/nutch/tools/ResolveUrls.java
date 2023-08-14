@@ -69,6 +69,7 @@ public class ResolveUrls {
       this.url = url;
     }
 
+    @Override
     public void run() {
 
       numTotal.incrementAndGet();

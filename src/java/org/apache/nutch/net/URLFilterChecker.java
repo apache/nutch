@@ -69,6 +69,7 @@ public class URLFilterChecker extends AbstractChecker {
     return super.run();
   }
 
+  @Override
   protected int process(String line, StringBuilder output) throws Exception {
     String out = filters.filter(line);
     if (out != null) {

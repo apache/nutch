@@ -114,6 +114,7 @@ public abstract class RobotRulesParser implements Tool {
   /**
    * Set the {@link Configuration} object
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -166,6 +167,7 @@ public abstract class RobotRulesParser implements Tool {
   /**
    * Get the {@link Configuration} object
    */
+  @Override
   public Configuration getConf() {
     return conf;
   }
@@ -393,6 +395,7 @@ public abstract class RobotRulesParser implements Tool {
    */
   private static class TestRobotRulesParser extends RobotRulesParser {
 
+    @Override
     public void setConf(Configuration conf) {
       /*
        * Make sure that agent name is not empty so that

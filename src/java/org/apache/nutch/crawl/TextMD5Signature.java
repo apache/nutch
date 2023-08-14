@@ -29,6 +29,7 @@ public class TextMD5Signature extends Signature {
 
   Signature fallback = new MD5Signature();
 
+  @Override
   public byte[] calculate(Content content, Parse parse) {
     String text = parse.getText();
 

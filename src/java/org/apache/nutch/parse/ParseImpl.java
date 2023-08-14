@@ -53,24 +53,29 @@ public class ParseImpl implements Parse, Writable {
     this.isCanonical = isCanonical;
   }
 
+  @Override
   public String getText() {
     return text.getText();
   }
 
+  @Override
   public ParseData getData() {
     return data;
   }
 
+  @Override
   public boolean isCanonical() {
     return isCanonical;
   }
 
+  @Override
   public final void write(DataOutput out) throws IOException {
     out.writeBoolean(isCanonical);
     text.write(out);
     data.write(out);
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     isCanonical = in.readBoolean();
     text = new ParseText();

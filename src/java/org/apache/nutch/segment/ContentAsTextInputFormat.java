@@ -53,18 +53,22 @@ public class ContentAsTextInputFormat extends
       innerValue = new Content();
     }
 
+    @Override
     public Text getCurrentValue(){
       return new Text();
     }
 
+    @Override
     public Text getCurrentKey(){
       return new Text();
     }
 
+    @Override
     public boolean nextKeyValue(){
       return false;
     }
 
+    @Override
     public void initialize(InputSplit split, TaskAttemptContext context){
 
     }
@@ -88,6 +92,7 @@ public class ContentAsTextInputFormat extends
       return true;
     }
 
+    @Override
     public float getProgress() throws IOException {
       return sequenceFileRecordReader.getProgress();
     }
@@ -96,6 +101,7 @@ public class ContentAsTextInputFormat extends
       return sequenceFileRecordReader.getPos();
     }*/
 
+    @Override
     public synchronized void close() throws IOException {
       sequenceFileRecordReader.close();
     }

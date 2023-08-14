@@ -53,6 +53,7 @@ public class SuffixStringMatcher extends TrieStringMatcher {
    * Returns true if the given <code>String</code> is matched by a suffix in the
    * trie
    */
+  @Override
   public boolean matches(String input) {
     TrieNode node = root;
     for (int i = input.length() - 1; i >= 0; i--) {
@@ -69,6 +70,7 @@ public class SuffixStringMatcher extends TrieStringMatcher {
    * Returns the shortest suffix of <code>input</code> that is matched,
    * or <code>null</code> if no match exists.
    */
+  @Override
   public String shortestMatch(String input) {
     TrieNode node = root;
     for (int i = input.length() - 1; i >= 0; i--) {
@@ -85,6 +87,7 @@ public class SuffixStringMatcher extends TrieStringMatcher {
    * Returns the longest suffix of <code>input</code> that is matched,
    * or <code>null</code> if no match exists.
    */
+  @Override
   public String longestMatch(String input) {
     TrieNode node = root;
     String result = null;

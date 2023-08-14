@@ -28,6 +28,7 @@ import org.junit.Test;
 
 public class TestFastURLFilter extends RegexURLFilterBaseTest {
 
+  @Override
   protected URLFilter getURLFilter(Reader rules) {
     try {
       return new FastURLFilter(rules);

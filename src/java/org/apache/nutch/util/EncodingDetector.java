@@ -89,6 +89,7 @@ public class EncodingDetector {
       return value;
     }
 
+    @Override
     public String toString() {
       return value + " (" + source
           + ((confidence >= 0) ? ", " + confidence + "% confidence" : "") + ")";

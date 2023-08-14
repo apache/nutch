@@ -74,6 +74,7 @@ public class URLNormalizerChecker extends AbstractChecker {
     return super.run();
   }
 
+  @Override
   protected int process(String line, StringBuilder output) throws Exception {
     try {
       String norm = normalizers.normalize(line, scope);

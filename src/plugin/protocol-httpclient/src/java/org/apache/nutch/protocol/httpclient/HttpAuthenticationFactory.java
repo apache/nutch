@@ -56,10 +56,12 @@ public class HttpAuthenticationFactory implements Configurable {
     setConf(conf);
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
