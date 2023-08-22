@@ -59,6 +59,7 @@ public class WarcExport extends Configured implements Tool {
 
   public static class ExportMapper
       extends Mapper<Text, Writable, Text, NutchWritable> {
+    @Override
     public void map(Text key, Writable value, Context context)
         throws IOException, InterruptedException {
       if (key.getLength() == 0) {
@@ -74,6 +75,7 @@ public class WarcExport extends Configured implements Tool {
     private boolean generateCrawlDiagnostics = false;
     private boolean generateRobotsTxt = false;
 
+    @Override
     public void setup(Context context) {
       Configuration conf = context.getConfiguration();
       generateCrawlDiagnostics = conf.getBoolean("warc.export.crawldiagnostics",
@@ -81,6 +83,7 @@ public class WarcExport extends Configured implements Tool {
       generateRobotsTxt = conf.getBoolean("warc.export.robotstxt", false);
     }
 
+    @Override
     public void reduce(Text key, Iterable<NutchWritable> values,
         Context context) throws IOException, InterruptedException {
       CrawlDatum datum = null;
@@ -197,6 +200,7 @@ public class WarcExport extends Configured implements Tool {
         TimingUtil.elapsedTime(start, end));
   }
 
+  @Override
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println(

@@ -46,6 +46,7 @@ public class WarcCapture implements Writable {
     this.content = content;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     url.readFields(in);
     if (in.readBoolean()) {
@@ -60,6 +61,7 @@ public class WarcCapture implements Writable {
     }
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
     url.write(out);
     if (datum != null) {
@@ -76,6 +78,7 @@ public class WarcCapture implements Writable {
     }
   }
 
+  @Override
   public String toString() {
     return "url=" + url.toString() + ", datum=" + datum.toString();
   }
