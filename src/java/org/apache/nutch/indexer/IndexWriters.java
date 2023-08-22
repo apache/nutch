@@ -137,7 +137,7 @@ public class IndexWriters {
 
       return indexWriterConfigs;
     } catch (SAXException | IOException | ParserConfigurationException e) {
-      LOG.error(e.toString());
+      LOG.error("Failed to read index writers configuration: {}", e.getMessage());
       return new IndexWriterConfig[0];
     }
   }

@@ -137,10 +137,12 @@ public final class ParseData extends VersionedWritable {
     return value;
   }
 
+  @Override
   public byte getVersion() {
     return version;
   }
 
+  @Override
   public final void readFields(DataInput in) throws IOException {
 
     version = in.readByte();
@@ -162,6 +164,7 @@ public final class ParseData extends VersionedWritable {
     parseMeta.readFields(in);
   }
 
+  @Override
   public final void write(DataOutput out) throws IOException {
     out.writeByte(VERSION); // write version
     status.write(out); // write status
@@ -181,6 +184,7 @@ public final class ParseData extends VersionedWritable {
     return parseText;
   }
 
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof ParseData))
       return false;

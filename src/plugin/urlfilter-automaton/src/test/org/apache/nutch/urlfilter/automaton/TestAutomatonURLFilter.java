@@ -33,6 +33,7 @@ import org.junit.Test;
  */
 public class TestAutomatonURLFilter extends RegexURLFilterBaseTest {
 
+  @Override
   protected URLFilter getURLFilter(Reader rules) {
     try {
       return new AutomatonURLFilter(rules);

@@ -144,12 +144,14 @@ public class LinkDumper extends Configured implements Tool {
       this.node = node;
     }
 
+    @Override
     public void readFields(DataInput in) throws IOException {
       url = in.readUTF();
       node = new Node();
       node.readFields(in);
     }
 
+    @Override
     public void write(DataOutput out) throws IOException {
       out.writeUTF(url);
       node.write(out);
@@ -180,6 +182,7 @@ public class LinkDumper extends Configured implements Tool {
       this.links = links;
     }
 
+    @Override
     public void readFields(DataInput in) throws IOException {
       int numLinks = in.readInt();
       if (numLinks > 0) {
@@ -192,6 +195,7 @@ public class LinkDumper extends Configured implements Tool {
       }
     }
 
+    @Override
     public void write(DataOutput out) throws IOException {
       if (links != null && links.length > 0) {
         int numLinks = links.length;

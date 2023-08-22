@@ -154,6 +154,7 @@ public class ParserChecker extends AbstractChecker {
     }
   }
 
+  @Override
   protected int process(String url, StringBuilder output) throws Exception {
     if (this.normalizers != null) {
       url = this.normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);

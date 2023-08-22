@@ -269,6 +269,7 @@ public class FetcherThread extends Thread {
     }
   }
 
+  @Override
   @SuppressWarnings("fallthrough")
   public void run() {
     activeThreads.incrementAndGet(); // count threads

@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -114,6 +115,7 @@ public abstract class RobotRulesParser implements Tool {
   /**
    * Set the {@link Configuration} object
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -122,8 +124,14 @@ public abstract class RobotRulesParser implements Tool {
     if (agentName == null || (agentName = agentName.trim()).isEmpty()) {
       throw new RuntimeException("Agent name not configured!");
     }
-    agentNames = new HashSet<>();
-    agentNames.add(agentName.toLowerCase());
+    agentNames = new LinkedHashSet<>();
+    if (!agentName.equals("*")) {
+      /*
+       * skip wildcard "*" - crawler-commons' SimpleRobotRulesParser expects an
+       * empty set of agent names to use the wildcard rules
+       */
+      agentNames.add(agentName.toLowerCase());
+    }
 
     // If there are any other agents specified, append those to the list of
     // agents
@@ -164,6 +172,7 @@ public abstract class RobotRulesParser implements Tool {
   /**
    * Get the {@link Configuration} object
    */
+  @Override
   public Configuration getConf() {
     return conf;
   }
@@ -186,7 +195,7 @@ public abstract class RobotRulesParser implements Tool {
 
   /**
    * Parses the robots content using the {@link SimpleRobotRulesParser} from
-   * crawler commons
+   * crawler-commons
    * 
    * @param url
    *          The robots.txt URL
@@ -207,7 +216,7 @@ public abstract class RobotRulesParser implements Tool {
 
   /**
    * Parses the robots content using the {@link SimpleRobotRulesParser} from
-   * crawler commons
+   * crawler-commons
    * 
    * @param url
    *          The robots.txt URL
@@ -293,8 +302,9 @@ public abstract class RobotRulesParser implements Tool {
           "\tit is allowed by the robots.txt rules.  Other parts of the URLs",
           "\t(mainly the host) are ignored.",
           "",
-          "<agent-names>\tcomma-separated list of agent names",
+          "<agent-names>\tuser-agent name (aka. \"product token\")",
           "\tused to select rules from the robots.txt file.",
+          "\tMultiple agent names can be passed as comma-separated string.",
           "\tIf no agent name is given the properties http.agent.name",
           "\tand http.robots.agents are used.",
           "\tIf also http.agent.name and http.robots.agents are empty,",
@@ -372,7 +382,8 @@ public abstract class RobotRulesParser implements Tool {
         }
       }
 
-      System.out.println("Testing robots.txt for agent names: " + agentNames);
+      System.out.println("Testing robots.txt for agent names: "
+          + (agentNames.isEmpty() ? "* (any other agent)" : agentNames));
 
       LineNumberReader testsIn = new LineNumberReader(new FileReader(urlFile));
       String testPath;
@@ -412,6 +423,7 @@ public abstract class RobotRulesParser implements Tool {
    */
   private static class TestRobotRulesParser extends RobotRulesParser {
 
+    @Override
     public void setConf(Configuration conf) {
       /*
        * Make sure that agent name is not empty so that

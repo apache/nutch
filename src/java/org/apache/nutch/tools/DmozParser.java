@@ -73,6 +73,7 @@ public class DmozParser {
       super(reader);
     }
 
+    @Override
     public int read() throws IOException {
       int c = in.read();
       int value = c;
@@ -89,6 +90,7 @@ public class DmozParser {
       return value;
     }
 
+    @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
       int n = in.read(cbuf, off, len);
       if (n != -1) {

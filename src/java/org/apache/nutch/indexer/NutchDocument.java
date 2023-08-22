@@ -83,6 +83,7 @@ public class NutchDocument implements Writable,
   }
 
   /** Iterate over all fields. */
+  @Override
   public Iterator<Entry<String, NutchField>> iterator() {
     return fields.entrySet().iterator();
   }
@@ -99,6 +100,7 @@ public class NutchDocument implements Writable,
     return documentMeta;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     fields.clear();
     byte version = in.readByte();
@@ -116,6 +118,7 @@ public class NutchDocument implements Writable,
     documentMeta.readFields(in);
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
     out.writeByte(VERSION);
     WritableUtils.writeVInt(out, fields.size());
@@ -128,6 +131,7 @@ public class NutchDocument implements Writable,
     documentMeta.write(out);
   }
 
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("doc {\n");

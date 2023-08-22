@@ -136,6 +136,7 @@ public class FetcherOutputFormat extends S3FileOutputFormat<Text, NutchWritable>
         }
       }
 
+      @Override
       public void write(Text key, NutchWritable value) throws IOException, InterruptedException {
 
         Writable w = value.get();
@@ -150,6 +151,7 @@ public class FetcherOutputFormat extends S3FileOutputFormat<Text, NutchWritable>
           warcOut.write(key, (WarcCapture) w);
       }
 
+      @Override
       public void close(TaskAttemptContext context) throws IOException, InterruptedException {
         fetchOut.close();
         if (contentOut != null) {

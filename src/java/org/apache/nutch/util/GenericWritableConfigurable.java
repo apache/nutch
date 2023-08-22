@@ -33,10 +33,12 @@ public abstract class GenericWritableConfigurable extends GenericWritable
 
   private Configuration conf;
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }

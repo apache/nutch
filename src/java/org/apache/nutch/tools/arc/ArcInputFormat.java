@@ -35,6 +35,7 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
  */
 public class ArcInputFormat extends FileInputFormat<Text, BytesWritable> {
   
+  @Override
   public RecordReader<Text, BytesWritable> createRecordReader(InputSplit split, 
       TaskAttemptContext context){
     return new SequenceFileRecordReader<Text, BytesWritable>();

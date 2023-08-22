@@ -80,7 +80,8 @@ public class CommonCrawlFormatSimple extends AbstractCommonCrawlFormat {
 		sb.append("\"" + value + "\",");
 	}
 	
-	protected void startObject(String key) throws IOException {
+	@Override
+  protected void startObject(String key) throws IOException {
 		String name = "";
 		if (key != null) {
 			name = "\"" + key + "\": ";
@@ -89,7 +90,8 @@ public class CommonCrawlFormatSimple extends AbstractCommonCrawlFormat {
 		this.tabCount++;
 	}
 	
-	protected void closeObject(String key) throws IOException {
+	@Override
+  protected void closeObject(String key) throws IOException {
 		if (sb.charAt(sb.length()-2) == ',') {
 			sb.deleteCharAt(sb.length()-2); // delete comma
 		}
@@ -97,7 +99,8 @@ public class CommonCrawlFormatSimple extends AbstractCommonCrawlFormat {
 		sb.append(printTabs() + "},\n");
 	}
 	
-	protected String generateJson() throws IOException {
+	@Override
+  protected String generateJson() throws IOException {
 		sb.deleteCharAt(sb.length()-1); // delete new line
 		sb.deleteCharAt(sb.length()-1); // delete comma
 		return sb.toString();

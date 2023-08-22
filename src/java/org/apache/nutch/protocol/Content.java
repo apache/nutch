@@ -147,6 +147,7 @@ public final class Content implements Writable {
 
   }
 
+  @Override
   public final void readFields(DataInput in) throws IOException {
     metadata.clear();
     int sizeOrVersion = in.readInt();
@@ -176,6 +177,7 @@ public final class Content implements Writable {
     }
   }
 
+  @Override
   public final void write(DataOutput out) throws IOException {
     out.writeInt(VERSION);
 
@@ -256,6 +258,7 @@ public final class Content implements Writable {
     this.metadata = metadata;
   }
 
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof Content)) {
       return false;
@@ -267,6 +270,7 @@ public final class Content implements Writable {
         && this.metadata.equals(that.metadata);
   }
 
+  @Override
   public String toString() {
     return toString(StandardCharsets.UTF_8);
   }

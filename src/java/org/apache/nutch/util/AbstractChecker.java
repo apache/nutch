@@ -137,6 +137,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
       LOG.info(client.toString());
     }
 
+    @Override
     public void run() {
       // Setup streams
       BufferedReader in = null;

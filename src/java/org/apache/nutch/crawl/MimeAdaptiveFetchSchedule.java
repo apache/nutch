@@ -77,6 +77,7 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
   // Here we store the mime's and their delta's
   private HashMap<String, AdaptiveRate> mimeMap;
 
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
     if (conf == null)

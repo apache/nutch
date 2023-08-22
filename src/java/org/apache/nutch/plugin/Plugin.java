@@ -89,6 +89,7 @@ public class Plugin {
     fDescriptor = descriptor;
   }
 
+  @Override
   @SuppressWarnings("deprecation")
   protected void finalize() throws Throwable {
     super.finalize();

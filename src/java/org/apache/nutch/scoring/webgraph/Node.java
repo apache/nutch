@@ -76,6 +76,7 @@ public class Node implements Writable {
     this.metadata = metadata;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
 
     numInlinks = in.readInt();
@@ -85,6 +86,7 @@ public class Node implements Writable {
     metadata.readFields(in);
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
 
     out.writeInt(numInlinks);
@@ -93,6 +95,7 @@ public class Node implements Writable {
     metadata.write(out);
   }
 
+  @Override
   public String toString() {
     return "num inlinks: " + numInlinks + ", num outlinks: " + numOutlinks
         + ", inlink score: " + inlinkScore + ", outlink score: "

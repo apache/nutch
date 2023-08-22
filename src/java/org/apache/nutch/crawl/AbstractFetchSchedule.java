@@ -48,6 +48,7 @@ public abstract class AbstractFetchSchedule extends Configured implements
     super(conf);
   }
 
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
     if (conf == null)
@@ -70,6 +71,7 @@ public abstract class AbstractFetchSchedule extends Configured implements
    * @param datum
    *          datum instance to be initialized (modified in place).
    */
+  @Override
   public CrawlDatum initializeSchedule(Text url, CrawlDatum datum) {
     datum.setFetchTime(System.currentTimeMillis());
     datum.setFetchInterval(defaultInterval);
@@ -83,6 +85,7 @@ public abstract class AbstractFetchSchedule extends Configured implements
    * counter - extending classes should call super.setFetchSchedule() to
    * preserve this behavior.
    */
+  @Override
   public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
       long prevFetchTime, long prevModifiedTime, long fetchTime,
       long modifiedTime, int state) {
@@ -106,6 +109,7 @@ public abstract class AbstractFetchSchedule extends Configured implements
    *         implementations should make sure that it contains at least all
    *         information from @see CrawlDatum.
    */
+  @Override
   public CrawlDatum setPageGoneSchedule(Text url, CrawlDatum datum,
       long prevFetchTime, long prevModifiedTime, long fetchTime) {
     // no page is truly GONE ... just increase the interval by 50%
@@ -143,6 +147,7 @@ public abstract class AbstractFetchSchedule extends Configured implements
    *         implementations should make sure that it contains at least all
    *         information from @see CrawlDatum.
    */
+  @Override
   public CrawlDatum setPageRetrySchedule(Text url, CrawlDatum datum,
       long prevFetchTime, long prevModifiedTime, long fetchTime) {
     datum.setFetchTime(fetchTime + (long) SECONDS_PER_DAY * 1000);
@@ -155,6 +160,7 @@ public abstract class AbstractFetchSchedule extends Configured implements
    * 
    * @return the date as a long.
    */
+  @Override
   public long calculateLastFetchTime(CrawlDatum datum) {
     if (datum.getStatus() == CrawlDatum.STATUS_DB_UNFETCHED) {
       return 0L;
@@ -186,6 +192,7 @@ public abstract class AbstractFetchSchedule extends Configured implements
    * @return true, if the page should be considered for inclusion in the current
    *         fetchlist, otherwise false.
    */
+  @Override
   public boolean shouldFetch(Text url, CrawlDatum datum, long curTime) {
     // pages are never truly GONE - we have to check them from time to time.
     // pages with too long a fetchInterval are adjusted so that they fit within
@@ -217,6 +224,7 @@ public abstract class AbstractFetchSchedule extends Configured implements
    *          fetchTime to now. If false, force refetch whenever the next fetch
    *          time is set.
    */
+  @Override
   public CrawlDatum forceRefetch(Text url, CrawlDatum datum, boolean asap) {
     // reduce fetchInterval so that it fits within the max value
     if (datum.getFetchInterval() > maxInterval)

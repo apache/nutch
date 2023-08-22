@@ -72,8 +72,17 @@
 <property>
   <name>http.agent.name</name>
   <value></value>
-  <description>HTTP 'User-Agent' request header. MUST NOT be empty -
+  <description>'User-Agent' name: a single word uniquely identifying your crawler.
+
+  The value is used to select the group of robots.txt rules addressing your
+  crawler. It is also sent as part of the HTTP 'User-Agent' request header.
+
+  This property MUST NOT be empty -
   please set this to a single word uniquely related to your organization.
+
+  Following RFC 9309 the 'User-Agent' name (aka. 'product token')
+  &quot;MUST contain only uppercase and lowercase letters ('a-z' and
+  'A-Z'), underscores ('_'), and hyphens ('-').&quot;
 
   NOTE: You should also check other related properties:
 
@@ -84,7 +93,6 @@
     http.agent.version
 
   and set their values appropriately.
-
   </description>
 </property>
 
@@ -95,13 +103,13 @@
   parser would look for in robots.txt. Multiple agents can be provided using
   comma as a delimiter. eg. mybot,foo-spider,bar-crawler
 
-  The ordering of agents does NOT matter and the robots parser would make
-  decision based on the agent which matches first to the robots rules.
-  Also, there is NO need to add a wildcard (ie. "*") to this string as the
-  robots parser would smartly take care of a no-match situation.
+  The ordering of agents does NOT matter and the robots.txt parser combines
+  all rules to any of the agent names.  Also, there is NO need to add
+  a wildcard (ie. "*") to this string as the robots parser would smartly
+  take care of a no-match situation.
 
   If no value is specified, by default HTTP agent (ie. 'http.agent.name')
-  would be used for user agent matching by the robots parser.
+  is used for user-agent matching by the robots parser.
   </description>
 </property>
 
@@ -166,9 +174,9 @@
 <property>
   <name>http.agent.url</name>
   <value></value>
-  <description>A URL to advertise in the User-Agent header.  This will
+  <description>A URL to advertise in the User-Agent header. This will
    appear in parenthesis after the agent name. Custom dictates that this
-   should be a URL of a page explaining the purpose and behavior of this
+   should be a URL to a page that explains the purpose and behavior of this
    crawler.
   </description>
 </property>
@@ -176,9 +184,9 @@
 <property>
   <name>http.agent.email</name>
   <value></value>
-  <description>An email address to advertise in the HTTP 'From' request
-   header and User-Agent header. A good practice is to mangle this
-   address (e.g. 'info at example dot com') to avoid spamming.
+  <description>An email address to advertise in the HTTP 'User-Agent' (and
+   'From') request headers. A good practice is to mangle this address
+   (e.g. 'info at example dot com') to avoid spamming.
   </description>
 </property>
 
@@ -202,7 +210,7 @@
   <name>http.agent.rotate.file</name>
   <value>agents.txt</value>
   <description>
-    File containing alternative user agent names to be used instead of
+    File containing alternative user-agent names to be used instead of
     http.agent.name on a rotating basis if http.agent.rotate is true.
     Each line of the file should contain exactly one agent
     specification including name, version, description, URL, etc.
@@ -2007,6 +2015,22 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   to track the distance from the seed it was found from.
   The depth is used to prioritise URLs in the generation step so that
   shallower pages are fetched first.
+  </description>
+</property>
+
+<property>
+  <name>scoring.depth.override.pattern</name>
+  <value></value>
+  <description>URLs matching this pattern pass a different max depth value
+  to their outlinks configured in scoring.depth.max.override.
+  </description>
+</property>
+
+<property>
+  <name>scoring.depth.max.override</name>
+  <value></value>
+  <description>This max depth value is passed to outlinks matching the pattern
+  configured in scoring.depth.override.pattern.
   </description>
 </property>
 

@@ -159,16 +159,19 @@ public class PluginClassLoader extends URLClassLoader {
     return new Enumeration<URL>() {
       Iterator<URL> iter = urls.iterator();
 
+      @Override
       public boolean hasMoreElements() {
         return iter.hasNext();
       }
 
+      @Override
       public URL nextElement() {
         return iter.next();
       }
     };
   }
 
+  @Override
   public InputStream getResourceAsStream(String name) {
     URL url = getResource(name);
     try {

@@ -140,6 +140,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
     }
   }
 
+  @Override
   protected int process(String url, StringBuilder output) throws Exception {
     if (normalizers != null) {
       url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);

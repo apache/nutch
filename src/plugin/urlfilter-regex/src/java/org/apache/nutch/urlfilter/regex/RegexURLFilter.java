@@ -58,6 +58,7 @@ public class RegexURLFilter extends RegexURLFilterBase {
    * Rules specified as a config property will override rules specified as a
    * config file.
    */
+  @Override
   protected Reader getRulesReader(Configuration conf) throws IOException {
     String stringRules = conf.get(URLFILTER_REGEX_RULES);
     if (stringRules != null) {
@@ -68,10 +69,12 @@ public class RegexURLFilter extends RegexURLFilterBase {
   }
 
   // Inherited Javadoc
+  @Override
   protected RegexRule createRule(boolean sign, String regex) {
     return new Rule(sign, regex);
   }
   
+  @Override
   protected RegexRule createRule(boolean sign, String regex, String hostOrDomain) {
     return new Rule(sign, regex, hostOrDomain);
   }
@@ -102,6 +105,7 @@ public class RegexURLFilter extends RegexURLFilterBase {
       pattern = Pattern.compile(regex);
     }
 
+    @Override
     protected boolean match(String url) {
       return pattern.matcher(url).find();
     }

@@ -303,6 +303,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     return result;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     byte version = in.readByte(); // read version
     if (version > CUR_VERSION) // check version
@@ -362,6 +363,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   private static final int SCORE_OFFSET = 15;
   private static final int SIG_OFFSET = SCORE_OFFSET + 12;
 
+  @Override
   public void write(DataOutput out) throws IOException {
     out.writeByte(CUR_VERSION); // store current version
     out.writeByte(status);
@@ -416,6 +418,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
    * minus the correspoinding field of the existing {@link CrawlDatum}
    * is greater than 0, otherwise return -1.
    */
+  @Override
   public int compareTo(CrawlDatum that) {
     if (that.score != this.score)
       return (that.score - this.score) > 0 ? 1 : -1;
@@ -438,6 +441,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       super(CrawlDatum.class);
     }
 
+    @Override
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
       float score1 = readFloat(b1, s1 + SCORE_OFFSET);
       float score2 = readFloat(b2, s2 + SCORE_OFFSET);
@@ -479,6 +483,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   // basic methods
   //
 
+  @Override
   public String toString() {
     StringBuilder buf = new StringBuilder();
     buf.append("Version: " + CUR_VERSION + "\n");
@@ -519,6 +524,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     return set1.equals(set2);
   }
 
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof CrawlDatum))
       return false;
@@ -535,6 +541,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     return metadataEquals(other.metaData);
   }
 
+  @Override
   public int hashCode() {
     int res = 0;
     if (signature != null) {
@@ -550,6 +557,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
         ^ fetchInterval ^ Float.floatToIntBits(score);
   }
 
+  @Override
   public Object clone() {
     try {
       return super.clone();

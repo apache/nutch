@@ -73,7 +73,7 @@
 
 		<dependency org="com.google.guava" name="guava" rev="31.1-jre" />
 
-		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="1.4-SNAPSHOT" />
+		<dependency org="com.github.crawler-commons" name="crawler-commons" rev="1.5-SNAPSHOT" />
 
 		<dependency org="com.google.code.gson" name="gson" rev="2.9.1"/>
 		<dependency org="com.martinkl.warc" name="warc-hadoop" rev="0.1.0">

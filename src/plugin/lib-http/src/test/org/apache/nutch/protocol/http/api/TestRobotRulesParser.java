@@ -44,14 +44,14 @@ public class TestRobotRulesParser {
           + "Disallow: /a" + CR //
           + "Disallow: /b/a" + CR //
           + "#Disallow: /c" + CR //
-          + "Crawl-delay: 10" + CR // set crawl delay for Agent1 as 10 sec
+          + "Crawl-delay: 10" + CR // set crawl delay for Agent1 as 10 seconds
           + "" + CR //
           + "" + CR //
           + "User-Agent: Agent2" + CR //
           + "Disallow: /a/bloh" + CR //
           + "Disallow: /c" + CR //
           + "Disallow: /foo" + CR //
-          + "Crawl-delay: 20" + CR //
+          + "Crawl-delay: 20" + CR // Agent2: 20 seconds
           + "" + CR //
           + "User-Agent: *" + CR //
           + "Disallow: /foo/bar/" + CR; // no crawl delay for other agents
@@ -96,6 +96,17 @@ public class TestRobotRulesParser {
     parser = new HttpRobotRulesParser();
   }
 
+  private void testRulesOnPaths(String agent, String[] paths,
+      boolean[] results) {
+    for (int counter = 0; counter < paths.length; counter++) {
+      boolean res = rules.isAllowed(paths[counter]);
+      Assert.assertTrue(
+          "testing on agent (" + agent + "), and " + "path " + paths[counter]
+              + " got " + res + ", expected " + results[counter],
+          res == results[counter]);
+    }
+  }
+
   /**
    * Test that the robots rules are interpreted correctly by the robots rules
    * parser.
@@ -104,36 +115,15 @@ public class TestRobotRulesParser {
   public void testRobotsAgent() {
     rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, Set.of(SINGLE_AGENT1.toLowerCase()));
-
-    for (int counter = 0; counter < TEST_PATHS.length; counter++) {
-      Assert.assertTrue(
-          "testing on agent (" + SINGLE_AGENT1 + "), and " + "path "
-              + TEST_PATHS[counter] + " got "
-              + rules.isAllowed(TEST_PATHS[counter]),
-          rules.isAllowed(TEST_PATHS[counter]) == RESULTS_AGENT1[counter]);
-    }
+    testRulesOnPaths(SINGLE_AGENT1, TEST_PATHS, RESULTS_AGENT1);
 
     rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, Set.of(SINGLE_AGENT2.toLowerCase()));
-
-    for (int counter = 0; counter < TEST_PATHS.length; counter++) {
-      Assert.assertTrue(
-          "testing on agent (" + SINGLE_AGENT2 + "), and " + "path "
-              + TEST_PATHS[counter] + " got "
-              + rules.isAllowed(TEST_PATHS[counter]),
-          rules.isAllowed(TEST_PATHS[counter]) == RESULTS_AGENT2[counter]);
-    }
+    testRulesOnPaths(SINGLE_AGENT2, TEST_PATHS, RESULTS_AGENT2);
 
     rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, Set.of(MULTIPLE_AGENTS.toLowerCase().split("\\s*,\\s*")));
-
-    for (int counter = 0; counter < TEST_PATHS.length; counter++) {
-      Assert.assertTrue(
-          "testing on agents (" + MULTIPLE_AGENTS + "), and " + "path "
-              + TEST_PATHS[counter] + " got "
-              + rules.isAllowed(TEST_PATHS[counter]),
-          rules.isAllowed(TEST_PATHS[counter]) == RESULTS_AGENT1_AND_AGENT2[counter]);
-    }
+    testRulesOnPaths(MULTIPLE_AGENTS, TEST_PATHS, RESULTS_AGENT1_AND_AGENT2);
   }
 
   /**
@@ -173,25 +163,15 @@ public class TestRobotRulesParser {
   public void testRobotsAgentDeprecatedAPIMethod() {
     rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, SINGLE_AGENT1);
+    testRulesOnPaths(SINGLE_AGENT1, TEST_PATHS, RESULTS_AGENT1);
 
-    for (int counter = 0; counter < TEST_PATHS.length; counter++) {
-      Assert.assertTrue(
-          "testing on agent (" + SINGLE_AGENT1 + "), and " + "path "
-              + TEST_PATHS[counter] + " got "
-              + rules.isAllowed(TEST_PATHS[counter]),
-          rules.isAllowed(TEST_PATHS[counter]) == RESULTS_AGENT1[counter]);
-    }
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
+        CONTENT_TYPE, SINGLE_AGENT2);
+    testRulesOnPaths(SINGLE_AGENT2, TEST_PATHS, RESULTS_AGENT2);
 
     rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, MULTIPLE_AGENTS);
-
-    for (int counter = 0; counter < TEST_PATHS.length; counter++) {
-      Assert.assertTrue(
-          "testing on agents (" + MULTIPLE_AGENTS + "), and " + "path "
-              + TEST_PATHS[counter] + " got "
-              + rules.isAllowed(TEST_PATHS[counter]),
-          rules.isAllowed(TEST_PATHS[counter]) == RESULTS_AGENT1_AND_AGENT2[counter]);
-    }
+    testRulesOnPaths(MULTIPLE_AGENTS, TEST_PATHS, RESULTS_AGENT1_AND_AGENT2);
   }
 
   /**

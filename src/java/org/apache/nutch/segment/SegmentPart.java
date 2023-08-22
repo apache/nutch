@@ -44,6 +44,7 @@ public class SegmentPart {
    * Return a String representation of this class, in the form
    * "segmentName/partName".
    */
+  @Override
   public String toString() {
     return segmentName + "/" + partName;
   }

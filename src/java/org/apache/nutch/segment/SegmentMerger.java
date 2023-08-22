@@ -227,6 +227,7 @@ public class SegmentMerger extends Configured implements Tool{
         HashMap<String, Closeable> sliceWriters = new HashMap<>();
         String segmentName = conf.get("segment.merger.segmentName");
 
+        @Override
         public void write(Text key, MetaWrapper wrapper) throws IOException {
           // unwrap
           SegmentPart sp = SegmentPart.parse(wrapper.getMeta(SEGMENT_PART_KEY));

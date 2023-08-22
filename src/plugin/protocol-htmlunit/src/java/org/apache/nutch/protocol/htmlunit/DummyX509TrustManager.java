@@ -78,16 +78,19 @@ public class DummyX509TrustManager implements X509TrustManager {
    * @see javax.net.ssl.X509TrustManager#getAcceptedIssuers()
    * @return a {@link java.security.cert.X509Certificate} array
    */
+  @Override
   public X509Certificate[] getAcceptedIssuers() {
     return this.standardTrustManager.getAcceptedIssuers();
   }
 
+  @Override
   public void checkClientTrusted(X509Certificate[] arg0, String arg1)
       throws CertificateException {
     // do nothing
 
   }
 
+  @Override
   public void checkServerTrusted(X509Certificate[] arg0, String arg1)
       throws CertificateException {
     // do nothing
