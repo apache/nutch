@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.protocol.http.api;
 
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -94,6 +96,64 @@ public class TestRobotRulesParser {
     parser = new HttpRobotRulesParser();
   }
 
+  private void testRulesOnPaths(String agent, String[] paths,
+      boolean[] results) {
+    for (int counter = 0; counter < paths.length; counter++) {
+      boolean res = rules.isAllowed(paths[counter]);
+      Assert.assertTrue(
+          "testing on agent (" + agent + "), and " + "path " + paths[counter]
+              + " got " + res + ", expected " + results[counter],
+          res == results[counter]);
+    }
+  }
+
+  /**
+   * Test that the robots rules are interpreted correctly by the robots rules
+   * parser.
+   */
+  @Test
+  public void testRobotsAgent() {
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
+        CONTENT_TYPE, Set.of(SINGLE_AGENT1.toLowerCase()));
+    testRulesOnPaths(SINGLE_AGENT1, TEST_PATHS, RESULTS_AGENT1);
+
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
+        CONTENT_TYPE, Set.of(SINGLE_AGENT2.toLowerCase()));
+    testRulesOnPaths(SINGLE_AGENT2, TEST_PATHS, RESULTS_AGENT2);
+
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
+        CONTENT_TYPE, Set.of(MULTIPLE_AGENTS.toLowerCase().split("\\s*,\\s*")));
+    testRulesOnPaths(MULTIPLE_AGENTS, TEST_PATHS, RESULTS_AGENT1_AND_AGENT2);
+  }
+
+  /**
+   * Test that the crawl delay is extracted from the robots file for respective
+   * agent. If its not specified for a given agent, default value must be
+   * returned.
+   */
+  @Test
+  public void testCrawlDelay() {
+    // for SINGLE_AGENT1, the crawl delay of 10 seconds, i.e. 10000 msec must be
+    // returned by the parser
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
+        CONTENT_TYPE, Set.of(SINGLE_AGENT1.toLowerCase()));
+    Assert.assertTrue("testing crawl delay for agent " + SINGLE_AGENT1 + " : ",
+        (rules.getCrawlDelay() == 10000));
+
+    // for SINGLE_AGENT2, the crawl delay of 20 seconds, i.e. 20000 msec must be
+    // returned by the parser
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
+        CONTENT_TYPE, Set.of(SINGLE_AGENT2.toLowerCase()));
+    Assert.assertTrue("testing crawl delay for agent " + SINGLE_AGENT2 + " : ",
+        (rules.getCrawlDelay() == 20000));
+
+    // for UNKNOWN_AGENT, the default crawl delay must be returned.
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
+        CONTENT_TYPE, Set.of(UNKNOWN_AGENT.toLowerCase()));
+    Assert.assertTrue("testing crawl delay for agent " + UNKNOWN_AGENT + " : ",
+        (rules.getCrawlDelay() == Long.MIN_VALUE));
+  }
+
   /**
    * Test that the robots rules are interpreted correctly by the robots rules
    * parser.
@@ -103,36 +163,15 @@ public class TestRobotRulesParser {
   public void testRobotsAgentDeprecatedAPIMethod() {
     rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, SINGLE_AGENT1);
-
-    for (int counter = 0; counter < TEST_PATHS.length; counter++) {
-      Assert.assertTrue(
-          "testing on agent (" + SINGLE_AGENT1 + "), and " + "path "
-              + TEST_PATHS[counter] + " got "
-              + rules.isAllowed(TEST_PATHS[counter]),
-          rules.isAllowed(TEST_PATHS[counter]) == RESULTS_AGENT1[counter]);
-    }
+    testRulesOnPaths(SINGLE_AGENT1, TEST_PATHS, RESULTS_AGENT1);
 
     rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, SINGLE_AGENT2);
-
-    for (int counter = 0; counter < TEST_PATHS.length; counter++) {
-      Assert.assertTrue(
-          "testing on agent (" + SINGLE_AGENT2 + "), and " + "path "
-              + TEST_PATHS[counter] + " got "
-              + rules.isAllowed(TEST_PATHS[counter]),
-          rules.isAllowed(TEST_PATHS[counter]) == RESULTS_AGENT2[counter]);
-    }
+    testRulesOnPaths(SINGLE_AGENT2, TEST_PATHS, RESULTS_AGENT2);
 
     rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, MULTIPLE_AGENTS);
-
-    for (int counter = 0; counter < TEST_PATHS.length; counter++) {
-      Assert.assertTrue(
-          "testing on agents (" + MULTIPLE_AGENTS + "), and " + "path "
-              + TEST_PATHS[counter] + " got "
-              + rules.isAllowed(TEST_PATHS[counter]),
-          rules.isAllowed(TEST_PATHS[counter]) == RESULTS_AGENT1_AND_AGENT2[counter]);
-    }
+    testRulesOnPaths(MULTIPLE_AGENTS, TEST_PATHS, RESULTS_AGENT1_AND_AGENT2);
   }
 
   /**
