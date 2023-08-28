@@ -36,7 +36,7 @@
 			<!-- exclusions of dependencies provided by Nutch core -->
 			<exclude org="commons-codec" name="commons-codec" />
 			<exclude org="commons-logging" name="commons-logging" />
-			<exclude org="org.slf4j" name="slf4j-api" />
+			<exclude org="org.slf4j" name="*" />
 		</dependency>
 		<dependency org="org.apache.httpcomponents" name="httpmime"
 			          rev="4.5.13" conf="*->default">

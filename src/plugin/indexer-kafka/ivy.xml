@@ -36,8 +36,12 @@
   </publications>
 
   <dependencies>
-      <dependency org="org.apache.kafka" name="kafka_2.12" rev="1.1.0"/>
-      <dependency org="org.apache.kafka" name="connect-json" rev="1.1.0"/>
+    <dependency org="org.apache.kafka" name="kafka_2.12" rev="1.1.0">
+      <exclude org="org.slf4j" name="*" />
+    </dependency>
+    <dependency org="org.apache.kafka" name="connect-json" rev="1.1.0">
+      <exclude org="org.slf4j" name="*" />
+    </dependency>
   </dependencies>
 
 </ivy-module>

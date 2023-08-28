@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.tika" name="tika-parsers-standard-package" rev="2.3.0" conf="*->default">
+    <dependency org="org.apache.tika" name="tika-parsers-standard-package" rev="2.8.0" conf="*->default">
       <!-- exclusions of dependencies provided in Nutch core (ivy/ivy.xml) -->
       <exclude org="org.apache.tika" name="tika-core" />
       <exclude org="org.apache.commons" name="commons-lang3" />
@@ -53,6 +53,7 @@
       <!--exclude org="commons-codec" name="commons-codec" /-->
       <!--exclude org="org.apache.commons" name="commons-compress" /-->
     </dependency>
+    <dependency org="org.apache.tika" name="tika-parser-html-commons" rev="2.8.0" conf="*->default"/>
   </dependencies>
   
 </ivy-module>

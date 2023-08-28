@@ -39,8 +39,8 @@
     <dependency org="org.apache.any23" name="apache-any23-core" rev="2.7" conf="*->default">
       <exclude org="org.apache.commons" name="commons-lang" />
       <exclude org="org.apache.commons" name="commons-compress" />
-      <exclude org="org.slf4j" name="slf4j-log4j12" />
-      <exclude org="org.slf4j" name="slf4j-api" />
+      <exclude org="org.slf4j" name="*" />
+      <exclude org="org.apache.logging.log4j" name="*" />
       <exclude org="xerces" />
     </dependency>
     <dependency org="org.apache.commons" name="commons-rdf-api" rev="0.5.0" conf="*->default"/>
