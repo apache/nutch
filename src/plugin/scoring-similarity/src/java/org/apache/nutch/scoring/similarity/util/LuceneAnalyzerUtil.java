@@ -23,10 +23,10 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.en.EnglishMinimalStemFilter;
 import org.apache.lucene.analysis.en.PorterStemFilter;
 import org.apache.lucene.analysis.standard.ClassicTokenizer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.CharArraySet;
 
 /**
@@ -54,7 +54,7 @@ public class LuceneAnalyzerUtil extends Analyzer{
   public LuceneAnalyzerUtil(StemFilterType stemFilterType, boolean useStopFilter) {
     LuceneAnalyzerUtil.stemFilterType = stemFilterType;
     if(useStopFilter) {
-      stopSet = StandardAnalyzer.STOP_WORDS_SET;
+      stopSet = EnglishAnalyzer.ENGLISH_STOP_WORDS_SET;
     }
     else {
       stopSet = null;
