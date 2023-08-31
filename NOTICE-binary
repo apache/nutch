@@ -163,10 +163,6 @@ AOP alliance (http://aopalliance.sourceforge.net)
 - license: Public Domain
   (licenses-binary/LICENSE-public-domain.txt)
 
-# ch.qos.reload4j:reload4j
-reload4j (https://reload4j.qos.ch)
-- license: The Apache Software License, Version 2.0
-
 # com.101tec:zkclient
 ZkClient (https://github.com/sgroschupf/zkclient)
 - license: The Apache Software License, Version 2.0
@@ -1100,10 +1096,6 @@ JCL 1.2 implemented over SLF4J (http://www.slf4j.org)
   (licenses-binary/LICENSE-mit-license.txt)
 # org.slf4j:slf4j-api
 SLF4J API Module (http://www.slf4j.org)
-- license: MIT License
-  (licenses-binary/LICENSE-mit-license.txt)
-# org.slf4j:slf4j-reload4j
-SLF4J Reload4j Binding (http://reload4j.qos.ch)
 - license: MIT License
   (licenses-binary/LICENSE-mit-license.txt)
 
