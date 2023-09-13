@@ -234,7 +234,7 @@ public class HttpWebClient {
   }
 
   /**
-   * Function for obtaining the HTML BODY using the selected <a href=
+   * Function for obtaining the HTML using the selected <a href=
    * 'https://seleniumhq.github.io/selenium/docs/api/java/org/openqa/selenium/WebDriver.html'>selenium
    * webdriver</a> There are a number of configuration properties within
    * <code>nutch-site.xml</code> which determine whether to take screenshots of
@@ -244,7 +244,7 @@ public class HttpWebClient {
    *          the URL to fetch and render
    * @param conf
    *          the {@link org.apache.hadoop.conf.Configuration}
-   * @return the rendered inner HTML page
+   * @return the html page
    */
   public static String getHtmlPage(String url, Configuration conf) {
     WebDriver driver = getDriverForPage(url, conf);
@@ -253,10 +253,7 @@ public class HttpWebClient {
       if (conf.getBoolean("take.screenshot", false)) {
         takeScreenshot(driver, conf);
       }
-
-      String innerHtml = driver.findElement(By.tagName("body"))
-          .getAttribute("innerHTML");
-      return innerHtml;
+      return driver.getPageSource();
 
       // I'm sure this catch statement is a code smell ; borrowing it from
       // lib-htmlunit
