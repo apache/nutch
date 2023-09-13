@@ -35,7 +35,6 @@
     <ant dir="lib-selenium" target="deploy"/>
     <ant dir="lib-xml" target="deploy"/>
     <!-- real plugins -->
-    <ant dir="any23" target="deploy"/>
     <ant dir="creativecommons" target="deploy"/>
     <ant dir="feed" target="deploy"/>
     <ant dir="headings" target="deploy"/>
@@ -114,7 +113,6 @@
   <!-- ====================================================== -->
   <target name="test">
     <parallel threadCount="2">
-     <ant dir="any23" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="feed" target="test"/>
      <ant dir="headings" target="test"/>
@@ -176,7 +174,6 @@
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->
   <target name="clean">
-    <ant dir="any23" target="clean"/>
     <ant dir="creativecommons" target="clean"/>
     <ant dir="feed" target="clean"/>
     <ant dir="headings" target="clean"/>

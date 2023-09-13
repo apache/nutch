@@ -202,7 +202,6 @@
       <arg value="--no-module-directories" if:set="using.jdk.11"/>
 
       <packageset dir="${src.dir}"/>
-      <packageset dir="${plugins.dir}/any23/src/java/"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
@@ -687,7 +686,6 @@
       <arg value="--no-module-directories" if:set="using.jdk.11"/>
 
       <packageset dir="${src.dir}"/>
-      <packageset dir="${plugins.dir}/any23/src/java/" />
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
@@ -772,7 +770,6 @@
       <classpath>
         <fileset dir="${build.plugins}" >
           <include name="**/*.jar"/>
-          <exclude name="any23/javax.annotation-api*.jar"/>
         </fileset>
       </classpath>
 
@@ -1180,8 +1177,6 @@
         <source path="${basedir}/src/java/" />
         <source path="${basedir}/src/test/" output="build/test/classes" />
 
-        <source path="${plugins.dir}/any23/src/java/" />
-        <source path="${plugins.dir}/any23/src/test/" />
         <source path="${plugins.dir}/creativecommons/src/java/" />
         <source path="${plugins.dir}/creativecommons/src/test/" />
         <source path="${plugins.dir}/feed/src/java/" />
