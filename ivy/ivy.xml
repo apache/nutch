@@ -36,10 +36,10 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.18.0" conf="*->master" />
-		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.18.0" conf="*->master" />
-		<dependency org="org.apache.logging.log4j" name="log4j-slf4j-impl" rev="2.18.0" conf="*->master" />
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.36" conf="*->master" />
+		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.20.0" conf="*->master" />
+    <dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.20.0" conf="*->master" />
+		<dependency org="org.apache.logging.log4j" name="log4j-slf4j2-impl" rev="2.20.0" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="2.0.7" conf="*->master" />
 
 		<dependency org="org.apache.commons" name="commons-lang3" rev="3.12.0" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-collections4" rev="4.4" conf="*->master" />
@@ -50,11 +50,22 @@
 		<dependency org="com.tdunning" name="t-digest" rev="3.3" />
 
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.3.4" conf="*->default" />
-		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.3.4" conf="*->default" />
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.3.4" conf="*->default" />
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.3.4" conf="*->default" />
-		<!-- End of Hadoop Dependencies -->
+		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.3.4" conf="*->default">
+			<exclude org="ch.qos.reload4j" name="*"/>
+			<exclude org="org.slf4j" name="*" />
+		</dependency>
+		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.3.4" conf="*->default">
+			<exclude org="ch.qos.reload4j" name="*"/>
+			<exclude org="org.slf4j" name="*" />
+		</dependency>
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.3.4" conf="*->default">
+			<exclude org="ch.qos.reload4j" name="*"/>
+			<exclude org="org.slf4j" name="*" />
+		</dependency>
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.3.4" conf="*->default">
+			<exclude org="ch.qos.reload4j" name="*"/>
+			<exclude org="org.slf4j" name="*" />
+		</dependency><!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.apache.tika" name="tika-core" rev="2.9.0" />
 
@@ -106,7 +117,10 @@
 		</dependency>
 
 		<!-- Jetty used to serve test pages for unit tests, but is also provided as dependency of Hadoop -->
-		<dependency org="org.eclipse.jetty" name="jetty-server" rev="9.4.50.v20221201" conf="test->default" />
+		<dependency org="org.eclipse.jetty" name="jetty-server" rev="9.4.50.v20221201" conf="test->default">
+			<exclude org="ch.qos.reload4j" module="*" />
+			<exclude org="org.slf4j" module="slf4j-reload" />
+		</dependency>
 
 		<!--Added Because of Elasticsearch JEST client-->
 		<!--TODO refactor these to indexer-elastic-rest plugin somehow, currently doesn't resolve correctly-->

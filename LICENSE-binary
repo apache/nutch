@@ -208,7 +208,6 @@ This product bundles some components that are also licensed under
 the Apache License Version 2.0:
 
 
-ch.qos.reload4j:reload4j
 com.101tec:zkclient
 com.amazonaws:aws-java-sdk-cloudsearch
 com.amazonaws:aws-java-sdk-core
@@ -753,7 +752,6 @@ org.jsoup:jsoup
 org.rypt:f8
 org.slf4j:jcl-over-slf4j
 org.slf4j:slf4j-api
-org.slf4j:slf4j-reload4j
 
 
 Mozilla Public License 1.1 (MPL 1.1)
