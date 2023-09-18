@@ -17,7 +17,7 @@
 			<export name="*" />
 		</library>
 		<!-- Solr dependencies -->
-		<library name="commons-io-2.8.0.jar"/>
+		<library name="commons-io-2.13.0.jar"/>
 		<library name="commons-lang-2.6.jar"/>
 		<library name="commons-math3-3.6.1.jar"/>
 		<library name="http2-client-9.4.44.v20210927.jar"/>
