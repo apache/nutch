@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * A decorator to Metadata that adds spellchecking capabilities to property
- * names. Currently used spelling vocabulary contains just the httpheaders from
+ * names. Currently used spelling vocabulary contains just the HTTP headers from
  * {@link HttpHeaders} class.
  * 
  */
@@ -94,7 +94,7 @@ public class SpellCheckedMetadata extends Metadata {
   /**
    * Get the normalized name of metadata attribute name. This method tries to
    * find a well-known metadata name (one of the metadata names defined in this
-   * class) that matches the specified name. The matching is error tolerent. For
+   * class) that matches the specified name. The matching is error tolerant. For
    * instance,
    * <ul>
    * <li>content-type gives Content-Type</li>
@@ -105,8 +105,8 @@ public class SpellCheckedMetadata extends Metadata {
    * name is returned.
    * 
    * @param name
-   *          Name to normalize
-   * @return normalized name
+   *          HTTP header name to normalize
+   * @return normalized HTTP header name
    */
   public static String getNormalizedName(final String name) {
     String searched = normalize(name);
