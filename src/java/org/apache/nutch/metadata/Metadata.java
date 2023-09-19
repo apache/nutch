@@ -36,7 +36,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
   /**
    * A map of all metadata attributes.
    */
-  private Map<String, String[]> metadata = null;
+  protected Map<String, String[]> metadata = null;
 
   /**
    * Constructs a new, empty metadata.
@@ -66,7 +66,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
   }
 
   /**
-   * Get the value associated to a metadata name. If many values are assiociated
+   * Get the value associated to a metadata name. If many values are associated
    * to the specified name, then the first one is returned.
    * 
    * @param name

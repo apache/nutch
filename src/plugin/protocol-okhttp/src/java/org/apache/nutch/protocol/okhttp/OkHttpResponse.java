@@ -24,6 +24,7 @@ import java.util.Locale;
 
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.CaseInsensitiveMetadata;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
@@ -106,7 +107,7 @@ public class OkHttpResponse implements Response {
     // ensure that Response and underlying ResponseBody are closed
     try (okhttp3.Response response = call.execute()) {
 
-      Metadata responsemetadata = new Metadata();
+      Metadata responsemetadata = new CaseInsensitiveMetadata();
       okhttp3.Headers httpHeaders = response.headers();
 
       for (int i = 0, size = httpHeaders.size(); i < size; i++) {
