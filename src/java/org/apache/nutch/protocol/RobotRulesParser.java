@@ -98,6 +98,7 @@ public abstract class RobotRulesParser implements Tool {
 
   protected Configuration conf;
   protected Set<String> agentNames;
+  protected int maxNumRedirects = 5;
 
   /** set of host names or IPs to be explicitly excluded from robots.txt checking */
   protected Set<String> allowList = new HashSet<>();
@@ -149,6 +150,10 @@ public abstract class RobotRulesParser implements Tool {
         }
       }
     }
+    LOG.info("Checking robots.txt for the following agent names: {}", agentNames);
+
+    maxNumRedirects = conf.getInt("http.robots.redirect.max", 5);
+    LOG.info("Following max. {} robots.txt redirects", maxNumRedirects);
 
     String[] confAllowList = conf.getStrings("http.robot.rules.allowlist");
     if (confAllowList == null) {
