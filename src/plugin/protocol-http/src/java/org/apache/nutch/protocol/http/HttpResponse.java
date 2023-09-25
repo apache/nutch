@@ -150,6 +150,10 @@ public class HttpResponse implements Response {
                   + e.getMessage();
               throw new HttpException(msg);
             }
+          } else {
+            String msg = "SSL connect to " + url + " failed with: "
+                    + e.getMessage();
+            throw new HttpException(msg, e);
           }
         }
         socket = sslsocket;
