@@ -72,8 +72,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
   protected int run() throws Exception {
     // In listening mode?
     if (tcpPort != -1) {
-      processTCP(tcpPort);
-      return 0;
+      return processTCP(tcpPort);
     } else if (stdin) {
       return processStdin();
     }
@@ -104,7 +103,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
 
   // Open TCP socket and process input
   @SuppressWarnings("resource")
-  protected void processTCP(int tcpPort) throws Exception {
+  protected int processTCP(int tcpPort) throws Exception {
     ServerSocket server = null;
 
     try {
@@ -113,7 +112,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
       LOG.info(server.toString());
     } catch (Exception e) {
       LOG.error("Could not listen on port " + tcpPort, e);
-      System.exit(-1);
+      return -1;
     }
     
     while(true){
@@ -124,7 +123,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
         thread.start();
       } catch (Exception e) {
         LOG.error("Accept failed: " + tcpPort, e);
-        System.exit(-1);
+        return -1;
       }
     }
   }
