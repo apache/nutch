@@ -53,19 +53,19 @@
 		<dependency org="com.tdunning" name="t-digest" rev="3.3" />
 
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.3.4" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.3.6" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.3.4" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.3.6" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.3.4" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.3.6" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.3.4" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.3.6" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
 		</dependency><!-- End of Hadoop Dependencies -->
