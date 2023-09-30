@@ -90,9 +90,7 @@ public class Plugin {
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   protected void finalize() throws Throwable {
-    super.finalize();
     shutDown();
   }
 }
