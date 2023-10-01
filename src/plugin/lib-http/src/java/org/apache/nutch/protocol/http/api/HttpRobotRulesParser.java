@@ -229,7 +229,8 @@ public class HttpRobotRulesParser extends RobotRulesParser {
         else if ((code == 403) && (!allowForbidden))
           robotRules = FORBID_ALL_RULES; // use forbid all
 
-        else if (code >= 500) {
+        else if (code >= 500 || code == 429) {
+          // 5xx server errors or 429 Too Many Requests
           cacheRule = false; // try again later to fetch robots.txt
           if (deferVisits503) {
             // signal fetcher to suspend crawling for this host
