@@ -149,9 +149,9 @@ public class HttpRobotRulesParser extends RobotRulesParser {
          */
         int numRedirects = 0;
         /*
-         * The base URL to resolve relative redirect locations is the to the
-         * default URL path ("/robots.txt") and updated when redirects were
-         * followed.
+         * The base URL to resolve relative redirect locations is set initially
+         * to the default URL path ("/robots.txt") and updated when redirects
+         * were followed.
          */
         robotsUrlRedir = robotsUrl;
 
