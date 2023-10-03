@@ -44,7 +44,7 @@ public class URLNormalizerChecker extends AbstractChecker {
     // Print help when no args given
     if (args.length < 1) {
       System.err.println(usage);
-      System.exit(-1);
+      return -1;
     }
 
     int numConsumed;
@@ -58,7 +58,7 @@ public class URLNormalizerChecker extends AbstractChecker {
       } else {
         System.err.println("ERROR: Not a recognized argument: " + args[i]);
         System.err.println(usage);
-        System.exit(-1);
+        return -1;
       }
     }
 

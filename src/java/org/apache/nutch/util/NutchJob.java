@@ -35,7 +35,18 @@ public class NutchJob extends Job {
 
   private static final String JOB_FAILURE_LOG_FORMAT = "%s job did not succeed, job id: %s, job status: %s, reason: %s";
 
-  @SuppressWarnings("deprecation")
+  /**
+   * @deprecated, use instead {@link #getInstance(Configuration)} or
+   * {@link Job#getInstance(Configuration, String)}.
+   * 
+   * @param conf
+   *          configuration for the job
+   * @param jobName
+   *          name of the job
+   * @throws IOException
+   *           see {@link Job#Job(Configuration, String)}
+   */
+  @Deprecated
   public NutchJob(Configuration conf, String jobName) throws IOException {
     super(conf, jobName);
     if (conf != null) {

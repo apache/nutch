@@ -341,8 +341,11 @@ public class Injector extends NutchTool implements Tool {
               ? injected.getFetchInterval() : old.getFetchInterval());
         }
       }
-      if (injectedSet && oldSet) {
-        context.getCounter("injector", "urls_merged").increment(1);
+      if (injectedSet) {
+        context.getCounter("injector", "urls_injected_unique").increment(1);
+        if (oldSet) {
+          context.getCounter("injector", "urls_merged").increment(1);
+        }
       }
       context.write(key, result);
     }
@@ -448,22 +451,24 @@ public class Injector extends NutchTool implements Tool {
       if (LOG.isInfoEnabled()) {
         long urlsInjected = job.getCounters()
             .findCounter("injector", "urls_injected").getValue();
+        long urlsInjectedUniq = job.getCounters()
+            .findCounter("injector", "urls_injected_unique").getValue();
         long urlsFiltered = job.getCounters()
             .findCounter("injector", "urls_filtered").getValue();
         long urlsMerged = job.getCounters()
             .findCounter("injector", "urls_merged").getValue();
-        long urlsPurged404= job.getCounters()
+        long urlsPurged404 = job.getCounters()
             .findCounter("injector", "urls_purged_404").getValue();
-        long urlsPurgedFilter= job.getCounters()
+        long urlsPurgedFilter = job.getCounters()
             .findCounter("injector", "urls_purged_filter").getValue();
-        LOG.info("Injector: Total urls rejected by filters: " + urlsFiltered);
+        LOG.info("Injector: Total urls rejected by filters: {}", urlsFiltered);
         LOG.info(
-            "Injector: Total urls injected after normalization and filtering: "
-                + urlsInjected);
-        LOG.info("Injector: Total urls injected but already in CrawlDb: "
-            + urlsMerged);
-        LOG.info("Injector: Total new urls injected: "
-            + (urlsInjected - urlsMerged));
+            "Injector: Total urls injected after normalization and filtering: {} (unique URLs: {})",
+            urlsInjected, urlsInjectedUniq);
+        LOG.info("Injector: Total urls injected but already in CrawlDb: {}",
+            urlsMerged);
+        LOG.info("Injector: Total new urls injected: {}",
+            (urlsInjectedUniq - urlsMerged));
         if (filterNormalizeAll) {
           LOG.info("Injector: Total urls removed from CrawlDb by filters: {}",
               urlsPurgedFilter);
@@ -475,8 +480,8 @@ public class Injector extends NutchTool implements Tool {
         }
 
         long end = System.currentTimeMillis();
-        LOG.info("Injector: finished at " + sdf.format(end) + ", elapsed: "
-            + TimingUtil.elapsedTime(start, end));
+        LOG.info("Injector: finished at {}, elapsed: {}", sdf.format(end),
+            TimingUtil.elapsedTime(start, end));
       }
     } catch (IOException | InterruptedException | ClassNotFoundException | NullPointerException e) {
       LOG.error("Injector job failed: {}", e.getMessage());
