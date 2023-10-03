@@ -32,7 +32,14 @@
   <!-- pull in the local repository -->
   <include url="${ivy.default.conf.dir}/ivyconf-local.xml"/>
   <settings defaultResolver="default"/>
+  <property name="local-maven2-dir" value="${user.home}/.m2/repository/" />
   <resolvers>
+    <filesystem name="local-maven-2" m2compatible="true">
+      <artifact
+          pattern="${local-maven2-dir}/[organisation]/[module]/[revision]/[module]-[revision].[ext]" />
+      <ivy
+          pattern="${local-maven2-dir}/[organisation]/[module]/[revision]/[module]-[revision].pom" />
+    </filesystem>
     <ibiblio name="maven2"
       root="${repo.maven.org}"
       pattern="${maven2.pattern.ext}"
