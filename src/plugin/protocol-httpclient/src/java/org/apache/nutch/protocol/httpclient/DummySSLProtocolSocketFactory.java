@@ -81,6 +81,7 @@ public class DummySSLProtocolSocketFactory implements
   /**
    * @see org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory#createSocket(String,int,InetAddress,int)
    */
+  @Override
   public Socket createSocket(String host, int port, InetAddress clientHost,
       int clientPort) throws IOException, UnknownHostException {
 
@@ -117,6 +118,7 @@ public class DummySSLProtocolSocketFactory implements
    * @throws UnknownHostException
    *           if the IP address of the host cannot be determined
    */
+  @Override
   public Socket createSocket(final String host, final int port,
       final InetAddress localAddress, final int localPort,
       final HttpConnectionParams params) throws IOException,
@@ -137,6 +139,7 @@ public class DummySSLProtocolSocketFactory implements
   /**
    * @see org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory#createSocket(String,int)
    */
+  @Override
   public Socket createSocket(String host, int port) throws IOException,
       UnknownHostException {
     return getSSLContext().getSocketFactory().createSocket(host, port);
@@ -145,17 +148,20 @@ public class DummySSLProtocolSocketFactory implements
   /**
    * @see org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory#createSocket(Socket,String,int,boolean)
    */
+  @Override
   public Socket createSocket(Socket socket, String host, int port,
       boolean autoClose) throws IOException, UnknownHostException {
     return getSSLContext().getSocketFactory().createSocket(socket, host, port,
         autoClose);
   }
 
+  @Override
   public boolean equals(Object obj) {
     return ((obj != null) && obj.getClass().equals(
         DummySSLProtocolSocketFactory.class));
   }
 
+  @Override
   public int hashCode() {
     return DummySSLProtocolSocketFactory.class.hashCode();
   }

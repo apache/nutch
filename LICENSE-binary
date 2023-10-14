@@ -208,7 +208,6 @@ This product bundles some components that are also licensed under
 the Apache License Version 2.0:
 
 
-ch.qos.reload4j:reload4j
 com.101tec:zkclient
 com.amazonaws:aws-java-sdk-cloudsearch
 com.amazonaws:aws-java-sdk-core
@@ -327,11 +326,6 @@ net.sourceforge.owlapi:owlapi-impl
 net.sourceforge.owlapi:owlapi-parsers
 net.sourceforge.owlapi:owlapi-rio
 net.sourceforge.owlapi:owlapi-tools
-org.apache.any23:apache-any23-api
-org.apache.any23:apache-any23-core
-org.apache.any23:apache-any23-csvutils
-org.apache.any23:apache-any23-encoding
-org.apache.any23:apache-any23-mime
 org.apache.avro:avro
 org.apache.commons:commons-collections4
 org.apache.commons:commons-compress
@@ -758,7 +752,6 @@ org.jsoup:jsoup
 org.rypt:f8
 org.slf4j:jcl-over-slf4j
 org.slf4j:slf4j-api
-org.slf4j:slf4j-reload4j
 
 
 Mozilla Public License 1.1 (MPL 1.1)

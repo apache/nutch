@@ -221,22 +221,27 @@ public class OkHttpResponse implements Response {
     return arr;
   }
 
+  @Override
   public URL getUrl() {
     return this.url;
   }
 
+  @Override
   public int getCode() {
     return this.code;
   }
 
+  @Override
   public String getHeader(String name) {
     return this.headers.get(name);
   }
 
+  @Override
   public Metadata getHeaders() {
     return this.headers;
   }
 
+  @Override
   public byte[] getContent() {
     return this.content;
   }

@@ -22,6 +22,7 @@ import java.net.URLStreamHandler;
 
 public class Handler extends URLStreamHandler {
 
+  @Override
   protected URLConnection openConnection(URL u) {
     throw new UnsupportedOperationException("not yet implemented");
   }

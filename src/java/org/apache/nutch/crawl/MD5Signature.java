@@ -29,6 +29,7 @@ import org.apache.nutch.protocol.Content;
  */
 public class MD5Signature extends Signature {
 
+  @Override
   public byte[] calculate(Content content, Parse parse) {
     byte[] data = content.getContent();
     if (data == null || (data.length == 0))

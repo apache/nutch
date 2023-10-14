@@ -320,6 +320,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @see java.lang.Object#finalize()
    * @deprecated
    */
+  @Override
   @Deprecated
   public void finalize() throws Throwable {
     shutDownActivatedPlugins();
@@ -577,6 +578,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
    * @see java.net.URL
    * @see <a href="https://issues.apache.org/jira/browse/NUTCH-2429">NUTCH-2429</a>
    */
+  @Override
   public URLStreamHandler createURLStreamHandler(String protocol) {
     LOG.debug("Creating URLStreamHandler for protocol: {}", protocol);
 

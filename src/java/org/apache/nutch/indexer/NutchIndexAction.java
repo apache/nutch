@@ -45,12 +45,14 @@ public class NutchIndexAction implements Writable {
     this.action = action;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     action = in.readByte();
     doc = new NutchDocument();
     doc.readFields(in);
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
     out.write(action);
     doc.write(out);

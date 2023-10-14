@@ -37,6 +37,7 @@ public class Inlink implements Writable {
     this.anchor = anchor;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     fromUrl = Text.readString(in);
     anchor = Text.readString(in);
@@ -52,6 +53,7 @@ public class Inlink implements Writable {
     Text.skip(in); // skip anchor
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
     Text.writeString(out, fromUrl);
     Text.writeString(out, anchor);
@@ -71,6 +73,7 @@ public class Inlink implements Writable {
     return anchor;
   }
 
+  @Override
   public boolean equals(Object o) {
     if (!(o instanceof Inlink))
       return false;
@@ -79,10 +82,12 @@ public class Inlink implements Writable {
         && this.anchor.equals(other.anchor);
   }
 
+  @Override
   public int hashCode() {
     return fromUrl.hashCode() ^ anchor.hashCode();
   }
 
+  @Override
   public String toString() {
     return "fromUrl: " + fromUrl + " anchor: " + anchor;
   }

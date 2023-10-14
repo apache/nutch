@@ -48,6 +48,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate a sort value for Generate. */
+  @Override
   public float generatorSortValue(Text url, CrawlDatum datum, float initSort)
       throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
@@ -57,6 +58,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate a new initial score, used when adding newly discovered pages. */
+  @Override
   public void initialScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
@@ -65,6 +67,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate a new initial score, used when injecting new pages. */
+  @Override
   public void injectedScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
@@ -73,6 +76,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate updated page score during CrawlDb.update(). */
+  @Override
   public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
       List<CrawlDatum> inlinked) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
@@ -81,6 +85,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate orphaned page score during CrawlDb.update(). */
+  @Override
   public void orphanedScore(Text url, CrawlDatum datum)
       throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
@@ -88,6 +93,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
     }
   }
 
+  @Override
   public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content)
       throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
@@ -95,6 +101,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
     }
   }
 
+  @Override
   public void passScoreAfterParsing(Text url, Content content, Parse parse)
       throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
@@ -102,6 +109,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
     }
   }
 
+  @Override
   public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
       ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
       CrawlDatum adjust, int allCount) throws ScoringFilterException {
@@ -112,6 +120,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
     return adjust;
   }
 
+  @Override
   public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
       throws ScoringFilterException {

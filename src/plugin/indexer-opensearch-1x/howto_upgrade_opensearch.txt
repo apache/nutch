@@ -1,0 +1,33 @@
+1. Upgrade OpenSearch dependency in src/plugin/indexer-opensearch-1x/ivy.xml
+
+2. Upgrade the OpenSearch specific dependencies in src/plugin/indexer-opensearch-1x/plugin.xml
+   To get the list of dependencies and their versions execute:
+    $ cd src/plugin/indexer-opensearch-1x/
+    $ ant -f ./build-ivy.xml
+    $ ls lib | sed 's/^/    <library name="/g' | sed 's/$/"\/>/g'
+
+   In the plugin.xml replace all lines between
+      <!-- OpenSearch Rest Client dependencies -->
+   and
+      <!-- end of OpenSearch Rest Client dependencies -->
+   with the output of the command above.
+
+4. (Optionally) remove overlapping dependencies between indexer-opensearch-1x and Nutch core dependencies:
+   - check for libs present both in
+       build/lib
+     and
+       build/plugins/indexer-opensearch-1x/
+     (eventually with different versions)
+   - duplicated libs can be added to the exclusions of transitive dependencies in
+       build/plugins/indexer-opensearch-1x/ivy.xml
+   - but it should be made sure that the library versions in ivy/ivy.xml correspend to
+     those required by Tika
+
+5. Remove the locally "installed" dependencies in src/plugin/indexer-opensearch-1x/lib/:
+
+    $ rm -rf lib/
+
+6. Build Nutch and run all unit tests:
+
+    $ cd ../../../
+    $ ant clean runtime test

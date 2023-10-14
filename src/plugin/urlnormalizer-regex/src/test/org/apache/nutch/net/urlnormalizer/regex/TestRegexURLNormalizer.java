@@ -54,6 +54,7 @@ public class TestRegexURLNormalizer {
     conf = NutchConfiguration.create();
     normalizer.setConf(conf);
     File[] configs = new File(sampleDir).listFiles(new FileFilter() {
+      @Override
       public boolean accept(File f) {
         if (f.getName().endsWith(".xml")
             && f.getName().startsWith("regex-normalize-"))

@@ -197,6 +197,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
             sdf.format(end), TimingUtil.elapsedTime(start, end));
   }
 
+  @Override
   protected int process(String line, StringBuilder output) throws Exception {
 
     Inlinks links = getInlinks(new Text(line));

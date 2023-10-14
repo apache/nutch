@@ -79,6 +79,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
   private double SYNC_DELTA_RATE;
 
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
     if (conf == null)

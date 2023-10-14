@@ -102,12 +102,14 @@ public class MetaWrapper extends NutchWritable {
     return metadata.getValues(name);
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     super.readFields(in);
     metadata = new Metadata();
     metadata.readFields(in);
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
     super.write(out);
     metadata.write(out);

@@ -40,6 +40,7 @@ public class DefaultClickAllAjaxLinksHandler implements InteractiveSeleniumHandl
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
+  @Override
   public String processDriver(WebDriver driver) {
     
     String accumulatedData = "";
@@ -84,6 +85,7 @@ public class DefaultClickAllAjaxLinksHandler implements InteractiveSeleniumHandl
     return accumulatedData;
   }
 
+  @Override
   public boolean shouldProcessURL(String URL) {
     return true;
   }

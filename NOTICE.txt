@@ -29,7 +29,7 @@ code and source code.
 
 The following provides more details on the included cryptographic software:
 
-The plugins parse-tika and any23 use Apache Tika and the Bouncy Castle
+The parse-tika plugin uses Apache Tika and the Bouncy Castle
 generic encryption libraries for extracting text content and metadata
 from encrypted PDF files. See <https://www.bouncycastle.org/> for more
 details on Bouncy Castle and <https://tika.apache.org/> for details

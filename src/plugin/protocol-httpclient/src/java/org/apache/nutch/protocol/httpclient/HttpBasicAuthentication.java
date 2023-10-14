@@ -110,6 +110,7 @@ public class HttpBasicAuthentication implements HttpAuthentication,
    * ----------------------------------
    */
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
     // if (conf.getBoolean("http.auth.verbose", false)) {
@@ -119,6 +120,7 @@ public class HttpBasicAuthentication implements HttpAuthentication,
     // }
   }
 
+  @Override
   public Configuration getConf() {
     return this.conf;
   }
@@ -135,6 +137,7 @@ public class HttpBasicAuthentication implements HttpAuthentication,
    *         <code>Authorization: Basic &lt;Base64 encoded userid:password&gt;</code>
    * 
    */
+  @Override
   public List<String> getCredentials() {
     return credentials;
   }
@@ -146,6 +149,7 @@ public class HttpBasicAuthentication implements HttpAuthentication,
    * 
    * @return The realm
    */
+  @Override
   public String getRealm() {
     return realm;
   }

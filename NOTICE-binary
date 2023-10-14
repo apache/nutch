@@ -29,7 +29,7 @@ code and source code.
 
 The following provides more details on the included cryptographic software:
 
-The plugins parse-tika and any23 use Apache Tika and the Bouncy Castle
+The parse-tika plugin uses Apache Tika and the Bouncy Castle
 generic encryption libraries for extracting text content and metadata
 from encrypted PDF files. See <https://www.bouncycastle.org/> for more
 details on Bouncy Castle and <https://tika.apache.org/> for details
@@ -45,9 +45,6 @@ on Apache Tika.
 
 Apache projects
 ---------------
-
-Apache Any23 (https://any23.apache.org/)
-  see https://github.com/apache/any23/blob/master/NOTICE.txt
 
 Apache Avro (https://avro.apache.org)
   see https://github.com/apache/avro/blob/master/NOTICE.txt
@@ -162,10 +159,6 @@ Other software
 AOP alliance (http://aopalliance.sourceforge.net)
 - license: Public Domain
   (licenses-binary/LICENSE-public-domain.txt)
-
-# ch.qos.reload4j:reload4j
-reload4j (https://reload4j.qos.ch)
-- license: The Apache Software License, Version 2.0
 
 # com.101tec:zkclient
 ZkClient (https://github.com/sgroschupf/zkclient)
@@ -1100,10 +1093,6 @@ JCL 1.2 implemented over SLF4J (http://www.slf4j.org)
   (licenses-binary/LICENSE-mit-license.txt)
 # org.slf4j:slf4j-api
 SLF4J API Module (http://www.slf4j.org)
-- license: MIT License
-  (licenses-binary/LICENSE-mit-license.txt)
-# org.slf4j:slf4j-reload4j
-SLF4J Reload4j Binding (http://reload4j.qos.ch)
 - license: MIT License
   (licenses-binary/LICENSE-mit-license.txt)
 

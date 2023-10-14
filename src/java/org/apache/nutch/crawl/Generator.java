@@ -124,18 +124,21 @@ public class Generator extends NutchTool implements Tool {
       segnum = new IntWritable(0);
     }
 
+    @Override
     public void readFields(DataInput in) throws IOException {
       url.readFields(in);
       datum.readFields(in);
       segnum.readFields(in);
     }
 
+    @Override
     public void write(DataOutput out) throws IOException {
       url.write(out);
       datum.write(out);
       segnum.write(out);
     }
 
+    @Override
     public String toString() {
       return "url=" + url.toString() + ", datum=" + datum.toString()
           + ", segnum=" + segnum.toString();
@@ -149,6 +152,7 @@ public class Generator extends NutchTool implements Tool {
     private final URLPartitioner partitioner = new URLPartitioner();
 
     /** Partition by host / domain or IP. */
+    @Override
     public int getPartition(FloatWritable key, Writable value,
         int numReduceTasks) {
       return partitioner.getPartition(((SelectorEntry) value).url, key,
@@ -560,6 +564,7 @@ public class Generator extends NutchTool implements Tool {
       extends FloatWritable.Comparator {
 
     /** Compares two FloatWritables decreasing. */
+    @Override
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
       return super.compare(b2, s2, l2, b1, s1, l1);
     }

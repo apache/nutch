@@ -36,7 +36,9 @@
   </publications>
 
   <dependencies>
-    <dependency org="com.rabbitmq" name="amqp-client" rev="5.2.0"/>
+    <dependency org="com.rabbitmq" name="amqp-client" rev="5.2.0">
+      <exclude org="org.slf4j" name="*" />
+    </dependency>
     <dependency org="com.google.code.gson" name="gson" rev="2.8.4"/>
   </dependencies>
   

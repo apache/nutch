@@ -60,6 +60,7 @@ public class PrefixStringMatcher extends TrieStringMatcher {
    * Returns true if the given <code>String</code> is matched by a prefix in the
    * trie
    */
+  @Override
   public boolean matches(String input) {
     TrieNode node = root;
     for (int i = 0; i < input.length(); i++) {
@@ -76,6 +77,7 @@ public class PrefixStringMatcher extends TrieStringMatcher {
    * Returns the shortest prefix of <code>input</code> that is matched,
    * or <code>null</code> if no match exists.
    */
+  @Override
   public String shortestMatch(String input) {
     TrieNode node = root;
     for (int i = 0; i < input.length(); i++) {
@@ -92,6 +94,7 @@ public class PrefixStringMatcher extends TrieStringMatcher {
    * Returns the longest prefix of <code>input</code> that is matched,
    * or <code>null</code> if no match exists.
    */
+  @Override
   public String longestMatch(String input) {
     TrieNode node = root;
     String result = null;
