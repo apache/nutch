@@ -181,6 +181,11 @@ public class ParseSegment extends NutchTool implements Tool {
     if (metadata == null)
       return false;
 
+    //check for okhttp's truncated flag
+    if ("true".equals(metadata.get("http.content.truncated"))) {
+      return true;
+    }
+
     String lengthStr = metadata.get(Response.CONTENT_LENGTH);
     if (lengthStr != null)
       lengthStr = lengthStr.trim();
