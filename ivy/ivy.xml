@@ -41,11 +41,14 @@
 		<dependency org="org.apache.logging.log4j" name="log4j-slf4j2-impl" rev="2.20.0" conf="*->master" />
 		<dependency org="org.slf4j" name="slf4j-api" rev="2.0.7" conf="*->master" />
 
-		<dependency org="org.apache.commons" name="commons-lang3" rev="3.12.0" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.13.0" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-collections4" rev="4.4" conf="*->master" />
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.13" conf="*->master" />
-		<dependency org="commons-codec" name="commons-codec" rev="1.15" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-compress" rev="1.21" conf="*->default" />
+		<dependency org="commons-codec" name="commons-codec" rev="1.16.0" conf="*->default" />
+		<!-- hadoop 3.4.0 should have 2.11.0; Tika is broken in distributed mode until then;
+		 		see https://github.com/apache/nutch/pull/776 -->
+		<dependency org="commons-io" name="commons-io" rev="2.11.0" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-compress" rev="1.23.0" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.2.1" conf="*->default" />
 		<dependency org="com.tdunning" name="t-digest" rev="3.3" />
 
@@ -67,7 +70,7 @@
 			<exclude org="org.slf4j" name="*" />
 		</dependency><!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.apache.tika" name="tika-core" rev="2.3.0" />
+		<dependency org="org.tallison.tika" name="tika-core-shaded" rev="2.9.0.0" conf="*->default" transitive="false"/>
 
 		<dependency org="xml-apis" name="xml-apis" rev="1.4.01" /><!-- force this version as it is required by Tika -->
 		<dependency org="xerces" name="xercesImpl" rev="2.12.2" />
@@ -88,10 +91,10 @@
 		<dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="3.5.3" conf="*->default" />
 		<dependency org="org.apache.cxf" name="cxf-rt-transports-http-jetty" rev="3.5.3" conf="*->default" />
 		<dependency org="org.apache.cxf" name="cxf-rt-rs-client" rev="3.5.3" conf="test->default" />
-		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.13.3" conf="*->default" />
-		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.13.3" conf="*->default" />
-		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.13.3" conf="*->default" />
-		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.13.3" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.15.2" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.15.2" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.15.2" conf="*->default" />
+		<dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.15.2" conf="*->default" />
 
 		<!-- WARC artifacts needed -->
 		<dependency org="org.netpreserve.commons" name="webarchive-commons" rev="1.1.9" conf="*->default">

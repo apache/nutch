@@ -25,9 +25,9 @@
         <library name="kafka_2.12-1.1.0.jar"/>
         <library name="connect-json-1.1.0.jar"/>
         <library name="connect-api-1.1.0.jar"/>
-        <library name="jackson-annotations-2.9.0.jar"/>
-        <library name="jackson-core-2.9.4.jar"/>
-        <library name="jackson-databind-2.9.4.jar"/>
+        <library name="jackson-annotations-2.15.2.jar"/>
+        <library name="jackson-core-2.15.2.jar"/>
+        <library name="jackson-databind-2.15.2.jar"/>
         <library name="jopt-simple-5.0.4.jar"/>
         <library name="kafka-clients-1.1.0.jar"/>
         <library name="lz4-java-1.4.jar"/>
