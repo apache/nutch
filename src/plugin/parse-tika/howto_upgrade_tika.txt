@@ -1,3 +1,25 @@
+We are currently using a shim (https://github.com/tballison/hadoop-safe-tika
+because of binary conflicts in commons-io versions between what Hadoop supports and the more
+modern features that Apache Tika and Apache POI were using in commons-io.
+
+For now, all you have to do is update the fat jar dependencies:
+
+1. tika-core-shaded in ivy/ivy.xml
+
+2. tika-parsers-standard-package-shaded in src/plugin/parse-tika/ivy.xml
+
+3. The library name version for tika-parsers-standard-package-shaded in src/plugin/parse-tika/plugin.xml
+
+4. Repeat steps 2 and 3 for the language-identifier
+
+5. Build Nutch and run all unit tests:
+
+    $ cd ../../../
+    $ ant clean runtime test
+
+The following directions are what we used to do with thin jars. Hopefully, we'll
+be able to get back to these directions once we have version harmony with Hadoop and Tika/POI.
+
 1. Upgrade Tika dependency (tika-core) in ivy/ivy.xml
 
 2. Upgrade Tika dependency in src/plugin/parse-tika/ivy.xml
