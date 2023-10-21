@@ -21,12 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -35,6 +35,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -65,7 +66,6 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
 public class LinkRank extends Configured implements Tool {
@@ -651,9 +651,9 @@ public class LinkRank extends Configured implements Tool {
   public void analyze(Path webGraphDb) throws IOException, 
       ClassNotFoundException, InterruptedException {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("Analysis: starting at " + sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("LinkRank Analysis: starting");
 
     // store the link rank under the webgraphdb temporarily, final scores get
     // upddated into the nodedb
@@ -714,9 +714,9 @@ public class LinkRank extends Configured implements Tool {
 
     // remove the temporary link rank folder
     fs.delete(linkRank, true);
-    long end = System.currentTimeMillis();
-    LOG.info("Analysis: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("LinkRank Analysis: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   public static void main(String[] args) throws Exception {

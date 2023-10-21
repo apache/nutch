@@ -18,7 +18,9 @@ package org.apache.nutch.indexer;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ByteWritable;
@@ -36,7 +38,6 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,9 +140,9 @@ public class CleaningJob implements Tool {
 
   public void delete(String crawldb, boolean noCommit) 
     throws IOException, InterruptedException, ClassNotFoundException {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("CleaningJob: starting at " + sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("CleaningJob: starting");
 
     Job job = NutchJob.getInstance(getConf());
     Configuration conf = job.getConfiguration();
@@ -173,9 +174,8 @@ public class CleaningJob implements Tool {
       throw e;
     }
 
-    long end = System.currentTimeMillis();
-    LOG.info("CleaningJob: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("CleaningJob: finished, elapsed: {} ms", stopWatch.getTime(TimeUnit.MILLISECONDS));
   }
 
   @Override

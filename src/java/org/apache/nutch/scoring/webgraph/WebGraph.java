@@ -18,7 +18,6 @@ package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -26,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -34,6 +34,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -67,7 +68,6 @@ import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
 /**
@@ -518,14 +518,12 @@ public class WebGraph extends Configured implements Tool {
       boolean normalize, boolean filter) throws IOException, 
       InterruptedException, ClassNotFoundException {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    if (LOG.isInfoEnabled()) {
-      LOG.info("WebGraphDb: starting at " + sdf.format(start));
-      LOG.info("WebGraphDb: webgraphdb: " + webGraphDb);
-      LOG.info("WebGraphDb: URL normalize: " + normalize);
-      LOG.info("WebGraphDb: URL filter: " + filter);
-    }
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("WebGraphDb: starting");
+    LOG.info("WebGraphDb: webgraphdb: " + webGraphDb);
+    LOG.info("WebGraphDb: URL normalize: " + normalize);
+    LOG.info("WebGraphDb: URL filter: " + filter);
 
     FileSystem fs = webGraphDb.getFileSystem(getConf());
 
@@ -715,9 +713,9 @@ public class WebGraph extends Configured implements Tool {
     // remove the lock file for the webgraph
     LockUtil.removeLockFile(fs, lock);
 
-    long end = System.currentTimeMillis();
-    LOG.info("WebGraphDb: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("WebGraphDb: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   public static void main(String[] args) throws Exception {

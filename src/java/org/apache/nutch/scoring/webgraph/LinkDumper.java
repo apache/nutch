@@ -20,10 +20,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -31,6 +32,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -57,7 +59,6 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 
 /**
  * The LinkDumper tool creates a database of node to inlink information that can
@@ -327,9 +328,9 @@ public class LinkDumper extends Configured implements Tool {
   public void dumpLinks(Path webGraphDb) throws IOException, 
       InterruptedException, ClassNotFoundException {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("NodeDumper: starting at " + sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("NodeDumper: starting");
     Configuration conf = getConf();
     FileSystem fs = webGraphDb.getFileSystem(conf);
 
@@ -400,9 +401,9 @@ public class LinkDumper extends Configured implements Tool {
     }
 
     fs.delete(tempInverted, true);
-    long end = System.currentTimeMillis();
-    LOG.info("LinkDumper: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("LinkDumper: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   public static void main(String[] args) throws Exception {
