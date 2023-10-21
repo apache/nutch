@@ -164,6 +164,16 @@
 </property>
 
 <property>
+  <name>http.robots.redirect.max</name>
+  <value>5</value>
+  <description>Maximum number of redirects followed when fetching
+  a robots.txt file. RFC 9309 specifies that &quot;crawlers SHOULD
+  follow at least five consecutive redirects, even across authorities
+  (for example, hosts in the case of HTTP).&quot;
+  </description>
+</property>
+
+<property>
   <name>http.agent.description</name>
   <value></value>
   <description>Further description of our bot- this text is used in

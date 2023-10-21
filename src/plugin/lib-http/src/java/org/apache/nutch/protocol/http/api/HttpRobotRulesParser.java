@@ -17,12 +17,15 @@
 package org.apache.nutch.protocol.http.api;
 
 import java.lang.invoke.MethodHandles;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
@@ -87,6 +90,13 @@ public class HttpRobotRulesParser extends RobotRulesParser {
    * {{protocol://host:port/robots.txt}}. The robots.txt is then parsed and the
    * rules are cached to avoid re-fetching and re-parsing it again.
    * 
+   * <p>Following
+   * <a href="https://www.rfc-editor.org/rfc/rfc9309.html#section-2.3.1.2">RFC
+   * 9309, section 2.3.1.2. Redirects</a>, up to five consecutive HTTP redirects
+   * are followed when fetching the robots.txt file. The max. number of
+   * redirects followed is configurable by the property
+   * <code>http.robots.redirect.max</code>.</p>
+   * 
    * @param http
    *          The {@link Protocol} object
    * @param url
@@ -114,11 +124,11 @@ public class HttpRobotRulesParser extends RobotRulesParser {
     if (robotRules != null) {
       return robotRules; // cached rule
     } else if (LOG.isTraceEnabled()) {
-      LOG.trace("cache miss {}", url);
+      LOG.trace("Robots.txt cache miss {}", url);
     }
 
     boolean cacheRule = true;
-    URL redir = null;
+    Set<String> redirectCacheKeys = new HashSet<>();
 
     if (isAllowListed(url)) {
       // check in advance whether a host is allowlisted
@@ -129,43 +139,97 @@ public class HttpRobotRulesParser extends RobotRulesParser {
           url.getHost());
 
     } else {
+      URL robotsUrl = null, robotsUrlRedir = null;
       try {
-        URL robotsUrl = new URL(url, "/robots.txt");
+        robotsUrl = new URL(url, "/robots.txt");
+
+        /*
+         * Redirect counter - following redirects up to the configured maximum
+         * ("five consecutive redirects" as per RFC 9309).
+         */
+        int numRedirects = 0;
+        /*
+         * The base URL to resolve relative redirect locations is set initially
+         * to the default URL path ("/robots.txt") and updated when redirects
+         * were followed.
+         */
+        robotsUrlRedir = robotsUrl;
+
         Response response = ((HttpBase) http).getResponse(robotsUrl,
             new CrawlDatum(), true);
+        int code = response.getCode();
         if (robotsTxtContent != null) {
           addRobotsContent(robotsTxtContent, robotsUrl, response);
         }
-        // try one level of redirection ?
-        if (response.getCode() == 301 || response.getCode() == 302) {
-          String redirection = response.getHeader("Location");
-          if (redirection == null) {
-            // some versions of MS IIS are known to mangle this header
-            redirection = response.getHeader("location");
-          }
-          if (redirection != null) {
-            if (!redirection.startsWith("http")) {
-              // RFC says it should be absolute, but apparently it isn't
-              redir = new URL(url, redirection);
-            } else {
-              redir = new URL(redirection);
-            }
 
-            response = ((HttpBase) http).getResponse(redir, new CrawlDatum(),
-                true);
-            if (robotsTxtContent != null) {
-              addRobotsContent(robotsTxtContent, redir, response);
+        while (isRedirect(code) && numRedirects < maxNumRedirects) {
+          numRedirects++;
+
+          String redirectionLocation = response.getHeader("Location");
+          if (StringUtils.isNotBlank(redirectionLocation)) {
+            LOG.debug("Following robots.txt redirect: {} -> {}", robotsUrlRedir,
+                redirectionLocation);
+            try {
+              robotsUrlRedir = new URL(robotsUrlRedir, redirectionLocation);
+            } catch (MalformedURLException e) {
+              LOG.info(
+                  "Failed to resolve redirect location for robots.txt: {} -> {} ({})",
+                  robotsUrlRedir, redirectionLocation, e.getMessage());
+              break;
             }
+            response = ((HttpBase) http).getResponse(robotsUrlRedir,
+                new CrawlDatum(), true);
+            code = response.getCode();
+            if (robotsTxtContent != null) {
+              addRobotsContent(robotsTxtContent, robotsUrlRedir, response);
+            }
+          } else {
+            LOG.info(
+                "No HTTP redirect Location header for robots.txt: {} (status code: {})",
+                robotsUrlRedir, code);
+            break;
+          }
+
+          if ("/robots.txt".equals(robotsUrlRedir.getFile())) {
+            /*
+             * If a redirect points to a path /robots.txt on a different host
+             * (or a different authority scheme://host:port/, in general), we
+             * can lookup the cache for cached rules from the target host.
+             */
+            String redirectCacheKey = getCacheKey(robotsUrlRedir);
+            robotRules = CACHE.get(redirectCacheKey);
+            LOG.debug(
+                "Found cached robots.txt rules for {} (redirected to {}) under target key {}",
+                url, robotsUrlRedir, redirectCacheKey);
+            if (robotRules != null) {
+              /* If found, cache and return the rules for the source host. */
+              CACHE.put(cacheKey, robotRules);
+              return robotRules;
+            } else {
+              /*
+               * Remember the target host/authority, we can cache the rules,
+               * too.
+               */
+              redirectCacheKeys.add(redirectCacheKey);
+            }
+          }
+
+          if (numRedirects == maxNumRedirects && isRedirect(code)) {
+            LOG.info(
+                "Reached maximum number of robots.txt redirects for {} (assuming no robots.txt, allow all)",
+                url);
           }
         }
 
-        if (response.getCode() == 200) // found rules: parse them
+        LOG.debug("Fetched robots.txt for {} with status code {}", url, code);
+        if (code == 200) // found rules: parse them
           robotRules = parseRules(url.toString(), response.getContent(),
               response.getHeader("Content-Type"), agentNames);
 
-        else if ((response.getCode() == 403) && (!allowForbidden))
+        else if ((code == 403) && (!allowForbidden))
           robotRules = FORBID_ALL_RULES; // use forbid all
-        else if (response.getCode() >= 500) {
+
+        else if (code >= 500) {
           cacheRule = false; // try again later to fetch robots.txt
           if (deferVisits503) {
             // signal fetcher to suspend crawling for this host
@@ -177,8 +241,15 @@ public class HttpRobotRulesParser extends RobotRulesParser {
           robotRules = EMPTY_RULES; // use default rules
         }
       } catch (Throwable t) {
-        if (LOG.isInfoEnabled()) {
-          LOG.info("Couldn't get robots.txt for " + url + ": " + t.toString());
+        if (robotsUrl == null || robotsUrlRedir == null) {
+          LOG.info("Couldn't get robots.txt for {}", url, t);
+        } else if (robotsUrl.equals(robotsUrlRedir)) {
+          LOG.info("Couldn't get robots.txt for {} ({}): {}", url, robotsUrl,
+              t);
+        } else {
+          LOG.info(
+              "Couldn't get redirected robots.txt for {} (redirected to {}): {}",
+              url, robotsUrlRedir, t);
         }
         cacheRule = false; // try again later to fetch robots.txt
         robotRules = EMPTY_RULES;
@@ -187,15 +258,25 @@ public class HttpRobotRulesParser extends RobotRulesParser {
 
     if (cacheRule) {
       CACHE.put(cacheKey, robotRules); // cache rules for host
-      if (redir != null && !redir.getHost().equalsIgnoreCase(url.getHost())
-          && "/robots.txt".equals(redir.getFile())) {
-        // cache also for the redirected host
-        // if the URL path is /robots.txt
-        CACHE.put(getCacheKey(redir), robotRules);
+      for (String redirectCacheKey : redirectCacheKeys) {
+        /*
+         * and also for redirect target hosts where URL path and query were
+         * found to be "/robots.txt"
+         */
+        CACHE.put(redirectCacheKey, robotRules);
       }
     }
 
     return robotRules;
+  }
+
+  /**
+   * @param code
+   *          HTTP response status code
+   * @return whether the status code signals a redirect to a different location
+   */
+  private boolean isRedirect(int code) {
+    return (code == 301 || code == 302 || code == 303 || code == 307 || code == 308);
   }
 
   /**
