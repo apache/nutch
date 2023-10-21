@@ -18,10 +18,11 @@ package org.apache.nutch.tools;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.fs.Path;
@@ -47,7 +48,6 @@ import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 
 /**
  * This tool generates fetchlists (segments to be fetched) from plain text files
@@ -180,9 +180,9 @@ public class FreeGenerator extends Configured implements Tool {
       }
     }
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("FreeGenerator: starting at " + sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("FreeGenerator: starting");
 
     Job job = NutchJob.getInstance(getConf());
     Configuration conf = job.getConfiguration();
@@ -226,9 +226,9 @@ public class FreeGenerator extends Configured implements Tool {
       LOG.error("FAILED: " + StringUtils.stringifyException(e));
       return -1;
     }
-    long end = System.currentTimeMillis();
-    LOG.info("FreeGenerator: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("FreeGenerator: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
     return 0;
   }
 

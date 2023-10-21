@@ -25,9 +25,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
@@ -454,11 +456,10 @@ public class Fetcher extends NutchTool implements Tool {
 
     checkConfiguration();
 
-    long start = System.currentTimeMillis();
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Fetcher: starting at {}", TimingUtil.logDateMillis(start));
-      LOG.info("Fetcher: segment: {}", segment);
-    }
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("Fetcher: starting");
+    LOG.info("Fetcher: segment: {}", segment);
 
     // set the actual time for the timelimit relative
     // to the beginning of the whole job and not of a specific task
@@ -530,9 +531,9 @@ public class Fetcher extends NutchTool implements Tool {
       throw e;
     }
 
-    long end = System.currentTimeMillis();
-    LOG.info("Fetcher: finished at {}, elapsed: {}",
-        TimingUtil.logDateMillis(end), TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("Fetcher: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   /**

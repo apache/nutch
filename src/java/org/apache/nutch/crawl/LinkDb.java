@@ -21,13 +21,14 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -54,7 +55,6 @@ import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
-import org.apache.nutch.util.TimingUtil;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
 public class LinkDb extends NutchTool implements Tool {
@@ -196,9 +196,9 @@ public class LinkDb extends NutchTool implements Tool {
     Path currentLinkDb = new Path(linkDb, CURRENT_NAME);
     Configuration conf = job.getConfiguration();
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("LinkDb: starting at {}", sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("LinkDb: starting");
     LOG.info("LinkDb: linkdb: {}", linkDb);
     LOG.info("LinkDb: URL normalize: {}", normalize);
     LOG.info("LinkDb: URL filter: {}", filter);
@@ -260,8 +260,9 @@ public class LinkDb extends NutchTool implements Tool {
     }
     LinkDb.install(job, linkDb);
 
-    long end = System.currentTimeMillis();
-    LOG.info("LinkDb: finished at {}, elapsed: {}", sdf.format(end), TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("LinkDb: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   private static Job createJob(Configuration config, Path linkDb,

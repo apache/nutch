@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -30,6 +30,7 @@ import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -127,9 +128,9 @@ public class CrawlCompletionStats extends Configured implements Tool {
       numOfReducers = Integer.parseInt(args[3]);
     }
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("CrawlCompletionStats: starting at {}", sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("CrawlCompletionStats: starting");
 
     int mode = 0;
     String jobName = "CrawlCompletionStats";
@@ -180,9 +181,9 @@ public class CrawlCompletionStats extends Configured implements Tool {
       throw e;
     }
 
-    long end = System.currentTimeMillis();
-    LOG.info("CrawlCompletionStats: finished at {}, elapsed: {}",
-      sdf.format(end), TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("CrawlCompletionStats: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
     return 0;
   }
 

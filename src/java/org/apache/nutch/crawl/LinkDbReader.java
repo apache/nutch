@@ -16,13 +16,15 @@
  */
 package org.apache.nutch.crawl;
 
+import java.io.Closeable;
 import java.io.IOException;
-
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Iterator;
 
-// Commons Logging imports
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,11 +48,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.AbstractChecker;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 
-import java.text.SimpleDateFormat;
-import java.util.Iterator;
-import java.io.Closeable;
+
 
 /**
  * Read utility for the LinkDb.
@@ -153,10 +152,9 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
 
   public void processDumpJob(String linkdb, String output, String regex) 
     throws IOException, InterruptedException, ClassNotFoundException {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-
-    LOG.info("LinkDb dump: starting at {}", sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("LinkDb dump: starting");
     LOG.info("LinkDb dump: db: {}", linkdb);
 
     Path outFolder = new Path(output);
@@ -192,9 +190,9 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
       throw e;
     }
 
-    long end = System.currentTimeMillis();
-    LOG.info("LinkDb dump: finished at {}, elapsed: {}",
-            sdf.format(end), TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("LinkDb dump: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   @Override

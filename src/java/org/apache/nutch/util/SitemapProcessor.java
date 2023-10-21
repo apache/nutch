@@ -22,7 +22,9 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -359,8 +361,9 @@ public class SitemapProcessor extends Configured implements Tool {
 
   public void sitemap(Path crawldb, Path hostdb, Path sitemapUrlDir, boolean strict, boolean filter,
                       boolean normalize, int threads) throws Exception {
-    long start = System.currentTimeMillis();
-    LOG.info("SitemapProcessor: Starting at {}", sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("SitemapProcessor: starting");
 
     FileSystem fs = crawldb.getFileSystem(getConf());
     Path old = new Path(crawldb, "old");
@@ -441,8 +444,9 @@ public class SitemapProcessor extends Configured implements Tool {
         LOG.info("SitemapProcessor: Total failed sitemap fetches: {}", failedFetches);
         LOG.info("SitemapProcessor: Total new sitemap entries added: {}", newSitemapEntries);
 
-        long end = System.currentTimeMillis();
-        LOG.info("SitemapProcessor: Finished at {}, elapsed: {}", sdf.format(end), TimingUtil.elapsedTime(start, end));
+        stopWatch.stop();
+        LOG.info("SitemapProcessor: finished, elapsed: {} ms", stopWatch.getTime(
+            TimeUnit.MILLISECONDS));
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("SitemapProcessor_" + crawldb.toString(), e);
