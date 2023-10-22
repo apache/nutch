@@ -163,13 +163,16 @@ public class SegmentReader extends Configured implements Tool {
       dump.append("\nRecno:: ").append(recNo++).append("\n");
       dump.append("URL:: " + key.toString() + "\n");
       Content content = null;
-      Charset charset = null;
+      // fall-back encoding for content of unparsed documents
+      Charset charset = StandardCharsets.UTF_8;
       for (NutchWritable val : values) {
         Writable value = val.get(); // unwrap
         if (value instanceof CrawlDatum) {
           dump.append("\nCrawlDatum::\n").append(((CrawlDatum) value).toString());
         } else if (value instanceof Content) {
           if (recodeContent) {
+            // output recoded content later when charset is extracted from HTML
+            // metadata hold in ParseData
             content = (Content) value;
           } else {
             dump.append("\nContent::\n").append(((Content) value).toString());

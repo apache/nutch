@@ -98,6 +98,7 @@ public abstract class RobotRulesParser implements Tool {
 
   protected Configuration conf;
   protected Set<String> agentNames;
+  protected int maxNumRedirects = 5;
 
   /** set of host names or IPs to be explicitly excluded from robots.txt checking */
   protected Set<String> allowList = new HashSet<>();
@@ -149,6 +150,10 @@ public abstract class RobotRulesParser implements Tool {
         }
       }
     }
+    LOG.info("Checking robots.txt for the following agent names: {}", agentNames);
+
+    maxNumRedirects = conf.getInt("http.robots.redirect.max", 5);
+    LOG.info("Following max. {} robots.txt redirects", maxNumRedirects);
 
     String[] confAllowList = conf.getStrings("http.robot.rules.allowlist");
     if (confAllowList == null) {
@@ -294,8 +299,11 @@ public abstract class RobotRulesParser implements Tool {
           "",
           "<robots-file-or-url>\tlocal file or URL parsed as robots.txt file",
           "\tIf <robots-file-or-url> starts with a protocol specification",
-          "\t(`http', `https', `ftp' or `file'), robots.txt it is fetched",
-          "\tusing the specified protocol. Otherwise, a local file is assumed.",
+          "\t(`http', `https', `ftp' or `file'), the URL is parsed, URL path",
+          "\tand query are removed and the path \"/robots.txt\" is appended.",
+          "\tThe resulting URL (the canonical robots.txt location) is then",
+          "\tfetched using the specified protocol.",
+          "\tIf the URL does not include a protocol, a local file is assumed.",
           "",
           "<url-file>\tlocal file with URLs (one per line), for every URL",
           "\tthe path part (including the query) is checked whether",
@@ -323,6 +331,16 @@ public abstract class RobotRulesParser implements Tool {
       return -1;
     }
 
+    if (args.length > 2) {
+      // set agent name from command-line in configuration
+      // Note: when fetching via protocol this must be done
+      // before the protocol is configured
+      String agents = args[2];
+      conf.set("http.robots.agents", agents);
+      conf.set("http.agent.name", agents.split(",")[0]);
+      setConf(conf);
+    }
+
     Protocol protocol = null;
     URL robotsTxtUrl = null;
     if (args[0].matches("^(?:https?|ftp|file)://?.*")) {
@@ -334,6 +352,7 @@ public abstract class RobotRulesParser implements Tool {
       ProtocolFactory factory = new ProtocolFactory(conf);
       try {
         protocol = factory.getProtocol(robotsTxtUrl);
+        LOG.debug("Using protocol {} to fetch robots.txt", protocol.getClass());
       } catch (ProtocolNotFound e) {
         LOG.error("No protocol found for {}: {}", args[0],
             StringUtils.stringifyException(e));
@@ -357,14 +376,6 @@ public abstract class RobotRulesParser implements Tool {
 
     File urlFile = new File(args[1]);
 
-    if (args.length > 2) {
-      // set agent name from command-line in configuration and update parser
-      String agents = args[2];
-      conf.set("http.robots.agents", agents);
-      conf.set("http.agent.name", agents.split(",")[0]);
-      setConf(conf);
-    }
-
     List<Content> robotsTxtContent = null;
     if (getConf().getBoolean("fetcher.store.robotstxt", false)) {
       robotsTxtContent = new LinkedList<>();
@@ -373,6 +384,7 @@ public abstract class RobotRulesParser implements Tool {
     try {
 
       BaseRobotRules rules = getRobotRulesSet(protocol, robotsTxtUrl, robotsTxtContent);
+      LOG.debug("Robots.txt rules:\n{}", rules);
 
       if (robotsTxtContent != null) {
         for (Content robotsTxt : robotsTxtContent) {

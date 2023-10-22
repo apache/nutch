@@ -141,8 +141,9 @@
   <name>http.robots.503.defer.visits</name>
   <value>true</value>
   <description>Temporarily suspend fetching from a host if the
-  robots.txt response is HTTP 503 or any other 5xx server error. See
-  also http.robots.503.defer.visits.delay and
+  robots.txt response is HTTP 503 or any other 5xx server error
+  and HTTP 429 Too Many Requests. See also
+  http.robots.503.defer.visits.delay and
   http.robots.503.defer.visits.retries</description>
 </property>
 
@@ -150,7 +151,7 @@
   <name>http.robots.503.defer.visits.delay</name>
   <value>300000</value>
   <description>Time in milliseconds to suspend crawling a host if the
-  robots.txt response is HTTP 5xx - see
+  robots.txt response is HTTP 5xx or 429 Too Many Requests - see
   http.robots.503.defer.visits.</description>
 </property>
 
@@ -158,8 +159,18 @@
   <name>http.robots.503.defer.visits.retries</name>
   <value>3</value>
   <description>Number of retries crawling a host if the robots.txt
-  response is HTTP 5xx - see http.robots.503.defer.visits. After n
-  retries the host queue is dropped for this segment/cycle.
+  response is HTTP 5xx or 429 - see http.robots.503.defer.visits.
+  After n retries the host queue is dropped for this segment/cycle.
+  </description>
+</property>
+
+<property>
+  <name>http.robots.redirect.max</name>
+  <value>5</value>
+  <description>Maximum number of redirects followed when fetching
+  a robots.txt file. RFC 9309 specifies that &quot;crawlers SHOULD
+  follow at least five consecutive redirects, even across authorities
+  (for example, hosts in the case of HTTP).&quot;
   </description>
 </property>
 

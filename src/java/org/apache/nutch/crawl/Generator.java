@@ -30,7 +30,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +78,6 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.SegmentReaderUtil;
-import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
 /**
@@ -821,10 +822,10 @@ public class Generator extends NutchTool implements Tool {
 
     Path lock = CrawlDb.lock(getConf(), dbDir, force);
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("Generator: starting at " + sdf.format(start));
-    LOG.info("Generator: Selecting best-scoring urls due for fetch.");
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("Generator: starting");
+    LOG.info("Generator: selecting best-scoring urls due for fetch.");
     LOG.info("Generator: filtering: " + filter);
     LOG.info("Generator: normalizing: " + norm);
     if (topN != Long.MAX_VALUE) {
@@ -982,9 +983,9 @@ public class Generator extends NutchTool implements Tool {
     }
     fs.delete(tempDir, true);
 
-    long end = System.currentTimeMillis();
-    LOG.info("Generator: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("Generator: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
 
     Path[] patharray = new Path[generatedSegments.size()];
     return generatedSegments.toArray(patharray);

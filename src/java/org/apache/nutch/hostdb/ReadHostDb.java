@@ -18,9 +18,10 @@ package org.apache.nutch.hostdb;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -42,7 +43,6 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.SegmentReaderUtil;
 
 import org.apache.commons.jexl3.JexlBuilder;
@@ -168,9 +168,9 @@ public class ReadHostDb extends Configured implements Tool {
 //   }
 
   private void readHostDb(Path hostDb, Path output, boolean dumpHomepages, boolean dumpHostnames, String expr) throws Exception {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("ReadHostDb: starting at " + sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("ReadHostDb: starting");
 
     Configuration conf = getConf();
     conf.setBoolean(HOSTDB_DUMP_HOMEPAGES, dumpHomepages);
@@ -211,8 +211,9 @@ public class ReadHostDb extends Configured implements Tool {
       throw e;
     }
 
-    long end = System.currentTimeMillis();
-    LOG.info("ReadHostDb: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("ReadHostDb: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
   
   private void getHostDbRecord(Path hostDb, String host) throws Exception {

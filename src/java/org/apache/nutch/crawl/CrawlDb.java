@@ -19,14 +19,15 @@ package org.apache.nutch.crawl;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -49,7 +50,6 @@ import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
-import org.apache.nutch.util.TimingUtil;
 
 /**
  * This class takes the output of the fetcher and updates the crawldb
@@ -85,10 +85,11 @@ public class CrawlDb extends NutchTool implements Tool {
   public void update(Path crawlDb, Path[] segments, boolean normalize,
       boolean filter, boolean additionsAllowed, boolean force)
       throws IOException, InterruptedException, ClassNotFoundException {
-    Path lock = lock(getConf(), crawlDb, force);
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+
+    Path lock = lock(getConf(), crawlDb, force);
 
     Job job = CrawlDb.createJob(getConf(), crawlDb);
     Configuration conf = job.getConfiguration();
@@ -98,7 +99,7 @@ public class CrawlDb extends NutchTool implements Tool {
 
     boolean url404Purging = conf.getBoolean(CRAWLDB_PURGE_404, false);
 
-    LOG.info("CrawlDb update: starting at {}", sdf.format(start));
+    LOG.info("CrawlDb update: starting");
     LOG.info("CrawlDb update: db: {}", crawlDb);
     LOG.info("CrawlDb update: segments: {}", Arrays.asList(segments));
     LOG.info("CrawlDb update: additions allowed: {}", additionsAllowed);
@@ -151,9 +152,9 @@ public class CrawlDb extends NutchTool implements Tool {
           urlsFiltered);
     }
 
-    long end = System.currentTimeMillis();
-    LOG.info("CrawlDb update: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("CrawlDb update: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   /*
