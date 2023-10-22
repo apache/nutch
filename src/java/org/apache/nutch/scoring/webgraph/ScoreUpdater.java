@@ -170,8 +170,7 @@ public class ScoreUpdater extends Configured implements Tool{
         .nextInt(Integer.MAX_VALUE)));
 
     // run the updater job outputting to the temp crawl database
-    Job updater = NutchJob.getInstance(conf);
-    updater.setJobName("Update CrawlDb from WebGraph");
+    Job updater = Job.getInstance(conf, "Nutch ScoreUpdater: " + crawlDb);
     FileInputFormat.addInputPath(updater, crawlDbCurrent);
     FileInputFormat.addInputPath(updater, nodeDb);
     FileOutputFormat.setOutputPath(updater, newCrawlDb);

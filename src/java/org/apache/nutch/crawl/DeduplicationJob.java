@@ -305,7 +305,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
     Path tempDir = new Path(crawlDb, "dedup-temp-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Job job = NutchJob.getInstance(getConf(), "Nutch DeduplicationJob: " + crawlDb);
+    Job job = Job.getInstance(getConf(), "Nutch DeduplicationJob: " + crawlDb);
     Configuration conf = job.getConfiguration();
     conf.set(DEDUPLICATION_GROUP_MODE, group);
     conf.set(DEDUPLICATION_COMPARE_ORDER, compareOrder);

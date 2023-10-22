@@ -941,8 +941,7 @@ public class Generator extends NutchTool implements Tool {
       Path tempDir2 = new Path(dbDir,
           "generate-temp-" + java.util.UUID.randomUUID().toString());
 
-      job = NutchJob.getInstance(getConf());
-      job.setJobName("generate: updatedb " + dbDir);
+      job = Job.getInstance(getConf(), "Nutch Generator: updatedb " + dbDir);
       job.getConfiguration().setLong(Nutch.GENERATE_TIME_KEY, generateTime);
       for (Path segmpaths : generatedSegments) {
         Path subGenDir = new Path(segmpaths, CrawlDatum.GENERATE_DIR_NAME);

@@ -28,7 +28,6 @@ import java.util.Properties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.NutchJob;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -102,7 +101,7 @@ public class TestPluginSystem {
   public void testRepositoryCache() throws IOException {
     Configuration config = NutchConfiguration.create();
     PluginRepository repo = PluginRepository.get(config);
-    Job job = NutchJob.getInstance(config);
+    Job job = Job.getInstance(config);
     config = job.getConfiguration();
     PluginRepository repo1 = PluginRepository.get(config);
     Assert.assertTrue(repo == repo1);
@@ -111,7 +110,7 @@ public class TestPluginSystem {
     config.addResource("nutch-default.xml");
     config.addResource("nutch-site.xml");
     repo = PluginRepository.get(config);
-    job = NutchJob.getInstance(config);
+    job = Job.getInstance(config);
     config = job.getConfiguration();
     repo1 = PluginRepository.get(config);
     Assert.assertTrue(repo1 != repo);

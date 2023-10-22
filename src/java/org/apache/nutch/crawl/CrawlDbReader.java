@@ -995,8 +995,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     }
 
     LOG.info("CrawlDb topN: collecting topN scores.");
-    job = NutchJob.getInstance(config);
-    job.setJobName("topN collect " + crawlDb);
+    job = Job.getInstance(config, "Nutch CrawlDbReader: topN collect " + crawlDb);
     job.getConfiguration().setLong("db.reader.topn", topN);
 
     FileInputFormat.addInputPath(job, tempDir);
