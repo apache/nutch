@@ -564,9 +564,8 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       throws IOException, InterruptedException, ClassNotFoundException {
     Path tmpFolder = new Path(crawlDb, "stat_tmp" + System.currentTimeMillis());
 
-    Job job = NutchJob.getInstance(config);
+    Job job = Job.getInstance(config, "Nutch CrawlDbReader: " + crawlDb);
     config = job.getConfiguration();
-    job.setJobName("stats " + crawlDb);
     config.setBoolean("db.reader.stats.sort", sort);
 
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
@@ -812,7 +811,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
   @Override
   protected int process(String line, StringBuilder output) throws Exception {
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch CrawlDbReader: process " + this.crawlDb);
     Configuration config = job.getConfiguration();
     readUrl(this.crawlDb, line, config, output);
     return 0;
@@ -839,8 +838,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
     Path outFolder = new Path(output);
 
-    Job job = NutchJob.getInstance(config);
-    job.setJobName("dump " + crawlDb);
+    Job job = Job.getInstance(config, "Nutch CrawlDbReader: dump " + crawlDb);
     Configuration jobConf = job.getConfiguration();
 
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
@@ -958,18 +956,15 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       String output, Configuration config)
       throws IOException, ClassNotFoundException, InterruptedException {
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("CrawlDb topN: starting (topN=" + topN + ", min=" + min + ")");
-      LOG.info("CrawlDb db: {}", crawlDb);
-    }
+    LOG.info("CrawlDb topN: starting (topN=" + topN + ", min=" + min + ")");
+    LOG.info("CrawlDb db: {}", crawlDb);
 
     Path outFolder = new Path(output);
     Path tempDir = new Path(
         config.get("mapreduce.cluster.temp.dir", ".") + "/readdb-topN-temp-"
             + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Job job = NutchJob.getInstance(config);
-    job.setJobName("topN prepare " + crawlDb);
+    Job job = Job.getInstance(config, "Nutch CrawlDbReader: topN prepare " + crawlDb);
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormatClass(SequenceFileInputFormat.class);
 

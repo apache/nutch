@@ -383,7 +383,7 @@ public class SitemapProcessor extends Configured implements Tool {
     conf.setBoolean(SITEMAP_URL_NORMALIZING, normalize);
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
 
-    Job job = Job.getInstance(conf, "SitemapProcessor_" + crawldb.toString());
+    Job job = Job.getInstance(conf, "Nutch SitemapProcessor: " + crawldb.toString());
     job.setJarByClass(SitemapProcessor.class);
 
     // add crawlDb, sitemap url directory and hostDb to input paths
@@ -431,23 +431,21 @@ public class SitemapProcessor extends Configured implements Tool {
       FSUtils.replace(fs, current, tempCrawlDb, true);
       LockUtil.removeLockFile(fs, lock);
 
-      if (LOG.isInfoEnabled()) {
-        long filteredRecords = job.getCounters().findCounter("Sitemap", "filtered_records").getValue();
-        long fromHostname = job.getCounters().findCounter("Sitemap", "sitemaps_from_hostname").getValue();
-        long fromSeeds = job.getCounters().findCounter("Sitemap", "sitemap_seeds").getValue();
-        long failedFetches = job.getCounters().findCounter("Sitemap", "failed_fetches").getValue();
-        long newSitemapEntries = job.getCounters().findCounter("Sitemap", "new_sitemap_entries").getValue();
+      long filteredRecords = job.getCounters().findCounter("Sitemap", "filtered_records").getValue();
+      long fromHostname = job.getCounters().findCounter("Sitemap", "sitemaps_from_hostname").getValue();
+      long fromSeeds = job.getCounters().findCounter("Sitemap", "sitemap_seeds").getValue();
+      long failedFetches = job.getCounters().findCounter("Sitemap", "failed_fetches").getValue();
+      long newSitemapEntries = job.getCounters().findCounter("Sitemap", "new_sitemap_entries").getValue();
 
-        LOG.info("SitemapProcessor: Total records rejected by filters: {}", filteredRecords);
-        LOG.info("SitemapProcessor: Total sitemaps from host name: {}", fromHostname);
-        LOG.info("SitemapProcessor: Total sitemaps from seed urls: {}", fromSeeds);
-        LOG.info("SitemapProcessor: Total failed sitemap fetches: {}", failedFetches);
-        LOG.info("SitemapProcessor: Total new sitemap entries added: {}", newSitemapEntries);
+      LOG.info("SitemapProcessor: Total records rejected by filters: {}", filteredRecords);
+      LOG.info("SitemapProcessor: Total sitemaps from host name: {}", fromHostname);
+      LOG.info("SitemapProcessor: Total sitemaps from seed urls: {}", fromSeeds);
+      LOG.info("SitemapProcessor: Total failed sitemap fetches: {}", failedFetches);
+      LOG.info("SitemapProcessor: Total new sitemap entries added: {}", newSitemapEntries);
 
-        stopWatch.stop();
-        LOG.info("SitemapProcessor: finished, elapsed: {} ms", stopWatch.getTime(
-            TimeUnit.MILLISECONDS));
-      }
+      stopWatch.stop();
+      LOG.info("SitemapProcessor: finished, elapsed: {} ms", stopWatch.getTime(
+          TimeUnit.MILLISECONDS));
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("SitemapProcessor_" + crawldb.toString(), e);
       NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);

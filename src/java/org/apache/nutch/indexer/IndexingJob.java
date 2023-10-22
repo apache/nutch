@@ -108,7 +108,8 @@ public class IndexingJob extends NutchTool implements Tool {
     stopWatch.start();
     LOG.info("Indexer: starting");
 
-    final Job job = NutchJob.getInstance(getConf());
+    final Job job = Job.getInstance(getConf(),
+        "Nutch IndexingJob: crawldb: " + crawlDb + " segment(s): " + segments);
     job.setJobName("Indexer");
     Configuration conf = job.getConfiguration();
 

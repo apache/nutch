@@ -625,9 +625,8 @@ public class SegmentMerger extends Configured implements Tool{
           long slice) throws IOException, ClassNotFoundException, InterruptedException {
     String segmentName = Generator.generateSegmentName();
     LOG.info("Merging {} segments to {}/{}", segs.length, out, segmentName);
-    Job job = NutchJob.getInstance(getConf());
+    Job job = NutchJob.getInstance(getConf(), "Nutch SegmentMerger: " + out + "/" + segmentName);
     Configuration conf = job.getConfiguration();
-    job.setJobName("mergesegs " + out + "/" + segmentName);
     conf.setBoolean("segment.merger.filter", filter);
     conf.setBoolean("segment.merger.normalizer", normalize);
     conf.setLong("segment.merger.slice", slice);

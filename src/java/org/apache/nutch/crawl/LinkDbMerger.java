@@ -147,8 +147,7 @@ public class LinkDbMerger extends Configured implements Tool {
     Path newLinkDb = new Path(linkDb,
         "merge-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Job job = NutchJob.getInstance(config);
-    job.setJobName("linkdb merge " + linkDb);
+    Job job = Job.getInstance(config, "Nutch LinkDbMerger: " + linkDb);
 
     Configuration conf = job.getConfiguration();
     job.setInputFormatClass(SequenceFileInputFormat.class);

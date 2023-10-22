@@ -77,11 +77,10 @@ public class UpdateHostDb extends Configured implements Tool {
     stopWatch.start();
     LOG.info("UpdateHostDb: starting");
 
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch UpdateHostDb");
     Configuration conf = job.getConfiguration();
     boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
     job.setJarByClass(UpdateHostDb.class);
-    job.setJobName("UpdateHostDb");
 
     FileSystem fs = hostDb.getFileSystem(conf);
     Path old = new Path(hostDb, "old");

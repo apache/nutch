@@ -498,12 +498,11 @@ public class Fetcher extends NutchTool implements Tool {
           totalOutlinksToFollow);
     }
 
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch Fetcher: " + segment.getName());
     job.setJobName("FetchData");
     Configuration conf = job.getConfiguration();
 
     conf.setInt("fetcher.threads.fetch", threads);
-    conf.set(Nutch.SEGMENT_NAME_KEY, segment.getName());
 
     // for politeness, don't permit parallel execution of a single task
     conf.set("mapreduce.map.speculative","false");

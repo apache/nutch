@@ -388,7 +388,7 @@ public class Generator extends NutchTool implements Tool {
     public void setup(Context context) throws IOException {
       conf = context.getConfiguration();
       mos = new MultipleOutputs<FloatWritable, SelectorEntry>(context);
-      Job job = Job.getInstance(conf);
+      Job job = Job.getInstance(conf, "Nutch Generator.SelectorReducer");
       limit = conf.getLong(GENERATOR_TOP_N, Long.MAX_VALUE)
           / job.getNumReduceTasks();
       maxNumSegments = conf.getInt(GENERATOR_MAX_NUM_SEGMENTS, 1);
@@ -695,7 +695,7 @@ public class Generator extends NutchTool implements Tool {
       long curTime)
       throws IOException, InterruptedException, ClassNotFoundException {
 
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch Generator: generate from " + dbDir);
     Configuration conf = job.getConfiguration();
     boolean filter = conf.getBoolean(GENERATOR_FILTER, true);
     boolean normalise = conf.getBoolean(GENERATOR_NORMALISE, true);
@@ -839,8 +839,7 @@ public class Generator extends NutchTool implements Tool {
     }
 
     // map to inverted subset due for fetch, sort by score
-    Job job = NutchJob.getInstance(getConf());
-    job.setJobName("generate: select from " + dbDir);
+    Job job = Job.getInstance(getConf(), "Nutch Generator: generate from " + dbDir);
     Configuration conf = job.getConfiguration();
     if (numLists == -1) {
       /* for politeness create exactly one partition per fetch task */ 
@@ -1001,8 +1000,7 @@ public class Generator extends NutchTool implements Tool {
 
     LOG.info("Generator: segment: " + segment);
 
-    Job job = NutchJob.getInstance(getConf());
-    job.setJobName("generate: partition " + segment);
+    Job job = Job.getInstance(getConf(), "Nutch Generator: partition segment " + segment);
     Configuration conf = job.getConfiguration();
     conf.setInt("partition.url.seed", RANDOM.nextInt());
 
