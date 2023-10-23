@@ -1065,6 +1065,24 @@
         <exclude name="plugin/parse-tika/sample/ootest.txt"/>
         <exclude name="plugin/parse-tika/sample/test.rtf"/>
         <exclude name="plugin/urlfilter-ignoreexempt/data/.donotdelete"/>
+        <exclude name="plugin/urlfilter-automaton/sample/Benchmarks.rules"/>
+        <exclude name="plugin/urlfilter-automaton/sample/Benchmarks.urls"/>
+        <exclude name="plugin/urlfilter-automaton/sample/IntranetCrawling.rules"/>
+        <exclude name="plugin/urlfilter-automaton/sample/IntranetCrawling.urls"/>
+        <exclude name="plugin/urlfilter-automaton/sample/WholeWebCrawling.rules"/>
+        <exclude name="plugin/urlfilter-automaton/sample/WholeWebCrawling.urls"/>
+        <exclude name="plugin/urlfilter-fast/sample/Benchmarks.urls"/>
+        <exclude name="plugin/urlfilter-fast/sample/fast-urlfilter-benchmark.txt"/>
+        <exclude name="plugin/urlfilter-fast/sample/fast-urlfilter-test.txt"/>
+        <exclude name="plugin/urlfilter-fast/sample/test.urls"/>
+        <exclude name="plugin/urlfilter-regex/sample/Benchmarks.rules"/>
+        <exclude name="plugin/urlfilter-regex/sample/Benchmarks.urls"/>
+        <exclude name="plugin/urlfilter-regex/sample/IntranetCrawling.rules"/>
+        <exclude name="plugin/urlfilter-regex/sample/IntranetCrawling.urls"/>
+        <exclude name="plugin/urlfilter-regex/sample/WholeWebCrawling.rules"/>
+        <exclude name="plugin/urlfilter-regex/sample/WholeWebCrawling.urls"/>
+        <exclude name="plugin/urlfilter-regex/sample/nutch1838.rules"/>
+        <exclude name="plugin/urlfilter-regex/sample/nutch1838.urls"/>
       </fileset>
     </rat:report>
   </target>
