@@ -15,7 +15,11 @@
 
 name: master pull request ci
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, synchronize, reopened]
     branches: [master]
 
 jobs:
