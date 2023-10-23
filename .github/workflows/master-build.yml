@@ -54,7 +54,7 @@ jobs:
       - name: Run Apache Rat
         run: ant clean run-rat -buildfile build.xml
       - name: Cache unknown licenses
-        run: sed -n 18p build/apache-rat-report.txt=$unknown_licenses
+        run: sed -n 18p /home/runner/work/nutch/nutch/build/apache-rat-report.txt=$unknown_licenses
       - name: Fail if any unknown licenses
         if: ${{ '${{ env.unknown_licenses }}' != '0 Unknown Licenses' }}
         run: exit 1
