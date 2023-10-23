@@ -38,7 +38,7 @@
   <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
   <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
-  <property name="dependency-check-ant.version" value="7.1.1" />
+  <property name="dependency-check-ant.version" value="8.4.2" />
   <property name="dependency-check-ant.home" value="${ivy.dir}/dependency-check-ant" />
   <property name="dependency-check-ant.jar" value="${dependency-check-ant.home}/dependency-check-ant.jar" />
 
@@ -48,7 +48,7 @@
   <property name="spotbugs.home" value="${ivy.dir}/spotbugs-${spotbugs.version}" />
   <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
-  <property name="apache-rat.version" value="0.14" />
+  <property name="apache-rat.version" value="0.15" />
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
 
@@ -640,13 +640,15 @@
     </fileset>
   </path>
 
-  <target name="report-vulnerabilities" depends="jar, compile-plugins, dependency-check-ant-download" description="--> check dependencies for security vulnerabilities">
+  <target name="dependency-check" depends="jar, compile-plugins, dependency-check-ant-download" description="--> check dependencies for security vulnerabilities">
     <taskdef resource="dependency-check-taskdefs.properties">
       <classpath refid="dependency-check-ant.path" />
     </taskdef>
     <dependency-check projectname="${name}"
                       reportoutputdirectory="${dependency-check-ant.home}"
-                      reportformat="ALL">
+                      reportformat="ALL"
+                      assemblyAnalyzerEnabled="false"
+                      failBuildOnCVSS="1">
         <suppressionfile path="${dependency-check-ant.home}/dependency-check-suppressions.xml" />
         <retirejsFilter regex="copyright.*jeremy long" />
         <fileset dir="${build.dir}">
@@ -1025,7 +1027,7 @@
 
   <target name="apache-rat-download-unchecked" unless="apache-rat.jar.found"
           description="--> downloads the Apache Rat jar">
-    <get src="https://www.apache.org/dist/creadur/apache-rat-${apache-rat.version}/apache-rat-${apache-rat.version}-bin.tar.gz"
+    <get src="https://archive.apache.org/dist/creadur/apache-rat-${apache-rat.version}/apache-rat-${apache-rat.version}-bin.tar.gz"
          dest="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz" usetimestamp="false" />
 
     <untar src="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz"
@@ -1035,8 +1037,8 @@
     <delete file="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz" />
   </target>
 
-  <target name="rat-sources" depends="init, apache-rat-download"
-    description="--> runs RAT tasks over src/java">
+  <target name="run-rat" depends="init, apache-rat-download"
+    description="--> runs Apache Rat on codebase">
     <taskdef
         uri="antlib:org.apache.rat.anttasks"
         resource="org/apache/rat/anttasks/antlib.xml">
@@ -1047,8 +1049,22 @@
     <rat:report
         reportFile="${build.dir}/apache-rat-report.txt">
       <fileset dir="src">
-        <include name="java/**/*"/>
-        <include name="plugin/**/src/**/*"/>
+        <include name="**"/>
+        <exclude name="plugin/language-identifier/src/java/org/apache/nutch/analysis/lang/langmappings.properties"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/de.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/en.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/es.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/fi.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/fr.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/it.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/nl.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/pt.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/sv.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/test-referencial.txt"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/da.test"/>
+        <exclude name="plugin/parse-tika/sample/ootest.txt"/>
+        <exclude name="plugin/parse-tika/sample/test.rtf"/>
+        <exclude name="plugin/urlfilter-ignoreexempt/data/.donotdelete"/>
       </fileset>
     </rat:report>
   </target>

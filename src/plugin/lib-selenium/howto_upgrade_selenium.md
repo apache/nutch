@@ -14,12 +14,19 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
-<html>
-<head>
-</head>
-<body>
-<p><a href="http://creativecommons.org/licenses/by-nc-sa/1.0"><img alt="Creative Commons License" src="http://creativecommons.org/images/public/somerights.gif" align="right"></a>This file is licensed under a
-<a href="http://creativecommons.org/licenses/by-nc-sa/1.0">Creative Commons License</a>.</p>
-</body>
-</html>
+
+1. Upgrade various driver versions dependency in src/plugin/lib-selenium/ivy.xml
+
+2. Upgrade Selenium's own dependencies in src/plugin/lib-selenium/plugin.xml
+
+   To get a list of dependencies and their versions execute:
+    $ ant -f ./build-ivy.xml
+    $ ls lib | sed 's/^/     <library name="/g' | sed 's/$/">\n       <export name="*"\/>\n     <\/library>/g'
+
+   Note that all dependent libraries are exported for a "library" plugin ("lib-selenium").
+
+   N.B. The above Regex + Sed commands may not work if you are using MacOSX's Sed. In this instance you can instal GNU Sed as follows
+
+   $ brew install gnu-sed --with-default-names
+
+   You can then restart your terminal and the Regex + Sed command should work just fine!
