@@ -35,6 +35,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
+          distribution: 'temurin'
       - name: Javadoc
         run: ant clean javadoc -buildfile build.xml
   rat:
@@ -49,6 +50,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
+          distribution: 'temurin'
       - name: Run Apache Rat
         run: ant clean run-rat -buildfile build.xml
       - name: Cache unknown licenses
@@ -68,5 +70,6 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
+          distribution: 'temurin'
       - name: Test
         run: ant clean test -buildfile build.xml
