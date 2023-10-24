@@ -20,8 +20,8 @@ import java.io.File;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for MSWordParser.
@@ -38,7 +38,7 @@ public class TestMSWordParser extends TikaParserTest {
   public void testIt() throws ProtocolException, ParseException {
     for (int i = 0; i < sampleFiles.length; i++) {
       String found = getTextContent(sampleFiles[i]);
-      Assert.assertTrue("text found : '" + found + "'",
+      Assertions.assertTrue("text found : '" + found + "'",
           found.startsWith(expectedText));
     }
   }
@@ -49,7 +49,7 @@ public class TestMSWordParser extends TikaParserTest {
     for (int i = 0; i < filenames.length; i++) {
       if (filenames[i].endsWith(".doc") == false)
         continue;
-      Assert.assertTrue("can't read content of " + filenames[i],
+      Assertions.assertTrue("can't read content of " + filenames[i],
           getTextContent(filenames[i]).length() > 0);
     }
   }

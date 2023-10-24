@@ -16,8 +16,8 @@
  */
 package org.apache.nutch.parse.js;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assertions.assertEquals;
+import static org.junit.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +37,8 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,7 @@ public class TestJSParseFilter {
 
   private Configuration conf;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     conf = NutchConfiguration.create();
     conf.set("file.content.limit", "-1");

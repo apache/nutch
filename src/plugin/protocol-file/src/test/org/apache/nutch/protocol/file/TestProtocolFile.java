@@ -29,9 +29,9 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author mattmann
@@ -57,7 +57,7 @@ public class TestProtocolFile {
 
   private Configuration conf;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     conf = NutchConfiguration.create();
   }
@@ -77,20 +77,20 @@ public class TestProtocolFile {
    */
   public void setContentType(String testTextFile) throws ProtocolException {
     String urlString = "file:" + sampleDir + fileSeparator + testTextFile;
-    Assert.assertNotNull(urlString);
+    Assertions.assertNotNull(urlString);
     Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
     ProtocolOutput output = protocol.getProtocolOutput(new Text(urlString),
         datum);
-    Assert.assertNotNull(output);
-    Assert.assertEquals("Status code: [" + output.getStatus().getCode()
+    Assertions.assertNotNull(output);
+    Assertions.assertEquals("Status code: [" + output.getStatus().getCode()
         + "], not equal to: [" + ProtocolStatus.SUCCESS + "]: args: ["
         + output.getStatus().getArgs() + "]", ProtocolStatus.SUCCESS, output
         .getStatus().getCode());
-    Assert.assertNotNull(output.getContent());
-    Assert.assertNotNull(output.getContent().getContentType());
-    Assert.assertEquals(expectedMimeType, output.getContent().getContentType());
-    Assert.assertNotNull(output.getContent().getMetadata());
-    Assert.assertEquals(expectedMimeType, output.getContent().getMetadata()
+    Assertions.assertNotNull(output.getContent());
+    Assertions.assertNotNull(output.getContent().getContentType());
+    Assertions.assertEquals(expectedMimeType, output.getContent().getContentType());
+    Assertions.assertNotNull(output.getContent().getMetadata());
+    Assertions.assertEquals(expectedMimeType, output.getContent().getMetadata()
         .get(Response.CONTENT_TYPE));
 
   }

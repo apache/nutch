@@ -19,9 +19,9 @@ package org.apache.nutch.urlfilter.suffix;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit test for <code>SuffixURLFilter</code>.
@@ -59,7 +59,7 @@ public class TestSuffixURLFilter {
 
   private SuffixURLFilter filter = null;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     filter = new SuffixURLFilter(new StringReader(suffixes));
   }
@@ -69,7 +69,7 @@ public class TestSuffixURLFilter {
     filter.setIgnoreCase(false);
     filter.setModeAccept(true);
     for (int i = 0; i < urls.length; i++) {
-      Assert.assertTrue(urlsModeAccept[i] == filter.filter(urls[i]));
+      Assertions.assertTrue(urlsModeAccept[i] == filter.filter(urls[i]));
     }
   }
 
@@ -78,7 +78,7 @@ public class TestSuffixURLFilter {
     filter.setIgnoreCase(false);
     filter.setModeAccept(false);
     for (int i = 0; i < urls.length; i++) {
-      Assert.assertTrue(urlsModeReject[i] == filter.filter(urls[i]));
+      Assertions.assertTrue(urlsModeReject[i] == filter.filter(urls[i]));
     }
   }
 
@@ -87,7 +87,7 @@ public class TestSuffixURLFilter {
     filter.setIgnoreCase(true);
     filter.setModeAccept(true);
     for (int i = 0; i < urls.length; i++) {
-      Assert.assertTrue(urlsModeAcceptIgnoreCase[i] == filter.filter(urls[i]));
+      Assertions.assertTrue(urlsModeAcceptIgnoreCase[i] == filter.filter(urls[i]));
     }
   }
 
@@ -96,7 +96,7 @@ public class TestSuffixURLFilter {
     filter.setIgnoreCase(true);
     filter.setModeAccept(false);
     for (int i = 0; i < urls.length; i++) {
-      Assert.assertTrue(urlsModeRejectIgnoreCase[i] == filter.filter(urls[i]));
+      Assertions.assertTrue(urlsModeRejectIgnoreCase[i] == filter.filter(urls[i]));
     }
   }
 
@@ -105,7 +105,7 @@ public class TestSuffixURLFilter {
     filter.setModeAccept(true);
     filter.setFilterFromPath(false);
     for (int i = 0; i < urls.length; i++) {
-      Assert.assertTrue(urlsModeAcceptAndNonPathFilter[i] == filter
+      Assertions.assertTrue(urlsModeAcceptAndNonPathFilter[i] == filter
           .filter(urls[i]));
     }
   }
@@ -115,7 +115,7 @@ public class TestSuffixURLFilter {
     filter.setModeAccept(true);
     filter.setFilterFromPath(true);
     for (int i = 0; i < urls.length; i++) {
-      Assert.assertTrue(urlsModeAcceptAndPathFilter[i] == filter
+      Assertions.assertTrue(urlsModeAcceptAndPathFilter[i] == filter
           .filter(urls[i]));
     }
   }

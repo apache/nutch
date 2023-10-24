@@ -29,10 +29,10 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TestSegmentMerger {
   Configuration conf;
@@ -43,7 +43,7 @@ public class TestSegmentMerger {
   Path out;
   int countSeg1, countSeg2;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
@@ -91,7 +91,7 @@ public class TestSegmentMerger {
     System.err.println(" - done: " + countSeg2 + " records.");
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     fs.delete(testDir, true);
   }
@@ -103,7 +103,7 @@ public class TestSegmentMerger {
     // verify output
     FileStatus[] stats = fs.listStatus(out);
     // there should be just one path
-    Assert.assertEquals(1, stats.length);
+    Assertions.assertEquals(1, stats.length);
     Path outSeg = stats[0].getPath();
     Text k = new Text();
     ParseText v = new ParseText();
@@ -116,16 +116,16 @@ public class TestSegmentMerger {
         String vs = v.getText();
         if (ks.startsWith("seg1-")) {
           cnt1++;
-          Assert.assertTrue(vs.startsWith("seg1 "));
+          Assertions.assertTrue(vs.startsWith("seg1 "));
         } else if (ks.startsWith("seg2-")) {
           cnt2++;
-          Assert.assertTrue(vs.startsWith("seg2 "));
+          Assertions.assertTrue(vs.startsWith("seg2 "));
         }
       }
       r.close();
     }
-    Assert.assertEquals(countSeg1, cnt1);
-    Assert.assertEquals(countSeg2, cnt2);
+    Assertions.assertEquals(countSeg1, cnt1);
+    Assertions.assertEquals(countSeg2, cnt2);
   }
 
 }

@@ -29,9 +29,9 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit based tests of class
@@ -45,7 +45,7 @@ public class MimeTypeIndexingFilterTest {
   private String[] MIME_TYPES = { "text/html", "image/png", "application/pdf" };
   private ParseImpl[] parses = new ParseImpl[MIME_TYPES.length];
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     for (int i = 0; i < MIME_TYPES.length; i++) {
       Metadata metadata = new Metadata();
@@ -61,7 +61,7 @@ public class MimeTypeIndexingFilterTest {
   @Test
   public void testMissingConfigFile() throws Exception {
     String file = conf.get(MimeTypeIndexingFilter.MIMEFILTER_REGEX_FILE, "");
-    Assert.assertEquals(String
+    Assertions.assertEquals(String
         .format("Property %s must not be present in the the configuration file",
             MimeTypeIndexingFilter.MIMEFILTER_REGEX_FILE), "", file);
 
@@ -72,7 +72,7 @@ public class MimeTypeIndexingFilterTest {
       NutchDocument doc = filter.filter(new NutchDocument(), parses[i],
           new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
-      Assert.assertNotNull("All documents must be allowed by default", doc);
+      Assertions.assertNotNull("All documents must be allowed by default", doc);
     }
   }
 
@@ -86,9 +86,9 @@ public class MimeTypeIndexingFilterTest {
           new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
       if (MIME_TYPES[i].contains("image")) {
-        Assert.assertNotNull("Allow only images", doc);
+        Assertions.assertNotNull("Allow only images", doc);
       } else {
-        Assert.assertNull("Block everything else", doc);
+        Assertions.assertNull("Block everything else", doc);
       }
     }
   }
@@ -103,9 +103,9 @@ public class MimeTypeIndexingFilterTest {
           new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
       if (MIME_TYPES[i].contains("html")) {
-        Assert.assertNull("Block only HTML documents", doc);
+        Assertions.assertNull("Block only HTML documents", doc);
       } else {
-        Assert.assertNotNull("Allow everything else", doc);
+        Assertions.assertNotNull("Allow everything else", doc);
       }
     }
   }

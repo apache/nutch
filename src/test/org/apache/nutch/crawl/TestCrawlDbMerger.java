@@ -31,10 +31,10 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TestCrawlDbMerger {
   private static final Logger LOG = LoggerFactory
@@ -55,7 +55,7 @@ public class TestCrawlDbMerger {
   Path testDir;
   CrawlDbReader reader;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     init1.add(url10);
     init1.add(url11);
@@ -85,7 +85,7 @@ public class TestCrawlDbMerger {
     fs.mkdirs(testDir);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     try {
       if (fs.exists(testDir))
@@ -133,8 +133,8 @@ public class TestCrawlDbMerger {
       System.out.println(" cd " + cd);
       System.out.println(" res " + res);
       // may not be null
-      Assert.assertNotNull(res);
-      Assert.assertTrue(cd.equals(res));
+      Assertions.assertNotNull(res);
+      Assertions.assertTrue(cd.equals(res));
     }
     reader.close();
     fs.delete(testDir, true);

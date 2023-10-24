@@ -19,8 +19,8 @@ package org.apache.nutch.net.protocols;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestHttpDateFormat {
 
@@ -38,18 +38,20 @@ public class TestHttpDateFormat {
   @Test
   public void testHttpDateFormat() throws ParseException {
 
-    Assert.assertEquals(dateMillis, HttpDateFormat.toLong(dateString));
-    Assert.assertEquals(dateString, HttpDateFormat.toString(dateMillis));
-    Assert.assertEquals(new Date(dateMillis), HttpDateFormat.toDate(dateString));
+    Assertions.assertEquals(dateMillis, HttpDateFormat.toLong(dateString));
+    Assertions.assertEquals(dateString, HttpDateFormat.toString(dateMillis));
+    Assertions.assertEquals(new Date(dateMillis), HttpDateFormat.toDate(dateString));
 
     String ds2 = "Sun, 6 Nov 1994 08:49:37 GMT";
-    Assert.assertEquals(dateMillis, HttpDateFormat.toLong(ds2));
+    Assertions.assertEquals(dateMillis, HttpDateFormat.toLong(ds2));
   }
 
-  @Test(expected = ParseException.class)
+  @Test
   public void testHttpDateFormatException() throws ParseException {
     String ds = "this is not a valid date";
-    HttpDateFormat.toLong(ds);
+    ParseException parseException = Assertions.assertThrows(ParseException.class, () -> {
+      HttpDateFormat.toLong(ds);
+    });
   }
 
   /**
@@ -60,6 +62,6 @@ public class TestHttpDateFormat {
   public void testHttpDateFormatTimeZone() throws ParseException {
     String dateStringPDT = "Mon, 21 Oct 2019 03:18:16 PDT";
     HttpDateFormat.toLong(dateStringPDT); // must not affect internal time zone
-    Assert.assertEquals(dateString, HttpDateFormat.toString(dateMillis));
+    Assertions.assertEquals(dateString, HttpDateFormat.toString(dateMillis));
   }
 }

@@ -27,8 +27,8 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,14 +117,14 @@ public class TestHtmlParser {
       LOG.info("title:\t" + title);
       LOG.info("keywords:\t" + keywords);
       LOG.info("text:\t" + text);
-      Assert.assertEquals("Title not extracted properly (" + name + ")",
+      Assertions.assertEquals("Title not extracted properly (" + name + ")",
           encodingTestKeywords, title);
       for (String keyword : encodingTestKeywords.split(",\\s*")) {
-        Assert.assertTrue(keyword + " not found in text (" + name + ")",
+        Assertions.assertTrue(keyword + " not found in text (" + name + ")",
             text.contains(keyword));
       }
-      Assert.assertNotNull("No keywords extracted", keywords);
-      Assert.assertEquals("Keywords not extracted properly (" + name + ")",
+      Assertions.assertNotNull("No keywords extracted", keywords);
+      Assertions.assertEquals("Keywords not extracted properly (" + name + ")",
           encodingTestKeywords, keywords);
     }
   }
@@ -137,8 +137,8 @@ public class TestHtmlParser {
     Parse parse = parse(contentBytes);
     LOG.info(parse.getData().toString());
     Outlink[] outlinks = parse.getData().getOutlinks();
-    Assert.assertEquals(1, outlinks.length);
-    Assert.assertEquals("http://www.example.com/index.html",
+    Assertions.assertEquals(1, outlinks.length);
+    Assertions.assertEquals("http://www.example.com/index.html",
         outlinks[0].getToUrl());
   }
 

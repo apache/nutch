@@ -25,8 +25,8 @@ import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DocumentFragment;
 
 /** Unit tests for HTMLMetaProcessor. */
@@ -125,7 +125,7 @@ public class TestRobotsMetaProcessor {
               new URL("http://www.nutch.org/base/") },
           { new URL("http://www.nutch.org"), null } };
     } catch (Exception e) {
-      Assert.assertTrue("couldn't make test URLs!", false);
+      Assertions.assertTrue("couldn't make test URLs!", false);
     }
 
     for (int i = 0; i < tests.length; i++) {
@@ -148,11 +148,11 @@ public class TestRobotsMetaProcessor {
       HTMLMetaTags robotsMeta = new HTMLMetaTags();
       HTMLMetaProcessor.getMetaTags(robotsMeta, root, currURLsAndAnswers[i][0]);
 
-      Assert.assertEquals("got noindex wrong on test " + i,
+      Assertions.assertEquals("got noindex wrong on test " + i,
           answers[i][0], robotsMeta.getNoIndex());
-      Assert.assertEquals("got nofollow wrong on test " + i,
+      Assertions.assertEquals("got nofollow wrong on test " + i,
           answers[i][1], robotsMeta.getNoFollow());
-      Assert.assertEquals("got nocache wrong on test " + i,
+      Assertions.assertEquals("got nocache wrong on test " + i,
           answers[i][2], robotsMeta.getNoCache());
       Assert
           .assertTrue(
@@ -165,11 +165,11 @@ public class TestRobotsMetaProcessor {
       if (tests[i].contains("meta-refresh redirect")) {
         // test for NUTCH-2589
         URL metaRefreshUrl = robotsMeta.getRefreshHref();
-        Assert.assertNotNull("failed to get meta-refresh redirect",
+        Assertions.assertNotNull("failed to get meta-refresh redirect",
             metaRefreshUrl);
-        Assert.assertEquals("failed to get meta-refresh redirect",
+        Assertions.assertEquals("failed to get meta-refresh redirect",
             "http://example.com/", metaRefreshUrl.toString());
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "failed to add meta-refresh redirect to parse status",
             "http://example.com/", parse.getData().getStatus().getArgs()[0]);
       }

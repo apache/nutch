@@ -16,8 +16,8 @@
  */
 package org.apache.nutch.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for PrefixStringMatcher. */
 public class TestPrefixStringMatcher {
@@ -90,17 +90,17 @@ public class TestPrefixStringMatcher {
 
         numInputsTested++;
 
-        Assert.assertTrue("'" + input + "' should " + (matches ? "" : "not ")
-            + "match!", matches == prematcher.matches(input));
+        Assertions.assertTrue(matches == prematcher.matches(input),
+            "'" + input + "' should " + (matches ? "" : "not ") + "match!");
         if (matches) {
-          Assert.assertTrue(shortestMatch == prematcher.shortestMatch(input)
+          Assertions.assertTrue(shortestMatch == prematcher.shortestMatch(input)
               .length());
-          Assert.assertTrue(input.substring(0, shortestMatch).equals(
+          Assertions.assertTrue(input.substring(0, shortestMatch).equals(
               prematcher.shortestMatch(input)));
 
-          Assert.assertTrue(longestMatch == prematcher.longestMatch(input)
+          Assertions.assertTrue(longestMatch == prematcher.longestMatch(input)
               .length());
-          Assert.assertTrue(input.substring(0, longestMatch).equals(
+          Assertions.assertTrue(input.substring(0, longestMatch).equals(
               prematcher.longestMatch(input)));
 
         }

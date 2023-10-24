@@ -22,8 +22,8 @@ import java.io.Reader;
 
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 public class TestFastURLFilter extends RegexURLFilterBaseTest {
@@ -33,7 +33,7 @@ public class TestFastURLFilter extends RegexURLFilterBaseTest {
     try {
       return new FastURLFilter(rules);
     } catch (IOException e) {
-      Assert.fail(e.toString());
+      Assertions.fail(e.toString());
       return null;
     }
   }

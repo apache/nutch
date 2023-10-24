@@ -21,8 +21,8 @@ import java.io.InputStreamReader;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for OOParser.
@@ -53,7 +53,7 @@ public class TestOOParser extends TikaParserTest {
       // simply test for the presence of a text - the ordering of the elements
       // may differ from what was expected
       // in the previous tests
-      Assert.assertTrue(text != null && text.length() > 0);
+      Assertions.assertTrue(text != null && text.length() > 0);
 
       System.out.println("Found " + sampleFiles[i] + ": " + text);
     }

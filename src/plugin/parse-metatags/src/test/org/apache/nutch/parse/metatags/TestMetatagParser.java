@@ -31,8 +31,8 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class TestMetatagParser {
       metadata = parse.getData().getParseMeta();
     } catch (Exception e) {
       e.printStackTrace();
-      Assert.fail(e.toString());
+      Assertions.fail(e.toString());
     }
     return metadata;
   }
@@ -72,8 +72,8 @@ public class TestMetatagParser {
     // check that we get the same values
     Metadata parseMeta = parseMeta(sampleFile, conf);
 
-    Assert.assertEquals(description, parseMeta.get("metatag.description"));
-    Assert.assertEquals(keywords, parseMeta.get("metatag.keywords"));
+    Assertions.assertEquals(description, parseMeta.get("metatag.description"));
+    Assertions.assertEquals(keywords, parseMeta.get("metatag.keywords"));
   }
 
   @Test
@@ -93,7 +93,7 @@ public class TestMetatagParser {
     }
     String[] expectedValues1 = { "Doug Cutting", "Michael Cafarella" };
     for (String val : expectedValues1) {
-      Assert.assertTrue(failMessage + val, valueSet.contains(val));
+      Assertions.assertTrue(failMessage + val, valueSet.contains(val));
     }
 
     valueSet.clear();
@@ -103,7 +103,7 @@ public class TestMetatagParser {
     String[] expectedValues2 = { "robot d'indexation", "web crawler",
         "Webcrawler" };
     for (String val : expectedValues2) {
-      Assert.assertTrue(failMessage + val, valueSet.contains(val));
+      Assertions.assertTrue(failMessage + val, valueSet.contains(val));
     }
   }
 
@@ -123,7 +123,7 @@ public class TestMetatagParser {
 
       LOG.info("metatags ({}): {}", parsePlugin,
           Arrays.toString(parseMeta.getValues("metatag.keywords")));
-      Assert.assertEquals(
+      Assertions.assertEquals(
           "Test document contains a single value of <meta name=keywords>, metatag.keywords should be also single-valued",
           1, parseMeta.getValues("metatag.keywords").length);
     }

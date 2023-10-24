@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for protocol-http

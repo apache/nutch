@@ -32,10 +32,10 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
 import org.apache.nutch.util.NutchJob;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * CrawlDbFiltering test which tests for correct, error free url normalization
@@ -51,14 +51,14 @@ public class TestCrawlDbFilter {
   final static Path testdir = new Path("build/test/crawldbfilter-test");
   FileSystem fs;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     conf = CrawlDBTestUtil.createContext().getConfiguration();
     fs = FileSystem.get(conf);
     fs.delete(testdir, true);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     delete(testdir);
   }
@@ -115,7 +115,7 @@ public class TestCrawlDbFilter {
     ArrayList<URLCrawlDatum> l = readContents(fetchlist);
 
     // verify we got right amount of records
-    Assert.assertEquals(2, l.size());
+    Assertions.assertEquals(2, l.size());
   }
 
   /**

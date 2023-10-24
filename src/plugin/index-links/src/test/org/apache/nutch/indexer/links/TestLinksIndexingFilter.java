@@ -31,9 +31,9 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 
@@ -43,7 +43,7 @@ public class TestLinksIndexingFilter {
   LinksIndexingFilter filter = new LinksIndexingFilter();
   Metadata metadata = new Metadata();
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     metadata.add(Response.CONTENT_TYPE, "text/html");
   }
@@ -79,10 +79,10 @@ public class TestLinksIndexingFilter {
             new ParseData(new ParseStatus(), "title", outlinks, metadata)),
         new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
-    Assert.assertEquals(1, doc.getField("outlinks").getValues().size());
+    Assertions.assertEquals(1, doc.getField("outlinks").getValues().size());
 
-    Assert.assertEquals("Filter outlinks, allow only those from a different host",
-        outlinks[0].getToUrl(), doc.getFieldValue("outlinks"));
+    Assertions.assertEquals(outlinks[0].getToUrl(), doc.getFieldValue("outlinks"),
+        "Filter outlinks, allow only those from a different host");
   }
 
   @Test
@@ -98,10 +98,10 @@ public class TestLinksIndexingFilter {
             new ParseData(new ParseStatus(), "title", new Outlink[0], metadata)),
         new Text("http://www.example.com/"), new CrawlDatum(), inlinks);
 
-    Assert.assertEquals(1, doc.getField("inlinks").getValues().size());
+    Assertions.assertEquals(1, doc.getField("inlinks").getValues().size());
 
-    Assert.assertEquals("Filter inlinks, allow only those from a different host",
-        "http://www.test.com", doc.getFieldValue("inlinks"));
+    Assertions.assertEquals("http://www.test.com", doc.getFieldValue("inlinks"),
+        "Filter inlinks, allow only those from a different host");
   }
 
   @Test
@@ -114,8 +114,9 @@ public class TestLinksIndexingFilter {
             new ParseData(new ParseStatus(), "title", outlinks, metadata)),
         new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
-    Assert.assertEquals("All outlinks must be indexed even those from the same host",
-        outlinks.length, doc.getField("outlinks").getValues().size());
+    Assertions.assertEquals(outlinks.length,
+        doc.getField("outlinks").getValues().size(),
+        "All outlinks must be indexed even those from the same host");
   }
 
   @Test
@@ -131,8 +132,9 @@ public class TestLinksIndexingFilter {
             new ParseData(new ParseStatus(), "title", new Outlink[0], metadata)),
         new Text("http://www.example.com/"), new CrawlDatum(), inlinks);
 
-    Assert.assertEquals("All inlinks must be indexed even those from the same host",
-        inlinks.size(), doc.getField("inlinks").getValues().size());
+    Assertions.assertEquals(inlinks.size(),
+        doc.getField("inlinks").getValues().size(),
+        "All inlinks must be indexed even those from the same host");
   }
 
   @Test
@@ -156,16 +158,16 @@ public class TestLinksIndexingFilter {
 
     NutchField docOutlinks = doc.getField("outlinks");
 
-    Assert.assertEquals("Only the host portion of the outlink URL must be indexed",
-        new URL("http://www.test.com").getHost(),
-        docOutlinks.getValues().get(0));
+    Assertions.assertEquals(new URL("http://www.test.com").getHost(),
+        docOutlinks.getValues().get(0),
+        "Only the host portion of the outlink URL must be indexed");
 
-    Assert.assertEquals(
-        "The inlinks coming from the same host must count only once", 1,
-        doc.getField("inlinks").getValues().size());
+    Assertions.assertEquals(1, doc.getField("inlinks").getValues().size(),
+        "The inlinks coming from the same host must count only once");
 
-    Assert.assertEquals("Only the host portion of the inlinks URL must be indexed",
-        new URL("http://www.test.com").getHost(), doc.getFieldValue("inlinks"));
+    Assertions.assertEquals(new URL("http://www.test.com").getHost(),
+        doc.getFieldValue("inlinks"),
+        "Only the host portion of the inlinks URL must be indexed");
   }
 
   @Test
@@ -182,12 +184,11 @@ public class TestLinksIndexingFilter {
             new ParseData(new ParseStatus(), "title", outlinks, metadata)),
         new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
-    Assert.assertEquals(1, doc.getField("outlinks").getValues().size());
+    Assertions.assertEquals(1, doc.getField("outlinks").getValues().size());
 
-    Assert.assertEquals(
-        "Index only the host portion of the outlinks after filtering",
-        new URL("http://www.test.com").getHost(),
-        doc.getFieldValue("outlinks"));
+    Assertions.assertEquals(new URL("http://www.test.com").getHost(),
+        doc.getFieldValue("outlinks"),
+        "Index only the host portion of the outlinks after filtering");
   }
 
   @Test
@@ -206,12 +207,11 @@ public class TestLinksIndexingFilter {
             new ParseData(new ParseStatus(), "title", new Outlink[0], metadata)),
         new Text("http://www.example.com/"), new CrawlDatum(), inlinks);
 
-    Assert.assertEquals(1, doc.getField("inlinks").getValues().size());
+    Assertions.assertEquals(1, doc.getField("inlinks").getValues().size());
 
-    Assert.assertEquals(
-        "Index only the host portion of the inlinks after filtering",
-        new URL("http://www.test.com").getHost(),
-        doc.getFieldValue("inlinks"));
+    Assertions.assertEquals(new URL("http://www.test.com").getHost(),
+        doc.getFieldValue("inlinks"),
+        "Index only the host portion of the inlinks after filtering");
 
   }
 }

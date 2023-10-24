@@ -23,8 +23,8 @@ import java.net.URL;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for BasicURLNormalizer. */
 public class TestBasicURLNormalizer {
@@ -252,14 +252,14 @@ public class TestBasicURLNormalizer {
   @Test
   public void testInvalidURLs() throws Exception {
     // invalid percent-encoded sequence in host name
-    normalizeTestAssertThrowsMalformedURLException("https://example%2Xcom/");
+    normalizeTestAssertions.hrowsMalformedURLException("https://example%2Xcom/");
     // not a valid UTF-8 sequence in host name
     // (only validated if parsed as Internationalized Domain Name)
     BasicURLNormalizer norm = new BasicURLNormalizer();
     conf = NutchConfiguration.create();
     conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toAscii");
     norm.setConf(conf);
-    normalizeTestAssertThrowsMalformedURLException(norm,
+    normalizeTestAssertions.hrowsMalformedURLException(norm,
         "https://abc%FEdef.org/");
   }
 
@@ -269,21 +269,21 @@ public class TestBasicURLNormalizer {
 
   private void normalizeTest(BasicURLNormalizer normalizer, String weird,
       String normal) throws Exception {
-    Assert.assertEquals("normalizing: " + weird, normal,
+    Assertions.assertEquals("normalizing: " + weird, normal,
         normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
     try {
       (new URL(normal)).toURI();
     } catch (MalformedURLException | URISyntaxException e) {
-      Assert.fail("Output of normalization fails to validate as URL or URI: "
+      Assertions.fail("Output of normalization fails to validate as URL or URI: "
           + e.getMessage());
     }
   }
 
-  private void normalizeTestAssertThrowsMalformedURLException(String weird) throws Exception {
-    normalizeTestAssertThrowsMalformedURLException(this.normalizer, weird);
+  private void normalizeTestAssertions.hrowsMalformedURLException(String weird) throws Exception {
+    normalizeTestAssertions.hrowsMalformedURLException(this.normalizer, weird);
   }
 
-  private void normalizeTestAssertThrowsMalformedURLException(
+  private void normalizeTestAssertions.hrowsMalformedURLException(
       BasicURLNormalizer normalizer, String weird) throws Exception {
     String normalized = null;
     try {
@@ -292,7 +292,7 @@ public class TestBasicURLNormalizer {
       // ok, expected
       return;
     }
-    Assert.fail("Expected MalformedURLException was not thrown on " + weird
+    Assertions.fail("Expected MalformedURLException was not thrown on " + weird
         + " (normalized: " + normalized + ")");
   }
 

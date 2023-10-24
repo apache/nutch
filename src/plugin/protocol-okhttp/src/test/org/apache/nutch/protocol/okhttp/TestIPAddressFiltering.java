@@ -17,16 +17,16 @@
 package org.apache.nutch.protocol.okhttp;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assertions.assertFalse;
+import static org.junit.Assertions.assertTrue;
+import static org.junit.Assertions.fail;
 
 import java.net.InetAddress;
 import java.util.function.Function;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.net.InetAddresses;
 

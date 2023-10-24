@@ -134,6 +134,7 @@
      source="${javac.version}"
      deprecation="${javac.deprecation}">
       <compilerarg value="-Xlint:-path"/>
+      <compilerarg value="-Xlint:unchecked"/>
       <classpath refid="classpath"/>
     </javac>
     <copy todir="${build.classes}">
@@ -463,6 +464,7 @@
      source="${javac.version}"
      deprecation="${javac.deprecation}">
       <compilerarg value="-Xlint:-path"/>
+      <compilerarg value="-Xlint:unchecked"/>
       <classpath refid="test.classpath"/>
     </javac>
   </target>
@@ -476,9 +478,7 @@
 
     <delete dir="${test.build.data}"/>
     <mkdir dir="${test.build.data}"/>
-    <!--
-     copy resources needed in junit tests
-    -->
+
     <copy todir="${test.build.data}">
       <fileset dir="src/testresources" includes="**/*"/>
     </copy>
@@ -495,7 +495,7 @@
     <copy file="${test.src.dir}/filter-all.txt"
         todir="${test.build.classes}"/>
 
-    <junit printsummary="yes" haltonfailure="no" fork="yes" dir="${basedir}"
+    <!--junit printsummary="yes" haltonfailure="yes" fork="yes" dir="${basedir}"
       errorProperty="tests.failed" failureProperty="tests.failed" maxmemory="1000m">
       <sysproperty key="test.build.data" value="${test.build.data}"/>
       <sysproperty key="test.src.dir" value="${test.src.dir}"/>
@@ -509,7 +509,26 @@
       <batchtest todir="${test.build.dir}" if="testcase">
         <fileset dir="${test.src.dir}" includes="**/${testcase}.java"/>
       </batchtest>
-    </junit>
+    </junit-->
+
+    <junitlauncher printsummary="yes" haltonfailure="yes" failureProperty="tests.failed">
+      <classpath refid="test.classpath"/>
+      <testclasses outputdir="${test.build.dir}" unless="testcase">
+        <fileset dir="${test.src.dir}">
+          <include name="**/Test*.java"/>
+          <exclude name="**/${test.exclude}.java"/>
+        </fileset>
+        <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
+        <listener type="legacy-plain" sendSysOut="true" />
+      </testclasses>
+      <testclasses outputdir="${test.build.dir}" if="testcase">
+        <fileset dir="${test.src.dir}">
+          <include name="**/${testcase}.java"/>
+        </fileset>
+        <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
+        <listener type="legacy-plain" sendSysOut="true" />
+      </testclasses>
+    </junitlauncher>
 
     <fail if="tests.failed">Tests failed!</fail>
 

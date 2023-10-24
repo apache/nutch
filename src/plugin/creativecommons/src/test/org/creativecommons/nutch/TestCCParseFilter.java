@@ -22,10 +22,13 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 public class TestCCParseFilter {
 
@@ -65,8 +68,8 @@ public class TestCCParseFilter {
     Parse parse = new ParseUtil(conf).parse(content).get(content.getUrl());
 
     Metadata metadata = parse.getData().getParseMeta();
-    Assert.assertEquals(license, metadata.get("License-Url"));
-    Assert.assertEquals(location, metadata.get("License-Location"));
-    Assert.assertEquals(type, metadata.get("Work-Type"));
+    Assertions.assertEquals(license, metadata.get("License-Url"));
+    Assertions.assertEquals(location, metadata.get("License-Location"));
+    Assertions.assertEquals(type, metadata.get("Work-Type"));
   }
 }

@@ -28,10 +28,10 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ public class TestCrawlDbDeduplication {
   Path testCrawlDb;
   CrawlDbReader reader;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
@@ -62,7 +62,7 @@ public class TestCrawlDbDeduplication {
     reader = new CrawlDbReader();
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     try {
       if (fs.exists(testCrawlDb))
@@ -82,7 +82,7 @@ public class TestCrawlDbDeduplication {
     args[1] = "-compareOrder";
     args[2] = "fetchTime,urlLength,score";
     int result = ToolRunner.run(conf, new DeduplicationJob(), args);
-    Assert.assertEquals("DeduplicationJob did not succeed", 0, result);
+    Assertions.assertEquals(0, result, "DeduplicationJob did not succeed");
     String url1 = "http://nutch.apache.org/";
     String url2 = "https://nutch.apache.org/";
     // url1 has been fetched earlier, so it should "survive" as "db_fetched":
@@ -97,7 +97,7 @@ public class TestCrawlDbDeduplication {
     args[1] = "-compareOrder";
     args[2] = "httpsOverHttp,fetchTime,urlLength,score";
     int result = ToolRunner.run(conf, new DeduplicationJob(), args);
-    Assert.assertEquals("DeduplicationJob did not succeed", 0, result);
+    Assertions.assertEquals(0, result, "DeduplicationJob did not succeed");
     String url1 = "http://nutch.apache.org/";
     String url2 = "https://nutch.apache.org/";
     // url2 is https://, so it should "survive" as "db_fetched":
@@ -107,10 +107,9 @@ public class TestCrawlDbDeduplication {
 
   private void checkStatus(String url, byte status) throws IOException {
     CrawlDatum datum = reader.get(testCrawlDb.toString(), url, conf);
-    Assert.assertNotNull("No CrawlDatum found in CrawlDb for " + url, datum);
-    Assert.assertEquals(
-        "Expected status for " + url + ": " + CrawlDatum.getStatusName(status),
-        status, datum.getStatus());
+    Assertions.assertNotNull(datum, "No CrawlDatum found in CrawlDb for " + url);
+    Assertions.assertEquals(status, datum.getStatus(),
+        "Expected status for " + url + ": " + CrawlDatum.getStatusName(status));
   }
 
   static class TestDedupReducer extends DeduplicationJob.DedupReducer<Text> {
@@ -142,22 +141,22 @@ public class TestCrawlDbDeduplication {
   public void testCompareURLs() {
     // test same protocol, same length: no decision possible
     String url0 = "https://example.com/";
-    Assert.assertNull(getDuplicateURL("httpsOverHttp,urlLength", url0, url0));
+    Assertions.assertNull(getDuplicateURL("httpsOverHttp,urlLength", url0, url0));
     String url1 = "http://nutch.apache.org/";
     String url2 = "https://nutch.apache.org/";
     // test httpsOverHttp
-    Assert.assertEquals(url1, getDuplicateURL("httpsOverHttp", url1, url2));
+    Assertions.assertEquals(url1, getDuplicateURL("httpsOverHttp", url1, url2));
     // test urlLength
-    Assert.assertEquals(url2, getDuplicateURL("urlLength", url1, url2));
+    Assertions.assertEquals(url2, getDuplicateURL("urlLength", url1, url2));
     // test urlLength with percent-encoded URLs
     // "b%C3%BCcher" (unescaped "bücher") is shorter than "buecher"
     String url3 = "https://example.com/b%C3%BCcher";
     String url4 = "https://example.com/buecher";
-    Assert.assertEquals(url4, getDuplicateURL("urlLength", url3, url4));
+    Assertions.assertEquals(url4, getDuplicateURL("urlLength", url3, url4));
     // test NUTCH-2935: should not throw error on invalid percent-encoding
     String url5 = "https://example.com/%YR";
     String url6 = "https://example.com/%YR%YR";
-    Assert.assertEquals(url6, getDuplicateURL("urlLength", url5, url6));
+    Assertions.assertEquals(url6, getDuplicateURL("urlLength", url5, url6));
   }
 
 }

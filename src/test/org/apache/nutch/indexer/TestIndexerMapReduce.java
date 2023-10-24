@@ -32,14 +32,14 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -128,7 +128,7 @@ public class TestIndexerMapReduce {
 
       NutchDocument doc = runIndexer(crawlDatumDbFetched,
           crawlDatumFetchSuccess, parseText, parseData, content);
-      assertNotNull("No NutchDocument indexed", doc);
+      Assertions.assertNotNull(doc, "No NutchDocument indexed");
 
       String binaryContentBase64 = (String) doc.getField("binaryContent")
           .getValues().get(0);
@@ -136,7 +136,7 @@ public class TestIndexerMapReduce {
       String binaryContent = new String(
           Base64.decodeBase64(binaryContentBase64), charset);
       LOG.info("binary content (decoded): {}", binaryContent);
-      assertEquals(
+      Assertions.assertEquals(
           "Binary content (" + charset + ") not correctly saved as base64",
           htmlDoc, binaryContent);
     }

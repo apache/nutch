@@ -25,8 +25,8 @@ import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit test case which tests 1. that anchor text is obtained 2. that anchor
@@ -43,7 +43,7 @@ public class TestAnchorIndexingFilter {
     conf.setBoolean("anchorIndexingFilter.deduplicate", true);
     AnchorIndexingFilter filter = new AnchorIndexingFilter();
     filter.setConf(conf);
-    Assert.assertNotNull(filter);
+    Assertions.assertNotNull(filter);
     NutchDocument doc = new NutchDocument();
     ParseImpl parse = new ParseImpl("foo bar", new ParseData());
     Inlinks inlinks = new Inlinks();
@@ -55,13 +55,13 @@ public class TestAnchorIndexingFilter {
           new CrawlDatum(), inlinks);
     } catch (Exception e) {
       e.printStackTrace();
-      Assert.fail(e.getMessage());
+      Assertions.fail(e.getMessage());
     }
-    Assert.assertNotNull(doc);
-    Assert.assertTrue("test if there is an anchor at all", doc.getFieldNames()
-        .contains("anchor"));
-    Assert.assertEquals("test dedup, we expect 2", 2, doc.getField("anchor")
-        .getValues().size());
+    Assertions.assertNotNull(doc);
+    Assertions.assertTrue(doc.getFieldNames().contains("anchor"),
+        "test if there is an anchor at all", );
+    Assertions.assertEquals(2, doc.getField("anchor").getValues().size(),
+        "test dedup, we expect 2");
   }
 
 }

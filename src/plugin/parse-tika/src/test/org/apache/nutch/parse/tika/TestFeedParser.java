@@ -16,8 +16,8 @@
  */
 package org.apache.nutch.parse.tika;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -79,7 +79,7 @@ public class TestFeedParser extends TikaParserTest {
 
       Outlink[] theOutlinks = theParseData.getOutlinks();
 
-      Assert.assertTrue("There aren't 2 outlinks read!",
+      Assertions.assertTrue("There aren't 2 outlinks read!",
           theOutlinks.length == 2);
 
       // now check to make sure that those are the two outlinks
@@ -97,7 +97,7 @@ public class TestFeedParser extends TikaParserTest {
       }
 
       if (!hasLink1 || !hasLink2) {
-        Assert.fail("Outlinks read from sample rss file are not correct!");
+        Assertions.fail("Outlinks read from sample rss file are not correct!");
       }
     }
   }

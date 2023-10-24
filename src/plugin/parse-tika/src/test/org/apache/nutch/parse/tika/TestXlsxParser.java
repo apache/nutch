@@ -16,13 +16,13 @@
  */
 package org.apache.nutch.parse.tika;
 
-import static org.junit.Assert.*;
+import static org.junit.Assertions.*;
 
 import java.io.IOException;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestXlsxParser extends TikaParserTest {
 

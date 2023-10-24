@@ -32,8 +32,8 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestMoreIndexingFilter {
 
@@ -59,7 +59,7 @@ public class TestMoreIndexingFilter {
     conf.setBoolean("moreIndexingFilter.indexMimeTypeParts", false);
     MoreIndexingFilter filter = new MoreIndexingFilter();
     filter.setConf(conf);
-    Assert.assertNotNull(filter);
+    Assertions.assertNotNull(filter);
     NutchDocument doc = new NutchDocument();
     ParseImpl parse = new ParseImpl("foo bar", new ParseData());
 
@@ -68,12 +68,12 @@ public class TestMoreIndexingFilter {
           new CrawlDatum(), new Inlinks());
     } catch (Exception e) {
       e.printStackTrace();
-      Assert.fail(e.getMessage());
+      Assertions.fail(e.getMessage());
     }
-    Assert.assertNotNull(doc);
-    Assert.assertTrue(doc.getFieldNames().contains("type"));
-    Assert.assertEquals(1, doc.getField("type").getValues().size());
-    Assert.assertEquals("text/html", doc.getFieldValue("type"));
+    Assertions.assertNotNull(doc);
+    Assertions.assertTrue(doc.getFieldNames().contains("type"));
+    Assertions.assertEquals(1, doc.getField("type").getValues().size());
+    Assertions.assertEquals("text/html", doc.getFieldValue("type"));
   }
 
   @Test
@@ -92,21 +92,21 @@ public class TestMoreIndexingFilter {
     NutchDocument doc = new NutchDocument();
     doc = filter.filter(doc, parseImpl, url, new CrawlDatum(), new Inlinks());
 
-    Assert.assertEquals("content-disposition not detected", "filename.ext",
-        doc.getFieldValue("title"));
+    Assertions.assertEquals("filename.ext", doc.getFieldValue("title"),
+        "content-disposition not detected");
 
     /* NUTCH-1140: do not add second title to avoid a multi-valued title field */
     doc = new NutchDocument();
     doc.add("title", "title");
     doc = filter.filter(doc, parseImpl, url, new CrawlDatum(), new Inlinks());
-    Assert.assertEquals("do not add second title by content-disposition",
-        "title", doc.getFieldValue("title"));
+    Assertions.assertEquals("title", doc.getFieldValue("title"),
+        "do not add second title by content-disposition");
   }
 
   private void assertParts(String[] parts, int count, String... expected) {
-    Assert.assertEquals(count, parts.length);
+    Assertions.assertEquals(count, parts.length);
     for (int i = 0; i < expected.length; i++) {
-      Assert.assertEquals(expected[i], parts[i]);
+      Assertions.assertEquals(expected[i], parts[i]);
     }
   }
 
@@ -120,8 +120,8 @@ public class TestMoreIndexingFilter {
         "text", new ParseData(new ParseStatus(), "title", new Outlink[0],
             metadata)), new Text("http://www.example.com/"), new CrawlDatum(),
         new Inlinks());
-    Assert.assertEquals("mime type not detected", expected,
-        doc.getFieldValue("type"));
+    Assertions.assertEquals(expected, doc.getFieldValue("type"),
+        "mime type not detected");
   }
 
   @Test
@@ -148,8 +148,9 @@ public class TestMoreIndexingFilter {
 
     doc = filter.filter(doc, parseImpl, url, fetchDatum, new Inlinks());
 
-    Assert.assertEquals("last fetch date not extracted",
-        new Date(dateEpocheSeconds * 1000), doc.getFieldValue("date"));
+    Assertions.assertEquals(new Date(dateEpocheSeconds * 1000),
+        doc.getFieldValue("date"),
+        "last fetch date not extracted");
 
     // set last-modified time (7 days before fetch time)
     Date lastModifiedDate = new Date(
@@ -158,7 +159,7 @@ public class TestMoreIndexingFilter {
     parseImpl.getData().getParseMeta().set(Metadata.LAST_MODIFIED, lastModifiedDateStr);
     doc = filter.filter(doc, parseImpl, url, fetchDatum, new Inlinks());
 
-    Assert.assertEquals("last-modified date not extracted", lastModifiedDate,
-        doc.getFieldValue("lastModified"));
+    Assertions.assertEquals(lastModifiedDate, doc.getFieldValue("lastModified"),
+        "last-modified date not extracted");
   }
 }

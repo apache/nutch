@@ -23,8 +23,8 @@ import java.io.Reader;
 import org.apache.nutch.net.*;
 // Nutch imports
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit based test of class <code>RegexURLFilter</code>.
@@ -38,7 +38,7 @@ public class TestRegexURLFilter extends RegexURLFilterBaseTest {
     try {
       return new RegexURLFilter(rules);
     } catch (IOException e) {
-      Assert.fail(e.toString());
+      Assertions.fail(e.toString());
       return null;
     }
   }

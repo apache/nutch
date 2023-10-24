@@ -27,9 +27,9 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 public class TestJexlIndexingFilter {
@@ -43,7 +43,7 @@ public class TestJexlIndexingFilter {
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     filter.setConf(conf);
-    Assert.assertNotNull(filter);
+    Assertions.assertNotNull(filter);
 
     NutchDocument doc = new NutchDocument();
 
@@ -66,8 +66,8 @@ public class TestJexlIndexingFilter {
 
     NutchDocument result = filter.filter(doc, parse,
         new Text("http://nutch.apache.org/index.html"), crawlDatum, inlinks);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(doc, result);
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(doc, result);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class TestJexlIndexingFilter {
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     filter.setConf(conf);
-    Assert.assertNotNull(filter);
+    Assertions.assertNotNull(filter);
 
     NutchDocument doc = new NutchDocument();
 
@@ -100,7 +100,7 @@ public class TestJexlIndexingFilter {
 
     NutchDocument result = filter.filter(doc, parse,
         new Text("http://nutch.apache.org/index.html"), crawlDatum, inlinks);
-    Assert.assertNull(result);
+    Assertions.assertNull(result);
   }
 
   @Test

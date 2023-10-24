@@ -29,8 +29,8 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit tests for the <code>index-replace</code> plugin.
@@ -65,15 +65,15 @@ public class TestIndexReplace {
 
     BasicIndexingFilter basicIndexer = new BasicIndexingFilter();
     basicIndexer.setConf(conf);
-    Assert.assertNotNull(basicIndexer);
+    Assertions.assertNotNull(basicIndexer);
 
     MetadataIndexer metaIndexer = new MetadataIndexer();
     metaIndexer.setConf(conf);
-    Assert.assertNotNull(basicIndexer);
+    Assertions.assertNotNull(basicIndexer);
 
     ReplaceIndexer replaceIndexer = new ReplaceIndexer();
     replaceIndexer.setConf(conf);
-    Assert.assertNotNull(replaceIndexer);
+    Assertions.assertNotNull(replaceIndexer);
 
     try {
       String urlString = "file:" + sampleDir + fileSeparator + fileName;
@@ -91,7 +91,7 @@ public class TestIndexReplace {
       doc = replaceIndexer.filter(doc, parse, text, crawlDatum, inlinks);
     } catch (Exception e) {
       e.printStackTrace();
-      Assert.fail(e.toString());
+      Assertions.fail(e.toString());
     }
 
     return doc;
@@ -121,14 +121,14 @@ public class TestIndexReplace {
     try {
       rp.setConf(conf);
     } catch (RuntimeException ohno) {
-      Assert.fail("Unable to parse a valid index.replace.regexp property! "
+      Assertions.fail("Unable to parse a valid index.replace.regexp property! "
           + ohno.getMessage());
     }
 
     Configuration parsedConf = rp.getConf();
 
     // Does the getter equal the setter? Too easy!
-    Assert.assertEquals(indexReplaceProperty,
+    Assertions.assertEquals(indexReplaceProperty,
         parsedConf.get(INDEX_REPLACE_PROPERTY));
   }
 
@@ -160,11 +160,11 @@ public class TestIndexReplace {
     // Run the document through the parser and index filters.
     NutchDocument doc = parseAndFilterFile(sampleFile, conf);
 
-    Assert.assertEquals(expectedDescription,
+    Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
     Assert
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
-    Assert.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
+    Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
   }
 
   /**
@@ -198,12 +198,12 @@ public class TestIndexReplace {
     // Run the document through the parser and index filters.
     NutchDocument doc = parseAndFilterFile(sampleFile, conf);
 
-    // Assert that our metatags have not changed.
-    Assert.assertEquals(expectedDescription,
+    // Assertions.that our metatags have not changed.
+    Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
     Assert
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
-    Assert.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
+    Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
 
   }
 
@@ -233,12 +233,12 @@ public class TestIndexReplace {
     // Run the document through the parser and index filters.
     NutchDocument doc = parseAndFilterFile(sampleFile, conf);
 
-    // Assert that our metatags have changed.
-    Assert.assertEquals(expectedDescription,
+    // Assertions.that our metatags have changed.
+    Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
     Assert
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
-    Assert.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
+    Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
 
   }
 
@@ -270,12 +270,12 @@ public class TestIndexReplace {
     // Run the document through the parser and index filters.
     NutchDocument doc = parseAndFilterFile(sampleFile, conf);
 
-    // Assert that our metatags have not changed.
-    Assert.assertEquals(expectedDescription,
+    // Assertions.that our metatags have not changed.
+    Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
     Assert
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
-    Assert.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
+    Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
 
   }
 
@@ -309,12 +309,12 @@ public class TestIndexReplace {
     // Run the document through the parser and index filters.
     NutchDocument doc = parseAndFilterFile(sampleFile, conf);
 
-    // Assert that our metatags have changed.
-    Assert.assertEquals(expectedDescription,
+    // Assertions.that our metatags have changed.
+    Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
     Assert
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
-    Assert.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
+    Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
 
   }
 
@@ -348,12 +348,12 @@ public class TestIndexReplace {
     // Run the document through the parser and index filters.
     NutchDocument doc = parseAndFilterFile(sampleFile, conf);
 
-    // Assert that description has changed and the others have not changed.
-    Assert.assertEquals(expectedDescription,
+    // Assertions.that description has changed and the others have not changed.
+    Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
     Assert
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
-    Assert.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
+    Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
   }
 
   /**
@@ -386,7 +386,7 @@ public class TestIndexReplace {
     NutchDocument doc = parseAndFilterFile(sampleFile, conf);
 
     // Check that the value produced by the last replacement has worked.
-    Assert.assertEquals(expectedDescription,
+    Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
   }
 
@@ -417,7 +417,7 @@ public class TestIndexReplace {
 
     // Check that the value produced by the case-insensitive replacement has
     // worked.
-    Assert.assertEquals(expectedDescription,
+    Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
   }
 
@@ -446,10 +446,10 @@ public class TestIndexReplace {
     NutchDocument doc = parseAndFilterFile(sampleFile, conf);
 
     // Check that the input field has not been modified
-    Assert.assertEquals(expectedDescription,
+    Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
     // Check that the output field has created
-    Assert.assertEquals(expectedTargetDescription,
+    Assertions.assertEquals(expectedTargetDescription,
         doc.getFieldValue("new"));
   }
 }

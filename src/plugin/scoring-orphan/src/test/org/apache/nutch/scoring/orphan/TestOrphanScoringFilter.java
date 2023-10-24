@@ -16,8 +16,8 @@
  */
 package org.apache.nutch.scoring.orphan;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assertions.assertEquals;
+import static org.junit.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestOrphanScoringFilter {
 

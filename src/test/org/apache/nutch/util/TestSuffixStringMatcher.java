@@ -16,8 +16,8 @@
  */
 package org.apache.nutch.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for SuffixStringMatcher. */
 public class TestSuffixStringMatcher {
@@ -90,17 +90,17 @@ public class TestSuffixStringMatcher {
 
         numInputsTested++;
 
-        Assert.assertTrue("'" + input + "' should " + (matches ? "" : "not ")
-            + "match!", matches == sufmatcher.matches(input));
+        Assertions.assertTrue(matches == sufmatcher.matches(input),
+            "'" + input + "' should " + (matches ? "" : "not ") + "match!");
         if (matches) {
-          Assert.assertTrue(shortestMatch == sufmatcher.shortestMatch(input)
+          Assertions.assertTrue(shortestMatch == sufmatcher.shortestMatch(input)
               .length());
-          Assert.assertTrue(input.substring(input.length() - shortestMatch)
+          Assertions.assertTrue(input.substring(input.length() - shortestMatch)
               .equals(sufmatcher.shortestMatch(input)));
 
-          Assert.assertTrue(longestMatch == sufmatcher.longestMatch(input)
+          Assertions.assertTrue(longestMatch == sufmatcher.longestMatch(input)
               .length());
-          Assert.assertTrue(input.substring(input.length() - longestMatch)
+          Assertions.assertTrue(input.substring(input.length() - longestMatch)
               .equals(sufmatcher.longestMatch(input)));
         }
       }

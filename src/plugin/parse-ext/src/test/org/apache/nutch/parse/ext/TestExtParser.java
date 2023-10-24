@@ -27,10 +27,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,7 +56,7 @@ public class TestExtParser {
   // echo -n "nutch rocks nutch rocks nutch rocks" | md5sum
   private String expectedMD5sum = "df46711a1a48caafc98b1c3b83aa1526";
 
-  @Before
+  @BeforeEach
   protected void setUp() throws ProtocolException, IOException {
     // prepare a temp file with expectedText as its content
     // This system property is defined in ./src/plugin/build-plugin.xml
@@ -85,7 +85,7 @@ public class TestExtParser {
     protocol = null;
   }
 
-  @After
+  @AfterEach
   protected void tearDown() {
     // clean content
     content = null;
@@ -115,14 +115,14 @@ public class TestExtParser {
       content.setContentType(contentType);
       parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content).get(
           content.getUrl());
-      Assert.assertEquals(expectedText, parse.getText());
+      Assertions.assertEquals(expectedText, parse.getText());
 
       // check external parser that does 'md5sum'
       contentType = "application/vnd.nutch.example.md5sum";
       content.setContentType(contentType);
       parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content).get(
           content.getUrl());
-      Assert.assertTrue(parse.getText().startsWith(expectedMD5sum));
+      Assertions.assertTrue(parse.getText().startsWith(expectedMD5sum));
     }
   }
 
