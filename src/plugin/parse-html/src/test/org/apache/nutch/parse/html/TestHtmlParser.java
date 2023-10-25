@@ -121,12 +121,12 @@ public class TestHtmlParser {
       Assertions.assertEquals("Title not extracted properly (" + name + ")",
           encodingTestKeywords, title);
       for (String keyword : encodingTestKeywords.split(",\\s*")) {
-        Assertions.assertTrue(keyword + " not found in text (" + name + ")",
-            text.contains(keyword));
+        Assertions.assertTrue(text.contains(keyword),
+            keyword + " not found in text (" + name + ")");
       }
-      Assertions.assertNotNull("No keywords extracted", keywords);
-      Assertions.assertEquals("Keywords not extracted properly (" + name + ")",
-          encodingTestKeywords, keywords);
+      Assertions.assertNotNull(keywords, "No keywords extracted");
+      Assertions.assertEquals(encodingTestKeywords, keywords,
+          "Keywords not extracted properly (" + name + ")");
     }
   }
 

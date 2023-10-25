@@ -16,9 +16,6 @@
  */
 package org.apache.nutch.parse.js;
 
-import static org.junit.Assertions.assertEquals;
-import static org.junit.Assertions.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -37,6 +34,7 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -95,20 +93,21 @@ public class TestJSParseFilter {
     for (int i = 0; i < filenames.length; i++) {
       Outlink[] outlinks = getOutlinks(filenames[i]);
       if (filenames[i].endsWith("parse_pure_js_test.js")) {
-        assertEquals("number of outlinks in .js test file should be X", 2,
-            outlinks.length);
-        assertEquals("http://search.lucidimagination.com/p:nutch", outlinks[0].getToUrl());
-        assertEquals("http://search-lucene.com/nutch", outlinks[1].getToUrl());
+        Assertions.assertEquals(2, outlinks.length,
+            "number of outlinks in .js test file should be X");
+        Assertions.assertEquals("http://search.lucidimagination.com/p:nutch", outlinks[0].getToUrl());
+        Assertions.assertEquals("http://search-lucene.com/nutch", outlinks[1].getToUrl());
       } else {
-        assertTrue("number of outlinks in .html file should be at least 2", outlinks.length >= 2);
+        Assertions.assertTrue(outlinks.length >= 2,
+            "number of outlinks in .html file should be at least 2");
         Set<String> outlinkSet = new TreeSet<>();
         for (Outlink o : outlinks) {
           outlinkSet.add(o.getToUrl());
         }
-        assertTrue("http://search.lucidimagination.com/p:nutch not in outlinks",
-            outlinkSet.contains("http://search.lucidimagination.com/p:nutch"));
-        assertTrue("http://search-lucene.com/nutch not in outlinks",
-            outlinkSet.contains("http://search-lucene.com/nutch"));
+        Assertions.assertTrue(outlinkSet.contains("http://search.lucidimagination.com/p:nutch"),
+            "http://search.lucidimagination.com/p:nutch not in outlinks");
+        Assertions.assertTrue(outlinkSet.contains("http://search-lucene.com/nutch"),
+            "http://search-lucene.com/nutch not in outlinks");
       }
     }
   }

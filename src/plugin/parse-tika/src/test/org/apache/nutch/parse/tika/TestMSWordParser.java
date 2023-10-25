@@ -38,8 +38,8 @@ public class TestMSWordParser extends TikaParserTest {
   public void testIt() throws ProtocolException, ParseException {
     for (int i = 0; i < sampleFiles.length; i++) {
       String found = getTextContent(sampleFiles[i]);
-      Assertions.assertTrue("text found : '" + found + "'",
-          found.startsWith(expectedText));
+      Assertions.assertTrue(found.startsWith(expectedText),
+          "text found : '" + found + "'");
     }
   }
 
@@ -49,8 +49,8 @@ public class TestMSWordParser extends TikaParserTest {
     for (int i = 0; i < filenames.length; i++) {
       if (filenames[i].endsWith(".doc") == false)
         continue;
-      Assertions.assertTrue("can't read content of " + filenames[i],
-          getTextContent(filenames[i]).length() > 0);
+      Assertions.assertTrue(getTextContent(filenames[i]).length() > 0,
+          "can't read content of " + filenames[i]);
     }
   }
 }

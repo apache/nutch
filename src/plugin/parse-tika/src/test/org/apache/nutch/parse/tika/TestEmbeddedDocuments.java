@@ -44,8 +44,8 @@ public class TestEmbeddedDocuments extends TikaParserTest {
   public void testIt() throws ProtocolException, ParseException {
     for (int i = 0; i < sampleFiles.length; i++) {
       String found = getTextContent(sampleFiles[i]);
-      Assertions.assertTrue("text found : '" + found + "'",
-          found.contains(expectedText));
+      Assertions.assertTrue(found.contains(expectedText),
+          "text found : '" + found + "'");
     }
   }
 

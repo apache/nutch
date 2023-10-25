@@ -162,7 +162,7 @@ public class TestIndexReplace {
 
     Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
-    Assert
+    Assertions
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
     Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
   }
@@ -201,7 +201,7 @@ public class TestIndexReplace {
     // Assertions.that our metatags have not changed.
     Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
-    Assert
+    Assertions
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
     Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
 
@@ -236,7 +236,7 @@ public class TestIndexReplace {
     // Assertions.that our metatags have changed.
     Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
-    Assert
+    Assertions
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
     Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
 
@@ -273,7 +273,7 @@ public class TestIndexReplace {
     // Assertions.that our metatags have not changed.
     Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
-    Assert
+    Assertions
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
     Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
 
@@ -312,7 +312,7 @@ public class TestIndexReplace {
     // Assertions.that our metatags have changed.
     Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
-    Assert
+    Assertions
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
     Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
 
@@ -351,7 +351,7 @@ public class TestIndexReplace {
     // Assertions.that description has changed and the others have not changed.
     Assertions.assertEquals(expectedDescription,
         doc.getFieldValue("metatag.description"));
-    Assert
+    Assertions
         .assertEquals(expectedKeywords, doc.getFieldValue("metatag.keywords"));
     Assertions.assertEquals(expectedAuthor, doc.getFieldValue("metatag.author"));
   }

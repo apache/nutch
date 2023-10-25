@@ -16,11 +16,9 @@
  */
 package org.apache.nutch.protocol.file;
 
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 
-// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Protocol;
@@ -82,17 +80,16 @@ public class TestProtocolFile {
     ProtocolOutput output = protocol.getProtocolOutput(new Text(urlString),
         datum);
     Assertions.assertNotNull(output);
-    Assertions.assertEquals("Status code: [" + output.getStatus().getCode()
-        + "], not equal to: [" + ProtocolStatus.SUCCESS + "]: args: ["
-        + output.getStatus().getArgs() + "]", ProtocolStatus.SUCCESS, output
-        .getStatus().getCode());
+    Assertions.assertEquals(ProtocolStatus.SUCCESS, output.getStatus().getCode(),
+        "Status code: [" + output.getStatus().getCode()
+            + "], not equal to: [" + ProtocolStatus.SUCCESS + "]: args: ["
+            + output.getStatus().getArgs() + "]");
     Assertions.assertNotNull(output.getContent());
     Assertions.assertNotNull(output.getContent().getContentType());
     Assertions.assertEquals(expectedMimeType, output.getContent().getContentType());
     Assertions.assertNotNull(output.getContent().getMetadata());
     Assertions.assertEquals(expectedMimeType, output.getContent().getMetadata()
         .get(Response.CONTENT_TYPE));
-
   }
 
 }

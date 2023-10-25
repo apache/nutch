@@ -252,14 +252,14 @@ public class TestBasicURLNormalizer {
   @Test
   public void testInvalidURLs() throws Exception {
     // invalid percent-encoded sequence in host name
-    normalizeTestAssertions.hrowsMalformedURLException("https://example%2Xcom/");
+    normalizeTestAssertThrowsMalformedURLException("https://example%2Xcom/");
     // not a valid UTF-8 sequence in host name
     // (only validated if parsed as Internationalized Domain Name)
     BasicURLNormalizer norm = new BasicURLNormalizer();
     conf = NutchConfiguration.create();
     conf.set(BasicURLNormalizer.NORM_HOST_IDN, "toAscii");
     norm.setConf(conf);
-    normalizeTestAssertions.hrowsMalformedURLException(norm,
+    normalizeTestAssertThrowsMalformedURLException(norm,
         "https://abc%FEdef.org/");
   }
 
@@ -279,11 +279,11 @@ public class TestBasicURLNormalizer {
     }
   }
 
-  private void normalizeTestAssertions.hrowsMalformedURLException(String weird) throws Exception {
-    normalizeTestAssertions.hrowsMalformedURLException(this.normalizer, weird);
+  private void normalizeTestAssertThrowsMalformedURLException(String weird) throws Exception {
+    normalizeTestAssertThrowsMalformedURLException(this.normalizer, weird);
   }
 
-  private void normalizeTestAssertions.hrowsMalformedURLException(
+  private void normalizeTestAssertThrowsMalformedURLException(
       BasicURLNormalizer normalizer, String weird) throws Exception {
     String normalized = null;
     try {

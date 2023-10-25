@@ -16,15 +16,12 @@
  */
 package org.apache.nutch.protocol.http;
 
-import static org.junit.Assertions.assertEquals;
-import static org.junit.Assertions.assertNotNull;
-import static org.junit.Assertions.assertTrue;
-
 import java.lang.invoke.MethodHandles;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.apache.nutch.protocol.ProtocolOutput;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,9 +97,9 @@ public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
     launchServer("HTTP/1.1 302 Found\r\nLocation: http://example.com/\r\n"
         + "Transfer-Encoding: chunked\r\n\r\nNot a valid chunk.");
     ProtocolOutput fetched = fetchPage("/", 302);
-    assertNotNull("No redirect Location.", getHeader(fetched, "Location"));
-    assertEquals("Wrong redirect Location.", "http://example.com/",
-        getHeader(fetched, "Location"));
+    Assertions.assertNotNull(getHeader(fetched, "Location"), "No redirect Location.");
+    Assertions.assertEquals("http://example.com/", getHeader(fetched, "Location"),
+        "Wrong redirect Location.");
   }
 
   /**
@@ -113,8 +110,9 @@ public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
     String text = "This is a text containing non-ASCII characters: \u00e4\u00f6\u00fc\u00df";
     launchServer(text);
     ProtocolOutput fetched = fetchPage("/", 200);
-    assertEquals("Wrong text returned for response with no status line.", text,
-        new String(fetched.getContent().getContent(), StandardCharsets.UTF_8));
+    Assertions.assertEquals(text,
+        new String(fetched.getContent().getContent(), StandardCharsets.UTF_8),
+        "Wrong text returned for response with no status line.");
     server.close();
     text = "<!DOCTYPE html>\n<html>\n<head>\n"
         + "<title>Testing no HTTP header èéâ</title>\n"
@@ -123,8 +121,9 @@ public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
         + "\u00e4\u00f6\u00fc\u00df</body>\n</html";
     launchServer(text);
     fetched = fetchPage("/", 200);
-    assertEquals("Wrong text returned for response with no status line.", text,
-        new String(fetched.getContent().getContent(), StandardCharsets.UTF_8));
+    Assertions.assertEquals(text,
+        new String(fetched.getContent().getContent(), StandardCharsets.UTF_8),
+        "Wrong text returned for response with no status line.");
   }
 
   /**
@@ -138,10 +137,10 @@ public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
         + simpleContent);
     ProtocolOutput fetched = fetchPage("/", 200);
     LOG.info("Headers: {}", getHeaders(fetched));
-    assertNotNull("Failed to set multi-line \"Set-Cookie\" header.",
-        getHeader(fetched, "Set-Cookie"));
-    assertTrue("Failed to set multi-line \"Set-Cookie\" header.",
-        getHeader(fetched, "Set-Cookie").contains("Version=1"));
+    Assertions.assertNotNull(getHeader(fetched, "Set-Cookie"),
+        "Failed to set multi-line \"Set-Cookie\" header.");
+    Assertions.assertTrue(getHeader(fetched, "Set-Cookie").contains("Version=1"),
+        "Failed to set multi-line \"Set-Cookie\" header.");
   }
 
   /**
@@ -188,9 +187,8 @@ public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
     response.append("\r\n0\r\n\r\n");
     launchServer(response.toString());
     ProtocolOutput fetched = fetchPage("/", 200);
-    assertEquals(
-        "Chunked content not truncated according to http.content.limit", 65536,
-        fetched.getContent().getContent().length);
+    Assertions.assertEquals(65536, fetched.getContent().getContent().length,
+        "Chunked content not truncated according to http.content.limit");
   }
 
 }

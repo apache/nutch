@@ -59,7 +59,7 @@ public class TestAnchorIndexingFilter {
     }
     Assertions.assertNotNull(doc);
     Assertions.assertTrue(doc.getFieldNames().contains("anchor"),
-        "test if there is an anchor at all", );
+        "test if there is an anchor at all");
     Assertions.assertEquals(2, doc.getField("anchor").getValues().size(),
         "test dedup, we expect 2");
   }

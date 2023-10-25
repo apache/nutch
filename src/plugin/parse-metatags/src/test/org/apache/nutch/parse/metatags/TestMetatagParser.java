@@ -93,7 +93,7 @@ public class TestMetatagParser {
     }
     String[] expectedValues1 = { "Doug Cutting", "Michael Cafarella" };
     for (String val : expectedValues1) {
-      Assertions.assertTrue(failMessage + val, valueSet.contains(val));
+      Assertions.assertTrue(valueSet.contains(val), failMessage + val);
     }
 
     valueSet.clear();
@@ -103,7 +103,7 @@ public class TestMetatagParser {
     String[] expectedValues2 = { "robot d'indexation", "web crawler",
         "Webcrawler" };
     for (String val : expectedValues2) {
-      Assertions.assertTrue(failMessage + val, valueSet.contains(val));
+      Assertions.assertTrue(valueSet.contains(val), failMessage + val);
     }
   }
 
@@ -123,9 +123,9 @@ public class TestMetatagParser {
 
       LOG.info("metatags ({}): {}", parsePlugin,
           Arrays.toString(parseMeta.getValues("metatag.keywords")));
-      Assertions.assertEquals(
-          "Test document contains a single value of <meta name=keywords>, metatag.keywords should be also single-valued",
-          1, parseMeta.getValues("metatag.keywords").length);
+      Assertions.assertEquals(1, parseMeta.getValues("metatag.keywords").length,
+          "Test document contains a single value of <meta name=keywords>, " +
+              "metatag.keywords should be also single-valued");
     }
   }
 }

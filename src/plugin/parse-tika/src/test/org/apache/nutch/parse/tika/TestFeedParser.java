@@ -79,8 +79,8 @@ public class TestFeedParser extends TikaParserTest {
 
       Outlink[] theOutlinks = theParseData.getOutlinks();
 
-      Assertions.assertTrue("There aren't 2 outlinks read!",
-          theOutlinks.length == 2);
+      Assertions.assertTrue(theOutlinks.length == 2,
+          "There aren't 2 outlinks read!");
 
       // now check to make sure that those are the two outlinks
       boolean hasLink1 = false, hasLink2 = false;

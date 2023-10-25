@@ -117,7 +117,7 @@ public class TestRobotsMetaProcessor {
           { new URL("http://www.nutch.org"),
               new URL("http://www.nutch.org/base/") } };
     } catch (Exception e) {
-      Assertions.assertTrue("couldn't make test URLs!", false);
+      Assertions.assertTrue(false, "couldn't make test URLs!");
     }
 
     for (int i = 0; i < tests.length; i++) {
@@ -134,20 +134,19 @@ public class TestRobotsMetaProcessor {
       HTMLMetaTags robotsMeta = new HTMLMetaTags();
       HTMLMetaProcessor.getMetaTags(robotsMeta, node, currURLsAndAnswers[i][0]);
 
-      Assertions.assertTrue("got index wrong on test " + i,
-          robotsMeta.getNoIndex() == answers[i][0]);
-      Assertions.assertTrue("got follow wrong on test " + i,
-          robotsMeta.getNoFollow() == answers[i][1]);
-      Assertions.assertTrue("got cache wrong on test " + i,
-          robotsMeta.getNoCache() == answers[i][2]);
-      Assert
+      Assertions.assertTrue(robotsMeta.getNoIndex() == answers[i][0],
+          "got index wrong on test " + i);
+      Assertions.assertTrue(robotsMeta.getNoFollow() == answers[i][1],
+          "got follow wrong on test " + i);
+      Assertions.assertTrue(robotsMeta.getNoCache() == answers[i][2],
+          "got cache wrong on test " + i);
+      Assertions
           .assertTrue(
-              "got base href wrong on test " + i + " (got "
-                  + robotsMeta.getBaseHref() + ")",
               ((robotsMeta.getBaseHref() == null) && (currURLsAndAnswers[i][1] == null))
                   || ((robotsMeta.getBaseHref() != null) && robotsMeta
-                      .getBaseHref().equals(currURLsAndAnswers[i][1])));
-
+                      .getBaseHref().equals(currURLsAndAnswers[i][1])),
+              "got base href wrong on test " + i + " (got "
+                  + robotsMeta.getBaseHref() + ")");
     }
   }
 

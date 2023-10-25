@@ -77,8 +77,8 @@ public class TestStaticFieldIndexerTest {
     }
 
     Assertions.assertNotNull(doc);
-    Assertions.assertTrue("tests if no field is set for empty index.static", doc
-        .getFieldNames().isEmpty());
+    Assertions.assertTrue(doc.getFieldNames().isEmpty(),
+        "tests if no field is set for empty index.static");
   }
 
   /**
@@ -104,16 +104,16 @@ public class TestStaticFieldIndexerTest {
     }
 
     Assertions.assertNotNull(doc);
-    Assertions.assertFalse("test if doc is not empty", doc.getFieldNames()
-        .isEmpty());
-    Assertions.assertEquals("test if doc has 3 fields", 3, doc.getFieldNames()
-        .size());
-    Assertions.assertTrue("test if doc has field1", doc.getField("field1")
-        .getValues().contains("val1"));
-    Assertions.assertTrue("test if doc has field2", doc.getField("field2")
-        .getValues().contains("val2"));
-    Assertions.assertTrue("test if doc has field4", doc.getField("field4")
-        .getValues().contains("val4"));
+    Assertions.assertFalse(doc.getFieldNames().isEmpty(),
+        "test if doc is not empty");
+    Assertions.assertEquals(3, doc.getFieldNames().size(),
+        "test if doc has 3 fields");
+    Assertions.assertTrue(doc.getField("field1").getValues().contains("val1"),
+        "test if doc has field1");
+    Assertions.assertTrue(doc.getField("field2").getValues().contains("val2"),
+        "test if doc has field2");
+    Assertions.assertTrue(doc.getField("field4").getValues().contains("val4"),
+        "test if doc has field4");
   }
 
   /**
@@ -142,16 +142,16 @@ public class TestStaticFieldIndexerTest {
     }
 
     Assertions.assertNotNull(doc);
-    Assertions.assertFalse("test if doc is not empty", doc.getFieldNames()
-        .isEmpty());
-    Assertions.assertEquals("test if doc has 3 fields", 3, doc.getFieldNames()
-        .size());
-    Assertions.assertTrue("test if doc has field1", doc.getField("field1")
-        .getValues().contains("val1"));
-    Assertions.assertTrue("test if doc has field2", doc.getField("field2")
-        .getValues().contains("val2"));
-    Assertions.assertTrue("test if doc has field4", doc.getField("field4")
-        .getValues().contains("val4"));
+    Assertions.assertFalse(doc.getFieldNames().isEmpty(),
+        "test if doc is not empty");
+    Assertions.assertEquals(3, doc.getFieldNames().size(),
+        "test if doc has 3 fields");
+    Assertions.assertTrue(doc.getField("field1").getValues().contains("val1"),
+        "test if doc has field1");
+    Assertions.assertTrue(doc.getField("field2").getValues().contains("val2"),
+        "test if doc has field2");
+    Assertions.assertTrue(doc.getField("field4").getValues().contains("val4"),
+        "test if doc has field4");
   }
 
   /**
@@ -180,15 +180,15 @@ public class TestStaticFieldIndexerTest {
     }
 
     Assertions.assertNotNull(doc);
-    Assertions.assertFalse("test if doc is not empty", doc.getFieldNames()
-        .isEmpty());
-    Assertions.assertEquals("test if doc has 3 fields", 3, doc.getFieldNames()
-        .size());
-    Assertions.assertTrue("test if doc has field1", doc.getField("field1")
-        .getValues().contains("val1"));
-    Assertions.assertTrue("test if doc has field2", doc.getField("field2")
-        .getValues().contains("val2"));
-    Assertions.assertTrue("test if doc has field4", doc.getField("field4")
-        .getValues().contains("val4"));
+    Assertions.assertFalse(doc.getFieldNames().isEmpty(),
+        "test if doc is not empty");
+    Assertions.assertEquals(3, doc.getFieldNames().size(),
+        "test if doc has 3 fields");
+    Assertions.assertTrue(doc.getField("field1").getValues().contains("val1"),
+        "test if doc has field1");
+    Assertions.assertTrue(doc.getField("field2").getValues().contains("val2"),
+        "test if doc has field2");
+    Assertions.assertTrue(doc.getField("field4").getValues().contains("val4"),
+        "test if doc has field4");
   }
 }

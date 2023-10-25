@@ -16,12 +16,11 @@
  */
 package org.apache.nutch.parse.tika;
 
-import static org.junit.Assertions.*;
-
 import java.io.IOException;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class TestXlsxParser extends TikaParserTest {
@@ -32,7 +31,7 @@ public class TestXlsxParser extends TikaParserTest {
     String expected = "test.txt This is a test for spreadsheets xlsx";
     // text is distributed over columns and rows, need to normalize white space
     found = found.replaceAll("\\s+", " ").trim();
-    assertEquals(found, expected);
+    Assertions.assertEquals(found, expected);
   }
 
 }

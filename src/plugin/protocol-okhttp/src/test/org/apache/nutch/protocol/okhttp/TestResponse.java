@@ -18,8 +18,6 @@ package org.apache.nutch.protocol.okhttp;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import static org.junit.Assertions.assertEquals;
-
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
@@ -31,8 +29,9 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.apache.nutch.protocol.ProtocolException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,10 +81,9 @@ public class TestResponse extends AbstractHttpProtocolPluginTest {
     OkHttpResponse response = getResponse(statusCode, headerName);
     LOG.info("Response headers:");
     LOG.info(response.getHeaders().get(Response.RESPONSE_HEADERS));
-    assertEquals(
+    Assertions.assertEquals(value, response.getHeader(lookupName),
         "No or unexpected value of header \"" + headerName
-            + "\" returned when retrieving header \"" + lookupName + "\"",
-        value, response.getHeader(lookupName));
+            + "\" returned when retrieving header \"" + lookupName + "\"");
   }
 
   protected Map<String, byte[]> getResponses(String headerValue) {
@@ -127,7 +125,7 @@ public class TestResponse extends AbstractHttpProtocolPluginTest {
     // testHeader(200, "MYCUSTOMHEADER", value, "MyCustomHeader");
   }
 
-  @Ignore("Only for benchmarking")
+  @Disabled("Only for benchmarking")
   @Test
   public void testMetadataBenchmark() throws MalformedURLException, ProtocolException,
       IOException, InterruptedException {

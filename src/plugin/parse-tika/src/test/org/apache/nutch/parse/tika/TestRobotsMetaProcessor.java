@@ -125,7 +125,7 @@ public class TestRobotsMetaProcessor {
               new URL("http://www.nutch.org/base/") },
           { new URL("http://www.nutch.org"), null } };
     } catch (Exception e) {
-      Assertions.assertTrue("couldn't make test URLs!", false);
+      Assertions.assertTrue(false, "couldn't make test URLs!");
     }
 
     for (int i = 0; i < tests.length; i++) {
@@ -148,30 +148,30 @@ public class TestRobotsMetaProcessor {
       HTMLMetaTags robotsMeta = new HTMLMetaTags();
       HTMLMetaProcessor.getMetaTags(robotsMeta, root, currURLsAndAnswers[i][0]);
 
-      Assertions.assertEquals("got noindex wrong on test " + i,
-          answers[i][0], robotsMeta.getNoIndex());
-      Assertions.assertEquals("got nofollow wrong on test " + i,
-          answers[i][1], robotsMeta.getNoFollow());
-      Assertions.assertEquals("got nocache wrong on test " + i,
-          answers[i][2], robotsMeta.getNoCache());
-      Assert
+      Assertions.assertEquals(answers[i][0], robotsMeta.getNoIndex(),
+          "got noindex wrong on test " + i);
+      Assertions.assertEquals(answers[i][1], robotsMeta.getNoFollow(),
+          "got nofollow wrong on test " + i);
+      Assertions.assertEquals(answers[i][2], robotsMeta.getNoCache(),
+          "got nocache wrong on test " + i);
+      Assertions
           .assertTrue(
-              "got base href wrong on test " + i + " (got "
-                  + robotsMeta.getBaseHref() + ")",
               ((robotsMeta.getBaseHref() == null) && (currURLsAndAnswers[i][1] == null))
                   || ((robotsMeta.getBaseHref() != null) && robotsMeta
-                      .getBaseHref().equals(currURLsAndAnswers[i][1])));
+                      .getBaseHref().equals(currURLsAndAnswers[i][1])),
+              "got base href wrong on test " + i + " (got "
+                  + robotsMeta.getBaseHref() + ")");
 
       if (tests[i].contains("meta-refresh redirect")) {
         // test for NUTCH-2589
         URL metaRefreshUrl = robotsMeta.getRefreshHref();
-        Assertions.assertNotNull("failed to get meta-refresh redirect",
-            metaRefreshUrl);
-        Assertions.assertEquals("failed to get meta-refresh redirect",
-            "http://example.com/", metaRefreshUrl.toString());
-        Assertions.assertEquals(
-            "failed to add meta-refresh redirect to parse status",
-            "http://example.com/", parse.getData().getStatus().getArgs()[0]);
+        Assertions.assertNotNull(metaRefreshUrl,
+            "failed to get meta-refresh redirect");
+        Assertions.assertEquals("http://example.com/", metaRefreshUrl.toString(),
+            "failed to get meta-refresh redirect");
+        Assertions.assertEquals("http://example.com/",
+            parse.getData().getStatus().getArgs()[0],
+            "failed to add meta-refresh redirect to parse status");
       }
     }
   }

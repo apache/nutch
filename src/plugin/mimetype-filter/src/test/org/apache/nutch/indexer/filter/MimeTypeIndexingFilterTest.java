@@ -72,7 +72,7 @@ public class MimeTypeIndexingFilterTest {
       NutchDocument doc = filter.filter(new NutchDocument(), parses[i],
           new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
-      Assertions.assertNotNull("All documents must be allowed by default", doc);
+      Assertions.assertNotNull(doc, "All documents must be allowed by default");
     }
   }
 
@@ -86,9 +86,9 @@ public class MimeTypeIndexingFilterTest {
           new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
       if (MIME_TYPES[i].contains("image")) {
-        Assertions.assertNotNull("Allow only images", doc);
+        Assertions.assertNotNull(doc, "Allow only images");
       } else {
-        Assertions.assertNull("Block everything else", doc);
+        Assertions.assertNull(doc, "Block everything else");
       }
     }
   }
@@ -103,9 +103,9 @@ public class MimeTypeIndexingFilterTest {
           new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
       if (MIME_TYPES[i].contains("html")) {
-        Assertions.assertNull("Block only HTML documents", doc);
+        Assertions.assertNull(doc, "Block only HTML documents");
       } else {
-        Assertions.assertNotNull("Allow everything else", doc);
+        Assertions.assertNotNull(doc, "Allow everything else");
       }
     }
   }

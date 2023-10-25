@@ -33,13 +33,12 @@ import org.slf4j.LoggerFactory;
 import org.apache.nutch.net.URLFilter;
 
 /**
- * JUnit based test of class <code>RegexURLFilterBase</code>.
+ * Unit tests for {@link org.apache.nutch.urlfilter.api.RegexURLFilterBase}
  * 
  * @author J&eacute;r&ocirc;me Charron
  */
 public abstract class RegexURLFilterBaseTest {
 
-  /** My logger */
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
@@ -112,9 +111,9 @@ public abstract class RegexURLFilterBaseTest {
     for (int i = 0; i < expected.length; i++) {
       String result = filter.filter(expected[i].url);
       if (result != null) {
-        Assertions.assertTrue(expected[i].url, expected[i].sign);
+        Assertions.assertTrue(expected[i].sign, expected[i].url);
       } else {
-        Assertions.assertFalse(expected[i].url, expected[i].sign);
+        Assertions.assertFalse(expected[i].sign, expected[i].url);
       }
     }
   }
