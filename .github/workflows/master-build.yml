@@ -61,7 +61,7 @@ jobs:
       - name: Fail if any unknown licenses
         if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
         run: exit 1
-  test:
+  test_core:
     strategy:
       matrix:
         java: ['11']
@@ -75,4 +75,19 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Test
-        run: ant clean test -buildfile build.xml
+        run: ant clean test-core -buildfile build.xml
+  test_plugins:
+    strategy:
+      matrix:
+        java: ['11']
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+      - name: Test
+        run: ant clean test-plugins -buildfile build.xml
