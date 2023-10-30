@@ -191,15 +191,15 @@ public class FastURLFilter implements URLFilter {
 
     Path fileRulesPath = new Path(fileRules);
     if (fileRulesPath.toUri().getScheme() != null) {
-	FileSystem fs = fileRulesPath.getFileSystem(conf);
-	is = fs.open(fileRulesPath);
+      FileSystem fs = fileRulesPath.getFileSystem(conf);
+      is = fs.open(fileRulesPath);
     }
     else {
-	is = conf.getConfResourceAsInputStream(fileRules);
+      is = conf.getConfResourceAsInputStream(fileRules);
     }
 
     if (fileRules.endsWith(".gz")) {
-	  is = new GZIPInputStream(is);
+      is = new GZIPInputStream(is);
     }
 
     reloadRules(new InputStreamReader(is));
