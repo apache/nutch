@@ -28,3 +28,4 @@ csvindexwriter
 lib/spotbugs-*
 ivy/dependency-check-ant/*
 .gradle*
+ivy/apache-rat-*
