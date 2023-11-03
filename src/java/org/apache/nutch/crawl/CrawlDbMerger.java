@@ -165,9 +165,8 @@ public class CrawlDbMerger extends Configured implements Tool {
     Path newCrawlDb = new Path(output,
         "merge-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Job job = NutchJob.getInstance(conf);
+    Job job = Job.getInstance(conf, "Nutch CrawlDbMerger: " + output);
     conf = job.getConfiguration();
-    job.setJobName("crawldb merge " + output);
 
     job.setInputFormatClass(SequenceFileInputFormat.class);
 

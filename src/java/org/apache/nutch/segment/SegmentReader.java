@@ -200,8 +200,7 @@ public class SegmentReader extends Configured implements Tool {
 
     LOG.info("SegmentReader: dump segment: {}", segment);
 
-    Job job = NutchJob.getInstance(getConf());
-    job.setJobName("read " + segment);
+    Job job = Job.getInstance(getConf(), "Nutch SegmentReader: " + segment);
     Configuration conf = job.getConfiguration();
 
     if (ge)

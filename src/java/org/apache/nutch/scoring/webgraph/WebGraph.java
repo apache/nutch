@@ -545,9 +545,8 @@ public class WebGraph extends Configured implements Tool {
 
     Path tempOutlinkDb = new Path(outlinkDb + "-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
-    Job outlinkJob = NutchJob.getInstance(getConf());
+    Job outlinkJob = Job.getInstance(getConf(), "Nutch WebGraph: outlinkdb " + outlinkDb);
     Configuration outlinkJobConf = outlinkJob.getConfiguration();
-    outlinkJob.setJobName("Outlinkdb: " + outlinkDb);
 
     boolean deleteGone = outlinkJobConf.getBoolean("link.delete.gone", false);
     boolean preserveBackup = outlinkJobConf.getBoolean("db.preserve.backup", true);
@@ -625,9 +624,8 @@ public class WebGraph extends Configured implements Tool {
     Path tempInlinkDb = new Path(inlinkDb + "-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Job inlinkJob = NutchJob.getInstance(getConf());
+    Job inlinkJob = Job.getInstance(getConf(), "Nutch WebGraph: inlinkdb " + inlinkDb);
     Configuration inlinkJobConf = inlinkJob.getConfiguration();
-    inlinkJob.setJobName("Inlinkdb " + inlinkDb);
     LOG.info("InlinkDb: adding input: " + outlinkDb);
     FileInputFormat.addInputPath(inlinkJob, outlinkDb);
     inlinkJob.setInputFormatClass(SequenceFileInputFormat.class);
@@ -669,9 +667,8 @@ public class WebGraph extends Configured implements Tool {
     Path tempNodeDb = new Path(nodeDb + "-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Job nodeJob = NutchJob.getInstance(getConf());
+    Job nodeJob = Job.getInstance(getConf(), "Nutch WebGraph: nodedb " + nodeDb);
     Configuration nodeJobConf = nodeJob.getConfiguration();
-    nodeJob.setJobName("NodeDb " + nodeDb);
     LOG.info("NodeDb: adding input: " + outlinkDb);
     LOG.info("NodeDb: adding input: " + inlinkDb);
     FileInputFormat.addInputPath(nodeJob, outlinkDb);

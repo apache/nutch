@@ -97,18 +97,18 @@ public class DomainStatistics extends Configured implements Tool {
     LOG.info("DomainStatistics: starting");
 
     int mode = 0;
-    String jobName = "DomainStatistics";
+    String jobName = "Nutch DomainStatistics: ";
     if (args[2].equals("host")) {
-      jobName = "Host statistics";
+      jobName = jobName + "Host statistics";
       mode = MODE_HOST;
     } else if (args[2].equals("domain")) {
-      jobName = "Domain statistics";
+      jobName = jobName + "Domain statistics";
       mode = MODE_DOMAIN;
     } else if (args[2].equals("suffix")) {
-      jobName = "Suffix statistics";
+      jobName = jobName + "Suffix statistics";
       mode = MODE_SUFFIX;
     } else if (args[2].equals("tld")) {
-      jobName = "TLD statistics";
+      jobName = jobName + "Top Level Directory statistics";
       mode = MODE_TLD;
     }
 

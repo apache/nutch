@@ -93,9 +93,8 @@ public class LinkRank extends Configured implements Tool {
     // configure the counter job
     Path numLinksPath = new Path(webGraphDb, NUM_NODES);
     Path nodeDb = new Path(webGraphDb, WebGraph.NODE_DIR);
-    Job counter = NutchJob.getInstance(getConf());
+    Job counter = Job.getInstance(getConf(), "Nutch LinkRank: counter " + webGraphDb);
     Configuration conf = counter.getConfiguration();
-    counter.setJobName("LinkRank Counter");
     FileInputFormat.addInputPath(counter, nodeDb);
     FileOutputFormat.setOutputPath(counter, numLinksPath);
     counter.setInputFormatClass(SequenceFileInputFormat.class);
@@ -194,9 +193,8 @@ public class LinkRank extends Configured implements Tool {
      InterruptedException, ClassNotFoundException {
 
     // configure the initializer
-    Job initializer = NutchJob.getInstance(getConf());
+    Job initializer = Job.getInstance(getConf(), "Nutch LinkRank: initializer " + nodeDb);
     Configuration conf = initializer.getConfiguration();
-    initializer.setJobName("LinkAnalysis Initializer");
     FileInputFormat.addInputPath(initializer, nodeDb);
     FileOutputFormat.setOutputPath(initializer, output);
     initializer.setJarByClass(Initializer.class);
@@ -245,9 +243,9 @@ public class LinkRank extends Configured implements Tool {
       throws IOException, InterruptedException, ClassNotFoundException {
 
     // configure the inverter
-    Job inverter = NutchJob.getInstance(getConf());
+    Job inverter = Job.getInstance(getConf(),
+        "Nutch Linkrank: inverter nodedb: " + nodeDb + " outlinkdb: " + outlinkDb);
     Configuration conf = inverter.getConfiguration();
-    inverter.setJobName("LinkAnalysis Inverter");
     FileInputFormat.addInputPath(inverter, nodeDb);
     FileInputFormat.addInputPath(inverter, outlinkDb);
     FileOutputFormat.setOutputPath(inverter, output);
@@ -305,11 +303,10 @@ public class LinkRank extends Configured implements Tool {
       int iteration, int numIterations, float rankOne) 
       throws IOException, InterruptedException, ClassNotFoundException {
 
-    Job analyzer = NutchJob.getInstance(getConf());
+    Job analyzer = Job.getInstance(getConf(),
+        "Nutch LinkRank: analysis iteration" + (iteration + 1) + " of " + numIterations);
     Configuration conf = analyzer.getConfiguration();
     conf.set("link.analyze.iteration", String.valueOf(iteration + 1));
-    analyzer.setJobName("LinkAnalysis Analyzer, iteration " + (iteration + 1)
-        + " of " + numIterations);
     FileInputFormat.addInputPath(analyzer, nodeDb);
     FileInputFormat.addInputPath(analyzer, inverted);
     FileOutputFormat.setOutputPath(analyzer, output);

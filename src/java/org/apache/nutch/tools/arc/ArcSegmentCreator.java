@@ -371,14 +371,11 @@ public class ArcSegmentCreator extends Configured implements Tool {
 
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
-    if (LOG.isInfoEnabled()) {
-      LOG.info("ArcSegmentCreator: starting");
-      LOG.info("ArcSegmentCreator: arc files dir: " + arcFiles);
-    }
+    LOG.info("ArcSegmentCreator: starting");
+    LOG.info("ArcSegmentCreator: arc files dir: " + arcFiles);
 
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch ArcSegmentCreator: " + arcFiles);
     Configuration conf = job.getConfiguration();
-    job.setJobName("ArcSegmentCreator " + arcFiles);
     String segName = generateSegmentName();
     conf.set(Nutch.SEGMENT_NAME_KEY, segName);
     FileInputFormat.addInputPath(job, arcFiles);

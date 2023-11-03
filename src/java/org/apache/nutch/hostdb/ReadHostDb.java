@@ -181,8 +181,7 @@ public class ReadHostDb extends Configured implements Tool {
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
     conf.set("mapreduce.output.textoutputformat.separator", "\t");
     
-    Job job = Job.getInstance(conf);
-    job.setJobName("ReadHostDb");
+    Job job = Job.getInstance(conf, "Nutch ReadHostDb");
     job.setJarByClass(ReadHostDb.class);
 
     FileInputFormat.addInputPath(job, new Path(hostDb, "current"));

@@ -298,9 +298,8 @@ public class NodeDumper extends Configured implements Tool {
     LOG.info("NodeDumper: starting");
     Path nodeDb = new Path(webGraphDb, WebGraph.NODE_DIR);
 
-    Job dumper = NutchJob.getInstance(getConf());
+    Job dumper = Job.getInstance(getConf(), "Nutch NodeDumper: " + webGraphDb);
     Configuration conf = dumper.getConfiguration();
-    dumper.setJobName("NodeDumper: " + webGraphDb);
     FileInputFormat.addInputPath(dumper, nodeDb);
     dumper.setInputFormatClass(SequenceFileInputFormat.class);
 
