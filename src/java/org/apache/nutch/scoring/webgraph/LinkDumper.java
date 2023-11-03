@@ -341,8 +341,7 @@ public class LinkDumper extends Configured implements Tool {
     // run the inverter job
     Path tempInverted = new Path(webGraphDb, "inverted-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
-    Job inverter = NutchJob.getInstance(conf);
-    inverter.setJobName("LinkDumper: inverter");
+    Job inverter = Job.getInstance(conf, "Nutch LinkDumper: invert " + webGraphDb);
     FileInputFormat.addInputPath(inverter, nodeDb);
     FileInputFormat.addInputPath(inverter, outlinkDb);
     inverter.setInputFormatClass(SequenceFileInputFormat.class);
@@ -372,8 +371,7 @@ public class LinkDumper extends Configured implements Tool {
     }
 
     // run the merger job
-    Job merger = NutchJob.getInstance(conf);
-    merger.setJobName("LinkDumper: merger");
+    Job merger = Job.getInstance(conf, "Nutch LinkDumper: merge " + tempInverted);
     FileInputFormat.addInputPath(merger, tempInverted);
     merger.setJarByClass(Merger.class);
     merger.setInputFormatClass(SequenceFileInputFormat.class);

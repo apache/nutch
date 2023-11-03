@@ -94,7 +94,7 @@ public class TestCrawlDbFilter {
     conf.setBoolean(CrawlDbFilter.URL_NORMALIZING, true);
     conf.setBoolean(CrawlDbFilter.URL_FILTERING, false);
     conf.setInt("urlnormalizer.loop.count", 2);
-    Job job = NutchJob.getInstance(conf);
+    Job job = Job.getInstance(conf);
     job.setJobName("Test CrawlDbFilter");
     Path current = new Path(dbDir, "current");
     if (FileSystem.get(conf).exists(current)) {

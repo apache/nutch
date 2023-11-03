@@ -232,8 +232,7 @@ public class ParseSegment extends NutchTool implements Tool {
     LOG.info("ParseSegment: starting");
     LOG.info("ParseSegment: segment: {}", segment);
 
-    Job job = NutchJob.getInstance(getConf());
-    job.setJobName("parse " + segment);
+    Job job = Job.getInstance(getConf(), "Nutch ParseSegment: " + segment);
 
     Configuration conf = job.getConfiguration();
     FileInputFormat.addInputPath(job, new Path(segment, Content.DIR_NAME));

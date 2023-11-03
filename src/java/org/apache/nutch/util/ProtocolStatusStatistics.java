@@ -89,7 +89,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
     stopWatch.start();
     LOG.info("ProtocolStatistics: starting");
 
-    String jobName = "ProtocolStatistics";
+    String jobName = "Nutch ProtocolStatusStatistics: " + inputDir;
 
     Configuration conf = getConf();
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);

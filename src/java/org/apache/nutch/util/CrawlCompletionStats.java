@@ -133,12 +133,12 @@ public class CrawlCompletionStats extends Configured implements Tool {
     LOG.info("CrawlCompletionStats: starting");
 
     int mode = 0;
-    String jobName = "CrawlCompletionStats";
+    String jobName = "Nutch CrawlCompletionStats: ";
     if (cli.getOptionValue("mode").equals("host")) {
-      jobName = "Host CrawlCompletionStats";
+      jobName = jobName + "Host statistics";
       mode = MODE_HOST;
     } else if (cli.getOptionValue("mode").equals("domain")) {
-      jobName = "Domain CrawlCompletionStats";
+      jobName = jobName + "Domain statistics";
       mode = MODE_DOMAIN;
     } 
 

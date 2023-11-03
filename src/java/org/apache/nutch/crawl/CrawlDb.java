@@ -165,8 +165,7 @@ public class CrawlDb extends NutchTool implements Tool {
     Path newCrawlDb = new Path(crawlDb, Integer.toString(new Random()
         .nextInt(Integer.MAX_VALUE)));
 
-    Job job = NutchJob.getInstance(config);
-    job.setJobName("crawldb " + crawlDb);
+    Job job = Job.getInstance(config, "Nutch CrawlDb: " + crawlDb);
 
     Path current = new Path(crawlDb, CURRENT_NAME);
     if (current.getFileSystem(job.getConfiguration()).exists(current)) {

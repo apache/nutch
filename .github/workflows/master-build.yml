@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,28 +12,67 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-name: master pr build
+name: master pull request ci
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    types: [opened, synchronize, reopened]
+    branches: [master]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  javadoc:
     strategy:
       matrix:
-        java: [ '11' ]
-
+        java: ['11']
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
-      - name: Build with Ant
-        run: ant clean nightly javadoc -buildfile build.xml
+          distribution: 'temurin'
+      - name: Javadoc
+        run: ant clean javadoc -buildfile build.xml
+  rat:
+    strategy:
+      matrix:
+        java: ['11']
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+      - name: Run Apache Rat
+        run: ant clean run-rat -buildfile build.xml
+      - name: Cache unknown licenses
+        run: echo "UNKNOWN_LICENSES=$(sed -n 18p /home/runner/work/nutch/nutch/build/apache-rat-report.txt)" >> $GITHUB_ENV
+      - name: Versions
+        run: |
+          echo $UNKNOWN_LICENSES
+      - name: Fail if any unknown licenses
+        if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
+        run: exit 1
+  test:
+    strategy:
+      matrix:
+        java: ['11']
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+      - name: Test
+        run: ant clean test -buildfile build.xml

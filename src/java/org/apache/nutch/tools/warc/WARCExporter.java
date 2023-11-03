@@ -433,8 +433,7 @@ public class WARCExporter extends Configured implements Tool {
     stopWatch.start();
     LOG.info("WARCExporter: starting");
 
-    final Job job = NutchJob.getInstance(getConf());
-    job.setJobName("warc-exporter " + output);
+    final Job job = Job.getInstance(getConf(), "Nutch WARCExporter: " + output);
 
     job.getConfiguration().setBoolean(ONLY_SUCCESSFUL_RESPONSES,
         onlySuccessfulResponses);

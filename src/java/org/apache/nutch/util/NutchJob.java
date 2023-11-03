@@ -56,10 +56,6 @@ public class NutchJob extends Job {
     }
   }
 
-  public static Job getInstance(Configuration conf) throws IOException {
-    return Job.getInstance(conf);
-  } 
-
   /**
    * Clean up the file system in case of a job failure.
    * @param tempDir The temporary directory which needs to be 

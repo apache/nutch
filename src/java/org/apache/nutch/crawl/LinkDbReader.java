@@ -159,8 +159,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
 
     Path outFolder = new Path(output);
 
-    Job job = NutchJob.getInstance(getConf());
-    job.setJobName("read " + linkdb);
+    Job job = Job.getInstance(getConf(), "Nutch LinkDbReader: " + linkdb);
     job.setJarByClass(LinkDbReader.class);
     
     Configuration conf = job.getConfiguration();
