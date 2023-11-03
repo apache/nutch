@@ -811,7 +811,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
 
   @Override
   protected int process(String line, StringBuilder output) throws Exception {
-    Job job = Job.getInstance(getConf(), "Nutch CrawlDbReader: process " + this.crawlDb);
+    Job job = Job.getInstance(getConf(), "Nutch CrawlDbReader: process " + crawlDb);
     Configuration config = job.getConfiguration();
     readUrl(this.crawlDb, line, config, output);
     return 0;
