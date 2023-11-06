@@ -27,28 +27,55 @@ import org.apache.nutch.protocol.Content;
 import org.junit.Test;
 
 public class TestParseSegment {
+  private static byte[] BYTES = "the quick brown fox".getBytes(StandardCharsets.UTF_8);
 
   @Test
   public void testMetadataFlag() throws Exception {
+
     Content content = new Content();
     Metadata metadata = new Metadata();
     metadata.set(Response.TRUNCATED_CONTENT, "true");
     content.setMetadata(metadata);
-    content.setContent("the quick brown fox".getBytes(StandardCharsets.UTF_8));
+    content.setContent(BYTES);
     assertTrue(ParseSegment.isTruncated(content));
+
+    metadata.set(Response.TRUNCATED_CONTENT, "false");
+    assertFalse(ParseSegment.isTruncated(content));
+
+    //test that truncated_content does override length field
+    metadata = new Metadata();
+    metadata.set(Response.TRUNCATED_CONTENT, "false");
+    metadata.set(Response.CONTENT_LENGTH, Integer.toString(BYTES.length - 10));
+    assertFalse(ParseSegment.isTruncated(content));
+
+    //test that truncated_content does override length field
+    metadata = new Metadata();
+    metadata.set(Response.TRUNCATED_CONTENT, "true");
+    metadata.set(Response.CONTENT_LENGTH, Integer.toString(BYTES.length));
+    assertFalse(ParseSegment.isTruncated(content));
+
   }
 
   @Test
   public void testLength() throws Exception {
-    byte[] bytes = "the quick brown fox".getBytes(StandardCharsets.UTF_8);
     Content content = new Content();
     Metadata metadata = new Metadata();
-    metadata.set(Response.CONTENT_LENGTH, Integer.toString(bytes.length));
+    metadata.set(Response.CONTENT_LENGTH, Integer.toString(BYTES.length));
     content.setMetadata(metadata);
-    content.setContent(bytes);
+    content.setContent(BYTES);
     assertFalse(ParseSegment.isTruncated(content));
 
-    metadata.set(Response.CONTENT_LENGTH, Integer.toString(bytes.length * 2));
+    metadata.set(Response.CONTENT_LENGTH, Integer.toString(BYTES.length * 2));
     assertTrue(ParseSegment.isTruncated(content));
+  }
+
+  @Test
+  public void testNoLengthField() {
+    //test return false if there is no "Length" header field
+    Content content = new Content();
+    Metadata metadata = new Metadata();
+    content.setMetadata(metadata);
+    content.setContent(BYTES);
+    assertFalse(ParseSegment.isTruncated(content));
   }
 }
