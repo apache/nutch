@@ -24,8 +24,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.WritableTestUtils;
-import org.bouncycastle.jcajce.provider.symmetric.IDEA;
 import org.junit.Test;
 
 public class TestParseSegment {
