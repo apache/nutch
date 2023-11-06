@@ -45,7 +45,7 @@ public class TestParseSegment {
     //test that truncated_content does override length field
     metadata = new Metadata();
     metadata.set(Response.TRUNCATED_CONTENT, "false");
-    metadata.set(Response.CONTENT_LENGTH, Integer.toString(BYTES.length - 10));
+    metadata.set(Response.CONTENT_LENGTH, Integer.toString(BYTES.length + 10));
     assertFalse(ParseSegment.isTruncated(content));
 
     //test that truncated_content does override length field
