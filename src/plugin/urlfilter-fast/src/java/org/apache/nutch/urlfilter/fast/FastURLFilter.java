@@ -97,8 +97,16 @@ public class FastURLFilter implements URLFilter {
 
   private Configuration conf;
   public static final String URLFILTER_FAST_FILE = "urlfilter.fast.file";
+  public static final String URLFILTER_FAST_PATH_MAX_LENGTH = "urlfilter.fast.url.path.max.length";
+  public static final String URLFILTER_FAST_QUERY_MAX_LENGTH = "urlfilter.fast.url.query.max.length";
+  
   private Multimap<String, Rule> hostRules = LinkedHashMultimap.create();
   private Multimap<String, Rule> domainRules = LinkedHashMultimap.create();
+
+  /** Max allowed size of the path of a URL **/
+  private int maxLengthPath = -1;
+  /** Max allowed size of the query of a URL **/
+  private int maxLengthQuery = -1;
 
   private static final Pattern CATCH_ALL_RULE = Pattern
       .compile("^\\s*DenyPath(?:Query)?\\s+\\.[*?]\\s*$");
@@ -112,6 +120,8 @@ public class FastURLFilter implements URLFilter {
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
+    maxLengthPath = conf.getInt(URLFILTER_FAST_PATH_MAX_LENGTH, -1);
+    maxLengthQuery = conf.getInt(URLFILTER_FAST_QUERY_MAX_LENGTH, -1);
     try {
       reloadRules();
     } catch (Exception e) {
@@ -135,6 +145,22 @@ public class FastURLFilter implements URLFilter {
     } catch (Exception e) {
       LOG.debug("Rejected {} because failed to parse as URL: {}", url,
           e.getMessage());
+      return null;
+    }
+    
+    final String path = u.getPath();
+    if (maxLengthPath != -1 && path.length() > maxLengthPath)
+    {
+      LOG.debug("Rejected {} as path length {} is greater than {}", url,
+          path.length(), maxLengthPath);
+      return null;
+    }
+    
+    final String query = u.getQuery();
+    if (maxLengthQuery != -1 &&  query != null && query.length() > maxLengthQuery)
+    {
+      LOG.debug("Rejected {} as query length {} is greater than {}", url,
+          query.length(), maxLengthQuery);
       return null;
     }
 

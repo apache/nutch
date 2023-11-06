@@ -16,10 +16,12 @@
  */
 package org.apache.nutch.urlfilter.fast;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
 import org.junit.Assert;
@@ -53,4 +55,24 @@ public class TestFastURLFilter extends RegexURLFilterBaseTest {
     bench(800, "fast-urlfilter-benchmark.txt", "Benchmarks.urls");
   }
 
+  public void lengthQueryAndPath() throws FileNotFoundException {
+    URLFilter filter = getURLFilter(new FileReader(SAMPLES + SEPARATOR + "fast-urlfilter-test.txt"));
+    Configuration conf = new Configuration();
+    conf.setInt(FastURLFilter.URLFILTER_FAST_PATH_MAX_LENGTH, 50);
+    conf.setInt(FastURLFilter.URLFILTER_FAST_QUERY_MAX_LENGTH, 50);
+    filter.setConf(conf);
+
+    StringBuilder url = new StringBuilder("http://nutch.apache.org/");
+    for (int i = 0; i < 50; i++) {
+      url.append(i);
+    }
+    Assert.assertEquals(null, filter.filter(url.toString()));
+
+    url = new StringBuilder("http://nutch.apache.org/path?");
+    for (int i = 0; i < 50; i++) {
+      url.append(i);
+    }
+
+    Assert.assertEquals(null, filter.filter(url.toString()));
+  }
 }
