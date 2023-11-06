@@ -24,6 +24,7 @@ import java.util.function.Function;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.net.InetAddresses;
@@ -31,6 +32,7 @@ import com.google.common.net.InetAddresses;
 /**
  * Test cases for protocol-okhttp IP address filtering
  */
+@Tag("okhttp")
 public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
 
   @Override

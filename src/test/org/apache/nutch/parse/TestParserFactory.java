@@ -21,6 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.Test;
  * @author Sebastien Le Callonnec
  * @version 1.0
  */
+@Tag("parse")
 public class TestParserFactory {
 
   private Configuration conf;

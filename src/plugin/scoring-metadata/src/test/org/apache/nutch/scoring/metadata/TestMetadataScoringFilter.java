@@ -25,12 +25,13 @@ import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
+@Tag("metadata")
 public class TestMetadataScoringFilter {
-
 
   @Test
   public void distributeScoreToOutlinks() throws ScoringFilterException {

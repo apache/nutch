@@ -19,6 +19,7 @@ package org.apache.nutch.protocol.http.api;
 import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import crawlercommons.robots.BaseRobotRules;
@@ -30,6 +31,7 @@ import crawlercommons.robots.BaseRobotRules;
  * <li>that crawl delay is extracted correctly from the robots.txt file</li>
  * </ol>
  */
+@Tag("api")
 public class TestRobotRulesParser {
 
   private static final String CONTENT_TYPE = "text/plain";

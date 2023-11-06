@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
  * Test cases for protocol-http - robustness regarding bad server responses:
  * malformed HTTP header lines, etc. See, NUTCH-2549.
  */
+@Tag("http")
 public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
 
   private static final Logger LOG = LoggerFactory

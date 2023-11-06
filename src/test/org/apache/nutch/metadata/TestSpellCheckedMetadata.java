@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -33,6 +34,7 @@ import org.junit.jupiter.api.Test;
  * @author Chris Mattmann
  * @author J&eacute;r&ocirc;me Charron
  */
+@Tag("metadata")
 public class TestSpellCheckedMetadata {
 
   private static final int NUM_ITERATIONS = 10000;

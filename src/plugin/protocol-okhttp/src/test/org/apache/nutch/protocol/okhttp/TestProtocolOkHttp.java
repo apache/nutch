@@ -22,11 +22,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for protocol-okhttp
  */
+@Tag("okhttp")
 public class TestProtocolOkHttp extends AbstractHttpProtocolPluginTest {
 
   @Override

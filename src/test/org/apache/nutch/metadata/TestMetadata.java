@@ -24,11 +24,13 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * JUnit based tests of class {@link org.apache.nutch.metadata.Metadata}.
  */
+@Tag("metadata")
 public class TestMetadata {
 
   private static final String CONTENTTYPE = "contenttype";

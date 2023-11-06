@@ -31,8 +31,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.cyberneko.html.parsers.DOMFragmentParser;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("headings")
 public class TestHeadingsParseFilter {
   private static Configuration conf = NutchConfiguration.create();
 

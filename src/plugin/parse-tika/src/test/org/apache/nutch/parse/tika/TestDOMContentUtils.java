@@ -29,12 +29,14 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DocumentFragment;
 
 /**
  * Unit tests for DOMContentUtils.
  */
+@Tag("tika")
 public class TestDOMContentUtils {
 
   private static final String[] testPages = {

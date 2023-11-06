@@ -30,6 +30,7 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -45,6 +46,7 @@ import org.junit.jupiter.api.Test;
  * @author Peter Ciuffetti
  *
  */
+@Tag("replace")
 public class TestIndexReplace {
 
   private static final String INDEX_REPLACE_PROPERTY = "index.replace.regexp";

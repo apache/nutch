@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.parse.tika;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -31,10 +29,14 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test Suite for the RSS feeds with the {@link TikaParser}.
  */
+@Tag("tika")
 public class TestFeedParser extends TikaParserTest {
 
   private String[] sampleFiles = { "rsstest.rss" };

@@ -17,9 +17,11 @@
 package org.apache.nutch.util;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for SuffixStringMatcher. */
+@Tag("util")
 public class TestSuffixStringMatcher {
 
   private final static int NUM_TEST_ROUNDS = 20;

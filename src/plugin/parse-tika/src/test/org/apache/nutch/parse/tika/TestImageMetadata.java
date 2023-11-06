@@ -28,11 +28,13 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test extraction of image metadata
  */
+@Tag("tika")
 public class TestImageMetadata extends TikaParserTest {
 
   // Make sure sample files are copied to "test.data" as specified in

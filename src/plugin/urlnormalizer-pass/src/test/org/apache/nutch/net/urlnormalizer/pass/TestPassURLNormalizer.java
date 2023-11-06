@@ -22,8 +22,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("pass")
 public class TestPassURLNormalizer {
 
   @Test
@@ -39,7 +41,6 @@ public class TestPassURLNormalizer {
     } catch (MalformedURLException mue) {
       Assertions.fail(mue.toString());
     }
-
     Assertions.assertEquals(url, result);
   }
 }

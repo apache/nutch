@@ -19,9 +19,11 @@ package org.apache.nutch.util;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for StringUtil methods. */
+@Tag("util")
 public class TestStringUtil {
 
   public void testRightPad() {

@@ -31,14 +31,15 @@ import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * Basic generator test. 1. Insert entries in crawldb 2. Generates entries to
  * fetch 3. Verifies that number of generated urls match 4. Verifies that
  * highest scoring urls are generated
- * 
  */
+@Tag("crawl")
 public class TestGenerator {
 
   Configuration conf;

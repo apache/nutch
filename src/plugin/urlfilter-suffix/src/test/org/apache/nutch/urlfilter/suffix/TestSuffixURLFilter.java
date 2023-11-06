@@ -21,6 +21,7 @@ import java.io.StringReader;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Andrzej Bialecki
  */
+@Tag("suffix")
 public class TestSuffixURLFilter {
   private static final String suffixes = "# this is a comment\n" + "\n"
       + ".gif\n" + ".jpg\n" + ".js\n";

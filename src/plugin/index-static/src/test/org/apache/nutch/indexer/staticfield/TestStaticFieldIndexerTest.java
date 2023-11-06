@@ -25,6 +25,7 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -35,7 +36,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author tejasp
  */
-
+@Tag("staticfield")
 public class TestStaticFieldIndexerTest {
 
   Configuration conf;

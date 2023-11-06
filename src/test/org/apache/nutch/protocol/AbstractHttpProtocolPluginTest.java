@@ -44,6 +44,7 @@ import org.apache.nutch.net.protocols.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,7 @@ import org.slf4j.LoggerFactory;
  * Abstract class providing methods to easily implement unit tests for HTTP
  * protocol plugins.
  */
+@Tag("protocol")
 public abstract class AbstractHttpProtocolPluginTest {
 
   private static final Logger LOG = LoggerFactory

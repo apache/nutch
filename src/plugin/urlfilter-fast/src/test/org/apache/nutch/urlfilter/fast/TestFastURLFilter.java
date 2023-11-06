@@ -23,9 +23,10 @@ import java.io.Reader;
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-
+@Tag("fast")
 public class TestFastURLFilter extends RegexURLFilterBaseTest {
 
   @Override

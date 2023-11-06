@@ -23,8 +23,10 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("util")
 public class TestEncodingDetector {
   private static Configuration conf = NutchConfiguration.create();
 

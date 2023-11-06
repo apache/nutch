@@ -19,10 +19,11 @@ package org.apache.nutch.parse;
 import org.apache.nutch.util.WritableTestUtils;
 import org.apache.nutch.metadata.Metadata;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for ParseData. */
-
+@Tag("parse")
 public class TestParseData {
 
   @Test

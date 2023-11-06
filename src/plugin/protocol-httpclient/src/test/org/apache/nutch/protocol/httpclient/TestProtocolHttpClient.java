@@ -30,6 +30,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * Test cases for protocol-httpclient. See also
  * src/test/conf/httpclient-auth-test.xml
  */
+@Tag("httpclient")
 public class TestProtocolHttpClient extends AbstractHttpProtocolPluginTest {
 
   private static final Logger LOG = LoggerFactory

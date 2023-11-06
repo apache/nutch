@@ -19,9 +19,11 @@ package org.apache.nutch.util;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for GZIPUtils methods. */
+@Tag("util")
 public class TestGZIPUtils {
 
   /* a short, highly compressable, string */
@@ -130,6 +132,7 @@ public class TestGZIPUtils {
     testZipUnzipBestEffort(testBytes);
   }
 
+  @Test
   public void testTruncation() {
     byte[] testBytes = SHORT_TEST_STRING.getBytes();
     testTruncation(testBytes);
@@ -149,8 +152,7 @@ public class TestGZIPUtils {
     testLimit(testBytes);
   }
 
-  // helpers
-
+  @Test
   public void testZipUnzip(byte[] origBytes) {
     byte[] compressedBytes = GZIPUtils.zip(origBytes);
 
@@ -172,6 +174,7 @@ public class TestGZIPUtils {
         Assertions.assertTrue(false, "uncompressedBytes does not match origBytes");
   }
 
+  @Test
   public void testZipUnzipBestEffort(byte[] origBytes) {
     byte[] compressedBytes = GZIPUtils.zip(origBytes);
 
@@ -187,6 +190,7 @@ public class TestGZIPUtils {
         Assertions.assertTrue(false, "uncompressedBytes does not match origBytes");
   }
 
+  @Test
   public void testTruncation(byte[] origBytes) {
     byte[] compressedBytes = GZIPUtils.zip(origBytes);
 
@@ -217,6 +221,7 @@ public class TestGZIPUtils {
     }
   }
 
+  @Test
   public void testLimit(byte[] origBytes) {
     byte[] compressedBytes = GZIPUtils.zip(origBytes);
 

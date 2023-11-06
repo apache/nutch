@@ -24,13 +24,17 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-public class TestRegexParseFilter extends TestCase {
+@Tag("regex")
+public class TestRegexParseFilter {
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");
 
+  @Test
   public void testPositiveFilter() throws Exception {
     Configuration conf = NutchConfiguration.create();
 
@@ -49,10 +53,11 @@ public class TestRegexParseFilter extends TestCase {
 
     Metadata meta = parse.getData().getParseMeta();
     
-    assertEquals("true", meta.get("first"));
-    assertEquals("true", meta.get("second"));
+    Assertions.assertEquals("true", meta.get("first"));
+    Assertions.assertEquals("true", meta.get("second"));
   }
   
+  @Test
   public void testNegativeFilter() throws Exception {
     Configuration conf = NutchConfiguration.create();
 
@@ -71,7 +76,7 @@ public class TestRegexParseFilter extends TestCase {
 
     Metadata meta = parse.getData().getParseMeta();
     
-    assertEquals("false", meta.get("first"));
-    assertEquals("false", meta.get("second"));
+    Assertions.assertEquals("false", meta.get("first"));
+    Assertions.assertEquals("false", meta.get("second"));
   }
 }

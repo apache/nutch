@@ -29,17 +29,15 @@ import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author mattmann
- * @version $Revision$
  * 
- *          <p>
- *          Unit tests for the {@link File}Protocol.
- *          </p>
- *          .
+ * Unit tests for the {@link File} Protocol.
  */
+@Tag("file")
 public class TestProtocolFile {
 
   private String fileSeparator = System.getProperty("file.separator");

@@ -28,11 +28,13 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.tika.metadata.DublinCore;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for TestRTFParser.
  */
+@Tag("tika")
 public class TestRTFParser extends TikaParserTest {
 
   // Make sure sample files are copied to "test.data" as specified in

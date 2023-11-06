@@ -21,8 +21,10 @@ import java.net.MalformedURLException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("net")
 public class TestURLNormalizers {
 
   @Test

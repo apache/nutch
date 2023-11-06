@@ -21,11 +21,13 @@ import java.io.ByteArrayInputStream;
 import org.apache.xerces.parsers.DOMParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 /** Unit tests for NodeWalker methods. */
+@Tag("util")
 public class TestNodeWalker {
 
   /* a snapshot of the nutch webpage */

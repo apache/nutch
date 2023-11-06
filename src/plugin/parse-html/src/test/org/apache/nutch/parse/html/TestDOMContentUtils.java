@@ -29,6 +29,7 @@ import java.util.StringTokenizer;
 import org.cyberneko.html.parsers.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.*;
 import org.w3c.dom.*;
@@ -37,6 +38,7 @@ import org.apache.html.dom.*;
 /**
  * Unit tests for DOMContentUtils.
  */
+@Tag("html")
 public class TestDOMContentUtils {
 
   private static final String[] testPages = {

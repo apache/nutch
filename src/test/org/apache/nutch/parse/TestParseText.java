@@ -17,10 +17,11 @@
 package org.apache.nutch.parse;
 
 import org.apache.nutch.util.WritableTestUtils;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for ParseText. */
-
+@Tag("parse")
 public class TestParseText {
 
   @Test

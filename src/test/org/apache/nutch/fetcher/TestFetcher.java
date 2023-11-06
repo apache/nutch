@@ -35,14 +35,15 @@ import org.apache.nutch.protocol.Content;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.eclipse.jetty.server.Server;
 
 /**
  * Basic fetcher test 1. generate seedlist 2. inject 3. generate 3. fetch 4.
  * Verify contents
- * 
  */
+@Tag("fetcher")
 public class TestFetcher {
 
   final static Path testdir = new Path("build/test/fetch-test");

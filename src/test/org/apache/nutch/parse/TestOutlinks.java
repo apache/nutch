@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.parse;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 
+@Tag("parse")
 public class TestOutlinks {
 
   @Test

@@ -32,11 +32,13 @@ import org.apache.nutch.util.NutchJob;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for the plugin system
  */
+@Tag("plugin")
 public class TestPluginSystem {
   private int fPluginCount;
 

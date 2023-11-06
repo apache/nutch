@@ -17,18 +17,16 @@
 package org.apache.nutch.tools;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-//Commons imports
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 
-//JDK imports
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Collection;
 
-//Nutch imports
 import org.apache.nutch.tools.CommonCrawlDataDumper;
 import org.apache.nutch.tools.CommonCrawlConfig;
 
@@ -37,6 +35,7 @@ import org.apache.nutch.tools.CommonCrawlConfig;
  * Test harness for the {@link CommonCrawlDataDumper}.
  *
  */
+@Tag("tools")
 public class TestCommonCrawlDataDumper {
 
   @Test

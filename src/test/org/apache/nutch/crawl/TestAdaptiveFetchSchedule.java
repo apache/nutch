@@ -22,12 +22,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for AdaptiveFetchSchedule.
- * 
  */
+@Tag("crawl")
 public class TestAdaptiveFetchSchedule extends TestCase {
 
   private float inc_rate;

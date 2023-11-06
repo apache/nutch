@@ -31,6 +31,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.Test;
  * {@link org.apache.nutch.indexer.filter.MimeTypeIndexingFilter}
  *
  */
+@Tag("filter")
 public class MimeTypeIndexingFilterTest {
 
   private Configuration conf = NutchConfiguration.create();

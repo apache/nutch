@@ -32,6 +32,7 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,7 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 
 /** Test {@link IndexerMapReduce} */
+@Tag("indexer")
 public class TestIndexerMapReduce {
 
   private static final Logger LOG = LoggerFactory

@@ -20,11 +20,13 @@ import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for MSWordParser.
  */
+@Tag("tika")
 public class TestEmbeddedDocuments extends TikaParserTest {
 
   // Make sure sample files are copied to "test.data" as specified in

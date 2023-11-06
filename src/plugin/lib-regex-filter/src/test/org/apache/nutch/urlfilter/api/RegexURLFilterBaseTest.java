@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ import org.apache.nutch.net.URLFilter;
  * 
  * @author J&eacute;r&ocirc;me Charron
  */
+@Tag("api")
 public abstract class RegexURLFilterBaseTest {
 
   private static final Logger LOG = LoggerFactory

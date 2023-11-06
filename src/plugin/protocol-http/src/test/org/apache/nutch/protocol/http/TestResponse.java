@@ -32,11 +32,13 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 
+@Tag("http")
 public class TestResponse extends AbstractHttpProtocolPluginTest {
 
   protected static final String redirectHeader = "HTTP/1.1 301 Moved Permanently\r\n" //

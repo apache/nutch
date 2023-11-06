@@ -21,6 +21,7 @@ import org.apache.nutch.parse.OutlinkExtractor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @version 1.0
  */
+@Tag("parse")
 public class TestOutlinkExtractor {
 
   private static Configuration conf = NutchConfiguration.create();

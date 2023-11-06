@@ -17,9 +17,11 @@
 package org.apache.nutch.util;
 
 import org.apache.nutch.util.TableUtil;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
+@Tag("util")
 public class TestTableUtil {
 
   String urlString1 = "http://foo.com/";

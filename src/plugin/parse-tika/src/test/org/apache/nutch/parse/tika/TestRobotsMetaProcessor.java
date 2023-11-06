@@ -26,10 +26,12 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DocumentFragment;
 
 /** Unit tests for HTMLMetaProcessor. */
+@Tag("tika")
 public class TestRobotsMetaProcessor {
 
   /*

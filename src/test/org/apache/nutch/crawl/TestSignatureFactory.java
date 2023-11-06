@@ -19,8 +19,10 @@ package org.apache.nutch.crawl;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("crawl")
 public class TestSignatureFactory {
 
   @Test

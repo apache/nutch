@@ -28,6 +28,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -35,6 +36,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Rohit Kulkarni & Ashish Vaidya
  */
+@Tag("zip")
 public class TestZipParser {
 
   private String fileSeparator = System.getProperty("file.separator");

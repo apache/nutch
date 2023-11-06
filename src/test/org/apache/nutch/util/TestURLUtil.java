@@ -19,9 +19,11 @@ package org.apache.nutch.util;
 import java.net.URL;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test class for URLUtil */
+@Tag("util")
 public class TestURLUtil {
 
   @Test

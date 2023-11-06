@@ -17,10 +17,12 @@
 package org.apache.nutch.urlfilter.domaindenylist;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
+@Tag("domaindenylist")
 public class TestDomainDenylistURLFilter {
 
   private final static String SEPARATOR = System.getProperty("file.separator");

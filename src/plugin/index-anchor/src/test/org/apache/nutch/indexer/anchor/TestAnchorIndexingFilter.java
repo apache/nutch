@@ -26,6 +26,7 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -33,8 +34,8 @@ import org.junit.jupiter.api.Test;
  * deduplication functionality is working
  * 
  * @author lewismc
- * 
  */
+@Tag("anchor")
 public class TestAnchorIndexingFilter {
 
   @Test

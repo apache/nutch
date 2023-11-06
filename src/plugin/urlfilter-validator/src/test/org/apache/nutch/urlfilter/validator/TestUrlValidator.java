@@ -18,6 +18,7 @@ package org.apache.nutch.urlfilter.validator;
 
 import org.apache.nutch.urlfilter.validator.UrlValidator;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.Test;
  * @author tejasp
  * 
  */
-
+@Tag("validator")
 public class TestUrlValidator {
 
   /**

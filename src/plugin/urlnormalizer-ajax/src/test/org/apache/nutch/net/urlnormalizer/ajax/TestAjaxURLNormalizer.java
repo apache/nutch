@@ -19,11 +19,13 @@ package org.apache.nutch.net.urlnormalizer.ajax;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
-
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for AjaxURLNormalizer. */
-public class TestAjaxURLNormalizer extends TestCase {
+@Tag("ajax")
+public class TestAjaxURLNormalizer {
   private AjaxURLNormalizer normalizer;
   private Configuration conf;
   
@@ -34,6 +36,7 @@ public class TestAjaxURLNormalizer extends TestCase {
     normalizer.setConf(conf);
   }
 
+  @Test
   public void testNormalizer() throws Exception {
     // check if AJAX URL's are normalized to an _escaped_frament_ form
     normalizeTest("http://example.org/#!k=v", "http://example.org/?_escaped_fragment_=k=v");
@@ -45,6 +48,7 @@ public class TestAjaxURLNormalizer extends TestCase {
     normalizeTest("http://example.org/path.html?queryparam=queryvalue#!key1=value1&key2=value2", "http://example.org/path.html?queryparam=queryvalue&_escaped_fragment_=key1=value1%26key2=value2");
   }
   
+  @Test
   public void testNormalizerWhenIndexing() throws Exception {
     // check if it works the other way around
     normalizeTest("http://example.org/?_escaped_fragment_=key=value", "http://example.org/#!key=value", URLNormalizers.SCOPE_INDEXER);
@@ -53,14 +57,11 @@ public class TestAjaxURLNormalizer extends TestCase {
   }
 
   private void normalizeTest(String weird, String normal) throws Exception {
-    assertEquals(normal, normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
+    Assertions.assertEquals(normal, normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
   }
   
   private void normalizeTest(String weird, String normal, String scope) throws Exception {
-    assertEquals(normal, normalizer.normalize(weird, scope));
+    Assertions.assertEquals(normal, normalizer.normalize(weird, scope));
   }
 
-  public static void main(String[] args) throws Exception {
-    new TestAjaxURLNormalizer("test").testNormalizer();
-  }
 }

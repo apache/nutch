@@ -20,8 +20,10 @@ import java.text.ParseException;
 import java.util.Date;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("protocols")
 public class TestHttpDateFormat {
 
   /**

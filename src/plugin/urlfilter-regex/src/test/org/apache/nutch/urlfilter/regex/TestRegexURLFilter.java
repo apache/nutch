@@ -16,14 +16,13 @@
  */
 package org.apache.nutch.urlfilter.regex;
 
-// JDK imports
 import java.io.IOException;
 import java.io.Reader;
 
 import org.apache.nutch.net.*;
-// Nutch imports
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,6 +30,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author J&eacute;r&ocirc;me Charron
  */
+@Tag("regex")
 public class TestRegexURLFilter extends RegexURLFilterBaseTest {
 
   @Override

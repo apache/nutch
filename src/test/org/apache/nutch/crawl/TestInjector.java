@@ -32,14 +32,15 @@ import org.apache.hadoop.io.SequenceFile.Reader.Option;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
  * Basic injector test: 1. Creates a text file with urls 2. Injects them into
  * crawldb 3. Reads crawldb entries and verifies contents 4. Injects more urls
  * into webdb 5. Reads crawldb entries and verifies contents
- * 
  */
+@Tag("crawl")
 public class TestInjector {
 
   private Configuration conf;

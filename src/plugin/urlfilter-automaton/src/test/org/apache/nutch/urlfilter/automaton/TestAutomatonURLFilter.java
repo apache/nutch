@@ -24,6 +24,7 @@ import org.apache.nutch.net.*;
 // Nutch imports
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author J&eacute;r&ocirc;me Charron
  */
+@Tag("automaton")
 public class TestAutomatonURLFilter extends RegexURLFilterBaseTest {
 
   @Override

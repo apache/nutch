@@ -113,13 +113,13 @@
 		</dependency>
 
 		<!--artifacts needed for testing -->
-		<!--dependency org="junit" name="junit" rev="4.13.2" conf="test->default" /-->
-		<dependency org="org.junit.platform" name="junit-platform-commons" rev="1.10.0" conf="test->default"/>
+		<!--dependency org="org.junit.platform" name="junit-platform-commons" rev="1.10.0" conf="test->default"/>
 		<dependency org="org.junit.platform" name="junit-platform-engine" rev="1.10.0" conf="test->default"/>
-		<dependency org="org.junit.platform" name="junit-platform-launcher" rev="1.10.0" conf="test->default"/>
-		<dependency org="org.opentest4j" name="opentest4j" rev="1.3.0" conf="test->default"/>
+		<dependency org="org.junit.platform" name="junit-platform-launcher" rev="1.10.0" conf="test->default"/-->
+		<!--dependency org="org.opentest4j" name="opentest4j" rev="1.3.0" conf="test->default"/-->
 		<dependency org="org.junit.jupiter" name="junit-jupiter-api" rev="5.10.0" conf="test->default"/>
 		<dependency org="org.junit.jupiter" name="junit-jupiter-engine" rev="5.10.0" conf="test->default"/>
+		<dependency org="org.junit.platform" name="junit-platform-runner" rev="1.10.1" conf="*->default"/>
 		<!--dependency org="org.apiguardian" name="apiguardian-api" rev="1.1.2" conf="default"/-->
 
 		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">

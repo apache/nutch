@@ -23,12 +23,14 @@ import java.net.URL;
 
 import org.cyberneko.html.parsers.*;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.*;
 import org.w3c.dom.*;
 import org.apache.html.dom.*;
 
 /** Unit tests for HTMLMetaProcessor. */
+@Tag("html")
 public class TestRobotsMetaProcessor {
 
   /*

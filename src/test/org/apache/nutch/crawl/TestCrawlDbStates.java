@@ -38,6 +38,7 @@ import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.io.Text;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import org.slf4j.Logger;
@@ -60,6 +61,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * </li> </ul>
  */
+@Tag("crawl")
 public class TestCrawlDbStates {
 
   private static final Logger LOG = LoggerFactory

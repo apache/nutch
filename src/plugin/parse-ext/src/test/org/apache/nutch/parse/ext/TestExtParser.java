@@ -30,6 +30,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -46,6 +47,7 @@ import java.io.IOException;
  * 
  * @author John Xing
  */
+@Tag("ext")
 public class TestExtParser {
   private File tempFile = null;
   private String urlString = null;

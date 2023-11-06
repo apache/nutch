@@ -21,8 +21,10 @@ import java.io.IOException;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+@Tag("tika")
 public class TestXlsxParser extends TikaParserTest {
 
   @Test

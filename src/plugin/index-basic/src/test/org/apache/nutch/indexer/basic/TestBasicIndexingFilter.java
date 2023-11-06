@@ -29,6 +29,7 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -41,9 +42,8 @@ import java.util.Date;
  * truncated as per {@code indexer.max.content.length} in nutch-default.xml.
  * 
  * @author tejasp
- * 
  */
-
+@Tag("basic")
 public class TestBasicIndexingFilter {
 
   @Test

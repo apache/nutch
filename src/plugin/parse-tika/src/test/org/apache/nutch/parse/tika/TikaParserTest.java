@@ -28,10 +28,12 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Base class to extend Tika parser tests from.
  */
+@Tag("tika")
 public class TikaParserTest {
 
   protected String fileSeparator = System.getProperty("file.separator");

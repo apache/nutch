@@ -24,9 +24,12 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.io.Files;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-public class TestMimeUtil extends TestCase {
+@Tag("util")
+public class TestMimeUtil {
 
   public static String urlPrefix = "http://localhost/";
 
@@ -96,15 +99,17 @@ public class TestMimeUtil extends TestCase {
   }
 
   /** use HTTP Content-Type, URL pattern, and MIME magic */
+  @Test
   public void testWithMimeMagic() {
     for (String[] testPage : textBasedFormats) {
       String mimeType = getMimeType(urlPrefix,
           testPage[3].getBytes(defaultCharset), testPage[2], true);
-      assertEquals("", testPage[0], mimeType);
+      Assertions.assertEquals("", testPage[0], mimeType);
     }
   }
 
   /** use only HTTP Content-Type (if given) and URL pattern */
+  @Test
   public void testWithoutMimeMagic() {
     for (String[] testPage : textBasedFormats) {
       if (testPage.length > 4 && "requires-mime-magic".equals(testPage[4])) {
@@ -112,26 +117,28 @@ public class TestMimeUtil extends TestCase {
       }
       String mimeType = getMimeType(urlPrefix + testPage[1],
           testPage[3].getBytes(defaultCharset), testPage[2], false);
-      assertEquals("", testPage[0], mimeType);
+      Assertions.assertEquals("", testPage[0], mimeType);
     }
   }
 
   /** use only MIME magic (detection from content bytes) */
+  @Test
   public void testOnlyMimeMagic() {
     for (String[] testPage : textBasedFormats) {
       String mimeType = getMimeType(urlPrefix,
           testPage[3].getBytes(defaultCharset), "", true);
-      assertEquals("", testPage[0], mimeType);
+      Assertions.assertEquals("", testPage[0], mimeType);
     }
   }
 
   /** test binary file formats (real files) */
+  @Test
   public void testBinaryFiles() throws IOException {
     for (String[] testPage : binaryFiles) {
       File dataFile = new File(sampleDir, testPage[1]);
       String mimeType = getMimeType(urlPrefix + testPage[1], dataFile,
           testPage[2], false);
-      assertEquals("", testPage[0], mimeType);
+      Assertions.assertEquals("", testPage[0], mimeType);
     }
   }
 

@@ -31,6 +31,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.nutch.indexer.IndexWriterParams;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Test CSVIndexWriter. Focus is on CSV-specific potential issues, mainly quoting and escaping.
  */
+@Tag("csv")
 public class TestCSVIndexWriter {
 
   protected static final Logger LOG = LoggerFactory
