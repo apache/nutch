@@ -19,9 +19,6 @@ package org.apache.nutch.parse.feed;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -35,13 +32,16 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolNotFound;
 import org.apache.nutch.util.NutchConfiguration;
 
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 /**
  * 
  * @author mattmann
- * 
- *         Test Suite for the {@link FeedParser}.
- * 
+ * Test Suite for the {@link FeedParser}.
  */
+@Tag("feed")
 public class TestFeedParser {
 
   private String fileSeparator = System.getProperty("file.separator");
@@ -86,7 +86,7 @@ public class TestFeedParser {
 
       parseResult = new ParseUtil(conf).parseByExtensionId("feed", content);
 
-      Assert.assertEquals(3, parseResult.size());
+      assertEquals(3, parseResult.size());
 
       boolean hasLink1 = false, hasLink2 = false, hasLink3 = false;
 
@@ -102,12 +102,12 @@ public class TestFeedParser {
           hasLink3 = true;
         }
 
-        Assert.assertNotNull(entry.getValue());
-        Assert.assertNotNull(entry.getValue().getData());
+        assertNotNull(entry.getValue());
+        assertNotNull(entry.getValue().getData());
       }
 
       if (!hasLink1 || !hasLink2 || !hasLink3) {
-        Assert.fail("Outlinks read from sample rss file are not correct!");
+        fail("Outlinks read from sample rss file are not correct!");
       }
     }
 

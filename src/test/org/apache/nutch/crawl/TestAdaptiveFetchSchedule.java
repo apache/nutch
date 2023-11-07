@@ -21,13 +21,14 @@ import junit.framework.TestCase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for AdaptiveFetchSchedule.
- * 
  */
+@Tag("crawl")
 public class TestAdaptiveFetchSchedule extends TestCase {
 
   private float inc_rate;
@@ -37,7 +38,7 @@ public class TestAdaptiveFetchSchedule extends TestCase {
   private int changed, interval, calculateInterval;
 
   @Override
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     super.setUp();
     conf = NutchConfiguration.create();

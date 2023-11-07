@@ -23,10 +23,12 @@ import java.net.URL;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for BasicURLNormalizer. */
+@Tag("basic")
 public class TestBasicURLNormalizer {
   private BasicURLNormalizer normalizer;
 
@@ -269,12 +271,12 @@ public class TestBasicURLNormalizer {
 
   private void normalizeTest(BasicURLNormalizer normalizer, String weird,
       String normal) throws Exception {
-    Assert.assertEquals("normalizing: " + weird, normal,
+    assertEquals("normalizing: " + weird, normal,
         normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
     try {
       (new URL(normal)).toURI();
     } catch (MalformedURLException | URISyntaxException e) {
-      Assert.fail("Output of normalization fails to validate as URL or URI: "
+      fail("Output of normalization fails to validate as URL or URI: "
           + e.getMessage());
     }
   }
@@ -292,7 +294,7 @@ public class TestBasicURLNormalizer {
       // ok, expected
       return;
     }
-    Assert.fail("Expected MalformedURLException was not thrown on " + weird
+    fail("Expected MalformedURLException was not thrown on " + weird
         + " (normalized: " + normalized + ")");
   }
 

@@ -30,13 +30,15 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Tag("crawl")
 public class TestLinkDbMerger {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -68,7 +70,7 @@ public class TestLinkDbMerger {
   FileSystem fs;
   LinkDbReader reader;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     init1.put(url10, urls10);
     init1.put(url11, urls11);
@@ -85,7 +87,7 @@ public class TestLinkDbMerger {
     fs.mkdirs(testDir);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     try {
       if (fs.exists(testDir))
@@ -120,7 +122,7 @@ public class TestLinkDbMerger {
       String[] vals = expected.get(url);
       Inlinks inlinks = reader.getInlinks(new Text(url));
       // may not be null
-      Assert.assertNotNull(inlinks);
+      assertNotNull(inlinks);
       ArrayList<String> links = new ArrayList<String>();
       Iterator<?> it2 = inlinks.iterator();
       while (it2.hasNext()) {
@@ -129,7 +131,7 @@ public class TestLinkDbMerger {
       }
       for (int i = 0; i < vals.length; i++) {
         LOG.debug(" -> " + vals[i]);
-        Assert.assertTrue(links.contains(vals[i]));
+        assertTrue(links.contains(vals[i]));
       }
     }
     reader.close();

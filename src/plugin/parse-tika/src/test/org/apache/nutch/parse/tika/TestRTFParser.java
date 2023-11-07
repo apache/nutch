@@ -27,12 +27,14 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.tika.metadata.DublinCore;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for TestRTFParser.
  */
+@Tag("tika")
 public class TestRTFParser extends TikaParserTest {
 
   // Make sure sample files are copied to "test.data" as specified in
@@ -54,13 +56,13 @@ public class TestRTFParser extends TikaParserTest {
     parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(
         content.getUrl());
     String text = parse.getText();
-    Assert.assertTrue(text.contains("The quick brown fox jumps over the lazy dog"));
+    assertTrue(text.contains("The quick brown fox jumps over the lazy dog"));
 
     String title = parse.getData().getTitle();
     Metadata meta = parse.getData().getParseMeta();
 
-    Assert.assertEquals("test rft document", title);
-    Assert.assertEquals("tests", meta.get(DublinCore.SUBJECT.getName()));
+    assertEquals("test rft document", title);
+    assertEquals("tests", meta.get(DublinCore.SUBJECT.getName()));
 
   }
 }

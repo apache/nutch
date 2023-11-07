@@ -16,10 +16,14 @@
  */
 package org.apache.nutch.util;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
+@Tag("org.apache.nutch.util")
+@Tag("core")
 public class DumpFileUtilTest {
 
     @Test

@@ -19,10 +19,12 @@ package org.apache.nutch.net.urlnormalizer.querystring;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import junit.framework.TestCase;
-
-public class TestQuerystringURLNormalizer extends TestCase {
+@Tag("querystring")
+public class TestQuerystringURLNormalizer {
 
   public void testQuerystringURLNormalizer() throws Exception {
     Configuration conf = NutchConfiguration.create();

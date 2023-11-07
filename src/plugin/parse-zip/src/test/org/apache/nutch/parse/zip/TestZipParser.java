@@ -27,24 +27,21 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Based on Unit tests for MSWordParser by John Xing
  * 
  * @author Rohit Kulkarni & Ashish Vaidya
  */
+@Tag("zip")
 public class TestZipParser {
 
   private String fileSeparator = System.getProperty("file.separator");
-  // This system property is defined in ./src/plugin/build-plugin.xml
   private String sampleDir = System.getProperty("test.data", ".");
-
-  // Make sure sample files are copied to "test.data"
-
   private String[] sampleFiles = { "test.zip" };
-
   private String expectedText = "textfile.txt This is text file number 1";
 
   @Test
@@ -63,10 +60,9 @@ public class TestZipParser {
           new CrawlDatum()).getContent();
       parse = new ParseUtil(conf).parseByExtensionId("parse-zip", content).get(
           content.getUrl());
-      Assert.assertTrue(
+      assertTrue(parse.getText().startsWith(expectedText),
           "Extracted text does not start with <" + expectedText + ">: <"
-              + parse.getText() + ">",
-          parse.getText().startsWith(expectedText));
+              + parse.getText() + ">");
     }
   }
 

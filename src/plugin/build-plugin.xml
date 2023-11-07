@@ -124,7 +124,7 @@
   <!-- Compile the Java files                                 -->
   <!-- ====================================================== -->
   <target name="compile" depends="init,deps-jar, resolve-default">
-    <echo message="Compiling plugin: ${name}"/>
+    <!--echo message="Compiling plugin: ${name}"/-->
     <javac 
      encoding="${build.encoding}" 
      srcdir="${src.dir}"
@@ -206,7 +206,7 @@
   <!-- Run unit tests                                                     --> 
   <!-- ================================================================== -->
   <target name="test" depends="compile-test, deploy" if="test.available">
-    <echo message="Testing plugin: ${name}"/>
+    <!--echo message="Testing plugin: ${name}"/-->
 
     <junit printsummary="yes" haltonfailure="no" fork="yes"
       errorProperty="tests.failed" failureProperty="tests.failed">

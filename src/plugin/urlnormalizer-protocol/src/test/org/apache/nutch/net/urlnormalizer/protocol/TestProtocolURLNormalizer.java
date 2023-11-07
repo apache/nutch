@@ -19,10 +19,12 @@ package org.apache.nutch.net.urlnormalizer.protocol;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import junit.framework.TestCase;
-
-public class TestProtocolURLNormalizer extends TestCase {
+@Tag("protocol")
+public class TestProtocolURLNormalizer {
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");

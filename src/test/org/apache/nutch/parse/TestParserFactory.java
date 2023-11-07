@@ -16,13 +16,16 @@
  */
 package org.apache.nutch.parse;
 
-// Nutch imports
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.nutch.plugin.Extension;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for new parse plugin selection.
@@ -30,13 +33,15 @@ import org.junit.Test;
  * @author Sebastien Le Callonnec
  * @version 1.0
  */
+@Tag("org.apache.nutch.parse")
+@Tag("core")
 public class TestParserFactory {
 
   private Configuration conf;
   private ParserFactory parserFactory;
 
   /** Inits the Test Case with the test parse-plugin file */
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
     conf.set("plugin.includes", ".*");
@@ -49,55 +54,55 @@ public class TestParserFactory {
   @Test
   public void testGetExtensions() throws Exception {
     Extension ext = parserFactory.getExtensions("text/html").get(0);
-    Assert.assertEquals("parse-tika", ext.getDescriptor().getPluginId());
+    assertEquals("parse-tika", ext.getDescriptor().getPluginId());
     ext = parserFactory.getExtensions("text/html; charset=ISO-8859-1").get(0);
-    Assert.assertEquals("parse-tika", ext.getDescriptor().getPluginId());
+    assertEquals("parse-tika", ext.getDescriptor().getPluginId());
     ext = parserFactory.getExtensions("foo/bar").get(0);
-    Assert.assertEquals("parse-tika", ext.getDescriptor().getPluginId());
+    assertEquals("parse-tika", ext.getDescriptor().getPluginId());
   }
 
   /** Unit test to check <code>getParsers</code> method */
   @Test
   public void testGetParsers() throws Exception {
     Parser[] parsers = parserFactory.getParsers("text/html", "http://foo.com");
-    Assert.assertNotNull(parsers);
-    Assert.assertEquals(1, parsers.length);
-    Assert.assertEquals("org.apache.nutch.parse.tika.TikaParser", parsers[0]
+    assertNotNull(parsers);
+    assertEquals(1, parsers.length);
+    assertEquals("org.apache.nutch.parse.tika.TikaParser", parsers[0]
         .getClass().getName());
 
     parsers = parserFactory.getParsers("text/html; charset=ISO-8859-1",
         "http://foo.com");
-    Assert.assertNotNull(parsers);
-    Assert.assertEquals(1, parsers.length);
-    Assert.assertEquals("org.apache.nutch.parse.tika.TikaParser", parsers[0]
+    assertNotNull(parsers);
+    assertEquals(1, parsers.length);
+    assertEquals("org.apache.nutch.parse.tika.TikaParser", parsers[0]
         .getClass().getName());
 
     parsers = parserFactory.getParsers("application/x-javascript",
         "http://foo.com");
-    Assert.assertNotNull(parsers);
-    Assert.assertEquals(1, parsers.length);
-    Assert.assertEquals("org.apache.nutch.parse.js.JSParseFilter", parsers[0]
+    assertNotNull(parsers);
+    assertEquals(1, parsers.length);
+    assertEquals("org.apache.nutch.parse.js.JSParseFilter", parsers[0]
         .getClass().getName());
 
     parsers = parserFactory.getParsers("text/plain", "http://foo.com");
-    Assert.assertNotNull(parsers);
-    Assert.assertEquals(1, parsers.length);
-    Assert.assertEquals("org.apache.nutch.parse.tika.TikaParser", parsers[0]
+    assertNotNull(parsers);
+    assertEquals(1, parsers.length);
+    assertEquals("org.apache.nutch.parse.tika.TikaParser", parsers[0]
         .getClass().getName());
 
     Parser parser1 = parserFactory.getParsers("text/plain", "http://foo.com")[0];
     Parser parser2 = parserFactory.getParsers("*", "http://foo.com")[0];
 
-    Assert.assertEquals("Different instances!", parser1.hashCode(),
-        parser2.hashCode());
+    assertEquals(parser1.hashCode(), parser2.hashCode(),
+        "Different instances!");
 
     // test and make sure that the rss parser is loaded even though its
     // plugin.xml
     // doesn't claim to support text/rss, only application/rss+xml
     parsers = parserFactory.getParsers("text/rss", "http://foo.com");
-    Assert.assertNotNull(parsers);
-    Assert.assertEquals(1, parsers.length);
-    Assert.assertEquals("org.apache.nutch.parse.tika.TikaParser", parsers[0]
+    assertNotNull(parsers);
+    assertEquals(1, parsers.length);
+    assertEquals("org.apache.nutch.parse.tika.TikaParser", parsers[0]
         .getClass().getName());
   }
 
