@@ -30,7 +30,7 @@ import org.w3c.dom.DocumentFragment;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.cyberneko.html.parsers.DOMFragmentParser;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -61,7 +61,7 @@ public class TestHeadingsParseFilter {
 
     parseResult = filter.filter(content, parseResult, metaTags, node);
 
-    Assertions.assertEquals(
+    assertEquals(
         "The h1 tag must include the content of the inner span node",
         "header with span element",
         parseResult.get(content.getUrl()).getData().getParseMeta().get("h1"));

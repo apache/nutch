@@ -33,7 +33,7 @@ import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -118,7 +118,7 @@ public class TestFetcher {
     // verify politeness, time taken should be more than (num_of_pages +1)*delay
     int minimumTime = (int) ((urls.size() + 1) * 1000 * conf.getFloat(
         "fetcher.server.delay", 5));
-    Assertions.assertTrue(time > minimumTime);
+    assertTrue(time > minimumTime);
 
     // verify content
     Path content = new Path(new Path(generatedSegment[0], Content.DIR_NAME),
@@ -145,11 +145,11 @@ public class TestFetcher {
     Collections.sort(handledurls);
 
     // verify that enough pages were handled
-    Assertions.assertEquals(urls.size(), handledurls.size());
+    assertEquals(urls.size(), handledurls.size());
 
     // verify that correct pages were handled
-    Assertions.assertTrue(handledurls.containsAll(urls));
-    Assertions.assertTrue(urls.containsAll(handledurls));
+    assertTrue(handledurls.containsAll(urls));
+    assertTrue(urls.containsAll(handledurls));
 
     handledurls.clear();
 
@@ -175,10 +175,10 @@ public class TestFetcher {
 
     Collections.sort(handledurls);
 
-    Assertions.assertEquals(urls.size(), handledurls.size());
+    assertEquals(urls.size(), handledurls.size());
 
-    Assertions.assertTrue(handledurls.containsAll(urls));
-    Assertions.assertTrue(urls.containsAll(handledurls));
+    assertTrue(handledurls.containsAll(urls));
+    assertTrue(urls.containsAll(handledurls));
   }
 
   private void addUrl(ArrayList<String> urls, String page) {
@@ -202,7 +202,7 @@ public class TestFetcher {
     } catch (Exception e) {
     }
 
-    Assertions.assertTrue(failedNoAgentName);
+    assertTrue(failedNoAgentName);
   }
 
 }

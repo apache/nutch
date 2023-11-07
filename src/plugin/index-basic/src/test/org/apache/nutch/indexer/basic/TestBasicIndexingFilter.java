@@ -28,7 +28,7 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -55,7 +55,7 @@ public class TestBasicIndexingFilter {
 
     BasicIndexingFilter filter = new BasicIndexingFilter();
     filter.setConf(conf);
-    Assertions.assertNotNull(filter);
+    assertNotNull(filter);
 
     NutchDocument doc = new NutchDocument();
 
@@ -78,24 +78,24 @@ public class TestBasicIndexingFilter {
           crawlDatum, inlinks);
     } catch (Exception e) {
       e.printStackTrace();
-      Assertions.fail(e.getMessage());
+      fail(e.getMessage());
     }
-    Assertions.assertNotNull(doc);
-    Assertions.assertEquals("The Foo Pa",
+    assertNotNull(doc);
+    assertEquals("The Foo Pa",
         doc.getField("title").getValues().get(0),
         "test title, expect \"The Foo Pa\"");
-    Assertions.assertEquals("apache.org",
+    assertEquals("apache.org",
         doc.getField("domain").getValues().get(0),
         "test domain, expect \"apache.org\"");
-    Assertions.assertEquals("nutch.apache.org",
+    assertEquals("nutch.apache.org",
         doc.getField("host").getValues().get(0),
         "test host, expect \"nutch.apache.org\"");
-    Assertions.assertEquals("http://nutch.apache.org/index.html",
+    assertEquals("http://nutch.apache.org/index.html",
         doc.getField("url").getValues().get(0),
         "test url, expect \"http://nutch.apache.org/index.html\"");
-    Assertions.assertEquals(doc.getField("content").getValues().get(0),
+    assertEquals(doc.getField("content").getValues().get(0),
         "test content", "this is a sample foo");
-    Assertions.assertEquals(new Date(100L),
+    assertEquals(new Date(100L),
         (Date) doc.getField("tstamp").getValues().get(0),
         "test fetch time");
   }

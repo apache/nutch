@@ -20,7 +20,7 @@ import java.io.File;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +40,7 @@ public class TestMSWordParser extends TikaParserTest {
   public void testIt() throws ProtocolException, ParseException {
     for (int i = 0; i < sampleFiles.length; i++) {
       String found = getTextContent(sampleFiles[i]);
-      Assertions.assertTrue(found.startsWith(expectedText),
+      assertTrue(found.startsWith(expectedText),
           "text found : '" + found + "'");
     }
   }
@@ -51,7 +51,7 @@ public class TestMSWordParser extends TikaParserTest {
     for (int i = 0; i < filenames.length; i++) {
       if (filenames[i].endsWith(".doc") == false)
         continue;
-      Assertions.assertTrue(getTextContent(filenames[i]).length() > 0,
+      assertTrue(getTextContent(filenames[i]).length() > 0,
           "can't read content of " + filenames[i]);
     }
   }

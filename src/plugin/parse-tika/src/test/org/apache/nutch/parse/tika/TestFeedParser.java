@@ -29,7 +29,7 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -81,7 +81,7 @@ public class TestFeedParser extends TikaParserTest {
 
       Outlink[] theOutlinks = theParseData.getOutlinks();
 
-      Assertions.assertTrue(theOutlinks.length == 2,
+      assertTrue(theOutlinks.length == 2,
           "There aren't 2 outlinks read!");
 
       // now check to make sure that those are the two outlinks
@@ -99,7 +99,7 @@ public class TestFeedParser extends TikaParserTest {
       }
 
       if (!hasLink1 || !hasLink2) {
-        Assertions.fail("Outlinks read from sample rss file are not correct!");
+        fail("Outlinks read from sample rss file are not correct!");
       }
     }
   }

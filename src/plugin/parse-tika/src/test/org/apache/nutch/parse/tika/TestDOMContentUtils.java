@@ -27,7 +27,7 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -198,7 +198,7 @@ public class TestDOMContentUtils {
         parser.getParse(content, doc, root);
         testDOMs[i] = root;
       } catch (Exception e) {
-        Assertions.assertTrue(false, "caught exception: " + e);
+        assertTrue(false, "caught exception: " + e);
       }
     }
     answerOutlinks = new Outlink[][] {
@@ -262,7 +262,7 @@ public class TestDOMContentUtils {
       StringBuffer sb = new StringBuffer();
       utils.getText(sb, testDOMs[i]);
       String text = sb.toString();
-      Assertions.assertTrue(equalsIgnoreWhitespace(answerText[i], text),
+      assertTrue(equalsIgnoreWhitespace(answerText[i], text),
           "expecting text: " + answerText[i]
               + System.getProperty("line.separator")
               + System.getProperty("line.separator") + "got text: " + text);
@@ -277,7 +277,7 @@ public class TestDOMContentUtils {
       StringBuffer sb = new StringBuffer();
       utils.getTitle(sb, testDOMs[i]);
       String text = sb.toString();
-      Assertions.assertTrue(equalsIgnoreWhitespace(answerTitle[i], text),
+      assertTrue(equalsIgnoreWhitespace(answerTitle[i], text),
           "expecting text: " + answerText[i]
               + System.getProperty("line.separator")
               + System.getProperty("line.separator") + "got text: " + text);
@@ -319,7 +319,7 @@ public class TestDOMContentUtils {
 
   private static final void compareOutlinks(Outlink[] o1, Outlink[] o2) {
     if (o1.length != o2.length) {
-      Assertions.assertTrue(false,
+      assertTrue(false,
           "got wrong number of outlinks (expecting " + o1.length + ", got "
               + o2.length + ")" + System.getProperty("line.separator")
               + "answer: " + System.getProperty("line.separator")
@@ -330,7 +330,7 @@ public class TestDOMContentUtils {
 
     for (int i = 0; i < o1.length; i++) {
       if (!o1[i].equals(o2[i])) {
-        Assertions.assertTrue(false,
+        assertTrue(false,
             "got wrong outlinks at position " + i
                 + System.getProperty("line.separator") + "answer: "
                 + System.getProperty("line.separator") + "'" + o1[i].getToUrl()

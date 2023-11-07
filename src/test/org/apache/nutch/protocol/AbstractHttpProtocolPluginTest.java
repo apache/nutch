@@ -17,6 +17,7 @@
 package org.apache.nutch.protocol;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -41,10 +42,11 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.Response;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -283,11 +285,11 @@ public abstract class AbstractHttpProtocolPluginTest {
       httpStatusCode = Integer.parseInt(crawlDatum.getMetaData()
           .get(Nutch.PROTOCOL_STATUS_CODE_KEY).toString());
     }
-    Assertions.assertEquals(expectedCode, httpStatusCode,
+    assertEquals(expectedCode, httpStatusCode,
         "HTTP Status Code for " + url);
     if (httpStatusCode == 200 && expectedContentType != null) {
       Content content = protocolOutput.getContent();
-      Assertions.assertEquals("ContentType " + url, "text/html", content.getContentType());
+      assertEquals("ContentType " + url, "text/html", content.getContentType());
     }
     return protocolOutput;
   }

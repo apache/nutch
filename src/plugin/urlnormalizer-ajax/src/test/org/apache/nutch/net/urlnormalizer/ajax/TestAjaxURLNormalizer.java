@@ -19,7 +19,7 @@ package org.apache.nutch.net.urlnormalizer.ajax;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -57,11 +57,11 @@ public class TestAjaxURLNormalizer {
   }
 
   private void normalizeTest(String weird, String normal) throws Exception {
-    Assertions.assertEquals(normal, normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
+    assertEquals(normal, normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
   }
   
   private void normalizeTest(String weird, String normal, String scope) throws Exception {
-    Assertions.assertEquals(normal, normalizer.normalize(weird, scope));
+    assertEquals(normal, normalizer.normalize(weird, scope));
   }
 
 }

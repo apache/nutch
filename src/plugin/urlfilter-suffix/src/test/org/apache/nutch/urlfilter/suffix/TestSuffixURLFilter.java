@@ -19,7 +19,7 @@ package org.apache.nutch.urlfilter.suffix;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -71,7 +71,7 @@ public class TestSuffixURLFilter {
     filter.setIgnoreCase(false);
     filter.setModeAccept(true);
     for (int i = 0; i < urls.length; i++) {
-      Assertions.assertTrue(urlsModeAccept[i] == filter.filter(urls[i]));
+      assertTrue(urlsModeAccept[i] == filter.filter(urls[i]));
     }
   }
 
@@ -80,7 +80,7 @@ public class TestSuffixURLFilter {
     filter.setIgnoreCase(false);
     filter.setModeAccept(false);
     for (int i = 0; i < urls.length; i++) {
-      Assertions.assertTrue(urlsModeReject[i] == filter.filter(urls[i]));
+      assertTrue(urlsModeReject[i] == filter.filter(urls[i]));
     }
   }
 
@@ -89,7 +89,7 @@ public class TestSuffixURLFilter {
     filter.setIgnoreCase(true);
     filter.setModeAccept(true);
     for (int i = 0; i < urls.length; i++) {
-      Assertions.assertTrue(urlsModeAcceptIgnoreCase[i] == filter.filter(urls[i]));
+      assertTrue(urlsModeAcceptIgnoreCase[i] == filter.filter(urls[i]));
     }
   }
 
@@ -98,7 +98,7 @@ public class TestSuffixURLFilter {
     filter.setIgnoreCase(true);
     filter.setModeAccept(false);
     for (int i = 0; i < urls.length; i++) {
-      Assertions.assertTrue(urlsModeRejectIgnoreCase[i] == filter.filter(urls[i]));
+      assertTrue(urlsModeRejectIgnoreCase[i] == filter.filter(urls[i]));
     }
   }
 
@@ -107,7 +107,7 @@ public class TestSuffixURLFilter {
     filter.setModeAccept(true);
     filter.setFilterFromPath(false);
     for (int i = 0; i < urls.length; i++) {
-      Assertions.assertTrue(urlsModeAcceptAndNonPathFilter[i] == filter
+      assertTrue(urlsModeAcceptAndNonPathFilter[i] == filter
           .filter(urls[i]));
     }
   }
@@ -117,7 +117,7 @@ public class TestSuffixURLFilter {
     filter.setModeAccept(true);
     filter.setFilterFromPath(true);
     for (int i = 0; i < urls.length; i++) {
-      Assertions.assertTrue(urlsModeAcceptAndPathFilter[i] == filter
+      assertTrue(urlsModeAcceptAndPathFilter[i] == filter
           .filter(urls[i]));
     }
   }

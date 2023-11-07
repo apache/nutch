@@ -16,14 +16,17 @@
  */
 package org.apache.nutch.parse;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.nutch.util.WritableTestUtils;
 import org.apache.nutch.metadata.Metadata;
-import org.junit.jupiter.api.Assertions;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for ParseData. */
-@Tag("parse")
+@Tag("org.apache.nutch.parse")
+@Tag("core")
 public class TestParseData {
 
   @Test
@@ -53,6 +56,6 @@ public class TestParseData {
     ParseData original = new ParseData(ParseStatus.STATUS_SUCCESS,
         "Max Outlinks Title", outlinks, new Metadata());
     ParseData data = (ParseData) WritableTestUtils.writeRead(original, null);
-    Assertions.assertEquals(outlinks.length, data.getOutlinks().length);
+    assertEquals(outlinks.length, data.getOutlinks().length);
   }
 }

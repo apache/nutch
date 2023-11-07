@@ -16,12 +16,15 @@
  */
 package org.apache.nutch.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.nutch.util.TableUtil;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 
-@Tag("util")
+@Tag("org.apache.nutch.util")
+@Tag("core")
 public class TestTableUtil {
 
   String urlString1 = "http://foo.com/";
@@ -67,11 +70,11 @@ public class TestTableUtil {
   private static void assertReverse(String url, String expectedReversedUrl)
       throws Exception {
     String reversed = TableUtil.reverseUrl(url);
-    Assertions.assertEquals(expectedReversedUrl, reversed);
+    assertEquals(expectedReversedUrl, reversed);
   }
 
   private static void assertUnreverse(String reversedUrl, String expectedUrl) {
     String unreversed = TableUtil.unreverseUrl(reversedUrl);
-    Assertions.assertEquals(expectedUrl, unreversed);
+    assertEquals(expectedUrl, unreversed);
   }
 }

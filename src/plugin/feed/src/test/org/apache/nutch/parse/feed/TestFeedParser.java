@@ -32,7 +32,7 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolNotFound;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -86,7 +86,7 @@ public class TestFeedParser {
 
       parseResult = new ParseUtil(conf).parseByExtensionId("feed", content);
 
-      Assertions.assertEquals(3, parseResult.size());
+      assertEquals(3, parseResult.size());
 
       boolean hasLink1 = false, hasLink2 = false, hasLink3 = false;
 
@@ -102,12 +102,12 @@ public class TestFeedParser {
           hasLink3 = true;
         }
 
-        Assertions.assertNotNull(entry.getValue());
-        Assertions.assertNotNull(entry.getValue().getData());
+        assertNotNull(entry.getValue());
+        assertNotNull(entry.getValue().getData());
       }
 
       if (!hasLink1 || !hasLink2 || !hasLink3) {
-        Assertions.fail("Outlinks read from sample rss file are not correct!");
+        fail("Outlinks read from sample rss file are not correct!");
       }
     }
 

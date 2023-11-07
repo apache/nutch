@@ -33,7 +33,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
 import org.apache.nutch.util.NutchJob;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -117,7 +117,7 @@ public class TestCrawlDbFilter {
     ArrayList<URLCrawlDatum> l = readContents(fetchlist);
 
     // verify we got right amount of records
-    Assertions.assertEquals(2, l.size());
+    assertEquals(2, l.size());
   }
 
   /**

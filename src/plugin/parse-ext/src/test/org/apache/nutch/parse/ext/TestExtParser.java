@@ -28,7 +28,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -117,14 +117,14 @@ public class TestExtParser {
       content.setContentType(contentType);
       parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content).get(
           content.getUrl());
-      Assertions.assertEquals(expectedText, parse.getText());
+      assertEquals(expectedText, parse.getText());
 
       // check external parser that does 'md5sum'
       contentType = "application/vnd.nutch.example.md5sum";
       content.setContentType(contentType);
       parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content).get(
           content.getUrl());
-      Assertions.assertTrue(parse.getText().startsWith(expectedMD5sum));
+      assertTrue(parse.getText().startsWith(expectedMD5sum));
     }
   }
 

@@ -16,9 +16,10 @@
  */
 package org.apache.nutch.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
-import org.junit.jupiter.api.Assertions;
 
 public class WritableTestUtils {
 
@@ -30,7 +31,7 @@ public class WritableTestUtils {
   /** Utility method for testing writables. */
   public static void testWritable(Writable before, Configuration conf)
       throws Exception {
-    Assertions.assertEquals(before, writeRead(before, conf));
+    assertEquals(before, writeRead(before, conf));
   }
 
   /** Utility method for testing writables. */

@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.net.URL;
 
 import org.cyberneko.html.parsers.*;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.*;
@@ -119,7 +119,7 @@ public class TestRobotsMetaProcessor {
           { new URL("http://www.nutch.org"),
               new URL("http://www.nutch.org/base/") } };
     } catch (Exception e) {
-      Assertions.assertTrue(false, "couldn't make test URLs!");
+      assertTrue(false, "couldn't make test URLs!");
     }
 
     for (int i = 0; i < tests.length; i++) {
@@ -136,11 +136,11 @@ public class TestRobotsMetaProcessor {
       HTMLMetaTags robotsMeta = new HTMLMetaTags();
       HTMLMetaProcessor.getMetaTags(robotsMeta, node, currURLsAndAnswers[i][0]);
 
-      Assertions.assertTrue(robotsMeta.getNoIndex() == answers[i][0],
+      assertTrue(robotsMeta.getNoIndex() == answers[i][0],
           "got index wrong on test " + i);
-      Assertions.assertTrue(robotsMeta.getNoFollow() == answers[i][1],
+      assertTrue(robotsMeta.getNoFollow() == answers[i][1],
           "got follow wrong on test " + i);
-      Assertions.assertTrue(robotsMeta.getNoCache() == answers[i][2],
+      assertTrue(robotsMeta.getNoCache() == answers[i][2],
           "got cache wrong on test " + i);
       Assertions
           .assertTrue(

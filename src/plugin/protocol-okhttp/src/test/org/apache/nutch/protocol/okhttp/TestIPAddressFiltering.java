@@ -23,7 +23,7 @@ import java.util.function.Function;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -53,13 +53,13 @@ public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
   public void testCIDRcontains(String cidr, String ip) {
     CIDR c = new CIDR(cidr);
     InetAddress i = parseIP(ip);
-    Assertions.assertTrue(c.contains(i), i + " should be in " + c);
+    assertTrue(c.contains(i), i + " should be in " + c);
   }
 
   public void testCIDRnotContains(String cidr, String ip) {
     CIDR c = new CIDR(cidr);
     InetAddress i = parseIP(ip);
-    Assertions.assertFalse(c.contains(i), i + " should not be in " + c);
+    assertFalse(c.contains(i), i + " should not be in " + c);
   }
 
   /** Tests for {@link CIDR} */
@@ -93,11 +93,11 @@ public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
   public void testFilter(Configuration conf, String[] included, String[] excluded) {
     IPFilterRules ipFilterRules = new IPFilterRules(conf);
     for (String address : included) {
-      Assertions.assertTrue(ipFilterRules.accept(parseIP(address)),
+      assertTrue(ipFilterRules.accept(parseIP(address)),
           "Address " + address + " should be included");
     }
     for (String address : excluded) {
-      Assertions.assertFalse(ipFilterRules.accept(parseIP(address)),
+      assertFalse(ipFilterRules.accept(parseIP(address)),
           "Address " + address + " should be excluded");
     }
   }
@@ -139,12 +139,12 @@ public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
         pred = InetAddress::isSiteLocalAddress;
         break;
       default:
-        Assertions.fail("Unknown IP address type " + type);
+        fail("Unknown IP address type " + type);
       }
-      Assertions.assertTrue(pred.apply(addr),
+      assertTrue(pred.apply(addr),
           ipAddress + " is not recognized as " + type + " address");
     } catch (IllegalArgumentException e) {
-      Assertions.fail("Not a valid IP address string: " + ipAddress);
+      fail("Not a valid IP address string: " + ipAddress);
     }
   }
 

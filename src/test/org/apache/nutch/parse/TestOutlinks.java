@@ -16,15 +16,17 @@
  */
 package org.apache.nutch.parse;
 
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-@Tag("parse")
+@Tag("org.apache.nutch.parse")
+@Tag("core")
 public class TestOutlinks {
 
   @Test
@@ -35,7 +37,7 @@ public class TestOutlinks {
     set.add(o);
     set.add(o);
 
-    Assertions.assertEquals(1, set.size(), "Adding the same Outlink twice");
+    assertEquals(1, set.size(), "Adding the same Outlink twice");
   }
 
   @Test
@@ -45,11 +47,11 @@ public class TestOutlinks {
     Outlink o = new Outlink("http://www.example.com", "Example");
     Outlink o1 = new Outlink("http://www.example.com", "Example");
 
-    Assertions.assertTrue(o.equals(o1), "The two Outlink objects are the same");
+    assertTrue(o.equals(o1), "The two Outlink objects are the same");
 
     set.add(o);
     set.add(o1);
 
-    Assertions.assertEquals(1, set.size(), "The set should contain only 1 Outlink");
+    assertEquals(1, set.size(), "The set should contain only 1 Outlink");
   }
 }

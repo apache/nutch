@@ -29,7 +29,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.nutch.crawl.CrawlDbUpdateUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.TimingUtil;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -245,9 +245,9 @@ public class ContinuousCrawlTestUtil {
         values.add(fetchDatum);
         values.addAll(parse(fetchDatum));
         List<CrawlDatum> res = updateDb.update(values);
-        Assertions.assertNotNull(res, "null returned");
-        Assertions.assertFalse(0 == res.size(), "no CrawlDatum");
-        Assertions.assertEquals(1, res.size(), "more than one CrawlDatum");
+        assertNotNull(res, "null returned");
+        assertFalse(0 == res.size(), "no CrawlDatum");
+        assertEquals(1, res.size(), "more than one CrawlDatum");
         if (!check(res.get(0))) {
           LOG.info("previously in CrawlDb: " + copyDbDatum);
           LOG.info("after shouldFetch(): " + afterShouldFetch);

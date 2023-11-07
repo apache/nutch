@@ -24,7 +24,7 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -53,8 +53,8 @@ public class TestRegexParseFilter {
 
     Metadata meta = parse.getData().getParseMeta();
     
-    Assertions.assertEquals("true", meta.get("first"));
-    Assertions.assertEquals("true", meta.get("second"));
+    assertEquals("true", meta.get("first"));
+    assertEquals("true", meta.get("second"));
   }
   
   @Test
@@ -76,7 +76,7 @@ public class TestRegexParseFilter {
 
     Metadata meta = parse.getData().getParseMeta();
     
-    Assertions.assertEquals("false", meta.get("first"));
-    Assertions.assertEquals("false", meta.get("second"));
+    assertEquals("false", meta.get("first"));
+    assertEquals("false", meta.get("second"));
   }
 }

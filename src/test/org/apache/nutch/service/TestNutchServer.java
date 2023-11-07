@@ -20,7 +20,7 @@ import java.lang.invoke.MethodHandles;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -56,9 +56,9 @@ public class TestNutchServer {
       WebClient client = WebClient.create(ENDPOINT_ADDRESS + server.getPort());
       @SuppressWarnings("unused")
       Response response = client.path("admin").get();
-      Assertions.assertTrue(response.readEntity(String.class).contains("startDate"));
+      assertTrue(response.readEntity(String.class).contains("startDate"));
       response = client.path("stop").get();
-      Assertions.assertTrue(response.readEntity(String.class).contains("Stopping"));
+      assertTrue(response.readEntity(String.class).contains("Stopping"));
     }
   }
 

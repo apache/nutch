@@ -23,7 +23,7 @@ import java.io.Reader;
 import org.apache.nutch.net.*;
 // Nutch imports
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +40,7 @@ public class TestAutomatonURLFilter extends RegexURLFilterBaseTest {
     try {
       return new AutomatonURLFilter(rules);
     } catch (IOException e) {
-      Assertions.fail(e.toString());
+      fail(e.toString());
       return null;
     }
   }

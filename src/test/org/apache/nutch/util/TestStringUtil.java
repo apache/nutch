@@ -16,30 +16,35 @@
  */
 package org.apache.nutch.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.regex.Pattern;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for StringUtil methods. */
-@Tag("util")
+@Tag("org.apache.nutch.util")
+@Tag("core")
 public class TestStringUtil {
 
   public void testRightPad() {
     String s = "my string";
 
     String ps = StringUtil.rightPad(s, 0);
-    Assertions.assertTrue(s.equals(ps));
+    assertTrue(s.equals(ps));
 
     ps = StringUtil.rightPad(s, 9);
-    Assertions.assertTrue(s.equals(ps));
+    assertTrue(s.equals(ps));
 
     ps = StringUtil.rightPad(s, 10);
-    Assertions.assertTrue((s + " ").equals(ps));
+    assertTrue((s + " ").equals(ps));
 
     ps = StringUtil.rightPad(s, 15);
-    Assertions.assertTrue((s + "      ").equals(ps));
+    assertTrue((s + "      ").equals(ps));
   }
 
   @Test
@@ -47,38 +52,38 @@ public class TestStringUtil {
     String s = "my string";
 
     String ps = StringUtil.leftPad(s, 0);
-    Assertions.assertTrue(s.equals(ps));
+    assertTrue(s.equals(ps));
 
     ps = StringUtil.leftPad(s, 9);
-    Assertions.assertTrue(s.equals(ps));
+    assertTrue(s.equals(ps));
 
     ps = StringUtil.leftPad(s, 10);
-    Assertions.assertTrue((" " + s).equals(ps));
+    assertTrue((" " + s).equals(ps));
 
     ps = StringUtil.leftPad(s, 15);
-    Assertions.assertTrue(("      " + s).equals(ps));
+    assertTrue(("      " + s).equals(ps));
   }
 
   @Test
   public void testMaskPasswords() {
     String secret = "password";
     String masked = StringUtil.mask(secret);
-    Assertions.assertNotEquals(secret, masked);
-    Assertions.assertEquals(secret.length(), masked.length());
+    assertNotEquals(secret, masked);
+    assertEquals(secret.length(), masked.length());
 
     char mask = 'X';
     masked = StringUtil.mask(secret, mask);
-    Assertions.assertNotEquals(secret, masked);
-    Assertions.assertEquals(secret.length(), masked.length());
-    masked.chars().forEach((c) -> Assertions.assertEquals(mask, c));
+    assertNotEquals(secret, masked);
+    assertEquals(secret.length(), masked.length());
+    masked.chars().forEach((c) -> assertEquals(mask, c));
 
     String strWithSecret = "amqp://username:password@example.org:5672/virtualHost";
     Pattern maskPasswordPattern = Pattern.compile("^amqp://[^:]+:([^@]+)@");
     masked = StringUtil.mask(strWithSecret, maskPasswordPattern, mask);
-    Assertions.assertNotEquals(strWithSecret, masked);
-    Assertions.assertEquals(strWithSecret.length(), masked.length());
-    Assertions.assertFalse(masked.contains(secret));
-    Assertions.assertTrue(masked.contains(StringUtil.mask(secret, mask)));
+    assertNotEquals(strWithSecret, masked);
+    assertEquals(strWithSecret.length(), masked.length());
+    assertFalse(masked.contains(secret));
+    assertTrue(masked.contains(StringUtil.mask(secret, mask)));
   }
 
 }

@@ -16,15 +16,21 @@
  */
 package org.apache.nutch.protocol;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.ObjectCache;
-import org.junit.jupiter.api.Assertions;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("protocol")
+@Tag("org.apache.nutch.protocol")
+@Tag("core")
 public class TestProtocolFactory {
 
   Configuration conf;
@@ -44,11 +50,11 @@ public class TestProtocolFactory {
     // non existing protocol
     try {
       factory.getProtocol("xyzxyz://somehost");
-      Assertions.fail("Must throw ProtocolNotFound");
+      fail("Must throw ProtocolNotFound");
     } catch (ProtocolNotFound e) {
       // all is ok
     } catch (Exception ex) {
-      Assertions.fail("Must not throw any other exception");
+      fail("Must not throw any other exception");
     }
 
     Protocol httpProtocol = null;
@@ -56,26 +62,26 @@ public class TestProtocolFactory {
     // existing protocol
     try {
       httpProtocol = factory.getProtocol("http://somehost");
-      Assertions.assertNotNull(httpProtocol);
+      assertNotNull(httpProtocol);
     } catch (Exception ex) {
-      Assertions.fail("Must not throw any other exception");
+      fail("Must not throw any other exception");
     }
 
     // test same object instance
     try {
-      Assertions.assertTrue(httpProtocol == factory.getProtocol("http://somehost"));
+      assertTrue(httpProtocol == factory.getProtocol("http://somehost"));
     } catch (ProtocolNotFound e) {
-      Assertions.fail("Must not throw any exception");
+      fail("Must not throw any exception");
     }
   }
 
   @Test
   public void testContains() {
-    Assertions.assertTrue(factory.contains("http", "http"));
-    Assertions.assertTrue(factory.contains("http", "http,ftp"));
-    Assertions.assertTrue(factory.contains("http", "   http ,   ftp"));
-    Assertions.assertTrue(factory.contains("smb", "ftp,smb,http"));
-    Assertions.assertFalse(factory.contains("smb", "smbb"));
+    assertTrue(factory.contains("http", "http"));
+    assertTrue(factory.contains("http", "http,ftp"));
+    assertTrue(factory.contains("http", "   http ,   ftp"));
+    assertTrue(factory.contains("smb", "ftp,smb,http"));
+    assertFalse(factory.contains("smb", "smbb"));
   }
 
 }

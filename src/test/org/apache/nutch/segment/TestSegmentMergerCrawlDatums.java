@@ -31,7 +31,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -75,7 +75,7 @@ public class TestSegmentMergerCrawlDatums {
    */
   @Test
   public void testSingleRandomSequence() throws Exception {
-    Assertions.assertEquals(
+    assertEquals(
         Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS),
         Byte.valueOf(executeSequence(CrawlDatum.STATUS_FETCH_GONE,
             CrawlDatum.STATUS_FETCH_SUCCESS, 256, false)));
@@ -113,7 +113,7 @@ public class TestSegmentMergerCrawlDatums {
         segment3, segment4, segment5, segment6, segment7, segment8 });
     Byte status = Byte.valueOf(status = checkMergedSegment(testDir, mergedSegment));
 
-    Assertions.assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
 
   /**
@@ -134,7 +134,7 @@ public class TestSegmentMergerCrawlDatums {
 
       byte resultStatus = executeSequence(randomStatus, expectedStatus, rounds,
           withRedirects);
-      Assertions.assertEquals(expectedStatus, resultStatus,
+      assertEquals(expectedStatus, resultStatus,
           "Expected status = " + CrawlDatum.getStatusName(expectedStatus)
               + ", but got " + CrawlDatum.getStatusName(resultStatus)
               + " when merging " + rounds + " segments"
@@ -147,7 +147,7 @@ public class TestSegmentMergerCrawlDatums {
    */
   @Test
   public void testRandomTestSequenceWithRedirects() throws Exception {
-    Assertions.assertEquals(
+    assertEquals(
         Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS),
         Byte.valueOf(executeSequence(CrawlDatum.STATUS_FETCH_GONE,
             CrawlDatum.STATUS_FETCH_SUCCESS, 128, true)));
@@ -175,7 +175,7 @@ public class TestSegmentMergerCrawlDatums {
         segment3 });
     Byte status = Byte.valueOf(status = checkMergedSegment(testDir, mergedSegment));
 
-    Assertions.assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
 
   /**
@@ -195,7 +195,7 @@ public class TestSegmentMergerCrawlDatums {
     Path mergedSegment = merge(testDir, new Path[] { segment });
     Byte status = Byte.valueOf(status = checkMergedSegment(testDir, mergedSegment));
 
-    Assertions.assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
 
   /**
@@ -217,7 +217,7 @@ public class TestSegmentMergerCrawlDatums {
     Path mergedSegment = merge(testDir, new Path[] { segment1, segment2 });
     Byte status = Byte.valueOf(status = checkMergedSegment(testDir, mergedSegment));
 
-    Assertions.assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    assertEquals(Byte.valueOf(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
 
   /**
@@ -343,7 +343,7 @@ public class TestSegmentMergerCrawlDatums {
     merger.merge(out, segments, false, false, -1);
 
     FileStatus[] stats = fs.listStatus(out);
-    Assertions.assertEquals(1, stats.length);
+    assertEquals(1, stats.length);
 
     return stats[0].getPath();
   }

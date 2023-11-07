@@ -26,7 +26,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -57,12 +57,12 @@ public class TestHTMLLanguageParser {
       for (int t = 0; t < docs.length; t++) {
         Content content = getContent(docs[t]);
         Parse parse = parser.parse(content).get(content.getUrl());
-        Assertions.assertEquals(metalanguages[t], (String) parse.getData()
+        assertEquals(metalanguages[t], (String) parse.getData()
             .getParseMeta().get(Metadata.LANGUAGE));
       }
     } catch (Exception e) {
       e.printStackTrace(System.out);
-      Assertions.fail(e.toString());
+      fail(e.toString());
     }
 
   }
@@ -91,7 +91,7 @@ public class TestHTMLLanguageParser {
         { "torp, stuga, uthyres, bed & breakfast", null } };
 
     for (int i = 0; i < 44; i++) {
-      Assertions.assertEquals(tests[i][1],
+      assertEquals(tests[i][1],
           HTMLLanguageParser.LanguageParser.parseLanguage(tests[i][0]));
     }
   }
@@ -126,7 +126,7 @@ public class TestHTMLLanguageParser {
           testLine = testLine.trim();
           if (testLine.length() > 256) {
             lang = identifier.identifyLanguage(testLine);
-            Assertions.assertEquals(tokens[1], lang);
+            assertEquals(tokens[1], lang);
           }
         }
         testFile.close();
@@ -138,7 +138,7 @@ public class TestHTMLLanguageParser {
         lang = identifier.identifyLanguage(content);
         System.out.println(lang);
         total += System.currentTimeMillis() - start;
-        Assertions.assertEquals(tokens[1], lang);
+        assertEquals(tokens[1], lang);
       }
     }
     in.close();

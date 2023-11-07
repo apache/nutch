@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +33,7 @@ public class TestXlsxParser extends TikaParserTest {
     String expected = "test.txt This is a test for spreadsheets xlsx";
     // text is distributed over columns and rows, need to normalize white space
     found = found.replaceAll("\\s+", " ").trim();
-    Assertions.assertEquals(found, expected);
+    assertEquals(found, expected);
   }
 
 }

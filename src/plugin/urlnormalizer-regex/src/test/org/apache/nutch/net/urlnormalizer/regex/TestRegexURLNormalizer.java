@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -103,7 +103,7 @@ public class TestRegexURLNormalizer {
       String expected = urls[i].expectedURL;
       LOG.info("scope: " + scope + " url: " + url + " | normalized: "
           + normalized + " | expected: " + expected);
-      Assertions.assertEquals(urls[i].expectedURL, normalized);
+      assertEquals(urls[i].expectedURL, normalized);
     }
   }
 
@@ -118,7 +118,7 @@ public class TestRegexURLNormalizer {
         normalizeTest(expected, scope);
       }
     } catch (Exception e) {
-      Assertions.fail(e.toString());
+      fail(e.toString());
     }
     stopWatch.stop();
     LOG.info("bench time (" + loops + ") "

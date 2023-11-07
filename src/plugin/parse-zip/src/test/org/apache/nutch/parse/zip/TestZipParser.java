@@ -27,7 +27,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -60,7 +60,7 @@ public class TestZipParser {
           new CrawlDatum()).getContent();
       parse = new ParseUtil(conf).parseByExtensionId("parse-zip", content).get(
           content.getUrl());
-      Assertions.assertTrue(parse.getText().startsWith(expectedText),
+      assertTrue(parse.getText().startsWith(expectedText),
           "Extracted text does not start with <" + expectedText + ">: <"
               + parse.getText() + ">");
     }

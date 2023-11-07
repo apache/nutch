@@ -29,7 +29,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -84,7 +84,7 @@ public class TestCrawlDbDeduplication {
     args[1] = "-compareOrder";
     args[2] = "fetchTime,urlLength,score";
     int result = ToolRunner.run(conf, new DeduplicationJob(), args);
-    Assertions.assertEquals(0, result, "DeduplicationJob did not succeed");
+    assertEquals(0, result, "DeduplicationJob did not succeed");
     String url1 = "http://nutch.apache.org/";
     String url2 = "https://nutch.apache.org/";
     // url1 has been fetched earlier, so it should "survive" as "db_fetched":
@@ -99,7 +99,7 @@ public class TestCrawlDbDeduplication {
     args[1] = "-compareOrder";
     args[2] = "httpsOverHttp,fetchTime,urlLength,score";
     int result = ToolRunner.run(conf, new DeduplicationJob(), args);
-    Assertions.assertEquals(0, result, "DeduplicationJob did not succeed");
+    assertEquals(0, result, "DeduplicationJob did not succeed");
     String url1 = "http://nutch.apache.org/";
     String url2 = "https://nutch.apache.org/";
     // url2 is https://, so it should "survive" as "db_fetched":
@@ -109,8 +109,8 @@ public class TestCrawlDbDeduplication {
 
   private void checkStatus(String url, byte status) throws IOException {
     CrawlDatum datum = reader.get(testCrawlDb.toString(), url, conf);
-    Assertions.assertNotNull(datum, "No CrawlDatum found in CrawlDb for " + url);
-    Assertions.assertEquals(status, datum.getStatus(),
+    assertNotNull(datum, "No CrawlDatum found in CrawlDb for " + url);
+    assertEquals(status, datum.getStatus(),
         "Expected status for " + url + ": " + CrawlDatum.getStatusName(status));
   }
 
@@ -143,22 +143,22 @@ public class TestCrawlDbDeduplication {
   public void testCompareURLs() {
     // test same protocol, same length: no decision possible
     String url0 = "https://example.com/";
-    Assertions.assertNull(getDuplicateURL("httpsOverHttp,urlLength", url0, url0));
+    assertNull(getDuplicateURL("httpsOverHttp,urlLength", url0, url0));
     String url1 = "http://nutch.apache.org/";
     String url2 = "https://nutch.apache.org/";
     // test httpsOverHttp
-    Assertions.assertEquals(url1, getDuplicateURL("httpsOverHttp", url1, url2));
+    assertEquals(url1, getDuplicateURL("httpsOverHttp", url1, url2));
     // test urlLength
-    Assertions.assertEquals(url2, getDuplicateURL("urlLength", url1, url2));
+    assertEquals(url2, getDuplicateURL("urlLength", url1, url2));
     // test urlLength with percent-encoded URLs
     // "b%C3%BCcher" (unescaped "bücher") is shorter than "buecher"
     String url3 = "https://example.com/b%C3%BCcher";
     String url4 = "https://example.com/buecher";
-    Assertions.assertEquals(url4, getDuplicateURL("urlLength", url3, url4));
+    assertEquals(url4, getDuplicateURL("urlLength", url3, url4));
     // test NUTCH-2935: should not throw error on invalid percent-encoding
     String url5 = "https://example.com/%YR";
     String url6 = "https://example.com/%YR%YR";
-    Assertions.assertEquals(url6, getDuplicateURL("urlLength", url5, url6));
+    assertEquals(url6, getDuplicateURL("urlLength", url5, url6));
   }
 
 }

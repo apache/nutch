@@ -19,7 +19,7 @@ package org.apache.nutch.net.urlnormalizer.host;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -39,22 +39,22 @@ public class TestHostURLNormalizer {
     normalizer.setConf(conf);
 
     // Force www. sub domain when hitting link without sub domain
-    Assertions.assertEquals("http://www.example.org/page.html",
+    assertEquals("http://www.example.org/page.html",
         normalizer.normalize("http://example.org/page.html",
             URLNormalizers.SCOPE_DEFAULT));
 
     // Force no sub domain to www. URL's
-    Assertions.assertEquals("http://example.net/path/to/something.html", normalizer
+    assertEquals("http://example.net/path/to/something.html", normalizer
         .normalize("http://www.example.net/path/to/something.html",
             URLNormalizers.SCOPE_DEFAULT));
 
     // Force all sub domains to www.
-    Assertions.assertEquals("http://example.com/?does=it&still=work", normalizer
+    assertEquals("http://example.com/?does=it&still=work", normalizer
         .normalize("http://example.com/?does=it&still=work",
             URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://example.com/buh", normalizer.normalize(
+    assertEquals("http://example.com/buh", normalizer.normalize(
         "http://http.www.example.com/buh", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://example.com/blaat", normalizer.normalize(
+    assertEquals("http://example.com/blaat", normalizer.normalize(
         "http://whatever.example.com/blaat", URLNormalizers.SCOPE_DEFAULT));
   }
 }

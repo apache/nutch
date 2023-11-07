@@ -32,7 +32,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -135,8 +135,8 @@ public class TestCrawlDbMerger {
       System.out.println(" cd " + cd);
       System.out.println(" res " + res);
       // may not be null
-      Assertions.assertNotNull(res);
-      Assertions.assertTrue(cd.equals(res));
+      assertNotNull(res);
+      assertTrue(cd.equals(res));
     }
     reader.close();
     fs.delete(testDir, true);

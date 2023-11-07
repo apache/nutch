@@ -29,7 +29,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile.Reader.Option;
 import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -100,11 +100,11 @@ public class TestGenerator {
     Collections.sort(l, new ScoreComparator());
 
     // verify we got right amount of records
-    Assertions.assertEquals(NUM_RESULTS, l.size());
+    assertEquals(NUM_RESULTS, l.size());
 
     // verify we have the highest scoring urls
-    Assertions.assertEquals("http://aaa/100", (l.get(0).url.toString()));
-    Assertions.assertEquals("http://aaa/099", (l.get(1).url.toString()));
+    assertEquals("http://aaa/100", (l.get(0).url.toString()));
+    assertEquals("http://aaa/099", (l.get(1).url.toString()));
   }
 
   private String pad(int i) {
@@ -160,7 +160,7 @@ public class TestGenerator {
 
     // verify we got right amount of records
     int expectedFetchListSize = Math.min(maxPerHost, list.size());
-    Assertions.assertEquals(expectedFetchListSize, fetchList.size(),
+    assertEquals(expectedFetchListSize, fetchList.size(),
         "Failed to apply generate.max.count by host");
 
     maxPerHost = 2;
@@ -176,7 +176,7 @@ public class TestGenerator {
 
     // verify we got right amount of records
     expectedFetchListSize = Math.min(maxPerHost, list.size());
-    Assertions.assertEquals(expectedFetchListSize, fetchList.size(),
+    assertEquals(expectedFetchListSize, fetchList.size(),
         "Failed to apply generate.max.count by host");
 
     maxPerHost = 3;
@@ -192,7 +192,7 @@ public class TestGenerator {
 
     // verify we got right amount of records
     expectedFetchListSize = Math.min(maxPerHost, list.size());
-    Assertions.assertEquals(expectedFetchListSize, fetchList.size(),
+    assertEquals(expectedFetchListSize, fetchList.size(),
         "Failed to apply generate.max.count by host");
   }
 
@@ -228,7 +228,7 @@ public class TestGenerator {
 
     // verify we got right amount of records
     int expectedFetchListSize = Math.min(maxPerDomain, list.size());
-    Assertions.assertEquals(expectedFetchListSize, fetchList.size(),
+    assertEquals(expectedFetchListSize, fetchList.size(),
         "Failed to apply generate.max.count by domain");
 
     maxPerDomain = 2;
@@ -244,7 +244,7 @@ public class TestGenerator {
 
     // verify we got right amount of records
     expectedFetchListSize = Math.min(maxPerDomain, list.size());
-    Assertions.assertEquals(expectedFetchListSize, fetchList.size(),
+    assertEquals(expectedFetchListSize, fetchList.size(),
         "Failed to apply generate.max.count by domain");
 
     maxPerDomain = 3;
@@ -260,7 +260,7 @@ public class TestGenerator {
 
     // verify we got right amount of records
     expectedFetchListSize = Math.min(maxPerDomain, list.size());
-    Assertions.assertEquals(expectedFetchListSize, fetchList.size(),
+    assertEquals(expectedFetchListSize, fetchList.size(),
         "Failed to apply generate.max.count by domain");
   }
 
@@ -287,7 +287,7 @@ public class TestGenerator {
     Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
         myConfiguration, true);
 
-    Assertions.assertNull(generatedSegment, "should be null (0 entries)");
+    assertNull(generatedSegment, "should be null (0 entries)");
 
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
@@ -298,7 +298,7 @@ public class TestGenerator {
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
     // verify nothing got filtered
-    Assertions.assertEquals(list.size(), fetchList.size());
+    assertEquals(list.size(), fetchList.size());
 
   }
 

@@ -30,7 +30,7 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile.Reader.Option;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -89,10 +89,10 @@ public class TestInjector {
     Collections.sort(read);
     Collections.sort(urls);
 
-    Assertions.assertEquals(urls.size(), read.size());
+    assertEquals(urls.size(), read.size());
 
-    Assertions.assertTrue(read.containsAll(urls));
-    Assertions.assertTrue(urls.containsAll(read));
+    assertTrue(read.containsAll(urls));
+    assertTrue(urls.containsAll(read));
 
     // inject more urls
     ArrayList<String> urls2 = new ArrayList<String>();
@@ -115,10 +115,10 @@ public class TestInjector {
     Collections.sort(urls);
 
     // We should have 100 less records because we've overwritten
-    Assertions.assertEquals(urls.size() - 100, read.size());
+    assertEquals(urls.size() - 100, read.size());
 
-    Assertions.assertTrue(read.containsAll(urls));
-    Assertions.assertTrue(urls.containsAll(read));
+    assertTrue(read.containsAll(urls));
+    assertTrue(urls.containsAll(read));
 
     // Check if we correctly preserved MD
     Map<String, CrawlDatum> records = readCrawldbRecords();
@@ -130,11 +130,11 @@ public class TestInjector {
     for (String url : urls) {
       if (url.indexOf("http://zzz") == 0) {
         // Check for fetch interval
-        Assertions.assertTrue(records.get(url).getFetchInterval() == 171717);
+        assertTrue(records.get(url).getFetchInterval() == 171717);
         // Check for default score
-        Assertions.assertTrue(records.get(url).getScore() != 1.0);
+        assertTrue(records.get(url).getScore() != 1.0);
         // Check for MD key=value
-        Assertions.assertEquals(writableValue,
+        assertEquals(writableValue,
             records.get(url).getMetaData().get(writableKey));
       }
     }

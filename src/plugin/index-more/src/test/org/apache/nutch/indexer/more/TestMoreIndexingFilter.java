@@ -32,7 +32,7 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -61,7 +61,7 @@ public class TestMoreIndexingFilter {
     conf.setBoolean("moreIndexingFilter.indexMimeTypeParts", false);
     MoreIndexingFilter filter = new MoreIndexingFilter();
     filter.setConf(conf);
-    Assertions.assertNotNull(filter);
+    assertNotNull(filter);
     NutchDocument doc = new NutchDocument();
     ParseImpl parse = new ParseImpl("foo bar", new ParseData());
 
@@ -70,12 +70,12 @@ public class TestMoreIndexingFilter {
           new CrawlDatum(), new Inlinks());
     } catch (Exception e) {
       e.printStackTrace();
-      Assertions.fail(e.getMessage());
+      fail(e.getMessage());
     }
-    Assertions.assertNotNull(doc);
-    Assertions.assertTrue(doc.getFieldNames().contains("type"));
-    Assertions.assertEquals(1, doc.getField("type").getValues().size());
-    Assertions.assertEquals("text/html", doc.getFieldValue("type"));
+    assertNotNull(doc);
+    assertTrue(doc.getFieldNames().contains("type"));
+    assertEquals(1, doc.getField("type").getValues().size());
+    assertEquals("text/html", doc.getFieldValue("type"));
   }
 
   @Test
@@ -94,21 +94,21 @@ public class TestMoreIndexingFilter {
     NutchDocument doc = new NutchDocument();
     doc = filter.filter(doc, parseImpl, url, new CrawlDatum(), new Inlinks());
 
-    Assertions.assertEquals("filename.ext", doc.getFieldValue("title"),
+    assertEquals("filename.ext", doc.getFieldValue("title"),
         "content-disposition not detected");
 
     /* NUTCH-1140: do not add second title to avoid a multi-valued title field */
     doc = new NutchDocument();
     doc.add("title", "title");
     doc = filter.filter(doc, parseImpl, url, new CrawlDatum(), new Inlinks());
-    Assertions.assertEquals("title", doc.getFieldValue("title"),
+    assertEquals("title", doc.getFieldValue("title"),
         "do not add second title by content-disposition");
   }
 
   private void assertParts(String[] parts, int count, String... expected) {
-    Assertions.assertEquals(count, parts.length);
+    assertEquals(count, parts.length);
     for (int i = 0; i < expected.length; i++) {
-      Assertions.assertEquals(expected[i], parts[i]);
+      assertEquals(expected[i], parts[i]);
     }
   }
 
@@ -122,7 +122,7 @@ public class TestMoreIndexingFilter {
         "text", new ParseData(new ParseStatus(), "title", new Outlink[0],
             metadata)), new Text("http://www.example.com/"), new CrawlDatum(),
         new Inlinks());
-    Assertions.assertEquals(expected, doc.getFieldValue("type"),
+    assertEquals(expected, doc.getFieldValue("type"),
         "mime type not detected");
   }
 
@@ -150,7 +150,7 @@ public class TestMoreIndexingFilter {
 
     doc = filter.filter(doc, parseImpl, url, fetchDatum, new Inlinks());
 
-    Assertions.assertEquals(new Date(dateEpocheSeconds * 1000),
+    assertEquals(new Date(dateEpocheSeconds * 1000),
         doc.getFieldValue("date"),
         "last fetch date not extracted");
 
@@ -161,7 +161,7 @@ public class TestMoreIndexingFilter {
     parseImpl.getData().getParseMeta().set(Metadata.LAST_MODIFIED, lastModifiedDateStr);
     doc = filter.filter(doc, parseImpl, url, fetchDatum, new Inlinks());
 
-    Assertions.assertEquals(lastModifiedDate, doc.getFieldValue("lastModified"),
+    assertEquals(lastModifiedDate, doc.getFieldValue("lastModified"),
         "last-modified date not extracted");
   }
 }

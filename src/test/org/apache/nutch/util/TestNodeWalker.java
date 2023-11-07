@@ -16,18 +16,23 @@
  */
 package org.apache.nutch.util;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 
 import org.apache.xerces.parsers.DOMParser;
-import org.junit.jupiter.api.Assertions;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 /** Unit tests for NodeWalker methods. */
-@Tag("util")
+@Tag("org.apache.nutch.util")
+@Tag("core")
 public class TestNodeWalker {
 
   /* a snapshot of the nutch webpage */
@@ -76,7 +81,7 @@ public class TestNodeWalker {
         sb.append(text);
       }
     }
-    Assertions.assertTrue(findSomeUlContent(sb.toString()),
+    assertTrue(findSomeUlContent(sb.toString()),
         "UL Content can NOT be found in the node");
 
     StringBuffer sbSkip = new StringBuffer();
@@ -94,7 +99,7 @@ public class TestNodeWalker {
         sbSkip.append(text);
       }
     }
-    Assertions.assertFalse(findSomeUlContent(sbSkip.toString()),
+    assertFalse(findSomeUlContent(sbSkip.toString()),
         "UL Content can be found in the node");
   }
 

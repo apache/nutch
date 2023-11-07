@@ -29,7 +29,7 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -63,7 +63,7 @@ public class MimeTypeIndexingFilterTest {
   @Test
   public void testMissingConfigFile() throws Exception {
     String file = conf.get(MimeTypeIndexingFilter.MIMEFILTER_REGEX_FILE, "");
-    Assertions.assertEquals(String
+    assertEquals(String
         .format("Property %s must not be present in the the configuration file",
             MimeTypeIndexingFilter.MIMEFILTER_REGEX_FILE), "", file);
 
@@ -74,7 +74,7 @@ public class MimeTypeIndexingFilterTest {
       NutchDocument doc = filter.filter(new NutchDocument(), parses[i],
           new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
-      Assertions.assertNotNull(doc, "All documents must be allowed by default");
+      assertNotNull(doc, "All documents must be allowed by default");
     }
   }
 
@@ -88,9 +88,9 @@ public class MimeTypeIndexingFilterTest {
           new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
       if (MIME_TYPES[i].contains("image")) {
-        Assertions.assertNotNull(doc, "Allow only images");
+        assertNotNull(doc, "Allow only images");
       } else {
-        Assertions.assertNull(doc, "Block everything else");
+        assertNull(doc, "Block everything else");
       }
     }
   }
@@ -105,9 +105,9 @@ public class MimeTypeIndexingFilterTest {
           new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
       if (MIME_TYPES[i].contains("html")) {
-        Assertions.assertNull(doc, "Block only HTML documents");
+        assertNull(doc, "Block only HTML documents");
       } else {
-        Assertions.assertNotNull(doc, "Allow everything else");
+        assertNotNull(doc, "Allow everything else");
       }
     }
   }

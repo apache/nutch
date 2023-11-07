@@ -16,7 +16,7 @@
  */
 package org.apache.nutch.indexwriter.csv;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -127,7 +127,7 @@ public class TestCSVIndexWriter {
         "Apache Nutch is an open source web-search software project. ..." };
     String csv = getCSV(new String[0], fields);
     for (int i = 0; i < fields.length; i += 2) {
-      Assertions.assertTrue(csv.contains(fields[i + 1]),
+      assertTrue(csv.contains(fields[i + 1]),
           "Testing field " + i + " (" + fields[i] + ")");
     }
   }
@@ -137,7 +137,7 @@ public class TestCSVIndexWriter {
     String[] params = { CSVConstants.CSV_FIELDS, "test,test2" };
     String[] fields = { "test", "a,b", "test2", "c,d" };
     String csv = getCSV(params, fields);
-    Assertions.assertEquals("\"a,b\",\"c,d\"", csv.trim(),
+    assertEquals("\"a,b\",\"c,d\"", csv.trim(),
         "If field contains a fields separator, it must be quoted");
   }
 
@@ -146,7 +146,7 @@ public class TestCSVIndexWriter {
     String[] params = { CSVConstants.CSV_FIELDS, "test" };
     String[] fields = { "test", "a\nb" };
     String csv = getCSV(params, fields);
-    Assertions.assertEquals("\"a\nb\"", csv.trim(),
+    assertEquals("\"a\nb\"", csv.trim(),
         "If field contains a fields separator, it must be quoted");
   }
 
@@ -155,7 +155,7 @@ public class TestCSVIndexWriter {
     String[] params = { CSVConstants.CSV_FIELDS, "test" };
     String[] fields = { "test", "a,b:\"quote\",c" };
     String csv = getCSV(params, fields);
-    Assertions.assertEquals("\"a,b:\"\"quote\"\",c\"", csv.trim(),
+    assertEquals("\"a,b:\"\"quote\"\",c\"", csv.trim(),
         "Quotes inside a quoted field must be escaped");
   }
 
@@ -164,7 +164,7 @@ public class TestCSVIndexWriter {
     String[] params = { CSVConstants.CSV_FIELDS, "test" };
     String[] fields = { "test", "\"quote\"" };
     String csv = getCSV(params, fields);
-    Assertions.assertEquals("\"\"\"quote\"\"\"", csv.trim(),
+    assertEquals("\"\"\"quote\"\"\"", csv.trim(),
         "Leading quotes inside a quoted field must be escaped");
   }
 
@@ -174,7 +174,7 @@ public class TestCSVIndexWriter {
         CSVConstants.CSV_MAXFIELDLENGTH, "8" };
     String[] fields = { "test", "0123456789" };
     String csv = getCSV(params, fields);
-    Assertions.assertEquals("01234567", csv.trim(),
+    assertEquals("01234567", csv.trim(),
         "Field clipped to max. length = 8");
   }
 
@@ -184,7 +184,7 @@ public class TestCSVIndexWriter {
         CSVConstants.CSV_MAXFIELDLENGTH, "7" };
     String[] fields = { "test", "1,\"2\",3,\"4\"" };
     String csv = getCSV(params, fields);
-    Assertions.assertEquals("\"1,\"\"2\"\",3\"", csv.trim(),
+    assertEquals("\"1,\"\"2\"\",3\"", csv.trim(),
         "Field clipped to max. length = 7");
   }
 
@@ -195,7 +195,7 @@ public class TestCSVIndexWriter {
         CSVConstants.CSV_QUOTECHARACTER, "" };
     String[] fields = { "test", "abc", "test", "def" };
     String csv = getCSV(params, fields);
-    Assertions.assertEquals("abc|def", csv.trim(),
+    assertEquals("abc|def", csv.trim(),
         "Values of multi-value fields are concatenated by |");
   }
 
@@ -213,7 +213,7 @@ public class TestCSVIndexWriter {
           CSVConstants.CSV_CHARSET, charset };
       String[] fields = { "test", test };
       String csv = getCSV(params, fields);
-      Assertions.assertEquals(test, csv.trim(), "wrong charset conversion");
+      assertEquals(test, csv.trim(), "wrong charset conversion");
     }
   }
 
@@ -227,7 +227,7 @@ public class TestCSVIndexWriter {
     };
     String[] fields = { "test", "abc", "test", "def" };
     String csv = getCSV(params, fields);
-    Assertions.assertEquals("abc\u00a6def", csv.trim(),
+    assertEquals("abc\u00a6def", csv.trim(),
         "Values of multi-value fields are concatenated by ¦");
   }
 
@@ -249,9 +249,9 @@ public class TestCSVIndexWriter {
     docs[1].add("3", "C");
     String csv = getCSV(params, docs);
     String[] records = csv.trim().split("\\r\\n");
-    Assertions.assertEquals("a|b\ta\"2\"b\tc,d", records[0],
+    assertEquals("a|b\ta\"2\"b\tc,d", records[0],
         "tab-separated output");
-    Assertions.assertEquals("A\tB\tC", records[1],
+    assertEquals("A\tB\tC", records[1],
         "tab-separated output");
   }
 
@@ -263,7 +263,7 @@ public class TestCSVIndexWriter {
     docs[0] = new NutchDocument();
     docs[0].add("date", new Date(0)); // 1970-01-01
     String csv = getCSV(params, docs);
-    Assertions.assertTrue(csv.contains("1970"), "date conversion");
+    assertTrue(csv.contains("1970"), "date conversion");
   }
 }
 

@@ -17,7 +17,7 @@
 package org.apache.nutch.urlfilter.prefix;
 
 import java.io.IOException;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -66,7 +66,7 @@ public class TestPrefixURLFilter {
   @Test
   public void testModeAccept() {
     for (int i = 0; i < urls.length; i++) {
-      Assertions.assertTrue(urlsModeAccept[i] == filter.filter(urls[i]));
+      assertTrue(urlsModeAccept[i] == filter.filter(urls[i]));
     }
   }
 }

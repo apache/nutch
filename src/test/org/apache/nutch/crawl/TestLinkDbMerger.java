@@ -31,7 +31,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.MapFile.Writer.Option;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -122,7 +122,7 @@ public class TestLinkDbMerger {
       String[] vals = expected.get(url);
       Inlinks inlinks = reader.getInlinks(new Text(url));
       // may not be null
-      Assertions.assertNotNull(inlinks);
+      assertNotNull(inlinks);
       ArrayList<String> links = new ArrayList<String>();
       Iterator<?> it2 = inlinks.iterator();
       while (it2.hasNext()) {
@@ -131,7 +131,7 @@ public class TestLinkDbMerger {
       }
       for (int i = 0; i < vals.length; i++) {
         LOG.debug(" -> " + vals[i]);
-        Assertions.assertTrue(links.contains(vals[i]));
+        assertTrue(links.contains(vals[i]));
       }
     }
     reader.close();

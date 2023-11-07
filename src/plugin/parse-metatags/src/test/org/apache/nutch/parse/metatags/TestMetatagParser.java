@@ -31,7 +31,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -61,7 +61,7 @@ public class TestMetatagParser {
       metadata = parse.getData().getParseMeta();
     } catch (Exception e) {
       e.printStackTrace();
-      Assertions.fail(e.toString());
+      fail(e.toString());
     }
     return metadata;
   }
@@ -74,8 +74,8 @@ public class TestMetatagParser {
     // check that we get the same values
     Metadata parseMeta = parseMeta(sampleFile, conf);
 
-    Assertions.assertEquals(description, parseMeta.get("metatag.description"));
-    Assertions.assertEquals(keywords, parseMeta.get("metatag.keywords"));
+    assertEquals(description, parseMeta.get("metatag.description"));
+    assertEquals(keywords, parseMeta.get("metatag.keywords"));
   }
 
   @Test
@@ -95,7 +95,7 @@ public class TestMetatagParser {
     }
     String[] expectedValues1 = { "Doug Cutting", "Michael Cafarella" };
     for (String val : expectedValues1) {
-      Assertions.assertTrue(valueSet.contains(val), failMessage + val);
+      assertTrue(valueSet.contains(val), failMessage + val);
     }
 
     valueSet.clear();
@@ -105,7 +105,7 @@ public class TestMetatagParser {
     String[] expectedValues2 = { "robot d'indexation", "web crawler",
         "Webcrawler" };
     for (String val : expectedValues2) {
-      Assertions.assertTrue(valueSet.contains(val), failMessage + val);
+      assertTrue(valueSet.contains(val), failMessage + val);
     }
   }
 
@@ -125,7 +125,7 @@ public class TestMetatagParser {
 
       LOG.info("metatags ({}): {}", parsePlugin,
           Arrays.toString(parseMeta.getValues("metatag.keywords")));
-      Assertions.assertEquals(1, parseMeta.getValues("metatag.keywords").length,
+      assertEquals(1, parseMeta.getValues("metatag.keywords").length,
           "Test document contains a single value of <meta name=keywords>, " +
               "metatag.keywords should be also single-valued");
     }

@@ -16,6 +16,9 @@
  */
 package org.apache.nutch.indexer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -26,11 +29,12 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("indexer")
+@Tag("org.apache.nutch.indexer")
+@Tag("core")
 public class TestIndexingFilters {
 
   /**
@@ -69,7 +73,7 @@ public class TestIndexingFilters {
             new Metadata())), new Text("http://www.example.com/"),
         new CrawlDatum(), new Inlinks());
 
-    Assertions.assertNull(doc);
+    assertNull(doc);
   }
 
   /**
@@ -105,7 +109,7 @@ public class TestIndexingFilters {
     NutchDocument fdoc2 = filters2.filter(new NutchDocument(), new ParseImpl(
         "text", new ParseData(new ParseStatus(), "title", new Outlink[0], md)),
         new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
-    Assertions.assertEquals(fdoc1.getFieldNames().size(), fdoc2.getFieldNames()
+    assertEquals(fdoc1.getFieldNames().size(), fdoc2.getFieldNames()
         .size());
   }
 

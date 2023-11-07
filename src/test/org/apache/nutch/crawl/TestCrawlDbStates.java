@@ -37,7 +37,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.io.Text;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -182,12 +182,12 @@ public class TestCrawlDbStates {
             }
             List<CrawlDatum> res = updateDb.update(values);
             if (res.size() != 1) {
-              Assertions.fail("CrawlDb update didn't result in one single CrawlDatum per URL");
+              fail("CrawlDb update didn't result in one single CrawlDatum per URL");
               continue;
             }
             byte status = res.get(0).getStatus();
             if (status != toDbStatus) {
-              Assertions.fail("CrawlDb update for " + fromDbStatusName + " and "
+              fail("CrawlDb update for " + fromDbStatusName + " and "
                   + fetchStatusName + " and " + l + " inlinks results in "
                   + getStatusName(status) + " (expected: "
                   + getStatusName(toDbStatus) + ")");
@@ -245,12 +245,12 @@ public class TestCrawlDbStates {
         values.add(injected);
         List<CrawlDatum> res = injectDriver.update(values);
         if (res.size() != 1) {
-          Assertions.fail("Inject didn't result in one single CrawlDatum per URL");
+          fail("Inject didn't result in one single CrawlDatum per URL");
           continue;
         }
         byte status = res.get(0).getStatus();
         if (status != toDbStatus) {
-          Assertions.fail("Inject for "
+          fail("Inject for "
               + (fromDbStatus == -1 ? "" : getStatusName(fromDbStatus)
                   + " and ") + getStatusName(STATUS_INJECTED) + " results in "
               + getStatusName(status) + " (expected: "
@@ -289,7 +289,7 @@ public class TestCrawlDbStates {
       ContinuousCrawlTestUtil crawlUtil = new CrawlTestFetchNotModified(context);
       try {
         if (!crawlUtil.run(20)) {
-          Assertions.fail("failed: " + desc);
+          fail("failed: " + desc);
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -304,7 +304,7 @@ public class TestCrawlDbStates {
           context);
       try {
         if (!crawlUtil.run(20)) {
-          Assertions.fail("failed: " + desc);
+          fail("failed: " + desc);
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -490,7 +490,7 @@ public class TestCrawlDbStates {
         STATUS_FETCH_GONE, STATUS_DB_GONE);
     try {
       if (!crawlUtil.run(20)) {
-        Assertions.fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
+        fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -515,7 +515,7 @@ public class TestCrawlDbStates {
         STATUS_FETCH_GONE, STATUS_DB_GONE);
     try {
       if (!crawlUtil.run(0)) {
-        Assertions.fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
+        fail("fetch_gone did not result in a db_gone (NUTCH-1245)");
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -541,7 +541,7 @@ public class TestCrawlDbStates {
       ContinuousCrawlTestUtil crawlUtil = new CrawlTestSignatureReset(context);
       try {
         if (!crawlUtil.run(20)) {
-          Assertions.fail("failed: signature not reset");
+          fail("failed: signature not reset");
         }
       } catch (IOException e) {
         e.printStackTrace();

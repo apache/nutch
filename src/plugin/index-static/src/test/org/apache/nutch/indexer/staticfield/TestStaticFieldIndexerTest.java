@@ -23,7 +23,7 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -65,7 +65,7 @@ public class TestStaticFieldIndexerTest {
   @Test
   public void testEmptyIndexStatic() throws Exception {
 
-    Assertions.assertNotNull(filter);
+    assertNotNull(filter);
     filter.setConf(conf);
 
     NutchDocument doc = new NutchDocument();
@@ -74,11 +74,11 @@ public class TestStaticFieldIndexerTest {
       filter.filter(doc, parse, url, crawlDatum, inlinks);
     } catch (Exception e) {
       e.printStackTrace();
-      Assertions.fail(e.getMessage());
+      fail(e.getMessage());
     }
 
-    Assertions.assertNotNull(doc);
-    Assertions.assertTrue(doc.getFieldNames().isEmpty(),
+    assertNotNull(doc);
+    assertTrue(doc.getFieldNames().isEmpty(),
         "tests if no field is set for empty index.static");
   }
 
@@ -92,7 +92,7 @@ public class TestStaticFieldIndexerTest {
 
     conf.set("index.static",
         "field1:val1, field2    :      val2 val3     , field3, field4 :val4 , ");
-    Assertions.assertNotNull(filter);
+    assertNotNull(filter);
     filter.setConf(conf);
 
     NutchDocument doc = new NutchDocument();
@@ -101,19 +101,19 @@ public class TestStaticFieldIndexerTest {
       filter.filter(doc, parse, url, crawlDatum, inlinks);
     } catch (Exception e) {
       e.printStackTrace();
-      Assertions.fail(e.getMessage());
+      fail(e.getMessage());
     }
 
-    Assertions.assertNotNull(doc);
-    Assertions.assertFalse(doc.getFieldNames().isEmpty(),
+    assertNotNull(doc);
+    assertFalse(doc.getFieldNames().isEmpty(),
         "test if doc is not empty");
-    Assertions.assertEquals(3, doc.getFieldNames().size(),
+    assertEquals(3, doc.getFieldNames().size(),
         "test if doc has 3 fields");
-    Assertions.assertTrue(doc.getField("field1").getValues().contains("val1"),
+    assertTrue(doc.getField("field1").getValues().contains("val1"),
         "test if doc has field1");
-    Assertions.assertTrue(doc.getField("field2").getValues().contains("val2"),
+    assertTrue(doc.getField("field2").getValues().contains("val2"),
         "test if doc has field2");
-    Assertions.assertTrue(doc.getField("field4").getValues().contains("val4"),
+    assertTrue(doc.getField("field4").getValues().contains("val4"),
         "test if doc has field4");
   }
 
@@ -130,7 +130,7 @@ public class TestStaticFieldIndexerTest {
     conf.set("index.static.valuesep", "|");
     conf.set("index.static",
         "field1=val1>field2    =      val2|val3     >field3>field4 =val4 > ");
-    Assertions.assertNotNull(filter);
+    assertNotNull(filter);
     filter.setConf(conf);
 
     NutchDocument doc = new NutchDocument();
@@ -139,19 +139,19 @@ public class TestStaticFieldIndexerTest {
       filter.filter(doc, parse, url, crawlDatum, inlinks);
     } catch (Exception e) {
       e.printStackTrace();
-      Assertions.fail(e.getMessage());
+      fail(e.getMessage());
     }
 
-    Assertions.assertNotNull(doc);
-    Assertions.assertFalse(doc.getFieldNames().isEmpty(),
+    assertNotNull(doc);
+    assertFalse(doc.getFieldNames().isEmpty(),
         "test if doc is not empty");
-    Assertions.assertEquals(3, doc.getFieldNames().size(),
+    assertEquals(3, doc.getFieldNames().size(),
         "test if doc has 3 fields");
-    Assertions.assertTrue(doc.getField("field1").getValues().contains("val1"),
+    assertTrue(doc.getField("field1").getValues().contains("val1"),
         "test if doc has field1");
-    Assertions.assertTrue(doc.getField("field2").getValues().contains("val2"),
+    assertTrue(doc.getField("field2").getValues().contains("val2"),
         "test if doc has field2");
-    Assertions.assertTrue(doc.getField("field4").getValues().contains("val4"),
+    assertTrue(doc.getField("field4").getValues().contains("val4"),
         "test if doc has field4");
   }
 
@@ -168,7 +168,7 @@ public class TestStaticFieldIndexerTest {
     conf.set("index.static.valuesep", "***");
     conf.set("index.static", "field1\t\tval1\n\n" + "field2\t\tval2***val3\n\n"
         + "field3\n\n" + "field4\t\tval4\n\n\n\n");
-    Assertions.assertNotNull(filter);
+    assertNotNull(filter);
     filter.setConf(conf);
 
     NutchDocument doc = new NutchDocument();
@@ -177,19 +177,19 @@ public class TestStaticFieldIndexerTest {
       filter.filter(doc, parse, url, crawlDatum, inlinks);
     } catch (Exception e) {
       e.printStackTrace();
-      Assertions.fail(e.getMessage());
+      fail(e.getMessage());
     }
 
-    Assertions.assertNotNull(doc);
-    Assertions.assertFalse(doc.getFieldNames().isEmpty(),
+    assertNotNull(doc);
+    assertFalse(doc.getFieldNames().isEmpty(),
         "test if doc is not empty");
-    Assertions.assertEquals(3, doc.getFieldNames().size(),
+    assertEquals(3, doc.getFieldNames().size(),
         "test if doc has 3 fields");
-    Assertions.assertTrue(doc.getField("field1").getValues().contains("val1"),
+    assertTrue(doc.getField("field1").getValues().contains("val1"),
         "test if doc has field1");
-    Assertions.assertTrue(doc.getField("field2").getValues().contains("val2"),
+    assertTrue(doc.getField("field2").getValues().contains("val2"),
         "test if doc has field2");
-    Assertions.assertTrue(doc.getField("field4").getValues().contains("val4"),
+    assertTrue(doc.getField("field4").getValues().contains("val4"),
         "test if doc has field4");
   }
 }

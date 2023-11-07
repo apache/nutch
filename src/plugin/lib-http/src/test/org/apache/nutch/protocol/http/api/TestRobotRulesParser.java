@@ -18,7 +18,7 @@ package org.apache.nutch.protocol.http.api;
 
 import java.util.Set;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -102,7 +102,7 @@ public class TestRobotRulesParser {
       boolean[] results) {
     for (int counter = 0; counter < paths.length; counter++) {
       boolean res = rules.isAllowed(paths[counter]);
-      Assertions.assertTrue(res == results[counter],
+      assertTrue(res == results[counter],
           "testing on agent (" + agent + "), and " + "path " + paths[counter]
               + " got " + res + ", expected " + results[counter]);
     }
@@ -138,20 +138,20 @@ public class TestRobotRulesParser {
     // returned by the parser
     rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, Set.of(SINGLE_AGENT1.toLowerCase()));
-    Assertions.assertTrue((rules.getCrawlDelay() == 10000),
+    assertTrue((rules.getCrawlDelay() == 10000),
         "testing crawl delay for agent " + SINGLE_AGENT1 + " : ");
 
     // for SINGLE_AGENT2, the crawl delay of 20 seconds, i.e. 20000 msec must be
     // returned by the parser
     rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, Set.of(SINGLE_AGENT2.toLowerCase()));
-    Assertions.assertTrue((rules.getCrawlDelay() == 20000),
+    assertTrue((rules.getCrawlDelay() == 20000),
         "testing crawl delay for agent " + SINGLE_AGENT2 + " : ");
 
     // for UNKNOWN_AGENT, the default crawl delay must be returned.
     rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, Set.of(UNKNOWN_AGENT.toLowerCase()));
-    Assertions.assertTrue((rules.getCrawlDelay() == Long.MIN_VALUE),
+    assertTrue((rules.getCrawlDelay() == Long.MIN_VALUE),
         "testing crawl delay for agent " + UNKNOWN_AGENT + " : ");
   }
 
@@ -187,20 +187,20 @@ public class TestRobotRulesParser {
     // returned by the parser
     rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, SINGLE_AGENT1);
-    Assertions.assertTrue((rules.getCrawlDelay() == 10000),
+    assertTrue((rules.getCrawlDelay() == 10000),
         "testing crawl delay for agent " + SINGLE_AGENT1 + " : ");
 
     // for SINGLE_AGENT2, the crawl delay of 20 seconds, i.e. 20000 msec must be
     // returned by the parser
     rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, SINGLE_AGENT2);
-    Assertions.assertTrue((rules.getCrawlDelay() == 20000),
+    assertTrue((rules.getCrawlDelay() == 20000),
         "testing crawl delay for agent " + SINGLE_AGENT2 + " : ");
 
     // for UNKNOWN_AGENT, the default crawl delay must be returned.
     rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(),
         CONTENT_TYPE, UNKNOWN_AGENT);
-    Assertions.assertTrue((rules.getCrawlDelay() == Long.MIN_VALUE),
+    assertTrue((rules.getCrawlDelay() == Long.MIN_VALUE),
         "testing crawl delay for agent " + UNKNOWN_AGENT + " : ");
   }
 }

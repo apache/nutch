@@ -25,7 +25,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -53,7 +53,7 @@ public class TestOrphanScoringFilter {
     // Act as if record has inlinks
     filter.updateDbScore(url, null, datum, populatedListOfInlinks);
     int firstOrphanTime = getTime(datum);
-    Assertions.assertTrue(datum.getMetaData()
+    assertTrue(datum.getMetaData()
         .containsKey(OrphanScoringFilter.ORPHAN_KEY_WRITABLE));
 
     // Wait a little bit
@@ -65,14 +65,14 @@ public class TestOrphanScoringFilter {
     // Again, this time orphan time must be increased by about 1000 ms
     filter.updateDbScore(url, null, datum, populatedListOfInlinks);
     int secondOrphanTime = getTime(datum);
-    Assertions.assertTrue(secondOrphanTime > firstOrphanTime);
+    assertTrue(secondOrphanTime > firstOrphanTime);
 
     // Act as if no more inlinks, time will not increase, status is still the
     // same
     filter.updateDbScore(url, null, datum, emptyListOfInlinks);
     int thirdOrphanTime = getTime(datum);
-    Assertions.assertEquals(thirdOrphanTime, secondOrphanTime);
-    Assertions.assertEquals(CrawlDatum.STATUS_DB_NOTMODIFIED, datum.getStatus(),
+    assertEquals(thirdOrphanTime, secondOrphanTime);
+    assertEquals(CrawlDatum.STATUS_DB_NOTMODIFIED, datum.getStatus(),
         "Expected status db_notmodified but got "
             + CrawlDatum.getStatusName(datum.getStatus()));
 
@@ -85,7 +85,7 @@ public class TestOrphanScoringFilter {
     // Act as if no more inlinks, time will not increase, status is still the
     // same
     filter.updateDbScore(url, null, datum, emptyListOfInlinks);
-    Assertions.assertEquals(CrawlDatum.STATUS_DB_NOTMODIFIED, datum.getStatus(),
+    assertEquals(CrawlDatum.STATUS_DB_NOTMODIFIED, datum.getStatus(),
         "Expected status db_notmodified but got "
             + CrawlDatum.getStatusName(datum.getStatus()));
 
@@ -98,8 +98,8 @@ public class TestOrphanScoringFilter {
     // Again, but now markgoneafter has expired and record should be DB_GONE
     filter.updateDbScore(url, null, datum, emptyListOfInlinks);
     int fourthOrphanTime = getTime(datum);
-    Assertions.assertEquals(fourthOrphanTime, thirdOrphanTime);
-    Assertions.assertEquals(CrawlDatum.STATUS_DB_GONE, datum.getStatus(),
+    assertEquals(fourthOrphanTime, thirdOrphanTime);
+    assertEquals(CrawlDatum.STATUS_DB_GONE, datum.getStatus(),
         "Expected status db_gone but got "
             + CrawlDatum.getStatusName(datum.getStatus()));
 
@@ -111,7 +111,7 @@ public class TestOrphanScoringFilter {
 
     // Again, but now markgoneafter has expired and record should be DB_ORPHAN
     filter.updateDbScore(url, null, datum, emptyListOfInlinks);
-    Assertions.assertEquals(CrawlDatum.STATUS_DB_ORPHAN, datum.getStatus(),
+    assertEquals(CrawlDatum.STATUS_DB_ORPHAN, datum.getStatus(),
         "Expected status db_orphan but got "
             + CrawlDatum.getStatusName(datum.getStatus()));
   }

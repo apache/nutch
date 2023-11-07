@@ -16,15 +16,22 @@
  */
 package org.apache.nutch.net;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.net.MalformedURLException;
 
 import org.apache.hadoop.conf.Configuration;
+
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("net")
+@Tag("org.apache.nutch.net")
+@Tag("core")
 public class TestURLNormalizers {
 
   @Test
@@ -37,12 +44,12 @@ public class TestURLNormalizers {
     URLNormalizers normalizers = new URLNormalizers(conf,
         URLNormalizers.SCOPE_DEFAULT);
 
-    Assertions.assertNotNull(normalizers);
+    assertNotNull(normalizers);
     try {
       normalizers.normalize("http://www.example.com/",
           URLNormalizers.SCOPE_DEFAULT);
     } catch (MalformedURLException mue) {
-      Assertions.fail(mue.toString());
+      fail(mue.toString());
     }
 
     // NUTCH-1011 - Get rid of superfluous slashes
@@ -50,10 +57,10 @@ public class TestURLNormalizers {
       String normalizedSlashes = normalizers.normalize(
           "http://www.example.com//path/to//somewhere.html",
           URLNormalizers.SCOPE_DEFAULT);
-      Assertions.assertEquals(normalizedSlashes,
+      assertEquals(normalizedSlashes,
           "http://www.example.com/path/to/somewhere.html");
     } catch (MalformedURLException mue) {
-      Assertions.fail(mue.toString());
+      fail(mue.toString());
     }
 
     // HostNormalizer NUTCH-1319
@@ -61,10 +68,10 @@ public class TestURLNormalizers {
       String normalizedHost = normalizers.normalize(
           "http://www.example.org//path/to//somewhere.html",
           URLNormalizers.SCOPE_DEFAULT);
-      Assertions.assertEquals(normalizedHost,
+      assertEquals(normalizedHost,
           "http://www.example.org/path/to/somewhere.html");
     } catch (MalformedURLException mue) {
-      Assertions.fail(mue.toString());
+      fail(mue.toString());
     }
 
     // check the order
@@ -78,8 +85,7 @@ public class TestURLNormalizers {
         pos2 = i;
     }
     if (pos1 != -1 && pos2 != -1) {
-      Assertions.assertTrue(pos1 < pos2,
-          "RegexURLNormalizer before BasicURLNormalizer");
+      assertTrue(pos1 < pos2, "RegexURLNormalizer before BasicURLNormalizer");
     }
   }
 }

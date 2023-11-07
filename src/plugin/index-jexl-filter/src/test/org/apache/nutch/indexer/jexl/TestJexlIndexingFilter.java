@@ -27,7 +27,7 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +41,7 @@ public class TestJexlIndexingFilter implements TestExecutionExceptionHandler {
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     filter.setConf(conf);
-    Assertions.assertNotNull(filter);
+    assertNotNull(filter);
 
     NutchDocument doc = new NutchDocument();
 
@@ -64,8 +64,8 @@ public class TestJexlIndexingFilter implements TestExecutionExceptionHandler {
 
     NutchDocument result = filter.filter(doc, parse,
         new Text("http://nutch.apache.org/index.html"), crawlDatum, inlinks);
-    Assertions.assertNotNull(result);
-    Assertions.assertEquals(doc, result);
+    assertNotNull(result);
+    assertEquals(doc, result);
   }
 
   @Test
@@ -75,7 +75,7 @@ public class TestJexlIndexingFilter implements TestExecutionExceptionHandler {
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     filter.setConf(conf);
-    Assertions.assertNotNull(filter);
+    assertNotNull(filter);
 
     NutchDocument doc = new NutchDocument();
 
@@ -98,13 +98,13 @@ public class TestJexlIndexingFilter implements TestExecutionExceptionHandler {
 
     NutchDocument result = filter.filter(doc, parse,
         new Text("http://nutch.apache.org/index.html"), crawlDatum, inlinks);
-    Assertions.assertNull(result);
+    assertNull(result);
   }
 
   @Test
   public void testMissingConfiguration() {
     Configuration conf = NutchConfiguration.create();
-    Assertions.assertThrows(RuntimeException.class, 
+    assertThrows(RuntimeException.class, 
         ()->{new JexlIndexingFilter();});
   }
 
@@ -112,7 +112,7 @@ public class TestJexlIndexingFilter implements TestExecutionExceptionHandler {
   public void testInvalidExpression() {
     Configuration conf = NutchConfiguration.create();
     conf.set("index.jexl.filter", "doc.lang=<>:='en'");
-    JexlIndexingFilter filter = Assertions.assertThrows(RuntimeException.class,
+    JexlIndexingFilter filter = assertThrows(RuntimeException.class,
         ()->{new JexlIndexingFilter();});
   }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -24,11 +26,11 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.io.Files;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("util")
+@Tag("org.apache.nutch.util")
+@Tag("core")
 public class TestMimeUtil {
 
   public static String urlPrefix = "http://localhost/";
@@ -104,7 +106,7 @@ public class TestMimeUtil {
     for (String[] testPage : textBasedFormats) {
       String mimeType = getMimeType(urlPrefix,
           testPage[3].getBytes(defaultCharset), testPage[2], true);
-      Assertions.assertEquals("", testPage[0], mimeType);
+      assertEquals("", testPage[0], mimeType);
     }
   }
 
@@ -117,7 +119,7 @@ public class TestMimeUtil {
       }
       String mimeType = getMimeType(urlPrefix + testPage[1],
           testPage[3].getBytes(defaultCharset), testPage[2], false);
-      Assertions.assertEquals("", testPage[0], mimeType);
+      assertEquals("", testPage[0], mimeType);
     }
   }
 
@@ -127,7 +129,7 @@ public class TestMimeUtil {
     for (String[] testPage : textBasedFormats) {
       String mimeType = getMimeType(urlPrefix,
           testPage[3].getBytes(defaultCharset), "", true);
-      Assertions.assertEquals("", testPage[0], mimeType);
+      assertEquals("", testPage[0], mimeType);
     }
   }
 
@@ -138,7 +140,7 @@ public class TestMimeUtil {
       File dataFile = new File(sampleDir, testPage[1]);
       String mimeType = getMimeType(urlPrefix + testPage[1], dataFile,
           testPage[2], false);
-      Assertions.assertEquals("", testPage[0], mimeType);
+      assertEquals("", testPage[0], mimeType);
     }
   }
 

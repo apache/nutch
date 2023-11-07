@@ -21,7 +21,8 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-@Tag("net")
+@Tag("org.apache.nutch.net")
+@Tag("core")
 public class TestURLFilters {
 
   /**
@@ -35,7 +36,6 @@ public class TestURLFilters {
     String class1 = "NonExistingFilter";
     String class2 = "org.apache.nutch.urlfilter.prefix.PrefixURLFilter";
     conf.set(URLFilters.URLFILTER_ORDER, class1 + " " + class2);
-
     URLFilters normalizers = new URLFilters(conf);
     normalizers.filter("http://someurl/");
   }

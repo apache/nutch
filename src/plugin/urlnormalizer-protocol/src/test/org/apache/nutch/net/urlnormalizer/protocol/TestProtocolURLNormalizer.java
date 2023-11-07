@@ -19,7 +19,7 @@ package org.apache.nutch.net.urlnormalizer.protocol;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -38,61 +38,61 @@ public class TestProtocolURLNormalizer {
     normalizer.setConf(conf);
 
     // No change
-    Assertions.assertEquals("http://example.org/", normalizer
+    assertEquals("http://example.org/", normalizer
         .normalize("https://example.org/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://example.net/", normalizer
+    assertEquals("http://example.net/", normalizer
         .normalize("https://example.net/", URLNormalizers.SCOPE_DEFAULT));
 
     // https to http
-    Assertions.assertEquals("http://example.org/", normalizer
+    assertEquals("http://example.org/", normalizer
         .normalize("https://example.org/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://example.net/", normalizer
+    assertEquals("http://example.net/", normalizer
         .normalize("https://example.net/", URLNormalizers.SCOPE_DEFAULT));
 
     // no change
-    Assertions.assertEquals("https://example.io/", normalizer
+    assertEquals("https://example.io/", normalizer
         .normalize("https://example.io/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("https://example.nl/", normalizer
+    assertEquals("https://example.nl/", normalizer
         .normalize("https://example.nl/", URLNormalizers.SCOPE_DEFAULT));
     
     // http to https
-    Assertions.assertEquals("https://example.io/", normalizer
+    assertEquals("https://example.io/", normalizer
         .normalize("http://example.io/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("https://example.nl/", normalizer
+    assertEquals("https://example.nl/", normalizer
         .normalize("http://example.nl/", URLNormalizers.SCOPE_DEFAULT));
 
     // verify proper (de)serialization of URLs
-    Assertions.assertEquals("https://example.io/path?q=uery", normalizer.normalize(
+    assertEquals("https://example.io/path?q=uery", normalizer.normalize(
         "http://example.io/path?q=uery", URLNormalizers.SCOPE_DEFAULT));
 
     // verify that URLs including a port are left unchanged (port and protocol
     // are kept)
-    Assertions.assertEquals("http://example.io:8080/path?q=uery", normalizer.normalize(
+    assertEquals("http://example.io:8080/path?q=uery", normalizer.normalize(
         "http://example.io:8080/path?q=uery", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("https://example.org:8443/path", normalizer.normalize(
+    assertEquals("https://example.org:8443/path", normalizer.normalize(
         "https://example.org:8443/path", URLNormalizers.SCOPE_DEFAULT));
 
     // verify normalization of all subdomains (host pattern *.example.com)
-    Assertions.assertEquals("https://example.com/", normalizer
+    assertEquals("https://example.com/", normalizer
         .normalize("http://example.com/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("https://www.example.com/", normalizer
+    assertEquals("https://www.example.com/", normalizer
         .normalize("http://www.example.com/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("https://www.subdomain.example.com/", normalizer.normalize(
+    assertEquals("https://www.subdomain.example.com/", normalizer.normalize(
         "http://www.subdomain.example.com/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://myexample.com/", normalizer
+    assertEquals("http://myexample.com/", normalizer
         .normalize("http://myexample.com/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://www.subdomain.example.com:8080/path?q=uery",
+    assertEquals("http://www.subdomain.example.com:8080/path?q=uery",
         normalizer.normalize(
             "http://www.subdomain.example.com:8080/path?q=uery",
             URLNormalizers.SCOPE_DEFAULT));
 
     // No change because of invalid rules in protocols.txt
     // (verify that these rules are skipped)
-    Assertions.assertEquals("http://invalid-rule3.example.top/", normalizer
+    assertEquals("http://invalid-rule3.example.top/", normalizer
         .normalize("http://invalid-rule3.example.top/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://invalid-rule2.example.top/", normalizer
+    assertEquals("http://invalid-rule2.example.top/", normalizer
         .normalize("http://invalid-rule2.example.top/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://invalid-rule3.example.top/", normalizer
+    assertEquals("http://invalid-rule3.example.top/", normalizer
         .normalize("http://invalid-rule3.example.top/", URLNormalizers.SCOPE_DEFAULT));
   }
 }

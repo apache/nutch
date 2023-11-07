@@ -16,9 +16,16 @@
  */
 package org.apache.nutch.indexer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.lang.invoke.MethodHandles;
 
 import org.apache.commons.codec.binary.Base64;
+
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+
 import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
 import org.apache.hadoop.mrunit.types.Pair;
 import org.apache.hadoop.util.StringUtils;
@@ -32,15 +39,12 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Reducer;
-
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -51,7 +55,8 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 
 /** Test {@link IndexerMapReduce} */
-@Tag("indexer")
+@Tag("org.apache.nutch.indexer")
+@Tag("core")
 public class TestIndexerMapReduce {
 
   private static final Logger LOG = LoggerFactory
@@ -130,7 +135,7 @@ public class TestIndexerMapReduce {
 
       NutchDocument doc = runIndexer(crawlDatumDbFetched,
           crawlDatumFetchSuccess, parseText, parseData, content);
-      Assertions.assertNotNull(doc, "No NutchDocument indexed");
+      assertNotNull(doc, "No NutchDocument indexed");
 
       String binaryContentBase64 = (String) doc.getField("binaryContent")
           .getValues().get(0);
@@ -138,7 +143,7 @@ public class TestIndexerMapReduce {
       String binaryContent = new String(
           Base64.decodeBase64(binaryContentBase64), charset);
       LOG.info("binary content (decoded): {}", binaryContent);
-      Assertions.assertEquals(
+      assertEquals(
           "Binary content (" + charset + ") not correctly saved as base64",
           htmlDoc, binaryContent);
     }

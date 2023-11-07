@@ -21,12 +21,12 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for ParseText. */
-@Tag("parse")
+@Tag("org.apache.nutch.parse")
+@Tag("core")
 public class TestParseText {
 
   @Test
   public void testParseText() throws Exception {
-
     String page = "Hello World The Quick Brown Fox Jumped Over the Lazy Fox";
     ParseText s = new ParseText(page);
     WritableTestUtils.testWritable(s);

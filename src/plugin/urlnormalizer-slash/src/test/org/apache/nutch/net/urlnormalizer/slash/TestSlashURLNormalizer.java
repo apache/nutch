@@ -19,7 +19,7 @@ package org.apache.nutch.net.urlnormalizer.slash;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -39,37 +39,37 @@ public class TestSlashURLNormalizer {
     normalizer.setConf(conf);
 
     // No change
-    Assertions.assertEquals("http://example.org/", normalizer.normalize("http://example.org/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://example.net/", normalizer.normalize("http://example.net/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.org/", normalizer.normalize("http://example.org/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.net/", normalizer.normalize("http://example.net/", URLNormalizers.SCOPE_DEFAULT));
     
     // Don't touch base URL's
-    Assertions.assertEquals("http://example.org", normalizer.normalize("http://example.org", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://example.net", normalizer.normalize("http://example.net", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://example.org/", normalizer.normalize("http://example.org/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://example.net/", normalizer.normalize("http://example.net/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.org", normalizer.normalize("http://example.org", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.net", normalizer.normalize("http://example.net", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.org/", normalizer.normalize("http://example.org/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.net/", normalizer.normalize("http://example.net/", URLNormalizers.SCOPE_DEFAULT));
     
     // Change
-    Assertions.assertEquals("http://www.example.org/page/", normalizer.normalize("http://www.example.org/page", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://www.example.net/path/to/something", normalizer.normalize("http://www.example.net/path/to/something/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://www.example.org/page/", normalizer.normalize("http://www.example.org/page", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://www.example.net/path/to/something", normalizer.normalize("http://www.example.net/path/to/something/", URLNormalizers.SCOPE_DEFAULT));
     
     // No change
-    Assertions.assertEquals("http://example.org/buh/", normalizer.normalize("http://example.org/buh/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://example.net/blaat", normalizer.normalize("http://example.net/blaat", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.org/buh/", normalizer.normalize("http://example.org/buh/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.net/blaat", normalizer.normalize("http://example.net/blaat", URLNormalizers.SCOPE_DEFAULT));
     
     // No change
-    Assertions.assertEquals("http://example.nl/buh/", normalizer.normalize("http://example.nl/buh/", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://example.de/blaat", normalizer.normalize("http://example.de/blaat", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.nl/buh/", normalizer.normalize("http://example.nl/buh/", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://example.de/blaat", normalizer.normalize("http://example.de/blaat", URLNormalizers.SCOPE_DEFAULT));
     
     // Change
-    Assertions.assertEquals("http://www.example.org/page/?a=b&c=d", normalizer.normalize("http://www.example.org/page?a=b&c=d", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://www.example.net/path/to/something?a=b&c=d", normalizer.normalize("http://www.example.net/path/to/something/?a=b&c=d", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://www.example.org/page/?a=b&c=d", normalizer.normalize("http://www.example.org/page?a=b&c=d", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://www.example.net/path/to/something?a=b&c=d", normalizer.normalize("http://www.example.net/path/to/something/?a=b&c=d", URLNormalizers.SCOPE_DEFAULT));
     
     // No change
-    Assertions.assertEquals("http://www.example.org/noise.mp3", normalizer.normalize("http://www.example.org/noise.mp3", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://www.example.org/page.html", normalizer.normalize("http://www.example.org/page.html", URLNormalizers.SCOPE_DEFAULT));
-    Assertions.assertEquals("http://www.example.org/page.shtml", normalizer.normalize("http://www.example.org/page.shtml", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://www.example.org/noise.mp3", normalizer.normalize("http://www.example.org/noise.mp3", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://www.example.org/page.html", normalizer.normalize("http://www.example.org/page.html", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://www.example.org/page.shtml", normalizer.normalize("http://www.example.org/page.shtml", URLNormalizers.SCOPE_DEFAULT));
 
     // Change
-    Assertions.assertEquals("http://www.example.org/this.is.not.an_extension/", normalizer.normalize("http://www.example.org/this.is.not.an_extension", URLNormalizers.SCOPE_DEFAULT));
+    assertEquals("http://www.example.org/this.is.not.an_extension/", normalizer.normalize("http://www.example.org/this.is.not.an_extension", URLNormalizers.SCOPE_DEFAULT));
   }
 }

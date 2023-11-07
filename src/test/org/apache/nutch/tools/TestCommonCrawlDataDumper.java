@@ -16,7 +16,7 @@
  */
 package org.apache.nutch.tools;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -105,7 +105,7 @@ public class TestCommonCrawlDataDumper {
         FileFilterUtils.directoryFileFilter());
 
     for (String expectedFileName : crawledFiles) {
-      Assertions.assertTrue(hasFile(expectedFileName, tempFiles),
+      assertTrue(hasFile(expectedFileName, tempFiles),
           "Missed file " + expectedFileName + " in dump");
     }
 

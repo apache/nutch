@@ -29,7 +29,7 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.StringUtil;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -46,14 +46,14 @@ public class TestTextProfileSignature {
         new Outlink[0], new Metadata());
     byte[] signature1 = textProf.calculate(new Content(),
         new ParseImpl(text, pd));
-    Assertions.assertNotNull(signature1);
+    assertNotNull(signature1);
     List<String> words = Arrays.asList(text.split("\\s"));
     Collections.shuffle(words);
     String text2 = String.join(" ", words);
     byte[] signature2 = textProf.calculate(new Content(),
         new ParseImpl(text2, pd));
-    Assertions.assertNotNull(signature2);
-    Assertions.assertEquals(StringUtil.toHexString(signature1),
+    assertNotNull(signature2);
+    assertEquals(StringUtil.toHexString(signature1),
         StringUtil.toHexString(signature2));
   }
 }

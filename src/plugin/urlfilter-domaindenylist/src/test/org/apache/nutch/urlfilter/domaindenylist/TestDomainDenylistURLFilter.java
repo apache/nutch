@@ -16,7 +16,7 @@
  */
 package org.apache.nutch.urlfilter.domaindenylist;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.apache.hadoop.conf.Configuration;
@@ -36,16 +36,16 @@ public class TestDomainDenylistURLFilter {
     conf.set("urlfilter.domaindenylist.file", domainDenylistFile);
     DomainDenylistURLFilter domainDenylistFilter = new DomainDenylistURLFilter();
     domainDenylistFilter.setConf(conf);
-    Assertions.assertNull(domainDenylistFilter.filter("http://lucene.apache.org"));
-    Assertions.assertNull(domainDenylistFilter.filter("http://hadoop.apache.org"));
-    Assertions.assertNull(domainDenylistFilter.filter("http://www.apache.org"));
-    Assertions.assertNotNull(domainDenylistFilter.filter("http://www.google.com"));
-    Assertions.assertNotNull(domainDenylistFilter.filter("http://mail.yahoo.com"));
-    Assertions.assertNull(domainDenylistFilter.filter("http://www.foobar.net"));
-    Assertions.assertNull(domainDenylistFilter.filter("http://www.foobas.net"));
-    Assertions.assertNull(domainDenylistFilter.filter("http://www.yahoo.com"));
-    Assertions.assertNull(domainDenylistFilter.filter("http://www.foobar.be"));
-    Assertions.assertNotNull(domainDenylistFilter.filter("http://www.adobe.com"));
+    assertNull(domainDenylistFilter.filter("http://lucene.apache.org"));
+    assertNull(domainDenylistFilter.filter("http://hadoop.apache.org"));
+    assertNull(domainDenylistFilter.filter("http://www.apache.org"));
+    assertNotNull(domainDenylistFilter.filter("http://www.google.com"));
+    assertNotNull(domainDenylistFilter.filter("http://mail.yahoo.com"));
+    assertNull(domainDenylistFilter.filter("http://www.foobar.net"));
+    assertNull(domainDenylistFilter.filter("http://www.foobas.net"));
+    assertNull(domainDenylistFilter.filter("http://www.yahoo.com"));
+    assertNull(domainDenylistFilter.filter("http://www.foobar.be"));
+    assertNotNull(domainDenylistFilter.filter("http://www.adobe.com"));
   }
 
 }

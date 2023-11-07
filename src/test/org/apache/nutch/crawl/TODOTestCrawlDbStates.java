@@ -26,7 +26,7 @@ import org.apache.nutch.util.TimingUtil;
 
 import org.apache.hadoop.mapreduce.Reducer.Context;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class TODOTestCrawlDbStates extends TestCrawlDbStates {
     // keep going for long, to "provoke" a retry counter overflow
     try {
       if (!crawlUtil.run(150)) {
-        Assertions.fail("fetch_retry did not result in a db_gone if retry counter > maxRetries (NUTCH-578)");
+        fail("fetch_retry did not result in a db_gone if retry counter > maxRetries (NUTCH-578)");
       }
     } catch (IOException e) {
       e.printStackTrace();
@@ -133,7 +133,7 @@ public class TODOTestCrawlDbStates extends TestCrawlDbStates {
     crawlUtil.setInterval(FetchSchedule.SECONDS_PER_DAY / 3);
     try {
       if (!crawlUtil.run(100)) {
-        Assertions.fail("failed: sync_delta calculation with AdaptiveFetchSchedule");
+        fail("failed: sync_delta calculation with AdaptiveFetchSchedule");
       }
     } catch (IOException e) {
       e.printStackTrace();

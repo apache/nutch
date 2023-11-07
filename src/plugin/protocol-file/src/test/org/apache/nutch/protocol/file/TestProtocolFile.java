@@ -27,7 +27,7 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -73,20 +73,20 @@ public class TestProtocolFile {
    */
   public void setContentType(String testTextFile) throws ProtocolException {
     String urlString = "file:" + sampleDir + fileSeparator + testTextFile;
-    Assertions.assertNotNull(urlString);
+    assertNotNull(urlString);
     Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
     ProtocolOutput output = protocol.getProtocolOutput(new Text(urlString),
         datum);
-    Assertions.assertNotNull(output);
-    Assertions.assertEquals(ProtocolStatus.SUCCESS, output.getStatus().getCode(),
+    assertNotNull(output);
+    assertEquals(ProtocolStatus.SUCCESS, output.getStatus().getCode(),
         "Status code: [" + output.getStatus().getCode()
             + "], not equal to: [" + ProtocolStatus.SUCCESS + "]: args: ["
             + output.getStatus().getArgs() + "]");
-    Assertions.assertNotNull(output.getContent());
-    Assertions.assertNotNull(output.getContent().getContentType());
-    Assertions.assertEquals(expectedMimeType, output.getContent().getContentType());
-    Assertions.assertNotNull(output.getContent().getMetadata());
-    Assertions.assertEquals(expectedMimeType, output.getContent().getMetadata()
+    assertNotNull(output.getContent());
+    assertNotNull(output.getContent().getContentType());
+    assertEquals(expectedMimeType, output.getContent().getContentType());
+    assertNotNull(output.getContent().getMetadata());
+    assertEquals(expectedMimeType, output.getContent().getMetadata()
         .get(Response.CONTENT_TYPE));
   }
 

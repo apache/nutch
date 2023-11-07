@@ -29,7 +29,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -83,7 +83,7 @@ public class TestResponse extends AbstractHttpProtocolPluginTest {
     HttpResponse response = getResponse(statusCode, headerName);
     LOG.info("Response headers:");
     LOG.info(response.getHeaders().get(Response.RESPONSE_HEADERS));
-    Assertions.assertEquals(value, response.getHeader(lookupName),
+    assertEquals(value, response.getHeader(lookupName),
         "No or unexpected value of header \"" + headerName
             + "\" returned when retrieving header \"" + lookupName + "\"");
   }
