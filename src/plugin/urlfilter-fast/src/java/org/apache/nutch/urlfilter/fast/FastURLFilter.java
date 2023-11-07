@@ -97,6 +97,7 @@ public class FastURLFilter implements URLFilter {
 
   private Configuration conf;
   public static final String URLFILTER_FAST_FILE = "urlfilter.fast.file";
+  public static final String URLFILTER_FAST_MAX_LENGTH = "urlfilter.fast.url.max.length";
   public static final String URLFILTER_FAST_PATH_MAX_LENGTH = "urlfilter.fast.url.path.max.length";
   public static final String URLFILTER_FAST_QUERY_MAX_LENGTH = "urlfilter.fast.url.query.max.length";
   
@@ -107,13 +108,25 @@ public class FastURLFilter implements URLFilter {
   private int maxLengthPath = -1;
   /** Max allowed size of the query of a URL **/
   private int maxLengthQuery = -1;
+  /** Max allowed size for the whole URL **/
+  private int maxLength = -1;
 
   private static final Pattern CATCH_ALL_RULE = Pattern
       .compile("^\\s*DenyPath(?:Query)?\\s+\\.[*?]\\s*$");
 
   public FastURLFilter() {}
 
+  /** Used by the tests so that the rules file doesn't have to be in the jar **/
   FastURLFilter(Reader rules) throws IOException, PatternSyntaxException {
+    reloadRules(rules);
+  }
+  
+  /** Used by the tests so that the rules file doesn't have to be in the jar AND 
+   * we can set the conf for the length-based filtering **/
+  FastURLFilter(Reader rules, Configuration conf) throws IOException, PatternSyntaxException {
+    maxLengthPath = conf.getInt(URLFILTER_FAST_PATH_MAX_LENGTH, -1);
+    maxLengthQuery = conf.getInt(URLFILTER_FAST_QUERY_MAX_LENGTH, -1);
+    maxLength = conf.getInt(URLFILTER_FAST_MAX_LENGTH, -1);
     reloadRules(rules);
   }
 
@@ -122,6 +135,7 @@ public class FastURLFilter implements URLFilter {
     this.conf = conf;
     maxLengthPath = conf.getInt(URLFILTER_FAST_PATH_MAX_LENGTH, -1);
     maxLengthQuery = conf.getInt(URLFILTER_FAST_QUERY_MAX_LENGTH, -1);
+    maxLength = conf.getInt(URLFILTER_FAST_MAX_LENGTH, -1);
     try {
       reloadRules();
     } catch (Exception e) {
@@ -138,6 +152,12 @@ public class FastURLFilter implements URLFilter {
   @Override
   public String filter(String url) {
 
+    if (maxLength != -1 && url.length() > maxLength) {
+      LOG.debug("Rejected {} because URL length ({}) greater than limit {}", url,
+          url.length(), maxLength);
+      return null;
+    }
+    
     URL u;
 
     try {
@@ -209,6 +229,10 @@ public class FastURLFilter implements URLFilter {
     String fileRules = conf.get(URLFILTER_FAST_FILE);
     try (Reader reader = conf.getConfResourceAsReader(fileRules)) {
       reloadRules(reader);
+    } catch (Exception e) {
+      String message = "Couldn't load the rules from "+fileRules;
+      LOG.error(message);
+      throw new IOException(message);
     }
   }
 

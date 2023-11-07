@@ -76,5 +76,6 @@ the default name is `fast-urlfilter.txt`.
 
 In addition to this, the filter checks that the length of the path element of the URL and its query
 done not exceed the values set in the properties `urlfilter.fast.url.path.max.length` and 
-`urlfilter.fast.url.query.max.length` if set. 
+`urlfilter.fast.url.query.max.length` if set. The overall length of the URL can also be used for 
+filtering through the config `urlfilter.fast.url.max.length`.
 

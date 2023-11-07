@@ -16,17 +16,16 @@
  */
 package org.apache.nutch.urlfilter.fast;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
 import org.junit.Assert;
 import org.junit.Test;
-
 
 public class TestFastURLFilter extends RegexURLFilterBaseTest {
 
@@ -55,12 +54,13 @@ public class TestFastURLFilter extends RegexURLFilterBaseTest {
     bench(800, "fast-urlfilter-benchmark.txt", "Benchmarks.urls");
   }
 
-  public void lengthQueryAndPath() throws FileNotFoundException {
-    URLFilter filter = getURLFilter(new FileReader(SAMPLES + SEPARATOR + "fast-urlfilter-test.txt"));
+  @Test
+  public void lengthQueryAndPath() throws Exception {
     Configuration conf = new Configuration();
     conf.setInt(FastURLFilter.URLFILTER_FAST_PATH_MAX_LENGTH, 50);
     conf.setInt(FastURLFilter.URLFILTER_FAST_QUERY_MAX_LENGTH, 50);
-    filter.setConf(conf);
+    // not interested in testing rules
+    URLFilter filter = new FastURLFilter(new StringReader(""), conf);
 
     StringBuilder url = new StringBuilder("http://nutch.apache.org/");
     for (int i = 0; i < 50; i++) {
@@ -73,6 +73,20 @@ public class TestFastURLFilter extends RegexURLFilterBaseTest {
       url.append(i);
     }
 
+    Assert.assertEquals(null, filter.filter(url.toString()));
+  }
+
+  @Test
+  public void overalLengthTest() throws Exception {
+    Configuration conf = new Configuration();
+    conf.setInt(FastURLFilter.URLFILTER_FAST_MAX_LENGTH, 100);
+    // not interested in testing rules
+    URLFilter filter = new FastURLFilter(new StringReader(""), conf);
+
+    StringBuilder url = new StringBuilder("http://nutch.apache.org/");
+    for (int i = 0; i < 500; i++) {
+      url.append(i);
+    }
     Assert.assertEquals(null, filter.filter(url.toString()));
   }
 }
