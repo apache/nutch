@@ -36,19 +36,21 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.20.0" conf="*->master" />
-    <dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.20.0" conf="*->master" />
-		<dependency org="org.apache.logging.log4j" name="log4j-slf4j2-impl" rev="2.20.0" conf="*->master" />
-		<dependency org="org.slf4j" name="slf4j-api" rev="2.0.7" conf="*->master" />
+		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.21.1" conf="*->master" />
+    <dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.21.1" conf="*->master" />
+		<dependency org="org.apache.logging.log4j" name="log4j-slf4j2-impl" rev="2.21.1" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="2.0.9" conf="*->master" />
 
 		<dependency org="org.apache.commons" name="commons-lang3" rev="3.13.0" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-collections4" rev="4.4" conf="*->master" />
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.13" conf="*->master" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.16.0" conf="*->default" />
 		<!-- hadoop 3.4.0 should have 2.11.0; Tika is broken in distributed mode until then;
+				We're currently relying on the hadoop-safe-tika shim that shades commons-io to upgrade
+				Tika
 		 		see https://github.com/apache/nutch/pull/776 -->
 		<dependency org="commons-io" name="commons-io" rev="2.11.0" conf="*->default" />
-		<dependency org="org.apache.commons" name="commons-compress" rev="1.23.0" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-compress" rev="1.24.0" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.2.1" conf="*->default" />
 		<dependency org="com.tdunning" name="t-digest" rev="3.3" />
 
@@ -70,7 +72,7 @@
 			<exclude org="org.slf4j" name="*" />
 		</dependency><!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.tallison.tika" name="tika-core-shaded" rev="2.9.0.0" conf="*->default" transitive="false"/>
+		<dependency org="org.tallison.tika" name="tika-core-shaded" rev="2.9.1.0" conf="*->default" transitive="false"/>
 
 		<dependency org="xml-apis" name="xml-apis" rev="1.4.01" /><!-- force this version as it is required by Tika -->
 		<dependency org="xerces" name="xercesImpl" rev="2.12.2" />
