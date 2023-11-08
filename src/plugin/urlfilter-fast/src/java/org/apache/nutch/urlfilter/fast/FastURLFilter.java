@@ -95,6 +95,9 @@ import java.util.regex.PatternSyntaxException;
  * 
  * The rules file is defined via the property <code>urlfilter.fast.file</code>,
  * the default name is <code>fast-urlfilter.txt</code>.
+ * 
+ * In addition, it can filter based on the length of the whole URL, its path element or
+ * its query element. See <code>urlfilter.fast.url.*</code> configurations.
  */
 public class FastURLFilter implements URLFilter {
 
@@ -103,21 +106,45 @@ public class FastURLFilter implements URLFilter {
 
   private Configuration conf;
   public static final String URLFILTER_FAST_FILE = "urlfilter.fast.file";
+  public static final String URLFILTER_FAST_MAX_LENGTH = "urlfilter.fast.url.max.length";
+  public static final String URLFILTER_FAST_PATH_MAX_LENGTH = "urlfilter.fast.url.path.max.length";
+  public static final String URLFILTER_FAST_QUERY_MAX_LENGTH = "urlfilter.fast.url.query.max.length";
+  
   private Multimap<String, Rule> hostRules = LinkedHashMultimap.create();
   private Multimap<String, Rule> domainRules = LinkedHashMultimap.create();
+
+  /** Max allowed size of the path of a URL **/
+  private int maxLengthPath = -1;
+  /** Max allowed size of the query of a URL **/
+  private int maxLengthQuery = -1;
+  /** Max allowed size for the whole URL **/
+  private int maxLength = -1;
 
   private static final Pattern CATCH_ALL_RULE = Pattern
       .compile("^\\s*DenyPath(?:Query)?\\s+\\.[*?]\\s*$");
 
   public FastURLFilter() {}
 
+  /** Used by the tests so that the rules file doesn't have to be in the jar **/
   FastURLFilter(Reader rules) throws IOException, PatternSyntaxException {
+    reloadRules(rules);
+  }
+  
+  /** Used by the tests so that the rules file doesn't have to be in the jar AND 
+   * we can set the conf for the length-based filtering **/
+  FastURLFilter(Reader rules, Configuration conf) throws IOException, PatternSyntaxException {
+    maxLengthPath = conf.getInt(URLFILTER_FAST_PATH_MAX_LENGTH, -1);
+    maxLengthQuery = conf.getInt(URLFILTER_FAST_QUERY_MAX_LENGTH, -1);
+    maxLength = conf.getInt(URLFILTER_FAST_MAX_LENGTH, -1);
     reloadRules(rules);
   }
 
   @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
+    maxLengthPath = conf.getInt(URLFILTER_FAST_PATH_MAX_LENGTH, -1);
+    maxLengthQuery = conf.getInt(URLFILTER_FAST_QUERY_MAX_LENGTH, -1);
+    maxLength = conf.getInt(URLFILTER_FAST_MAX_LENGTH, -1);
     try {
       reloadRules();
     } catch (Exception e) {
@@ -134,6 +161,12 @@ public class FastURLFilter implements URLFilter {
   @Override
   public String filter(String url) {
 
+    if (maxLength != -1 && url.length() > maxLength) {
+      LOG.debug("Rejected {} because URL length ({}) greater than limit {}", url,
+          url.length(), maxLength);
+      return null;
+    }
+    
     URL u;
 
     try {
@@ -141,6 +174,22 @@ public class FastURLFilter implements URLFilter {
     } catch (Exception e) {
       LOG.debug("Rejected {} because failed to parse as URL: {}", url,
           e.getMessage());
+      return null;
+    }
+    
+    final String path = u.getPath();
+    if (maxLengthPath != -1 && path.length() > maxLengthPath)
+    {
+      LOG.debug("Rejected {} as path length {} is greater than {}", url,
+          path.length(), maxLengthPath);
+      return null;
+    }
+    
+    final String query = u.getQuery();
+    if (maxLengthQuery != -1 &&  query != null && query.length() > maxLengthQuery)
+    {
+      LOG.debug("Rejected {} as query length {} is greater than {}", url,
+          query.length(), maxLengthQuery);
       return null;
     }
 
@@ -187,7 +236,6 @@ public class FastURLFilter implements URLFilter {
 
   public void reloadRules() throws IOException {
     String fileRules = conf.get(URLFILTER_FAST_FILE);
-
     InputStream is;
 
     Path fileRulesPath = new Path(fileRules);
@@ -200,11 +248,22 @@ public class FastURLFilter implements URLFilter {
 
     CompressionCodec codec = new CompressionCodecFactory(conf)
         .getCodec(fileRulesPath);
-    if (codec != null) {
+    if (codec != null && is != null) {
       is = codec.createInputStream(is);
     }
 
-    reloadRules(new InputStreamReader(is));
+    try {
+      reloadRules(new InputStreamReader(is));
+    } catch (Exception e) {
+      String message = "Couldn't load the rules from " + fileRules;
+      LOG.error(message);
+      throw new IOException(message);
+    }
+    finally {
+      if (is != null) {
+        is.close();
+      }
+    }
   }
 
   private void reloadRules(Reader rules) throws IOException {

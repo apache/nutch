@@ -1883,6 +1883,30 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <property>
+  <name>urlfilter.fast.url.max.length</name>
+  <value>-1</value>
+  <description>Filters URLs based on their overall length.
+  The default value of -1 means that it is deactivated.
+  </description>
+</property>
+
+<property>
+  <name>urlfilter.fast.url.path.max.length</name>
+  <value>-1</value>
+  <description>Filters URLs based on the length of their path element.
+  The default value of -1 means that it is deactivated.
+  </description>
+</property>
+
+<property>
+  <name>urlfilter.fast.url.query.max.length</name>
+  <value>-1</value>
+  <description>Filters URLs based on the length of their query element.
+  The default value of -1 means that it is deactivated.
+  </description>
+</property>
+
+<property>
   <name>urlfilter.order</name>
   <value></value>
   <description>The order by which URL filters are applied.
