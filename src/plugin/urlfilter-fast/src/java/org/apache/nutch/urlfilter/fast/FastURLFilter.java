@@ -21,6 +21,8 @@ import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.nutch.net.URLFilter;
 import org.slf4j.Logger;
@@ -35,7 +37,6 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.zip.GZIPInputStream;
 
 /**
  * Filters URLs based on a file of regular expressions using host/domains
@@ -120,7 +121,7 @@ public class FastURLFilter implements URLFilter {
     try {
       reloadRules();
     } catch (Exception e) {
-      LOG.error(e.getMessage());
+      LOG.error("Failed to load rules: {}", e.getMessage()  );
       throw new RuntimeException(e.getMessage(), e);
     }
   }
@@ -193,13 +194,14 @@ public class FastURLFilter implements URLFilter {
     if (fileRulesPath.toUri().getScheme() != null) {
       FileSystem fs = fileRulesPath.getFileSystem(conf);
       is = fs.open(fileRulesPath);
-    }
-    else {
+    } else {
       is = conf.getConfResourceAsInputStream(fileRules);
     }
 
-    if (fileRules.endsWith(".gz")) {
-      is = new GZIPInputStream(is);
+    CompressionCodec codec = new CompressionCodecFactory(conf)
+        .getCodec(fileRulesPath);
+    if (codec != null) {
+      is = codec.createInputStream(is);
     }
 
     reloadRules(new InputStreamReader(is));
