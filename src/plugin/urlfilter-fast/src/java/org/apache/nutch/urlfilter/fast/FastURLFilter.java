@@ -20,6 +20,10 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.CompressionCodecFactory;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.nutch.net.URLFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -115,7 +121,7 @@ public class FastURLFilter implements URLFilter {
     try {
       reloadRules();
     } catch (Exception e) {
-      LOG.error(e.getMessage());
+      LOG.error("Failed to load rules: {}", e.getMessage()  );
       throw new RuntimeException(e.getMessage(), e);
     }
   }
@@ -181,9 +187,24 @@ public class FastURLFilter implements URLFilter {
 
   public void reloadRules() throws IOException {
     String fileRules = conf.get(URLFILTER_FAST_FILE);
-    try (Reader reader = conf.getConfResourceAsReader(fileRules)) {
-      reloadRules(reader);
+
+    InputStream is;
+
+    Path fileRulesPath = new Path(fileRules);
+    if (fileRulesPath.toUri().getScheme() != null) {
+      FileSystem fs = fileRulesPath.getFileSystem(conf);
+      is = fs.open(fileRulesPath);
+    } else {
+      is = conf.getConfResourceAsInputStream(fileRules);
     }
+
+    CompressionCodec codec = new CompressionCodecFactory(conf)
+        .getCodec(fileRulesPath);
+    if (codec != null) {
+      is = codec.createInputStream(is);
+    }
+
+    reloadRules(new InputStreamReader(is));
   }
 
   private void reloadRules(Reader rules) throws IOException {
