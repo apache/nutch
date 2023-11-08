@@ -180,6 +180,17 @@ public class ParseSegment extends NutchTool implements Tool {
     if (metadata == null)
       return false;
 
+    //check for okhttp or other protocol's truncated flag
+    //if the flag is there, no matter the value, trust it.
+    if (metadata.get(Response.TRUNCATED_CONTENT) != null) {
+      if ("true".equals(metadata.get(Response.TRUNCATED_CONTENT))) {
+        LOG.info(content.getUrl() + " skipped. Protocol metadata indicates truncated content, " +
+                "actualSize= " + content.getContent().length);
+        return true;
+      }
+      return false;
+    }
+
     String lengthStr = metadata.get(Response.CONTENT_LENGTH);
     if (lengthStr != null)
       lengthStr = lengthStr.trim();
@@ -232,8 +243,7 @@ public class ParseSegment extends NutchTool implements Tool {
     LOG.info("ParseSegment: starting");
     LOG.info("ParseSegment: segment: {}", segment);
 
-    Job job = NutchJob.getInstance(getConf());
-    job.setJobName("parse " + segment);
+    Job job = Job.getInstance(getConf(), "Nutch ParseSegment: " + segment);
 
     Configuration conf = job.getConfiguration();
     FileInputFormat.addInputPath(job, new Path(segment, Content.DIR_NAME));

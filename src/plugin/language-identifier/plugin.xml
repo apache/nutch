@@ -26,7 +26,7 @@
          <export name="*"/>
       </library>
       <!-- dependencies of Tika's Optimaize language detector (tika-langdetect-optimaize) -->
-      <library name="tika-langdetect-optimaize-shaded-2.9.0.0.jar"/>
+      <library name="tika-langdetect-optimaize-shaded-2.9.1.0.jar"/>
     </runtime>
 
    <requires>

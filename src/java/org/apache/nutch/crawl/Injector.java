@@ -404,7 +404,7 @@ public class Injector extends NutchTool implements Tool {
     Path lock = CrawlDb.lock(conf, crawlDb, false);
 
     // configure job
-    Job job = Job.getInstance(conf, "inject " + urlDir);
+    Job job = Job.getInstance(conf, "Nutch Injector: " + urlDir);
     job.setJarByClass(Injector.class);
     job.setMapperClass(InjectMapper.class);
     job.setReducerClass(InjectReducer.class);

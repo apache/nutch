@@ -144,7 +144,7 @@ public class CleaningJob implements Tool {
     stopWatch.start();
     LOG.info("CleaningJob: starting");
 
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch CleaningJob: " + crawldb);
     Configuration conf = job.getConfiguration();
 
     FileInputFormat.addInputPath(job, new Path(crawldb, CrawlDb.CURRENT_NAME));
@@ -156,8 +156,6 @@ public class CleaningJob implements Tool {
     job.setMapperClass(DBFilter.class);
     job.setReducerClass(DeleterReducer.class);
     job.setJarByClass(CleaningJob.class);
-
-    job.setJobName("CleaningJob");
 
     // need to expicitely allow deletions
     conf.setBoolean(IndexerMapReduce.INDEXER_DELETE, true);

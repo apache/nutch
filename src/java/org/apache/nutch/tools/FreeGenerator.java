@@ -184,7 +184,7 @@ public class FreeGenerator extends Configured implements Tool {
     stopWatch.start();
     LOG.info("FreeGenerator: starting");
 
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch FreeGenerator: " + args[0]);
     Configuration conf = job.getConfiguration();
     conf.setBoolean(FILTER_KEY, filter);
     conf.setBoolean(NORMALIZE_KEY, normalize);
