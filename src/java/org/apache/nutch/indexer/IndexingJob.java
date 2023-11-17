@@ -96,13 +96,14 @@ public class IndexingJob extends NutchTool implements Tool {
       boolean filter, boolean normalize, boolean addBinaryContent)
       throws IOException, InterruptedException, ClassNotFoundException {
     index(crawlDb, linkDb, segments, noCommit, deleteGone, params, false,
-        false, false, false);
+        false, false, false, false);
   }
 
   public void index(Path crawlDb, Path linkDb, List<Path> segments,
       boolean noCommit, boolean deleteGone, String params,
       boolean filter, boolean normalize, boolean addBinaryContent,
-      boolean base64) throws IOException, InterruptedException, ClassNotFoundException {
+      boolean base64, boolean statusOnly) throws IOException, InterruptedException,
+          ClassNotFoundException {
 
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
@@ -116,6 +117,7 @@ public class IndexingJob extends NutchTool implements Tool {
     LOG.info("Indexer: deleting gone documents: {}", deleteGone);
     LOG.info("Indexer: URL filtering: {}", filter);
     LOG.info("Indexer: URL normalizing: {}", normalize);
+    LOG.info("Indexer: status only: {}", statusOnly);
     if (addBinaryContent) {
       if (base64) {
         LOG.info("Indexer: adding binary content as Base64");
@@ -124,13 +126,15 @@ public class IndexingJob extends NutchTool implements Tool {
       }
     }
 
-    IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job, addBinaryContent);
+    IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job,
+            addBinaryContent, statusOnly);
 
     conf.setBoolean(IndexerMapReduce.INDEXER_DELETE, deleteGone);
     conf.setBoolean(IndexerMapReduce.URL_FILTERING, filter);
     conf.setBoolean(IndexerMapReduce.URL_NORMALIZING, normalize);
     conf.setBoolean(IndexerMapReduce.INDEXER_BINARY_AS_BASE64, base64);
     conf.setBoolean(IndexerMapReduce.INDEXER_NO_COMMIT, noCommit);
+    conf.setBoolean(IndexerMapReduce.INDEXER_STATUS_ONLY, statusOnly);
 
     if (params != null) {
       conf.set(IndexerMapReduce.INDEXER_PARAMS, params);
@@ -209,6 +213,8 @@ public class IndexingJob extends NutchTool implements Tool {
     System.err.println(
         "\t-addBinaryContent\tindex raw/binary content in field `binaryContent`");
     System.err.println("\t-base64   \tuse Base64 encoding for binary content");
+    System.err.println("\t-statusOnly   \tindex the status of all urls in the crawldb and skip " +
+            "the content");
     System.err.println("");
   }
 
@@ -233,6 +239,7 @@ public class IndexingJob extends NutchTool implements Tool {
     boolean normalize = false;
     boolean addBinaryContent = false;
     boolean base64 = false;
+    boolean statusOnly = false;
 
     for (int i = 0; i < args.length; i++) {
       FileSystem fs = null;
@@ -272,6 +279,8 @@ public class IndexingJob extends NutchTool implements Tool {
          * given
          */
         crawlDb = new Path(args[i]);
+      } else if (args[i].equals("-statusOnly")) {
+        statusOnly = true;
       } else {
         // remaining arguments are segments
         dir = new Path(args[i]);
@@ -289,7 +298,8 @@ public class IndexingJob extends NutchTool implements Tool {
     }
 
     try {
-      index(crawlDb, linkDb, segments, noCommit, deleteGone, params, filter, normalize, addBinaryContent, base64);
+      index(crawlDb, linkDb, segments, noCommit, deleteGone, params, filter, normalize,
+              addBinaryContent, base64, statusOnly);
       return 0;
     } catch (final Exception e) {
       LOG.error("Indexer: {}", StringUtils.stringifyException(e));
