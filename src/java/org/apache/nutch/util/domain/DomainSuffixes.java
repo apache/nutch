@@ -41,9 +41,9 @@ public class DomainSuffixes {
   /** private ctor */
   private DomainSuffixes() {
     String file = "domain-suffixes.xml";
-    InputStream input = this.getClass().getClassLoader()
-        .getResourceAsStream(file);
-    try {
+    
+    try (InputStream input = this.getClass().getClassLoader()
+        .getResourceAsStream(file)) {
       new DomainSuffixesReader().read(this, input);
     } catch (Exception ex) {
       LOG.warn(StringUtils.stringifyException(ex));
