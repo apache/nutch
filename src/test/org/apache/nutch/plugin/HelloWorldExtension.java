@@ -29,6 +29,7 @@ public class HelloWorldExtension implements ITestExtension {
    * @see
    * org.apache.nutch.plugin.ITestExtension#testGetExtension(java.lang.String)
    */
+  @Override
   public String testGetExtension(String hello) {
     return hello + " World";
   }

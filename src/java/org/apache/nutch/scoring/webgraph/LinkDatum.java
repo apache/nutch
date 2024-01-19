@@ -114,6 +114,7 @@ public class LinkDatum implements Writable {
     this.linkType = linkType;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     url = Text.readString(in);
     anchor = Text.readString(in);
@@ -122,6 +123,7 @@ public class LinkDatum implements Writable {
     linkType = in.readByte();
   }
 
+  @Override
   public void write(DataOutput out) throws IOException {
     Text.writeString(out, url);
     Text.writeString(out, anchor != null ? anchor : "");
@@ -130,6 +132,7 @@ public class LinkDatum implements Writable {
     out.writeByte(linkType);
   }
 
+  @Override
   public String toString() {
 
     String type = (linkType == INLINK ? "inlink"

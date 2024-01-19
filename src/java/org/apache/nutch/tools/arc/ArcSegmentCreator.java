@@ -21,7 +21,9 @@ import java.lang.invoke.MethodHandles;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -56,7 +58,6 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
-import org.apache.nutch.util.TimingUtil;
 
 /**
  * <p>
@@ -265,6 +266,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
      * @param context
      *          The task context.
      */
+    @Override
     public void setup(Mapper<Text, BytesWritable, Text, NutchWritable>.Context context) { 
       // set the url filters, scoring filters the parse util and the url
       // normalizers
@@ -286,6 +288,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
      * @param context
      *          The context of the mapreduce job.
      */
+    @Override
     public void map(Text key, BytesWritable bytes,
         Context context) throws IOException, InterruptedException {
 
@@ -366,16 +369,13 @@ public class ArcSegmentCreator extends Configured implements Tool {
   public void createSegments(Path arcFiles, Path segmentsOutDir)
       throws IOException, InterruptedException, ClassNotFoundException {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    if (LOG.isInfoEnabled()) {
-      LOG.info("ArcSegmentCreator: starting at " + sdf.format(start));
-      LOG.info("ArcSegmentCreator: arc files dir: " + arcFiles);
-    }
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("ArcSegmentCreator: starting");
+    LOG.info("ArcSegmentCreator: arc files dir: " + arcFiles);
 
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch ArcSegmentCreator: " + arcFiles);
     Configuration conf = job.getConfiguration();
-    job.setJobName("ArcSegmentCreator " + arcFiles);
     String segName = generateSegmentName();
     conf.set(Nutch.SEGMENT_NAME_KEY, segName);
     FileInputFormat.addInputPath(job, arcFiles);
@@ -400,10 +400,9 @@ public class ArcSegmentCreator extends Configured implements Tool {
       throw e;
     }
 
-
-    long end = System.currentTimeMillis();
-    LOG.info("ArcSegmentCreator: finished at " + sdf.format(end)
-        + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("ArcSegmentCreator: finished, elapsed: {} ms" + stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   public static void main(String args[]) throws Exception {
@@ -412,6 +411,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
     System.exit(res);
   }
 
+  @Override
   public int run(String[] args) throws Exception {
 
     String usage = "Usage: ArcSegmentCreator <arcFiles> <segmentsOutDir>";

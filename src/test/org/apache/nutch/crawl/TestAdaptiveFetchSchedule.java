@@ -36,6 +36,7 @@ public class TestAdaptiveFetchSchedule extends TestCase {
   private long curTime, lastModified;
   private int changed, interval, calculateInterval;
 
+  @Override
   @Before
   public void setUp() throws Exception {
     super.setUp();

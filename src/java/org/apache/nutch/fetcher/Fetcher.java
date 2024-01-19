@@ -25,9 +25,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
@@ -454,11 +456,10 @@ public class Fetcher extends NutchTool implements Tool {
 
     checkConfiguration();
 
-    long start = System.currentTimeMillis();
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Fetcher: starting at {}", TimingUtil.logDateMillis(start));
-      LOG.info("Fetcher: segment: {}", segment);
-    }
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("Fetcher: starting");
+    LOG.info("Fetcher: segment: {}", segment);
 
     // set the actual time for the timelimit relative
     // to the beginning of the whole job and not of a specific task
@@ -497,7 +498,7 @@ public class Fetcher extends NutchTool implements Tool {
           totalOutlinksToFollow);
     }
 
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch Fetcher: " + segment.getName());
     job.setJobName("FetchData");
     Configuration conf = job.getConfiguration();
 
@@ -530,9 +531,9 @@ public class Fetcher extends NutchTool implements Tool {
       throw e;
     }
 
-    long end = System.currentTimeMillis();
-    LOG.info("Fetcher: finished at {}, elapsed: {}",
-        TimingUtil.logDateMillis(end), TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("Fetcher: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   /**
@@ -598,19 +599,10 @@ public class Fetcher extends NutchTool implements Tool {
     Path segment = null;
     if(args.containsKey(Nutch.ARG_SEGMENTS)) {
       Object seg = args.get(Nutch.ARG_SEGMENTS);
-      if(seg instanceof Path) {
+      if (seg instanceof Path) {
         segment = (Path) seg;
-      }
-      else if(seg instanceof String){
+      } else if (seg instanceof String) {
         segment = new Path(seg.toString());
-      }
-      else if(seg instanceof ArrayList) {
-        String[] segmentsArray = (String[])seg;
-        segment = new Path(segmentsArray[0].toString());
-        	  
-        if(segmentsArray.length > 1){
-       	  LOG.warn("Only the first segment of segments array is used.");
-        }
       }
     }
     else {

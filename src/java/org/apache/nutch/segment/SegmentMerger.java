@@ -76,7 +76,9 @@ import org.apache.nutch.util.NutchJob;
  * <p>
  * Also, it's possible to slice the resulting segment into chunks of fixed size.
  * </p>
- * <h3>Important Notes</h3> <h4>Which parts are merged?</h4>
+ * <section>
+ * <h2>Important Notes</h2>
+ * <h3>Which parts are merged?</h3>
  * <p>
  * It doesn't make sense to merge data from segments, which are at different
  * stages of processing (e.g. one unfetched segment, one fetched but not parsed,
@@ -87,14 +89,14 @@ import org.apache.nutch.util.NutchJob;
  * fall back to just merging fetchlists, and it will skip all other data from
  * all segments.
  * </p>
- * <h4>Merging fetchlists</h4>
+ * <h3>Merging fetchlists</h3>
  * <p>
  * Merging segments, which contain just fetchlists (i.e. prior to fetching) is
  * not recommended, because this tool (unlike the
  * {@link org.apache.nutch.crawl.Generator} doesn't ensure that fetchlist parts
  * for each map task are disjoint.
  * </p>
- * <h4>Duplicate content</h4>
+ * <h3>Duplicate content</h3>
  * Merging segments removes older content whenever possible (see below).
  * However, this is NOT the same as de-duplication, which in addition removes
  * identical content found at different URL-s. In other words, running
@@ -108,15 +110,15 @@ import org.apache.nutch.util.NutchJob;
  * segments be named in an increasing lexicographic order as their creation time
  * increases.
  * </p>
- * <h4>Merging and indexes</h4>
+ * <h3>Merging and indexes</h3>
  * <p>
  * Merged segment gets a different name. Since Indexer embeds segment names in
  * indexes, any indexes originally created for the input segments will NOT work
  * with the merged segment. Newly created merged segment(s) need to be indexed
  * afresh. This tool doesn't use existing indexes in any way, so if you plan to
  * merge segments you don't have to index them prior to merging.
- * 
- * @author Andrzej Bialecki
+ * </p>
+ * </section>
  */
 public class SegmentMerger extends Configured implements Tool{
   private static final Logger LOG = LoggerFactory
@@ -225,6 +227,7 @@ public class SegmentMerger extends Configured implements Tool{
         HashMap<String, Closeable> sliceWriters = new HashMap<>();
         String segmentName = conf.get("segment.merger.segmentName");
 
+        @Override
         public void write(Text key, MetaWrapper wrapper) throws IOException {
           // unwrap
           SegmentPart sp = SegmentPart.parse(wrapper.getMeta(SEGMENT_PART_KEY));
@@ -622,9 +625,8 @@ public class SegmentMerger extends Configured implements Tool{
           long slice) throws IOException, ClassNotFoundException, InterruptedException {
     String segmentName = Generator.generateSegmentName();
     LOG.info("Merging {} segments to {}/{}", segs.length, out, segmentName);
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch SegmentMerger: " + out + "/" + segmentName);
     Configuration conf = job.getConfiguration();
-    job.setJobName("mergesegs " + out + "/" + segmentName);
     conf.setBoolean("segment.merger.filter", filter);
     conf.setBoolean("segment.merger.normalizer", normalize);
     conf.setLong("segment.merger.slice", slice);

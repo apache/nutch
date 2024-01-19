@@ -17,9 +17,10 @@
 package org.apache.nutch.hostdb;
 
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -40,7 +41,6 @@ import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,15 +73,14 @@ public class UpdateHostDb extends Configured implements Tool {
     boolean checkFailed, boolean checkNew, boolean checkKnown,
     boolean force, boolean filter, boolean normalize) throws Exception {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("UpdateHostDb: starting at " + sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("UpdateHostDb: starting");
 
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch UpdateHostDb");
     Configuration conf = job.getConfiguration();
     boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
     job.setJarByClass(UpdateHostDb.class);
-    job.setJobName("UpdateHostDb");
 
     FileSystem fs = hostDb.getFileSystem(conf);
     Path old = new Path(hostDb, "old");
@@ -149,9 +148,9 @@ public class UpdateHostDb extends Configured implements Tool {
     }
 
     LockUtil.removeLockFile(fs, lock);
-    long end = System.currentTimeMillis();
-    LOG.info("UpdateHostDb: finished at " + sdf.format(end) +
-      ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("UpdateHostDb: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   public static void main(String args[]) throws Exception {

@@ -1,5 +1,4 @@
 <?xml version="1.0" ?>
-
 <!--
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -36,13 +35,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.tika" name="tika-langdetect-optimaize" rev="2.3.0" conf="*->default">
-      <!-- exclusions of dependencies provided in Nutch core (ivy/ivy.xml) -->
-      <exclude org="org.apache.tika" name="tika-core" />
-      <exclude org="com.google.guava" name="guava" />
-      <exclude org="org.slf4j" name="slf4j-api" />
-      <!-- exclusions of dependencies provided in Nutch core (ivy/ivy.xml) -->
-    </dependency>
+    <dependency org="org.tallison.tika" name="tika-langdetect-optimaize-shaded" rev="2.9.1.0" conf="*->default" transitive="false"/>
   </dependencies>
   
 </ivy-module>

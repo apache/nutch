@@ -210,6 +210,9 @@ public class ElasticIndexWriter implements IndexWriter {
           restClientBuilder.setHttpClientConfigCallback(new HttpClientConfigCallback() {
             @Override
             public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+              if (auth) {
+                httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+              }
               // ignore issues with self-signed certificates
               httpClientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
               return httpClientBuilder.setSSLContext(sslContext);

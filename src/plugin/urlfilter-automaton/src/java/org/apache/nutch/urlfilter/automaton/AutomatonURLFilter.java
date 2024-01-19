@@ -63,6 +63,7 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
    * Rules specified as a config property will override rules specified as a
    * config file.
    */
+  @Override
   protected Reader getRulesReader(Configuration conf) throws IOException {
     String stringRules = conf.get(URLFILTER_AUTOMATON_RULES);
     if (stringRules != null) {
@@ -73,10 +74,12 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
   }
 
   // Inherited Javadoc
+  @Override
   protected RegexRule createRule(boolean sign, String regex) {
     return new Rule(sign, regex);
   }
   
+  @Override
   protected RegexRule createRule(boolean sign, String regex, String hostOrDomain) {
     return new Rule(sign, regex, hostOrDomain);
   }
@@ -104,6 +107,7 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
       automaton = new RunAutomaton(new RegExp(regex, RegExp.ALL).toAutomaton());
     }
 
+    @Override
     protected boolean match(String url) {
       return automaton.run(url);
     }

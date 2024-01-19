@@ -19,7 +19,6 @@ package org.apache.nutch.indexer;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,7 +26,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.segment.SegmentChecker;
 import org.apache.hadoop.conf.Configuration;
@@ -44,7 +45,6 @@ import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
-import org.apache.nutch.util.TimingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,11 +104,12 @@ public class IndexingJob extends NutchTool implements Tool {
       boolean filter, boolean normalize, boolean addBinaryContent,
       boolean base64) throws IOException, InterruptedException, ClassNotFoundException {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("Indexer: starting at {}", sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("Indexer: starting");
 
-    final Job job = NutchJob.getInstance(getConf());
+    final Job job = Job.getInstance(getConf(),
+        "Nutch IndexingJob: crawldb: " + crawlDb + " segment(s): " + segments);
     job.setJobName("Indexer");
     Configuration conf = job.getConfiguration();
 
@@ -159,9 +160,9 @@ public class IndexingJob extends NutchTool implements Tool {
             String.format(Locale.ROOT, "%6d", counter.getValue()),
             counter.getName());
       }
-      long end = System.currentTimeMillis();
-      LOG.info("Indexer: finished at " + sdf.format(end) + ", elapsed: "
-          + TimingUtil.elapsedTime(start, end));
+      stopWatch.stop();
+      LOG.info("Indexer: finished, elapsed: {} ms", stopWatch.getTime(
+          TimeUnit.MILLISECONDS));
     } finally {
       tmp.getFileSystem(conf).delete(tmp, true);
     }

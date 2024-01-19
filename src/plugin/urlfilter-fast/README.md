@@ -1,3 +1,19 @@
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
 
 Filters URLs based on a file of regular expressions using host/domains
 matching first. The default policy is to accept a URL if no matches
@@ -57,3 +73,9 @@ the end of the line.
 
 The rules file is defined via the property `urlfilter.fast.file`,
 the default name is `fast-urlfilter.txt`.
+
+In addition to this, the filter checks that the length of the path element of the URL and its query
+done not exceed the values set in the properties `urlfilter.fast.url.path.max.length` and 
+`urlfilter.fast.url.query.max.length` if set. The overall length of the URL can also be used for 
+filtering through the config `urlfilter.fast.url.max.length`.
+

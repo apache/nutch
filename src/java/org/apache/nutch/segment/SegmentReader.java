@@ -163,13 +163,16 @@ public class SegmentReader extends Configured implements Tool {
       dump.append("\nRecno:: ").append(recNo++).append("\n");
       dump.append("URL:: " + key.toString() + "\n");
       Content content = null;
-      Charset charset = null;
+      // fall-back encoding for content of unparsed documents
+      Charset charset = StandardCharsets.UTF_8;
       for (NutchWritable val : values) {
         Writable value = val.get(); // unwrap
         if (value instanceof CrawlDatum) {
           dump.append("\nCrawlDatum::\n").append(((CrawlDatum) value).toString());
         } else if (value instanceof Content) {
           if (recodeContent) {
+            // output recoded content later when charset is extracted from HTML
+            // metadata hold in ParseData
             content = (Content) value;
           } else {
             dump.append("\nContent::\n").append(((Content) value).toString());
@@ -197,8 +200,7 @@ public class SegmentReader extends Configured implements Tool {
 
     LOG.info("SegmentReader: dump segment: {}", segment);
 
-    Job job = NutchJob.getInstance(getConf());
-    job.setJobName("read " + segment);
+    Job job = Job.getInstance(getConf(), "Nutch SegmentReader: " + segment);
     Configuration conf = job.getConfiguration();
 
     if (ge)
@@ -307,6 +309,7 @@ public class SegmentReader extends Configured implements Tool {
     ArrayList<Thread> threads = new ArrayList<>();
     if (co)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getMapRecords(new Path(segment,
@@ -319,6 +322,7 @@ public class SegmentReader extends Configured implements Tool {
       });
     if (fe)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getMapRecords(new Path(segment,
@@ -331,6 +335,7 @@ public class SegmentReader extends Configured implements Tool {
       });
     if (ge)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getSeqRecords(new Path(segment,
@@ -343,6 +348,7 @@ public class SegmentReader extends Configured implements Tool {
       });
     if (pa)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getSeqRecords(new Path(segment,
@@ -355,6 +361,7 @@ public class SegmentReader extends Configured implements Tool {
       });
     if (pd)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getMapRecords(new Path(segment,
@@ -367,6 +374,7 @@ public class SegmentReader extends Configured implements Tool {
       });
     if (pt)
       threads.add(new Thread() {
+        @Override
         public void run() {
           try {
             List<Writable> res = getMapRecords(new Path(segment,

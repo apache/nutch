@@ -18,11 +18,12 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -41,7 +42,6 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 
 /**
  * This tool merges several LinkDb-s into one, optionally filtering URLs through
@@ -112,9 +112,9 @@ public class LinkDbMerger extends Configured implements Tool {
 
   public void merge(Path output, Path[] dbs, boolean normalize, boolean filter)
       throws Exception {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("LinkDb merge: starting at " + sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("LinkDb merge: starting");
 
     Job job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
@@ -137,9 +137,9 @@ public class LinkDbMerger extends Configured implements Tool {
     fs.rename(FileOutputFormat.getOutputPath(job), new Path(output,
         LinkDb.CURRENT_NAME));
 
-    long end = System.currentTimeMillis();
-    LOG.info("LinkDb merge: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("LinkDb merge: finished, elapsed: {} ms" + stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   public static Job createMergeJob(Configuration config, Path linkDb,
@@ -147,8 +147,7 @@ public class LinkDbMerger extends Configured implements Tool {
     Path newLinkDb = new Path(linkDb,
         "merge-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Job job = NutchJob.getInstance(config);
-    job.setJobName("linkdb merge " + linkDb);
+    Job job = Job.getInstance(config, "Nutch LinkDbMerger: " + linkDb);
 
     Configuration conf = job.getConfiguration();
     job.setInputFormatClass(SequenceFileInputFormat.class);

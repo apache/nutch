@@ -16,10 +16,11 @@
  */
 package org.apache.nutch.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -37,8 +38,6 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.metadata.Nutch;
 
 /**
@@ -86,11 +85,11 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
       numOfReducers = Integer.parseInt(args[2]);
     }
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("ProtocolStatistics: starting at " + sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("ProtocolStatistics: starting");
 
-    String jobName = "ProtocolStatistics";
+    String jobName = "Nutch ProtocolStatusStatistics: " + inputDir;
 
     Configuration conf = getConf();
     conf.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
@@ -130,9 +129,9 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
       throw e;
     }
 
-    long end = System.currentTimeMillis();
-    LOG.info("ProtocolStatistics: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("ProtocolStatistics: finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
     return 0;
   }
 

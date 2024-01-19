@@ -67,6 +67,7 @@ public class TestPrefixURLFilter extends TestCase {
     TestRunner.run(suite());
   }
 
+  @Override
   public void setUp() throws IOException {
     filter = new PrefixURLFilter(prefixes);
   }

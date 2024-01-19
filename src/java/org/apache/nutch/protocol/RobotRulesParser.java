@@ -24,12 +24,13 @@ import java.io.LineNumberReader;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,8 @@ public abstract class RobotRulesParser implements Tool {
   }
 
   protected Configuration conf;
-  protected String agentNames;
+  protected Set<String> agentNames;
+  protected int maxNumRedirects = 5;
 
   /** set of host names or IPs to be explicitly excluded from robots.txt checking */
   protected Set<String> allowList = new HashSet<>();
@@ -114,6 +116,7 @@ public abstract class RobotRulesParser implements Tool {
   /**
    * Set the {@link Configuration} object
    */
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
 
@@ -122,27 +125,35 @@ public abstract class RobotRulesParser implements Tool {
     if (agentName == null || (agentName = agentName.trim()).isEmpty()) {
       throw new RuntimeException("Agent name not configured!");
     }
-    agentNames = agentName;
+    agentNames = new LinkedHashSet<>();
+    if (!agentName.equals("*")) {
+      /*
+       * skip wildcard "*" - crawler-commons' SimpleRobotRulesParser expects an
+       * empty set of agent names to use the wildcard rules
+       */
+      agentNames.add(agentName.toLowerCase());
+    }
 
     // If there are any other agents specified, append those to the list of
     // agents
-    String otherAgents = conf.get("http.robots.agents");
-    if (otherAgents != null && !otherAgents.trim().isEmpty()) {
-      StringTokenizer tok = new StringTokenizer(otherAgents, ",");
-      StringBuilder sb = new StringBuilder(agentNames);
-      while (tok.hasMoreTokens()) {
-        String str = tok.nextToken().trim();
-        if (str.equals("*") || str.equals(agentName)) {
-          // skip wildcard "*" or agent name itself
-          // (required for backward compatibility, cf. NUTCH-1715 and
-          // NUTCH-1718)
+    String[] otherAgents = conf.getStrings("http.robots.agents");
+    if (otherAgents != null && otherAgents.length > 0) {
+      for (String otherAgent : otherAgents) {
+        otherAgent = otherAgent.toLowerCase();
+        if (otherAgent.equals("*") || otherAgent.equalsIgnoreCase(agentName)) {
+          /*
+           * skip wildcard "*" or agent name itself (required for backward
+           * compatibility, cf. NUTCH-1715 and NUTCH-1718)
+           */
         } else {
-          sb.append(",").append(str);
+          agentNames.add(otherAgent);
         }
       }
-
-      agentNames = sb.toString();
     }
+    LOG.info("Checking robots.txt for the following agent names: {}", agentNames);
+
+    maxNumRedirects = conf.getInt("http.robots.redirect.max", 5);
+    LOG.info("Following max. {} robots.txt redirects", maxNumRedirects);
 
     String[] confAllowList = conf.getStrings("http.robot.rules.allowlist");
     if (confAllowList == null) {
@@ -166,6 +177,7 @@ public abstract class RobotRulesParser implements Tool {
   /**
    * Get the {@link Configuration} object
    */
+  @Override
   public Configuration getConf() {
     return conf;
   }
@@ -188,10 +200,10 @@ public abstract class RobotRulesParser implements Tool {
 
   /**
    * Parses the robots content using the {@link SimpleRobotRulesParser} from
-   * crawler commons
+   * crawler-commons
    * 
    * @param url
-   *          A string containing url
+   *          The robots.txt URL
    * @param content
    *          Contents of the robots file in a byte array
    * @param contentType
@@ -201,9 +213,30 @@ public abstract class RobotRulesParser implements Tool {
    *          matching
    * @return BaseRobotRules object
    */
+  @Deprecated
   public BaseRobotRules parseRules(String url, byte[] content,
       String contentType, String robotName) {
     return robotParser.parseContent(url, content, contentType, robotName);
+  }
+
+  /**
+   * Parses the robots content using the {@link SimpleRobotRulesParser} from
+   * crawler-commons
+   * 
+   * @param url
+   *          The robots.txt URL
+   * @param content
+   *          Contents of the robots file in a byte array
+   * @param contentType
+   *          The content type of the robots file
+   * @param robotNames
+   *          A collection containing all the robots agent names used by parser
+   *          for matching
+   * @return BaseRobotRules object
+   */
+  public BaseRobotRules parseRules(String url, byte[] content,
+      String contentType, Collection<String> robotNames) {
+    return robotParser.parseContent(url, content, contentType, robotNames);
   }
 
   /**
@@ -266,16 +299,20 @@ public abstract class RobotRulesParser implements Tool {
           "",
           "<robots-file-or-url>\tlocal file or URL parsed as robots.txt file",
           "\tIf <robots-file-or-url> starts with a protocol specification",
-          "\t(`http', `https', `ftp' or `file'), robots.txt it is fetched",
-          "\tusing the specified protocol. Otherwise, a local file is assumed.",
+          "\t(`http', `https', `ftp' or `file'), the URL is parsed, URL path",
+          "\tand query are removed and the path \"/robots.txt\" is appended.",
+          "\tThe resulting URL (the canonical robots.txt location) is then",
+          "\tfetched using the specified protocol.",
+          "\tIf the URL does not include a protocol, a local file is assumed.",
           "",
           "<url-file>\tlocal file with URLs (one per line), for every URL",
           "\tthe path part (including the query) is checked whether",
           "\tit is allowed by the robots.txt rules.  Other parts of the URLs",
           "\t(mainly the host) are ignored.",
           "",
-          "<agent-names>\tcomma-separated list of agent names",
+          "<agent-names>\tuser-agent name (aka. \"product token\")",
           "\tused to select rules from the robots.txt file.",
+          "\tMultiple agent names can be passed as comma-separated string.",
           "\tIf no agent name is given the properties http.agent.name",
           "\tand http.robots.agents are used.",
           "\tIf also http.agent.name and http.robots.agents are empty,",
@@ -294,6 +331,16 @@ public abstract class RobotRulesParser implements Tool {
       return -1;
     }
 
+    if (args.length > 2) {
+      // set agent name from command-line in configuration
+      // Note: when fetching via protocol this must be done
+      // before the protocol is configured
+      String agents = args[2];
+      conf.set("http.robots.agents", agents);
+      conf.set("http.agent.name", agents.split(",")[0]);
+      setConf(conf);
+    }
+
     Protocol protocol = null;
     URL robotsTxtUrl = null;
     if (args[0].matches("^(?:https?|ftp|file)://?.*")) {
@@ -305,6 +352,7 @@ public abstract class RobotRulesParser implements Tool {
       ProtocolFactory factory = new ProtocolFactory(conf);
       try {
         protocol = factory.getProtocol(robotsTxtUrl);
+        LOG.debug("Using protocol {} to fetch robots.txt", protocol.getClass());
       } catch (ProtocolNotFound e) {
         LOG.error("No protocol found for {}: {}", args[0],
             StringUtils.stringifyException(e));
@@ -328,14 +376,6 @@ public abstract class RobotRulesParser implements Tool {
 
     File urlFile = new File(args[1]);
 
-    if (args.length > 2) {
-      // set agent name from command-line in configuration and update parser
-      String agents = args[2];
-      conf.set("http.robots.agents", agents);
-      conf.set("http.agent.name", agents.split(",")[0]);
-      setConf(conf);
-    }
-
     List<Content> robotsTxtContent = null;
     if (getConf().getBoolean("fetcher.store.robotstxt", false)) {
       robotsTxtContent = new LinkedList<>();
@@ -344,6 +384,7 @@ public abstract class RobotRulesParser implements Tool {
     try {
 
       BaseRobotRules rules = getRobotRulesSet(protocol, robotsTxtUrl, robotsTxtContent);
+      LOG.debug("Robots.txt rules:\n{}", rules);
 
       if (robotsTxtContent != null) {
         for (Content robotsTxt : robotsTxtContent) {
@@ -353,7 +394,8 @@ public abstract class RobotRulesParser implements Tool {
         }
       }
 
-      System.out.println("Testing robots.txt for agent names: " + agentNames);
+      System.out.println("Testing robots.txt for agent names: "
+          + (agentNames.isEmpty() ? "* (any other agent)" : agentNames));
 
       LineNumberReader testsIn = new LineNumberReader(new FileReader(urlFile));
       String testPath;
@@ -393,6 +435,7 @@ public abstract class RobotRulesParser implements Tool {
    */
   private static class TestRobotRulesParser extends RobotRulesParser {
 
+    @Override
     public void setConf(Configuration conf) {
       /*
        * Make sure that agent name is not empty so that

@@ -83,14 +83,17 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
       this.value = value;
     }
 
+    @Override
     public Text getKey() {
       return key;
     }
 
+    @Override
     public CrawlDatum getValue() {
       return value;
     }
 
+    @Override
     public CrawlDatum setValue(CrawlDatum value) {
       this.value = value;
       return this.value;

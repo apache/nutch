@@ -26,9 +26,24 @@
       <param name="collection" value=""/>
       <param name="weight.field" value=""/>
       <param name="commitSize" value="1000"/>
+      <!-- enable authentication. In addition, set username and
+           password for basic authentication, or pass the Bearer
+           token via Authentication header. See below.
+      -->
       <param name="auth" value="false"/>
-      <param name="username" value="username"/>
-      <param name="password" value="password"/>
+      <!-- username and password for basic authentication -->
+      <param name="username" value=""/>
+      <param name="password" value=""/>
+      <!-- Name for Authorization HTTP header
+           <param name="auth.header.name" value="Bearer"/>
+           HTTP header -> Authorization: Bearer 1234567890
+      -->
+      <param name="auth.header.name" value=""/>
+      <!-- Value for Authorization HTTP header
+           <param name="auth.header.value" value="1234567890"/>
+           HTTP header -> Authorization: Bearer 1234567890
+      -->
+      <param name="auth.header.value" value=""/>
     </parameters>
     <mapping>
       <copy>
@@ -113,6 +128,35 @@
       <param name="username" value="elastic"/>
       <param name="password" value=""/>
       <!--<param name="auth" value="false"/>-->
+      <param name="max.bulk.docs" value="250"/>
+      <param name="max.bulk.size" value="2500500"/>
+      <param name="exponential.backoff.millis" value="100"/>
+      <param name="exponential.backoff.retries" value="10"/>
+      <param name="bulk.close.timeout" value="600"/>
+      <!--<param name="options" value="key1=value1,key2=value2"/>-->
+    </parameters>
+    <mapping>
+      <copy>
+        <field source="title" dest="title,search"/>
+      </copy>
+      <rename />
+      <remove />
+    </mapping>
+  </writer>
+  <writer id="indexer_opensearch_1x_1" class="org.apache.nutch.indexwriter.opensearch1x.OpenSearch1xIndexWriter">
+    <parameters>
+      <param name="host" value="localhost"/>
+      <param name="port" value="9200"/>
+      <param name="scheme" value="https"/><!-- http or https -->
+      <param name="index" value="nutch"/>
+      <param name="username" value="admin"/>
+      <param name="password" value="admin"/>
+      <param name="trust.store.path" value=""/>
+      <param name="trust.store.password" value=""/>
+      <param name="trust.store.type" value="JKS"/>
+      <param name="key.store.path" value=""/>
+      <param name="key.store.password" value=""/>
+      <param name="key.store.type" value="JKS"/>
       <param name="max.bulk.docs" value="250"/>
       <param name="max.bulk.size" value="2500500"/>
       <param name="exponential.backoff.millis" value="100"/>

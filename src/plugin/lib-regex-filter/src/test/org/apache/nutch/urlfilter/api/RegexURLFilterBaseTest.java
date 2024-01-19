@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.urlfilter.api;
 
-// JDK imports
 import java.lang.invoke.MethodHandles;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -24,12 +23,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Nutch imports
 import org.apache.nutch.net.URLFilter;
 
 /**
@@ -58,7 +58,8 @@ public abstract class RegexURLFilterBaseTest {
   }
 
   protected void bench(int loops, Reader rules, Reader urls) {
-    long start = System.currentTimeMillis();
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
     try {
       URLFilter filter = getURLFilter(rules);
       FilteredURL[] expected = readURLFile(urls);
@@ -68,8 +69,8 @@ public abstract class RegexURLFilterBaseTest {
     } catch (Exception e) {
       Assert.fail(e.toString());
     }
-    LOG.info("bench time (" + loops + ") "
-        + (System.currentTimeMillis() - start) + "ms");
+    stopWatch.stop();
+    LOG.info("bench time {} loops {} ms", loops, stopWatch.getTime(TimeUnit.MILLISECONDS));
   }
 
   protected void bench(int loops, String rulesFile, String urlsFile) {

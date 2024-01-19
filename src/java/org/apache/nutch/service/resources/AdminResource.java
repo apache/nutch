@@ -68,6 +68,7 @@ public class AdminResource extends AbstractResource{
   private void scheduleServerStop() {
     LOG.info("Shutting down server in {} sec", DELAY_SEC);
     Thread thread = new Thread() {
+      @Override
       public void run() {
         try {
           Thread.sleep(DELAY_SEC*1000);

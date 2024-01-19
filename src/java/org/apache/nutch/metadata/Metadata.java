@@ -36,7 +36,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
   /**
    * A map of all metadata attributes.
    */
-  private Map<String, String[]> metadata = null;
+  protected Map<String, String[]> metadata = null;
 
   /**
    * Constructs a new, empty metadata.
@@ -66,7 +66,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
   }
 
   /**
-   * Get the value associated to a metadata name. If many values are assiociated
+   * Get the value associated to a metadata name. If many values are associated
    * to the specified name, then the first one is returned.
    * 
    * @param name
@@ -199,6 +199,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
     metadata.clear();
   }
 
+  @Override
   public boolean equals(Object o) {
 
     if (o == null) {
@@ -259,6 +260,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
     return buf.toString();
   }
 
+  @Override
   public final void write(DataOutput out) throws IOException {
     out.writeInt(size());
     String[] values = null;
@@ -280,6 +282,7 @@ public class Metadata implements Writable, CreativeCommons, DublinCore,
     }
   }
 
+  @Override
   public final void readFields(DataInput in) throws IOException {
     int keySize = in.readInt();
     String key;

@@ -33,7 +33,7 @@
   confuse this setting with the http.content.limit setting.
   </description>
 </property>
-  
+
 <property>
   <name>file.crawl.parent</name>
   <value>true</value>
@@ -72,8 +72,17 @@
 <property>
   <name>http.agent.name</name>
   <value></value>
-  <description>HTTP 'User-Agent' request header. MUST NOT be empty - 
+  <description>'User-Agent' name: a single word uniquely identifying your crawler.
+
+  The value is used to select the group of robots.txt rules addressing your
+  crawler. It is also sent as part of the HTTP 'User-Agent' request header.
+
+  This property MUST NOT be empty -
   please set this to a single word uniquely related to your organization.
+
+  Following RFC 9309 the 'User-Agent' name (aka. 'product token')
+  &quot;MUST contain only uppercase and lowercase letters ('a-z' and
+  'A-Z'), underscores ('_'), and hyphens ('-').&quot;
 
   NOTE: You should also check other related properties:
 
@@ -84,7 +93,6 @@
     http.agent.version
 
   and set their values appropriately.
-
   </description>
 </property>
 
@@ -92,23 +100,23 @@
   <name>http.robots.agents</name>
   <value></value>
   <description>Any other agents, apart from 'http.agent.name', that the robots
-  parser would look for in robots.txt. Multiple agents can be provided using 
+  parser would look for in robots.txt. Multiple agents can be provided using
   comma as a delimiter. eg. mybot,foo-spider,bar-crawler
-  
-  The ordering of agents does NOT matter and the robots parser would make 
-  decision based on the agent which matches first to the robots rules.  
-  Also, there is NO need to add a wildcard (ie. "*") to this string as the 
-  robots parser would smartly take care of a no-match situation. 
-    
-  If no value is specified, by default HTTP agent (ie. 'http.agent.name') 
-  would be used for user agent matching by the robots parser. 
+
+  The ordering of agents does NOT matter and the robots.txt parser combines
+  all rules to any of the agent names.  Also, there is NO need to add
+  a wildcard (ie. "*") to this string as the robots parser would smartly
+  take care of a no-match situation.
+
+  If no value is specified, by default HTTP agent (ie. 'http.agent.name')
+  is used for user-agent matching by the robots parser.
   </description>
 </property>
 
 <property>
   <name>http.robot.rules.allowlist</name>
   <value></value>
-  <description>Comma separated list of hostnames or IP addresses to ignore 
+  <description>Comma separated list of hostnames or IP addresses to ignore
   robot rules parsing for. Use with care and only if you are explicitly
   allowed by the site owner to ignore the site's robots.txt!
   Also keep in mind: ignoring the robots.txt rules means that no robots.txt
@@ -133,8 +141,9 @@
   <name>http.robots.503.defer.visits</name>
   <value>true</value>
   <description>Temporarily suspend fetching from a host if the
-  robots.txt response is HTTP 503 or any other 5xx server error. See
-  also http.robots.503.defer.visits.delay and
+  robots.txt response is HTTP 503 or any other 5xx server error
+  and HTTP 429 Too Many Requests. See also
+  http.robots.503.defer.visits.delay and
   http.robots.503.defer.visits.retries</description>
 </property>
 
@@ -142,7 +151,7 @@
   <name>http.robots.503.defer.visits.delay</name>
   <value>300000</value>
   <description>Time in milliseconds to suspend crawling a host if the
-  robots.txt response is HTTP 5xx - see
+  robots.txt response is HTTP 5xx or 429 Too Many Requests - see
   http.robots.503.defer.visits.</description>
 </property>
 
@@ -150,8 +159,18 @@
   <name>http.robots.503.defer.visits.retries</name>
   <value>3</value>
   <description>Number of retries crawling a host if the robots.txt
-  response is HTTP 5xx - see http.robots.503.defer.visits. After n
-  retries the host queue is dropped for this segment/cycle.
+  response is HTTP 5xx or 429 - see http.robots.503.defer.visits.
+  After n retries the host queue is dropped for this segment/cycle.
+  </description>
+</property>
+
+<property>
+  <name>http.robots.redirect.max</name>
+  <value>5</value>
+  <description>Maximum number of redirects followed when fetching
+  a robots.txt file. RFC 9309 specifies that &quot;crawlers SHOULD
+  follow at least five consecutive redirects, even across authorities
+  (for example, hosts in the case of HTTP).&quot;
   </description>
 </property>
 
@@ -166,9 +185,9 @@
 <property>
   <name>http.agent.url</name>
   <value></value>
-  <description>A URL to advertise in the User-Agent header.  This will 
+  <description>A URL to advertise in the User-Agent header. This will
    appear in parenthesis after the agent name. Custom dictates that this
-   should be a URL of a page explaining the purpose and behavior of this
+   should be a URL to a page that explains the purpose and behavior of this
    crawler.
   </description>
 </property>
@@ -176,16 +195,16 @@
 <property>
   <name>http.agent.email</name>
   <value></value>
-  <description>An email address to advertise in the HTTP 'From' request
-   header and User-Agent header. A good practice is to mangle this
-   address (e.g. 'info at example dot com') to avoid spamming.
+  <description>An email address to advertise in the HTTP 'User-Agent' (and
+   'From') request headers. A good practice is to mangle this address
+   (e.g. 'info at example dot com') to avoid spamming.
   </description>
 </property>
 
 <property>
   <name>http.agent.version</name>
   <value>Nutch-1.20-SNAPSHOT</value>
-  <description>A version string to advertise in the User-Agent 
+  <description>A version string to advertise in the User-Agent
    header.</description>
 </property>
 
@@ -202,7 +221,7 @@
   <name>http.agent.rotate.file</name>
   <value>agents.txt</value>
   <description>
-    File containing alternative user agent names to be used instead of
+    File containing alternative user-agent names to be used instead of
     http.agent.name on a rotating basis if http.agent.rotate is true.
     Each line of the file should contain exactly one agent
     specification including name, version, description, URL, etc.
@@ -346,7 +365,7 @@
 <property>
   <name>http.proxy.exception.list</name>
   <value></value>
-  <description>A comma separated list of hosts that don't use the proxy 
+  <description>A comma separated list of hosts that don't use the proxy
   (e.g. intranets). Example: www.apache.org</description>
 </property>
 
@@ -377,7 +396,7 @@
   <description>Value of the "Accept-Language" request header field.
   This allows selecting non-English language as default one to retrieve.
   It is a useful setting for search engines build for certain national group.
-  To send requests without "Accept-Language" header field, thi  property must
+  To send requests without "Accept-Language" header field, this property must
   be configured to contain a space character because an empty property does
   not overwrite the default.
   </description>
@@ -402,8 +421,8 @@
 <property>
   <name>http.store.responsetime</name>
   <value>true</value>
-  <description>Enables us to record the response time of the 
-  host which is the time period between start connection to end 
+  <description>Enables us to record the response time of the
+  host which is the time period between start connection to end
   connection of a pages host. The response time in milliseconds
   is stored in CrawlDb in CrawlDatum's meta data under key &quot;_rs_&quot;
   </description>
@@ -564,7 +583,7 @@
   <description>The implementation of fetch schedule. DefaultFetchSchedule simply
   adds the original fetchInterval to the last fetch time, regardless of
   page changes, whereas AdaptiveFetchSchedule (see below) tries to adapt
-  to the rate at which a given page is changed. 
+  to the rate at which a given page is changed.
   </description>
 </property>
 
@@ -633,9 +652,9 @@
 <property>
   <name>db.preserve.backup</name>
   <value>true</value>
-  <description>If true, updatedb will keep a backup of the previous CrawlDB
-  version in the old directory. In case of disaster, one can rename old to 
-  current and restore the CrawlDB to its previous state.
+  <description>If true, updatedb will keep a backup of the previous CrawlDb
+  version in the old directory. In case of disaster, one can rename old to
+  current and restore the CrawlDb to its previous state.
   </description>
 </property>
 
@@ -643,7 +662,7 @@
   <name>db.update.purge.404</name>
   <value>false</value>
   <description>If true, updatedb will add purge records with status DB_GONE
-  from the CrawlDB.
+  from the CrawlDb.
   </description>
 </property>
 
@@ -662,7 +681,7 @@
     <value>false</value>
     <description>
 	!Temporary, can be overwritten with the command line!
-	Normalize URLs when updating crawldb
+	Normalize URLs when updating CrawlDb
     </description>
 </property>
 
@@ -671,35 +690,34 @@
     <value>false</value>
     <description>
 	!Temporary, can be overwritten with the command line!
-	Filter URLS when updating crawldb
+	Filter URLs when updating CrawlDb
     </description>
 </property>
 
 <property>
   <name>db.update.max.inlinks</name>
   <value>10000</value>
-  <description>Maximum number of inlinks to take into account when updating 
-  a URL score in the crawlDB. Only the best scoring inlinks are kept. 
+  <description>Maximum number of inlinks to take into account when updating
+  a URL score in the CrawlDb. Only the best scoring inlinks are kept.
   </description>
 </property>
 
 <property>
   <name>db.ignore.internal.links</name>
   <value>false</value>
-  <description>If true, outlinks leading from a page to internal hosts or domain
-  will be ignored. This is an effective way to limit the crawl to include
-  only initially injected hosts or domains, without creating complex URLFilters.
-  See 'db.ignore.external.links.mode'.
+  <description>If true, outlinks leading from a page to pages of the
+  same host or domain will be ignored.  See also
+  'db.ignore.external.links' and 'db.ignore.external.links.mode'.
   </description>
 </property>
 
 <property>
   <name>db.ignore.external.links</name>
   <value>false</value>
-  <description>If true, outlinks leading from a page to external hosts or domain
+  <description>If true, outlinks leading from a page to an external host or domain
   will be ignored. This is an effective way to limit the crawl to include
   only initially injected hosts or domains, without creating complex URLFilters.
-  See 'db.ignore.external.links.mode'.
+  See also 'db.ignore.external.links.mode'.
   </description>
 </property>
 
@@ -716,7 +734,11 @@
 <property>
   <name>db.ignore.external.links.mode</name>
   <value>byHost</value>
-  <description>Alternative value is byDomain</description>
+  <description>
+    Whether internal or external links are determined by host
+    ('byHost') or domain ('byDomain'). See also the properties
+    'db.ignore.external.links' and 'db.ignore.internal.links'.
+  </description>
 </property>
 
  <property>
@@ -730,7 +752,7 @@
 <property>
   <name>db.injector.overwrite</name>
   <value>false</value>
-  <description>Whether existing records in the CrawlDB will be overwritten
+  <description>Whether existing records in the CrawlDb will be overwritten
   by injected records.
   </description>
 </property>
@@ -738,7 +760,7 @@
 <property>
   <name>db.injector.update</name>
   <value>false</value>
-  <description>If true existing records in the CrawlDB will be updated with
+  <description>If true existing records in the CrawlDb will be updated with
   injected records. Old meta data is preserved. The db.injector.overwrite
   parameter has precedence.
   </description>
@@ -783,7 +805,7 @@
   <name>db.max.outlinks.per.page</name>
   <value>100</value>
   <description>The maximum number of outlinks that we'll process for a page.
-  If this value is nonnegative (>=0), at most db.max.outlinks.per.page outlinks
+  If this value is non-negative (>=0), at most db.max.outlinks.per.page outlinks
   will be processed for a page; otherwise, all outlinks will be processed.
   </description>
 </property>
@@ -794,7 +816,7 @@
   <description>
     The maximum length in characters accepted for outlinks before
     applying URL normalizers and filters.  If this value is
-    nonnegative (>=0), only URLs with a length in characters less or
+    non-negative (>=0), only URLs with a length in characters less or
     equal than db.max.outlink.length are accepted and then passed to
     URL normalizers and filters. Doing the length check beforehand
     avoids that normalizers or filters hang up on overlong URLs.
@@ -806,9 +828,10 @@
 <property>
   <name>db.parsemeta.to.crawldb</name>
   <value></value>
-  <description>Comma-separated list of parse metadata keys to transfer to the crawldb (NUTCH-779).
-   Assuming for instance that the languageidentifier plugin is enabled, setting the value to 'lang' 
-   will copy both the key 'lang' and its value to the corresponding entry in the crawldb.
+  <description>
+    Comma-separated list of parse metadata keys to transfer to the CrawlDb (NUTCH-779).
+    Assuming for instance that the 'languageidentifier' plugin is enabled, setting the value to 'lang'
+    will copy both the key 'lang' and its value to the corresponding entry in the CrawlDb.
   </description>
 </property>
 
@@ -870,7 +893,8 @@
   <value>true</value>
   <description>If true, when adding new links to a page, links from
   the same host are ignored.  This is an effective way to limit the
-  size of the link database, keeping only the highest quality
+  size of the link and anchor text database (LinkDb), keeping only the
+  more descriptive external links and ignoring internal navigation
   links.
   </description>
 </property>
@@ -878,8 +902,8 @@
 <property>
   <name>linkdb.ignore.external.links</name>
   <value>false</value>
-  <description>If true, when adding new links to a page, links from
-  the a different host are ignored.
+  <description>If true, when adding new links to a page in the LinkDb,
+  links from a different host are ignored.
   </description>
 </property>
 
@@ -907,7 +931,7 @@
   <name>generate.count.mode</name>
   <value>host</value>
   <description>Determines how the URLs are counted for generate.max.count.
-  Default value is 'host' but can be 'domain'. Note that we do not count 
+  Default value is 'host' but can be 'domain'. Note that we do not count
   per IP in the new version of the Generator.
   </description>
 </property>
@@ -918,7 +942,7 @@
   <description>For highly-concurrent environments, where several
   generate/fetch/update cycles may overlap, setting this to true ensures
   that generate will create different fetchlists even without intervening
-  updatedb-s, at the cost of running an additional job to update CrawlDB.
+  updatedb-s, at the cost of running an additional job to update CrawlDb.
   If false, running generate twice without intervening updatedb will
   generate identical fetchlists. See also crawl.gen.delay which defines
   how long items already generated are blocked.</description>
@@ -974,8 +998,8 @@
 <property>
   <name>partition.url.mode</name>
   <value>byHost</value>
-  <description>Determines how to partition URLs. Default value is 'byHost', 
-  also takes 'byDomain' or 'byIP'. 
+  <description>Determines how to partition URLs. Default value is 'byHost',
+  also takes 'byDomain' or 'byIP'.
   </description>
 </property>
 
@@ -983,8 +1007,8 @@
   <name>crawl.gen.delay</name>
   <value>604800000</value>
   <description>
-   This value, expressed in milliseconds, defines how long we should keep the lock on records 
-   in CrawlDb that were just selected for fetching. If these records are not updated 
+   This value, expressed in milliseconds, defines how long we should keep the lock on records
+   in CrawlDb that were just selected for fetching. If these records are not updated
    in the meantime, the lock is canceled, i.e. they become eligible for selecting again.
    Default value of this is 7 days (604800000 ms). If generate.update.crawldb is false
    the property crawl.gen.delay has no effect.
@@ -996,9 +1020,9 @@
 <property>
   <name>fetcher.server.delay</name>
   <value>5.0</value>
-  <description>The number of seconds the fetcher will delay between 
+  <description>The number of seconds the fetcher will delay between
    successive requests to the same server. Note that this might get
-   overridden by a Crawl-Delay from a robots.txt and is used ONLY if 
+   overridden by a Crawl-Delay from a robots.txt and is used ONLY if
    fetcher.threads.per.queue is set to 1.
    </description>
 </property>
@@ -1006,7 +1030,7 @@
 <property>
   <name>fetcher.server.min.delay</name>
   <value>0.0</value>
-  <description>The minimum number of seconds the fetcher will delay between 
+  <description>The minimum number of seconds the fetcher will delay between
   successive requests to the same server. This value is applicable ONLY
   if fetcher.threads.per.queue is greater than 1 (i.e. the host blocking
   is turned off).</description>
@@ -1022,7 +1046,7 @@
  amount of time retrieved from robots.txt Crawl-Delay, however long that
  might be.
  </description>
-</property> 
+</property>
 
 <property>
  <name>fetcher.min.crawl.delay</name>
@@ -1060,10 +1084,10 @@
   <name>fetcher.threads.per.queue</name>
   <value>1</value>
   <description>This number is the maximum number of threads that
-    should be allowed to access a queue at one time. Setting it to 
+    should be allowed to access a queue at one time. Setting it to
     a value > 1 will cause the Crawl-Delay value from robots.txt to
     be ignored and the value of fetcher.server.min.delay to be used
-    as a delay between successive requests to the same server instead 
+    as a delay between successive requests to the same server instead
     of fetcher.server.delay.
    </description>
 </property>
@@ -1119,7 +1143,7 @@
   <name>fetcher.timelimit.mins</name>
   <value>-1</value>
   <description>This is the number of minutes allocated to the fetching.
-  Once this value is reached, any remaining entry from the input URL list is skipped 
+  Once this value is reached, any remaining entry from the input URL list is skipped
   and all active queues are emptied. The default value of -1 deactivates the time limit.
   </description>
 </property>
@@ -1188,7 +1212,7 @@
   <value>50</value>
   <description>(EXPERT)The fetcher buffers the incoming URLs into queues based on the [host|domain|IP]
   (see param fetcher.queue.mode). The depth of the queue is the number of threads times the value of this parameter.
-  A large value requires more memory but can improve the performance of the fetch when the order of the URLS in the fetch list
+  A large value requires more memory but can improve the performance of the fetch when the order of the URLs in the fetch list
   is not optimal.
   </description>
 </property>
@@ -1198,7 +1222,7 @@
   <value>-1</value>
   <description>(EXPERT)When fetcher.parse is true and this value is greater than 0 the fetcher will extract outlinks
   and follow until the desired depth is reached. A value of 1 means all generated pages are fetched and their first degree
-  outlinks are fetched and parsed too. Be careful, this feature is in itself agnostic of the state of the CrawlDB and does not
+  outlinks are fetched and parsed too. Be careful, this feature is in itself agnostic of the state of the CrawlDb and does not
   know about already fetched pages. A setting larger than 2 will most likely fetch home pages twice in the same fetch cycle.
   It is highly recommended to set db.ignore.external.links to true to restrict the outlink follower to URLs within the same
   domain. When disabled (false) the feature is likely to follow duplicates even when depth=1.
@@ -1226,7 +1250,7 @@
 
 <property>
   <name>fetcher.follow.outlinks.ignore.external</name>
-  <value>true</value>  
+  <value>true</value>
   <description>Whether to ignore or follow external links. Set db.ignore.external.links to false and this to true to store outlinks
   in the output but not follow them. If db.ignore.external.links is true this directive is ignored.
   </description>
@@ -1234,22 +1258,22 @@
 
 <property>
   <name>fetcher.bandwidth.target</name>
-  <value>-1</value>  
-  <description>Target bandwidth in kilobits per sec for each mapper instance. This is used to adjust the number of 
+  <value>-1</value>
+  <description>Target bandwidth in kilobits per sec for each mapper instance. This is used to adjust the number of
   fetching threads automatically (up to fetcher.maxNum.threads). A value of -1 deactivates the functionality, in which case
   the number of fetching threads is fixed (see fetcher.threads.fetch).</description>
 </property>
 
 <property>
   <name>fetcher.maxNum.threads</name>
-  <value>25</value>  
+  <value>25</value>
   <description>Max number of fetch threads allowed when using fetcher.bandwidth.target. Defaults to fetcher.threads.fetch if unspecified or
   set to a value lower than it. </description>
 </property>
 
 <property>
   <name>fetcher.bandwidth.target.check.everyNSecs</name>
-  <value>30</value>  
+  <value>30</value>
   <description>(EXPERT) Value in seconds which determines how frequently we should reassess the optimal number of fetch threads when using
    fetcher.bandwidth.target. Defaults to 30 and must be at least 1.</description>
 </property>
@@ -1270,7 +1294,7 @@
 	<value>false</value>
 	<description>Set this value to true if you want to use an implementation of the Publisher/Subscriber model. Make sure to set corresponding
 	Publisher implementation specific properties</description>
-</property> 
+</property>
 
 <property>
   <name>fetcher.filter.urls</name>
@@ -1340,22 +1364,6 @@
   </description>
 </property>
 
-
-
-<!--  any23 plugin properties -->
-
-<property>
-    <name>any23.extractors</name>
-    <value>html-microdata</value>
-    <description>Comma-separated list of Any23 extractors (a list of extractors is available here: http://any23.apache.org/getting-started.html)</description>
-</property>
-
-<property>
-    <name>any23.content_types</name>
-    <value>text/html,application/xhtml+xml</value>
-    <description>Comma-separated list of content-types onto which Any23 extractors should be applied (see http://www.iana.org/assignments/media-types/). If empty, all content-types are supported.</description>
-</property>
-
 <!-- moreindexingfilter plugin properties -->
 
 <property>
@@ -1409,7 +1417,7 @@
   in given order. For example, if this property has value:
   org.apache.nutch.indexer.basic.BasicIndexingFilter org.apache.nutch.indexer.more.MoreIndexingFilter
   then BasicIndexingFilter is applied first, and MoreIndexingFilter second.
-  
+
   Filter ordering might have impact on result if one filter depends on output of
   another filter.
   </description>
@@ -1551,7 +1559,7 @@
   <name>mime.types.file</name>
   <value>tika-mimetypes.xml</value>
   <description>Name of file in CLASSPATH containing filename extension and
-  magic sequence to mime types mapping information. Overrides the default Tika config 
+  magic sequence to mime types mapping information. Overrides the default Tika config
   if specified.
   </description>
 </property>
@@ -1585,7 +1593,7 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-(regex|validator)|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
+  <value>protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   By default Nutch includes plugins to crawl HTML and various other
@@ -1599,7 +1607,7 @@
 <property>
   <name>plugin.excludes</name>
   <value></value>
-  <description>Regular expression naming plugin directory names to exclude.  
+  <description>Regular expression naming plugin directory names to exclude.
   </description>
 </property>
 
@@ -1612,7 +1620,7 @@
     custom tags here will allow for their propagation into a pages outlinks, as
     well as allow for them to be included as part of an index.
     Values should be comma-delimited. ("tag1,tag2,tag3") Do not pad the tags with
-    white-space at their boundaries, if you are using anything earlier than Hadoop-0.21. 
+    white-space at their boundaries, if you are using anything earlier than Hadoop-0.21.
   </description>
 </property>
 
@@ -1670,8 +1678,8 @@
 <property>
   <name>parser.html.outlinks.ignore_tags</name>
   <value></value>
-  <description>Comma separated list of HTML tags, from which outlinks 
-  shouldn't be extracted. Nutch takes links from: a, area, form, frame, 
+  <description>Comma separated list of HTML tags, from which outlinks
+  shouldn't be extracted. Nutch takes links from: a, area, form, frame,
   iframe, script, link, img. If you add any of those tags here, it
   won't be taken. Default is empty list. Probably reasonable value
   for most people would be "img,script,link".</description>
@@ -1710,7 +1718,7 @@
 <property>
   <name>parsefilter.naivebayes.trainfile</name>
   <value>naivebayes-train.txt</value>
-  <description>Set the name of the file to be used for Naive Bayes training. The format will be: 
+  <description>Set the name of the file to be used for Naive Bayes training. The format will be:
 Each line contains two tab separated parts
 There are two columns/parts:
 1. "1" or "0", "1" for relevant and "0" for irrelevant documents.
@@ -1724,16 +1732,16 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <property>
   <name>parsefilter.naivebayes.wordlist</name>
   <value>naivebayes-wordlist.txt</value>
-  <description>Put the name of the file you want to be used as a list of 
-  important words to be matched in the url for the model filter. The format should be one word per line.
+  <description>Put the name of the file you want to be used as a list of
+  important words to be matched in the URL for the model filter. The format should be one word per line.
   </description>
 </property>
 
 <property>
   <name>parser.timeout</name>
   <value>30</value>
-  <description>Timeout in seconds for the parsing of a document, otherwise treats it as an exception and 
-  moves on the the following documents. This parameter is applied to any Parser implementation. 
+  <description>Timeout in seconds for the parsing of a document, otherwise treats it as an exception and
+  moves on the the following documents. This parameter is applied to any Parser implementation.
   Set to -1 to deactivate, bearing in mind that this could cause
   the parsing to crash because of a very long or corrupted document.
   </description>
@@ -1754,8 +1762,8 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <property>
   <name>parser.skip.truncated</name>
   <value>true</value>
-  <description>Boolean value for whether we should skip parsing for truncated documents. By default this 
-  property is activated due to extremely high levels of CPU which parsing can sometimes take.  
+  <description>Boolean value for whether we should skip parsing for truncated documents. By default this
+  property is activated due to extremely high levels of CPU which parsing can sometimes take.
   </description>
 </property>
 
@@ -1798,10 +1806,10 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
-<property> 
+<property>
   <name>tika.extractor.boilerpipe.algorithm</name>
   <value>ArticleExtractor</value>
-  <description> 
+  <description>
   Which Boilerpipe algorithm to use. Valid values are: DefaultExtractor, ArticleExtractor
   or CanolaExtractor.
   </description>
@@ -1850,29 +1858,59 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <property>
   <name>urlfilter.prefix.file</name>
   <value>prefix-urlfilter.txt</value>
-  <description>Name of file on CLASSPATH containing url prefixes
+  <description>Name of file on CLASSPATH containing URL prefixes
   used by urlfilter-prefix (PrefixURLFilter) plugin.</description>
 </property>
 
 <property>
   <name>urlfilter.suffix.file</name>
   <value>suffix-urlfilter.txt</value>
-  <description>Name of file on CLASSPATH containing url suffixes
+  <description>Name of file on CLASSPATH containing URL suffixes
   used by urlfilter-suffix (SuffixURLFilter) plugin.</description>
 </property>
 
 <property>
   <name>urlfilter.fast.file</name>
   <value>fast-urlfilter.txt</value>
-  <description>Name of file on CLASSPATH containing regular expressions
-  used by urlfilter-fast (FastURLFilter) plugin.</description>
+  <description>Name of file containing rules and regular expressions
+  used by urlfilter-fast (FastURLFilter) plugin. If the filename
+  includes a scheme (for example, hdfs://) it is loaded using the
+  Hadoop FileSystem implementation supporting that scheme. If the
+  filename does not contain a scheme, the file is loaded from
+  CLASSPATH. If indicated by file extension (.gz, .bzip2, .zst),
+  the file is decompressed while reading using Hadoop-provided
+  compression codecs.</description>
+</property>
+
+<property>
+  <name>urlfilter.fast.url.max.length</name>
+  <value>-1</value>
+  <description>Filters URLs based on their overall length.
+  The default value of -1 means that it is deactivated.
+  </description>
+</property>
+
+<property>
+  <name>urlfilter.fast.url.path.max.length</name>
+  <value>-1</value>
+  <description>Filters URLs based on the length of their path element.
+  The default value of -1 means that it is deactivated.
+  </description>
+</property>
+
+<property>
+  <name>urlfilter.fast.url.query.max.length</name>
+  <value>-1</value>
+  <description>Filters URLs based on the length of their query element.
+  The default value of -1 means that it is deactivated.
+  </description>
 </property>
 
 <property>
   <name>urlfilter.order</name>
   <value></value>
   <description>The order by which URL filters are applied.
-  If empty, all available url filters (as dictated by properties
+  If empty, all available URL filters (as dictated by properties
   plugin-includes and plugin-excludes above) are loaded and applied in system
   defined order. If not empty, only named filters are loaded and applied
   in given order. For example, if this property has value:
@@ -1899,7 +1937,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <!-- scoring-depth properties
  Add 'scoring-depth' to the list of active plugins
  in the parameter 'plugin.includes' in order to use it.
- -->
+-->
 
 <property>
   <name>scoring.depth.max</name>
@@ -1907,23 +1945,40 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   <description>Max depth value from seed allowed by default.
   Can be overridden on a per-seed basis by specifying "_maxdepth_=VALUE"
   as a seed metadata. This plugin adds a "_depth_" metadatum to the pages
-  to track the distance from the seed it was found from. 
+  to track the distance from the seed it was found from.
   The depth is used to prioritise URLs in the generation step so that
   shallower pages are fetched first.
   </description>
 </property>
 
+<property>
+  <name>scoring.depth.override.pattern</name>
+  <value></value>
+  <description>URLs matching this pattern pass a different max depth value
+  to their outlinks configured in scoring.depth.max.override.
+  </description>
+</property>
+
+<property>
+  <name>scoring.depth.max.override</name>
+  <value></value>
+  <description>This max depth value is passed to outlinks matching the pattern
+  configured in scoring.depth.override.pattern.
+  </description>
+</property>
+
 <!-- scoring similarity properties
-Add scoring-similarity to the list of active plugins
- in the parameter 'plugin.includes' in order to use it. 
-For more detailed information on the working of this filter 
-visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter -->
+ Add scoring-similarity to the list of active plugins
+ in the parameter 'plugin.includes' in order to use it.
+ For more detailed information on the working of this filter
+ visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter
+-->
 
 <property>
     <name>scoring.similarity.model</name>
     <value>cosine</value>
     <description>The type of similarity metric to use. Eg - cosine (which is, currently, the only available model).
-      Please make sure to set the model specific properties for the scoring to function properly. 
+      Please make sure to set the model specific properties for the scoring to function properly.
       Description of these properties can be found on the wiki.
     </description>
 </property>
@@ -1939,7 +1994,7 @@ visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter 
 <property>
     <name>cosine.goldstandard.file</name>
     <value>goldstandard.txt</value>
-    <description>Path to the gold standard file which contains all the relevant text and terms, 
+    <description>Path to the gold standard file which contains all the relevant text and terms,
       pertaining to the domain.
     </description>
 </property>
@@ -1947,7 +2002,7 @@ visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter 
  <property>
     <name>scoring.similarity.stopword.file</name>
     <value>stopwords.txt</value>
-    <description>Name of the stopword text file. The user can specify a custom list of stop words 
+    <description>Name of the stopword text file. The user can specify a custom list of stop words
       in a text file. Each new stopword should be on a new line.
     </description>
 </property>
@@ -1972,30 +2027,30 @@ visit https://cwiki.apache.org/confluence/display/NUTCH/SimilarityScoringFilter 
 
 
 <!-- scoring metadata properties
-Add scoring-metadata to the list of active plugins
+ Add scoring-metadata to the list of active plugins
  in the parameter 'plugin.includes' in order to use it.
- -->
+-->
 <property>
   <name>scoring.db.md</name>
   <value></value>
-  <description> 
-  Comma-separated list of keys to be taken from crawldb metadata of a url to the fetched content metadata.
+  <description>
+  Comma-separated list of keys to be taken from CrawlDb metadata of a URL to the fetched content metadata.
   </description>
 </property>
 
 <property>
   <name>scoring.content.md</name>
   <value></value>
-  <description> 
-  Comma-separated list of keys to be taken from content metadata of a url and put as metadata in the parse data.
+  <description>
+  Comma-separated list of keys to be taken from content metadata of a URL and put as metadata in the parse data.
   </description>
 </property>
 
 <property>
   <name>scoring.parse.md</name>
   <value></value>
-  <description> 
-  Comma-separated list of keys to be taken from metadata of the parse data of a url and propogated as metadata to the url outlinks.
+  <description>
+  Comma-separated list of keys to be taken from metadata of the parse data of a URL and propagated as metadata to the URL outlinks.
   </description>
 </property>
 
@@ -2073,11 +2128,11 @@ Add scoring-metadata to the list of active plugins
   <name>index.static</name>
   <value></value>
   <description>
-  Used by plugin index-static to adds fields with static data at indexing time. 
+  Used by plugin index-static to adds fields with static data at indexing time.
   You can specify a comma-separated list of fieldname:fieldcontent per Nutch job.
   Each fieldcontent can have multiple values separated by space, e.g.,
     field1:value1.1 value1.2 value1.3,field2:value2.1 value2.2 ...
-  It can be useful when collections can't be created by URL patterns, 
+  It can be useful when collections can't be created by URL patterns,
   like in subcollection, but on a job-basis.
   </description>
 </property>
@@ -2118,7 +2173,7 @@ Add scoring-metadata to the list of active plugins
   <description>
   Comma-separated list of keys to be taken from the parse metadata to generate fields.
   Can be used e.g. for 'description' or 'keywords' provided that these values are generated
-  by a parser (see parse-metatags plugin)  
+  by a parser (see parse-metatags plugin)
   </description>
 </property>
 
@@ -2126,7 +2181,7 @@ Add scoring-metadata to the list of active plugins
   <name>index.content.md</name>
   <value></value>
   <description>
-   Comma-separated list of keys to be taken from the content metadata to generate fields. 
+   Comma-separated list of keys to be taken from the content metadata to generate fields.
   </description>
 </property>
 
@@ -2134,8 +2189,8 @@ Add scoring-metadata to the list of active plugins
   <name>index.db.md</name>
   <value></value>
   <description>
-     Comma-separated list of keys to be taken from the crawldb metadata to generate fields.
-     Can be used to index values propagated from the seeds with the plugin urlmeta 
+     Comma-separated list of keys to be taken from the CrawlDb metadata to generate fields.
+     Can be used to index values propagated from the seeds with the plugin urlmeta
   </description>
 </property>
 
@@ -2154,9 +2209,9 @@ Add scoring-metadata to the list of active plugins
   <value>insightsService</value>
   <description>
   A string representing the information source to be used for GeoIP information
-  association. Either enter 'cityDatabase', 'connectionTypeDatabase', 
-  'domainDatabase', 'ispDatabase' or 'insightsService'. If you wish to use any one of the 
-  Database options, you should make one of GeoIP2-City.mmdb, GeoIP2-Connection-Type.mmdb, 
+  association. Either enter 'cityDatabase', 'connectionTypeDatabase',
+  'domainDatabase', 'ispDatabase' or 'insightsService'. If you wish to use any one of the
+  Database options, you should make one of GeoIP2-City.mmdb, GeoIP2-Connection-Type.mmdb,
   GeoIP2-Domain.mmdb or GeoIP2-ISP.mmdb files respectively available on the classpath and
   available at runtime. Alternatively, also the GeoLite2 IP databases (GeoLite2-*.mmdb)
   can be used.
@@ -2203,24 +2258,13 @@ Add scoring-metadata to the list of active plugins
   <value>description,keywords</value>
   <description> Names of the metatags to extract, separated by ','.
   Use '*' to extract all metatags. Prefixes the names with 'metatag.'
-  in the parse-metadata. For instance to index description and keywords, 
-  you need to activate the plugin index-metadata and set the value of the 
+  in the parse-metadata. For instance to index description and keywords,
+  you need to activate the plugin index-metadata and set the value of the
   parameter 'index.parse.md' to 'metatag.description,metatag.keywords'.
   </description>
 </property>
 
-<!-- Temporary Hadoop 0.17.x workaround. -->
-
-<property>
-  <name>hadoop.job.history.user.location</name>
-  <value>${hadoop.log.dir}/history/user</value>
-  <description>Hadoop 0.17.x comes with a default setting to create
-     user logs inside the output path of the job. This breaks some
-     Hadoop classes, which expect the output to contain only
-     part-XXXXX files. This setting changes the output to a
-     subdirectory of the regular log directory.
-  </description>
-</property>
+<!-- Hadoop properties -->
 
 <property>
   <name>io.serializations</name>
@@ -2256,7 +2300,7 @@ Add scoring-metadata to the list of active plugins
   <name>link.ignore.limit.domain</name>
   <value>true</value>
   <description>Limit to only a single outlink to the same domain.</description>
-</property> 
+</property>
 
 <property>
   <name>link.analyze.num.iterations</name>
@@ -2291,7 +2335,7 @@ Add scoring-metadata to the list of active plugins
 <property>
   <name>mapreduce.fileoutputcommitter.marksuccessfuljobs</name>
   <value>false</value>
-  <description>Hadoop >= 0.21 generates SUCCESS files in the output which can crash 
+  <description>Hadoop >= 0.21 generates SUCCESS files in the output which can crash
   the readers. This should not be an issue once Nutch is ported to the new MapReduce API
   but for now this parameter should prevent such cases.
   </description>
@@ -2347,7 +2391,7 @@ Add scoring-metadata to the list of active plugins
   <name>page.load.delay</name>
   <value>3</value>
   <description>
-    The delay in seconds to use when loading a page with htmlunit or selenium. 
+    The delay in seconds to use when loading a page with htmlunit or selenium.
   </description>
 </property>
 
@@ -2382,7 +2426,7 @@ Add scoring-metadata to the list of active plugins
   <value>true</value>
   <description>
     A Boolean value representing if javascript should
-    be enabled or disabled when using htmlunit. The default value is enabled. 
+    be enabled or disabled when using htmlunit. The default value is enabled.
   </description>
 </property>
 
@@ -2391,7 +2435,7 @@ Add scoring-metadata to the list of active plugins
   <value>3500</value>
   <description>
     The timeout in milliseconds when loading javascript with lib-htmlunit. This
-    setting is used by protocol-htmlunit since they depending on 
+    setting is used by protocol-htmlunit since they depending on
     lib-htmlunit for fetching.
   </description>
 </property>
@@ -2411,7 +2455,7 @@ Add scoring-metadata to the list of active plugins
   <name>selenium.driver</name>
   <value>firefox</value>
   <description>
-    A String value representing the flavour of Selenium 
+    A String value representing the flavour of Selenium
     WebDriver() to use. Currently the following options
     exist - 'firefox', 'chrome', 'safari', 'opera' and 'remote'.
     If 'remote' is used it is essential to also set correct properties for
@@ -2448,7 +2492,7 @@ Add scoring-metadata to the list of active plugins
 <property>
   <name>selenium.grid.driver</name>
   <value>firefox</value>
-  <description>A String value representing the flavour of Selenium 
+  <description>A String value representing the flavour of Selenium
     WebDriver() used on the selenium grid. We must set `selenium.driver` to `remote` first.
     Currently the following options
     exist - 'firefox', 'chrome', 'random' </description>
@@ -2457,7 +2501,7 @@ Add scoring-metadata to the list of active plugins
 <property>
   <name>selenium.grid.binary</name>
   <value></value>
-  <description>A String value representing the path to the browser binary 
+  <description>A String value representing the path to the browser binary
     location for each node
  </description>
 </property>
@@ -2470,13 +2514,13 @@ Add scoring-metadata to the list of active plugins
     for Firefix and Chrome drivers
   </description>
 </property>
-<!-- selenium firefox configuration; 
+<!-- selenium firefox configuration;
      applies to protocol-selenium and protocol-interactiveselenium plugins -->
 <property>
   <name>selenium.firefox.allowed.hosts</name>
   <value>localhost</value>
   <description>A String value representing the allowed hosts preference
-  according to the operating system hosts file (Example - /etc/hosts in Unix). 
+  according to the operating system hosts file (Example - /etc/hosts in Unix).
   Currently this option exist for - 'firefox' </description>
 </property>
 
@@ -2484,7 +2528,7 @@ Add scoring-metadata to the list of active plugins
   <name>selenium.firefox.binary.timeout</name>
   <value>45</value>
   <description>A Long value representing the timeout value
-  for firefox to be available for command execution. The value is in seconds. 
+  for firefox to be available for command execution. The value is in seconds.
   Currently this option exist for - 'firefox' </description>
 </property>
 
@@ -2492,7 +2536,7 @@ Add scoring-metadata to the list of active plugins
   <name>selenium.firefox.enable.flash</name>
   <value>false</value>
   <description>A Boolean value representing if flash should
-  be enabled or disabled. The default value is disabled. 
+  be enabled or disabled. The default value is disabled.
   Currently this option exist for - 'firefox' </description>
 </property>
 
@@ -2504,7 +2548,7 @@ Add scoring-metadata to the list of active plugins
   Other options are:
   1: Load all images, regardless of origin
   2: Block all images
-  3: Prevent third-party images from loading 
+  3: Prevent third-party images from loading
   Currently this option exist for - 'firefox' </description>
 </property>
 
@@ -2512,7 +2556,7 @@ Add scoring-metadata to the list of active plugins
   <name>selenium.firefox.load.stylesheet</name>
   <value>1</value>
   <description>An Integer value representing the restriction on
-  loading stylesheet. The default value is no restriction i.e. load 
+  loading stylesheet. The default value is no restriction i.e. load
   all stylesheet.
   Other options are:
   1: Load all stylesheet
@@ -2577,7 +2621,7 @@ Add scoring-metadata to the list of active plugins
   <name>index.links.outlinks.host.ignore</name>
   <value>false</value>
   <description>
-    Ignore outlinks that point out to the same host as the URL being indexed. 
+    Ignore outlinks that point out to the same host as the URL being indexed.
     By default all outlinks are indexed. If db.ignore.internal.links is true (default
     value), this setting does nothing since the internal links are already
     ignored.
@@ -2588,7 +2632,7 @@ Add scoring-metadata to the list of active plugins
   <name>index.links.inlinks.host.ignore</name>
   <value>false</value>
   <description>
-    Ignore inlinks coming from the same host as the URL being indexed. By default 
+    Ignore inlinks coming from the same host as the URL being indexed. By default
     all inlinks are indexed. If db.ignore.internal.links is true (default
     value), this setting does nothing since the internal links are already
     ignored.
@@ -2621,7 +2665,7 @@ Add scoring-metadata to the list of active plugins
   <description>
     If hosts have more failed DNS lookups than this threshold, they are
     removed from the HostDB. Hosts can, of course, return if they are still
-    present in the CrawlDB.
+    present in the CrawlDb.
   </description>
 </property>
 
@@ -2849,7 +2893,7 @@ one publisher implementation for RabbitMQ (plugin publish-rabbitmq).
   <name>sitemap.strict.parsing</name>
   <value>true</value>
   <description>
-If true (default) the Sitemap parser rejects URLs not sharing the same
+    If true (default) the Sitemap parser rejects URLs not sharing the same
     prefix with the sitemap: a sitemap `http://example.com/catalog/sitemap.xml'
     may only contain URLs starting with `http://example.com/catalog/'.
     All other URLs are skipped.  If false the parser will allow any URLs contained
@@ -2909,4 +2953,5 @@ If true (default) the Sitemap parser rejects URLs not sharing the same
     Maximum sitemap size in bytes.
    </description>
 </property>
+
 </configuration>

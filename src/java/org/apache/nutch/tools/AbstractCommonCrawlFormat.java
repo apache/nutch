@@ -77,6 +77,7 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
     this.reverseKeyValue = config.getReverseKeyValue();
   }
 
+  @Override
   public String getJsonData(String url, Content content, Metadata metadata)
       throws IOException {
     this.url = url;
@@ -86,6 +87,7 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
     return this.getJsonData();
   }
 
+  @Override
   public String getJsonData(String url, Content content, Metadata metadata,
       ParseData parseData) throws IOException {
 
@@ -298,10 +300,12 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
     return ifNullString(metadata.get("Content-Type"));
   }
 
+  @Override
   public List<String> getInLinks() {
     return inLinks;
   }
 
+  @Override
   public void setInLinks(List<String> inLinks) {
     this.inLinks = inLinks;
   }

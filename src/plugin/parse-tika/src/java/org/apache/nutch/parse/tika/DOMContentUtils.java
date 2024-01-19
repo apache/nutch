@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.MapWritable;
@@ -45,6 +46,9 @@ import org.w3c.dom.NodeList;
  */
 public class DOMContentUtils {
 
+  private static Pattern NOFOLLOW_PATTERN = Pattern.compile("\\bnofollow\\b",
+      Pattern.CASE_INSENSITIVE);
+
   private String srcTagMetaName;
   private boolean keepNodenames;
   private Set<String> blockNodes;
@@ -60,6 +64,7 @@ public class DOMContentUtils {
       this.childLen = childLen;
     }
 
+    @Override
     public String toString() {
       return "LP[el=" + elName + ",attr=" + attrName + ",len=" + childLen + "]";
     }
@@ -419,7 +424,7 @@ public class DOMContentUtils {
               if (params.attrName.equalsIgnoreCase(attrName)) {
                 target = attr.getNodeValue();
               } else if ("rel".equalsIgnoreCase(attrName)
-                  && "nofollow".equalsIgnoreCase(attr.getNodeValue())) {
+                  && NOFOLLOW_PATTERN.matcher(attr.getNodeValue()).find()) {
                 noFollow = true;
               } else if ("method".equalsIgnoreCase(attrName)
                   && "post".equalsIgnoreCase(attr.getNodeValue())) {

@@ -332,6 +332,7 @@ class InlinkPriorityQueue extends PriorityQueue<CrawlDatum> {
   }
 
   /** Determines the ordering of objects in this priority queue. **/
+  @Override
   protected boolean lessThan(Object arg0, Object arg1) {
     CrawlDatum candidate = (CrawlDatum) arg0;
     CrawlDatum least = (CrawlDatum) arg1;

@@ -29,8 +29,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
@@ -58,7 +60,6 @@ import org.apache.nutch.tools.WARCUtils;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -428,12 +429,11 @@ public class WARCExporter extends Configured implements Tool {
   public int generateWARC(String output, List<Path> segments,
       boolean onlySuccessfulResponses, boolean includeParseData,
       boolean includeParseText) throws IOException {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("WARCExporter: starting at {}", sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("WARCExporter: starting");
 
-    final Job job = NutchJob.getInstance(getConf());
-    job.setJobName("warc-exporter " + output);
+    final Job job = Job.getInstance(getConf(), "Nutch WARCExporter: " + output);
 
     job.getConfiguration().setBoolean(ONLY_SUCCESSFUL_RESPONSES,
         onlySuccessfulResponses);
@@ -479,9 +479,9 @@ public class WARCExporter extends Configured implements Tool {
         throw new RuntimeException(message);
       }
       LOG.info(job.getCounters().toString());
-      long end = System.currentTimeMillis();
-      LOG.info("WARCExporter: finished at {}, elapsed: {}", sdf.format(end),
-          TimingUtil.elapsedTime(start, end));
+      stopWatch.stop();
+      LOG.info("WARCExporter: finished, elapsed: {} ms", stopWatch.getTime(
+          TimeUnit.MILLISECONDS));
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("WARCExporter job failed: {}", e.getMessage());
       return -1;

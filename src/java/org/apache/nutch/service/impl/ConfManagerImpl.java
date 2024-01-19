@@ -47,6 +47,7 @@ public class ConfManagerImpl implements ConfManager {
   /**
    * Returns the configuration associatedConfManagerImpl with the given confId
    */
+  @Override
   public Configuration get(String confId) {
     if (confId == null) {
       return configurations.get(ConfigResource.DEFAULT);
@@ -54,6 +55,7 @@ public class ConfManagerImpl implements ConfManager {
     return configurations.get(confId);
   }
 
+  @Override
   public Map<String, String> getAsMap(String confId) {
     Configuration configuration = configurations.get(confId);
     if (configuration == null) {
@@ -72,6 +74,7 @@ public class ConfManagerImpl implements ConfManager {
   /**
    * Sets the given property in the configuration associated with the confId
    */
+  @Override
   public void setProperty(String confId, String propName, String propValue) {
     if (!configurations.containsKey(confId)) {
       throw new IllegalArgumentException("Unknown configId '" + confId + "'");
@@ -80,6 +83,7 @@ public class ConfManagerImpl implements ConfManager {
     conf.set(propName, propValue);
   }
 
+  @Override
   public Set<String> list() {
     return configurations.keySet();
   }
@@ -89,6 +93,7 @@ public class ConfManagerImpl implements ConfManager {
    * @param nutchConfig crawler configuration
    * @return String - confId
    */
+  @Override
   public String create(NutchConfig nutchConfig) {
     if (StringUtils.isBlank(nutchConfig.getConfigId())) {
       nutchConfig.setConfigId(String.valueOf(newConfigId.incrementAndGet()));
@@ -103,6 +108,7 @@ public class ConfManagerImpl implements ConfManager {
   }
 
 
+  @Override
   public void delete(String confId) {
     configurations.remove(confId);
   }

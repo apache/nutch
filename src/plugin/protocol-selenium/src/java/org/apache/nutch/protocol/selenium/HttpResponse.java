@@ -269,55 +269,51 @@ public class HttpResponse implements Response {
       String contentType = getHeader(Response.CONTENT_TYPE);
 
       // handle with Selenium only if content type in HTML or XHTML
-      if (contentType != null) {
-        if (contentType.contains("text/html")
-            || contentType.contains("application/xhtml")) {
-          readPlainContent(url);
-        } else {
-          try {
-            int contentLength = Integer.MAX_VALUE;
-            String contentLengthString = headers.get(Response.CONTENT_LENGTH);
-            if (contentLengthString != null) {
-              try {
-                contentLength = Integer.parseInt(contentLengthString.trim());
-              } catch (NumberFormatException ex) {
-                throw new HttpException(
-                    "bad content length: " + contentLengthString);
-              }
-            }
-
-            if (http.getMaxContent() >= 0
-                && contentLength > http.getMaxContent()) {
-              contentLength = http.getMaxContent();
-            }
-
-            byte[] buffer = new byte[HttpBase.BUFFER_SIZE];
-            int bufferFilled = 0;
-            int totalRead = 0;
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
-                && totalRead + bufferFilled <= contentLength) {
-              totalRead += bufferFilled;
-              out.write(buffer, 0, bufferFilled);
-            }
-
-            content = out.toByteArray();
-
-          } catch (Exception e) {
-            if (code == 200)
-              throw new IOException(e.toString());
-            // for codes other than 200 OK, we are fine with empty content
-          } finally {
-            if (in != null) {
-              in.close();
+      if (contentType != null &&
+              (contentType.contains("text/html") || contentType.contains("application/xhtml"))) {
+        readPlainContent(url);
+      } else {
+        try {
+          int contentLength = Integer.MAX_VALUE;
+          String contentLengthString = headers.get(Response.CONTENT_LENGTH);
+          if (contentLengthString != null) {
+            try {
+              contentLength = Integer.parseInt(contentLengthString.trim());
+            } catch (NumberFormatException ex) {
+              throw new HttpException("bad content length: " + contentLengthString);
             }
           }
-        }
-        if (httpHeaders != null) {
-          headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
+
+          if (http.getMaxContent() >= 0 && contentLength > http.getMaxContent()) {
+            contentLength = http.getMaxContent();
+          }
+
+          byte[] buffer = new byte[HttpBase.BUFFER_SIZE];
+          int bufferFilled = 0;
+          int totalRead = 0;
+          ByteArrayOutputStream out = new ByteArrayOutputStream();
+          while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1 &&
+                  totalRead + bufferFilled <= contentLength) {
+            totalRead += bufferFilled;
+            out.write(buffer, 0, bufferFilled);
+          }
+
+          content = out.toByteArray();
+
+        } catch (Exception e) {
+          if (code == 200) {
+            throw new IOException(e.toString());
+          }
+          // for codes other than 200 OK, we are fine with empty content
+        } finally {
+          if (in != null) {
+            in.close();
+          }
         }
       }
-
+      if (httpHeaders != null) {
+        headers.add(Response.RESPONSE_HEADERS, httpHeaders.toString());
+      }
     } catch(KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
         throw new ProtocolException(e);
     } finally {
@@ -331,22 +327,27 @@ public class HttpResponse implements Response {
    * -------------------------
    */
 
+  @Override
   public URL getUrl() {
     return url;
   }
 
+  @Override
   public int getCode() {
     return code;
   }
 
+  @Override
   public String getHeader(String name) {
     return headers.get(name);
   }
 
+  @Override
   public Metadata getHeaders() {
     return headers;
   }
 
+  @Override
   public byte[] getContent() {
     return content;
   }

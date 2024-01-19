@@ -119,6 +119,7 @@ public class TestGenerator {
    */
   public class ScoreComparator implements Comparator<URLCrawlDatum> {
 
+    @Override
     public int compare(URLCrawlDatum tuple1, URLCrawlDatum tuple2) {
       if (tuple2.datum.getScore() - tuple1.datum.getScore() < 0) {
         return -1;
