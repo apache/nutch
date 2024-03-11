@@ -1123,7 +1123,10 @@
             output="html"
             outputFile="${build.dir}/nutch-spotbugs.html"
             projectName="Apache Nutch Spotbugs Analysis"
-            stylesheet="fancy-hist.xsl" >
+            stylesheet="fancy-hist.xsl" 
+            reportLevel="high"
+            effort="max"
+            failOnError="true">
       <auxClasspath>
         <!-- depency jars required for analysis but not analyzed (not our bugs) -->
         <pathelement path="${basedir}/${build.dir}/lib"/>
