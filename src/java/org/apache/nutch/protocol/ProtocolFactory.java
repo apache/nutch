@@ -29,6 +29,7 @@ import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.util.ObjectCache;
+import org.apache.nutch.util.URLUtil;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -130,8 +131,16 @@ public class ProtocolFactory {
 
       // First attempt to resolve a protocol implementation by hostname
       String host = url.getHost();
+      String domain = URLUtil.getDomainName(url).toLowerCase().trim();
+      String hostOrDomain = null;
+      Extension extension = null;
       if (hostProtocolMapping.containsKey(host)) {
-        Extension extension = getExtensionById(hostProtocolMapping.get(host));
+        hostOrDomain = host;
+      } else if (hostProtocolMapping.containsKey(domain)) {
+        hostOrDomain = domain;
+      }
+      if (hostOrDomain != null) {
+        extension = getExtensionById(hostProtocolMapping.get(hostOrDomain));
         if (extension != null) {
           protocol = getProtocolInstanceByExtension(extension);
         }
@@ -141,7 +150,7 @@ public class ProtocolFactory {
       if (protocol == null) {
         // Protocol listed in default map?
         if (defaultProtocolImplMapping.containsKey(url.getProtocol())) {
-          Extension extension = getExtensionById(defaultProtocolImplMapping.get(url.getProtocol()));
+          extension = getExtensionById(defaultProtocolImplMapping.get(url.getProtocol()));
           if (extension != null) {
             protocol = getProtocolInstanceByExtension(extension);
           }
@@ -150,7 +159,7 @@ public class ProtocolFactory {
 
       // Still couldn't find a protocol? Attempt by protocol
       if (protocol == null) {
-        Extension extension = findExtension(url.getProtocol(), "protocolName");
+        extension = findExtension(url.getProtocol(), "protocolName");
         if (extension != null) {
           protocol = getProtocolInstanceByExtension(extension);
         }
