@@ -26,7 +26,7 @@
     value="https://repository.apache.org/content/repositories/snapshots/"
     override="false"/>
   <property name="maven2.pattern"
-    value="[organisation]/[module]/[revision]/[module]-[revision](-[classifier])"/>
+    value="[organisation]/[module]/[revision]/[module]-[revision](.[classifier])"/>
   <property name="maven2.pattern.ext"
     value="${maven2.pattern}.[ext]"/>
   <!-- pull in the local repository -->
@@ -36,9 +36,9 @@
   <resolvers>
     <filesystem name="local-maven-2" m2compatible="true">
       <artifact
-          pattern="${local-maven2-dir}/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).[ext]" />
+          pattern="${local-maven2-dir}/[organisation]/[module]/[revision]/[module]-[revision](.[classifier]).[ext]" />
       <ivy
-          pattern="${local-maven2-dir}/[organisation]/[module]/[revision]/[module]-[revision](-[classifier]).pom" />
+          pattern="${local-maven2-dir}/[organisation]/[module]/[revision]/[module]-[revision](.[classifier]).pom" />
     </filesystem>
     <ibiblio name="maven2"
       root="${repo.maven.org}"
