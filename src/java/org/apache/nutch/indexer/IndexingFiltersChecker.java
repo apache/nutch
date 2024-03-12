@@ -93,7 +93,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
     // Print help when no args given
     if (args.length < 1) {
       System.err.println(usage);
-      System.exit(-1);
+      return -1;
     }
 
     // read property "doIndex" for back-ward compatibility
@@ -126,7 +126,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
       } else if (i != args.length - 1) {
         System.err.println("ERR: Not a recognized argument: " + args[i]);
         System.err.println(usage);
-        System.exit(-1);
+        return -1;
       } else {
         url = args[i];
       }
@@ -140,6 +140,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
     }
   }
 
+  @Override
   protected int process(String url, StringBuilder output) throws Exception {
     if (normalizers != null) {
       url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);

@@ -38,17 +38,13 @@
   <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
   <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
-  <property name="dependency-check-ant.version" value="7.1.1" />
-  <property name="dependency-check-ant.home" value="${ivy.dir}/dependency-check-ant" />
-  <property name="dependency-check-ant.jar" value="${dependency-check-ant.home}/dependency-check-ant.jar" />
-
   <property environment="env"/>
 
   <property name="spotbugs.version" value="4.2.0" />
   <property name="spotbugs.home" value="${ivy.dir}/spotbugs-${spotbugs.version}" />
   <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
-  <property name="apache-rat.version" value="0.14" />
+  <property name="apache-rat.version" value="0.15" />
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
 
@@ -86,6 +82,10 @@
     <javac includeantruntime="false" />
   </presetdef>
 
+  <target name="dependencytree" depends="resolve-default" description="Show dependency tree">
+    <ivy:dependencytree />
+  </target>
+
   <!-- ====================================================== -->
   <!-- Stuff needed by all targets                            -->
   <!-- ====================================================== -->
@@ -98,7 +98,12 @@
     <mkdir dir="${test.build.classes}"/>
     <mkdir dir="${test.build.lib.dir}"/>
 
-    <touch datetime="01/25/1971 2:00 pm">
+    <touch millis="33660000000">
+      <!-- touch templates back in time to ensure that
+           custom-configured configuration files are never overwritten
+           even if the template was updated. Use millis instead of
+           datetime="01/25/1971 2:00:00 pm" to avoid issues with
+           non-English locales -->
       <fileset dir="${conf.dir}" includes="**/*.template"/>
     </touch>
 
@@ -193,7 +198,6 @@
       <arg value="--no-module-directories" if:set="using.jdk.11"/>
 
       <packageset dir="${src.dir}"/>
-      <packageset dir="${plugins.dir}/any23/src/java/"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
@@ -212,6 +216,7 @@
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-opensearch-1x/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
@@ -459,39 +464,6 @@
   </target>
 
   <!-- ================================================================== -->
-  <!-- Run Nutch proxy                                                    -->
-  <!-- ================================================================== -->
-
-  <target name="proxy" depends="compile-core-test, job" description="--> run nutch proxy">
-    <java classname="org.apache.nutch.tools.proxy.ProxyTestbed" fork="true">
-      <classpath refid="test.classpath"/>
-      <arg value="-fake"/>
-<!--
-      <arg value="-delay"/>
-      <arg value="-200"/>
--->
-      <jvmarg line="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
-    </java>
-  </target>
-
-  <!-- ================================================================== -->
-  <!-- Run Nutch benchmarking analysis                                    -->
-  <!-- ================================================================== -->
-
-  <target name="benchmark" description="--> run nutch benchmarking analysis">
-    <java classname="org.apache.nutch.tools.Benchmark" fork="true">
-      <classpath refid="test.classpath"/>
-      <jvmarg line="-Xmx512m -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
-      <arg value="-maxPerHost"/>
-      <arg value="10"/>
-      <arg value="-seeds"/>
-      <arg value="1"/>
-      <arg value="-depth"/>
-      <arg value="5"/>
-    </java>
-  </target>
-
-  <!-- ================================================================== -->
   <!-- Run unit tests                                                     -->
   <!-- ================================================================== -->
   <target name="test" depends="test-core, test-plugins" description="--> run JUnit tests"/>
@@ -639,47 +611,6 @@
     </fail>
   </target>
 
-  <!-- Check dependencies for security vulnerabilities                                    -->
-  <target name="dependency-check-ant-download" description="--> download dependency-check-ant jar">
-    <available file="${dependency-check-ant.jar}" property="dependency-check-ant.jar.found"/>
-    <antcall target="dependency-check-ant-download-unchecked"/>
-  </target>
-
-  <target name="dependency-check-ant-download-unchecked" unless="dependency-check-ant.jar.found"
-          description="--> downloads the dependency-check-ant binary (dependency-check-ant-*.zip).">
-    <get src="https://github.com/jeremylong/DependencyCheck/releases/download/v${dependency-check-ant.version}/dependency-check-ant-${dependency-check-ant.version}-release.zip"
-         dest="${ivy.dir}/dependency-check-ant-${dependency-check-ant.version}-release.zip" usetimestamp="false" />
-
-    <unzip src="${ivy.dir}/dependency-check-ant-${dependency-check-ant.version}-release.zip"
-           dest="${ivy.dir}">
-    </unzip>
-
-    <delete file="${ivy.dir}/dependency-check-ant-${dependency-check-ant.version}-release.zip" />
-  </target>
-
-  <path id="dependency-check-ant.path">
-    <pathelement location="${dependency-check-ant.home}/dependency-check-ant.jar"/>
-    <fileset dir="${dependency-check-ant.home}/lib">
-      <include name="*.jar"/>
-    </fileset>
-  </path>
-
-  <target name="report-vulnerabilities" depends="jar, compile-plugins, dependency-check-ant-download" description="--> check dependencies for security vulnerabilities">
-    <taskdef resource="dependency-check-taskdefs.properties">
-      <classpath refid="dependency-check-ant.path" />
-    </taskdef>
-    <dependency-check projectname="${name}"
-                      reportoutputdirectory="${dependency-check-ant.home}"
-                      reportformat="ALL">
-        <suppressionfile path="${dependency-check-ant.home}/dependency-check-suppressions.xml" />
-        <retirejsFilter regex="copyright.*jeremy long" />
-        <fileset dir="${build.dir}">
-          <include name="lib/*.jar"/>
-          <include name="plugins/*/*.jar"/>
-        </fileset>
-    </dependency-check>
-  </target>
-
   <!-- ================================================================== -->
   <!-- Documentation                                                      -->
   <!-- ================================================================== -->
@@ -710,7 +641,6 @@
       <arg value="--no-module-directories" if:set="using.jdk.11"/>
 
       <packageset dir="${src.dir}"/>
-      <packageset dir="${plugins.dir}/any23/src/java/" />
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
       <packageset dir="${plugins.dir}/headings/src/java"/>
@@ -729,6 +659,7 @@
       <packageset dir="${plugins.dir}/indexer-dummy/src/java"/>
       <packageset dir="${plugins.dir}/indexer-elastic/src/java/" />
       <packageset dir="${plugins.dir}/indexer-kafka/src/java/" />
+      <packageset dir="${plugins.dir}/indexer-opensearch-1x/src/java/" />
       <packageset dir="${plugins.dir}/indexer-rabbit/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
@@ -794,7 +725,6 @@
       <classpath>
         <fileset dir="${build.plugins}" >
           <include name="**/*.jar"/>
-          <exclude name="any23/javax.annotation-api*.jar"/>
         </fileset>
       </classpath>
 
@@ -1050,7 +980,7 @@
 
   <target name="apache-rat-download-unchecked" unless="apache-rat.jar.found"
           description="--> downloads the Apache Rat jar">
-    <get src="https://www.apache.org/dist/creadur/apache-rat-${apache-rat.version}/apache-rat-${apache-rat.version}-bin.tar.gz"
+    <get src="https://archive.apache.org/dist/creadur/apache-rat-${apache-rat.version}/apache-rat-${apache-rat.version}-bin.tar.gz"
          dest="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz" usetimestamp="false" />
 
     <untar src="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz"
@@ -1060,8 +990,8 @@
     <delete file="${ivy.dir}/apache-rat-${apache-rat.version}-bin.tar.gz" />
   </target>
 
-  <target name="rat-sources" depends="init, apache-rat-download"
-    description="--> runs RAT tasks over src/java">
+  <target name="run-rat" depends="init, apache-rat-download"
+    description="--> runs Apache Rat on codebase">
     <taskdef
         uri="antlib:org.apache.rat.anttasks"
         resource="org/apache/rat/anttasks/antlib.xml">
@@ -1072,8 +1002,40 @@
     <rat:report
         reportFile="${build.dir}/apache-rat-report.txt">
       <fileset dir="src">
-        <include name="java/**/*"/>
-        <include name="plugin/**/src/**/*"/>
+        <include name="**"/>
+        <exclude name="plugin/language-identifier/src/java/org/apache/nutch/analysis/lang/langmappings.properties"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/de.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/en.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/es.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/fi.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/fr.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/it.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/nl.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/pt.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/sv.test"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/test-referencial.txt"/>
+        <exclude name="plugin/language-identifier/src/test/org/apache/nutch/analysis/lang/da.test"/>
+        <exclude name="plugin/parse-tika/sample/ootest.txt"/>
+        <exclude name="plugin/parse-tika/sample/test.rtf"/>
+        <exclude name="plugin/urlfilter-ignoreexempt/data/.donotdelete"/>
+        <exclude name="plugin/urlfilter-automaton/sample/Benchmarks.rules"/>
+        <exclude name="plugin/urlfilter-automaton/sample/Benchmarks.urls"/>
+        <exclude name="plugin/urlfilter-automaton/sample/IntranetCrawling.rules"/>
+        <exclude name="plugin/urlfilter-automaton/sample/IntranetCrawling.urls"/>
+        <exclude name="plugin/urlfilter-automaton/sample/WholeWebCrawling.rules"/>
+        <exclude name="plugin/urlfilter-automaton/sample/WholeWebCrawling.urls"/>
+        <exclude name="plugin/urlfilter-fast/sample/Benchmarks.urls"/>
+        <exclude name="plugin/urlfilter-fast/sample/fast-urlfilter-benchmark.txt"/>
+        <exclude name="plugin/urlfilter-fast/sample/fast-urlfilter-test.txt"/>
+        <exclude name="plugin/urlfilter-fast/sample/test.urls"/>
+        <exclude name="plugin/urlfilter-regex/sample/Benchmarks.rules"/>
+        <exclude name="plugin/urlfilter-regex/sample/Benchmarks.urls"/>
+        <exclude name="plugin/urlfilter-regex/sample/IntranetCrawling.rules"/>
+        <exclude name="plugin/urlfilter-regex/sample/IntranetCrawling.urls"/>
+        <exclude name="plugin/urlfilter-regex/sample/WholeWebCrawling.rules"/>
+        <exclude name="plugin/urlfilter-regex/sample/WholeWebCrawling.urls"/>
+        <exclude name="plugin/urlfilter-regex/sample/nutch1838.rules"/>
+        <exclude name="plugin/urlfilter-regex/sample/nutch1838.urls"/>
       </fileset>
     </rat:report>
   </target>
@@ -1202,8 +1164,6 @@
         <source path="${basedir}/src/java/" />
         <source path="${basedir}/src/test/" output="build/test/classes" />
 
-        <source path="${plugins.dir}/any23/src/java/" />
-        <source path="${plugins.dir}/any23/src/test/" />
         <source path="${plugins.dir}/creativecommons/src/java/" />
         <source path="${plugins.dir}/creativecommons/src/test/" />
         <source path="${plugins.dir}/feed/src/java/" />
@@ -1233,6 +1193,7 @@
         <source path="${plugins.dir}/indexer-dummy/src/java/" />
         <source path="${plugins.dir}/indexer-elastic/src/java/" />
         <source path="${plugins.dir}/indexer-kafka/src/java/" />
+        <source path="${plugins.dir}/indexer-opensearch-1x/src/java/" />
         <source path="${plugins.dir}/indexer-rabbit/src/java/" />
         <source path="${plugins.dir}/indexer-solr/src/java/" />
         <source path="${plugins.dir}/language-identifier/src/java/" />

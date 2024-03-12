@@ -34,4 +34,8 @@ public interface SolrConstants {
 
   String PASSWORD = "password";
 
+  String AUTH_HEADER_NAME = "auth.header.name";
+
+  String AUTH_HEADER_VALUE = "auth.header.value";
+
 }

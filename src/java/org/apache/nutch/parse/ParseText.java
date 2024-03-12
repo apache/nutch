@@ -51,6 +51,7 @@ public final class ParseText implements Writable {
     this.text = text;
   }
 
+  @Override
   public void readFields(DataInput in) throws IOException {
     byte version = in.readByte();
     switch (version) {
@@ -65,6 +66,7 @@ public final class ParseText implements Writable {
     }
   }
 
+  @Override
   public final void write(DataOutput out) throws IOException {
     out.write(VERSION);
     Text.writeString(out, text);

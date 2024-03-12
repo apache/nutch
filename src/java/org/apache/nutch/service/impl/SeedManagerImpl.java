@@ -30,6 +30,7 @@ public class SeedManagerImpl implements SeedManager {
     seeds = new HashMap<>();
   }
 
+  @Override
   public SeedList getSeedList(String seedName) {
     if(seeds.containsKey(seedName)) {
       return seeds.get(seedName);
@@ -38,14 +39,17 @@ public class SeedManagerImpl implements SeedManager {
       return null;
   }
 
+  @Override
   public void setSeedList(String seedName, SeedList seedList) {
     seeds.put(seedName, seedList);
   }
 
+  @Override
   public Map<String, SeedList> getSeeds(){
     return seeds;
   }
   
+  @Override
   public boolean deleteSeedList(String seedName) {
     if(seeds.containsKey(seedName)) {
       seeds.remove(seedName);

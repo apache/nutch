@@ -48,7 +48,7 @@
 #   --time-limit-fetch <time_limit_fetch> Number of minutes allocated to the fetching [default: 180]
 #   --num-threads <num_threads>           Number of threads for fetching / sitemap processing [default: 50]
 #
-#   -dedup-group <none|host|domain>       Deduplication group method [default: none]
+#   --dedup-group <none|host|domain>       Deduplication group method [default: none]
 #
 
 function __to_seconds() {
@@ -109,7 +109,7 @@ function __print_usage {
   echo -e "  \t\t\t\t\t  - never [default]"
   echo -e "  \t\t\t\t\t  - always (processing takes place in every iteration)"
   echo -e "  \t\t\t\t\t  - once (processing only takes place in the first iteration)"
-  echo -e "  -dedup-group <none|host|domain>\tDeduplication group method [default: none]"
+  echo -e "  --dedup-group <none|host|domain>\tDeduplication group method [default: none]"
 
   exit 1
 }

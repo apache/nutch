@@ -80,6 +80,7 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
     }
 
     /** collected values as List */
+    @Override
     public List<CrawlDatum> getValues() {
       return values;
     }
@@ -98,17 +99,21 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
 
     private Counters dummyCounters = new Counters();
 
+    @Override
     public void progress() {
     }
 
+    @Override
     public Counter getCounter(Enum<?> arg0) {
       return dummyCounters.getGroup("dummy").getCounterForName("dummy");
     }
 
+    @Override
     public Counter getCounter(String arg0, String arg1) {
       return dummyCounters.getGroup("dummy").getCounterForName("dummy");
     }
 
+    @Override
     public void setStatus(String arg0) throws UnsupportedOperationException {
       throw new UnsupportedOperationException("Dummy context with no status");
     }
@@ -118,14 +123,17 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
       throw new UnsupportedOperationException("Dummy context with no status");
     }
 
+    @Override
     public float getProgress() {
       return 1f;
     }
     
+    @Override
     public OutputCommitter getOutputCommitter() {
       throw new UnsupportedOperationException("Dummy context without committer");
     }
 
+    @Override
     public boolean nextKey(){
       return false;
     }

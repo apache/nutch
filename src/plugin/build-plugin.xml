@@ -265,5 +265,7 @@
     <delete includeemptydirs="true" dir="${build.dir}"/>
     <delete includeemptydirs="true" dir="${deploy.dir}"/>
   </target>
-
+  <target name="dependencytree" depends="resolve-default" description="Show dependency tree">
+    <ivy:dependencytree />
+  </target>
 </project>

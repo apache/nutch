@@ -38,19 +38,17 @@ import org.apache.hadoop.util.ReflectionUtils;
 /**
  * The <code>ArchRecordReader</code> class provides a record reader which reads
  * records from arc files.
- * <p>
+ * 
  * Arc files are essentially tars of gzips. Each record in an arc file is a
  * compressed gzip. Multiple records are concatenated together to form a
- * complete arc.</p> 
- * <p>For more information on the arc file format 
+ * complete arc.
+ * 
+ * For more information on the arc file format 
  * @see <a href='http://www.archive.org/web/researcher/ArcFileFormat.php'>ArcFileFormat</a>.
- * </p>
+
+ * Arc files are used by the Internet Archive and grub projects.
  * 
- * <p>
- * Arc files are used by the internet archive and grub projects.
- * </p>
- * 
- * @see <a href='http://www.archive.org/'>archive.org</a> 
+ * @see <a href='https://www.archive.org/'>archive.org</a>
  * @see <a href='http://www.grub.org/'>grub.org</a>
  */
 public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
@@ -124,6 +122,7 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
   /**
    * Closes the record reader resources.
    */
+  @Override
   public void close() throws IOException {
     this.in.close();
   }
@@ -161,6 +160,7 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
    * 
    * @return The percentage of progress as a float from 0 to 1.
    */
+  @Override
   public float getProgress() throws IOException {
 
     // if we haven't even started
@@ -172,18 +172,22 @@ public class ArcRecordReader extends RecordReader<Text, BytesWritable> {
     }
   }
 
+  @Override
   public BytesWritable getCurrentValue(){
     return new BytesWritable();
   }
 
+  @Override
   public Text getCurrentKey(){
     return new Text();
   }
 
+  @Override
   public boolean nextKeyValue(){
     return false;
   }
   
+  @Override
   public void initialize(InputSplit split, TaskAttemptContext context){
       
   }

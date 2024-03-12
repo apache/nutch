@@ -48,10 +48,10 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.security.Credentials;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
-import org.mortbay.jetty.handler.ContextHandler;
-import org.mortbay.jetty.handler.ResourceHandler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 
 public class CrawlDBTestUtil {
 
@@ -105,6 +105,7 @@ public class CrawlDBTestUtil {
     }
 
     /** collected values as List */
+    @Override
     public List<CrawlDatum> getValues() {
       return values;
     }
@@ -123,17 +124,21 @@ public class CrawlDBTestUtil {
 
     private Counters dummyCounters = new Counters();
 
+    @Override
     public void progress() {
     }
 
+    @Override
     public Counter getCounter(Enum<?> arg0) {
       return dummyCounters.getGroup("dummy").getCounterForName("dummy");
     }
 
+    @Override
     public Counter getCounter(String arg0, String arg1) {
       return dummyCounters.getGroup("dummy").getCounterForName("dummy");
     }
 
+    @Override
     public void setStatus(String arg0) throws UnsupportedOperationException {
       throw new UnsupportedOperationException("Dummy context with no status");
     }
@@ -143,14 +148,17 @@ public class CrawlDBTestUtil {
       throw new UnsupportedOperationException("Dummy context with no status");
     }
 
+    @Override
     public float getProgress() {
       return 1f;
     }
 
+    @Override
     public OutputCommitter getOutputCommitter() {
       throw new UnsupportedOperationException("Dummy context without committer");
     }
 
+    @Override
     public boolean nextKey(){
       return false;
     }
@@ -435,16 +443,17 @@ public class CrawlDBTestUtil {
    */
   public static Server getServer(int port, String staticContent)
       throws UnknownHostException {
-    Server webServer = new org.mortbay.jetty.Server();
-    SocketConnector listener = new SocketConnector();
+    Server webServer = new Server();
+
+    ServerConnector listener = new ServerConnector(webServer);
     listener.setPort(port);
     listener.setHost("127.0.0.1");
     webServer.addConnector(listener);
     ContextHandler staticContext = new ContextHandler();
     staticContext.setContextPath("/");
     staticContext.setResourceBase(staticContent);
-    staticContext.addHandler(new ResourceHandler());
-    webServer.addHandler(staticContext);
+    staticContext.insertHandler(new ResourceHandler());
+    webServer.insertHandler(staticContext);
     return webServer;
   }
 }

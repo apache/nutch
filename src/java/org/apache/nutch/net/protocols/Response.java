@@ -86,7 +86,7 @@ public interface Response extends HttpHeaders {
 
   /**
    * Get the value of a named header.
-   * @param name key of the header you wish to retreive
+   * @param name key of the header you wish to retrieve
    * @return header value
    */
   public String getHeader(String name);

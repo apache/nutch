@@ -26,10 +26,12 @@ public abstract class Signature implements Configurable {
 
   public abstract byte[] calculate(Content content, Parse parse);
 
+  @Override
   public Configuration getConf() {
     return conf;
   }
 
+  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }

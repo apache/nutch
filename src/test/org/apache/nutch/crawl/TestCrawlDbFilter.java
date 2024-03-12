@@ -31,7 +31,6 @@ import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
-import org.apache.nutch.util.NutchJob;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -94,7 +93,7 @@ public class TestCrawlDbFilter {
     conf.setBoolean(CrawlDbFilter.URL_NORMALIZING, true);
     conf.setBoolean(CrawlDbFilter.URL_FILTERING, false);
     conf.setInt("urlnormalizer.loop.count", 2);
-    Job job = NutchJob.getInstance(conf);
+    Job job = Job.getInstance(conf);
     job.setJobName("Test CrawlDbFilter");
     Path current = new Path(dbDir, "current");
     if (FileSystem.get(conf).exists(current)) {

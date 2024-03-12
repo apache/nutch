@@ -21,11 +21,12 @@ import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -48,7 +49,6 @@ import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
-import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -298,16 +298,15 @@ public class DeduplicationJob extends NutchTool implements Tool {
       }
     }
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("DeduplicationJob: starting at " + sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("DeduplicationJob: starting");
 
     Path tempDir = new Path(crawlDb, "dedup-temp-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Job job = NutchJob.getInstance(getConf());
+    Job job = Job.getInstance(getConf(), "Nutch DeduplicationJob: " + crawlDb);
     Configuration conf = job.getConfiguration();
-    job.setJobName("Deduplication on " + crawlDb);
     conf.set(DEDUPLICATION_GROUP_MODE, group);
     conf.set(DEDUPLICATION_COMPARE_ORDER, compareOrder);
     job.setJarByClass(DeduplicationJob.class);
@@ -381,9 +380,9 @@ public class DeduplicationJob extends NutchTool implements Tool {
     // clean up
     fs.delete(tempDir, true);
 
-    long end = System.currentTimeMillis();
-    LOG.info("Deduplication finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("Deduplication finished, elapsed: {} ms", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
 
     return 0;
   }

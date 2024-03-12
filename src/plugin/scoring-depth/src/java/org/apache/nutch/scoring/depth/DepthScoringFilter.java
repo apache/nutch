@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,8 @@ public class DepthScoringFilter extends Configured implements ScoringFilter {
   public static final int DEFAULT_MAX_DEPTH = 1000;
 
   private int defaultMaxDepth;
+  private Pattern depthOverridePattern = null;
+  private int maxDepthOverride = -1;
 
   @Override
   public void setConf(Configuration conf) {
@@ -68,6 +72,16 @@ public class DepthScoringFilter extends Configured implements ScoringFilter {
     defaultMaxDepth = conf.getInt("scoring.depth.max", DEFAULT_MAX_DEPTH);
     if (defaultMaxDepth <= 0) {
       defaultMaxDepth = DEFAULT_MAX_DEPTH;
+    }
+    String depthOverrideStr = conf.get("scoring.depth.override.pattern");
+    if (depthOverrideStr != null && !depthOverrideStr.isEmpty()) {
+      try {
+        depthOverridePattern = Pattern.compile(depthOverrideStr);
+        maxDepthOverride = conf.getInt("scoring.depth.max.override", 10);
+      } catch (Exception e) {
+        LOG.warn("Unable to compile scoring.depth.override.pattern because: {}",
+            e.getMessage(), e);
+      }
     }
   }
 
@@ -92,6 +106,17 @@ public class DepthScoringFilter extends Configured implements ScoringFilter {
     if (maxDepthString != null) {
       curMaxDepth = Integer.parseInt(maxDepthString);
       customMaxDepth = new IntWritable(curMaxDepth);
+    }
+    // If URL matches the pattern, we'll override maxDepth
+    if (depthOverridePattern != null) {
+      Matcher matcher = depthOverridePattern.matcher(fromUrl.toString());
+      if (matcher.find()) {
+        curMaxDepth = maxDepthOverride;
+        customMaxDepth = new IntWritable(maxDepthOverride);
+      } else {
+        curMaxDepth = defaultMaxDepth;
+        customMaxDepth = new IntWritable(curMaxDepth);
+      }
     }
     if (curDepth >= curMaxDepth) {
       // depth exceeded - throw away

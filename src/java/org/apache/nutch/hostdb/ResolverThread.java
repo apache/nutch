@@ -63,6 +63,7 @@ public class ResolverThread implements Runnable {
   /**
    *
    */
+  @Override
   public void run() {
     // Resolve the host and act appropriatly
     try {

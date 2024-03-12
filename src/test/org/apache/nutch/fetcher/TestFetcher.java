@@ -36,7 +36,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mortbay.jetty.Server;
+import org.eclipse.jetty.server.Server;
 
 /**
  * Basic fetcher test 1. generate seedlist 2. inject 3. generate 3. fetch 4.
@@ -180,8 +180,7 @@ public class TestFetcher {
   }
 
   private void addUrl(ArrayList<String> urls, String page) {
-    urls.add("http://127.0.0.1:" + server.getConnectors()[0].getPort() + "/"
-        + page);
+    urls.add("http://127.0.0.1:" + server.getURI().getPort() + "/" + page);
   }
 
   @Test

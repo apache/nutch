@@ -83,6 +83,7 @@ public class TextProfileSignature extends Signature {
         "db.signature.text_profile.sec_sort_lex", true);
   }
 
+  @Override
   public byte[] calculate(Content content, Parse parse) {
     HashMap<String, Token> tokens = new HashMap<>();
     String text = null;
@@ -168,6 +169,7 @@ public class TextProfileSignature extends Signature {
       this.val = val;
     }
 
+    @Override
     public String toString() {
       return val + " " + cnt;
     }
@@ -178,6 +180,7 @@ public class TextProfileSignature extends Signature {
      * Sort tokens first by decreasing frequency and second in lexicographic
      * (Unicode) order
      */
+    @Override
     public int compare(Token t1, Token t2) {
       int diffCnt = t2.cnt - t1.cnt;
       if (diffCnt == 0 && secondaryLexicographicSorting) {

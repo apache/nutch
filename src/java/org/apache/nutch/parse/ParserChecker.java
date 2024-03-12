@@ -104,7 +104,7 @@ public class ParserChecker extends AbstractChecker {
     // Print help when no args given
     if (args.length < 1) {
       System.err.println(usage);
-      System.exit(-1);
+      return -1;
     }
 
     // initialize plugins early to register URL stream handlers to support
@@ -138,7 +138,7 @@ public class ParserChecker extends AbstractChecker {
       } else if (i != args.length - 1) {
         System.err.println("ERR: Not a recognized argument: " + args[i]);
         System.err.println(usage);
-        System.exit(-1);
+        return -1;
       } else {
         url = args[i];
       }
@@ -154,6 +154,7 @@ public class ParserChecker extends AbstractChecker {
     }
   }
 
+  @Override
   protected int process(String url, StringBuilder output) throws Exception {
     if (this.normalizers != null) {
       url = this.normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);

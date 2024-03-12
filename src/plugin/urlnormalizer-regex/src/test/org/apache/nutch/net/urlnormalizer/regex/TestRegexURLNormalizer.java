@@ -25,11 +25,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
@@ -54,6 +56,7 @@ public class TestRegexURLNormalizer {
     conf = NutchConfiguration.create();
     normalizer.setConf(conf);
     File[] configs = new File(sampleDir).listFiles(new FileFilter() {
+      @Override
       public boolean accept(File f) {
         if (f.getName().endsWith(".xml")
             && f.getName().startsWith("regex-normalize-"))
@@ -103,7 +106,8 @@ public class TestRegexURLNormalizer {
   }
 
   private void bench(int loops, String scope) {
-    long start = System.currentTimeMillis();
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
     try {
       NormalizedURL[] expected = (NormalizedURL[]) testData.get(scope);
       if (expected == null)
@@ -114,8 +118,9 @@ public class TestRegexURLNormalizer {
     } catch (Exception e) {
       Assert.fail(e.toString());
     }
+    stopWatch.stop();
     LOG.info("bench time (" + loops + ") "
-        + (System.currentTimeMillis() - start) + "ms");
+        + (stopWatch.getTime(TimeUnit.MILLISECONDS)) + "ms");
   }
 
   private static class NormalizedURL {

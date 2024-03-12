@@ -18,8 +18,8 @@ package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.text.SimpleDateFormat;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -28,6 +28,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -51,7 +52,6 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.TimingUtil;
 
 /**
  * Updates the score from the WebGraph node database into the crawl database.
@@ -156,9 +156,9 @@ public class ScoreUpdater extends Configured implements Tool{
   public void update(Path crawlDb, Path webGraphDb) throws IOException,
       ClassNotFoundException, InterruptedException {
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("ScoreUpdater: starting at " + sdf.format(start));
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+    LOG.info("ScoreUpdater: starting");
 
     Configuration conf = getConf();
 
@@ -170,8 +170,7 @@ public class ScoreUpdater extends Configured implements Tool{
         .nextInt(Integer.MAX_VALUE)));
 
     // run the updater job outputting to the temp crawl database
-    Job updater = NutchJob.getInstance(conf);
-    updater.setJobName("Update CrawlDb from WebGraph");
+    Job updater = Job.getInstance(conf, "Nutch ScoreUpdater: " + crawlDb);
     FileInputFormat.addInputPath(updater, crawlDbCurrent);
     FileInputFormat.addInputPath(updater, nodeDb);
     FileOutputFormat.setOutputPath(updater, newCrawlDb);
@@ -213,9 +212,9 @@ public class ScoreUpdater extends Configured implements Tool{
     LOG.info("ScoreUpdater: installing new crawldb " + crawlDb);
     CrawlDb.install(updater, crawlDb);
 
-    long end = System.currentTimeMillis();
-    LOG.info("ScoreUpdater: finished at " + sdf.format(end) + ", elapsed: "
-        + TimingUtil.elapsedTime(start, end));
+    stopWatch.stop();
+    LOG.info("ScoreUpdater: finished, elapsed: {} ms ", stopWatch.getTime(
+        TimeUnit.MILLISECONDS));
   }
 
   public static void main(String[] args) throws Exception {

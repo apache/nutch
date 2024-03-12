@@ -80,6 +80,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
   }
 
   private ThreadLocal<HashMap<String, List<Rule>>> scopedRulesThreadLocal = new ThreadLocal<HashMap<String, List<Rule>>>() {
+    @Override
     protected java.util.HashMap<String, java.util.List<Rule>> initialValue() {
       return new HashMap<String, List<Rule>>();
     };

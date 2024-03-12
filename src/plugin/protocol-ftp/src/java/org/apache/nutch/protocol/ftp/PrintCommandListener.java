@@ -37,6 +37,7 @@ public class PrintCommandListener implements ProtocolCommandListener {
     __logger = logger;
   }
 
+  @Override
   public void protocolCommandSent(ProtocolCommandEvent event) {
     try {
       __logIt(event);
@@ -47,6 +48,7 @@ public class PrintCommandListener implements ProtocolCommandListener {
     }
   }
 
+  @Override
   public void protocolReplyReceived(ProtocolCommandEvent event) {
     try {
       __logIt(event);
