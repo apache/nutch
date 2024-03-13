@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -320,57 +321,17 @@ public abstract class HttpBase implements Protocol {
       }
     }
 
-    String[] protocols = conf.getStrings("http.tls.supported.protocols",
-        "TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3");
-    String[] ciphers = conf.getStrings("http.tls.supported.cipher.suites",
-        "ECDHE-ECDSA-AES128-GCM-SHA256", "ECDHE-RSA-AES128-GCM-SHA256",
-        "ECDHE-ECDSA-AES256-GCM-SHA384", "ECDHE-RSA-AES256-GCM-SHA384",
-        "ECDHE-ECDSA-CHACHA20-POLY1305", "ECDHE-RSA-CHACHA20-POLY1305",
-        "DHE-RSA-AES128-GCM-SHA256", "DHE-RSA-AES256-GCM-SHA384",
-        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
-        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-        "TLS_RSA_WITH_AES_256_CBC_SHA256",
-        "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
-        "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
-        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
-        "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
-        "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-        "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA",
-        "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
-        "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-        "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
-        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
-        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-        "TLS_RSA_WITH_AES_128_CBC_SHA256",
-        "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
-        "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256",
-        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
-        "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
-        "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-        "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
-        "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-        "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
-        "TLS_ECDHE_RSA_WITH_RC4_128_SHA", "SSL_RSA_WITH_RC4_128_SHA",
-        "TLS_ECDH_ECDSA_WITH_RC4_128_SHA", "TLS_ECDH_RSA_WITH_RC4_128_SHA",
-        "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
-        "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
-        "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
-        "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
-        "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
-        "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA", "SSL_RSA_WITH_RC4_128_MD5",
-        "TLS_EMPTY_RENEGOTIATION_INFO_SCSV", "TLS_RSA_WITH_NULL_SHA256",
-        "TLS_ECDHE_ECDSA_WITH_NULL_SHA", "TLS_ECDHE_RSA_WITH_NULL_SHA",
-        "SSL_RSA_WITH_NULL_SHA", "TLS_ECDH_ECDSA_WITH_NULL_SHA",
-        "TLS_ECDH_RSA_WITH_NULL_SHA", "SSL_RSA_WITH_NULL_MD5",
-        "SSL_RSA_WITH_DES_CBC_SHA", "SSL_DHE_RSA_WITH_DES_CBC_SHA",
-        "SSL_DHE_DSS_WITH_DES_CBC_SHA", "TLS_KRB5_WITH_RC4_128_SHA",
-        "TLS_KRB5_WITH_RC4_128_MD5", "TLS_KRB5_WITH_3DES_EDE_CBC_SHA",
-        "TLS_KRB5_WITH_3DES_EDE_CBC_MD5", "TLS_KRB5_WITH_DES_CBC_SHA",
-        "TLS_KRB5_WITH_DES_CBC_MD5", "TLS_AES_256_GCM_SHA384",
-        "TLS_CHACHA20_POLY1305_SHA256", "TLS_AES_128_GCM_SHA256",
-        "TLS_AES_128_CCM_8_SHA256", "TLS_AES_128_CCM_SHA256");
-
+    String[] protocols = conf.getStrings("http.tls.supported.protocols");
+    String[] ciphers = conf.getStrings("http.tls.supported.cipher.suites");
+    if (protocols == null){
+      // use SSL3 or above by default
+      protocols = new String[] {"TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3"}; 
+    }
+    if (ciphers == null){
+      // use default ciphers by default unless manually specified otherwise in the config
+      ciphers = ((SSLSocketFactory) SSLSocketFactory.getDefault()).getDefaultCipherSuites();
+    }
+    
     this.tlsPreferredProtocols = new HashSet<String>(Arrays.asList(protocols));
     this.tlsPreferredCipherSuites = new HashSet<String>(Arrays.asList(ciphers));
 
