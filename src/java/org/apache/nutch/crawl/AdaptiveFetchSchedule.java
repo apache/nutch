@@ -189,6 +189,9 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
   /**
    * Strip a URL, leaving only the host name.
+   *
+   * @param url url to get hostname for
+   * @return hostname
    */
   public static String getHostName(String url) throws URISyntaxException {
     URI uri = new URI(url);
@@ -198,9 +201,10 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
   /**
    * Returns the max_interval for this URL, which might depend on the host.
-   * @param  url  the URL to be scheduled
-   * @param  defaultMaxInterval  the value to which to default
-   * if max_interval has not been configured for this host
+   *
+   * @param url the URL to be scheduled
+   * @param defaultMaxInterval the value to which to default if max_interval has not been configured for this host
+   * @return the configured maximum interval or the default interval
    */
   public float getMaxInterval(Text url, float defaultMaxInterval){
     if (hostSpecificMaxInterval.isEmpty()) {
@@ -220,9 +224,10 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
   /**
    * Returns the min_interval for this URL, which might depend on the host.
-   * @param  url  the URL to be scheduled
-   * @param  defaultMinInterval  the value to which to default
-   * if min_interval has not been configured for this host
+   *
+   * @param url the URL to be scheduled
+   * @param defaultMinInterval the value to which to default if min_interval has not been configured for this host
+   * @return the configured minimum interval or the default interval
    */
   public float getMinInterval(Text url, float defaultMinInterval){
     if (hostSpecificMinInterval.isEmpty()) {
