@@ -41,7 +41,7 @@
   </target>
 
   <target name="deps-jar" depends="init-ivy">
-    <ivy:retrieve pattern="lib/[artifact]-[revision].[ext]" sync="true"/>
+    <ivy:retrieve pattern="lib/[artifact]-[revision](-[classifier]).[ext]" sync="true"/>
   </target>
 
 </project>
