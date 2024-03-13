@@ -535,7 +535,7 @@
 
   <target name="resolve-test" depends="clean-test-lib, init" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="test" log="download-only"/>
-    <ivy:retrieve pattern="${test.build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <ivy:retrieve pattern="${test.build.lib.dir}/[artifact]-[revision](-[classifier]).[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
   </target>
 
