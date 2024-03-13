@@ -1,0 +1,14 @@
+# This file defines a mapping that associates specific min. and max. refetching time intervals
+# to a host, that deviate from the default settings of the AdaptiveFetchSchedule class.
+#
+# Format: <hostname>   <min_interval>    <max_interval>.
+#
+# The two values will be parsed as float and should be STRICTLY between
+# db.fetch.schedule.adaptive.min_interval and db.fetch.schedule.adaptive.max_interval.
+#
+# To use default values, write "default" or "0".
+# The default min. is 60 (1 min) and default max. is 31536000 (1 year).
+#
+www.apache.org       default     1728000
+www.example.org      1296000     0
+nutch.apache.org     864000      2160000
