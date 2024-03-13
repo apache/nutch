@@ -149,7 +149,7 @@ public class ElasticIndexWriter implements IndexWriter {
         .builder(
             (request, bulkListener) -> client.bulkAsync(request,
                 RequestOptions.DEFAULT, bulkListener),
-            bulkProcessorListener(), "nutch-indexer-elastic")
+            bulkProcessorListener())
         .setBulkActions(maxBulkDocs)
         .setBulkSize(new ByteSizeValue(maxBulkLength, ByteSizeUnit.BYTES))
         .setConcurrentRequests(1)
