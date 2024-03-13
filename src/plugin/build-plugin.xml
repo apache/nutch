@@ -231,12 +231,12 @@
   <!-- target: resolve  ================================================= -->
   <target name="resolve-default" depends="clean-lib" description="resolve and retrieve dependencies with ivy">
     <ivy:resolve file="ivy.xml" conf="default" log="download-only"/>
-    <ivy:retrieve pattern="${deploy.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <ivy:retrieve pattern="${deploy.dir}/[artifact]-[revision](-[classifier]).[ext]" symlink="false" log="quiet"/>
   </target>
 
   <target name="resolve-test" depends="clean-lib" description="resolve and retrieve dependencies with ivy">
     <ivy:resolve file="ivy.xml" conf="test" log="download-only"/>
-    <ivy:retrieve pattern="${build.test.lib}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <ivy:retrieve pattern="${build.test.lib}/[artifact]-[revision](-[classifier]).[ext]" symlink="false" log="quiet"/>
   </target>
 
   <target name="report" depends="resolve-test" description="--> generates a report of dependencies">
