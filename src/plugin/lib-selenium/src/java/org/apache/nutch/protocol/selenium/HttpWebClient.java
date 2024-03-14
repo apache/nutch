@@ -16,48 +16,29 @@
  */
 package org.apache.nutch.protocol.selenium;
 
-import java.lang.invoke.MethodHandles;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.concurrent.TimeUnit;
-import java.util.Random;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
-
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-
-//import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
-//import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.firefox.FirefoxOptions;
-
 import org.openqa.selenium.io.TemporaryFilesystem;
-
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-//import org.openqa.selenium.safari.SafariDriver;
-
-//import org.openqa.selenium.phantomjs.PhantomJSDriver;
-//import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.lang.invoke.MethodHandles;
+import java.net.URL;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Random;
 
 public class HttpWebClient {
 
@@ -127,8 +108,8 @@ public class HttpWebClient {
       }
       LOG.debug("Selenium {} WebDriver selected.", driverType);
 
-      driver.manage().timeouts().pageLoadTimeout(pageLoadWait,
-          TimeUnit.SECONDS);
+      driver.manage().timeouts().pageLoadTimeout(Duration.of(pageLoadWait,
+          ChronoUnit.SECONDS));
       driver.get(url);
     } catch (Exception e) {
       if (e instanceof TimeoutException) {
@@ -152,8 +133,7 @@ public class HttpWebClient {
     if (enableHeadlessMode) {
       firefoxOptions.addArguments("--headless");
     }
-    WebDriver driver = new FirefoxDriver(firefoxOptions);
-    return driver;
+    return new FirefoxDriver(firefoxOptions);
   }
 
   public static WebDriver createChromeWebDriver(String chromeDriverPath,
@@ -168,29 +148,26 @@ public class HttpWebClient {
     if (enableHeadlessMode) {
       chromeOptions.addArguments("--headless");
     }
-    WebDriver driver = new ChromeDriver(chromeOptions);
-    return driver;
+    return new ChromeDriver(chromeOptions);
   }
 
   public static RemoteWebDriver createFirefoxRemoteWebDriver(URL seleniumHubUrl,
       boolean enableHeadlessMode) {
     FirefoxOptions firefoxOptions = new FirefoxOptions();
     if (enableHeadlessMode) {
-      firefoxOptions.setHeadless(true);
+      firefoxOptions.addArguments("--headless=new");
     }
-    RemoteWebDriver driver = new RemoteWebDriver(seleniumHubUrl,
+    return new RemoteWebDriver(seleniumHubUrl,
         firefoxOptions);
-    return driver;
   }
 
   public static RemoteWebDriver createChromeRemoteWebDriver(URL seleniumHubUrl,
       boolean enableHeadlessMode) {
     ChromeOptions chromeOptions = new ChromeOptions();
     if (enableHeadlessMode) {
-      chromeOptions.setHeadless(true);
+      chromeOptions.addArguments("--headless=new");
     }
-    RemoteWebDriver driver = new RemoteWebDriver(seleniumHubUrl, chromeOptions);
-    return driver;
+    return new RemoteWebDriver(seleniumHubUrl, chromeOptions);
   }
 
   public static RemoteWebDriver createRandomRemoteWebDriver(URL seleniumHubUrl,
@@ -211,7 +188,6 @@ public class HttpWebClient {
     if (num == 0) {
       return createFirefoxRemoteWebDriver(seleniumHubUrl, enableHeadlessMode);
     }
-
     return createChromeRemoteWebDriver(seleniumHubUrl, enableHeadlessMode);
   }
 
@@ -235,7 +211,7 @@ public class HttpWebClient {
 
   /**
    * Function for obtaining the HTML using the selected <a href=
-   * 'https://seleniumhq.github.io/selenium/docs/api/java/org/openqa/selenium/WebDriver.html'>selenium
+   * 'https://www.selenium.dev/selenium/docs/api/java/org/openqa/selenium/WebDriver.html'>selenium
    * webdriver</a> There are a number of configuration properties within
    * <code>nutch-site.xml</code> which determine whether to take screenshots of
    * the rendered pages and persist them as timestamped .png's into HDFS.

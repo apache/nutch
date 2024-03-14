@@ -15,18 +15,36 @@
  limitations under the License.
 -->
 
-1. Upgrade various driver versions dependency in src/plugin/lib-selenium/ivy.xml
+1. Upgrade various driver versions dependency in `src/plugin/lib-selenium/ivy.xml`
 
-2. Upgrade Selenium's own dependencies in src/plugin/lib-selenium/plugin.xml
+2. Upgrade Selenium's own dependencies in `src/plugin/lib-selenium/plugin.xml`
 
    To get a list of dependencies and their versions execute:
-    $ ant -f ./build-ivy.xml
-    $ ls lib | sed 's/^/     <library name="/g' | sed 's/$/">\n       <export name="*"\/>\n     <\/library>/g'
-
-   Note that all dependent libraries are exported for a "library" plugin ("lib-selenium").
+   ```
+   $ ant -f ./build-ivy.xml
+   $ ls lib | sed 's/^/     <library name="/g' | sed 's/$/">\n       <export name="*"\/>\n     <\/library>/g'
+   ```
+   Note that all dependent libraries are exported for a "library" plugin `lib-selenium`.
 
    N.B. The above Regex + Sed commands may not work if you are using MacOSX's Sed. In this instance you can instal GNU Sed as follows
 
-   $ brew install gnu-sed --with-default-names
+   `$ brew install gnu-sed --with-default-names`
 
    You can then restart your terminal and the Regex + Sed command should work just fine!
+
+3. In the `src/plugin/lib-selenium/plugin.xml` replace all lines between
+      `<runtime>`
+   and
+      `</runtime>`
+   with the output of the command above.
+
+4. Remove the locally "installed" dependencies in `src/plugin/lib-selenium/lib/`:
+
+   `$ rm -rf lib/`
+
+5. Build Nutch and run all unit tests:
+
+   ```
+   $ cd ../../../
+   $ ant clean runtime test
+   ```

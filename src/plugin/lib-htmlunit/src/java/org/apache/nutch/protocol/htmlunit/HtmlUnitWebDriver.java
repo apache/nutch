@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
@@ -75,14 +77,15 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
     enableCss = conf.getBoolean("htmlunit.enable.css", false);
     javascriptTimeout = conf.getLong("htmlunit.javascript.timeout", 3500);
     int redirects = Integer.parseInt(conf.get("http.redirect.max", "0"));
-    enableRedirect = redirects <= 0 ? false : true;
+    enableRedirect = redirects > 0;
     maxRedirects = redirects;
 	  
     WebDriver driver = null;
 	  
     try {
       driver = new HtmlUnitWebDriver();
-      driver.manage().timeouts().pageLoadTimeout(pageLoadTimout, TimeUnit.SECONDS);
+      driver.manage().timeouts().pageLoadTimeout(Duration.of(pageLoadTimout,
+          ChronoUnit.SECONDS));
       driver.get(url);
      } catch(Exception e) {
        if(e instanceof TimeoutException) {

@@ -35,7 +35,7 @@ There are essentially two ways in which Nutch can be used with Selenium.
 
 ### A) Setting up Selenium (local mode)
 
- * Ensure that you have your prefered browser installed. Currently Chrome, Safari, Opera, PhantomJS and Firefox are supported. Here there example of installing Firefox is provided. More info about the package @ [launchpad](https://launchpad.net/ubuntu/trusty/+source/firefox)
+ * Ensure that you have your preferred browser installed. Currently Chrome, Safari, Opera, PhantomJS and Firefox are supported. Here there example of installing Firefox is provided. More info about the package @ [launchpad](https://launchpad.net/ubuntu/trusty/+source/firefox)
 ```
 sudo apt-get install firefox
 ```
