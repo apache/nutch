@@ -192,7 +192,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
    *
    * @param url url to get hostname for
    * @return hostname
-   * @throws URISyntaxException
+   * @throws URISyntaxException if the given string violates RFC 2396
    */
   public static String getHostName(String url) throws URISyntaxException {
     URI uri = new URI(url);
