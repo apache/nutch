@@ -108,6 +108,8 @@ public class HttpWebClient {
       }
       LOG.debug("Selenium {} WebDriver selected.", driverType);
 
+      driver.manage().window().maximize();
+      driver.manage().deleteAllCookies();
       driver.manage().timeouts().pageLoadTimeout(Duration.of(pageLoadWait,
           ChronoUnit.SECONDS));
       driver.get(url);
@@ -128,10 +130,10 @@ public class HttpWebClient {
 
   public static WebDriver createFirefoxWebDriver(String firefoxDriverPath,
       boolean enableHeadlessMode) {
-    System.setProperty("webdriver.gecko.driver", firefoxDriverPath);
     FirefoxOptions firefoxOptions = new FirefoxOptions();
+    firefoxOptions.setBinary(firefoxDriverPath);
     if (enableHeadlessMode) {
-      firefoxOptions.addArguments("--headless");
+      firefoxOptions.addArguments("-headless");
     }
     return new FirefoxDriver(firefoxOptions);
   }
@@ -139,14 +141,14 @@ public class HttpWebClient {
   public static WebDriver createChromeWebDriver(String chromeDriverPath,
       boolean enableHeadlessMode) {
     // if not specified, WebDriver will search your path for chromedriver
-    System.setProperty("webdriver.chrome.driver", chromeDriverPath);
     ChromeOptions chromeOptions = new ChromeOptions();
     chromeOptions.addArguments("--no-sandbox");
     chromeOptions.addArguments("--disable-extensions");
+    chromeOptions.setBinary(chromeDriverPath);
     // be sure to set selenium.enable.headless to true if no monitor attached
     // to your server
     if (enableHeadlessMode) {
-      chromeOptions.addArguments("--headless");
+      chromeOptions.addArguments("--headless=new");
     }
     return new ChromeDriver(chromeOptions);
   }
@@ -155,7 +157,7 @@ public class HttpWebClient {
       boolean enableHeadlessMode) {
     FirefoxOptions firefoxOptions = new FirefoxOptions();
     if (enableHeadlessMode) {
-      firefoxOptions.addArguments("--headless=new");
+      firefoxOptions.addArguments("-headless");
     }
     return new RemoteWebDriver(seleniumHubUrl,
         firefoxOptions);
@@ -236,7 +238,7 @@ public class HttpWebClient {
     } catch (Exception e) {
       TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
       // throw new RuntimeException(e);
-      LOG.error("getHtmlPage(url, conf): " + e.toString());
+      LOG.error("getHtmlPage(url, conf): {}", e.toString());
       throw new RuntimeException(e);
     } finally {
       cleanUpDriver(driver);
@@ -255,22 +257,22 @@ public class HttpWebClient {
       LOG.debug("In-memory screenshot taken of: {}", url);
       FileSystem fs = FileSystem.get(conf);
       if (conf.get("screenshot.location") != null) {
-        Path screenshotPath = new Path(
-            conf.get("screenshot.location") + "/" + srcFile.getName());
+        String screenshotPath = conf.get("screenshot.location", "");
+        Path path = new Path(String.valueOf(new File(screenshotPath, srcFile.getName())));
         OutputStream os = null;
-        if (!fs.exists(screenshotPath)) {
+        if (!fs.exists(path)) {
           LOG.debug(
-              "No existing screenshot already exists... creating new file at {} {}.",
+              "No existing screenshot already exists... creating new file at {}/{}.",
               screenshotPath, srcFile.getName());
-          os = fs.create(screenshotPath);
+          os = fs.create(path);
         }
         InputStream is = new BufferedInputStream(new FileInputStream(srcFile));
         IOUtils.copyBytes(is, os, conf);
-        LOG.debug("Screenshot for {} successfully saved to: {} {}", url,
+        LOG.debug("Screenshot for {} successfully saved to: {}/{}", url,
             screenshotPath, srcFile.getName());
       } else {
         LOG.warn(
-            "Screenshot for {} not saved to HDFS (subsequently disgarded) as value for "
+            "Screenshot for {} not saved to HDFS (subsequently discarded) as value for "
                 + "'screenshot.location' is absent from nutch-site.xml.",
             url);
       }

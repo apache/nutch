@@ -25,6 +25,10 @@
    provider-name="org.apache.nutch">
 
    <runtime>
+     <library name="lib-selenium.jar">
+       <export name="*"/>
+     </library>
+     <!-- Begin dependencies -->
      <library name="auto-service-annotations-1.1.1.jar">
        <export name="*"/>
      </library>
@@ -151,5 +155,6 @@
      <library name="selenium-support-4.18.1.jar">
        <export name="*"/>
      </library>
+     <!-- End of dependencies -->
    </runtime>
 </plugin>

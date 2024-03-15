@@ -26,16 +26,16 @@
    ```
    Note that all dependent libraries are exported for a "library" plugin `lib-selenium`.
 
-   N.B. The above Regex + Sed commands may not work if you are using MacOSX's Sed. In this instance you can instal GNU Sed as follows
+   N.B. The above Regex + Sed commands may not work if you are using MacOSX's Sed. In this instance you can install GNU Sed as follows
 
    `$ brew install gnu-sed --with-default-names`
 
    You can then restart your terminal and the Regex + Sed command should work just fine!
 
 3. In the `src/plugin/lib-selenium/plugin.xml` replace all lines between
-      `<runtime>`
+      `<!--  Begin dependencies -->`
    and
-      `</runtime>`
+      `<!-- End of dependencies -->`
    with the output of the command above.
 
 4. Remove the locally "installed" dependencies in `src/plugin/lib-selenium/lib/`:
