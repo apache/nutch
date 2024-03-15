@@ -16,31 +16,21 @@
  */
 package org.apache.nutch.protocol.htmlunit;
 
-import java.lang.invoke.MethodHandles;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.concurrent.TimeUnit;
-
+import com.gargoylesoftware.htmlunit.WebClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.io.TemporaryFilesystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gargoylesoftware.htmlunit.WebClient;
+import java.io.*;
+import java.lang.invoke.MethodHandles;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 public class HtmlUnitWebDriver extends HtmlUnitDriver {
 
@@ -75,14 +65,15 @@ public class HtmlUnitWebDriver extends HtmlUnitDriver {
     enableCss = conf.getBoolean("htmlunit.enable.css", false);
     javascriptTimeout = conf.getLong("htmlunit.javascript.timeout", 3500);
     int redirects = Integer.parseInt(conf.get("http.redirect.max", "0"));
-    enableRedirect = redirects <= 0 ? false : true;
+    enableRedirect = redirects > 0;
     maxRedirects = redirects;
 	  
     WebDriver driver = null;
 	  
     try {
       driver = new HtmlUnitWebDriver();
-      driver.manage().timeouts().pageLoadTimeout(pageLoadTimout, TimeUnit.SECONDS);
+      driver.manage().timeouts().pageLoadTimeout(Duration.of(pageLoadTimout,
+          ChronoUnit.SECONDS));
       driver.get(url);
      } catch(Exception e) {
        if(e instanceof TimeoutException) {

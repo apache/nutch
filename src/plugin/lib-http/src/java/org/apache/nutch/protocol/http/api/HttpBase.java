@@ -301,7 +301,7 @@ public abstract class HttpBase implements Protocol {
               if (parts.length == 2) {
                 this.hostCookies.put(parts[0], parts[1]);
               } else {
-                LOG.warn("Unable to parse cookie file correctly at: " + word);
+                LOG.warn("Unable to parse cookie file correctly at: {}", word);
               }
             }
           }
@@ -332,8 +332,8 @@ public abstract class HttpBase implements Protocol {
       ciphers = ((SSLSocketFactory) SSLSocketFactory.getDefault()).getDefaultCipherSuites();
     }
     
-    this.tlsPreferredProtocols = new HashSet<String>(Arrays.asList(protocols));
-    this.tlsPreferredCipherSuites = new HashSet<String>(Arrays.asList(ciphers));
+    this.tlsPreferredProtocols = new HashSet<>(Arrays.asList(protocols));
+    this.tlsPreferredCipherSuites = new HashSet<>(Arrays.asList(ciphers));
 
     logConf();
   }
@@ -402,7 +402,7 @@ public abstract class HttpBase implements Protocol {
         return new ProtocolOutput(c, new ProtocolStatus(protocolStatusCode, u));
       } else if (code == 400) { // bad request, mark as GONE
         if (this.logger.isTraceEnabled()) {
-          this.logger.trace("400 Bad request: " + u);
+          this.logger.trace("400 Bad request: {}", u);
         }
         return new ProtocolOutput(c,
             new ProtocolStatus(ProtocolStatus.GONE, u));
@@ -434,11 +434,6 @@ public abstract class HttpBase implements Protocol {
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
-
-  /*
-   * -------------------------- * </implementation:Protocol> *
-   * --------------------------
-   */
 
   public String getProxyHost() {
     return this.proxyHost;
@@ -569,37 +564,35 @@ public abstract class HttpBase implements Protocol {
   private static String getAgentString(String agentName, String agentVersion,
       String agentDesc, String agentURL, String agentEmail) {
 
-    if ((agentName == null) || (agentName.trim().length() == 0)) {
-      if (LOG.isErrorEnabled()) {
+    if (((agentName == null) || (agentName.trim().isEmpty())) && LOG.isErrorEnabled()) {
         LOG.error("No User-Agent string set (http.agent.name)!");
-      }
     }
 
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
 
     buf.append(agentName);
     if (agentVersion != null && !agentVersion.trim().isEmpty()) {
       buf.append("/");
       buf.append(agentVersion);
     }
-    if (((agentDesc != null) && (agentDesc.length() != 0))
-        || ((agentEmail != null) && (agentEmail.length() != 0))
-        || ((agentURL != null) && (agentURL.length() != 0))) {
+    if (((agentDesc != null) && (!agentDesc.isEmpty()))
+        || ((agentEmail != null) && (!agentEmail.isEmpty()))
+        || ((agentURL != null) && (!agentURL.isEmpty()))) {
       buf.append(" (");
 
-      if ((agentDesc != null) && (agentDesc.length() != 0)) {
+      if ((agentDesc != null) && (!agentDesc.isEmpty())) {
         buf.append(agentDesc);
         if ((agentURL != null) || (agentEmail != null))
           buf.append("; ");
       }
 
-      if ((agentURL != null) && (agentURL.length() != 0)) {
+      if ((agentURL != null) && (!agentURL.isEmpty())) {
         buf.append(agentURL);
         if (agentEmail != null)
           buf.append("; ");
       }
 
-      if ((agentEmail != null) && (agentEmail.length() != 0))
+      if ((agentEmail != null) && (!agentEmail.isEmpty()))
         buf.append(agentEmail);
 
       buf.append(")");
@@ -609,15 +602,15 @@ public abstract class HttpBase implements Protocol {
 
   protected void logConf() {
     if (this.logger.isInfoEnabled()) {
-      this.logger.info("http.proxy.host = " + this.proxyHost);
-      this.logger.info("http.proxy.port = " + this.proxyPort);
-      this.logger.info("http.proxy.exception.list = " + this.useProxy);
-      this.logger.info("http.timeout = " + this.timeout);
-      this.logger.info("http.content.limit = " + this.maxContent);
-      this.logger.info("http.agent = " + this.userAgent);
-      this.logger.info("http.accept.language = " + this.acceptLanguage);
-      this.logger.info("http.accept = " + this.accept);
-      this.logger.info("http.enable.cookie.header = " + isCookieEnabled());
+      this.logger.info("http.proxy.host = {}", this.proxyHost);
+      this.logger.info("http.proxy.port = {}", this.proxyPort);
+      this.logger.info("http.proxy.exception.list = {}", this.useProxy);
+      this.logger.info("http.timeout = {}", this.timeout);
+      this.logger.info("http.content.limit = {}", this.maxContent);
+      this.logger.info("http.agent = {}", this.userAgent);
+      this.logger.info("http.accept.language = {}", this.acceptLanguage);
+      this.logger.info("http.accept = {}", this.accept);
+      this.logger.info("http.enable.cookie.header = {}", isCookieEnabled());
     }
   }
 
@@ -644,9 +637,8 @@ public abstract class HttpBase implements Protocol {
       throw new IOException("unzipBestEffort returned null");
 
     if (LOG.isTraceEnabled()) {
-      LOG.trace("fetched " + compressed.length
-          + " bytes of compressed content (expanded to " + content.length
-          + " bytes) from " + url);
+      LOG.trace("fetched {} bytes of compressed content (expanded to {} " +
+          "bytes) from {}", compressed.length, content.length, url);
     }
     return content;
   }
@@ -674,9 +666,8 @@ public abstract class HttpBase implements Protocol {
       throw new IOException("inflateBestEffort returned null");
 
     if (LOG.isTraceEnabled()) {
-      LOG.trace("fetched " + compressed.length
-          + " bytes of compressed content (expanded to " + content.length
-          + " bytes) from " + url);
+      LOG.trace("fetched {} bytes of compressed content (expanded to {} " +
+          "bytes) from {}", compressed.length, content.length, url);
     }
     return content;
   }
@@ -736,11 +727,11 @@ public abstract class HttpBase implements Protocol {
    */
   private static HashMap<String, String> arrayToMap(String[] input) {
     if (input == null || input.length == 0) {
-      return new HashMap<String, String>();
+      return new HashMap<>();
     }
     HashMap<String, String> hm = new HashMap<>();
     for (int i = 0; i < input.length; i++) {
-      if (!"".equals(input[i].trim())) {
+      if (!input[i].trim().isEmpty()) {
         hm.put(input[i], input[i]);
       }
     }

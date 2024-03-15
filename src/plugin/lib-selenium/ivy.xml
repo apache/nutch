@@ -38,7 +38,7 @@
 
   <dependencies>
     <!-- begin selenium dependencies -->
-    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="4.7.2" />
+    <dependency org="org.seleniumhq.selenium" name="selenium-java" rev="4.18.1" />
     <!-- end selenium dependencies -->
   </dependencies>
 

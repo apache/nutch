@@ -68,6 +68,7 @@ On the "Import Project" screen select the "Import project from external model" r
 Click "Create". On the next screen the "Eclipse projects directory" should be already set to the nutch folder.
 Leave the "Create module files near .classpath files" radio button selected.
 Click "Next" on the next screens. On the project SDK screen select Java 11 and click "Create".
+**N.B.** For anyone on a Mac with a homebrew-installed openjdk, you need to use the directory under _libexec_: `<openjdk11_directory>/libexec/openjdk.jdk/Contents/Home`.
 
 Once the project is imported, you will see a popup saying "Ant build scripts found", "Frameworks detected - IvyIDEA Framework detected". Click "Import".
 If you don't get the pop-up, I'd suggest going through the steps again as this happens from time to time. There is another

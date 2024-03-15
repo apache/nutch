@@ -23,7 +23,7 @@
 
 
 Your can run Nutch in Docker.  Check  some examples at https://github.com/sbatururimi/nutch-test.
-Don't forget to update Dockefile to point to the original Nutch repository when updated.
+Don't forget to update Dockerfile to point to the original Nutch repository when updated.
 
 # Contributors
 Stas Batururimi [s.batururimi@gmail.com]

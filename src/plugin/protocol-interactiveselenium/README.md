@@ -18,11 +18,11 @@
 Nutch Interactive Selenium
 ==========================
 
-This protocol plugin allows you to fetch and interact with pages using [Selenium](http://www.seleniumhq.org/).
+This protocol plugin allows you to fetch and interact with pages using [Selenium](https://www.selenium.dev/).
 
 # Dependencies and Configuration
 
-You will need to have [Selenium](http://www.seleniumhq.org/) and a compatible version of Firefox installed to use this plugin.
+You will need to have [Selenium](https://www.selenium.dev/) and a compatible version of Firefox installed to use this plugin.
 
 Set the protocol to be used in your Nutch configuration files.
 ```

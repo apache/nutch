@@ -16,48 +16,29 @@
  */
 package org.apache.nutch.protocol.selenium;
 
-import java.lang.invoke.MethodHandles;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.concurrent.TimeUnit;
-import java.util.Random;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
-
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-
-//import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
-//import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.firefox.FirefoxOptions;
-
 import org.openqa.selenium.io.TemporaryFilesystem;
-
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
-//import org.openqa.selenium.safari.SafariDriver;
-
-//import org.openqa.selenium.phantomjs.PhantomJSDriver;
-//import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.lang.invoke.MethodHandles;
+import java.net.URL;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Random;
 
 public class HttpWebClient {
 
@@ -127,8 +108,10 @@ public class HttpWebClient {
       }
       LOG.debug("Selenium {} WebDriver selected.", driverType);
 
-      driver.manage().timeouts().pageLoadTimeout(pageLoadWait,
-          TimeUnit.SECONDS);
+      driver.manage().window().maximize();
+      driver.manage().deleteAllCookies();
+      driver.manage().timeouts().pageLoadTimeout(Duration.of(pageLoadWait,
+          ChronoUnit.SECONDS));
       driver.get(url);
     } catch (Exception e) {
       if (e instanceof TimeoutException) {
@@ -147,50 +130,46 @@ public class HttpWebClient {
 
   public static WebDriver createFirefoxWebDriver(String firefoxDriverPath,
       boolean enableHeadlessMode) {
-    System.setProperty("webdriver.gecko.driver", firefoxDriverPath);
     FirefoxOptions firefoxOptions = new FirefoxOptions();
+    firefoxOptions.setBinary(firefoxDriverPath);
     if (enableHeadlessMode) {
-      firefoxOptions.addArguments("--headless");
+      firefoxOptions.addArguments("-headless");
     }
-    WebDriver driver = new FirefoxDriver(firefoxOptions);
-    return driver;
+    return new FirefoxDriver(firefoxOptions);
   }
 
   public static WebDriver createChromeWebDriver(String chromeDriverPath,
       boolean enableHeadlessMode) {
     // if not specified, WebDriver will search your path for chromedriver
-    System.setProperty("webdriver.chrome.driver", chromeDriverPath);
     ChromeOptions chromeOptions = new ChromeOptions();
     chromeOptions.addArguments("--no-sandbox");
     chromeOptions.addArguments("--disable-extensions");
+    chromeOptions.setBinary(chromeDriverPath);
     // be sure to set selenium.enable.headless to true if no monitor attached
     // to your server
     if (enableHeadlessMode) {
-      chromeOptions.addArguments("--headless");
+      chromeOptions.addArguments("--headless=new");
     }
-    WebDriver driver = new ChromeDriver(chromeOptions);
-    return driver;
+    return new ChromeDriver(chromeOptions);
   }
 
   public static RemoteWebDriver createFirefoxRemoteWebDriver(URL seleniumHubUrl,
       boolean enableHeadlessMode) {
     FirefoxOptions firefoxOptions = new FirefoxOptions();
     if (enableHeadlessMode) {
-      firefoxOptions.setHeadless(true);
+      firefoxOptions.addArguments("-headless");
     }
-    RemoteWebDriver driver = new RemoteWebDriver(seleniumHubUrl,
+    return new RemoteWebDriver(seleniumHubUrl,
         firefoxOptions);
-    return driver;
   }
 
   public static RemoteWebDriver createChromeRemoteWebDriver(URL seleniumHubUrl,
       boolean enableHeadlessMode) {
     ChromeOptions chromeOptions = new ChromeOptions();
     if (enableHeadlessMode) {
-      chromeOptions.setHeadless(true);
+      chromeOptions.addArguments("--headless=new");
     }
-    RemoteWebDriver driver = new RemoteWebDriver(seleniumHubUrl, chromeOptions);
-    return driver;
+    return new RemoteWebDriver(seleniumHubUrl, chromeOptions);
   }
 
   public static RemoteWebDriver createRandomRemoteWebDriver(URL seleniumHubUrl,
@@ -211,7 +190,6 @@ public class HttpWebClient {
     if (num == 0) {
       return createFirefoxRemoteWebDriver(seleniumHubUrl, enableHeadlessMode);
     }
-
     return createChromeRemoteWebDriver(seleniumHubUrl, enableHeadlessMode);
   }
 
@@ -235,7 +213,7 @@ public class HttpWebClient {
 
   /**
    * Function for obtaining the HTML using the selected <a href=
-   * 'https://seleniumhq.github.io/selenium/docs/api/java/org/openqa/selenium/WebDriver.html'>selenium
+   * 'https://www.selenium.dev/selenium/docs/api/java/org/openqa/selenium/WebDriver.html'>selenium
    * webdriver</a> There are a number of configuration properties within
    * <code>nutch-site.xml</code> which determine whether to take screenshots of
    * the rendered pages and persist them as timestamped .png's into HDFS.
@@ -260,7 +238,7 @@ public class HttpWebClient {
     } catch (Exception e) {
       TemporaryFilesystem.getDefaultTmpFS().deleteTemporaryFiles();
       // throw new RuntimeException(e);
-      LOG.error("getHtmlPage(url, conf): " + e.toString());
+      LOG.error("getHtmlPage(url, conf): {}", e.toString());
       throw new RuntimeException(e);
     } finally {
       cleanUpDriver(driver);
@@ -279,22 +257,22 @@ public class HttpWebClient {
       LOG.debug("In-memory screenshot taken of: {}", url);
       FileSystem fs = FileSystem.get(conf);
       if (conf.get("screenshot.location") != null) {
-        Path screenshotPath = new Path(
-            conf.get("screenshot.location") + "/" + srcFile.getName());
+        String screenshotPath = conf.get("screenshot.location", "");
+        Path path = new Path(String.valueOf(new File(screenshotPath, srcFile.getName())));
         OutputStream os = null;
-        if (!fs.exists(screenshotPath)) {
+        if (!fs.exists(path)) {
           LOG.debug(
-              "No existing screenshot already exists... creating new file at {} {}.",
+              "No existing screenshot already exists... creating new file at {}/{}.",
               screenshotPath, srcFile.getName());
-          os = fs.create(screenshotPath);
+          os = fs.create(path);
         }
         InputStream is = new BufferedInputStream(new FileInputStream(srcFile));
         IOUtils.copyBytes(is, os, conf);
-        LOG.debug("Screenshot for {} successfully saved to: {} {}", url,
+        LOG.debug("Screenshot for {} successfully saved to: {}/{}", url,
             screenshotPath, srcFile.getName());
       } else {
         LOG.warn(
-            "Screenshot for {} not saved to HDFS (subsequently disgarded) as value for "
+            "Screenshot for {} not saved to HDFS (subsequently discarded) as value for "
                 + "'screenshot.location' is absent from nutch-site.xml.",
             url);
       }
