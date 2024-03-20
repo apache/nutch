@@ -33,6 +33,13 @@ public class FetchNode {
     this.url = url;
   }
   public Outlink[] getOutlinks() {
+    Outlink[] copyOutlinks = new Outlink[outlinks.length];
+    for (int i = copyOutlinks.length-1; i>=0; i--) {
+      Outlink o = outlinks[i];
+      if (o != null) {
+        copyOutlinks[i] = new Outlink(o.getToUrl(), o.getAnchor());
+      }
+    }
     return outlinks;
   }
   public void setOutlinks(Outlink[] links) {
