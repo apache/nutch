@@ -37,8 +37,8 @@
   </publications>
 
   <dependencies>
-      <dependency org="org.apache.kafka" name="kafka_2.12" rev="1.1.0"/>
-      <dependency org="org.apache.kafka" name="connect-json" rev="1.1.0"/>
+      <dependency org="org.apache.kafka" name="kafka_2.12" rev="3.7.0"/>
+      <dependency org="org.apache.kafka" name="connect-json" rev="3.7.0"/>
   </dependencies>
 
 </ivy-module>
