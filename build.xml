@@ -44,7 +44,7 @@
   <property name="spotbugs.home" value="${ivy.dir}/spotbugs-${spotbugs.version}" />
   <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
-  <property name="apache-rat.version" value="0.16.1" />
+  <property name="apache-rat.version" value="0.15" />
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
 
@@ -203,6 +203,7 @@
       <packageset dir="${plugins.dir}/headings/src/java"/>
       <packageset dir="${plugins.dir}/exchange-jexl/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
+      <packageset dir="${plugins.dir}/index-arbitrary/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
       <packageset dir="${plugins.dir}/index-jexl-filter/src/java"/>
@@ -646,6 +647,7 @@
       <packageset dir="${plugins.dir}/headings/src/java"/>
       <packageset dir="${plugins.dir}/exchange-jexl/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
+      <packageset dir="${plugins.dir}/index-arbitrary/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-geoip/src/java"/>
       <packageset dir="${plugins.dir}/index-jexl-filter/src/java"/>
@@ -1173,6 +1175,8 @@
         <source path="${plugins.dir}/exchange-jexl/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/java/" />
         <source path="${plugins.dir}/index-anchor/src/test/" />
+        <source path="${plugins.dir}/index-arbitrary/src/java/" />
+        <source path="${plugins.dir}/index-arbitrary/src/test/" />
         <source path="${plugins.dir}/index-basic/src/java/" />
         <source path="${plugins.dir}/index-basic/src/test/" />
         <source path="${plugins.dir}/index-geoip/src/java/" />
