@@ -160,8 +160,8 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
 
     // This'll be quick
     if (doc == null) {
-      LOG.info("In filter() where doc is null for url == "
-               + String.valueOf(url));
+      LOG.info("In filter() where doc is null for url == {}",
+               String.valueOf(url));
       return doc;
     } else if (url == null) {
       LOG.info("In filter() where url is null. Nothing to do.");
@@ -181,7 +181,8 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
         }
         theConstructor = theClass.getDeclaredConstructor(String[].class);
       } catch (Exception e) {
-        LOG.error("Exception preparing reflection tasks. className was " + String.valueOf(className));
+        LOG.error("Exception preparing reflection tasks. className was {}",
+		 String.valueOf(className));
         e.printStackTrace();
       }
       try {
@@ -196,35 +197,36 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
         }
       } catch (Exception e) {
         LOG.error("Exception using reflection to instantiate and invoke.");
-        LOG.error("\nurl was " + String.valueOf(url));
-        LOG.error("\nclassName was " + String.valueOf(className));
+        LOG.error("url was {}", String.valueOf(url));
+        LOG.error("className was {}",  String.valueOf(className));
         if (constrArgs.length > 0) {
-          LOG.error("\nconstrArgs[1] was " + String.valueOf(constrArgs[1]));
+          LOG.error("constrArgs[1] was {}", String.valueOf(constrArgs[1]));
         }
-        LOG.error("\nmethodName was " + String.valueOf(className));
+        LOG.error("methodName was {}", String.valueOf(className));
         if (methodArgs.length > 0) {
-          LOG.error("\nmethodArgs[0] was " + String.valueOf(methodArgs[0]));
+          LOG.error("methodArgs[0] was {}", String.valueOf(methodArgs[0]));
         }
         e.printStackTrace();
       }
 
-      LOG.debug(className + "." + methodName + "() returned " + String.valueOf(result)
-	       + " for field " + String.valueOf(fieldName));
+      LOG.debug("{}.{}() returned {} for field {}.", className,
+		methodName, String.valueOf(result), String.valueOf(fieldName));
       
       // If user chose to overwrite, remove existing value
       if (overwrite) {
-	LOG.debug("overwrite == true for fieldName == " + fieldName);
+	LOG.debug("overwrite == true for fieldName == {} ", fieldName);
 	if (doc.getFieldNames().contains(fieldName)) {
-	  LOG.debug("Removing field '" + fieldName + "' from doc for overwrite");
+	  LOG.debug("Removing field '{}' from doc for overwrite", fieldName);
 	  doc.removeField(fieldName);
 	}
       }
       if (result == null) {
-        LOG.info("\nCall to " + className + "." + methodName
-                 + " returned null" + (overwrite ? (" and " + fieldName
-                                                    + " has been cleared") : "") + ".\n");
+        LOG.info("Call to {}.{} returned null", className, methodName);
+        if (overwrite) {
+          LOG.info("{} has been cleared.", fieldName);
+        }
       }
-      LOG.debug("Adding value '" + result + "' for  field '" + fieldName + "' to doc");
+      LOG.debug("Adding value '{}' for field '{}' to doc", result, fieldName);
       doc.add(fieldName, result);
     }
     return doc;
@@ -238,7 +240,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
     this.conf = conf;
     arbitraryAddsCount = conf.getInt("index.arbitrary.function.count",1);
     setIndexedConf(conf, 0);
-    LOG.debug("Called setIndexedConf(0) from setConf and now fieldName is " + String.valueOf(fieldName));
+    LOG.debug("Called setIndexedConf(0) from setConf and now fieldName is {}", String.valueOf(fieldName));
   }
 
   /**
@@ -251,10 +253,10 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
    *          base property names in the xml configuration file.
    */
   public void setIndexedConf(Configuration conf, int ndx) {
-    LOG.debug("In setIndexedConf() where ndx was passed in as " + String.valueOf(ndx));
+    LOG.debug("In setIndexedConf() where ndx was passed in as {}", String.valueOf(ndx));
     fieldName = conf.get("index.arbitrary.fieldName.".concat(String.valueOf(ndx)));
-    LOG.debug("\nLooking now for " + "index.arbitrary.fieldName.".concat(String.valueOf(ndx))
-              + " which was:\n" + String.valueOf(fieldName) + "\n");
+    LOG.debug("Looking now for index.arbitrary.fiendname.{} which was: {}",
+	      String.valueOf(ndx),String.valueOf(fieldName));
 
     if (fieldName == null || fieldName == "") {
       throw new RuntimeException ("Problem in configuration where the index.arbitrary.fieldName."
