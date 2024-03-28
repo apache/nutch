@@ -196,9 +196,9 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
           result = theMethod.invoke(instance);
         }
       } catch (Exception e) {
-        LOG.error("Exception using reflection to instantiate and invoke.");
-        LOG.error("url was {}", String.valueOf(url));
-        LOG.error("className was {}",  String.valueOf(className));
+        LOG.error("Exception in reflection trying to instantiate/invoke. "
+		  + "url was {} & className was {}",
+		  String.valueOf(url), String.valueOf(className));
         if (constrArgs.length > 0) {
           LOG.error("constrArgs[1] was {}", String.valueOf(constrArgs[1]));
         }
@@ -255,7 +255,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
   public void setIndexedConf(Configuration conf, int ndx) {
     LOG.debug("In setIndexedConf() where ndx was passed in as {}", String.valueOf(ndx));
     fieldName = conf.get("index.arbitrary.fieldName.".concat(String.valueOf(ndx)));
-    LOG.debug("Looking now for index.arbitrary.fiendname.{} which was: {}",
+    LOG.debug("Looking now for index.arbitrary.fieldname.{} which was: {}",
 	      String.valueOf(ndx),String.valueOf(fieldName));
 
     if (fieldName == null || fieldName == "") {
