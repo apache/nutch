@@ -160,11 +160,11 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
 
     // This'll be quick
     if (doc == null) {
-      LOG.info("In filter() where doc is null for url == {}",
+      LOG.debug("In filter() where doc is null for url == {}",
                String.valueOf(url));
       return doc;
     } else if (url == null) {
-      LOG.info("In filter() where url is null. Nothing to do.");
+      LOG.debug("In filter() where url is null. Nothing to do.");
       return doc;
     }
 
@@ -221,9 +221,9 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
 	}
       }
       if (result == null) {
-        LOG.info("Call to {}.{} returned null", className, methodName);
+        LOG.debug("Call to {}.{} returned null", className, methodName);
         if (overwrite) {
-          LOG.info("{} has been cleared.", fieldName);
+          LOG.debug("{} has been cleared.", fieldName);
         }
       }
       LOG.debug("Adding value '{}' for field '{}' to doc", result, fieldName);
