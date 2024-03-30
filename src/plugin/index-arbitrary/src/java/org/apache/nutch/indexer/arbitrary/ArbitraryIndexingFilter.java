@@ -239,8 +239,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
   public void setConf(Configuration conf) {
     this.conf = conf;
     arbitraryAddsCount = conf.getInt("index.arbitrary.function.count",1);
-    setIndexedConf(conf, 0);
-    LOG.debug("Called setIndexedConf(0) from setConf and now fieldName is {}", String.valueOf(fieldName));
+    LOG.info("Will process the first {} fieldName defs in config.", String.valueOf(arbitraryAddsCount));
   }
 
   /**
@@ -273,6 +272,9 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
     methodName = conf.get("index.arbitrary.methodName.".concat(String.valueOf(ndx)),"");
     methodArgs = conf.getTrimmedStrings("index.arbitrary.methodArgs.".concat(String.valueOf(ndx)));
     overwrite = conf.getBoolean("index.arbitrary.overwrite.".concat(String.valueOf(ndx)),false);
+    if (overwrite) {
+      LOG.info("overwrite set == true for processing {}.", fieldName);
+    }
   }
 
   /**
