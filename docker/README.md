@@ -3,7 +3,6 @@
 ![Docker Pulls](https://img.shields.io/docker/pulls/apache/nutch?style=for-the-badge)
 ![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/apache/nutch?style=for-the-badge)
 ![Docker Image Version (latest semver)](https://img.shields.io/docker/v/apache/nutch?style=for-the-badge)
-![MicroBadger Layers](https://img.shields.io/microbadger/layers/apache/nutch?style=for-the-badge)
 ![Docker Stars](https://img.shields.io/docker/stars/apache/nutch?style=for-the-badge)
 ![Docker Automated build](https://img.shields.io/docker/automated/apache/nutch?style=for-the-badge)
 
@@ -25,7 +24,7 @@ Current configuration of this image consists of components:
 
 ##  Base Image
 
-* [alpine:3.13](https://hub.docker.com/_/alpine/)
+* [alpine:3.19](https://hub.docker.com/_/alpine/tags)
 
 ## Tips
 

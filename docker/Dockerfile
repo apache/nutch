@@ -22,7 +22,7 @@
 #  2 == Same as mode 1 with addition of Nutch WebApp
 ARG BUILD_MODE=0
 
-FROM alpine:3.13 AS base
+FROM alpine:3.19 AS base
 
 ARG SERVER_PORT=8081
 ARG SERVER_HOST=0.0.0.0

@@ -329,7 +329,7 @@
     <!-- sign and deploy the main artifact -->
     <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
       <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-      <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:3.2.2:sign-and-deploy-file" />
       <arg value="-Durl=${maven-repository-url}" />
       <arg value="-DrepositoryId=${maven-repository-id}" />
       <arg value="-DpomFile=pom.xml" />
@@ -340,7 +340,7 @@
     <!-- sign and deploy the sources artifact -->
     <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
       <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-      <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:3.2.2:sign-and-deploy-file" />
       <arg value="-Durl=${maven-repository-url}" />
       <arg value="-DrepositoryId=${maven-repository-id}" />
       <arg value="-DpomFile=pom.xml" />
@@ -352,7 +352,7 @@
     <!-- sign and deploy the javadoc artifact -->
     <artifact:mvn mavenHome="${env.MVN_HOME}" fork="true" failonerror="true">
       <jvmarg value="-Dmaven.multiModuleProjectDirectory=false" />
-      <arg value="org.apache.maven.plugins:maven-gpg-plugin:1.6:sign-and-deploy-file" />
+      <arg value="org.apache.maven.plugins:maven-gpg-plugin:3.2.2:sign-and-deploy-file" />
       <arg value="-Durl=${maven-repository-url}" />
       <arg value="-DrepositoryId=${maven-repository-id}" />
       <arg value="-DpomFile=pom.xml" />
