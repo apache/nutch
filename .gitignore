@@ -26,3 +26,5 @@ lib/spotbugs-*
 ivy/dependency-check-ant/*
 .gradle*
 ivy/apache-rat-*
+ivy/maven-ant-tasks-*
+pom.xml
