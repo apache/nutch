@@ -72,9 +72,13 @@ public class URLStreamHandlerFactory
    * Protocols covered by standard JVM URL handlers. These protocols must not be
    * handled by Nutch plugins, in order to avoid that basic actions (eg. loading
    * of classes and configuration files) break.
+   * 
+   * Also the "ftp" protocol is included: it's usually supported by the standard
+   * JVM URL handler and Nutch does not yet provide a dedicated URL stream
+   * handler.
    */
   public static final String[] SYSTEM_PROTOCOLS = { //
-      "http", "https", "file", "jar" };
+      "http", "https", "file", "jar", "ftp" };
 
   static {
     instance = new URLStreamHandlerFactory();
