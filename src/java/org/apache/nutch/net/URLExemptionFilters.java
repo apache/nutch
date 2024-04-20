@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 
 /** Creates and caches {@link URLExemptionFilter} implementing plugins. */
 public class URLExemptionFilters {
@@ -44,8 +45,10 @@ public class URLExemptionFilters {
         throw new IllegalStateException(e);
       }
     }
-    LOG.info("Found {} extensions at point:'{}'", filters.length,
-        URLExemptionFilter.X_POINT_ID);
+    if (filters.length > 0) {
+      LOG.info("Found {} URLExemptionFilter implementations: '{}'", filters.length,
+        Arrays.toString(filters));
+    }
   }
 
   /**

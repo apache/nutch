@@ -25,21 +25,25 @@ import java.io.Reader;
 import java.util.regex.Pattern;
 import java.util.List;
 
-
 /**
- * This implementation of {@link org.apache.nutch.net.URLExemptionFilter} uses regex configuration
- * to check if URL is eligible for exemption from 'db.ignore.external'.
- * When this filter is enabled, the external urls will be checked against configured sequence of regex rules.
+ * This implementation of {@link org.apache.nutch.net.URLExemptionFilter} 
+ * uses regex configuration to check if URL is eligible for exemption from 
+ * the <code>db.ignore.external.links</code> configuration property.
+ * When this filter is enabled, the external urls will be checked 
+ * against configured sequence of regex rules.
  *<p>
- * The exemption rule file defaults to db-ignore-external-exemptions.txt in the classpath but can be
- * overridden using the property  <code>"db.ignore.external.exemptions.file" in ./conf/nutch-*.xml</code>
+ * The exemption rule file defaults to 
+ * <code>db-ignore-external-exemptions.txt</code> in the classpath but 
+ * can be overridden using the configuration property 
+ * <code>db.ignore.external.exemptions.file</code>.
  *</p>
  *
- * The exemption rules are specified in plain text file where each line is a rule.
- * The format is same same as `regex-urlfilter.txt`.
+ * The exemption rules are specified in plain text file where each line 
+ * is a rule.
+ * The format is same same as <code>regex-urlfilter.txt</code>.
  * Each non-comment, non-blank line contains a regular expression
- * prefixed by '+' or '-'.  The first matching pattern in the file
- * determines whether a URL is exempted or ignored.  If no pattern
+ * prefixed by <b>+</b> or <b>-</b>. The first matching pattern in the file
+ * determines whether a URL is exempted or ignored. If no pattern
  * matches, the URL is ignored.
  *
  * @since Feb 10, 2016
