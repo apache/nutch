@@ -436,7 +436,10 @@ public class Generator extends NutchTool implements Tool {
         URL u = null;
 
         String hostname = URLUtil.getHost(urlString);
-        if (!hostname.equals(currentHostname)) {
+        if (hostname == null) {
+          currentHostname = hostname;
+          // malformed URLs are counted later on when extracting host or domain
+        } else if (!hostname.equals(currentHostname)) {
           currentHostname = hostname;
           host = hostDatumCache.get(hostname);
 
