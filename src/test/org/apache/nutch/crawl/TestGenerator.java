@@ -302,6 +302,56 @@ public class TestGenerator {
   }
 
   /**
+   * Test that Generator can process URLs without a host part.
+   * 
+   * @throws Exception
+   * @throws IOException
+   */
+  @Test
+  public void testURLNoHost() throws IOException, Exception {
+
+    ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
+
+    list.add(createURLCrawlDatum("file:/path/index.html", 1, 1));
+    int numValidURLs = 1;
+    // The following URL strings will cause a MalformedURLException:
+    // - unsupported scheme
+    list.add(createURLCrawlDatum("xyz://foobar/path/index.html", 1, 1));
+
+    createCrawlDB(list);
+
+    Configuration myConfiguration = new Configuration(conf);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, -1);
+    myConfiguration.set(Generator.GENERATOR_COUNT_MODE,
+        Generator.GENERATOR_COUNT_VALUE_HOST);
+
+    Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
+        myConfiguration, false);
+
+    Path fetchlistPath = new Path(new Path(generatedSegment,
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
+
+    ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
+
+    Assert.assertEquals("Size of fetch list does not fit",
+        numValidURLs, fetchList.size());
+
+    myConfiguration.set(Generator.GENERATOR_COUNT_MODE,
+        Generator.GENERATOR_COUNT_VALUE_DOMAIN);
+
+    generatedSegment = generateFetchlist(Integer.MAX_VALUE,
+        myConfiguration, false);
+
+    fetchlistPath = new Path(new Path(generatedSegment,
+        CrawlDatum.GENERATE_DIR_NAME), "part-r-00000");
+
+    fetchList = readContents(fetchlistPath);
+
+    Assert.assertEquals("Size of fetch list does not fit",
+        numValidURLs, fetchList.size());
+  }
+
+  /**
    * Read contents of fetchlist.
    * 
    * @param fetchlist
