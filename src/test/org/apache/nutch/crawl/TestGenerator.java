@@ -397,7 +397,7 @@ public class TestGenerator {
     // generate segment
     Generator g = new Generator(config);
     Path[] generatedSegment = g.generate(dbDir, segmentsDir, -1, numResults,
-        Long.MAX_VALUE, filter, false);
+        Long.MAX_VALUE, filter, false, false, 1, null, null);
     if (generatedSegment == null)
       return null;
     return generatedSegment[0];
@@ -407,7 +407,8 @@ public class TestGenerator {
    * Creates CrawlDB.
    * 
    * @param list
-   *          database contents
+   *          database contents. The list must be lexicographically sorted by
+   *          URL.
    * @throws IOException
    * @throws Exception
    */
