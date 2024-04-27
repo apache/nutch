@@ -23,8 +23,7 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-import org.apache.nutch.util.domain.DomainSuffix;
-import org.apache.nutch.util.domain.DomainSuffixes;
+import crawlercommons.domains.EffectiveTldFinder;
 
 /** Utility class for URL analysis */
 public class URLUtil {
@@ -85,72 +84,89 @@ public class URLUtil {
       .compile("(\\d{1,3}\\.){3}(\\d{1,3})");
 
   /**
-   * Get the domain name of the url. The domain name of a url is the
-   * substring of the url's hostname, w/o subdomain names. As an example <br>
+   * Get the domain name of the URL. The domain name of a URL is the substring
+   * of the URL's hostname, w/o subdomain names. As an example <br>
    * <code>
-   *  getDomainName(new URL(http://lucene.apache.org/))
+   *  getDomainName(new URL("https://lucene.apache.org/"))
    *  </code><br>
    * will return <br>
    * <code>apache.org</code>
-   * @param url A input {@link URL} to extract the domain from
+   * 
+   * Special cases:
+   * <ul>
+   * <li>if the hostname does not end in a valid domain suffix, the entire
+   * hostname is returned.</li>
+   * <li>for URLs without a hostname, an empty string is returned.</li>
+   * </ul>
+   * 
+   * Valid domain suffixes are taken from the
+   * <a href= "https://publicsuffix.org/list/public_suffix_list.dat"
+   * >https://publicsuffix.org/list/public_suffix_list.dat</a> and are compared
+   * using <a href=
+   * "https://crawler-commons.github.io/crawler-commons/1.4/crawlercommons/domains/EffectiveTldFinder.html">
+   * crawler-commons' EffectiveTldFinder</a>. Only ICANN domain suffixes are
+   * used. Because EffectiveTldFinder loads the public suffix list as file
+   * "effective_tld_names.dat" from the Java classpath, it's possible to use the
+   * a specific version of the public suffix list (e.g., the most recent one) by
+   * placing the public suffix list with the name "effective_tld_names.dat" in
+   * Nutch's <code>conf/</code> folder.
+   * 
+   * See {@link EffectiveTldFinder#getAssignedDomain(String, boolean, boolean)}
+   * 
+   * @param url
+   *          input {@link URL} to extract the domain from
    * @return the domain name string
-   * */
+   */
   public static String getDomainName(URL url) {
-    DomainSuffixes tlds = DomainSuffixes.getInstance();
     String host = url.getHost();
-    // it seems that java returns hostnames ending with .
-    if (host.endsWith("."))
-      host = host.substring(0, host.length() - 1);
-    if (IP_PATTERN.matcher(host).matches())
-      return host;
 
-    int index = 0;
-    String candidate = host;
-    for (; index >= 0;) {
-      index = candidate.indexOf('.');
-      String subCandidate = candidate.substring(index + 1);
-      if (tlds.isDomainSuffix(subCandidate)) {
-        return candidate;
-      }
-      candidate = subCandidate;
+    // strip trailing dot in host names
+    if (host.length() > 0 && host.charAt(host.length() - 1) == '.') {
+      host = host.substring(0, host.length() - 1);
     }
-    return candidate;
+    return EffectiveTldFinder.getAssignedDomain(host, false, true);
   }
 
   /**
-   * Returns the domain name of the url. The domain name of a url is the
-   * substring of the url's hostname, w/o subdomain names. As an example <br>
+   * Returns the domain name of the URL. The domain name of a URL is the
+   * substring of the URL's hostname, w/o subdomain names. As an example <br>
    * <code>
-   *  getDomainName(conf, new http://lucene.apache.org/)
+   *  getDomainName("https://lucene.apache.org/")
    *  </code><br>
    * will return <br>
-   * <code> apache.org</code>
-   * @param url A input url string to extract the domain from
+   * <code>apache.org</code>
+   * 
+   * See {@link #getDomainName(URL)} for more information.
+   * 
+   * @param url
+   *          input URL string to extract the domain from
    * @return the domain name
-   * @throws MalformedURLException if the input url is malformed
+   * @throws MalformedURLException
+   *           if the input URL is malformed
    */
   public static String getDomainName(String url) throws MalformedURLException {
     return getDomainName(new URL(url));
   }
 
   /**
-   * Returns the top level domain name of the url. The top level domain name of
-   * a url is the substring of the url's hostname, w/o subdomain names. As an
+   * Returns the top-level domain name of the URL. The top level domain name of
+   * a URL is the substring of the URL's hostname, w/o subdomain names. As an
    * example <br>
    * <code>
-   *  getTopLevelDomainName(conf, new http://lucene.apache.org/)
+   *  getTopLevelDomainName(new URL("https://www.example.co.uk/"))
    *  </code><br>
    * will return <br>
-   * <code> org</code>
+   * <code>uk</code>
    * 
-   * @param url A input {@link URL} to extract the top 
-   * level domain name from
-   * @return the top level domain name
-   * @throws MalformedURLException if the input url is malformed
+   * In case of internationalized top-level domains, the ASCII representation is
+   * returned.
+   * 
+   * @param url
+   *          input {@link URL} to extract the top level domain name from
+   * @return the top level domain name or the empty string if there is none
    */
-  public static String getTopLevelDomainName(URL url)
-      throws MalformedURLException {
-    String suffix = getDomainSuffix(url).toString();
+  public static String getTopLevelDomainName(URL url) {
+    String suffix = getDomainSuffix(url);
     int idx = suffix.lastIndexOf(".");
     if (idx != -1) {
       return suffix.substring(idx + 1);
@@ -160,19 +176,23 @@ public class URLUtil {
   }
 
   /**
-   * Returns the top level domain name of the url. The top level domain name of
-   * a url is the substring of the url's hostname, w/o subdomain names. As an
+   * Returns the top-level domain name of the URL. The top level domain name of
+   * a URL is the substring of the URL's hostname, w/o subdomain names. As an
    * example <br>
    * <code>
-   *  getTopLevelDomainName(conf, new http://lucene.apache.org/)
+   *  getTopLevelDomainName("https://www.example.co.uk/")
    *  </code><br>
    * will return <br>
-   * <code> org</code>
+   * <code>uk</code>
    * 
-   * @param url A input url string to extract the top 
-   * level domain name from
-   * @return the top level domain name
-   * @throws MalformedURLException if the input url is malformed
+   * In case of internationalized top-level domains, the ASCII representation is
+   * returned.
+   * 
+   * @param url
+   *          input URL string to extract the top level domain name from
+   * @return the top level domain name or the empty string if there is none
+   * @throws MalformedURLException
+   *           if the input URL is malformed
    */
   public static String getTopLevelDomainName(String url)
       throws MalformedURLException {
@@ -180,12 +200,16 @@ public class URLUtil {
   }
 
   /**
-   * Returns whether the given urls have the same domain name. As an example, <br>
-   * <code> isSameDomain(new URL("http://lucene.apache.org")
-   * , new URL("http://people.apache.org/"))
-   * <br> will return true. </code>
-   * @param url1 first {@link URL} to compare domain name
-   * @param url2 second {@link URL} to compare domain name
+   * Returns whether the given URLs have the same domain name. As an example,
+   * <br>
+   * <code>isSameDomain(new URL("http://lucene.apache.org")
+   * , new URL("http://people.apache.org/"))</code>
+   * <br>will return true.
+   * 
+   * @param url1
+   *          first {@link URL} to compare domain name
+   * @param url2
+   *          second {@link URL} to compare domain name
    * 
    * @return true if the domain names are equal
    */
@@ -194,14 +218,19 @@ public class URLUtil {
   }
 
   /**
-   * Returns whether the given urls have the same domain name. As an example, <br>
-   * <code> isSameDomain("http://lucene.apache.org"
-   * ,"http://people.apache.org/")
-   * <br> will return true. </code>
-   * @param url1 first url string to compare domain name
-   * @param url2 second url string to compare domain name
+   * Returns whether the given URLs have the same domain name. As an example,
+   * <br>
+   * <code>isSameDomain("http://lucene.apache.org"
+   * ,"http://people.apache.org/")</code>
+   * <br>will return true.
+   * 
+   * @param url1
+   *          first URL string to compare domain name
+   * @param url2
+   *          second URL string to compare domain name
    * @return true if the domain names are equal
-   * @throws MalformedURLException if either of the input urls are malformed
+   * @throws MalformedURLException
+   *           if any of the input URLs are malformed
    */
   public static boolean isSameDomainName(String url1, String url2)
       throws MalformedURLException {
@@ -209,39 +238,48 @@ public class URLUtil {
   }
 
   /**
-   * Returns the {@link DomainSuffix} corresponding to the last public part of
-   * the hostname
-   * @param url a {@link URL} to extract the domain suffix from
-   * @return a {@link org.apache.nutch.util.domain.DomainSuffix}
+   * Returns the public suffix corresponding to the last public part of the
+   * hostname.
+   * 
+   * In case of internationalized domain suffixes, the ASCII representation is
+   * returned. For the URL <code>https://www.taiuru.māori.nz/</code> the suffix
+   * <code>xn--mori-qsa.nz</code> is returned.
+   * 
+   * @param url
+   *          a {@link URL} to extract the domain suffix from
+   * @return the domain suffix or the empty string if there is none
    */
-  public static DomainSuffix getDomainSuffix(URL url) {
-    DomainSuffixes tlds = DomainSuffixes.getInstance();
+  public static String getDomainSuffix(URL url) {
     String host = url.getHost();
-    if (IP_PATTERN.matcher(host).matches())
-      return null;
 
-    int index = 0;
-    String candidate = host;
-    for (; index >= 0;) {
-      index = candidate.indexOf('.');
-      String subCandidate = candidate.substring(index + 1);
-      DomainSuffix d = tlds.get(subCandidate);
-      if (d != null) {
-        return d;
-      }
-      candidate = subCandidate;
+    // strip trailing dot in host names
+    if (host.length() > 0 && host.charAt(host.length() - 1) == '.') {
+      host = host.substring(0, host.length() - 1);
     }
-    return null;
+
+    EffectiveTldFinder.EffectiveTLD suffix = EffectiveTldFinder.getEffectiveTLD(host, true);
+    if (suffix != null) {
+      return suffix.getDomain();
+    }
+
+    return "";
   }
 
   /**
-   * Returns the {@link DomainSuffix} corresponding to the last public part of
-   * the hostname
-   * @param url a {@link URL} to extract the domain suffix from
-   * @return a {@link org.apache.nutch.util.domain.DomainSuffix}
-   * @throws MalformedURLException if the input url string is malformed
+   * Returns the domain suffix corresponding to the last public part of the
+   * hostname.
+   * 
+   * In case of internationalized domain suffixes, the ASCII representation is
+   * returned. For the URL <code>https://www.taiuru.māori.nz/</code> the suffix
+   * <code>xn--mori-qsa.nz</code> is returned.
+   * 
+   * @param url
+   *          a {@link URL} to extract the domain suffix from
+   * @return the domain suffix or the empty string if there is none
+   * @throws MalformedURLException
+   *           if the input URL string is malformed
    */
-  public static DomainSuffix getDomainSuffix(String url)
+  public static String getDomainSuffix(String url)
       throws MalformedURLException {
     return getDomainSuffix(new URL(url));
   }
@@ -422,8 +460,7 @@ public class URLUtil {
   }
 
   /**
-   * Returns the lowercased hostname for the URL or null if the URL is not well-formed
-   * formed.
+   * Returns the lowercased hostname for the URL or null if the URL is not well-formed.
    * 
    * @param url
    *          The URL to check.
