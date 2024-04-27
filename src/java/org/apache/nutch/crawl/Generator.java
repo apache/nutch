@@ -256,7 +256,7 @@ public class Generator extends NutchTool implements Tool {
       try {
         sort = scfilters.generatorSortValue(key, crawlDatum, sort);
       } catch (ScoringFilterException sfe) {
-        LOG.warn("Couldn't filter generatorSortValue for " + key + ": " + sfe);
+        LOG.warn("Couldn't filter generatorSortValue for {}: {}", key, sfe);
       }
 
       // check expr
