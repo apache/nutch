@@ -1,6 +1,8 @@
 Apache Nutch README
 ===================
 
+[![master pull request ci](https://github.com/apache/nutch/actions/workflows/master-build.yml/badge.svg)](https://github.com/apache/nutch/actions/workflows/master-build.yml)
+
 <img src="https://nutch.apache.org/assets/img/nutch_logo_tm.png" align="right" width="300" />
 
 For the latest information about Nutch, please visit our website at:
