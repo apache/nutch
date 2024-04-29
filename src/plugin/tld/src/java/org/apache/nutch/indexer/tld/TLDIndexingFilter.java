@@ -30,10 +30,15 @@ import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.util.URLUtil;
-import org.apache.nutch.util.domain.DomainSuffix;
 
 /**
- * Adds the top-level domain extensions to the index
+ * Adds the public suffix (aka. effective top-level domain) to the index using
+ * the field name "tld".
+ * 
+ * <p>
+ * For the URL <code>https://www.example.co.uk/</code> the public suffix is
+ * <code>co.uk</code>. See also {@link URLUtil#getDomainSuffix(URL)}.
+ * </p>
  */
 public class TLDIndexingFilter implements IndexingFilter {
   private static final Logger LOG = LoggerFactory
@@ -47,9 +52,9 @@ public class TLDIndexingFilter implements IndexingFilter {
 
     try {
       URL url = new URL(urlText.toString());
-      DomainSuffix d = URLUtil.getDomainSuffix(url);
+      String domain = URLUtil.getDomainSuffix(url);
 
-      doc.add("tld", d.getDomain());
+      doc.add("tld", domain);
 
     } catch (Exception ex) {
       LOG.warn(ex.toString());
