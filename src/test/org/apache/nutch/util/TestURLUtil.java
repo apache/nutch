@@ -32,6 +32,10 @@ public class TestURLUtil {
     url = new URL("http://lucene.apache.org/nutch");
     Assert.assertEquals("apache.org", URLUtil.getDomainName(url));
 
+    // hostname with trailing dot
+    url = new URL("https://lucene.apache.org./nutch");
+    Assert.assertEquals("apache.org", URLUtil.getDomainName(url));
+
     url = new URL("http://en.wikipedia.org/wiki/Java_coffee");
     Assert.assertEquals("wikipedia.org", URLUtil.getDomainName(url));
 
@@ -84,6 +88,10 @@ public class TestURLUtil {
 
     url = new URL("http://lucene.apache.org/nutch");
     Assert.assertEquals("org", URLUtil.getDomainSuffix(url).getDomain());
+
+    // hostname with trailing dot
+    url = new URL("https://lucene.apache.org./nutch");
+    Assert.assertEquals("org", URLUtil.getDomainName(url));
 
     url = new URL("http://140.211.11.130/foundation/contributing.html");
     Assert.assertNull(URLUtil.getDomainSuffix(url));
