@@ -22,22 +22,21 @@ Contributing
 To contribute a patch, follow these instructions (note that installing
 [Hub](https://hub.github.com/) is not strictly required, but is recommended).
 
-```
 0. Download and install hub.github.com
 1. File JIRA issue for your fix at https://issues.apache.org/jira/projects/NUTCH/issues
-- you will get issue id NUTCH-xxx where xxx is the issue ID.
-2. git clone https://github.com/apache/nutch.git
-3. cd nutch
-4. git checkout -b NUTCH-xxx
+   - you will get issue id NUTCH-xxxx where xxxx is the issue ID.
+2. `git clone https://github.com/apache/nutch.git`
+3. `cd nutch`
+4. `git checkout -b NUTCH-xxxx`
 5. edit files (please try and include a test case if possible)
-6. git status (make sure it shows what files you expected to edit)
+6. `git status` (make sure it shows what files you expected to edit)
 7. Make sure that your code complies with the [Nutch codeformatting template](https://raw.githubusercontent.com/apache/nutch/master/eclipse-codeformat.xml), which is basially two space indents
-8. git add <files>
-9. git commit -m “fix for NUTCH-xxx contributed by <your username>”
-10. git fork
-11. git push -u <your git username> NUTCH-xxx
-12. git pull-request
-```
+8. `git add <files>`
+9. `git commit -m "fix for NUTCH-xxx contributed by <your username>"`
+10. `hub fork` (if hub is not installed, you can fork the project using the "fork" button on the [Nutch Github project page](https://github.com/apache/nutch))
+11. `git push -u <your git username> NUTCH-xxxx`
+12. `hub pull-request` (if hub is not installed, please follow the instructions how to [create a pull-request from a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork))
+
 
 IDE setup
 =========
