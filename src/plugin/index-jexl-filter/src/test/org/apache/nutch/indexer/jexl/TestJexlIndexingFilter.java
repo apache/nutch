@@ -27,14 +27,12 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-public class TestJexlIndexingFilter {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+@Tag("jexl")
+public class TestJexlIndexingFilter implements TestExecutionExceptionHandler {
 
   @Test
   public void testAllowMatchingDocument() throws Exception {
@@ -43,7 +41,7 @@ public class TestJexlIndexingFilter {
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     filter.setConf(conf);
-    Assert.assertNotNull(filter);
+    assertNotNull(filter);
 
     NutchDocument doc = new NutchDocument();
 
@@ -66,8 +64,8 @@ public class TestJexlIndexingFilter {
 
     NutchDocument result = filter.filter(doc, parse,
         new Text("http://nutch.apache.org/index.html"), crawlDatum, inlinks);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(doc, result);
+    assertNotNull(result);
+    assertEquals(doc, result);
   }
 
   @Test
@@ -77,7 +75,7 @@ public class TestJexlIndexingFilter {
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     filter.setConf(conf);
-    Assert.assertNotNull(filter);
+    assertNotNull(filter);
 
     NutchDocument doc = new NutchDocument();
 
@@ -100,25 +98,21 @@ public class TestJexlIndexingFilter {
 
     NutchDocument result = filter.filter(doc, parse,
         new Text("http://nutch.apache.org/index.html"), crawlDatum, inlinks);
-    Assert.assertNull(result);
+    assertNull(result);
   }
 
   @Test
-  public void testMissingConfiguration() throws Exception {
+  public void testMissingConfiguration() {
     Configuration conf = NutchConfiguration.create();
-
-    JexlIndexingFilter filter = new JexlIndexingFilter();
-    thrown.expect(RuntimeException.class);
-    filter.setConf(conf);
+    assertThrows(RuntimeException.class, 
+        ()->{new JexlIndexingFilter();});
   }
 
   @Test
-  public void testInvalidExpression() throws Exception {
+  public void testInvalidExpression() {
     Configuration conf = NutchConfiguration.create();
     conf.set("index.jexl.filter", "doc.lang=<>:='en'");
-
-    JexlIndexingFilter filter = new JexlIndexingFilter();
-    thrown.expect(RuntimeException.class);
-    filter.setConf(conf);
+    JexlIndexingFilter filter = assertThrows(RuntimeException.class,
+        ()->{new JexlIndexingFilter();});
   }
 }

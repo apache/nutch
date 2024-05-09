@@ -26,12 +26,13 @@ import org.apache.nutch.util.TimingUtil;
 
 import org.apache.hadoop.mapreduce.Reducer.Context;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Tag("crawl")
 public class TODOTestCrawlDbStates extends TestCrawlDbStates {
 
   private static final Logger LOG = LoggerFactory

@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.parse.tika;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -31,10 +29,14 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test Suite for the RSS feeds with the {@link TikaParser}.
  */
+@Tag("tika")
 public class TestFeedParser extends TikaParserTest {
 
   private String[] sampleFiles = { "rsstest.rss" };
@@ -79,8 +81,8 @@ public class TestFeedParser extends TikaParserTest {
 
       Outlink[] theOutlinks = theParseData.getOutlinks();
 
-      Assert.assertTrue("There aren't 2 outlinks read!",
-          theOutlinks.length == 2);
+      assertTrue(theOutlinks.length == 2,
+          "There aren't 2 outlinks read!");
 
       // now check to make sure that those are the two outlinks
       boolean hasLink1 = false, hasLink2 = false;
@@ -97,7 +99,7 @@ public class TestFeedParser extends TikaParserTest {
       }
 
       if (!hasLink1 || !hasLink2) {
-        Assert.fail("Outlinks read from sample rss file are not correct!");
+        fail("Outlinks read from sample rss file are not correct!");
       }
     }
   }

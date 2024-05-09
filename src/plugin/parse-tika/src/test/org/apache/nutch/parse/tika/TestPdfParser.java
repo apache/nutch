@@ -18,12 +18,14 @@ package org.apache.nutch.parse.tika;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for PdfParser.
  */
+@Tag("tika")
 public class TestPdfParser extends TikaParserTest {
 
   // Make sure sample files are copied to "test.data" as specified in
@@ -36,7 +38,7 @@ public class TestPdfParser extends TikaParserTest {
   public void testIt() throws ProtocolException, ParseException {
     for (int i = 0; i < sampleFiles.length; i++) {
       int index = getTextContent(sampleFiles[i]).indexOf(expectedText);
-      Assert.assertTrue(index > 0);
+      assertTrue(index > 0);
     }
   }
 

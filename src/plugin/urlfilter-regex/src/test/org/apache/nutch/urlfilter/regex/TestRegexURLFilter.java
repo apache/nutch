@@ -16,21 +16,21 @@
  */
 package org.apache.nutch.urlfilter.regex;
 
-// JDK imports
 import java.io.IOException;
 import java.io.Reader;
 
 import org.apache.nutch.net.*;
-// Nutch imports
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * JUnit based test of class <code>RegexURLFilter</code>.
  * 
  * @author J&eacute;r&ocirc;me Charron
  */
+@Tag("regex")
 public class TestRegexURLFilter extends RegexURLFilterBaseTest {
 
   @Override
@@ -38,7 +38,7 @@ public class TestRegexURLFilter extends RegexURLFilterBaseTest {
     try {
       return new RegexURLFilter(rules);
     } catch (IOException e) {
-      Assert.fail(e.toString());
+      fail(e.toString());
       return null;
     }
   }

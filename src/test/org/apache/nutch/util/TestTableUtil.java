@@ -16,10 +16,15 @@
  */
 package org.apache.nutch.util;
 
-import org.apache.nutch.util.TableUtil;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.apache.nutch.util.TableUtil;
+
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+@Tag("org.apache.nutch.util")
+@Tag("core")
 public class TestTableUtil {
 
   String urlString1 = "http://foo.com/";

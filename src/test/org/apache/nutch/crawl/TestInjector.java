@@ -29,17 +29,18 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile.Reader.Option;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * Basic injector test: 1. Creates a text file with urls 2. Injects them into
  * crawldb 3. Reads crawldb entries and verifies contents 4. Injects more urls
  * into webdb 5. Reads crawldb entries and verifies contents
- * 
  */
+@Tag("crawl")
 public class TestInjector {
 
   private Configuration conf;
@@ -48,7 +49,7 @@ public class TestInjector {
   Path crawldbPath;
   Path urlPath;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     conf = CrawlDBTestUtil.createContext().getConfiguration();
     urlPath = new Path(testdir, "urls");
@@ -60,7 +61,7 @@ public class TestInjector {
       fs.delete(crawldbPath, true);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws IOException {
     fs.delete(testdir, true);
   }
@@ -88,10 +89,10 @@ public class TestInjector {
     Collections.sort(read);
     Collections.sort(urls);
 
-    Assert.assertEquals(urls.size(), read.size());
+    assertEquals(urls.size(), read.size());
 
-    Assert.assertTrue(read.containsAll(urls));
-    Assert.assertTrue(urls.containsAll(read));
+    assertTrue(read.containsAll(urls));
+    assertTrue(urls.containsAll(read));
 
     // inject more urls
     ArrayList<String> urls2 = new ArrayList<String>();
@@ -114,10 +115,10 @@ public class TestInjector {
     Collections.sort(urls);
 
     // We should have 100 less records because we've overwritten
-    Assert.assertEquals(urls.size() - 100, read.size());
+    assertEquals(urls.size() - 100, read.size());
 
-    Assert.assertTrue(read.containsAll(urls));
-    Assert.assertTrue(urls.containsAll(read));
+    assertTrue(read.containsAll(urls));
+    assertTrue(urls.containsAll(read));
 
     // Check if we correctly preserved MD
     Map<String, CrawlDatum> records = readCrawldbRecords();
@@ -129,11 +130,11 @@ public class TestInjector {
     for (String url : urls) {
       if (url.indexOf("http://zzz") == 0) {
         // Check for fetch interval
-        Assert.assertTrue(records.get(url).getFetchInterval() == 171717);
+        assertTrue(records.get(url).getFetchInterval() == 171717);
         // Check for default score
-        Assert.assertTrue(records.get(url).getScore() != 1.0);
+        assertTrue(records.get(url).getScore() != 1.0);
         // Check for MD key=value
-        Assert.assertEquals(writableValue,
+        assertEquals(writableValue,
             records.get(url).getMetaData().get(writableKey));
       }
     }
