@@ -203,7 +203,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-1.20-SNAPSHOT</value>
+  <value>Nutch-1.21-SNAPSHOT</value>
   <description>A version string to advertise in the User-Agent
    header.</description>
 </property>
@@ -1872,8 +1872,38 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <property>
   <name>urlfilter.fast.file</name>
   <value>fast-urlfilter.txt</value>
-  <description>Name of file on CLASSPATH containing regular expressions
-  used by urlfilter-fast (FastURLFilter) plugin.</description>
+  <description>Name of file containing rules and regular expressions
+  used by urlfilter-fast (FastURLFilter) plugin. If the filename
+  includes a scheme (for example, hdfs://) it is loaded using the
+  Hadoop FileSystem implementation supporting that scheme. If the
+  filename does not contain a scheme, the file is loaded from
+  CLASSPATH. If indicated by file extension (.gz, .bzip2, .zst),
+  the file is decompressed while reading using Hadoop-provided
+  compression codecs.</description>
+</property>
+
+<property>
+  <name>urlfilter.fast.url.max.length</name>
+  <value>-1</value>
+  <description>Filters URLs based on their overall length.
+  The default value of -1 means that it is deactivated.
+  </description>
+</property>
+
+<property>
+  <name>urlfilter.fast.url.path.max.length</name>
+  <value>-1</value>
+  <description>Filters URLs based on the length of their path element.
+  The default value of -1 means that it is deactivated.
+  </description>
+</property>
+
+<property>
+  <name>urlfilter.fast.url.query.max.length</name>
+  <value>-1</value>
+  <description>Filters URLs based on the length of their query element.
+  The default value of -1 means that it is deactivated.
+  </description>
 </property>
 
 <property>
@@ -2220,6 +2250,72 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
       https://cwiki.apache.org/confluence/display/NUTCH/IndexStructure
     See https://cwiki.apache.org/confluence/display/NUTCH/IndexReplace for further details.
   </description>
+</property>
+
+<!-- index-arbitrary plugin properties -->
+<property>
+  <name>index.arbitrary.function.count</name>
+  <value></value>
+  <description>The count of arbitrary additions/edits to the document.
+    Specify the remaining properties (fieldName, className, constructorArgs,
+    methodName, and methodArgs) independently in this file by appending a
+    dot (.) followed by integer numerals (beginning with '0') to the property
+    names, e.g.:
+
+    index.arbitrary.fieldName.0
+    for the field to add/set with the first arbitrary addition or:
+
+    index.arbitrary.className.3
+    for the POJO class name to use in setting the fourth arbitrary addition.
+  </description>
+</property>
+
+<property>
+  <name>index.arbitrary.fieldName.0</name>
+  <value></value>
+  <description>The name of the field to add to the document with the value
+    returned from the custom POJO.</description>
+</property>
+
+<property>
+  <name>index.arbitrary.className.0</name>
+  <value></value>
+  <description>The fully qualified name of the POJO class that will supply
+    values for the new field.</description>
+</property>
+
+<property>
+  <name>index.arbitrary.constructorArgs.0</name>
+  <value></value>
+  <description>The values (as strings) to pass into the POJO constructor.
+    The POJO must accept a String representation of the NutchDocument's URL
+    as the first parameter in the constructor. The values you specify here 
+    will populate the constructor arguments 1,..,n-1 where n=the count of
+    arguments to the constructor. Argument #0 will be the NutchDocument's URL.
+  </description>
+</property>
+
+<property>
+  <name>index.arbitrary.methodName.0</name>
+  <value></value>
+  <description>The name of the method to invoke on the instance of your custom
+    class in order to determine the value to add to the document.</description>
+  </property>
+
+<property>
+  <name>index.arbitrary.methodArgs.0</name>
+  <value></value>
+  <description>The values (as strings) to pass into the named method on the POJO
+    instance. Unlike the constructor args, there is no required argument that this
+    method in the POJO must accept, i.e., the Arbitrary Indexer doesn't supply any
+    arguments taken from the NutchDocument values by default.</description>
+</property>
+
+<property>
+  <name>index.arbitrary.overwrite.0</name>
+  <description>Whether to overwrite any existing value in the doc for
+    for fieldName. Default is false if not specified in config</description>
+  <value></value>
 </property>
 
 <!-- parse-metatags plugin properties -->

@@ -225,11 +225,12 @@ com.fasterxml.jackson.jaxrs:jackson-jaxrs-base
 com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider
 com.fasterxml.jackson.module:jackson-module-jaxb-annotations
 com.fasterxml.woodstox:woodstox-core
-com.github.ben-manes.caffeine:caffeine
 com.github.crawler-commons:crawler-commons
 com.github.spullara.mustache.java:compiler
 com.github.stephenc.jcip:jcip-annotations
-com.github.vsonnier:hppcrt
+com.google.auto:auto-common
+com.google.auto.service:auto-service
+com.google.auto.service:auto-service-annotations
 com.google.code.findbugs:jsr305
 com.google.code.gson:gson
 com.google.errorprone:error_prone_annotations
@@ -241,44 +242,38 @@ com.google.inject.extensions:guice-servlet
 com.google.j2objc:j2objc-annotations
 com.healthmarketscience.jackcess:jackcess
 com.healthmarketscience.jackcess:jackcess-encrypt
-com.intellij:annotations
 com.maxmind.db:maxmind-db
 com.maxmind.geoip2:geoip2
 com.nimbusds:nimbus-jose-jwt
-com.opera:operadriver
-com.opera:operalaunchers
-com.optimaize.languagedetector:language-detector
 com.pff:java-libpst
 com.rabbitmq:amqp-client
 com.rometools:rome
 com.rometools:rome-utils
+com.shapesecurity:salvation2
 com.squareup.okhttp3:okhttp
 com.squareup.okhttp3:okhttp-brotli
 com.squareup.okio:okio
 com.tdunning:t-digest
+com.typesafe.netty:netty-reactive-streams
 com.typesafe.scala-logging:scala-logging_2.12
 com.yammer.metrics:metrics-core
 com.zaxxer:SparseBitSet
 commons-beanutils:commons-beanutils
-commons-beanutils:commons-beanutils-core
 commons-cli:commons-cli
 commons-codec:commons-codec
 commons-collections:commons-collections
-commons-configuration:commons-configuration
 commons-daemon:commons-daemon
-commons-digester:commons-digester
-commons-el:commons-el
 commons-httpclient:commons-httpclient
 commons-io:commons-io
-commons-jxpath:commons-jxpath
 commons-lang:commons-lang
 commons-logging:commons-logging
 commons-net:commons-net
-de.l3s.boilerpipe:boilerpipe
 de.vandermeer:ascii-utf-themes
 de.vandermeer:asciitable
 de.vandermeer:char-translation
 de.vandermeer:skb-interfaces
+dev.failsafe:failsafe
+io.dropwizard.metrics:metrics-core
 io.netty:netty
 io.netty:netty-all
 io.netty:netty-buffer
@@ -297,6 +292,7 @@ io.netty:netty-codec-xml
 io.netty:netty-common
 io.netty:netty-handler
 io.netty:netty-handler-proxy
+io.netty:netty-handler-ssl-ocsp
 io.netty:netty-resolver
 io.netty:netty-resolver-dns
 io.netty:netty-resolver-dns-classes-macos
@@ -310,22 +306,29 @@ io.netty:netty-transport-native-unix-common
 io.netty:netty-transport-rxtx
 io.netty:netty-transport-sctp
 io.netty:netty-transport-udt
+io.opentelemetry:opentelemetry-api
+io.opentelemetry:opentelemetry-api-logs
+io.opentelemetry:opentelemetry-context
+io.opentelemetry:opentelemetry-exporter-common
+io.opentelemetry:opentelemetry-exporter-logging
+io.opentelemetry:opentelemetry-sdk
+io.opentelemetry:opentelemetry-sdk-common
+io.opentelemetry:opentelemetry-sdk-extension-autoconfigure
+io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi
+io.opentelemetry:opentelemetry-sdk-logs
+io.opentelemetry:opentelemetry-sdk-metrics
+io.opentelemetry:opentelemetry-sdk-trace
+io.opentelemetry:opentelemetry-semconv
+io.ous:jtoml
+io.sgr:s2-geometry-library-java
 javax.inject:javax.inject
 joda-time:joda-time
-net.arnx:jsonic
 net.bytebuddy:byte-buddy
-net.minidev:accessors-smart
-net.minidev:json-smart
 net.sourceforge.htmlunit:htmlunit
 net.sourceforge.htmlunit:htmlunit-cssparser
+net.sourceforge.htmlunit:htmlunit-xpath
 net.sourceforge.htmlunit:neko-htmlunit
 net.sourceforge.nekohtml:nekohtml
-net.sourceforge.owlapi:owlapi-api
-net.sourceforge.owlapi:owlapi-apibinding
-net.sourceforge.owlapi:owlapi-impl
-net.sourceforge.owlapi:owlapi-parsers
-net.sourceforge.owlapi:owlapi-rio
-net.sourceforge.owlapi:owlapi-tools
 org.apache.avro:avro
 org.apache.commons:commons-collections4
 org.apache.commons:commons-compress
@@ -334,9 +337,7 @@ org.apache.commons:commons-csv
 org.apache.commons:commons-exec
 org.apache.commons:commons-jexl3
 org.apache.commons:commons-lang3
-org.apache.commons:commons-math
 org.apache.commons:commons-math3
-org.apache.commons:commons-rdf-api
 org.apache.commons:commons-text
 org.apache.curator:curator-client
 org.apache.curator:curator-framework
@@ -368,14 +369,10 @@ org.apache.hadoop:hadoop-yarn-client
 org.apache.hadoop:hadoop-yarn-common
 org.apache.hadoop.thirdparty:hadoop-shaded-guava
 org.apache.hadoop.thirdparty:hadoop-shaded-protobuf_3_7
-org.apache.httpcomponents:fluent-hc
 org.apache.httpcomponents:httpasyncclient
 org.apache.httpcomponents:httpclient
-org.apache.httpcomponents:httpclient-cache
-org.apache.httpcomponents:httpclient-osgi
 org.apache.httpcomponents:httpcore
 org.apache.httpcomponents:httpcore-nio
-org.apache.httpcomponents:httpcore-osgi
 org.apache.httpcomponents:httpmime
 org.apache.james:apache-mime4j-core
 org.apache.james:apache-mime4j-dom
@@ -400,7 +397,7 @@ org.apache.kerby:kerby-xdr
 org.apache.kerby:token-provider
 org.apache.logging.log4j:log4j-api
 org.apache.logging.log4j:log4j-core
-org.apache.logging.log4j:log4j-slf4j-impl
+org.apache.logging.log4j:log4j-slf4j2-impl
 org.apache.lucene:lucene-analyzers-common
 org.apache.lucene:lucene-backward-codecs
 org.apache.lucene:lucene-core
@@ -415,21 +412,17 @@ org.apache.lucene:lucene-sandbox
 org.apache.lucene:lucene-spatial-extras
 org.apache.lucene:lucene-spatial3d
 org.apache.lucene:lucene-suggest
-org.apache.mahout:mahout-core
-org.apache.mahout:mahout-math
 org.apache.neethi:neethi
 org.apache.pdfbox:fontbox
 org.apache.pdfbox:jbig2-imageio
 org.apache.pdfbox:jempbox
 org.apache.pdfbox:pdfbox
-org.apache.pdfbox:pdfbox-debugger
 org.apache.pdfbox:pdfbox-tools
 org.apache.pdfbox:xmpbox
 org.apache.poi:poi
 org.apache.poi:poi-ooxml
 org.apache.poi:poi-ooxml-lite
 org.apache.poi:poi-scratchpad
-org.apache.solr:solr-commons-csv
 org.apache.solr:solr-solrj
 org.apache.tika:tika-core
 org.apache.tika:tika-langdetect-optimaize
@@ -440,7 +433,6 @@ org.apache.tika:tika-parser-code-module
 org.apache.tika:tika-parser-crypto-module
 org.apache.tika:tika-parser-digest-commons
 org.apache.tika:tika-parser-font-module
-org.apache.tika:tika-parser-html-commons
 org.apache.tika:tika-parser-html-module
 org.apache.tika:tika-parser-image-module
 org.apache.tika:tika-parser-mail-commons
@@ -452,6 +444,7 @@ org.apache.tika:tika-parser-ocr-module
 org.apache.tika:tika-parser-pdf-module
 org.apache.tika:tika-parser-pkg-module
 org.apache.tika:tika-parser-text-module
+org.apache.tika:tika-parser-webarchive-module
 org.apache.tika:tika-parser-xml-module
 org.apache.tika:tika-parser-xmp-commons
 org.apache.tika:tika-parser-zip-commons
@@ -461,11 +454,12 @@ org.apache.xmlbeans:xmlbeans
 org.apache.yetus:audience-annotations
 org.apache.zookeeper:zookeeper
 org.apache.zookeeper:zookeeper-jute
+org.asynchttpclient:async-http-client
+org.asynchttpclient:async-http-client-netty-utils
 org.ccil.cowan.tagsoup:tagsoup
 org.codehaus.jackson:jackson-core-asl
-org.codehaus.jackson:jackson-jaxrs
 org.codehaus.jackson:jackson-mapper-asl
-org.codehaus.jackson:jackson-xc
+org.codehaus.jettison:jettison
 org.eclipse.jetty:jetty-alpn-client
 org.eclipse.jetty:jetty-alpn-java-client
 org.eclipse.jetty:jetty-client
@@ -486,41 +480,68 @@ org.eclipse.jetty.http2:http2-http-client-transport
 org.eclipse.jetty.websocket:websocket-api
 org.eclipse.jetty.websocket:websocket-client
 org.eclipse.jetty.websocket:websocket-common
+org.elasticsearch:elasticsearch
+org.elasticsearch:elasticsearch-cli
+org.elasticsearch:elasticsearch-core
+org.elasticsearch:elasticsearch-geo
+org.elasticsearch:elasticsearch-secure-sm
+org.elasticsearch:elasticsearch-x-content
 org.elasticsearch:jna
 org.elasticsearch.client:elasticsearch-rest-client
+org.elasticsearch.client:elasticsearch-rest-high-level-client
+org.elasticsearch.plugin:aggs-matrix-stats-client
+org.elasticsearch.plugin:lang-mustache-client
+org.elasticsearch.plugin:mapper-extras-client
+org.elasticsearch.plugin:parent-join-client
+org.elasticsearch.plugin:rank-eval-client
 org.gagravarr:vorbis-java-core
 org.gagravarr:vorbis-java-tika
-org.ini4j:ini4j
 org.jetbrains:annotations
 org.jetbrains.kotlin:kotlin-stdlib
 org.jetbrains.kotlin:kotlin-stdlib-common
 org.jetbrains.kotlin:kotlin-stdlib-jdk7
 org.jetbrains.kotlin:kotlin-stdlib-jdk8
+org.locationtech.spatial4j:spatial4j
 org.lz4:lz4-java
-org.mapdb:mapdb
+org.netpreserve:jwarc
 org.netpreserve.commons:webarchive-commons
+org.opensearch:opensearch
+org.opensearch:opensearch-cli
+org.opensearch:opensearch-core
+org.opensearch:opensearch-geo
+org.opensearch:opensearch-secure-sm
+org.opensearch:opensearch-x-content
+org.opensearch.client:opensearch-rest-client
 org.opensearch.client:opensearch-rest-high-level-client
+org.opensearch.plugin:aggs-matrix-stats-client
+org.opensearch.plugin:lang-mustache-client
+org.opensearch.plugin:mapper-extras-client
+org.opensearch.plugin:parent-join-client
+org.opensearch.plugin:rank-eval-client
 org.seleniumhq.selenium:htmlunit-driver
 org.seleniumhq.selenium:selenium-api
 org.seleniumhq.selenium:selenium-chrome-driver
+org.seleniumhq.selenium:selenium-chromium-driver
+org.seleniumhq.selenium:selenium-devtools-v106
+org.seleniumhq.selenium:selenium-devtools-v107
+org.seleniumhq.selenium:selenium-devtools-v108
+org.seleniumhq.selenium:selenium-devtools-v85
 org.seleniumhq.selenium:selenium-edge-driver
 org.seleniumhq.selenium:selenium-firefox-driver
+org.seleniumhq.selenium:selenium-http
 org.seleniumhq.selenium:selenium-ie-driver
 org.seleniumhq.selenium:selenium-java
-org.seleniumhq.selenium:selenium-opera-driver
+org.seleniumhq.selenium:selenium-json
+org.seleniumhq.selenium:selenium-manager
 org.seleniumhq.selenium:selenium-remote-driver
 org.seleniumhq.selenium:selenium-safari-driver
 org.seleniumhq.selenium:selenium-support
-org.semarglproject:semargl-core
-org.semarglproject:semargl-rdf
-org.semarglproject:semargl-rdf4j
-org.semarglproject:semargl-rdfa
 org.slf4j:jcl-over-slf4j
+org.tallison.tika:tika-core-shaded
+org.tallison.tika:tika-langdetect-optimaize-shaded
+org.tallison.tika:tika-parsers-standard-package-shaded
 org.xerial.snappy:snappy-java
 org.yaml:snakeyaml
-stax:stax-api
-xalan:serializer
-xalan:xalan
 xerces:xercesImpl
 xml-apis:xml-apis
 xml-resolver:xml-resolver
@@ -548,11 +569,9 @@ BSD 2-Clause
 
 (licenses-binary/LICENSE-bsd-2-clause.txt)
 
-com.codeborne:phantomjsdriver
 com.google.protobuf:protobuf-java
 dk.brics:automaton
 dnsjava:dnsjava
-net.sf.biweekly:biweekly
 org.codehaus.woodstox:stax2-api
 org.jline:jline
 
@@ -564,7 +583,6 @@ BSD 3-Clause
 
 com.adobe.xmp:xmpcore
 com.github.virtuald:curvesapi
-net.sourceforge.owlapi:owlapi-oboformat
 org.fusesource.leveldbjni:leveldbjni-all
 org.ow2.asm:asm
 org.scala-lang:scala-library
@@ -586,21 +604,15 @@ org.antlr:ST4
 org.antlr:antlr-runtime
 
 
-BSD style
----------
-
-com.thoughtworks.xstream:xstream
-
-
 Bouncy Castle Licence
 ---------------------
 
 (licenses-binary/LICENSE-bouncy-castle-licence.txt)
 
-org.bouncycastle:bcmail-jdk15on
-org.bouncycastle:bcpkix-jdk15on
-org.bouncycastle:bcprov-jdk15on
-org.bouncycastle:bcutil-jdk15on
+org.bouncycastle:bcmail-jdk18on
+org.bouncycastle:bcpkix-jdk18on
+org.bouncycastle:bcprov-jdk18on
+org.bouncycastle:bcutil-jdk18on
 
 
 CDDL 1.0
@@ -608,7 +620,6 @@ CDDL 1.0
 
 (licenses-binary/LICENSE-cddl-v1.0.txt)
 
-javax.activation:activation
 org.codelibs:jhighlight
 
 
@@ -617,8 +628,9 @@ CDDL 1.1
 
 (licenses-binary/LICENSE-cddl-1.1.txt)
 
+com.github.pjfanning:jersey-json
+com.sun.jersey:jersey-client
 com.sun.jersey:jersey-core
-com.sun.jersey:jersey-json
 com.sun.jersey:jersey-server
 com.sun.jersey:jersey-servlet
 com.sun.jersey.contribs:jersey-guice
@@ -639,7 +651,6 @@ CDDL/GPLv2+CE
 
 (licenses-binary/LICENSE-cddl-gplv2-ce.txt)
 
-javax.activation:javax.activation-api
 javax.servlet:javax.servlet-api
 
 
@@ -681,59 +692,9 @@ jakarta.jws:jakarta.jws-api
 jakarta.xml.bind:jakarta.xml.bind-api
 jakarta.xml.soap:jakarta.xml.soap-api
 jakarta.xml.ws:jakarta.xml.ws-api
-org.eclipse.rdf4j:rdf4j-http-client
-org.eclipse.rdf4j:rdf4j-http-protocol
-org.eclipse.rdf4j:rdf4j-model
-org.eclipse.rdf4j:rdf4j-model-api
-org.eclipse.rdf4j:rdf4j-model-vocabulary
-org.eclipse.rdf4j:rdf4j-query
-org.eclipse.rdf4j:rdf4j-queryalgebra-evaluation
-org.eclipse.rdf4j:rdf4j-queryalgebra-model
-org.eclipse.rdf4j:rdf4j-queryparser-api
-org.eclipse.rdf4j:rdf4j-queryparser-sparql
-org.eclipse.rdf4j:rdf4j-queryresultio-api
-org.eclipse.rdf4j:rdf4j-queryresultio-binary
-org.eclipse.rdf4j:rdf4j-queryresultio-sparqlxml
-org.eclipse.rdf4j:rdf4j-repository-api
-org.eclipse.rdf4j:rdf4j-repository-sail
-org.eclipse.rdf4j:rdf4j-repository-sparql
-org.eclipse.rdf4j:rdf4j-rio-api
-org.eclipse.rdf4j:rdf4j-rio-binary
-org.eclipse.rdf4j:rdf4j-rio-datatypes
-org.eclipse.rdf4j:rdf4j-rio-hdt
-org.eclipse.rdf4j:rdf4j-rio-jsonld
-org.eclipse.rdf4j:rdf4j-rio-languages
-org.eclipse.rdf4j:rdf4j-rio-n3
-org.eclipse.rdf4j:rdf4j-rio-nquads
-org.eclipse.rdf4j:rdf4j-rio-ntriples
-org.eclipse.rdf4j:rdf4j-rio-rdfjson
-org.eclipse.rdf4j:rdf4j-rio-rdfxml
-org.eclipse.rdf4j:rdf4j-rio-trig
-org.eclipse.rdf4j:rdf4j-rio-trix
-org.eclipse.rdf4j:rdf4j-rio-turtle
-org.eclipse.rdf4j:rdf4j-sail-api
-org.eclipse.rdf4j:rdf4j-sail-base
-org.eclipse.rdf4j:rdf4j-sail-memory
-org.eclipse.rdf4j:rdf4j-util
 org.glassfish.jaxb:jaxb-runtime
 org.glassfish.jaxb:txw2
 org.jvnet.staxex:stax-ex
-
-
-GNU General Public License, version 2 (GPL2), with the classpath exception
---------------------------------------------------------------------------
-
-(licenses-binary/LICENSE-gnu-general-public-license-version-2-gpl2-with-the-classpath-exception.txt)
-
-org.checkerframework:checker-compat-qual
-
-
-Indiana University Extreme! Lab Software License, vesion 1.1.1
---------------------------------------------------------------
-
-(licenses-binary/LICENSE-indiana-university-extreme-lab-software-license-vesion-1.1.1.txt)
-
-xpp3:xpp3_min
 
 
 MIT License
@@ -741,15 +702,12 @@ MIT License
 
 (licenses-binary/LICENSE-mit-license.txt)
 
-com.github.mangstadt:vinnie
 com.googlecode.plist:dd-plist
 com.martinkl.warc:warc-hadoop
 net.sf.jopt-simple:jopt-simple
 org.brotli:dec
 org.checkerframework:checker-qual
-org.codehaus.mojo:animal-sniffer-annotations
 org.jsoup:jsoup
-org.rypt:f8
 org.slf4j:jcl-over-slf4j
 org.slf4j:slf4j-api
 
@@ -760,6 +718,12 @@ Mozilla Public License 1.1 (MPL 1.1)
 (licenses-binary/LICENSE-mozilla-public-license-1.1-mpl-1.1.txt)
 
 com.googlecode.juniversalchardet:juniversalchardet
+
+
+Mozilla Public License Version 1.1
+----------------------------------
+
+com.github.albfernandez:juniversalchardet
 
 
 Mozilla Public License, Version 2.0
@@ -777,7 +741,6 @@ Public Domain
 
 aopalliance:aopalliance
 org.tukaani:xz
-xmlpull:xmlpull
 
 
 Public Domain, per Creative Commons CC0

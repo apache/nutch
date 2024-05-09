@@ -37,7 +37,7 @@
      (eventually with different versions)
    - duplicated libs can be added to the exclusions of transitive dependencies in
        build/plugins/indexer-elastic/ivy.xml
-   - but it should be made sure that the library versions in ivy/ivy.xml correspend to
+   - but it should be made sure that the library versions in ivy/ivy.xml correspond to
      those required by Tika
 
 5. Remove the locally "installed" dependencies in src/plugin/indexer-elastic/lib/:

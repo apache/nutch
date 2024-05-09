@@ -16,18 +16,17 @@
  */
 package org.apache.nutch.protocol.selenium;
 
-import java.lang.invoke.MethodHandles;
-import java.io.IOException;
-import java.net.URL;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.util.NutchConfiguration;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.net.URL;
 
 public class Http extends HttpBase {
 
@@ -36,11 +35,6 @@ public class Http extends HttpBase {
 
   public Http() {
     super(LOG);
-  }
-
-  @Override
-  public void setConf(Configuration conf) {
-    super.setConf(conf);
   }
 
   public static void main(String[] args) throws Exception {

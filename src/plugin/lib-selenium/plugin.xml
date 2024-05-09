@@ -26,200 +26,135 @@
 
    <runtime>
      <library name="lib-selenium.jar">
-        <export name="*"/>
-     </library>
-     <!-- all classes from dependent libraries are exported -->
-     <library name="async-http-client-2.12.3.jar">
        <export name="*"/>
      </library>
-     <library name="async-http-client-netty-utils-2.12.3.jar">
+     <!-- Begin dependencies -->
+     <library name="auto-service-annotations-1.1.1.jar">
        <export name="*"/>
      </library>
-     <library name="auto-common-1.2.jar">
+     <library name="byte-buddy-1.14.12.jar">
        <export name="*"/>
      </library>
-     <library name="auto-service-1.0.1.jar">
-       <export name="*"/>
-     </library>
-     <library name="auto-service-annotations-1.0.1.jar">
-       <export name="*"/>
-     </library>
-     <library name="byte-buddy-1.12.18.jar">
-       <export name="*"/>
-     </library>
-     <library name="checker-qual-3.12.0.jar">
+     <library name="checker-qual-3.41.0.jar">
        <export name="*"/>
      </library>
      <library name="commons-exec-1.3.jar">
        <export name="*"/>
      </library>
-     <library name="error_prone_annotations-2.11.0.jar">
+     <library name="error_prone_annotations-2.23.0.jar">
        <export name="*"/>
      </library>
-     <library name="failsafe-3.3.0.jar">
+     <library name="failsafe-3.3.2.jar">
        <export name="*"/>
      </library>
-     <library name="failureaccess-1.0.1.jar">
+     <library name="failureaccess-1.0.2.jar">
        <export name="*"/>
      </library>
-     <library name="guava-31.1-jre.jar">
+     <library name="guava-33.0.0-jre.jar">
        <export name="*"/>
      </library>
-     <library name="j2objc-annotations-1.3.jar">
-       <export name="*"/>
-     </library>
-     <library name="jakarta.activation-1.2.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="jcommander-1.82.jar">
+     <library name="j2objc-annotations-2.8.jar">
        <export name="*"/>
      </library>
      <library name="jsr305-3.0.2.jar">
        <export name="*"/>
      </library>
-     <library name="jtoml-2.0.0.jar">
-       <export name="*"/>
-     </library>
      <library name="listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar">
        <export name="*"/>
      </library>
-     <library name="netty-buffer-4.1.84.Final.jar">
+     <library name="opentelemetry-api-1.35.0.jar">
        <export name="*"/>
      </library>
-     <library name="netty-codec-4.1.84.Final.jar">
+     <library name="opentelemetry-api-events-1.35.0-alpha.jar">
        <export name="*"/>
      </library>
-     <library name="netty-codec-http-4.1.84.Final.jar">
+     <library name="opentelemetry-context-1.35.0.jar">
        <export name="*"/>
      </library>
-     <library name="netty-codec-socks-4.1.60.Final.jar">
+     <library name="opentelemetry-exporter-logging-1.35.0.jar">
        <export name="*"/>
      </library>
-     <library name="netty-common-4.1.84.Final.jar">
+     <library name="opentelemetry-extension-incubator-1.35.0-alpha.jar">
        <export name="*"/>
      </library>
-     <library name="netty-handler-4.1.84.Final.jar">
+     <library name="opentelemetry-sdk-1.35.0.jar">
        <export name="*"/>
      </library>
-     <library name="netty-handler-proxy-4.1.60.Final.jar">
+     <library name="opentelemetry-sdk-common-1.35.0.jar">
        <export name="*"/>
      </library>
-     <library name="netty-reactive-streams-2.0.4.jar">
+     <library name="opentelemetry-sdk-extension-autoconfigure-1.35.0.jar">
        <export name="*"/>
      </library>
-     <library name="netty-resolver-4.1.84.Final.jar">
+     <library name="opentelemetry-sdk-extension-autoconfigure-spi-1.35.0.jar">
        <export name="*"/>
      </library>
-     <library name="netty-transport-4.1.84.Final.jar">
+     <library name="opentelemetry-sdk-logs-1.35.0.jar">
        <export name="*"/>
      </library>
-     <library name="netty-transport-classes-epoll-4.1.84.Final.jar">
+     <library name="opentelemetry-sdk-metrics-1.35.0.jar">
        <export name="*"/>
      </library>
-     <library name="netty-transport-classes-kqueue-4.1.84.Final.jar">
+     <library name="opentelemetry-sdk-trace-1.35.0.jar">
        <export name="*"/>
      </library>
-     <library name="netty-transport-native-epoll-4.1.84.Final.jar">
+     <library name="opentelemetry-semconv-1.23.1-alpha.jar">
        <export name="*"/>
      </library>
-     <library name="netty-transport-native-kqueue-4.1.84.Final.jar">
+     <library name="selenium-api-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="netty-transport-native-unix-common-4.1.84.Final.jar">
+     <library name="selenium-chrome-driver-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-api-1.19.0.jar">
+     <library name="selenium-chromium-driver-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-api-logs-1.19.0-alpha.jar">
+     <library name="selenium-devtools-v120-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-context-1.19.0.jar">
+     <library name="selenium-devtools-v121-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-exporter-common-1.19.0.jar">
+     <library name="selenium-devtools-v122-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-exporter-logging-1.19.0.jar">
+     <library name="selenium-devtools-v85-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-sdk-1.19.0.jar">
+     <library name="selenium-edge-driver-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-sdk-common-1.19.0.jar">
+     <library name="selenium-firefox-driver-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-sdk-extension-autoconfigure-1.19.0-alpha.jar">
+     <library name="selenium-http-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-sdk-extension-autoconfigure-spi-1.19.0.jar">
+     <library name="selenium-ie-driver-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-sdk-logs-1.19.0-alpha.jar">
+     <library name="selenium-java-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-sdk-metrics-1.19.0.jar">
+     <library name="selenium-json-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-sdk-trace-1.19.0.jar">
+     <library name="selenium-manager-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="opentelemetry-semconv-1.19.0-alpha.jar">
+     <library name="selenium-os-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="reactive-streams-1.0.3.jar">
+     <library name="selenium-remote-driver-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-api-4.7.2.jar">
+     <library name="selenium-safari-driver-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-chrome-driver-4.7.2.jar">
+     <library name="selenium-support-4.18.1.jar">
        <export name="*"/>
      </library>
-     <library name="selenium-chromium-driver-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-devtools-v106-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-devtools-v107-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-devtools-v108-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-devtools-v85-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-edge-driver-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-firefox-driver-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-http-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-ie-driver-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-java-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-json-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-manager-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-remote-driver-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-safari-driver-4.7.2.jar">
-       <export name="*"/>
-     </library>
-     <library name="selenium-support-4.7.2.jar">
-       <export name="*"/>
-     </library>
+     <!-- End of dependencies -->
    </runtime>
 </plugin>

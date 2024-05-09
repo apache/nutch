@@ -22,7 +22,7 @@
 #  2 == Same as mode 1 with addition of Nutch WebApp
 ARG BUILD_MODE=0
 
-FROM alpine:3.13 AS base
+FROM alpine:3.19 AS base
 
 ARG SERVER_PORT=8081
 ARG SERVER_HOST=0.0.0.0
@@ -46,6 +46,7 @@ RUN apk --no-cache add apache-ant bash git openjdk11 supervisor
 
 # Establish environment variables
 RUN echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk' >> $HOME/.bashrc
+RUN echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk' >> $HOME/.ashrc
 ENV JAVA_HOME='/usr/lib/jvm/java-11-openjdk'
 ENV NUTCH_HOME='/root/nutch_source/runtime/local'
 

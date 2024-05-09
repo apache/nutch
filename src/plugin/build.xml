@@ -40,6 +40,7 @@
     <ant dir="headings" target="deploy"/>
     <ant dir="exchange-jexl" target="deploy"/>
     <ant dir="index-anchor" target="deploy"/>
+    <ant dir="index-arbitrary" target="deploy"/>
     <ant dir="index-basic" target="deploy"/>
     <ant dir="index-geoip" target="deploy"/>
     <ant dir="index-jexl-filter" target="deploy"/>
@@ -117,6 +118,7 @@
      <ant dir="feed" target="test"/>
      <ant dir="headings" target="test"/>
      <ant dir="index-anchor" target="test"/>
+     <ant dir="index-arbitrary" target="test"/>
      <ant dir="index-basic" target="test"/>
      <!--ant dir="index-geoip" target="test"/-->
      <ant dir="index-jexl-filter" target="test"/>
@@ -179,6 +181,7 @@
     <ant dir="headings" target="clean"/>
     <ant dir="exchange-jexl" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
+    <ant dir="index-arbitrary" target="clean"/>
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-geoip" target="clean"/>
     <ant dir="index-jexl-filter" target="clean"/>
