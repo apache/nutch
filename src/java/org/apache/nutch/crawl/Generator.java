@@ -224,9 +224,12 @@ public class Generator extends NutchTool implements Tool {
         // If filtering is on don't generate URLs that don't pass
         // URLFilters
         try {
-          if (filters.filter(url.toString()) == null)
+          if (filters.filter(url.toString()) == null) {
+            context.getCounter("Generator", "URL_FILTERS_REJECTED").increment(1);
             return;
+          }
         } catch (URLFilterException e) {
+          context.getCounter("Generator", "URL_FILTER_EXCEPTION").increment(1);
           LOG.warn("Couldn't filter url: {} ({})", url, e.getMessage());
         }
       }
@@ -253,10 +256,7 @@ public class Generator extends NutchTool implements Tool {
       try {
         sort = scfilters.generatorSortValue(key, crawlDatum, sort);
       } catch (ScoringFilterException sfe) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn(
-              "Couldn't filter generatorSortValue for " + key + ": " + sfe);
-        }
+        LOG.warn("Couldn't filter generatorSortValue for {}: {}", key, sfe);
       }
 
       // check expr
@@ -625,7 +625,7 @@ public class Generator extends NutchTool implements Tool {
       // make later bytes more significant in hash code, so that sorting
       // by hashcode correlates less with by-host ordering.
       for (int i = length - 1; i >= 0; i--)
-        hash = (31 * hash) + (int) bytes[start + i];
+        hash = (31 * hash) + bytes[start + i];
       return hash;
     }
   }
