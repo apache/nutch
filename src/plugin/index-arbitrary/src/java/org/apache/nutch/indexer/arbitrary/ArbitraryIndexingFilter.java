@@ -170,6 +170,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
 
     int cfgCounter = 0;
     while (cfgCounter <  arbitraryAddsCount) {
+      result = null;
       setIndexedConf(conf,cfgCounter);
       cfgCounter++;
       try {
@@ -184,6 +185,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
         LOG.error("Exception preparing reflection tasks. className was {}",
 		 String.valueOf(className));
         e.printStackTrace();
+        continue;
       }
       try {
         constrArgs = new String[userConstrArgs.length + 1];
@@ -207,6 +209,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
           LOG.error("methodArgs[0] was {}", String.valueOf(methodArgs[0]));
         }
         e.printStackTrace();
+	continue;
       }
 
       LOG.debug("{}.{}() returned {} for field {}.", className,
