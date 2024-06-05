@@ -1200,10 +1200,11 @@
 <property>
   <name>fetcher.threads.timeout.divisor</name>
   <value>2</value>
-  <description>(EXPERT)The thread time-out divisor to use. By default threads have a time-out
+  <description>(EXPERT) The thread time-out divisor to use. By default threads have a time-out
   value of mapreduce.task.timeout / 2. Increase this setting if the fetcher waits too
-  long before killing hanged threads. Be careful, a too high setting (+8) will most likely kill the
-  fetcher threads prematurely.
+  long before killing hung threads. Be careful, a too high setting (+8) will most likely kill the
+  fetcher threads prematurely. The fetcher thread time-out avoids that the task timeout (defined by
+  the Hadoop configuration property mapreduce.task.timeout) is reached and the fetcher job is failed.
   </description>
 </property>
 
