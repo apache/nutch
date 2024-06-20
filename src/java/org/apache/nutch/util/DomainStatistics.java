@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.util.domain;
+package org.apache.nutch.util;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -38,9 +38,6 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,7 +189,7 @@ public class DomainStatistics extends Configured implements Tool {
             out = URLUtil.getDomainName(url);
             break;
           case MODE_SUFFIX:
-            out = URLUtil.getDomainSuffix(url).getDomain();
+            out = URLUtil.getDomainSuffix(url);
             break;
           case MODE_TLD:
             out = URLUtil.getTopLevelDomainName(url);
