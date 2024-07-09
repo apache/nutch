@@ -42,6 +42,18 @@ public interface Response extends HttpHeaders {
   public static final String IP_ADDRESS = "_ip_";
 
   /**
+   * Key to hold the HTTP and SSL/TLS protocol versions if
+   * <code>store.protocol.versions</code> is true.
+   */
+  public static final String PROTOCOL_VERSIONS = "_protocol_versions_";
+
+  /**
+   * Key to hold the SSL/TLS cipher suites
+   * <code>store.protocol.versions</code> is true.
+   */
+  public static final String CIPHER_SUITES = "_cipher_suites_";
+
+  /**
    * Key to hold the time when the page has been fetched
    */
   public static final String FETCH_TIME = "nutch.fetch.time";

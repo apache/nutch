@@ -2681,6 +2681,16 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
   </description>
 </property>
 
+<property>
+  <name>store.protocol.versions</name>
+  <value>false</value>
+  <description>
+    Store protocol versions in response metadata: HTTP and SSL/TLS
+    versions, SSL/TTL cipher suites and related information depending
+    on the protocol implementation. Supported by: protocol-okhttp.
+  </description>
+</property>
+
 <!-- index-links plugin -->
 
 <property>

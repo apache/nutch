@@ -167,6 +167,12 @@ public abstract class HttpBase implements Protocol {
    */
   protected boolean storeHttpHeaders = false;
 
+  /**
+   * Record the HTTP and SSL/TLS protocol versions and the SSL/TLS cipher
+   * suites, see property <code>store.protocol.versions</code>.
+   */
+  protected boolean storeProtocolVersions = false;
+
   /** Skip page if Crawl-Delay longer than this value. */
   protected long maxCrawlDelay = -1L;
 
@@ -235,6 +241,7 @@ public abstract class HttpBase implements Protocol {
     this.storeIPAddress = conf.getBoolean("store.ip.address", false);
     this.storeHttpRequest = conf.getBoolean("store.http.request", false);
     this.storeHttpHeaders = conf.getBoolean("store.http.headers", false);
+    this.storeProtocolVersions = conf.getBoolean("store.protocol.versions", false);
     this.enableIfModifiedsinceHeader = conf
         .getBoolean("http.enable.if.modified.since.header", true);
     this.enableCookieHeader = conf.getBoolean("http.enable.cookie.header",
