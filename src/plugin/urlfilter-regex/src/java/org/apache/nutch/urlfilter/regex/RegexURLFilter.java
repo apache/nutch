@@ -19,6 +19,7 @@ package org.apache.nutch.urlfilter.regex;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -26,6 +27,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.urlfilter.api.RegexRule;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
 import org.apache.nutch.util.NutchConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Filters URLs based on a file of regular expressions using the
@@ -35,6 +38,9 @@ public class RegexURLFilter extends RegexURLFilterBase {
 
   public static final String URLFILTER_REGEX_FILE = "urlfilter.regex.file";
   public static final String URLFILTER_REGEX_RULES = "urlfilter.regex.rules";
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public RegexURLFilter() {
     super();
@@ -49,11 +55,6 @@ public class RegexURLFilter extends RegexURLFilterBase {
     super(reader);
   }
 
-  /*
-   * ----------------------------------- * <implementation:RegexURLFilterBase> *
-   * -----------------------------------
-   */
-
   /**
    * Rules specified as a config property will override rules specified as a
    * config file.
@@ -62,9 +63,12 @@ public class RegexURLFilter extends RegexURLFilterBase {
   protected Reader getRulesReader(Configuration conf) throws IOException {
     String stringRules = conf.get(URLFILTER_REGEX_RULES);
     if (stringRules != null) {
+      LOG.info("Reading urlfilter-regex string rules from property: {}",
+          URLFILTER_REGEX_RULES);
       return new StringReader(stringRules);
     }
     String fileRules = conf.get(URLFILTER_REGEX_FILE);
+    LOG.info("Reading urlfilter-regex rules file: {}", fileRules);
     return conf.getConfResourceAsReader(fileRules);
   }
 
@@ -80,11 +84,6 @@ public class RegexURLFilter extends RegexURLFilterBase {
   }
   
   
-
-  /*
-   * ------------------------------------ * </implementation:RegexURLFilterBase>
-   * * ------------------------------------
-   */
 
   public static void main(String args[]) throws IOException {
     RegexURLFilter filter = new RegexURLFilter();

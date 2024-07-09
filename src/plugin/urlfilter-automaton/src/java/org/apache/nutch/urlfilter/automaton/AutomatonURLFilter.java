@@ -19,6 +19,7 @@ package org.apache.nutch.urlfilter.automaton;
 import java.io.Reader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.hadoop.conf.Configuration;
@@ -27,18 +28,23 @@ import dk.brics.automaton.RegExp;
 import dk.brics.automaton.RunAutomaton;
 import org.apache.nutch.urlfilter.api.RegexRule;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * RegexURLFilterBase implementation based on the <a
  * href="https://www.brics.dk/automaton/">dk.brics.automaton</a> Finite-State
  * Automata for Java<sup>TM</sup>.
  * 
- * @author J&eacute;r&ocirc;me Charron
  * @see <a href="https://www.brics.dk/automaton/">dk.brics.automaton</a>
  */
 public class AutomatonURLFilter extends RegexURLFilterBase {
+
   public static final String URLFILTER_AUTOMATON_FILE = "urlfilter.automaton.file";
   public static final String URLFILTER_AUTOMATON_RULES = "urlfilter.automaton.rules";
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   public AutomatonURLFilter() {
     super();
@@ -54,11 +60,6 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
     super(reader);
   }
 
-  /*
-   * ----------------------------------- * <implementation:RegexURLFilterBase> *
-   * -----------------------------------
-   */
-
   /**
    * Rules specified as a config property will override rules specified as a
    * config file.
@@ -67,9 +68,12 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
   protected Reader getRulesReader(Configuration conf) throws IOException {
     String stringRules = conf.get(URLFILTER_AUTOMATON_RULES);
     if (stringRules != null) {
+      LOG.info("Reading urlfilter-automaton string rules from property: {}",
+          URLFILTER_AUTOMATON_RULES);
       return new StringReader(stringRules);
     }
     String fileRules = conf.get(URLFILTER_AUTOMATON_FILE);
+    LOG.info("Reading urlfilter-automaton rules file: {}", fileRules);
     return conf.getConfResourceAsReader(fileRules);
   }
 
