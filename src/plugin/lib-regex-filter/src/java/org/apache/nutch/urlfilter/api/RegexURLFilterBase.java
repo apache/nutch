@@ -52,8 +52,6 @@ import org.apache.nutch.util.URLUtil;
  * where plus (<code>+</code>)means go ahead and index it and minus (
  * <code>-</code>)means no.
  * </p>
- * 
- * @author J&eacute;r&ocirc;me Charron
  */
 public abstract class RegexURLFilterBase implements URLFilter {
 
@@ -283,6 +281,8 @@ public abstract class RegexURLFilterBase implements URLFilter {
       RegexRule rule = createRule(sign, regex, hostOrDomain);
       rules.add(rule);
     }
+    LOG.info("Read {} regex rules ({})", rules.size(),
+        this.getClass().getName());
     return rules;
   }
 

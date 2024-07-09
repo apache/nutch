@@ -236,6 +236,7 @@ public class FastURLFilter implements URLFilter {
 
   public void reloadRules() throws IOException {
     String fileRules = conf.get(URLFILTER_FAST_FILE);
+    LOG.info("Reading urlfilter-fast rules file: {}", fileRules);
     InputStream is;
 
     Path fileRulesPath = new Path(fileRules);
@@ -328,6 +329,9 @@ public class FastURLFilter implements URLFilter {
           }
         }
       }
+      LOG.info(
+          "Read {} lines, {} host and {} domain rules from urlfilter-fast rules file",
+          lineno, hostRules.size(), domainRules.size());
     } catch (IOException e) {
       LOG.warn("Caught exception while reading rules file at line {}: {}",
           lineno, e.getMessage());
