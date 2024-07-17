@@ -219,7 +219,8 @@ public class OkHttp extends HttpBase {
       builder.addNetworkInterceptor(new HTTPFilterIPAddressInterceptor(ipFilterRules));
     }
 
-    if (this.storeIPAddress || this.storeHttpHeaders || this.storeHttpRequest) {
+    if (this.storeIPAddress || this.storeHttpHeaders || this.storeHttpRequest
+        || this.storeProtocolVersions) {
       builder.addNetworkInterceptor(new HTTPHeadersInterceptor());
     }
 
