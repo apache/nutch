@@ -1,5 +1,88 @@
 # Nutch Change Log
 
+## Nutch 1.20 Release 09/04/2024 (dd/mm/yyyy)
+Release Report: https://s.apache.org/ovjf3
+
+### Sub-task
+
+- [NUTCH-2596](https://issues.apache.org/jira/browse/NUTCH-2596) - Upgrade from org.mortbay.jetty to org.eclipse.jetty
+- [NUTCH-2852](https://issues.apache.org/jira/browse/NUTCH-2852) - Method invokes System.exit(...) 9 bugs
+- [NUTCH-2972](https://issues.apache.org/jira/browse/NUTCH-2972) - Javadoc build fails using JDK 17
+- [NUTCH-3007](https://issues.apache.org/jira/browse/NUTCH-3007) - Fix impossible casts
+
+### Bug
+
+- [NUTCH-2634](https://issues.apache.org/jira/browse/NUTCH-2634) - Some links marked as "nofollow" are followed anyway.
+- [NUTCH-2820](https://issues.apache.org/jira/browse/NUTCH-2820) - Review sample files used in any23 unit tests
+- [NUTCH-2924](https://issues.apache.org/jira/browse/NUTCH-2924) - Generate maxCount expr evaluated only once
+- [NUTCH-2937](https://issues.apache.org/jira/browse/NUTCH-2937) - parse-tika: review dependency exclusions and avoid dependency conflicts in distributed mode
+- [NUTCH-2973](https://issues.apache.org/jira/browse/NUTCH-2973) - Single domain names (eg https://localnet) can't be crawled - filtering fails
+- [NUTCH-2974](https://issues.apache.org/jira/browse/NUTCH-2974) - Ant build fails with "Unparseable date" on certain platforms
+- [NUTCH-2979](https://issues.apache.org/jira/browse/NUTCH-2979) - Upgrade Commons Text to 1.10.0
+- [NUTCH-2982](https://issues.apache.org/jira/browse/NUTCH-2982) - Generator: parameter for URL normalization not passed forward
+- [NUTCH-2985](https://issues.apache.org/jira/browse/NUTCH-2985) - Disable plugin urlfilter-validator by default
+- [NUTCH-2992](https://issues.apache.org/jira/browse/NUTCH-2992) - Fetcher: always block fetch queues when exceptions threshold is reached
+- [NUTCH-3000](https://issues.apache.org/jira/browse/NUTCH-3000) - protocol-selenium returns only the body, strips off the &lt;head/&gt; element
+- [NUTCH-3001](https://issues.apache.org/jira/browse/NUTCH-3001) - protocol-selenium requires Content-Type header 
+- [NUTCH-3002](https://issues.apache.org/jira/browse/NUTCH-3002) - Protocol-okhttp HttpResponse: HTTP header metadata lookup should be case-insensitive
+- [NUTCH-3008](https://issues.apache.org/jira/browse/NUTCH-3008) - indexer-elastic: downgrade to ES 7.10.2 to address licensing issues
+- [NUTCH-3012](https://issues.apache.org/jira/browse/NUTCH-3012) - SegmentReader when dumping with option -recode: NPE on unparsed documents
+- [NUTCH-3027](https://issues.apache.org/jira/browse/NUTCH-3027) - Trivial resource leak patch in DomainSuffixes.java
+- [NUTCH-3035](https://issues.apache.org/jira/browse/NUTCH-3035) - Update license and notice file for release of 1.20 
+
+### New Feature
+
+- [NUTCH-2832](https://issues.apache.org/jira/browse/NUTCH-2832) - Create tutorial on sending Nutch logs to Elasticsearch
+- [NUTCH-2888](https://issues.apache.org/jira/browse/NUTCH-2888) - Selenium Protocol: Support for Selenium 4
+- [NUTCH-2920](https://issues.apache.org/jira/browse/NUTCH-2920) - Implement a indexer-opensearch plugin
+- [NUTCH-2991](https://issues.apache.org/jira/browse/NUTCH-2991) - Support HTTP/S Header Authorization for Solr connections
+- [NUTCH-3029](https://issues.apache.org/jira/browse/NUTCH-3029) - Host specific max. and min. intervals in adaptive scheduler
+    
+### Improvement
+
+- [NUTCH-2853](https://issues.apache.org/jira/browse/NUTCH-2853) - bin/nutch: remove deprecated commands solrindex, solrdedup, solrclean
+- [NUTCH-2883](https://issues.apache.org/jira/browse/NUTCH-2883) - Provide means to run server as a persistent service in Docker container
+- [NUTCH-2897](https://issues.apache.org/jira/browse/NUTCH-2897) - Do not supress deprecated API warnings
+- [NUTCH-2961](https://issues.apache.org/jira/browse/NUTCH-2961) - Upgrade dependencies of parsefilter-naivebayes
+- [NUTCH-2980](https://issues.apache.org/jira/browse/NUTCH-2980) - Upgrade Selenium Java to 4.7.2
+- [NUTCH-2983](https://issues.apache.org/jira/browse/NUTCH-2983) - nutch-default.xml improvements
+- [NUTCH-2990](https://issues.apache.org/jira/browse/NUTCH-2990) - HttpRobotRulesParser to follow 5 redirects as specified by RFC 9309
+- [NUTCH-2993](https://issues.apache.org/jira/browse/NUTCH-2993) - ScoringDepth plugin to skip depth check based on URL Pattern
+- [NUTCH-2995](https://issues.apache.org/jira/browse/NUTCH-2995) - Upgrade to crawler-commons 1.4
+- [NUTCH-2996](https://issues.apache.org/jira/browse/NUTCH-2996) - Use new SimpleRobotRulesParser API entry point (crawler-commons 1.4)
+- [NUTCH-2997](https://issues.apache.org/jira/browse/NUTCH-2997) - Add Override annotations where applicable
+- [NUTCH-3004](https://issues.apache.org/jira/browse/NUTCH-3004) - Avoid NPE in HttpResponse
+- [NUTCH-3005](https://issues.apache.org/jira/browse/NUTCH-3005) - Upgrade selenium as needed
+- [NUTCH-3009](https://issues.apache.org/jira/browse/NUTCH-3009) - Upgrade to Hadoop 3.3.6
+- [NUTCH-3010](https://issues.apache.org/jira/browse/NUTCH-3010) - Injector: count unique number of injected URLs
+- [NUTCH-3011](https://issues.apache.org/jira/browse/NUTCH-3011) - HttpRobotRulesParser: handle HTTP 429 Too Many Requests same as server errors (HTTP 5xx)
+- [NUTCH-3013](https://issues.apache.org/jira/browse/NUTCH-3013) - Employ commons-lang3's StopWatch to simplify timing logic
+- [NUTCH-3014](https://issues.apache.org/jira/browse/NUTCH-3014) - Standardize Job names
+- [NUTCH-3015](https://issues.apache.org/jira/browse/NUTCH-3015) - Add more CI steps to GitHub master-build.yml
+- [NUTCH-3017](https://issues.apache.org/jira/browse/NUTCH-3017) - Allow fast-urlfilter to load from HDFS/S3 and support gzipped input
+- [NUTCH-3025](https://issues.apache.org/jira/browse/NUTCH-3025) - urlfilter-fast to filter based on the length of the URL
+- [NUTCH-3031](https://issues.apache.org/jira/browse/NUTCH-3031) - ProtocolFactory host mapper to support domains
+- [NUTCH-3032](https://issues.apache.org/jira/browse/NUTCH-3032) - Indexing plugin as an adapter for end user's own POJO instances
+- [NUTCH-3036](https://issues.apache.org/jira/browse/NUTCH-3036) - Upgrade org.seleniumhq.selenium:selenium-java dependency in lib-selenium
+
+### Task
+
+- [NUTCH-2959](https://issues.apache.org/jira/browse/NUTCH-2959) - Upgrade to Apache Tika 2.9.0
+- [NUTCH-2977](https://issues.apache.org/jira/browse/NUTCH-2977) - Support for showing dependency tree
+- [NUTCH-2978](https://issues.apache.org/jira/browse/NUTCH-2978) - Move to slf4j2 and remove log4j1 and reload4j
+- [NUTCH-2984](https://issues.apache.org/jira/browse/NUTCH-2984) - Drop test proxy server and benchmark tool
+- [NUTCH-2989](https://issues.apache.org/jira/browse/NUTCH-2989) - Can't have username/pw AND https on elastic-indexer?!
+- [NUTCH-2998](https://issues.apache.org/jira/browse/NUTCH-2998) - Remove the Any23 plugin
+- [NUTCH-2999](https://issues.apache.org/jira/browse/NUTCH-2999) - Update Lucene version to latest 8.x
+- [NUTCH-3016](https://issues.apache.org/jira/browse/NUTCH-3016) - Upgrade Apache Ivy to 2.5.2
+- [NUTCH-3019](https://issues.apache.org/jira/browse/NUTCH-3019) - Upgrade to Apache Tika 2.9.1
+- [NUTCH-3020](https://issues.apache.org/jira/browse/NUTCH-3020) - ParseSegment should check for protocol's flags for truncation
+- [NUTCH-3024](https://issues.apache.org/jira/browse/NUTCH-3024) - Remove flaky 'dependency check' target
+- [NUTCH-3033](https://issues.apache.org/jira/browse/NUTCH-3033) - Upgrade Ivy to v2.5.2
+- [NUTCH-3037](https://issues.apache.org/jira/browse/NUTCH-3037) - Upgrade org.apache.kafka:kafka_2.12: to v3.7.0
+- [NUTCH-3038](https://issues.apache.org/jira/browse/NUTCH-3038) - Address issues discovered during 1.20 release management dryrun
+                                                                                                                                                        
+
 Nutch 1.19 Release 22/08/2022 (dd/mm/yyyy)
 Release Report: https://s.apache.org/lf6li
 
