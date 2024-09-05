@@ -83,691 +83,694 @@ Release Report: https://s.apache.org/ovjf3
 - [NUTCH-3038](https://issues.apache.org/jira/browse/NUTCH-3038) - Address issues discovered during 1.20 release management dryrun
                                                                                                                                                         
 
-Nutch 1.19 Release 22/08/2022 (dd/mm/yyyy)
+## Nutch 1.19 Release 22/08/2022 (dd/mm/yyyy)
 Release Report: https://s.apache.org/lf6li
 
-Breaking Changes
+### Breaking Changes
 
-    - Nutch is built on JDK 11 (NUTCH-2857)
-    - the Nutch WebApp was moved to a separate repository (NUTCH-2886)
-      see https://github.com/apache/nutch-webapp
-          https://gitbox.apache.org/repos/asf?p=nutch-webapp.git
-    - the plugin parse-swf for parsing Shockwave/Adobe Flash content was removed (NUTCH-2861)
+- Nutch is built on JDK 11 (NUTCH-2857)
+- the Nutch WebApp was moved to a separate repository (NUTCH-2886)
+  - see https://github.com/apache/nutch-webapp
+  - or  https://gitbox.apache.org/repos/asf?p=nutch-webapp.git
+- the plugin parse-swf for parsing Shockwave/Adobe Flash content was removed (NUTCH-2861)
 
-Sub-task
+### Sub-task
 
-    [NUTCH-2819] - Move spotbugs "installation" directory to avoid that spotbugs is shipped in Nutch runtime
-    [NUTCH-2846] - Fix various bugs spotted by NUTCH-2815
-    [NUTCH-2850] - Method ignores exceptional return value
-    [NUTCH-2851] - Random object created and used only once
-    [NUTCH-2855] - Update org.elasticsearch.client
+- [NUTCH-2819](https://issues.apache.org/jira/browse/NUTCH-2819) - Move spotbugs "installation" directory to avoid that spotbugs is shipped in Nutch runtime
+- [NUTCH-2846](https://issues.apache.org/jira/browse/NUTCH-2846) - Fix various bugs spotted by NUTCH-2815
+- [NUTCH-2850](https://issues.apache.org/jira/browse/NUTCH-2850) - Method ignores exceptional return value
+- [NUTCH-2851](https://issues.apache.org/jira/browse/NUTCH-2851) - Random object created and used only once
+- [NUTCH-2855](https://issues.apache.org/jira/browse/NUTCH-2855) - Update org.elasticsearch.client
 
-Bug
+### Bug
 
-    [NUTCH-2290] - Update licenses of bundled libraries
-    [NUTCH-2512] - Nutch does not build under JDK9
-    [NUTCH-2821] - Deduplicate licenses in LICENSE.txt file
-    [NUTCH-2822] - Split the LICENSE.txt file into two files for source resp. binary releases
-    [NUTCH-2831] - Elastic indexer does not support SSL
-    [NUTCH-2843] - Duplicate declaration of dependencies in ivy.xml
-    [NUTCH-2858] - urlnormalizer-protocol: URL port is lost during normalization
-    [NUTCH-2862] - Do not include Ivy jar in source release package
-    [NUTCH-2863] - Injector to parse command-line flags case-insensitive
-    [NUTCH-2866] - MetaData.toString() should return "key=value ..."
-    [NUTCH-2868] - urlnormalizer-protocol fails with StringIndexOutOfBoundsException when reading invalid line in configuration file
-    [NUTCH-2881] - bug in 'nutch' symlink in docker container
-    [NUTCH-2889] - nutch indexer-elasticsearch plugin, doesn't work with https protocol
-    [NUTCH-2890] - Protocol-okhttp: upgrade okhttp to 4.9.1 to address infinite connection retries
-    [NUTCH-2894] - Java plugin compilation classpath: priorize plugin dependencies
-    [NUTCH-2899] - Remove needless warning about missing o/a/rat/anttasks/antlib.xml
-    [NUTCH-2902] - Jexl parsing error on statements
-    [NUTCH-2905] - Mask sensitive strings in log output of index writers
-    [NUTCH-2910] - FetchItemQueues overloaded constructor also interprets fetcher timeout as -1 e.g. no-timeout.
-    [NUTCH-2915] - Upgrade to log4j 2.15.0
-    [NUTCH-2916] - Fix log file rotation / rename default log file
-    [NUTCH-2917] - Remove transitive dependency to log4j 1.x
-    [NUTCH-2922] - Upgrade to log4j 2.17.0
-    [NUTCH-2935] - DeduplicationJob: failure on URLs with invalid percent encoding
-    [NUTCH-2936] - Early registration of URL stream handlers provided by plugins may fail Hadoop jobs running in distributed mode if protocol-okhttp is used
-    [NUTCH-2945] - Solr Index Writer pluging schema.xml missing a copyToField
-    [NUTCH-2947] - Fetcher: keep state of empty fetch queues unless queue feeder is finished
-    [NUTCH-2949] - Tasks of a multi-threaded map runner may fail because of slow creation of URL stream handlers
-    [NUTCH-2951] - Crawl datum with metadata WRITABLE_GENERATE_TIME_KEY awaits fetching forever
-    [NUTCH-2955] - indexer-solr: replace deprecated/removed field type solr.LatLonType
-    [NUTCH-2969] - Javadoc: Javascript search is not working when built on JDK 11
+- [NUTCH-2290](https://issues.apache.org/jira/browse/NUTCH-2290) - Update licenses of bundled libraries
+- [NUTCH-2512](https://issues.apache.org/jira/browse/NUTCH-2512) - Nutch does not build under JDK9
+- [NUTCH-2821](https://issues.apache.org/jira/browse/NUTCH-2821) - Deduplicate licenses in LICENSE.txt file
+- [NUTCH-2822](https://issues.apache.org/jira/browse/NUTCH-2822) - Split the LICENSE.txt file into two files for source resp. binary releases
+- [NUTCH-2831](https://issues.apache.org/jira/browse/NUTCH-2831) - Elastic indexer does not support SSL
+- [NUTCH-2843](https://issues.apache.org/jira/browse/NUTCH-2843) - Duplicate declaration of dependencies in ivy.xml
+- [NUTCH-2858](https://issues.apache.org/jira/browse/NUTCH-2858) - urlnormalizer-protocol: URL port is lost during normalization
+- [NUTCH-2862](https://issues.apache.org/jira/browse/NUTCH-2862) - Do not include Ivy jar in source release package
+- [NUTCH-2863](https://issues.apache.org/jira/browse/NUTCH-2863) - Injector to parse command-line flags case-insensitive
+- [NUTCH-2866](https://issues.apache.org/jira/browse/NUTCH-2866) - MetaData.toString() should return "key=value ..."
+- [NUTCH-2868](https://issues.apache.org/jira/browse/NUTCH-2868) - urlnormalizer-protocol fails with StringIndexOutOfBoundsException when reading invalid line in configuration file
+- [NUTCH-2881](https://issues.apache.org/jira/browse/NUTCH-2881) - bug in 'nutch' symlink in docker container
+- [NUTCH-2889](https://issues.apache.org/jira/browse/NUTCH-2889) - nutch indexer-elasticsearch plugin, doesn't work with https protocol
+- [NUTCH-2890](https://issues.apache.org/jira/browse/NUTCH-2890) - Protocol-okhttp: upgrade okhttp to 4.9.1 to address infinite connection retries
+- [NUTCH-2894](https://issues.apache.org/jira/browse/NUTCH-2894) - Java plugin compilation classpath: priorize plugin dependencies
+- [NUTCH-2899](https://issues.apache.org/jira/browse/NUTCH-2899) - Remove needless warning about missing o/a/rat/anttasks/antlib.xml
+- [NUTCH-2902](https://issues.apache.org/jira/browse/NUTCH-2902) - Jexl parsing error on statements
+- [NUTCH-2905](https://issues.apache.org/jira/browse/NUTCH-2905) - Mask sensitive strings in log output of index writers
+- [NUTCH-2910](https://issues.apache.org/jira/browse/NUTCH-2910) - FetchItemQueues overloaded constructor also interprets fetcher timeout as -1 e.g. no-timeout.
+- [NUTCH-2915](https://issues.apache.org/jira/browse/NUTCH-2915) - Upgrade to log4j 2.15.0
+- [NUTCH-2916](https://issues.apache.org/jira/browse/NUTCH-2916) - Fix log file rotation / rename default log file
+- [NUTCH-2917](https://issues.apache.org/jira/browse/NUTCH-2917) - Remove transitive dependency to log4j 1.x
+- [NUTCH-2922](https://issues.apache.org/jira/browse/NUTCH-2922) - Upgrade to log4j 2.17.0
+- [NUTCH-2935](https://issues.apache.org/jira/browse/NUTCH-2935) - DeduplicationJob: failure on URLs with invalid percent encoding
+- [NUTCH-2936](https://issues.apache.org/jira/browse/NUTCH-2936) - Early registration of URL stream handlers provided by plugins may fail Hadoop jobs running in distributed mode if protocol-okhttp is used
+- [NUTCH-2945](https://issues.apache.org/jira/browse/NUTCH-2945) - Solr Index Writer pluging schema.xml missing a copyToField
+- [NUTCH-2947](https://issues.apache.org/jira/browse/NUTCH-2947) - Fetcher: keep state of empty fetch queues unless queue feeder is finished
+- [NUTCH-2949](https://issues.apache.org/jira/browse/NUTCH-2949) - Tasks of a multi-threaded map runner may fail because of slow creation of URL stream handlers
+- [NUTCH-2951](https://issues.apache.org/jira/browse/NUTCH-2951) - Crawl datum with metadata WRITABLE_GENERATE_TIME_KEY awaits fetching forever
+- [NUTCH-2955](https://issues.apache.org/jira/browse/NUTCH-2955) - indexer-solr: replace deprecated/removed field type solr.LatLonType
+- [NUTCH-2969](https://issues.apache.org/jira/browse/NUTCH-2969) - Javadoc: Javascript search is not working when built on JDK 11
 
-New Feature
+### New Feature
 
-    [NUTCH-2901] - migrate to maven or gradle
+- [NUTCH-2901](https://issues.apache.org/jira/browse/NUTCH-2901) - migrate to maven or gradle
 
-Improvement
+### Improvement
 
-    [NUTCH-1403] - Add default ScoringFilter for manipulating metadata
-    [NUTCH-2429] - Fix Plugin System to allow protocol plugins to bundle their URLStreamHandlers
-    [NUTCH-2449] - Usage of Tika LanguageIdentifier in language-identifier plugin
-    [NUTCH-2573] - Suspend crawling if robots.txt fails to fetch with 5xx status
-    [NUTCH-2795] - CrawlDbReader: compress CrawlDb dumps if configured
-    [NUTCH-2807] - SitemapProcessor to warn that ignoring robots.txt affects detection of sitemaps
-    [NUTCH-2808] - Document side effects of ignoring robots.txt
-    [NUTCH-2840] - Fix 'report-vulnerabilities' ant target in build.xml
-    [NUTCH-2842] - Fix Javadoc warnings, errors and add Javadoc check to Github Action and Jenkins
-    [NUTCH-2845] - Update urlfilter-suffix rules
-    [NUTCH-2847] - HttpDateFormat: Simplify based on new Java 8 DateTime API
-    [NUTCH-2849] - Replace remaining package.html files with package-info.java
-    [NUTCH-2857] - Upgrade from JDK1.8 --> JDK11
-    [NUTCH-2859] - urlnormalizer-protocol: allow to normalize domains
-    [NUTCH-2861] - Remove parse-swf
-    [NUTCH-2864] - Upgrade Dockerfile to use JDK 11
-    [NUTCH-2865] - WARC exporter support for metadata and dropping empty responses
-    [NUTCH-2867] - Support for custom HostDb aggregators
-    [NUTCH-2869] - Add @Override annotations to Nutch plugins
-    [NUTCH-2879] - fireant upgrade dependency hadoop-hdfs in ivy/ivy.xml from 3.1.3 to 3.3.1
-    [NUTCH-2882] - Configure NutchUiServer for DEPLOYMENT and improve logging
-    [NUTCH-2885] - Upgrade to Log4j2
-    [NUTCH-2886] - Move Nutch WebApp to separate repository
-    [NUTCH-2891] - Upgrade to Tika 2.1
-    [NUTCH-2892] - Upgrade to Any23 2.5
-    [NUTCH-2893] - fireant upgrade dependency elasticsearch-rest-high-level-client in src/plugin/indexer-elastic/ivy.xml from 7.11.1 to 7.13.2
-    [NUTCH-2896] - Protocol-okhttp: make connection pool configurable
-    [NUTCH-2898] - IDE Setup for nutch with Intellij IDEA is not well documented
-    [NUTCH-2903] - Unable to Connect to Elasticsearch over HTTPS
-    [NUTCH-2904] - Upgrade to crawler-commons 1.2
-    [NUTCH-2908] - Log mapreduce job messages and counters in local mode
-    [NUTCH-2911] - Add cleanup call in Fetcher.java
-    [NUTCH-2914] - nutch-default.xml: remove obsolete and unused properties
-    [NUTCH-2918] - Upgrade to log4j 2.16.0
-    [NUTCH-2919] - NUTCH-2919 Upgrade to Tika 2.2.1 and Any23 2.6
-    [NUTCH-2923] - Add Job Id in Job Failure messages
-    [NUTCH-2929] - Fetcher: start threads slowly to avoid that resources are temporarily exhausted
-    [NUTCH-2930] - Protocol-okhttp: implement IP filter
-    [NUTCH-2946] - Fetcher: optionally slow down fetching from hosts with repeated exceptions
-    [NUTCH-2948] - Upgrade dependencies to Any23 2.7 and Tika 2.3.0
-    [NUTCH-2950] - UpdateHostDb: performance improvements
-    [NUTCH-2952] - Upgrade core dependencies (Hadoop 3.3.3, log4j 2.17.2)
-    [NUTCH-2953] - Indexer Elastic to ignore SSL issues
-    [NUTCH-2956] - index-geoip: dependency upgrades and improvements
-    [NUTCH-2957] - indexer-solr / Solr schema: add fall-back field definitions for unknown index fields
-    [NUTCH-2958] - Upgrade to crawler-commons 1.3
-    [NUTCH-2962] - Update and complete package info of protocol plugins
-    [NUTCH-2963] - Upgrade dependencies before release of 1.19
+- [NUTCH-1403](https://issues.apache.org/jira/browse/NUTCH-1403) - Add default ScoringFilter for manipulating metadata
+- [NUTCH-2429](https://issues.apache.org/jira/browse/NUTCH-2429) - Fix Plugin System to allow protocol plugins to bundle their URLStreamHandlers
+- [NUTCH-2449](https://issues.apache.org/jira/browse/NUTCH-2449) - Usage of Tika LanguageIdentifier in language-identifier plugin
+- [NUTCH-2573](https://issues.apache.org/jira/browse/NUTCH-2573) - Suspend crawling if robots.txt fails to fetch with 5xx status
+- [NUTCH-2795](https://issues.apache.org/jira/browse/NUTCH-2795) - CrawlDbReader: compress CrawlDb dumps if configured
+- [NUTCH-2807](https://issues.apache.org/jira/browse/NUTCH-2807) - SitemapProcessor to warn that ignoring robots.txt affects detection of sitemaps
+- [NUTCH-2808](https://issues.apache.org/jira/browse/NUTCH-2808) - Document side effects of ignoring robots.txt
+- [NUTCH-2840](https://issues.apache.org/jira/browse/NUTCH-2840) - Fix 'report-vulnerabilities' ant target in build.xml
+- [NUTCH-2842](https://issues.apache.org/jira/browse/NUTCH-2842) - Fix Javadoc warnings, errors and add Javadoc check to Github Action and Jenkins
+- [NUTCH-2845](https://issues.apache.org/jira/browse/NUTCH-2845) - Update urlfilter-suffix rules
+- [NUTCH-2847](https://issues.apache.org/jira/browse/NUTCH-2847) - HttpDateFormat: Simplify based on new Java 8 DateTime API
+- [NUTCH-2849](https://issues.apache.org/jira/browse/NUTCH-2849) - Replace remaining package.html files with package-info.java
+- [NUTCH-2857](https://issues.apache.org/jira/browse/NUTCH-2857) - Upgrade from JDK1.8 --> JDK11
+- [NUTCH-2859](https://issues.apache.org/jira/browse/NUTCH-2859) - urlnormalizer-protocol: allow to normalize domains
+- [NUTCH-2861](https://issues.apache.org/jira/browse/NUTCH-2861) - Remove parse-swf
+- [NUTCH-2864](https://issues.apache.org/jira/browse/NUTCH-2864) - Upgrade Dockerfile to use JDK 11
+- [NUTCH-2865](https://issues.apache.org/jira/browse/NUTCH-2865) - WARC exporter support for metadata and dropping empty responses
+- [NUTCH-2867](https://issues.apache.org/jira/browse/NUTCH-2867) - Support for custom HostDb aggregators
+- [NUTCH-2869](https://issues.apache.org/jira/browse/NUTCH-2869) - Add @Override annotations to Nutch plugins
+- [NUTCH-2879](https://issues.apache.org/jira/browse/NUTCH-2879) - fireant upgrade dependency hadoop-hdfs in ivy/ivy.xml from 3.1.3 to 3.3.1
+- [NUTCH-2882](https://issues.apache.org/jira/browse/NUTCH-2882) - Configure NutchUiServer for DEPLOYMENT and improve logging
+- [NUTCH-2885](https://issues.apache.org/jira/browse/NUTCH-2885) - Upgrade to Log4j2
+- [NUTCH-2886](https://issues.apache.org/jira/browse/NUTCH-2886) - Move Nutch WebApp to separate repository
+- [NUTCH-2891](https://issues.apache.org/jira/browse/NUTCH-2891) - Upgrade to Tika 2.1
+- [NUTCH-2892](https://issues.apache.org/jira/browse/NUTCH-2892) - Upgrade to Any23 2.5
+- [NUTCH-2893](https://issues.apache.org/jira/browse/NUTCH-2893) - fireant upgrade dependency elasticsearch-rest-high-level-client in src/plugin/indexer-elastic/ivy.xml from 7.11.1 to 7.13.2
+- [NUTCH-2896](https://issues.apache.org/jira/browse/NUTCH-2896) - Protocol-okhttp: make connection pool configurable
+- [NUTCH-2898](https://issues.apache.org/jira/browse/NUTCH-2898) - IDE Setup for nutch with Intellij IDEA is not well documented
+- [NUTCH-2903](https://issues.apache.org/jira/browse/NUTCH-2903) - Unable to Connect to Elasticsearch over HTTPS
+- [NUTCH-2904](https://issues.apache.org/jira/browse/NUTCH-2904) - Upgrade to crawler-commons 1.2
+- [NUTCH-2908](https://issues.apache.org/jira/browse/NUTCH-2908) - Log mapreduce job messages and counters in local mode
+- [NUTCH-2911](https://issues.apache.org/jira/browse/NUTCH-2911) - Add cleanup call in Fetcher.java
+- [NUTCH-2914](https://issues.apache.org/jira/browse/NUTCH-2914) - nutch-default.xml: remove obsolete and unused properties
+- [NUTCH-2918](https://issues.apache.org/jira/browse/NUTCH-2918) - Upgrade to log4j 2.16.0
+- [NUTCH-2919](https://issues.apache.org/jira/browse/NUTCH-2919) - NUTCH-2919 Upgrade to Tika 2.2.1 and Any23 2.6
+- [NUTCH-2923](https://issues.apache.org/jira/browse/NUTCH-2923) - Add Job Id in Job Failure messages
+- [NUTCH-2929](https://issues.apache.org/jira/browse/NUTCH-2929) - Fetcher: start threads slowly to avoid that resources are temporarily exhausted
+- [NUTCH-2930](https://issues.apache.org/jira/browse/NUTCH-2930) - Protocol-okhttp: implement IP filter
+- [NUTCH-2946](https://issues.apache.org/jira/browse/NUTCH-2946) - Fetcher: optionally slow down fetching from hosts with repeated exceptions
+- [NUTCH-2948](https://issues.apache.org/jira/browse/NUTCH-2948) - Upgrade dependencies to Any23 2.7 and Tika 2.3.0
+- [NUTCH-2950](https://issues.apache.org/jira/browse/NUTCH-2950) - UpdateHostDb: performance improvements
+- [NUTCH-2952](https://issues.apache.org/jira/browse/NUTCH-2952) - Upgrade core dependencies (Hadoop 3.3.3, log4j 2.17.2)
+- [NUTCH-2953](https://issues.apache.org/jira/browse/NUTCH-2953) - Indexer Elastic to ignore SSL issues
+- [NUTCH-2956](https://issues.apache.org/jira/browse/NUTCH-2956) - index-geoip: dependency upgrades and improvements
+- [NUTCH-2957](https://issues.apache.org/jira/browse/NUTCH-2957) - indexer-solr / Solr schema: add fall-back field definitions for unknown index fields
+- [NUTCH-2958](https://issues.apache.org/jira/browse/NUTCH-2958) - Upgrade to crawler-commons 1.3
+- [NUTCH-2962](https://issues.apache.org/jira/browse/NUTCH-2962) - Update and complete package info of protocol plugins
+- [NUTCH-2963](https://issues.apache.org/jira/browse/NUTCH-2963) - Upgrade dependencies before release of 1.19
 
-Task
+### Task
 
-    [NUTCH-2826] - Migrate Nutch Site from Apache CMS to Hugo
-    [NUTCH-2870] - fireant upgrade dependency junit in ivy/ivy.xml from 4.13.1 to 4.13.2
+- [NUTCH-2826](https://issues.apache.org/jira/browse/NUTCH-2826) - Migrate Nutch Site from Apache CMS to Hugo
+- [NUTCH-2870](https://issues.apache.org/jira/browse/NUTCH-2870) - fireant upgrade dependency junit in ivy/ivy.xml from 4.13.1 to 4.13.2
 
 
-Nutch 1.18 Release 14/01/2021 (dd/mm/yyyy)
+## Nutch 1.18 Release 14/01/2021 (dd/mm/yyyy)
 Release Report: https://s.apache.org/lqara
 
-Breaking Changes
+### Breaking Changes
 
-    - As part of NUTCH-2805, the plugin urlfilter-domainblacklist has been renamed to urlfilter-domaindenylist. And the fields required for the plugin urlfilter.domainblacklist.rules and urlfilter.domainblacklist.file has been replaced with urlfilter.domaindenylist.rules and urlfilter.domaindenylist.file respectively. See NUTCH-2802 for more details.
+- As part of NUTCH-2805, the plugin urlfilter-domainblacklist has been renamed to urlfilter-domaindenylist. And the fields required for the plugin urlfilter.domainblacklist.rules and urlfilter.domainblacklist.file has been replaced with urlfilter.domaindenylist.rules and urlfilter.domaindenylist.file respectively. See NUTCH-2802 for more details.
 
-Sub-task
+### Sub-task
 
-    [NUTCH-2671] - Upgrade ant ivy library
-    [NUTCH-2672] - Ant build erronously installs *-test.jar instead *.jar for target "nightly"
-    [NUTCH-2805] - Rename plugin urlfilter-domainblacklist
-    [NUTCH-2809] - Upgrade any23 plugin dependency to 2.4
-    [NUTCH-2816] - Add Spotbugs target to ant build
-    [NUTCH-2817] - Avoid check for equality of URL path and file part using ==/!=
-    [NUTCH-2829] - Fix ant target "clean-cache"
+- [NUTCH-2671](https://issues.apache.org/jira/browse/NUTCH-2671) - Upgrade ant ivy library
+- [NUTCH-2672](https://issues.apache.org/jira/browse/NUTCH-2672) - Ant build erronously installs *-test.jar instead *.jar for target "nightly"
+- [NUTCH-2805](https://issues.apache.org/jira/browse/NUTCH-2805) - Rename plugin urlfilter-domainblacklist
+- [NUTCH-2809](https://issues.apache.org/jira/browse/NUTCH-2809) - Upgrade any23 plugin dependency to 2.4
+- [NUTCH-2816](https://issues.apache.org/jira/browse/NUTCH-2816) - Add Spotbugs target to ant build
+- [NUTCH-2817](https://issues.apache.org/jira/browse/NUTCH-2817) - Avoid check for equality of URL path and file part using ==/!=
+- [NUTCH-2829](https://issues.apache.org/jira/browse/NUTCH-2829) - Fix ant target "clean-cache"
 
-Bug
+### Bug
 
-    [NUTCH-2669] - Reliable solution for javax.ws packaging.type
-    [NUTCH-2697] - Upgrade Ivy to fix the issue of an unset packaging.type property
-    [NUTCH-2801] - RobotsRulesParser command-line checker to use http.robots.agents as fall-back
-    [NUTCH-2810] - FreeGenerator to actually apply configured number of fetch lists
-    [NUTCH-2813] - MoreIndexingFilter - can't parse erroneous date - 2019-07-03T10:28:14
-    [NUTCH-2814] - HttpDateFormat's internal time zone may change after parsing a date
-    [NUTCH-2818] - Ant build: upgrade Apache Rat report task
-    [NUTCH-2823] - IllegalStateException in IndexWriters.describe() when validating url param for SolrIndexer
-    [NUTCH-2824] - urlnormalizer-basic to unescape percent-encoded host names
+- [NUTCH-2669](https://issues.apache.org/jira/browse/NUTCH-2669) - Reliable solution for javax.ws packaging.type
+- [NUTCH-2697](https://issues.apache.org/jira/browse/NUTCH-2697) - Upgrade Ivy to fix the issue of an unset packaging.type property
+- [NUTCH-2801](https://issues.apache.org/jira/browse/NUTCH-2801) - RobotsRulesParser command-line checker to use http.robots.agents as fall-back
+- [NUTCH-2810](https://issues.apache.org/jira/browse/NUTCH-2810) - FreeGenerator to actually apply configured number of fetch lists
+- [NUTCH-2813](https://issues.apache.org/jira/browse/NUTCH-2813) - MoreIndexingFilter - can't parse erroneous date - 2019-07-03T10:28:14
+- [NUTCH-2814](https://issues.apache.org/jira/browse/NUTCH-2814) - HttpDateFormat's internal time zone may change after parsing a date
+- [NUTCH-2818](https://issues.apache.org/jira/browse/NUTCH-2818) - Ant build: upgrade Apache Rat report task
+- [NUTCH-2823](https://issues.apache.org/jira/browse/NUTCH-2823) - IllegalStateException in IndexWriters.describe() when validating url param for SolrIndexer
+- [NUTCH-2824](https://issues.apache.org/jira/browse/NUTCH-2824) - urlnormalizer-basic to unescape percent-encoded host names
 
-Improvement
+### Improvement
 
-    [NUTCH-1190] - MoreIndexingFilter refactor: move data formats used to parse "lastModified" to a config file.
-    [NUTCH-2582] - Set pool size of XML SAX parsers used for MIME detection in Tika 1.19
-    [NUTCH-2730] - SitemapProcessor to treat sitemap URLs as Set instead of List
-    [NUTCH-2782] - protocol-http / lib-http: support TLSv1.3
-    [NUTCH-2796] - Upgrade to crawler-commons 1.1
-    [NUTCH-2799] - Add .asf.yaml file
-    [NUTCH-2833] - Upgrade to Tika 1.25
-    [NUTCH-2835] - Upgrade commons-jexl from 2 --> 3
-    [NUTCH-2836] - Upgrade various commons dependencies
-    [NUTCH-2837] - Update multiple dependencies
-    [NUTCH-2841] - Upgrade xercesImpl dependency
+- [NUTCH-1190](https://issues.apache.org/jira/browse/NUTCH-1190) - MoreIndexingFilter refactor: move data formats used to parse "lastModified" to a config file.
+- [NUTCH-2582](https://issues.apache.org/jira/browse/NUTCH-2582) - Set pool size of XML SAX parsers used for MIME detection in Tika 1.19
+- [NUTCH-2730](https://issues.apache.org/jira/browse/NUTCH-2730) - SitemapProcessor to treat sitemap URLs as Set instead of List
+- [NUTCH-2782](https://issues.apache.org/jira/browse/NUTCH-2782) - protocol-http / lib-http: support TLSv1.3
+- [NUTCH-2796](https://issues.apache.org/jira/browse/NUTCH-2796) - Upgrade to crawler-commons 1.1
+- [NUTCH-2799](https://issues.apache.org/jira/browse/NUTCH-2799) - Add .asf.yaml file
+- [NUTCH-2833](https://issues.apache.org/jira/browse/NUTCH-2833) - Upgrade to Tika 1.25
+- [NUTCH-2835](https://issues.apache.org/jira/browse/NUTCH-2835) - Upgrade commons-jexl from 2 --> 3
+- [NUTCH-2836](https://issues.apache.org/jira/browse/NUTCH-2836) - Upgrade various commons dependencies
+- [NUTCH-2837](https://issues.apache.org/jira/browse/NUTCH-2837) - Update multiple dependencies
+- [NUTCH-2841](https://issues.apache.org/jira/browse/NUTCH-2841) - Upgrade xercesImpl dependency
 
-Wish
+### Wish
 
-    [NUTCH-2834] - Deduplication mode via command line in crawl script
+- [NUTCH-2834](https://issues.apache.org/jira/browse/NUTCH-2834) - Deduplication mode via command line in crawl script
 
-Task
+### Task
 
-    [NUTCH-2830] - Upgrade any23 to v2.4
+- [NUTCH-2830](https://issues.apache.org/jira/browse/NUTCH-2830) - Upgrade any23 to v2.4
 
-Nutch 1.17 Release 18/06/2020 (dd/mm/yyyy)
+
+## Nutch 1.17 Release 18/06/2020 (dd/mm/yyyy)
 Release Report: https://s.apache.org/ovhry
 
-Bug
+### Bug
 
-    [NUTCH-1559] - parse-metatags duplicates extracted metatags
-    [NUTCH-2379] - crawl script dedup's crawldb update is slow
-    [NUTCH-2419] - Some URL filters and normalizers do not respect command-line override for rule file
-    [NUTCH-2507] - NutchTutorial wiki pages as a lot of outdated command line calls when it starts with the solr interaction
-    [NUTCH-2511] - SitemapProcessor limited by http.content.limit
-    [NUTCH-2525] - Metadata indexer cannot handle uppercase parse metadata
-    [NUTCH-2567] - parse-metatags writes all meta tags twice
-    [NUTCH-2720] - ROBOTS metatag ignored when capitalized
-    [NUTCH-2745] - Solr schema.xml not shipped in binary release
-    [NUTCH-2748] - Fetch status gone (redirect exceeded) not to overwrite existing items in CrawlDb
-    [NUTCH-2751] - nutch clean does not work with secured solr cloud
-    [NUTCH-2753] - Add -listen option to command-line help of CrawlDbReader and LinkDbReader
-    [NUTCH-2754] - fetcher.max.crawl.delay ignored if exceeding 5 min. / 300 sec.
-    [NUTCH-2760] - protocol-okhttp: properly record HTTP version in request message header
-    [NUTCH-2761] - ivy jar fails to download
-    [NUTCH-2763] - protocol-okhttp (store.http.headers): add whitespace in status line after status code also when message is empty
-    [NUTCH-2770] - Subcollection logic allows empty string as a whitelist value, thus matching every incoming document.
-    [NUTCH-2778] - indexer-elastic to properly log errors
-    [NUTCH-2787] - CrawlDb JSON dump does not export metadata primitive data types correctly
-    [NUTCH-2789] - Documentation: update links to point to cwiki
-    [NUTCH-2790] - CSVIndexWriter does not escape leading quotes properly
-    [NUTCH-2791] - domainstats, protocolstats and crawlcomplete do not handle GCS URLs
+- [NUTCH-1559](https://issues.apache.org/jira/browse/NUTCH-1559) - parse-metatags duplicates extracted metatags
+- [NUTCH-2379](https://issues.apache.org/jira/browse/NUTCH-2379) - crawl script dedup's crawldb update is slow
+- [NUTCH-2419](https://issues.apache.org/jira/browse/NUTCH-2419) - Some URL filters and normalizers do not respect command-line override for rule file
+- [NUTCH-2507](https://issues.apache.org/jira/browse/NUTCH-2507) - NutchTutorial wiki pages as a lot of outdated command line calls when it starts with the solr interaction
+- [NUTCH-2511](https://issues.apache.org/jira/browse/NUTCH-2511) - SitemapProcessor limited by http.content.limit
+- [NUTCH-2525](https://issues.apache.org/jira/browse/NUTCH-2525) - Metadata indexer cannot handle uppercase parse metadata
+- [NUTCH-2567](https://issues.apache.org/jira/browse/NUTCH-2567) - parse-metatags writes all meta tags twice
+- [NUTCH-2720](https://issues.apache.org/jira/browse/NUTCH-2720) - ROBOTS metatag ignored when capitalized
+- [NUTCH-2745](https://issues.apache.org/jira/browse/NUTCH-2745) - Solr schema.xml not shipped in binary release
+- [NUTCH-2748](https://issues.apache.org/jira/browse/NUTCH-2748) - Fetch status gone (redirect exceeded) not to overwrite existing items in CrawlDb
+- [NUTCH-2751](https://issues.apache.org/jira/browse/NUTCH-2751) - nutch clean does not work with secured solr cloud
+- [NUTCH-2753](https://issues.apache.org/jira/browse/NUTCH-2753) - Add -listen option to command-line help of CrawlDbReader and LinkDbReader
+- [NUTCH-2754](https://issues.apache.org/jira/browse/NUTCH-2754) - fetcher.max.crawl.delay ignored if exceeding 5 min. / 300 sec.
+- [NUTCH-2760](https://issues.apache.org/jira/browse/NUTCH-2760) - protocol-okhttp: properly record HTTP version in request message header
+- [NUTCH-2761](https://issues.apache.org/jira/browse/NUTCH-2761) - ivy jar fails to download
+- [NUTCH-2763](https://issues.apache.org/jira/browse/NUTCH-2763) - protocol-okhttp (store.http.headers): add whitespace in status line after status code also when message is empty
+- [NUTCH-2770](https://issues.apache.org/jira/browse/NUTCH-2770) - Subcollection logic allows empty string as a whitelist value, thus matching every incoming document.
+- [NUTCH-2778](https://issues.apache.org/jira/browse/NUTCH-2778) - indexer-elastic to properly log errors
+- [NUTCH-2787](https://issues.apache.org/jira/browse/NUTCH-2787) - CrawlDb JSON dump does not export metadata primitive data types correctly
+- [NUTCH-2789](https://issues.apache.org/jira/browse/NUTCH-2789) - Documentation: update links to point to cwiki
+- [NUTCH-2790](https://issues.apache.org/jira/browse/NUTCH-2790) - CSVIndexWriter does not escape leading quotes properly
+- [NUTCH-2791](https://issues.apache.org/jira/browse/NUTCH-2791) - domainstats, protocolstats and crawlcomplete do not handle GCS URLs
 
-New Feature
+### New Feature
 
-    [NUTCH-1863] - Add JSON format dump output to readdb command
+- [NUTCH-1863](https://issues.apache.org/jira/browse/NUTCH-1863) - Add JSON format dump output to readdb command
 
-Improvement
+### Improvement
 
-    [NUTCH-1194] - Generator: CrawlDB lock should be released earlier
-    [NUTCH-2002] - ParserChecker and IndexingFiltersChecker to check robots.txt
-    [NUTCH-2184] - Enable IndexingJob to function with no crawldb
-    [NUTCH-2495] - Use -deleteGone instead of clean job in crawler script while indexing
-    [NUTCH-2496] - Speed up link inversion step in crawling script
-    [NUTCH-2501] - allow to set Java heap size when using crawl script in distributed mode
-    [NUTCH-2649] - Optionally skip TLS/SSL certificate validation for protocol-selenium and protocol-htmlunit
-    [NUTCH-2733] - protocol-okhttp: add support for Brotli compression (Content-Encoding)
-    [NUTCH-2739] - indexer-elastic: Upgrade ES and migrate to REST client
-    [NUTCH-2743] - Add list of Nutch properties (nutch-default.xml) to documentation
-    [NUTCH-2746] - Basic URL normalizer to normalize Unicode domain names
-    [NUTCH-2747] - Replace remaining o.a.commons.logging by org.slf4j
-    [NUTCH-2750] - Improve CrawlDbReader & LinkDbReader reader handling
-    [NUTCH-2752] - indexer-solr: Upgrade to latest Solr version
-    [NUTCH-2755] - Remove obsolete plugin indexer-elastic-rest
-    [NUTCH-2757] - indexer-elastic: add authentication options
-    [NUTCH-2758] - Add plugin READMEs to binary release packages
-    [NUTCH-2759] - bin/crawl: Rename option --num-slaves
-    [NUTCH-2762] - Replace http:// URLs by https:// (build files and documentation)
-    [NUTCH-2767] - Fetcher to stop filling queues skipped due to repeated exceptions
-    [NUTCH-2768] - FetcherThread: unnecessary usage of class casts
-    [NUTCH-2772] - Debugging parse filter to show serialized DOM tree
-    [NUTCH-2773] - SegmentReader (-dump or -get): show HTML content as UTF-8
-    [NUTCH-2774] - Annotate methods implementing the Hadoop API by @Override
-    [NUTCH-2775] - Fetcher to guarantee minimum delay even if robots.txt defines shorter Crawl-delay
-    [NUTCH-2776] - Fetcher to temporarily deduplicate followed redirects
-    [NUTCH-2777] - Upgrade to Hadoop 3.1
-    [NUTCH-2779] - Upgrade to Tika 1.24.1
-    [NUTCH-2780] - Upgrade index-solr to use Solr 8.5.1
-    [NUTCH-2781] - Increase default Java heap size
-    [NUTCH-2783] - Use (more) parametrized logging
-    [NUTCH-2784] - Add tool to list Nutch and Hadoop properties
-    [NUTCH-2785] - FreeGenerator: command-line option to define number of generated fetch lists
-    [NUTCH-2788] - ParseData: improve presentation of Metadata in method toString()
-    [NUTCH-2794] - Add additional ciphers to HTTP base's default cipher suite
+- [NUTCH-1194](https://issues.apache.org/jira/browse/NUTCH-1194) - Generator: CrawlDB lock should be released earlier
+- [NUTCH-2002](https://issues.apache.org/jira/browse/NUTCH-2002) - ParserChecker and IndexingFiltersChecker to check robots.txt
+- [NUTCH-2184](https://issues.apache.org/jira/browse/NUTCH-2184) - Enable IndexingJob to function with no crawldb
+- [NUTCH-2495](https://issues.apache.org/jira/browse/NUTCH-2495) - Use -deleteGone instead of clean job in crawler script while indexing
+- [NUTCH-2496](https://issues.apache.org/jira/browse/NUTCH-2496) - Speed up link inversion step in crawling script
+- [NUTCH-2501](https://issues.apache.org/jira/browse/NUTCH-2501) - allow to set Java heap size when using crawl script in distributed mode
+- [NUTCH-2649](https://issues.apache.org/jira/browse/NUTCH-2649) - Optionally skip TLS/SSL certificate validation for protocol-selenium and protocol-htmlunit
+- [NUTCH-2733](https://issues.apache.org/jira/browse/NUTCH-2733) - protocol-okhttp: add support for Brotli compression (Content-Encoding)
+- [NUTCH-2739](https://issues.apache.org/jira/browse/NUTCH-2739) - indexer-elastic: Upgrade ES and migrate to REST client
+- [NUTCH-2743](https://issues.apache.org/jira/browse/NUTCH-2743) - Add list of Nutch properties (nutch-default.xml) to documentation
+- [NUTCH-2746](https://issues.apache.org/jira/browse/NUTCH-2746) - Basic URL normalizer to normalize Unicode domain names
+- [NUTCH-2747](https://issues.apache.org/jira/browse/NUTCH-2747) - Replace remaining o.a.commons.logging by org.slf4j
+- [NUTCH-2750](https://issues.apache.org/jira/browse/NUTCH-2750) - Improve CrawlDbReader & LinkDbReader reader handling
+- [NUTCH-2752](https://issues.apache.org/jira/browse/NUTCH-2752) - indexer-solr: Upgrade to latest Solr version
+- [NUTCH-2755](https://issues.apache.org/jira/browse/NUTCH-2755) - Remove obsolete plugin indexer-elastic-rest
+- [NUTCH-2757](https://issues.apache.org/jira/browse/NUTCH-2757) - indexer-elastic: add authentication options
+- [NUTCH-2758](https://issues.apache.org/jira/browse/NUTCH-2758) - Add plugin READMEs to binary release packages
+- [NUTCH-2759](https://issues.apache.org/jira/browse/NUTCH-2759) - bin/crawl: Rename option --num-slaves
+- [NUTCH-2762](https://issues.apache.org/jira/browse/NUTCH-2762) - Replace http:// URLs by https:// (build files and documentation)
+- [NUTCH-2767](https://issues.apache.org/jira/browse/NUTCH-2767) - Fetcher to stop filling queues skipped due to repeated exceptions
+- [NUTCH-2768](https://issues.apache.org/jira/browse/NUTCH-2768) - FetcherThread: unnecessary usage of class casts
+- [NUTCH-2772](https://issues.apache.org/jira/browse/NUTCH-2772) - Debugging parse filter to show serialized DOM tree
+- [NUTCH-2773](https://issues.apache.org/jira/browse/NUTCH-2773) - SegmentReader (-dump or -get): show HTML content as UTF-8
+- [NUTCH-2774](https://issues.apache.org/jira/browse/NUTCH-2774) - Annotate methods implementing the Hadoop API by @Override
+- [NUTCH-2775](https://issues.apache.org/jira/browse/NUTCH-2775) - Fetcher to guarantee minimum delay even if robots.txt defines shorter Crawl-delay
+- [NUTCH-2776](https://issues.apache.org/jira/browse/NUTCH-2776) - Fetcher to temporarily deduplicate followed redirects
+- [NUTCH-2777](https://issues.apache.org/jira/browse/NUTCH-2777) - Upgrade to Hadoop 3.1
+- [NUTCH-2779](https://issues.apache.org/jira/browse/NUTCH-2779) - Upgrade to Tika 1.24.1
+- [NUTCH-2780](https://issues.apache.org/jira/browse/NUTCH-2780) - Upgrade index-solr to use Solr 8.5.1
+- [NUTCH-2781](https://issues.apache.org/jira/browse/NUTCH-2781) - Increase default Java heap size
+- [NUTCH-2783](https://issues.apache.org/jira/browse/NUTCH-2783) - Use (more) parametrized logging
+- [NUTCH-2784](https://issues.apache.org/jira/browse/NUTCH-2784) - Add tool to list Nutch and Hadoop properties
+- [NUTCH-2785](https://issues.apache.org/jira/browse/NUTCH-2785) - FreeGenerator: command-line option to define number of generated fetch lists
+- [NUTCH-2788](https://issues.apache.org/jira/browse/NUTCH-2788) - ParseData: improve presentation of Metadata in method toString()
+- [NUTCH-2794](https://issues.apache.org/jira/browse/NUTCH-2794) - Add additional ciphers to HTTP base's default cipher suite
 
-Test
+### Test
 
-    [NUTCH-1945] - Test for XLSX parser
+- [NUTCH-1945](https://issues.apache.org/jira/browse/NUTCH-1945) - Test for XLSX parser
 
-Task
+### Task
 
-    [NUTCH-2434] - Add methods to reset parameters HTMLMetaTags
+- [NUTCH-2434](https://issues.apache.org/jira/browse/NUTCH-2434) - Add methods to reset parameters HTMLMetaTags
 
-Sub-task
+### Sub-task
 
-    [NUTCH-2735] - Update the indexer-solr documentation about the schema.xml usage
+- [NUTCH-2735](https://issues.apache.org/jira/browse/NUTCH-2735) - Update the indexer-solr documentation about the schema.xml usage
 
 
-Nutch 1.16 Release 02/10/2019 (dd/mm/yyyy)
+## Nutch 1.16 Release 02/10/2019 (dd/mm/yyyy)
 Release Report: https://s.apache.org/l2j94
 
-Comments
+### Comments
 
-    -  schema.xml has been moved to indexer-solr plugin directory. This file is provided as a
-       reference/guide for Solr users (NUTCH-2654)
+- schema.xml has been moved to indexer-solr plugin directory. This file is provided as a
+  reference/guide for Solr users (NUTCH-2654)
 
-Breaking Changes
+### Breaking Changes
 
-    -  The value of crawl.gen.delay is now read in milliseconds as stated in the description
-       in nutch-default.xml. Previously, the value has been read in days, see NUTCH-1842 for
-       further information.
+- The value of crawl.gen.delay is now read in milliseconds as stated in the description
+  in nutch-default.xml. Previously, the value has been read in days, see NUTCH-1842 for
+  further information.
 
-    -  HostDB entries have been moved from Integer to Long in order to accomodate very large
-       hosts. Remove your existing HostDB and recreate it with bin/nutch updatehostdb, see
-       NUTCH-2694 for additional information.
+- HostDB entries have been moved from Integer to Long in order to accomodate very large
+  hosts. Remove your existing HostDB and recreate it with bin/nutch updatehostdb, see
+  NUTCH-2694 for additional information.
 
-    -  The signature class TextProfileSignature has been improved to be stable over
-       consecutive runs by sorting tokens by frequency first and secondarily in lexicographic
-       order.  If an existing CrawlDb contains signatures generated by TextProfileSignature
-       these are likely to change when upgrading to Nutch 1.16.  The previous behavior relying
-       on a semi-stable pseudo-random hash sorting could be restored setting the property
-       `db.signature.text_profile.sec_sort_lex` to `false`. See also NUTCH-2381.
+- The signature class TextProfileSignature has been improved to be stable over
+  consecutive runs by sorting tokens by frequency first and secondarily in lexicographic
+  order.  If an existing CrawlDb contains signatures generated by TextProfileSignature
+  these are likely to change when upgrading to Nutch 1.16.  The previous behavior relying
+  on a semi-stable pseudo-random hash sorting could be restored setting the property
+  `db.signature.text_profile.sec_sort_lex` to `false`. See also NUTCH-2381.
 
-Bug
+### Bug
 
-    [NUTCH-1063] - OutlinkExtractor test generates an exception but does not fail
-    [NUTCH-1842] - crawl.gen.delay has a wrong default value in nutch-default.xml or is being parsed incorrectly
-    [NUTCH-2279] - LinkRank fails when using Hadoop MR output compression
-    [NUTCH-2381] - In some situations the class TextProfileSignature gives different signatures for the same text "profile" page.
-    [NUTCH-2387] - Nutch should not index document with "noindex" meta
-    [NUTCH-2457] - Embedded documents likely not correctly parsed by Tika
-    [NUTCH-2475] - If and else-if branches has the same condition
-    [NUTCH-2482] - index-geoip not to add null values to document fields
-    [NUTCH-2585] - NPE in TrieStringMatcher
-    [NUTCH-2598] - URLNormalizerChecker fails on invalid URLs in input
-    [NUTCH-2606] - MIME detection is wrong for plain-text documents send as Content-Type "application/msword"
-    [NUTCH-2635] - Generator writes unneeded temporary output
-    [NUTCH-2639] - bin/nutch fails to set native library path on Cygwin causing jobs to fail with UnsatisfiedLinkError
-    [NUTCH-2641] - ClassCastException in webui
-    [NUTCH-2642] - MoreIndexingFilter parses ISO 8601 UTC dates in local time zone
-    [NUTCH-2643] - ant target "resolve-default" to depend on "init"
-    [NUTCH-2644] - CrawlDbReader -dump ignores filter options
-    [NUTCH-2645] - Webgraph tools ignore command-line options
-    [NUTCH-2650] - -addBinaryContent -base64 flags are causing "String length must be a multiple of four" error in IndexingJob
-    [NUTCH-2652] - Fetcher launches more fetch tasks than fetch lists
-    [NUTCH-2655] - Update Solr schema.xml for Solr 7.x
-    [NUTCH-2656] - Update description to configure Solr 7.x in tutorial
-    [NUTCH-2673] - EOFException protocol-http
-    [NUTCH-2674] - HostDb: dump shows wrong column headers
-    [NUTCH-2680] - Documentation: https supported by multiple protocol plugins not only httpclient
-    [NUTCH-2687] - Regex for reading title from Content-Disposition is wrong
-    [NUTCH-2694] - HostDB to aggregate by long instead of integer
-    [NUTCH-2696] - Nutch SegmentReader does not dump non-ASCII characters with Hadoop 3.x
-    [NUTCH-2699] - Protocol-okhttp: needless loops to increment requested bytes counter when more content is already buffered
-    [NUTCH-2703] - parse-tika: Boilerpipe should not run for non-(X)HTML pages
-    [NUTCH-2706] - -addBinaryContent flag can cause "String length must be a multiple of four" error in IndexingJob
-    [NUTCH-2715] - WARCExporter fails on large records
-    [NUTCH-2716] - protocol-http: Response headers are not stored for a compressed response
-    [NUTCH-2717] - Generator cannot open hostDB
-    [NUTCH-2722] - Fetch dependencies via https
-    [NUTCH-2723] - Indexer Solr not to decode URLs before deletion
-    [NUTCH-2724] - Metadata indexer not to emit empty values
-    [NUTCH-2729] - protocol-okhttp: fix marking of truncated content
-    [NUTCH-2731] - Solr Cleanup Step Fails when Authentication is Required
-    [NUTCH-2738] - Generator: document property generate.restrict.status
-    [NUTCH-2740] - Generator: generate.max.count overflow not logged
+- [NUTCH-1063](https://issues.apache.org/jira/browse/NUTCH-1063) - OutlinkExtractor test generates an exception but does not fail
+- [NUTCH-1842](https://issues.apache.org/jira/browse/NUTCH-1842) - crawl.gen.delay has a wrong default value in nutch-default.xml or is being parsed incorrectly
+- [NUTCH-2279](https://issues.apache.org/jira/browse/NUTCH-2279) - LinkRank fails when using Hadoop MR output compression
+- [NUTCH-2381](https://issues.apache.org/jira/browse/NUTCH-2381) - In some situations the class TextProfileSignature gives different signatures for the same text "profile" page.
+- [NUTCH-2387](https://issues.apache.org/jira/browse/NUTCH-2387) - Nutch should not index document with "noindex" meta
+- [NUTCH-2457](https://issues.apache.org/jira/browse/NUTCH-2457) - Embedded documents likely not correctly parsed by Tika
+- [NUTCH-2475](https://issues.apache.org/jira/browse/NUTCH-2475) - If and else-if branches has the same condition
+- [NUTCH-2482](https://issues.apache.org/jira/browse/NUTCH-2482) - index-geoip not to add null values to document fields
+- [NUTCH-2585](https://issues.apache.org/jira/browse/NUTCH-2585) - NPE in TrieStringMatcher
+- [NUTCH-2598](https://issues.apache.org/jira/browse/NUTCH-2598) - URLNormalizerChecker fails on invalid URLs in input
+- [NUTCH-2606](https://issues.apache.org/jira/browse/NUTCH-2606) - MIME detection is wrong for plain-text documents send as Content-Type "application/msword"
+- [NUTCH-2635](https://issues.apache.org/jira/browse/NUTCH-2635) - Generator writes unneeded temporary output
+- [NUTCH-2639](https://issues.apache.org/jira/browse/NUTCH-2639) - bin/nutch fails to set native library path on Cygwin causing jobs to fail with UnsatisfiedLinkError
+- [NUTCH-2641](https://issues.apache.org/jira/browse/NUTCH-2641) - ClassCastException in webui
+- [NUTCH-2642](https://issues.apache.org/jira/browse/NUTCH-2642) - MoreIndexingFilter parses ISO 8601 UTC dates in local time zone
+- [NUTCH-2643](https://issues.apache.org/jira/browse/NUTCH-2643) - ant target "resolve-default" to depend on "init"
+- [NUTCH-2644](https://issues.apache.org/jira/browse/NUTCH-2644) - CrawlDbReader -dump ignores filter options
+- [NUTCH-2645](https://issues.apache.org/jira/browse/NUTCH-2645) - Webgraph tools ignore command-line options
+- [NUTCH-2650](https://issues.apache.org/jira/browse/NUTCH-2650) - -addBinaryContent -base64 flags are causing "String length must be a multiple of four" error in IndexingJob
+- [NUTCH-2652](https://issues.apache.org/jira/browse/NUTCH-2652) - Fetcher launches more fetch tasks than fetch lists
+- [NUTCH-2655](https://issues.apache.org/jira/browse/NUTCH-2655) - Update Solr schema.xml for Solr 7.x
+- [NUTCH-2656](https://issues.apache.org/jira/browse/NUTCH-2656) - Update description to configure Solr 7.x in tutorial
+- [NUTCH-2673](https://issues.apache.org/jira/browse/NUTCH-2673) - EOFException protocol-http
+- [NUTCH-2674](https://issues.apache.org/jira/browse/NUTCH-2674) - HostDb: dump shows wrong column headers
+- [NUTCH-2680](https://issues.apache.org/jira/browse/NUTCH-2680) - Documentation: https supported by multiple protocol plugins not only httpclient
+- [NUTCH-2687](https://issues.apache.org/jira/browse/NUTCH-2687) - Regex for reading title from Content-Disposition is wrong
+- [NUTCH-2694](https://issues.apache.org/jira/browse/NUTCH-2694) - HostDB to aggregate by long instead of integer
+- [NUTCH-2696](https://issues.apache.org/jira/browse/NUTCH-2696) - Nutch SegmentReader does not dump non-ASCII characters with Hadoop 3.x
+- [NUTCH-2699](https://issues.apache.org/jira/browse/NUTCH-2699) - Protocol-okhttp: needless loops to increment requested bytes counter when more content is already buffered
+- [NUTCH-2703](https://issues.apache.org/jira/browse/NUTCH-2703) - parse-tika: Boilerpipe should not run for non-(X)HTML pages
+- [NUTCH-2706](https://issues.apache.org/jira/browse/NUTCH-2706) - -addBinaryContent flag can cause "String length must be a multiple of four" error in IndexingJob
+- [NUTCH-2715](https://issues.apache.org/jira/browse/NUTCH-2715) - WARCExporter fails on large records
+- [NUTCH-2716](https://issues.apache.org/jira/browse/NUTCH-2716) - protocol-http: Response headers are not stored for a compressed response
+- [NUTCH-2717](https://issues.apache.org/jira/browse/NUTCH-2717) - Generator cannot open hostDB
+- [NUTCH-2722](https://issues.apache.org/jira/browse/NUTCH-2722) - Fetch dependencies via https
+- [NUTCH-2723](https://issues.apache.org/jira/browse/NUTCH-2723) - Indexer Solr not to decode URLs before deletion
+- [NUTCH-2724](https://issues.apache.org/jira/browse/NUTCH-2724) - Metadata indexer not to emit empty values
+- [NUTCH-2729](https://issues.apache.org/jira/browse/NUTCH-2729) - protocol-okhttp: fix marking of truncated content
+- [NUTCH-2731](https://issues.apache.org/jira/browse/NUTCH-2731) - Solr Cleanup Step Fails when Authentication is Required
+- [NUTCH-2738](https://issues.apache.org/jira/browse/NUTCH-2738) - Generator: document property generate.restrict.status
+- [NUTCH-2740](https://issues.apache.org/jira/browse/NUTCH-2740) - Generator: generate.max.count overflow not logged
 
-New Feature
+### New Feature
 
-    [NUTCH-2676] - Update to the latest selenium and add code to use chrome and firefox headless mode with the remote web driver
+- [NUTCH-2676](https://issues.apache.org/jira/browse/NUTCH-2676) - Update to the latest selenium and add code to use chrome and firefox headless mode with the remote web driver
 
-Improvement
+### Improvement
 
-    [NUTCH-1014] - Migrate from Apache ORO to java.util.regex
-    [NUTCH-1021] - Migrate OutlinkExtractor from Apache ORO to java.util.regex
-    [NUTCH-1982] - Make Git ignore IDE project files and add note about IDE setup
-    [NUTCH-2460] - use the headless option of firefox and chrome in protocol-selenium
-    [NUTCH-2602] - Configuration values in the description of index writers
-    [NUTCH-2612] - Support for sitemap processing by hostname
-    [NUTCH-2623] - Fetcher to guarantee delay for same host/domain/ip independent of http/https protocol
-    [NUTCH-2625] - ProtocolFactory.getProtocol(url) may create multiple plugin instances
-    [NUTCH-2626] - bin/crawl: remove option -noParsing from fetch command
-    [NUTCH-2627] - Fetcher to optionally filter URLs
-    [NUTCH-2628] - Fetcher: optionally generate signature of unparsed content
-    [NUTCH-2629] - Documentation for CSV Index Writer
-    [NUTCH-2630] - Fetcher to log skipped records by robots.txt
-    [NUTCH-2631] - KafkaIndexWriter
-    [NUTCH-2632] - protocol-okhttp doesn't accept proxy authentication
-    [NUTCH-2633] - Fix deprecation warnings when building Nutch master branch under JDK 10.0.2+13
-    [NUTCH-2647] - Skip TLS certificate checks in protocol-http plugin
-    [NUTCH-2648] - Make configurable whether TLS/SSL certificates are checked by protocol plugins
-    [NUTCH-2651] - Upgrade to Tika 1.19.1 (from 1.18)
-    [NUTCH-2653] - ProtocolFactory.getProtocol(url) creates separate plugin instances for http/https
-    [NUTCH-2654] - Remove obsolete index-writer configuration in conf/
-    [NUTCH-2657] - Protocol-http to store HTTP response header with "\r\n"
-    [NUTCH-2658] - Add README file to all plugins in src/plugin
-    [NUTCH-2659] - Add missing Apache license headers
-    [NUTCH-2660] - Unit tests of plugins parse-js, headings, index-jexl-filter to be executed during build
-    [NUTCH-2661] - Move TestOutlinks to the proper path
-    [NUTCH-2663] - Improve index-jexl-filter syntax for scripts
-    [NUTCH-2666] - Increase default value for http.content.limit / ftp.content.limit / file.content.limit
-    [NUTCH-2668] - Integrate OWASP dependency checks as ant target
-    [NUTCH-2678] - Allow for per-host configurable protocol plugin
-    [NUTCH-2682] - Upgrade to Tika 1.20
-    [NUTCH-2683] - DeduplicationJob: add option to prefer https:// over http://
-    [NUTCH-2686] - Separate field for mime types mapped by index-more plugin
-    [NUTCH-2688] - Unify the licence headers
-    [NUTCH-2689] - Speed up urlfilter-regex and urlfilter-automaton
-    [NUTCH-2690] - Configurable and fast URL filter
-    [NUTCH-2691] - Improve logging from scoring-depth plugin
-    [NUTCH-2692] - Subcollection to support case-insensitive white and black lists
-    [NUTCH-2693] - Misspelled configuration property names in documentation
-    [NUTCH-2695] - Fix some alerts raised by LGTM
-    [NUTCH-2700] - Indexchecker: improve command-line help
-    [NUTCH-2701] - Fetcher: log dates and times also in human-readable form
-    [NUTCH-2702] - Fetcher: suppress stack for frequent exceptions
-    [NUTCH-2704] - Upgrade crawler-commons dependency to 1.0
-    [NUTCH-2708] - urlfilter-automaton: update library dependency (dk.brics.automaton)
-    [NUTCH-2709] - Remove unused properties and code related to HTTP protocol
-    [NUTCH-2718] - Names of index writers and exchanges configuration files to be configurable
-    [NUTCH-2719] - NPE if exchanges.xml uses index writer not available
-    [NUTCH-2725] - Plugin lib-http to support per-host configurable cookies
-    [NUTCH-2726] - Upgrade to Tika 1.22
-    [NUTCH-2727] - Upgrade Hadoop dependencies to 2.9.2
-    [NUTCH-2728] - protocol-okhttp: upgrade okhttp dependency to 3.14.2
-    [NUTCH-2732] - Ignored and tracked configuration files by git
-    [NUTCH-2736] - Upgrade Dockerfile to be based on recent Ubuntu LTS version
-    [NUTCH-2737] - Generator: count and log reason of rejections during selection
+- [NUTCH-1014](https://issues.apache.org/jira/browse/NUTCH-1014) - Migrate from Apache ORO to java.util.regex
+- [NUTCH-1021](https://issues.apache.org/jira/browse/NUTCH-1021) - Migrate OutlinkExtractor from Apache ORO to java.util.regex
+- [NUTCH-1982](https://issues.apache.org/jira/browse/NUTCH-1982) - Make Git ignore IDE project files and add note about IDE setup
+- [NUTCH-2460](https://issues.apache.org/jira/browse/NUTCH-2460) - use the headless option of firefox and chrome in protocol-selenium
+- [NUTCH-2602](https://issues.apache.org/jira/browse/NUTCH-2602) - Configuration values in the description of index writers
+- [NUTCH-2612](https://issues.apache.org/jira/browse/NUTCH-2612) - Support for sitemap processing by hostname
+- [NUTCH-2623](https://issues.apache.org/jira/browse/NUTCH-2623) - Fetcher to guarantee delay for same host/domain/ip independent of http/https protocol
+- [NUTCH-2625](https://issues.apache.org/jira/browse/NUTCH-2625) - ProtocolFactory.getProtocol(url) may create multiple plugin instances
+- [NUTCH-2626](https://issues.apache.org/jira/browse/NUTCH-2626) - bin/crawl: remove option -noParsing from fetch command
+- [NUTCH-2627](https://issues.apache.org/jira/browse/NUTCH-2627) - Fetcher to optionally filter URLs
+- [NUTCH-2628](https://issues.apache.org/jira/browse/NUTCH-2628) - Fetcher: optionally generate signature of unparsed content
+- [NUTCH-2629](https://issues.apache.org/jira/browse/NUTCH-2629) - Documentation for CSV Index Writer
+- [NUTCH-2630](https://issues.apache.org/jira/browse/NUTCH-2630) - Fetcher to log skipped records by robots.txt
+- [NUTCH-2631](https://issues.apache.org/jira/browse/NUTCH-2631) - KafkaIndexWriter
+- [NUTCH-2632](https://issues.apache.org/jira/browse/NUTCH-2632) - protocol-okhttp doesn't accept proxy authentication
+- [NUTCH-2633](https://issues.apache.org/jira/browse/NUTCH-2633) - Fix deprecation warnings when building Nutch master branch under JDK 10.0.2+13
+- [NUTCH-2647](https://issues.apache.org/jira/browse/NUTCH-2647) - Skip TLS certificate checks in protocol-http plugin
+- [NUTCH-2648](https://issues.apache.org/jira/browse/NUTCH-2648) - Make configurable whether TLS/SSL certificates are checked by protocol plugins
+- [NUTCH-2651](https://issues.apache.org/jira/browse/NUTCH-2651) - Upgrade to Tika 1.19.1 (from 1.18)
+- [NUTCH-2653](https://issues.apache.org/jira/browse/NUTCH-2653) - ProtocolFactory.getProtocol(url) creates separate plugin instances for http/https
+- [NUTCH-2654](https://issues.apache.org/jira/browse/NUTCH-2654) - Remove obsolete index-writer configuration in conf/
+- [NUTCH-2657](https://issues.apache.org/jira/browse/NUTCH-2657) - Protocol-http to store HTTP response header with "\r\n"
+- [NUTCH-2658](https://issues.apache.org/jira/browse/NUTCH-2658) - Add README file to all plugins in src/plugin
+- [NUTCH-2659](https://issues.apache.org/jira/browse/NUTCH-2659) - Add missing Apache license headers
+- [NUTCH-2660](https://issues.apache.org/jira/browse/NUTCH-2660) - Unit tests of plugins parse-js, headings, index-jexl-filter to be executed during build
+- [NUTCH-2661](https://issues.apache.org/jira/browse/NUTCH-2661) - Move TestOutlinks to the proper path
+- [NUTCH-2663](https://issues.apache.org/jira/browse/NUTCH-2663) - Improve index-jexl-filter syntax for scripts
+- [NUTCH-2666](https://issues.apache.org/jira/browse/NUTCH-2666) - Increase default value for http.content.limit / ftp.content.limit / file.content.limit
+- [NUTCH-2668](https://issues.apache.org/jira/browse/NUTCH-2668) - Integrate OWASP dependency checks as ant target
+- [NUTCH-2678](https://issues.apache.org/jira/browse/NUTCH-2678) - Allow for per-host configurable protocol plugin
+- [NUTCH-2682](https://issues.apache.org/jira/browse/NUTCH-2682) - Upgrade to Tika 1.20
+- [NUTCH-2683](https://issues.apache.org/jira/browse/NUTCH-2683) - DeduplicationJob: add option to prefer https:// over http://
+- [NUTCH-2686](https://issues.apache.org/jira/browse/NUTCH-2686) - Separate field for mime types mapped by index-more plugin
+- [NUTCH-2688](https://issues.apache.org/jira/browse/NUTCH-2688) - Unify the licence headers
+- [NUTCH-2689](https://issues.apache.org/jira/browse/NUTCH-2689) - Speed up urlfilter-regex and urlfilter-automaton
+- [NUTCH-2690](https://issues.apache.org/jira/browse/NUTCH-2690) - Configurable and fast URL filter
+- [NUTCH-2691](https://issues.apache.org/jira/browse/NUTCH-2691) - Improve logging from scoring-depth plugin
+- [NUTCH-2692](https://issues.apache.org/jira/browse/NUTCH-2692) - Subcollection to support case-insensitive white and black lists
+- [NUTCH-2693](https://issues.apache.org/jira/browse/NUTCH-2693) - Misspelled configuration property names in documentation
+- [NUTCH-2695](https://issues.apache.org/jira/browse/NUTCH-2695) - Fix some alerts raised by LGTM
+- [NUTCH-2700](https://issues.apache.org/jira/browse/NUTCH-2700) - Indexchecker: improve command-line help
+- [NUTCH-2701](https://issues.apache.org/jira/browse/NUTCH-2701) - Fetcher: log dates and times also in human-readable form
+- [NUTCH-2702](https://issues.apache.org/jira/browse/NUTCH-2702) - Fetcher: suppress stack for frequent exceptions
+- [NUTCH-2704](https://issues.apache.org/jira/browse/NUTCH-2704) - Upgrade crawler-commons dependency to 1.0
+- [NUTCH-2708](https://issues.apache.org/jira/browse/NUTCH-2708) - urlfilter-automaton: update library dependency (dk.brics.automaton)
+- [NUTCH-2709](https://issues.apache.org/jira/browse/NUTCH-2709) - Remove unused properties and code related to HTTP protocol
+- [NUTCH-2718](https://issues.apache.org/jira/browse/NUTCH-2718) - Names of index writers and exchanges configuration files to be configurable
+- [NUTCH-2719](https://issues.apache.org/jira/browse/NUTCH-2719) - NPE if exchanges.xml uses index writer not available
+- [NUTCH-2725](https://issues.apache.org/jira/browse/NUTCH-2725) - Plugin lib-http to support per-host configurable cookies
+- [NUTCH-2726](https://issues.apache.org/jira/browse/NUTCH-2726) - Upgrade to Tika 1.22
+- [NUTCH-2727](https://issues.apache.org/jira/browse/NUTCH-2727) - Upgrade Hadoop dependencies to 2.9.2
+- [NUTCH-2728](https://issues.apache.org/jira/browse/NUTCH-2728) - protocol-okhttp: upgrade okhttp dependency to 3.14.2
+- [NUTCH-2732](https://issues.apache.org/jira/browse/NUTCH-2732) - Ignored and tracked configuration files by git
+- [NUTCH-2736](https://issues.apache.org/jira/browse/NUTCH-2736) - Upgrade Dockerfile to be based on recent Ubuntu LTS version
+- [NUTCH-2737](https://issues.apache.org/jira/browse/NUTCH-2737) - Generator: count and log reason of rejections during selection
 
-Task
+### Task
 
-    [NUTCH-2192] - Get rid of oro
-    [NUTCH-2613] - Documentation for exchange component
-    [NUTCH-2698] - Remove sonar build task from build.xml
+- [NUTCH-2192](https://issues.apache.org/jira/browse/NUTCH-2192) - Get rid of oro
+- [NUTCH-2613](https://issues.apache.org/jira/browse/NUTCH-2613) - Documentation for exchange component
+- [NUTCH-2698](https://issues.apache.org/jira/browse/NUTCH-2698) - Remove sonar build task from build.xml
 
-Sub-task
+### Sub-task
 
-    [NUTCH-1121] - JUnit test for parse-js
-    [NUTCH-2621] - Generate report of third-party licenses
-    [NUTCH-2684] - Add README.md file to all indexer writers plugins
-    [NUTCH-2685] - Add README.md file to all exchange plugins
+- [NUTCH-1121](https://issues.apache.org/jira/browse/NUTCH-1121) - JUnit test for parse-js
+- [NUTCH-2621](https://issues.apache.org/jira/browse/NUTCH-2621) - Generate report of third-party licenses
+- [NUTCH-2684](https://issues.apache.org/jira/browse/NUTCH-2684) - Add README.md file to all indexer writers plugins
+- [NUTCH-2685](https://issues.apache.org/jira/browse/NUTCH-2685) - Add README.md file to all exchange plugins
 
 
-Nutch 1.15 Release (25/07/2018)
+## Nutch 1.15 Release (25/07/2018)
 Release Report: https://s.apache.org/nczS
 
-Breaking Changes
+### Breaking Changes
 
-    - indexer plugins are now configured in a single XML file (conf/index-writers.xml),
-      see https://cwiki.apache.org/confluence/display/NUTCH/IndexWriters - setting or overwriting configuration
-      parameters via Nutch properties is not possible anymore.
+- indexer plugins are now configured in a single XML file (conf/index-writers.xml),
+  see https://cwiki.apache.org/confluence/display/NUTCH/IndexWriters - setting or overwriting configuration
+  parameters via Nutch properties is not possible anymore.
 
-Bug
+### Bug
 
-    [NUTCH-1993] - Nutch does not use backup parsers
-    [NUTCH-2071] - A parser failure on a single document may fail crawling job if parser.timeout=-1
-    [NUTCH-2145] - parse/index checker fail to fetch valid percent-encoded URLs
-    [NUTCH-2161] - Interrupted failed and/or killed tasks fail to clean up temp directories in HDFS
-    [NUTCH-2273] - Selenium and InteractiveSelenium Do Not Support HTTPS
-    [NUTCH-2310] - Protocol-Selenium does not support HTTPS protocol
-    [NUTCH-2321] - Indexing filter checker leaks threads
-    [NUTCH-2324] - Issue in setting default linkdb path
-    [NUTCH-2447] - Work-around SSLProtocolException: handshake alert: unrecognized_name
-    [NUTCH-2454] - REST API fix for usage of hostdb in generator
-    [NUTCH-2461] - Generate passes the data to when maxCount == 0
-    [NUTCH-2466] - Sitemap processor to follow redirects
-    [NUTCH-2467] - Sitemap type field can be null
-    [NUTCH-2485] - ParserFactory swallows exception
-    [NUTCH-2486] - Compiler Warning: Unchecked / unsafe operations in MimeTypeIndexingFilter
-    [NUTCH-2489] - Dependency collision with lucene-analyzers-common in scoring-similarity plugin
-    [NUTCH-2490] - Sitemap processing: Sitemap index files not working
-    [NUTCH-2494] - Fetcher: java.lang.IllegalArgumentException: Wrong FS: s3
-    [NUTCH-2499] - Elastic REST Indexer: Duplicate values
-    [NUTCH-2505] - nutch does not delete the .locked file, when the generator partition got an exception
-    [NUTCH-2508] - Misleading documentation about http.proxy.exception.list
-    [NUTCH-2509] - Inconsistent behavior in SitemapProcessor
-    [NUTCH-2513] - ant eclipse target fails with "protocol switch unsafe"
-    [NUTCH-2517] - mergesegs corrupts segment data
-    [NUTCH-2518] - Must check return value of job.waitForCompletion()
-    [NUTCH-2520] - Wrong Accept-Charset sent when http.accept.charset is not defined
-    [NUTCH-2521] - SitemapProcessor to use property sitemap.redir.max
-    [NUTCH-2523] - UpdateHostDB blocks usage of plugins unintentionally
-    [NUTCH-2524] - bin/crawl: fix check for HostDb in distributed mode
-    [NUTCH-2533] - Injector: NullPointerException if seed URL dir contains non-file entries
-    [NUTCH-2535] - CrawlDbReader -stats: ClassCastException
-    [NUTCH-2544] - Nutch 1.15 no longer compatible with AWS EMR and S3
-    [NUTCH-2547] - urlnormalizer-basic fails on special characters in path/query
-    [NUTCH-2549] - protocol-http does not behave the same as browsers
-    [NUTCH-2550] - Fetcher fails to follow redirects
-    [NUTCH-2551] - NullPointerException in generator
-    [NUTCH-2552] - CrawlDbReader -topN fails
-    [NUTCH-2553] - Fetcher not to modify URLs to be fetched
-    [NUTCH-2554] - parserchecker can't fetch some URLs
-    [NUTCH-2565] - MergeDB incorrectly handles unfetched CrawlDatums
-    [NUTCH-2568] - Caught exception is immediately rethrown
-    [NUTCH-2569] - ClassNotFoundException when running in (pseudo-)distributed mode
-    [NUTCH-2570] - Deduplication job fails to install deduplicated CrawlDb
-    [NUTCH-2571] - SegmentReader -list fails to read segment
-    [NUTCH-2572] - HostDb: updatehostdb does not set values
-    [NUTCH-2574] - Generator: hostCount >= maxCount comparison wrong
-    [NUTCH-2581] - Caching of redirected robots.txt may overwrite correct robots.txt rules
-    [NUTCH-2589] - HTML redirections are not followed when using parse-tika
-    [NUTCH-2590] - SegmentReader -get fails
-    [NUTCH-2592] - Fetcher to log reason of failed fetches
-    [NUTCH-2593] - Single mode doesn't work in RabbitMQ indexer
-    [NUTCH-2597] - NPE in updatehostdb
-    [NUTCH-2601] - Elasticsearch Rest and Amazon CloudSearch have the same implementation class in indexer-writers.xml
-    [NUTCH-2607] - ParserChecker should call ScoringFilters.passScoreAfterParsing() on all parses
-    [NUTCH-2609] - urlnormalizer-basic to normalize path of file: URLs
-    [NUTCH-2614] - NPE in CrawlDbReader -stats on empty CrawlDb
-    [NUTCH-2616] - Review routing of deletions by Exchange component
-    [NUTCH-2618] - protocol-okhttp not to use http.timeout for max duration to fetch document
-    [NUTCH-2620] - urlfilter-validator incorrectly assumes that top-level domains are not longer than 4 characters
-    [NUTCH-2624] - protocol-okhttp resource leak
+- [NUTCH-1993](https://issues.apache.org/jira/browse/NUTCH-1993) - Nutch does not use backup parsers
+- [NUTCH-2071](https://issues.apache.org/jira/browse/NUTCH-2071) - A parser failure on a single document may fail crawling job if parser.timeout=-1
+- [NUTCH-2145](https://issues.apache.org/jira/browse/NUTCH-2145) - parse/index checker fail to fetch valid percent-encoded URLs
+- [NUTCH-2161](https://issues.apache.org/jira/browse/NUTCH-2161) - Interrupted failed and/or killed tasks fail to clean up temp directories in HDFS
+- [NUTCH-2273](https://issues.apache.org/jira/browse/NUTCH-2273) - Selenium and InteractiveSelenium Do Not Support HTTPS
+- [NUTCH-2310](https://issues.apache.org/jira/browse/NUTCH-2310) - Protocol-Selenium does not support HTTPS protocol
+- [NUTCH-2321](https://issues.apache.org/jira/browse/NUTCH-2321) - Indexing filter checker leaks threads
+- [NUTCH-2324](https://issues.apache.org/jira/browse/NUTCH-2324) - Issue in setting default linkdb path
+- [NUTCH-2447](https://issues.apache.org/jira/browse/NUTCH-2447) - Work-around SSLProtocolException: handshake alert: unrecognized_name
+- [NUTCH-2454](https://issues.apache.org/jira/browse/NUTCH-2454) - REST API fix for usage of hostdb in generator
+- [NUTCH-2461](https://issues.apache.org/jira/browse/NUTCH-2461) - Generate passes the data to when maxCount == 0
+- [NUTCH-2466](https://issues.apache.org/jira/browse/NUTCH-2466) - Sitemap processor to follow redirects
+- [NUTCH-2467](https://issues.apache.org/jira/browse/NUTCH-2467) - Sitemap type field can be null
+- [NUTCH-2485](https://issues.apache.org/jira/browse/NUTCH-2485) - ParserFactory swallows exception
+- [NUTCH-2486](https://issues.apache.org/jira/browse/NUTCH-2486) - Compiler Warning: Unchecked / unsafe operations in MimeTypeIndexingFilter
+- [NUTCH-2489](https://issues.apache.org/jira/browse/NUTCH-2489) - Dependency collision with lucene-analyzers-common in scoring-similarity plugin
+- [NUTCH-2490](https://issues.apache.org/jira/browse/NUTCH-2490) - Sitemap processing: Sitemap index files not working
+- [NUTCH-2494](https://issues.apache.org/jira/browse/NUTCH-2494) - Fetcher: java.lang.IllegalArgumentException: Wrong FS: s3
+- [NUTCH-2499](https://issues.apache.org/jira/browse/NUTCH-2499) - Elastic REST Indexer: Duplicate values
+- [NUTCH-2505](https://issues.apache.org/jira/browse/NUTCH-2505) - nutch does not delete the .locked file, when the generator partition got an exception
+- [NUTCH-2508](https://issues.apache.org/jira/browse/NUTCH-2508) - Misleading documentation about http.proxy.exception.list
+- [NUTCH-2509](https://issues.apache.org/jira/browse/NUTCH-2509) - Inconsistent behavior in SitemapProcessor
+- [NUTCH-2513](https://issues.apache.org/jira/browse/NUTCH-2513) - ant eclipse target fails with "protocol switch unsafe"
+- [NUTCH-2517](https://issues.apache.org/jira/browse/NUTCH-2517) - mergesegs corrupts segment data
+- [NUTCH-2518](https://issues.apache.org/jira/browse/NUTCH-2518) - Must check return value of job.waitForCompletion()
+- [NUTCH-2520](https://issues.apache.org/jira/browse/NUTCH-2520) - Wrong Accept-Charset sent when http.accept.charset is not defined
+- [NUTCH-2521](https://issues.apache.org/jira/browse/NUTCH-2521) - SitemapProcessor to use property sitemap.redir.max
+- [NUTCH-2523](https://issues.apache.org/jira/browse/NUTCH-2523) - UpdateHostDB blocks usage of plugins unintentionally
+- [NUTCH-2524](https://issues.apache.org/jira/browse/NUTCH-2524) - bin/crawl: fix check for HostDb in distributed mode
+- [NUTCH-2533](https://issues.apache.org/jira/browse/NUTCH-2533) - Injector: NullPointerException if seed URL dir contains non-file entries
+- [NUTCH-2535](https://issues.apache.org/jira/browse/NUTCH-2535) - CrawlDbReader -stats: ClassCastException
+- [NUTCH-2544](https://issues.apache.org/jira/browse/NUTCH-2544) - Nutch 1.15 no longer compatible with AWS EMR and S3
+- [NUTCH-2547](https://issues.apache.org/jira/browse/NUTCH-2547) - urlnormalizer-basic fails on special characters in path/query
+- [NUTCH-2549](https://issues.apache.org/jira/browse/NUTCH-2549) - protocol-http does not behave the same as browsers
+- [NUTCH-2550](https://issues.apache.org/jira/browse/NUTCH-2550) - Fetcher fails to follow redirects
+- [NUTCH-2551](https://issues.apache.org/jira/browse/NUTCH-2551) - NullPointerException in generator
+- [NUTCH-2552](https://issues.apache.org/jira/browse/NUTCH-2552) - CrawlDbReader -topN fails
+- [NUTCH-2553](https://issues.apache.org/jira/browse/NUTCH-2553) - Fetcher not to modify URLs to be fetched
+- [NUTCH-2554](https://issues.apache.org/jira/browse/NUTCH-2554) - parserchecker can't fetch some URLs
+- [NUTCH-2565](https://issues.apache.org/jira/browse/NUTCH-2565) - MergeDB incorrectly handles unfetched CrawlDatums
+- [NUTCH-2568](https://issues.apache.org/jira/browse/NUTCH-2568) - Caught exception is immediately rethrown
+- [NUTCH-2569](https://issues.apache.org/jira/browse/NUTCH-2569) - ClassNotFoundException when running in (pseudo-)distributed mode
+- [NUTCH-2570](https://issues.apache.org/jira/browse/NUTCH-2570) - Deduplication job fails to install deduplicated CrawlDb
+- [NUTCH-2571](https://issues.apache.org/jira/browse/NUTCH-2571) - SegmentReader -list fails to read segment
+- [NUTCH-2572](https://issues.apache.org/jira/browse/NUTCH-2572) - HostDb: updatehostdb does not set values
+- [NUTCH-2574](https://issues.apache.org/jira/browse/NUTCH-2574) - Generator: hostCount >= maxCount comparison wrong
+- [NUTCH-2581](https://issues.apache.org/jira/browse/NUTCH-2581) - Caching of redirected robots.txt may overwrite correct robots.txt rules
+- [NUTCH-2589](https://issues.apache.org/jira/browse/NUTCH-2589) - HTML redirections are not followed when using parse-tika
+- [NUTCH-2590](https://issues.apache.org/jira/browse/NUTCH-2590) - SegmentReader -get fails
+- [NUTCH-2592](https://issues.apache.org/jira/browse/NUTCH-2592) - Fetcher to log reason of failed fetches
+- [NUTCH-2593](https://issues.apache.org/jira/browse/NUTCH-2593) - Single mode doesn't work in RabbitMQ indexer
+- [NUTCH-2597](https://issues.apache.org/jira/browse/NUTCH-2597) - NPE in updatehostdb
+- [NUTCH-2601](https://issues.apache.org/jira/browse/NUTCH-2601) - Elasticsearch Rest and Amazon CloudSearch have the same implementation class in indexer-writers.xml
+- [NUTCH-2607](https://issues.apache.org/jira/browse/NUTCH-2607) - ParserChecker should call ScoringFilters.passScoreAfterParsing() on all parses
+- [NUTCH-2609](https://issues.apache.org/jira/browse/NUTCH-2609) - urlnormalizer-basic to normalize path of file: URLs
+- [NUTCH-2614](https://issues.apache.org/jira/browse/NUTCH-2614) - NPE in CrawlDbReader -stats on empty CrawlDb
+- [NUTCH-2616](https://issues.apache.org/jira/browse/NUTCH-2616) - Review routing of deletions by Exchange component
+- [NUTCH-2618](https://issues.apache.org/jira/browse/NUTCH-2618) - protocol-okhttp not to use http.timeout for max duration to fetch document
+- [NUTCH-2620](https://issues.apache.org/jira/browse/NUTCH-2620) - urlfilter-validator incorrectly assumes that top-level domains are not longer than 4 characters
+- [NUTCH-2624](https://issues.apache.org/jira/browse/NUTCH-2624) - protocol-okhttp resource leak
 
-New Feature
+### New Feature
 
-    [NUTCH-1129] - Any23 Nutch plugin
-    [NUTCH-1541] - Indexer plugin to write CSV
-    [NUTCH-2412] - Exchange component for indexing job
-    [NUTCH-2492] - Add more configuration parameters to crawl script
+- [NUTCH-1129](https://issues.apache.org/jira/browse/NUTCH-1129) - Any23 Nutch plugin
+- [NUTCH-1541](https://issues.apache.org/jira/browse/NUTCH-1541) - Indexer plugin to write CSV
+- [NUTCH-2412](https://issues.apache.org/jira/browse/NUTCH-2412) - Exchange component for indexing job
+- [NUTCH-2492](https://issues.apache.org/jira/browse/NUTCH-2492) - Add more configuration parameters to crawl script
 
-Improvement
+### Improvement
 
-    [NUTCH-1106] - Options to skip url's based on length
-    [NUTCH-1480] - SolrIndexer to write to multiple servers.
-    [NUTCH-2012] - Merge parsechecker and indexchecker
-    [NUTCH-2375] - Upgrade the code base from org.apache.hadoop.mapred to org.apache.hadoop.mapreduce
-    [NUTCH-2390] - No documentation on pluggable indexing
-    [NUTCH-2411] - Index-metadata to support indexing multiple values for a field
-    [NUTCH-2416] - Fetcher to log thread ID
-    [NUTCH-2432] - Protocol httpclient to disable cookies if http.enable.cookie.header is false
-    [NUTCH-2441] - ARG_SEGMENT usage
-    [NUTCH-2491] - Integrate sitemap processing and HostDB into crawl script
-    [NUTCH-2493] - Add configuration parameter for sitemap processing to crawler script
-    [NUTCH-2497] - Elastic REST Indexer: Allow multiple hosts
-    [NUTCH-2502] - Any23 Plugin: Add Content-Type filtering
-    [NUTCH-2503] - Add option to run tests for a single plugin
-    [NUTCH-2510] - Crawl script modification. HostDb : generate, optional usage and description
-    [NUTCH-2516] - Hadoop imports use wildcards
-    [NUTCH-2519] - Log mapreduce job counters in local mode
-    [NUTCH-2526] - NPE in scoring-opic when indexing document without CrawlDb datum
-    [NUTCH-2527] - URL filter: provide rules to exclude localhost and private address spaces
-    [NUTCH-2530] - Rename property db.max.anchor.length > linkdb.max.anchor.length
-    [NUTCH-2534] - CrawlDbReader -stats: make score quantiles configurable
-    [NUTCH-2539] - Not correct naming of db.url.filters and db.url.normalizers in nutch-default.xml
-    [NUTCH-2543] - readdb & readlinkdb to implement AbstractChecker
-    [NUTCH-2545] - Upgrade to Any23 2.2
-    [NUTCH-2566] - Fix exception log messages
-    [NUTCH-2576] - HTTP protocol plugin based on okhttp
-    [NUTCH-2577] - protocol-selenium can't handle https
-    [NUTCH-2578] - Avoid lock by MimeUtil in constructor of protocol.Content
-    [NUTCH-2579] - Fetcher to use parsed URL to call ProtocolFactory.getProtocol(url)
-    [NUTCH-2580] - Improvements for Rabbitmq support
-    [NUTCH-2583] - Upgrading Nutch's dependencies
-    [NUTCH-2584] - Upgrade parse-tika to use Tika 1.18
-    [NUTCH-2594] - Documentation for indexer plugins
-    [NUTCH-2595] - Upgrade crawler-commons dependency to 0.10
-    [NUTCH-2600] - Refactoring indexer-solr
-    [NUTCH-2611] - Add line-breaks when parsing HTML block-level elements
-    [NUTCH-2617] - Disable Exchange component by default
-    [NUTCH-2619] - protocol-okhttp: allow to keep partially fetched docs as truncated
+- [NUTCH-1106](https://issues.apache.org/jira/browse/NUTCH-1106) - Options to skip url's based on length
+- [NUTCH-1480](https://issues.apache.org/jira/browse/NUTCH-1480) - SolrIndexer to write to multiple servers.
+- [NUTCH-2012](https://issues.apache.org/jira/browse/NUTCH-2012) - Merge parsechecker and indexchecker
+- [NUTCH-2375](https://issues.apache.org/jira/browse/NUTCH-2375) - Upgrade the code base from org.apache.hadoop.mapred to org.apache.hadoop.mapreduce
+- [NUTCH-2390](https://issues.apache.org/jira/browse/NUTCH-2390) - No documentation on pluggable indexing
+- [NUTCH-2411](https://issues.apache.org/jira/browse/NUTCH-2411) - Index-metadata to support indexing multiple values for a field
+- [NUTCH-2416](https://issues.apache.org/jira/browse/NUTCH-2416) - Fetcher to log thread ID
+- [NUTCH-2432](https://issues.apache.org/jira/browse/NUTCH-2432) - Protocol httpclient to disable cookies if http.enable.cookie.header is false
+- [NUTCH-2441](https://issues.apache.org/jira/browse/NUTCH-2441) - ARG_SEGMENT usage
+- [NUTCH-2491](https://issues.apache.org/jira/browse/NUTCH-2491) - Integrate sitemap processing and HostDB into crawl script
+- [NUTCH-2493](https://issues.apache.org/jira/browse/NUTCH-2493) - Add configuration parameter for sitemap processing to crawler script
+- [NUTCH-2497](https://issues.apache.org/jira/browse/NUTCH-2497) - Elastic REST Indexer: Allow multiple hosts
+- [NUTCH-2502](https://issues.apache.org/jira/browse/NUTCH-2502) - Any23 Plugin: Add Content-Type filtering
+- [NUTCH-2503](https://issues.apache.org/jira/browse/NUTCH-2503) - Add option to run tests for a single plugin
+- [NUTCH-2510](https://issues.apache.org/jira/browse/NUTCH-2510) - Crawl script modification. HostDb : generate, optional usage and description
+- [NUTCH-2516](https://issues.apache.org/jira/browse/NUTCH-2516) - Hadoop imports use wildcards
+- [NUTCH-2519](https://issues.apache.org/jira/browse/NUTCH-2519) - Log mapreduce job counters in local mode
+- [NUTCH-2526](https://issues.apache.org/jira/browse/NUTCH-2526) - NPE in scoring-opic when indexing document without CrawlDb datum
+- [NUTCH-2527](https://issues.apache.org/jira/browse/NUTCH-2527) - URL filter: provide rules to exclude localhost and private address spaces
+- [NUTCH-2530](https://issues.apache.org/jira/browse/NUTCH-2530) - Rename property db.max.anchor.length > linkdb.max.anchor.length
+- [NUTCH-2534](https://issues.apache.org/jira/browse/NUTCH-2534) - CrawlDbReader -stats: make score quantiles configurable
+- [NUTCH-2539](https://issues.apache.org/jira/browse/NUTCH-2539) - Not correct naming of db.url.filters and db.url.normalizers in nutch-default.xml
+- [NUTCH-2543](https://issues.apache.org/jira/browse/NUTCH-2543) - readdb & readlinkdb to implement AbstractChecker
+- [NUTCH-2545](https://issues.apache.org/jira/browse/NUTCH-2545) - Upgrade to Any23 2.2
+- [NUTCH-2566](https://issues.apache.org/jira/browse/NUTCH-2566) - Fix exception log messages
+- [NUTCH-2576](https://issues.apache.org/jira/browse/NUTCH-2576) - HTTP protocol plugin based on okhttp
+- [NUTCH-2577](https://issues.apache.org/jira/browse/NUTCH-2577) - protocol-selenium can't handle https
+- [NUTCH-2578](https://issues.apache.org/jira/browse/NUTCH-2578) - Avoid lock by MimeUtil in constructor of protocol.Content
+- [NUTCH-2579](https://issues.apache.org/jira/browse/NUTCH-2579) - Fetcher to use parsed URL to call ProtocolFactory.getProtocol(url)
+- [NUTCH-2580](https://issues.apache.org/jira/browse/NUTCH-2580) - Improvements for Rabbitmq support
+- [NUTCH-2583](https://issues.apache.org/jira/browse/NUTCH-2583) - Upgrading Nutch's dependencies
+- [NUTCH-2584](https://issues.apache.org/jira/browse/NUTCH-2584) - Upgrade parse-tika to use Tika 1.18
+- [NUTCH-2594](https://issues.apache.org/jira/browse/NUTCH-2594) - Documentation for indexer plugins
+- [NUTCH-2595](https://issues.apache.org/jira/browse/NUTCH-2595) - Upgrade crawler-commons dependency to 0.10
+- [NUTCH-2600](https://issues.apache.org/jira/browse/NUTCH-2600) - Refactoring indexer-solr
+- [NUTCH-2611](https://issues.apache.org/jira/browse/NUTCH-2611) - Add line-breaks when parsing HTML block-level elements
+- [NUTCH-2617](https://issues.apache.org/jira/browse/NUTCH-2617) - Disable Exchange component by default
+- [NUTCH-2619](https://issues.apache.org/jira/browse/NUTCH-2619) - protocol-okhttp: allow to keep partially fetched docs as truncated
 
-Task
+### Task
 
-    [NUTCH-1219] - Upgrade all jobs to new MapReduce API
-    [NUTCH-1228] - Change mapred.task.timeout to mapreduce.task.timeout in fetcher
+- [NUTCH-1219](https://issues.apache.org/jira/browse/NUTCH-1219) - Upgrade all jobs to new MapReduce API
+- [NUTCH-1228](https://issues.apache.org/jira/browse/NUTCH-1228) - Change mapred.task.timeout to mapreduce.task.timeout in fetcher
 
-Sub-task
+### Sub-task
 
-    [NUTCH-1223] - Migrate WebGraph to MapReduce API
-    [NUTCH-1224] - Migrate FreeGenerator to MapReduce API
-    [NUTCH-1226] - Migrate CrawlDbReader to MapReduce API
-    [NUTCH-2152] - CommonCrawl dump via Service endpoint
-    [NUTCH-2555] - URL normalization problem: path not starting with a '/'
-    [NUTCH-2556] - protocol-http makes invalid HTTP/1.0 requests
-    [NUTCH-2557] - protocol-http fails to follow redirections when an HTTP response body is invalid
-    [NUTCH-2558] - protocol-http cannot handle a missing HTTP status line
-    [NUTCH-2559] - protocol-http cannot handle colons after the HTTP status code
-    [NUTCH-2560] - protocol-http throws an error when an http header spans over multiple lines
-    [NUTCH-2561] - protocol-http can be made to read arbitrarily large HTTP responses
-    [NUTCH-2562] - protocol-http fails to read large chunked HTTP responses
-    [NUTCH-2563] - HTTP header spellchecking issues
-    [NUTCH-2575] - protocol-http does not respect the maximum content-size for chunked responses
-    [NUTCH-2622] - Unbundle LGPL-licensed jars from binary release
-
-
-Nutch 1.14 Release 18/12/2017 (dd/mm/yyyy)
-
-    - the bin/crawl script now expects the path to the seed to be preceded by -s  (NUTCH-2046)
-
-Bug
-
-    [NUTCH-2071] - A parser failure on a single document may fail crawling job
-    [NUTCH-2235] - Classpath discrepancy with protocol-selenium in deploy mode
-    [NUTCH-2269] - Clean not working after crawl
-    [NUTCH-2295] - Nutch master docker container broken
-    [NUTCH-2297] - CrawlDbReader -stats wrong values for earliest fetch time and shortest interval
-    [NUTCH-2316] - Library conflict with Parser-Tika Plugin and Lib Folder
-    [NUTCH-2317] - Plugin jars don't get added to classpath while running in local
-    [NUTCH-2322] - URL not available for Jexl operations
-    [NUTCH-2354] - Upgrade Hadoop dependencies to 2.7.4
-    [NUTCH-2365] - HTTP Redirects to SubDomains don't get crawled if db.ignore.external.links.mode == byDomain
-    [NUTCH-2371] - Injector to support noFilter and noNormalize
-    [NUTCH-2372] - Javadocs build failing.
-    [NUTCH-2386] - BasicURLNormalizer does not encode curly braces
-    [NUTCH-2391] - Spurious Duplications for MD5
-    [NUTCH-2394] - Possible bugs in the source code
-    [NUTCH-2398] - Fetcher saving redirected robots.txt under redirect target URL
-    [NUTCH-2399] - indexer-elastic does not index multi-value fields (only the first value is indexed)
-    [NUTCH-2401] - headings plugin does not trim values
-    [NUTCH-2403] - Nutch Selenium: Wrong documentation about PhantomJS
-    [NUTCH-2413] - Parsing fetcher to respect property "parse.filter.urls"
-    [NUTCH-2420] - Bug in variable generate.max.count and fetcher.server.delay
-    [NUTCH-2436] - Remove empty comment, and redundant semicolon from CommandRunner
-    [NUTCH-2442] - Injector to stop if job fails to avoid loss of CrawlDb
-    [NUTCH-2444] - HostDB CSV dumper to emit field header by default
-    [NUTCH-2446] - URLFiltersCheck fix
-    [NUTCH-2448] - Allow Sending an empty http.agent.version
-    [NUTCH-2451] - protocol-ftp to resolve relative URL when following redirects
-    [NUTCH-2452] - Problem retrieving encoded URLs via FTP?
-    [NUTCH-2456] - Allow to index pages/URLs not contained in CrawlDb
-    [NUTCH-2458] - TikaParser doesn't work with tika-config.xml set
-    [NUTCH-2464] - Plugin headings: Headers That Contain HTML Elements Are Not Parsed
-    [NUTCH-2465] - Broken Eclipse project. Classpaths and interactiveselenium should be fixed.
-    [NUTCH-2472] - Sitemap processor does not honour db.ignore.external.links
-    [NUTCH-2473] - Elasticsearch REST Indexer broken due to wrong depenency
-    [NUTCH-2474] - CrawlDbReader -stats fails with ClassCastException
-    [NUTCH-2478] - // is not a valid base URL
-    [NUTCH-2483] - Remove/replace indirect dependencies to org.json
-
-Improvement
-
-    [NUTCH-1763] - Improving comments on the Injector Class
-    [NUTCH-2034] - CrawlDB filtered documents counter.
-    [NUTCH-2035] - Regex filter using case sensitive rules.
-    [NUTCH-2046] - The crawl script should be able to skip an initial injection.
-    [NUTCH-2135] - Ant Eclipse build does not include protocol-interactiveselenium
-    [NUTCH-2193] - Upgrade feed parser plugin to use rome 1.5
-    [NUTCH-2216] - db.ignore.*.links to optionally follow internal redirects
-    [NUTCH-2281] - Support non-default FileSystem
-    [NUTCH-2296] - Elasticsearch Indexing Over Rest
-    [NUTCH-2320] - URLFilterChecker to run as TCP Telnet service
-    [NUTCH-2335] - Injector not to filter and normalize existing URLs in CrawlDb
-    [NUTCH-2362] - Upgrade MaxMind GeoIP version in index-geoip
-    [NUTCH-2368] - Variable generate.max.count and fetcher.server.delay
-    [NUTCH-2370] - FileDumper: save JSON mapping file -> URL
-    [NUTCH-2376] - Improve configurability of HTTP Accept* header fields
-    [NUTCH-2378] - ChildFirst plugin classloader
-    [NUTCH-2380] - indexer-elastic version upgrade to 5.3.0
-    [NUTCH-2397] - Parser to add paragraph line breaks
-    [NUTCH-2400] - Solr 6.6.0 compatibility
-    [NUTCH-2406] - Sum up constants, make minor changes
-    [NUTCH-2408] - CrawlDb: allow update from unparsed segments
-    [NUTCH-2409] - Injector: complete command-line help and counters
-    [NUTCH-2414] - Allow LanguageIndexingFilter to actually filter documents by language.
-    [NUTCH-2430] - Complete plugin build configuration
-    [NUTCH-2431] - URLFilterchecker to implement Tool-interface
-    [NUTCH-2439] - Upgrade to Apache Tika 1.17
-    [NUTCH-2443] - Extract links from the video tag with the parse-html plugin
-    [NUTCH-2445] - Fetcher following outlinks to keep track of already fetched items
-    [NUTCH-2463] - Enable sampling CrawlDB
-    [NUTCH-2468] - should filter out invalid URLs by default
-    [NUTCH-2470] - CrawlDbReader -stats to show quantiles of score
-    [NUTCH-2477] - Refactor *Checker classes to use base class for common code
-    [NUTCH-2480] - Upgrade crawler-commons dependency to 0.9
-
-New Feature
-
-    [NUTCH-1465] - Support sitemaps in Nutch
-    [NUTCH-1932] - Automatically remove orphaned pages
-    [NUTCH-2333] - Indexer for RabbitMQ
-    [NUTCH-2338] - URLNormalizerChecker to run as TCP Telnet service
-    [NUTCH-2415] - Create a JEXL based IndexingFilter
-    [NUTCH-2433] - Html Parser: keep htmltag where the outlinks are found
-    [NUTCH-2435] - New configuration allowing to choose whether to store 'parse_text' directory or not.
-    [NUTCH-2484] - Extend indexer-elastic-rest to support languages
-
-Task
-
-    [NUTCH-2181] - Add Webpage for 3rd Party Connectors/Libraries to Apache Nutch
+- [NUTCH-1223](https://issues.apache.org/jira/browse/NUTCH-1223) - Migrate WebGraph to MapReduce API
+- [NUTCH-1224](https://issues.apache.org/jira/browse/NUTCH-1224) - Migrate FreeGenerator to MapReduce API
+- [NUTCH-1226](https://issues.apache.org/jira/browse/NUTCH-1226) - Migrate CrawlDbReader to MapReduce API
+- [NUTCH-2152](https://issues.apache.org/jira/browse/NUTCH-2152) - CommonCrawl dump via Service endpoint
+- [NUTCH-2555](https://issues.apache.org/jira/browse/NUTCH-2555) - URL normalization problem: path not starting with a '/'
+- [NUTCH-2556](https://issues.apache.org/jira/browse/NUTCH-2556) - protocol-http makes invalid HTTP/1.0 requests
+- [NUTCH-2557](https://issues.apache.org/jira/browse/NUTCH-2557) - protocol-http fails to follow redirections when an HTTP response body is invalid
+- [NUTCH-2558](https://issues.apache.org/jira/browse/NUTCH-2558) - protocol-http cannot handle a missing HTTP status line
+- [NUTCH-2559](https://issues.apache.org/jira/browse/NUTCH-2559) - protocol-http cannot handle colons after the HTTP status code
+- [NUTCH-2560](https://issues.apache.org/jira/browse/NUTCH-2560) - protocol-http throws an error when an http header spans over multiple lines
+- [NUTCH-2561](https://issues.apache.org/jira/browse/NUTCH-2561) - protocol-http can be made to read arbitrarily large HTTP responses
+- [NUTCH-2562](https://issues.apache.org/jira/browse/NUTCH-2562) - protocol-http fails to read large chunked HTTP responses
+- [NUTCH-2563](https://issues.apache.org/jira/browse/NUTCH-2563) - HTTP header spellchecking issues
+- [NUTCH-2575](https://issues.apache.org/jira/browse/NUTCH-2575) - protocol-http does not respect the maximum content-size for chunked responses
+- [NUTCH-2622](https://issues.apache.org/jira/browse/NUTCH-2622) - Unbundle LGPL-licensed jars from binary release
 
 
-Nutch 1.13 Release 28/03/2017 (dd/mm/yyyy)
+## Nutch 1.14 Release 18/12/2017 (dd/mm/yyyy)
+
+### Breaking Changes
+
+- the bin/crawl script now expects the path to the seed to be preceded by -s  (NUTCH-2046)
+
+### Bug
+
+- [NUTCH-2071](https://issues.apache.org/jira/browse/NUTCH-2071) - A parser failure on a single document may fail crawling job
+- [NUTCH-2235](https://issues.apache.org/jira/browse/NUTCH-2235) - Classpath discrepancy with protocol-selenium in deploy mode
+- [NUTCH-2269](https://issues.apache.org/jira/browse/NUTCH-2269) - Clean not working after crawl
+- [NUTCH-2295](https://issues.apache.org/jira/browse/NUTCH-2295) - Nutch master docker container broken
+- [NUTCH-2297](https://issues.apache.org/jira/browse/NUTCH-2297) - CrawlDbReader -stats wrong values for earliest fetch time and shortest interval
+- [NUTCH-2316](https://issues.apache.org/jira/browse/NUTCH-2316) - Library conflict with Parser-Tika Plugin and Lib Folder
+- [NUTCH-2317](https://issues.apache.org/jira/browse/NUTCH-2317) - Plugin jars don't get added to classpath while running in local
+- [NUTCH-2322](https://issues.apache.org/jira/browse/NUTCH-2322) - URL not available for Jexl operations
+- [NUTCH-2354](https://issues.apache.org/jira/browse/NUTCH-2354) - Upgrade Hadoop dependencies to 2.7.4
+- [NUTCH-2365](https://issues.apache.org/jira/browse/NUTCH-2365) - HTTP Redirects to SubDomains don't get crawled if db.ignore.external.links.mode == byDomain
+- [NUTCH-2371](https://issues.apache.org/jira/browse/NUTCH-2371) - Injector to support noFilter and noNormalize
+- [NUTCH-2372](https://issues.apache.org/jira/browse/NUTCH-2372) - Javadocs build failing.
+- [NUTCH-2386](https://issues.apache.org/jira/browse/NUTCH-2386) - BasicURLNormalizer does not encode curly braces
+- [NUTCH-2391](https://issues.apache.org/jira/browse/NUTCH-2391) - Spurious Duplications for MD5
+- [NUTCH-2394](https://issues.apache.org/jira/browse/NUTCH-2394) - Possible bugs in the source code
+- [NUTCH-2398](https://issues.apache.org/jira/browse/NUTCH-2398) - Fetcher saving redirected robots.txt under redirect target URL
+- [NUTCH-2399](https://issues.apache.org/jira/browse/NUTCH-2399) - indexer-elastic does not index multi-value fields (only the first value is indexed)
+- [NUTCH-2401](https://issues.apache.org/jira/browse/NUTCH-2401) - headings plugin does not trim values
+- [NUTCH-2403](https://issues.apache.org/jira/browse/NUTCH-2403) - Nutch Selenium: Wrong documentation about PhantomJS
+- [NUTCH-2413](https://issues.apache.org/jira/browse/NUTCH-2413) - Parsing fetcher to respect property "parse.filter.urls"
+- [NUTCH-2420](https://issues.apache.org/jira/browse/NUTCH-2420) - Bug in variable generate.max.count and fetcher.server.delay
+- [NUTCH-2436](https://issues.apache.org/jira/browse/NUTCH-2436) - Remove empty comment, and redundant semicolon from CommandRunner
+- [NUTCH-2442](https://issues.apache.org/jira/browse/NUTCH-2442) - Injector to stop if job fails to avoid loss of CrawlDb
+- [NUTCH-2444](https://issues.apache.org/jira/browse/NUTCH-2444) - HostDB CSV dumper to emit field header by default
+- [NUTCH-2446](https://issues.apache.org/jira/browse/NUTCH-2446) - URLFiltersCheck fix
+- [NUTCH-2448](https://issues.apache.org/jira/browse/NUTCH-2448) - Allow Sending an empty http.agent.version
+- [NUTCH-2451](https://issues.apache.org/jira/browse/NUTCH-2451) - protocol-ftp to resolve relative URL when following redirects
+- [NUTCH-2452](https://issues.apache.org/jira/browse/NUTCH-2452) - Problem retrieving encoded URLs via FTP?
+- [NUTCH-2456](https://issues.apache.org/jira/browse/NUTCH-2456) - Allow to index pages/URLs not contained in CrawlDb
+- [NUTCH-2458](https://issues.apache.org/jira/browse/NUTCH-2458) - TikaParser doesn't work with tika-config.xml set
+- [NUTCH-2464](https://issues.apache.org/jira/browse/NUTCH-2464) - Plugin headings: Headers That Contain HTML Elements Are Not Parsed
+- [NUTCH-2465](https://issues.apache.org/jira/browse/NUTCH-2465) - Broken Eclipse project. Classpaths and interactiveselenium should be fixed.
+- [NUTCH-2472](https://issues.apache.org/jira/browse/NUTCH-2472) - Sitemap processor does not honour db.ignore.external.links
+- [NUTCH-2473](https://issues.apache.org/jira/browse/NUTCH-2473) - Elasticsearch REST Indexer broken due to wrong depenency
+- [NUTCH-2474](https://issues.apache.org/jira/browse/NUTCH-2474) - CrawlDbReader -stats fails with ClassCastException
+- [NUTCH-2478](https://issues.apache.org/jira/browse/NUTCH-2478) - // is not a valid base URL
+- [NUTCH-2483](https://issues.apache.org/jira/browse/NUTCH-2483) - Remove/replace indirect dependencies to org.json
+
+### Improvement
+
+- [NUTCH-1763](https://issues.apache.org/jira/browse/NUTCH-1763) - Improving comments on the Injector Class
+- [NUTCH-2034](https://issues.apache.org/jira/browse/NUTCH-2034) - CrawlDB filtered documents counter.
+- [NUTCH-2035](https://issues.apache.org/jira/browse/NUTCH-2035) - Regex filter using case sensitive rules.
+- [NUTCH-2046](https://issues.apache.org/jira/browse/NUTCH-2046) - The crawl script should be able to skip an initial injection.
+- [NUTCH-2135](https://issues.apache.org/jira/browse/NUTCH-2135) - Ant Eclipse build does not include protocol-interactiveselenium
+- [NUTCH-2193](https://issues.apache.org/jira/browse/NUTCH-2193) - Upgrade feed parser plugin to use rome 1.5
+- [NUTCH-2216](https://issues.apache.org/jira/browse/NUTCH-2216) - db.ignore.*.links to optionally follow internal redirects
+- [NUTCH-2281](https://issues.apache.org/jira/browse/NUTCH-2281) - Support non-default FileSystem
+- [NUTCH-2296](https://issues.apache.org/jira/browse/NUTCH-2296) - Elasticsearch Indexing Over Rest
+- [NUTCH-2320](https://issues.apache.org/jira/browse/NUTCH-2320) - URLFilterChecker to run as TCP Telnet service
+- [NUTCH-2335](https://issues.apache.org/jira/browse/NUTCH-2335) - Injector not to filter and normalize existing URLs in CrawlDb
+- [NUTCH-2362](https://issues.apache.org/jira/browse/NUTCH-2362) - Upgrade MaxMind GeoIP version in index-geoip
+- [NUTCH-2368](https://issues.apache.org/jira/browse/NUTCH-2368) - Variable generate.max.count and fetcher.server.delay
+- [NUTCH-2370](https://issues.apache.org/jira/browse/NUTCH-2370) - FileDumper: save JSON mapping file -> URL
+- [NUTCH-2376](https://issues.apache.org/jira/browse/NUTCH-2376) - Improve configurability of HTTP Accept* header fields
+- [NUTCH-2378](https://issues.apache.org/jira/browse/NUTCH-2378) - ChildFirst plugin classloader
+- [NUTCH-2380](https://issues.apache.org/jira/browse/NUTCH-2380) - indexer-elastic version upgrade to 5.3.0
+- [NUTCH-2397](https://issues.apache.org/jira/browse/NUTCH-2397) - Parser to add paragraph line breaks
+- [NUTCH-2400](https://issues.apache.org/jira/browse/NUTCH-2400) - Solr 6.6.0 compatibility
+- [NUTCH-2406](https://issues.apache.org/jira/browse/NUTCH-2406) - Sum up constants, make minor changes
+- [NUTCH-2408](https://issues.apache.org/jira/browse/NUTCH-2408) - CrawlDb: allow update from unparsed segments
+- [NUTCH-2409](https://issues.apache.org/jira/browse/NUTCH-2409) - Injector: complete command-line help and counters
+- [NUTCH-2414](https://issues.apache.org/jira/browse/NUTCH-2414) - Allow LanguageIndexingFilter to actually filter documents by language.
+- [NUTCH-2430](https://issues.apache.org/jira/browse/NUTCH-2430) - Complete plugin build configuration
+- [NUTCH-2431](https://issues.apache.org/jira/browse/NUTCH-2431) - URLFilterchecker to implement Tool-interface
+- [NUTCH-2439](https://issues.apache.org/jira/browse/NUTCH-2439) - Upgrade to Apache Tika 1.17
+- [NUTCH-2443](https://issues.apache.org/jira/browse/NUTCH-2443) - Extract links from the video tag with the parse-html plugin
+- [NUTCH-2445](https://issues.apache.org/jira/browse/NUTCH-2445) - Fetcher following outlinks to keep track of already fetched items
+- [NUTCH-2463](https://issues.apache.org/jira/browse/NUTCH-2463) - Enable sampling CrawlDB
+- [NUTCH-2468](https://issues.apache.org/jira/browse/NUTCH-2468) - should filter out invalid URLs by default
+- [NUTCH-2470](https://issues.apache.org/jira/browse/NUTCH-2470) - CrawlDbReader -stats to show quantiles of score
+- [NUTCH-2477](https://issues.apache.org/jira/browse/NUTCH-2477) - Refactor *Checker classes to use base class for common code
+- [NUTCH-2480](https://issues.apache.org/jira/browse/NUTCH-2480) - Upgrade crawler-commons dependency to 0.9
+
+### New Feature
+
+- [NUTCH-1465](https://issues.apache.org/jira/browse/NUTCH-1465) - Support sitemaps in Nutch
+- [NUTCH-1932](https://issues.apache.org/jira/browse/NUTCH-1932) - Automatically remove orphaned pages
+- [NUTCH-2333](https://issues.apache.org/jira/browse/NUTCH-2333) - Indexer for RabbitMQ
+- [NUTCH-2338](https://issues.apache.org/jira/browse/NUTCH-2338) - URLNormalizerChecker to run as TCP Telnet service
+- [NUTCH-2415](https://issues.apache.org/jira/browse/NUTCH-2415) - Create a JEXL based IndexingFilter
+- [NUTCH-2433](https://issues.apache.org/jira/browse/NUTCH-2433) - Html Parser: keep htmltag where the outlinks are found
+- [NUTCH-2435](https://issues.apache.org/jira/browse/NUTCH-2435) - New configuration allowing to choose whether to store 'parse_text' directory or not.
+- [NUTCH-2484](https://issues.apache.org/jira/browse/NUTCH-2484) - Extend indexer-elastic-rest to support languages
+
+### Task
+
+- [NUTCH-2181](https://issues.apache.org/jira/browse/NUTCH-2181) - Add Webpage for 3rd Party Connectors/Libraries to Apache Nutch
+
+
+## Nutch 1.13 Release 28/03/2017 (dd/mm/yyyy)
 Release Report: https://s.apache.org/wq3x
 
-Sub-task
+### Sub-task
 
-    [NUTCH-2246] - Refactor /seed endpoint for backward compatibility
+- [NUTCH-2246](https://issues.apache.org/jira/browse/NUTCH-2246) - Refactor /seed endpoint for backward compatibility
 
-Bug
+### Bug
 
-    [NUTCH-1553] - Property 'indexer.delete.robots.noindex' not working when using parser-html.
-    [NUTCH-2242] - lastModified not always set
-    [NUTCH-2291] - Fix mrunit dependencies
-    [NUTCH-2337] - urlnormalizer-basic to strip empty port
-    [NUTCH-2345] - FetchItemQueue logs are logged with wrong class name
-    [NUTCH-2349] - urlnormalizer-basic NPE for ill-formed URL "http:/"
-    [NUTCH-2357] - Index metadata throw Exception because writable object cannot be cast to Text
-    [NUTCH-2359] - Parsefilter-regex raises IndexOutOfBoundsException when rules are ill-formed
-    [NUTCH-2364] - http.agent.rotate: IllegalArgumentException / last element of agent names ignored
-    [NUTCH-2366] - Deprecated Job constructor in hostdb/ReadHostDb.java
+- [NUTCH-1553](https://issues.apache.org/jira/browse/NUTCH-1553) - Property 'indexer.delete.robots.noindex' not working when using parser-html.
+- [NUTCH-2242](https://issues.apache.org/jira/browse/NUTCH-2242) - lastModified not always set
+- [NUTCH-2291](https://issues.apache.org/jira/browse/NUTCH-2291) - Fix mrunit dependencies
+- [NUTCH-2337](https://issues.apache.org/jira/browse/NUTCH-2337) - urlnormalizer-basic to strip empty port
+- [NUTCH-2345](https://issues.apache.org/jira/browse/NUTCH-2345) - FetchItemQueue logs are logged with wrong class name
+- [NUTCH-2349](https://issues.apache.org/jira/browse/NUTCH-2349) - urlnormalizer-basic NPE for ill-formed URL "http:/"
+- [NUTCH-2357](https://issues.apache.org/jira/browse/NUTCH-2357) - Index metadata throw Exception because writable object cannot be cast to Text
+- [NUTCH-2359](https://issues.apache.org/jira/browse/NUTCH-2359) - Parsefilter-regex raises IndexOutOfBoundsException when rules are ill-formed
+- [NUTCH-2364](https://issues.apache.org/jira/browse/NUTCH-2364) - http.agent.rotate: IllegalArgumentException / last element of agent names ignored
+- [NUTCH-2366](https://issues.apache.org/jira/browse/NUTCH-2366) - Deprecated Job constructor in hostdb/ReadHostDb.java
 
-Improvement
+### Improvement
 
-    [NUTCH-1308] - Add main() to ZipParser
-    [NUTCH-2164] - Inconsistent 'Modified Time' in crawl db
-    [NUTCH-2234] - Upgrade to elasticsearch 2.3.3
-    [NUTCH-2236] - Upgrade to Hadoop 2.7.2
-    [NUTCH-2262] - Utilize parameterized logging notation across Fetcher
-    [NUTCH-2272] - Index checker server to optionally keep client connection open
-    [NUTCH-2286] - CrawlDbReader -stats to show fetch time and interval
-    [NUTCH-2287] - Indexer-elastic plugin should use Elasticsearch BulkProcessor and BackoffPolicy
-    [NUTCH-2299] - Remove obsolete properties protocol.plugin.check.*
-    [NUTCH-2300] - Fetcher to optionally save robots.txt
-    [NUTCH-2327] - Seeds injected in REST workflow must be ingested into HDFS
-    [NUTCH-2329] - Update Slf4j logging for Java 8 and upgrade miredot plugin version
-    [NUTCH-2336] - SegmentReader to implement Tool
-    [NUTCH-2352] - Log with Generic Class Name at Nutch 1.x
-    [NUTCH-2355] - Protocol plugins to set cookie if Cookie metadata field is present
-    [NUTCH-2367] - Get single record from HostDB
+- [NUTCH-1308](https://issues.apache.org/jira/browse/NUTCH-1308) - Add main() to ZipParser
+- [NUTCH-2164](https://issues.apache.org/jira/browse/NUTCH-2164) - Inconsistent 'Modified Time' in crawl db
+- [NUTCH-2234](https://issues.apache.org/jira/browse/NUTCH-2234) - Upgrade to elasticsearch 2.3.3
+- [NUTCH-2236](https://issues.apache.org/jira/browse/NUTCH-2236) - Upgrade to Hadoop 2.7.2
+- [NUTCH-2262](https://issues.apache.org/jira/browse/NUTCH-2262) - Utilize parameterized logging notation across Fetcher
+- [NUTCH-2272](https://issues.apache.org/jira/browse/NUTCH-2272) - Index checker server to optionally keep client connection open
+- [NUTCH-2286](https://issues.apache.org/jira/browse/NUTCH-2286) - CrawlDbReader -stats to show fetch time and interval
+- [NUTCH-2287](https://issues.apache.org/jira/browse/NUTCH-2287) - Indexer-elastic plugin should use Elasticsearch BulkProcessor and BackoffPolicy
+- [NUTCH-2299](https://issues.apache.org/jira/browse/NUTCH-2299) - Remove obsolete properties protocol.plugin.check.*
+- [NUTCH-2300](https://issues.apache.org/jira/browse/NUTCH-2300) - Fetcher to optionally save robots.txt
+- [NUTCH-2327](https://issues.apache.org/jira/browse/NUTCH-2327) - Seeds injected in REST workflow must be ingested into HDFS
+- [NUTCH-2329](https://issues.apache.org/jira/browse/NUTCH-2329) - Update Slf4j logging for Java 8 and upgrade miredot plugin version
+- [NUTCH-2336](https://issues.apache.org/jira/browse/NUTCH-2336) - SegmentReader to implement Tool
+- [NUTCH-2352](https://issues.apache.org/jira/browse/NUTCH-2352) - Log with Generic Class Name at Nutch 1.x
+- [NUTCH-2355](https://issues.apache.org/jira/browse/NUTCH-2355) - Protocol plugins to set cookie if Cookie metadata field is present
+- [NUTCH-2367](https://issues.apache.org/jira/browse/NUTCH-2367) - Get single record from HostDB
 
-New Feature
+### New Feature
 
-    [NUTCH-2132] - Publisher/Subscriber model for Nutch to emit events
+- [NUTCH-2132](https://issues.apache.org/jira/browse/NUTCH-2132) - Publisher/Subscriber model for Nutch to emit events
 
-Task
+### Task
 
-    [NUTCH-2171] - Upgrade Nutch Trunk to Java 1.8
+- [NUTCH-2171](https://issues.apache.org/jira/browse/NUTCH-2171) - Upgrade Nutch Trunk to Java 1.8
 
  
-Nutch 1.12 Release 28/05/2016 (dd/mm/yyyy)
+## Nutch 1.12 Release 28/05/2016 (dd/mm/yyyy)
 Release Report: https://s.apache.org/nutch1.12
 
-Comments
+### Breaking Changes
 
 Fellow committers, Nutch 1.12 contains a breaking change NUTCH-2220. Please use the note below and
 in the release announcement and keep it on top in this CHANGES.txt for the Nutch 1.12 release.
@@ -779,65 +782,66 @@ in the release announcement and keep it on top in this CHANGES.txt for the Nutch
 * db.ignore.internal.links and db.ignore.external.links now operate on the CrawlDB only
 * linkdb.ignore.internal.links and linkdb.ignore.external.links now operate on the LinkDB only
 
-Sub-task
+### Sub-task
 
-    [NUTCH-2250] - CommonCrawlDumper : Invalid format + skipped parts
+- [NUTCH-2250](https://issues.apache.org/jira/browse/NUTCH-2250) - CommonCrawlDumper : Invalid format + skipped parts
 
-Bug
+### Bug
 
-    [NUTCH-2042] - parse-html increase chunk size used to detect charset
-    [NUTCH-2180] - FileDumper dumps data, but breaks midway on corrupt segments
-    [NUTCH-2189] - Domain filter must deactivate if no rules are present
-    [NUTCH-2203] - Suffix URL filter can't handle trailing/leading whitespaces
-    [NUTCH-2206] - Provide example scoring.similarity.stopword.file
-    [NUTCH-2213] - CommonCrawlDataDumper saves gzipped body in extracted form
-    [NUTCH-2223] - Upgrade xercesImpl to 2.11.0 to fix hang on issue in tika mimetype detection
-    [NUTCH-2224] - Average bytes/second calculated incorrectly in fetcher
-    [NUTCH-2225] - Parsed time calculated incorrectly
-    [NUTCH-2228] - Plugin index-replace unit test broken on Java 8
-    [NUTCH-2232] - DeduplicationJob should decode URL's before length is compared
-    [NUTCH-2241] - Unstable Selenium plugin in Nutch. Fixed bugs and enhanced configuration
-    [NUTCH-2256] - Inconsistent log level practice
+- [NUTCH-2042](https://issues.apache.org/jira/browse/NUTCH-2042) - parse-html increase chunk size used to detect charset
+- [NUTCH-2180](https://issues.apache.org/jira/browse/NUTCH-2180) - FileDumper dumps data, but breaks midway on corrupt segments
+- [NUTCH-2189](https://issues.apache.org/jira/browse/NUTCH-2189) - Domain filter must deactivate if no rules are present
+- [NUTCH-2203](https://issues.apache.org/jira/browse/NUTCH-2203) - Suffix URL filter can't handle trailing/leading whitespaces
+- [NUTCH-2206](https://issues.apache.org/jira/browse/NUTCH-2206) - Provide example scoring.similarity.stopword.file
+- [NUTCH-2213](https://issues.apache.org/jira/browse/NUTCH-2213) - CommonCrawlDataDumper saves gzipped body in extracted form
+- [NUTCH-2223](https://issues.apache.org/jira/browse/NUTCH-2223) - Upgrade xercesImpl to 2.11.0 to fix hang on issue in tika mimetype detection
+- [NUTCH-2224](https://issues.apache.org/jira/browse/NUTCH-2224) - Average bytes/second calculated incorrectly in fetcher
+- [NUTCH-2225](https://issues.apache.org/jira/browse/NUTCH-2225) - Parsed time calculated incorrectly
+- [NUTCH-2228](https://issues.apache.org/jira/browse/NUTCH-2228) - Plugin index-replace unit test broken on Java 8
+- [NUTCH-2232](https://issues.apache.org/jira/browse/NUTCH-2232) - DeduplicationJob should decode URL's before length is compared
+- [NUTCH-2241](https://issues.apache.org/jira/browse/NUTCH-2241) - Unstable Selenium plugin in Nutch. Fixed bugs and enhanced configuration
+- [NUTCH-2256](https://issues.apache.org/jira/browse/NUTCH-2256) - Inconsistent log level practice
 
-Improvement
+### Improvement
 
-    [NUTCH-1233] - Rely on Tika for outlink extraction
-    [NUTCH-1712] - Use MultipleInputs in Injector to make it a single mapreduce job
-    [NUTCH-2172] - index-more: document format of contenttype-mapping.txt
-    [NUTCH-2178] - DeduplicationJob to optionally group on host or domain
-    [NUTCH-2182] - Make reverseUrlDirs file dumper option hash the URL for consistency
-    [NUTCH-2183] - Improvement to SegmentChecker for skipping non-segments present in segments directory
-    [NUTCH-2187] - Change FileDumper SHAs to all uppercase
-    [NUTCH-2195] - IndexingFilterChecker to optionally follow N redirects
-    [NUTCH-2196] - IndexingFilterChecker to optionally normalize
-    [NUTCH-2197] - Add solr5 solrcloud indexer support
-    [NUTCH-2204] - Remove junit lib from runtime
-    [NUTCH-2218] - Switch CrawlCompletion arg parsing to Commons CLI
-    [NUTCH-2221] - Introduce db.ignore.internal.links to FetcherThread
-    [NUTCH-2229] - Allow Jexl expressions on CrawlDatum's fixed attributes
-    [NUTCH-2231] - Jexl support in generator job
-    [NUTCH-2252] - Allow phantomjs as a browser for selenium options
-    [NUTCH-2263] - Support for mingram and maxgram at Unigram Cosine Similarity Model
+- [NUTCH-1233](https://issues.apache.org/jira/browse/NUTCH-1233) - Rely on Tika for outlink extraction
+- [NUTCH-1712](https://issues.apache.org/jira/browse/NUTCH-1712) - Use MultipleInputs in Injector to make it a single mapreduce job
+- [NUTCH-2172](https://issues.apache.org/jira/browse/NUTCH-2172) - index-more: document format of contenttype-mapping.txt
+- [NUTCH-2178](https://issues.apache.org/jira/browse/NUTCH-2178) - DeduplicationJob to optionally group on host or domain
+- [NUTCH-2182](https://issues.apache.org/jira/browse/NUTCH-2182) - Make reverseUrlDirs file dumper option hash the URL for consistency
+- [NUTCH-2183](https://issues.apache.org/jira/browse/NUTCH-2183) - Improvement to SegmentChecker for skipping non-segments present in segments directory
+- [NUTCH-2187](https://issues.apache.org/jira/browse/NUTCH-2187) - Change FileDumper SHAs to all uppercase
+- [NUTCH-2195](https://issues.apache.org/jira/browse/NUTCH-2195) - IndexingFilterChecker to optionally follow N redirects
+- [NUTCH-2196](https://issues.apache.org/jira/browse/NUTCH-2196) - IndexingFilterChecker to optionally normalize
+- [NUTCH-2197](https://issues.apache.org/jira/browse/NUTCH-2197) - Add solr5 solrcloud indexer support
+- [NUTCH-2204](https://issues.apache.org/jira/browse/NUTCH-2204) - Remove junit lib from runtime
+- [NUTCH-2218](https://issues.apache.org/jira/browse/NUTCH-2218) - Switch CrawlCompletion arg parsing to Commons CLI
+- [NUTCH-2221](https://issues.apache.org/jira/browse/NUTCH-2221) - Introduce db.ignore.internal.links to FetcherThread
+- [NUTCH-2229](https://issues.apache.org/jira/browse/NUTCH-2229) - Allow Jexl expressions on CrawlDatum's fixed attributes
+- [NUTCH-2231](https://issues.apache.org/jira/browse/NUTCH-2231) - Jexl support in generator job
+- [NUTCH-2252](https://issues.apache.org/jira/browse/NUTCH-2252) - Allow phantomjs as a browser for selenium options
+- [NUTCH-2263](https://issues.apache.org/jira/browse/NUTCH-2263) - Support for mingram and maxgram at Unigram Cosine Similarity Model
 
-New Feature
+### New Feature
 
-    [NUTCH-961] - Expose Tika's boilerpipe support
-    [NUTCH-1325] - HostDB for Nutch
-    [NUTCH-2144] - Plugin to override db.ignore.external to exempt interesting external domain URLs
-    [NUTCH-2190] - Protocol normalizer
-    [NUTCH-2191] - Add protocol-htmlunit
-    [NUTCH-2194] - Run IndexingFilterChecker as simple Telnet server
-    [NUTCH-2219] - Criteria order to be configurable in DeduplicationJob
-    [NUTCH-2227] - RegexParseFilter
-    [NUTCH-2245] - Developed the NGram Model on the existing Unigram Cosine Similarity Model
+- [NUTCH-961](https://issues.apache.org/jira/browse/NUTCH-961) - Expose Tika's boilerpipe support
+- [NUTCH-1325](https://issues.apache.org/jira/browse/NUTCH-1325) - HostDB for Nutch
+- [NUTCH-2144](https://issues.apache.org/jira/browse/NUTCH-2144) - Plugin to override db.ignore.external to exempt interesting external domain URLs
+- [NUTCH-2190](https://issues.apache.org/jira/browse/NUTCH-2190) - Protocol normalizer
+- [NUTCH-2191](https://issues.apache.org/jira/browse/NUTCH-2191) - Add protocol-htmlunit
+- [NUTCH-2194](https://issues.apache.org/jira/browse/NUTCH-2194) - Run IndexingFilterChecker as simple Telnet server
+- [NUTCH-2219](https://issues.apache.org/jira/browse/NUTCH-2219) - Criteria order to be configurable in DeduplicationJob
+- [NUTCH-2227](https://issues.apache.org/jira/browse/NUTCH-2227) - RegexParseFilter
+- [NUTCH-2245](https://issues.apache.org/jira/browse/NUTCH-2245) - Developed the NGram Model on the existing Unigram Cosine Similarity Model
 
-Task
+### Task
 
-    [NUTCH-2201] - Remove loops program from webgraph package
-    [NUTCH-2211] - Filter and normalizer checkers missing in bin/nutch
-    [NUTCH-2220] - Rename db.* options used only by the linkdb to linkdb.*
+- [NUTCH-2201](https://issues.apache.org/jira/browse/NUTCH-2201) - Remove loops program from webgraph package
+- [NUTCH-2211](https://issues.apache.org/jira/browse/NUTCH-2211) - Filter and normalizer checkers missing in bin/nutch
+- [NUTCH-2220](https://issues.apache.org/jira/browse/NUTCH-2220) - Rename db.* options used only by the linkdb to linkdb.*
 
-Nutch 1.11 Release 03/12/2015 (dd/mm/yyyy)
+
+## Nutch 1.11 Release 03/12/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch11
 
 * NUTCH-2176 Clean up of log4j.properties (markus)
@@ -1033,7 +1037,8 @@ Release Report: http://s.apache.org/nutch11
 
 * NUTCH-2004 ParseChecker does not handle redirects (mjoyce via lewismc)
 
-Nutch 1.10 Release - 29/04/2015 (dd/mm/yyyy)
+
+## Nutch 1.10 Release - 29/04/2015 (dd/mm/yyyy)
 Release Report: http://s.apache.org/nutch10
 
 * NUTCH-1969 URL Normalizer properly handling slashes (markus via mattmann)
@@ -1229,7 +1234,8 @@ Release Report: http://s.apache.org/nutch10
 
 * NUTCH-1409 remove deprecated properties db.{default,max}.fetch.interval, generate.max.per.host.by.ip (Matthias Agethle via snagel)
 
-Nutch 1.9 Release Change Log - 12/08/2014 (dd/mm/yyyy)
+
+## Nutch 1.9 Release Change Log - 12/08/2014 (dd/mm/yyyy)
 Release Report - http://s.apache.org/1.9-release
 
 * NUTCH-1561 improve usability of parse-metatags and index-metadata (snagel)
@@ -1334,7 +1340,8 @@ Release Report - http://s.apache.org/1.9-release
 
 * NUTCH-1671 indexchecker to add digest field (snagel, lufeng)
 
-Nutch 1.8      - 11/03/2014 (dd/mm/yyyy)
+
+## Nutch 1.8      - 11/03/2014 (dd/mm/yyyy)
 Release Report - http://s.apache.org/oHY
 
 * NUTCH-1706 IndexerMapReduce does not remove db_redir_temp (markus, snagel)
@@ -1437,7 +1444,8 @@ Release Report - http://s.apache.org/oHY
 
 * NUTCH-1126 JUnit test for urlfilter-prefix (Talat UYARER via markus)
 
-Apache Nutch 1.7 Release - 06/20/2013 (mm/dd/yyyy)
+
+## Apache Nutch 1.7 Release - 06/20/2013 (mm/dd/yyyy)
 Release report - http://s.apache.org/1zE
 
 * NUTCH-1585 Ensure duplicate tags do not exist in microformat-reltag tag set. (lewismc)
@@ -1528,7 +1536,8 @@ Release report - http://s.apache.org/1zE
 
 * NUTCH-1331 limit crawler to defined depth (jnioche)
 
-Release 1.6 - 23/11/2012
+
+## Release 1.6 - 23/11/2012
 
 * NUTCH-1370 Expose exact number of urls injected @runtime (snagel via lewismc)
 
@@ -1628,7 +1637,8 @@ Release 1.6 - 23/11/2012
 
 * NUTCH-XX Commit to add configuration for separation of ant distribution targets (lewismc + jnioche)
 
-Release 1.5.1 - 07/10/2012
+
+## Release 1.5.1 - 07/10/2012
 
 * NUTCH-1404 Nutch script fails to find job file in deploy mode (sidabatra, jnioche)
 
@@ -1640,7 +1650,8 @@ Release 1.5.1 - 07/10/2012
 
 * NUTCH-1398 Upgrade to Hadoop 1.0.3 (jnioche)
 
-Release 1.5 - 04/15/2012
+
+## Release 1.5 - 04/15/2012
 
 * NUTCH-1208 Don't include KEYS file in bin distribution (jnioche)
 
@@ -1759,7 +1770,8 @@ Release 1.5 - 04/15/2012
 
 * NUTCH-1153 LinkRank not to log all keys and not to write Hadoop _SUCCESS file (markus)
 
-Release 1.4 - 11/4/2011
+
+## Release 1.4 - 11/4/2011
 
 * NUTCH-1195 Add Solr 4x (trunk) example schema (ab)
 
@@ -1903,7 +1915,8 @@ Release 1.4 - 11/4/2011
 
 * NUTCH-1010 ContentLength not trimmed (markus)
 
-Release 1.3 - 6/4/2011
+
+## Release 1.3 - 6/4/2011
 
 * NUTCH-995 Generate POM file using the Ivy makepom task (mattmann, jnioche, Gabriele Kahlout)
 
@@ -1997,7 +2010,8 @@ Release 1.3 - 6/4/2011
 
 * NUTCH-948 Remove Lucene dependencies (ab)
 
-Release 1.2 - 09/18/2010
+
+## Release 1.2 - 09/18/2010
 
 * NUTCH-901 Make index-more plug-in configurable (Markus Jelsma via mattmann)
 
@@ -2051,7 +2065,8 @@ Release 1.2 - 09/18/2010
 
 * NUTCH-832 Website menu has lots of broken links - in particular the API docs (Alex McLintock via mattmann)
 
-Release 1.1 - 2010-06-06
+
+## Release 1.1 - 2010-06-06
 
 * NUTCH-819 Included Solr schema.xml and solrindex-mapping.xml don't play together (ab)
 
@@ -2175,7 +2190,8 @@ Release 1.1 - 2010-06-06
 
 * NUTCH-758 - Set subversion eol-style to "native" (Niall Pemberton via ab)
 
-Release 1.0 - 2009-03-23
+
+## Release 1.0 - 2009-03-23
 
  1. NUTCH-474 - Fetcher2 crawlDelay and blocking fix (Dogacan Guney via ab)
 
@@ -2558,7 +2574,8 @@ Release 1.0 - 2009-03-23
      
 144. NUTCH-722 - Nutch contains JAI jars that we cannot redistribute
 
-Release 0.9 - 2007-04-02
+
+## Release 0.9 - 2007-04-02
 
  1. Changed log4j confiquration to log to stdout on commandline
     tools (siren)
@@ -2732,7 +2749,8 @@ Release 0.9 - 2007-04-02
 59. NUTCH-333 - SegmentMerger and SegmentReader should use NutchJob. (Michael
     Stack and Dogacan Guney via kubes)
 
-Release 0.8 - 2006-07-25
+
+## Release 0.8 - 2006-07-25
 
  0. Totally new architecture, based on hadoop
     [http://lucene.apache.org/hadoop] (cutting)
@@ -2940,7 +2958,8 @@ Release 0.8 - 2006-07-25
 
 74. NUTCH-327 - Fixed logging directory on cygwin (siren)
 
-Release 0.7 - 2005-08-17
+
+## Release 0.7 - 2005-08-17
 
  1. Added support for "type:" in queries. Search results are limited/qualified
     by mimetype or its primary type or sub type. For example,
@@ -3025,7 +3044,7 @@ Release 0.7 - 2005-08-17
     release.
 
 
-Release 0.6
+## Release 0.6
 
  1. Added clustering-carrot2 plugin, together with introduction of clustering
     api and modification to search jsp. (Dawid Weiss via John Xing, 20040809)
@@ -3158,7 +3177,8 @@ Release 0.6
     longer consistently observed when this is greater than one.
     (Luke Baker via Doug Cutting)
 
-Release 0.5
+
+## Release 0.5
 
  1. Changed plugin directory to be a list of directories.
 
@@ -3284,7 +3304,7 @@ Release 0.5
     re-querying with too-frequent sites prohibited in the query.
 
 
-Release 0.4
+## Release 0.4
 
  1. Http class refactored.  (Kevin Smith via Tom Pierce)
 
