@@ -70,7 +70,7 @@ public class TestResponse extends AbstractHttpProtocolPluginTest {
 
   protected HttpResponse getResponse(int statusCode, String headerName) {
     try {
-      URL url = new URL(protocol, localHost, defaultPort, "/" + headerName);
+      URL url = new URL(protocol, localHost, serverPort, "/" + headerName);
       LOG.info("Emulating fetch of {}", url);
       return new HttpResponse((Http) http, url, new CrawlDatum(statusCode, 1000));
     } catch (ProtocolException | IOException e) {

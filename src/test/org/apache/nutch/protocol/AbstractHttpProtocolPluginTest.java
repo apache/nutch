@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -70,7 +69,7 @@ public abstract class AbstractHttpProtocolPluginTest {
   protected String localHost = "127.0.0.1";
 
   /** Port used to send/receive test requests */
-  protected int defaultPort = 47505;
+  protected int serverPort = 0;
 
   protected static final String responseHeader = "HTTP/1.1 200 OK\r\n";
   protected static final String simpleContent = "Content-Type: text/html\r\n\r\nThis is a text.";
@@ -121,8 +120,10 @@ public abstract class AbstractHttpProtocolPluginTest {
   /**
    * Starts the test server at a specified port and constant response.
    * 
-   * @param portno
-   *          Port number.
+   * @param port
+   *          Port number. If 0, a random free port is used. The port number
+   *          actually used by the test server is always stored in
+   *          {@link #serverPort}.
    * @param responder
    *          function to return a response (byte[] containing HTTP response
    *          header and payload content) for a given request header represented
@@ -134,15 +135,16 @@ public abstract class AbstractHttpProtocolPluginTest {
   protected void runServer(int port,
       BiFunction<String, String[], byte[]> responder,
       Predicate<List<String>> requestChecker) throws Exception {
-    server = new ServerSocket();
-    server.bind(new InetSocketAddress(localHost, port));
+    server = new ServerSocket(port);
+    serverPort = server.getLocalPort();
     Pattern requestPattern = Pattern.compile("(?i)^GET\\s+(\\S+)");
     while (true) {
-      LOG.info("Listening on port {}", port);
       if (server.isClosed()) {
-        server = new ServerSocket();
-        server.bind(new InetSocketAddress(localHost, port));
+        LOG.info("Server closed, restarting ...");
+        server = new ServerSocket(0); // request a free port
+        serverPort = server.getLocalPort();
       }
+      LOG.info("Listening on port {}", serverPort);
       Socket socket = server.accept();
       LOG.info("Connection received");
       try (BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -195,13 +197,16 @@ public abstract class AbstractHttpProtocolPluginTest {
       try {
         runServer(port, responder, requestChecker);
       } catch (SocketException e) {
-        LOG.info("Socket on port {} closed: {}", port, e.getMessage());
+        LOG.info("Socket on port {} closed: {}",
+            (port == 0 ? serverPort : port), e.getMessage());
       } catch (Exception e) {
         LOG.warn("Test server died:", e);
       }
     });
     serverThread.start();
-    Thread.sleep(50);
+    do {
+      Thread.sleep(50);
+    } while (serverPort == 0); // runServer(...) sets serverPort
   }
 
   protected void launchServer(Function<String, byte[]> responder)
@@ -211,7 +216,7 @@ public abstract class AbstractHttpProtocolPluginTest {
 
   protected void launchServer(Function<String, byte[]> responder,
       Predicate<List<String>> requestChecker) throws InterruptedException {
-    launchServer(defaultPort, responder, requestChecker);
+    launchServer(0, responder, requestChecker);
   }
 
   protected void launchServer(int port, Function<String, byte[]> responder,
@@ -224,7 +229,7 @@ public abstract class AbstractHttpProtocolPluginTest {
 
   protected void launchServer(Map<String, byte[]> responses)
       throws InterruptedException {
-    launchServer(defaultPort, (String requestPath) -> {
+    launchServer(0, (String requestPath) -> {
       return responses.get(requestPath);
     }, null);
   }
@@ -247,12 +252,12 @@ public abstract class AbstractHttpProtocolPluginTest {
 
   protected ProtocolOutput fetchPage(String page, int expectedCode)
       throws Exception {
-    return fetchPage(defaultPort, page, expectedCode, null);
+    return fetchPage(serverPort, page, expectedCode, null);
   }
 
   protected ProtocolOutput fetchPage(String page, int expectedCode,
       String expectedContentType) throws Exception {
-    return fetchPage(defaultPort, page, expectedCode, null);
+    return fetchPage(serverPort, page, expectedCode, null);
   }
 
   /**
@@ -261,7 +266,7 @@ public abstract class AbstractHttpProtocolPluginTest {
    * code.
    * 
    * @param port
-   *          port server is running on
+   *          port server is listening on
    * @param page
    *          Page to be fetched
    * @param expectedCode
