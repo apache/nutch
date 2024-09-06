@@ -312,6 +312,8 @@ public class IndexingJob extends NutchTool implements Tool {
     boolean filter = false;
     boolean normalize = false;
     boolean isSegment = false;
+    boolean addBinaryContent = false;
+    boolean base64 = false;
     String params= null;
     Configuration conf = getConf();
 
@@ -405,12 +407,18 @@ public class IndexingJob extends NutchTool implements Tool {
     if(args.containsKey("filter")){
       filter = true;
     }
+    if (args.containsKey("addBinaryContent")) {
+      addBinaryContent = true;
+      if (args.containsKey("base64")) {
+          base64 = true;
+      }
+    }
     if(args.containsKey("params")){
       params = (String)args.get("params");
     }
     setConf(conf);
     index(crawlDb, linkdb, segments, noCommit, deleteGone, params, filter,
-        normalize);
+        normalize, addBinaryContent, base64);
     Map<String, Object> results = new HashMap<>();
     results.put(Nutch.VAL_RESULT, 0);
     return results;
