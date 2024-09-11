@@ -149,7 +149,7 @@ public class URLUtil {
   }
 
   /**
-   * Returns the top-level domain name of the URL. The top level domain name of
+   * Returns the top-level domain name of the URL. The top-level domain name of
    * a URL is the substring of the URL's hostname, w/o subdomain names. As an
    * example <br>
    * <code>
@@ -162,11 +162,14 @@ public class URLUtil {
    * returned.
    * 
    * @param url
-   *          input {@link URL} to extract the top level domain name from
-   * @return the top level domain name or the empty string if there is none
+   *          input {@link URL} to extract the top-level domain name from
+   * @return the top-level domain name or null if there is none
    */
   public static String getTopLevelDomainName(URL url) {
     String suffix = getDomainSuffix(url);
+    if (suffix == null) {
+      return null;
+    }
     int idx = suffix.lastIndexOf(".");
     if (idx != -1) {
       return suffix.substring(idx + 1);
@@ -176,7 +179,7 @@ public class URLUtil {
   }
 
   /**
-   * Returns the top-level domain name of the URL. The top level domain name of
+   * Returns the top-level domain name of the URL. The top-level domain name of
    * a URL is the substring of the URL's hostname, w/o subdomain names. As an
    * example <br>
    * <code>
@@ -189,8 +192,8 @@ public class URLUtil {
    * returned.
    * 
    * @param url
-   *          input URL string to extract the top level domain name from
-   * @return the top level domain name or the empty string if there is none
+   *          input URL string to extract the top-level domain name from
+   * @return the top-level domain name or null if there is none
    * @throws MalformedURLException
    *           if the input URL is malformed
    */
@@ -247,7 +250,7 @@ public class URLUtil {
    * 
    * @param url
    *          a {@link URL} to extract the domain suffix from
-   * @return the domain suffix or the empty string if there is none
+   * @return the domain suffix or null if there is none
    */
   public static String getDomainSuffix(URL url) {
     String host = url.getHost();
@@ -262,7 +265,7 @@ public class URLUtil {
       return suffix.getDomain();
     }
 
-    return "";
+    return null;
   }
 
   /**
@@ -275,7 +278,7 @@ public class URLUtil {
    * 
    * @param url
    *          a {@link URL} to extract the domain suffix from
-   * @return the domain suffix or the empty string if there is none
+   * @return the domain suffix or null if there is none
    * @throws MalformedURLException
    *           if the input URL string is malformed
    */

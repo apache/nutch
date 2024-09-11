@@ -98,7 +98,7 @@ public class TestURLUtil {
     Assert.assertEquals("org", URLUtil.getDomainSuffix(url));
 
     url = new URL("http://140.211.11.130/foundation/contributing.html");
-    Assert.assertEquals("", URLUtil.getDomainSuffix(url));
+    Assert.assertNull(URLUtil.getDomainSuffix(url));
 
     url = new URL("http://www.example.co.uk:8080/index.html");
     Assert.assertEquals("co.uk", URLUtil.getDomainSuffix(url));
@@ -111,10 +111,10 @@ public class TestURLUtil {
 
     // "nn" is not a public suffix
     url = new URL("http://example.com.nn");
-    Assert.assertEquals("", URLUtil.getDomainSuffix(url));
+    Assert.assertNull(URLUtil.getDomainSuffix(url));
 
     url = new URL("http://");
-    Assert.assertEquals("", URLUtil.getDomainSuffix(url));
+    Assert.assertNull(URLUtil.getDomainSuffix(url));
 
     /*
      * "xyz" is an ICANN suffix since 2014, see
@@ -157,17 +157,17 @@ public class TestURLUtil {
     Assert.assertEquals("org", URLUtil.getTopLevelDomainName(url));
 
     url = new URL("http://140.211.11.130/foundation/contributing.html");
-    Assert.assertEquals("", URLUtil.getTopLevelDomainName(url));
+    Assert.assertNull(URLUtil.getTopLevelDomainName(url));
 
     url = new URL("http://www.example.co.uk:8080/index.html");
     Assert.assertEquals("uk", URLUtil.getTopLevelDomainName(url));
 
     // "nn" is not a public suffix
     url = new URL("http://example.com.nn");
-    Assert.assertEquals("", URLUtil.getTopLevelDomainName(url));
+    Assert.assertNull(URLUtil.getTopLevelDomainName(url));
 
     url = new URL("http://");
-    Assert.assertEquals("", URLUtil.getTopLevelDomainName(url));
+    Assert.assertNull(URLUtil.getTopLevelDomainName(url));
 
     url = new URL("http://nic.삼성/");
     Assert.assertEquals("xn--cg4bki", URLUtil.getTopLevelDomainName(url));
