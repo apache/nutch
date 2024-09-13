@@ -219,4 +219,62 @@ public class TestArbitraryIndexingFilter {
     Assert.assertTrue("field philosopher does not have new value 'Popeye'", doc.getField("philosopher")
                     .getValues().contains("Popeye"));
   }
+
+  /**
+   * Test processing a field after exception processing earlier field
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testProcessingFieldAfterException() throws Exception {
+    conf = NutchConfiguration.create();
+    conf.set("index.arbitrary.function.count","3");
+    conf.set("index.arbitrary.fieldName.0","foo");
+    conf.set("index.arbitrary.className.0","org.apache.nutch.indexer.arbitrary.Echo");
+    conf.set("index.arbitrary.constructorArgs.0","first added value");
+    conf.set("index.arbitrary.methodName.0","getText");
+
+    conf.set("index.arbitrary.fieldName.1","mangled");
+    conf.set("index.arbitrary.className.1","java.lang.String");
+    conf.set("index.arbitrary.constructorArgs.1","bar");
+    conf.set("index.arbitrary.methodName.1","noExistingMethod");
+    conf.set("index.arbitrary.methodArgs.1","100");
+    conf.set("index.arbitrary.overwrite.1","true");
+
+    conf.set("index.arbitrary.fieldName.2","philosopher");
+    conf.set("index.arbitrary.className.2","org.apache.nutch.indexer.arbitrary.Echo");
+    conf.set("index.arbitrary.constructorArgs.2","last added value");
+    conf.set("index.arbitrary.methodName.2","getText");
+    conf.set("index.arbitrary.overwrite.2","true");
+
+    filter = new ArbitraryIndexingFilter();
+    Assert.assertNotNull("No filter exists for testProcessingFieldAfterException",filter);
+
+    filter.setConf(conf);
+    Assert.assertNotNull("conf does not exist",conf);
+
+    doc = new NutchDocument();
+
+    Assert.assertNotNull("doc does not exist",doc);
+
+    try {
+      filter.filter(doc, parse, url, crawlDatum, inlinks);
+    } catch (Exception e) {
+      e.printStackTrace(System.out);
+      Assert.fail(e.getMessage());
+    }
+
+    Assert.assertNotNull(doc);
+
+    Assert.assertTrue("field foo does not have 'first added value'", doc.getField("foo")
+                      .getValues().contains("first added value"));
+
+    Assert.assertNull("field mangled has a value", doc.getField("mangled"));
+
+    Assert.assertFalse("Value 'first added value' has leaked into field philospoher", doc.getField("philosopher")
+                      .getValues().contains("first added value"));
+
+    Assert.assertTrue("field philosopher does not have new value 'last added value'", doc.getField("philosopher")
+                    .getValues().contains("last added value"));
+  }
 }
