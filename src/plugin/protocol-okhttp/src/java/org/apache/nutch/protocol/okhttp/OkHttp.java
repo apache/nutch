@@ -25,6 +25,7 @@ import java.net.ProxySelector;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -53,6 +54,7 @@ import org.slf4j.LoggerFactory;
 import okhttp3.Authenticator;
 import okhttp3.Connection;
 import okhttp3.ConnectionPool;
+import okhttp3.Handshake;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -217,7 +219,8 @@ public class OkHttp extends HttpBase {
       builder.addNetworkInterceptor(new HTTPFilterIPAddressInterceptor(ipFilterRules));
     }
 
-    if (this.storeIPAddress || this.storeHttpHeaders || this.storeHttpRequest) {
+    if (this.storeIPAddress || this.storeHttpHeaders || this.storeHttpRequest
+        || this.storeProtocolVersions) {
       builder.addNetworkInterceptor(new HTTPHeadersInterceptor());
     }
 
@@ -373,17 +376,31 @@ public class OkHttp extends HttpBase {
       }
 
       if (requestverbatim != null) {
-        byte[] encodedBytesRequest = Base64.getEncoder()
-            .encode(requestverbatim.toString().getBytes());
+        byte[] encodedBytesRequest = Base64.getEncoder().encode(
+            requestverbatim.toString().getBytes(StandardCharsets.ISO_8859_1));
         builder = builder.header(Response.REQUEST,
-            new String(encodedBytesRequest));
+            new String(encodedBytesRequest, StandardCharsets.ISO_8859_1));
       }
 
       if (responseverbatim != null) {
-        byte[] encodedBytesResponse = Base64.getEncoder()
-            .encode(responseverbatim.toString().getBytes());
+        byte[] encodedBytesResponse = Base64.getEncoder().encode(
+            responseverbatim.toString().getBytes(StandardCharsets.ISO_8859_1));
         builder = builder.header(Response.RESPONSE_HEADERS,
-            new String(encodedBytesResponse));
+            new String(encodedBytesResponse, StandardCharsets.ISO_8859_1));
+      }
+
+      // store the HTTP and SSL/TLS protocol versions and SSL/TLS cipher suites
+      if (storeProtocolVersions) {
+        final StringBuilder protocols = new StringBuilder(
+            response.protocol().toString());
+        final Handshake handshake = connection.handshake();
+        if (handshake != null) {
+          protocols.append(',').append(handshake.tlsVersion().javaName());
+          builder = builder.header(Response.CIPHER_SUITES,
+              handshake.cipherSuite().toString());
+        }
+        builder = builder.header(Response.PROTOCOL_VERSIONS,
+            protocols.toString());
       }
 
       // returns a modified version of the response
