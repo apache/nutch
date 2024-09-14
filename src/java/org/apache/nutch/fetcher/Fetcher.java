@@ -422,7 +422,7 @@ public class Fetcher extends NutchTool implements Tool {
           /*
            * Some requests seem to hang, with no fetches finished and no new
            * fetches started during half of the MapReduce task timeout
-           * (mapreduce.task.timeout, default value: 15 minutes). In order to
+           * (mapreduce.task.timeout, default value: 10 minutes). In order to
            * avoid that the task timeout is hit and the fetcher job is failed,
            * we stop the fetching now.
            */
@@ -435,15 +435,13 @@ public class Fetcher extends NutchTool implements Tool {
               if (thread.isAlive()) {
                 LOG.warn("Thread #{} hung while processing {}", i,
                     thread.getReprUrl());
-                if (LOG.isDebugEnabled()) {
-                  StackTraceElement[] stack = thread.getStackTrace();
-                  StringBuilder sb = new StringBuilder();
-                  sb.append("Stack of thread #").append(i).append(":\n");
-                  for (StackTraceElement s : stack) {
-                    sb.append(s.toString()).append('\n');
-                  }
-                  LOG.debug(sb.toString());
+                StackTraceElement[] stack = thread.getStackTrace();
+                StringBuilder sb = new StringBuilder();
+                sb.append("Stack of thread #").append(i).append(":\n");
+                for (StackTraceElement s : stack) {
+                  sb.append(s.toString()).append('\n');
                 }
+                LOG.warn(sb.toString());
               }
             }
             /*
