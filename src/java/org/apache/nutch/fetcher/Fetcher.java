@@ -419,27 +419,41 @@ public class Fetcher extends NutchTool implements Tool {
                   .increment(hitByTimeLimit);
           }
 
-          // some requests seem to hang, despite all intentions
+          /*
+           * Some requests seem to hang, with no fetches finished and no new
+           * fetches started during half of the MapReduce task timeout
+           * (mapreduce.task.timeout, default value: 10 minutes). In order to
+           * avoid that the task timeout is hit and the fetcher job is failed,
+           * we stop the fetching now.
+           */
           if ((System.currentTimeMillis() - lastRequestStart.get()) > timeout) {
-            if (LOG.isWarnEnabled()) {
-              LOG.warn("Aborting with {} hung threads.", activeThreads);
-              for (int i = 0; i < fetcherThreads.size(); i++) {
-                FetcherThread thread = fetcherThreads.get(i);
-                if (thread.isAlive()) {
-                  LOG.warn("Thread #{} hung while processing {}", i,
-                      thread.getReprUrl());
-                  if (LOG.isDebugEnabled()) {
-                    StackTraceElement[] stack = thread.getStackTrace();
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("Stack of thread #").append(i).append(":\n");
-                    for (StackTraceElement s : stack) {
-                      sb.append(s.toString()).append('\n');
-                    }
-                    LOG.debug(sb.toString());
-                  }
+            LOG.warn("Aborting with {} hung threads.", activeThreads);
+            innerContext.getCounter("FetcherStatus", "hungThreads")
+                .increment(activeThreads.get());
+            for (int i = 0; i < fetcherThreads.size(); i++) {
+              FetcherThread thread = fetcherThreads.get(i);
+              if (thread.isAlive()) {
+                LOG.warn("Thread #{} hung while processing {}", i,
+                    thread.getReprUrl());
+                StackTraceElement[] stack = thread.getStackTrace();
+                StringBuilder sb = new StringBuilder();
+                sb.append("Stack of thread #").append(i).append(":\n");
+                for (StackTraceElement s : stack) {
+                  sb.append(s.toString()).append('\n');
                 }
+                LOG.warn(sb.toString());
               }
             }
+            /*
+             * log and count queued items dropped from the fetch queues because
+             * of the timeout
+             */
+            LOG.warn("Aborting with {} queued fetch items in {} queues{}.",
+                fetchQueues.getTotalSize(), fetchQueues.getQueueCount(),
+                feeder.isAlive() ? " (queue feeder still alive)" : "");
+            int hitByTimeout = fetchQueues.emptyQueues();
+            innerContext.getCounter("FetcherStatus", "hitByTimeout")
+                .increment(hitByTimeout);
             return;
           }
 
