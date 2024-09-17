@@ -32,6 +32,10 @@ public class TestURLUtil {
     url = new URL("http://lucene.apache.org/nutch");
     Assert.assertEquals("apache.org", URLUtil.getDomainName(url));
 
+    // hostname with trailing dot
+    url = new URL("https://lucene.apache.org./nutch");
+    Assert.assertEquals("apache.org", URLUtil.getDomainName(url));
+
     url = new URL("http://en.wikipedia.org/wiki/Java_coffee");
     Assert.assertEquals("wikipedia.org", URLUtil.getDomainName(url));
 
@@ -47,15 +51,19 @@ public class TestURLUtil {
     url = new URL("http://www.example.co.uk.com");
     Assert.assertEquals("uk.com", URLUtil.getDomainName(url));
 
-    // "nn" is not a tld
+    // "nn" is not a public suffix
     url = new URL("http://example.com.nn");
-    Assert.assertEquals("nn", URLUtil.getDomainName(url));
+    Assert.assertEquals("example.com.nn", URLUtil.getDomainName(url));
 
     url = new URL("http://");
     Assert.assertEquals("", URLUtil.getDomainName(url));
 
+    /*
+     * "xyz" is an ICANN suffix since 2014, see
+     * https://www.iana.org/domains/root/db/xyz.html
+     */
     url = new URL("http://www.edu.tr.xyz");
-    Assert.assertEquals("xyz", URLUtil.getDomainName(url));
+    Assert.assertEquals("tr.xyz", URLUtil.getDomainName(url));
 
     url = new URL("http://www.example.c.se");
     Assert.assertEquals("example.c.se", URLUtil.getDomainName(url));
@@ -71,6 +79,11 @@ public class TestURLUtil {
     // test non-ascii
     url = new URL("http://www.example.商業.tw");
     Assert.assertEquals("example.商業.tw", URLUtil.getDomainName(url));
+
+    // test URL without host/authority
+    url = new URL("file:/path/index.html");
+    Assert.assertNotNull(URLUtil.getDomainName(url));
+    Assert.assertEquals("", URLUtil.getDomainName(url));
   }
 
   @Test
@@ -78,50 +91,86 @@ public class TestURLUtil {
     URL url = null;
 
     url = new URL("http://lucene.apache.org/nutch");
-    Assert.assertEquals("org", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("org", URLUtil.getDomainSuffix(url));
+
+    // hostname with trailing dot
+    url = new URL("https://lucene.apache.org./nutch");
+    Assert.assertEquals("org", URLUtil.getDomainSuffix(url));
 
     url = new URL("http://140.211.11.130/foundation/contributing.html");
     Assert.assertNull(URLUtil.getDomainSuffix(url));
 
     url = new URL("http://www.example.co.uk:8080/index.html");
-    Assert.assertEquals("co.uk", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("co.uk", URLUtil.getDomainSuffix(url));
 
     url = new URL("http://com");
-    Assert.assertEquals("com", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("com", URLUtil.getDomainSuffix(url));
 
     url = new URL("http://www.example.co.uk.com");
-    Assert.assertEquals("com", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("com", URLUtil.getDomainSuffix(url));
 
-    // "nn" is not a tld
+    // "nn" is not a public suffix
     url = new URL("http://example.com.nn");
     Assert.assertNull(URLUtil.getDomainSuffix(url));
 
     url = new URL("http://");
     Assert.assertNull(URLUtil.getDomainSuffix(url));
 
+    /*
+     * "xyz" is an ICANN suffix since 2014, see
+     * https://www.iana.org/domains/root/db/xyz.html
+     */
     url = new URL("http://www.edu.tr.xyz");
-    Assert.assertNull(URLUtil.getDomainSuffix(url));
+    Assert.assertEquals("xyz", URLUtil.getDomainSuffix(url));
 
     url = new URL("http://subdomain.example.edu.tr");
-    Assert.assertEquals("edu.tr", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("edu.tr", URLUtil.getDomainSuffix(url));
 
     url = new URL("http://subdomain.example.presse.fr");
-    Assert.assertEquals("presse.fr", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("fr", URLUtil.getDomainSuffix(url));
 
     url = new URL("http://subdomain.example.presse.tr");
-    Assert.assertEquals("tr", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("tr", URLUtil.getDomainSuffix(url));
 
     // plc.co.im is listed as a domain suffix
     url = new URL("http://www.example.plc.co.im");
-    Assert.assertEquals("plc.co.im", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("plc.co.im", URLUtil.getDomainSuffix(url));
 
     // 2000.hu is listed as a domain suffix
     url = new URL("http://www.example.2000.hu");
-    Assert.assertEquals("2000.hu", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("2000.hu", URLUtil.getDomainSuffix(url));
 
     // test non-ascii
     url = new URL("http://www.example.商業.tw");
-    Assert.assertEquals("商業.tw", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("xn--czrw28b.tw", URLUtil.getDomainSuffix(url));
+  }
+
+  @Test
+  public void testGetTopLevelDomain() throws Exception {
+    URL url = null;
+
+    url = new URL("http://lucene.apache.org/nutch");
+    Assert.assertEquals("org", URLUtil.getTopLevelDomainName(url));
+
+    // hostname with trailing dot
+    url = new URL("https://lucene.apache.org./nutch");
+    Assert.assertEquals("org", URLUtil.getTopLevelDomainName(url));
+
+    url = new URL("http://140.211.11.130/foundation/contributing.html");
+    Assert.assertNull(URLUtil.getTopLevelDomainName(url));
+
+    url = new URL("http://www.example.co.uk:8080/index.html");
+    Assert.assertEquals("uk", URLUtil.getTopLevelDomainName(url));
+
+    // "nn" is not a public suffix
+    url = new URL("http://example.com.nn");
+    Assert.assertNull(URLUtil.getTopLevelDomainName(url));
+
+    url = new URL("http://");
+    Assert.assertNull(URLUtil.getTopLevelDomainName(url));
+
+    url = new URL("http://nic.삼성/");
+    Assert.assertEquals("xn--cg4bki", URLUtil.getTopLevelDomainName(url));
   }
 
   @Test
@@ -270,7 +319,7 @@ public class TestURLUtil {
 
   @Test
   public void testFileProtocol() throws Exception {
-    // keep one single slash NUTCH-XXX
+    // keep one single slash NUTCH-1483
     Assert.assertEquals("file:/path/file.html",
         URLUtil.toASCII("file:/path/file.html"));
     Assert.assertEquals("file:/path/file.html",
