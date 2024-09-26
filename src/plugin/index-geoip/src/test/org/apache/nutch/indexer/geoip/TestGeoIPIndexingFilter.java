@@ -42,7 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 
+ * Tests for {@link org.apache.nutch.indexer.geoip.GeoIPIndexingFilter}
  */
 public class TestGeoIPIndexingFilter {
 

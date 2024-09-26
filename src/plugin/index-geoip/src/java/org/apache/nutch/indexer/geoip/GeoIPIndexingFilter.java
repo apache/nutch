@@ -16,10 +16,11 @@
  */
 package org.apache.nutch.indexer.geoip;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.hadoop.conf.Configuration;
@@ -67,6 +68,8 @@ public class GeoIPIndexingFilter implements IndexingFilter {
   private Configuration conf;
   private String usage;
   private static final String INSIGHTS_SERVICE = "insights";
+  private static final List<String> DB_TYPES = Arrays.asList(
+      "anonymous", "asn", "city", "connection", "domain", "isp"); 
   private WebServiceClient client;
   private DatabaseReader reader;
 
@@ -99,39 +102,37 @@ public class GeoIPIndexingFilter implements IndexingFilter {
     usage = config.get("index.geoip.usage");
     if (usage != null && usage.equalsIgnoreCase(INSIGHTS_SERVICE)) {
       client = new WebServiceClient.Builder(
-              Integer.parseInt(config.get("index.geoip.userid")),
-              config.get("index.geoip.licensekey")).build();
+          Integer.parseInt(config.get("index.geoip.userid")),
+          config.get("index.geoip.licensekey")).build();
       LOG.debug("Established geoip-index InsightsService client.");
-    } else if (usage != null && !usage.equalsIgnoreCase(INSIGHTS_SERVICE)) {
+    } else if (usage != null && DB_TYPES.contains(usage.toLowerCase())) {
       String dbFile = config.get("index.geoip.db.file");
       if (dbFile != null) {
-        LOG.debug("GeoIP db file: {}", dbFile);
-        URL dbFileUrl = config.getResource(dbFile);
-        if (dbFileUrl == null) {
-          LOG.error("Db file {} not found on classpath", dbFile);
+        InputStream db = config.getConfResourceAsInputStream(dbFile);
+        if (db == null) {
+          LOG.error("GeoIP DB file {} not found on classpath", dbFile);
         } else {
-          try {
-            buildDb(new File(dbFileUrl.getFile()));
-          } catch (Exception e) {
-            LOG.error("Failed to read Db file: {} {}", dbFile, e.getMessage());
-          }
+          buildDb(db, dbFile);
         }
       }
+    } else {
+      LOG.warn("Error processing index-geoip plugin configuration.");
     }
   }
 
-  /*
+  /**
    * Build the Database and
    * <a href="https://github.com/maxmind/GeoIP2-java/tree/main?tab=readme-ov-file#caching">
    * associated cache</a>.
-   * @param geoDb the GeoIP2 database to be used for IP lookups.
+   * @param db an {@link InputStream} representing the GeoIP2 DB to be used for IP lookups.
+   * @param dbFile the GeoIP DB file name
    */
-  private void buildDb(File geoDb) {
+  private void buildDb(InputStream db, String dbFile) {
     try {
-      LOG.info("Reading index-geoip Db file: {}", geoDb);
-      reader = Objects.requireNonNull(new DatabaseReader.Builder(geoDb).withCache(new CHMCache()).build());
+      reader = Objects.requireNonNull(new DatabaseReader.Builder(db).withCache(new CHMCache()).build());
+      LOG.info("Built in-memory GeoIP lookup DB from file: {}", db);
     } catch (IOException | NullPointerException e) {
-      LOG.error("Failed to build Db: {}", e.getMessage());
+      LOG.error("Failed to read Db file: {} {}", dbFile, e.getMessage());
     }
   }
 
@@ -179,8 +180,8 @@ public class GeoIPIndexingFilter implements IndexingFilter {
           LOG.error("Failed to determine 'index.geoip.usage' value: {}", usage);
         }
       } catch (IOException | GeoIp2Exception e) {
-          LOG.error("Error creating index-geoip fields _ip_: {}, databe type: {} \n{}",
-              serverIp, reader.getMetadata().getDatabaseType(), e.getMessage());
+        LOG.error("Error creating index-geoip fields _ip_: {}, databe type: {} \n{}",
+            serverIp, reader.getMetadata().getDatabaseType(), e.getMessage());
       }
     }
     return doc;
