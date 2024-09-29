@@ -78,6 +78,7 @@
     <ant dir="protocol-httpclient" target="deploy"/>
     <ant dir="protocol-interactiveselenium" target="deploy" />
     <ant dir="protocol-okhttp" target="deploy"/>
+    <ant dir="protocol-smb" target="deploy"/>
     <ant dir="protocol-selenium" target="deploy" />
     <ant dir="publish-rabbitmq" target="deploy"/>
     <ant dir="scoring-depth" target="deploy"/>

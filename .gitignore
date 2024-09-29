@@ -26,3 +26,7 @@ lib/spotbugs-*
 ivy/dependency-check-ant/*
 .gradle*
 ivy/apache-rat-*
+.vscode
+crawl
+urls
+solr_datadir

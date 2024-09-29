@@ -25,7 +25,8 @@
   <Appenders>
     <RollingFile name="RollingFile" fileName="${hadoop.log.dir}/${hadoop.log.file}"
       filePattern="${hadoop.log.dir}/$${date:yyyy-MM}/nutch-%d{yyyy-MM-dd}.log.gz">
-      <PatternLayout pattern="%d %p %c{1.} [%t] %m%n" />
+      <!--<PatternLayout pattern="%d %p %c{1.} [%t] %m%n" />-->
+      <PatternLayout pattern="%d %p %c [%t] %m%n" />
       <CronTriggeringPolicy schedule="0 0 0 * * ?" evaluateOnStartup="true" />
       <DefaultRolloverStrategy>
         <Delete basePath="${hadoop.log.dir}" maxDepth="2">
