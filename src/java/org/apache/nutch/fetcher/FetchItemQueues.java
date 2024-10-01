@@ -239,7 +239,7 @@ public class FetchItemQueues {
     return count;
   }
 
-  // empties the queues (used by timebomb and throughput threshold)
+  // empties the queues (used by fetcher timelimit and throughput threshold)
   public synchronized int emptyQueues() {
     int count = 0;
 
@@ -282,10 +282,18 @@ public class FetchItemQueues {
     if (fiq == null) {
       return 0;
     }
+
     int excCount = fiq.incrementExceptionCounter();
+    if (maxExceptions != -1 && excCount >= maxExceptions) {
+      // too many exceptions for items in this queue - purge it
+      return purgeAndBlockQueue(queueid, fiq, excCount);
+    }
+
+    long nexFetchTime = 0;
     if (delay > 0) {
-      fiq.nextFetchTime.getAndAdd(delay);
+      nexFetchTime = fiq.nextFetchTime.addAndGet(delay);
       LOG.info("* queue: {} >> delayed next fetch by {} ms", queueid, delay);
+
     } else if (exceptionsPerQueueDelay > 0) {
       /*
        * Delay the next fetch by a time span growing exponentially with the
@@ -298,30 +306,39 @@ public class FetchItemQueues {
         // double the initial delay with every observed exception
         exceptionDelay *= 2L << Math.min((excCount - 2), 31);
       }
-      fiq.nextFetchTime.getAndAdd(exceptionDelay);
+      nexFetchTime = fiq.nextFetchTime.addAndGet(exceptionDelay);
       LOG.info(
           "* queue: {} >> delayed next fetch by {} ms after {} exceptions in queue",
           queueid, exceptionDelay, excCount);
     }
-    if (maxExceptions != -1 && excCount >= maxExceptions) {
-      // too many exceptions for items in this queue - purge it
-      int deleted = fiq.emptyQueue();
-      if (deleted > 0) {
-        LOG.info(
-            "* queue: {} >> removed {} URLs from queue because {} exceptions occurred",
-            queueid, deleted, excCount);
-        totalSize.getAndAdd(-deleted);
-      }
-      if (feederAlive) {
-        LOG.info("* queue: {} >> blocked after {} exceptions", queueid,
-            excCount);
-        // keep queue IDs to ensure that these queues aren't created and filled
-        // again, see addFetchItem(FetchItem)
-        queuesMaxExceptions.add(queueid);
-      }
-      return deleted;
+
+    if (timelimit > 0 && nexFetchTime > timelimit) {
+      // the next fetch would happen after the fetcher timelimit
+      LOG.info(
+          "* queue: {} >> purging queue because next fetch scheduled after fetcher timelimit",
+          queueid);
+      return purgeAndBlockQueue(queueid, fiq, excCount);
     }
+
     return 0;
+  }
+
+  private int purgeAndBlockQueue(String queueid, FetchItemQueue fiq,
+      int excCount) {
+    int deleted = fiq.emptyQueue();
+    if (deleted > 0) {
+      LOG.info(
+          "* queue: {} >> removed {} URLs from queue after {} exceptions occurred",
+          queueid, deleted, excCount);
+      totalSize.getAndAdd(-deleted);
+    }
+    if (feederAlive) {
+      LOG.info("* queue: {} >> blocked after {} exceptions", queueid, excCount);
+      // keep queue IDs to ensure that these queues aren't created and filled
+      // again, see addFetchItem(FetchItem)
+      queuesMaxExceptions.add(queueid);
+    }
+    return deleted;
   }
 
   /**
