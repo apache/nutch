@@ -1174,6 +1174,17 @@
 </property>
 
 <property>
+  <name>fetcher.exceptions.per.queue.clear.after</name>
+  <value>1800</value>
+  <description>Time in seconds after which exception counters in
+  queues can be cleared. This happens only if no items are queued in
+  this queue and the configured time span has elapsed in addition to
+  the crawl delay including the exponential backoff time, see
+  fetcher.exceptions.per.queue.delay.
+  </description>
+</property>
+
+<property>
   <name>fetcher.throughput.threshold.pages</name>
   <value>-1</value>
   <description>The threshold of minimum pages per second. If the fetcher downloads less

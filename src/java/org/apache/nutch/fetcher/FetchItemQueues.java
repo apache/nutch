@@ -57,6 +57,7 @@ public class FetchItemQueues {
   long timelimit = -1;
   int maxExceptionsPerQueue = -1;
   long exceptionsPerQueueDelay = -1;
+  long exceptionsPerQueueClearAfter = 1800 * 1000L;
   boolean feederAlive = true;
   Configuration conf;
 
@@ -88,6 +89,8 @@ public class FetchItemQueues {
         "fetcher.max.exceptions.per.queue", -1);
     this.exceptionsPerQueueDelay = (long) (conf
         .getFloat("fetcher.exceptions.per.queue.delay", .0f) * 1000);
+    this.exceptionsPerQueueClearAfter = (long) (conf
+        .getFloat("fetcher.exceptions.per.queue.clear.after", 1800.0f) * 1000);
 
     int dedupRedirMaxTime = conf.getInt("fetcher.redirect.dedupcache.seconds",
         -1);
@@ -179,25 +182,41 @@ public class FetchItemQueues {
       it = queues.entrySet().iterator();
     }
 
+    boolean keepExceptionState = (maxExceptionsPerQueue > -1
+        || exceptionsPerQueueDelay > 0);
+
     while (it.hasNext()) {
       FetchItemQueue fiq = it.next().getValue();
 
       // reap empty queues which do not hold state required to ensure politeness
       if (fiq.getQueueSize() == 0 && fiq.getInProgressSize() == 0) {
         if (!feederAlive) {
-          // no more fetch items added
+          // no more fetch items added: queue can be safely removed
           it.remove();
-        } else if ((maxExceptionsPerQueue > -1 || exceptionsPerQueueDelay > 0)
-            && fiq.exceptionCounter.get() > 0) {
-          // keep queue because the exceptions counter is bound to it
-          // and is required to skip or delay items on this queue
-        } else if (fiq.nextFetchTime.get() > System.currentTimeMillis()) {
+          continue;
+        }
+
+        if (fiq.nextFetchTime.get() > System.currentTimeMillis()) {
           // keep queue to have it blocked in case new fetch items of this queue
           // are added by the QueueFeeder
-        } else {
-          // empty queue without state
-          it.remove();
+          continue;
         }
+
+        if (keepExceptionState && fiq.exceptionCounter.get() > 0) {
+          if ((fiq.nextFetchTime.get() + exceptionsPerQueueClearAfter) < System
+              .currentTimeMillis()) {
+            /*
+             * the time configured by fetcher.exceptions.per.queue.clear.after
+             * has passed in addition to the delay defined by the exponential
+             * backoff
+             */
+            it.remove();
+          }
+          continue;
+        }
+
+        // queue is empty and does not hold state required to ensure politeness
+        it.remove();
         continue;
       }
 
