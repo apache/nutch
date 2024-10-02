@@ -1198,7 +1198,11 @@
   <name>fetcher.throughput.threshold.retries</name>
   <value>5</value>
   <description>The number of times the fetcher.throughput.threshold.pages is allowed to be exceeded.
-  This settings prevents accidental slow downs from immediately killing the fetcher thread.
+  This settings prevents accidental slow downs from immediately shutting down the fetcher threads.
+  The throughput is checked approx. every second. Note: the number of retries should be lower
+  than the timeout defined by mapreduce.task.timeout and fetcher.threads.timeout.divisor (see there).
+  For the default values, the timeout is 300 seconds. Consequently, the number of retries should be
+  significantly lower.
   </description>
 </property>
 
