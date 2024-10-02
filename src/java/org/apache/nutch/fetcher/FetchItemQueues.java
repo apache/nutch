@@ -260,7 +260,7 @@ public class FetchItemQueues {
 
   // empties the queues (used by fetcher timelimit and throughput threshold)
   public synchronized int emptyQueues() {
-    int count = 0;
+    int count = 0, queuesDropped = 0;
 
     for (String id : queues.keySet()) {
       FetchItemQueue fiq = queues.get(id);
@@ -270,7 +270,11 @@ public class FetchItemQueues {
       int deleted = fiq.emptyQueue();
       totalSize.addAndGet(-deleted);
       count += deleted;
+      queuesDropped++;
     }
+
+    LOG.info("Emptied all queues: {} queues with {} items",
+        queuesDropped, count);
 
     return count;
   }
