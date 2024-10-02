@@ -212,11 +212,11 @@ public class Fetcher extends NutchTool implements Tool {
         int timeoutDivisor = conf.getInt("fetcher.threads.timeout.divisor", 2);
         LOG.info("Fetcher: time-out divisor: {}", timeoutDivisor);
 
-        int queueDepthMuliplier = conf.getInt("fetcher.queue.depth.multiplier",
+        int queueDepthMultiplier = conf.getInt("fetcher.queue.depth.multiplier",
             50);
 
         feeder = new QueueFeeder(innerContext, fetchQueues,
-            threadCount * queueDepthMuliplier);
+            threadCount * queueDepthMultiplier);
 
         // the value of the time limit is either -1 or the time where it should
         // finish
