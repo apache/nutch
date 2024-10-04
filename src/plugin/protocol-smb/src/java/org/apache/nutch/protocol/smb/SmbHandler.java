@@ -20,7 +20,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 
-public class Handler extends URLStreamHandler {
+public class SmbHandler extends URLStreamHandler {
 
   @Override
   protected URLConnection openConnection(URL u) {

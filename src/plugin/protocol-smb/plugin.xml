@@ -43,9 +43,9 @@
               point="org.apache.nutch.protocol.Protocol">
 
       <implementation id="org.apache.nutch.protocol.smb.Smb"
-                      class="org.apache.nutch.protocol.smb.Smb">
+                      class="org.apache.nutch.protocol.smb.SmbProtocol">
         <parameter name="protocolName" value="smb"/>
-        <parameter name="urlStreamHandler" value="org.apache.nutch.protocol.smb.Handler"/>
+        <parameter name="urlStreamHandler" value="org.apache.nutch.protocol.smb.SmbHandler"/>
       </implementation>
       
    </extension>
