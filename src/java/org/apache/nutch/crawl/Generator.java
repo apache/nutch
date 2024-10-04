@@ -85,7 +85,7 @@ import org.apache.nutch.util.URLUtil;
  * fetchlists for several segments in one go. Unlike in the initial version
  * (OldGenerator), the IP resolution is done ONLY on the entries which have been
  * selected for fetching. The URLs are partitioned by IP, domain or host within
- * a segment. We can chose separately how to count the URLS i.e. by domain or
+ * a segment. We can choose separately how to count the URLs i.e. by domain or
  * host to limit the entries.
  **/
 public class Generator extends NutchTool implements Tool {
