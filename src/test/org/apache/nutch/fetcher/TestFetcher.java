@@ -121,7 +121,6 @@ public class TestFetcher {
     // verify content
     Path content = new Path(new Path(generatedSegment[0], Content.DIR_NAME),
         "part-r-00000/data");
-    @SuppressWarnings("resource")
     SequenceFile.Reader reader = new SequenceFile.Reader(conf, SequenceFile.Reader.file(content));
 
     ArrayList<String> handledurls = new ArrayList<String>();
@@ -170,6 +169,8 @@ public class TestFetcher {
         handledurls.add(key.toString());
       }
     } while (true);
+
+    reader.close();
 
     Collections.sort(handledurls);
 
