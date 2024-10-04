@@ -28,7 +28,6 @@ import junit.framework.TestCase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.nutch.crawl.CrawlDbUpdateUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.TimingUtil;
 import org.slf4j.Logger;

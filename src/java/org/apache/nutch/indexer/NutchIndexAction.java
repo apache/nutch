@@ -22,8 +22,6 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
 
-import org.apache.nutch.indexer.NutchDocument;
-
 /**
  * A {@link NutchIndexAction} is the new unit of indexing holding the document
  * and action information.

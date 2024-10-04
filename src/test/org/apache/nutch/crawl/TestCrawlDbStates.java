@@ -26,8 +26,6 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
 
-import org.apache.nutch.crawl.CrawlDatum;
-
 import static org.apache.nutch.crawl.CrawlDatum.*;
 
 import org.apache.nutch.scoring.ScoringFilterException;

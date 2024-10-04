@@ -21,15 +21,11 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Tests that the index-arbitrary filter can add a new field with an arbitrary

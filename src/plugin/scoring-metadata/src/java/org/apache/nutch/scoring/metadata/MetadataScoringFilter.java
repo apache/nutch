@@ -17,21 +17,17 @@
 package org.apache.nutch.scoring.metadata;
 
 import java.util.Collection;
-import java.util.Map.Entry;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.scoring.AbstractScoringFilter;
+import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
 
 

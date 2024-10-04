@@ -21,7 +21,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.basic.BasicIndexingFilter;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.ParseData;

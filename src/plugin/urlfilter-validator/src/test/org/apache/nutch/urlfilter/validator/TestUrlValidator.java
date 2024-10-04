@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.urlfilter.validator;
 
-import org.apache.nutch.urlfilter.validator.UrlValidator;
 import org.junit.Assert;
 import org.junit.Test;
 
