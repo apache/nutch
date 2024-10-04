@@ -25,14 +25,14 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public interface  NutchReader {
+public interface NutchReader {
 
   static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
   public static final Configuration conf = NutchConfiguration.create();
   
-  public List read(String path) throws FileNotFoundException;
-  public List head(String path, int nrows) throws FileNotFoundException;
-  public List slice(String path, int start, int end) throws FileNotFoundException;
+  public List<?> read(String path) throws FileNotFoundException;
+  public List<?> head(String path, int nrows) throws FileNotFoundException;
+  public List<?> slice(String path, int start, int end) throws FileNotFoundException;
   public int count(String path) throws FileNotFoundException;
 }

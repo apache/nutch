@@ -101,9 +101,9 @@ public class TestCrawlDbStates {
     LOG.info("Test CrawlDatum state transitions");
     Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context = CrawlDBTestUtil.createContext();
     Configuration conf = context.getConfiguration();
-    CrawlDbUpdateUtil updateDb = null;
+    CrawlDbUpdateUtil<CrawlDbReducer> updateDb = null;
     try {
-      updateDb = new CrawlDbUpdateUtil(
+      updateDb = new CrawlDbUpdateUtil<>(
           new CrawlDbReducer(), context);
     } catch (IOException e) {
       e.printStackTrace();

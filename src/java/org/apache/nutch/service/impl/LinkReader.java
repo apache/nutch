@@ -33,11 +33,11 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.scoring.webgraph.LinkDatum;
 import org.apache.nutch.service.NutchReader;
 
-public class LinkReader implements NutchReader{
+public class LinkReader implements NutchReader {
 
   @Override
-  public List read(String path) throws FileNotFoundException {
-    List<HashMap> rows= new ArrayList<>();
+  public List<HashMap<String, String>> read(String path) throws FileNotFoundException {
+    List<HashMap<String, String>> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try{
@@ -69,8 +69,8 @@ public class LinkReader implements NutchReader{
   }
 
   @Override
-  public List head(String path, int nrows) throws FileNotFoundException {
-    List<HashMap> rows= new ArrayList<>();
+  public List<HashMap<String, String>> head(String path, int nrows) throws FileNotFoundException {
+    List<HashMap<String, String>> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try{
@@ -101,9 +101,9 @@ public class LinkReader implements NutchReader{
   }
 
   @Override
-  public List slice(String path, int start, int end)
+  public List<HashMap<String, String>> slice(String path, int start, int end)
       throws FileNotFoundException {
-    List<HashMap> rows= new ArrayList<>();
+    List<HashMap<String, String>> rows= new ArrayList<>();
     Path file = new Path(path);
     SequenceFile.Reader reader;
     try{

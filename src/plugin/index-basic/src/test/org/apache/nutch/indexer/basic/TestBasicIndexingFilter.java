@@ -93,6 +93,6 @@ public class TestBasicIndexingFilter {
     Assert.assertEquals("test content", "this is a sample foo",
         doc.getField("content").getValues().get(0));
     Assert.assertEquals("test fetch time", new Date(100L),
-        (Date) doc.getField("tstamp").getValues().get(0));
+        doc.getField("tstamp").getValues().get(0));
   }
 }

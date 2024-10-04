@@ -44,7 +44,6 @@ public class MetadataScoringFilter extends AbstractScoringFilter  {
   private static String[] datumMetadata;
   private static String[] contentMetadata;
   private static String[] parseMetadata;
-  private Configuration conf;
 
   /**
    * This will take the metadata that you have listed in your "scoring.parse.md"

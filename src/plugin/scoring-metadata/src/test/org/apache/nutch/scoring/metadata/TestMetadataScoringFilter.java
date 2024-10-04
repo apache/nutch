@@ -50,7 +50,7 @@ public class TestMetadataScoringFilter {
     parseData.getParseMeta().add("parent",parentMD);
     parseData.getParseMeta().add("depth",depthMD);
 
-    HashMap<Text,CrawlDatum> targets = new HashMap();
+    HashMap<Text,CrawlDatum> targets = new HashMap<>();
     targets.put(new Text("https://nutch.apache.org/downloads.html"),new CrawlDatum());
     targets.put(new Text("https://wiki.apache.org/nutch"),new CrawlDatum());
 
