@@ -24,7 +24,6 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -51,7 +50,7 @@ public class TestMetadataScoringFilter {
     parseData.getParseMeta().add("parent",parentMD);
     parseData.getParseMeta().add("depth",depthMD);
 
-    HashMap<Text,CrawlDatum> targets = new HashMap();
+    HashMap<Text,CrawlDatum> targets = new HashMap<>();
     targets.put(new Text("https://nutch.apache.org/downloads.html"),new CrawlDatum());
     targets.put(new Text("https://wiki.apache.org/nutch"),new CrawlDatum());
 

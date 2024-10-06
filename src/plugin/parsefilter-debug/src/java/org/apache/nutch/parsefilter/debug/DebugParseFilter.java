@@ -17,13 +17,10 @@
 package org.apache.nutch.parsefilter.debug;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
 import java.lang.invoke.MethodHandles;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.Parse;

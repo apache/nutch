@@ -347,7 +347,6 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
    *          list of input CrawlDatums
    * @return list of resulting CrawlDatum(s) in CrawlDb
    */
-  @SuppressWarnings("unchecked")
   public List<CrawlDatum> update(List<CrawlDatum> values) {
     if (values == null || values.size() == 0) {
       return new ArrayList<CrawlDatum>(0);
@@ -355,8 +354,8 @@ public class CrawlDbUpdateUtil <T extends Reducer<Text, CrawlDatum, Text, CrawlD
     Collections.shuffle(values); // sorting of values should have no influence
     DummyContext context = new DummyContext();
     try {
-      Iterable<CrawlDatum> iterable_values = (Iterable)values;
-      reducer.reduce(dummyURL, iterable_values, (Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context) context);
+      Iterable<CrawlDatum> iterable_values = values;
+      reducer.reduce(dummyURL, iterable_values, context);
     } catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
     } catch (InterruptedException e) {

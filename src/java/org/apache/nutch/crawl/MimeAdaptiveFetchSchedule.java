@@ -25,7 +25,6 @@ import java.util.HashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;

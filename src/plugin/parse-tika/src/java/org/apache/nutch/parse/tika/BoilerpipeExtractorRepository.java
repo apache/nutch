@@ -41,7 +41,7 @@ class BoilerpipeExtractorRepository {
         // Attempt to load the class
       try {
         ClassLoader loader = BoilerpipeExtractor.class.getClassLoader();
-        Class extractorClass = loader.loadClass(boilerpipeExtractorName);
+        Class<?> extractorClass = loader.loadClass(boilerpipeExtractorName);
 
           // Add an instance to the repository
         extractorRepository.put(boilerpipeExtractorName, (BoilerpipeExtractor)extractorClass.getConstructor().newInstance());

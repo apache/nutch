@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.scoring.link;
 
-import java.util.List;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;

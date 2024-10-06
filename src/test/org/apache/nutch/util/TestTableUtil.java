@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.util;
 
-import org.apache.nutch.util.TableUtil;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

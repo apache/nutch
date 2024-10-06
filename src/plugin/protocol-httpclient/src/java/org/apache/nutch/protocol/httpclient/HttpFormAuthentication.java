@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -132,7 +133,8 @@ public class HttpFormAuthentication {
           LOG.debug("Response headers : " + header);
         }
       }
-      String rst = IOUtils.toString(post.getResponseBodyAsStream());
+      String rst = IOUtils.toString(post.getResponseBodyAsStream(),
+          StandardCharsets.UTF_8);
       LOG.debug("login post result: " + rst);
     } finally {
       if (post != null) {
@@ -194,7 +196,8 @@ public class HttpFormAuthentication {
       if (cookieHeader != null) {
         setCookies(cookieHeader.getValue());
       }
-      String rst = IOUtils.toString(get.getResponseBodyAsStream());
+      String rst = IOUtils.toString(get.getResponseBodyAsStream(),
+          StandardCharsets.UTF_8);
       return rst;
     } finally {
       get.releaseConnection();

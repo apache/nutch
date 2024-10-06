@@ -26,8 +26,6 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
 
-import org.apache.nutch.crawl.CrawlDatum;
-
 import static org.apache.nutch.crawl.CrawlDatum.*;
 
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -103,9 +101,9 @@ public class TestCrawlDbStates {
     LOG.info("Test CrawlDatum state transitions");
     Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context = CrawlDBTestUtil.createContext();
     Configuration conf = context.getConfiguration();
-    CrawlDbUpdateUtil updateDb = null;
+    CrawlDbUpdateUtil<CrawlDbReducer> updateDb = null;
     try {
-      updateDb = new CrawlDbUpdateUtil(
+      updateDb = new CrawlDbUpdateUtil<>(
           new CrawlDbReducer(), context);
     } catch (IOException e) {
       e.printStackTrace();

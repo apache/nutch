@@ -16,22 +16,15 @@
  */
 package org.apache.nutch.tools;
 
-//Junit imports
-import static org.junit.Assert.*;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
-//Commons imports
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-
-//JDK imports
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Collection;
 
-//Nutch imports
-import org.apache.nutch.tools.CommonCrawlDataDumper;
-import org.apache.nutch.tools.CommonCrawlConfig;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.junit.Test;
 
 /**
  * 

@@ -153,7 +153,7 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
                               CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
-    Class theClass = null;
+    Class<?> theClass = null;
     Method theMethod = null;
     Constructor<?> theConstructor = null;
     Object instance = null;

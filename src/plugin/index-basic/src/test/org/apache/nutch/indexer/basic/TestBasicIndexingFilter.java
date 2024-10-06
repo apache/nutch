@@ -21,7 +21,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.basic.BasicIndexingFilter;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.ParseData;
@@ -94,6 +93,6 @@ public class TestBasicIndexingFilter {
     Assert.assertEquals("test content", "this is a sample foo",
         doc.getField("content").getValues().get(0));
     Assert.assertEquals("test fetch time", new Date(100L),
-        (Date) doc.getField("tstamp").getValues().get(0));
+        doc.getField("tstamp").getValues().get(0));
   }
 }

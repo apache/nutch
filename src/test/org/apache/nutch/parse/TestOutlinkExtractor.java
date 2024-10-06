@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.parse;
 
-import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.OutlinkExtractor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;

@@ -16,18 +16,16 @@
  */
 package org.apache.nutch.protocol.interactiveselenium;
 
-import java.lang.invoke.MethodHandles;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.util.NutchConfiguration;
-
-import org.apache.nutch.protocol.interactiveselenium.HttpResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

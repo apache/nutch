@@ -404,11 +404,6 @@ public class FetcherThread extends Thread {
 
             switch (status.getCode()) {
 
-            case ProtocolStatus.WOULDBLOCK:
-              // retry ?
-              fetchQueues.addFetchItem(fit);
-              break;
-
             case ProtocolStatus.SUCCESS: // got a page
               pstatus = output(fit.url, fit.datum, content, status,
                   CrawlDatum.STATUS_FETCH_SUCCESS, fit.outlinkDepth);
@@ -457,8 +452,8 @@ public class FetcherThread extends Thread {
                 context.getCounter("FetcherStatus",
                     "AboveExceptionThresholdInQueue").increment(killedURLs);
               /* FALLTHROUGH */
+
             case ProtocolStatus.RETRY: // retry
-            case ProtocolStatus.BLOCKED:
               output(fit.url, fit.datum, null, status,
                   CrawlDatum.STATUS_FETCH_RETRY);
               break;
