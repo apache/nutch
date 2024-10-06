@@ -163,7 +163,7 @@ public class Fetcher extends NutchTool implements Tool {
       StringBuilder status = new StringBuilder();
       Long elapsed = Long.valueOf((System.currentTimeMillis() - start) / 1000);
 
-      float avgPagesSec = (float) pages.get() / elapsed.floatValue();
+      float avgPagesSec = pages.get() / elapsed.floatValue();
       long avgBytesSec = (bytes.get() / 128l) / elapsed.longValue();
 
       status.append(activeThreads).append(" threads (")
@@ -212,11 +212,11 @@ public class Fetcher extends NutchTool implements Tool {
         int timeoutDivisor = conf.getInt("fetcher.threads.timeout.divisor", 2);
         LOG.info("Fetcher: time-out divisor: {}", timeoutDivisor);
 
-        int queueDepthMuliplier = conf.getInt("fetcher.queue.depth.multiplier",
+        int queueDepthMultiplier = conf.getInt("fetcher.queue.depth.multiplier",
             50);
 
         feeder = new QueueFeeder(innerContext, fetchQueues,
-            threadCount * queueDepthMuliplier);
+            threadCount * queueDepthMultiplier);
 
         // the value of the time limit is either -1 or the time where it should
         // finish
@@ -317,12 +317,15 @@ public class Fetcher extends NutchTool implements Tool {
             if (pagesLastSec < throughputThresholdPages) {
               throughputThresholdNumRetries++;
               LOG.warn(
-                  "{}: dropping below configured threshold of {} pages per second",
-                  throughputThresholdNumRetries, throughputThresholdPages);
+                  "{}: dropping below configured threshold of {} pages per second (current throughput: {} pages/sec.)",
+                  throughputThresholdNumRetries, throughputThresholdPages,
+                  pagesLastSec);
 
               // Quit if we dropped below threshold too many times
               if (throughputThresholdNumRetries == throughputThresholdMaxRetries) {
-                LOG.warn("Dropped below threshold too many times, killing!");
+                LOG.warn(
+                    "Dropped below threshold {} times, dropping fetch queues to shut down",
+                    throughputThresholdNumRetries);
 
                 // Disable the threshold checker
                 throughputThresholdPages = -1;
@@ -427,7 +430,8 @@ public class Fetcher extends NutchTool implements Tool {
            * we stop the fetching now.
            */
           if ((System.currentTimeMillis() - lastRequestStart.get()) > timeout) {
-            LOG.warn("Aborting with {} hung threads.", activeThreads);
+            LOG.warn("Aborting with {} hung threads{}.", activeThreads,
+                feeder.isAlive() ? " (queue feeder still alive)" : "");
             innerContext.getCounter("FetcherStatus", "hungThreads")
                 .increment(activeThreads.get());
             for (int i = 0; i < fetcherThreads.size(); i++) {
