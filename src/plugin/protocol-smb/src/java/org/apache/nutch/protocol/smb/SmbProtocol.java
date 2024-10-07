@@ -44,9 +44,11 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.protocol.RobotRulesParser;
 import com.hierynomus.msdtyp.AccessMask;
+import com.hierynomus.mserref.NtStatus;
 import com.hierynomus.msfscc.FileAttributes;
 import com.hierynomus.msfscc.fileinformation.FileAllInformation;
 import com.hierynomus.msfscc.fileinformation.FileIdBothDirectoryInformation;
+import com.hierynomus.mssmb2.SMBApiException;
 import com.hierynomus.mssmb2.SMB2CreateDisposition;
 import com.hierynomus.mssmb2.SMB2CreateOptions;
 import com.hierynomus.mssmb2.SMB2ShareAccess;
@@ -287,16 +289,17 @@ public class SmbProtocol implements Protocol {
       String path = components[1];
 
       try (Connection connection = getSMBConnection(url)) {
+        String base = base = getBase(urlstr);
+
         try (DiskShare share = getDiskShare(url, connection)) {
 
           // now get the content
           if (share.folderExists(path)) {
             String htmlContent = getDirectoryContent(share, shareName, path);
-            String base = getBase(urlstr);
             LOG.trace("directory={}", htmlContent);
 
             return new ProtocolOutput(
-              new Content(base, base, htmlContent.getBytes(), "text/html", new Metadata(), getConf()), 
+              new Content(urlstr.toString(), base, htmlContent.getBytes(), "text/html", new Metadata(), getConf()), 
                 ProtocolStatus.STATUS_SUCCESS
               );
           } else if (share.fileExists(path)) {
@@ -307,7 +310,6 @@ public class SmbProtocol implements Protocol {
             Content content = getFileContent(urlstr.toString(), url.toURI().resolve("..").toString(), share, path, metadata);
 
             // create content and return result
-            String base = urlstr.toString();
             return new ProtocolOutput(
               content, 
               ProtocolStatus.STATUS_SUCCESS
@@ -317,11 +319,22 @@ public class SmbProtocol implements Protocol {
             // communicate error
             String message = "File not found: " + urlstr;
             LOG.info(message);
-            String base = urlstr.toString();
             return new ProtocolOutput(
-              new Content(base, base, message.getBytes(), "text/plain", new Metadata(), getConf()),
+              new Content(urlstr.toString(), base, message.getBytes(), "text/plain", new Metadata(), getConf()),
               ProtocolStatus.STATUS_NOTFOUND
             );
+          }
+        } catch (SMBApiException e) {
+          if (e.getStatus() == NtStatus.STATUS_BAD_NETWORK_NAME) {
+
+            // this URL makes to sense to be scanned. Make sure this URL gets evicted from the CrawlDB.
+            LOG.error("Bad network name: {}", urlstr);
+            return new ProtocolOutput(
+              new Content(urlstr.toString(), base, e.getMessage().getBytes(), "text/plain", new Metadata(), getConf()),
+              ProtocolStatus.STATUS_NOTFOUND
+            );
+          } else {
+            throw e;
           }
         }
       }
@@ -373,6 +386,16 @@ public class SmbProtocol implements Protocol {
 
           LOG.info("robots.txt for {} found and parsed", urlstr);
           return rules;
+        } catch (SMBApiException e) {
+          if (e.getStatus() == NtStatus.STATUS_BAD_NETWORK_NAME) {
+
+            // this URL makes to sense to be scanned. But we assume 'empty rules' as no robots.txt exists and
+            // in getProtocolOutput we can make sure this URL gets evicted from the CrawlDB.
+            LOG.error("Bad network name: {} -> crawl everything", urlstr);
+            return RobotRulesParser.EMPTY_RULES;
+          } else {
+            throw e;
+          }
         }
       }
       
