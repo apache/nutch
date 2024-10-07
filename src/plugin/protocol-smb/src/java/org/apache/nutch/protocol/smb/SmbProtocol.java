@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -55,10 +56,13 @@ import com.hierynomus.smbj.session.Session;
 import com.hierynomus.smbj.share.DiskShare;
 import com.hierynomus.smbj.share.File;
 import com.hierynomus.smbj.SMBClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import crawlercommons.robots.BaseRobotRules;
+import crawlercommons.robots.SimpleRobotRules;
+import crawlercommons.robots.SimpleRobotRulesParser;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SmbProtocol implements Protocol {
   protected static final Logger LOG = LoggerFactory.getLogger(SmbProtocol.class);
@@ -70,6 +74,7 @@ public class SmbProtocol implements Protocol {
   private String domain;
   private int contentLimit;
   private Set<String> ignoreFiles;
+  private Collection<String> agentNames;
 
   public SmbProtocol() {
     // todo: files that should be skipped could be configurable.
@@ -90,14 +95,19 @@ public class SmbProtocol implements Protocol {
   public void setConf(Configuration conf) {
     this.conf = conf;
 
+    agentNames = conf.getTrimmedStringCollection("smb.agent.name");
+    if (agentNames == null || agentNames.isEmpty()) {
+      throw new IllegalArgumentException("Config parameter 'smb.agent.name' not set or empty.");
+    }
+
     // todo: is it possible to use configuration "per server" or "per share"?
     user = conf.getTrimmed("smb.user");
     if (user == null || user.isEmpty()) {
-      throw new IllegalArgumentException("Config parameter 'smb.user' not set.");
+      throw new IllegalArgumentException("Config parameter 'smb.user' not set or empty.");
     }
     password = conf.getTrimmed("smb.password");
     if (password == null || password.isEmpty()) {
-      throw new IllegalArgumentException("Config parameter 'smb.password' not set.");
+      throw new IllegalArgumentException("Config parameter 'smb.password' not set or empty.");
     }
     domain = conf.getTrimmed("smb.domain");
     contentLimit = conf.getInt("smb.content.limit", Integer.MAX_VALUE);
@@ -117,7 +127,7 @@ public class SmbProtocol implements Protocol {
       sb.append("<pre>");
       for (FileIdBothDirectoryInformation f : share.list(path)) {
         if (ignoreFiles.contains(f.getFileName())) {
-          LOG.warn("File skipped: " + f.getFileName());
+          LOG.debug("File skipped: " + f.getFileName());
           continue;
         }
         boolean isDir = share.folderExists(path + "/" + f.getFileName());
@@ -140,7 +150,7 @@ public class SmbProtocol implements Protocol {
 
   private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
 
-  private DiskShare getDiskShare(URL url) throws UnsupportedEncodingException, IOException {
+  private Connection getSMBConnection(URL url) throws UnsupportedEncodingException, IOException {
     String hostname = url.getHost();
     int port = url.getPort();
     String shareAndPath = url.getPath();
@@ -163,6 +173,21 @@ public class SmbProtocol implements Protocol {
     // todo: we construct and destruct the connection for each and every URL. Can connection pools improve?
     SMBClient client = new SMBClient();
     Connection connection = client.connect(hostname, port);
+    return connection;
+  }
+
+  private DiskShare getDiskShare(URL url, Connection connection) throws UnsupportedEncodingException, IOException {
+    String shareAndPath = url.getPath();
+    String[] components = shareAndPath.split("/", 3);
+    String shareName = components[1];
+    shareName = java.net.URLDecoder.decode(shareName, StandardCharsets.UTF_8.name());
+    String path = components.length>2 ? "/" + components[2]: "/";
+    path = java.net.URLDecoder.decode(path, StandardCharsets.UTF_8.name());
+
+    LOG.trace("shareAndPath={}", shareAndPath);
+    LOG.trace("share={}", shareName);
+    LOG.trace("path={}", path);
+
     Session session = connection.authenticate(
       new AuthenticationContext(user, password.toCharArray(), domain)
     );
@@ -191,6 +216,58 @@ public class SmbProtocol implements Protocol {
     return new String[]{shareName, path};
   }
 
+  private Content getFileContent(String urlstr, String base, DiskShare share, String path, Metadata metadata) throws IOException {
+    FileAllInformation fileInfo = share.getFileInformation(path);
+    File file = share.openFile(path, EnumSet.of(AccessMask.GENERIC_READ), null, SMB2ShareAccess.ALL, SMB2CreateDisposition.FILE_OPEN, null);
+
+    InputStream fileIn = file.getInputStream();
+    byte[] bytes = null;
+    long fileSize = fileInfo.getStandardInformation().getEndOfFile();
+    long fetchSize = fileSize;
+    metadata.add("fileSize", String.valueOf(fileSize));
+
+    // todo: we run into issues if the file is bigger than 2 GB. I made the limit configurable
+    // but e.g. zip can no longer be evaluated if too big.
+    if (fetchSize > contentLimit) {
+      LOG.info("trunkating {}", urlstr);
+      fetchSize = contentLimit;
+
+      // todo: this metadata seems to be not available for the indexer. However it might be useful to know the content
+      // discovery is incomplete
+      metadata.add("truncated", String.valueOf(fetchSize));
+    }
+
+    bytes = IOUtils.toByteArray(fileIn, fetchSize); // read inputstream into byte array
+
+    LOG.trace("retrieved {} bytes", bytes.length);
+
+    if (LOG.isTraceEnabled()) {
+      StringBuilder sb = new StringBuilder();
+      for (int i=0; i<Math.min(16, fetchSize);i++) {
+        int b = bytes[i] & 0xFF;
+        sb.append(" ").append(HEX_ARRAY[b>>>4]).append(HEX_ARRAY[b & 0xF]);
+      }
+      LOG.trace("retrieved {} bytes starting with {}", bytes.length, sb.toString());
+    }
+    LOG.trace("metadata={}", metadata);
+
+    return new Content(urlstr, base, bytes, "application/octet-stream", metadata, getConf());
+  }
+
+  private String getBase(Text urlstr) {
+          // construct a suitable base
+          String base = urlstr.toString();
+          if (base.endsWith("/")) {
+            base = base + ".";
+          }
+          if (!base.endsWith("/.")) {
+            base = base + "/.";
+          }
+
+          LOG.trace("base={}", base);
+          return base;
+  }
+
   /**
    * Get the {@link ProtocolOutput} for a given url and crawldatum.
    * 
@@ -205,86 +282,48 @@ public class SmbProtocol implements Protocol {
 
     try {
       URL url = new URI(urlstr.toString()).toURL();
-      String[] shareAndPath = getSmbShareAndPath(url);
-      String shareName = shareAndPath[0];
-      String path = shareAndPath[1];
+      String[] components = getSmbShareAndPath(url);
+      String shareName = components[0];
+      String path = components[1];
 
-      DiskShare share = getDiskShare(url);
+      try (Connection connection = getSMBConnection(url)) {
+        try (DiskShare share = getDiskShare(url, connection)) {
 
-      // now get the content
-      if (share.folderExists(path)) {
-        String htmlContent = getDirectoryContent(share, shareName, path);
+          // now get the content
+          if (share.folderExists(path)) {
+            String htmlContent = getDirectoryContent(share, shareName, path);
+            String base = getBase(urlstr);
+            LOG.trace("directory={}", htmlContent);
 
-        // construct a suitable base
-        String base = urlstr.toString();
-        if (base.endsWith("/")) {
-          base = base + ".";
-        }
-        if (!base.endsWith("/.")) {
-          base = base + "/.";
-        }
+            return new ProtocolOutput(
+              new Content(base, base, htmlContent.getBytes(), "text/html", new Metadata(), getConf()), 
+                ProtocolStatus.STATUS_SUCCESS
+              );
+          } else if (share.fileExists(path)) {
+            // todo: how can we store this, and maybe more metadata?
+            Metadata metadata = new Metadata();
+            metadata.set(Metadata.CONTENT_TYPE, "application/octet-stream");
 
-        LOG.trace("base={}", base);
-        LOG.trace("directory={}", htmlContent);
+            Content content = getFileContent(urlstr.toString(), url.toURI().resolve("..").toString(), share, path, metadata);
 
-        return new ProtocolOutput(
-          new Content(base, base, htmlContent.getBytes(), "text/html", new Metadata(), getConf()), 
-            ProtocolStatus.STATUS_SUCCESS
-          );
-      } else if (share.fileExists(path)) {
-        // todo: how can we store this, and maybe more metadata?
-        Metadata metadata = new Metadata();
-        metadata.set(Metadata.CONTENT_TYPE, "application/octet-stream");
+            // create content and return result
+            String base = urlstr.toString();
+            return new ProtocolOutput(
+              content, 
+              ProtocolStatus.STATUS_SUCCESS
+            );
 
-        FileAllInformation fileInfo = share.getFileInformation(path);
-        File file = share.openFile(path, EnumSet.of(AccessMask.GENERIC_READ), null, SMB2ShareAccess.ALL, SMB2CreateDisposition.FILE_OPEN, null);
-
-        InputStream fileIn = file.getInputStream();
-        byte[] bytes = null;
-        long fileSize = fileInfo.getStandardInformation().getEndOfFile();
-        long fetchSize = fileSize;
-        metadata.add("fileSize", String.valueOf(fileSize));
-
-        // todo: we run into issues if the file is bigger than 2 GB. I made the limit configurable
-        // but e.g. zip can no longer be evaluated if too big.
-        if (fetchSize > contentLimit) {
-          LOG.info("trunkating {}", urlstr);
-          fetchSize = contentLimit;
-
-          // todo: this metadata seems to be not available for the indexer. However it might be useful to know the content
-          // discovery is incomplete
-          metadata.add("truncated", String.valueOf(fetchSize));
-        }
-
-        bytes = IOUtils.toByteArray(fileIn, fetchSize); // read inputstream into byte array
-
-        LOG.trace("retrieved {} bytes", bytes.length);
-
-        if (LOG.isTraceEnabled()) {
-          StringBuilder sb = new StringBuilder();
-          for (int i=0; i<Math.min(16, fetchSize);i++) {
-            int b = bytes[i] & 0xFF;
-            sb.append(" ").append(HEX_ARRAY[b>>>4]).append(HEX_ARRAY[b & 0xF]);
+          } else {
+            // communicate error
+            String message = "File not found: " + urlstr;
+            LOG.info(message);
+            String base = urlstr.toString();
+            return new ProtocolOutput(
+              new Content(base, base, message.getBytes(), "text/plain", new Metadata(), getConf()),
+              ProtocolStatus.STATUS_NOTFOUND
+            );
           }
-          LOG.trace("retrieved {} bytes starting with {}", bytes.length, sb.toString());
         }
-        LOG.trace("metadata={}", metadata);
-
-        // create content and return result
-        String base = urlstr.toString();
-        return new ProtocolOutput(
-          new Content(base, base, bytes, "application/octet-stream", metadata, getConf()), 
-          ProtocolStatus.STATUS_SUCCESS
-        );
-      } else {
-        // communicate error
-        String message = "File not found: " + urlstr;
-        LOG.info(message);
-        String base = urlstr.toString();
-        return new ProtocolOutput(
-          new Content(base, base, message.getBytes(), "text/plain", new Metadata(), getConf()),
-          ProtocolStatus.STATUS_NOTFOUND
-        );
       }
 
     } catch(Exception e) {
@@ -314,19 +353,31 @@ public class SmbProtocol implements Protocol {
 
     try {
       URL url = new URI(urlstr.toString()).toURL();
-      DiskShare share = getDiskShare(url);
-      if (!share.fileExists("/robots.txt")) {
-        // no robots file? Then we can scan everything
-        LOG.debug("No robots.txt found -> crawl everything");
-        return RobotRulesParser.EMPTY_RULES;
-      }
+      try (Connection connection = getSMBConnection(url)) {
+        try (DiskShare share = getDiskShare(url, connection)) {
+          // search for the file compliant to https://www.rfc-editor.org/rfc/rfc9309.html
+          // chapter 2.3
+          if (!share.fileExists("/robots.txt")) {
+            // no robots file? Then we can scan everything
+            LOG.info("No robots.txt found for {} -> crawl everything", urlstr);
+            return RobotRulesParser.EMPTY_RULES;
+          }
 
-      // todo: we should read some robots file from the smb share
-      // until then we simply do nothing
-      LOG.info("/robots.txt found -> we do not crawl");
-      return RobotRulesParser.FORBID_ALL_RULES;
+          Metadata metadata = new Metadata();
+          Content content = getFileContent(urlstr.toString(), url.toURI().resolve("..").toString(), share, "/robots.txt", metadata);
+
+          // make use of
+          // https://crawler-commons.github.io/crawler-commons/1.4/crawlercommons/robots/SimpleRobotRulesParser.html#parseContent(java.lang.String,byte%5B%5D,java.lang.String,java.util.Collection)
+          SimpleRobotRulesParser simpleRobotsRulesParser = new SimpleRobotRulesParser();
+          SimpleRobotRules rules =  simpleRobotsRulesParser.parseContent(urlstr.toString(), content.getContent(), content.getContentType(), agentNames);
+
+          LOG.info("robots.txt for {} found and parsed", urlstr);
+          return rules;
+        }
+      }
+      
     } catch (Exception e) {
-      LOG.info("Could not get robot rules for {}", e);
+      LOG.info("Could not get robot rules for {}", urlstr, e);
       return RobotRulesParser.DEFER_VISIT_RULES;
     }
   }
