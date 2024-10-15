@@ -358,6 +358,39 @@ public class Injector extends NutchTool implements Tool {
     setConf(conf);
   }
 
+  private Job prepareJob(Configuration conf, Path urlDir, Path current, Path tempCrawlDb) throws IOException {
+    Job job = Job.getInstance(conf, "Nutch Injector: " + urlDir);
+    job.setJarByClass(Injector.class);
+    job.setMapperClass(InjectMapper.class);
+    job.setReducerClass(InjectReducer.class);
+    job.setOutputFormatClass(MapFileOutputFormat.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(CrawlDatum.class);
+    job.setSpeculativeExecution(false);
+
+    // set input and output paths of the job
+    MultipleInputs.addInputPath(job, current, SequenceFileInputFormat.class);
+    FileStatus[] seedFiles = urlDir.getFileSystem(conf).listStatus(urlDir);
+    int numSeedFiles = 0;
+    for (FileStatus seedFile : seedFiles) {
+      if (seedFile.isFile()) {
+        MultipleInputs.addInputPath(job, seedFile.getPath(),
+            KeyValueTextInputFormat.class);
+        numSeedFiles++;
+        LOG.info("Injecting seed URL file {}", seedFile.getPath());
+      } else {
+        LOG.warn("Skipped non-file input in {}: {}", urlDir,
+            seedFile.getPath());
+      }
+    }
+    if (numSeedFiles == 0) {
+      LOG.error("No seed files to inject found in {}", urlDir);
+      throw new IllegalStateException("No seed files found");
+    }
+    FileOutputFormat.setOutputPath(job, tempCrawlDb);
+    return job;
+  }
+
   public void inject(Path crawlDb, Path urlDir)
       throws IOException, ClassNotFoundException, InterruptedException {
     inject(crawlDb, urlDir, false, false);
@@ -400,40 +433,11 @@ public class Injector extends NutchTool implements Tool {
     Path tempCrawlDb = new Path(crawlDb,
         "crawldb-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
+    // configure job
+    Job job = prepareJob(conf, urlDir, current, tempCrawlDb);
+
     // lock an existing crawldb to prevent multiple simultaneous updates
     Path lock = CrawlDb.lock(conf, crawlDb, false);
-
-    // configure job
-    Job job = Job.getInstance(conf, "Nutch Injector: " + urlDir);
-    job.setJarByClass(Injector.class);
-    job.setMapperClass(InjectMapper.class);
-    job.setReducerClass(InjectReducer.class);
-    job.setOutputFormatClass(MapFileOutputFormat.class);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(CrawlDatum.class);
-    job.setSpeculativeExecution(false);
-
-    // set input and output paths of the job
-    MultipleInputs.addInputPath(job, current, SequenceFileInputFormat.class);
-    FileStatus[] seedFiles = urlDir.getFileSystem(getConf()).listStatus(urlDir);
-    int numSeedFiles = 0;
-    for (FileStatus seedFile : seedFiles) {
-      if (seedFile.isFile()) {
-        MultipleInputs.addInputPath(job, seedFile.getPath(),
-            KeyValueTextInputFormat.class);
-        numSeedFiles++;
-        LOG.info("Injecting seed URL file {}", seedFile.getPath());
-      } else {
-        LOG.warn("Skipped non-file input in {}: {}", urlDir,
-            seedFile.getPath());
-      }
-    }
-    if (numSeedFiles == 0) {
-      LOG.error("No seed files to inject found in {}", urlDir);
-      LockUtil.removeLockFile(fs, lock);
-      return;
-    }
-    FileOutputFormat.setOutputPath(job, tempCrawlDb);
 
     try {
       // run the job
@@ -487,6 +491,8 @@ public class Injector extends NutchTool implements Tool {
       LOG.error("Injector job failed: {}", e.getMessage());
       NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
       throw e;
+    } finally {
+      LockUtil.removeLockFile(fs, lock);
     }
   }
 
