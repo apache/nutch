@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- todo: This file should be some encrypted vault -->
+<url-authentication>
+    <authentication pattern="^smb://host/share.*" user="user" domain="domain" password="password"/>
+    <authentication pattern="^smb://hiran@nas/Documents.*" user="hiran" domain="domain" password="password"/>
+</url-authentication>

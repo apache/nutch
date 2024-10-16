@@ -43,6 +43,8 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.protocol.RobotRulesParser;
+import org.apache.nutch.protocol.smb.URLAuthentication.Authentication;
+import org.xml.sax.InputSource;
 import com.hierynomus.msdtyp.AccessMask;
 import com.hierynomus.mserref.NtStatus;
 import com.hierynomus.msfscc.FileAttributes;
@@ -70,21 +72,18 @@ public class SmbProtocol implements Protocol {
   protected static final Logger LOG = LoggerFactory.getLogger(SmbProtocol.class);
 
   private Configuration conf;
+  private URLAuthentication urlAuthentication;
 
-  private String user;
-  private String password;
-  private String domain;
   private int contentLimit;
   private Set<String> ignoreFiles;
   private Collection<String> agentNames;
 
   public SmbProtocol() {
-    // todo: files that should be skipped could be configurable.
+    // Place here only files that SMB needs to ignore. Other files such as
+    // version control (.git, .svn) can be ignored via the regex url filter.
     this.ignoreFiles = new HashSet<>();
     ignoreFiles.add(".");
     ignoreFiles.add("..");
-    ignoreFiles.add(".svn");
-    ignoreFiles.add(".git");
   }
 
   @Override
@@ -102,17 +101,11 @@ public class SmbProtocol implements Protocol {
       throw new IllegalArgumentException("Config parameter 'smb.agent.name' not set or empty.");
     }
 
-    // todo: is it possible to use configuration "per server" or "per share"?
-    user = conf.getTrimmed("smb.user");
-    if (user == null || user.isEmpty()) {
-      throw new IllegalArgumentException("Config parameter 'smb.user' not set or empty.");
-    }
-    password = conf.getTrimmed("smb.password");
-    if (password == null || password.isEmpty()) {
-      throw new IllegalArgumentException("Config parameter 'smb.password' not set or empty.");
-    }
-    domain = conf.getTrimmed("smb.domain");
-    contentLimit = conf.getInt("smb.content.limit", Integer.MAX_VALUE);
+    // load authentication data
+    String filename = conf.get("smb.url-authentication.file", "url-authentication.xml");
+    InputStream ssInputStream = conf.getConfResourceAsInputStream(filename);
+    InputSource inputSource = new InputSource(ssInputStream);
+    urlAuthentication = URLAuthentication.loadAuthentication(inputSource);
   }
 
   /**
@@ -179,6 +172,10 @@ public class SmbProtocol implements Protocol {
   }
 
   private DiskShare getDiskShare(URL url, Connection connection) throws UnsupportedEncodingException, IOException {
+    if (urlAuthentication == null) {
+      throw new IllegalStateException("urlAuthentication must not be null");
+    }
+
     String shareAndPath = url.getPath();
     String[] components = shareAndPath.split("/", 3);
     String shareName = components[1];
@@ -190,9 +187,19 @@ public class SmbProtocol implements Protocol {
     LOG.trace("share={}", shareName);
     LOG.trace("path={}", path);
 
-    Session session = connection.authenticate(
-      new AuthenticationContext(user, password.toCharArray(), domain)
-    );
+    Authentication auth = urlAuthentication.getAuthenticationFor(url.toString());
+    Session session = null;
+    if (auth == null) {
+      LOG.trace("Anonymously connecting to {}", url);
+      session = connection.authenticate(
+        AuthenticationContext.anonymous()
+      );
+    } else {
+      LOG.trace("Authenticating with {}", auth);
+      session = connection.authenticate(
+        new AuthenticationContext(auth.getUser(), auth.getPassword(), auth.getDomain())
+      );
+    }
     // Connect to Share
     DiskShare share = (DiskShare) session.connectShare(shareName);
     return share;
