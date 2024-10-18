@@ -158,7 +158,7 @@ public class Injector extends NutchTool implements Tool {
           if (filters != null)
             url = filters.filter(url); // filter the url
         } catch (Exception e) {
-          LOG.warn("Skipping " + url + ":" + e);
+          LOG.warn("Skipping {}", url, e);
           url = null;
         }
       }
