@@ -64,11 +64,13 @@ import com.hierynomus.smbj.SMBClient;
 import crawlercommons.robots.BaseRobotRules;
 import crawlercommons.robots.SimpleRobotRules;
 import crawlercommons.robots.SimpleRobotRulesParser;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SmbProtocol implements Protocol {
+public class SmbProtocol implements Protocol, AutoCloseable {
   protected static final Logger LOG = LoggerFactory.getLogger(SmbProtocol.class);
 
   private Configuration conf;
@@ -77,6 +79,12 @@ public class SmbProtocol implements Protocol {
   private int contentLimit;
   private Set<String> ignoreFiles;
   private Collection<String> agentNames;
+  
+  private long scannedFolderCount;
+  private long scannedFileCount;
+  private long truncatedFileCount;
+  
+  private Map<String, BaseRobotRules> robotsCache = new TreeMap<>();
 
   public SmbProtocol() {
     // Place here only files that SMB needs to ignore. Other files such as
@@ -170,6 +178,13 @@ public class SmbProtocol implements Protocol {
     Connection connection = client.connect(hostname, port);
     return connection;
   }
+  
+  private URL getRobotsUrl(URL url) throws URISyntaxException, MalformedURLException {
+    String shareAndPath = url.getPath();
+    String[] components = shareAndPath.split("/", 3);
+    String shareName = components[1];
+    return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), "/" + shareName + "/robots.txt", null, null).toURL();
+  }
 
   private DiskShare getDiskShare(URL url, Connection connection) throws UnsupportedEncodingException, IOException {
     if (urlAuthentication == null) {
@@ -244,6 +259,7 @@ public class SmbProtocol implements Protocol {
       // todo: this metadata seems to be not available for the indexer. However it might be useful to know the content
       // discovery is incomplete
       metadata.add("truncated", String.valueOf(fetchSize));
+      truncatedFileCount++;
     }
 
     bytes = IOUtils.toByteArray(fileIn, fetchSize); // read inputstream into byte array
@@ -304,6 +320,7 @@ public class SmbProtocol implements Protocol {
           if (share.folderExists(path)) {
             String htmlContent = getDirectoryContent(share, shareName, path);
             LOG.trace("directory={}", htmlContent);
+            scannedFolderCount++;
 
             return new ProtocolOutput(
               new Content(urlstr.toString(), base, htmlContent.getBytes(), "text/html", new Metadata(), getConf()), 
@@ -315,6 +332,7 @@ public class SmbProtocol implements Protocol {
             metadata.set(Metadata.CONTENT_TYPE, "application/octet-stream");
 
             Content content = getFileContent(urlstr.toString(), url.toURI().resolve("..").toString(), share, path, metadata);
+            scannedFileCount++;
 
             // create content and return result
             return new ProtocolOutput(
@@ -371,44 +389,84 @@ public class SmbProtocol implements Protocol {
   public BaseRobotRules getRobotRules(Text urlstr, CrawlDatum datum, List<Content> robotsTxtContent) {
     LOG.trace("getRobotRules({}, {}, {})", urlstr, datum, robotsTxtContent);
 
+    URL url = null;
+    URL robotsURL = null;
     try {
-      URL url = new URI(urlstr.toString()).toURL();
-      try (Connection connection = getSMBConnection(url)) {
-        try (DiskShare share = getDiskShare(url, connection)) {
-          // search for the file compliant to https://www.rfc-editor.org/rfc/rfc9309.html
-          // chapter 2.3
-          if (!share.fileExists("/robots.txt")) {
-            // no robots file? Then we can scan everything
-            LOG.info("No robots.txt found for {} -> crawl everything", urlstr);
-            return RobotRulesParser.EMPTY_RULES;
-          }
+      // calculate new URL
+      url = new URI(urlstr.toString()).toURL();
+      robotsURL = getRobotsUrl(url);
+      LOG.debug("Robots URL = {}", robotsURL);
 
-          Metadata metadata = new Metadata();
-          Content content = getFileContent(urlstr.toString(), url.toURI().resolve("..").toString(), share, "/robots.txt", metadata);
-
-          // make use of
-          // https://crawler-commons.github.io/crawler-commons/1.4/crawlercommons/robots/SimpleRobotRulesParser.html#parseContent(java.lang.String,byte%5B%5D,java.lang.String,java.util.Collection)
-          SimpleRobotRulesParser simpleRobotsRulesParser = new SimpleRobotRulesParser();
-          SimpleRobotRules rules =  simpleRobotsRulesParser.parseContent(urlstr.toString(), content.getContent(), content.getContentType(), agentNames);
-
-          LOG.info("robots.txt for {} found and parsed", urlstr);
-          return rules;
-        } catch (SMBApiException e) {
-          if (e.getStatus() == NtStatus.STATUS_BAD_NETWORK_NAME) {
-
-            // this URL makes to sense to be scanned. But we assume 'empty rules' as no robots.txt exists and
-            // in getProtocolOutput we can make sure this URL gets evicted from the CrawlDB.
-            LOG.error("Bad network name: {} -> crawl everything", urlstr);
-            return RobotRulesParser.EMPTY_RULES;
-          } else {
-            throw e;
-          }
+      
+      // if we are running multithreaded, make only one thread at a time check
+      // the cache. It means if we miss, only one thread will go and fetch/parse
+      // robots.txt while other threads will wait
+      synchronized(robotsCache) {          
+        if (robotsCache.containsKey(robotsURL.toString())) {
+            LOG.debug("Found {} in cache", robotsURL);
+            return robotsCache.get(robotsURL.toString());
         }
-      }
+      
+        try (Connection connection = getSMBConnection(url)) {
+          try (DiskShare share = getDiskShare(url, connection)) {
+            // search for the file compliant to https://www.rfc-editor.org/rfc/rfc9309.html
+            // chapter 2.3
+            if (!share.fileExists("/robots.txt")) {
+              // no robots file? Then we can scan everything
+              LOG.info("No robots.txt found for {} -> crawl everything", robotsURL);
+              BaseRobotRules rules = RobotRulesParser.EMPTY_RULES;
+              robotsCache.put(robotsURL.toString(), rules); // cache the value - we will need it more often
+              return rules;
+            }
+
+            Metadata metadata = new Metadata();
+            Content content = getFileContent(urlstr.toString(), url.toURI().resolve("..").toString(), share, "/robots.txt", metadata);
+
+            // make use of
+            // https://crawler-commons.github.io/crawler-commons/1.4/crawlercommons/robots/SimpleRobotRulesParser.html#parseContent(java.lang.String,byte%5B%5D,java.lang.String,java.util.Collection)
+            SimpleRobotRulesParser simpleRobotsRulesParser = new SimpleRobotRulesParser();
+            SimpleRobotRules rules =  simpleRobotsRulesParser.parseContent(urlstr.toString(), content.getContent(), content.getContentType(), agentNames);
+            robotsCache.put(robotsURL.toString(), rules); // cache the value - we will need it more often
+            LOG.info("found and parsed {}", robotsURL);
+            return rules;
+          } catch (SMBApiException e) {
+            if (e.getStatus() == NtStatus.STATUS_BAD_NETWORK_NAME) {
+
+              // this URL makes to sense to be scanned. But we assume 'empty rules' as no robots.txt exists and
+              // in getProtocolOutput we can make sure this URL gets evicted from the CrawlDB.
+              LOG.error("Bad network name: {} -> crawl everything", urlstr);
+              BaseRobotRules rules = RobotRulesParser.EMPTY_RULES;
+              robotsCache.put(robotsURL.toString(), rules); // cache the value - we will need it more often
+              return rules;
+            } else {
+              throw e;
+            }
+          } // DiskShare
+        } // Connection
+      } // synchronized
       
     } catch (Exception e) {
-      LOG.info("Could not get robot rules for {}", urlstr, e);
+      LOG.info("Could not get robot rules for {} (initially {})", robotsURL, urlstr, e);
       return RobotRulesParser.DEFER_VISIT_RULES;
     }
+  }
+
+  /**
+   * Closes this resource, relinquishing any underlying resources.
+   * 
+   * Some statistics is printed.
+   */
+  public void close() {
+    LOG.info("Closing plugin");
+    LOG.info("Scanned folders: {}", scannedFolderCount);
+    LOG.info("Scanned files    {}", scannedFileCount);
+    LOG.info("Truncated files  {}", truncatedFileCount);
+  }
+  
+  /**
+   * As Nutch does not close protocols let's do that before GC.
+   */
+  public void finalize() {
+      close();
   }
 }

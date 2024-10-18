@@ -47,6 +47,8 @@
     <dependency org="com.hierynomus" name="asn-one" rev="0.6.0"/>
     <dependency org="commons-io" name="commons-io" rev="2.17.0"/>
 -->
+    <dependency org="com.google.guava" name="guava" rev="33.3.1-jre"/>
+
   </dependencies>
   
 </ivy-module>
