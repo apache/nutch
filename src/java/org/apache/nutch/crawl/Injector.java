@@ -130,23 +130,28 @@ public class Injector extends NutchTool implements Tool {
 
     @Override
     public void setup(Context context) {
-      Configuration conf = context.getConfiguration();
-      boolean normalize = conf.getBoolean(CrawlDbFilter.URL_NORMALIZING, true);
-      boolean filter = conf.getBoolean(CrawlDbFilter.URL_FILTERING, true);
-      filterNormalizeAll = conf.getBoolean(URL_FILTER_NORMALIZE_ALL, false);
-      if (normalize) {
-        scope = conf.get(URL_NORMALIZING_SCOPE, URLNormalizers.SCOPE_INJECT);
-        urlNormalizers = new URLNormalizers(conf, scope);
+      try {
+        Configuration conf = context.getConfiguration();
+        boolean normalize = conf.getBoolean(CrawlDbFilter.URL_NORMALIZING, true);
+        boolean filter = conf.getBoolean(CrawlDbFilter.URL_FILTERING, true);
+        filterNormalizeAll = conf.getBoolean(URL_FILTER_NORMALIZE_ALL, false);
+        if (normalize) {
+          scope = conf.get(URL_NORMALIZING_SCOPE, URLNormalizers.SCOPE_INJECT);
+          urlNormalizers = new URLNormalizers(conf, scope);
+        }
+        interval = conf.getInt("db.fetch.interval.default", 2592000);
+        if (filter) {
+          filters = new URLFilters(conf);
+        }
+        scfilters = new ScoringFilters(conf);
+        scoreInjected = conf.getFloat("db.score.injected", 1.0f);
+        curTime = conf.getLong("injector.current.time",
+            System.currentTimeMillis());
+        url404Purging = conf.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false);
+      } catch (Exception e) {
+        LOG.error("Could not configure InjectMapper", e);
+        throw e;
       }
-      interval = conf.getInt("db.fetch.interval.default", 2592000);
-      if (filter) {
-        filters = new URLFilters(conf);
-      }
-      scfilters = new ScoringFilters(conf);
-      scoreInjected = conf.getFloat("db.score.injected", 1.0f);
-      curTime = conf.getLong("injector.current.time",
-          System.currentTimeMillis());
-      url404Purging = conf.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false);
     }
 
     /* Filter and normalize the input url */
