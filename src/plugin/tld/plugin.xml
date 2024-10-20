@@ -39,13 +39,4 @@
                       class="org.apache.nutch.indexer.tld.TLDIndexingFilter"/>
    </extension>
 
-   <extension id="org.apache.nutch.scoring.tld"
-              name="Top Level Domain Scoring Filter"
-              point="org.apache.nutch.scoring.ScoringFilter">
-
-      <implementation id="org.apache.nutch.scoring.tld.TLDScoringFilter"
-                      class="org.apache.nutch.scoring.tld.TLDScoringFilter" />
-   </extension>
-
-
 </plugin>
