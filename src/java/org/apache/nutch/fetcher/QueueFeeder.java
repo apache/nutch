@@ -39,11 +39,10 @@ public class QueueFeeder extends Thread {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
-  
+
   private FetcherRun.Context context;
   private FetchItemQueues queues;
   private int size;
-  private long timelimit = -1;
   private URLFilters urlFilters = null;
   private URLNormalizers urlNormalizers = null;
   private String urlNormalizerScope = URLNormalizers.SCOPE_DEFAULT;
@@ -62,10 +61,6 @@ public class QueueFeeder extends Thread {
     if (conf.getBoolean("fetcher.normalize.urls", false)) {
       urlNormalizers = new URLNormalizers(conf, urlNormalizerScope);
     }
-  }
-
-  public void setTimeLimit(long tl) {
-    timelimit = tl;
   }
 
   /** Filter and normalize the url */
@@ -90,12 +85,26 @@ public class QueueFeeder extends Thread {
     int cnt = 0;
     int[] queuingStatus = new int[QueuingStatus.values().length];
     while (hasMore) {
-      if (timelimit != -1 && System.currentTimeMillis() >= timelimit) {
+      if (queues.timelimitExceeded() || queues.timoutReached) {
         // enough ... lets' simply read all the entries from the input without
         // processing them
+        if (queues.timoutReached) {
+          int qstatus = QueuingStatus.HIT_BY_TIMEOUT.ordinal();
+          if (queuingStatus[qstatus] == 0) {
+            LOG.info("QueueFeeder stopping, timeout reached.");
+          }
+          queuingStatus[qstatus]++;
+          context.getCounter("FetcherStatus", "hitByTimeout").increment(1);
+        } else {
+          int qstatus = QueuingStatus.HIT_BY_TIMELIMIT.ordinal();
+          if (queuingStatus[qstatus] == 0) {
+            LOG.info("QueueFeeder stopping, timelimit exceeded.");
+          }
+          queuingStatus[qstatus]++;
+          context.getCounter("FetcherStatus", "hitByTimelimit").increment(1);
+        }
         try {
           hasMore = context.nextKeyValue();
-          queuingStatus[QueuingStatus.HIT_BY_TIMELIMIT.ordinal()]++;
         } catch (IOException e) {
           LOG.error("QueueFeeder error reading input, record " + cnt, e);
           return;
@@ -137,7 +146,7 @@ public class QueueFeeder extends Thread {
               url = new Text(url);
             }
             CrawlDatum datum = new CrawlDatum();
-            datum.set((CrawlDatum) context.getCurrentValue());
+            datum.set(context.getCurrentValue());
             QueuingStatus status = queues.addFetchItem(url, datum);
             queuingStatus[status.ordinal()]++;
             if (status == QueuingStatus.ABOVE_EXCEPTION_THRESHOLD) {
