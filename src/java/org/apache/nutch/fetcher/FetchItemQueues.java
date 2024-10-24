@@ -57,6 +57,7 @@ public class FetchItemQueues {
   long timelimit = -1;
   int maxExceptionsPerQueue = -1;
   long exceptionsPerQueueDelay = -1;
+  long exceptionsPerQueueClearAfter = 1800 * 1000L;
   boolean feederAlive = true;
   Configuration conf;
 
@@ -88,6 +89,8 @@ public class FetchItemQueues {
         "fetcher.max.exceptions.per.queue", -1);
     this.exceptionsPerQueueDelay = (long) (conf
         .getFloat("fetcher.exceptions.per.queue.delay", .0f) * 1000);
+    this.exceptionsPerQueueClearAfter = (long) (conf
+        .getFloat("fetcher.exceptions.per.queue.clear.after", 1800.0f) * 1000);
 
     int dedupRedirMaxTime = conf.getInt("fetcher.redirect.dedupcache.seconds",
         -1);
@@ -179,25 +182,41 @@ public class FetchItemQueues {
       it = queues.entrySet().iterator();
     }
 
+    boolean keepExceptionState = (maxExceptionsPerQueue > -1
+        || exceptionsPerQueueDelay > 0);
+
     while (it.hasNext()) {
       FetchItemQueue fiq = it.next().getValue();
 
       // reap empty queues which do not hold state required to ensure politeness
       if (fiq.getQueueSize() == 0 && fiq.getInProgressSize() == 0) {
         if (!feederAlive) {
-          // no more fetch items added
+          // no more fetch items added: queue can be safely removed
           it.remove();
-        } else if ((maxExceptionsPerQueue > -1 || exceptionsPerQueueDelay > 0)
-            && fiq.exceptionCounter.get() > 0) {
-          // keep queue because the exceptions counter is bound to it
-          // and is required to skip or delay items on this queue
-        } else if (fiq.nextFetchTime.get() > System.currentTimeMillis()) {
+          continue;
+        }
+
+        if (fiq.nextFetchTime.get() > System.currentTimeMillis()) {
           // keep queue to have it blocked in case new fetch items of this queue
           // are added by the QueueFeeder
-        } else {
-          // empty queue without state
-          it.remove();
+          continue;
         }
+
+        if (keepExceptionState && fiq.exceptionCounter.get() > 0) {
+          if ((fiq.nextFetchTime.get() + exceptionsPerQueueClearAfter) < System
+              .currentTimeMillis()) {
+            /*
+             * the time configured by fetcher.exceptions.per.queue.clear.after
+             * has passed in addition to the delay defined by the exponential
+             * backoff
+             */
+            it.remove();
+          }
+          continue;
+        }
+
+        // queue is empty and does not hold state required to ensure politeness
+        it.remove();
         continue;
       }
 
@@ -239,9 +258,9 @@ public class FetchItemQueues {
     return count;
   }
 
-  // empties the queues (used by timebomb and throughput threshold)
+  // empties the queues (used by fetcher timelimit and throughput threshold)
   public synchronized int emptyQueues() {
-    int count = 0;
+    int count = 0, queuesDropped = 0;
 
     for (String id : queues.keySet()) {
       FetchItemQueue fiq = queues.get(id);
@@ -251,7 +270,11 @@ public class FetchItemQueues {
       int deleted = fiq.emptyQueue();
       totalSize.addAndGet(-deleted);
       count += deleted;
+      queuesDropped++;
     }
+
+    LOG.info("Emptied all queues: {} queues with {} items",
+        queuesDropped, count);
 
     return count;
   }
@@ -282,10 +305,18 @@ public class FetchItemQueues {
     if (fiq == null) {
       return 0;
     }
+
     int excCount = fiq.incrementExceptionCounter();
+    if (maxExceptions != -1 && excCount >= maxExceptions) {
+      // too many exceptions for items in this queue - purge it
+      return purgeAndBlockQueue(queueid, fiq, excCount);
+    }
+
+    long nexFetchTime = 0;
     if (delay > 0) {
-      fiq.nextFetchTime.getAndAdd(delay);
+      nexFetchTime = fiq.nextFetchTime.addAndGet(delay);
       LOG.info("* queue: {} >> delayed next fetch by {} ms", queueid, delay);
+
     } else if (exceptionsPerQueueDelay > 0) {
       /*
        * Delay the next fetch by a time span growing exponentially with the
@@ -298,30 +329,39 @@ public class FetchItemQueues {
         // double the initial delay with every observed exception
         exceptionDelay *= 2L << Math.min((excCount - 2), 31);
       }
-      fiq.nextFetchTime.getAndAdd(exceptionDelay);
+      nexFetchTime = fiq.nextFetchTime.addAndGet(exceptionDelay);
       LOG.info(
           "* queue: {} >> delayed next fetch by {} ms after {} exceptions in queue",
           queueid, exceptionDelay, excCount);
     }
-    if (maxExceptions != -1 && excCount >= maxExceptions) {
-      // too many exceptions for items in this queue - purge it
-      int deleted = fiq.emptyQueue();
-      if (deleted > 0) {
-        LOG.info(
-            "* queue: {} >> removed {} URLs from queue because {} exceptions occurred",
-            queueid, deleted, excCount);
-        totalSize.getAndAdd(-deleted);
-      }
-      if (feederAlive) {
-        LOG.info("* queue: {} >> blocked after {} exceptions", queueid,
-            excCount);
-        // keep queue IDs to ensure that these queues aren't created and filled
-        // again, see addFetchItem(FetchItem)
-        queuesMaxExceptions.add(queueid);
-      }
-      return deleted;
+
+    if (timelimit > 0 && nexFetchTime > timelimit) {
+      // the next fetch would happen after the fetcher timelimit
+      LOG.info(
+          "* queue: {} >> purging queue because next fetch scheduled after fetcher timelimit",
+          queueid);
+      return purgeAndBlockQueue(queueid, fiq, excCount);
     }
+
     return 0;
+  }
+
+  private int purgeAndBlockQueue(String queueid, FetchItemQueue fiq,
+      int excCount) {
+    int deleted = fiq.emptyQueue();
+    if (deleted > 0) {
+      LOG.info(
+          "* queue: {} >> removed {} URLs from queue after {} exceptions occurred",
+          queueid, deleted, excCount);
+      totalSize.getAndAdd(-deleted);
+    }
+    if (feederAlive) {
+      LOG.info("* queue: {} >> blocked after {} exceptions", queueid, excCount);
+      // keep queue IDs to ensure that these queues aren't created and filled
+      // again, see addFetchItem(FetchItem)
+      queuesMaxExceptions.add(queueid);
+    }
+    return deleted;
   }
 
   /**

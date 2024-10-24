@@ -1174,6 +1174,17 @@
 </property>
 
 <property>
+  <name>fetcher.exceptions.per.queue.clear.after</name>
+  <value>1800</value>
+  <description>Time in seconds after which exception counters in
+  queues can be cleared. This happens only if no items are queued in
+  this queue and the configured time span has elapsed in addition to
+  the crawl delay including the exponential backoff time, see
+  fetcher.exceptions.per.queue.delay.
+  </description>
+</property>
+
+<property>
   <name>fetcher.throughput.threshold.pages</name>
   <value>-1</value>
   <description>The threshold of minimum pages per second. If the fetcher downloads less
@@ -1187,7 +1198,11 @@
   <name>fetcher.throughput.threshold.retries</name>
   <value>5</value>
   <description>The number of times the fetcher.throughput.threshold.pages is allowed to be exceeded.
-  This settings prevents accidental slow downs from immediately killing the fetcher thread.
+  This settings prevents accidental slow downs from immediately shutting down the fetcher threads.
+  The throughput is checked approx. every second. Note: the number of retries should be lower
+  than the timeout defined by mapreduce.task.timeout and fetcher.threads.timeout.divisor (see there).
+  For the default values, the timeout is 300 seconds. Consequently, the number of retries should be
+  significantly lower.
   </description>
 </property>
 

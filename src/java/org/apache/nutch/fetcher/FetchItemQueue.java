@@ -41,6 +41,8 @@ public class FetchItemQueue {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
+  private static Text variableFetchDelayKey = new Text("_variableFetchDelay_");
+
   List<FetchItem> queue = Collections
       .synchronizedList(new LinkedList<FetchItem>());
   AtomicInteger inProgress = new AtomicInteger();
@@ -50,18 +52,20 @@ public class FetchItemQueue {
   long minCrawlDelay;
   int maxThreads;
   Text cookie;
-  Text variableFetchDelayKey = new Text("_variableFetchDelay_");
   boolean variableFetchDelaySet = false;
   // keep track of duplicates if fetcher.follow.outlinks.depth > 0. Some urls may 
   // not get followed due to hash collisions. Hashing is used to reduce memory
   // usage.
-  Set<Integer> alreadyFetched = new HashSet<>();
+  Set<Integer> alreadyFetched;
   
   public FetchItemQueue(Configuration conf, int maxThreads, long crawlDelay,
       long minCrawlDelay) {
     this.maxThreads = maxThreads;
     this.crawlDelay = crawlDelay;
     this.minCrawlDelay = minCrawlDelay;
+    if (conf.getInt("fetcher.follow.outlinks.depth", -1) > 0) {
+      alreadyFetched = new HashSet<>();
+    }
     // ready to start
     setEndTime(System.currentTimeMillis() - crawlDelay);
   }
