@@ -58,25 +58,25 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A queue-based fetcher.
- * 
+ *
  * <p>
  * This fetcher uses a well-known model of one producer (a QueueFeeder) and many
  * consumers (FetcherThread-s).
- * 
+ *
  * <p>
  * QueueFeeder reads input fetchlists and populates a set of FetchItemQueue-s,
  * which hold FetchItem-s that describe the items to be fetched. There are as
  * many queues as there are unique hosts, but at any given time the total number
  * of fetch items in all queues is less than a fixed number (currently set to a
  * multiple of the number of threads).
- * 
+ *
  * <p>
  * As items are consumed from the queues, the QueueFeeder continues to add new
  * input items, so that their total count stays fixed (FetcherThread-s may also
  * add new items to the queues e.g. as a results of redirection) - until all
  * input items are exhausted, at which point the number of items in the queues
  * begins to decrease. When this number reaches 0 fetcher will finish.
- * 
+ *
  * <p>
  * This fetcher implementation handles per-host blocking itself, instead of
  * delegating this work to protocol-specific plugins. Each per-host queue
@@ -85,13 +85,13 @@ import org.slf4j.LoggerFactory;
  * list of requests in progress, and the time the last request was finished. As
  * FetcherThread-s ask for new items to be fetched, queues may return eligible
  * items or null if for "politeness" reasons this host's queue is not yet ready.
- * 
+ *
  * <p>
  * If there are still unfetched items in the queues, but none of the items are
  * ready, FetcherThread-s will spin-wait until either some items become
  * available, or a timeout is reached (at which point the Fetcher will abort,
  * assuming the task is hung).
- * 
+ *
  * @author Andrzej Bialecki
  */
 public class Fetcher extends NutchTool implements Tool {
@@ -147,7 +147,7 @@ public class Fetcher extends NutchTool implements Tool {
     private AtomicInteger activeThreads = new AtomicInteger(0);
     private AtomicInteger spinWaiting = new AtomicInteger(0);
     private long start = System.currentTimeMillis();
-    private AtomicLong lastRequestStart = new AtomicLong(start); 
+    private AtomicLong lastRequestStart = new AtomicLong(start);
     private AtomicLong bytes = new AtomicLong(0); // total bytes fetched
     private AtomicInteger pages = new AtomicInteger(0); // total pages fetched
     private AtomicInteger errors = new AtomicInteger(0); // total pages errored
@@ -157,7 +157,7 @@ public class Fetcher extends NutchTool implements Tool {
     private AtomicInteger getActiveThreads() {
       return activeThreads;
     }
- 
+
     private void reportStatus(Context context, FetchItemQueues fetchQueues, int pagesLastSec, int bytesLastSec)
         throws IOException {
       StringBuilder status = new StringBuilder();
@@ -184,13 +184,13 @@ public class Fetcher extends NutchTool implements Tool {
       context.setStatus(status.toString());
     }
 
-    @Override 
+    @Override
     public void setup(Mapper<Text, CrawlDatum, Text, NutchWritable>.Context context) {
       Configuration conf = context.getConfiguration();
       segmentName = conf.get(Nutch.SEGMENT_NAME_KEY);
       storingContent = isStoringContent(conf);
       parsing = isParsing(conf);
-    }	  
+    }
 
     @Override
     public void run(Context innerContext)
@@ -218,11 +218,6 @@ public class Fetcher extends NutchTool implements Tool {
         feeder = new QueueFeeder(innerContext, fetchQueues,
             threadCount * queueDepthMultiplier);
 
-        // the value of the time limit is either -1 or the time where it should
-        // finish
-        long timelimit = conf.getLong("fetcher.timelimit", -1);
-        if (timelimit != -1)
-          feeder.setTimeLimit(timelimit);
         feeder.start();
 
         int startDelay = conf.getInt("fetcher.threads.start.delay", 10);
@@ -427,9 +422,12 @@ public class Fetcher extends NutchTool implements Tool {
            * fetches started during half of the MapReduce task timeout
            * (mapreduce.task.timeout, default value: 10 minutes). In order to
            * avoid that the task timeout is hit and the fetcher job is failed,
-           * we stop the fetching now.
+           * we stop the fetching now. See also the property
+           * fetcher.threads.timeout.divisor.
            */
           if ((System.currentTimeMillis() - lastRequestStart.get()) > timeout) {
+            LOG.warn("Timeout reached with no new requests since {} seconds.",
+                timeout);
             LOG.warn("Aborting with {} hung threads{}.", activeThreads,
                 feeder.isAlive() ? " (queue feeder still alive)" : "");
             innerContext.getCounter("FetcherStatus", "hungThreads")
@@ -448,6 +446,18 @@ public class Fetcher extends NutchTool implements Tool {
                 LOG.warn(sb.toString());
               }
             }
+
+            /*
+             * signal the queue feeder that the timeout is reached and wait
+             * shortly for it to shut down
+             */
+            fetchQueues.setTimeoutReached();
+            if (feeder.isAlive()) {
+              LOG.info(
+                  "Signaled QueueFeeder to stop, waiting 1.5 seconds before exiting.");
+              Thread.sleep(1500);
+            }
+
             /*
              * log and count queued items dropped from the fetch queues because
              * of the timeout
@@ -469,7 +479,7 @@ public class Fetcher extends NutchTool implements Tool {
     }
   }
 
-  public void fetch(Path segment, int threads) throws IOException, 
+  public void fetch(Path segment, int threads) throws IOException,
     InterruptedException, ClassNotFoundException {
 
     checkConfiguration();
@@ -626,7 +636,7 @@ public class Fetcher extends NutchTool implements Tool {
     else {
       String segmentDir = crawlId+"/segments";
       File segmentsDir = new File(segmentDir);
-      File[] segmentsList = segmentsDir.listFiles();  
+      File[] segmentsList = segmentsDir.listFiles();
       Arrays.sort(segmentsList, (f1, f2) -> {
         if(f1.lastModified()>f2.lastModified())
           return -1;
