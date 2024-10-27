@@ -469,6 +469,12 @@
   <!-- ================================================================== -->
   <target name="test" depends="test-core, test-plugins" description="--> run JUnit tests"/>
 
+  <target name="test-full" description="--> run all JUnit tests, including slow ones">
+    <antcall target="test">
+      <param name="test.include.slow" value="true" />
+    </antcall>
+  </target>
+
   <target name="test-core" depends="compile-core-test, job" description="--> run core JUnit tests only">
 
     <delete dir="${test.build.data}"/>
@@ -496,6 +502,7 @@
       errorProperty="tests.failed" failureProperty="tests.failed" maxmemory="1000m">
       <sysproperty key="test.build.data" value="${test.build.data}"/>
       <sysproperty key="test.src.dir" value="${test.src.dir}"/>
+      <sysproperty key="test.include.slow" value="${test.include.slow}"/>
       <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
       <classpath refid="test.classpath"/>
       <formatter type="${test.junit.output.format}" />
