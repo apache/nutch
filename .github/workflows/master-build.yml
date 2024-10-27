@@ -83,13 +83,15 @@ jobs:
           filters: |
             core:
               - 'src/java/**'
+              - 'src/test/**'
+              - 'src/testresources/**'
             plugins:
-              - 'src/plugins/**'
+              - 'src/plugin/**'
       # run only if 'core' files were changed
-      - name: core tests
+      - name: test core
         if: steps.filter.outputs.core == 'true'
         run: ant clean test-core -buildfile build.xml
       # run only if 'plugins' files were changed
-      - name: plugins tests
+      - name: test plugins
         if: steps.filter.outputs.plugins == 'true'
         run: ant clean test-plugins -buildfile build.xml
