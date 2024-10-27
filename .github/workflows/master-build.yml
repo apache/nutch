@@ -14,14 +14,12 @@
 # limitations under the License.
 
 name: master pull request ci
-
 on:
   push:
     branches: [master]
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [master]
-
 jobs:
   javadoc:
     strategy:
@@ -30,9 +28,9 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4.1.4
+      - uses: actions/checkout@v4.2.2
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v4.2.1
+        uses: actions/setup-java@v4.5.0
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
@@ -45,9 +43,9 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4.1.4
+      - uses: actions/checkout@v4.2.2
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v4.2.1
+        uses: actions/setup-java@v4.5.0
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
@@ -61,18 +59,34 @@ jobs:
       - name: Fail if any unknown licenses
         if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
         run: exit 1
-  test:
+  tests:
     strategy:
       matrix:
         java: ['11']
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4.1.4
+      - uses: actions/checkout@v4.2.2
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v4.2.1
+        uses: actions/setup-java@v4.5.0
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
-      - name: Test
-        run: ant clean test -buildfile build.xml
+      - uses: dorny/paths-filter@v3.0.0
+        id: filter
+        with:
+          filters: |
+            core:
+              - 'src/java/**'
+              - 'src/test/**'
+              - 'src/testresources/**'
+            plugins:
+              - 'src/plugin/**'
+      # run only if 'core' files were changed
+      - name: test core
+        if: steps.filter.outputs.core == 'true'
+        run: ant clean test-core -buildfile build.xml
+      # run only if 'plugins' files were changed
+      - name: test plugins
+        if: steps.filter.outputs.plugins == 'true'
+        run: ant clean test-plugins -buildfile build.xml
