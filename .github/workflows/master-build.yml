@@ -21,10 +21,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [master]
-env:
-  CHECKOUT_VERSION: 'v4.2.2'
-  PATHS_FILTER_VERSION: 'v3.0.2'
-  SETUP_JAVA_VERSION: 'v4.5.0'
 jobs:
   javadoc:
     strategy:
@@ -33,9 +29,9 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@$CHECKOUT_VERSION
+      - uses: actions/checkout@v4.2.2
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@$SETUP_JAVA_VERSION
+        uses: actions/setup-java@$v4.5.0
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
@@ -48,9 +44,9 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@$CHECKOUT_VERSION
+      - uses: actions/checkout@v4.2.2
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@$SETUP_JAVA_VERSION
+        uses: actions/setup-java@$v4.5.0
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
@@ -71,13 +67,13 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@$CHECKOUT_VERSION
+      - uses: actions/checkout@v4.2.2
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@$SETUP_JAVA_VERSION
+        uses: actions/setup-java@$v4.5.0
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
-      - uses: dorny/paths-filter@$PATHS_FILTER_VERSION
+      - uses: dorny/paths-filter@$v3.0.2
         id: filter
         with:
           filters: |
