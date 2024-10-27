@@ -73,7 +73,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
-      - uses: dorny/paths-filter@$v3.0.0
+      - uses: dorny/paths-filter@v3.0.2
         id: filter
         with:
           filters: |
