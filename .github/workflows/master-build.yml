@@ -66,13 +66,18 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4.2.2
+      - name: Check out Repository
+        uses: actions/checkout@v4.2.2
+        # Disabling shallow clone is recommended for improving sonarcloud reporting
+        with:
+          fetch-depth: 0
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v4.5.0
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
-      - uses: dorny/paths-filter@v3.0.0
+      - name: Filter 'core' and 'plugins' paths
+        uses: dorny/paths-filter@v3.0.0
         id: filter
         with:
           filters: |
@@ -83,10 +88,37 @@ jobs:
             plugins:
               - 'src/plugin/**'
       # run only if 'core' files were changed
-      - name: test core
+      - name: Test core
         if: steps.filter.outputs.core == 'true'
         run: ant clean test-core -buildfile build.xml
       # run only if 'plugins' files were changed
-      - name: test plugins
+      - name: Test plugins
         if: steps.filter.outputs.plugins == 'true'
         run: ant clean test-plugins -buildfile build.xml
+      - name: Fix code coverage paths
+        if: |
+          steps.filter.outputs.core == 'true' ||
+          steps.filter.outputs.plugins == 'true'
+        run: |
+          find . -name jacoco_report.xml -exec sed -i 's#/home/runner/work/nutch/nutch#/github/workspace#g' {} +
+      - name: Analyze with SonarCloud
+        if: |
+          steps.filter.outputs.core == 'true' ||
+          steps.filter.outputs.plugins == 'true'
+        uses: sonarsource/sonarcloud-github-action@v3.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=apache
+            -Dsonar.projectKey=apache-nutch
+            -Dsonar.sources=src/java
+            -Dsonar.test.exclusions=src/test/**
+            -Dsonar.tests=src/test/
+            -Dsonar.verbose=true
+            -Dsonar.java.binaries=build/classes,build/**/classes
+            -Dsonar.java.libraries=build/lib/*.jar   
+            -Dsonar.java.test.binaries=build/test/classes/,build/**/test/
+            -Dsonar.java.test.libraries=build/test/lib/*.jar
+            -Dsonar.java.source=11

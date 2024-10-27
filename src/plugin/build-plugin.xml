@@ -240,10 +240,10 @@
       </executiondata>
       <structure name="${final.name} Jacoco report">
           <classfiles>
-              <fileset dir="${build.plugins}"/>
+              <fileset dir="${build.classes}"/>
           </classfiles>
           <sourcefiles encoding="UTF-8">
-              <fileset dir="${plugins.dir}"/>
+              <fileset dir="${root}/src/java"/>
           </sourcefiles>
       </structure>
       <html destdir="${jacoco.output.dir}/html"
