@@ -212,6 +212,9 @@
   <target name="test" depends="compile-test, deploy" if="test.available">
     <echo message="Testing plugin: ${name}"/>
 
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+      <classpath path="${jacoco.jar}" />
+    </taskdef>
     <mkdir dir="${jacoco.output.dir}"/>
     <jacoco:coverage destfile="${jacoco.destfile}">
       <junit printsummary="yes" haltonfailure="no" fork="true"

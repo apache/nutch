@@ -54,9 +54,6 @@
   <property name="jacoco.jar" value="${jacoco.home}/lib/jacocoant.jar" />
   <property name="jacoco.output.dir" location="${build.dir}/jacoco" />
   <property name="jacoco.destfile" location="${jacoco.output.dir}/jacoco.exec" />
-  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
-    <classpath path="${jacoco.jar}" />
-  </taskdef>
 
   <condition property="using.jdk.11">
     <matches string="${java.version}" pattern="11.+" casesensitive="false" />
@@ -481,6 +478,9 @@
 
   <target name="test-core" depends="jacoco-download, compile-core-test, job" description="--> run core JUnit tests only">
 
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+      <classpath path="${jacoco.jar}" />
+    </taskdef>
     <delete dir="${test.build.data}"/>
     <mkdir dir="${test.build.data}"/>
     <!--
