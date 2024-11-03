@@ -114,6 +114,9 @@ public class SmbProtocol implements Protocol, AutoCloseable {
     InputStream ssInputStream = conf.getConfResourceAsInputStream(filename);
     InputSource inputSource = new InputSource(ssInputStream);
     urlAuthentication = URLAuthentication.loadAuthentication(inputSource);
+
+    contentLimit = conf.getInt("smb.content.limit", Integer.MAX_VALUE-100);
+    LOG.info("Understood smb.content.limit={}", contentLimit);
   }
 
   /**
