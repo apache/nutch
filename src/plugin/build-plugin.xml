@@ -45,6 +45,9 @@
   <!-- load nutch defaults last so that they can be overridden above -->
   <property file="${nutch.root}/default.properties" />
 
+  <property name="jacoco.version" value="0.8.12" />
+  <property name="jacoco.home" value="${nutch.root}/ivy/jacoco-${jacoco.version}" />
+  <property name="jacoco.jar" value="${jacoco.home}/lib/jacocoant.jar" />
   <property name="jacoco.output.dir" location="${nutch.root}/build/jacoco"/>
   <property name="jacoco.destfile" location="${jacoco.output.dir}/jacoco.exec"/>
 
@@ -87,6 +90,10 @@
       <include name="junit*.jar" />
       <include name="hamcrest*.jar" />
     </fileset>
+    <!-- jacoco test dependency -->
+    <!--fileset dir="${jacoco.home}/lib">
+      <include name="jacocoant*.jar" />
+    </fileset-->
     <path refid="classpath"/>
   </path>
 
