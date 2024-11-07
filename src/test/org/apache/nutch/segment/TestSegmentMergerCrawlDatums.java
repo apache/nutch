@@ -32,7 +32,9 @@ import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +46,13 @@ import org.slf4j.LoggerFactory;
  * merging where we're looking for an expected status. A second test is able to
  * randomly inject redirects in segment, likely causing the segment merger to
  * fail resulting in a bad merged segment.
- * 
+ *
  * See also:
- * 
+ *
  * https://issues.apache.org/jira/browse/NUTCH-1113
  * https://issues.apache.org/jira/browse/NUTCH-1616
  * https://issues.apache.org/jira/browse/NUTCH-1520
- * 
+ *
  * Cheers!
  */
 public class TestSegmentMergerCrawlDatums {
@@ -60,6 +62,11 @@ public class TestSegmentMergerCrawlDatums {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
+
+  @BeforeClass
+  public static void checkConditions() throws Exception {
+    Assume.assumeTrue(Boolean.getBoolean("test.include.slow"));
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -222,7 +229,7 @@ public class TestSegmentMergerCrawlDatums {
   /**
    * Execute a sequence of creating segments, merging them and checking the
    * final output
-   * 
+   *
    * @param status
    *          to start with
    * @param status
@@ -281,7 +288,7 @@ public class TestSegmentMergerCrawlDatums {
 
   /**
    * Checks the merged segment and removes the stuff again.
-   * 
+   *
    * @param the
    *          test directory
    * @param the
@@ -326,7 +333,7 @@ public class TestSegmentMergerCrawlDatums {
 
   /**
    * Merge some segments!
-   * 
+   *
    * @param the
    *          test directory
    * @param the
@@ -349,7 +356,7 @@ public class TestSegmentMergerCrawlDatums {
 
   /**
    * Create a segment with the specified status.
-   * 
+   *
    * @param the
    *          segment's paths
    * @param the

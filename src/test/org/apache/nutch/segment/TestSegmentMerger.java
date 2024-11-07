@@ -31,7 +31,9 @@ import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestSegmentMerger {
@@ -42,6 +44,11 @@ public class TestSegmentMerger {
   Path seg2;
   Path out;
   int countSeg1, countSeg2;
+
+  @BeforeClass
+  public static void checkConditions() throws Exception {
+    Assume.assumeTrue(Boolean.getBoolean("test.include.slow"));
+  }
 
   @Before
   public void setUp() throws Exception {

@@ -282,9 +282,6 @@
 
       <link href="${javadoc.link.java}"/>
       <link href="${javadoc.link.hadoop}"/>
-      <!--link href="${javadoc.link.lucene.core}"/>
-      <link href="${javadoc.link.lucene.analyzers-common}"/>
-      <link href="${javadoc.link.solr-solrj}"/-->
 
       <classpath refid="classpath"/>
       <classpath>
@@ -475,6 +472,12 @@
   <!-- Run unit tests                                                     -->
   <!-- ================================================================== -->
   <target name="test" depends="test-core, test-plugins" description="--> run JUnit tests"/>
+
+  <target name="test-full" description="--> run all JUnit tests, including slow ones">
+    <antcall target="test">
+      <param name="test.include.slow" value="true" />
+    </antcall>
+  </target>
 
   <target name="test-core" depends="jacoco-download, compile-core-test, job" description="--> run core JUnit tests only">
 
