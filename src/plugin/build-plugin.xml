@@ -90,6 +90,9 @@
       <include name="junit*.jar" />
       <include name="hamcrest*.jar" />
     </fileset>
+    <fileset dir="${jacoco.home}/lib">
+      <include name="jacocoant.jar" />
+    </fileset>
     <path refid="classpath"/>
   </path>
 
@@ -216,7 +219,7 @@
     <echo message="Testing plugin: ${name}"/>
 
     <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
-      <classpath path="${jacoco.jar}" />
+      <classpath refid="test.classpath" />
     </taskdef>
     <mkdir dir="${jacoco.output.dir}"/>
     <jacoco:coverage destfile="${jacoco.destfile}">
