@@ -220,7 +220,7 @@
     </taskdef>
     <mkdir dir="${jacoco.output.dir}"/>
     <jacoco:coverage destfile="${jacoco.destfile}">
-      <junit printsummary="yes" haltonfailure="on" fork="true"
+      <junit printsummary="yes" haltonfailure="on" fork="yes"
         errorProperty="tests.failed" failureProperty="tests.failed"
         forkmode="once" >
         <sysproperty key="test.data" value="${build.test}/data"/>
