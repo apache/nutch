@@ -90,6 +90,9 @@
       <include name="junit*.jar" />
       <include name="hamcrest*.jar" />
     </fileset>
+    <fileset dir="${jacoco.home}/lib">
+      <include name="jacocoant.jar" />
+    </fileset>
     <path refid="classpath"/>
   </path>
 
