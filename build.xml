@@ -507,7 +507,7 @@
 
     <mkdir dir="${build.dir}/jacoco"/>
     <jacoco:coverage destfile="${build.dir}/jacoco/jacoco.exec">
-      <junit printsummary="yes" haltonfailure="no" fork="true" dir="${basedir}"
+      <junit printsummary="yes" haltonfailure="on" fork="true" dir="${basedir}"
         errorProperty="tests.failed" failureProperty="tests.failed" 
         maxmemory="1000m" forkmode="once" >
         <sysproperty key="test.build.data" value="${test.build.data}"/>

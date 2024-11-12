@@ -90,9 +90,6 @@
       <include name="junit*.jar" />
       <include name="hamcrest*.jar" />
     </fileset>
-    <fileset dir="${jacoco.home}/lib">
-      <include name="jacocoant.jar" />
-    </fileset>
     <path refid="classpath"/>
   </path>
 
@@ -133,7 +130,7 @@
   <!-- ====================================================== -->
   <!-- Compile the Java files                                 -->
   <!-- ====================================================== -->
-  <target name="compile" depends="init,deps-jar, resolve-default">
+  <target name="compile" depends="init, deps-jar, resolve-default">
     <echo message="Compiling plugin: ${name}"/>
     <javac 
      encoding="${build.encoding}" 
@@ -223,7 +220,7 @@
     </taskdef>
     <mkdir dir="${jacoco.output.dir}"/>
     <jacoco:coverage destfile="${jacoco.destfile}">
-      <junit printsummary="yes" haltonfailure="no" fork="true"
+      <junit printsummary="yes" haltonfailure="on" fork="true"
         errorProperty="tests.failed" failureProperty="tests.failed"
         forkmode="once" >
         <sysproperty key="test.data" value="${build.test}/data"/>
