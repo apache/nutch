@@ -18,7 +18,7 @@ package org.apache.nutch.util;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.io.MD5Hash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
