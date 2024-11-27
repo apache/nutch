@@ -82,11 +82,18 @@ jobs:
               - 'src/testresources/**'
             plugins:
               - 'src/plugin/**'
+            buildconf:
+              - 'build.xml'
+              - 'ivy/ivy.xml'
+      # run if the build configuration or both 'core' and 'plugins' files were changed
+      - name: test all
+        if: ${{ steps.filter.outputs.buildconf == 'true' || ( steps.filter.outputs.core  == 'true' && steps.filter.outputs.plugin  == 'true' ) }}
+        run: ant clean test -buildfile build.xml
       # run only if 'core' files were changed
       - name: test core
-        if: steps.filter.outputs.core == 'true'
+        if: ${{ steps.filter.outputs.core == 'true' && steps.filter.outputs.plugins == 'false' && steps.filter.outputs.buildconf == 'false' }}
         run: ant clean test-core -buildfile build.xml
       # run only if 'plugins' files were changed
       - name: test plugins
-        if: steps.filter.outputs.plugins == 'true'
+        if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
         run: ant clean test-plugins -buildfile build.xml
