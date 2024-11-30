@@ -519,11 +519,11 @@
 
   </target>
 
-  <target name="test-plugins" depends="resolve-test, compile" description="--> run plugin JUnit tests only">
+  <target name="test-plugins" depends="resolve-test, compile, compile-core-test" description="--> run plugin JUnit tests only">
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 
-  <target name="test-plugin" depends="resolve-test, compile" description="--> run a single plugin's JUnit tests">
+  <target name="test-plugin" depends="resolve-test, compile, compile-core-test" description="--> run a single plugin's JUnit tests">
     <ant dir="src/plugin" target="test-single" inheritAll="false"/>
   </target>
 
