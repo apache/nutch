@@ -101,7 +101,7 @@ public class QueueFeeder extends Thread {
             LOG.info("QueueFeeder stopping, timelimit exceeded.");
           }
           queuingStatus[qstatus]++;
-          context.getCounter("FetcherStatus", "hitByTimelimit").increment(1);
+          context.getCounter("FetcherStatus", "hitByTimeLimit").increment(1);
         }
         try {
           hasMore = context.nextKeyValue();
