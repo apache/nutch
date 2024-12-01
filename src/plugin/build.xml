@@ -78,6 +78,7 @@
     <ant dir="protocol-httpclient" target="deploy"/>
     <ant dir="protocol-interactiveselenium" target="deploy" />
     <ant dir="protocol-okhttp" target="deploy"/>
+    <ant dir="protocol-smb" target="deploy"/>
     <ant dir="protocol-selenium" target="deploy" />
     <ant dir="publish-rabbitmq" target="deploy"/>
     <ant dir="scoring-depth" target="deploy"/>
@@ -142,6 +143,7 @@
      <ant dir="protocol-http" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
      <ant dir="protocol-okhttp" target="test"/>
+     <ant dir="protocol-smb" target="test"/>
      <ant dir="scoring-orphan" target="test"/>
      <ant dir="scoring-metadata" target="test"/>
      <ant dir="subcollection" target="test"/>
@@ -226,6 +228,7 @@
     <ant dir="protocol-httpclient" target="clean"/>
     <ant dir="protocol-interactiveselenium" target="clean" />
     <ant dir="protocol-okhttp" target="clean"/>
+    <ant dir="protocol-smb" target="clean"/>
     <ant dir="protocol-selenium" target="clean" />
     <ant dir="publish-rabbitmq" target="clean"/>
     <ant dir="scoring-depth" target="clean"/>
