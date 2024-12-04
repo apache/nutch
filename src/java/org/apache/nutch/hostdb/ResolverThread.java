@@ -114,15 +114,32 @@ public class ResolverThread implements Runnable {
           }
         }
 
-        context.getCounter("UpdateHostDb",
-          Long.toString(datum.numFailures()) + "_times_failed").increment(1);
+        context.getCounter("UpdateHostDb", createFailureCounterLabel(datum)).increment(1);
       } catch (Exception ioe) {
         LOG.warn(StringUtils.stringifyException(ioe));
       }
     } catch (Exception e) {
       LOG.warn(StringUtils.stringifyException(e));
     }
-    
+
     context.getCounter("UpdateHostDb", "checked_hosts").increment(1);
+  }
+
+  private String createFailureCounterLabel(HostDatum datum) {
+    // Hadoop will allow no more than 120 distinct counters. If we have a large
+    // number of distinct failures, we'll exceed the limit, Hadoop will complain,
+    // the job will fail. Let's limit the amount of possibilities by grouping
+    // the numFailures in buckets. NUTCH-3096
+    String label = null;
+    long n = datum.numFailures();
+    if (n < 4) {
+      label = Long.toString(n);
+    } else if (n > 3 && n < 11) {
+      label = "4-10";
+    } else {
+      label = ">10";
+    }
+
+    return label + "_times_failed";
   }
 }
