@@ -32,7 +32,7 @@
    </requires>
 
    <extension id="org.apache.nutch.htmlparsefilter.naivebayes"
-        name="Nutch Parser Filter" point="org.apache.nutch.parse.HtmlParseFilter">
+        name="Nutch NaiveBayes Parser Filter" point="org.apache.nutch.parse.HtmlParseFilter">
       <implementation id="NaiveBayesHTMLParseFilter" 
         class="org.apache.nutch.parsefilter.naivebayes.NaiveBayesParseFilter"/>
    </extension>
