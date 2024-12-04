@@ -242,9 +242,11 @@ public class BasicURLNormalizer implements URLNormalizer {
     if (normalizePath) {
       // check for unnecessary use of "/../", "/./", and "//"
       if (changed) {
-        url = new URL(protocol, host, port, file);
+        URL u = new URL(protocol, host, port, file);
+        file2 = getFileWithNormalizedPath(u);
+      } else {
+        file2 = getFileWithNormalizedPath(url);
       }
-      file2 = getFileWithNormalizedPath(url);
       if (!file.equals(file2)) {
         changed = true;
         file = file2;
@@ -252,8 +254,25 @@ public class BasicURLNormalizer implements URLNormalizer {
     }
 
     if (changed) {
-      url = new URL(protocol, host, port, file);
-      urlString = url.toString();
+      if (protocol.equals("http") || protocol.equals("https")
+          || url.getUserInfo() == null) {
+        url = new URL(protocol, host, port, file);
+        urlString = url.toString();
+      } else {
+        /*
+         * NUTCH-3087 - userinfo is required for protocols with frequent
+         * authentication. Note: need to build the URL string directly, because
+         * there is no URL constructor which takes the userinfo as parameter.
+         */
+        StringBuilder sb = new StringBuilder();
+        sb.append(protocol).append("://").append(url.getUserInfo()).append('@')
+            .append(host);
+        if (port != -1) {
+          sb.append(':').append(port);
+        }
+        sb.append(file);
+        urlString = sb.toString();
+      }
     }
 
     return urlString;
