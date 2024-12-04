@@ -31,7 +31,7 @@ import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.util.ObjectCache;
 import org.apache.nutch.util.URLUtil;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.hadoop.conf.Configuration;
 

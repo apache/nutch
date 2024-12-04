@@ -18,7 +18,7 @@ package org.apache.nutch.service.impl;
 
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.service.ConfManager;
 import org.apache.nutch.service.JobManager;

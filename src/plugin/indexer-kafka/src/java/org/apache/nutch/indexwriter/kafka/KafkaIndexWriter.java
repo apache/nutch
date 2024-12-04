@@ -16,7 +16,7 @@
  */
 package org.apache.nutch.indexwriter.kafka;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexWriter;

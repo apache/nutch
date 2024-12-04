@@ -86,6 +86,7 @@ if [ $# = 0 ]; then
   echo "  indexchecker      check the indexing filters for a given url"
   echo "  filterchecker     check url filters for a given url"
   echo "  normalizerchecker check url normalizers for a given url"
+  echo "  robotsparser      parse a robots.txt file and check whether urls are allowed or not"
   echo "  domainstats       calculate domain statistics from crawldb"
   echo "  protocolstats     calculate protocol status code stats from crawldb"
   echo "  crawlcomplete     calculate crawl completion stats from crawldb"
@@ -268,6 +269,8 @@ elif [ "$COMMAND" = "filterchecker" ] ; then
   CLASS=org.apache.nutch.net.URLFilterChecker
 elif [ "$COMMAND" = "normalizerchecker" ] ; then
   CLASS=org.apache.nutch.net.URLNormalizerChecker
+elif [ "$COMMAND" = "robotsparser" ] ; then
+  CLASS=org.apache.nutch.protocol.RobotRulesParser
 elif [ "$COMMAND" = "domainstats" ] ; then 
   CLASS=org.apache.nutch.util.DomainStatistics
 elif [ "$COMMAND" = "protocolstats" ] ; then
