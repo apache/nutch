@@ -58,7 +58,8 @@ public class FetchItemQueues {
   int maxExceptionsPerQueue = -1;
   long exceptionsPerQueueDelay = -1;
   long exceptionsPerQueueClearAfter = 1800 * 1000L;
-  boolean feederAlive = true;
+  volatile boolean feederAlive = true;
+  volatile boolean timoutReached = false;
   Configuration conf;
 
   public static final String QUEUE_MODE_HOST = "byHost";
@@ -71,7 +72,8 @@ public class FetchItemQueues {
     SUCCESSFULLY_QUEUED,
     ERROR_CREATE_FETCH_ITEM,
     ABOVE_EXCEPTION_THRESHOLD,
-    HIT_BY_TIMELIMIT;
+    HIT_BY_TIMELIMIT,
+    HIT_BY_TIMEOUT;
   }
 
   public FetchItemQueues(Configuration conf) {
@@ -105,7 +107,7 @@ public class FetchItemQueues {
 
   /**
    * Check whether queue mode is valid, fall-back to default mode if not.
-   * 
+   *
    * @param queueMode
    *          queue mode to check
    * @return valid queue mode or default
@@ -258,6 +260,18 @@ public class FetchItemQueues {
     return count;
   }
 
+  /**
+   * Signal that the hard timeout is reached because new fetches / requests
+   * where made during half of the MapReduce task timeout
+   * (<code>mapreduce.task.timeout</code>, default value: 10 minutes). In order
+   * to avoid that the task timeout is hit and the fetcher job is failed, we
+   * stop the fetching now. See also the property
+   * <code>fetcher.threads.timeout.divisor</code>.
+   */
+  public void setTimeoutReached() {
+    this.timoutReached = true;
+  }
+
   // empties the queues (used by fetcher timelimit and throughput threshold)
   public synchronized int emptyQueues() {
     int count = 0, queuesDropped = 0;
@@ -282,10 +296,10 @@ public class FetchItemQueues {
   /**
    * Increment the exception counter of a queue in case of an exception e.g.
    * timeout; when higher than a given threshold simply empty the queue.
-   * 
+   *
    * The next fetch is delayed if specified by the param {@code delay} or
    * configured by the property {@code fetcher.exceptions.per.queue.delay}.
-   * 
+   *
    * @param queueid
    *          a queue identifier to locate and check
    * @param maxExceptions
@@ -296,7 +310,7 @@ public class FetchItemQueues {
    *          in addition to the delay defined for the given queue. If a
    *          negative value is passed the delay is chosen by
    *          {@code fetcher.exceptions.per.queue.delay}
-   * 
+   *
    * @return number of purged items
    */
   public synchronized int checkExceptionThreshold(String queueid,
@@ -367,9 +381,9 @@ public class FetchItemQueues {
   /**
    * Increment the exception counter of a queue in case of an exception e.g.
    * timeout; when higher than a given threshold simply empty the queue.
-   * 
+   *
    * @see #checkExceptionThreshold(String, int, long)
-   * 
+   *
    * @param queueid
    *          queue identifier to locate and check
    * @return number of purged items
