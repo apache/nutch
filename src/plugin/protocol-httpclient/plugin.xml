@@ -34,19 +34,13 @@
    </requires>
    
    <extension id="org.apache.nutch.protocol.httpclient"
-      name="HttpProtocol"
+      name="HttpClientProtocol"
       point="org.apache.nutch.protocol.Protocol">
       
       <implementation id="org.apache.nutch.protocol.httpclient.Http"
          class="org.apache.nutch.protocol.httpclient.Http">
          <parameter name="protocolName" value="http"/>
       </implementation>
-      
-   </extension>
-   
-   <extension id="org.apache.nutch.protocol.https"
-      name="HttpsProtocol"
-      point="org.apache.nutch.protocol.Protocol">
       
       <implementation id="org.apache.nutch.protocol.httpclient.Http"
          class="org.apache.nutch.protocol.httpclient.Http">

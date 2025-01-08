@@ -34,7 +34,7 @@
    </requires>
 
    <extension id="org.apache.nutch.protocol.interactiveselenium"
-              name="HttpProtocol"
+              name="InteractiveSeleniumHttpProtocol"
               point="org.apache.nutch.protocol.Protocol">
 
       <implementation id="org.apache.nutch.protocol.interactiveselenium.Http"
