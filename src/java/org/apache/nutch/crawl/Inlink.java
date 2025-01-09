@@ -19,7 +19,9 @@ package org.apache.nutch.crawl;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Map.Entry;
 
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
@@ -28,6 +30,7 @@ public class Inlink implements Writable {
 
   private String fromUrl;
   private String anchor;
+  private MapWritable md = null;
 
   public Inlink() {
   }
@@ -41,6 +44,13 @@ public class Inlink implements Writable {
   public void readFields(DataInput in) throws IOException {
     fromUrl = Text.readString(in);
     anchor = Text.readString(in);
+    boolean hasMD = in.readBoolean();
+    if (hasMD) {
+      md = new org.apache.hadoop.io.MapWritable();
+      md.readFields(in);
+    } else {
+      md = null;
+    }
   }
 
   /**
@@ -51,12 +61,23 @@ public class Inlink implements Writable {
   public static void skip(DataInput in) throws IOException {
     Text.skip(in); // skip fromUrl
     Text.skip(in); // skip anchor
+    boolean hasMD = in.readBoolean();
+    if (hasMD) {
+      MapWritable metadata = new org.apache.hadoop.io.MapWritable();
+      metadata.readFields(in);
+    }
   }
 
   @Override
   public void write(DataOutput out) throws IOException {
     Text.writeString(out, fromUrl);
     Text.writeString(out, anchor);
+    if (md != null && md.size() > 0) {
+      out.writeBoolean(true);
+      md.write(out);
+    } else {
+      out.writeBoolean(false);
+    }
   }
 
   public static Inlink read(DataInput in) throws IOException {
@@ -71,6 +92,14 @@ public class Inlink implements Writable {
 
   public String getAnchor() {
     return anchor;
+  }
+
+  public MapWritable getMetadata() {
+    return md;
+  }
+
+  public void setMetadata(MapWritable md) {
+    this.md = md;
   }
 
   @Override
@@ -89,7 +118,16 @@ public class Inlink implements Writable {
 
   @Override
   public String toString() {
-    return "fromUrl: " + fromUrl + " anchor: " + anchor;
-  }
+    StringBuilder buffer = new StringBuilder();
+    if (md != null && !md.isEmpty()) {
+      for (Entry<Writable, Writable> e : md.entrySet()) {
+        buffer.append(" ");
+        buffer.append(e.getKey());
+        buffer.append(": ");
+        buffer.append(e.getValue());
+      }
+    }
 
+    return "fromUrl: " + fromUrl + " anchor: " + anchor + " metadata: " + buffer.toString();
+  }
 }
