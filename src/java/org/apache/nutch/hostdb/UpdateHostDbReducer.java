@@ -60,6 +60,7 @@ public class UpdateHostDbReducer
   protected static boolean checkKnown = false;
   protected static boolean checkAny = false;
   protected static boolean force = false;
+  protected static long urlLimit = -1l;
   protected static long now = new Date().getTime();
   protected static String[] numericFields;
   protected static String[] stringFields;
@@ -85,6 +86,7 @@ public class UpdateHostDbReducer
     checkKnown = conf.getBoolean(UpdateHostDb.HOSTDB_CHECK_KNOWN, false);
     checkAny = checkNew || checkKnown || checkFailed;
     force = conf.getBoolean(UpdateHostDb.HOSTDB_FORCE_CHECK, false);
+    urlLimit = conf.getLong(UpdateHostDb.HOSTDB_URL_LIMIT,-1l);
     numericFields = conf.getStrings(UpdateHostDb.HOSTDB_NUMERIC_FIELDS);
     stringFields = conf.getStrings(UpdateHostDb.HOSTDB_STRING_FIELDS);
     percentiles = conf.getInts(UpdateHostDb.HOSTDB_PERCENTILES);
@@ -372,6 +374,14 @@ public class UpdateHostDbReducer
     }      
     for (Map.Entry<String, Float> entry : minimums.entrySet()) {
       hostDatum.getMetaData().put(new Text("min." + entry.getKey()), new FloatWritable(entry.getValue()));
+    }
+    
+    // Impose limits on minimum number of URLs?
+    if (urlLimit > -1l) {
+      if (hostDatum.numRecords() < urlLimit) {
+        context.getCounter("UpdateHostDb", "url_limit_not_reached").increment(1);
+        return;
+      }
     }
     
     context.getCounter("UpdateHostDb", "total_hosts").increment(1);
