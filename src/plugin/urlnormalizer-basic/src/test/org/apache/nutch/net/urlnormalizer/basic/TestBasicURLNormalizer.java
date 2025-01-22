@@ -216,6 +216,32 @@ public class TestBasicURLNormalizer {
     normalizeTest("file:/var/www/html/////./bar/index.html",
         "file:/var/www/html/bar/index.html");
   }
+
+  @Test
+  public void testNUTCH3087() throws Exception {
+    // NUTCH-3087 userinfo to be kept in URLs with protocols usually requiring
+    // authentication
+    normalizeTest("ftp://user@ftp.example.org/path/file.txt",
+        "ftp://user@ftp.example.org/path/file.txt");
+    normalizeTest("ftp://john.doe@ftp.example.org/",
+        "ftp://john.doe@ftp.example.org/");
+    normalizeTest("ftp://user:password@ftp.example.org/path/file.txt",
+        "ftp://user:password@ftp.example.org/path/file.txt");
+    // But for HTTP(S) the userinfo should be removed.
+    // (example from https://en.wikipedia.org/wiki/Uniform_Resource_Identifier)
+    normalizeTest(
+        "https://john.doe@www.example.com:1234/forum/questions/?tag=networking&order=newest#top",
+        "https://www.example.com:1234/forum/questions/?tag=networking&order=newest");
+    // URLs with IPv6 address
+    normalizeTest("ftp://user@[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/../path/file.txt",
+        "ftp://user@[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/path/file.txt");
+    normalizeTest("https://user@[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/",
+        "https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/");
+    normalizeTest("https://user@[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]:443/",
+        "https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/");
+    normalizeTest("https://user@[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/path/../to/index.html",
+        "https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/to/index.html");
+  }
   
   @Test
   public void testCurlyBraces() throws Exception {
