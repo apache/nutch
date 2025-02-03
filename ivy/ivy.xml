@@ -135,6 +135,7 @@
 		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.14" />
 
 		<dependency org="de.vandermeer" name="asciitable" rev="0.3.2" />
+		<dependency org="org.littleshoot" name="littleproxy" rev="1.1.2" conf="test->default"/>
 
 		<!--global exclusion -->
 		<exclude module="jmxtools" />
