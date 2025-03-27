@@ -260,7 +260,7 @@ public class LinkDbReader extends AbstractChecker implements Closeable {
         }
       }
     } catch (Exception e) {
-      LOG.error("LinkDbReader: " + StringUtils.stringifyException(e));
+      LOG.error("LinkDbReader:", e);
       return -1;
     }
 

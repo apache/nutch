@@ -60,7 +60,7 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
     // check that the mode is known
     if (!mode.equals(PARTITION_MODE_IP) && !mode.equals(PARTITION_MODE_DOMAIN)
         && !mode.equals(PARTITION_MODE_HOST)) {
-      LOG.error("Unknown partition mode : " + mode + " - forcing to byHost");
+      LOG.error("Unknown partition mode : {} - forcing to byHost", mode);
       mode = PARTITION_MODE_HOST;
     }
     normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_PARTITION);
@@ -82,7 +82,7 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
           URLNormalizers.SCOPE_PARTITION);
       url = new URL(urlString);
     } catch (MalformedURLException e) {
-      LOG.warn("Malformed URL: '" + urlString + "'");
+      LOG.warn("Malformed URL: '{}'", urlString);
     }
 
     if (url == null) {
@@ -97,7 +97,7 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
         InetAddress address = InetAddress.getByName(url.getHost());
         hashCode = address.getHostAddress().hashCode();
       } catch (UnknownHostException e) {
-        Generator.LOG.info("Couldn't find IP for host: " + url.getHost());
+        Generator.LOG.info("Couldn't find IP for host: {}", url.getHost());
       }
     }
 

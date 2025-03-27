@@ -90,9 +90,7 @@ public class HttpResponse implements Response {
       throw new HttpException("Unknown scheme (not http/https) for url:" + url);
     }
 
-    if (Http.LOG.isTraceEnabled()) {
-      Http.LOG.trace("fetching " + url);
-    }
+    Http.LOG.trace("fetching {}", url);
 
     String path = url.getFile();
     if (!path.startsWith("/")) {
@@ -195,9 +193,7 @@ public class HttpResponse implements Response {
 
       String userAgent = http.getUserAgent();
       if ((userAgent == null) || (userAgent.length() == 0)) {
-        if (Http.LOG.isErrorEnabled()) {
-          Http.LOG.error("User-agent is not set!");
-        }
+        Http.LOG.error("User-agent is not set!");
       } else {
         reqStr.append("User-Agent: ");
         reqStr.append(userAgent);
@@ -315,9 +311,7 @@ public class HttpResponse implements Response {
         } else if ("deflate".equals(contentEncoding)) {
           content = http.processDeflateEncoded(content, url);
         } else {
-          if (Http.LOG.isTraceEnabled()) {
-            Http.LOG.trace("fetched " + content.length + " bytes from " + url);
-          }
+          Http.LOG.trace("fetched {} bytes from {}", content.length, url);
         }
         if (httpHeaders != null) {
           httpHeaders.append("\r\n");
@@ -481,9 +475,7 @@ public class HttpResponse implements Response {
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
 
     while (true) {
-      if (Http.LOG.isTraceEnabled()) {
-        Http.LOG.trace("Http: starting chunk");
-      }
+      Http.LOG.trace("Http: starting chunk");
 
       readLine(in, line, false);
 

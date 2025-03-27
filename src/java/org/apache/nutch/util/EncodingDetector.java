@@ -239,24 +239,19 @@ public class EncodingDetector {
     EncodingClue bestClue = defaultClue;
 
     for (EncodingClue clue : clues) {
-      if (LOG.isTraceEnabled()) {
-        LOG.trace(base + ": charset " + clue);
-      }
+      LOG.trace("{}: charset {}", base, clue);
       String charset = clue.value;
       if (minConfidence >= 0 && clue.confidence >= minConfidence) {
-        if (LOG.isTraceEnabled()) {
-          LOG.trace(base + ": Choosing encoding: " + charset
-              + " with confidence " + clue.confidence);
-        }
+        LOG.trace("{}: Choosing encoding: {} with confidence {}", base, charset,
+            clue.confidence);
         return resolveEncodingAlias(charset).toLowerCase();
       } else if (clue.confidence == NO_THRESHOLD && bestClue == defaultClue) {
         bestClue = clue;
       }
     }
 
-    if (LOG.isTraceEnabled()) {
-      LOG.trace(base + ": Choosing encoding: " + bestClue);
-    }
+    LOG.trace("{}: Choosing encoding: {}", base, bestClue);
+
     return bestClue.value.toLowerCase();
   }
 
@@ -310,7 +305,7 @@ public class EncodingDetector {
       return ALIASES.containsKey(canonicalName) ? ALIASES.get(canonicalName)
           : canonicalName;
     } catch (Exception e) {
-      LOG.warn("Invalid encoding " + encoding + " detected, using default.");
+      LOG.warn("Invalid encoding {} detected, using default.", encoding);
       return null;
     }
   }

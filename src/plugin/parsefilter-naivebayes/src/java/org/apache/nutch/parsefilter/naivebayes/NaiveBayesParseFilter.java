@@ -63,8 +63,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
     try {
       return classify(text);
     } catch (IOException e) {
-      LOG.error("Error occured while classifying:: " + text + " ::"
-          + StringUtils.stringifyException(e));
+      LOG.error("Error occured while classifying:: {} ::", text, e);
     }
 
     return false;
@@ -112,9 +111,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
     if (inputFilePath == null || inputFilePath.trim().length() == 0
         || dictionaryFile == null || dictionaryFile.trim().length() == 0) {
       String message = "ParseFilter: NaiveBayes: trainfile or wordlist not set in the parsefilte.naivebayes.trainfile or parsefilte.naivebayes.wordlist";
-      if (LOG.isErrorEnabled()) {
-        LOG.error(message);
-      }
+      LOG.error(message);
       throw new IllegalArgumentException(message);
     }
     try {
@@ -122,9 +119,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
           || (FileSystem.get(conf).exists(new Path(dictionaryFile)))) {
         String message = "ParseFilter: NaiveBayes: " + inputFilePath + " or "
             + dictionaryFile + " not found!";
-        if (LOG.isErrorEnabled()) {
-          LOG.error(message);
-        }
+        LOG.error(message);
         throw new IllegalArgumentException(message);
       }
 
@@ -144,8 +139,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
       train();
     } catch (Exception e) {
 
-      LOG.error("Error occured while training:: "
-          + StringUtils.stringifyException(e));
+      LOG.error("Error occured while training::", e);
 
     }
 
@@ -169,13 +163,13 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
     if (!filterParse(text)) { // kick in the second tier
       // if parent page found
       // irrelevant
-      LOG.info("ParseFilter: NaiveBayes: Page found irrelevant:: " + url);
+      LOG.info("ParseFilter: NaiveBayes: Page found irrelevant:: {}", url);
       LOG.info("Checking outlinks");
 
       Outlink[] out = null;
       for (int i = 0; i < parse.getData().getOutlinks().length; i++) {
-        LOG.info("ParseFilter: NaiveBayes: Outlink to check:: "
-            + parse.getData().getOutlinks()[i].getToUrl());
+        LOG.info("ParseFilter: NaiveBayes: Outlink to check:: {}",
+            parse.getData().getOutlinks()[i].getToUrl());
         if (filterUrl(parse.getData().getOutlinks()[i].getToUrl())) {
           tempOutlinks.add(parse.getData().getOutlinks()[i]);
           LOG.info("ParseFilter: NaiveBayes: found relevant");
@@ -191,7 +185,7 @@ public class NaiveBayesParseFilter implements HtmlParseFilter {
       parse.getData().setOutlinks(out);
 
     } else {
-      LOG.info("ParseFilter: NaiveBayes: Page found relevant:: " + url);
+      LOG.info("ParseFilter: NaiveBayes: Page found relevant:: {}", url);
     }
 
     return parseResult;

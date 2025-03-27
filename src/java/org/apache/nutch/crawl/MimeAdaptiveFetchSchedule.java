@@ -155,7 +155,7 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
           mimeMap.put(StringUtils.lowerCase(splits[0]), new AdaptiveRate(
               Float.valueOf(splits[1]), Float.valueOf(splits[2])));
         } else {
-          LOG.warn("Invalid configuration line in: " + line);
+          LOG.warn("Invalid configuration line in: {}", line);
         }
       }
     }
@@ -199,10 +199,9 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
         lastModified = curTime;
       }
 
-      LOG.info(i + ". " + changed + "\twill fetch at "
-          + (p.getFetchTime() / delta) + "\tinterval "
-          + (p.getFetchInterval() / SECONDS_PER_DAY) + " days" + "\t missed "
-          + miss);
+      LOG.info("{}. {}\twill fetch at {}\tinterval {} days\t missed {}", i,
+          changed, (p.getFetchTime() / delta),
+          (p.getFetchInterval() / SECONDS_PER_DAY), miss);
 
       if (p.getFetchTime() <= curTime) {
         fetchCnt++;
@@ -211,9 +210,10 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
             changed ? FetchSchedule.STATUS_MODIFIED
                 : FetchSchedule.STATUS_NOTMODIFIED);
 
-        LOG.info("\tfetched & adjusted: " + "\twill fetch at "
-            + (p.getFetchTime() / delta) + "\tinterval "
-            + (p.getFetchInterval() / SECONDS_PER_DAY) + " days");
+        LOG.info(
+            "\tfetched and adjusted:\twill fetch at {}\tinterval {} days",
+            (p.getFetchTime() / delta),
+            (p.getFetchInterval() / SECONDS_PER_DAY));
 
         if (!changed)
           miss++;
@@ -228,9 +228,8 @@ public class MimeAdaptiveFetchSchedule extends AdaptiveFetchSchedule {
         miss++;
       curTime += delta;
     }
-    LOG.info("Total missed: " + totalMiss + ", max miss: " + maxMiss);
-    LOG.info("Page changed " + changeCnt + " times, fetched " + fetchCnt
-        + " times.");
+    LOG.info("Total missed: {}, max miss: {}", totalMiss, maxMiss);
+    LOG.info("Page changed {} times, fetched {} times.", changeCnt, fetchCnt);
   }
 
 }

@@ -73,7 +73,7 @@ public class TestRegexURLNormalizer {
         NormalizedURL[] urls = readTestFile(cname);
         testData.put(cname, urls);
       } catch (Exception e) {
-        LOG.warn("Could load config from '" + configs[i] + "': " + e.toString());
+        LOG.warn("Could load config from '{}': {}", configs[i], e.toString());
       }
     }
   }
@@ -99,8 +99,8 @@ public class TestRegexURLNormalizer {
       String url = urls[i].url;
       String normalized = normalizer.normalize(urls[i].url, scope);
       String expected = urls[i].expectedURL;
-      LOG.info("scope: " + scope + " url: " + url + " | normalized: "
-          + normalized + " | expected: " + expected);
+      LOG.info("scope: {} url: {} | normalized: {} | expected: {}", scope, url,
+          normalized, expected);
       Assert.assertEquals(urls[i].expectedURL, normalized);
     }
   }
@@ -119,8 +119,8 @@ public class TestRegexURLNormalizer {
       Assert.fail(e.toString());
     }
     stopWatch.stop();
-    LOG.info("bench time (" + loops + ") "
-        + (stopWatch.getTime(TimeUnit.MILLISECONDS)) + "ms");
+    LOG.info("bench time ({}) {}ms", loops,
+        stopWatch.getTime(TimeUnit.MILLISECONDS));
   }
 
   private static class NormalizedURL {
@@ -176,8 +176,7 @@ public class TestRegexURLNormalizer {
     TestRegexURLNormalizer test = new TestRegexURLNormalizer();
     NormalizedURL[] urls = (NormalizedURL[]) test.testData.get(scope);
     if (urls == null) {
-      LOG.warn("Missing test data for scope '" + scope
-          + "', using default scope.");
+      LOG.warn("Missing test data for scope '{}', using default scope.", scope);
       scope = URLNormalizers.SCOPE_DEFAULT;
       urls = (NormalizedURL[]) test.testData.get(scope);
     }

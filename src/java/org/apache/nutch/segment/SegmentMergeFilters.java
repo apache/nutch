@@ -80,13 +80,11 @@ public class SegmentMergeFilters {
     for (SegmentMergeFilter filter : filters) {
       if (!filter.filter(key, generateData, fetchData, sigData, content,
           parseData, parseText, linked)) {
-        if (LOG.isTraceEnabled())
-          LOG.trace("Key " + key + " dropped by " + filter.getClass().getName());
+        LOG.trace("Key {} dropped by {}", key, filter.getClass().getName());
         return false;
       }
     }
-    if (LOG.isTraceEnabled())
-      LOG.trace("Key " + key + " accepted for merge.");
+    LOG.trace("Key {} accepted for merge.", key);
     return true;
   }
 }

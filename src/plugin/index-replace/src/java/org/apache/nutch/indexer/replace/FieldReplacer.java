@@ -70,8 +70,9 @@ public class FieldReplacer {
       this.isValid = false;
     }
     if (pattern == null || pattern.trim().length() == 0) {
-      LOG.error("Empty pattern for field " + fieldName
-          + "provided, FieldReplacer marked invalid.");
+      LOG.error(
+          "Empty pattern for field {} provided, FieldReplacer marked invalid.",
+          fieldName);
       this.isValid = false;
     }
 
@@ -85,7 +86,7 @@ public class FieldReplacer {
     this.toFieldName = toFieldName.trim();
 
     if (this.isValid) {
-      LOG.info("Compiling pattern " + pattern + " for field " + fieldName);
+      LOG.info("Compiling pattern {} for field {}", pattern, fieldName);
       Pattern myPattern = null;
       try {
         if (flags != null) {
@@ -94,8 +95,8 @@ public class FieldReplacer {
           myPattern = Pattern.compile(pattern);
         }
       } catch (PatternSyntaxException e) {
-        LOG.error("Pattern " + pattern + " for field " + fieldName
-            + " failed to compile: " + e.toString());
+        LOG.error("Pattern {} for field {} failed to compile: ", pattern,
+            fieldName, e);
         this.isValid = false;
       }
       this.pattern = myPattern;

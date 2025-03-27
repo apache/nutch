@@ -115,9 +115,9 @@ public class UpdateHostDbReducer
           // Add to array
           crawlDatumProcessors[i] = processorImpl;
         } catch (Exception e) {
-          LOG.error("Unable to instantiate crawldatum processor: "
-              + crawlDatumProcessorClassnames[i] + " because: "
-              + e.getMessage(), e);
+          LOG.error(
+              "Unable to instantiate crawldatum processor: {} because: {}",
+              crawlDatumProcessorClassnames[i], e.getMessage(), e);
         }
       }
     }
@@ -223,7 +223,7 @@ public class UpdateHostDbReducer
                 try {
                   metadataValue = buffer.getMetaData().get(stringFieldWritables[i]).toString();
                 } catch (Exception e) {
-                  LOG.error("Metadata field " + stringFields[i] + " is probably not a numeric value");
+                  LOG.error("Metadata field {} is probably not a numeric value", stringFields[i]);
                 }
               
                 // Does the value exist?
@@ -395,7 +395,7 @@ public class UpdateHostDbReducer
       try {
         queue.put(resolverThread);
       } catch (InterruptedException e) {
-        LOG.error("UpdateHostDb: " + StringUtils.stringifyException(e));
+        LOG.error("UpdateHostDb:", e);
       }
 
       // Do not progress, the datum will be written in the resolver thread

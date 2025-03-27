@@ -160,7 +160,7 @@ public class ParserChecker extends AbstractChecker {
       url = this.normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
     }
 
-    LOG.info("fetching: " + url);
+    LOG.info("fetching: {}", url);
 
     CrawlDatum datum = new CrawlDatum();
 
@@ -256,11 +256,8 @@ public class ParserChecker extends AbstractChecker {
     try {
       this.scfilters.passScoreBeforeParsing(turl, datum, content);
     } catch (Exception e) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't pass score before parsing, url " + turl + " (" + e
-            + ")");
-        LOG.warn(StringUtils.stringifyException(e));
-      }
+      LOG.warn("Couldn't pass score before parsing, url {} ({})", turl, e);
+      LOG.warn(StringUtils.stringifyException(e));
     }
 
     ParseResult parseResult = new ParseUtil(getConf()).parse(content);
@@ -274,11 +271,9 @@ public class ParserChecker extends AbstractChecker {
     byte[] signature = SignatureFactory.getSignature(getConf()).calculate(
         content, parseResult.get(new Text(url)));
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("parsing: {}", url);
-      LOG.info("contentType: {}", contentType);
-      LOG.info("signature: {}", StringUtil.toHexString(signature));
-    }
+    LOG.info("parsing: {}", url);
+    LOG.info("contentType: {}", contentType);
+    LOG.info("signature: {}", StringUtil.toHexString(signature));
 
     for (Map.Entry<Text, Parse> entry : parseResult) {
       turl = entry.getKey();
@@ -287,11 +282,8 @@ public class ParserChecker extends AbstractChecker {
       try {
         this.scfilters.passScoreAfterParsing(turl, content, parse);
       } catch (Exception e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Couldn't pass score after parsing, url " + turl + " (" + e
-              + ")");
-          LOG.warn(StringUtils.stringifyException(e));
-        }
+        LOG.warn("Couldn't pass score after parsing, url {} ({})", turl, e);
+        LOG.warn(StringUtils.stringifyException(e));
       }
 
       output.append(turl).append("\n");

@@ -138,15 +138,9 @@ public final class ParserFactory {
         }
         parsers.add(p);
       } catch (PluginRuntimeException e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn(
-              "ParserFactory:PluginRuntimeException when "
-                  + "initializing parser plugin "
-                  + ext.getDescriptor().getPluginId()
-                  + " instance because: " + e.getMessage()
-                  + " - attempting to continue instantiating parsers",
-              e);
-        }
+        LOG.warn("ParserFactory:PluginRuntimeException when "
+            + "initializing parser plugin {} instance because: {} - attempting to continue instantiating parsers",
+            ext.getDescriptor().getPluginId(), e.getMessage(), e);
       }
     }
     return parsers.toArray(new Parser[] {});
@@ -203,11 +197,8 @@ public final class ParserFactory {
         objectCache.setObject(parserExt.getId(), p);
         return p;
       } catch (PluginRuntimeException e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Canno initialize parser "
-              + parserExt.getDescriptor().getPluginId() + " (cause: "
-              + e.toString());
-        }
+        LOG.warn("Cannot initialize parser {} (cause: {})",
+            parserExt.getDescriptor().getPluginId(), e.toString());
         throw new ParserNotFound("Cannot init parser for id [" + id + "]");
       }
     }
@@ -319,23 +310,21 @@ public final class ParserFactory {
           // try to get it just by its pluginId
           ext = getExtension(extensions, parsePluginId);
 
-          if (LOG.isWarnEnabled()) {
-            if (ext != null) {
-              // plugin was enabled via plugin.includes
-              // its plugin.xml just doesn't claim to support that
-              // particular mimeType
-              LOG.warn("ParserFactory:Plugin: " + parsePluginId
-                  + " mapped to contentType " + contentType
-                  + " via parse-plugins.xml, but " + "its plugin.xml "
-                  + "file does not claim to support contentType: "
-                  + contentType);
-            } else {
-              // plugin wasn't enabled via plugin.includes
-              LOG.warn("ParserFactory: Plugin: " + parsePluginId
-                  + " mapped to contentType " + contentType
-                  + " via parse-plugins.xml, but not enabled via "
-                  + "plugin.includes in nutch-default.xml");
-            }
+          if (ext != null) {
+            /*
+             * plugin was enabled via plugin.includes its plugin.xml just
+             * doesn't claim to support that particular mimeType
+             */
+            LOG.warn(
+                "ParserFactory:Plugin: {} mapped to contentType {} via parse-plugins.xml, "
+                    + "but its plugin.xml file does not claim to support contentType: {}",
+                parsePluginId, contentType, contentType);
+          } else {
+            // plugin wasn't enabled via plugin.includes
+            LOG.warn(
+                "ParserFactory: Plugin: {} mapped to contentType {} via parse-plugins.xml, "
+                    + "but not enabled via plugin.includes in nutch-default.xml",
+                parsePluginId, contentType);
           }
         }
 
@@ -366,7 +355,7 @@ public final class ParserFactory {
 
       if (extList.size() > 0) {
         if (LOG.isInfoEnabled()) {
-          StringBuffer extensionsIDs = new StringBuffer("[");
+          StringBuilder extensionsIDs = new StringBuilder("[");
           boolean isFirst = true;
           for (Extension ext : extList) {
             if (!isFirst)
@@ -376,15 +365,16 @@ public final class ParserFactory {
             extensionsIDs.append(ext.getId());
           }
           extensionsIDs.append("]");
-          LOG.info("The parsing plugins: " + extensionsIDs.toString()
-              + " are enabled via the plugin.includes system "
-              + "property, and all claim to support the content type "
-              + contentType + ", but they are not mapped to it  in the "
-              + "parse-plugins.xml file");
+          LOG.info(
+              "The parsing plugins: {} are enabled via the plugin.includes system "
+                  + "property, and all claim to support the content type {}, "
+                  + "but they are not mapped to it  in the parse-plugins.xml file",
+              extensionsIDs.toString(), contentType);
         }
-      } else if (LOG.isDebugEnabled()) {
-        LOG.debug("ParserFactory:No parse plugins mapped or enabled for "
-            + "contentType " + contentType);
+      } else {
+        LOG.debug(
+            "ParserFactory: No parse plugins mapped or enabled for contentType {}",
+            contentType);
       }
     }
 

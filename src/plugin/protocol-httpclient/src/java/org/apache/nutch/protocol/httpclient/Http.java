@@ -142,10 +142,8 @@ public class Http extends HttpBase {
     try {
       setCredentials();
     } catch (Exception ex) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error("Http ", ex);
-        LOG.error("Could not read " + authFile + " : " + ex.getMessage());
-      }
+      LOG.error("Http ", ex);
+      LOG.error("Could not read {}: {}", authFile, ex.getMessage());
     }
   }
 
@@ -282,10 +280,9 @@ public class Http extends HttpBase {
 
       Element rootElement = doc.getDocumentElement();
       if (!"auth-configuration".equals(rootElement.getTagName())) {
-        if (LOG.isWarnEnabled())
-          LOG.warn("Bad auth conf file: root element <"
-              + rootElement.getTagName() + "> found in " + authFile
-              + " - must be <auth-configuration>");
+        LOG.warn(
+            "Bad auth conf file: root element <{}> found in {} - must be <auth-configuration>",
+            rootElement.getTagName(), authFile);
       }
 
       // For each set of credentials
@@ -297,10 +294,9 @@ public class Http extends HttpBase {
 
         Element credElement = (Element) credNode;
         if (!"credentials".equals(credElement.getTagName())) {
-          if (LOG.isWarnEnabled())
-            LOG.warn("Bad auth conf file: Element <" + credElement.getTagName()
-                + "> not recognized in " + authFile
-                + " - expected <credentials>");
+          LOG.warn(
+              "Bad auth conf file: Element <{}> not recognized in {} - expected <credentials>",
+              credElement.getTagName(), authFile);
           continue;
         }
 
@@ -335,11 +331,9 @@ public class Http extends HttpBase {
             defaultRealm = realm;
             defaultScheme = scheme;
 
-            if (LOG.isTraceEnabled()) {
-              LOG.trace(
-                  "Credentials - username: " + username + "; set as default"
-                      + " for realm: " + realm + "; scheme: " + scheme);
-            }
+            LOG.trace(
+                "Credentials - username: {}; set as default for realm: {}; scheme: {}",
+                username, realm, scheme);
 
           } else if ("authscope".equals(scopeElement.getTagName())) {
 
@@ -361,17 +355,14 @@ public class Http extends HttpBase {
 
             client.getState().setCredentials(authScope, credentials);
 
-            if (LOG.isTraceEnabled()) {
-              LOG.trace("Credentials - username: " + username
-                  + "; set for AuthScope - " + "host: " + host + "; port: "
-                  + port + "; realm: " + realm + "; scheme: " + scheme);
-            }
+            LOG.trace(
+                "Credentials - username: {}; set for AuthScope - host: {}; port: {}; realm: {}; scheme: {}",
+                username, host, port, realm, scheme);
 
           } else {
-            if (LOG.isWarnEnabled())
-              LOG.warn("Bad auth conf file: Element <"
-                  + scopeElement.getTagName() + "> not recognized in "
-                  + authFile + " - expected <authscope>");
+            LOG.warn(
+                "Bad auth conf file: Element <{}> not recognized in {} - expected <authscope>",
+                scopeElement.getTagName(), authFile);
           }
         }
         is.close();
@@ -474,7 +465,7 @@ public class Http extends HttpBase {
             if ("policy".equals(fieldElement.getTagName())) {
               String policy = fieldElement.getTextContent();
               formConfigurer.setCookiePolicy(policy);
-              LOG.debug("cookie policy is " + policy);
+              LOG.debug("cookie policy is {}", policy);
             }
           }
         }

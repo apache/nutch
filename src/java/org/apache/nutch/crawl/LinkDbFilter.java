@@ -79,7 +79,7 @@ public class LinkDbFilter extends Mapper<Text, Inlinks, Text, Inlinks> {
       try {
         url = normalizers.normalize(url, scope); // normalize the url
       } catch (Exception e) {
-        LOG.warn("Skipping " + url + ":" + e);
+        LOG.warn("Skipping {}: {}", url, e);
         url = null;
       }
     }
@@ -87,7 +87,7 @@ public class LinkDbFilter extends Mapper<Text, Inlinks, Text, Inlinks> {
       try {
         url = filters.filter(url); // filter the url
       } catch (Exception e) {
-        LOG.warn("Skipping " + url + ":" + e);
+        LOG.warn("Skipping {}: {}", url, e);
         url = null;
       }
     }
@@ -102,7 +102,7 @@ public class LinkDbFilter extends Mapper<Text, Inlinks, Text, Inlinks> {
         try {
           fromUrl = normalizers.normalize(fromUrl, scope); // normalize the url
         } catch (Exception e) {
-          LOG.warn("Skipping " + fromUrl + ":" + e);
+          LOG.warn("Skipping {}: {}", fromUrl, e);
           fromUrl = null;
         }
       }
@@ -110,7 +110,7 @@ public class LinkDbFilter extends Mapper<Text, Inlinks, Text, Inlinks> {
         try {
           fromUrl = filters.filter(fromUrl); // filter the url
         } catch (Exception e) {
-          LOG.warn("Skipping " + fromUrl + ":" + e);
+          LOG.warn("Skipping {}: {}", fromUrl, e);
           fromUrl = null;
         }
       }

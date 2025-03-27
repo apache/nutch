@@ -70,9 +70,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
         }
       }
     } catch (Exception e) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error(e.toString());
-      }
+      LOG.error(e.toString());
     }
   }
 

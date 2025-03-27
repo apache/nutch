@@ -45,7 +45,6 @@ import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -123,17 +122,17 @@ public class ScoreUpdater extends Configured implements Tool{
           // set the inlink score in the nodedb
           float inlinkScore = node.getInlinkScore();
           datum.setScore(inlinkScore);
-          LOG.debug(url + ": setting to score " + inlinkScore);
+          LOG.debug("{}: setting to score {}", url, inlinkScore);
         } else {
 
           // clear out the score in the crawldb
           datum.setScore(clearScore);
-          LOG.debug(url + ": setting to clear score of " + clearScore);
+          LOG.debug("{}: setting to clear score of {}", url, clearScore);
         }
 
         context.write(key, datum);
       } else {
-        LOG.debug(url + ": no datum");
+        LOG.debug("{}: no datum", url);
       }
     }
   }
@@ -163,7 +162,7 @@ public class ScoreUpdater extends Configured implements Tool{
     Configuration conf = getConf();
 
     // create a temporary crawldb with the new scores
-    LOG.info("Running crawldb update " + crawlDb);
+    LOG.info("Running crawldb update {}", crawlDb);
     Path nodeDb = new Path(webGraphDb, WebGraph.NODE_DIR);
     Path crawlDbCurrent = new Path(crawlDb, CrawlDb.CURRENT_NAME);
     Path newCrawlDb = new Path(crawlDb, Integer.toString(new Random()
@@ -209,7 +208,7 @@ public class ScoreUpdater extends Configured implements Tool{
     }
 
     // install the temp crawl database
-    LOG.info("ScoreUpdater: installing new crawldb " + crawlDb);
+    LOG.info("ScoreUpdater: installing new crawldb {}", crawlDb);
     CrawlDb.install(updater, crawlDb);
 
     stopWatch.stop();
@@ -263,7 +262,7 @@ public class ScoreUpdater extends Configured implements Tool{
       update(new Path(crawlDb), new Path(webGraphDb));
       return 0;
     } catch (Exception e) {
-      LOG.error("ScoreUpdater: " + StringUtils.stringifyException(e));
+      LOG.error("ScoreUpdater:", e);
       return -1;
     }
   }

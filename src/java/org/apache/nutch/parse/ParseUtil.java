@@ -75,27 +75,23 @@ public class ParseUtil {
       parsers = this.parserFactory.getParsers(content.getContentType(),
           content.getUrl() != null ? content.getUrl() : "");
     } catch (ParserNotFound e) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("No suitable parser found when trying to parse content "
-            + content.getUrl() + " of type " + content.getContentType());
-      }
+      LOG.warn(
+          "No suitable parser found when trying to parse content {} of type {}",
+          content.getUrl(), content.getContentType());
       throw new ParseException(e.getMessage());
     }
 
     ParseResult parseResult = null;
     for (int i = 0; i < parsers.length; i++) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Parsing [" + content.getUrl() + "] with [" + parsers[i]
-            + "]");
-      }
+      LOG.debug("Parsing [{}] with [{}]", content.getUrl(), parsers[i]);
       if (maxParseTime != -1) {
         parseResult = runParser(parsers[i], content);
       } else {
         try {
           parseResult = parsers[i].getParse(content);
         } catch (Throwable e) {
-          LOG.warn("Error parsing " + content.getUrl() + " with "
-              + parsers[i].getClass().getName(), e);
+          LOG.warn("Error parsing {} with {}", content.getUrl(),
+              parsers[i].getClass().getName(), e);
         }
       }
 
@@ -111,10 +107,9 @@ public class ParseUtil {
       return parseResult;
     }
 
-    if (LOG.isWarnEnabled()) {
-      LOG.warn("Unable to successfully parse content " + content.getUrl()
-          + " of type " + content.getContentType());
-    }
+    LOG.warn("Unable to successfully parse content {} of type {}",
+        content.getUrl(), content.getContentType());
+
     return new ParseStatus(new ParseException(
         "Unable to successfully parse content")).getEmptyParseResult(
         content.getUrl(), null);
@@ -149,10 +144,9 @@ public class ParseUtil {
     try {
       p = this.parserFactory.getParserById(extId);
     } catch (ParserNotFound e) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("No suitable parser found when trying to parse content "
-            + content.getUrl() + " of type " + content.getContentType());
-      }
+      LOG.warn(
+          "No suitable parser found when trying to parse content {} of type {}",
+          content.getUrl(), content.getContentType());
       throw new ParseException(e.getMessage());
     }
 
@@ -163,17 +157,15 @@ public class ParseUtil {
       try {
         parseResult = p.getParse(content);
       } catch (Throwable e) {
-        LOG.warn("Error parsing " + content.getUrl() + " with "
-            + p.getClass().getName(), e);
+        LOG.warn("Error parsing {} with {}", content.getUrl(),
+            p.getClass().getName(), e);
       }
     }
     if (parseResult != null && !parseResult.isEmpty()) {
       return parseResult;
     } else {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Unable to successfully parse content " + content.getUrl()
-            + " of type " + content.getContentType());
-      }
+      LOG.warn("Unable to successfully parse content {} of type {}",
+          content.getUrl(), content.getContentType());
       return new ParseStatus(new ParseException(
           "Unable to successfully parse content")).getEmptyParseResult(
           content.getUrl(), null);
@@ -187,8 +179,8 @@ public class ParseUtil {
     try {
       res = task.get(maxParseTime, TimeUnit.SECONDS);
     } catch (Exception e) {
-      LOG.warn("Error parsing " + content.getUrl() + " with "
-          + p.getClass().getName(), e);
+      LOG.warn("Error parsing {} with {}", content.getUrl(),
+          p.getClass().getName(), e);
       task.cancel(true);
     } finally {
       pc = null;

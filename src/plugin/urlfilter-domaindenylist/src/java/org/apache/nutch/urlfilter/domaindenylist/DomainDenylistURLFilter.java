@@ -121,8 +121,7 @@ public class DomainDenylistURLFilter implements URLFilter {
     }
 
     if (attributeFile != null) {
-      LOG.info("Attribute \"file\" is defined for plugin {} as {}", pluginName,
-          attributeFile);
+      LOG.info("Attribute \"file\" is defined for plugin {} as {}", pluginName, attributeFile);
     }
 
     // precedence hierarchy for definition of filter rules
@@ -146,7 +145,7 @@ public class DomainDenylistURLFilter implements URLFilter {
       }
       readConfiguration(reader);
     } catch (IOException e) {
-      LOG.error("Error reading " + pluginName + " rule file " + file, e);
+      LOG.error("Error reading {} rule file {}", pluginName, file, e);
     }
   }
 
@@ -175,8 +174,7 @@ public class DomainDenylistURLFilter implements URLFilter {
     } catch (Exception e) {
 
       // if an error happens, allow the url to pass
-      LOG.error("Could not apply filter on url: " + url + "\n"
-          + org.apache.hadoop.util.StringUtils.stringifyException(e));
+      LOG.error("Could not apply filter on url: {}", url, e);
       return null;
     }
   }

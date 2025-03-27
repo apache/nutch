@@ -106,7 +106,7 @@ public class RelTagParser implements HtmlParseFilter {
                 if (!StringUtil.isEmpty(tag)) {
                   if (!tags.contains(tag)) {
                     tags.add(tag);
-                    LOG.debug("Adding tag: " + tag + " to tag set.");
+                    LOG.debug("Adding tag {} to tag set.", tag);
                   }
                 }
               }

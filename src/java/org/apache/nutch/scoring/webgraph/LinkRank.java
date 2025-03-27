@@ -60,7 +60,6 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.FSUtils;
@@ -471,7 +470,7 @@ public class LinkRank extends Configured implements Tool {
         int numOutlinks = node.getNumOutlinks();
         float inlinkScore = node.getInlinkScore();
         float outlinkScore = node.getOutlinkScore();
-        LOG.debug(fromUrl + ": num outlinks " + numOutlinks);
+        LOG.debug("{}: num outlinks {}", fromUrl, numOutlinks);
 
         // can't invert if no outlinks
         if (numOutlinks > 0) {
@@ -484,9 +483,9 @@ public class LinkRank extends Configured implements Tool {
 
             // collect the inverted outlink
             context.write(new Text(toUrl), outlink);
-            LOG.debug(toUrl + ": inverting inlink from " + fromUrl
-                + " origscore: " + inlinkScore + " numOutlinks: " + numOutlinks
-                + " inlinkscore: " + outlinkScore);
+            LOG.debug(
+                "{}: inverting inlink from {} origscore: {} numOutlinks: {} inlinkscore: {}",
+                toUrl, fromUrl, inlinkScore, numOutlinks, outlinkScore);
           }
         }
       }
@@ -585,8 +584,8 @@ public class LinkRank extends Configured implements Tool {
             // limit counting duplicate inlinks by pages or domains
             if ((limitPages && pages.contains(inLinkPage))
                 || (limitDomains && domains.contains(inLinkDomain))) {
-              LOG.debug(url + ": ignoring " + scoreFromInlink + " from "
-                  + inlinkUrl + ", duplicate page or domain");
+              LOG.debug("{}: ignoring {} from {}, duplicate page or domain",
+                  url, scoreFromInlink, inlinkUrl);
               continue;
             }
 
@@ -595,8 +594,8 @@ public class LinkRank extends Configured implements Tool {
             totalInlinkScore += scoreFromInlink;
             domains.add(inLinkDomain);
             pages.add(inLinkPage);
-            LOG.debug(url + ": adding " + scoreFromInlink + " from " + inlinkUrl
-                + ", total: " + totalInlinkScore);
+            LOG.debug("{}: adding {} from {}, total: {}", url, scoreFromInlink,
+                inlinkUrl, totalInlinkScore);
           }
         }
 
@@ -604,8 +603,8 @@ public class LinkRank extends Configured implements Tool {
         float linkRankScore = (1 - dampingFactor)
             + (dampingFactor * totalInlinkScore);
 
-        LOG.debug(url + ": score: " + linkRankScore + " num inlinks: "
-            + numInlinks + " iteration: " + itNum);
+        LOG.debug("{}: score: {} num inlinks: {} iteration: {}", url,
+            linkRankScore, numInlinks, itNum);
 
         // store the score in a temporary NodeDb
         Node outNode = WritableUtils.clone(node, conf);
@@ -674,10 +673,8 @@ public class LinkRank extends Configured implements Tool {
     runInitializer(wgNodeDb, nodeDb);
     float rankOneScore = (1f / (float) numLinks);
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Analysis: Number of links: " + numLinks);
-      LOG.info("Analysis: Rank One: " + rankOneScore);
-    }
+    LOG.info("Analysis: Number of links: {}", numLinks);
+    LOG.info("Analysis: Rank One: {}", rankOneScore);
 
     // run invert and analysis for a given number of iterations to allow the
     // link rank scores to converge
@@ -685,8 +682,7 @@ public class LinkRank extends Configured implements Tool {
     for (int i = 0; i < numIterations; i++) {
 
       // the input to inverting is always the previous output from analysis
-      LOG.info("Analysis: Starting iteration " + (i + 1) + " of "
-          + numIterations);
+      LOG.info("Analysis: Starting iteration {} of {}", (i + 1), numIterations);
       Path tempRank = new Path(linkRank + "-"
           + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
       fs.mkdirs(tempRank);
@@ -701,8 +697,7 @@ public class LinkRank extends Configured implements Tool {
       // replace the temporary NodeDb with the output from analysis
       LOG.info("Analysis: Installing new link scores");
       FSUtils.replace(fs, linkRank, tempRank, true);
-      LOG.info("Analysis: finished iteration " + (i + 1) + " of "
-          + numIterations);
+      LOG.info("Analysis: finished iteration {} of {}", (i + 1), numIterations);
     }
 
     // replace the NodeDb in the WebGraph with the final output of analysis
@@ -754,7 +749,7 @@ public class LinkRank extends Configured implements Tool {
       analyze(new Path(webGraphDb));
       return 0;
     } catch (Exception e) {
-      LOG.error("LinkAnalysis: " + StringUtils.stringifyException(e));
+      LOG.error("LinkAnalysis:", e);
       return -2;
     }
   }

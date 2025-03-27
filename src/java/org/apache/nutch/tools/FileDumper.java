@@ -132,8 +132,9 @@ public class FileDumper {
    */
   public void dump(File outputDir, File segmentRootDir, String[] mimeTypes, boolean 
           flatDir, boolean mimeTypeStats, boolean reverseURLDump) throws Exception {
-    if (mimeTypes == null)
+    if (mimeTypes == null) {
       LOG.info("Accepting all mimetypes.");
+    }
     // total file counts
     Map<String, Integer> typeCounts = new HashMap<>();
     // filtered file counts
@@ -142,13 +143,12 @@ public class FileDumper {
     int fileCount = 0;
     File[] segmentDirs = segmentRootDir.listFiles(file -> file.canRead() && file.isDirectory());
     if (segmentDirs == null) {
-      LOG.error("No segment directories found in ["
-          + segmentRootDir.getAbsolutePath() + "]");
+      LOG.error("No segment directories found in [{}]", segmentRootDir.getAbsolutePath());
       return;
     }
 
     for (File segment : segmentDirs) {
-      LOG.info("Processing segment: [" + segment.getAbsolutePath() + "]");
+      LOG.info("Processing segment: [{}]", segment.getAbsolutePath());
       DataOutputStream doutputStream = null;
       Map<String, String> filenameToUrl = new HashMap<String, String>();
 
@@ -165,8 +165,7 @@ public class FileDumper {
           String segmentPath = partDir + "/data";
           Path file = new Path(segmentPath);
           if (!new File(file.toString()).exists()) {
-            LOG.warn("Skipping segment: [" + segmentPath
-                + "]: no data directory present");
+            LOG.warn("Skipping segment: [{}]: no data directory present", segmentPath);
             continue;
           }
 
@@ -200,7 +199,7 @@ public class FileDumper {
               }
             } catch (Exception e) {
               e.printStackTrace();
-              LOG.warn("Tika is unable to detect type for: [" + url + "]");
+              LOG.warn("Tika is unable to detect type for: [{}]", url);
             } finally {
               if (bas != null) {
                 try {
@@ -245,7 +244,7 @@ public class FileDumper {
                   File outputFile = new File(outputFullPath);
 
                   if (!outputFile.exists()) {
-                    LOG.info("Writing: [" + outputFullPath + "]");
+                    LOG.info("Writing: [{}]", outputFullPath);
 
                     // Modified to prevent FileNotFoundException (Invalid Argument)
                     FileOutputStream output = null;
@@ -253,7 +252,7 @@ public class FileDumper {
                       output = new FileOutputStream(outputFile);
                       IOUtils.write(content.getContent(), output);
                     } catch (Exception e) {
-                      LOG.warn("Write Error: [" + outputFullPath + "]");
+                      LOG.warn("Write Error: [{}]", outputFullPath);
                       e.printStackTrace();
                     } finally {
                       if (output != null) {
@@ -266,8 +265,8 @@ public class FileDumper {
                     }
                     fileCount++;
                   } else {
-                    LOG.info("Skipping writing: [" + outputFullPath
-                        + "]: file already exists");
+                    LOG.info("Skipping writing: [{}]: file already exists",
+                        outputFullPath);
                   }
                 }
               }
@@ -288,8 +287,8 @@ public class FileDumper {
       new ObjectMapper().writeValue(new File(filenameToUrlFilePath), filenameToUrl);
       
     }
-    LOG.info("Dumper File Stats: "
-        + DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));
+    LOG.info("Dumper File Stats: {}",
+        DumpFileUtil.displayFileTypes(typeCounts, filteredCounts));
 
     if (mimeTypeStats) {
       System.out.println("Dumper File Stats: " 
@@ -377,8 +376,8 @@ public class FileDumper {
         reverseURLDump = true;
 
       if (!outputDir.exists()) {
-        LOG.warn("Output directory: [" + outputDir.getAbsolutePath()
-        + "]: does not exist, creating it.");
+        LOG.warn("Output directory: [{}]: does not exist, creating it.",
+            outputDir.getAbsolutePath());
         if (!shouldDisplayStats) {
           if (!outputDir.mkdirs())
             throw new Exception("Unable to create: ["
@@ -389,7 +388,7 @@ public class FileDumper {
       FileDumper dumper = new FileDumper();
       dumper.dump(outputDir, segmentRootDir, mimeTypes, flatDir, shouldDisplayStats, reverseURLDump);
     } catch (Exception e) {
-      LOG.error("FileDumper: " + StringUtils.stringifyException(e));
+      LOG.error("FileDumper: {}", StringUtils.stringifyException(e));
       e.printStackTrace();
       return;
     }

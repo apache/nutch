@@ -57,9 +57,7 @@ public class CCIndexingFilter implements IndexingFilter {
     // index the license
     String licenseUrl = metadata.get(CreativeCommons.LICENSE_URL);
     if (licenseUrl != null) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("CC: indexing " + licenseUrl + " for: " + url.toString());
-      }
+      LOG.info("CC: indexing {} for: {}", licenseUrl, url.toString());
 
       // add the entire license as cc:license=xxx
       addFeature(doc, "license=" + licenseUrl);
@@ -106,9 +104,7 @@ public class CCIndexingFilter implements IndexingFilter {
         addFeature(doc, feature);
       }
     } catch (MalformedURLException e) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("CC: failed to parse url: " + urlString + " : " + e);
-      }
+      LOG.warn("CC: failed to parse url: {} :", urlString, e);
     }
   }
 

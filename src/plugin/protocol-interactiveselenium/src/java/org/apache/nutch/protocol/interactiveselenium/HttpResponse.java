@@ -92,9 +92,7 @@ public class HttpResponse implements Response {
       throw new HttpException("Unknown scheme (not http/https) for url:" + url);
     }
 
-    if (Http.LOG.isTraceEnabled()) {
-      Http.LOG.trace("fetching " + url);
-    }
+    Http.LOG.trace("fetching {}", url);
 
     String path = "".equals(url.getFile()) ? "/" : url.getFile();
 
@@ -189,9 +187,7 @@ public class HttpResponse implements Response {
 
       String userAgent = http.getUserAgent();
       if ((userAgent == null) || (userAgent.length() == 0)) {
-        if (Http.LOG.isErrorEnabled()) {
-          Http.LOG.error("User-agent is not set!");
-        }
+        Http.LOG.error("User-agent is not set!");
       } else {
         reqStr.append("User-Agent: ");
         reqStr.append(userAgent);
@@ -381,13 +377,13 @@ public class HttpResponse implements Response {
             | NoSuchMethodException | SecurityException e) {
           e.printStackTrace();
         }
-        Http.LOG.info("Successfully loaded " + classToLoad);
+        Http.LOG.info("Successfully loaded {}", classToLoad);
       } catch (ClassNotFoundException e) {
-        Http.LOG.info("Unable to load Handler class for: " + handlerNames[i]);
+        Http.LOG.info("Unable to load Handler class for: {}", handlerNames[i]);
       } catch (InstantiationException e) {
-        Http.LOG.info("Unable to instantiate Handler: " + handlerNames[i]);
+        Http.LOG.info("Unable to instantiate Handler: {}", handlerNames[i]);
       } catch (IllegalAccessException e) {
-        Http.LOG.info("Illegal access with Handler: " + handlerNames[i]);
+        Http.LOG.info("Illegal access with Handler: {}", handlerNames[i]);
       }
     }
   }

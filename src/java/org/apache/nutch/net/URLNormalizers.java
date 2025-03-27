@@ -198,12 +198,10 @@ public final class URLNormalizers {
         }
         normalizers.add(normalizer);
       } catch (PluginRuntimeException e) {
-        e.printStackTrace();
         LOG.warn("URLNormalizers:PluginRuntimeException when "
-            + "initializing url normalizer plugin "
-            + ext.getDescriptor().getPluginId()
-            + " instance in getURLNormalizers "
-            + "function: attempting to continue instantiating plugins");
+            + "initializing URLNormalizer plugin {} instance in getURLNormalizers "
+            + "function: attempting to continue instantiating plugins",
+            ext.getDescriptor().getPluginId(), e);
       }
     }
     return normalizers.toArray(new URLNormalizer[normalizers.size()]);

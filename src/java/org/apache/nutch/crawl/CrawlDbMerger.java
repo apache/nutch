@@ -40,7 +40,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
@@ -229,7 +228,7 @@ public class CrawlDbMerger extends Configured implements Tool {
       merge(output, dbs.toArray(new Path[dbs.size()]), normalize, filter);
       return 0;
     } catch (Exception e) {
-      LOG.error("CrawlDb merge: " + StringUtils.stringifyException(e));
+      LOG.error("CrawlDb merge:", e);
       return -1;
     }
   }

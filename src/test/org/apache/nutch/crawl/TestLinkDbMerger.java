@@ -109,14 +109,14 @@ public class TestLinkDbMerger {
     createLinkDb(conf, fs, linkdb1, init1);
     createLinkDb(conf, fs, linkdb2, init2);
     LinkDbMerger merger = new LinkDbMerger(conf);
-    LOG.debug("* merging linkdbs to " + output);
+    LOG.debug("* merging linkdbs to {}", output);
     merger.merge(output, new Path[] { linkdb1, linkdb2 }, false, false);
-    LOG.debug("* reading linkdb: " + output);
+    LOG.debug("* reading linkdb: {}", output);
     reader = new LinkDbReader(conf, output);
     Iterator<String> it = expected.keySet().iterator();
     while (it.hasNext()) {
       String url = it.next();
-      LOG.debug("url=" + url);
+      LOG.debug("url={}", url);
       String[] vals = expected.get(url);
       Inlinks inlinks = reader.getInlinks(new Text(url));
       // may not be null
@@ -128,7 +128,7 @@ public class TestLinkDbMerger {
         links.add(in.getFromUrl());
       }
       for (int i = 0; i < vals.length; i++) {
-        LOG.debug(" -> " + vals[i]);
+        LOG.debug(" -> {}", vals[i]);
         Assert.assertTrue(links.contains(vals[i]));
       }
     }
@@ -138,7 +138,7 @@ public class TestLinkDbMerger {
 
   private void createLinkDb(Configuration config, FileSystem fs, Path linkdb,
       TreeMap<String, String[]> init) throws Exception {
-    LOG.debug("* creating linkdb: " + linkdb);
+    LOG.debug("* creating linkdb: {}", linkdb);
     Path dir = new Path(linkdb, LinkDb.CURRENT_NAME);
     
     Option wKeyOpt = MapFile.Writer.keyClass(Text.class);

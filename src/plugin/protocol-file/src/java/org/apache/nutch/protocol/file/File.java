@@ -139,9 +139,7 @@ public class File implements Protocol {
 
         } else if (code >= 300 && code < 400) { // handle redirect
           u = new URL(response.getHeader("Location"));
-          if (LOG.isTraceEnabled()) {
-            LOG.trace("redirect to " + u);
-          }
+          LOG.trace("redirect to {}", u);
           if (symlinksAsRedirects) {
             return new ProtocolOutput(response.toContent(), new ProtocolStatus(
                 ProtocolStatus.MOVED, u));

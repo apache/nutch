@@ -408,16 +408,12 @@ public abstract class HttpBase implements Protocol {
         // handle this in the higher layer.
         return new ProtocolOutput(c, new ProtocolStatus(protocolStatusCode, u));
       } else if (code == 400) { // bad request, mark as GONE
-        if (this.logger.isTraceEnabled()) {
-          this.logger.trace("400 Bad request: {}", u);
-        }
+        this.logger.trace("400 Bad request: {}", u);
         return new ProtocolOutput(c,
             new ProtocolStatus(ProtocolStatus.GONE, u));
       } else if (code == 401) { // requires authorization, but no valid auth
                                 // provided.
-        if (this.logger.isTraceEnabled()) {
-          this.logger.trace("401 Authentication Required");
-        }
+        this.logger.trace("401 Authentication Required");
         return new ProtocolOutput(c,
             new ProtocolStatus(ProtocolStatus.ACCESS_DENIED,
                 "Authentication required: " + urlString));
@@ -571,8 +567,8 @@ public abstract class HttpBase implements Protocol {
   private static String getAgentString(String agentName, String agentVersion,
       String agentDesc, String agentURL, String agentEmail) {
 
-    if (((agentName == null) || (agentName.trim().isEmpty())) && LOG.isErrorEnabled()) {
-        LOG.error("No User-Agent string set (http.agent.name)!");
+    if ((agentName == null) || (agentName.trim().isEmpty())) {
+      LOG.error("No User-Agent string set (http.agent.name)!");
     }
 
     StringBuilder buf = new StringBuilder();
@@ -624,9 +620,7 @@ public abstract class HttpBase implements Protocol {
   public byte[] processGzipEncoded(byte[] compressed, URL url)
       throws IOException {
 
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("uncompressing....");
-    }
+    LOG.trace("uncompressing....");
 
     // content can be empty (i.e. redirection) in which case
     // there is nothing to unzip
@@ -643,10 +637,9 @@ public abstract class HttpBase implements Protocol {
     if (content == null)
       throw new IOException("unzipBestEffort returned null");
 
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("fetched {} bytes of compressed content (expanded to {} " +
-          "bytes) from {}", compressed.length, content.length, url);
-    }
+    LOG.trace(
+        "fetched {} bytes of compressed content (expanded to {} bytes) from {}",
+        compressed.length, content.length, url);
     return content;
   }
 
@@ -658,9 +651,7 @@ public abstract class HttpBase implements Protocol {
     if (compressed.length == 0)
       return compressed;
 
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("inflating....");
-    }
+    LOG.trace("inflating....");
 
     byte[] content;
     if (getMaxContent() >= 0) {
@@ -672,10 +663,9 @@ public abstract class HttpBase implements Protocol {
     if (content == null)
       throw new IOException("inflateBestEffort returned null");
 
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("fetched {} bytes of compressed content (expanded to {} " +
-          "bytes) from {}", compressed.length, content.length, url);
-    }
+    LOG.trace(
+        "fetched {} bytes of compressed content (expanded to {} bytes) from {}",
+        compressed.length, content.length, url);
     return content;
   }
 

@@ -62,7 +62,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
    */
   @Override
   public String normalize(String urlString, String scope) throws MalformedURLException {
-    LOG.info(scope + " // " + urlString);
+    LOG.info("{} // {}", scope, urlString);
   
     // When indexing, transform _escaped_fragment_ URL's to their #! counterpart
     if (scope.equals(URLNormalizers.SCOPE_INDEXER) && urlString.contains(ESCAPED_URL_PART)) {
@@ -71,7 +71,7 @@ public class AjaxURLNormalizer implements URLNormalizer {
     
     // Otherwise transform #! URL's to their _escaped_fragment_ counterpart
     if (urlString.contains(AJAX_URL_PART)) {
-      LOG.info(scope + " // " + normalizeHashedFragment(urlString));
+      LOG.info("{} // {}", scope, normalizeHashedFragment(urlString));
       return normalizeHashedFragment(urlString);
     }
 

@@ -157,11 +157,9 @@ public class MoreIndexingFilter implements IndexingFilter {
       try {
         Date parsedDate = DateUtils.parseDate(date, dateStyles);
         time = parsedDate.getTime();
-        LOG.info(url + ": parsed date: " + date +" to: " + time);
+        LOG.info("{}: parsed date: {} to: {}", url, date, time);
       } catch (Exception e2) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn(url + ": can't parse erroneous date: " + date);
-        }
+        LOG.warn("{}: can't parse erroneous date: {}", url, date);
       }
     }
 
