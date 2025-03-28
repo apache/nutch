@@ -37,7 +37,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.tallison.tika" name="tika-parsers-standard-package-shaded" rev="2.9.1.0" conf="*->default" transitive="false"/>
+    <dependency org="org.tallison.tika" name="tika-parsers-standard-package-shaded" rev="3.1.0.0" conf="*->default" transitive="false"/>
   </dependencies>
   
 </ivy-module>
