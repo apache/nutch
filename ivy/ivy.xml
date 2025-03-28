@@ -74,7 +74,7 @@
 			<exclude org="org.slf4j" name="*" />
 		</dependency><!-- End of Hadoop Dependencies -->
 
-		<dependency org="org.tallison.tika" name="tika-core-shaded" rev="2.9.1.0" conf="*->default" transitive="false"/>
+		<dependency org="org.tallison.tika" name="tika-core-shaded" rev="3.1.0.0" conf="*->default" transitive="false"/>
 
 		<dependency org="xml-apis" name="xml-apis" rev="1.4.01" /><!-- force this version as it is required by Tika -->
 		<dependency org="xerces" name="xercesImpl" rev="2.12.2" />
