@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -119,20 +120,26 @@ public class HttpResponse implements Response {
     Socket socket = null;
 
     try {
-      socket = new Socket(); // create the socket
+      boolean useProxy = http.useProxy(url);
+      if (useProxy) {
+        Proxy proxy = new Proxy(Proxy.Type.HTTP,
+            new InetSocketAddress(http.getProxyHost(), http.getProxyPort()));
+        socket = new Socket(proxy);
+      } else {
+        socket = new Socket();
+      }
       socket.setSoTimeout(http.getTimeout());
 
       // connect
-      String sockHost = http.useProxy(url) ? http.getProxyHost() : host;
       int sockPort = http.useProxy(url) ? http.getProxyPort() : port;
-      InetSocketAddress sockAddr = new InetSocketAddress(sockHost, sockPort);
+      InetSocketAddress sockAddr = new InetSocketAddress(host, port);
       socket.connect(sockAddr, http.getTimeout());
 
       if (scheme == Scheme.HTTPS) {
         SSLSocket sslsocket = null;
 
         try {
-          sslsocket = getSSLSocket(socket, sockHost, sockPort);
+          sslsocket = getSSLSocket(socket, host, port);
           sslsocket.startHandshake();
         } catch (Exception e) {
           Http.LOG.debug("SSL connection to {} failed with: {}", url,

@@ -37,6 +37,8 @@
   </publications>
 
   <dependencies>
+      <dependency org="org.littleshoot" name="littleproxy" rev="1.1.2" />
+      <dependency org="com.google.guava" name="guava" rev="20.0" force="true" />
   </dependencies>
   
 </ivy-module>
