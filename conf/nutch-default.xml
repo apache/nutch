@@ -1150,12 +1150,20 @@
 
 <property>
   <name>fetcher.max.exceptions.per.queue</name>
-  <value>-1</value>
+  <value>5</value>
   <description>The maximum number of protocol-level exceptions
   (e.g. timeouts) or HTTP status codes mapped to ProtocolStatus.EXCEPTION
   per host (or IP) queue. Once this value is reached, any remaining entries
   from this queue are purged, effectively stopping the fetching from this
-  host/IP. The default value of -1 deactivates this limit.
+  host/IP. A value of -1 deactivates this limit.
+
+  Note that the exponential backoff mechanism (see the property
+  fetcher.exceptions.per.queue.delay) causes increasing wait times
+  after each exception in a queue. If there is no time limit
+  (fetcher.timelimit.mins) or minimum throughput
+  (fetcher.throughput.threshold.pages) configured, it is recommended
+  to set this property to a considerably low value. This avoids the
+  fetch process from hanging when only URLs in blocked queues remain.
   </description>
 </property>
 
