@@ -67,6 +67,12 @@ import java.net.URISyntaxException;
  * production system.
  * </p>
  * 
+ * The class also allows specifying custom min. and max. re-fetch intervals per
+ * hostname, in adaptive-host-specific-intervals.txt. If they are specified,
+ * the calculated re-fetch interval for a URL matching the hostname will not be
+ * allowed to fall outside of the corresponding range, instead of the default
+ * range.
+ *
  * @author Andrzej Bialecki
  */
 public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
@@ -89,9 +95,9 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
   private Configuration conf;
 
-  private Map<String,Float> hostSpecificMaxInterval = new HashMap<>();
+  private Map<String, Float> hostSpecificMaxInterval = new HashMap<>();
   
-  private Map<String,Float> hostSpecificMinInterval = new HashMap<>();
+  private Map<String, Float> hostSpecificMinInterval = new HashMap<>();
 
   @Override
   public void setConf(Configuration conf) {
@@ -109,18 +115,24 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
         "db.fetch.schedule.adaptive.sync_delta_rate", 0.2f);
     try {
       setHostSpecificIntervals("adaptive-host-specific-intervals.txt", 
-        MIN_INTERVAL, MAX_INTERVAL);
-    } catch (IOException e){
-      LOG.error("Failed reading the configuration file. ", e);
+          MIN_INTERVAL, MAX_INTERVAL);
+    } catch (IOException e) {
+      LOG.error("Failed reading the configuration file: " + e.toString());
     }
   }
 
   /**
-   * Load host-specific min_intervals and max_intervals
-   * from the configuration file into the HashMaps.
+   * Load host-specific minimal and maximal refetch intervals from
+   * the configuration file into the corresponding HashMaps.
+   *
+   * @param fileName   the name of the configuration file containing
+   *                   the specific intervals
+   * @param defaultMin the value of the default min interval
+   * @param defaultMax the value of the default max interval
    */
   private void setHostSpecificIntervals(String fileName,
-    float defaultMin, float defaultMax) throws IOException {
+      float defaultMin, float defaultMax) throws IOException {
+    // Setup for reading the config file.
     Reader configReader = null;
     configReader = conf.getConfResourceAsReader(fileName);
     if (configReader == null) {
@@ -129,67 +141,105 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     BufferedReader reader = new BufferedReader(configReader);
     String line;
     int lineNo = 0;
+
+    // Read the file line by line.
     while ((line = reader.readLine()) != null) {
       lineNo++;
-      if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line = line.trim();
-        String[] parts = line.split("\\s+");
-        if (parts.length == 3) {
-          // TODO: Maybe add host validatio here?
-          // It might get computationally expensive for large files, though.
-          String host = parts[0].trim().toLowerCase();
-          String minInt = parts[1].trim();
-          String maxInt = parts[2].trim();
-          if (minInt.equalsIgnoreCase("default")){ minInt = "0"; }
-          if (maxInt.equalsIgnoreCase("default")){ maxInt = "0"; }
-          float m,M;
-          try {
-            m = Float.parseFloat(minInt);
-            M = Float.parseFloat(maxInt);
 
-            //negative values and mismatched boundaries are ignored
-            //(default to global settings)
-            if (m < 0 || M < 0 || m > M){
-              LOG.error("Improper fetch intervals given on line " + String.valueOf(lineNo)
-                + " in the config. file: " + line);
-            } else {
-
-              // min. interval should be positive and above the global minimum
-              if (m > 0 && m > defaultMin){
-                  hostSpecificMinInterval.put(host,m);
-                  LOG.debug("Added custom min. interval " + m + " for host " + host + ".");
-              } else if (m > 0) {
-                LOG.error("Min. interval out of bounds on line " + String.valueOf(lineNo)
-                  + " in the config. file: " + line);
-              }
-
-              // max. interval should be positive and below the global maximum
-              if (M > 0 && M < defaultMax){
-                hostSpecificMaxInterval.put(host,M);
-                LOG.debug("Added custom max. interval " + M + " for host " + host + ".");
-              } else if (M > 0){
-                LOG.error("Max. interval out of bounds on line " + String.valueOf(lineNo)
-                  + " in the config. file: " + line);
-              }
-
-              // zero values are ignored (default to global settings)
-            }
-          } catch (NumberFormatException e){
-            LOG.error("No proper fetch intervals given on line " + String.valueOf(lineNo)
-              + " in the config. file: " + line, e);
-          }
-        } else {
-          LOG.error("Malformed (domain, min_interval, max_interval) triplet on line "
-            + String.valueOf(lineNo) + " of the config. file: " + line);
-        }
+      // Skip blank lines and comments.
+      if (StringUtils.isBlank(line) || line.startsWith("#")) {
+        continue;
       }
+
+      // Trim and partition the line.
+      line = line.trim();
+      String[] parts = line.split("\\s+");
+
+      // There should be three parts.
+      if (parts.length != 3) {
+        LOG.error("Malformed (domain, min_interval, max_interval) triplet on line "
+            + String.valueOf(lineNo) + " of config. file: `" + line + "`");
+        continue;
+      }
+
+      // Normalize the parts.
+      String host = parts[0].trim().toLowerCase();
+      String minInt = parts[1].trim();
+      String maxInt = parts[2].trim();
+
+      // "0" and "default" both mean `use default interval`; normalize to "0".
+      if (minInt.equalsIgnoreCase("default")) { minInt = "0"; }
+      if (maxInt.equalsIgnoreCase("default")) { maxInt = "0"; }
+
+      // Convert intervals to float and ignore the line in case of failure.
+      float m, M;
+      try {
+        m = Float.parseFloat(minInt);
+        M = Float.parseFloat(maxInt);
+      } catch (NumberFormatException e) {
+        LOG.error("Improper fetch intervals given on line " + String.valueOf(lineNo)
+            + " of config. file: `" + line + "`: " + e.toString());
+        continue;
+      }
+
+      // If both intervals are set to default,
+      // ignore the line and issue a warning.
+      if (m == 0 && M == 0) {
+        LOG.warn("Ignoring default interval values on line " + String.valueOf(lineNo)
+            + " of config. file: `" + line + "`");
+        continue;
+      }
+
+      // Replace the zero with the default value.
+      if (m == 0) {
+        m = defaultMin;
+      } else if (M == 0) {
+        M = defaultMax;
+      }
+
+      // Intervals cannot be negative and the min cannot be above the max
+      // (we assume here that the default values satisfy this).
+      if (m < 0 || M < 0) {
+        LOG.error("Improper fetch intervals given on line " + String.valueOf(lineNo)
+            + " of config. file: `" + line
+            + "`: intervals cannot be negative");
+        continue;
+      }
+
+      if (m > M) {
+        LOG.error("Improper fetch intervals given on line " + String.valueOf(lineNo)
+            + " of config. file: `" + line
+            + "`: min. interval cannot be above max. interval");
+        continue;
+      }
+
+      // The custom intervals should respect the boundaries of the default values.
+      if (m < defaultMin) {
+        LOG.error("Min. interval out of bounds on line " + String.valueOf(lineNo)
+            + " of config. file: `" + line + "`");
+        continue;
+      }
+
+      if (M > defaultMax) {
+        LOG.error("Max. interval out of bounds on line " + String.valueOf(lineNo)
+            + " of config. file: `" + line + "`");
+        continue;
+      }
+
+      // If all is well, store the specific intervals.
+      hostSpecificMinInterval.put(host, m);
+      LOG.debug("Added custom min. interval " + m + " for host " + host);
+
+      hostSpecificMaxInterval.put(host, M);
+      LOG.debug("Added custom max. interval " + M + " for host " + host);
+
     }
   }
 
   /**
-   * Strip a URL, leaving only the host name.
+   * Strip a URL, leaving only the hostname.
    *
-   * @param url url to get hostname for
+   * @param url the URL for which to get the hostname
    * @return hostname
    * @throws URISyntaxException if the given string violates RFC 2396
    */
@@ -200,49 +250,49 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
   }
 
   /**
-   * Returns the max_interval for this URL, which might depend on the host.
+   * Returns the custom max. refetch interval for this URL,
+   * if specified for the corresponding hostname.
    *
    * @param url the URL to be scheduled
-   * @param defaultMaxInterval the value to which to default if max_interval has not been configured for this host
-   * @return the configured maximum interval or the default interval
+   * @return the configured max. interval or null
    */
-  public float getMaxInterval(Text url, float defaultMaxInterval){
+  public Float getCustomMaxInterval(Text url) {
     if (hostSpecificMaxInterval.isEmpty()) {
-      return defaultMaxInterval;
+      return null;
     }
     String host;
     try {
       host = getHostName(url.toString());
     } catch (URISyntaxException e){
-      return defaultMaxInterval;
+      return null;
     }
-    if (hostSpecificMaxInterval.containsKey(host)){
-      return hostSpecificMaxInterval.get(host);
+    if (!hostSpecificMaxInterval.containsKey(host)) {
+      return null;
     }
-    return defaultMaxInterval;
+    return hostSpecificMaxInterval.get(host);
   }
 
   /**
-   * Returns the min_interval for this URL, which might depend on the host.
+   * Returns the custom min. refetch interval for this URL,
+   * if specified for the corresponding hostname.
    *
    * @param url the URL to be scheduled
-   * @param defaultMinInterval the value to which to default if min_interval has not been configured for this host
-   * @return the configured minimum interval or the default interval
+   * @return the configured min. interval or null
    */
-  public float getMinInterval(Text url, float defaultMinInterval){
+  public Float getCustomMinInterval(Text url) {
     if (hostSpecificMinInterval.isEmpty()) {
-      return defaultMinInterval;
+      return null;
     }
     String host;
     try {
       host = getHostName(url.toString());
     } catch (URISyntaxException e){
-      return defaultMinInterval;
+      return null;
     }
-    if (hostSpecificMinInterval.containsKey(host)){
-      return hostSpecificMinInterval.get(host);
+    if (!hostSpecificMinInterval.containsKey(host)) {
+      return null;
     }
-    return defaultMinInterval;
+    return hostSpecificMinInterval.get(host);
   }
 
   @Override
@@ -285,14 +335,13 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
         refTime = fetchTime - Math.round(delta * SYNC_DELTA_RATE * 1000);
       }
 
-      // replace min_interval and max_interval with a domain-specific ones,
-      // if so configured.
-      float newMaxInterval = getMaxInterval(url, MAX_INTERVAL);
-      float newMinInterval = getMinInterval(url, MIN_INTERVAL);
-      if (interval < newMinInterval) {
-        interval = newMinInterval;
-      } else if (interval > newMaxInterval) {
-        interval = newMaxInterval;
+      // Ensure the interval does not fall outside of bounds
+      float minInterval = (getCustomMinInterval(url) != null) ? getCustomMinInterval(url) : MIN_INTERVAL;
+      float maxInterval = (getCustomMaxInterval(url) != null) ? getCustomMaxInterval(url) : MAX_INTERVAL;
+      if (interval < minInterval) {
+        interval = minInterval;
+      } else if (interval > maxInterval) {
+        interval = maxInterval;
       }
     }
 
