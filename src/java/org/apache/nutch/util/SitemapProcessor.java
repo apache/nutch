@@ -106,6 +106,8 @@ public class SitemapProcessor extends Configured implements Tool {
     private boolean normalize = true;
     private boolean tryDefaultSitemapXml = true;
     private int maxRedir = 3;
+    private float minFetchInterval = 60f;
+    private float maxFetchInterval = 31536000f; // one year
     private URLFilters filters = null;
     private URLNormalizers normalizers = null;
     private CrawlDatum datum = new CrawlDatum();
@@ -124,6 +126,11 @@ public class SitemapProcessor extends Configured implements Tool {
       this.tryDefaultSitemapXml = conf.getBoolean(SITEMAP_ALWAYS_TRY_SITEMAPXML_ON_ROOT, true);
       this.maxRedir = conf.getInt(SITEMAP_REDIR_MAX, 3);
       this.parser = new SiteMapParser(strict);
+      this.minFetchInterval = conf
+          .getFloat("db.fetch.schedule.adaptive.min_interval", (float) 60.0);
+      this.maxFetchInterval = conf.getFloat(
+          "db.fetch.schedule.adaptive.max_interval",
+          (float) 31536000.0 /* one year */);
 
       if (filter) {
         filters = new URLFilters(conf);
@@ -251,7 +258,8 @@ public class SitemapProcessor extends Configured implements Tool {
         return;
       }
 
-      AbstractSiteMap asm = parser.parseSiteMap(content.getContentType(), content.getContent(), new URL(url));
+      AbstractSiteMap asm = parser.parseSiteMap(content.getContentType(),
+          content.getContent(), new URL(url));
 
       if(asm instanceof SiteMap) {
         LOG.info("Parsing sitemap file: {}", asm.getUrl().toString());
@@ -265,7 +273,13 @@ public class SitemapProcessor extends Configured implements Tool {
             if (key != null) {
               CrawlDatum sitemapUrlDatum = new CrawlDatum();
               sitemapUrlDatum.setStatus(CrawlDatum.STATUS_INJECTED);
-              sitemapUrlDatum.setScore((float) sitemapUrl.getPriority());
+              float priority = (float) sitemapUrl.getPriority();
+              if (priority > .0f) {
+                sitemapUrlDatum.setScore(priority);
+              } else {
+                // score == 0 would mean not fetch, use default priority (0.5) instead
+                sitemapUrlDatum.setScore((float) SiteMapURL.DEFAULT_PRIORITY);
+              }
 
               if(sitemapUrl.getChangeFrequency() != null) {
                 int fetchInterval = -1;
@@ -278,10 +292,21 @@ public class SitemapProcessor extends Configured implements Tool {
                   case YEARLY:  fetchInterval = 31536000; break; // 60*60*24*365
                   case NEVER:   fetchInterval = Integer.MAX_VALUE; break; // Loose "NEVER" contract
                 }
+                /*
+                 * ensure that the fetch interval is within the min and max
+                 * interval
+                 */
+                if (fetchInterval > maxFetchInterval) {
+                  fetchInterval = (int) maxFetchInterval;
+                } else if (fetchInterval < minFetchInterval) {
+                  fetchInterval = (int) minFetchInterval;
+                }
                 sitemapUrlDatum.setFetchInterval(fetchInterval);
               }
 
-              if(sitemapUrl.getLastModified() != null) {
+              if (sitemapUrl.getLastModified() != null
+                  && sitemapUrl.getLastModified().getTime() <= System.currentTimeMillis()) {
+                // set modified time if not in the future
                 sitemapUrlDatum.setModifiedTime(sitemapUrl.getLastModified().getTime());
               }
 
