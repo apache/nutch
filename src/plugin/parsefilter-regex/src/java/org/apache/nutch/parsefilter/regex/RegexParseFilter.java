@@ -75,7 +75,7 @@ public class RegexParseFilter implements HtmlParseFilter {
       }
       
       if (source == null) {
-        LOG.error("source for regex rule: " + field + " misconfigured");
+        LOG.error("source for regex rule {} misconfigured", field);
       }
       
       if (matches(source, regexRule.regex)) {
@@ -110,16 +110,11 @@ public class RegexParseFilter implements HtmlParseFilter {
     }
 
     if (attributeFile != null) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Attribute \"file\" is defined for plugin " + pluginName
-          + " as " + attributeFile);
-      }
-    }
-    else {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Attribute \"file\" is not defined in plugin.xml for plugin "
-          + pluginName);
-      }
+      LOG.info("Attribute \"file\" is defined for plugin {} as {}", pluginName,
+          attributeFile);
+    } else {
+      LOG.warn("Attribute \"file\" is not defined in plugin.xml for plugin {}",
+          pluginName);
     }
 
     String file = conf.get("parsefilter.regex.file", attributeFile);
@@ -174,7 +169,7 @@ public class RegexParseFilter implements HtmlParseFilter {
             
             rules.put(field, new RegexRule(source, regex));
         } else {
-            LOG.info("RegexParseFilter rule is invalid. " + line);
+            LOG.info("RegexParseFilter rule is invalid: {}", line);
         }
       }
     }

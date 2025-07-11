@@ -283,7 +283,7 @@ public class PluginManifestParser {
             Element oneImplementation = (Element) node;
             String id = oneImplementation.getAttribute(ATTR_ID);
             String extensionClass = oneImplementation.getAttribute(ATTR_CLASS);
-            LOG.debug("impl: point=" + pointId + " class=" + extensionClass);
+            LOG.debug("impl: point={} class={}", pointId, extensionClass);
             Extension extension = new Extension(pPluginDescriptor, pointId, id,
                     extensionClass, this.conf, this.pluginRepository);
             NodeList parameters = oneImplementation

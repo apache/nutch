@@ -114,16 +114,12 @@ public class SlashURLNormalizer implements URLNormalizer {
     }
 
     if (attributeFile != null) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Attribute \"file\" is defined for plugin " + pluginName
-          + " as " + attributeFile);
-      }
+      LOG.info("Attribute \"file\" is defined for plugin {} as {}", pluginName,
+          attributeFile);
     }
     else {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Attribute \"file\" is not defined in plugin.xml for plugin "
-          + pluginName);
-      }
+      LOG.warn("Attribute \"file\" is not defined in plugin.xml for plugin {}",
+          pluginName);
     }
 
     // precedence hierarchy for definition of normalizer rules
@@ -147,7 +143,7 @@ public class SlashURLNormalizer implements URLNormalizer {
       readConfiguration(reader);
     }
     catch (IOException e) {
-      LOG.error("Error reading " + pluginName + " rule file " + file, e);
+      LOG.error("Error reading {} rule file {}", pluginName, file, e);
     }
   }
   

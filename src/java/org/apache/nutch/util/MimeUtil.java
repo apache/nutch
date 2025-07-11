@@ -86,14 +86,13 @@ public final class MimeUtil {
             mimeTypez = MimeTypesFactory.create(conf
                 .getConfResourceAsInputStream(customMimeTypeFile));
           } catch (Exception e) {
-            LOG.error("Can't load mime.types.file : " + customMimeTypeFile
-                + " using Tika's default");
+            LOG.error("Can't load mime.types.file : {} using Tika's default", customMimeTypeFile);
           }
         }
         if (mimeTypez == null)
           mimeTypez = MimeTypes.getDefaultMimeTypes();
       } catch (Exception e) {
-        LOG.error("Exception in MimeUtil " + e.getMessage());
+        LOG.error("Exception in MimeUtil {}", e.getMessage());
         throw new RuntimeException(e);
       }
       objectCache.setObject(MimeTypes.class.getName(), mimeTypez);
@@ -248,8 +247,7 @@ public final class MimeUtil {
     try {
       return this.mimeTypes.forName(name).toString();
     } catch (MimeTypeException e) {
-      LOG.error("Exception getting mime type by name: [" + name
-          + "]: Message: " + e.getMessage());
+      LOG.error("Exception getting mime type by name: [{}]: Message: {}", name, e.getMessage());
       return null;
     }
   }
@@ -267,8 +265,7 @@ public final class MimeUtil {
     try {
       return tika.detect(f);
     } catch (Exception e) {
-      LOG.error("Exception getting mime type for file: [" + f.getPath()
-          + "]: Message: " + e.getMessage());
+      LOG.error("Exception getting mime type for file: [{}]: Message: {}", f.getPath(), e.getMessage());
       return null;
     }
   }

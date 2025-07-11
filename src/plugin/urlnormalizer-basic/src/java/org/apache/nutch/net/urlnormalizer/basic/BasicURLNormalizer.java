@@ -114,10 +114,8 @@ public class BasicURLNormalizer implements URLNormalizer {
           ) {
         escapedCharacters[c] = true;
       } else {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Character {} ({}) not handled as escaped or unescaped", c,
-              (char) c);
-        }
+        LOG.debug("Character {} ({}) not handled as escaped or unescaped", c,
+            (char) c);
       }
     }
   }

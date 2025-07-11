@@ -43,15 +43,17 @@ class BoilerpipeExtractorRepository {
         ClassLoader loader = BoilerpipeExtractor.class.getClassLoader();
         Class<?> extractorClass = loader.loadClass(boilerpipeExtractorName);
 
-          // Add an instance to the repository
-        extractorRepository.put(boilerpipeExtractorName, (BoilerpipeExtractor)extractorClass.getConstructor().newInstance());
+        // Add an instance to the repository
+        extractorRepository.put(boilerpipeExtractorName,
+            (BoilerpipeExtractor) extractorClass.getConstructor()
+            .newInstance());
 
       } catch (ClassNotFoundException e) {
-        LOG.error("BoilerpipeExtractor " + boilerpipeExtractorName + " not found!");
+        LOG.error("BoilerpipeExtractor {} not found!", boilerpipeExtractorName);
       } catch (InstantiationException e) {
-        LOG.error("Could not instantiate " + boilerpipeExtractorName);
+        LOG.error("Could not instantiate {}", boilerpipeExtractorName);
       } catch (Exception e) {
-        LOG.error(e.getLocalizedMessage());
+        LOG.error(e.getMessage());
       }
     }
 

@@ -169,7 +169,7 @@ public abstract class RobotRulesParser implements Tool {
       
       if (allowList.size() > 0) {
         matcher = new SuffixStringMatcher(allowList);
-        LOG.info("Allowlisted hosts: " + allowList);
+        LOG.info("Allowlisted hosts: {}", allowList);
       }
     }
   }
@@ -421,7 +421,7 @@ public abstract class RobotRulesParser implements Tool {
       }
       testsIn.close();
     } catch (IOException e) {
-      LOG.error("Failed to run: " + StringUtils.stringifyException(e));
+      LOG.error("Failed to run:", e);
       return -1;
     }
 
@@ -480,8 +480,7 @@ public abstract class RobotRulesParser implements Tool {
           rules = robotParser.parseContent(url.toString(), robotsBytes,
               "text/plain", agentNames);
         } catch (IOException e) {
-          LOG.error("Failed to open robots.txt file " + url
-              + StringUtils.stringifyException(e));
+          LOG.error("Failed to open robots.txt file {}:", url, e);
           rules = EMPTY_RULES;
         }
       }

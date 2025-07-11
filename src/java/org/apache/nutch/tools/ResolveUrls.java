@@ -80,16 +80,16 @@ public class ResolveUrls {
         // get the address by name and if no error is thrown then it
         // is resolved successfully
         InetAddress.getByName(host);
-        LOG.info("Resolved: " + host);
+        LOG.info("Resolved: {}", host);
         numResolved.incrementAndGet();
       } catch (Exception uhe) {
-        LOG.info("Error Resolving: " + host);
+        LOG.info("Error Resolving: {}", host);
         numErrored.incrementAndGet();
       }
       long end = System.currentTimeMillis();
       long total = (end - start);
       totalTime.addAndGet(total);
-      LOG.info(", " + total + " millis");
+      LOG.info(", {} millis", total);
     }
   }
 
@@ -112,7 +112,7 @@ public class ResolveUrls {
       while ((urlStr = buffRead.readLine()) != null) {
 
         // spin up a resolver thread per url
-        LOG.info("Starting: " + urlStr);
+        LOG.info("Starting: {}", urlStr);
         pool.execute(new ResolverThread(urlStr));
       }
 
@@ -129,9 +129,9 @@ public class ResolveUrls {
 
     // shutdown the thread pool and log totals
     pool.shutdown();
-    LOG.info("Total: " + numTotal.get() + ", Resovled: " + numResolved.get()
-        + ", Errored: " + numErrored.get() + ", Average Time: "
-        + totalTime.get() / numTotal.get());
+    LOG.info("Total: {}, Resovled: {}, Errored: {}, Average Time: {}",
+        numTotal.get(), numResolved.get(), numErrored.get(),
+        totalTime.get() / numTotal.get());
   }
 
   /**
@@ -203,7 +203,7 @@ public class ResolveUrls {
       ResolveUrls resolve = new ResolveUrls(urls, numThreads);
       resolve.resolveUrls();
     } catch (Exception e) {
-      LOG.error("ResolveUrls: " + StringUtils.stringifyException(e));
+      LOG.error("ResolveUrls: {}", StringUtils.stringifyException(e));
     }
   }
 }

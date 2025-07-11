@@ -307,8 +307,8 @@ public class TestSegmentMergerCrawlDatums {
 
     for (MapFile.Reader reader : readers) {
       while (reader.next(key, value)) {
-        LOG.info("Reading status for: " + key.toString() + " > "
-            + CrawlDatum.getStatusName(value.getStatus()));
+        LOG.info("Reading status for: {} > {}", key.toString(),
+            CrawlDatum.getStatusName(value.getStatus()));
 
         // Only consider fetch status
         if (CrawlDatum.hasFetchStatus(value)
@@ -324,8 +324,8 @@ public class TestSegmentMergerCrawlDatums {
     // Remove the test directory again
     fs.delete(testDir, true);
 
-    LOG.info("Final fetch status for: http://nutch.apache.org/ > "
-        + CrawlDatum.getStatusName(finalStatus));
+    LOG.info("Final fetch status for: http://nutch.apache.org/ > {}",
+        CrawlDatum.getStatusName(finalStatus));
 
     // Return the final status
     return finalStatus;
@@ -375,7 +375,7 @@ public class TestSegmentMergerCrawlDatums {
 
   protected void createSegment(Path segment, byte status, boolean fetch,
       boolean redirect) throws Exception {
-    LOG.info("\nSegment: " + segment.toString());
+    LOG.info("\nSegment: {}", segment.toString());
 
     // The URL of our main record
     String url = "http://nutch.apache.org/";
@@ -402,7 +402,7 @@ public class TestSegmentMergerCrawlDatums {
     // linked datum when merging
     if (redirect) {
       // We're writing our our main record URL with status linked
-      LOG.info(url + " > " + CrawlDatum.getStatusName(CrawlDatum.STATUS_LINKED));
+      LOG.info("{} > {}", url, CrawlDatum.getStatusName(CrawlDatum.STATUS_LINKED));
       value = new CrawlDatum();
       value.setStatus(CrawlDatum.STATUS_LINKED);
       writer.append(new Text(url), value);
@@ -410,7 +410,7 @@ public class TestSegmentMergerCrawlDatums {
 
     // Whether we're fetching now
     if (fetch) {
-      LOG.info(url + " > " + CrawlDatum.getStatusName(status));
+      LOG.info("{} > {}", url, CrawlDatum.getStatusName(status));
 
       // Set the status
       value.setStatus(status);
@@ -422,8 +422,7 @@ public class TestSegmentMergerCrawlDatums {
     // Whether we're handing a redirect now
     if (redirect) {
       // And the redirect URL with redirect status, pointing to our main URL
-      LOG.info(redirectUrl + " > "
-          + CrawlDatum.getStatusName(CrawlDatum.STATUS_FETCH_REDIR_TEMP));
+      LOG.info("{} > {}", redirectUrl, CrawlDatum.getStatusName(CrawlDatum.STATUS_FETCH_REDIR_TEMP));
       value.setStatus(CrawlDatum.STATUS_FETCH_REDIR_TEMP);
       writer.append(new Text(redirectUrl), value);
     }

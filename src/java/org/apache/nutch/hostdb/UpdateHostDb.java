@@ -32,7 +32,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDb;
@@ -184,17 +183,17 @@ public class UpdateHostDb extends Configured implements Tool {
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-hostdb")) {
         hostDb = new Path(args[i + 1]);
-        LOG.info("UpdateHostDb: hostdb: " + hostDb);
+        LOG.info("UpdateHostDb: hostdb: {}", hostDb);
         i++;
       }
       if (args[i].equals("-crawldb")) {
         crawlDb = new Path(args[i + 1]);
-        LOG.info("UpdateHostDb: crawldb: " + crawlDb);
+        LOG.info("UpdateHostDb: crawldb: {}", crawlDb);
         i++;
       }
       if (args[i].equals("-tophosts")) {
         topHosts = new Path(args[i + 1]);
-        LOG.info("UpdateHostDb: tophosts: " + topHosts);
+        LOG.info("UpdateHostDb: tophosts: {}", topHosts);
         i++;
       }
 
@@ -230,7 +229,7 @@ public class UpdateHostDb extends Configured implements Tool {
       }
       if (args[i].equals("-urlLimit")) {
         urlLimit = Long.valueOf(args[i + 1]);
-        LOG.info("UpdateHostDb: URL limit set to " + urlLimit);
+        LOG.info("UpdateHostDb: URL limit set to {}", urlLimit);
         i++;
       }
     }
@@ -246,7 +245,7 @@ public class UpdateHostDb extends Configured implements Tool {
 
       return 0;
     } catch (Exception e) {
-      LOG.error("UpdateHostDb: " + StringUtils.stringifyException(e));
+      LOG.error("UpdateHostDb:", e);
       return -1;
     }
   }

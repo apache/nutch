@@ -53,7 +53,6 @@ import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.NutchWritable;
@@ -186,7 +185,7 @@ public class WebGraph extends Configured implements Tool {
                 URLNormalizers.SCOPE_DEFAULT);
             normalized = normalized.trim();
           } catch (Exception e) {
-            LOG.warn("Skipping " + url + ":" + e);
+            LOG.warn("Skipping {}:{}", url, e);
             normalized = null;
           }
         }
@@ -521,9 +520,9 @@ public class WebGraph extends Configured implements Tool {
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     LOG.info("WebGraphDb: starting");
-    LOG.info("WebGraphDb: webgraphdb: " + webGraphDb);
-    LOG.info("WebGraphDb: URL normalize: " + normalize);
-    LOG.info("WebGraphDb: URL filter: " + filter);
+    LOG.info("WebGraphDb: webgraphdb: {}", webGraphDb);
+    LOG.info("WebGraphDb: URL normalize: {}", normalize);
+    LOG.info("WebGraphDb: URL filter: {}", filter);
 
     FileSystem fs = webGraphDb.getFileSystem(getConf());
 
@@ -561,14 +560,14 @@ public class WebGraph extends Configured implements Tool {
         FileSystem sfs = segments[i].getFileSystem(outlinkJobConf);
         Path parseData = new Path(segments[i], ParseData.DIR_NAME);
         if (sfs.exists(parseData)) {
-          LOG.info("OutlinkDb: adding input: " + parseData);
+          LOG.info("OutlinkDb: adding input: {}", parseData);
           FileInputFormat.addInputPath(outlinkJob, parseData);
         }
 
         if (deleteGone) {
           Path crawlFetch = new Path(segments[i], CrawlDatum.FETCH_DIR_NAME);
           if (sfs.exists(crawlFetch)) {
-            LOG.info("OutlinkDb: adding input: " + crawlFetch);
+            LOG.info("OutlinkDb: adding input: {}", crawlFetch);
             FileInputFormat.addInputPath(outlinkJob, crawlFetch);
           }
         }
@@ -576,7 +575,7 @@ public class WebGraph extends Configured implements Tool {
     }
 
     // add the existing webgraph
-    LOG.info("OutlinkDb: adding input: " + outlinkDb);
+    LOG.info("OutlinkDb: adding input: {}", outlinkDb);
     FileInputFormat.addInputPath(outlinkJob, outlinkDb);
 
     outlinkJobConf.setBoolean(OutlinkDb.URL_NORMALIZING, normalize);
@@ -606,7 +605,7 @@ public class WebGraph extends Configured implements Tool {
         NutchJob.cleanupAfterFailure(tempOutlinkDb, lock, fs);
         throw new RuntimeException(message);
       }
-      LOG.info("OutlinkDb: installing " + outlinkDb);
+      LOG.info("OutlinkDb: installing {}", outlinkDb);
       FSUtils.replace(fs, oldOutlinkDb, outlinkDb, true);
       FSUtils.replace(fs, outlinkDb, tempOutlinkDb, true);
       if (!preserveBackup && fs.exists(oldOutlinkDb))
@@ -626,7 +625,7 @@ public class WebGraph extends Configured implements Tool {
 
     Job inlinkJob = Job.getInstance(getConf(), "Nutch WebGraph: inlinkdb " + inlinkDb);
     Configuration inlinkJobConf = inlinkJob.getConfiguration();
-    LOG.info("InlinkDb: adding input: " + outlinkDb);
+    LOG.info("InlinkDb: adding input: {}", outlinkDb);
     FileInputFormat.addInputPath(inlinkJob, outlinkDb);
     inlinkJob.setInputFormatClass(SequenceFileInputFormat.class);
     inlinkJob.setJarByClass(InlinkDb.class);
@@ -652,7 +651,7 @@ public class WebGraph extends Configured implements Tool {
         NutchJob.cleanupAfterFailure(tempInlinkDb, lock, fs);
         throw new RuntimeException(message);
       }
-      LOG.info("InlinkDb: installing " + inlinkDb);
+      LOG.info("InlinkDb: installing {}", inlinkDb);
       FSUtils.replace(fs, inlinkDb, tempInlinkDb, true);
       LOG.info("InlinkDb: finished");
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
@@ -669,8 +668,8 @@ public class WebGraph extends Configured implements Tool {
 
     Job nodeJob = Job.getInstance(getConf(), "Nutch WebGraph: nodedb " + nodeDb);
     Configuration nodeJobConf = nodeJob.getConfiguration();
-    LOG.info("NodeDb: adding input: " + outlinkDb);
-    LOG.info("NodeDb: adding input: " + inlinkDb);
+    LOG.info("NodeDb: adding input: {}", outlinkDb);
+    LOG.info("NodeDb: adding input: {}", inlinkDb);
     FileInputFormat.addInputPath(nodeJob, outlinkDb);
     FileInputFormat.addInputPath(nodeJob, inlinkDb);
     nodeJob.setInputFormatClass(SequenceFileInputFormat.class);
@@ -697,7 +696,7 @@ public class WebGraph extends Configured implements Tool {
         NutchJob.cleanupAfterFailure(tempNodeDb, lock, fs);
         throw new RuntimeException(message);
       }
-      LOG.info("NodeDb: installing " + nodeDb);
+      LOG.info("NodeDb: installing {}", nodeDb);
       FSUtils.replace(fs, nodeDb, tempNodeDb, true);
       LOG.info("NodeDb: finished");
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
@@ -804,7 +803,7 @@ public class WebGraph extends Configured implements Tool {
       createWebGraph(new Path(webGraphDb), segPaths, normalize, filter);
       return 0;
     } catch (Exception e) {
-      LOG.error("WebGraph: " + StringUtils.stringifyException(e));
+      LOG.error("WebGraph:", e);
       return -2;
     }
   }

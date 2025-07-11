@@ -102,12 +102,6 @@ public class CleaningJob implements Tool {
 
     @Override
     public void cleanup(Context context) throws IOException {
-      // BUFFERING OF CALLS TO INDEXER SHOULD BE HANDLED AT INDEXER LEVEL
-      // if (numDeletes > 0) {
-      // LOG.info("CleaningJob: deleting " + numDeletes + " documents");
-      // // TODO updateRequest.process(solr);
-      // totalDeleted += numDeletes;
-      // }
 
       if (totalDeleted > 0 && !noCommit) {
         writers.commit();
@@ -115,7 +109,7 @@ public class CleaningJob implements Tool {
 
       writers.close();
 
-      LOG.info("CleaningJob: deleted a total of " + totalDeleted + " documents");
+      LOG.info("CleaningJob: deleted a total of {} documents", totalDeleted);
     }
 
     @Override
@@ -125,15 +119,6 @@ public class CleaningJob implements Tool {
         writers.delete(document.toString());
         totalDeleted++;
         context.getCounter("CleaningJobStatus", "Deleted documents").increment(1);
-        // if (numDeletes >= NUM_MAX_DELETE_REQUEST) {
-        // LOG.info("CleaningJob: deleting " + numDeletes
-        // + " documents");
-        // // TODO updateRequest.process(solr);
-        // // TODO updateRequest = new UpdateRequest();
-        // writers.delete(key.toString());
-        // totalDeleted += numDeletes;
-        // numDeletes = 0;
-        // }
       }
     }
   }
@@ -180,8 +165,7 @@ public class CleaningJob implements Tool {
   public int run(String[] args) throws IOException {
     if (args.length < 1) {
       String usage = "Usage: CleaningJob <crawldb> [-noCommit]";
-      LOG.error("Missing crawldb. " + usage);
-      System.err.println(usage);
+      LOG.error("Missing crawldb.\n{}", usage);
       return 1;
     }
 
@@ -193,9 +177,7 @@ public class CleaningJob implements Tool {
     try {
       delete(args[0], noCommit);
     } catch (final Exception e) {
-      LOG.error("CleaningJob: " + StringUtils.stringifyException(e));
-      System.err.println("ERROR CleaningJob: "
-          + StringUtils.stringifyException(e));
+      LOG.error("CleaningJob:", e);
       return -1;
     }
     return 0;

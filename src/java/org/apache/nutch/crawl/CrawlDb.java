@@ -40,7 +40,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.metadata.Nutch;
@@ -370,7 +369,7 @@ public class CrawlDb extends NutchTool implements Tool {
       results.put(Nutch.VAL_RESULT, Integer.toString(0));
       return results;
     } catch (Exception e) {
-      LOG.error("CrawlDb update: " + StringUtils.stringifyException(e));
+      LOG.error("CrawlDb update:", e);
       results.put(Nutch.VAL_RESULT, Integer.toString(-1));
       return results;
     }

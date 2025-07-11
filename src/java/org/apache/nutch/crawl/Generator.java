@@ -447,21 +447,30 @@ public class Generator extends NutchTool implements Tool {
           if (host != null) {
             if (maxCountExpr != null) {
               try {
-                long variableMaxCount = Math.round((double)maxCountExpr.execute(createContext(host)));
-                LOG.debug("Generator: variable maxCount: {} for {}", variableMaxCount, hostname);
-                maxCount = (int)variableMaxCount;
+                long variableMaxCount = Math
+                    .round((double) maxCountExpr.execute(createContext(host)));
+                LOG.debug("Generator: variable maxCount: {} for {}",
+                    variableMaxCount, hostname);
+                maxCount = (int) variableMaxCount;
               } catch (Exception e) {
-                LOG.error("Unable to execute variable maxCount expression because: " + e.getMessage(), e);
+                LOG.error(
+                    "Unable to execute variable maxCount expression because: {}",
+                    e.getMessage(), e);
               }
             }
 
             if (fetchDelayExpr != null) {
               try {
-                long variableFetchDelay = Math.round((double)fetchDelayExpr.execute(createContext(host)));
-                LOG.debug("Generator: variable fetchDelay: {} ms for {}", variableFetchDelay, hostname);
-                variableFetchDelayWritable = new LongWritable(variableFetchDelay);
+                long variableFetchDelay = Math.round(
+                    (double) fetchDelayExpr.execute(createContext(host)));
+                LOG.debug("Generator: variable fetchDelay: {} ms for {}",
+                    variableFetchDelay, hostname);
+                variableFetchDelayWritable = new LongWritable(
+                    variableFetchDelay);
               } catch (Exception e) {
-                LOG.error("Unable to execute fetch delay expression because: " + e.getMessage(), e);
+                LOG.error(
+                    "Unable to execute fetch delay expression because: {}",
+                    e.getMessage(), e);
               }
             }
           }
@@ -880,8 +889,8 @@ public class Generator extends NutchTool implements Tool {
     stopWatch.start();
     LOG.info("Generator: starting");
     LOG.info("Generator: selecting best-scoring urls due for fetch.");
-    LOG.info("Generator: filtering: " + filter);
-    LOG.info("Generator: normalizing: " + norm);
+    LOG.info("Generator: filtering: {}", filter);
+    LOG.info("Generator: normalizing: {}", norm);
     if (topN != Long.MAX_VALUE) {
       LOG.info("Generator: topN: {}", topN);
     }
@@ -1051,7 +1060,7 @@ public class Generator extends NutchTool implements Tool {
     Path segment = new Path(segmentsDir, generateSegmentName());
     Path output = new Path(segment, CrawlDatum.GENERATE_DIR_NAME);
 
-    LOG.info("Generator: segment: " + segment);
+    LOG.info("Generator: segment: {}", segment);
 
     Job job = Job.getInstance(getConf(), "Nutch Generator: partition segment " + segment);
     Configuration conf = job.getConfiguration();
@@ -1163,7 +1172,7 @@ public class Generator extends NutchTool implements Tool {
       if (segs == null)
         return 1;
     } catch (Exception e) {
-      LOG.error("Generator: " + StringUtils.stringifyException(e));
+      LOG.error("Generator:", e);
       return -1;
     }
     return 0;
@@ -1247,7 +1256,7 @@ public class Generator extends NutchTool implements Tool {
       }
 
     } catch (Exception e) {
-      LOG.error("Generator: " + StringUtils.stringifyException(e));
+      LOG.error("Generator: {}", StringUtils.stringifyException(e));
       results.put(Nutch.VAL_RESULT, Integer.toString(-1));
       return results;
     }

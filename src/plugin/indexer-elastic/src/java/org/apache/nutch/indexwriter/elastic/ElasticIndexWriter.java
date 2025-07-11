@@ -219,7 +219,7 @@ public class ElasticIndexWriter implements IndexWriter {
             }
           });
         } catch (Exception e) {
-          LOG.error("Error setting up SSLContext because: " + e.getMessage(), e);
+          LOG.error("Error setting up SSLContext because: {}", e.getMessage(), e);
         }
       }
 

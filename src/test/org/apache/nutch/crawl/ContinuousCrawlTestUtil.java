@@ -206,9 +206,7 @@ public class ContinuousCrawlTestUtil extends TestCase {
     schedule.initializeSchedule(dummyURL, dbDatum); // initialize fetchInterval
     dbDatum.setFetchTime(now);
 
-    LOG.info("Emulate a continuous crawl, launched every "
-        + (interval / (FetchSchedule.SECONDS_PER_DAY * 1000)) + " day ("
-        + (interval / 1000) + " seconds)");
+    LOG.info("Emulate a continuous crawl, launched every {} day ({} seconds)", (interval / (FetchSchedule.SECONDS_PER_DAY * 1000)), (interval / 1000));
     long maxTime = (now + duration);
     long nextTime = now;
     long lastFetchTime = -1;
@@ -224,14 +222,13 @@ public class ContinuousCrawlTestUtil extends TestCase {
     CrawlDatum afterShouldFetch = new CrawlDatum();
     int errorCount = 0;
     while (nextTime < maxTime) {
-      LOG.info("check: " + new Date(nextTime));
+      LOG.info("check: {}", new Date(nextTime));
       fetchDatum.set(dbDatum);
       copyDbDatum.set(dbDatum);
       if (schedule.shouldFetch(dummyURL, fetchDatum, nextTime)) {
-        LOG.info("... fetching now (" + new Date(nextTime) + ")");
+        LOG.info("... fetching now ({})", new Date(nextTime));
         if (lastFetchTime > -1) {
-          LOG.info("(last fetch: " + new Date(lastFetchTime) + " = "
-              + TimingUtil.elapsedTime(lastFetchTime, nextTime) + " ago)");
+          LOG.info("(last fetch: {} = {} ago)", new Date(lastFetchTime), TimingUtil.elapsedTime(lastFetchTime, nextTime));
         }
         lastFetchTime = nextTime;
         afterShouldFetch.set(fetchDatum);
@@ -246,14 +243,13 @@ public class ContinuousCrawlTestUtil extends TestCase {
         assertFalse("no CrawlDatum", 0 == res.size());
         assertEquals("more than one CrawlDatum", 1, res.size());
         if (!check(res.get(0))) {
-          LOG.info("previously in CrawlDb: " + copyDbDatum);
-          LOG.info("after shouldFetch(): " + afterShouldFetch);
-          LOG.info("fetch: " + fetchDatum);
-          LOG.warn("wrong result in CrawlDb: " + res.get(0));
+          LOG.info("previously in CrawlDb: {}", copyDbDatum);
+          LOG.info("after shouldFetch(): {}", afterShouldFetch);
+          LOG.info("fetch: {}", fetchDatum);
+          LOG.warn("wrong result in CrawlDb: {}", res.get(0));
           if (++errorCount >= maxErrors) {
             if (maxErrors > 0) {
-              LOG.error("Max. number of errors " + maxErrors
-                  + " reached. Stopping.");
+              LOG.error("Max. number of errors {} reached. Stopping.", maxErrors);
             }
             return false;
           } else {

@@ -104,10 +104,7 @@ public class ZipTextExtractor {
 
             resultText += entry.getName() + " " + parse.getText() + " ";
           } catch (ParseException e) {
-            if (LOG.isInfoEnabled()) {
-              LOG.info("fetch okay, but can't parse " + fname + ", reason: "
-                  + e.getMessage());
-            }
+            LOG.info("fetch okay, but can't parse {}, reason: {}", fname,e.getMessage());
           }
         }
       }

@@ -117,7 +117,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       setHostSpecificIntervals("adaptive-host-specific-intervals.txt", 
           MIN_INTERVAL, MAX_INTERVAL);
     } catch (IOException e) {
-      LOG.error("Failed reading the configuration file: " + e.toString());
+      LOG.error("Failed reading the configuration file:", e);
     }
   }
 
@@ -157,8 +157,9 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
       // There should be three parts.
       if (parts.length != 3) {
-        LOG.error("Malformed (domain, min_interval, max_interval) triplet on line "
-            + String.valueOf(lineNo) + " of config. file: `" + line + "`");
+        LOG.error(
+            "Malformed (domain, min_interval, max_interval) triplet on line {} of the config. file: `{}`",
+            lineNo, line);
         continue;
       }
 
@@ -177,16 +178,18 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
         m = Float.parseFloat(minInt);
         M = Float.parseFloat(maxInt);
       } catch (NumberFormatException e) {
-        LOG.error("Improper fetch intervals given on line " + String.valueOf(lineNo)
-            + " of config. file: `" + line + "`: " + e.toString());
+        LOG.error(
+            "Improper fetch intervals given on line {} in the config. file `{}`: {}",
+            lineNo, line, e.toString());
         continue;
       }
 
       // If both intervals are set to default,
       // ignore the line and issue a warning.
       if (m == 0 && M == 0) {
-        LOG.warn("Ignoring default interval values on line " + String.valueOf(lineNo)
-            + " of config. file: `" + line + "`");
+        LOG.warn(
+            "Ignoring default interval values on line {} of config. file: `{}`",
+            lineNo, line);
         continue;
       }
 
@@ -200,38 +203,40 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       // Intervals cannot be negative and the min cannot be above the max
       // (we assume here that the default values satisfy this).
       if (m < 0 || M < 0) {
-        LOG.error("Improper fetch intervals given on line " + String.valueOf(lineNo)
-            + " of config. file: `" + line
-            + "`: intervals cannot be negative");
+        LOG.error(
+            "Improper fetch intervals given on line {} in the config. file: `{}`: intervals cannot be negative",
+            lineNo, line);
         continue;
       }
 
       if (m > M) {
-        LOG.error("Improper fetch intervals given on line " + String.valueOf(lineNo)
-            + " of config. file: `" + line
-            + "`: min. interval cannot be above max. interval");
+        LOG.error(
+            "Improper fetch intervals given on line {} in the config. file: `{}`: min. interval cannot be above max. interval",
+            lineNo, line);
         continue;
       }
 
       // The custom intervals should respect the boundaries of the default values.
       if (m < defaultMin) {
-        LOG.error("Min. interval out of bounds on line " + String.valueOf(lineNo)
-            + " of config. file: `" + line + "`");
+        LOG.error(
+            "Min. interval out of bounds on line {} in the config. file: `{}`",
+            lineNo, line);
         continue;
       }
 
       if (M > defaultMax) {
-        LOG.error("Max. interval out of bounds on line " + String.valueOf(lineNo)
-            + " of config. file: `" + line + "`");
+        LOG.error(
+            "Max. interval out of bounds on line {} in the config. file: `{}`",
+            lineNo, line);
         continue;
       }
 
       // If all is well, store the specific intervals.
       hostSpecificMinInterval.put(host, m);
-      LOG.debug("Added custom min. interval " + m + " for host " + host);
+      LOG.debug("Added custom min. interval {} for host {}.", m, host);
 
       hostSpecificMaxInterval.put(host, M);
-      LOG.debug("Added custom max. interval " + M + " for host " + host);
+      LOG.debug("Added custom max. interval {} for host {}.", M, host);
 
     }
   }
@@ -379,19 +384,18 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
         changeCnt++;
         lastModified = curTime;
       }
-      LOG.info(i + ". " + changed + "\twill fetch at "
-          + (p.getFetchTime() / delta) + "\tinterval "
-          + (p.getFetchInterval() / SECONDS_PER_DAY) + " days" + "\t missed "
-          + miss);
+      LOG.info("{}. {}\twill fetch at {}\tinterval {} days\tmissed {}", i,
+          changed, (p.getFetchTime() / delta),
+          (p.getFetchInterval() / SECONDS_PER_DAY), miss);
       if (p.getFetchTime() <= curTime) {
         fetchCnt++;
         fs.setFetchSchedule(new Text("http://www.example.com"), p, p
             .getFetchTime(), p.getModifiedTime(), curTime, lastModified,
             changed ? FetchSchedule.STATUS_MODIFIED
                 : FetchSchedule.STATUS_NOTMODIFIED);
-        LOG.info("\tfetched & adjusted: " + "\twill fetch at "
-            + (p.getFetchTime() / delta) + "\tinterval "
-            + (p.getFetchInterval() / SECONDS_PER_DAY) + " days");
+        LOG.info("\tfetched and adjusted:\twill fetch at {}\tinterval {} days",
+            (p.getFetchTime() / delta),
+            (p.getFetchInterval() / SECONDS_PER_DAY));
         if (!changed)
           miss++;
         if (miss > maxMiss)
@@ -404,8 +408,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
         miss++;
       curTime += delta;
     }
-    LOG.info("Total missed: " + totalMiss + ", max miss: " + maxMiss);
-    LOG.info("Page changed " + changeCnt + " times, fetched " + fetchCnt
-        + " times.");
+    LOG.info("Total missed: {}, max miss: {}", totalMiss, maxMiss);
+    LOG.info("Page changed {} times, fetched {} times.", changeCnt, fetchCnt);
   }
 }

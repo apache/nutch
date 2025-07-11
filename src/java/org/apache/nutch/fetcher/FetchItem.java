@@ -90,7 +90,7 @@ public class FetchItem {
     try {
       u = new URL(url.toString());
     } catch (Exception e) {
-      LOG.warn("Cannot parse url: " + url, e);
+      LOG.warn("Cannot parse url: {}", url, e);
       return null;
     }
     String key;
@@ -100,20 +100,19 @@ public class FetchItem {
         key = addr.getHostAddress();
       } catch (final UnknownHostException e) {
         // unable to resolve it, so don't fall back to host name
-        LOG.warn("Unable to resolve: " + u.getHost() + ", skipping.");
+        LOG.warn("Unable to resolve: {}, skipping.", u.getHost());
         return null;
       }
     } else if (FetchItemQueues.QUEUE_MODE_DOMAIN.equalsIgnoreCase(queueMode)) {
       key = URLUtil.getDomainName(u).toLowerCase(Locale.ROOT);
       if (key == null) {
-        LOG.warn("Unknown domain for url: " + url
-            + ", using URL string as key");
+        LOG.warn("Unknown domain for url: {}, using URL string as key", url);
         key = u.toExternalForm();
       }
     } else {
       key = u.getHost().toLowerCase(Locale.ROOT);
       if (key == null) {
-        LOG.warn("Unknown host for url: " + url + ", using URL string as key");
+        LOG.warn("Unknown host for url: {}, using URL string as key", url);
         key = u.toExternalForm();
       }
     }

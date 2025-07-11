@@ -44,7 +44,6 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
@@ -468,7 +467,7 @@ public class NodeDumper extends Configured implements Tool {
           nameType, aggrType, asSequenceFile);
       return 0;
     } catch (Exception e) {
-      LOG.error("NodeDumper: " + StringUtils.stringifyException(e));
+      LOG.error("NodeDumper:", e);
       return -2;
     }
   }

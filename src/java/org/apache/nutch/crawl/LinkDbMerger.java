@@ -138,8 +138,8 @@ public class LinkDbMerger extends Configured implements Tool {
         LinkDb.CURRENT_NAME));
 
     stopWatch.stop();
-    LOG.info("LinkDb merge: finished, elapsed: {} ms" + stopWatch.getTime(
-        TimeUnit.MILLISECONDS));
+    LOG.info("LinkDb merge: finished, elapsed: {} ms",
+        stopWatch.getTime(TimeUnit.MILLISECONDS));
   }
 
   public static Job createMergeJob(Configuration config, Path linkDb,
@@ -211,7 +211,7 @@ public class LinkDbMerger extends Configured implements Tool {
       merge(output, dbs.toArray(new Path[dbs.size()]), normalize, filter);
       return 0;
     } catch (Exception e) {
-      LOG.error("LinkDbMerger: " + StringUtils.stringifyException(e));
+      LOG.error("LinkDbMerger: {}", StringUtils.stringifyException(e));
       return -1;
     }
   }

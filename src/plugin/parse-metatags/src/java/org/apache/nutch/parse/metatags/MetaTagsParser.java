@@ -72,9 +72,7 @@ public class MetaTagsParser implements HtmlParseFilter {
       String value) {
     String lcMetatag = metatag.toLowerCase(Locale.ROOT);
     if (metatagset.contains("*") || metatagset.contains(lcMetatag)) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Found meta tag: {}\t{}", lcMetatag, value);
-      }
+      LOG.debug("Found meta tag: {}\t{}", lcMetatag, value);
       metadata.add("metatag." + lcMetatag, value);
     }
   }
@@ -89,9 +87,7 @@ public class MetaTagsParser implements HtmlParseFilter {
     if (metatagset.contains("*") || metatagset.contains(lcMetatag)) {
       String key = "metatag." + lcMetatag;
       for (String value : values) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Found meta tag: {}\t{}", lcMetatag, value);
-        }
+        LOG.debug("Found meta tag: {}\t{}", lcMetatag, value);
         metadata.add(key, value);
       }
     }

@@ -116,9 +116,7 @@ public class FileResponse {
     if (!"file".equals(url.getProtocol()))
       throw new FileException("Not a file url:" + url);
 
-    if (File.LOG.isTraceEnabled()) {
-      File.LOG.trace("fetching {}", url);
-    }
+    File.LOG.trace("fetching {}", url);
 
     if (url.getQuery() != null) {
       File.LOG.warn(
@@ -221,9 +219,7 @@ public class FileResponse {
       offset += n;
     }
     if (offset < len) { // keep whatever already have, but issue a warning
-      if (File.LOG.isWarnEnabled()) {
-        File.LOG.warn("not enough bytes read from file: " + f.getPath());
-      }
+      File.LOG.warn("not enough bytes read from file: {}", f.getPath());
     }
     is.close();
 

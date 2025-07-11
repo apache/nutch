@@ -296,10 +296,10 @@ public class Fetcher extends NutchTool implements Tool {
 
           reportStatus(innerContext, fetchQueues, pagesLastSec, bytesLastSec);
 
-          LOG.info("-activeThreads=" + activeThreads + ", spinWaiting="
-              + spinWaiting.get() + ", fetchQueues.totalSize="
-              + fetchQueues.getTotalSize() + ", fetchQueues.getQueueCount="
-              + fetchQueues.getQueueCount());
+          LOG.info(
+              "-activeThreads={}, spinWaiting={}, fetchQueues.totalSize={}, fetchQueues.getQueueCount={}",
+              activeThreads, spinWaiting.get(), fetchQueues.getTotalSize(),
+              fetchQueues.getQueueCount());
 
           if (!feeder.isAlive() && fetchQueues.getTotalSize() < 5) {
             fetchQueues.dump();
@@ -612,9 +612,7 @@ public class Fetcher extends NutchTool implements Tool {
     if (agentName == null || agentName.trim().length() == 0) {
       String message = "Fetcher: No agents listed in 'http.agent.name'"
           + " property.";
-      if (LOG.isErrorEnabled()) {
-        LOG.error(message);
-      }
+      LOG.error(message);
       throw new IllegalArgumentException(message);
     }
   }

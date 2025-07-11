@@ -293,7 +293,7 @@ public class SuffixURLFilter implements URLFilter {
     try {
       readConfiguration(reader);
     } catch (IOException e) {
-      LOG.error("Error reading " + pluginName + " rule file " + file, e);
+      LOG.error("Error reading {} rule file {}", pluginName, file, e);
     }
   }
 

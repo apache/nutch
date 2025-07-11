@@ -110,7 +110,7 @@ public class TestCrawlDbStates {
     }
     int retryMax = conf.getInt("db.fetch.retry.max", 3);
     for (String sched : schedules) {
-      LOG.info("Testing state transitions with " + sched);
+      LOG.info("Testing state transitions with {}", sched);
       conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
       FetchSchedule schedule = FetchScheduleFactory
           .getFetchSchedule(conf);
@@ -150,8 +150,8 @@ public class TestCrawlDbStates {
               : getStatusName(fromDbStatus));
           String fetchStatusName = (fetchStatus == -1 ? "<only inlinks>"
               : CrawlDatum.getStatusName(fetchStatus));
-          LOG.info(fromDbStatusName + " + " + fetchStatusName + " => "
-              + getStatusName(toDbStatus));
+          LOG.info("{} + {} => {}", fromDbStatusName, fetchStatusName,
+              getStatusName(toDbStatus));
           List<CrawlDatum> values = new ArrayList<CrawlDatum>();
           for (int l = 0; l <= 2; l++) { // number of additional in-links
             CrawlDatum fetch = null;
@@ -210,7 +210,7 @@ public class TestCrawlDbStates {
         new CrawlDbUpdateTestDriver<Injector.InjectReducer>(injector, conf);
     ScoringFilters scfilters = new ScoringFilters(conf);
     for (String sched : schedules) {
-      LOG.info("Testing inject with " + sched);
+      LOG.info("Testing inject with {}", sched);
       conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
       FetchSchedule schedule = FetchScheduleFactory
           .getFetchSchedule(conf);
@@ -226,11 +226,10 @@ public class TestCrawlDbStates {
           schedule.initializeSchedule(CrawlDbUpdateUtil.dummyURL, fromDb);
           values.add(fromDb);
         }
-        LOG.info("inject "
-            + (fromDbStatus == -1 ? "<not in CrawlDb>" : CrawlDatum
-                .getStatusName(fromDbStatus)) + " + "
-            + getStatusName(STATUS_INJECTED) + " => "
-            + getStatusName(toDbStatus));
+        LOG.info("inject {} + {} => {}",
+            (fromDbStatus == -1 ? "<not in CrawlDb>"
+                : CrawlDatum.getStatusName(fromDbStatus)),
+            getStatusName(STATUS_INJECTED), getStatusName(toDbStatus));
         CrawlDatum injected = new CrawlDatum(STATUS_INJECTED, conf.getInt(
             "db.fetch.interval.default", 2592000), 0.1f);
         schedule.initializeSchedule(CrawlDbUpdateUtil.dummyURL, injected);
@@ -345,10 +344,10 @@ public class TestCrawlDbStates {
     protected boolean check(CrawlDatum result) {
       if (lastFetchTime > 0
           && (currFetchTime - lastFetchTime) > maxFetchInterval) {
-        LOG.error("last effective fetch (HTTP 200, not HTTP 304), at "
-            + new Date(lastFetchTime)
-            + ", took place more than db.fetch.interval.max time, "
-            + "segment containing fetched content may have been deleted");
+        LOG.error(
+            "last effective fetch (HTTP 200, not HTTP 304), at {}, took place more than db.fetch.interval.max time, "
+                + "segment containing fetched content may have been deleted",
+            new Date(lastFetchTime));
         return false;
       }
       switch (result.getStatus()) {
@@ -360,24 +359,25 @@ public class TestCrawlDbStates {
               && result.getSignature() != null
               && SignatureComparator._compare(lastSignature,
                   result.getSignature()) != 0) {
-            LOG.error("document has changed (signature changed) but state is still "
-                + getStatusName(STATUS_DB_NOTMODIFIED));
+            LOG.error(
+                "document has changed (signature changed) but state is still {}",
+                getStatusName(STATUS_DB_NOTMODIFIED));
             return false;
           }
-          LOG.info("ok: " + result);
+          LOG.info("ok: {}", result);
           return checkModifiedTime(result, firstFetchTime);
         }
         LOG.warn("notmodified without previous fetch");
         break;
       case STATUS_DB_FETCHED:
         if (previousDbState == STATUS_DB_UNFETCHED) {
-          LOG.info("ok (first fetch): " + result);
+          LOG.info("ok (first fetch): {}", result);
           return checkModifiedTime(result, firstFetchTime);
         } else if (lastSignature != null
             && result.getSignature() != null
             && SignatureComparator._compare(lastSignature,
                 result.getSignature()) != 0) {
-          LOG.info("ok (content changed): " + result);
+          LOG.info("ok (content changed): {}", result);
           // expect modified time == now
           return checkModifiedTime(result, currFetchTime);
         } else {
@@ -394,15 +394,15 @@ public class TestCrawlDbStates {
         if (schedule.getClass() == AdaptiveFetchSchedule.class) {
           LOG.info("state set to unfetched by AdaptiveFetchSchedule");
           if (result.getSignature() != null) {
-            LOG.warn("must reset signature: " + result);
+            LOG.warn("must reset signature: {}", result);
             return false;
           }
-          LOG.info("ok: " + result);
+          LOG.info("ok: {}", result);
           firstFetchTime = 0;
           return true;
         }
       }
-      LOG.warn("wrong result: " + result);
+      LOG.warn("wrong result: {}", result);
       return false;
     }
 
@@ -411,8 +411,8 @@ public class TestCrawlDbStates {
       if (modifiedTime == result.getModifiedTime()) {
         return true;
       }
-      LOG.error("wrong modified time: " + new Date(result.getModifiedTime())
-          + " (expected " + new Date(modifiedTime) + ")");
+      LOG.error("wrong modified time: {} (expected {})",
+          new Date(result.getModifiedTime()), new Date(modifiedTime));
       return false;
     }
 
@@ -466,8 +466,7 @@ public class TestCrawlDbStates {
         httpCode = 304;
         datum.setStatus(STATUS_FETCH_NOTMODIFIED);
       }
-      LOG.info("fetched with HTTP " + httpCode + " => "
-          + getStatusName(datum.getStatus()));
+      LOG.info("fetched with HTTP {} => {}", httpCode, getStatusName(datum.getStatus()));
       datum.setFetchTime(currentTime);
       return datum;
     }
@@ -533,7 +532,7 @@ public class TestCrawlDbStates {
     Context context = CrawlDBTestUtil.createContext();
     Configuration conf = context.getConfiguration();
     for (String sched : schedules) {
-      LOG.info("Testing reset signature with " + sched);
+      LOG.info("Testing reset signature with {}", sched);
       conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl." + sched);
       ContinuousCrawlTestUtil crawlUtil = new CrawlTestSignatureReset(context);
       try {
@@ -569,8 +568,7 @@ public class TestCrawlDbStates {
       } else {
         fetchState = noContentStates[(counter % 6) / 2][0];
       }
-      LOG.info("Step " + counter + ": fetched with "
-          + getStatusName(fetchState));
+      LOG.info("Step {}: fetched with {}", counter, getStatusName(fetchState));
       datum.setStatus(fetchState);
       return datum;
     }
@@ -579,15 +577,13 @@ public class TestCrawlDbStates {
     protected boolean check(CrawlDatum result) {
       if (result.getStatus() == STATUS_DB_NOTMODIFIED
           && !(fetchState == STATUS_FETCH_SUCCESS || fetchState == STATUS_FETCH_NOTMODIFIED)) {
-        LOG.error("Should never get into state "
-            + getStatusName(STATUS_DB_NOTMODIFIED) + " from "
-            + getStatusName(fetchState));
+        LOG.error("Should never get into state {} from {}",
+            getStatusName(STATUS_DB_NOTMODIFIED), getStatusName(fetchState));
         return false;
       }
       if (result.getSignature() != null
           && !(result.getStatus() == STATUS_DB_FETCHED || result.getStatus() == STATUS_DB_NOTMODIFIED)) {
-        LOG.error("Signature not reset in state "
-            + getStatusName(result.getStatus()));
+        LOG.error("Signature not reset in state {}", getStatusName(result.getStatus()));
         // ok here: since it's not the problem itself (the db_notmodified), but
         // the reason for it
       }

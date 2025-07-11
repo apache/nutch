@@ -197,9 +197,7 @@ public class HttpResponse implements Response {
 
       String userAgent = http.getUserAgent();
       if ((userAgent == null) || (userAgent.length() == 0)) {
-        if (Http.LOG.isErrorEnabled()) {
-          Http.LOG.error("User-agent is not set!");
-        }
+        Http.LOG.error("User-agent is not set!");
       } else {
         reqStr.append("User-Agent: ");
         reqStr.append(userAgent);

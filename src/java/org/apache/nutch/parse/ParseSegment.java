@@ -120,8 +120,7 @@ public class ParseSegment extends NutchTool implements Tool {
           parseUtil = new ParseUtil(context.getConfiguration());
         parseResult = parseUtil.parse(content);
       } catch (Exception e) {
-        LOG.warn("Error parsing: " + key + ": "
-            + StringUtils.stringifyException(e));
+        LOG.warn("Error parsing: {}: {}", key, StringUtils.stringifyException(e));
         return;
       }
 
@@ -134,7 +133,7 @@ public class ParseSegment extends NutchTool implements Tool {
             ParseStatus.majorCodes[parseStatus.getMajorCode()]).increment(1);
 
         if (!parseStatus.isSuccess()) {
-          LOG.warn("Error parsing: " + key + ": " + parseStatus);
+          LOG.warn("Error parsing: {}: {}", key, parseStatus);
           parse = parseStatus.getEmptyParse(context.getConfiguration());
         }
 
@@ -184,8 +183,9 @@ public class ParseSegment extends NutchTool implements Tool {
     //if the flag is there, no matter the value, trust it.
     if (metadata.get(Response.TRUNCATED_CONTENT) != null) {
       if ("true".equals(metadata.get(Response.TRUNCATED_CONTENT))) {
-        LOG.info(content.getUrl() + " skipped. Protocol metadata indicates truncated content, " +
-                "actualSize= " + content.getContent().length);
+        LOG.info(
+            "{} skipped. Protocol metadata indicates truncated content, actualSize= {}",
+            content.getUrl(), content.getContent().length);
         return true;
       }
       return false;
@@ -202,19 +202,15 @@ public class ParseSegment extends NutchTool implements Tool {
     try {
       inHeaderSize = Integer.parseInt(lengthStr);
     } catch (NumberFormatException e) {
-      LOG.warn("Wrong contentlength format for " + url, e);
+      LOG.warn("Wrong contentlength format for {}", url, e);
       return false;
     }
     int actualSize = contentBytes.length;
     if (inHeaderSize > actualSize) {
-      LOG.info(url + " skipped. Content of size " + inHeaderSize
-          + " was truncated to " + actualSize);
+      LOG.info("{} skipped. Content of size {} was truncated to {}", url, inHeaderSize, actualSize);
       return true;
     }
-    if (LOG.isDebugEnabled()) {
-      LOG.debug(url + " actualSize=" + actualSize + " inHeaderSize="
-          + inHeaderSize);
-    }
+    LOG.debug("{} actualSize={} inHeaderSize={}", url, actualSize, inHeaderSize);
     return false;
   }
 
@@ -233,8 +229,7 @@ public class ParseSegment extends NutchTool implements Tool {
   public void parse(Path segment) throws IOException, 
       InterruptedException, ClassNotFoundException {
     if (SegmentChecker.isParsed(segment, segment.getFileSystem(getConf()))) {
-      LOG.warn("Segment: " + segment
-          + " already parsed!! Skipped parsing this segment!!"); // NUTCH-1854
+      LOG.warn("Segment: {} already parsed!! Skipped parsing this segment!!", segment); // NUTCH-1854
       return;
     }
 

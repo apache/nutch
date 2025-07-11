@@ -174,7 +174,7 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
       return generateJson();
 
     } catch (IOException ioe) {
-      LOG.warn("Error in processing file " + url + ": " + ioe.getMessage());
+      LOG.warn("Error in processing file {}: {}", url, ioe.getMessage());
       throw new IOException("Error in generating JSON:" + ioe.getMessage());
     }
   }
@@ -203,7 +203,7 @@ public abstract class AbstractCommonCrawlFormat implements CommonCrawlFormat {
     try {
       return URIUtil.encodePath(url);
     } catch (URIException e) {
-      LOG.error("Can't encode URL " + url);
+      LOG.error("Can't encode URL {}", url);
     }
 
     return url;

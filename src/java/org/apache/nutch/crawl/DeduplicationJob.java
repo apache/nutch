@@ -42,7 +42,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.metadata.Nutch;
@@ -339,11 +338,10 @@ public class DeduplicationJob extends NutchTool implements Tool {
       if (g != null) {
         Counter counter = g.findCounter("Documents marked as duplicate");
         long dups = counter.getValue();
-        LOG.info("Deduplication: " + (int) dups
-            + " documents marked as duplicates");
+        LOG.info("Deduplication: {} documents marked as duplicates", dups);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("DeduplicationJob: " + StringUtils.stringifyException(e));
+      LOG.error("DeduplicationJob:", e);
       fs.delete(tempDir, true);
       return -1;
     }
@@ -369,7 +367,7 @@ public class DeduplicationJob extends NutchTool implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("DeduplicationMergeJob: " + StringUtils.stringifyException(e));
+      LOG.error("DeduplicationMergeJob:", e);
       fs.delete(tempDir, true);
       NutchJob.cleanupAfterFailure(outPath, lock, fs);
       return -1;
@@ -381,8 +379,8 @@ public class DeduplicationJob extends NutchTool implements Tool {
     fs.delete(tempDir, true);
 
     stopWatch.stop();
-    LOG.info("Deduplication finished, elapsed: {} ms", stopWatch.getTime(
-        TimeUnit.MILLISECONDS));
+    LOG.info("Deduplication finished, elapsed: {} ms",
+        stopWatch.getTime(TimeUnit.MILLISECONDS));
 
     return 0;
   }

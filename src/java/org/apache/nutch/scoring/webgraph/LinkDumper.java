@@ -53,7 +53,6 @@ import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.partition.HashPartitioner;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.FSUtils;
@@ -74,7 +73,7 @@ public class LinkDumper extends Configured implements Tool {
 
   /**
    * Reader class which will print out the url and all of its inlinks to system
-   * out. Each inlinkwill be displayed with its node information including score
+   * out. Each inlink will be displayed with its node information including score
    * and number of in and outlinks.
    */
   public static class Reader {
@@ -443,7 +442,7 @@ public class LinkDumper extends Configured implements Tool {
       dumpLinks(new Path(webGraphDb));
       return 0;
     } catch (Exception e) {
-      LOG.error("LinkDumper: " + StringUtils.stringifyException(e));
+      LOG.error("LinkDumper:", e);
       return -2;
     }
   }

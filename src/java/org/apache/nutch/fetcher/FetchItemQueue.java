@@ -149,15 +149,15 @@ public class FetchItemQueue {
   }
 
   public synchronized void dump() {
-    LOG.info("  maxThreads    = " + maxThreads);
-    LOG.info("  inProgress    = " + inProgress.get());
-    LOG.info("  crawlDelay    = " + crawlDelay);
-    LOG.info("  minCrawlDelay = " + minCrawlDelay);
-    LOG.info("  nextFetchTime = " + nextFetchTime.get());
-    LOG.info("  now           = " + System.currentTimeMillis());
+    LOG.info("  maxThreads    = {}", maxThreads);
+    LOG.info("  inProgress    = {}", inProgress.get());
+    LOG.info("  crawlDelay    = {}", crawlDelay);
+    LOG.info("  minCrawlDelay = {}", minCrawlDelay);
+    LOG.info("  nextFetchTime = {}", nextFetchTime.get());
+    LOG.info("  now           = {}", System.currentTimeMillis());
     for (int i = 0; i < queue.size(); i++) {
       FetchItem it = queue.get(i);
-      LOG.info("  " + i + ". " + it.url);
+      LOG.info("  {}. {}", i, it.url);
     }
   }
 

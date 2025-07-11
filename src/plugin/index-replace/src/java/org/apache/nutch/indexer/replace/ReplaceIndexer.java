@@ -152,8 +152,8 @@ public class ReplaceIndexer implements IndexingFilter {
               try {
                 hostPattern = Pattern.compile(value);
               } catch (PatternSyntaxException pse) {
-                LOG.error("hostmatch pattern " + value + " does not compile: "
-                    + pse.getMessage());
+                LOG.error("hostmatch pattern {} does not compile: {}", value,
+                    pse.getMessage());
                 // Deactivate this invalid match set by making it match no host.
                 hostPattern = Pattern.compile("willnotmatchanyhost");
               }
@@ -161,8 +161,8 @@ public class ReplaceIndexer implements IndexingFilter {
               try {
                 urlPattern = Pattern.compile(value);
               } catch (PatternSyntaxException pse) {
-                LOG.error("urlmatch pattern " + value + " does not compile: "
-                    + pse.getMessage());
+                LOG.error("urlmatch pattern {} does not compile: {}", value,
+                    pse.getMessage());
                 // Deactivate this invalid match set by making it match no url.
                 urlPattern = Pattern.compile("willnotmatchanyurl");
               }
@@ -179,8 +179,8 @@ public class ReplaceIndexer implements IndexingFilter {
               // Divide the value into pattern / replacement / flags.
               value = value.substring(1);
               if (!value.contains(sep)) {
-                LOG.error("Pattern '" + line
-                    + "', not parseable.  Missing separator " + sep);
+                LOG.error("Pattern '{}', not parseable.  Missing separator {}",
+                    line, sep);
                 continue;
               }
               String pattern = value.substring(0, value.indexOf(sep));
@@ -195,7 +195,7 @@ public class ReplaceIndexer implements IndexingFilter {
                 try {
                   flags = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
-                  LOG.error("Pattern " + line + ", has invalid flags component");
+                  LOG.error("Pattern {} has invalid flags component", line);
                   continue;
                 }
               }

@@ -158,7 +158,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
     for (Iterator<Entry<Text, Parse>> i = iterator(); i.hasNext();) {
       Entry<Text, Parse> entry = i.next();
       if (!entry.getValue().getData().getStatus().isSuccess()) {
-        LOG.warn(entry.getKey() + " is not parsed successfully, filtering");
+        LOG.warn("{} is not parsed successfully, filtering", entry.getKey());
         i.remove();
       }
     }

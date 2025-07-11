@@ -122,10 +122,6 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
               script.append('\n');
             script.append(nn.item(i).getNodeValue());
           }
-          // if (LOG.isInfoEnabled()) {
-          // LOG.info("script: language=" + lang + ", text: " +
-          // script.toString());
-          // }
           Outlink[] links = getJSLinks(script.toString(), "", base);
           if (links != null && links.length > 0)
             outlinks.addAll(Arrays.asList(links));
@@ -215,9 +211,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     try {
       baseURL = new URL(base);
     } catch (Exception e) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error("error assigning base URL", e);
-      }
+      LOG.error("error assigning base URL", e);
     }
 
     try {
@@ -240,10 +234,8 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
           try {
             url = new URL(baseURL, url).toString();
           } catch (MalformedURLException ex) {
-            if (LOG.isTraceEnabled()) {
-              LOG.trace(" - failed URL parse '" + url + "' and baseURL '"
-                  + baseURL + "'", ex);
-            }
+            LOG.trace(" - failed URL parse '{}' and baseURL '{}'", url, baseURL,
+                ex);
             continue;
           }
         }
@@ -256,9 +248,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     } catch (Exception ex) {
       // if it is a malformed URL we just throw it away and continue with
       // extraction.
-      if (LOG.isErrorEnabled()) {
-        LOG.error(" - invalid or malformed URL", ex);
-      }
+      LOG.error(" - invalid or malformed URL", ex);
     }
 
     final Outlink[] retval;

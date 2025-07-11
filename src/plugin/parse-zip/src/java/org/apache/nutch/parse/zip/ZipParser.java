@@ -66,9 +66,7 @@ public class ZipParser implements Parser {
       final String contentLen = content.getMetadata().get(
           Response.CONTENT_LENGTH);
       final int len = Integer.parseInt(contentLen);
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("ziplen: " + len);
-      }
+      LOG.debug("ziplen: {}", len);
       final byte[] contentInBytes = content.getContent();
 
       if (contentLen != null && contentInBytes.length != len) {
@@ -103,9 +101,8 @@ public class ZipParser implements Parser {
     final ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
         resultTitle, outlinks, content.getMetadata());
 
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Zip file parsed sucessfully !!");
-    }
+    LOG.trace("Zip file parsed sucessfully.");
+
     return ParseResult.createParseResult(content.getUrl(), new ParseImpl(
         resultText, parseData));
   }

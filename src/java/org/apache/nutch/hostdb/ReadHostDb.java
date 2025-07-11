@@ -38,7 +38,6 @@ import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
@@ -136,7 +135,7 @@ public class ReadHostDb extends Configured implements Tool {
             return;
           }
         } catch (Exception e) {
-          LOG.info(e.toString() + " for " + key.toString());
+          LOG.info("{} for {}", e.toString(), key.toString());
         }
       }
       
@@ -266,12 +265,12 @@ public class ReadHostDb extends Configured implements Tool {
       }
       if (args[i].equals("-get")) {
         get = args[i + 1];
-        LOG.info("ReadHostDb: get: "+ get);
+        LOG.info("ReadHostDb: get: {}", get);
         i++;
       }
       if (args[i].equals("-expr")) {
         expr = args[i + 1];
-        LOG.info("ReadHostDb: evaluating expression: " + expr);
+        LOG.info("ReadHostDb: evaluating expression: {}", expr);
         i++;
       }
     }
@@ -284,7 +283,7 @@ public class ReadHostDb extends Configured implements Tool {
       }
       return 0;
     } catch (Exception e) {
-      LOG.error("ReadHostDb: " + StringUtils.stringifyException(e));
+      LOG.error("ReadHostDb:", e);
       return -1;
     }
   }

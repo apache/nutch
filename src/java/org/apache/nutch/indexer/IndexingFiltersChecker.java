@@ -146,7 +146,7 @@ public class IndexingFiltersChecker extends AbstractChecker {
       url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT);
     }
 
-    LOG.info("fetching: " + url);
+    LOG.info("fetching: {}", url);
 
     CrawlDatum datum = new CrawlDatum();
 
@@ -255,10 +255,10 @@ public class IndexingFiltersChecker extends AbstractChecker {
       LOG.error("Failed to get parse from parse result");
       LOG.error("Available parses in parse result (by URL key):");
       for (Map.Entry<Text, Parse> entry : parseResult) {
-        LOG.error("  " + entry.getKey());
+        LOG.error("  {}", entry.getKey());
       }
       LOG.error("Parse result does not contain a parse for URL to be checked:");
-      LOG.error("  " + urlText);
+      LOG.error("  {}", urlText);
       return -1;
     }
 

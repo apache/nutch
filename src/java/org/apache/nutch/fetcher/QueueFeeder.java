@@ -106,7 +106,7 @@ public class QueueFeeder extends Thread {
         try {
           hasMore = context.nextKeyValue();
         } catch (IOException e) {
-          LOG.error("QueueFeeder error reading input, record " + cnt, e);
+          LOG.error("QueueFeeder error reading input, record {}", cnt, e);
           return;
         } catch (InterruptedException e) {
           LOG.info("QueueFeeder interrupted, exception:", e);
@@ -158,7 +158,7 @@ public class QueueFeeder extends Thread {
             feed--;
           }
         } catch (IOException e) {
-          LOG.error("QueueFeeder error reading input, record " + cnt, e);
+          LOG.error("QueueFeeder error reading input, record {}", cnt, e);
           return;
         } catch (InterruptedException e) {
           LOG.info("QueueFeeder interrupted, exception:", e);

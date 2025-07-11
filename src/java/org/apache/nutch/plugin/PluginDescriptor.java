@@ -303,7 +303,7 @@ public class PluginDescriptor {
           arrayList.add(file2.getParentFile().toURI().toURL());
       }
     } catch (MalformedURLException e) {
-      LOG.debug(getPluginId() + " " + e.toString());
+      LOG.debug("{} {}", getPluginId(), e.toString());
     }
     URL[] urls = arrayList.toArray(new URL[arrayList.size()]);
     fClassLoader = new PluginClassLoader(urls,

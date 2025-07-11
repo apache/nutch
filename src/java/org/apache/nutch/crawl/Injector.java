@@ -32,7 +32,6 @@ import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -158,7 +157,7 @@ public class Injector extends NutchTool implements Tool {
           if (filters != null)
             url = filters.filter(url); // filter the url
         } catch (Exception e) {
-          LOG.warn("Skipping " + url + ":" + e);
+          LOG.warn("Skipping {}: {}", url, e);
           url = null;
         }
       }
@@ -200,8 +199,8 @@ public class Injector extends NutchTool implements Tool {
             datum.getMetaData().put(new Text(metaname), new Text(metavalue));
           }
         } catch (NumberFormatException nfe) {
-          LOG.error("Invalid number '" + metavalue + "' in metadata '"
-              + metaname + "' for url " + url);
+          LOG.error("Invalid number '{}' in metadata '{}' for url {}",
+              metavalue, metaname, url);
         }
       }
     }
@@ -285,8 +284,8 @@ public class Injector extends NutchTool implements Tool {
       scoreInjected = conf.getFloat("db.score.injected", 1.0f);
       overwrite = conf.getBoolean("db.injector.overwrite", false);
       update = conf.getBoolean("db.injector.update", false);
-      LOG.info("Injector: overwrite: " + overwrite);
-      LOG.info("Injector: update: " + update);
+      LOG.info("Injector: overwrite: {}", overwrite);
+      LOG.info("Injector: update: {}", update);
     }
 
     /**
@@ -581,7 +580,7 @@ public class Injector extends NutchTool implements Tool {
           filter, filterNormalizeAll);
       return 0;
     } catch (Exception e) {
-      LOG.error("Injector: " + StringUtils.stringifyException(e));
+      LOG.error("Injector:", e);
       return -1;
     }
   }

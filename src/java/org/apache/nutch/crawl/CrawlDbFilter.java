@@ -95,7 +95,7 @@ public class CrawlDbFilter extends
       try {
         url = normalizers.normalize(url, scope); // normalize the url
       } catch (Exception e) {
-        LOG.warn("Skipping " + url + ":" + e);
+        LOG.warn("Skipping {}: ", url, e);
         url = null;
       }
     }
@@ -103,7 +103,7 @@ public class CrawlDbFilter extends
       try {
         url = filters.filter(url); // filter the url
       } catch (Exception e) {
-        LOG.warn("Skipping " + url + ":" + e);
+        LOG.warn("Skipping {}: ", url, e);
         url = null;
       }
     }

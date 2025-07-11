@@ -107,7 +107,7 @@ public class SegmentChecker {
         && parseDataExists) {
 
       // No segment dir missing
-      LOG.info("Segment dir is complete: " + segmentPath.toString() + ".");
+      LOG.info("Segment dir is complete: {}.", segmentPath);
 
       return true;
     } else {
@@ -128,9 +128,8 @@ public class SegmentChecker {
       }
 
       String missingDirString = missingDir.toString();
-      LOG.warn("Skipping segment: " + segmentPath.toString()
-          + ". Missing sub directories: "
-          + missingDirString.substring(0, missingDirString.length() - 2));
+      LOG.warn("Skipping segment: {}. Missing sub directories: {}", segmentPath,
+          missingDirString.substring(0, missingDirString.length() - 2));
 
       return false;
     }

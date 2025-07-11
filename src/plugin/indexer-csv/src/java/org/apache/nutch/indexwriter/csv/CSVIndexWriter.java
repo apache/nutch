@@ -117,13 +117,13 @@ public class CSVIndexWriter implements IndexWriter {
         boolean isChar) {
       String str = parameters.get(property);
       if (isChar && str != null && !str.isEmpty()) {
-        LOG.warn("Separator " + property
-            + " must be a char, only the first character '" + str.charAt(0)
-            + "' of \"" + str + "\" is used");
+        LOG.warn(
+            "Separator {} must be a char, only the first character '{}' of \"{}\" is used",
+            property, str.charAt(0), str);
         str = str.substring(0, 1);
       }
       set(str);
-      LOG.info(property + " = " + toString());
+      LOG.info("{} = {}", property, toString());
     }
 
     /**
@@ -215,13 +215,13 @@ public class CSVIndexWriter implements IndexWriter {
     valueSeparator.setFromConf(parameters, CSVConstants.CSV_VALUESEPARATOR);
     withHeader = parameters.getBoolean(CSVConstants.CSV_WITHHEADER, true);
     maxFieldLength = parameters.getInt(CSVConstants.CSV_MAXFIELDLENGTH, maxFieldLength);
-    LOG.info(CSVConstants.CSV_MAXFIELDLENGTH + " = " + maxFieldLength);
+    LOG.info("{} = {}", CSVConstants.CSV_MAXFIELDLENGTH, maxFieldLength);
     maxFieldValues = parameters.getInt(CSVConstants.CSV_MAXFIELDVALUES, maxFieldValues);
-    LOG.info(CSVConstants.CSV_MAXFIELDVALUES + " = " + maxFieldValues);
+    LOG.info("{} = {}", CSVConstants.CSV_MAXFIELDVALUES, maxFieldValues);
     fields = parameters.getStrings(CSVConstants.CSV_FIELDS, "id", "title", "content");
     LOG.info("fields =");
     for (String f : fields) {
-      LOG.info("\t" + f);
+      LOG.info("\t{}", f);
     }
 
     fs = FileSystem.get(config);

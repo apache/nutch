@@ -81,7 +81,7 @@ public class FetchItemQueues {
     this.maxThreads = conf.getInt("fetcher.threads.per.queue", 1);
     queueMode = conf.get("fetcher.queue.mode", QUEUE_MODE_HOST);
     queueMode = checkQueueMode(queueMode);
-    LOG.info("Using queue mode : " + queueMode);
+    LOG.info("Using queue mode : {}", queueMode);
 
     this.crawlDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
     this.minCrawlDelay = (long) (conf.getFloat("fetcher.server.min.delay",
@@ -161,7 +161,7 @@ public class FetchItemQueues {
   public void finishFetchItem(FetchItem it, boolean asap) {
     FetchItemQueue fiq = queues.get(it.queueID);
     if (fiq == null) {
-      LOG.warn("Attempting to finish item from unknown queue: " + it);
+      LOG.warn("Attempting to finish item from unknown queue: {}", it);
       return;
     }
     fiq.finishFetchItem(it, asap);
@@ -413,7 +413,7 @@ public class FetchItemQueues {
       FetchItemQueue fiq = queues.get(id);
       if (fiq.getQueueSize() == 0)
         continue;
-      LOG.info("* queue: " + id);
+      LOG.info("* queue: {}", id);
       fiq.dump();
     }
   }

@@ -252,7 +252,7 @@ public class SolrIndexWriter implements IndexWriter {
         }
       }
     } catch (final SolrServerException e) {
-      LOG.error("Failed to commit solr connection: " + e.getMessage());
+      LOG.error("Failed to commit solr connection: {}", e.getMessage());
     }
   }
 
@@ -298,7 +298,7 @@ public class SolrIndexWriter implements IndexWriter {
         }
 
       } catch (final SolrServerException e) {
-        LOG.error("Error deleting: " + deleteIds);
+        LOG.error("Error deleting: {}", deleteIds);
         throw makeIOException(e);
       }
       deleteIds.clear();

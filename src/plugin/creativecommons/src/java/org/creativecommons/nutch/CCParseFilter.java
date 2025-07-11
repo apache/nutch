@@ -99,18 +99,13 @@ public class CCParseFilter implements HtmlParseFilter {
 
       // add license to metadata
       if (licenseUrl != null) {
-        if (LOG.isInfoEnabled()) {
-          LOG.info("CC: found " + licenseUrl + " in " + licenseLocation
-              + " of " + base);
-        }
+        LOG.info("CC: found {} in {} of {}", licenseUrl, licenseLocation, base);
         metadata.add(CreativeCommons.LICENSE_URL, licenseUrl);
         metadata.add(CreativeCommons.LICENSE_LOCATION, licenseLocation);
       }
 
       if (walker.workType != null) {
-        if (LOG.isInfoEnabled()) {
-          LOG.info("CC: found " + walker.workType + " in " + base);
-        }
+        LOG.info("CC: found {} in {}", walker.workType, base);
         metadata.add(CreativeCommons.WORK_TYPE, walker.workType);
       }
 
@@ -203,18 +198,14 @@ public class CCParseFilter implements HtmlParseFilter {
         DocumentBuilder parser = FACTORY.newDocumentBuilder();
         doc = parser.parse(new InputSource(new StringReader(comment)));
       } catch (Exception e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("CC: Failed to parse RDF in " + base + ": " + e);
-        }
+        LOG.warn("CC: Failed to parse RDF in {}: ", base, e);
         return;
       }
 
       // check that root is rdf:RDF
       NodeList roots = doc.getElementsByTagNameNS(RDF_NS, "RDF");
       if (roots.getLength() != 1) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("CC: No RDF root in " + base);
-        }
+        LOG.warn("CC: No RDF root in {}", base);
         return;
       }
       Element rdf = (Element) roots.item(0);

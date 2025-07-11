@@ -330,8 +330,8 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
           try {
             scfilters.initialScore(targetUrl, target);
           } catch (ScoringFilterException e) {
-            LOG.warn("Cannot filter init score for url " + key
-                + ", using default: " + e.getMessage());
+            LOG.warn("Cannot filter init score for url {}, using default: {}",
+                key, e.getMessage());
             target.setScore(0.0f);
           }
 
@@ -348,8 +348,7 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
           adjust = scfilters.distributeScoreToOutlinks(key, parseData, targets,
               null, links.length);
         } catch (ScoringFilterException e) {
-          LOG.warn("Cannot distribute score from " + key + ": "
-              + e.getMessage());
+          LOG.warn("Cannot distribute score from {}: {}", key, e.getMessage());
         }
         for (Entry<Text, CrawlDatum> target : targets) {
           crawlOut.append(target.getKey(), target.getValue());
@@ -370,7 +369,7 @@ public class ParseOutputFormat extends OutputFormat<Text, Parse> {
           try {
             datum.setFetchTime(Long.parseLong(timeString));
           } catch (Exception e) {
-            LOG.warn("Can't read fetch time for: " + key);
+            LOG.warn("Can't read fetch time for: {}", key);
             datum.setFetchTime(System.currentTimeMillis());
           }
           crawlOut.append(key, datum);

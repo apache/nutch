@@ -109,9 +109,7 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
 
     contentType = mimeType;
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info(String.format("[%s] %s", contentType, url));
-    }
+    LOG.info("[{}] {}", contentType, url);
 
     if (trie != null) {
       if (trie.shortestMatch(contentType) == null) {
@@ -150,9 +148,7 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
         try {
           readConfiguration(reader);
         } catch (IOException e) {
-          if (LOG.isErrorEnabled()) {
-            LOG.error(e.getMessage());
-          }
+          LOG.error(e.getMessage());
 
           throw new RuntimeException(e.getMessage(), e);
         }

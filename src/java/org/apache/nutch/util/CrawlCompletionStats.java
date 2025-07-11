@@ -177,7 +177,7 @@ public class CrawlCompletionStats extends Configured implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error(jobName + " job failed");
+      LOG.error("{} job failed", jobName);
       throw e;
     }
 

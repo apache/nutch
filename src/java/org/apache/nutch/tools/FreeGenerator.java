@@ -174,7 +174,7 @@ public class FreeGenerator extends Configured implements Tool {
           numFetchers = Integer.parseInt(args[i + 1]);
           i++;
         } else {
-          LOG.error("Unknown argument: " + args[i] + ", exiting ...");
+          LOG.error("Unknown argument: {}, exiting ...", args[i]);
           return -1;
         }
       }
@@ -223,7 +223,7 @@ public class FreeGenerator extends Configured implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("FAILED: " + StringUtils.stringifyException(e));
+      LOG.error("FAILED: {}", StringUtils.stringifyException(e));
       return -1;
     }
     stopWatch.stop();

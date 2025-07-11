@@ -238,7 +238,7 @@ public class DmozParser {
      * When parsing ends
      */
     public void endDocument() {
-      LOG.info("Completed parse.  Found " + pages + " pages.");
+      LOG.info("Completed parse.  Found {} pages.", pages);
     }
 
     /**
@@ -257,18 +257,14 @@ public class DmozParser {
      * Emit the exception message
      */
     public void error(SAXParseException spe) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error("Error: " + spe.toString() + ": " + spe.getMessage());
-      }
+      LOG.error("Error: {}: {}", spe.toString(), spe.getMessage());
     }
 
     /**
      * Emit exception warning message
      */
     public void warning(SAXParseException spe) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Warning: " + spe.toString() + ": " + spe.getMessage());
-      }
+      LOG.warn("Warning: {}: {}", spe.toString(), spe.getMessage());
     }
   }
 
@@ -304,7 +300,7 @@ public class DmozParser {
         topicPattern);
     reader.setContentHandler(rp);
     reader.setErrorHandler(rp);
-    LOG.info("skew = " + rp.hashSkew);
+    LOG.info("skew = {}", rp.hashSkew);
 
     //
     // Open filtered text stream. The TextFilter makes sure that
@@ -317,9 +313,7 @@ public class DmozParser {
       InputSource is = new InputSource(in);
       reader.parse(is);
     } catch (Exception e) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error(e.toString());
-      }
+      LOG.error(e.toString());
       System.exit(0);
     }
   }
@@ -333,9 +327,7 @@ public class DmozParser {
         topics.addElement(line);
       }
     } catch (Exception e) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error(e.toString());
-      }
+      LOG.error(e.toString());
       System.exit(0);
     }
   }
@@ -397,7 +389,7 @@ public class DmozParser {
         }
         regExp = regExp.concat(topics.get(j));
         regExp = regExp.concat(").*");
-        LOG.info("Topic selection pattern = " + regExp);
+        LOG.info("Topic selection pattern = {}", regExp);
         topicPattern = Pattern.compile(regExp);
       }
 

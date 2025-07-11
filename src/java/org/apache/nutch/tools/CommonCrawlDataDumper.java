@@ -390,7 +390,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
               filter = true;
             }
           } catch (IOException ioe) {
-            LOG.error("Fatal error in creating JSON data: " + ioe.getMessage());
+            LOG.error("Fatal error in creating JSON data: {}", ioe.getMessage());
             return;
           }
 
@@ -401,20 +401,18 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
               if (!gzip) {
                 File outputFile = new File(outputFullPath);
                 if (outputFile.exists()) {
-                  LOG.info("Skipping writing: [" + outputFullPath
-                      + "]: file already exists");
+                  LOG.info("Skipping writing: [{}]: file already exists", outputFullPath);
                 } else {
-                  LOG.info("Writing: [" + outputFullPath + "]");
+                  LOG.info("Writing: [{}]", outputFullPath);
                   IOUtils.copy(new ByteArrayInputStream(byteData),
                       new FileOutputStream(outputFile));
                 }
               } else {
                 if (fileList.contains(outputFullPath)) {
-                  LOG.info("Skipping compressing: [" + outputFullPath
-                      + "]: file already exists");
+                  LOG.info("Skipping compressing: [{}]: file already exists", outputFullPath);
                 } else {
                   fileList.add(outputFullPath);
-                  LOG.info("Compressing: [" + outputFullPath + "]");
+                  LOG.info("Compressing: [{}]", outputFullPath);
                   //TarArchiveEntry tarEntry = new TarArchiveEntry(firstLevelDirName + File.separator + secondLevelDirName + File.separator + filename);
                   TarArchiveEntry tarEntry = new TarArchiveEntry(
                       outputRelativePath + File.separator + filename);
@@ -440,7 +438,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
     }
 
     if (!typeCounts.isEmpty()) {
-      LOG.info("CommonsCrawlDataDumper File Stats: " + DumpFileUtil
+      LOG.info("CommonsCrawlDataDumper File Stats: {}", DumpFileUtil
           .displayFileTypes(typeCounts, filteredCounts));
     }
 
@@ -455,14 +453,14 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
       bufOutput.close();
       fileOutput.close();
     } catch (IOException ioe) {
-      LOG.warn("Error in closing stream: " + ioe.getMessage());
+      LOG.warn("Error in closing stream: {}", ioe.getMessage());
     }
   }
 
   private void constructNewStream(File outputDir) throws IOException {
     String archiveName = new SimpleDateFormat("yyyyMMddhhmm'.tar.gz'")
         .format(new Date());
-    LOG.info("Creating a new gzip archive: " + archiveName);
+    LOG.info("Creating a new gzip archive: {}", archiveName);
     fileOutput = new FileOutputStream(
         new File(outputDir + File.separator + archiveName));
     bufOutput = new BufferedOutputStream(fileOutput);
@@ -514,7 +512,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
       return stream.toByteArray();
 
     } catch (Exception e) {
-      LOG.warn("CBOR encoding failed: " + e.getMessage());
+      LOG.warn("CBOR encoding failed: {}", e.getMessage());
     } finally {
       try {
         generator.close();
@@ -695,8 +693,8 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
       config.setOutputDir(line.getOptionValue("outputDir"));
 
       if (!outputDir.exists()) {
-        LOG.warn("Output directory: [" + outputDir.getAbsolutePath()
-            + "]: does not exist, creating it.");
+        LOG.warn("Output directory: [{}]: does not exist, creating it.",
+            outputDir.getAbsolutePath());
         if (!outputDir.mkdirs())
           throw new Exception(
               "Unable to create: [" + outputDir.getAbsolutePath() + "]");
@@ -708,7 +706,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
           extension, warc);
 
     } catch (Exception e) {
-      LOG.error(CommonCrawlDataDumper.class.getName() + ": " + StringUtils
+      LOG.error("{}: {}", CommonCrawlDataDumper.class.getName(), StringUtils
           .stringifyException(e));
       e.printStackTrace();
       return -1;

@@ -389,9 +389,7 @@ public class IndexerMapReduce extends Configured {
         // run indexing filters
         doc = filters.filter(doc, parse, key, fetchDatum, inlinks);
       } catch (final IndexingException e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Error indexing " + key + ": ", e);
-        }
+        LOG.warn("Error indexing {}: ", key, e);
         context.getCounter("IndexerStatus", "errors (IndexingFilter)").increment(1);
         return;
       }

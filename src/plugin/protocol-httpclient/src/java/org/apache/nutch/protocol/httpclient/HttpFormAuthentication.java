@@ -124,18 +124,18 @@ public class HttpFormAuthentication {
       post.addParameters(params.toArray(new NameValuePair[0]));
       int rspCode = client.executeMethod(post);
       if (LOG.isDebugEnabled()) {
-        LOG.debug("rspCode: " + rspCode);
-        LOG.debug("\nSending 'POST' request to URL : " + url);
+        LOG.debug("rspCode: {}", rspCode);
+        LOG.debug("\nSending 'POST' request to URL : {}", url);
 
-        LOG.debug("Post parameters : " + params);
-        LOG.debug("Response Code : " + rspCode);
+        LOG.debug("Post parameters : {}", params);
+        LOG.debug("Response Code : {}", rspCode);
         for (Header header : post.getRequestHeaders()) {
-          LOG.debug("Response headers : " + header);
+          LOG.debug("Response headers : {}", header);
         }
       }
       String rst = IOUtils.toString(post.getResponseBodyAsStream(),
           StandardCharsets.UTF_8);
-      LOG.debug("login post result: " + rst);
+      LOG.debug("login post result: {}", rst);
     } finally {
       if (post != null) {
         post.releaseConnection();
@@ -166,7 +166,7 @@ public class HttpFormAuthentication {
       String policy = formConfigurer.getCookiePolicy();
       Object p = FieldUtils.readDeclaredStaticField(CookiePolicy.class, policy);
       if (null != p) {
-        LOG.debug("reflection of cookie value: " + p.toString());
+        LOG.debug("reflection of cookie value: {}", p);
         params.setParameter(HttpMethodParams.COOKIE_POLICY, p);
       }
     }
