@@ -2337,19 +2337,19 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 
 <property>
   <name>index.arbitrary.overwrite.0</name>
+  <value></value>
   <description>Whether to overwrite any existing value in the doc for
     for fieldName. Default is false if not specified in config</description>
-  <value></value>
 </property>
 
 <property>
   <name>index.arbitrary.all.fields.access</name>
+  <value></value>
   <description>Whether to pass all indexing filter fields to constructor
   for the user POJO. These are the NutchDocument doc, Parse parse,
   url (as org.apache.hadoop.io.Text), CrawlDatum datum, and
   Inlinks inlinks objects. Default value is false to preserve
   compatibility with previous index-arbitrary behavior.</description>
-  <value></value>
 </property>
 
 <!-- parse-metatags plugin properties -->
