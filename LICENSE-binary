@@ -208,7 +208,6 @@ This product bundles some components that are also licensed under
 the Apache License Version 2.0:
 
 
-com.101tec:zkclient
 com.amazonaws:aws-java-sdk-cloudsearch
 com.amazonaws:aws-java-sdk-core
 com.beust:jcommander
@@ -219,12 +218,16 @@ com.fasterxml.jackson.core:jackson-annotations
 com.fasterxml.jackson.core:jackson-core
 com.fasterxml.jackson.core:jackson-databind
 com.fasterxml.jackson.dataformat:jackson-dataformat-cbor
+com.fasterxml.jackson.dataformat:jackson-dataformat-csv
 com.fasterxml.jackson.dataformat:jackson-dataformat-smile
 com.fasterxml.jackson.dataformat:jackson-dataformat-yaml
+com.fasterxml.jackson.datatype:jackson-datatype-jdk8
 com.fasterxml.jackson.jaxrs:jackson-jaxrs-base
 com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider
 com.fasterxml.jackson.module:jackson-module-jaxb-annotations
+com.fasterxml.jackson.module:jackson-module-scala_2.12
 com.fasterxml.woodstox:woodstox-core
+com.github.ben-manes.caffeine:caffeine
 com.github.crawler-commons:crawler-commons
 com.github.spullara.mustache.java:compiler
 com.github.stephenc.jcip:jcip-annotations
@@ -242,9 +245,11 @@ com.google.inject.extensions:guice-servlet
 com.google.j2objc:j2objc-annotations
 com.healthmarketscience.jackcess:jackcess
 com.healthmarketscience.jackcess:jackcess-encrypt
+com.intellij:annotations
 com.maxmind.db:maxmind-db
 com.maxmind.geoip2:geoip2
 com.nimbusds:nimbus-jose-jwt
+com.optimaize.languagedetector:language-detector
 com.pff:java-libpst
 com.rabbitmq:amqp-client
 com.rometools:rome
@@ -263,11 +268,13 @@ commons-cli:commons-cli
 commons-codec:commons-codec
 commons-collections:commons-collections
 commons-daemon:commons-daemon
+commons-digester:commons-digester
 commons-httpclient:commons-httpclient
 commons-io:commons-io
 commons-lang:commons-lang
 commons-logging:commons-logging
 commons-net:commons-net
+commons-validator:commons-validator
 de.vandermeer:ascii-utf-themes
 de.vandermeer:asciitable
 de.vandermeer:char-translation
@@ -307,10 +314,12 @@ io.netty:netty-transport-rxtx
 io.netty:netty-transport-sctp
 io.netty:netty-transport-udt
 io.opentelemetry:opentelemetry-api
+io.opentelemetry:opentelemetry-api-events
 io.opentelemetry:opentelemetry-api-logs
 io.opentelemetry:opentelemetry-context
 io.opentelemetry:opentelemetry-exporter-common
 io.opentelemetry:opentelemetry-exporter-logging
+io.opentelemetry:opentelemetry-extension-incubator
 io.opentelemetry:opentelemetry-sdk
 io.opentelemetry:opentelemetry-sdk-common
 io.opentelemetry:opentelemetry-sdk-extension-autoconfigure
@@ -319,10 +328,12 @@ io.opentelemetry:opentelemetry-sdk-logs
 io.opentelemetry:opentelemetry-sdk-metrics
 io.opentelemetry:opentelemetry-sdk-trace
 io.opentelemetry:opentelemetry-semconv
+io.opentelemetry.semconv:opentelemetry-semconv
 io.ous:jtoml
 io.sgr:s2-geometry-library-java
 javax.inject:javax.inject
 joda-time:joda-time
+net.arnx:jsonic
 net.bytebuddy:byte-buddy
 net.sourceforge.htmlunit:htmlunit
 net.sourceforge.htmlunit:htmlunit-cssparser
@@ -355,7 +366,6 @@ org.apache.cxf:cxf-rt-transports-http-jetty
 org.apache.cxf:cxf-rt-ws-addr
 org.apache.cxf:cxf-rt-ws-policy
 org.apache.cxf:cxf-rt-wsdl
-org.apache.geronimo.specs:geronimo-jta_1.1_spec
 org.apache.hadoop:hadoop-annotations
 org.apache.hadoop:hadoop-auth
 org.apache.hadoop:hadoop-common
@@ -379,6 +389,14 @@ org.apache.james:apache-mime4j-dom
 org.apache.kafka:connect-api
 org.apache.kafka:connect-json
 org.apache.kafka:kafka-clients
+org.apache.kafka:kafka-group-coordinator
+org.apache.kafka:kafka-metadata
+org.apache.kafka:kafka-raft
+org.apache.kafka:kafka-server
+org.apache.kafka:kafka-server-common
+org.apache.kafka:kafka-storage
+org.apache.kafka:kafka-storage-api
+org.apache.kafka:kafka-tools-api
 org.apache.kafka:kafka_2.12
 org.apache.kerby:kerb-admin
 org.apache.kerby:kerb-client
@@ -456,6 +474,7 @@ org.apache.zookeeper:zookeeper
 org.apache.zookeeper:zookeeper-jute
 org.asynchttpclient:async-http-client
 org.asynchttpclient:async-http-client-netty-utils
+org.bitbucket.b_c:jose4j
 org.ccil.cowan.tagsoup:tagsoup
 org.codehaus.jackson:jackson-core-asl
 org.codehaus.jackson:jackson-mapper-asl
@@ -463,11 +482,8 @@ org.codehaus.jettison:jettison
 org.eclipse.jetty:jetty-alpn-client
 org.eclipse.jetty:jetty-alpn-java-client
 org.eclipse.jetty:jetty-client
-org.eclipse.jetty:jetty-continuation
 org.eclipse.jetty:jetty-http
 org.eclipse.jetty:jetty-io
-org.eclipse.jetty:jetty-security
-org.eclipse.jetty:jetty-server
 org.eclipse.jetty:jetty-servlet
 org.eclipse.jetty:jetty-util
 org.eclipse.jetty:jetty-util-ajax
@@ -477,6 +493,7 @@ org.eclipse.jetty.http2:http2-client
 org.eclipse.jetty.http2:http2-common
 org.eclipse.jetty.http2:http2-hpack
 org.eclipse.jetty.http2:http2-http-client-transport
+org.eclipse.jetty.toolchain:jetty-servlet-api
 org.eclipse.jetty.websocket:websocket-api
 org.eclipse.jetty.websocket:websocket-client
 org.eclipse.jetty.websocket:websocket-common
@@ -501,6 +518,8 @@ org.jetbrains.kotlin:kotlin-stdlib
 org.jetbrains.kotlin:kotlin-stdlib-common
 org.jetbrains.kotlin:kotlin-stdlib-jdk7
 org.jetbrains.kotlin:kotlin-stdlib-jdk8
+org.jspecify:jspecify
+org.littleshoot:littleproxy
 org.locationtech.spatial4j:spatial4j
 org.lz4:lz4-java
 org.netpreserve:jwarc
@@ -518,6 +537,10 @@ org.opensearch.plugin:lang-mustache-client
 org.opensearch.plugin:mapper-extras-client
 org.opensearch.plugin:parent-join-client
 org.opensearch.plugin:rank-eval-client
+org.scala-lang:scala-library
+org.scala-lang:scala-reflect
+org.scala-lang.modules:scala-collection-compat_2.12
+org.scala-lang.modules:scala-java8-compat_2.12
 org.seleniumhq.selenium:htmlunit-driver
 org.seleniumhq.selenium:selenium-api
 org.seleniumhq.selenium:selenium-chrome-driver
@@ -525,6 +548,9 @@ org.seleniumhq.selenium:selenium-chromium-driver
 org.seleniumhq.selenium:selenium-devtools-v106
 org.seleniumhq.selenium:selenium-devtools-v107
 org.seleniumhq.selenium:selenium-devtools-v108
+org.seleniumhq.selenium:selenium-devtools-v120
+org.seleniumhq.selenium:selenium-devtools-v121
+org.seleniumhq.selenium:selenium-devtools-v122
 org.seleniumhq.selenium:selenium-devtools-v85
 org.seleniumhq.selenium:selenium-edge-driver
 org.seleniumhq.selenium:selenium-firefox-driver
@@ -533,13 +559,11 @@ org.seleniumhq.selenium:selenium-ie-driver
 org.seleniumhq.selenium:selenium-java
 org.seleniumhq.selenium:selenium-json
 org.seleniumhq.selenium:selenium-manager
+org.seleniumhq.selenium:selenium-os
 org.seleniumhq.selenium:selenium-remote-driver
 org.seleniumhq.selenium:selenium-safari-driver
 org.seleniumhq.selenium:selenium-support
 org.slf4j:jcl-over-slf4j
-org.tallison.tika:tika-core-shaded
-org.tallison.tika:tika-langdetect-optimaize-shaded
-org.tallison.tika:tika-parsers-standard-package-shaded
 org.xerial.snappy:snappy-java
 org.yaml:snakeyaml
 xerces:xercesImpl
@@ -569,6 +593,8 @@ BSD 2-Clause
 
 (licenses-binary/LICENSE-bsd-2-clause.txt)
 
+com.barchart.udt:barchart-udt-bundle
+com.github.luben:zstd-jni
 com.google.protobuf:protobuf-java
 dk.brics:automaton
 dnsjava:dnsjava
@@ -585,8 +611,6 @@ com.adobe.xmp:xmpcore
 com.github.virtuald:curvesapi
 org.fusesource.leveldbjni:leveldbjni-all
 org.ow2.asm:asm
-org.scala-lang:scala-library
-org.scala-lang:scala-reflect
 
 
 BSD 3-clause License w/nuclear disclaimer
@@ -667,6 +691,7 @@ Common Public License
 
 (licenses-binary/LICENSE-common-public-license.txt)
 
+org.htmlparser:htmllexer
 org.htmlparser:htmlparser
 
 
@@ -677,6 +702,7 @@ EPL 2.0
 
 jakarta.annotation:jakarta.annotation-api
 jakarta.ws.rs:jakarta.ws.rs-api
+javax.ws.rs:javax.ws.rs-api
 
 
 Eclipse Distribution License v1.0
@@ -686,7 +712,6 @@ Eclipse Distribution License v1.0
 
 com.sun.activation:jakarta.activation
 com.sun.istack:istack-commons-runtime
-com.sun.xml.messaging.saaj:saaj-impl
 jakarta.activation:jakarta.activation-api
 jakarta.jws:jakarta.jws-api
 jakarta.xml.bind:jakarta.xml.bind-api
@@ -694,7 +719,23 @@ jakarta.xml.soap:jakarta.xml.soap-api
 jakarta.xml.ws:jakarta.xml.ws-api
 org.glassfish.jaxb:jaxb-runtime
 org.glassfish.jaxb:txw2
-org.jvnet.staxex:stax-ex
+
+
+Eclipse Public License - Version 2.0
+------------------------------------
+
+org.eclipse.jetty:jetty-http
+org.eclipse.jetty:jetty-io
+org.eclipse.jetty:jetty-security
+org.eclipse.jetty:jetty-server
+org.eclipse.jetty:jetty-util
+
+
+MIT
+---
+
+net.sourceforge.argparse4j:argparse4j
+org.slf4j:slf4j-api
 
 
 MIT License
@@ -708,6 +749,7 @@ net.sf.jopt-simple:jopt-simple
 org.brotli:dec
 org.checkerframework:checker-qual
 org.jsoup:jsoup
+org.pcollections:pcollections
 org.slf4j:jcl-over-slf4j
 org.slf4j:slf4j-api
 
@@ -757,11 +799,3 @@ UnRar License
 (licenses-binary/LICENSE-unrar-license.txt)
 
 com.github.junrar:junrar
-
-
-Unicode/ICU License
--------------------
-
-(licenses-binary/LICENSE-unicode-icu-license.txt)
-
-com.ibm.icu:icu4j
