@@ -19,6 +19,7 @@ package org.apache.nutch.indexer.arbitrary;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlink;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.ParseImpl;
@@ -32,7 +33,9 @@ import org.junit.Test;
  * value, supplement an existing field with an arbitrary value, and overwrite
  * an existing field with an arbitrary value where it takes the arbitrary value
  * from some POJO outside the normal Nutch codebase.
- *
+ * Further tests July 2025 to demonstrate conditionally setting values for
+ * arbitrary fields based on existing crawl data at the time filter() is
+ * called for indexing.
  * @author Joe Gilvary
  */
 
@@ -273,4 +276,64 @@ public class TestArbitraryIndexingFilter {
     Assert.assertTrue("field philosopher does not have new value 'last added value'", doc.getField("philosopher")
                     .getValues().contains("last added value"));
   }
+
+
+  /**
+   * Test adding field with arbitrary content from POJO based on
+   * calculations using info already fetched and parsed during crawl.
+   *
+   * @throws Exception
+   */
+   @Test
+   public void testAddingNewCalculatedField() throws Exception {
+     conf = NutchConfiguration.create();
+     conf.set("index.arbitrary.function.count","1");
+     conf.set("index.arbitrary.all.fields.access","true");
+     conf.set("index.arbitrary.constructorArgs.0","");
+     conf.set("index.arbitrary.fieldName.0","popularityBoost");
+     conf.set("index.arbitrary.className.0","org.apache.nutch.indexer.arbitrary.PopularityGauge");
+     conf.set("index.arbitrary.methodName.0","getPopularityBoost");
+     conf.set("index.arbitrary.overwrite.0","true");
+
+     filter = new ArbitraryIndexingFilter();
+     Assert.assertNotNull("No filter exists for testAddingCalculatedNewField",filter);
+
+     filter.setConf(conf);
+     doc = new NutchDocument();
+
+     Double boostVal = new Double("1.0");
+     doc.add("popularityBoost", boostVal);
+     Assert.assertFalse("doc is empty", doc.getFieldNames().isEmpty());
+     Assert.assertTrue("test if doc has new field with arbitrary value", doc.getField("popularityBoost")
+                       .getValues().contains(boostVal));
+
+     try {
+       filter.filter(doc, parse, url, crawlDatum, inlinks);
+     } catch (Exception e) {
+       e.printStackTrace();
+       Assert.fail(e.getMessage());
+     }
+
+     Assert.assertNotNull(doc);
+     Assert.assertFalse("doc is empty", doc.getFieldNames().isEmpty());
+     Assert.assertTrue("test if unfetched doc has nonzero value in popularityBoost", doc.getField("popularityBoost")
+                       .getValues().contains(1.0));
+
+     inlinks.add(new Inlink("https://www.TeamSauropod.com/BullyForBrontosaurus","dinosaur"));
+     inlinks.add(new Inlink("https://github.com/apache","source code"));
+     inlinks.add(new Inlink("https://BanDH.com","baseball"));
+
+     crawlDatum.setStatus(CrawlDatum.STATUS_FETCH_SUCCESS);
+
+     try {
+       filter.filter(doc, parse, url, crawlDatum, inlinks);
+     } catch (Exception e) {
+       e.printStackTrace();
+       Assert.fail(e.getMessage());
+     }
+
+
+     Assert.assertTrue("test if successfully fetched doc has expected value in popularityBoost", doc.getField("popularityBoost")
+                       .getValues().contains(2.0));
+   }
 }

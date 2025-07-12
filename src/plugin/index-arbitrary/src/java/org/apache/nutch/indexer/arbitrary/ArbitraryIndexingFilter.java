@@ -118,7 +118,13 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
    *  NutchDocument fieldName if this is set to true. Default behavior is to
    *  add the value from calling methodName to existing values for fieldName. */
   private boolean overwrite = false;
-  
+
+  /** Optional flag to determine whether to pass all inputs to the filter
+   *  method in the plugin to the POJO class. Default is false to preserve
+   *  backward compatibility with earlier plugin. Note that the url is still
+   *  included in the POJO constructor. */
+  private boolean allFieldsAccess = false;
+
   /** Hadoop Configuration object to pass these values into the plugin. */
   private Configuration conf;
 
@@ -180,7 +186,16 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
         } else {
           theMethod = theClass.getMethod(methodName);
         }
-        theConstructor = theClass.getDeclaredConstructor(String[].class);
+        if (allFieldsAccess) {
+          theConstructor = theClass.getDeclaredConstructor(String[].class,
+							   NutchDocument.class,
+							   Parse.class,
+							   Text.class,
+							   CrawlDatum.class,
+							   Inlinks.class);
+	} else {
+          theConstructor = theClass.getDeclaredConstructor(String[].class);
+	}
       } catch (Exception e) {
         LOG.error("Exception preparing reflection tasks. className was {}",
 		 String.valueOf(className));
@@ -189,9 +204,20 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
       }
       try {
         constrArgs = new String[userConstrArgs.length + 1];
-        constrArgs[0] = url.toString();
         System.arraycopy(userConstrArgs,0,constrArgs,1,userConstrArgs.length);
-        instance = theConstructor.newInstance(new Object[]{constrArgs});
+	if (allFieldsAccess) {
+          instance = theConstructor.newInstance(constrArgs,
+						doc,
+						parse,
+						url,
+						datum,
+						inlinks);
+	} else {
+          constrArgs[0] = url.toString();
+          //System.arraycopy(userConstrArgs,0,constrArgs,1,userConstrArgs.length);
+          instance = theConstructor.newInstance(new Object[]{constrArgs});
+	}
+
         if (methodArgs.length > 0) {
           result = theMethod.invoke(instance, new Object[]{methodArgs});
         } else {
@@ -201,10 +227,10 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
         LOG.error("Exception in reflection trying to instantiate/invoke. "
 		  + "url was {} & className was {}",
 		  String.valueOf(url), String.valueOf(className));
-        if (constrArgs.length > 0) {
+        if (constrArgs.length > 1) {
           LOG.error("constrArgs[1] was {}", String.valueOf(constrArgs[1]));
         }
-        LOG.error("methodName was {}", String.valueOf(className));
+        LOG.error("methodName was {}", String.valueOf(methodName));
         if (methodArgs.length > 0) {
           LOG.error("methodArgs[0] was {}", String.valueOf(methodArgs[0]));
         }
@@ -243,6 +269,8 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
     this.conf = conf;
     arbitraryAddsCount = conf.getInt("index.arbitrary.function.count",1);
     LOG.info("Will process the first {} fieldName defs in config.", String.valueOf(arbitraryAddsCount));
+    allFieldsAccess = conf.getBoolean("index.arbitrary.all.fields.access",false);
+    LOG.info("POJO classes will " + (allFieldsAccess ? "" : "not ") + "have access to all filter constructor args.");
   }
 
   /**
