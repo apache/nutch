@@ -2343,7 +2343,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <property>
-  <name>index.arbitrary.all.fields.access</name>
+  <name>index.arbitrary.all.fields.access.0</name>
   <value></value>
   <description>Whether to pass all indexing filter fields to constructor
   for the user POJO. These are the NutchDocument doc, Parse parse,

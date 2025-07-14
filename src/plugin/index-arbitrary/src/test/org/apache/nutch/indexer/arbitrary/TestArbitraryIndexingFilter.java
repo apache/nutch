@@ -288,7 +288,7 @@ public class TestArbitraryIndexingFilter {
    public void testAddingNewCalculatedField() throws Exception {
      conf = NutchConfiguration.create();
      conf.set("index.arbitrary.function.count","1");
-     conf.set("index.arbitrary.all.fields.access","true");
+     conf.set("index.arbitrary.all.fields.access.0","true");
      conf.set("index.arbitrary.constructorArgs.0","");
      conf.set("index.arbitrary.fieldName.0","popularityBoost");
      conf.set("index.arbitrary.className.0","org.apache.nutch.indexer.arbitrary.PopularityGauge");
@@ -301,7 +301,7 @@ public class TestArbitraryIndexingFilter {
      filter.setConf(conf);
      doc = new NutchDocument();
 
-     Double boostVal = new Double("1.0");
+     Double boostVal = Double.valueOf("1.0");
      doc.add("popularityBoost", boostVal);
      Assert.assertFalse("doc is empty", doc.getFieldNames().isEmpty());
      Assert.assertTrue("test if doc has new field with arbitrary value", doc.getField("popularityBoost")
@@ -332,8 +332,68 @@ public class TestArbitraryIndexingFilter {
        Assert.fail(e.getMessage());
      }
 
-
      Assert.assertTrue("test if successfully fetched doc has expected value in popularityBoost", doc.getField("popularityBoost")
                        .getValues().contains(2.0));
+   }
+
+  /**
+   * Test simplest approach to updating POJOs to new signature
+   * for constructor
+   *
+   * @throws Exception
+   */
+   @Test
+   public void testUpdatingPOJOClass() throws Exception {
+     conf = NutchConfiguration.create();
+     conf.set("index.arbitrary.function.count","4");
+     conf.set("index.arbitrary.fieldName.0","foo");
+     conf.set("index.arbitrary.className.0","org.apache.nutch.indexer.arbitrary.Echo");
+     conf.set("index.arbitrary.constructorArgs.0","Original Echo class added 'bar'");
+     conf.set("index.arbitrary.methodName.0","getText");
+
+     conf.set("index.arbitrary.fieldName.1","bogusSite");
+     conf.set("index.arbitrary.className.1","org.apache.nutch.indexer.arbitrary.UpdatedEcho");
+     conf.set("index.arbitrary.constructorArgs.1","https://www.updatedNutchPluginJunitTest.com");
+     conf.set("index.arbitrary.methodName.1","getText");
+     conf.set("index.arbitrary.all.fields.access.1","false");
+
+     conf.set("index.arbitrary.fieldName.2","description");
+     conf.set("index.arbitrary.className.2","org.apache.nutch.indexer.arbitrary.UpdatedMultiplier");
+     conf.set("index.arbitrary.constructorArgs.2","");
+     conf.set("index.arbitrary.methodName.2","getProduct");
+     conf.set("index.arbitrary.methodArgs.2","-1,3.14");
+     conf.set("index.arbitrary.all.fields.access.2","true");
+
+     conf.set("index.arbitrary.fieldName.3","summary");
+     conf.set("index.arbitrary.className.3","org.apache.nutch.indexer.arbitrary.UpdatedMultiplier");
+     conf.set("index.arbitrary.constructorArgs.3","");
+     conf.set("index.arbitrary.methodName.3","getProduct");
+     conf.set("index.arbitrary.methodArgs.3","41,25");
+     conf.set("index.arbitrary.all.fields.access.3","false");
+
+     filter = new ArbitraryIndexingFilter();
+     Assert.assertNotNull("No filter exists for testAddingNewField",filter);
+
+     filter.setConf(conf);
+     doc = new NutchDocument();
+
+     try {
+       filter.filter(doc, parse, url, crawlDatum, inlinks);
+     } catch (Exception e) {
+       e.printStackTrace();
+       Assert.fail(e.getMessage());
+     }
+
+     Assert.assertNotNull(doc);
+     Assert.assertFalse("test if doc is not empty", doc.getFieldNames()
+                        .isEmpty());
+     Assert.assertTrue("test if doc still has new field with arbitrary value running with new indexer", doc.getField("foo")
+                       .getValues().contains("Original Echo class added 'bar'"));
+     Assert.assertTrue("test if updated POJO created new field with arbitrary value", doc.getField("bogusSite")
+                       .getValues().contains("https://www.updatedNutchPluginJunitTest.com"));
+     Assert.assertTrue("test updated POJO set new value in existing field", doc.getField("description")
+                       .getValues().contains("-3.14"));
+     Assert.assertTrue("test POJO with both constructor styles supports old calls", doc.getField("summary")
+			 .getValues().contains("1025.0"));
    }
 }

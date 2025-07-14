@@ -51,7 +51,7 @@ public class PopularityGauge {
   }
 
   public double getPopularityBoost() {
-    popularityBoost = (Double) doc.getFieldValue("popularityBoost");
+    popularityBoost = Double.valueOf(String.valueOf(doc.getFieldValue("popularityBoost")));
     if (datum.getStatus() == CrawlDatum.STATUS_FETCH_SUCCESS) {
       Set anchorSet = new HashSet<>(Arrays.asList(inlinks.getAnchors()));
       if(anchorSet.contains("dinosaur")){
@@ -76,10 +76,10 @@ public class PopularityGauge {
   public static void main(String[] args,
 			  NutchDocument doc,
                           Parse parse,
-			  Text url,
+                          Text url,
                           CrawlDatum datum,
                           Inlinks inlinks) {
-    
+
     PopularityGauge popGauge = new PopularityGauge(args,doc,parse,url,datum,inlinks);
     out.println(popGauge.getPopularityBoost());
   }

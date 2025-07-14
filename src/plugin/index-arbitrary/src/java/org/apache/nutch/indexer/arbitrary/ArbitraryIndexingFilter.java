@@ -196,7 +196,12 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
 	} else {
           theConstructor = theClass.getDeclaredConstructor(String[].class);
 	}
-      } catch (Exception e) {
+      } catch (NoSuchMethodException nme) {
+        LOG.error("Exception preparing reflection for constructor. className was {}",
+		 String.valueOf(className));
+        nme.printStackTrace();
+        continue;
+      }  catch (Exception e) {
         LOG.error("Exception preparing reflection tasks. className was {}",
 		 String.valueOf(className));
         e.printStackTrace();
@@ -214,7 +219,6 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
 						inlinks);
 	} else {
           constrArgs[0] = url.toString();
-          //System.arraycopy(userConstrArgs,0,constrArgs,1,userConstrArgs.length);
           instance = theConstructor.newInstance(new Object[]{constrArgs});
 	}
 
@@ -269,8 +273,6 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
     this.conf = conf;
     arbitraryAddsCount = conf.getInt("index.arbitrary.function.count",1);
     LOG.info("Will process the first {} fieldName defs in config.", String.valueOf(arbitraryAddsCount));
-    allFieldsAccess = conf.getBoolean("index.arbitrary.all.fields.access",false);
-    LOG.info("POJO classes will " + (allFieldsAccess ? "" : "not ") + "have access to all filter constructor args.");
   }
 
   /**
@@ -302,6 +304,8 @@ public class ArbitraryIndexingFilter implements IndexingFilter {
     userConstrArgs = conf.getTrimmedStrings("index.arbitrary.constructorArgs.".concat(String.valueOf(ndx)));
     methodName = conf.get("index.arbitrary.methodName.".concat(String.valueOf(ndx)),"");
     methodArgs = conf.getTrimmedStrings("index.arbitrary.methodArgs.".concat(String.valueOf(ndx)));
+    allFieldsAccess = conf.getBoolean("index.arbitrary.all.fields.access.".concat(String.valueOf(ndx)),false);
+    LOG.info("POJO class {} will " + (allFieldsAccess ? "" : "not ") + "have access to all filter constructor args.",String.valueOf(className));
     overwrite = conf.getBoolean("index.arbitrary.overwrite.".concat(String.valueOf(ndx)),false);
     if (overwrite) {
       LOG.info("overwrite set == true for processing {}.", fieldName);
