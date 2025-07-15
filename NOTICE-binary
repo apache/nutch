@@ -1516,10 +1516,6 @@ org.seleniumhq.selenium:selenium-support (https://selenium.dev/)
 
 # org.slf4j:jcl-over-slf4j
 JCL 1.2 implemented over SLF4J (http://www.slf4j.org)
-- license: MIT License
-  (licenses-binary/LICENSE-mit-license.txt)
-# org.slf4j:jcl-over-slf4j
-JCL 1.2 implemented over SLF4J (http://www.slf4j.org)
 - license: Apache License, Version 2.0
 # org.slf4j:slf4j-api
 SLF4J API Module (http://www.slf4j.org)

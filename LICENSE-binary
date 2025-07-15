@@ -750,7 +750,6 @@ org.brotli:dec
 org.checkerframework:checker-qual
 org.jsoup:jsoup
 org.pcollections:pcollections
-org.slf4j:jcl-over-slf4j
 org.slf4j:slf4j-api
 
 
