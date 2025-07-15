@@ -347,7 +347,7 @@ public class MoreIndexingFilter implements IndexingFilter {
         dateStyles = new String[usedLines.size()];
         usedLines.toArray(dateStyles);
       } catch (IOException e) {
-        LOG.error("Failed to load resource: date-styles.txt");
+        LOG.error("Failed to load resource: date-styles.txt", e);
       }
     }
   }
