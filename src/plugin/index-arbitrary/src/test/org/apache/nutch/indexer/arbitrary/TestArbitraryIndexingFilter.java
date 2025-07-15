@@ -19,6 +19,7 @@ package org.apache.nutch.indexer.arbitrary;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlink;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.ParseImpl;
@@ -32,7 +33,9 @@ import org.junit.Test;
  * value, supplement an existing field with an arbitrary value, and overwrite
  * an existing field with an arbitrary value where it takes the arbitrary value
  * from some POJO outside the normal Nutch codebase.
- *
+ * Further tests July 2025 to demonstrate conditionally setting values for
+ * arbitrary fields based on existing crawl data at the time filter() is
+ * called for indexing.
  * @author Joe Gilvary
  */
 
@@ -273,4 +276,124 @@ public class TestArbitraryIndexingFilter {
     Assert.assertTrue("field philosopher does not have new value 'last added value'", doc.getField("philosopher")
                     .getValues().contains("last added value"));
   }
+
+
+  /**
+   * Test adding field with arbitrary content from POJO based on
+   * calculations using info already fetched and parsed during crawl.
+   *
+   * @throws Exception
+   */
+   @Test
+   public void testAddingNewCalculatedField() throws Exception {
+     conf = NutchConfiguration.create();
+     conf.set("index.arbitrary.function.count","1");
+     conf.set("index.arbitrary.all.fields.access.0","true");
+     conf.set("index.arbitrary.constructorArgs.0","");
+     conf.set("index.arbitrary.fieldName.0","popularityBoost");
+     conf.set("index.arbitrary.className.0","org.apache.nutch.indexer.arbitrary.PopularityGauge");
+     conf.set("index.arbitrary.methodName.0","getPopularityBoost");
+     conf.set("index.arbitrary.overwrite.0","true");
+
+     filter = new ArbitraryIndexingFilter();
+     Assert.assertNotNull("No filter exists for testAddingCalculatedNewField",filter);
+
+     filter.setConf(conf);
+     doc = new NutchDocument();
+
+     Double boostVal = Double.valueOf("1.0");
+     doc.add("popularityBoost", boostVal);
+     Assert.assertFalse("doc is empty", doc.getFieldNames().isEmpty());
+     Assert.assertTrue("test if doc has new field with arbitrary value", doc.getField("popularityBoost")
+                       .getValues().contains(boostVal));
+
+     try {
+       filter.filter(doc, parse, url, crawlDatum, inlinks);
+     } catch (Exception e) {
+       e.printStackTrace();
+       Assert.fail(e.getMessage());
+     }
+
+     Assert.assertNotNull(doc);
+     Assert.assertFalse("doc is empty", doc.getFieldNames().isEmpty());
+     Assert.assertTrue("test if unfetched doc has nonzero value in popularityBoost", doc.getField("popularityBoost")
+                       .getValues().contains(1.0));
+
+     inlinks.add(new Inlink("https://www.TeamSauropod.com/BullyForBrontosaurus","dinosaur"));
+     inlinks.add(new Inlink("https://github.com/apache","source code"));
+     inlinks.add(new Inlink("https://BanDH.com","baseball"));
+
+     crawlDatum.setStatus(CrawlDatum.STATUS_FETCH_SUCCESS);
+
+     try {
+       filter.filter(doc, parse, url, crawlDatum, inlinks);
+     } catch (Exception e) {
+       e.printStackTrace();
+       Assert.fail(e.getMessage());
+     }
+
+     Assert.assertTrue("test if successfully fetched doc has expected value in popularityBoost", doc.getField("popularityBoost")
+                       .getValues().contains(2.0));
+   }
+
+  /**
+   * Test simplest approach to updating POJOs to new signature
+   * for constructor
+   *
+   * @throws Exception
+   */
+   @Test
+   public void testUpdatingPOJOClass() throws Exception {
+     conf = NutchConfiguration.create();
+     conf.set("index.arbitrary.function.count","4");
+     conf.set("index.arbitrary.fieldName.0","foo");
+     conf.set("index.arbitrary.className.0","org.apache.nutch.indexer.arbitrary.Echo");
+     conf.set("index.arbitrary.constructorArgs.0","Original Echo class added 'bar'");
+     conf.set("index.arbitrary.methodName.0","getText");
+
+     conf.set("index.arbitrary.fieldName.1","bogusSite");
+     conf.set("index.arbitrary.className.1","org.apache.nutch.indexer.arbitrary.UpdatedEcho");
+     conf.set("index.arbitrary.constructorArgs.1","https://www.updatedNutchPluginJunitTest.com");
+     conf.set("index.arbitrary.methodName.1","getText");
+     conf.set("index.arbitrary.all.fields.access.1","false");
+
+     conf.set("index.arbitrary.fieldName.2","description");
+     conf.set("index.arbitrary.className.2","org.apache.nutch.indexer.arbitrary.UpdatedMultiplier");
+     conf.set("index.arbitrary.constructorArgs.2","");
+     conf.set("index.arbitrary.methodName.2","getProduct");
+     conf.set("index.arbitrary.methodArgs.2","-1,3.14");
+     conf.set("index.arbitrary.all.fields.access.2","true");
+
+     conf.set("index.arbitrary.fieldName.3","summary");
+     conf.set("index.arbitrary.className.3","org.apache.nutch.indexer.arbitrary.UpdatedMultiplier");
+     conf.set("index.arbitrary.constructorArgs.3","");
+     conf.set("index.arbitrary.methodName.3","getProduct");
+     conf.set("index.arbitrary.methodArgs.3","41,25");
+     conf.set("index.arbitrary.all.fields.access.3","false");
+
+     filter = new ArbitraryIndexingFilter();
+     Assert.assertNotNull("No filter exists for testAddingNewField",filter);
+
+     filter.setConf(conf);
+     doc = new NutchDocument();
+
+     try {
+       filter.filter(doc, parse, url, crawlDatum, inlinks);
+     } catch (Exception e) {
+       e.printStackTrace();
+       Assert.fail(e.getMessage());
+     }
+
+     Assert.assertNotNull(doc);
+     Assert.assertFalse("test if doc is not empty", doc.getFieldNames()
+                        .isEmpty());
+     Assert.assertTrue("test if doc still has new field with arbitrary value running with new indexer", doc.getField("foo")
+                       .getValues().contains("Original Echo class added 'bar'"));
+     Assert.assertTrue("test if updated POJO created new field with arbitrary value", doc.getField("bogusSite")
+                       .getValues().contains("https://www.updatedNutchPluginJunitTest.com"));
+     Assert.assertTrue("test updated POJO set new value in existing field", doc.getField("description")
+                       .getValues().contains("-3.14"));
+     Assert.assertTrue("test POJO with both constructor styles supports old calls", doc.getField("summary")
+			 .getValues().contains("1025.0"));
+   }
 }
