@@ -732,68 +732,66 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
     TreeMap<String, Writable> stats = processStatJobHelper(crawlDb, config,
         sort);
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Statistics for CrawlDb: {}", crawlDb);
-      LongWritable totalCnt = new LongWritable(0);
-      if (stats.containsKey("T")) {
-        totalCnt = ((LongWritable) stats.get("T"));
-        stats.remove("T");
+    LOG.info("Statistics for CrawlDb: {}", crawlDb);
+    LongWritable totalCnt = new LongWritable(0);
+    if (stats.containsKey("T")) {
+      totalCnt = ((LongWritable) stats.get("T"));
+      stats.remove("T");
+    }
+    LOG.info("TOTAL urls:\t{}", totalCnt.get());
+    for (Map.Entry<String, Writable> entry : stats.entrySet()) {
+      String k = entry.getKey();
+      long value = 0;
+      double fvalue = 0.0;
+      byte[] bytesValue = null;
+      Writable val = entry.getValue();
+      if (val instanceof LongWritable) {
+        value = ((LongWritable) val).get();
+      } else if (val instanceof FloatWritable) {
+        fvalue = ((FloatWritable) val).get();
+      } else if (val instanceof BytesWritable) {
+        bytesValue = ((BytesWritable) val).getBytes();
       }
-      LOG.info("TOTAL urls:\t" + totalCnt.get());
-      for (Map.Entry<String, Writable> entry : stats.entrySet()) {
-        String k = entry.getKey();
-        long value = 0;
-        double fvalue = 0.0;
-        byte[] bytesValue = null;
-        Writable val = entry.getValue();
-        if (val instanceof LongWritable) {
-          value = ((LongWritable) val).get();
-        } else if (val instanceof FloatWritable) {
-          fvalue = ((FloatWritable) val).get();
-        } else if (val instanceof BytesWritable) {
-          bytesValue = ((BytesWritable) val).getBytes();
+      if (k.equals("scn")) {
+        LOG.info("min score:\t{}", fvalue);
+      } else if (k.equals("scx")) {
+        LOG.info("max score:\t{}", fvalue);
+      } else if (k.equals("sct")) {
+        LOG.info("avg score:\t{}", (fvalue / totalCnt.get()));
+      } else if (k.equals("scNaN")) {
+        LOG.info("score == NaN:\t{}", value);
+      } else if (k.equals("ftn")) {
+        LOG.info("earliest fetch time:\t{}", new Date(1000 * 60 * value));
+      } else if (k.equals("ftx")) {
+        LOG.info("latest fetch time:\t{}", new Date(1000 * 60 * value));
+      } else if (k.equals("ftt")) {
+        LOG.info("avg of fetch times:\t{}",
+            new Date(1000 * 60 * (value / totalCnt.get())));
+      } else if (k.equals("fin")) {
+        LOG.info("shortest fetch interval:\t{}",
+            TimingUtil.secondsToDaysHMS(value));
+      } else if (k.equals("fix")) {
+        LOG.info("longest fetch interval:\t{}",
+            TimingUtil.secondsToDaysHMS(value));
+      } else if (k.equals("fit")) {
+        LOG.info("avg fetch interval:\t{}",
+            TimingUtil.secondsToDaysHMS(value / totalCnt.get()));
+      } else if (k.startsWith("status")) {
+        String[] st = k.split(" ");
+        int code = Integer.parseInt(st[1]);
+        if (st.length > 2)
+          LOG.info("   {} :\t{}", st[2], val);
+        else
+          LOG.info("{} {} ({}):\t{}", st[0], code,
+              CrawlDatum.getStatusName((byte) code), val);
+      } else if (k.equals("scd")) {
+        MergingDigest tdigest = MergingDigest
+            .fromBytes(ByteBuffer.wrap(bytesValue));
+        for (double q : quantiles) {
+          LOG.info("score quantile {}:\t{}", q, tdigest.quantile(q));
         }
-        if (k.equals("scn")) {
-          LOG.info("min score:\t" + fvalue);
-        } else if (k.equals("scx")) {
-          LOG.info("max score:\t" + fvalue);
-        } else if (k.equals("sct")) {
-          LOG.info("avg score:\t" + (fvalue / totalCnt.get()));
-        } else if (k.equals("scNaN")) {
-          LOG.info("score == NaN:\t" + value);
-        } else if (k.equals("ftn")) {
-          LOG.info("earliest fetch time:\t" + new Date(1000 * 60 * value));
-        } else if (k.equals("ftx")) {
-          LOG.info("latest fetch time:\t" + new Date(1000 * 60 * value));
-        } else if (k.equals("ftt")) {
-          LOG.info("avg of fetch times:\t"
-              + new Date(1000 * 60 * (value / totalCnt.get())));
-        } else if (k.equals("fin")) {
-          LOG.info("shortest fetch interval:\t{}",
-              TimingUtil.secondsToDaysHMS(value));
-        } else if (k.equals("fix")) {
-          LOG.info("longest fetch interval:\t{}",
-              TimingUtil.secondsToDaysHMS(value));
-        } else if (k.equals("fit")) {
-          LOG.info("avg fetch interval:\t{}",
-              TimingUtil.secondsToDaysHMS(value / totalCnt.get()));
-        } else if (k.startsWith("status")) {
-          String[] st = k.split(" ");
-          int code = Integer.parseInt(st[1]);
-          if (st.length > 2)
-            LOG.info("   " + st[2] + " :\t" + val);
-          else
-            LOG.info(st[0] + " " + code + " ("
-                + CrawlDatum.getStatusName((byte) code) + "):\t" + val);
-        } else if (k.equals("scd")) {
-          MergingDigest tdigest = MergingDigest
-              .fromBytes(ByteBuffer.wrap(bytesValue));
-          for (double q : quantiles) {
-            LOG.info("score quantile {}:\t{}", q, tdigest.quantile(q));
-          }
-        } else {
-          LOG.info(k + ":\t" + val);
-        }
+      } else {
+        LOG.info("{}:\t{}", k, val);
       }
     }
     LOG.info("CrawlDb statistics: done");
@@ -956,7 +954,7 @@ public class CrawlDbReader extends AbstractChecker implements Closeable {
       String output, Configuration config)
       throws IOException, ClassNotFoundException, InterruptedException {
 
-    LOG.info("CrawlDb topN: starting (topN=" + topN + ", min=" + min + ")");
+    LOG.info("CrawlDb topN: starting (topN={}, min={})", topN, min);
     LOG.info("CrawlDb db: {}", crawlDb);
 
     Path outFolder = new Path(output);

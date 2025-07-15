@@ -94,7 +94,7 @@ public class DepthScoringFilter extends Configured implements ScoringFilter {
     }
     String depthString = parseData.getMeta(DEPTH_KEY);
     if (depthString == null) {
-      LOG.warn("Missing depth, removing all outlinks from url " + fromUrl);
+      LOG.warn("Missing depth, removing all outlinks from url {}", fromUrl);
       targets.clear();
       return adjust;
     }
@@ -120,8 +120,8 @@ public class DepthScoringFilter extends Configured implements ScoringFilter {
     }
     if (curDepth >= curMaxDepth) {
       // depth exceeded - throw away
-      LOG.info("Depth limit (" + curMaxDepth
-          + ") reached, ignoring outlinks for " + fromUrl);
+      LOG.info("Depth limit ({}) reached, ignoring outlinks for ", curMaxDepth,
+          fromUrl);
       targets.clear();
       return adjust;
     }

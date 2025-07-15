@@ -111,7 +111,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
       server.bind(new InetSocketAddress(tcpPort));
       LOG.info(server.toString());
     } catch (Exception e) {
-      LOG.error("Could not listen on port " + tcpPort, e);
+      LOG.error("Could not listen on port {}", tcpPort, e);
       return -1;
     }
     
@@ -122,7 +122,7 @@ public abstract class AbstractChecker extends Configured implements Tool {
         Thread thread = new Thread(worker);
         thread.start();
       } catch (Exception e) {
-        LOG.error("Accept failed: " + tcpPort, e);
+        LOG.error("Accept failed: {}", tcpPort, e);
         return -1;
       }
     }

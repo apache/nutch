@@ -176,9 +176,7 @@ public class HtmlParser implements Parser {
       metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, encoding);
 
       input.setEncoding(encoding);
-      if (LOG.isTraceEnabled()) {
-        LOG.trace("Parsing...");
-      }
+      LOG.trace("Parsing...");
       root = parse(input);
     } catch (IOException e) {
       return new ParseStatus(e)
@@ -201,21 +199,16 @@ public class HtmlParser implements Parser {
     // populate Nutch metadata with HTML meta directives
     metadata.addAll(metaTags.getGeneralTags());
 
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Meta tags for " + base + ": " + metaTags.toString());
-    }
+    LOG.trace("Meta tags for " + base + ": " + metaTags.toString());
+
     // check meta directives
     if (!metaTags.getNoIndex()) { // okay to index
       StringBuffer sb = new StringBuffer();
-      if (LOG.isTraceEnabled()) {
-        LOG.trace("Getting text...");
-      }
+      LOG.trace("Getting text...");
       utils.getText(sb, root); // extract text
       text = sb.toString();
       sb.setLength(0);
-      if (LOG.isTraceEnabled()) {
-        LOG.trace("Getting title...");
-      }
+      LOG.trace("Getting title...");
       utils.getTitle(sb, root); // extract title
       title = sb.toString().trim();
     }
@@ -231,15 +224,10 @@ public class HtmlParser implements Parser {
           baseTag = base;
         }
       }
-      if (LOG.isTraceEnabled()) {
-        LOG.trace("Getting links...");
-      }
+      LOG.trace("Getting links...");
       utils.getOutlinks(baseTag, l, root);
       outlinks = l.toArray(new Outlink[l.size()]);
-      if (LOG.isTraceEnabled()) {
-        LOG.trace("found " + outlinks.length + " outlinks in "
-            + content.getUrl());
-      }
+      LOG.trace("found {} outlinks in {}", outlinks.length, content.getUrl());
     }
 
     ParseStatus status = new ParseStatus(ParseStatus.SUCCESS);
@@ -326,10 +314,7 @@ public class HtmlParser implements Parser {
         parser.parse(input, frag);
         if (!frag.hasChildNodes())
           break;
-        if (LOG.isInfoEnabled()) {
-          LOG.info(" - new frag, " + frag.getChildNodes().getLength()
-              + " nodes.");
-        }
+        LOG.info(" - new frag, {} nodes.", frag.getChildNodes().getLength());
         res.appendChild(frag);
       }
     } catch (Exception e) {

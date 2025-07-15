@@ -114,9 +114,9 @@ public class TestHtmlParser {
       String title = parse.getData().getTitle();
       String keywords = parse.getData().getMeta("keywords");
       LOG.info(name);
-      LOG.info("title:\t" + title);
-      LOG.info("keywords:\t" + keywords);
-      LOG.info("text:\t" + text);
+      LOG.info("title:\t{}", title);
+      LOG.info("keywords:\t{}", keywords);
+      LOG.info("text:\t{}", text);
       Assert.assertEquals("Title not extracted properly (" + name + ")",
           encodingTestKeywords, title);
       for (String keyword : encodingTestKeywords.split(",\\s*")) {

@@ -117,18 +117,18 @@ public class TestCrawlDbMerger {
     createCrawlDb(conf, fs, crawldb1, init1, cd1);
     createCrawlDb(conf, fs, crawldb2, init2, cd2);
     CrawlDbMerger merger = new CrawlDbMerger(conf);
-    LOG.debug("* merging crawldbs to " + output);
+    LOG.debug("* merging crawldbs to {}", output);
     merger.merge(output, new Path[] { crawldb1, crawldb2 }, false, false);
-    LOG.debug("* reading crawldb: " + output);
+    LOG.debug("* reading crawldb: {}", output);
     reader = new CrawlDbReader();
     String crawlDb = output.toString();
     Iterator<String> it = expected.keySet().iterator();
     while (it.hasNext()) {
       String url = it.next();
-      LOG.debug("url=" + url);
+      LOG.debug("url={}", url);
       CrawlDatum cd = expected.get(url);
       CrawlDatum res = reader.get(crawlDb, url, conf);
-      LOG.debug(" -> " + res);
+      LOG.debug(" -> {}", res);
       System.out.println("url=" + url);
       System.out.println(" cd " + cd);
       System.out.println(" res " + res);
@@ -142,7 +142,7 @@ public class TestCrawlDbMerger {
 
   private void createCrawlDb(Configuration config, FileSystem fs, Path crawldb,
       TreeSet<String> init, CrawlDatum cd) throws Exception {
-    LOG.debug("* creating crawldb: " + crawldb);
+    LOG.debug("* creating crawldb: {}", crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
     
     Option wKeyOpt = MapFile.Writer.keyClass(Text.class);

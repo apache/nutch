@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.metadata.Feed;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.URLFilters;
@@ -116,8 +115,7 @@ public class FeedParser implements Parser {
       feed = feedInput.build(input);
     } catch (Exception e) {
       // return empty parse
-      LOG.warn("Parse failed: url: " + content.getUrl() + ", exception: "
-          + StringUtils.stringifyException(e));
+      LOG.warn("Parse failed: url: {}, exception: ", content.getUrl(), e);
       return new ParseStatus(e)
           .getEmptyParseResult(content.getUrl(), getConf());
     }

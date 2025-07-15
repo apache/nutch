@@ -147,7 +147,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       try {
         rules = readConfiguration(reader);
       } catch (Exception e) {
-        LOG.warn("Couldn't read default config: " + e);
+        LOG.warn("Couldn't read default config: {}", e);
         rules = EMPTY_RULES;
       }
     }
@@ -158,8 +158,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
   void setConfiguration(Reader reader, String scope) {
     List<Rule> rules = readConfiguration(reader);
     getScopedRules().put(scope, rules);
-    LOG.debug("Set config for scope '" + scope + "': " + rules.size()
-        + " rules.");
+    LOG.debug("Set config for scope '{}': {} rules.", scope, rules.size());
   }
 
   /**
@@ -176,17 +175,17 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       // try to populate
       String configFile = getConf().get("urlnormalizer.regex.file." + scope);
       if (configFile != null) {
-        LOG.debug("resource for scope '" + scope + "': " + configFile);
+        LOG.debug("resource for scope '{}': {}", scope, configFile);
         try {
           Reader reader = getConf().getConfResourceAsReader(configFile);
           curRules = readConfiguration(reader);
           scopedRules.put(scope, curRules);
         } catch (Exception e) {
-          LOG.warn("Couldn't load resource '" + configFile + "': " + e);
+          LOG.warn("Couldn't load resource '{}': {}", configFile, e.toString());
         }
       }
       if (curRules == EMPTY_RULES || curRules == null) {
-        LOG.info("can't find rules for scope '" + scope + "', using default");
+        LOG.info("can't find rules for scope '{}', using default", scope);
         scopedRules.put(scope, EMPTY_RULES);
       }
     }
@@ -212,14 +211,12 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
 
   /** Reads the configuration file and populates a List of Rules. */
   private List<Rule> readConfigurationFile(String filename) {
-    if (LOG.isInfoEnabled()) {
-      LOG.info("loading " + filename);
-    }
+    LOG.info("loading {}", filename);
     try {
       FileReader reader = new FileReader(filename);
       return readConfiguration(reader);
     } catch (Exception e) {
-      LOG.error("Error loading rules from '" + filename + "': " + e);
+      LOG.error("Error loading rules from '{}':", filename, e);
       return EMPTY_RULES;
     }
   }
@@ -232,8 +229,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
           .parse(new InputSource(reader));
       Element root = doc.getDocumentElement();
-      if ((!"regex-normalize".equals(root.getTagName()))
-          && (LOG.isErrorEnabled())) {
+      if (!"regex-normalize".equals(root.getTagName())) {
         LOG.error("bad conf file: top-level element not <regex-normalize>");
       }
       NodeList regexes = root.getChildNodes();
@@ -242,7 +238,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
         if (!(regexNode instanceof Element))
           continue;
         Element regex = (Element) regexNode;
-        if ((!"regex".equals(regex.getTagName())) && (LOG.isWarnEnabled())) {
+        if (!"regex".equals(regex.getTagName())) {
           LOG.warn("bad conf file: element not <regex>");
         }
         NodeList fields = regex.getChildNodes();
@@ -266,10 +262,9 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
           try {
             rule.pattern = Pattern.compile(patternValue);
           } catch (PatternSyntaxException e) {
-            if (LOG.isErrorEnabled()) {
-              LOG.error("skipped rule: " + patternValue + " -> " + subValue
-                  + " : invalid regular expression pattern: " + e);
-            }
+            LOG.error(
+                "skipped rule: {} -> {} : invalid regular expression pattern: ",
+                patternValue, subValue, e);
             continue;
           }
           rule.substitution = subValue;
@@ -277,9 +272,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
         }
       }
     } catch (Exception e) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error("error parsing conf file: " + e);
-      }
+      LOG.error("Error parsing conf file: ", e);
       return EMPTY_RULES;
     }
     if (rules.size() == 0)

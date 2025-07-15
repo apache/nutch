@@ -144,7 +144,7 @@ public class DomainStatistics extends Configured implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error(jobName + " job failed", e);
+      LOG.error("{} job failed", jobName, e);
       throw e;
     }
 
@@ -196,7 +196,7 @@ public class DomainStatistics extends Configured implements Tool {
             break;
           }
           if (out.trim().equals("")) {
-            LOG.info("url : " + url);
+            LOG.info("url : {}", url);
             context.getCounter(MyCounter.EMPTY_RESULT).increment(1);
           }
 

@@ -72,7 +72,7 @@ public class CrawlDBTestUtil {
    */
   public static void createCrawlDb(Configuration conf, FileSystem fs,
       Path crawldb, List<URLCrawlDatum> init) throws Exception {
-    LOG.trace("* creating crawldb: " + crawldb);
+    LOG.trace("* creating crawldb: {}", crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
     Option wKeyOpt = MapFile.Writer.keyClass(Text.class);
     org.apache.hadoop.io.SequenceFile.Writer.Option wValueOpt = SequenceFile.Writer.valueClass(CrawlDatum.class);
@@ -81,7 +81,7 @@ public class CrawlDBTestUtil {
     Iterator<URLCrawlDatum> it = init.iterator();
     while (it.hasNext()) {
       URLCrawlDatum row = it.next();
-      LOG.info("adding:" + row.url.toString());
+      LOG.info("adding:{}", row.url.toString());
       writer.append(new Text(row.url), row.datum);
     }
     writer.close();

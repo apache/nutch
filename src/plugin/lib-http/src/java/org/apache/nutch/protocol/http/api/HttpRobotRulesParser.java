@@ -243,14 +243,14 @@ public class HttpRobotRulesParser extends RobotRulesParser {
         }
       } catch (Throwable t) {
         if (robotsUrl == null || robotsUrlRedir == null) {
-          LOG.info("Couldn't get robots.txt for {}", url, t);
+          LOG.info("Couldn't get robots.txt for {}", url, t.getMessage());
         } else if (robotsUrl.equals(robotsUrlRedir)) {
           LOG.info("Couldn't get robots.txt for {} ({}): {}", url, robotsUrl,
-              t);
+              t.getMessage());
         } else {
           LOG.info(
               "Couldn't get redirected robots.txt for {} (redirected to {}): {}",
-              url, robotsUrlRedir, t);
+              url, robotsUrlRedir, t.getMessage());
         }
         cacheRule = false; // try again later to fetch robots.txt
         robotRules = EMPTY_RULES;

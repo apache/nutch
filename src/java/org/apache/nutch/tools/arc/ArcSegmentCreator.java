@@ -117,10 +117,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
    *          The error that occured.
    */
   private static void logError(Text url, Throwable t) {
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Conversion of " + url + " failed with: "
-          + StringUtils.stringifyException(t));
-    }
+    LOG.info("Conversion of {} failed with: {}", url, StringUtils.stringifyException(t));
   }
 
   public static class ArcSegmentCreatorMapper extends
@@ -175,9 +172,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
         try {
           scfilters.passScoreBeforeParsing(key, datum, content);
         } catch (Exception e) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
-          }
+          LOG.warn("Couldn't pass score, url {} ({})", key, e);
         }
 
         try {
@@ -185,8 +180,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
           // parse the content
           parseResult = parseUtil.parse(content);
         } catch (Exception e) {
-          LOG.warn("Error parsing: " + key + ": "
-              + StringUtils.stringifyException(e));
+          LOG.warn("Error parsing: {}: {}", key, StringUtils.stringifyException(e));
         }
 
         // set the content signature
@@ -213,7 +207,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
               ParseStatus parseStatus = parse.getData().getStatus();
 
               if (!parseStatus.isSuccess()) {
-                LOG.warn("Error parsing: " + key + ": " + parseStatus);
+                LOG.warn("Error parsing: {}: {}", key, parseStatus);
                 parse = parseStatus.getEmptyParse(conf);
               }
 
@@ -233,19 +227,14 @@ public class ArcSegmentCreator extends Configured implements Tool {
               try {
                 scfilters.passScoreAfterParsing(url, content, parse);
               } catch (Exception e) {
-                if (LOG.isWarnEnabled()) {
-                  LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
-                }
+                LOG.warn("Couldn't pass score, url {} ({})", key, e);
               }
               context.write(url, new NutchWritable(new ParseImpl(new ParseText(
                   parse.getText()), parse.getData(), parse.isCanonical())));
             }
           }
         } catch (IOException e) {
-          if (LOG.isErrorEnabled()) {
-            LOG.error("ArcSegmentCreator caught:"
-                + StringUtils.stringifyException(e));
-          }
+          LOG.error("ArcSegmentCreator caught:{}", StringUtils.stringifyException(e));
         }  
 
         if (parseResult != null && !parseResult.isEmpty()) {
@@ -300,10 +289,10 @@ public class ArcSegmentCreator extends Configured implements Tool {
       // arcs start with a file description. for now we ignore this as it is not
       // a content record
       if (urlStr.startsWith("filedesc://")) {
-        LOG.info("Ignoring file header: " + urlStr);
+        LOG.info("Ignoring file header: {}", urlStr);
         return;
       }
-      LOG.info("Processing: " + urlStr);
+      LOG.info("Processing: {}", urlStr);
 
       // get the raw bytes from the arc file, create a new crawldatum
       Text url = new Text();
@@ -316,9 +305,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
         urlStr = normalizers.normalize(urlStr, URLNormalizers.SCOPE_FETCHER);
         urlStr = urlFilters.filter(urlStr); // filter the url
       } catch (Exception e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Skipping " + url + ":" + e);
-        }
+        LOG.warn("Skipping {}: {}", url, e);
         urlStr = null;
       }
 
@@ -372,7 +359,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
     StopWatch stopWatch = new StopWatch();
     stopWatch.start();
     LOG.info("ArcSegmentCreator: starting");
-    LOG.info("ArcSegmentCreator: arc files dir: " + arcFiles);
+    LOG.info("ArcSegmentCreator: arc files dir: {}", arcFiles);
 
     Job job = Job.getInstance(getConf(), "Nutch ArcSegmentCreator: " + arcFiles);
     Configuration conf = job.getConfiguration();
@@ -401,7 +388,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
     }
 
     stopWatch.stop();
-    LOG.info("ArcSegmentCreator: finished, elapsed: {} ms" + stopWatch.getTime(
+    LOG.info("ArcSegmentCreator: finished, elapsed: {} ms{}", stopWatch.getTime(
         TimeUnit.MILLISECONDS));
   }
 
@@ -430,7 +417,7 @@ public class ArcSegmentCreator extends Configured implements Tool {
       createSegments(arcFiles, segmentsOutDir);
       return 0;
     } catch (Exception e) {
-      LOG.error("ArcSegmentCreator: " + StringUtils.stringifyException(e));
+      LOG.error("ArcSegmentCreator: {}", StringUtils.stringifyException(e));
       return -1;
     }
   }

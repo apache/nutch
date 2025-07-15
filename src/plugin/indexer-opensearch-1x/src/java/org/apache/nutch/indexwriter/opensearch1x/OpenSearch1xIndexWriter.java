@@ -242,7 +242,7 @@ public class OpenSearch1xIndexWriter implements IndexWriter {
                 }
               });
         } catch (Exception e) {
-          LOG.error("Error setting up SSLContext because: " + e.getMessage(),
+          LOG.error("Error setting up SSLContext because: {}", e.getMessage(),
               e);
         }
       }

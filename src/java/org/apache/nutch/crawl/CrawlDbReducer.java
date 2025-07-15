@@ -129,7 +129,7 @@ public class CrawlDbReducer extends
         metaFromParse = datum.getMetaData();
         break;
       default:
-        LOG.warn("Unknown status, key: " + key + ", datum: " + datum);
+        LOG.warn("Unknown status, key: {}, datum: {}", key, datum);
       }
     }
 
@@ -263,8 +263,8 @@ public class CrawlDbReducer extends
           result.setStatus(CrawlDatum.STATUS_DB_REDIR_TEMP);
           break;
         default:
-          LOG.warn("Unexpected status: " + fetch.getStatus()
-              + " resetting to old status.");
+          LOG.warn("Unexpected status: {} resetting to old status.",
+              fetch.getStatus());
           if (oldSet)
             result.setStatus(old.getStatus());
           else

@@ -649,9 +649,7 @@ public class SegmentMerger extends Configured implements Tool{
     for (int i = 0; i < segs.length; i++) {
       FileSystem fs = segs[i].getFileSystem(conf);
       if (!fs.exists(segs[i])) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Input dir {} doesn't exist, skipping.", segs[i]);
-        }
+        LOG.warn("Input dir {} doesn't exist, skipping.", segs[i]);
         segs[i] = null;
         continue;
       }

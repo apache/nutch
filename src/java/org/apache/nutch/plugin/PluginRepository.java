@@ -478,10 +478,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
         Object[] filter = (Object[]) Array.newInstance(clazz, sorted.size());
         for (int i = 0; i < sorted.size(); i++) {
           filter[i] = sorted.get(i);
-          if (LOG.isTraceEnabled()) {
-            LOG.trace("{} : filters[{}] = {}", clazz.getSimpleName() , i,
-                    filter[i].getClass());
-          }
+          LOG.trace("{} : filters[{}] = {}", clazz.getSimpleName(), i,
+              filter[i].getClass());
         }
         objectCache.setObject(clazz.getName(), filter);
       } catch (PluginRuntimeException e) {

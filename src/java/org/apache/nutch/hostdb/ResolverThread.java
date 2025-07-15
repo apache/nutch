@@ -74,16 +74,16 @@ public class ResolverThread implements Runnable {
       if (datum.isEmpty()) {
         context.getCounter("UpdateHostDb", "new_known_host").increment(1);
         datum.setLastCheck();
-        LOG.info(host + ": new_known_host " + datum);
+        LOG.info("{}: new_known_host {}", host, datum);
       } else if (datum.getDnsFailures() > 0) {
         context.getCounter("UpdateHostDb", "rediscovered_host").increment(1);
         datum.setLastCheck();
         datum.setDnsFailures(0l);
-        LOG.info(host + ": rediscovered_host " + datum);
+        LOG.info("{}: rediscovered_host {}", host, datum);
       } else {
         context.getCounter("UpdateHostDb", "existing_known_host").increment(1);
         datum.setLastCheck();
-        LOG.info(host + ": existing_known_host " + datum);
+        LOG.info("{}: existing_known_host {}", host, datum);
       }
 
       // Write the host datum
@@ -96,7 +96,7 @@ public class ResolverThread implements Runnable {
           datum.setDnsFailures(1l);
           context.write(hostText, datum);
           context.getCounter("UpdateHostDb", "new_unknown_host").increment(1);
-          LOG.info(host + ": new_unknown_host " + datum);
+          LOG.info("{}: new_unknown_host {}", host, datum);
         } else {
           datum.setLastCheck();
           datum.incDnsFailures();
@@ -107,10 +107,10 @@ public class ResolverThread implements Runnable {
 
             context.write(hostText, datum);
             context.getCounter("UpdateHostDb", "existing_unknown_host").increment(1);
-            LOG.info(host + ": existing_unknown_host " + datum);
+            LOG.info("{}: existing_unknown_host {}", host, datum);
           } else {
             context.getCounter("UpdateHostDb", "purged_unknown_host").increment(1);
-            LOG.info(host + ": purged_unknown_host " + datum);
+            LOG.info("{}: purged_unknown_host {}", host, datum);
           }
         }
 

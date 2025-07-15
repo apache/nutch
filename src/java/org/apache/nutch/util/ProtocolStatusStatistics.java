@@ -125,7 +125,7 @@ public class ProtocolStatusStatistics extends Configured implements Tool {
         throw new RuntimeException(message);
       }
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error(jobName + " job failed", e);
+      LOG.error("{} job failed", jobName, e);
       throw e;
     }
 

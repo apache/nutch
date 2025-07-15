@@ -168,12 +168,13 @@ public class SitemapProcessor extends Configured implements Tool {
             context.getCounter("Sitemap", "sitemap_seeds").increment(1);
             generateSitemapUrlDatum(protocolFactory.getProtocol(url), url, context); 
           } else {
-            LOG.info("generateSitemapsFromHostname: " + key.toString());
+            LOG.info("generateSitemapsFromHostname: {}", key.toString());
             generateSitemapsFromHostname(key.toString(), context);
           }
         }
       } catch (Exception e) {
-        LOG.warn("Exception for record {} : {}", key.toString(), StringUtils.stringifyException(e));
+        LOG.warn("Exception for record {} : {}", key.toString(),
+            StringUtils.stringifyException(e));
       }
     }
 
@@ -472,7 +473,7 @@ public class SitemapProcessor extends Configured implements Tool {
       LOG.info("SitemapProcessor: finished, elapsed: {} ms", stopWatch.getTime(
           TimeUnit.MILLISECONDS));
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
-      LOG.error("SitemapProcessor_" + crawldb.toString(), e);
+      LOG.error("SitemapProcessor_{}", crawldb.toString(), e);
       NutchJob.cleanupAfterFailure(tempCrawlDb, lock, fs);
       throw e;
     }

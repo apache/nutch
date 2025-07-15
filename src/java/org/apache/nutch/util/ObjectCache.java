@@ -40,8 +40,9 @@ public class ObjectCache {
   public synchronized static ObjectCache get(Configuration conf) {
     ObjectCache objectCache = CACHE.get(conf);
     if (objectCache == null) {
-      LOG.debug("No object cache found for conf=" + conf
-          + ", instantiating a new object cache");
+      LOG.debug(
+          "No object cache found for conf={}, instantiating a new object cache",
+          conf);
       objectCache = new ObjectCache();
       CACHE.put(conf, objectCache);
     }

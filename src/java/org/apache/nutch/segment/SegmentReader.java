@@ -184,8 +184,8 @@ public class SegmentReader extends Configured implements Tool {
           }
         } else if (value instanceof ParseText) {
           dump.append("\nParseText::\n").append(((ParseText) value).toString());
-        } else if (LOG.isWarnEnabled()) {
-          LOG.warn("Unrecognized type: " + value.getClass());
+        } else {
+          LOG.warn("Unrecognized type: {}", value.getClass());
         }
       }
       if (recodeContent && content != null) {
@@ -305,11 +305,9 @@ public class SegmentReader extends Configured implements Tool {
             currentRecordNumber = append(fs, conf, partFile, writer,
                 currentRecordNumber);
           } catch (IOException exception) {
-            if (LOG.isWarnEnabled()) {
-              LOG.warn("Couldn't copy the content of " + partFile.toString()
-                  + " into " + dumpFile.toString());
-              LOG.warn(exception.getMessage());
-            }
+            LOG.warn("Couldn't copy the content of {} into {}",
+                partFile.toString(), dumpFile.toString());
+            LOG.warn(exception.getMessage());
           }
         }
       }
@@ -443,8 +441,8 @@ public class SegmentReader extends Configured implements Tool {
         if (it.next().isAlive())
           cnt++;
       }
-      if ((cnt > 0) && (LOG.isDebugEnabled())) {
-        LOG.debug("(" + cnt + " to retrieve)");
+      if (cnt > 0) {
+        LOG.debug("({} to retrieve)", cnt);
       }
     } while (cnt > 0);
     for (int i = 0; i < keys.length; i++) {

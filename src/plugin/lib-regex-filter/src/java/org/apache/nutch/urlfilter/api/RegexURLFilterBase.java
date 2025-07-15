@@ -211,17 +211,13 @@ public abstract class RegexURLFilterBase implements URLFilter {
     try {
       reader = getRulesReader(conf);
     } catch (Exception e) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error(e.getMessage());
-      }
+      LOG.error(e.getMessage());
       throw new RuntimeException(e.getMessage(), e);
     }
     try {
       rules = readRules(reader);
     } catch (IOException e) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error(e.getMessage());
-      }
+      LOG.error(e.getMessage());
       throw new RuntimeException(e.getMessage(), e);
     }
   }
@@ -275,9 +271,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
       }
 
       String regex = line.substring(1);
-      if (LOG.isTraceEnabled()) {
-        LOG.trace("Adding rule [" + regex + "] for " + hostOrDomain);
-      }
+      LOG.trace("Adding rule [" + regex + "] for " + hostOrDomain);
       RegexRule rule = createRule(sign, regex, hostOrDomain);
       rules.add(rule);
     }

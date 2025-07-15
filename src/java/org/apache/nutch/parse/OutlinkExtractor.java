@@ -101,9 +101,7 @@ public class OutlinkExtractor {
         // (SHOULD really check cpu time used so that heavily loaded systems
         // do not unnecessarily hit this limit.)
         if (System.currentTimeMillis() - start >= 60000L) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn("Time limit exceeded for getOutLinks");
-          }
+          LOG.warn("Time limit exceeded for getOutLinks");
           break;
         }
 
@@ -112,15 +110,13 @@ public class OutlinkExtractor {
         try {
           outlinks.add(new Outlink(url, anchor));
         } catch (MalformedURLException mue) {
-          LOG.warn("Invalid url: '" + url + "', skipping.");
+          LOG.warn("Invalid url: '{}', skipping.", url);
         }
       }
     } catch (Exception ex) {
       // if the matcher fails (perhaps a malformed URL) we just log it and move
       // on
-      if (LOG.isErrorEnabled()) {
-        LOG.error("getOutlinks", ex);
-      }
+      LOG.error("getOutlinks", ex);
     }
 
     final Outlink[] retval;

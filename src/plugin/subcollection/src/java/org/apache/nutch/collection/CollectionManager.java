@@ -69,9 +69,7 @@ public class CollectionManager extends Configured {
 
   protected void init() {
     try {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("initializing CollectionManager");
-      }
+      LOG.info("initializing CollectionManager");
       // initialize known subcollections
       configfile = getConf().getResource(
           getConf().get("subcollections.config", DEFAULT_FILE_NAME));
@@ -80,9 +78,7 @@ public class CollectionManager extends Configured {
           getConf().get("subcollections.config", DEFAULT_FILE_NAME));
       parse(input);
     } catch (Exception e) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Error occured:" + e);
-      }
+      LOG.warn("Error occured:", e);
     }
   }
 
@@ -93,9 +89,7 @@ public class CollectionManager extends Configured {
       NodeList nodeList = collections
           .getElementsByTagName(Subcollection.TAG_COLLECTION);
 
-      if (LOG.isInfoEnabled()) {
-        LOG.info("file has " + nodeList.getLength() + " elements");
-      }
+      LOG.info("file has {} elements", nodeList.getLength());
 
       for (int i = 0; i < nodeList.getLength(); i++) {
         Element scElem = (Element) nodeList.item(i);
@@ -103,7 +97,7 @@ public class CollectionManager extends Configured {
         subCol.initialize(scElem);
         collectionMap.put(subCol.name, subCol);
       }
-    } else if (LOG.isInfoEnabled()) {
+    } else {
       LOG.info("Cannot find collections");
     }
   }
@@ -114,9 +108,7 @@ public class CollectionManager extends Configured {
     CollectionManager impl = (CollectionManager) objectCache.getObject(key);
     if (impl == null) {
       try {
-        if (LOG.isInfoEnabled()) {
-          LOG.info("Instantiating CollectionManager");
-        }
+        LOG.info("Instantiating CollectionManager");
         impl = new CollectionManager(conf);
         objectCache.setObject(key, impl);
       } catch (Exception e) {

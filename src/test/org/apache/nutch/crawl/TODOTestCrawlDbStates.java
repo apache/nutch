@@ -77,12 +77,11 @@ public class TODOTestCrawlDbStates extends TestCrawlDbStates {
     @Override
     protected boolean check(CrawlDatum result) {
       if (result.getRetriesSinceFetch() > retryMax) {
-        LOG.warn("Retry counter > db.fetch.retry.max: " + result);
+        LOG.warn("Retry counter > db.fetch.retry.max: {}", result);
       } else if (result.getRetriesSinceFetch() == Byte.MAX_VALUE) {
-        LOG.warn("Retry counter max. value reached (overflow imminent): "
-            + result);
+        LOG.warn("Retry counter max. value reached (overflow imminent): {}", result);
       } else if (result.getRetriesSinceFetch() < 0) {
-        LOG.error("Retry counter overflow: " + result);
+        LOG.error("Retry counter overflow: {}", result);
         return false;
       }
       // use retry counter bound to this class (totalRetries)
@@ -90,17 +89,17 @@ public class TODOTestCrawlDbStates extends TestCrawlDbStates {
       // in CrawlDatum could be reset (eg. NUTCH-578_v5.patch)
       if (totalRetries < retryMax) {
         if (result.getStatus() == STATUS_DB_UNFETCHED) {
-          LOG.info("ok: " + result);
+          LOG.info("ok: {}", result);
           result.getRetriesSinceFetch();
           return true;
         }
       } else {
         if (result.getStatus() == STATUS_DB_GONE) {
-          LOG.info("ok: " + result);
+          LOG.info("ok: {}", result);
           return true;
         }
       }
-      LOG.warn("wrong: " + result);
+      LOG.warn("wrong: {}", result);
       return false;
     }
 
@@ -174,20 +173,20 @@ public class TODOTestCrawlDbStates extends TestCrawlDbStates {
         long secondsUntilNextFetch = (result.getFetchTime() - fetchTime) / 1000L;
         if (secondsUntilNextFetch < -1) {
           // next fetch time is in the past (more than one second)
-          LOG.error("Next fetch time is in the past: " + result);
+          LOG.error("Next fetch time is in the past: {}", result);
           return false;
         }
         if (secondsUntilNextFetch < 60) {
           // next fetch time is in less than one minute
           // (critical: Nutch can hardly be so fast)
-          LOG.error("Less then one minute until next fetch: " + result);
+          LOG.error("Less then one minute until next fetch: {}", result);
         }
         // Next fetch time should be within min. and max. (tolerance: 60 sec.)
         if (secondsUntilNextFetch + 60 < minInterval
             || secondsUntilNextFetch - 60 > maxInterval) {
-          LOG.error("Interval until next fetch time ("
-              + TimingUtil.elapsedTime(fetchTime, result.getFetchTime())
-              + ") is not within min. and max. interval: " + result);
+          LOG.error(
+              "Interval until next fetch time ({}) is not within min. and max. interval: {}",
+              TimingUtil.elapsedTime(fetchTime, result.getFetchTime()), result);
           // TODO: is this a failure?
         }
       }

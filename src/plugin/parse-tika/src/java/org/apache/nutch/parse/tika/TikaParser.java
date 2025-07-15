@@ -151,7 +151,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       parser.parse(new ByteArrayInputStream(raw),
           (ContentHandler) teeContentHandler, tikamd, context);
     } catch (Exception e) {
-      LOG.error("Error parsing " + content.getUrl(), e);
+      LOG.error("Error parsing {}", content.getUrl(), e);
       return new ParseStatus(ParseStatus.FAILED, e.getMessage())
           .getEmptyParseResult(content.getUrl(), getConf());
     }
