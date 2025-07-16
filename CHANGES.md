@@ -41,6 +41,7 @@ Release Report: https://s.apache.org/bs58y
 - [NUTCH-3106](https://issues.apache.org/jira/browse/NUTCH-3106) - Issue with SSLHandshakeException in v1.20 using protocol-http plugin and proxy
 - [NUTCH-3108](https://issues.apache.org/jira/browse/NUTCH-3108) - Fix SLF4J Class Loader Conflict in language-identifier
 - [NUTCH-3114](https://issues.apache.org/jira/browse/NUTCH-3114) - Avoid stale fetching when only URLs from queues blocked by the exponential backoff remain
+- [NUTCH-3118](https://issues.apache.org/jira/browse/NUTCH-3118) - Logging pattern missing one argument placeholder
 
 ### Improvement
 
