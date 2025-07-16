@@ -370,7 +370,7 @@ public class PluginRepository implements URLStreamHandlerFactory {
       LOG.info("\tNONE");
     } else {
       for (ExtensionPoint ep : this.fExtensionPoints.values()) {
-        LOG.info("\t ({})", ep.getName(), ep.getId());
+        LOG.info("\t{} ({})", ep.getName(), ep.getId());
       }
     }
   }
