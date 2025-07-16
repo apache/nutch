@@ -14,7 +14,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-<Configuration status="INFO" name="Nutch" packages="">
+<Configuration status="INFO" name="Nutch">
   <Properties>
     <!-- default values that can be overridden by system properties:
            Note: the script bin/nutch sets these properties from the environment variables
