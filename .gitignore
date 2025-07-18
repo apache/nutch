@@ -27,6 +27,7 @@ ivy/dependency-check-ant/*
 .gradle*
 ivy/apache-rat-*
 .vscode
+ivy/jacoco-*
 # native Hadoop libraries, see lib/native/README.txt
 lib/native/libhadoop.*
 lib/native/libhadooppipes.*
