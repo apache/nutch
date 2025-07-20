@@ -1,5 +1,77 @@
 # Nutch Change Log
 
+## Nutch 1.21 Release 15/07/2025 (dd/mm/yyyy)
+Release Report: https://s.apache.org/bs58y
+
+### Breaking Changes
+
+- LinkDB records now can hold metadata, see [NUTCH-3101](https://issues.apache.org/jira/browse/NUTCH-3101).
+  This requires that existing LinkDBs are created anew starting from the segments. Nutch 1.21 cannot process LinkDBs written with prior Nutch versions.
+
+
+### New Feature
+
+- [NUTCH-2856](https://issues.apache.org/jira/browse/NUTCH-2856) - Implement a protocol-smb plugin based on hierynomus/smbj
+- [NUTCH-3063](https://issues.apache.org/jira/browse/NUTCH-3063) - Support for "addBinaryContent" from REST API
+
+### Sub-task
+
+- [NUTCH-2812](https://issues.apache.org/jira/browse/NUTCH-2812) - Methods returning array may expose internal representation
+
+### Bug
+
+- [NUTCH-3039](https://issues.apache.org/jira/browse/NUTCH-3039) - Failure to handle ftp:// URLs
+- [NUTCH-3044](https://issues.apache.org/jira/browse/NUTCH-3044) - Generator: NPE when extracting the host part of a URL fails
+- [NUTCH-3055](https://issues.apache.org/jira/browse/NUTCH-3055) - README: fix Github "hub" commands
+- [NUTCH-3057](https://issues.apache.org/jira/browse/NUTCH-3057) - Arbitrary indexer "leaks" previous value into a field processed after an exception
+- [NUTCH-3060](https://issues.apache.org/jira/browse/NUTCH-3060) - Javadoc link broken on website
+- [NUTCH-3066](https://issues.apache.org/jira/browse/NUTCH-3066) - Protocol plugin unit tests fail randomly
+- [NUTCH-3067](https://issues.apache.org/jira/browse/NUTCH-3067) - Improve performance of FetchItemQueues if error state is preserved
+- [NUTCH-3072](https://issues.apache.org/jira/browse/NUTCH-3072) - Fetcher to stop QueueFeeder if aborting with "hung threads"
+- [NUTCH-3075](https://issues.apache.org/jira/browse/NUTCH-3075) - tld plugin makes injector crash
+- [NUTCH-3078](https://issues.apache.org/jira/browse/NUTCH-3078) - Database is not unlocked when injector fails
+- [NUTCH-3079](https://issues.apache.org/jira/browse/NUTCH-3079) - Dumping a segment fails unless it has been fetched and parsed
+- [NUTCH-3087](https://issues.apache.org/jira/browse/NUTCH-3087) - Nutch crawling inconsistent on URLs with userinfo
+- [NUTCH-3092](https://issues.apache.org/jira/browse/NUTCH-3092) - Replace all imports of commons-lang by commons-lang3
+- [NUTCH-3093](https://issues.apache.org/jira/browse/NUTCH-3093) - Ant target test-plugins to depend on compile-core-test
+- [NUTCH-3094](https://issues.apache.org/jira/browse/NUTCH-3094) - Github tests to run if build configuration changes
+- [NUTCH-3096](https://issues.apache.org/jira/browse/NUTCH-3096) - HostDB ResolverThread can create too many job counters
+- [NUTCH-3097](https://issues.apache.org/jira/browse/NUTCH-3097) - Plugin indexer-elastic throws ClassNotFoundException due to invalid dependencies
+- [NUTCH-3103](https://issues.apache.org/jira/browse/NUTCH-3103) - Improper fetch interval given as example
+- [NUTCH-3106](https://issues.apache.org/jira/browse/NUTCH-3106) - Issue with SSLHandshakeException in v1.20 using protocol-http plugin and proxy
+- [NUTCH-3108](https://issues.apache.org/jira/browse/NUTCH-3108) - Fix SLF4J Class Loader Conflict in language-identifier
+- [NUTCH-3114](https://issues.apache.org/jira/browse/NUTCH-3114) - Avoid stale fetching when only URLs from queues blocked by the exponential backoff remain
+
+### Improvement
+
+- [NUTCH-1806](https://issues.apache.org/jira/browse/NUTCH-1806) - Delegate processing of URL domains to crawler commons
+- [NUTCH-2157](https://issues.apache.org/jira/browse/NUTCH-2157) - Parent Issue for Addressing Miredot REST API Warnings
+- [NUTCH-2771](https://issues.apache.org/jira/browse/NUTCH-2771) - Tests in nightly builds: speed up long runners
+- [NUTCH-2976](https://issues.apache.org/jira/browse/NUTCH-2976) - SitemapProcessor: verify sitemap values added from sitemap to CrawlDB (priority, modification time and change frequency)
+- [NUTCH-3043](https://issues.apache.org/jira/browse/NUTCH-3043) - Generator: count URLs rejected by URL filters
+- [NUTCH-3058](https://issues.apache.org/jira/browse/NUTCH-3058) - Fetcher: counter for hung threads
+- [NUTCH-3061](https://issues.apache.org/jira/browse/NUTCH-3061) - URL filters to log name of the rule file rules are read from
+- [NUTCH-3062](https://issues.apache.org/jira/browse/NUTCH-3062) - protocol-okhttp: optionally record HTTP and SSL/TLS versions
+- [NUTCH-3065](https://issues.apache.org/jira/browse/NUTCH-3065) - Format changelog as Markdown
+- [NUTCH-3073](https://issues.apache.org/jira/browse/NUTCH-3073) - Address Java compiler warnings
+- [NUTCH-3083](https://issues.apache.org/jira/browse/NUTCH-3083) - Add RobotRulesParser to bin/nutch
+- [NUTCH-3086](https://issues.apache.org/jira/browse/NUTCH-3086) - Consolidate plugin extension names and IDs
+- [NUTCH-3095](https://issues.apache.org/jira/browse/NUTCH-3095) - Update .gitignore to ignore Hadoop native libraries
+- [NUTCH-3100](https://issues.apache.org/jira/browse/NUTCH-3100) - HostDB to support minimum records per host
+- [NUTCH-3101](https://issues.apache.org/jira/browse/NUTCH-3101) - LinkDb's Inlink class to support metadata
+- [NUTCH-3112](https://issues.apache.org/jira/browse/NUTCH-3112) - Utilize parameterized logging
+- [NUTCH-3113](https://issues.apache.org/jira/browse/NUTCH-3113) - Group commands in bin/nutch command-line help
+- [NUTCH-3115](https://issues.apache.org/jira/browse/NUTCH-3115) - Allow POJO in Arbitrary Indexer to access indexing objects in filter constrctor
+- [NUTCH-3116](https://issues.apache.org/jira/browse/NUTCH-3116) - Minor dependency upgrades and update of license list and notice file
+
+### Task
+
+- [NUTCH-1942](https://issues.apache.org/jira/browse/NUTCH-1942) - Remove TopLevelDomain
+- [NUTCH-3041](https://issues.apache.org/jira/browse/NUTCH-3041) - Address confusing logging in o.a.n.net.URLExemptionFilters
+- [NUTCH-3054](https://issues.apache.org/jira/browse/NUTCH-3054) - Address deprecation of Node16 for all GitHub Actions
+- [NUTCH-3084](https://issues.apache.org/jira/browse/NUTCH-3084) - Improve CI by filtering and separating plugin and core test execution
+
+
 ## Nutch 1.20 Release 09/04/2024 (dd/mm/yyyy)
 Release Report: https://s.apache.org/ovjf3
 
