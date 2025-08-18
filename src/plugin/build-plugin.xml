@@ -16,7 +16,8 @@
  limitations under the License.
 -->
 <!-- Imported by plugin build.xml files to define default targets. -->
-<project xmlns:ivy="antlib:org.apache.ivy.ant">
+<project xmlns:ivy="antlib:org.apache.ivy.ant"
+         xmlns:jacoco="antlib:org.jacoco.ant">
 
   <property name="name" value="${ant.project.name}"/>
   <property name="root" value="${basedir}"/>
@@ -43,6 +44,12 @@
 
   <!-- load nutch defaults last so that they can be overridden above -->
   <property file="${nutch.root}/default.properties" />
+
+  <property name="jacoco.version" value="0.8.12" />
+  <property name="jacoco.home" value="${nutch.root}/ivy/jacoco-${jacoco.version}" />
+  <property name="jacoco.jar" value="${jacoco.home}/lib/jacocoant.jar" />
+  <property name="jacoco.output.dir" location="${nutch.root}/build/jacoco"/>
+  <property name="jacoco.destfile" location="${jacoco.output.dir}/jacoco.exec"/>
 
   <ivy:settings id="ivy.instance" file="${nutch.root}/ivy/ivysettings.xml" />
 
@@ -76,15 +83,19 @@
     <pathelement location="${nutch.root}/build"/>
     <!-- test dependencies specific to the current plugin -->
     <fileset dir="${build.test.lib}">
-      <include name="*.jar" />
+      <include name="*.jar"/>
     </fileset>
     <!-- global test dependencies -->
     <fileset dir="${nutch.root}/build/test/lib">
-      <include name="junit*.jar" />
-      <include name="hamcrest*.jar" />
+      <include name="junit*.jar"/>
+      <include name="hamcrest*.jar"/>
     </fileset>
     <path refid="classpath"/>
   </path>
+
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath path="${jacoco.jar}"/>
+  </taskdef>
 
   <!-- ====================================================== -->
   <!-- Stuff needed by all targets                            -->
@@ -123,7 +134,7 @@
   <!-- ====================================================== -->
   <!-- Compile the Java files                                 -->
   <!-- ====================================================== -->
-  <target name="compile" depends="init,deps-jar, resolve-default">
+  <target name="compile" depends="init, deps-jar, resolve-default">
     <echo message="Compiling plugin: ${name}"/>
     <javac 
      encoding="${build.encoding}" 
@@ -207,22 +218,44 @@
   <!-- ================================================================== -->
   <target name="test" depends="compile-test, deploy" if="test.available">
     <echo message="Testing plugin: ${name}"/>
+    <mkdir dir="${jacoco.output.dir}"/>
+    <jacoco:coverage destfile="${jacoco.destfile}">
+      <junit printsummary="yes" haltonerror="true" haltonfailure="true" 
+        fork="yes" errorProperty="tests.failed" failureProperty="tests.failed"
+        forkmode="once" >
+        <sysproperty key="test.data" value="${build.test}/data"/>
+        <sysproperty key="test.input" value="${root}/data"/>
+        <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/> 
+        <classpath refid="test.classpath"/>
+        <formatter type="${test.junit.output.format}" />
+        <batchtest todir="${build.test}" unless="testcase">
+          <fileset dir="${src.test}"
+                   includes="**/Test*.java" excludes="**/${test.exclude}.java" />
+        </batchtest>
+        <batchtest todir="${build.test}" if="testcase">
+          <fileset dir="${src.test}" includes="**/${testcase}.java"/>
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
 
-    <junit printsummary="yes" haltonfailure="no" fork="yes"
-      errorProperty="tests.failed" failureProperty="tests.failed">
-      <sysproperty key="test.data" value="${build.test}/data"/>
-      <sysproperty key="test.input" value="${root}/data"/>
-      <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/> 
-      <classpath refid="test.classpath"/>
-      <formatter type="${test.junit.output.format}" />
-      <batchtest todir="${build.test}" unless="testcase">
-        <fileset dir="${src.test}"
-                 includes="**/Test*.java" excludes="**/${test.exclude}.java" />
-      </batchtest>
-      <batchtest todir="${build.test}" if="testcase">
-        <fileset dir="${src.test}" includes="**/${testcase}.java"/>
-      </batchtest>
-    </junit>
+    <mkdir dir="${jacoco.output.dir}/html"/>
+    <mkdir dir="${jacoco.output.dir}/xml"/>
+    <jacoco:report>
+      <executiondata>
+          <file file="${jacoco.destfile}"/>
+      </executiondata>
+      <structure name="${final.name} Jacoco report">
+          <classfiles>
+              <fileset dir="${build.classes}"/>
+          </classfiles>
+          <sourcefiles encoding="UTF-8">
+              <fileset dir="${root}/src/java"/>
+          </sourcefiles>
+      </structure>
+      <html destdir="${jacoco.output.dir}/html"
+        footer="${final.name} Jacoco report" encoding="UTF-8"/>
+      <xml destfile="${jacoco.output.dir}/xml/jacoco_report.xml" encoding="UTF-8"/>
+    </jacoco:report>
 
     <fail if="tests.failed">Tests failed!</fail>
 
