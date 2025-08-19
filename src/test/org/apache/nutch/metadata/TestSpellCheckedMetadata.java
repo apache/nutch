@@ -111,6 +111,33 @@ public class TestSpellCheckedMetadata {
     Assert.assertEquals("new value 2", values[1]);
   }
 
+  /** Test for the <code>set(String, String)</code> method. */
+  @Test
+  public void testSetCaseInsensitive() {
+    String[] values = null;
+    SpellCheckedMetadata meta = new SpellCheckedMetadata();
+
+    values = meta.getValues("name-one");
+    Assert.assertEquals(0, values.length);
+
+    meta.set("name-one", "value1");
+    values = meta.getValues("name-one");
+    Assert.assertEquals(1, values.length);
+    Assert.assertEquals("value1", values[0]);
+
+    meta.set("naMe-OnE", "value2");
+    values = meta.getValues("name-one");
+    Assert.assertEquals(1, values.length);
+    Assert.assertEquals("value2", values[0]);
+
+    meta.set("nAme-One", "new value 1");
+    meta.add("NamE-oNe", "new value 2");
+    values = meta.getValues("namE-OnE");
+    Assert.assertEquals(2, values.length);
+    Assert.assertEquals("new value 1", values[0]);
+    Assert.assertEquals("new value 2", values[1]);
+  }
+
   /** Test for <code>setAll(Properties)</code> method. */
   @Test
   public void testSetProperties() {
@@ -149,6 +176,20 @@ public class TestSpellCheckedMetadata {
     Assert.assertEquals("value-1", meta.get("a-name"));
     meta.add("a-name", "value-2");
     Assert.assertEquals("value-1", meta.get("a-name"));
+  }
+
+  /** Test for <code>get(String)</code> method. */
+  @Test
+  public void testGetCaseInsensitive() {
+    SpellCheckedMetadata meta = new SpellCheckedMetadata();
+    Assert.assertNull(meta.get("a-name"));
+
+    meta.add("a-name", "value-1");
+    Assert.assertEquals("value-1", meta.get("a-name"));
+    
+    Assert.assertNotNull(meta.get("a-NamE"));
+    Assert.assertEquals("value-1", meta.get("a-NamE"));
+
   }
 
   /** Test for <code>isMultiValued()</code> method. */

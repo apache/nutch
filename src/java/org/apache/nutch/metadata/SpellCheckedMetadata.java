@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
  * {@link HttpHeaders} class.
  * 
  */
-public class SpellCheckedMetadata extends Metadata {
+public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
 
   /**
    * Threshold divider to calculate max. Levenshtein distance for misspelled
