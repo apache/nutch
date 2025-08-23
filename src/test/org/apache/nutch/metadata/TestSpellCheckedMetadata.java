@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Properties;
 
 import org.junit.Assert;
@@ -189,7 +190,6 @@ public class TestSpellCheckedMetadata {
     
     Assert.assertNotNull(meta.get("a-NamE"));
     Assert.assertEquals("value-1", meta.get("a-NamE"));
-
   }
 
   /** Test for <code>isMultiValued()</code> method. */
@@ -291,6 +291,51 @@ public class TestSpellCheckedMetadata {
     Assert.assertEquals("value-2.1", result.getValues("name-two")[0]);
     Assert.assertEquals("value-2.2", result.getValues("name-two")[1]);
     Assert.assertEquals("text/html", result.get(Metadata.CONTENT_TYPE));
+  }
+
+  /** Test for <code>Writable</code> implementation. */
+  @Test
+  public void testWritableBackwardCompatibility() {
+    // Entries added with old instances of SpellCheckedMetadata
+    // should be readable by new instances of SpellCheckedMetadata
+    SpellCheckedMetadata result = null;
+    CaseSensitiveSpellCheckedMetadata meta = new CaseSensitiveSpellCheckedMetadata();
+
+    result = writeRead(meta);
+    Assert.assertEquals(0, result.size());
+
+    meta.add("name-One", "value-1.1");
+    // Check that the original case is kept for old Metadata class
+    Assert.assertEquals(0, result.getValues("naMe-one").length);
+
+    // Check that the values written by old instances can be
+    // read by new instances of SpellCheckedMetadata
+    result = writeRead(meta);
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(1, result.getValues("naMe-one").length);
+    Assert.assertEquals("value-1.1", result.get("nAme-oNe"));
+
+    meta.add("Contenttype", "text/html");
+    meta.add("name-Two", "value-2.1");
+    meta.add("namE-two", "value-2.2");
+    result = writeRead(meta);
+    Assert.assertEquals(3, result.size());
+    Assert.assertEquals(1, result.getValues("name-onE").length);
+    Assert.assertEquals("value-1.1", result.getValues("namE-one")[0]);
+    Assert.assertEquals(2, result.getValues("name-two").length);
+    Assert.assertEquals("value-2.1", result.getValues("nAme-tWo")[0]);
+    Assert.assertEquals("value-2.2", result.getValues("namE-Two")[1]);
+    Assert.assertEquals("text/html", result.get(Metadata.CONTENT_TYPE));
+  }
+
+  /** 
+   * Mock class to test backward compatibility of SpellCheckedMetadata
+   * after changing the internal storage to be case insensitive.
+   */
+  private static class CaseSensitiveSpellCheckedMetadata extends SpellCheckedMetadata {
+    public CaseSensitiveSpellCheckedMetadata() {
+      metadata = new HashMap<>();
+    }
   }
 
   /**
