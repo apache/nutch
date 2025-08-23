@@ -26,10 +26,10 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * A decorator to Metadata that adds spellchecking capabilities to property
  * names. Currently used spelling vocabulary contains just the HTTP headers from
- * {@link HttpHeaders} class.
+ * {@link HttpHeaders} class. Other names are case insensitive.
  * 
  */
-public class SpellCheckedMetadata extends Metadata {
+public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
 
   /**
    * Threshold divider to calculate max. Levenshtein distance for misspelled
