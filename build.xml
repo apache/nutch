@@ -475,55 +475,56 @@
     </antcall>
   </target>
 
-  <target name="test-core" depends="compile-core-test, job" description="--> run core JUnit tests only">
-
+  <target name="test-core" depends="compile-core-test, job" description="--> run core JUnit tests">
     <delete dir="${test.build.data}"/>
     <mkdir dir="${test.build.data}"/>
-    <!--
-     copy resources needed in junit tests
-    -->
     <copy todir="${test.build.data}">
       <fileset dir="src/testresources" includes="**/*"/>
     </copy>
+    <copy file="${test.src.dir}/log4j.properties" todir="${test.build.classes}"/>
+    <copy file="${test.src.dir}/crawl-tests.xml" todir="${test.build.classes}"/>
+    <copy file="${test.src.dir}/domain-urlfilter.txt" todir="${test.build.classes}"/>
+    <copy file="${test.src.dir}/filter-all.txt" todir="${test.build.classes}"/>
 
-    <copy file="${test.src.dir}/log4j.properties"
-          todir="${test.build.classes}"/>
-
-    <copy file="${test.src.dir}/crawl-tests.xml"
-        todir="${test.build.classes}"/>
-
-    <copy file="${test.src.dir}/domain-urlfilter.txt"
-        todir="${test.build.classes}"/>
-
-    <copy file="${test.src.dir}/filter-all.txt"
-        todir="${test.build.classes}"/>
-
-    <junit printsummary="yes" haltonfailure="no" fork="yes" dir="${basedir}"
-      errorProperty="tests.failed" failureProperty="tests.failed" maxmemory="1000m">
-      <sysproperty key="test.build.data" value="${test.build.data}"/>
-      <sysproperty key="test.src.dir" value="${test.src.dir}"/>
-      <sysproperty key="test.include.slow" value="${test.include.slow}"/>
-      <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
+    <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
-      <formatter type="${test.junit.output.format}" />
-      <batchtest todir="${test.build.dir}" unless="testcase">
-        <fileset dir="${test.src.dir}"
-                 includes="**/Test*.java" excludes="**/${test.exclude}.java" />
-      </batchtest>
-      <batchtest todir="${test.build.dir}" if="testcase">
-        <fileset dir="${test.src.dir}" includes="**/${testcase}.java"/>
-      </batchtest>
-    </junit>
+      <testclasses outputDir="${test.build.dir}" unless="testcase" includeEngines="junit-vintage">
+        <listener type="${test.junit.output.format}" sendSysOut="true" sendSysErr="true"/>
+        <fork dir="${basedir}">
+          <jvmarg value="-Xmx1000m"/>
+          <sysproperty key="test.build.data" value="${test.build.data}"/>
+          <sysproperty key="test.src.dir" value="${test.src.dir}"/>
+          <sysproperty key="test.include.slow" value="${test.include.slow}"/>
+          <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
+        </fork>
+        <fileset dir="${test.build.classes}">
+          <include name="**/Test*.class"/>
+          <exclude name="**/${test.exclude}.class"/>
+        </fileset>
+      </testclasses>
+      <testclasses outputDir="${test.build.dir}" if="testcase" includeEngines="junit-vintage">
+        <listener type="${test.junit.output.format}" sendSysOut="true" sendSysErr="true"/>
+        <fork dir="${basedir}">
+          <jvmarg value="-Xmx1000m"/>
+          <sysproperty key="test.build.data" value="${test.build.data}"/>
+          <sysproperty key="test.src.dir" value="${test.src.dir}"/>
+          <sysproperty key="test.include.slow" value="${test.include.slow}"/>
+          <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
+        </fork>
+        <fileset dir="${test.build.classes}">
+          <include name="**/${testcase}.class"/>
+        </fileset>
+      </testclasses>
+    </junitlauncher>
 
     <fail if="tests.failed">Tests failed!</fail>
-
   </target>
 
-  <target name="test-plugins" depends="resolve-test, compile, compile-core-test" description="--> run plugin JUnit tests only">
+  <target name="test-plugins" depends="resolve-test, compile, compile-core-test" description="--> run JUnit tests for all plugins">
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 
-  <target name="test-plugin" depends="resolve-test, compile, compile-core-test" description="--> run a single plugin's JUnit tests">
+  <target name="test-plugin" depends="resolve-test, compile, compile-core-test" description="--> run JUnit tests for a single plugin">
     <ant dir="src/plugin" target="test-single" inheritAll="false"/>
   </target>
 
@@ -541,7 +542,7 @@
     <antcall target="copy-libs"/>
   </target>
 
-  <target name="resolve-test" depends="clean-test-lib, init" description="--> resolve and retrieve dependencies with ivy">
+  <target name="resolve-test" depends="clean-test-lib, init" description="--> resolve and retrieve test dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="test" log="download-only"/>
     <ivy:retrieve pattern="${test.build.lib.dir}/[artifact]-[revision](-[classifier]).[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
