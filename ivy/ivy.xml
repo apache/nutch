@@ -124,7 +124,6 @@
         <dependency org="org.junit.platform" name="junit-platform-launcher" rev="1.13.4" conf="test->default"/>
         <!-- JUnit Vintage Engine (to run existing JUnit 4 tests). Remove once migration is complete -->
         <dependency org="org.junit.vintage" name="junit-vintage-engine" rev="5.13.4" conf="test->default"/>
-        <!--dependency org="org.opentest4j" name="opentest4j" rev="1.3.0" conf="test->default"/-->
 		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">
 			<artifact name="mrunit" ns0:classifier="hadoop2" />
 			<exclude org="log4j" module="log4j" />
