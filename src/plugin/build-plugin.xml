@@ -208,27 +208,11 @@
   <!-- ================================================================== -->
   <target name="test" depends="compile-test, deploy" if="test.available">
     <echo message="Testing plugin: ${name}"/>
-
-    <!--junit printsummary="yes" haltonfailure="no" fork="yes"
-      errorProperty="tests.failed" failureProperty="tests.failed">
-      <sysproperty key="test.data" value="${build.test}/data"/>
-      <sysproperty key="test.input" value="${root}/data"/>
-      <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/> 
-      <classpath refid="test.classpath"/>
-      <formatter type="${test.junit.output.format}" />
-      <batchtest todir="${build.test}" unless="testcase">
-        <fileset dir="${src.test}"
-                 includes="**/Test*.java" excludes="**/${test.exclude}.java" />
-      </batchtest>
-      <batchtest todir="${build.test}" if="testcase">
-        <fileset dir="${src.test}" includes="**/${testcase}.java"/>
-      </batchtest>
-    </junit-->
-
     <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
       <testclasses outputDir="${build.test}" unless="testcase">
-        <listener type="${test.junit.output.format}" sendSysOut="true" sendSysErr="true"/>
+        <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
+        <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork dir="${basedir}">
           <sysproperty key="test.data" value="${build.test}/data"/>
           <sysproperty key="test.input" value="${root}/data"/>
@@ -240,7 +224,8 @@
         </fileset>
       </testclasses>
       <testclasses outputDir="${build.test}" if="testcase">
-        <listener type="${test.junit.output.format}" sendSysOut="true" sendSysErr="true"/>
+        <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
+        <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork dir="${basedir}">
           <sysproperty key="test.data" value="${build.test}/data"/>
           <sysproperty key="test.input" value="${root}/data"/>
@@ -251,7 +236,6 @@
         </fileset>
       </testclasses>
     </junitlauncher>
-
     <fail if="tests.failed">Tests failed!</fail>
   </target>   
 
