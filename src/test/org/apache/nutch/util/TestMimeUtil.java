@@ -102,7 +102,7 @@ public class TestMimeUtil {
     for (String[] testPage : textBasedFormats) {
       String mimeType = getMimeType(urlPrefix,
           testPage[3].getBytes(defaultCharset), testPage[2], true);
-      assertEquals("", testPage[0], mimeType);
+      assertEquals(testPage[0], mimeType);
     }
   }
 
@@ -115,7 +115,7 @@ public class TestMimeUtil {
       }
       String mimeType = getMimeType(urlPrefix + testPage[1],
           testPage[3].getBytes(defaultCharset), testPage[2], false);
-      assertEquals("", testPage[0], mimeType);
+      assertEquals(testPage[0], mimeType);
     }
   }
 
@@ -125,7 +125,7 @@ public class TestMimeUtil {
     for (String[] testPage : textBasedFormats) {
       String mimeType = getMimeType(urlPrefix,
           testPage[3].getBytes(defaultCharset), "", true);
-      assertEquals("", testPage[0], mimeType);
+      assertEquals(testPage[0], mimeType);
     }
   }
 
@@ -136,7 +136,7 @@ public class TestMimeUtil {
       File dataFile = new File(sampleDir, testPage[1]);
       String mimeType = getMimeType(urlPrefix + testPage[1], dataFile,
           testPage[2], false);
-      assertEquals("", testPage[0], mimeType);
+      assertEquals(testPage[0], mimeType);
     }
   }
 
