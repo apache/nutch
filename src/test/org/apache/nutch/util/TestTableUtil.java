@@ -16,8 +16,9 @@
  */
 package org.apache.nutch.util;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestTableUtil {
 
@@ -38,7 +39,7 @@ public class TestTableUtil {
   String reversedUrlString6 = "com.foo:http";
   String reversedUrlString7 = ":file/var/www/index.html";
 
-  @Test
+  @org.junit.jupiter.api.Test
   public void testReverseUrl() throws Exception {
     assertReverse(urlString1, reversedUrlString1);
     assertReverse(urlString2, reversedUrlString2);

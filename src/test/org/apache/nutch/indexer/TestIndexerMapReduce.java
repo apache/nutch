@@ -16,9 +16,10 @@
  */
 package org.apache.nutch.indexer;
 
-import java.lang.invoke.MethodHandles;
-
 import org.apache.commons.codec.binary.Base64;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
 import org.apache.hadoop.mrunit.types.Pair;
 import org.apache.hadoop.util.StringUtils;
@@ -32,22 +33,19 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Reducer;
-
-import static org.junit.Assert.*;
-
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /** Test {@link IndexerMapReduce} */
 public class TestIndexerMapReduce {
@@ -128,7 +126,7 @@ public class TestIndexerMapReduce {
 
       NutchDocument doc = runIndexer(crawlDatumDbFetched,
           crawlDatumFetchSuccess, parseText, parseData, content);
-      assertNotNull("No NutchDocument indexed", doc);
+      assertNotNull(doc, "No NutchDocument indexed");
 
       String binaryContentBase64 = (String) doc.getField("binaryContent")
           .getValues().get(0);
@@ -136,9 +134,8 @@ public class TestIndexerMapReduce {
       String binaryContent = new String(
           Base64.decodeBase64(binaryContentBase64), charset);
       LOG.info("binary content (decoded): {}", binaryContent);
-      assertEquals(
-          "Binary content (" + charset + ") not correctly saved as base64",
-          htmlDoc, binaryContent);
+      assertEquals(htmlDoc, binaryContent,
+          "Binary content (" + charset + ") not correctly saved as base64");
     }
   }
 

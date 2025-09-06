@@ -24,9 +24,10 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.google.common.io.Files;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestMimeUtil extends TestCase {
+public class TestMimeUtil {
 
   public static String urlPrefix = "http://localhost/";
 
@@ -96,6 +97,7 @@ public class TestMimeUtil extends TestCase {
   }
 
   /** use HTTP Content-Type, URL pattern, and MIME magic */
+  @Test
   public void testWithMimeMagic() {
     for (String[] testPage : textBasedFormats) {
       String mimeType = getMimeType(urlPrefix,
@@ -105,6 +107,7 @@ public class TestMimeUtil extends TestCase {
   }
 
   /** use only HTTP Content-Type (if given) and URL pattern */
+  @Test
   public void testWithoutMimeMagic() {
     for (String[] testPage : textBasedFormats) {
       if (testPage.length > 4 && "requires-mime-magic".equals(testPage[4])) {
@@ -117,6 +120,7 @@ public class TestMimeUtil extends TestCase {
   }
 
   /** use only MIME magic (detection from content bytes) */
+  @Test
   public void testOnlyMimeMagic() {
     for (String[] testPage : textBasedFormats) {
       String mimeType = getMimeType(urlPrefix,
@@ -126,6 +130,7 @@ public class TestMimeUtil extends TestCase {
   }
 
   /** test binary file formats (real files) */
+  @Test
   public void testBinaryFiles() throws IOException {
     for (String[] testPage : binaryFiles) {
       File dataFile = new File(sampleDir, testPage[1]);

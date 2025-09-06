@@ -20,7 +20,7 @@ import java.lang.invoke.MethodHandles;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

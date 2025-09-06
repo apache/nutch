@@ -28,10 +28,12 @@ import java.util.Properties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the plugin system
@@ -43,7 +45,7 @@ public class TestPluginSystem {
   private Configuration conf;
   private PluginRepository repository;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     this.conf = NutchConfiguration.create();
     conf.set("plugin.includes", ".*");
@@ -54,12 +56,7 @@ public class TestPluginSystem {
     this.repository = PluginRepository.get(conf);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see junit.framework.TestCase#tearDown()
-   */
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     for (int i = 0; i < fFolders.size(); i++) {
       File folder = fFolders.get(i);
@@ -70,41 +67,41 @@ public class TestPluginSystem {
 
   /**
    */
-  @Test
+  @org.junit.jupiter.api.Test
   public void testPluginConfiguration() {
     String string = getPluginFolder();
     File file = new File(string);
     if (!file.exists()) {
       file.mkdir();
     }
-    Assert.assertTrue(file.exists());
+    assertTrue(file.exists());
   }
 
   /**
    */
-  @Test
+  @org.junit.jupiter.api.Test
   public void testLoadPlugins() {
     PluginDescriptor[] descriptors = repository.getPluginDescriptors();
     int k = descriptors.length;
-    Assert.assertTrue(fPluginCount <= k);
+    assertTrue(fPluginCount <= k);
     for (int i = 0; i < descriptors.length; i++) {
       PluginDescriptor descriptor = descriptors[i];
       if (!descriptor.getPluginId().startsWith("getPluginFolder()")) {
         continue;
       }
-      Assert.assertEquals(1, descriptor.getExportedLibUrls().length);
-      Assert.assertEquals(1, descriptor.getNotExportedLibUrls().length);
+      assertEquals(1, descriptor.getExportedLibUrls().length);
+      assertEquals(1, descriptor.getNotExportedLibUrls().length);
     }
   }
 
-  @Test
+  @org.junit.jupiter.api.Test
   public void testRepositoryCache() throws IOException {
     Configuration config = NutchConfiguration.create();
     PluginRepository repo = PluginRepository.get(config);
     Job job = Job.getInstance(config);
     config = job.getConfiguration();
     PluginRepository repo1 = PluginRepository.get(config);
-    Assert.assertTrue(repo == repo1);
+    assertSame(repo, repo1);
     // now construct a config without UUID
     config = new Configuration();
     config.addResource("nutch-default.xml");
@@ -113,43 +110,43 @@ public class TestPluginSystem {
     job = Job.getInstance(config);
     config = job.getConfiguration();
     repo1 = PluginRepository.get(config);
-    Assert.assertTrue(repo1 != repo);
+    assertNotSame(repo1, repo);
   }
 
   /**
    *  
    */
-  @Test
+  @org.junit.jupiter.api.Test
   public void testGetExtensionAndAttributes() {
     String xpId = " sdsdsd";
     ExtensionPoint extensionPoint = repository.getExtensionPoint(xpId);
-    Assert.assertEquals(extensionPoint, null);
+    assertNull(extensionPoint);
     Extension[] extension1 = repository.getExtensionPoint(getGetExtensionId())
         .getExtensions();
-    Assert.assertEquals(extension1.length, fPluginCount);
+    assertEquals(extension1.length, fPluginCount);
     for (int i = 0; i < extension1.length; i++) {
       Extension extension2 = extension1[i];
       String string = extension2.getAttribute(getGetConfigElementName());
-      Assert.assertEquals(string, getParameterValue());
+      assertEquals(string, getParameterValue());
     }
   }
 
   /**
    * @throws PluginRuntimeException
    */
-  @Test
+  @org.junit.jupiter.api.Test
   public void testGetExtensionInstances() throws PluginRuntimeException {
     Extension[] extensions = repository.getExtensionPoint(getGetExtensionId())
         .getExtensions();
-    Assert.assertEquals(extensions.length, fPluginCount);
+    assertEquals(extensions.length, fPluginCount);
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
       Object object = extension.getExtensionInstance();
       if (!(object instanceof HelloWorldExtension))
-        Assert.fail(" object is not a instance of HelloWorldExtension");
+        fail(" object is not a instance of HelloWorldExtension");
       ((ITestExtension) object).testGetExtension("Bla ");
       String string = ((ITestExtension) object).testGetExtension("Hello");
-      Assert.assertEquals("Hello World", string);
+      assertEquals("Hello World", string);
     }
   }
 
@@ -162,14 +159,14 @@ public class TestPluginSystem {
     PluginDescriptor[] descriptors = repository.getPluginDescriptors();
     for (int i = 0; i < descriptors.length; i++) {
       PluginDescriptor descriptor = descriptors[i];
-      Assert.assertNotNull(descriptor.getClassLoader());
+      assertNotNull(descriptor.getClassLoader());
     }
   }
 
   /**
    * @throws IOException
    */
-  @Test
+  @org.junit.jupiter.api.Test
   public void testGetResources() throws IOException {
     PluginDescriptor[] descriptors = repository.getPluginDescriptors();
     for (int i = 0; i < descriptors.length; i++) {
@@ -178,9 +175,9 @@ public class TestPluginSystem {
         continue;
       }
       String value = descriptor.getResourceString("key", Locale.UK);
-      Assert.assertEquals("value", value);
+      assertEquals("value", value);
       value = descriptor.getResourceString("key", Locale.TRADITIONAL_CHINESE);
-      Assert.assertEquals("value", value);
+      assertEquals("value", value);
 
     }
   }
@@ -191,7 +188,7 @@ public class TestPluginSystem {
   private String getPluginFolder() {
     String[] strings = conf.getStrings("plugin.folders");
     if (strings == null || strings.length == 0)
-      Assert.fail("no plugin directory setuped..");
+      fail("no plugin directory setuped..");
 
     String name = strings[0];
     return new PluginManifestParser(conf, this.repository)

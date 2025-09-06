@@ -16,6 +16,17 @@
  */
 package org.apache.nutch.crawl;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Reducer.Context;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.scoring.ScoringFilters;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -23,24 +34,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.StringUtils;
-
 import static org.apache.nutch.crawl.CrawlDatum.*;
-
-import org.apache.nutch.scoring.ScoringFilterException;
-import org.apache.nutch.scoring.ScoringFilters;
-
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Reducer.Context;
-import org.apache.hadoop.io.Text;
-
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test transitions of {@link CrawlDatum} states during an update of

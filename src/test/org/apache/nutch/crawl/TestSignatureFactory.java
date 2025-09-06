@@ -18,8 +18,10 @@ package org.apache.nutch.crawl;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestSignatureFactory {
 
@@ -28,8 +30,8 @@ public class TestSignatureFactory {
     Configuration conf = NutchConfiguration.create();
     Signature signature1 = SignatureFactory.getSignature(conf);
     Signature signature2 = SignatureFactory.getSignature(conf);
-    Assert.assertNotNull(signature1);
-    Assert.assertNotNull(signature2);
-    Assert.assertEquals(signature1, signature2);
+    assertNotNull(signature1);
+    assertNotNull(signature2);
+    assertEquals(signature1, signature2);
   }
 }

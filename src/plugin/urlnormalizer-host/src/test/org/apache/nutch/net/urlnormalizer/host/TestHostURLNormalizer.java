@@ -20,7 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestHostURLNormalizer {
 

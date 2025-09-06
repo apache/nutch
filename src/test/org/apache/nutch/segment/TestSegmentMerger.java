@@ -29,12 +29,14 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class TestSegmentMerger {
   Configuration conf;
@@ -45,12 +47,12 @@ public class TestSegmentMerger {
   Path out;
   int countSeg1, countSeg2;
 
-  @BeforeClass
+  @BeforeAll
   public static void checkConditions() throws Exception {
-    Assume.assumeTrue(Boolean.getBoolean("test.include.slow"));
+    assumeTrue(Boolean.getBoolean("test.include.slow"));
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
@@ -98,7 +100,7 @@ public class TestSegmentMerger {
     System.err.println(" - done: " + countSeg2 + " records.");
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     fs.delete(testDir, true);
   }
@@ -110,7 +112,7 @@ public class TestSegmentMerger {
     // verify output
     FileStatus[] stats = fs.listStatus(out);
     // there should be just one path
-    Assert.assertEquals(1, stats.length);
+    assertEquals(1, stats.length);
     Path outSeg = stats[0].getPath();
     Text k = new Text();
     ParseText v = new ParseText();
@@ -123,16 +125,16 @@ public class TestSegmentMerger {
         String vs = v.getText();
         if (ks.startsWith("seg1-")) {
           cnt1++;
-          Assert.assertTrue(vs.startsWith("seg1 "));
+          assertTrue(vs.startsWith("seg1 "));
         } else if (ks.startsWith("seg2-")) {
           cnt2++;
-          Assert.assertTrue(vs.startsWith("seg2 "));
+          assertTrue(vs.startsWith("seg2 "));
         }
       }
       r.close();
     }
-    Assert.assertEquals(countSeg1, cnt1);
-    Assert.assertEquals(countSeg2, cnt2);
+    assertEquals(countSeg1, cnt1);
+    assertEquals(countSeg2, cnt2);
   }
 
 }

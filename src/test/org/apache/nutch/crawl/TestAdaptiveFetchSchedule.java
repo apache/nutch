@@ -16,19 +16,20 @@
  */
 package org.apache.nutch.crawl;
 
-import junit.framework.TestCase;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Test cases for AdaptiveFetchSchedule.
  * 
  */
-public class TestAdaptiveFetchSchedule extends TestCase {
+public class TestAdaptiveFetchSchedule {
 
   private float inc_rate;
   private float dec_rate;
@@ -36,10 +37,8 @@ public class TestAdaptiveFetchSchedule extends TestCase {
   private long curTime, lastModified;
   private int changed, interval, calculateInterval;
 
-  @Override
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
-    super.setUp();
     conf = NutchConfiguration.create();
     inc_rate = conf.getFloat("db.fetch.schedule.adaptive.inc_rate", 0.2f);
     dec_rate = conf.getFloat("db.fetch.schedule.adaptive.dec_rate", 0.2f);
@@ -106,15 +105,15 @@ public class TestAdaptiveFetchSchedule extends TestCase {
   private void validateFetchInterval(int changed, int getInterval) {
 
     if (changed == FetchSchedule.STATUS_UNKNOWN) {
-      assertEquals(getInterval, interval);
+      assertThat(interval, is(getInterval));
 
     } else if (changed == FetchSchedule.STATUS_MODIFIED) {
       calculateInterval = (int) (interval - (interval * dec_rate));
-      assertEquals(getInterval, calculateInterval);
+      assertThat(calculateInterval, is(getInterval));
 
     } else if (changed == FetchSchedule.STATUS_NOTMODIFIED) {
       calculateInterval = (int) (interval + (interval * inc_rate));
-      assertEquals(getInterval, calculateInterval);
+      assertThat(calculateInterval, is(getInterval));
     }
 
   }

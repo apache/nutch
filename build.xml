@@ -486,9 +486,9 @@
     <copy file="${test.src.dir}/domain-urlfilter.txt" todir="${test.build.classes}"/>
     <copy file="${test.src.dir}/filter-all.txt" todir="${test.build.classes}"/>
 
-    <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
+    <junitlauncher printSummary="true" haltOnFailure="false" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
-      <testclasses outputDir="${test.build.dir}" unless="testcase" includeEngines="junit-vintage">
+      <testclasses outputDir="${test.build.dir}" unless="testcase">
         <listener type="${test.junit.output.format}" sendSysOut="true" sendSysErr="true"/>
         <fork dir="${basedir}">
           <jvmarg value="-Xmx1000m"/>
@@ -502,7 +502,7 @@
           <exclude name="**/${test.exclude}.class"/>
         </fileset>
       </testclasses>
-      <testclasses outputDir="${test.build.dir}" if="testcase" includeEngines="junit-vintage">
+      <testclasses outputDir="${test.build.dir}" if="testcase">
         <listener type="${test.junit.output.format}" sendSysOut="true" sendSysErr="true"/>
         <fork dir="${basedir}">
           <jvmarg value="-Xmx1000m"/>

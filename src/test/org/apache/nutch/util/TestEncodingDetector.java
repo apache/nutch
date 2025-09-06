@@ -22,8 +22,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestEncodingDetector {
   private static Configuration conf = NutchConfiguration.create();
@@ -54,7 +55,7 @@ public class TestEncodingDetector {
     detector.autoDetectClues(content, true);
     encoding = detector.guessEncoding(content, "windows-1252");
     // no information is available, so it should return default encoding
-    Assert.assertEquals("windows-1252", encoding.toLowerCase());
+    assertEquals("windows-1252", encoding.toLowerCase());
 
     metadata.clear();
     metadata.set(Response.CONTENT_TYPE, "text/plain; charset=UTF-16");
@@ -63,7 +64,7 @@ public class TestEncodingDetector {
     detector = new EncodingDetector(conf);
     detector.autoDetectClues(content, true);
     encoding = detector.guessEncoding(content, "windows-1252");
-    Assert.assertEquals("utf-16", encoding.toLowerCase());
+    assertEquals("utf-16", encoding.toLowerCase());
 
     metadata.clear();
     content = new Content("http://www.example.com", "http://www.example.com/",
@@ -72,7 +73,7 @@ public class TestEncodingDetector {
     detector.autoDetectClues(content, true);
     detector.addClue("windows-1254", "sniffed");
     encoding = detector.guessEncoding(content, "windows-1252");
-    Assert.assertEquals("windows-1254", encoding.toLowerCase());
+    assertEquals("windows-1254", encoding.toLowerCase());
 
     // enable autodetection
     conf.setInt(EncodingDetector.MIN_CONFIDENCE_KEY, 50);
@@ -84,7 +85,7 @@ public class TestEncodingDetector {
     detector.autoDetectClues(content, true);
     detector.addClue("utf-32", "sniffed");
     encoding = detector.guessEncoding(content, "windows-1252");
-    Assert.assertEquals("utf-8", encoding.toLowerCase());
+    assertEquals("utf-8", encoding.toLowerCase());
   }
 
 }

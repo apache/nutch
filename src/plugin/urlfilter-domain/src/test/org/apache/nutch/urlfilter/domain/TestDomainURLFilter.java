@@ -19,14 +19,14 @@ package org.apache.nutch.urlfilter.domain;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestDomainURLFilter {
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");
 
-  @Test
+  @org.junit.jupiter.api.Test
   public void testFilter() throws Exception {
 
     String domainFile = SAMPLES + SEPARATOR + "hosts.txt";

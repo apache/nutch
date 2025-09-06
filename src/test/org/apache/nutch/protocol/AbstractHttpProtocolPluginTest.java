@@ -41,8 +41,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.Response;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +94,7 @@ public abstract class AbstractHttpProtocolPluginTest {
 
   protected abstract String getPluginClassName();
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     conf = new Configuration();
     conf.addResource("nutch-default.xml");
@@ -110,7 +110,7 @@ public abstract class AbstractHttpProtocolPluginTest {
     http.setConf(conf);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     if (server != null) {
       server.close();

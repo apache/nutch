@@ -16,10 +16,6 @@
  */
 package org.apache.nutch.fetcher;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -32,11 +28,17 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.eclipse.jetty.server.Server;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Basic fetcher test 1. generate seedlist 2. inject 3. generate 3. fetch 4.
@@ -53,7 +55,7 @@ public class TestFetcher {
   Path urlPath;
   Server server;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     conf = CrawlDBTestUtil.createContext().getConfiguration();
     fs = FileSystem.get(conf);
@@ -67,7 +69,7 @@ public class TestFetcher {
     server.start();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     server.stop();
     for (int i = 0; i < 5; i++) {
@@ -78,7 +80,7 @@ public class TestFetcher {
     fs.delete(testdir, true);
   }
 
-  @Test
+  @org.junit.jupiter.api.Test
   public void testFetch() throws IOException, ClassNotFoundException, InterruptedException {
 
     // generate seedlist
@@ -116,7 +118,7 @@ public class TestFetcher {
     // verify politeness, time taken should be more than (num_of_pages +1)*delay
     int minimumTime = (int) ((urls.size() + 1) * 1000 * conf.getFloat(
         "fetcher.server.delay", 5));
-    Assert.assertTrue(time > minimumTime);
+    assertTrue(time > minimumTime);
 
     // verify content
     Path content = new Path(new Path(generatedSegment[0], Content.DIR_NAME),
@@ -142,11 +144,11 @@ public class TestFetcher {
     Collections.sort(handledurls);
 
     // verify that enough pages were handled
-    Assert.assertEquals(urls.size(), handledurls.size());
+    assertEquals(urls.size(), handledurls.size());
 
     // verify that correct pages were handled
-    Assert.assertTrue(handledurls.containsAll(urls));
-    Assert.assertTrue(urls.containsAll(handledurls));
+    assertTrue(handledurls.containsAll(urls));
+    assertTrue(urls.containsAll(handledurls));
 
     handledurls.clear();
 
@@ -174,10 +176,10 @@ public class TestFetcher {
 
     Collections.sort(handledurls);
 
-    Assert.assertEquals(urls.size(), handledurls.size());
+    assertEquals(urls.size(), handledurls.size());
 
-    Assert.assertTrue(handledurls.containsAll(urls));
-    Assert.assertTrue(urls.containsAll(handledurls));
+    assertTrue(handledurls.containsAll(urls));
+    assertTrue(urls.containsAll(handledurls));
   }
 
   private void addUrl(ArrayList<String> urls, String page) {
@@ -201,7 +203,7 @@ public class TestFetcher {
     } catch (Exception e) {
     }
 
-    Assert.assertTrue(failedNoAgentName);
+    assertTrue(failedNoAgentName);
   }
 
 }

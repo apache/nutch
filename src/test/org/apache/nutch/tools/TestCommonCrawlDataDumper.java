@@ -16,15 +16,15 @@
  */
 package org.apache.nutch.tools;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * 
@@ -100,8 +100,8 @@ public class TestCommonCrawlDataDumper {
         FileFilterUtils.directoryFileFilter());
 
     for (String expectedFileName : crawledFiles) {
-      assertTrue("Missed file " + expectedFileName + " in dump", 
-          hasFile(expectedFileName, tempFiles));
+      assertTrue(hasFile(expectedFileName, tempFiles),
+          "Missed file " + expectedFileName + " in dump");
     }
 
   }

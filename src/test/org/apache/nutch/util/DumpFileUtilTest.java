@@ -16,9 +16,11 @@
  */
 package org.apache.nutch.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DumpFileUtilTest {
 
@@ -28,7 +30,7 @@ public class DumpFileUtilTest {
 
         String result = DumpFileUtil.getUrlMD5(testUrl);
 
-        assertEquals("991e599262e04ea2ec76b6c5aed499a7", result);
+        assertThat(result, is("991e599262e04ea2ec76b6c5aed499a7"));
     }
 
     @Test
@@ -37,12 +39,12 @@ public class DumpFileUtilTest {
         String basePath = "/tmp";
         String fullDir = DumpFileUtil.createTwoLevelsDirectory(basePath, DumpFileUtil.getUrlMD5(testUrl));
 
-        assertEquals("/tmp/96/ea", fullDir);
+        assertThat(fullDir, is("/tmp/96/ea"));
 
         String basePath2 = "/this/path/is/not/existed/just/for/testing";
         String fullDir2 = DumpFileUtil.createTwoLevelsDirectory(basePath2, DumpFileUtil.getUrlMD5(testUrl));
 
-        assertNull(fullDir2);
+        assertThat(fullDir2, nullValue());
     }
 
     @Test
@@ -52,16 +54,17 @@ public class DumpFileUtilTest {
         String extension = "html";
         String fullDir = DumpFileUtil.createFileName(DumpFileUtil.getUrlMD5(testUrl), baseName, extension);
 
-        assertEquals("991e599262e04ea2ec76b6c5aed499a7_test.html", fullDir);
+        assertThat(fullDir, is("991e599262e04ea2ec76b6c5aed499a7_test.html"));
 
         String tooLongBaseName = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
         String fullDir2 = DumpFileUtil.createFileName(DumpFileUtil.getUrlMD5(testUrl), tooLongBaseName, extension);
 
-        assertEquals("991e599262e04ea2ec76b6c5aed499a7_testtesttesttesttesttesttesttest.html", fullDir2);
+        assertThat(fullDir2,
+            is("991e599262e04ea2ec76b6c5aed499a7_testtesttesttesttesttesttesttest.html"));
 
         String tooLongExtension = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
         String fullDir3 = DumpFileUtil.createFileName(DumpFileUtil.getUrlMD5(testUrl), baseName, tooLongExtension);
 
-        assertEquals("991e599262e04ea2ec76b6c5aed499a7_test.testt", fullDir3);
+        assertThat(fullDir3, is("991e599262e04ea2ec76b6c5aed499a7_test.testt"));
     }
 }

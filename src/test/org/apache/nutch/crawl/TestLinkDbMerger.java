@@ -16,26 +16,28 @@
  */
 package org.apache.nutch.crawl;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.MapFile.Writer.Option;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.util.NutchConfiguration;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.MapFile.Writer.Option;
-import org.apache.nutch.util.NutchConfiguration;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestLinkDbMerger {
   private static final Logger LOG = LoggerFactory
@@ -68,7 +70,7 @@ public class TestLinkDbMerger {
   FileSystem fs;
   LinkDbReader reader;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     init1.put(url10, urls10);
     init1.put(url11, urls11);
@@ -85,7 +87,7 @@ public class TestLinkDbMerger {
     fs.mkdirs(testDir);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     try {
       if (fs.exists(testDir))
@@ -120,7 +122,7 @@ public class TestLinkDbMerger {
       String[] vals = expected.get(url);
       Inlinks inlinks = reader.getInlinks(new Text(url));
       // may not be null
-      Assert.assertNotNull(inlinks);
+      assertNotNull(inlinks);
       ArrayList<String> links = new ArrayList<String>();
       Iterator<?> it2 = inlinks.iterator();
       while (it2.hasNext()) {
@@ -129,7 +131,7 @@ public class TestLinkDbMerger {
       }
       for (int i = 0; i < vals.length; i++) {
         LOG.debug(" -> {}", vals[i]);
-        Assert.assertTrue(links.contains(vals[i]));
+        assertTrue(links.contains(vals[i]));
       }
     }
     reader.close();

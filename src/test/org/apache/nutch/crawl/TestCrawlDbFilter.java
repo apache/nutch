@@ -16,9 +16,6 @@
  */
 package org.apache.nutch.crawl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -26,15 +23,19 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.SequenceFile.Reader.Option;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * CrawlDbFiltering test which tests for correct, error free url normalization
@@ -50,14 +51,14 @@ public class TestCrawlDbFilter {
   final static Path testdir = new Path("build/test/crawldbfilter-test");
   FileSystem fs;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     conf = CrawlDBTestUtil.createContext().getConfiguration();
     fs = FileSystem.get(conf);
     fs.delete(testdir, true);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     delete(testdir);
   }
@@ -114,7 +115,7 @@ public class TestCrawlDbFilter {
     ArrayList<URLCrawlDatum> l = readContents(fetchlist);
 
     // verify we got right amount of records
-    Assert.assertEquals(2, l.size());
+    assertEquals(2, l.size());
   }
 
   /**
