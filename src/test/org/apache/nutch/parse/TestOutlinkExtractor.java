@@ -46,7 +46,7 @@ public class TestOutlinkExtractor {
     assertEquals(0, outlinks.length);
   }
 
-  @org.junit.jupiter.api.Test
+  @Test
   public void testGetOutlinksHttp() {
     Outlink[] outlinks = OutlinkExtractor
         .getOutlinks(
@@ -56,15 +56,15 @@ public class TestOutlinkExtractor {
             conf);
 
     assertEquals(3, outlinks.length, "Url not found!");
-    assertEquals("Wrong URL", "http://www.nutch.org/index.html",
-        outlinks[0].getToUrl());
-    assertEquals("Wrong URL", "http://www.google.de",
-        outlinks[1].getToUrl());
-    assertEquals("Wrong URL",
-        "http://www.sybit.com/solutions/portals.html", outlinks[2].getToUrl());
+    assertEquals("http://www.nutch.org/index.html",
+        outlinks[0].getToUrl(), "Wrong URL");
+    assertEquals( "http://www.google.de",
+        outlinks[1].getToUrl(), "Wrong URL");
+    assertEquals("http://www.sybit.com/solutions/portals.html",
+        outlinks[2].getToUrl(), "Wrong URL");
   }
 
-  @org.junit.jupiter.api.Test
+  @Test
   public void testGetOutlinksHttp2() {
     Outlink[] outlinks = OutlinkExtractor
         .getOutlinks(
@@ -74,12 +74,12 @@ public class TestOutlinkExtractor {
             "http://www.sybit.de", conf);
 
     assertEquals(3, outlinks.length, "Url not found!");
-    assertEquals("Wrong URL", "http://www.nutch.org/index.html",
-        outlinks[0].getToUrl());
-    assertEquals("Wrong URL", "http://www.google.de",
-        outlinks[1].getToUrl());
-    assertEquals("Wrong URL",
-        "http://www.sybit.com/solutions/portals.html", outlinks[2].getToUrl());
+    assertEquals("http://www.nutch.org/index.html",
+        outlinks[0].getToUrl(), "Wrong URL");
+    assertEquals("http://www.google.de", outlinks[1].getToUrl(),
+        "Wrong URL");
+    assertEquals("http://www.sybit.com/solutions/portals.html",
+        outlinks[2].getToUrl(), "Wrong URL");
   }
 
   @org.junit.jupiter.api.Test
@@ -89,9 +89,9 @@ public class TestOutlinkExtractor {
             + "What about www.google.com at ftp://www.google.de", conf);
 
     assertTrue(outlinks.length > 1, "Url not found!");
-    assertEquals("Wrong URL", "ftp://www.nutch.org",
-        outlinks[0].getToUrl());
-    assertEquals("Wrong URL", "ftp://www.google.de",
-        outlinks[1].getToUrl());
+    assertEquals( "ftp://www.nutch.org", outlinks[0].getToUrl(),
+        "Wrong URL");
+    assertEquals( "ftp://www.google.de", outlinks[1].getToUrl(),
+        "Wrong URL");
   }
 }
