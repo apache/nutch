@@ -19,7 +19,7 @@ package org.apache.nutch.urlfilter.domain;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Assert;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class TestDomainURLFilter {
 
