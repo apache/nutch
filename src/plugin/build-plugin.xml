@@ -80,6 +80,7 @@
     </fileset>
     <!-- global test dependencies -->
     <fileset dir="${nutch.root}/build/test/lib">
+      <include name="apiguardian*.jar" />
       <include name="hamcrest*.jar" />
       <include name="junit*.jar" />
       <include name="opentest4j*.jar" />
@@ -210,7 +211,7 @@
     <echo message="Testing plugin: ${name}"/>
     <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
-      <testclasses outputDir="${build.test}" unless="testcase">
+      <testclasses outputDir="${build.test}" unless="testcase" includeEngines="junit-vintage">
         <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork dir="${basedir}">
@@ -223,7 +224,7 @@
           <exclude name="**/${test.exclude}.class"/>
         </fileset>
       </testclasses>
-      <testclasses outputDir="${build.test}" if="testcase">
+      <testclasses outputDir="${build.test}" if="testcase" includeEngines="junit-vintage">
         <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork dir="${basedir}">
