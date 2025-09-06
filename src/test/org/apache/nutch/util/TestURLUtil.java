@@ -284,7 +284,7 @@ public class TestURLUtil {
     assertEquals("http://www.fleurie.org/entreprise.asp?id_entrep=111",
         abs.toString());
     URL base = new URL(baseString);
-    assertEquals("base url parsing", baseString, base.toString());
+    assertEquals(baseString, base.toString(), "base url parsing");
     for (int i = 0; i < targets.length; i++) {
       URL u = URLUtil.resolveURL(base, targets[i][0]);
       assertEquals(targets[i][1], targets[i][1], u.toString());
