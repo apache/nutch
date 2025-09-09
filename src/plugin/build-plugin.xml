@@ -214,7 +214,8 @@
       <testclasses outputDir="${build.test}" unless="testcase" includeEngines="junit-vintage">
         <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
-        <fork dir="${basedir}">
+        <fork dir="${build.test}">
+          <jvmarg value="-Xmx1000m"/>
           <sysproperty key="test.data" value="${build.test}/data"/>
           <sysproperty key="test.input" value="${root}/data"/>
           <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
@@ -227,12 +228,13 @@
       <testclasses outputDir="${build.test}" if="testcase" includeEngines="junit-vintage">
         <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
-        <fork dir="${basedir}">
+        <fork dir="${build.test}">
+          <jvmarg value="-Xmx1000m"/>
           <sysproperty key="test.data" value="${build.test}/data"/>
           <sysproperty key="test.input" value="${root}/data"/>
           <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
         </fork>
-        <fileset dir="${build.test}">
+        <fileset dir="${basedir}">
           <include name="**/${testcase}.class"/>
         </fileset>
       </testclasses>

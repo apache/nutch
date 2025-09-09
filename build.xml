@@ -487,7 +487,7 @@
     <copy file="${test.src.dir}/filter-all.txt" todir="${test.build.classes}"/>
     <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
-      <testclasses outputDir="${test.build.dir}" unless="testcase">
+      <testclasses outputDir="${test.build.dir}" unless="testcase" includeEngines="junit-jupiter">
         <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork dir="${basedir}">
@@ -502,7 +502,7 @@
           <exclude name="**/${test.exclude}.class"/>
         </fileset>
       </testclasses>
-      <testclasses outputDir="${test.build.dir}" if="testcase">
+      <testclasses outputDir="${test.build.dir}" if="testcase" includeEngines="junit-jupiter">
         <listener type="legacy-plain" sendSysOut="true" sendSysErr="true"/>
         <listener type="legacy-xml" sendSysOut="true" sendSysErr="true"/>
         <fork dir="${basedir}">
