@@ -38,6 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 
+@Ignore("Must disable due to incompatible dependency on JUnit 5 in core. " +
+    "Will reactivate once JUnit 5 upgrade is complete in core and plugins " +
+    "can be upgraded to JUnit 5. Part of NUTCH-2887 Migrate to JUnit 5 Jupiter")
 public class TestResponse extends AbstractHttpProtocolPluginTest {
 
   protected static final String redirectHeader = "HTTP/1.1 301 Moved Permanently\r\n" //

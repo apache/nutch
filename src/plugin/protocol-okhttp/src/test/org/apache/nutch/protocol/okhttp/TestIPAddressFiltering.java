@@ -26,6 +26,7 @@ import java.util.function.Function;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.net.InetAddresses;
@@ -33,6 +34,9 @@ import com.google.common.net.InetAddresses;
 /**
  * Test cases for protocol-okhttp IP address filtering
  */
+@Ignore("Must disable due to incompatible dependency on JUnit 5 in core. " +
+    "Will reactivate once JUnit 5 upgrade is complete in core and plugins " +
+    "can be upgraded to JUnit 5. Part of NUTCH-2887 Migrate to JUnit 5 Jupiter")
 public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
 
   @Override

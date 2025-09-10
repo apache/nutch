@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.apache.nutch.protocol.ProtocolOutput;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,9 @@ import org.slf4j.LoggerFactory;
  * Test cases for protocol-http - robustness regarding bad server responses:
  * malformed HTTP header lines, etc. See, NUTCH-2549.
  */
+@Ignore("Must disable due to incompatible dependency on JUnit 5 in core. " +
+    "Will reactivate once JUnit 5 upgrade is complete in core and plugins " +
+    "can be upgraded to JUnit 5. Part of NUTCH-2887 Migrate to JUnit 5 Jupiter")
 public class TestBadServerResponses extends AbstractHttpProtocolPluginTest {
 
   private static final Logger LOG = LoggerFactory
