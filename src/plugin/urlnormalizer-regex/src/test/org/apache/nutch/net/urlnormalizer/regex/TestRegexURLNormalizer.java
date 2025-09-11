@@ -27,14 +27,16 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /** Unit tests for RegexUrlNormalizer. */
 public class TestRegexURLNormalizer {
@@ -101,7 +103,7 @@ public class TestRegexURLNormalizer {
       String expected = urls[i].expectedURL;
       LOG.info("scope: {} url: {} | normalized: {} | expected: {}", scope, url,
           normalized, expected);
-      Assert.assertEquals(urls[i].expectedURL, normalized);
+      assertEquals(urls[i].expectedURL, normalized);
     }
   }
 
@@ -116,7 +118,7 @@ public class TestRegexURLNormalizer {
         normalizeTest(expected, scope);
       }
     } catch (Exception e) {
-      Assert.fail(e.toString());
+      fail(e.toString());
     }
     stopWatch.stop();
     LOG.info("bench time ({}) {}ms", loops,

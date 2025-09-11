@@ -23,10 +23,11 @@ import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestMetadataScoringFilter {
 
@@ -60,8 +61,8 @@ public class TestMetadataScoringFilter {
       Text parent = (Text) outlink.getMetaData().get(new Text(PARENT));
       Text depth = (Text) outlink.getMetaData().get(new Text(DEPTH));
 
-      Assert.assertEquals(parentMD,parent.toString());
-      Assert.assertEquals(depthMD,depth.toString());
+      assertEquals(parentMD,parent.toString());
+      assertEquals(depthMD,depth.toString());
     }
   }
 
@@ -87,8 +88,8 @@ public class TestMetadataScoringFilter {
 
     metadataScoringFilter.passScoreBeforeParsing(from,crawlDatum,content);
 
-    Assert.assertEquals(parentMD,content.getMetadata().get(PARENT));
-    Assert.assertEquals(depthMD,content.getMetadata().get(DEPTH));
+    assertEquals(parentMD,content.getMetadata().get(PARENT));
+    assertEquals(depthMD,content.getMetadata().get(DEPTH));
   }
 
   @Test
@@ -118,7 +119,7 @@ public class TestMetadataScoringFilter {
     metadataScoringFilter.passScoreAfterParsing(from,content,parse);
 
 
-    Assert.assertEquals(parentMD,parse.getData().getMeta(PARENT));
-    Assert.assertEquals(depthMD,parse.getData().getMeta(DEPTH));
+    assertEquals(parentMD,parse.getData().getMeta(PARENT));
+    assertEquals(depthMD,parse.getData().getMeta(DEPTH));
   }
 }

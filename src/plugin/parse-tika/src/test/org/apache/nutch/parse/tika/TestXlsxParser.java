@@ -16,13 +16,16 @@
  */
 package org.apache.nutch.parse.tika;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.Test;
+import org.hamcrest.CoreMatchers.*;
+import org.hamcrest.MatcherAssert.*;
+import org.junit.jupiter.api.Test;
 
 public class TestXlsxParser extends TikaParserTest {
 
@@ -32,7 +35,7 @@ public class TestXlsxParser extends TikaParserTest {
     String expected = "test.txt This is a test for spreadsheets xlsx";
     // text is distributed over columns and rows, need to normalize white space
     found = found.replaceAll("\\s+", " ").trim();
-    assertEquals(found, expected);
+    assertThat(found, is(expected));
   }
 
 }

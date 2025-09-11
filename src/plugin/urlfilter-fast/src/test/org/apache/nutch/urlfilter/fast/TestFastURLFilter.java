@@ -23,8 +23,9 @@ import java.io.StringReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestFastURLFilter extends RegexURLFilterBaseTest {
 
@@ -33,7 +34,7 @@ public class TestFastURLFilter extends RegexURLFilterBaseTest {
     try {
       return new FastURLFilter(rules);
     } catch (IOException e) {
-      Assert.fail(e.toString());
+      fail(e.toString());
       return null;
     }
   }
@@ -65,14 +66,14 @@ public class TestFastURLFilter extends RegexURLFilterBaseTest {
     for (int i = 0; i < 50; i++) {
       url.append(i);
     }
-    Assert.assertEquals(null, filter.filter(url.toString()));
+    assertNull(filter.filter(url.toString()));
 
     url = new StringBuilder("http://nutch.apache.org/path?");
     for (int i = 0; i < 50; i++) {
       url.append(i);
     }
 
-    Assert.assertEquals(null, filter.filter(url.toString()));
+    assertNull(filter.filter(url.toString()));
   }
 
   @Test
@@ -86,6 +87,6 @@ public class TestFastURLFilter extends RegexURLFilterBaseTest {
     for (int i = 0; i < 500; i++) {
       url.append(i);
     }
-    Assert.assertEquals(null, filter.filter(url.toString()));
+    assertNull(filter.filter(url.toString()));
   }
 }

@@ -27,8 +27,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Based on Unit tests for MSWordParser by John Xing
@@ -63,10 +64,9 @@ public class TestZipParser {
           new CrawlDatum()).getContent();
       parse = new ParseUtil(conf).parseByExtensionId("parse-zip", content).get(
           content.getUrl());
-      Assert.assertTrue(
+      assertTrue(parse.getText().startsWith(expectedText),
           "Extracted text does not start with <" + expectedText + ">: <"
-              + parse.getText() + ">",
-          parse.getText().startsWith(expectedText));
+              + parse.getText() + ">");
     }
   }
 

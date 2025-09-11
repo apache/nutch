@@ -20,11 +20,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
-public class TestQuerystringURLNormalizer extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-  public void testQuerystringURLNormalizer() throws Exception {
+class TestQuerystringURLNormalizer {
+
+  @Test
+  void testQuerystringURLNormalizer() throws Exception {
     Configuration conf = NutchConfiguration.create();
 
     QuerystringURLNormalizer normalizer = new QuerystringURLNormalizer();

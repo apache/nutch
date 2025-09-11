@@ -17,26 +17,20 @@
 package org.apache.nutch.protocol.okhttp;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.InetAddress;
 import java.util.function.Function;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.net.InetAddresses;
 
 /**
  * Test cases for protocol-okhttp IP address filtering
  */
-@Ignore("Must disable due to incompatible dependency on JUnit 5 in core. " +
-    "Will reactivate once JUnit 5 upgrade is complete in core and plugins " +
-    "can be upgraded to JUnit 5. Part of NUTCH-2887 Migrate to JUnit 5 Jupiter")
 public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
 
   @Override
@@ -57,13 +51,13 @@ public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
   public void testCIDRcontains(String cidr, String ip) {
     CIDR c = new CIDR(cidr);
     InetAddress i = parseIP(ip);
-    assertTrue(i + " should be in " + c, c.contains(i));
+    assertTrue(c.contains(i), i + " should be in " + c);
   }
 
   public void testCIDRnotContains(String cidr, String ip) {
     CIDR c = new CIDR(cidr);
     InetAddress i = parseIP(ip);
-    assertFalse(i + " should not be in " + c, c.contains(i));
+    assertFalse(c.contains(i), i + " should not be in " + c);
   }
 
   /** Tests for {@link CIDR} */
@@ -97,12 +91,12 @@ public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
   public void testFilter(Configuration conf, String[] included, String[] excluded) {
     IPFilterRules ipFilterRules = new IPFilterRules(conf);
     for (String address : included) {
-      assertTrue("Address " + address + " should be included",
-          ipFilterRules.accept(parseIP(address)));
+      assertTrue(ipFilterRules.accept(parseIP(address)),
+          "Address " + address + " should be included");
     }
     for (String address : excluded) {
-      assertFalse("Address " + address + " should be excluded",
-          ipFilterRules.accept(parseIP(address)));
+      assertFalse(ipFilterRules.accept(parseIP(address)),
+          "Address " + address + " should be excluded");
     }
   }
 
@@ -145,7 +139,7 @@ public class TestIPAddressFiltering extends AbstractHttpProtocolPluginTest {
       default:
         fail("Unknown IP address type " + type);
       }
-      assertTrue(ipAddress + " is not recognized as " + type + " address", pred.apply(addr));
+      assertTrue(pred.apply(addr), ipAddress + " is not recognized as " + type + " address");
     } catch (IllegalArgumentException e) {
       fail("Not a valid IP address string: " + ipAddress);
     }

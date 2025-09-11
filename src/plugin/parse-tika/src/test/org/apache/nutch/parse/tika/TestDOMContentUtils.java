@@ -27,10 +27,12 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.DocumentFragment;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for DOMContentUtils.
@@ -175,7 +177,7 @@ public class TestDOMContentUtils {
   private static Configuration conf;
   private static DOMContentUtils utils = null;
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     conf = NutchConfiguration.create();
     utils = new DOMContentUtils(conf);
@@ -196,7 +198,7 @@ public class TestDOMContentUtils {
         parser.getParse(content, doc, root);
         testDOMs[i] = root;
       } catch (Exception e) {
-        Assert.assertTrue("caught exception: " + e, false);
+        fail("caught exception: " + e);
       }
     }
     answerOutlinks = new Outlink[][] {
@@ -260,11 +262,10 @@ public class TestDOMContentUtils {
       StringBuffer sb = new StringBuffer();
       utils.getText(sb, testDOMs[i]);
       String text = sb.toString();
-      Assert.assertTrue(
+      assertTrue(equalsIgnoreWhitespace(answerText[i], text),
           "expecting text: " + answerText[i]
               + System.getProperty("line.separator")
-              + System.getProperty("line.separator") + "got text: " + text,
-          equalsIgnoreWhitespace(answerText[i], text));
+              + System.getProperty("line.separator") + "got text: " + text);
     }
   }
 
@@ -276,11 +277,10 @@ public class TestDOMContentUtils {
       StringBuffer sb = new StringBuffer();
       utils.getTitle(sb, testDOMs[i]);
       String text = sb.toString();
-      Assert.assertTrue(
+      assertTrue(equalsIgnoreWhitespace(answerTitle[i], text),
           "expecting text: " + answerText[i]
               + System.getProperty("line.separator")
-              + System.getProperty("line.separator") + "got text: " + text,
-          equalsIgnoreWhitespace(answerTitle[i], text));
+              + System.getProperty("line.separator") + "got text: " + text);
     }
   }
 
@@ -319,26 +319,25 @@ public class TestDOMContentUtils {
 
   private static final void compareOutlinks(Outlink[] o1, Outlink[] o2) {
     if (o1.length != o2.length) {
-      Assert.assertTrue(
-          "got wrong number of outlinks (expecting " + o1.length + ", got "
-              + o2.length + ")" + System.getProperty("line.separator")
-              + "answer: " + System.getProperty("line.separator")
-              + outlinksString(o1) + System.getProperty("line.separator")
-              + "got: " + System.getProperty("line.separator")
-              + outlinksString(o2) + System.getProperty("line.separator"),
-          false);
+      fail(
+          "got wrong number of outlinks (expecting " + o1.length
+              + ", got " + o2.length + ")" + System.getProperty(
+              "line.separator") + "answer: " + System.getProperty(
+              "line.separator") + outlinksString(o1) + System.getProperty(
+              "line.separator") + "got: " + System.getProperty(
+              "line.separator") + outlinksString(o2) + System.getProperty(
+              "line.separator"));
     }
 
     for (int i = 0; i < o1.length; i++) {
       if (!o1[i].equals(o2[i])) {
-        Assert.assertTrue(
-            "got wrong outlinks at position " + i
-                + System.getProperty("line.separator") + "answer: "
-                + System.getProperty("line.separator") + "'" + o1[i].getToUrl()
-                + "', anchor: '" + o1[i].getAnchor() + "'"
-                + System.getProperty("line.separator") + "got: "
-                + System.getProperty("line.separator") + "'" + o2[i].getToUrl()
-                + "', anchor: '" + o2[i].getAnchor() + "'", false);
+        fail("got wrong outlinks at position " + i + System.getProperty(
+            "line.separator") + "answer: " + System.getProperty(
+            "line.separator") + "'" + o1[i].getToUrl() + "', anchor: '"
+            + o1[i].getAnchor() + "'" + System.getProperty(
+            "line.separator") + "got: " + System.getProperty(
+            "line.separator") + "'" + o2[i].getToUrl() + "', anchor: '"
+            + o2[i].getAnchor() + "'");
       }
     }
   }

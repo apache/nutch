@@ -24,14 +24,17 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
-public class TestRegexParseFilter extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TestRegexParseFilter {
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");
 
-  public void testPositiveFilter() throws Exception {
+  @Test
+  void testPositiveFilter() throws Exception {
     Configuration conf = NutchConfiguration.create();
 
     String file = SAMPLES + SEPARATOR + "regex-parsefilter.txt";
@@ -52,8 +55,9 @@ public class TestRegexParseFilter extends TestCase {
     assertEquals("true", meta.get("first"));
     assertEquals("true", meta.get("second"));
   }
-  
-  public void testNegativeFilter() throws Exception {
+
+  @Test
+  void testNegativeFilter() throws Exception {
     Configuration conf = NutchConfiguration.create();
 
     String file = SAMPLES + SEPARATOR + "regex-parsefilter.txt";

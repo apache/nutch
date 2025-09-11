@@ -22,17 +22,18 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 
-public class TestCCParseFilter {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TestCCParseFilter {
 
   private static final File testDir = new File(System.getProperty("test.input"));
 
   @Test
-  public void testPages() throws Exception {
+  void testPages() throws Exception {
     pageTest(new File(testDir, "anchor.html"), "http://foo.com/",
         "http://creativecommons.org/licenses/by-nc-sa/1.0", "a", null);
     // Tika returns <a> whereas parse-html returns <rel>
@@ -65,8 +66,8 @@ public class TestCCParseFilter {
     Parse parse = new ParseUtil(conf).parse(content).get(content.getUrl());
 
     Metadata metadata = parse.getData().getParseMeta();
-    Assert.assertEquals(license, metadata.get("License-Url"));
-    Assert.assertEquals(location, metadata.get("License-Location"));
-    Assert.assertEquals(type, metadata.get("Work-Type"));
+    assertEquals(license, metadata.get("License-Url"));
+    assertEquals(location, metadata.get("License-Location"));
+    assertEquals(type, metadata.get("Work-Type"));
   }
 }

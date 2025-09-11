@@ -18,8 +18,9 @@ package org.apache.nutch.parse.tika;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for PdfParser.
@@ -36,7 +37,7 @@ public class TestPdfParser extends TikaParserTest {
   public void testIt() throws ProtocolException, ParseException {
     for (int i = 0; i < sampleFiles.length; i++) {
       int index = getTextContent(sampleFiles[i]).indexOf(expectedText);
-      Assert.assertTrue(index > 0);
+      assertTrue(index > 0);
     }
   }
 

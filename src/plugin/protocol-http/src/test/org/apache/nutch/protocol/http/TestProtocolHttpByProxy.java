@@ -22,21 +22,17 @@ import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test cases for protocol-http by proxy
  */
-@Ignore("Must disable due to incompatible dependency on JUnit 5 in core. " +
-    "Will reactivate once JUnit 5 upgrade is complete in core and plugins " +
-    "can be upgraded to JUnit 5. Part of NUTCH-2887 Migrate to JUnit 5 Jupiter")
 public class TestProtocolHttpByProxy extends AbstractHttpProtocolPluginTest {
 
   public static final String PROXY_HOST = "localhost";
@@ -45,7 +41,7 @@ public class TestProtocolHttpByProxy extends AbstractHttpProtocolPluginTest {
   public static final String TARGET_HOST = "www.baidu.com";
   public static final Integer TARGET_PORT = 443;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     super.setUp();
     conf.set("http.proxy.host", PROXY_HOST);

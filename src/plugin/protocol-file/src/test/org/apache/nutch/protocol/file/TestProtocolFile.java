@@ -29,9 +29,11 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author mattmann
@@ -57,7 +59,7 @@ public class TestProtocolFile {
 
   private Configuration conf;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     conf = NutchConfiguration.create();
   }
@@ -77,20 +79,20 @@ public class TestProtocolFile {
    */
   public void setContentType(String testTextFile) throws ProtocolException {
     String urlString = "file:" + sampleDir + fileSeparator + testTextFile;
-    Assert.assertNotNull(urlString);
+    assertNotNull(urlString);
     Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
     ProtocolOutput output = protocol.getProtocolOutput(new Text(urlString),
         datum);
-    Assert.assertNotNull(output);
-    Assert.assertEquals("Status code: [" + output.getStatus().getCode()
-        + "], not equal to: [" + ProtocolStatus.SUCCESS + "]: args: ["
-        + output.getStatus().getArgs() + "]", ProtocolStatus.SUCCESS, output
-        .getStatus().getCode());
-    Assert.assertNotNull(output.getContent());
-    Assert.assertNotNull(output.getContent().getContentType());
-    Assert.assertEquals(expectedMimeType, output.getContent().getContentType());
-    Assert.assertNotNull(output.getContent().getMetadata());
-    Assert.assertEquals(expectedMimeType, output.getContent().getMetadata()
+    assertNotNull(output);
+    assertEquals(ProtocolStatus.SUCCESS, output.getStatus().getCode(),
+        "Status code: [" + output.getStatus().getCode()
+            + "], not equal to: [" + ProtocolStatus.SUCCESS + "]: args: ["
+            + output.getStatus().getArgs() + "]");
+    assertNotNull(output.getContent());
+    assertNotNull(output.getContent().getContentType());
+    assertEquals(expectedMimeType, output.getContent().getContentType());
+    assertNotNull(output.getContent().getMetadata());
+    assertEquals(expectedMimeType, output.getContent().getMetadata()
         .get(Response.CONTENT_TYPE));
 
   }

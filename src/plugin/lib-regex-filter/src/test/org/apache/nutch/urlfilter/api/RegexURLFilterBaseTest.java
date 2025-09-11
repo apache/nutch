@@ -26,11 +26,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.net.URLFilter;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JUnit based test of class <code>RegexURLFilterBase</code>.
@@ -53,7 +54,7 @@ public abstract class RegexURLFilterBaseTest {
       bench(loops, new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
           new FileReader(SAMPLES + SEPARATOR + file + ".urls"));
     } catch (Exception e) {
-      Assert.fail(e.toString());
+      fail(e.toString());
     }
   }
 
@@ -67,7 +68,7 @@ public abstract class RegexURLFilterBaseTest {
         test(filter, expected);
       }
     } catch (Exception e) {
-      Assert.fail(e.toString());
+      fail(e.toString());
     }
     stopWatch.stop();
     LOG.info("bench time {} loops {} ms", loops, stopWatch.getTime(TimeUnit.MILLISECONDS));
@@ -78,7 +79,7 @@ public abstract class RegexURLFilterBaseTest {
       bench(loops, new FileReader(SAMPLES + SEPARATOR + rulesFile),
           new FileReader(SAMPLES + SEPARATOR + urlsFile));
     } catch (Exception e) {
-      Assert.fail(e.toString());
+      fail(e.toString());
     }
   }
 
@@ -87,7 +88,7 @@ public abstract class RegexURLFilterBaseTest {
       test(new FileReader(SAMPLES + SEPARATOR + rulesFile),
           new FileReader(SAMPLES + SEPARATOR + urlsFile));
     } catch (Exception e) {
-      Assert.fail(e.toString());
+      fail(e.toString());
     }
   }
 
@@ -96,7 +97,7 @@ public abstract class RegexURLFilterBaseTest {
       test(new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
           new FileReader(SAMPLES + SEPARATOR + file + ".urls"));
     } catch (Exception e) {
-      Assert.fail(e.toString());
+      fail(e.toString());
     }
   }
 
@@ -104,7 +105,7 @@ public abstract class RegexURLFilterBaseTest {
     try {
       test(getURLFilter(rules), readURLFile(urls));
     } catch (Exception e) {
-      Assert.fail(e.toString());
+      fail(e.toString());
     }
   }
 
@@ -112,9 +113,9 @@ public abstract class RegexURLFilterBaseTest {
     for (int i = 0; i < expected.length; i++) {
       String result = filter.filter(expected[i].url);
       if (result != null) {
-        Assert.assertTrue(expected[i].url, expected[i].sign);
+        assertTrue(expected[i].sign, expected[i].url);
       } else {
-        Assert.assertFalse(expected[i].url, expected[i].sign);
+        assertFalse(expected[i].sign, expected[i].url);
       }
     }
   }

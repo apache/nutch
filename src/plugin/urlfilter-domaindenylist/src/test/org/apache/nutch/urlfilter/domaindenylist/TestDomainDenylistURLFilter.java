@@ -16,10 +16,12 @@
  */
 package org.apache.nutch.urlfilter.domaindenylist;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TestDomainDenylistURLFilter {
 
@@ -34,16 +36,16 @@ public class TestDomainDenylistURLFilter {
     conf.set("urlfilter.domaindenylist.file", domainDenylistFile);
     DomainDenylistURLFilter domainDenylistFilter = new DomainDenylistURLFilter();
     domainDenylistFilter.setConf(conf);
-    Assert.assertNull(domainDenylistFilter.filter("http://lucene.apache.org"));
-    Assert.assertNull(domainDenylistFilter.filter("http://hadoop.apache.org"));
-    Assert.assertNull(domainDenylistFilter.filter("http://www.apache.org"));
-    Assert.assertNotNull(domainDenylistFilter.filter("http://www.google.com"));
-    Assert.assertNotNull(domainDenylistFilter.filter("http://mail.yahoo.com"));
-    Assert.assertNull(domainDenylistFilter.filter("http://www.foobar.net"));
-    Assert.assertNull(domainDenylistFilter.filter("http://www.foobas.net"));
-    Assert.assertNull(domainDenylistFilter.filter("http://www.yahoo.com"));
-    Assert.assertNull(domainDenylistFilter.filter("http://www.foobar.be"));
-    Assert.assertNotNull(domainDenylistFilter.filter("http://www.adobe.com"));
+    assertNull(domainDenylistFilter.filter("http://lucene.apache.org"));
+    assertNull(domainDenylistFilter.filter("http://hadoop.apache.org"));
+    assertNull(domainDenylistFilter.filter("http://www.apache.org"));
+    assertNotNull(domainDenylistFilter.filter("http://www.google.com"));
+    assertNotNull(domainDenylistFilter.filter("http://mail.yahoo.com"));
+    assertNull(domainDenylistFilter.filter("http://www.foobar.net"));
+    assertNull(domainDenylistFilter.filter("http://www.foobas.net"));
+    assertNull(domainDenylistFilter.filter("http://www.yahoo.com"));
+    assertNull(domainDenylistFilter.filter("http://www.foobar.be"));
+    assertNotNull(domainDenylistFilter.filter("http://www.adobe.com"));
   }
 
 }

@@ -23,8 +23,9 @@ import java.io.Reader;
 import org.apache.nutch.net.*;
 // Nutch imports
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * JUnit based test of class <code>AutomatonURLFilter</code>.
@@ -38,7 +39,7 @@ public class TestAutomatonURLFilter extends RegexURLFilterBaseTest {
     try {
       return new AutomatonURLFilter(rules);
     } catch (IOException e) {
-      Assert.fail(e.toString());
+      fail(e.toString());
       return null;
     }
   }

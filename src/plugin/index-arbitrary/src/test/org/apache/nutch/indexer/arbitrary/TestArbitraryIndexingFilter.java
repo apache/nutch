@@ -24,9 +24,10 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests that the index-arbitrary filter can add a new field with an arbitrary
@@ -49,7 +50,7 @@ public class TestArbitraryIndexingFilter {
   ArbitraryIndexingFilter filter;
   NutchDocument doc;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     parse = new ParseImpl();
     url = new Text("http://nutch.apache.org/index.html");
@@ -73,7 +74,7 @@ public class TestArbitraryIndexingFilter {
      conf.set("index.arbitrary.methodName.0","getText");
 
      filter = new ArbitraryIndexingFilter();
-     Assert.assertNotNull("No filter exists for testAddingNewField",filter);
+     assertNotNull(filter, "No filter exists for testAddingNewField");
 
      filter.setConf(conf);
      doc = new NutchDocument();
@@ -82,14 +83,13 @@ public class TestArbitraryIndexingFilter {
        filter.filter(doc, parse, url, crawlDatum, inlinks);
      } catch (Exception e) {
        e.printStackTrace();
-       Assert.fail(e.getMessage());
+       fail(e.getMessage());
      }
 
-     Assert.assertNotNull(doc);
-     Assert.assertFalse("test if doc is not empty", doc.getFieldNames()
-                        .isEmpty());
-     Assert.assertTrue("test if doc has new field with arbitrary value", doc.getField("foo")
-                       .getValues().contains("Arbitrary text to add - bar"));
+     assertNotNull(doc);
+     assertFalse(doc.getFieldNames().isEmpty(), "test if doc is not empty");
+     assertTrue(doc.getField("foo").getValues().contains("Arbitrary text to add - bar"),
+         "test if doc has new field with arbitrary value");
    }
 
   /**
@@ -113,42 +113,41 @@ public class TestArbitraryIndexingFilter {
     conf.set("index.arbitrary.methodArgs.1","-1,3.14");
 
     filter = new ArbitraryIndexingFilter();
-    Assert.assertNotNull("No filter exists for testSupplementExistingField", filter);
+    assertNotNull(filter, "No filter exists for testSupplementExistingField");
 
     filter.setConf(conf);
     
     doc = new NutchDocument();
-    Assert.assertNotNull("doc doesn't exist", doc);
+    assertNotNull(doc, "doc doesn't exist");
 
     doc.add("description","irrational");
 
-    Assert.assertFalse("doc is empty", doc.getFieldNames().isEmpty());
+    assertFalse(doc.getFieldNames().isEmpty(), "doc is empty");
 
-    Assert.assertEquals("field description does not have exactly one value", 1,
-                         doc.getField("description").getValues().size());
+    assertEquals(1, doc.getField("description").getValues().size(),
+        "field description does not have exactly one value");
     
-    Assert.assertTrue("field description does not have initial value 'irrational'",
-                       doc.getField("description").getValues().contains("irrational"));
+    assertTrue(doc.getField("description").getValues().contains("irrational"),
+        "field description does not have initial value 'irrational'");
     
     try {
       filter.filter(doc, parse, url, crawlDatum, inlinks);
     } catch (Exception e) {
       e.printStackTrace();
-      Assert.fail(e.getMessage());
+      fail(e.getMessage());
     }
 
-    Assert.assertTrue("doc doesn't have new field with arbitrary value",
-                      doc.getField("foo").getValues()
-                      .contains("Arbitrary text to add - bar"));
+    assertTrue(doc.getField("foo").getValues().contains("Arbitrary text to add - bar"),
+        "doc doesn't have new field with arbitrary value");
 
-    Assert.assertEquals("field description does not have 2 values", 2,
-                       doc.getField("description").getValues().size());
+    assertEquals(2, doc.getField("description").getValues().size(),
+        "field description does not have 2 values");
 
-    Assert.assertTrue("field description original value gone", doc.getField("description")
-                      .getValues().contains("irrational"));
+    assertTrue(doc.getField("description").getValues().contains("irrational"),
+        "field description original value gone");
 
-    Assert.assertTrue("field description missing new value", doc.getField("description")
-                     .getValues().contains("-3.14"));
+    assertTrue(doc.getField("description").getValues().contains("-3.14"),
+        "field description missing new value");
   }
 
 
@@ -176,47 +175,47 @@ public class TestArbitraryIndexingFilter {
     conf.set("index.arbitrary.overwrite.2","true");
     
     filter = new ArbitraryIndexingFilter();
-    Assert.assertNotNull("No filter exists for testOverwritingExistingField",filter);
+    assertNotNull(filter, "No filter exists for testOverwritingExistingField");
 
     filter.setConf(conf);
-    Assert.assertNotNull("conf does not exist",conf);
+    assertNotNull(conf, "conf does not exist");
     
     doc = new NutchDocument();
 
-    Assert.assertNotNull("doc does not exist",doc);
+    assertNotNull(doc, "doc does not exist");
 
     doc.add("description","irrational");
     doc.add("philosopher","Socrates");
 
-    Assert.assertEquals("field description does not have exactly one value", 1, doc.getField("description")
-                        .getValues().size());
+    assertEquals(1, doc.getField("description").getValues().size(),
+        "field description does not have exactly one value");
 
-    Assert.assertEquals("field philosopher does not have exactly one value", 1, doc.getField("philosopher")
-                        .getValues().size());
+    assertEquals(1, doc.getField("philosopher").getValues().size(),
+        "field philosopher does not have exactly one value");
 
-    Assert.assertTrue("field description does not have initial value 'irrational'", doc.getField("description")
-                      .getValues().contains("irrational"));
+    assertTrue(doc.getField("description").getValues().contains("irrational"),
+        "field description does not have initial value 'irrational'");
 
-    Assert.assertTrue("field philosopher does not have initial value 'Socrates'", doc.getField("philosopher")
-                      .getValues().contains("Socrates"));
+    assertTrue(doc.getField("philosopher").getValues().contains("Socrates"),
+        "field philosopher does not have initial value 'Socrates'");
     
     try {
       filter.filter(doc, parse, url, crawlDatum, inlinks);
     } catch (Exception e) {
       e.printStackTrace(System.out);
-      Assert.fail(e.getMessage());
+      fail(e.getMessage());
     }
 
-    Assert.assertNotNull(doc);
+    assertNotNull(doc);
 
-    Assert.assertEquals("field philosopher no longer has only one value", 1, doc.getField("philosopher")
-                       .getValues().size());
+    assertEquals(1, doc.getField("philosopher").getValues().size(),
+        "field philosopher no longer has only one value");
 
-    Assert.assertFalse("field philosopher's original value 'Socrates' NOT overwritten", doc.getField("philosopher")
-                      .getValues().contains("Socrates"));
+    assertFalse(doc.getField("philosopher").getValues().contains("Socrates"),
+        "field philosopher's original value 'Socrates' NOT overwritten");
 
-    Assert.assertTrue("field philosopher does not have new value 'Popeye'", doc.getField("philosopher")
-                    .getValues().contains("Popeye"));
+    assertTrue(doc.getField("philosopher").getValues().contains("Popeye"),
+        "field philosopher does not have new value 'Popeye'");
   }
 
   /**
@@ -247,34 +246,34 @@ public class TestArbitraryIndexingFilter {
     conf.set("index.arbitrary.overwrite.2","true");
 
     filter = new ArbitraryIndexingFilter();
-    Assert.assertNotNull("No filter exists for testProcessingFieldAfterException",filter);
+    assertNotNull(filter, "No filter exists for testProcessingFieldAfterException");
 
     filter.setConf(conf);
-    Assert.assertNotNull("conf does not exist",conf);
+    assertNotNull(conf, "conf does not exist");
 
     doc = new NutchDocument();
 
-    Assert.assertNotNull("doc does not exist",doc);
+    assertNotNull(doc, "doc does not exist");
 
     try {
       filter.filter(doc, parse, url, crawlDatum, inlinks);
     } catch (Exception e) {
       e.printStackTrace(System.out);
-      Assert.fail(e.getMessage());
+      fail(e.getMessage());
     }
 
-    Assert.assertNotNull(doc);
+    assertNotNull(doc);
 
-    Assert.assertTrue("field foo does not have 'first added value'", doc.getField("foo")
-                      .getValues().contains("first added value"));
+    assertTrue(doc.getField("foo").getValues().contains("first added value"),
+        "field foo does not have 'first added value'");
 
-    Assert.assertNull("field mangled has a value", doc.getField("mangled"));
+    assertNull(doc.getField("mangled"), "field mangled has a value");
 
-    Assert.assertFalse("Value 'first added value' has leaked into field philospoher", doc.getField("philosopher")
-                      .getValues().contains("first added value"));
+    assertFalse(doc.getField("philosopher").getValues().contains("first added value"),
+        "Value 'first added value' has leaked into field philospoher");
 
-    Assert.assertTrue("field philosopher does not have new value 'last added value'", doc.getField("philosopher")
-                    .getValues().contains("last added value"));
+    assertTrue(doc.getField("philosopher").getValues().contains("last added value"),
+        "field philosopher does not have new value 'last added value'");
   }
 
 
@@ -296,28 +295,28 @@ public class TestArbitraryIndexingFilter {
      conf.set("index.arbitrary.overwrite.0","true");
 
      filter = new ArbitraryIndexingFilter();
-     Assert.assertNotNull("No filter exists for testAddingCalculatedNewField",filter);
+     assertNotNull(filter, "No filter exists for testAddingCalculatedNewField");
 
      filter.setConf(conf);
      doc = new NutchDocument();
 
      Double boostVal = Double.valueOf("1.0");
      doc.add("popularityBoost", boostVal);
-     Assert.assertFalse("doc is empty", doc.getFieldNames().isEmpty());
-     Assert.assertTrue("test if doc has new field with arbitrary value", doc.getField("popularityBoost")
-                       .getValues().contains(boostVal));
+     assertFalse(doc.getFieldNames().isEmpty(), "doc is empty");
+     assertTrue(doc.getField("popularityBoost").getValues().contains(boostVal),
+         "test if doc has new field with arbitrary value");
 
      try {
        filter.filter(doc, parse, url, crawlDatum, inlinks);
      } catch (Exception e) {
        e.printStackTrace();
-       Assert.fail(e.getMessage());
+       fail(e.getMessage());
      }
 
-     Assert.assertNotNull(doc);
-     Assert.assertFalse("doc is empty", doc.getFieldNames().isEmpty());
-     Assert.assertTrue("test if unfetched doc has nonzero value in popularityBoost", doc.getField("popularityBoost")
-                       .getValues().contains(1.0));
+     assertNotNull(doc);
+     assertFalse(doc.getFieldNames().isEmpty(), "doc is empty");
+     assertTrue(doc.getField("popularityBoost").getValues().contains(1.0),
+         "test if unfetched doc has nonzero value in popularityBoost");
 
      inlinks.add(new Inlink("https://www.TeamSauropod.com/BullyForBrontosaurus","dinosaur"));
      inlinks.add(new Inlink("https://github.com/apache","source code"));
@@ -329,11 +328,11 @@ public class TestArbitraryIndexingFilter {
        filter.filter(doc, parse, url, crawlDatum, inlinks);
      } catch (Exception e) {
        e.printStackTrace();
-       Assert.fail(e.getMessage());
+       fail(e.getMessage());
      }
 
-     Assert.assertTrue("test if successfully fetched doc has expected value in popularityBoost", doc.getField("popularityBoost")
-                       .getValues().contains(2.0));
+     assertTrue(doc.getField("popularityBoost").getValues().contains(2.0),
+         "test if successfully fetched doc has expected value in popularityBoost");
    }
 
   /**
@@ -372,7 +371,7 @@ public class TestArbitraryIndexingFilter {
      conf.set("index.arbitrary.all.fields.access.3","false");
 
      filter = new ArbitraryIndexingFilter();
-     Assert.assertNotNull("No filter exists for testAddingNewField",filter);
+     assertNotNull(filter, "No filter exists for testAddingNewField");
 
      filter.setConf(conf);
      doc = new NutchDocument();
@@ -381,19 +380,18 @@ public class TestArbitraryIndexingFilter {
        filter.filter(doc, parse, url, crawlDatum, inlinks);
      } catch (Exception e) {
        e.printStackTrace();
-       Assert.fail(e.getMessage());
+       fail(e.getMessage());
      }
 
-     Assert.assertNotNull(doc);
-     Assert.assertFalse("test if doc is not empty", doc.getFieldNames()
-                        .isEmpty());
-     Assert.assertTrue("test if doc still has new field with arbitrary value running with new indexer", doc.getField("foo")
-                       .getValues().contains("Original Echo class added 'bar'"));
-     Assert.assertTrue("test if updated POJO created new field with arbitrary value", doc.getField("bogusSite")
-                       .getValues().contains("https://www.updatedNutchPluginJunitTest.com"));
-     Assert.assertTrue("test updated POJO set new value in existing field", doc.getField("description")
-                       .getValues().contains("-3.14"));
-     Assert.assertTrue("test POJO with both constructor styles supports old calls", doc.getField("summary")
-			 .getValues().contains("1025.0"));
+     assertNotNull(doc);
+     assertFalse(doc.getFieldNames().isEmpty(), "test if doc is not empty");
+     assertTrue( doc.getField("foo").getValues().contains("Original Echo class added 'bar'"),
+         "test if doc still has new field with arbitrary value running with new indexer");
+     assertTrue(doc.getField("bogusSite").getValues().contains("https://www.updatedNutchPluginJunitTest.com"),
+         "test if updated POJO created new field with arbitrary value");
+     assertTrue(doc.getField("description").getValues().contains("-3.14"),
+         "test updated POJO set new value in existing field");
+     assertTrue(doc.getField("summary").getValues().contains("1025.0"),
+         "test POJO with both constructor styles supports old calls");
    }
 }

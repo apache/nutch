@@ -22,15 +22,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for protocol-okhttp
  */
-@Ignore("Must disable due to incompatible dependency on JUnit 5 in core. " +
-    "Will reactivate once JUnit 5 upgrade is complete in core and plugins " +
-    "can be upgraded to JUnit 5. Part of NUTCH-2887 Migrate to JUnit 5 Jupiter")
 public class TestProtocolOkHttp extends AbstractHttpProtocolPluginTest {
 
   @Override
