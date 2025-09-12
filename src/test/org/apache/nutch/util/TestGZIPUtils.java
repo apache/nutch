@@ -111,7 +111,7 @@ public class TestGZIPUtils {
       + "</body>\n"
       + "</html>\n";
 
-  @org.junit.jupiter.api.Test
+  @Test
   public void testZipUnzip() {
     byte[] testBytes = SHORT_TEST_STRING.getBytes();
     testZipUnzip(testBytes);
@@ -140,7 +140,7 @@ public class TestGZIPUtils {
     testTruncation(testBytes);
   }
 
-  @org.junit.jupiter.api.Test
+  @Test
   public void testLimit() {
     byte[] testBytes = SHORT_TEST_STRING.getBytes();
     testLimit(testBytes);

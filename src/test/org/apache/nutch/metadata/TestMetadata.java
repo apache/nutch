@@ -72,7 +72,7 @@ public class TestMetadata {
   }
 
   /** Test for the <code>add(String, String)</code> method. */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testAdd() {
     String[] values = null;
     Metadata meta = new Metadata();
@@ -102,7 +102,7 @@ public class TestMetadata {
   }
 
   /** Test for the <code>set(String, String)</code> method. */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testSet() {
     String[] values = null;
     Metadata meta = new Metadata();
@@ -129,7 +129,7 @@ public class TestMetadata {
   }
 
   /** Test for <code>setAll(Properties)</code> method. */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testSetProperties() {
     String[] values = null;
     Metadata meta = new Metadata();
@@ -157,7 +157,7 @@ public class TestMetadata {
   }
 
   /** Test for <code>get(String)</code> method. */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testGet() {
     Metadata meta = new Metadata();
     assertNull(meta.get("a-name"));
@@ -168,7 +168,7 @@ public class TestMetadata {
   }
 
   /** Test for <code>isMultiValued()</code> method. */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testIsMultiValued() {
     Metadata meta = new Metadata();
     assertFalse(meta.isMultiValued("key"));
@@ -218,7 +218,7 @@ public class TestMetadata {
   }
 
   /** Test for <code>equals(Object)</code> method. */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testObject() {
     Metadata meta1 = new Metadata();
     Metadata meta2 = new Metadata();
@@ -244,7 +244,7 @@ public class TestMetadata {
   }
 
   /** Test for <code>Writable</code> implementation. */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testWritable() {
     Metadata result = null;
     Metadata meta = new Metadata();

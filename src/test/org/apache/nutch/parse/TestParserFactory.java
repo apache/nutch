@@ -48,7 +48,7 @@ public class TestParserFactory {
   }
 
   /** Unit test for <code>getExtensions(String)</code> method. */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testGetExtensions() throws Exception {
     Extension ext = parserFactory.getExtensions("text/html").get(0);
     assertEquals("parse-tika", ext.getDescriptor().getPluginId());

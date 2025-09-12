@@ -67,7 +67,7 @@ public class TestPluginSystem {
 
   /**
    */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testPluginConfiguration() {
     String string = getPluginFolder();
     File file = new File(string);
@@ -79,7 +79,7 @@ public class TestPluginSystem {
 
   /**
    */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testLoadPlugins() {
     PluginDescriptor[] descriptors = repository.getPluginDescriptors();
     int k = descriptors.length;
@@ -94,7 +94,7 @@ public class TestPluginSystem {
     }
   }
 
-  @org.junit.jupiter.api.Test
+  @Test
   public void testRepositoryCache() throws IOException {
     Configuration config = NutchConfiguration.create();
     PluginRepository repo = PluginRepository.get(config);
@@ -116,7 +116,7 @@ public class TestPluginSystem {
   /**
    *  
    */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testGetExtensionAndAttributes() {
     String xpId = " sdsdsd";
     ExtensionPoint extensionPoint = repository.getExtensionPoint(xpId);
@@ -134,7 +134,7 @@ public class TestPluginSystem {
   /**
    * @throws PluginRuntimeException
    */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testGetExtensionInstances() throws PluginRuntimeException {
     Extension[] extensions = repository.getExtensionPoint(getGetExtensionId())
         .getExtensions();
@@ -166,7 +166,7 @@ public class TestPluginSystem {
   /**
    * @throws IOException
    */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testGetResources() throws IOException {
     PluginDescriptor[] descriptors = repository.getPluginDescriptors();
     for (int i = 0; i < descriptors.length; i++) {

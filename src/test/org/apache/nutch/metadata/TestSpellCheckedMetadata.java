@@ -141,7 +141,7 @@ public class TestSpellCheckedMetadata {
   }
 
   /** Test for <code>setAll(Properties)</code> method. */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testSetProperties() {
     String[] values = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();

@@ -82,7 +82,7 @@ public class TestOutlinkExtractor {
         outlinks[2].getToUrl(), "Wrong URL");
   }
 
-  @org.junit.jupiter.api.Test
+  @Test
   public void testGetOutlinksFtp() {
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(
         "Test with ftp://www.nutch.org is it found? "

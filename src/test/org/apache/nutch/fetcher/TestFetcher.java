@@ -80,7 +80,7 @@ public class TestFetcher {
     fs.delete(testdir, true);
   }
 
-  @org.junit.jupiter.api.Test
+  @Test
   public void testFetch() throws IOException, ClassNotFoundException, InterruptedException {
 
     // generate seedlist

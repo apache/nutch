@@ -56,7 +56,7 @@ public class TestContent {
   }
 
   /** Unit tests for getContentType(String, String, byte[]) method. */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testGetContentType() throws Exception {
     Content c = null;
     Metadata p = new Metadata();

@@ -67,7 +67,7 @@ public class TestProtocolFactory {
     }
   }
 
-  @org.junit.jupiter.api.Test
+  @Test
   public void testContains() {
     assertTrue(factory.contains("http", "http"));
     assertTrue(factory.contains("http", "http,ftp"));

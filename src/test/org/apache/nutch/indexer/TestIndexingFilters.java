@@ -57,7 +57,7 @@ public class TestIndexingFilters {
   /**
    * Test behaviour when NutchDOcument is null
    */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testNutchDocumentNullIndexingFilter() throws IndexingException {
     Configuration conf = NutchConfiguration.create();
     conf.addResource("nutch-default.xml");
@@ -77,7 +77,7 @@ public class TestIndexingFilters {
    * 
    * @throws IndexingException
    */
-  @org.junit.jupiter.api.Test
+  @Test
   public void testFilterCacheIndexingFilter() throws IndexingException {
     Configuration conf = NutchConfiguration.create();
     conf.addResource("nutch-default.xml");

@@ -174,7 +174,7 @@ public class TestURLUtil {
     assertEquals("xn--cg4bki", URLUtil.getTopLevelDomainName(url));
   }
 
-  @org.junit.jupiter.api.Test
+  @Test
   public void testGetHostSegments() throws Exception {
     URL url;
     String[] segments;

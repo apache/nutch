@@ -39,7 +39,7 @@ public class TestTableUtil {
   String reversedUrlString6 = "com.foo:http";
   String reversedUrlString7 = ":file/var/www/index.html";
 
-  @org.junit.jupiter.api.Test
+  @Test
   public void testReverseUrl() throws Exception {
     assertReverse(urlString1, reversedUrlString1);
     assertReverse(urlString2, reversedUrlString2);
