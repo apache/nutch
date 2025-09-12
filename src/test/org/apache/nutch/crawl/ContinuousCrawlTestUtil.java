@@ -16,15 +16,6 @@
  */
 package org.apache.nutch.crawl;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import junit.framework.TestCase;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -33,11 +24,20 @@ import org.apache.nutch.util.TimingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Emulate a continuous crawl for one URL.
  * 
  */
-public class ContinuousCrawlTestUtil extends TestCase {
+public class ContinuousCrawlTestUtil {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
@@ -239,9 +239,9 @@ public class ContinuousCrawlTestUtil extends TestCase {
         values.add(fetchDatum);
         values.addAll(parse(fetchDatum));
         List<CrawlDatum> res = updateDb.update(values);
-        assertNotNull("null returned", res);
-        assertFalse("no CrawlDatum", 0 == res.size());
-        assertEquals("more than one CrawlDatum", 1, res.size());
+        assertNotNull(res, "null returned");
+        assertNotEquals(0, res.size(), "no CrawlDatum");
+        assertEquals(1, res.size(), "more than one CrawlDatum");
         if (!check(res.get(0))) {
           LOG.info("previously in CrawlDb: {}", copyDbDatum);
           LOG.info("after shouldFetch(): {}", afterShouldFetch);

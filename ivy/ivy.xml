@@ -118,12 +118,12 @@
 			<exclude org="org.gnu.inet" module="libidn" /><!-- LGPL 2.1 -->
 		</dependency>
 
-		<!-- Keep the JUnit 4 dependency for test compilation and runtime support. Remove once migration is complete -->
-		<dependency org="junit" name="junit" rev="4.13.2" conf="test->default" />
-        <!-- JUnit 5 Platform Launcher (required for <junitlauncher> task) -->
+        <dependency org="org.hamcrest" name="hamcrest" rev="3.0" conf="test->default"/>
+        <!-- Required for <junitlauncher> task -->
         <dependency org="org.junit.platform" name="junit-platform-launcher" rev="1.13.4" conf="test->default"/>
-        <!-- JUnit Vintage Engine (to run existing JUnit 4 tests). Remove once migration is complete -->
-        <dependency org="org.junit.vintage" name="junit-vintage-engine" rev="5.13.4" conf="test->default"/>
+        <!-- Required for JUnit 5 (Jupiter) test execution -->
+        <dependency org="org.junit.jupiter" name="junit-jupiter-engine" rev="5.13.4" conf="test->default"/>
+        <dependency org="org.junit.jupiter" name="junit-jupiter-api" rev="5.13.4" conf="test->default"/>
 		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">
 			<artifact name="mrunit" ns0:classifier="hadoop2" />
 			<exclude org="log4j" module="log4j" />

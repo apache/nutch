@@ -17,7 +17,7 @@
 package org.apache.nutch.parse;
 
 import org.apache.nutch.util.WritableTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for ParseText. */
 

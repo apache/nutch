@@ -16,25 +16,27 @@
  */
 package org.apache.nutch.crawl;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.MapFile.Writer.Option;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.util.NutchConfiguration;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.MapFile.Writer.Option;
-import org.apache.nutch.util.NutchConfiguration;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestCrawlDbMerger {
   private static final Logger LOG = LoggerFactory
@@ -55,7 +57,7 @@ public class TestCrawlDbMerger {
   Path testDir;
   CrawlDbReader reader;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     init1.add(url10);
     init1.add(url11);
@@ -85,7 +87,7 @@ public class TestCrawlDbMerger {
     fs.mkdirs(testDir);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     try {
       if (fs.exists(testDir))
@@ -133,8 +135,8 @@ public class TestCrawlDbMerger {
       System.out.println(" cd " + cd);
       System.out.println(" res " + res);
       // may not be null
-      Assert.assertNotNull(res);
-      Assert.assertTrue(cd.equals(res));
+      assertNotNull(res);
+      assertEquals(cd, res);
     }
     reader.close();
     fs.delete(testDir, true);

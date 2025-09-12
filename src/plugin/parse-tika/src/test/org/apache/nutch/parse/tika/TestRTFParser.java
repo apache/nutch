@@ -27,8 +27,10 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.tika.metadata.DublinCore;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for TestRTFParser.
@@ -54,13 +56,13 @@ public class TestRTFParser extends TikaParserTest {
     parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(
         content.getUrl());
     String text = parse.getText();
-    Assert.assertTrue(text.contains("The quick brown fox jumps over the lazy dog"));
+    assertTrue(text.contains("The quick brown fox jumps over the lazy dog"));
 
     String title = parse.getData().getTitle();
     Metadata meta = parse.getData().getParseMeta();
 
-    Assert.assertEquals("test rft document", title);
-    Assert.assertEquals("tests", meta.get(DublinCore.SUBJECT.getName()));
+    assertEquals("test rft document", title);
+    assertEquals("tests", meta.get(DublinCore.SUBJECT.getName()));
 
   }
 }

@@ -16,10 +16,6 @@
  */
 package org.apache.nutch.crawl;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Outlink;
@@ -29,8 +25,14 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.StringUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestTextProfileSignature {
 
@@ -44,14 +46,14 @@ public class TestTextProfileSignature {
         new Outlink[0], new Metadata());
     byte[] signature1 = textProf.calculate(new Content(),
         new ParseImpl(text, pd));
-    Assert.assertNotNull(signature1);
+    assertNotNull(signature1);
     List<String> words = Arrays.asList(text.split("\\s"));
     Collections.shuffle(words);
     String text2 = String.join(" ", words);
     byte[] signature2 = textProf.calculate(new Content(),
         new ParseImpl(text2, pd));
-    Assert.assertNotNull(signature2);
-    Assert.assertEquals(StringUtil.toHexString(signature1),
+    assertNotNull(signature2);
+    assertEquals(StringUtil.toHexString(signature1),
         StringUtil.toHexString(signature2));
   }
 }

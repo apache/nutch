@@ -27,8 +27,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test extraction of image metadata
@@ -55,8 +56,8 @@ public class TestImageMetadata extends TikaParserTest {
       parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
           .get(content.getUrl());
 
-      Assert.assertEquals("121", parse.getData().getMeta("width"));
-      Assert.assertEquals("48", parse.getData().getMeta("height"));
+      assertEquals("121", parse.getData().getMeta("width"));
+      assertEquals("48", parse.getData().getMeta("height"));
     }
   }
 

@@ -19,8 +19,13 @@ package org.apache.nutch.net.protocols;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TestHttpDateFormat {
 
@@ -38,18 +43,25 @@ public class TestHttpDateFormat {
   @Test
   public void testHttpDateFormat() throws ParseException {
 
-    Assert.assertEquals(dateMillis, HttpDateFormat.toLong(dateString));
-    Assert.assertEquals(dateString, HttpDateFormat.toString(dateMillis));
-    Assert.assertEquals(new Date(dateMillis), HttpDateFormat.toDate(dateString));
+    assertThat(HttpDateFormat.toLong(dateString), is(dateMillis));
+    assertThat(HttpDateFormat.toString(dateMillis), is(dateString));
+    assertThat(HttpDateFormat.toDate(dateString), is(new Date(dateMillis)));
 
     String ds2 = "Sun, 6 Nov 1994 08:49:37 GMT";
-    Assert.assertEquals(dateMillis, HttpDateFormat.toLong(ds2));
+    assertThat(HttpDateFormat.toLong(ds2), is(dateMillis));
   }
 
-  @Test(expected = ParseException.class)
+  @Test
   public void testHttpDateFormatException() throws ParseException {
     String ds = "this is not a valid date";
-    HttpDateFormat.toLong(ds);
+    Exception exception = assertThrows(ParseException.class, () -> {
+      HttpDateFormat.toLong(ds);
+    });
+    String expectedMessage =
+        "Text 'this is not a valid date' could not be parsed at index 0";
+    String actualMessage = exception.getMessage();
+    assertTrue(actualMessage.contains(expectedMessage));
+
   }
 
   /**
@@ -60,6 +72,6 @@ public class TestHttpDateFormat {
   public void testHttpDateFormatTimeZone() throws ParseException {
     String dateStringPDT = "Mon, 21 Oct 2019 03:18:16 PDT";
     HttpDateFormat.toLong(dateStringPDT); // must not affect internal time zone
-    Assert.assertEquals(dateString, HttpDateFormat.toString(dateMillis));
+    assertEquals(dateString, HttpDateFormat.toString(dateMillis));
   }
 }

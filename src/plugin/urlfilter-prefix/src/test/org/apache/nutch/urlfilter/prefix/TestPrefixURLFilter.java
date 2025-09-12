@@ -16,13 +16,12 @@
  */
 package org.apache.nutch.urlfilter.prefix;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * JUnit test for <code>PrefixURLFilter</code>.
@@ -30,7 +29,7 @@ import java.io.IOException;
  * @author Talat Uyarer
  * @author Cihad Guzel
  */
-public class TestPrefixURLFilter extends TestCase {
+public class TestPrefixURLFilter {
   private static final String prefixes =
     "# this is a comment\n" +
     "\n" +
@@ -59,22 +58,15 @@ public class TestPrefixURLFilter extends TestCase {
 
   private PrefixURLFilter filter = null;
 
-  public static Test suite() {
-    return new TestSuite(TestPrefixURLFilter.class);
-  }
-
-  public static void main(String[] args) {
-    TestRunner.run(suite());
-  }
-
-  @Override
+  @BeforeEach
   public void setUp() throws IOException {
     filter = new PrefixURLFilter(prefixes);
   }
 
+  @Test
   public void testModeAccept() {
     for (int i = 0; i < urls.length; i++) {
-      assertTrue(urlsModeAccept[i] == filter.filter(urls[i]));
+      assertSame(urlsModeAccept[i], filter.filter(urls[i]));
     }
   }
 }

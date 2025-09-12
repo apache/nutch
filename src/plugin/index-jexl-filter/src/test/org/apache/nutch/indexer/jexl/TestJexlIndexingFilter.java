@@ -27,14 +27,19 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+
+import java.lang.invoke.MethodHandles;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestJexlIndexingFilter {
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   @Test
   public void testAllowMatchingDocument() throws Exception {
@@ -43,7 +48,7 @@ public class TestJexlIndexingFilter {
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     filter.setConf(conf);
-    Assert.assertNotNull(filter);
+    assertNotNull(filter);
 
     NutchDocument doc = new NutchDocument();
 
@@ -66,8 +71,8 @@ public class TestJexlIndexingFilter {
 
     NutchDocument result = filter.filter(doc, parse,
         new Text("http://nutch.apache.org/index.html"), crawlDatum, inlinks);
-    Assert.assertNotNull(result);
-    Assert.assertEquals(doc, result);
+    assertNotNull(result);
+    assertEquals(doc, result);
   }
 
   @Test
@@ -77,7 +82,7 @@ public class TestJexlIndexingFilter {
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
     filter.setConf(conf);
-    Assert.assertNotNull(filter);
+    assertNotNull(filter);
 
     NutchDocument doc = new NutchDocument();
 
@@ -100,16 +105,21 @@ public class TestJexlIndexingFilter {
 
     NutchDocument result = filter.filter(doc, parse,
         new Text("http://nutch.apache.org/index.html"), crawlDatum, inlinks);
-    Assert.assertNull(result);
+    assertNull(result);
   }
 
   @Test
   public void testMissingConfiguration() throws Exception {
     Configuration conf = NutchConfiguration.create();
-
     JexlIndexingFilter filter = new JexlIndexingFilter();
-    thrown.expect(RuntimeException.class);
-    filter.setConf(conf);
+    Exception exception = assertThrows(RuntimeException.class, () -> {
+      filter.setConf(conf);
+    });
+    String expectedMessage = "The property index.jexl.filter must have a " +
+        "value when index-jexl-filter is used. You can use 'true' or 'false' " +
+        "to index all/none";
+    String actualMessage = exception.getMessage();
+    assertTrue(actualMessage.contains(expectedMessage));
   }
 
   @Test
@@ -118,7 +128,11 @@ public class TestJexlIndexingFilter {
     conf.set("index.jexl.filter", "doc.lang=<>:='en'");
 
     JexlIndexingFilter filter = new JexlIndexingFilter();
-    thrown.expect(RuntimeException.class);
-    filter.setConf(conf);
+    Exception exception = assertThrows(RuntimeException.class, () -> {
+      filter.setConf(conf);
+    });
+    String expectedMessage = "Failed parsing JEXL from index.jexl.filter";
+    String actualMessage = exception.getMessage();
+    assertTrue(actualMessage.contains(expectedMessage));
   }
 }

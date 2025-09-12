@@ -26,8 +26,10 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TestIndexingFilters {
 
@@ -67,7 +69,7 @@ public class TestIndexingFilters {
             new Metadata())), new Text("http://www.example.com/"),
         new CrawlDatum(), new Inlinks());
 
-    Assert.assertNull(doc);
+    assertNull(doc);
   }
 
   /**
@@ -103,7 +105,7 @@ public class TestIndexingFilters {
     NutchDocument fdoc2 = filters2.filter(new NutchDocument(), new ParseImpl(
         "text", new ParseData(new ParseStatus(), "title", new Outlink[0], md)),
         new Text("http://www.example.com/"), new CrawlDatum(), new Inlinks());
-    Assert.assertEquals(fdoc1.getFieldNames().size(), fdoc2.getFieldNames()
+    assertEquals(fdoc1.getFieldNames().size(), fdoc2.getFieldNames()
         .size());
   }
 

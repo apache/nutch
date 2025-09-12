@@ -17,8 +17,7 @@
 package org.apache.nutch.protocol.http;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -31,9 +30,9 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -53,7 +52,7 @@ public class TestResponse extends AbstractHttpProtocolPluginTest {
   }
 
   @Override
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     conf = new Configuration();
     conf.addResource("nutch-default.xml");
@@ -82,10 +81,9 @@ public class TestResponse extends AbstractHttpProtocolPluginTest {
     HttpResponse response = getResponse(statusCode, headerName);
     LOG.info("Response headers:");
     LOG.info(response.getHeaders().get(Response.RESPONSE_HEADERS));
-    assertEquals(
+    assertEquals(value, response.getHeader(lookupName),
         "No or unexpected value of header \"" + headerName
-            + "\" returned when retrieving header \"" + lookupName + "\"",
-        value, response.getHeader(lookupName));
+            + "\" returned when retrieving header \"" + lookupName + "\"");
   }
 
   protected Map<String, byte[]> getResponses(String headerValue) {
@@ -126,7 +124,7 @@ public class TestResponse extends AbstractHttpProtocolPluginTest {
     // testHeader(200, "MYCUSTOMHEADER", value, "MyCustomHeader");
   }
 
-  @Ignore("Only for benchmarking")
+  @Disabled("Only for benchmarking")
   @Test
   public void testMetadataBenchmark() throws MalformedURLException, ProtocolException,
       IOException, InterruptedException {

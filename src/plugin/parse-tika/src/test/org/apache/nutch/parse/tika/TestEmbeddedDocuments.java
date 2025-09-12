@@ -18,9 +18,10 @@ package org.apache.nutch.parse.tika;
 
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.ProtocolException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for MSWordParser.
@@ -34,7 +35,7 @@ public class TestEmbeddedDocuments extends TikaParserTest {
   private String expectedText = "When in the Course of human events";
 
   @Override
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
     conf.setBoolean("tika.parse.embedded", true);
@@ -44,8 +45,7 @@ public class TestEmbeddedDocuments extends TikaParserTest {
   public void testIt() throws ProtocolException, ParseException {
     for (int i = 0; i < sampleFiles.length; i++) {
       String found = getTextContent(sampleFiles[i]);
-      Assert.assertTrue("text found : '" + found + "'",
-          found.contains(expectedText));
+      assertTrue(found.contains(expectedText), "text found : '" + found + "'");
     }
   }
 

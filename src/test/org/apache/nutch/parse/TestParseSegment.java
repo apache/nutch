@@ -16,15 +16,14 @@
  */
 package org.apache.nutch.parse;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-
 import java.nio.charset.StandardCharsets;
 
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestParseSegment {
   private static byte[] BYTES = "the quick brown fox".getBytes(StandardCharsets.UTF_8);

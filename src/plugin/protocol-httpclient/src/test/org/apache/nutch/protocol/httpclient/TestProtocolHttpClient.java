@@ -30,7 +30,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
