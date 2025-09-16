@@ -127,6 +127,9 @@
 		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">
 			<artifact name="mrunit" ns0:classifier="hadoop2" />
 			<exclude org="log4j" module="log4j" />
+			<exclude org="junit" module="junit" />
+			<exclude org="org.powermock" module="powermock-module-junit4" />
+			<exclude org="com.google.guava" name="guava" />
 		</dependency>
 
 		<!-- Jetty used to serve test pages for unit tests, but is also provided as dependency of Hadoop -->
