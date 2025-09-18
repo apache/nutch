@@ -17,7 +17,7 @@
 package org.apache.nutch.protocol;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -286,10 +286,10 @@ public abstract class AbstractHttpProtocolPluginTest {
       httpStatusCode = Integer.parseInt(crawlDatum.getMetaData()
           .get(Nutch.PROTOCOL_STATUS_CODE_KEY).toString());
     }
-    assertEquals("HTTP Status Code for " + url, expectedCode, httpStatusCode);
+    assertEquals(expectedCode, httpStatusCode, "HTTP Status Code for " + url);
     if (httpStatusCode == 200 && expectedContentType != null) {
       Content content = protocolOutput.getContent();
-      assertEquals("ContentType " + url, "text/html", content.getContentType());
+      assertEquals("text/html", content.getContentType(), "ContentType " + url);
     }
     return protocolOutput;
   }
