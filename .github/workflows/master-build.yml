@@ -112,6 +112,5 @@ jobs:
           truncate_stack_traces: false
           fail_on_parse_error: true
           require_tests: true
-          detailed_summary: true
           include_time_in_summary: true
           comment: true
