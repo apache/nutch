@@ -101,18 +101,14 @@ jobs:
         run: ant clean test-plugins -buildfile build.xml
       - name: Find Test Report Files
         run: find . -name 'TEST-*.xml'
-      - name: Publish JUnit Test Report
+      - name: Publish Test Report
         uses: mikepenz/action-junit-report@v5
-        if: always() # always run even if the previous step fails
+        if: success() || failure() # always run even if the previous step fails
         with:
           report_paths: |-
             ./build/test/TEST-*.xml
             ./build/**/test/TEST-*.xml
-          detailed_summary: true
-          flaky_summary: true
-          annotate_only: true
+          check_name: 'Nutch JUnit Test Report'
           fail_on_failure: true
-          fail_on_parse_error: true
-          check_retries: true
-          truncate_stack_traces: false
-          require_tests: true
+          job_summary: true
+          detailed_summary: true
