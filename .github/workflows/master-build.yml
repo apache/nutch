@@ -105,7 +105,9 @@ jobs:
         uses: mikepenz/action-junit-report@v5
         if: always() # always run even if the previous step fails
         with:
-          report_paths: '/home/runner/work/nutch/nutch/build/test/TEST-*.xml,/home/runner/work/nutch/nutch/build/**/test/TEST-*.xml'
+          report_paths: |-
+            ./build/test/TEST-*.xml
+            ./build/**/test/TEST-*.xml
           detailed_summary: true
           flaky_summary: true
           annotate_only: true
