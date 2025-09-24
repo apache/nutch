@@ -1,0 +1,4150 @@
+Buildfile: /usr/local/nutch/build.xml
+Trying to override old definition of task javac
+
+clean-build:
+   [delete] Deleting directory /usr/local/nutch/build
+
+clean-default-lib:
+
+clean-test-lib:
+
+clean-lib:
+
+clean-dist:
+
+clean-runtime:
+
+clean:
+
+ivy-probe-antlib:
+
+ivy-download:
+
+ivy-download-unchecked:
+
+ivy-init-antlib:
+
+ivy-init:
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build
+    [mkdir] Created dir: /usr/local/nutch/build/classes
+    [mkdir] Created dir: /usr/local/nutch/build/release
+    [mkdir] Created dir: /usr/local/nutch/build/test
+    [mkdir] Created dir: /usr/local/nutch/build/test/classes
+    [mkdir] Created dir: /usr/local/nutch/build/test/lib
+
+clean-default-lib:
+
+resolve-default:
+[ivy:resolve] :: Apache Ivy 2.5.3 - 20241223125031 :: https://ant.apache.org/ivy/ ::
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+copy-libs:
+
+compile-core:
+    [javac] Compiling 252 source files to /usr/local/nutch/build/classes
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/plugin/Plugin.java:93: warning: [deprecation] finalize() in Object has been deprecated
+    [javac]   protected void finalize() throws Throwable {
+    [javac]                  ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkDumper.java:420: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("help");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkDumper.java:421: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("show this help message");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkDumper.java:422: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option helpOpts = OptionBuilder.create("help");
+    [javac]                       ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkDumper.java:425: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("webgraphdb");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkDumper.java:426: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkDumper.java:427: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("the web graph database to use");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkDumper.java:428: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option webGraphDbOpts = OptionBuilder.create("webgraphdb");
+    [javac]                             ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkDumper.java:431: warning: [deprecation] GnuParser in org.apache.commons.cli has been deprecated
+    [javac]     CommandLineParser parser = new GnuParser();
+    [javac]                                    ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkRank.java:726: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("help");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkRank.java:727: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("show this help message");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkRank.java:728: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option helpOpts = OptionBuilder.create("help");
+    [javac]                       ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkRank.java:731: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("webgraphdb");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkRank.java:732: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkRank.java:733: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("the web graph db to use");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkRank.java:734: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option webgraphOpts = OptionBuilder.create("webgraphdb");
+    [javac]                           ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/LinkRank.java:737: warning: [deprecation] GnuParser in org.apache.commons.cli has been deprecated
+    [javac]     CommandLineParser parser = new GnuParser();
+    [javac]                                    ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:376: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("help");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:377: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("show this help message");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:378: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option helpOpts = OptionBuilder.create("help");
+    [javac]                       ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:381: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("webgraphdb");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:382: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:383: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("the web graph database to use");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:384: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option webGraphDbOpts = OptionBuilder.create("webgraphdb");
+    [javac]                             ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:387: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("inlinks");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:388: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("show highest inlinks");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:389: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option inlinkOpts = OptionBuilder.create("inlinks");
+    [javac]                         ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:392: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("outlinks");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:393: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("show highest outlinks");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:394: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option outlinkOpts = OptionBuilder.create("outlinks");
+    [javac]                          ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:397: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("scores");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:398: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("show highest scores");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:399: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option scoreOpts = OptionBuilder.create("scores");
+    [javac]                        ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:402: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("topn");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:403: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasOptionalArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:404: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("show topN scores");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:405: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option topNOpts = OptionBuilder.create("topn");
+    [javac]                       ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:408: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("output");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:409: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:410: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("the output directory to use");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:411: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option outputOpts = OptionBuilder.create("output");
+    [javac]                         ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:414: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("asEff");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:415: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:417: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option effOpts = OptionBuilder.create("asEff");
+    [javac]                      ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:420: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasArgs(2);
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:421: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("group <host|domain> <sum|max>");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:422: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option groupOpts = OptionBuilder.create("group");
+    [javac]                        ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:425: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("asSequenceFile");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:426: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("whether to output as a sequencefile");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:427: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option sequenceFileOpts = OptionBuilder.create("asSequenceFile");
+    [javac]                               ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeDumper.java:430: warning: [deprecation] GnuParser in org.apache.commons.cli has been deprecated
+    [javac]     CommandLineParser parser = new GnuParser();
+    [javac]                                    ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:94: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("help");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:95: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("show this help message");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:96: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option helpOpts = OptionBuilder.create("help");
+    [javac]                       ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:99: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("webgraphdb");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:100: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:101: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("the webgraphdb to use");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:102: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option webGraphOpts = OptionBuilder.create("webgraphdb");
+    [javac]                           ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:105: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("url");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:106: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasOptionalArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:107: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("the url to dump");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:108: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option urlOpts = OptionBuilder.create("url");
+    [javac]                      ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/NodeReader.java:111: warning: [deprecation] GnuParser in org.apache.commons.cli has been deprecated
+    [javac]     CommandLineParser parser = new GnuParser();
+    [javac]                                    ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:232: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("help");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:233: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("show this help message");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:234: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option helpOpts = OptionBuilder.create("help");
+    [javac]                       ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:237: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("crawldb");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:238: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:239: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("the crawldb to use");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:240: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option crawlDbOpts = OptionBuilder.create("crawldb");
+    [javac]                          ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:243: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("webgraphdb");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:244: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:245: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("the webgraphdb to use");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:246: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option webGraphOpts = OptionBuilder.create("webgraphdb");
+    [javac]                           ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/ScoreUpdater.java:249: warning: [deprecation] GnuParser in org.apache.commons.cli has been deprecated
+    [javac]     CommandLineParser parser = new GnuParser();
+    [javac]                                    ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/WebGraph.java:737: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option graphOpt = OptionBuilder
+    [javac]                       ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/WebGraph.java:744: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
+    [javac]                     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/WebGraph.java:747: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option segDirOpt = OptionBuilder.withArgName("segmentDir").hasArgs()
+    [javac]                        ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/scoring/webgraph/WebGraph.java:759: warning: [deprecation] GnuParser in org.apache.commons.cli has been deprecated
+    [javac]     CommandLineParser parser = new GnuParser();
+    [javac]                                    ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:176: warning: [deprecation] PosixParser in org.apache.commons.cli has been deprecated
+    [javac]     CommandLineParser parser = new PosixParser();
+    [javac]                                    ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:199: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("Show this help");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:200: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     options.addOption(OptionBuilder.create(CMD_HELP));
+    [javac]                       ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:202: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("port");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:203: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasOptionalArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:204: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("The port to run the Nutch Server. Default port 8081");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:205: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     options.addOption(OptionBuilder.create(CMD_PORT));
+    [javac]                       ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:207: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withArgName("host");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:208: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.hasOptionalArg();
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:209: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     OptionBuilder.withDescription("The host to bind the Nutch Server to. Default is localhost.");
+    [javac]     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/service/NutchServer.java:210: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     options.addOption(OptionBuilder.create(CMD_HOST));
+    [javac]                       ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/tools/CommonCrawlDataDumper.java:577: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option outputOpt = OptionBuilder.withArgName("outputDir").hasArg()
+    [javac]                        ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/tools/CommonCrawlDataDumper.java:585: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
+    [javac]                     ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/tools/CommonCrawlDataDumper.java:589: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option mimeOpt = OptionBuilder.isRequired(false).withArgName("mimetype")
+    [javac]                      ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/tools/CommonCrawlDataDumper.java:594: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option gzipOpt = OptionBuilder.withArgName("gzip").hasArg(false)
+    [javac]                      ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/tools/CommonCrawlDataDumper.java:599: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option keyPrefixOpt = OptionBuilder.withArgName("keyPrefix").hasArg(true)
+    [javac]                           ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/tools/CommonCrawlDataDumper.java:603: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option simpleDateFormatOpt = OptionBuilder.withArgName("SimpleDateFormat")
+    [javac]                                  ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/tools/CommonCrawlDataDumper.java:608: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option epochFilenameOpt = OptionBuilder.withArgName("epochFilename")
+    [javac]                               ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/tools/CommonCrawlDataDumper.java:613: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option jsonArrayOpt = OptionBuilder.withArgName("jsonArray").hasArg(false)
+    [javac]                           ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/tools/CommonCrawlDataDumper.java:617: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option reverseKeyOpt = OptionBuilder.withArgName("reverseKey").hasArg(false)
+    [javac]                            ^
+    [javac] /usr/local/nutch/src/java/org/apache/nutch/tools/CommonCrawlDataDumper.java:621: warning: [deprecation] OptionBuilder in org.apache.commons.cli has been deprecated
+    [javac]     Option extensionOpt = OptionBuilder.withArgName("extension").hasArg(true)
+    [javac]                           ^
+    [javac] Note: Some input files additionally use or override a deprecated API.
+    [javac] Note: Some input files use unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
+    [javac] 100 warnings
+    [javac] only showing the first 100 warnings, of 101 total; use -Xmaxwarns if you would like to see more
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/net/protocols/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/exchange/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/fetcher/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/net/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/scoring/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/protocol/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/metadata/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/tools/arc/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/scoring/webgraph/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/plugin/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/indexer/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/segment/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/tools/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/crawl/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/util/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/parse/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/classes/org/apache/nutch/tools/warc/package-info.class
+     [copy] Copying 1 file to /usr/local/nutch/build/classes
+
+compile-plugins:
+
+deploy:
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/lib-htmlunit
+    [mkdir] Created dir: /usr/local/nutch/build/lib-htmlunit/classes
+    [mkdir] Created dir: /usr/local/nutch/build/lib-htmlunit/test
+    [mkdir] Created dir: /usr/local/nutch/build/lib-htmlunit/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/lib-htmlunit
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-htmlunit
+    [javac] Compiling 2 source files to /usr/local/nutch/build/lib-htmlunit/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/lib-htmlunit/lib-htmlunit.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-htmlunit
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-htmlunit
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/lib-http
+    [mkdir] Created dir: /usr/local/nutch/build/lib-http/classes
+    [mkdir] Created dir: /usr/local/nutch/build/lib-http/test
+    [mkdir] Created dir: /usr/local/nutch/build/lib-http/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/lib-http
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-http
+    [javac] Compiling 5 source files to /usr/local/nutch/build/lib-http/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/lib-http/classes/org/apache/nutch/protocol/http/api/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/lib-http/lib-http.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-http
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-http
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/lib-nekohtml
+    [mkdir] Created dir: /usr/local/nutch/build/lib-nekohtml/classes
+    [mkdir] Created dir: /usr/local/nutch/build/lib-nekohtml/test
+    [mkdir] Created dir: /usr/local/nutch/build/lib-nekohtml/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/lib-nekohtml
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-nekohtml
+
+copy-generated-lib:
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/lib-rabbitmq
+    [mkdir] Created dir: /usr/local/nutch/build/lib-rabbitmq/classes
+    [mkdir] Created dir: /usr/local/nutch/build/lib-rabbitmq/test
+    [mkdir] Created dir: /usr/local/nutch/build/lib-rabbitmq/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/lib-rabbitmq
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-rabbitmq
+    [javac] Compiling 3 source files to /usr/local/nutch/build/lib-rabbitmq/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/lib-rabbitmq/lib-rabbitmq.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-rabbitmq
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-rabbitmq
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/lib-regex-filter
+    [mkdir] Created dir: /usr/local/nutch/build/lib-regex-filter/classes
+    [mkdir] Created dir: /usr/local/nutch/build/lib-regex-filter/test
+    [mkdir] Created dir: /usr/local/nutch/build/lib-regex-filter/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/lib-regex-filter
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+    [javac] Compiling 3 source files to /usr/local/nutch/build/lib-regex-filter/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/lib-regex-filter/classes/org/apache/nutch/urlfilter/api/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/lib-regex-filter/lib-regex-filter.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-regex-filter
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-regex-filter
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/lib-selenium
+    [mkdir] Created dir: /usr/local/nutch/build/lib-selenium/classes
+    [mkdir] Created dir: /usr/local/nutch/build/lib-selenium/test
+    [mkdir] Created dir: /usr/local/nutch/build/lib-selenium/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/lib-selenium
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-selenium
+    [javac] Compiling 1 source file to /usr/local/nutch/build/lib-selenium/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/lib-selenium/lib-selenium.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-selenium
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-selenium
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/lib-xml
+    [mkdir] Created dir: /usr/local/nutch/build/lib-xml/classes
+    [mkdir] Created dir: /usr/local/nutch/build/lib-xml/test
+    [mkdir] Created dir: /usr/local/nutch/build/lib-xml/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/lib-xml
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+      [jar] Building MANIFEST-only jar: /usr/local/nutch/build/lib-xml/lib-xml.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-xml
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/lib-xml
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/creativecommons
+    [mkdir] Created dir: /usr/local/nutch/build/creativecommons/classes
+    [mkdir] Created dir: /usr/local/nutch/build/creativecommons/test
+    [mkdir] Created dir: /usr/local/nutch/build/creativecommons/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/creativecommons
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: creativecommons
+    [javac] Compiling 3 source files to /usr/local/nutch/build/creativecommons/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/creativecommons/classes/org/creativecommons/nutch/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/creativecommons/creativecommons.jar
+
+deps-test:
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/nutch-extensionpoints
+    [mkdir] Created dir: /usr/local/nutch/build/nutch-extensionpoints/classes
+    [mkdir] Created dir: /usr/local/nutch/build/nutch-extensionpoints/test
+    [mkdir] Created dir: /usr/local/nutch/build/nutch-extensionpoints/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/nutch-extensionpoints
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+      [jar] Building MANIFEST-only jar: /usr/local/nutch/build/nutch-extensionpoints/nutch-extensionpoints.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/nutch-extensionpoints
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/nutch-extensionpoints
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/creativecommons
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/creativecommons
+    [mkdir] Created dir: /usr/local/nutch/build/feed/test/data
+     [copy] Copying 1 file to /usr/local/nutch/build/feed/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/feed/classes
+    [mkdir] Created dir: /usr/local/nutch/build/feed/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/feed
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: feed
+    [javac] Compiling 4 source files to /usr/local/nutch/build/feed/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/feed/classes/org/apache/nutch/parse/feed/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/feed/classes/org/apache/nutch/indexer/feed/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/feed/feed.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-file/test/data
+     [copy] Copying 2 files to /usr/local/nutch/build/protocol-file/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-file/classes
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-file/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/protocol-file
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-file
+    [javac] Compiling 5 source files to /usr/local/nutch/build/protocol-file/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/protocol-file/classes/org/apache/nutch/protocol/file/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/protocol-file/protocol-file.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-file
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-file
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/feed
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/feed
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/headings
+    [mkdir] Created dir: /usr/local/nutch/build/headings/classes
+    [mkdir] Created dir: /usr/local/nutch/build/headings/test
+    [mkdir] Created dir: /usr/local/nutch/build/headings/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/headings
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: headings
+    [javac] Compiling 2 source files to /usr/local/nutch/build/headings/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/headings/classes/org/apache/nutch/parse/headings/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/headings/headings.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/headings
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/headings
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/exchange-jexl
+    [mkdir] Created dir: /usr/local/nutch/build/exchange-jexl/classes
+    [mkdir] Created dir: /usr/local/nutch/build/exchange-jexl/test
+    [mkdir] Created dir: /usr/local/nutch/build/exchange-jexl/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/exchange-jexl
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: exchange-jexl
+    [javac] Compiling 2 source files to /usr/local/nutch/build/exchange-jexl/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/exchange-jexl/classes/org/apache/nutch/exchange/jexl/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/exchange-jexl/exchange-jexl.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/exchange-jexl
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/exchange-jexl
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/index-anchor
+    [mkdir] Created dir: /usr/local/nutch/build/index-anchor/classes
+    [mkdir] Created dir: /usr/local/nutch/build/index-anchor/test
+    [mkdir] Created dir: /usr/local/nutch/build/index-anchor/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/index-anchor
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-anchor
+    [javac] Compiling 2 source files to /usr/local/nutch/build/index-anchor/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/index-anchor/classes/org/apache/nutch/indexer/anchor/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/index-anchor/index-anchor.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-anchor
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-anchor
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/index-arbitrary
+    [mkdir] Created dir: /usr/local/nutch/build/index-arbitrary/classes
+    [mkdir] Created dir: /usr/local/nutch/build/index-arbitrary/test
+    [mkdir] Created dir: /usr/local/nutch/build/index-arbitrary/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/index-arbitrary
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-arbitrary
+    [javac] Compiling 2 source files to /usr/local/nutch/build/index-arbitrary/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/index-arbitrary/classes/org/apache/nutch/indexer/arbitrary/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/index-arbitrary/index-arbitrary.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-arbitrary
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-arbitrary
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/index-basic
+    [mkdir] Created dir: /usr/local/nutch/build/index-basic/classes
+    [mkdir] Created dir: /usr/local/nutch/build/index-basic/test
+    [mkdir] Created dir: /usr/local/nutch/build/index-basic/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/index-basic
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-basic
+    [javac] Compiling 2 source files to /usr/local/nutch/build/index-basic/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/index-basic/classes/org/apache/nutch/indexer/basic/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/index-basic/index-basic.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-basic
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-basic
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/index-geoip
+    [mkdir] Created dir: /usr/local/nutch/build/index-geoip/classes
+    [mkdir] Created dir: /usr/local/nutch/build/index-geoip/test
+    [mkdir] Created dir: /usr/local/nutch/build/index-geoip/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/index-geoip
+
+init-plugin:
+     [echo] Copying MaxMind GeoIP .mmdb files to build
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-geoip
+    [javac] Compiling 3 source files to /usr/local/nutch/build/index-geoip/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] /usr/local/nutch/src/plugin/index-geoip/src/java/org/apache/nutch/indexer/geoip/GeoIPDocumentCreator.java:129: warning: [deprecation] isAnonymousProxy() in Traits has been deprecated
+    [javac]     addIfNotNull(doc, "isAnonProxy", String.valueOf(traits.isAnonymousProxy()));
+    [javac]                                                           ^
+    [javac] 1 warning
+    [javac] Creating empty /usr/local/nutch/build/index-geoip/classes/org/apache/nutch/indexer/geoip/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/index-geoip/index-geoip.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-geoip
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-geoip
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/index-jexl-filter
+    [mkdir] Created dir: /usr/local/nutch/build/index-jexl-filter/classes
+    [mkdir] Created dir: /usr/local/nutch/build/index-jexl-filter/test
+    [mkdir] Created dir: /usr/local/nutch/build/index-jexl-filter/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/index-jexl-filter
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-jexl-filter
+    [javac] Compiling 2 source files to /usr/local/nutch/build/index-jexl-filter/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/index-jexl-filter/classes/org/apache/nutch/indexer/jexl/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/index-jexl-filter/index-jexl-filter.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-jexl-filter
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-jexl-filter
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/index-links
+    [mkdir] Created dir: /usr/local/nutch/build/index-links/classes
+    [mkdir] Created dir: /usr/local/nutch/build/index-links/test
+    [mkdir] Created dir: /usr/local/nutch/build/index-links/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/index-links
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-links
+    [javac] Compiling 1 source file to /usr/local/nutch/build/index-links/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/index-links/index-links.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-links
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-links
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/index-metadata
+    [mkdir] Created dir: /usr/local/nutch/build/index-metadata/classes
+    [mkdir] Created dir: /usr/local/nutch/build/index-metadata/test
+    [mkdir] Created dir: /usr/local/nutch/build/index-metadata/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/index-metadata
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-metadata
+    [javac] Compiling 2 source files to /usr/local/nutch/build/index-metadata/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/index-metadata/classes/org/apache/nutch/indexer/metadata/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/index-metadata/index-metadata.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-metadata
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-metadata
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/index-more
+    [mkdir] Created dir: /usr/local/nutch/build/index-more/classes
+    [mkdir] Created dir: /usr/local/nutch/build/index-more/test
+    [mkdir] Created dir: /usr/local/nutch/build/index-more/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/index-more
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-more
+    [javac] Compiling 2 source files to /usr/local/nutch/build/index-more/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/index-more/classes/org/apache/nutch/indexer/more/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/index-more/index-more.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-more
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-more
+    [mkdir] Created dir: /usr/local/nutch/build/index-replace/test/data
+     [copy] Copying 1 file to /usr/local/nutch/build/index-replace/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/index-replace/classes
+    [mkdir] Created dir: /usr/local/nutch/build/index-replace/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/index-replace
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-replace
+    [javac] Compiling 3 source files to /usr/local/nutch/build/index-replace/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/index-replace/classes/org/apache/nutch/indexer/replace/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/index-replace/index-replace.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-file
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/parse-html
+    [mkdir] Created dir: /usr/local/nutch/build/parse-html/classes
+    [mkdir] Created dir: /usr/local/nutch/build/parse-html/test
+    [mkdir] Created dir: /usr/local/nutch/build/parse-html/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/parse-html
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parse-html
+    [javac] Compiling 6 source files to /usr/local/nutch/build/parse-html/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/parse-html/classes/org/apache/nutch/parse/html/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/parse-html/parse-html.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-html
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-html
+    [mkdir] Created dir: /usr/local/nutch/build/parse-metatags/test/data
+     [copy] Copying 2 files to /usr/local/nutch/build/parse-metatags/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/parse-metatags/classes
+    [mkdir] Created dir: /usr/local/nutch/build/parse-metatags/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/parse-metatags
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parse-metatags
+    [javac] Compiling 2 source files to /usr/local/nutch/build/parse-metatags/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/parse-metatags/classes/org/apache/nutch/parse/metatags/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/parse-metatags/parse-metatags.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-file
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-metatags
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-metatags
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-basic
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-metadata
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-replace
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-replace
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/index-static
+    [mkdir] Created dir: /usr/local/nutch/build/index-static/classes
+    [mkdir] Created dir: /usr/local/nutch/build/index-static/test
+    [mkdir] Created dir: /usr/local/nutch/build/index-static/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/index-static
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: index-static
+    [javac] Compiling 2 source files to /usr/local/nutch/build/index-static/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/index-static/classes/org/apache/nutch/indexer/staticfield/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/index-static/index-static.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-static
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/index-static
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-cloudsearch
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-cloudsearch/classes
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-cloudsearch/test
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-cloudsearch/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/indexer-cloudsearch
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: indexer-cloudsearch
+    [javac] Compiling 3 source files to /usr/local/nutch/build/indexer-cloudsearch/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/indexer-cloudsearch/indexer-cloudsearch.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-cloudsearch
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-cloudsearch
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-csv
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-csv/classes
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-csv/test
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-csv/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/indexer-csv
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: indexer-csv
+    [javac] Compiling 3 source files to /usr/local/nutch/build/indexer-csv/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/indexer-csv/classes/org/apache/nutch/indexwriter/csv/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/indexer-csv/indexer-csv.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-csv
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-csv
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-dummy
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-dummy/classes
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-dummy/test
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-dummy/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/indexer-dummy
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: indexer-dummy
+    [javac] Compiling 3 source files to /usr/local/nutch/build/indexer-dummy/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/indexer-dummy/classes/org/apache/nutch/indexwriter/dummy/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/indexer-dummy/indexer-dummy.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-dummy
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-dummy
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-elastic
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-elastic/classes
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-elastic/test
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-elastic/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/indexer-elastic
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: indexer-elastic
+    [javac] Compiling 3 source files to /usr/local/nutch/build/indexer-elastic/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/indexer-elastic/classes/org/apache/nutch/indexwriter/elastic/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/indexer-elastic/indexer-elastic.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-elastic
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-elastic
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-kafka
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-kafka/classes
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-kafka/test
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-kafka/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/indexer-kafka
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: indexer-kafka
+    [javac] Compiling 3 source files to /usr/local/nutch/build/indexer-kafka/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/indexer-kafka/classes/org/apache/nutch/indexwriter/kafka/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/indexer-kafka/indexer-kafka.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-kafka
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-kafka
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-opensearch-1x
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-opensearch-1x/classes
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-opensearch-1x/test
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-opensearch-1x/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/indexer-opensearch-1x
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: indexer-opensearch-1x
+    [javac] Compiling 3 source files to /usr/local/nutch/build/indexer-opensearch-1x/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/indexer-opensearch-1x/classes/org/apache/nutch/indexwriter/opensearch1x/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/indexer-opensearch-1x/indexer-opensearch-1x.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-opensearch-1x
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-opensearch-1x
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-rabbit
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-rabbit/classes
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-rabbit/test
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-rabbit/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/indexer-rabbit
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-rabbitmq
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: indexer-rabbit
+    [javac] Compiling 4 source files to /usr/local/nutch/build/indexer-rabbit/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/indexer-rabbit/indexer-rabbit.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-rabbit
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-rabbit
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-solr
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-solr
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-solr/classes
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-solr/test
+    [mkdir] Created dir: /usr/local/nutch/build/indexer-solr/test/lib
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: indexer-solr
+    [javac] Compiling 4 source files to /usr/local/nutch/build/indexer-solr/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/indexer-solr/classes/org/apache/nutch/indexwriter/solr/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/indexer-solr/indexer-solr.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-solr
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/indexer-solr
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/language-identifier
+    [mkdir] Created dir: /usr/local/nutch/build/language-identifier/classes
+    [mkdir] Created dir: /usr/local/nutch/build/language-identifier/test
+    [mkdir] Created dir: /usr/local/nutch/build/language-identifier/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/language-identifier
+
+init-plugin:
+     [echo] Copying language mappings (language codes to names)
+     [copy] Copying 1 file to /usr/local/nutch/build/language-identifier/classes
+     [echo] Copying test files
+     [copy] Copying 12 files to /usr/local/nutch/build/language-identifier/test
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: language-identifier
+    [javac] Compiling 3 source files to /usr/local/nutch/build/language-identifier/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/language-identifier/classes/org/apache/nutch/analysis/lang/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/language-identifier/language-identifier.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/language-identifier
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/language-identifier
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/microformats-reltag
+    [mkdir] Created dir: /usr/local/nutch/build/microformats-reltag/classes
+    [mkdir] Created dir: /usr/local/nutch/build/microformats-reltag/test
+    [mkdir] Created dir: /usr/local/nutch/build/microformats-reltag/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/microformats-reltag
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: microformats-reltag
+    [javac] Compiling 3 source files to /usr/local/nutch/build/microformats-reltag/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/microformats-reltag/classes/org/apache/nutch/microformats/reltag/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/microformats-reltag/microformats-reltag.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/microformats-reltag
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/microformats-reltag
+    [mkdir] Created dir: /usr/local/nutch/build/mimetype-filter/test/data
+     [copy] Copying 2 files to /usr/local/nutch/build/mimetype-filter/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/mimetype-filter/classes
+    [mkdir] Created dir: /usr/local/nutch/build/mimetype-filter/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/mimetype-filter
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: mimetype-filter
+    [javac] Compiling 1 source file to /usr/local/nutch/build/mimetype-filter/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/mimetype-filter/mimetype-filter.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/mimetype-filter
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/mimetype-filter
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-ext
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/parse-ext
+    [mkdir] Created dir: /usr/local/nutch/build/parse-ext/classes
+    [mkdir] Created dir: /usr/local/nutch/build/parse-ext/test
+    [mkdir] Created dir: /usr/local/nutch/build/parse-ext/test/lib
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parse-ext
+    [javac] Compiling 2 source files to /usr/local/nutch/build/parse-ext/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/parse-ext/classes/org/apache/nutch/parse/ext/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/parse-ext/parse-ext.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-file
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-ext
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-ext
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parse-html
+
+jar:
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+
+copy-generated-lib:
+    [mkdir] Created dir: /usr/local/nutch/build/parse-js/test/data
+     [copy] Copying 2 files to /usr/local/nutch/build/parse-js/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/parse-js/classes
+    [mkdir] Created dir: /usr/local/nutch/build/parse-js/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/parse-js
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parse-js
+    [javac] Compiling 2 source files to /usr/local/nutch/build/parse-js/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/parse-js/classes/org/apache/nutch/parse/js/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/parse-js/parse-js.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-file
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-js
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-js
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parse-metatags
+
+jar:
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-file
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+
+copy-generated-lib:
+    [mkdir] Created dir: /usr/local/nutch/build/parse-tika/test/data
+     [copy] Copying 11 files to /usr/local/nutch/build/parse-tika/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/parse-tika/classes
+    [mkdir] Created dir: /usr/local/nutch/build/parse-tika/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/parse-tika
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parse-tika
+    [javac] Compiling 7 source files to /usr/local/nutch/build/parse-tika/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/parse-tika/classes/org/apache/nutch/parse/tika/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/parse-tika/parse-tika.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-file
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-tika
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-tika
+    [mkdir] Created dir: /usr/local/nutch/build/parse-zip/test/data
+     [copy] Copying 1 file to /usr/local/nutch/build/parse-zip/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/parse-zip/classes
+    [mkdir] Created dir: /usr/local/nutch/build/parse-zip/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/parse-zip
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parse-zip
+    [javac] Compiling 3 source files to /usr/local/nutch/build/parse-zip/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/parse-zip/classes/org/apache/nutch/parse/zip/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/parse-zip/parse-zip.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-file
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-zip
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parse-zip
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-debug
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-debug/classes
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-debug/test
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-debug/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/parsefilter-debug
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parsefilter-debug
+    [javac] Compiling 2 source files to /usr/local/nutch/build/parsefilter-debug/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/parsefilter-debug/classes/org/apache/nutch/parsefilter/debug/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/parsefilter-debug/parsefilter-debug.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parsefilter-debug
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parsefilter-debug
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-naivebayes
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-naivebayes/classes
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-naivebayes/test
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-naivebayes/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/parsefilter-naivebayes
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parsefilter-naivebayes
+    [javac] Compiling 4 source files to /usr/local/nutch/build/parsefilter-naivebayes/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/parsefilter-naivebayes/classes/org/apache/nutch/parsefilter/naivebayes/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/parsefilter-naivebayes/parsefilter-naivebayes.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parsefilter-naivebayes
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parsefilter-naivebayes
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-regex/test/data
+     [copy] Copying 1 file to /usr/local/nutch/build/parsefilter-regex/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-regex/classes
+    [mkdir] Created dir: /usr/local/nutch/build/parsefilter-regex/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/parsefilter-regex
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: parsefilter-regex
+    [javac] Compiling 2 source files to /usr/local/nutch/build/parsefilter-regex/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/parsefilter-regex/classes/org/apache/nutch/parsefilter/regex/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/parsefilter-regex/parsefilter-regex.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parsefilter-regex
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/parsefilter-regex
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-file
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-foo
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-foo/classes
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-foo/test
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-foo/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/protocol-foo
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-foo
+    [javac] Compiling 2 source files to /usr/local/nutch/build/protocol-foo/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/protocol-foo/protocol-foo.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-foo
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-foo
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-ftp
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-ftp/classes
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-ftp/test
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-ftp/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/protocol-ftp
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-ftp
+    [javac] Compiling 12 source files to /usr/local/nutch/build/protocol-ftp/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] /usr/local/nutch/src/plugin/protocol-ftp/src/java/org/apache/nutch/protocol/ftp/Ftp.java:191: warning: [deprecation] finalize() in Object has been deprecated
+    [javac]   protected void finalize() {
+    [javac]                  ^
+    [javac] 1 warning
+    [javac] Creating empty /usr/local/nutch/build/protocol-ftp/classes/org/apache/nutch/protocol/ftp/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/protocol-ftp/protocol-ftp.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-ftp
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-ftp
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-htmlunit
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-htmlunit/classes
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-htmlunit/test
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-htmlunit/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/protocol-htmlunit
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-http
+
+jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-htmlunit
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-htmlunit
+    [javac] Compiling 4 source files to /usr/local/nutch/build/protocol-htmlunit/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/protocol-htmlunit/classes/org/apache/nutch/protocol/htmlunit/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/protocol-htmlunit/protocol-htmlunit.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-htmlunit
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-htmlunit
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-http
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-http/classes
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-http/test
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-http/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/protocol-http
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-http
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-http
+    [javac] Compiling 4 source files to /usr/local/nutch/build/protocol-http/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/protocol-http/classes/org/apache/nutch/protocol/http/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/protocol-http/protocol-http.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-http
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/protocol-http/test
+     [copy] Copied 6 empty directories to 5 empty directories under /usr/local/nutch/build/protocol-http/test
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-http
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-http
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-httpclient
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-httpclient/classes
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-httpclient/test
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-httpclient/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/protocol-httpclient
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-http
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-httpclient
+    [javac] Compiling 11 source files to /usr/local/nutch/build/protocol-httpclient/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/protocol-httpclient/classes/org/apache/nutch/protocol/httpclient/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/protocol-httpclient/protocol-httpclient.jar
+
+deps-test:
+     [copy] Copying 2 files to /usr/local/nutch/build/protocol-httpclient/test
+     [copy] Copied 6 empty directories to 5 empty directories under /usr/local/nutch/build/protocol-httpclient/test
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-httpclient
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-httpclient
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-interactiveselenium
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-interactiveselenium/classes
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-interactiveselenium/test
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-interactiveselenium/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/protocol-interactiveselenium
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-http
+
+jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-selenium
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-interactiveselenium
+    [javac] Compiling 9 source files to /usr/local/nutch/build/protocol-interactiveselenium/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/protocol-interactiveselenium/classes/org/apache/nutch/protocol/interactiveselenium/handlers/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/protocol-interactiveselenium/classes/org/apache/nutch/protocol/interactiveselenium/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/protocol-interactiveselenium/protocol-interactiveselenium.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-interactiveselenium
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-interactiveselenium
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-okhttp
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-okhttp/classes
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-okhttp/test
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-okhttp/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/protocol-okhttp
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-http
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-okhttp
+    [javac] Compiling 5 source files to /usr/local/nutch/build/protocol-okhttp/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/protocol-okhttp/classes/org/apache/nutch/protocol/okhttp/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/protocol-okhttp/protocol-okhttp.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-http
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/protocol-okhttp/test
+     [copy] Copied 6 empty directories to 5 empty directories under /usr/local/nutch/build/protocol-okhttp/test
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-okhttp
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-okhttp
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-selenium
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-selenium/classes
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-selenium/test
+    [mkdir] Created dir: /usr/local/nutch/build/protocol-selenium/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/protocol-selenium
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-http
+
+jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-selenium
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: protocol-selenium
+    [javac] Compiling 4 source files to /usr/local/nutch/build/protocol-selenium/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/protocol-selenium/classes/org/apache/nutch/protocol/selenium/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/protocol-selenium/protocol-selenium.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-selenium
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/protocol-selenium
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/publish-rabbitmq
+    [mkdir] Created dir: /usr/local/nutch/build/publish-rabbitmq/classes
+    [mkdir] Created dir: /usr/local/nutch/build/publish-rabbitmq/test
+    [mkdir] Created dir: /usr/local/nutch/build/publish-rabbitmq/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/publish-rabbitmq
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-rabbitmq
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: publish-rabbitmq
+    [javac] Compiling 3 source files to /usr/local/nutch/build/publish-rabbitmq/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/publish-rabbitmq/classes/org/apache/nutch/publisher/rabbitmq/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/publish-rabbitmq/publish-rabbitmq.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/publish-rabbitmq
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/publish-rabbitmq
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-depth
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-depth/classes
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-depth/test
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-depth/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/scoring-depth
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: scoring-depth
+    [javac] Compiling 2 source files to /usr/local/nutch/build/scoring-depth/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/scoring-depth/classes/org/apache/nutch/scoring/depth/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/scoring-depth/scoring-depth.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-depth
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-depth
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-link
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-link/classes
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-link/test
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-link/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/scoring-link
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: scoring-link
+    [javac] Compiling 2 source files to /usr/local/nutch/build/scoring-link/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/scoring-link/classes/org/apache/nutch/scoring/link/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/scoring-link/scoring-link.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-link
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-link
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-opic
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-opic/classes
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-opic/test
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-opic/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/scoring-opic
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: scoring-opic
+    [javac] Compiling 2 source files to /usr/local/nutch/build/scoring-opic/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/scoring-opic/classes/org/apache/nutch/scoring/opic/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/scoring-opic/scoring-opic.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-opic
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-opic
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-orphan
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-orphan/classes
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-orphan/test
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-orphan/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/scoring-orphan
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: scoring-orphan
+    [javac] Compiling 2 source files to /usr/local/nutch/build/scoring-orphan/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/scoring-orphan/classes/org/apache/nutch/scoring/orphan/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/scoring-orphan/scoring-orphan.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-orphan
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-orphan
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-similarity
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-similarity/classes
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-similarity/test
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-similarity/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/scoring-similarity
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: scoring-similarity
+    [javac] Compiling 9 source files to /usr/local/nutch/build/scoring-similarity/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/scoring-similarity/classes/org/apache/nutch/scoring/similarity/cosine/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/scoring-similarity/classes/org/apache/nutch/scoring/similarity/util/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/scoring-similarity/scoring-similarity.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-similarity
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-similarity
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-metadata
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-metadata/classes
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-metadata/test
+    [mkdir] Created dir: /usr/local/nutch/build/scoring-metadata/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/scoring-metadata
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: scoring-metadata
+    [javac] Compiling 2 source files to /usr/local/nutch/build/scoring-metadata/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/scoring-metadata/classes/org/apache/nutch/scoring/metadata/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/scoring-metadata/scoring-metadata.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-metadata
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/scoring-metadata
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/subcollection
+    [mkdir] Created dir: /usr/local/nutch/build/subcollection/classes
+    [mkdir] Created dir: /usr/local/nutch/build/subcollection/test
+    [mkdir] Created dir: /usr/local/nutch/build/subcollection/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/subcollection
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: subcollection
+    [javac] Compiling 5 source files to /usr/local/nutch/build/subcollection/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/subcollection/classes/org/apache/nutch/collection/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/subcollection/classes/org/apache/nutch/indexer/subcollection/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/subcollection/subcollection.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/subcollection
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/subcollection
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/tld
+    [mkdir] Created dir: /usr/local/nutch/build/tld/classes
+    [mkdir] Created dir: /usr/local/nutch/build/tld/test
+    [mkdir] Created dir: /usr/local/nutch/build/tld/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/tld
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: tld
+    [javac] Compiling 2 source files to /usr/local/nutch/build/tld/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/tld/classes/org/apache/nutch/indexer/tld/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/tld/tld.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/tld
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/tld
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-automaton/test/data
+     [copy] Copying 6 files to /usr/local/nutch/build/urlfilter-automaton/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-automaton/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-automaton/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlfilter-automaton
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlfilter-automaton
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlfilter-automaton/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlfilter-automaton/classes/org/apache/nutch/urlfilter/automaton/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlfilter-automaton/urlfilter-automaton.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-automaton
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-automaton
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-domain/test/data
+     [copy] Copying 1 file to /usr/local/nutch/build/urlfilter-domain/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-domain/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-domain/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlfilter-domain
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlfilter-domain
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlfilter-domain/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlfilter-domain/classes/org/apache/nutch/urlfilter/domain/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlfilter-domain/urlfilter-domain.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-domain
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-domain
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-domaindenylist/test/data
+     [copy] Copying 1 file to /usr/local/nutch/build/urlfilter-domaindenylist/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-domaindenylist/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-domaindenylist/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlfilter-domaindenylist
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlfilter-domaindenylist
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlfilter-domaindenylist/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlfilter-domaindenylist/classes/org/apache/nutch/urlfilter/domaindenylist/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlfilter-domaindenylist/urlfilter-domaindenylist.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-domaindenylist
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-domaindenylist
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-fast/test/data
+     [copy] Copying 4 files to /usr/local/nutch/build/urlfilter-fast/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-fast/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-fast/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlfilter-fast
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlfilter-fast
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlfilter-fast/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlfilter-fast/classes/org/apache/nutch/urlfilter/fast/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlfilter-fast/urlfilter-fast.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-fast
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-fast
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-prefix
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-prefix/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-prefix/test
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-prefix/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlfilter-prefix
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlfilter-prefix
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlfilter-prefix/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlfilter-prefix/classes/org/apache/nutch/urlfilter/prefix/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlfilter-prefix/urlfilter-prefix.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-prefix
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-prefix
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-regex/test/data
+     [copy] Copying 8 files to /usr/local/nutch/build/urlfilter-regex/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-regex/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-regex/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlfilter-regex
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlfilter-regex
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlfilter-regex/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlfilter-regex/classes/org/apache/nutch/urlfilter/regex/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlfilter-regex/urlfilter-regex.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-regex
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-regex
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-suffix
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-suffix/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-suffix/test
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-suffix/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlfilter-suffix
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlfilter-suffix
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlfilter-suffix/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlfilter-suffix/classes/org/apache/nutch/urlfilter/suffix/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlfilter-suffix/urlfilter-suffix.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-suffix
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-suffix
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-validator
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-validator/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-validator/test
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-validator/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlfilter-validator
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlfilter-validator
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlfilter-validator/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlfilter-validator/classes/org/apache/nutch/urlfilter/validator/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlfilter-validator/urlfilter-validator.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-validator
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-validator
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-ignoreexempt/test/data
+     [copy] Copying 1 file to /usr/local/nutch/build/urlfilter-ignoreexempt/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-ignoreexempt/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlfilter-ignoreexempt/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlfilter-ignoreexempt
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlfilter-ignoreexempt
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlfilter-ignoreexempt/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlfilter-ignoreexempt/classes/org/apache/nutch/urlfilter/ignoreexempt/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlfilter-ignoreexempt/urlfilter-ignoreexempt.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+
+jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlfilter-regex
+
+jar:
+
+deps-test:
+
+init:
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: lib-regex-filter
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-ignoreexempt
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlfilter-ignoreexempt
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlmeta
+    [mkdir] Created dir: /usr/local/nutch/build/urlmeta/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlmeta/test
+    [mkdir] Created dir: /usr/local/nutch/build/urlmeta/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlmeta
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlmeta
+    [javac] Compiling 4 source files to /usr/local/nutch/build/urlmeta/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlmeta/classes/org/apache/nutch/scoring/urlmeta/package-info.class
+    [javac] Creating empty /usr/local/nutch/build/urlmeta/classes/org/apache/nutch/indexer/urlmeta/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlmeta/urlmeta.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlmeta
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlmeta
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-ajax
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-ajax/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-ajax/test
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-ajax/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlnormalizer-ajax
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlnormalizer-ajax
+    [javac] Compiling 1 source file to /usr/local/nutch/build/urlnormalizer-ajax/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlnormalizer-ajax/urlnormalizer-ajax.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-ajax
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-ajax
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-basic
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-basic/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-basic/test
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-basic/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlnormalizer-basic
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlnormalizer-basic
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlnormalizer-basic/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlnormalizer-basic/classes/org/apache/nutch/net/urlnormalizer/basic/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlnormalizer-basic/urlnormalizer-basic.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-basic
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-basic
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-host/test/data
+     [copy] Copying 1 file to /usr/local/nutch/build/urlnormalizer-host/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-host/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-host/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlnormalizer-host
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlnormalizer-host
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlnormalizer-host/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlnormalizer-host/classes/org/apache/nutch/net/urlnormalizer/host/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlnormalizer-host/urlnormalizer-host.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-host
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-host
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-pass
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-pass/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-pass/test
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-pass/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlnormalizer-pass
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlnormalizer-pass
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlnormalizer-pass/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlnormalizer-pass/classes/org/apache/nutch/net/urlnormalizer/pass/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlnormalizer-pass/urlnormalizer-pass.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-pass
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-pass
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-protocol/test/data
+     [copy] Copying 1 file to /usr/local/nutch/build/urlnormalizer-protocol/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-protocol/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-protocol/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlnormalizer-protocol
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlnormalizer-protocol
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlnormalizer-protocol/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlnormalizer-protocol/classes/org/apache/nutch/net/urlnormalizer/protocol/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlnormalizer-protocol/urlnormalizer-protocol.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-protocol
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-protocol
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-querystring
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-querystring/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-querystring/test
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-querystring/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlnormalizer-querystring
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlnormalizer-querystring
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlnormalizer-querystring/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlnormalizer-querystring/classes/org/apache/nutch/net/urlnormalizer/querystring/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlnormalizer-querystring/urlnormalizer-querystring.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-querystring
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-querystring
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-regex/test/data
+     [copy] Copying 4 files to /usr/local/nutch/build/urlnormalizer-regex/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-regex/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-regex/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlnormalizer-regex
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlnormalizer-regex
+    [javac] Compiling 2 source files to /usr/local/nutch/build/urlnormalizer-regex/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+    [javac] Creating empty /usr/local/nutch/build/urlnormalizer-regex/classes/org/apache/nutch/net/urlnormalizer/regex/package-info.class
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlnormalizer-regex/urlnormalizer-regex.jar
+
+deps-test:
+
+init:
+
+init-plugin:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+
+jar:
+
+deps-test:
+
+deploy:
+
+copy-generated-lib:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-regex
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-regex
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-slash/test/data
+     [copy] Copying 1 file to /usr/local/nutch/build/urlnormalizer-slash/test/data
+
+init:
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-slash/classes
+    [mkdir] Created dir: /usr/local/nutch/build/urlnormalizer-slash/test/lib
+    [mkdir] Created dir: /usr/local/nutch/build/plugins/urlnormalizer-slash
+
+init-plugin:
+
+deps-jar:
+
+clean-lib:
+
+resolve-default:
+[ivy:resolve] :: loading settings :: file = /usr/local/nutch/ivy/ivysettings.xml
+
+compile:
+     [echo] Compiling plugin: urlnormalizer-slash
+    [javac] Compiling 1 source file to /usr/local/nutch/build/urlnormalizer-slash/classes
+    [javac] Ignoring source, target and bootclasspath as release has been set
+
+jar:
+      [jar] Building jar: /usr/local/nutch/build/urlnormalizer-slash/urlnormalizer-slash.jar
+
+deps-test:
+
+deploy:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-slash
+
+copy-generated-lib:
+     [copy] Copying 1 file to /usr/local/nutch/build/plugins/urlnormalizer-slash
+
+compile:
+
+BUILD SUCCESSFUL
+Total time: 13 seconds

@@ -191,11 +191,6 @@ public class CSVIndexWriter implements IndexWriter {
 
   private Path csvLocalOutFile;
 
-  @Override
-  public void open(Configuration conf, String name) throws IOException {
-
-  }
-
   /**
    * Initializes the internal variables from a given index writer configuration.
    *

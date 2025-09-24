@@ -109,12 +109,6 @@ public class OpenSearch1xIndexWriter implements IndexWriter {
 
   private Configuration config;
 
-
-  @Override
-  public void open(Configuration conf, String name) throws IOException {
-    // Implementation not required
-  }
-
   /**
    * Initializes the internal variables from a given index writer
    * configuration.
