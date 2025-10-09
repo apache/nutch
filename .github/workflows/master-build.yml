@@ -117,3 +117,4 @@ jobs:
           require_tests: true
           include_time_in_summary: true
           comment: true
+          include_passed: true
