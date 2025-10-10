@@ -29,7 +29,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v11
         with:
           name: junit-test-results
-          workflow: build.yml
+          workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v5
