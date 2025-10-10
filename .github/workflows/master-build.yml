@@ -20,9 +20,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [master]
-permissions:
-  checks: write
-  pull-requests: write
 jobs:
   javadoc:
     strategy:
@@ -102,19 +99,12 @@ jobs:
       - name: test plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
         run: ant clean test-plugins -buildfile build.xml
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v5
-        if: success() || failure() # always run even if the previous step fails
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          report_paths: |-
+          name: junit-test-results
+          path: |
             ./build/test/TEST-*.xml
             ./build/**/test/TEST-*.xml
-          fail_on_failure: true
-          job_summary: true
-          detailed_summary: true
-          truncate_stack_traces: false
-          fail_on_parse_error: true
-          require_tests: true
-          include_time_in_summary: true
-          comment: true
-          include_passed: true
+          retention-days: 1
