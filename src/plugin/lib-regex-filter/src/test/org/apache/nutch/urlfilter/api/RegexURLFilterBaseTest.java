@@ -34,7 +34,7 @@ import org.apache.nutch.net.URLFilter;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * JUnit based test of class <code>RegexURLFilterBase</code>.
+ * Base test class for {@link org.apache.nutch.urlfilter.api.RegexURLFilterBase} 
  * 
  * @author J&eacute;r&ocirc;me Charron
  */
@@ -44,14 +44,14 @@ public abstract class RegexURLFilterBaseTest {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  protected final static String SEPARATOR = System.getProperty("file.separator");
-  protected final static String SAMPLES = System.getProperty("test.data", ".");
+  protected static final String SEPARATOR = System.getProperty("file.separator");
+  protected static final String SAMPLES = System.getProperty("test.data", ".");
 
   protected abstract URLFilter getURLFilter(Reader rules);
 
   protected void bench(int loops, String file) {
-    try {
-      bench(loops, new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
+    try (FileReader rulesReader = new FileReader(SAMPLES + SEPARATOR + file + ".rules");) {
+      bench(loops, rulesReader,
           new FileReader(SAMPLES + SEPARATOR + file + ".urls"));
     } catch (Exception e) {
       fail(e.toString());
@@ -75,8 +75,8 @@ public abstract class RegexURLFilterBaseTest {
   }
 
   protected void bench(int loops, String rulesFile, String urlsFile) {
-    try {
-      bench(loops, new FileReader(SAMPLES + SEPARATOR + rulesFile),
+    try (FileReader rulesReader = new FileReader(SAMPLES + SEPARATOR + rulesFile);) {
+      bench(loops, rulesReader,
           new FileReader(SAMPLES + SEPARATOR + urlsFile));
     } catch (Exception e) {
       fail(e.toString());
@@ -84,18 +84,18 @@ public abstract class RegexURLFilterBaseTest {
   }
 
   protected void test(String rulesFile, String urlsFile) {
-    try {
-      test(new FileReader(SAMPLES + SEPARATOR + rulesFile),
-          new FileReader(SAMPLES + SEPARATOR + urlsFile));
+    try (FileReader rulesReader = new FileReader(SAMPLES + SEPARATOR + rulesFile);
+        FileReader urlsReader = new FileReader(SAMPLES + SEPARATOR + urlsFile);) {
+      test(rulesReader, urlsReader);
     } catch (Exception e) {
       fail(e.toString());
     }
   }
 
   protected void test(String file) {
-    try {
-      test(new FileReader(SAMPLES + SEPARATOR + file + ".rules"),
-          new FileReader(SAMPLES + SEPARATOR + file + ".urls"));
+    try (FileReader rulesReader = new FileReader(SAMPLES + SEPARATOR + file + ".rules");
+        FileReader urlsReader = new FileReader(SAMPLES + SEPARATOR + file + ".urls");) {
+      test(rulesReader, urlsReader);
     } catch (Exception e) {
       fail(e.toString());
     }
@@ -122,14 +122,14 @@ public abstract class RegexURLFilterBaseTest {
 
   private static FilteredURL[] readURLFile(Reader reader) throws IOException {
     BufferedReader in = new BufferedReader(reader);
-    List<FilteredURL> list = new ArrayList<FilteredURL>();
+    List<FilteredURL> list = new ArrayList<>();
     String line;
     while ((line = in.readLine()) != null) {
       if (line.length() != 0) {
         list.add(new FilteredURL(line));
       }
     }
-    return (FilteredURL[]) list.toArray(new FilteredURL[list.size()]);
+    return list.toArray(new FilteredURL[list.size()]);
   }
 
   private static class FilteredURL {

@@ -26,8 +26,8 @@
       <library name="index-geoip.jar">
          <export name="*"/>
       </library>
-      <library name="geoip2-3.0.1.jar"/>
-      <library name="maxmind-db-2.0.0.jar"/>
+      <library name="geoip2-4.2.0.jar"/>
+      <library name="maxmind-db-3.1.0.jar"/>
    </runtime>
 
    <requires>
