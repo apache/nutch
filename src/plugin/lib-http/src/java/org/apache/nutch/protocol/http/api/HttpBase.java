@@ -455,10 +455,16 @@ public abstract class HttpBase implements Protocol {
   }
 
   public boolean useProxy(String host) {
-    if (this.useProxy && this.proxyException.containsKey(host)) {
+    if (this.useProxy && isProxyException(host)) {
       return false;
     }
     return this.useProxy;
+  }
+
+  protected boolean isProxyException(String host) {
+    return this.proxyException.keySet().stream().anyMatch(h -> h.equals(host)
+        || (h.endsWith("*") && host.startsWith(h.substring(0, h.length() - 1)))
+        || (h.startsWith("*") && host.endsWith(h.substring(1))));
   }
 
   public int getTimeout() {
