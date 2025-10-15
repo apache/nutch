@@ -35,8 +35,8 @@ jobs:
         uses: mikepenz/action-junit-report@v5
         with:
           report_paths: |-
-            ./build/test/TEST-*.xml
-            ./build/**/test/TEST-*.xml
+            ./test/TEST-*.xml
+            ./**/test/TEST-*.xml
           commit: ${{ github.event.workflow_run.head_sha }}
           comment: true
           pr_id: ${{ github.event.workflow_run.pull_requests[0].number }}
@@ -49,4 +49,6 @@ jobs:
           include_time_in_summary: true
           include_passed: true
           job_name: tests
-          check_name: 'JUnit Test Report Core, JUnit Test Report Plugins'
+          check_name: |-
+            JUnit Test Report Core
+            JUnit Test Report Plugins
