@@ -43,38 +43,36 @@
 		<dependency org="org.apache.logging.log4j" name="log4j-slf4j2-impl" rev="2.25.0" conf="*->master" />
 		<dependency org="org.slf4j" name="slf4j-api" rev="2.0.17" conf="*->master" />
 
-		<dependency org="org.apache.commons" name="commons-lang3" rev="3.13.0" conf="*->default" />
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.17.0" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-collections4" rev="4.4" conf="*->master" />
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.14" conf="*->master" />
 		<!-- commons-httpclient is still required -->
 		<dependency org="commons-httpclient" name="commons-httpclient" rev="3.1"/>
 		<dependency org="commons-codec" name="commons-codec" rev="1.18.0" conf="*->default" />
-		<!-- hadoop 3.4.0 should have 2.11.0; Tika is broken in distributed mode until then;
-				We're currently relying on the hadoop-safe-tika shim that shades commons-io to upgrade
-				Tika
-		 		see https://github.com/apache/nutch/pull/776 -->
-		<dependency org="commons-io" name="commons-io" rev="2.11.0" conf="*->default" />
+
+		<dependency org="commons-io" name="commons-io" rev="2.16.1" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-compress" rev="1.27.1" conf="*->default" />
 		<dependency org="org.apache.commons" name="commons-jexl3" rev="3.5.0" conf="*->default" />
 		<dependency org="com.tdunning" name="t-digest" rev="3.3" />
 
 		<!-- Hadoop Dependencies -->
-		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.3.6" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-common" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.3.6" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.3.6" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-core" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
 		</dependency>
-		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.3.6" conf="*->default">
+		<dependency org="org.apache.hadoop" name="hadoop-mapreduce-client-jobclient" rev="3.4.2" conf="*->default">
 			<exclude org="ch.qos.reload4j" name="*"/>
 			<exclude org="org.slf4j" name="*" />
-		</dependency><!-- End of Hadoop Dependencies -->
+		</dependency>
+		<!-- End of Hadoop Dependencies -->
 
 		<dependency org="org.tallison.tika" name="tika-core-shaded" rev="2.9.1.0" conf="*->default" transitive="false"/>
 
