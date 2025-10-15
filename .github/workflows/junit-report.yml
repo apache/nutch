@@ -17,7 +17,7 @@ name: junit report
 on:
   workflow_run:
     workflows: [master pull request ci]
-    types: [success]
+    types: [completed]
 permissions:
   checks: write
   pull-requests: write
