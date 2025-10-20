@@ -37,18 +37,21 @@ jobs:
           report_paths: |-
             ./test/TEST-*.xml
             ./**/test/TEST-*.xml
-          commit: ${{ github.event.workflow_run.head_sha }}
-          comment: true
-          pr_id: ${{ github.event.workflow_run.pull_requests[0].number }}
-          fail_on_failure: true
-          job_summary: true
-          detailed_summary: true
-          truncate_stack_traces: false
-          fail_on_parse_error: false # temporary while debugging TestMimeUtil
-          require_tests: true
-          include_time_in_summary: true
-          include_passed: true
-          job_name: tests
           check_name: |-
-            JUnit Test Report Core
+            JUnit Test Report
             JUnit Test Report Plugins
+          commit: ${{ github.event.workflow_run.head_sha }}
+          fail_on_failure: false
+          fail_on_parse_error: false # temporary while debugging missing result for TestMimeUtil
+          require_tests: true
+          require_passed_tests: true
+          include_passed: false
+          include_skipped: true
+          check_annotations: true
+          job_summary: true
+          skip_success_summary: true
+          include_time_in_summary: true
+          comment: true
+          job_name: tests
+          truncate_stack_traces: false
+          pr_id: ${{ github.event.workflow_run.pull_requests[0].number }}
