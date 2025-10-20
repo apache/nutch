@@ -16,17 +16,9 @@
  */
 package org.apache.nutch.indexer.filter;
 
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.UnrecognizedOptionException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
@@ -67,7 +59,6 @@ import java.util.List;
 /**
  * An {@link org.apache.nutch.indexer.IndexingFilter} that allows filtering
  * of documents based on the MIME Type detected by Tika
- *
  */
 public class MimeTypeIndexingFilter implements IndexingFilter {
 
@@ -139,9 +130,8 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
 
     if (file != null) {
       if (file.isEmpty()) {
-        LOG.warn(String
-            .format("Missing %s property, ALL mimetypes will be allowed",
-                MIMEFILTER_REGEX_FILE));
+        LOG.warn("Missing {} property, ALL mimetypes will be allowed",
+            MIMEFILTER_REGEX_FILE);
       } else {
         Reader reader = conf.getConfResourceAsReader(file);
 
@@ -196,20 +186,18 @@ public class MimeTypeIndexingFilter implements IndexingFilter {
    * Main method for invoking this tool
    * @param args run with no arguments to print help
    * @throws IOException if there is a fatal I/O error processing the input args
-   * @throws IndexingException if there is a fatal error whils indexing
+   * @throws IndexingException if there is a fatal error whilst indexing
    */
   public static void main(String[] args) throws IOException, IndexingException {
-    Option helpOpt = new Option("h", "help", false, "show this help message");
-    @SuppressWarnings("static-access")
-    Option rulesOpt = OptionBuilder.withArgName("file").hasArg()
-        .withDescription(
-            "Rules file to be used in the tests relative to the conf directory")
-        .isRequired().create("rules");
+    Option helpOpt = new Option("h", "help", false, "Show this help message.");
+    Option rulesOpt = Option.builder().option("rules").hasArg().argName("file")
+        .desc("Rules file to be used in the tests relative to the conf directory.")
+        .required().build();
 
     Options options = new Options();
     options.addOption(helpOpt).addOption(rulesOpt);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     HelpFormatter formatter = new HelpFormatter();
     String rulesFile;
 

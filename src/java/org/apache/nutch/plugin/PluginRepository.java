@@ -18,6 +18,7 @@ package org.apache.nutch.plugin;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
+import java.lang.ref.Cleaner;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -70,6 +71,8 @@ public class PluginRepository implements URLStreamHandlerFactory {
 
   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+  private static final Cleaner CLEANER = Cleaner.create();
+
   /**
    * @param conf a populated {@link Configuration}
    * @throws RuntimeException if a fatal runtime error is encountered 
@@ -98,13 +101,22 @@ public class PluginRepository implements URLStreamHandlerFactory {
     try {
       installExtensions(this.fRegisteredPlugins);
     } catch (PluginRuntimeException e) {
-      LOG.error("Could not install extensions.", e.toString());
+      LOG.error("Could not install extensions. {}", e.toString());
       throw new RuntimeException(e.getMessage());
     }
 
     registerURLStreamHandlerFactory();
 
     displayStatus();
+
+    // Register cleanup action with Cleaner
+    CLEANER.register(this, () -> {
+      try {
+        shutDownActivatedPlugins();
+      } catch (PluginRuntimeException e) {
+        LOG.error("Error during cleanup of activated plugins", e);
+      }
+    });
   }
 
   /**
@@ -311,19 +323,6 @@ public class PluginRepository implements URLStreamHandlerFactory {
     } catch (InvocationTargetException e) {
       throw new PluginRuntimeException(e);
     }
-  }
-
-  /**
-   * Attempts to shut down all activated plugins.
-   * @deprecated
-   * @see <a href="https://openjdk.java.net/jeps/421">JEP 421: Deprecate Finalization for Removal</a>
-   * @see java.lang.Object#finalize()
-   * @deprecated
-   */
-  @Override
-  @Deprecated
-  public void finalize() throws Throwable {
-    shutDownActivatedPlugins();
   }
 
   /**

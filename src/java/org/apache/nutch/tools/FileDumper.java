@@ -27,10 +27,9 @@ import java.util.Map;
 import com.google.common.base.Strings;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -308,41 +307,33 @@ public class FileDumper {
     // boolean options
     Option helpOpt = new Option("h", "help", false, "show this help message");
     // argument options
-    @SuppressWarnings("static-access")
-    Option outputOpt = OptionBuilder
-    .withArgName("outputDir")
+    Option outputOpt = Option.builder("outputDir")
+    .argName("outputDir")
     .hasArg()
-    .withDescription(
-        "output directory (which will be created) to host the raw data")
-    .create("outputDir");
-    @SuppressWarnings("static-access")
-    Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
-    .withDescription("the segment(s) to use").create("segment");
-    @SuppressWarnings("static-access")
-    Option mimeOpt = OptionBuilder
-    .withArgName("mimetype")
+    .desc("output directory (which will be created) to host the raw data")
+    .build();
+    Option segOpt = Option.builder("segment")
+    .argName("segment")
     .hasArgs()
-    .withDescription(
-        "an optional list of mimetypes to dump, excluding all others. Defaults to all.")
-    .create("mimetype");
-    @SuppressWarnings("static-access")
-    Option mimeStat = OptionBuilder
-    .withArgName("mimeStats")
-    .withDescription(
-        "only display mimetype stats for the segment(s) instead of dumping file.")
-    .create("mimeStats");
-    @SuppressWarnings("static-access")
-    Option dirStructureOpt = OptionBuilder
-    .withArgName("flatdir")
-    .withDescription(
-        "optionally specify that the output directory should only contain files.")
-    .create("flatdir");
-    @SuppressWarnings("static-access")
-    Option reverseURLOutput = OptionBuilder
-    .withArgName("reverseUrlDirs")
-    .withDescription(
-        "optionally specify to use reverse URL folders for output structure.")
-    .create("reverseUrlDirs");
+    .desc("the segment(s) to use")
+    .build();
+    Option mimeOpt = Option.builder("mimetype")
+    .argName("mimetype")
+    .hasArgs()
+    .desc("an optional list of mimetypes to dump, excluding all others. Defaults to all.")
+    .build();
+    Option mimeStat = Option.builder("mimeStats")
+    .argName("mimeStats")
+    .desc("only display mimetype stats for the segment(s) instead of dumping file.")
+    .build();
+    Option dirStructureOpt = Option.builder("flatdir")
+    .argName("flatdir")
+    .desc("optionally specify that the output directory should only contain files.")
+    .build();
+    Option reverseURLOutput = Option.builder("reverseUrlDirs")
+    .argName("reverseUrlDirs")
+    .desc("optionally specify to use reverse URL folders for output structure.")
+    .build();
 
     // create the options
     Options options = new Options();
@@ -354,7 +345,7 @@ public class FileDumper {
     options.addOption(dirStructureOpt);
     options.addOption(reverseURLOutput);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("outputDir")
