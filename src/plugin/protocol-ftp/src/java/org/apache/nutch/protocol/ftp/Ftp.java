@@ -187,8 +187,10 @@ public class Ftp implements Protocol {
     }
   }
 
-  @Override
-  protected void finalize() {
+  /**
+   * Disconnects the FTP client. Should be called explicitly when done with this instance.
+   */
+  public void disconnect() {
     try {
       if (this.client != null && this.client.isConnected()) {
         this.client.logout();

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: master pull request ci
+name: master branch ci
 on:
   push:
     branches: [master]
@@ -89,16 +89,36 @@ jobs:
               - '.github/workflows/*'
       # run if the build configuration or both 'core' and 'plugins' files were changed
       - name: test all
+        id: build_all
         if: ${{ steps.filter.outputs.buildconf == 'true' || ( steps.filter.outputs.core  == 'true' && steps.filter.outputs.plugins  == 'true' ) }}
-        run: ant clean test -buildfile build.xml
+        run: ant clean test -buildfile build.xml | tee build.log
       # run only if 'core' files were changed
       - name: test core
+        id: build_core
         if: ${{ steps.filter.outputs.core == 'true' && steps.filter.outputs.plugins == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-core -buildfile build.xml
+        run: ant clean test-core -buildfile build.xml | tee build.log
       # run only if 'plugins' files were changed
       - name: test plugins
+        id: build_plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-plugins -buildfile build.xml
+        run: ant clean test-plugins -buildfile build.xml | tee build.log
+      # check for deprecation warnings in build output
+      - name: Check for deprecation warnings
+        if: always()
+        run: |
+          if [ -f build.log ]; then
+            if grep -iEq "warning: \[deprecation\]" build.log ; then
+              echo "============================================================="
+              echo "= ❌ Java deprecation warnings detected! Failing the build. ="
+              echo "============================================================="
+              grep -iE "warning: \[deprecation\]" -A 2 build.log
+              exit 1
+            else
+              echo "✅ No Java deprecation warnings found."
+            fi
+          else
+            echo "⚠️ build.log not found, skipping deprecation check."
+          fi
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         if: always()

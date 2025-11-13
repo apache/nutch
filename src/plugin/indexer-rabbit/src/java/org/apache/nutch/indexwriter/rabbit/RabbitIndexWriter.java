@@ -78,11 +78,6 @@ public class RabbitIndexWriter implements IndexWriter {
     config = conf;
   }
 
-  @Override
-  public void open(Configuration conf, String name) throws IOException {
-    //Implementation not required
-  }
-
   /**
    * Initializes the internal variables from a given index writer configuration.
    *

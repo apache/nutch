@@ -20,10 +20,9 @@ import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -91,24 +90,27 @@ public class NodeReader extends Configured {
   public static void main(String[] args) throws Exception {
 
     Options options = new Options();
-    OptionBuilder.withArgName("help");
-    OptionBuilder.withDescription("show this help message");
-    Option helpOpts = OptionBuilder.create("help");
+    Option helpOpts = Option.builder("help")
+        .argName("help")
+        .desc("show this help message")
+        .build();
     options.addOption(helpOpts);
 
-    OptionBuilder.withArgName("webgraphdb");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the webgraphdb to use");
-    Option webGraphOpts = OptionBuilder.create("webgraphdb");
+    Option webGraphOpts = Option.builder("webgraphdb")
+        .argName("webgraphdb")
+        .hasArg()
+        .desc("the webgraphdb to use")
+        .build();
     options.addOption(webGraphOpts);
 
-    OptionBuilder.withArgName("url");
-    OptionBuilder.hasOptionalArg();
-    OptionBuilder.withDescription("the url to dump");
-    Option urlOpts = OptionBuilder.create("url");
+    Option urlOpts = Option.builder("url")
+        .argName("url")
+        .optionalArg(true)
+        .desc("the url to dump")
+        .build();
     options.addOption(urlOpts);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
 
       // command line must take a webgraphdb and a url

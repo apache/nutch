@@ -211,7 +211,7 @@ public class IndexWriters {
   public void open(Configuration conf, String name) throws IOException {
     for (Map.Entry<String, IndexWriterWrapper> entry : this.indexWriters
         .entrySet()) {
-      entry.getValue().getIndexWriter().open(conf, name);
+      entry.getValue().getIndexWriter().open(new IndexWriterParams(new HashMap<>()));
       entry.getValue().getIndexWriter()
           .open(entry.getValue().getIndexWriterConfig().getParams());
     }

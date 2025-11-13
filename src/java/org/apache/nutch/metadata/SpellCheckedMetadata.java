@@ -101,7 +101,7 @@ public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
    * <li>CoNtEntType gives Content-Type</li>
    * <li>ConTnTtYpe gives Content-Type</li>
    * </ul>
-   * If no matching with a well-known metadata name is found, then the original
+   * If no well-known metadata name match is found, then the original
    * name is returned.
    * 
    * @param name
@@ -115,7 +115,7 @@ public class SpellCheckedMetadata extends CaseInsensitiveMetadata {
     if ((value == null) && (normalized != null)) {
       int threshold = Math.min(3, searched.length() / TRESHOLD_DIVIDER);
       for (int i = 0; i < normalized.length && value == null; i++) {
-        if (StringUtils.getLevenshteinDistance(searched, normalized[i]) < threshold) {
+        if (StringUtils.compareIgnoreCase(searched, normalized[i]) < threshold) { //.getLevenshteinDistance(searched, normalized[i]) < threshold) {
           value = NAMES_IDX.get(normalized[i]);
         }
       }

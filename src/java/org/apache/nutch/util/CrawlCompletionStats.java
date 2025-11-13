@@ -24,11 +24,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
@@ -68,33 +67,29 @@ public class CrawlCompletionStats extends Configured implements Tool {
   @Override
   public int run(String[] args) throws Exception {
     Option helpOpt = new Option("h", "help", false, "Show this message");
-    @SuppressWarnings("static-access")
-    Option inDirs = OptionBuilder
-        .withArgName("inputDirs")
-        .isRequired()
-        .withDescription("Comma separated list of crawldb directories (e.g., \"./crawl1/crawldb,./crawl2/crawldb\")")
+    Option inDirs = Option.builder("inputDirs")
+        .argName("inputDirs")
+        .required()
+        .desc("Comma separated list of crawldb directories (e.g., \"./crawl1/crawldb,./crawl2/crawldb\")")
         .hasArgs()
-        .create("inputDirs");
-    @SuppressWarnings("static-access")
-    Option outDir = OptionBuilder
-        .withArgName("outputDir")
-        .isRequired()
-        .withDescription("Output directory where results should be dumped")
+        .build();
+    Option outDir = Option.builder("outputDir")
+        .argName("outputDir")
+        .required()
+        .desc("Output directory where results should be dumped")
         .hasArgs()
-        .create("outputDir");
-    @SuppressWarnings("static-access")
-    Option modeOpt = OptionBuilder
-        .withArgName("mode")
-        .isRequired()
-        .withDescription("Set statistics gathering mode (by 'host' or by 'domain')")
+        .build();
+    Option modeOpt = Option.builder("mode")
+        .argName("mode")
+        .required()
+        .desc("Set statistics gathering mode (by 'host' or by 'domain')")
         .hasArgs()
-        .create("mode");
-    @SuppressWarnings("static-access")
-    Option numReducers = OptionBuilder
-        .withArgName("numReducers")
-        .withDescription("Optional number of reduce jobs to use. Defaults to 1")
+        .build();
+    Option numReducers = Option.builder("numReducers")
+        .argName("numReducers")
+        .desc("Optional number of reduce jobs to use. Defaults to 1")
         .hasArgs()
-        .create("numReducers");
+        .build();
 
     Options options = new Options();
     options.addOption(helpOpt);
@@ -103,7 +98,7 @@ public class CrawlCompletionStats extends Configured implements Tool {
     options.addOption(modeOpt);
     options.addOption(numReducers);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     CommandLine cli;
 
     try {

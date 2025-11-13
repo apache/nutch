@@ -49,11 +49,6 @@ public class DummyIndexWriter implements IndexWriter {
   private boolean delete = false;
   private String path;
 
-  @Override
-  public void open(Configuration conf, String name) throws IOException {
-    //Implementation not required
-  }
-
   /**
    * Initializes the internal variables from a given index writer configuration.
    *

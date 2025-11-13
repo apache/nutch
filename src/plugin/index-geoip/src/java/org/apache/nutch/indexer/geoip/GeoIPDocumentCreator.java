@@ -126,7 +126,7 @@ public class GeoIPDocumentCreator {
     addIfNotNull(doc, "userType", traits.getUserType());
     //for better results, users should upgrade to
     //https://www.maxmind.com/en/solutions/geoip2-enterprise-product-suite/anonymous-ip-database
-    addIfNotNull(doc, "isAnonProxy", String.valueOf(traits.isAnonymousProxy()));
+    addIfNotNull(doc, "isAnonProxy", String.valueOf(traits.isAnonymous()));
     return doc;
   }
 

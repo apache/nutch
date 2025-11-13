@@ -40,6 +40,7 @@ public class CommonCrawlFormatFactory {
 	 * @throws IOException If any I/O error occurs.
 	 * @deprecated
 	 */
+	@Deprecated
 	public static CommonCrawlFormat getCommonCrawlFormat(String formatType, String url, Content content,	Metadata metadata, Configuration nutchConf, CommonCrawlConfig config) throws IOException {
 		if (formatType == null) {
 			return null;
