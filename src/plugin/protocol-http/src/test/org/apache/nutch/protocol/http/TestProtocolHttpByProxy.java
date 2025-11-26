@@ -22,6 +22,7 @@ import org.apache.nutch.protocol.AbstractHttpProtocolPluginTest;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.littleshoot.proxy.HttpProxyServer;
@@ -30,26 +31,43 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
 /**
  * Test cases for protocol-http by proxy
  */
 public class TestProtocolHttpByProxy extends AbstractHttpProtocolPluginTest {
 
   public static final String PROXY_HOST = "localhost";
-  public static final Integer PROXY_PORT = 8888;
+  public Integer proxyPort = 8888;
 
   public static final String TARGET_HOST = "www.baidu.com";
   public static final Integer TARGET_PORT = 443;
+  
+  private HttpProxyServer server;
 
   @BeforeEach
   public void setUp() throws Exception {
     super.setUp();
+    proxyPort = findOpenPort();
     conf.set("http.proxy.host", PROXY_HOST);
-    conf.set("http.proxy.port", PROXY_PORT.toString());
+    conf.set("http.proxy.port", proxyPort.toString());
     http.setConf(conf);
 
-    HttpProxyServer server = DefaultHttpProxyServer.bootstrap()
-        .withPort(PROXY_PORT).start();
+    server = DefaultHttpProxyServer.bootstrap()
+        .withPort(proxyPort).start();
+  }
+  
+  private Integer findOpenPort() throws IOException {
+    try (ServerSocket socket = new ServerSocket(0)) {
+      return socket.getLocalPort();
+    }
+  }
+  
+  @AfterEach
+  public void tearDown() {
+    server.stop();
   }
 
   @Override

@@ -19,9 +19,6 @@ package org.apache.nutch.indexer;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
-import org.apache.hadoop.mrunit.types.Pair;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
@@ -33,6 +30,7 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.ReducerContextWrapper;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +40,9 @@ import java.lang.invoke.MethodHandles;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -89,8 +89,8 @@ public class TestIndexerMapReduce {
   public static CrawlDatum crawlDatumFetchSuccess = new CrawlDatum(
       CrawlDatum.STATUS_FETCH_SUCCESS, 60 * 60 * 24);
 
-  private Reducer<Text, NutchWritable, Text, NutchIndexAction> reducer = new IndexerMapReduce.IndexerReducer();
-  private ReduceDriver<Text, NutchWritable, Text, NutchIndexAction> reduceDriver;
+  private IndexerMapReduce.IndexerReducer reducer = new IndexerMapReduce.IndexerReducer();
+
   private Configuration configuration;
 
 
@@ -101,6 +101,9 @@ public class TestIndexerMapReduce {
   public void testBinaryContentBase64() {
     configuration = NutchConfiguration.create();
     configuration.setBoolean(IndexerMapReduce.INDEXER_BINARY_AS_BASE64, true);
+    
+    // unrelated issue with "index.jexl.filter", don't use all plugins.  Ref: src/test/nutch-site.xml
+    configuration.set("plugin.includes", "protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-csv|scoring-opic|urlnormalizer-(pass|regex|basic)");
 
     Charset[] testCharsets = { StandardCharsets.UTF_8,
         Charset.forName("iso-8859-1"), Charset.forName("iso-8859-2") };
@@ -155,7 +158,10 @@ public class TestIndexerMapReduce {
    * @param content
    *          (optional, if index binary content) protocol content
    * @return &quot;indexed&quot; document
+   * @throws InterruptedException 
+   * @throws IOException 
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public NutchDocument runIndexer(CrawlDatum dbDatum, CrawlDatum fetchDatum,
       ParseText parseText, ParseData parseData, Content content) {
     List<NutchWritable> values = new ArrayList<NutchWritable>();
@@ -164,19 +170,20 @@ public class TestIndexerMapReduce {
     values.add(new NutchWritable(parseText));
     values.add(new NutchWritable(parseData));
     values.add(new NutchWritable(content));
-    reduceDriver = ReduceDriver.newReduceDriver(reducer);
-    reduceDriver.getConfiguration().addResource(configuration);
-    reduceDriver.withInput(testUrlText, values);
-    List<Pair<Text, NutchIndexAction>> reduceResult;
+    Map<Text, NutchIndexAction> reduceResult = new HashMap<>();  
+    ReducerContextWrapper contextWrapper = new ReducerContextWrapper(reducer, configuration, reduceResult);
     NutchDocument doc = null;
-    try {
-      reduceResult = reduceDriver.run();
-      for (Pair<Text, NutchIndexAction> p : reduceResult) {
-        if (p.getSecond().action != NutchIndexAction.DELETE) {
-          doc = p.getSecond().doc;
+    try {      
+      reducer.setup(contextWrapper.getContext());
+      // test
+      reducer.reduce(testUrlText, values, contextWrapper.getContext());
+      
+      for (Map.Entry<Text, NutchIndexAction> e : reduceResult.entrySet()) {
+        if (e.getValue().action != NutchIndexAction.DELETE) {
+          doc = e.getValue().doc;
         }
       }
-    } catch (IOException e) {
+    } catch (IOException | InterruptedException e) {
       LOG.error(StringUtils.stringifyException(e));
     }
     return doc;

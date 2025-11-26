@@ -86,6 +86,10 @@
     <ivy:dependencytree />
   </target>
 
+  <target name="dependencytests" depends="resolve-test" description="Show unit tests dependency tree">
+	<ivy:dependencytree />
+  </target>
+
   <!-- ====================================================== -->
   <!-- Stuff needed by all targets                            -->
   <!-- ====================================================== -->
