@@ -67,6 +67,7 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
+import org.commoncrawl.util.CanonicalLinkDetector;
 import org.commoncrawl.util.WarcCapture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -750,6 +751,17 @@ public class FetcherThread extends Thread {
           byte[] signature = SignatureFactory.getSignature(conf)
               .calculate(content, new ParseStatus().getEmptyParse(conf));
           datum.setSignature(signature);
+        }
+        boolean extractCanonicalLink = true; // TODO: make configurable
+        if (parseResult == null && !parsing && extractCanonicalLink) {
+          List<String> canonicalLinks = CanonicalLinkDetector.detectCanonicalLinks(content);
+          if (!canonicalLinks.isEmpty()) {
+            LOG.debug("Found canonical links: {}", canonicalLinks);
+            // TODO
+            // - resolve, normalize and filter
+            // - add to metadata of datum
+            //   datum.getMetaData().put("", canonicalLinks.get(0));
+          }
         }
       }
 
