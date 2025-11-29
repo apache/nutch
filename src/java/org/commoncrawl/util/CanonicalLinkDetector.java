@@ -26,12 +26,16 @@ import java.util.regex.Pattern;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.message.BasicHeaderValueParser;
 import org.apache.nutch.protocol.Content;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CanonicalLinkDetector {
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(MethodHandles.lookup().lookupClass());
 
   protected static Set<String> SUPPORTED_CONTENT_TYPES = new HashSet<>();
   static {
@@ -81,8 +85,14 @@ public class CanonicalLinkDetector {
       String[] linkHeaders, int maxResults) {
     List<String> result = EMPTY_RESULT;
     for (String httpHeaderLink : linkHeaders) {
-      HeaderElement elem = BasicHeaderValueParser
-          .parseHeaderElement(httpHeaderLink, BasicHeaderValueParser.INSTANCE);
+      HeaderElement elem;
+      try {
+        elem = BasicHeaderValueParser.parseHeaderElement(httpHeaderLink,
+            BasicHeaderValueParser.INSTANCE);
+      } catch (ParseException e) {
+        LOG.error("Failed to parse Link HTTP header: {}", httpHeaderLink, e);
+        continue;
+      }
       for (NameValuePair param : elem.getParameters()) {
         if ("rel".equalsIgnoreCase(param.getName())
             && canonicalRelValuePattern.matcher(param.getValue()).find()) {
