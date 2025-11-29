@@ -17,6 +17,7 @@
 package org.apache.nutch.metadata;
 
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 
 /**
  * A collection of Nutch internal metadata constants.
@@ -114,4 +115,6 @@ public interface Nutch {
 	public static final String FETCH_EVENT_FETCHTIME = "fetchTime";
 	/** Content-lanueage key in the Pub/Sub event metadata for the content-language of the parsed page*/
 	public static final String FETCH_EVENT_CONTENTLANG = "content-language";
+
+  public static final Writable CANONICAL_LINK_KEY = new Text("canonical.link");
 }
