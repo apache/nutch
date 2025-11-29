@@ -122,13 +122,6 @@
         <!-- Required for JUnit 5 (Jupiter) test execution -->
         <dependency org="org.junit.jupiter" name="junit-jupiter-engine" rev="5.13.4" conf="test->default"/>
         <dependency org="org.junit.jupiter" name="junit-jupiter-api" rev="5.13.4" conf="test->default"/>
-		<dependency org="org.apache.mrunit" name="mrunit" rev="1.1.0" conf="test->default">
-			<artifact name="mrunit" ns0:classifier="hadoop2" />
-			<exclude org="log4j" module="log4j" />
-			<exclude org="junit" module="junit" />
-			<exclude org="org.powermock" module="powermock-module-junit4" />
-			<exclude org="com.google.guava" name="guava" />
-		</dependency>
 
 		<!-- Jetty used to serve test pages for unit tests, but is also provided as dependency of Hadoop -->
 		<dependency org="org.eclipse.jetty" name="jetty-server" rev="10.0.25" conf="test->default">

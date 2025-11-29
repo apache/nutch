@@ -23,6 +23,7 @@ import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.util.ReducerContextWrapper;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,10 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.nutch.crawl.CrawlDatum.*;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -196,13 +199,13 @@ public class TestCrawlDbStates {
    * already in CrawlDb. Newly injected elements have status "db_unfetched".
    * Inject is simulated by calling {@link Injector.InjectReducer#reduce()}.
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   public void testCrawlDbStatTransitionInject() {
     LOG.info("Test CrawlDatum states in Injector after inject");
     Configuration conf = CrawlDBTestUtil.createContext().getConfiguration();
     Injector.InjectReducer injector = new Injector.InjectReducer();
-    CrawlDbUpdateTestDriver<Injector.InjectReducer> injectDriver =
-        new CrawlDbUpdateTestDriver<Injector.InjectReducer>(injector, conf);
+
     ScoringFilters scfilters = new ScoringFilters(conf);
     for (String sched : schedules) {
       LOG.info("Testing inject with {}", sched);
@@ -234,12 +237,29 @@ public class TestCrawlDbStates {
           LOG.error(StringUtils.stringifyException(e));
         }
         values.add(injected);
-        List<CrawlDatum> res = injectDriver.update(values);
-        if (res.size() != 1) {
+        
+        List<CrawlDatum> result = new ArrayList<CrawlDatum>();
+        Map<Text, CrawlDatum> res = new HashMap<>(); 
+        ReducerContextWrapper contextWrapper = new ReducerContextWrapper(injector, conf, res);
+        try {
+          injector.setup(contextWrapper.getContext());
+          // test
+          injector.reduce(CrawlDbUpdateUtil.dummyURL, values, contextWrapper.getContext());
+
+          for (Map.Entry<Text, CrawlDatum> e : res.entrySet()) {
+            if (e.getKey().equals(CrawlDbUpdateUtil.dummyURL)) {
+              result.add(e.getValue());
+            }
+          }
+        } catch (IOException | InterruptedException e) {
+          LOG.error(StringUtils.stringifyException(e));
+        }
+
+        if (result.size() != 1) {
           fail("Inject didn't result in one single CrawlDatum per URL");
           continue;
         }
-        byte status = res.get(0).getStatus();
+        byte status = result.get(0).getStatus();
         if (status != toDbStatus) {
           fail("Inject for "
               + (fromDbStatus == -1 ? "" : getStatusName(fromDbStatus)
