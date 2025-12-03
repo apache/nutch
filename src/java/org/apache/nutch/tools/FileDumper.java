@@ -51,7 +51,7 @@ import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * The file dumper tool enables one to reverse generate the raw content from
  * Nutch segment data directories.

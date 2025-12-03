@@ -365,8 +365,11 @@
 <property>
   <name>http.proxy.exception.list</name>
   <value></value>
-  <description>A comma separated list of hosts that don't use the proxy
-  (e.g. intranets). Example: www.apache.org</description>
+  <description>Either i) a comma separated list of hosts e.g.,
+    domain1.org,www.domain2.com, or ii) a wildcard '*' in either prefix
+    e.g. "*.domain.com", or suffix e.g. "some.domain.*", that don't
+    use the proxy (e.g. intranets)
+  </description>
 </property>
 
 <property>

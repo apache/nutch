@@ -282,4 +282,7 @@
   <target name="dependencytree" depends="resolve-default" description="Show dependency tree">
     <ivy:dependencytree />
   </target>
+  <target name="dependencytests" depends="resolve-test" description="Show unit tests dependency tree">
+    <ivy:dependencytree />
+  </target>
 </project>
