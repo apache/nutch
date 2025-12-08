@@ -31,12 +31,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.fetcher.Fetcher.FetcherRun;
 import org.apache.nutch.fetcher.FetcherThreadEvent.PublishEventType;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLExemptionFilters;
@@ -152,6 +154,18 @@ public class FetcherThread extends Thread {
 
   private ProtocolLogUtil logUtil = new ProtocolLogUtil();
 
+  // Cached counters for performance (avoid repeated lookups in hot paths)
+  private Counter robotsDeniedCounter;
+  private Counter robotsDeniedMaxCrawlDelayCounter;
+  private Counter robotsDeferVisitsDroppedCounter;
+  private Counter redirectCountExceededCounter;
+  private Counter redirectDeduplicatedCounter;
+  private Counter redirectNotCreatedCounter;
+  private Counter hitByTimeLimitCounter;
+  private Counter aboveExceptionThresholdCounter;
+  private Counter outlinksDetectedCounter;
+  private Counter outlinksFollowingCounter;
+
   public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues, 
       QueueFeeder feeder, AtomicInteger spinWaiting, AtomicLong lastRequestStart, FetcherRun.Context context,
       AtomicInteger errors, String segmentName, boolean parsing, boolean storingContent, 
@@ -241,6 +255,35 @@ public class FetcherThread extends Thread {
             getName(), Thread.currentThread().getId());
       }
     }
+
+    // Initialize cached counters for performance
+    initCounters();
+  }
+
+  /**
+   * Initialize cached counter references to avoid repeated lookups in hot paths.
+   */
+  private void initCounters() {
+    robotsDeniedCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_ROBOTS_DENIED_TOTAL);
+    robotsDeniedMaxCrawlDelayCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_ROBOTS_DENIED_MAXCRAWLDELAY_TOTAL);
+    robotsDeferVisitsDroppedCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_ROBOTS_DEFER_VISITS_DROPPED_TOTAL);
+    redirectCountExceededCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_REDIRECT_COUNT_EXCEEDED_TOTAL);
+    redirectDeduplicatedCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_REDIRECT_DEDUPLICATED_TOTAL);
+    redirectNotCreatedCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_REDIRECT_NOT_CREATED_TOTAL);
+    hitByTimeLimitCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_HIT_BY_TIMELIMIT_TOTAL);
+    aboveExceptionThresholdCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_ABOVE_EXCEPTION_THRESHOLD_TOTAL);
+    outlinksDetectedCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_DETECTED_TOTAL);
+    outlinksFollowingCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_FOLLOWING_TOTAL);
   }
 
   @Override
@@ -334,9 +377,7 @@ public class FetcherThread extends Thread {
                   fit.getQueueID(), this.robotsDeferVisitsRetries + 1,
                   this.robotsDeferVisitsDelay);
               if (killedURLs != 0) {
-                context
-                    .getCounter("FetcherStatus", "robots_defer_visits_dropped")
-                    .increment(killedURLs);
+                robotsDeferVisitsDroppedCounter.increment(killedURLs);
               }
               continue;
             }
@@ -347,7 +388,7 @@ public class FetcherThread extends Thread {
               output(fit.url, fit.datum, null,
                   ProtocolStatus.STATUS_ROBOTS_DENIED,
                   CrawlDatum.STATUS_FETCH_GONE);
-              context.getCounter("FetcherStatus", "robots_denied").increment(1);
+              robotsDeniedCounter.increment(1);
               continue;
             }
             if (rules.getCrawlDelay() > 0) {
@@ -359,8 +400,7 @@ public class FetcherThread extends Thread {
                 output(fit.url, fit.datum, null,
                     ProtocolStatus.STATUS_ROBOTS_DENIED,
                     CrawlDatum.STATUS_FETCH_GONE);
-                context.getCounter("FetcherStatus",
-                    "robots_denied_maxcrawldelay").increment(1);
+                robotsDeniedMaxCrawlDelayCounter.increment(1);
                 continue;
               } else {
                 FetchItemQueue fiq = fetchQueues.getFetchItemQueue(fit.queueID);
@@ -398,7 +438,8 @@ public class FetcherThread extends Thread {
               endEvent.addEventData("status", status.getName());
               publisher.publish(endEvent, conf);
             }
-            context.getCounter("FetcherStatus", status.getName()).increment(1);
+            // Dynamic counter for protocol status - can't cache as status varies
+            context.getCounter(NutchMetrics.GROUP_FETCHER, status.getName()).increment(1);
 
             switch (status.getCode()) {
 
@@ -447,8 +488,7 @@ public class FetcherThread extends Thread {
               int killedURLs = fetchQueues
                   .checkExceptionThreshold(fit.getQueueID());
               if (killedURLs != 0)
-                context.getCounter("FetcherStatus",
-                    "AboveExceptionThresholdInQueue").increment(killedURLs);
+                aboveExceptionThresholdCounter.increment(killedURLs);
               /* FALLTHROUGH */
 
             case ProtocolStatus.RETRY: // retry
@@ -478,8 +518,7 @@ public class FetcherThread extends Thread {
 
             if (redirecting && redirectCount > maxRedirect) {
               fetchQueues.finishFetchItem(fit);
-              context.getCounter("FetcherStatus", "redirect_count_exceeded")
-                  .increment(1);
+              redirectCountExceededCounter.increment(1);
               LOG.info("{} {} - redirect count exceeded {} ({})", getName(),
                   Thread.currentThread().getId(), fit.url,
                   maxRedirectExceededSkip ? "skipped" : "linked");
@@ -613,13 +652,13 @@ public class FetcherThread extends Thread {
       throws ScoringFilterException {
     if (fetchQueues.redirectIsQueuedRecently(redirUrl)) {
       redirecting = false;
-      context.getCounter("FetcherStatus", "redirect_deduplicated").increment(1);
+      redirectDeduplicatedCounter.increment(1);
       LOG.debug(" - ignoring redirect from {} to {} as duplicate", fit.url,
           redirUrl);
       return null;
     } else if (fetchQueues.timelimitExceeded()) {
       redirecting = false;
-      context.getCounter("FetcherStatus", "hitByTimeLimit").increment(1);
+      hitByTimeLimitCounter.increment(1);
       LOG.debug(" - ignoring redirect from {} to {} - timelimit reached",
           fit.url, redirUrl);
       return null;
@@ -632,7 +671,7 @@ public class FetcherThread extends Thread {
     } else {
       // stop redirecting
       redirecting = false;
-      context.getCounter("FetcherStatus", "FetchItem.notCreated.redirect").increment(1);
+      redirectNotCreatedCounter.increment(1);
     }
     return fit;
   }
@@ -805,8 +844,7 @@ public class FetcherThread extends Thread {
             FetchItemQueue queue = fetchQueues.getFetchItemQueue(ft.queueID);
             queue.alreadyFetched.add(url.toString().hashCode());
 
-            context.getCounter("FetcherOutlinks", "outlinks_detected").increment(
-                outlinks.size());
+            outlinksDetectedCounter.increment(outlinks.size());
 
             // Counter to limit num outlinks to follow per page
             int outlinkCounter = 0;
@@ -838,7 +876,7 @@ public class FetcherThread extends Thread {
                   new CrawlDatum(CrawlDatum.STATUS_LINKED, interval),
                   queueMode, outlinkDepth + 1);
               
-              context.getCounter("FetcherOutlinks", "outlinks_following").increment(1);    
+              outlinksFollowingCounter.increment(1);
               
               fetchQueues.addFetchItem(fit);
 
@@ -864,7 +902,8 @@ public class FetcherThread extends Thread {
     if (parseResult != null && !parseResult.isEmpty()) {
       Parse p = parseResult.get(content.getUrl());
       if (p != null) {
-        context.getCounter("ParserStatus", ParseStatus.majorCodes[p
+        // Dynamic counter for parse status - can't cache as status varies
+        context.getCounter(NutchMetrics.GROUP_PARSER, ParseStatus.majorCodes[p
             .getData().getStatus().getMajorCode()]).increment(1);
         return p.getData().getStatus();
       }

@@ -37,6 +37,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -129,7 +130,8 @@ public class ParseSegment extends NutchTool implements Tool {
         Parse parse = entry.getValue();
         ParseStatus parseStatus = parse.getData().getStatus();
 
-        context.getCounter("ParserStatus",
+        // Dynamic counter based on parse status
+        context.getCounter(NutchMetrics.GROUP_PARSER,
             ParseStatus.majorCodes[parseStatus.getMajorCode()]).increment(1);
 
         if (!parseStatus.isSuccess()) {

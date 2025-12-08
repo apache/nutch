@@ -45,6 +45,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.hostdb.HostDatum;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.protocol.Content;
@@ -161,11 +162,13 @@ public class SitemapProcessor extends Configured implements Tool {
                 url.startsWith("file:/")) {
             // For entry from sitemap urls file, fetch the sitemap, extract urls and emit those
             if((url = filterNormalize(url)) == null) {
-              context.getCounter("Sitemap", "filtered_records").increment(1);
+              context.getCounter(NutchMetrics.GROUP_SITEMAP,
+                  NutchMetrics.SITEMAP_FILTERED_RECORDS_TOTAL).increment(1);
               return;
             }
 
-            context.getCounter("Sitemap", "sitemap_seeds").increment(1);
+            context.getCounter(NutchMetrics.GROUP_SITEMAP,
+                NutchMetrics.SITEMAP_SEEDS_TOTAL).increment(1);
             generateSitemapUrlDatum(protocolFactory.getProtocol(url), url, context); 
           } else {
             LOG.info("generateSitemapsFromHostname: {}", key.toString());
@@ -203,7 +206,8 @@ public class SitemapProcessor extends Configured implements Tool {
             (url = filterNormalize("https://" + host + "/")) == null &&
             (url = filterNormalize("ftp://" + host + "/")) == null &&
             (url = filterNormalize("file:/" + host + "/")) == null) {
-          context.getCounter("Sitemap", "filtered_records").increment(1);
+          context.getCounter(NutchMetrics.GROUP_SITEMAP,
+              NutchMetrics.SITEMAP_FILTERED_RECORDS_TOTAL).increment(1);
           return;
         }
         // We may wish to use the robots.txt content as the third parameter for .getRobotRules
@@ -214,11 +218,12 @@ public class SitemapProcessor extends Configured implements Tool {
           sitemaps.add(url + "sitemap.xml");
         }
         for (String sitemap : sitemaps) {
-          context.getCounter("Sitemap", "sitemaps_from_hostname").increment(1);
+          context.getCounter(NutchMetrics.GROUP_SITEMAP,
+              NutchMetrics.SITEMAP_FROM_HOSTNAME_TOTAL).increment(1);
           sitemap = filterNormalize(sitemap);
           if (sitemap == null) {
-            context.getCounter("Sitemap", "filtered_sitemaps_from_hostname")
-                .increment(1);
+            context.getCounter(NutchMetrics.GROUP_SITEMAP,
+                NutchMetrics.SITEMAP_FILTERED_FROM_HOSTNAME_TOTAL).increment(1);
           } else {
             generateSitemapUrlDatum(protocolFactory.getProtocol(sitemap),
                 sitemap, context);
@@ -254,7 +259,8 @@ public class SitemapProcessor extends Configured implements Tool {
       if(status.getCode() != ProtocolStatus.SUCCESS) {
         // If there were any problems fetching the sitemap, log the error and let it go. Not sure how often
         // sitemaps are redirected. In future we might have to handle redirects.
-        context.getCounter("Sitemap", "failed_fetches").increment(1);
+        context.getCounter(NutchMetrics.GROUP_SITEMAP,
+            NutchMetrics.SITEMAP_FAILED_FETCHES_TOTAL).increment(1);
         LOG.error("Error while fetching the sitemap. Status code: {} for {}", status.getCode(), url);
         return;
       }
@@ -373,12 +379,14 @@ public class SitemapProcessor extends Configured implements Tool {
           originalDatum.setModifiedTime(sitemapDatum.getModifiedTime());
         }
 
-        context.getCounter("Sitemap", "existing_sitemap_entries").increment(1);
+        context.getCounter(NutchMetrics.GROUP_SITEMAP,
+            NutchMetrics.SITEMAP_EXISTING_ENTRIES_TOTAL).increment(1);
         context.write(key, originalDatum);
       }
       else if(sitemapDatum != null) {
         // For the newly discovered links via sitemap, set the status as unfetched and emit
-        context.getCounter("Sitemap", "new_sitemap_entries").increment(1);
+        context.getCounter(NutchMetrics.GROUP_SITEMAP,
+            NutchMetrics.SITEMAP_NEW_ENTRIES_TOTAL).increment(1);
         sitemapDatum.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         context.write(key, sitemapDatum);
       }
