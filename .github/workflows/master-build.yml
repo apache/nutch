@@ -24,7 +24,7 @@ jobs:
   javadoc:
     strategy:
       matrix:
-        java: ['11']
+        java: ['17']
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -39,7 +39,7 @@ jobs:
   rat:
     strategy:
       matrix:
-        java: ['11']
+        java: ['17']
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -62,7 +62,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        java: ['11']
+        java: ['17']
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
