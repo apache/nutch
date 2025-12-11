@@ -31,6 +31,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.PriorityQueue;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.StringUtil;
@@ -163,7 +164,8 @@ public class CrawlDbReducer extends
           LOG.warn("Couldn't update orphaned score, key={}: {}", key, e);
         }
         context.write(key, old);
-        context.getCounter("CrawlDB status",
+        // Dynamic counter based on status name
+        context.getCounter(NutchMetrics.GROUP_CRAWLDB,
             CrawlDatum.getStatusName(old.getStatus())).increment(1);
       } else {
         LOG.warn("Missing fetch and old value, signature={}",
@@ -319,7 +321,8 @@ public class CrawlDbReducer extends
     // remove generation time, if any
     result.getMetaData().remove(Nutch.WRITABLE_GENERATE_TIME_KEY);
     context.write(key, result);
-    context.getCounter("CrawlDB status",
+    // Dynamic counter based on status name
+    context.getCounter(NutchMetrics.GROUP_CRAWLDB,
         CrawlDatum.getStatusName(result.getStatus())).increment(1);
   }
 
