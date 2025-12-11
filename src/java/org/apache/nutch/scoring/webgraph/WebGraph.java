@@ -58,6 +58,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.Outlink;
@@ -361,14 +362,16 @@ public class WebGraph extends Configured implements Tool {
               mostRecent = timestamp;
             }
             outlinkList.add(WritableUtils.clone(next, conf));
-            context.getCounter("WebGraph.outlinks", "added links").increment(1);
+            context.getCounter(NutchMetrics.GROUP_WEBGRAPH,
+                NutchMetrics.WEBGRAPH_ADDED_LINKS_TOTAL).increment(1);
           } else if (value instanceof BooleanWritable) {
             BooleanWritable delete = (BooleanWritable) value;
             // Actually, delete is always true, otherwise we don't emit it in the
             // mapper in the first place
             if (delete.get() == true) {
               // This page is gone, do not emit it's outlinks
-              context.getCounter("WebGraph.outlinks", "removed links").increment(1);
+              context.getCounter(NutchMetrics.GROUP_WEBGRAPH,
+                  NutchMetrics.WEBGRAPH_REMOVED_LINKS_TOTAL).increment(1);
               return;
             }
           }

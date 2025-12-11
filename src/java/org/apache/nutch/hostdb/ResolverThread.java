@@ -24,6 +24,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.util.StringUtils;
 
+import org.apache.nutch.metrics.NutchMetrics;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,16 +74,19 @@ public class ResolverThread implements Runnable {
       InetAddress inetAddr = InetAddress.getByName(host);
 
       if (datum.isEmpty()) {
-        context.getCounter("UpdateHostDb", "new_known_host").increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.HOSTDB_NEW_KNOWN_HOST_TOTAL).increment(1);
         datum.setLastCheck();
         LOG.info("{}: new_known_host {}", host, datum);
       } else if (datum.getDnsFailures() > 0) {
-        context.getCounter("UpdateHostDb", "rediscovered_host").increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.HOSTDB_REDISCOVERED_HOST_TOTAL).increment(1);
         datum.setLastCheck();
         datum.setDnsFailures(0l);
         LOG.info("{}: rediscovered_host {}", host, datum);
       } else {
-        context.getCounter("UpdateHostDb", "existing_known_host").increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.HOSTDB_EXISTING_KNOWN_HOST_TOTAL).increment(1);
         datum.setLastCheck();
         LOG.info("{}: existing_known_host {}", host, datum);
       }
@@ -95,7 +100,8 @@ public class ResolverThread implements Runnable {
           datum.setLastCheck();
           datum.setDnsFailures(1l);
           context.write(hostText, datum);
-          context.getCounter("UpdateHostDb", "new_unknown_host").increment(1);
+          context.getCounter(NutchMetrics.GROUP_HOSTDB,
+              NutchMetrics.HOSTDB_NEW_UNKNOWN_HOST_TOTAL).increment(1);
           LOG.info("{}: new_unknown_host {}", host, datum);
         } else {
           datum.setLastCheck();
@@ -106,15 +112,18 @@ public class ResolverThread implements Runnable {
             purgeFailedHostsThreshold < datum.getDnsFailures()) {
 
             context.write(hostText, datum);
-            context.getCounter("UpdateHostDb", "existing_unknown_host").increment(1);
+            context.getCounter(NutchMetrics.GROUP_HOSTDB,
+                NutchMetrics.HOSTDB_EXISTING_UNKNOWN_HOST_TOTAL).increment(1);
             LOG.info("{}: existing_unknown_host {}", host, datum);
           } else {
-            context.getCounter("UpdateHostDb", "purged_unknown_host").increment(1);
+            context.getCounter(NutchMetrics.GROUP_HOSTDB,
+                NutchMetrics.HOSTDB_PURGED_UNKNOWN_HOST_TOTAL).increment(1);
             LOG.info("{}: purged_unknown_host {}", host, datum);
           }
         }
 
-        context.getCounter("UpdateHostDb", createFailureCounterLabel(datum)).increment(1);
+        // Dynamic counter based on failure count - can't cache
+        context.getCounter(NutchMetrics.GROUP_HOSTDB, createFailureCounterLabel(datum)).increment(1);
       } catch (Exception ioe) {
         LOG.warn(StringUtils.stringifyException(ioe));
       }
@@ -122,7 +131,8 @@ public class ResolverThread implements Runnable {
       LOG.warn(StringUtils.stringifyException(e));
     }
 
-    context.getCounter("UpdateHostDb", "checked_hosts").increment(1);
+    context.getCounter(NutchMetrics.GROUP_HOSTDB,
+        NutchMetrics.HOSTDB_CHECKED_HOSTS_TOTAL).increment(1);
   }
 
   private String createFailureCounterLabel(HostDatum datum) {

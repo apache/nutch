@@ -30,6 +30,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.protocol.ProtocolStatus;
@@ -136,7 +137,8 @@ public class UpdateHostDbMapper
       try {
         url = new URL(keyStr);
       } catch (MalformedURLException e) {
-        context.getCounter("UpdateHostDb", "malformed_url").increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.HOSTDB_MALFORMED_URL_TOTAL).increment(1);
         return;
       }
       String hostName = URLUtil.getHost(url);
@@ -146,7 +148,8 @@ public class UpdateHostDbMapper
 
       // Filtered out?
       if (buffer == null) {
-        context.getCounter("UpdateHostDb", "filtered_records").increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.HOSTDB_FILTERED_RECORDS_TOTAL).increment(1);
         LOG.debug("UpdateHostDb: {} crawldatum has been filtered", hostName);
         return;
       }
@@ -219,7 +222,8 @@ public class UpdateHostDbMapper
 
       // Filtered out?
       if (buffer == null) {
-        context.getCounter("UpdateHostDb", "filtered_records").increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.HOSTDB_FILTERED_RECORDS_TOTAL).increment(1);
         LOG.debug("UpdateHostDb: {} hostdatum has been filtered", keyStr);
         return;
       }
@@ -243,7 +247,8 @@ public class UpdateHostDbMapper
 
       // Filtered out?
       if (buffer == null) {
-        context.getCounter("UpdateHostDb", "filtered_records").increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.HOSTDB_FILTERED_RECORDS_TOTAL).increment(1);
         LOG.debug("UpdateHostDb: {} score has been filtered", keyStr);
         return;
       }

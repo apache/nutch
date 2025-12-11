@@ -48,6 +48,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -295,8 +296,8 @@ public class Fetcher extends NutchTool implements Tool {
           pagesLastSec = pages.get() - pagesLastSec;
           bytesLastSec = (int) bytes.get() - bytesLastSec;
 
-          innerContext.getCounter("FetcherStatus", "bytes_downloaded")
-              .increment(bytesLastSec);
+          innerContext.getCounter(NutchMetrics.GROUP_FETCHER,
+              NutchMetrics.FETCHER_BYTES_DOWNLOADED_TOTAL).increment(bytesLastSec);
 
           reportStatus(innerContext, fetchQueues, pagesLastSec, bytesLastSec);
 
@@ -334,8 +335,8 @@ public class Fetcher extends NutchTool implements Tool {
                 int hitByThrougputThreshold = fetchQueues.emptyQueues();
 
                 if (hitByThrougputThreshold != 0)
-                  innerContext
-                      .getCounter("FetcherStatus", "hitByThrougputThreshold")
+                  innerContext.getCounter(NutchMetrics.GROUP_FETCHER,
+                      NutchMetrics.FETCHER_HIT_BY_THROUGHPUT_THRESHOLD_TOTAL)
                       .increment(hitByThrougputThreshold);
               }
             }
@@ -417,8 +418,8 @@ public class Fetcher extends NutchTool implements Tool {
           if (!feeder.isAlive()) {
             int hitByTimeLimit = fetchQueues.checkTimelimit();
             if (hitByTimeLimit != 0)
-              innerContext.getCounter("FetcherStatus", "hitByTimeLimit")
-                  .increment(hitByTimeLimit);
+              innerContext.getCounter(NutchMetrics.GROUP_FETCHER,
+                  NutchMetrics.FETCHER_HIT_BY_TIMELIMIT_TOTAL).increment(hitByTimeLimit);
           }
 
           /*
@@ -434,8 +435,8 @@ public class Fetcher extends NutchTool implements Tool {
                 timeout);
             LOG.warn("Aborting with {} hung threads{}.", activeThreads,
                 feeder.isAlive() ? " (queue feeder still alive)" : "");
-            innerContext.getCounter("FetcherStatus", "hungThreads")
-                .increment(activeThreads.get());
+            innerContext.getCounter(NutchMetrics.GROUP_FETCHER,
+                NutchMetrics.FETCHER_HUNG_THREADS_TOTAL).increment(activeThreads.get());
             for (int i = 0; i < fetcherThreads.size(); i++) {
               FetcherThread thread = fetcherThreads.get(i);
               if (thread.isAlive()) {
@@ -470,8 +471,8 @@ public class Fetcher extends NutchTool implements Tool {
                 fetchQueues.getTotalSize(), fetchQueues.getQueueCount(),
                 feeder.isAlive() ? " (queue feeder still alive)" : "");
             int hitByTimeout = fetchQueues.emptyQueues();
-            innerContext.getCounter("FetcherStatus", "hitByTimeout")
-                .increment(hitByTimeout);
+            innerContext.getCounter(NutchMetrics.GROUP_FETCHER,
+                NutchMetrics.FETCHER_HIT_BY_TIMEOUT_TOTAL).increment(hitByTimeout);
             return;
           }
 

@@ -36,6 +36,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -218,7 +219,8 @@ public class Injector extends NutchTool implements Tool {
 
         url = filterNormalize(url);
         if (url == null) {
-          context.getCounter("injector", "urls_filtered").increment(1);
+          context.getCounter(NutchMetrics.GROUP_INJECTOR,
+              NutchMetrics.INJECTOR_URLS_FILTERED_TOTAL).increment(1);
         } else {
           CrawlDatum datum = new CrawlDatum();
           datum.setStatus(CrawlDatum.STATUS_INJECTED);
@@ -238,7 +240,8 @@ public class Injector extends NutchTool implements Tool {
                 "Cannot filter injected score for url {}, using default ({})",
                 url, e.getMessage());
           }
-          context.getCounter("injector", "urls_injected").increment(1);
+          context.getCounter(NutchMetrics.GROUP_INJECTOR,
+              NutchMetrics.INJECTOR_URLS_INJECTED_TOTAL).increment(1);
           context.write(key, datum);
         }
       } else if (value instanceof CrawlDatum) {
@@ -248,14 +251,16 @@ public class Injector extends NutchTool implements Tool {
 
         // remove 404 urls
         if (url404Purging && CrawlDatum.STATUS_DB_GONE == datum.getStatus()) {
-          context.getCounter("injector", "urls_purged_404").increment(1);
+          context.getCounter(NutchMetrics.GROUP_INJECTOR,
+              NutchMetrics.INJECTOR_URLS_PURGED_404_TOTAL).increment(1);
           return;
         }
 
         if (filterNormalizeAll) {
           String url = filterNormalize(key.toString());
           if (url == null) {
-            context.getCounter("injector", "urls_purged_filter").increment(1);
+            context.getCounter(NutchMetrics.GROUP_INJECTOR,
+                NutchMetrics.INJECTOR_URLS_PURGED_FILTER_TOTAL).increment(1);
           } else {
             key.set(url);
             context.write(key, datum);
@@ -341,9 +346,11 @@ public class Injector extends NutchTool implements Tool {
         }
       }
       if (injectedSet) {
-        context.getCounter("injector", "urls_injected_unique").increment(1);
+        context.getCounter(NutchMetrics.GROUP_INJECTOR,
+            NutchMetrics.INJECTOR_URLS_INJECTED_UNIQUE_TOTAL).increment(1);
         if (oldSet) {
-          context.getCounter("injector", "urls_merged").increment(1);
+          context.getCounter(NutchMetrics.GROUP_INJECTOR,
+              NutchMetrics.INJECTOR_URLS_MERGED_TOTAL).increment(1);
         }
       }
       context.write(key, result);
@@ -454,17 +461,23 @@ public class Injector extends NutchTool implements Tool {
 
       if (LOG.isInfoEnabled()) {
         long urlsInjected = job.getCounters()
-            .findCounter("injector", "urls_injected").getValue();
+            .findCounter(NutchMetrics.GROUP_INJECTOR,
+                NutchMetrics.INJECTOR_URLS_INJECTED_TOTAL).getValue();
         long urlsInjectedUniq = job.getCounters()
-            .findCounter("injector", "urls_injected_unique").getValue();
+            .findCounter(NutchMetrics.GROUP_INJECTOR,
+                NutchMetrics.INJECTOR_URLS_INJECTED_UNIQUE_TOTAL).getValue();
         long urlsFiltered = job.getCounters()
-            .findCounter("injector", "urls_filtered").getValue();
+            .findCounter(NutchMetrics.GROUP_INJECTOR,
+                NutchMetrics.INJECTOR_URLS_FILTERED_TOTAL).getValue();
         long urlsMerged = job.getCounters()
-            .findCounter("injector", "urls_merged").getValue();
+            .findCounter(NutchMetrics.GROUP_INJECTOR,
+                NutchMetrics.INJECTOR_URLS_MERGED_TOTAL).getValue();
         long urlsPurged404 = job.getCounters()
-            .findCounter("injector", "urls_purged_404").getValue();
+            .findCounter(NutchMetrics.GROUP_INJECTOR,
+                NutchMetrics.INJECTOR_URLS_PURGED_404_TOTAL).getValue();
         long urlsPurgedFilter = job.getCounters()
-            .findCounter("injector", "urls_purged_filter").getValue();
+            .findCounter(NutchMetrics.GROUP_INJECTOR,
+                NutchMetrics.INJECTOR_URLS_PURGED_FILTER_TOTAL).getValue();
         LOG.info("Injector: Total urls rejected by filters: {}", urlsFiltered);
         LOG.info(
             "Injector: Total urls injected after normalization and filtering: {} (unique URLs: {})",

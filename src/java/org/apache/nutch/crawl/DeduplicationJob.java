@@ -45,6 +45,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
@@ -139,8 +140,8 @@ public class DeduplicationJob extends NutchTool implements Tool {
         throws IOException, InterruptedException {
       datum.setStatus(CrawlDatum.STATUS_DB_DUPLICATE);
       Text key = (Text) datum.getMetaData().remove(urlKey);
-      context.getCounter("DeduplicationJobStatus",
-          "Documents marked as duplicate").increment(1);
+      context.getCounter(NutchMetrics.GROUP_DEDUP,
+          NutchMetrics.DEDUP_DOCUMENTS_MARKED_DUPLICATE_TOTAL).increment(1);
       context.write(key, datum);
     }
 

@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 
@@ -80,15 +81,15 @@ public class CrawlDbFilter extends
     // https://issues.apache.org/jira/browse/NUTCH-1101 check status first,
     // cheaper than normalizing or filtering
     if (url404Purging && CrawlDatum.STATUS_DB_GONE == value.getStatus()) {
-      context.getCounter("CrawlDB filter",
-        "Gone records removed").increment(1);
+      context.getCounter(NutchMetrics.GROUP_CRAWLDB_FILTER,
+          NutchMetrics.CRAWLDB_GONE_RECORDS_REMOVED_TOTAL).increment(1);
       return;
     }
     // Whether to remove orphaned pages
     // https://issues.apache.org/jira/browse/NUTCH-1932
     if (purgeOrphans && CrawlDatum.STATUS_DB_ORPHAN == value.getStatus()) {
-      context.getCounter("CrawlDB filter",
-        "Orphan records removed").increment(1);
+      context.getCounter(NutchMetrics.GROUP_CRAWLDB_FILTER,
+          NutchMetrics.CRAWLDB_ORPHAN_RECORDS_REMOVED_TOTAL).increment(1);
       return;
     }
     if (url != null && urlNormalizers) {
@@ -108,7 +109,8 @@ public class CrawlDbFilter extends
       }
     }
     if (url == null) {
-      context.getCounter("CrawlDB filter", "URLs filtered").increment(1);
+      context.getCounter(NutchMetrics.GROUP_CRAWLDB_FILTER,
+          NutchMetrics.CRAWLDB_URLS_FILTERED_TOTAL).increment(1);
     } else {
       // URL has passed filters
       newKey.set(url); // collect it

@@ -36,6 +36,7 @@ import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
+import org.apache.nutch.metrics.NutchMetrics;
 
 import com.tdunning.math.stats.TDigest;
 
@@ -379,12 +380,14 @@ public class UpdateHostDbReducer
     // Impose limits on minimum number of URLs?
     if (urlLimit > -1l) {
       if (hostDatum.numRecords() < urlLimit) {
-        context.getCounter("UpdateHostDb", "url_limit_not_reached").increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.HOSTDB_URL_LIMIT_NOT_REACHED_TOTAL).increment(1);
         return;
       }
     }
     
-    context.getCounter("UpdateHostDb", "total_hosts").increment(1);
+    context.getCounter(NutchMetrics.GROUP_HOSTDB,
+        NutchMetrics.HOSTDB_TOTAL_HOSTS_TOTAL).increment(1);
 
     // See if this record is to be checked
     if (shouldCheck(hostDatum)) {
@@ -401,7 +404,8 @@ public class UpdateHostDbReducer
       // Do not progress, the datum will be written in the resolver thread
       return;
     } else if (checkAny) {
-      context.getCounter("UpdateHostDb", "skipped_not_eligible").increment(1);
+      context.getCounter(NutchMetrics.GROUP_HOSTDB,
+          NutchMetrics.HOSTDB_SKIPPED_NOT_ELIGIBLE_TOTAL).increment(1);
       LOG.debug("UpdateHostDb: {}: skipped_not_eligible", key);
     }
 
