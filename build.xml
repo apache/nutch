@@ -48,6 +48,8 @@
   <property name="apache-rat.home" value="${ivy.dir}/apache-rat-${apache-rat.version}" />
   <property name="apache-rat.jar" value="${apache-rat.home}/apache-rat-${apache-rat.version}.jar" />
 
+  <property name="ant-eclipse.jar" value="${ivy.dir}/lib/ant-eclipse-1.0-jvm1.2.jar" />
+
   <condition property="using.jdk.11">
     <matches string="${java.version}" pattern="11.+" casesensitive="false" />
   </condition>
@@ -1108,19 +1110,6 @@
       </fileset>
     </spotbugs>
   </target>
-  <path id="eclipse.classpath">
-    <fileset dir="${build.lib.dir}">
-      <include name="*.jar" />
-      <exclude name="ant-eclipse-1.0-jvm1.2.jar" />
-    </fileset>
-    <fileset dir="${build.plugins}">
-      <include name="**/*.jar" />
-    </fileset>
-    <fileset dir="${test.build.lib.dir}">
-      <include name="*.jar" />
-    </fileset>
-  </path>
-
 
   <!-- ================================================================== -->
   <!-- Eclipse targets                                                    -->
@@ -1130,7 +1119,6 @@
   <path id="eclipse.classpath">
     <fileset dir="${build.lib.dir}">
       <include name="*.jar" />
-      <exclude name="ant-eclipse-1.0-jvm1.2.jar" />
     </fileset>
     <fileset dir="${build.plugins}">
       <include name="**/*.jar" />
@@ -1141,18 +1129,24 @@
   </path>
 
   <!-- target: ant-eclipse-download   =================================== -->
-  <target name="ant-eclipse-download" description="--> downloads the ant-eclipse binary.">
-    <get src="https://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
-         dest="${build.dir}/ant-eclipse-1.0.bin.tar.bz2" usetimestamp="false" />
+  <target name="ant-eclipse-download" description="--> downloads the ant-eclipse jar">
+    <available file="${ant-eclipse.jar}" property="ant-eclipse.jar.found"/>
+    <antcall target="ant-eclipse-download-unchecked"/>
+  </target>
 
-    <untar src="${build.dir}/ant-eclipse-1.0.bin.tar.bz2"
-           dest="${build.dir}" compression="bzip2">
+  <target name="ant-eclipse-download-unchecked" unless="ant-eclipse.jar.found"
+          description="--> downloads the ant-eclipse jar">
+    <get src="https://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
+         dest="${ivy.dir}/ant-eclipse-1.0.bin.tar.bz2" usetimestamp="false" />
+
+    <untar src="${ivy.dir}/ant-eclipse-1.0.bin.tar.bz2"
+           dest="${ivy.dir}" compression="bzip2">
       <patternset>
         <include name="lib/ant-eclipse-1.0-jvm1.2.jar"/>
       </patternset>
     </untar>
 
-    <delete file="${build.dir}/ant-eclipse-1.0.bin.tar.bz2" />
+    <delete file="${ivy.dir}/ant-eclipse-1.0.bin.tar.bz2" />
   </target>
 
   <!-- target: eclipse   ================================================ -->
@@ -1167,7 +1161,7 @@
 
     <taskdef name="eclipse"
              classname="prantl.ant.eclipse.EclipseTask"
-             classpath="${build.dir}/lib/ant-eclipse-1.0-jvm1.2.jar" />
+             classpath="${ant-eclipse.jar}" />
     <eclipse updatealways="true">
       <project name="${eclipse.project}" />
       <classpath>
