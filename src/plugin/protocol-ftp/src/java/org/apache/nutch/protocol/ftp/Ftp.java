@@ -304,6 +304,15 @@ public class Ftp implements Protocol {
     return robots.getRobotRulesSet(this, url, robotsTxtContent);
   }
 
+  /**
+   * Get the robots rules for a given url
+   */
+  @Override
+  public BaseRobotRules getRobotRules(URL url, CrawlDatum datum,
+      List<Content> robotsTxtContent) {
+    return robots.getRobotRulesSet(this, url, robotsTxtContent);
+  }
+
   public int getBufferSize() {
     return BUFFER_SIZE;
   }
