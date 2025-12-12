@@ -358,7 +358,7 @@ public class FetcherThread extends Thread {
             LOG.debug("redirectCount={}", redirectCount);
             redirecting = false;
             Protocol protocol = this.protocolFactory.getProtocol(fit.u);
-            BaseRobotRules rules = protocol.getRobotRules(fit.url, fit.datum,
+            BaseRobotRules rules = protocol.getRobotRules(fit.u, fit.datum,
                 robotsTxtContent);
             if (robotsTxtContent != null) {
               outputRobotsTxt(robotsTxtContent);
@@ -381,7 +381,7 @@ public class FetcherThread extends Thread {
               }
               continue;
             }
-            if (!rules.isAllowed(fit.url.toString())) {
+            if (!rules.isAllowed(fit.u)) {
               // unblock
               fetchQueues.finishFetchItem(fit, true);
               LOG.info("Denied by robots.txt: {}", fit.url);
