@@ -367,5 +367,27 @@ public final class NutchMetrics {
 
   /** Empty results in domain statistics. */
   public static final String DOMAIN_STATS_EMPTY_RESULT_TOTAL = "empty_result_total";
+
+  // =========================================================================
+  // Latency Metric Prefixes (used with LatencyTracker)
+  // =========================================================================
+
+  /**
+   * Prefix for fetch latency metrics.
+   * Used with {@link LatencyTracker} to emit fetch timing counters.
+   */
+  public static final String FETCHER_LATENCY = "fetch_latency";
+
+  /**
+   * Prefix for parse latency metrics.
+   * Used with {@link LatencyTracker} to emit parse timing counters.
+   */
+  public static final String PARSER_LATENCY = "parse_latency";
+
+  /**
+   * Prefix for indexer latency metrics.
+   * Used with {@link LatencyTracker} to emit indexing timing counters.
+   */
+  public static final String INDEXER_LATENCY = "index_latency";
 }
 

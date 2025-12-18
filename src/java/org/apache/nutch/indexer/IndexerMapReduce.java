@@ -40,6 +40,7 @@ import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDb;
 import org.apache.nutch.crawl.NutchWritable;
+import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
@@ -215,6 +216,9 @@ public class IndexerMapReduce extends Configured {
     private URLNormalizers urlNormalizers;
     private URLFilters urlFilters;
 
+    // Latency tracker for indexing timing metrics
+    private LatencyTracker indexLatencyTracker;
+
     @Override
     public void setup(Reducer<Text, NutchWritable, Text, NutchIndexAction>.Context context) {
       Configuration conf = context.getConfiguration();
@@ -239,6 +243,17 @@ public class IndexerMapReduce extends Configured {
       if (filter) {
         urlFilters = new URLFilters(conf);
       }
+
+      // Initialize latency tracker for indexing timing
+      indexLatencyTracker = new LatencyTracker(
+          NutchMetrics.GROUP_INDEXER, NutchMetrics.INDEXER_LATENCY);
+    }
+
+    @Override
+    public void cleanup(Reducer<Text, NutchWritable, Text, NutchIndexAction>.Context context)
+        throws IOException, InterruptedException {
+      // Emit indexing latency metrics
+      indexLatencyTracker.emitCounters(context);
     }
 
     @Override
@@ -343,6 +358,9 @@ public class IndexerMapReduce extends Configured {
         return;
       }
 
+      // Start timing document indexing
+      long indexStart = System.currentTimeMillis();
+
       NutchDocument doc = new NutchDocument();
       doc.add("id", key.toString());
 
@@ -431,6 +449,9 @@ public class IndexerMapReduce extends Configured {
         }
         doc.add("binaryContent", binary);
       }
+
+      // Record indexing latency
+      indexLatencyTracker.record(System.currentTimeMillis() - indexStart);
 
       context.getCounter(NutchMetrics.GROUP_INDEXER,
           NutchMetrics.INDEXER_INDEXED_TOTAL).increment(1);
