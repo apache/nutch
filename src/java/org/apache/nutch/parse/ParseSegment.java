@@ -37,6 +37,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
@@ -81,12 +82,22 @@ public class ParseSegment extends NutchTool implements Tool {
     private Text newKey = new Text();
     private ScoringFilters scfilters;
     private boolean skipTruncated;
+    private LatencyTracker parseLatencyTracker;
 
     @Override
     public void setup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context) {
       Configuration conf = context.getConfiguration();
       scfilters = new ScoringFilters(conf);
       skipTruncated = conf.getBoolean(SKIP_TRUNCATED, true);
+      parseLatencyTracker = new LatencyTracker(
+          NutchMetrics.GROUP_PARSER, NutchMetrics.PARSER_LATENCY);
+    }
+
+    @Override
+    public void cleanup(Mapper<WritableComparable<?>, Content, Text, ParseImpl>.Context context)
+        throws IOException, InterruptedException {
+      // Emit parse latency metrics
+      parseLatencyTracker.emitCounters(context);
     }
 
     @Override
@@ -156,7 +167,9 @@ public class ParseSegment extends NutchTool implements Tool {
         }
 
         long end = System.currentTimeMillis();
-        LOG.info("Parsed ({}ms): {}", (end - start), url);
+        long parseTime = end - start;
+        parseLatencyTracker.record(parseTime);
+        LOG.info("Parsed ({}ms): {}", parseTime, url);
 
         context.write(
             url,

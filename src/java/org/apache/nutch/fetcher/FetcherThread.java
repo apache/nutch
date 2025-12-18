@@ -41,6 +41,7 @@ import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.fetcher.Fetcher.FetcherRun;
 import org.apache.nutch.fetcher.FetcherThreadEvent.PublishEventType;
+import org.apache.nutch.metrics.LatencyTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
@@ -191,6 +192,9 @@ public class FetcherThread extends Thread {
   private Counter robotsTxtArchivingFilteredMimeCounter;
   private Counter robotsTxtArchivingRobotsDeniedCounter;
 
+  // Latency tracker for fetch timing metrics
+  private LatencyTracker fetchLatencyTracker;
+
   public FetcherThread(Configuration conf, AtomicInteger activeThreads, FetchItemQueues fetchQueues, 
       QueueFeeder feeder, AtomicInteger spinWaiting, AtomicLong lastRequestStart, FetcherRun.Context context,
       AtomicInteger errors, String segmentName, boolean parsing, boolean storingContent, 
@@ -327,6 +331,8 @@ public class FetcherThread extends Thread {
         NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_DETECTED_TOTAL);
     outlinksFollowingCounter = context.getCounter(
         NutchMetrics.GROUP_FETCHER_OUTLINKS, NutchMetrics.FETCHER_OUTLINKS_FOLLOWING_TOTAL);
+
+    // Common Crawl specific counters
     ipv4Counter = context.getCounter(
         NutchMetrics.FETCHER_IP_ADDRESS_VERSION_GROUP,
         NutchMetrics.FETCHER_IPV4_TOTAL);
@@ -342,6 +348,10 @@ public class FetcherThread extends Thread {
     robotsTxtArchivingRobotsDeniedCounter = context.getCounter(
         NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_GROUP,
         NutchMetrics.FETCHER_ROBOTSTXT_ARCHIVING_ROBOTS_DENIED_TOTAL);
+    
+    // Initialize latency tracker for fetch timing
+    fetchLatencyTracker = new LatencyTracker(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_LATENCY);
   }
 
   @Override
@@ -475,8 +485,11 @@ public class FetcherThread extends Thread {
                     fit.queueID, fiq.crawlDelay, fit.url);
               }
             }
+            // Track fetch latency
+            long fetchStart = System.currentTimeMillis();
             ProtocolOutput output = protocol.getProtocolOutput(fit.url,
                 fit.datum);
+            fetchLatencyTracker.record(System.currentTimeMillis() - fetchStart);
             ProtocolStatus status = output.getStatus();
             Content content = output.getContent();
             ParseStatus pstatus = null;
@@ -619,6 +632,8 @@ public class FetcherThread extends Thread {
       if (fit != null) {
         fetchQueues.finishFetchItem(fit);
       }
+      // Emit fetch latency metrics
+      fetchLatencyTracker.emitCounters(context);
       activeThreads.decrementAndGet(); // count threads
       LOG.info("{} {} -finishing thread {}, activeThreads={}", getName(),
           Thread.currentThread().getId(), getName(), activeThreads);
