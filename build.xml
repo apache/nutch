@@ -40,7 +40,7 @@
 
   <property environment="env"/>
 
-  <property name="spotbugs.version" value="4.2.0" />
+  <property name="spotbugs.version" value="4.9.6" />
   <property name="spotbugs.home" value="${ivy.dir}/spotbugs-${spotbugs.version}" />
   <property name="spotbugs.jar" value="${spotbugs.home}/lib/spotbugs-ant.jar" />
 
@@ -79,7 +79,12 @@
   </path>
 
   <presetdef name="javac">
-    <javac includeantruntime="false" />
+    <javac includeantruntime="false" 
+      encoding="${build.encoding}"
+      debug="${javac.debug}"
+      optimize="${javac.optimize}"
+      release="${javac.version}"
+      deprecation="${javac.deprecation}"/>
   </presetdef>
 
   <target name="dependencytree" depends="resolve-default" description="Show dependency tree">
@@ -124,15 +129,9 @@
 
   <target name="compile-core" depends="init, resolve-default" description="--> compile core Java files only">
     <javac
-     encoding="${build.encoding}"
      srcdir="${src.dir}"
      includes="org/apache/nutch/**/*.java"
-     destdir="${build.classes}"
-     debug="${javac.debug}"
-     optimize="${javac.optimize}"
-     target="${javac.version}"
-     source="${javac.version}"
-     deprecation="${javac.deprecation}">
+     destdir="${build.classes}">
       <compilerarg value="-Xlint:-path"/>
       <classpath refid="classpath"/>
     </javac>
@@ -454,15 +453,9 @@
   <!-- ================================================================== -->
   <target name="compile-core-test" depends="init, compile-core, resolve-test" description="--> compile test code">
     <javac
-     encoding="${build.encoding}"
      srcdir="${test.src.dir}"
      includes="org/apache/nutch/**/*.java"
-     destdir="${test.build.classes}"
-     debug="${javac.debug}"
-     optimize="${javac.optimize}"
-     target="${javac.version}"
-     source="${javac.version}"
-     deprecation="${javac.deprecation}">
+     destdir="${test.build.classes}">
       <compilerarg value="-Xlint:-path"/>
       <classpath refid="test.classpath"/>
     </javac>

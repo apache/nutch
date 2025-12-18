@@ -22,10 +22,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -373,61 +372,71 @@ public class NodeDumper extends Configured implements Tool {
   public int run(String[] args) throws Exception {
 
     Options options = new Options();
-    OptionBuilder.withArgName("help");
-    OptionBuilder.withDescription("show this help message");
-    Option helpOpts = OptionBuilder.create("help");
+    Option helpOpts = Option.builder("help")
+        .argName("help")
+        .desc("show this help message")
+        .build();
     options.addOption(helpOpts);
 
-    OptionBuilder.withArgName("webgraphdb");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the web graph database to use");
-    Option webGraphDbOpts = OptionBuilder.create("webgraphdb");
+    Option webGraphDbOpts = Option.builder("webgraphdb")
+        .argName("webgraphdb")
+        .hasArg()
+        .desc("the web graph database to use")
+        .build();
     options.addOption(webGraphDbOpts);
 
-    OptionBuilder.withArgName("inlinks");
-    OptionBuilder.withDescription("show highest inlinks");
-    Option inlinkOpts = OptionBuilder.create("inlinks");
+    Option inlinkOpts = Option.builder("inlinks")
+        .argName("inlinks")
+        .desc("show highest inlinks")
+        .build();
     options.addOption(inlinkOpts);
 
-    OptionBuilder.withArgName("outlinks");
-    OptionBuilder.withDescription("show highest outlinks");
-    Option outlinkOpts = OptionBuilder.create("outlinks");
+    Option outlinkOpts = Option.builder("outlinks")
+        .argName("outlinks")
+        .desc("show highest outlinks")
+        .build();
     options.addOption(outlinkOpts);
 
-    OptionBuilder.withArgName("scores");
-    OptionBuilder.withDescription("show highest scores");
-    Option scoreOpts = OptionBuilder.create("scores");
+    Option scoreOpts = Option.builder("scores")
+        .argName("scores")
+        .desc("show highest scores")
+        .build();
     options.addOption(scoreOpts);
 
-    OptionBuilder.withArgName("topn");
-    OptionBuilder.hasOptionalArg();
-    OptionBuilder.withDescription("show topN scores");
-    Option topNOpts = OptionBuilder.create("topn");
+    Option topNOpts = Option.builder("topn")
+        .argName("topn")
+        .optionalArg(true)
+        .desc("show topN scores")
+        .build();
     options.addOption(topNOpts);
 
-    OptionBuilder.withArgName("output");
-    OptionBuilder.hasArg();
-    OptionBuilder.withDescription("the output directory to use");
-    Option outputOpts = OptionBuilder.create("output");
+    Option outputOpts = Option.builder("output")
+        .argName("output")
+        .hasArg()
+        .desc("the output directory to use")
+        .build();
     options.addOption(outputOpts);
 
-    OptionBuilder.withArgName("asEff");
-    OptionBuilder
-        .withDescription("Solr ExternalFileField compatible output format");
-    Option effOpts = OptionBuilder.create("asEff");
+    Option effOpts = Option.builder("asEff")
+        .argName("asEff")
+        .desc("Solr ExternalFileField compatible output format")
+        .build();
     options.addOption(effOpts);
 
-    OptionBuilder.hasArgs(2);
-    OptionBuilder.withDescription("group <host|domain> <sum|max>");
-    Option groupOpts = OptionBuilder.create("group");
+    Option groupOpts = Option.builder("group")
+        .hasArgs()
+        .numberOfArgs(2)
+        .desc("group <host|domain> <sum|max>")
+        .build();
     options.addOption(groupOpts);
 
-    OptionBuilder.withArgName("asSequenceFile");
-    OptionBuilder.withDescription("whether to output as a sequencefile");
-    Option sequenceFileOpts = OptionBuilder.create("asSequenceFile");
+    Option sequenceFileOpts = Option.builder("asSequenceFile")
+        .argName("asSequenceFile")
+        .desc("whether to output as a sequencefile")
+        .build();
     options.addOption(sequenceFileOpts);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
 
       CommandLine line = parser.parse(options, args);

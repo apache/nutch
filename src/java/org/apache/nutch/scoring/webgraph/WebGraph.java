@@ -29,10 +29,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
@@ -736,19 +735,21 @@ public class WebGraph extends Configured implements Tool {
         "whether to use URLFilters on the URL's in the segment");
 
     // argument options
-    @SuppressWarnings("static-access")
-    Option graphOpt = OptionBuilder
-        .withArgName("webgraphdb")
+    Option graphOpt = Option.builder("webgraphdb")
+        .argName("webgraphdb")
         .hasArg()
-        .withDescription(
-            "the web graph database to create (if none exists) or use if one does")
-        .create("webgraphdb");
-    @SuppressWarnings("static-access")
-    Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
-        .withDescription("the segment(s) to use").create("segment");
-    @SuppressWarnings("static-access")
-    Option segDirOpt = OptionBuilder.withArgName("segmentDir").hasArgs()
-        .withDescription("the segment directory to use").create("segmentDir");
+        .desc("the web graph database to create (if none exists) or use if one does")
+        .build();
+    Option segOpt = Option.builder("segment")
+        .argName("segment")
+        .hasArgs()
+        .desc("the segment(s) to use")
+        .build();
+    Option segDirOpt = Option.builder("segmentDir")
+        .argName("segmentDir")
+        .hasArgs()
+        .desc("the segment directory to use")
+        .build();
 
     // create the options
     Options options = new Options();
@@ -759,7 +760,7 @@ public class WebGraph extends Configured implements Tool {
     options.addOption(segOpt);
     options.addOption(segDirOpt);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")

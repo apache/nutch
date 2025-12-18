@@ -25,13 +25,13 @@ import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-import org.apache.commons.cli.CommandLine;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.jaxrs.JAXRSBindingFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
@@ -173,7 +173,7 @@ public class NutchServer {
   }
 
   public static void main(String[] args) throws ParseException {
-    CommandLineParser parser = new PosixParser();
+    CommandLineParser parser = new DefaultParser();
     Options options = createOptions();
     CommandLine commandLine = parser.parse(options, args);
     if (commandLine.hasOption(CMD_HELP)) {
@@ -196,18 +196,24 @@ public class NutchServer {
   private static Options createOptions() {
     Options options = new Options();
 
-    OptionBuilder.withDescription("Show this help");
-    options.addOption(OptionBuilder.create(CMD_HELP));
+    Option helpOpt = Option.builder(CMD_HELP)
+        .desc("Show this help")
+        .build();
+    options.addOption(helpOpt);
 
-    OptionBuilder.withArgName("port");
-    OptionBuilder.hasOptionalArg();
-    OptionBuilder.withDescription("The port to run the Nutch Server. Default port 8081");
-    options.addOption(OptionBuilder.create(CMD_PORT));
+    Option portOpt = Option.builder(CMD_PORT)
+        .argName("port")
+        .optionalArg(true)
+        .desc("The port to run the Nutch Server. Default port 8081")
+        .build();
+    options.addOption(portOpt);
 
-    OptionBuilder.withArgName("host");
-    OptionBuilder.hasOptionalArg();
-    OptionBuilder.withDescription("The host to bind the Nutch Server to. Default is localhost.");
-    options.addOption(OptionBuilder.create(CMD_HOST));
+    Option hostOpt = Option.builder(CMD_HOST)
+        .argName("host")
+        .optionalArg(true)
+        .desc("The host to bind the Nutch Server to. Default is localhost.")
+        .build();
+    options.addOption(hostOpt);
 
     return options;
   }

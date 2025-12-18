@@ -39,10 +39,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -573,64 +572,73 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
   public int run(String[] args) throws Exception {
     Option helpOpt = new Option("h", "help", false, "show this help message.");
     // argument options
-    @SuppressWarnings("static-access")
-    Option outputOpt = OptionBuilder.withArgName("outputDir").hasArg()
-        .withDescription(
-            "output directory (which will be created) to host the CBOR data.")
-        .create("outputDir");
+    Option outputOpt = Option.builder("outputDir")
+        .argName("outputDir")
+        .hasArg()
+        .desc("output directory (which will be created) to host the CBOR data.")
+        .build();
     // WARC format
     Option warcOpt = new Option("warc", "export to a WARC file");
 
-    @SuppressWarnings("static-access")
-    Option segOpt = OptionBuilder.withArgName("segment").hasArgs()
-        .withDescription("the segment or directory containing segments to use").create("segment");
+    Option segOpt = Option.builder("segment")
+        .argName("segment")
+        .hasArgs()
+        .desc("the segment or directory containing segments to use")
+        .build();
     // create mimetype and gzip options
-    @SuppressWarnings("static-access")
-    Option mimeOpt = OptionBuilder.isRequired(false).withArgName("mimetype")
-        .hasArgs().withDescription(
-            "an optional list of mimetypes to dump, excluding all others. Defaults to all.")
-        .create("mimetype");
-    @SuppressWarnings("static-access")
-    Option gzipOpt = OptionBuilder.withArgName("gzip").hasArg(false)
-        .withDescription(
-            "an optional flag indicating whether to additionally gzip the data.")
-        .create("gzip");
-    @SuppressWarnings("static-access")
-    Option keyPrefixOpt = OptionBuilder.withArgName("keyPrefix").hasArg(true)
-        .withDescription("an optional prefix for key in the output format.")
-        .create("keyPrefix");
-    @SuppressWarnings("static-access")
-    Option simpleDateFormatOpt = OptionBuilder.withArgName("SimpleDateFormat")
-        .hasArg(false).withDescription(
-            "an optional format for timestamp in GMT epoch milliseconds.")
-        .create("SimpleDateFormat");
-    @SuppressWarnings("static-access")
-    Option epochFilenameOpt = OptionBuilder.withArgName("epochFilename")
+    Option mimeOpt = Option.builder("mimetype")
+        .required(false)
+        .argName("mimetype")
+        .hasArgs()
+        .desc("an optional list of mimetypes to dump, excluding all others. Defaults to all.")
+        .build();
+    Option gzipOpt = Option.builder("gzip")
+        .argName("gzip")
         .hasArg(false)
-        .withDescription("an optional format for output filename.")
-        .create("epochFilename");
-    @SuppressWarnings("static-access")
-    Option jsonArrayOpt = OptionBuilder.withArgName("jsonArray").hasArg(false)
-        .withDescription("an optional format for JSON output.")
-        .create("jsonArray");
-    @SuppressWarnings("static-access")
-    Option reverseKeyOpt = OptionBuilder.withArgName("reverseKey").hasArg(false)
-        .withDescription("an optional format for key value in JSON output.")
-        .create("reverseKey");
-    @SuppressWarnings("static-access")
-    Option extensionOpt = OptionBuilder.withArgName("extension").hasArg(true)
-        .withDescription("an optional file extension for output documents.")
-        .create("extension");
-    @SuppressWarnings("static-access")
-    Option sizeOpt = OptionBuilder.withArgName("warcSize").hasArg(true)
-        .withType(Number.class)
-        .withDescription("an optional file size in bytes for the WARC file(s)")
-        .create("warcSize");
-    @SuppressWarnings("static-access")
-    Option linkDbOpt = OptionBuilder.withArgName("linkdb").hasArg(true)
-        .withDescription("an optional linkdb parameter to include inlinks in dump files")
-        .isRequired(false)
-        .create("linkdb");
+        .desc("an optional flag indicating whether to additionally gzip the data.")
+        .build();
+    Option keyPrefixOpt = Option.builder("keyPrefix")
+        .argName("keyPrefix")
+        .hasArg(true)
+        .desc("an optional prefix for key in the output format.")
+        .build();
+    Option simpleDateFormatOpt = Option.builder("SimpleDateFormat")
+        .argName("SimpleDateFormat")
+        .hasArg(false)
+        .desc("an optional format for timestamp in GMT epoch milliseconds.")
+        .build();
+    Option epochFilenameOpt = Option.builder("epochFilename")
+        .argName("epochFilename")
+        .hasArg(false)
+        .desc("an optional format for output filename.")
+        .build();
+    Option jsonArrayOpt = Option.builder("jsonArray")
+        .argName("jsonArray")
+        .hasArg(false)
+        .desc("an optional format for JSON output.")
+        .build();
+    Option reverseKeyOpt = Option.builder("reverseKey")
+        .argName("reverseKey")
+        .hasArg(false)
+        .desc("an optional format for key value in JSON output.")
+        .build();
+    Option extensionOpt = Option.builder("extension")
+        .argName("extension")
+        .hasArg(true)
+        .desc("an optional file extension for output documents.")
+        .build();
+    Option sizeOpt = Option.builder("warcSize")
+        .argName("warcSize")
+        .hasArg(true)
+        .type(Number.class)
+        .desc("an optional file size in bytes for the WARC file(s)")
+        .build();
+    Option linkDbOpt = Option.builder("linkdb")
+        .argName("linkdb")
+        .hasArg(true)
+        .desc("an optional linkdb parameter to include inlinks in dump files")
+        .required(false)
+        .build();
 
     // create the options
     Options options = new Options();
@@ -652,7 +660,7 @@ public class CommonCrawlDataDumper extends NutchTool implements Tool {
     options.addOption(sizeOpt);
     options.addOption(linkDbOpt);
 
-    CommandLineParser parser = new GnuParser();
+    CommandLineParser parser = new DefaultParser();
     try {
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("outputDir") || (!line
