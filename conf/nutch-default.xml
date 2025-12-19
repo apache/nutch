@@ -1180,6 +1180,15 @@
 </property>
 
 <property>
+  <name>fetcher.detect.canonical.link</name>
+  <value>false</value>
+  <description>If true, fetcher will detect canonical links in HTML content
+  relying on the class org.commoncrawl.util.CanonicalLinkDetector. Found
+  links are store in CrawlDatum metadata as &quot;canonical.link&quot;.
+  </description>
+</property>
+
+<property>
   <name>fetcher.timelimit.mins</name>
   <value>-1</value>
   <description>This is the number of minutes allocated to the fetching.

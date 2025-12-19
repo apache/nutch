@@ -31,7 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
@@ -67,6 +69,7 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.service.NutchServer;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
+import org.commoncrawl.util.CanonicalLinkDetector;
 import org.commoncrawl.util.WarcCapture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +83,8 @@ public class FetcherThread extends Thread {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
+
+  private static Writable EMPTY_VALUE = NullWritable.get();
 
   private Configuration conf;
   private URLFilters urlFilters;
@@ -140,6 +145,7 @@ public class FetcherThread extends Thread {
   private boolean storingProtocolVersions;
 
   private boolean signatureWithoutParsing;
+  private boolean detectCanonicalLink;
 
   private AtomicInteger pages;
 
@@ -179,6 +185,8 @@ public class FetcherThread extends Thread {
     this.parseUtil = new ParseUtil(conf);
     this.skipTruncated = conf.getBoolean(ParseSegment.SKIP_TRUNCATED, true);
     this.signatureWithoutParsing = conf.getBoolean("fetcher.signature", false);
+    this.detectCanonicalLink = conf.getBoolean("fetcher.detect.canonical.link",
+        false);
     this.protocolFactory = new ProtocolFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
     this.maxCrawlDelay = conf.getInt("fetcher.max.crawl.delay", 30) * 1000;
@@ -751,6 +759,14 @@ public class FetcherThread extends Thread {
               .calculate(content, new ParseStatus().getEmptyParse(conf));
           datum.setSignature(signature);
         }
+
+        if (detectCanonicalLink) {
+          /*
+           * TODO: if parsing, then canonical links should be detected on the
+           * DOM tree.
+           */
+          addCanonicalLink(key, datum, content);
+        }
       }
 
       /*
@@ -936,6 +952,37 @@ public class FetcherThread extends Thread {
     return null;
   }
   
+  private void addCanonicalLink(Text key, CrawlDatum datum, Content content) {
+    List<String> canonicalLinks = CanonicalLinkDetector
+        .detectCanonicalLinks(content);
+    if (canonicalLinks.isEmpty() || canonicalLinks.get(0).isEmpty()) {
+      /*
+       * Add a null value, so that a CrawlDb update overwrites outdated
+       * canonical links.
+       */
+      datum.getMetaData().put(Nutch.CANONICAL_LINK_KEY, EMPTY_VALUE);
+    } else {
+      LOG.debug("Found canonical links: {}", canonicalLinks);
+      String link = canonicalLinks.get(0);
+      String urlKey = key.toString();
+      try {
+        if (!link.startsWith("http")) {
+          link = URLUtil.resolveURL(new URL(urlKey), link).toString();
+        }
+        link = normalizers.normalize(link, URLNormalizers.SCOPE_FETCHER);
+        // do not filter, we just recording the canonical link
+      } catch (MalformedURLException e) {
+        link = null;
+      }
+      if (link != null) {
+        Text canonicalLink = new Text(link);
+        datum.getMetaData().put(Nutch.CANONICAL_LINK_KEY, canonicalLink);
+      } else {
+        datum.getMetaData().put(Nutch.CANONICAL_LINK_KEY, EMPTY_VALUE);
+      }
+    }
+  }
+
   private void outputRobotsTxt(List<Content> robotsTxtContent) throws InterruptedException {
     for (Content robotsTxt : robotsTxtContent) {
       LOG.debug("Fetched and stored robots.txt {}",
