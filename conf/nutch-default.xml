@@ -2233,15 +2233,25 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 <!-- index-geoip plugin properties -->
 <property>
   <name>index.geoip.usage</name>
-  <value>insightsService</value>
+  <value></value>
   <description>
+  To use the geoip-plugin you must set 'store.ip.address' to true.
   A string representing the information source to be used for GeoIP information
-  association. Either enter 'cityDatabase', 'connectionTypeDatabase',
-  'domainDatabase', 'ispDatabase' or 'insightsService'. If you wish to use any one of the
-  Database options, you should make one of GeoIP2-City.mmdb, GeoIP2-Connection-Type.mmdb,
-  GeoIP2-Domain.mmdb or GeoIP2-ISP.mmdb files respectively available on the classpath and
-  available at runtime. Alternatively, also the GeoLite2 IP databases (GeoLite2-*.mmdb)
-  can be used.
+  lookup. Options are 'anonymous', 'asn', 'city', 'connection', 'domain', 
+  'insights' or 'isp'.
+  If you wish to use any one of the Database options, you should make the relevant  
+  *.mmdb file(s) available on the Hadoop classpath and available at runtime. 
+  This can be achieved by adding it to `$NUTCH_HOME/conf`.
+  </description>
+</property>
+
+<property>
+  <name>index.geoip.db.file</name>
+  <value></value>
+  <description>
+  The GeoIP2 or GeoLite2 database file in the MMDB format. More information available at 
+  https://support.maxmind.com/hc/en-us/articles/4408216157723-Database-Formats
+  This file must be available on the Hadoop classpath.
   </description>
 </property>
 
