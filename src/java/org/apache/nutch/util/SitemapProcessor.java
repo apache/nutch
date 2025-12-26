@@ -487,11 +487,11 @@ public class SitemapProcessor extends Configured implements Tool {
       FSUtils.replace(fs, current, tempCrawlDb, true);
       LockUtil.removeLockFile(fs, lock);
 
-      long filteredRecords = job.getCounters().findCounter("Sitemap", "filtered_records").getValue();
-      long fromHostname = job.getCounters().findCounter("Sitemap", "sitemaps_from_hostname").getValue();
-      long fromSeeds = job.getCounters().findCounter("Sitemap", "sitemap_seeds").getValue();
-      long failedFetches = job.getCounters().findCounter("Sitemap", "failed_fetches").getValue();
-      long newSitemapEntries = job.getCounters().findCounter("Sitemap", "new_sitemap_entries").getValue();
+      long filteredRecords = job.getCounters().findCounter(NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FILTERED_RECORDS_TOTAL).getValue();
+      long fromHostname = job.getCounters().findCounter(NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FROM_HOSTNAME_TOTAL).getValue();
+      long fromSeeds = job.getCounters().findCounter(NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_SEEDS_TOTAL).getValue();
+      long failedFetches = job.getCounters().findCounter(NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FAILED_FETCHES_TOTAL).getValue();
+      long newSitemapEntries = job.getCounters().findCounter(NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_NEW_ENTRIES_TOTAL).getValue();
 
       LOG.info("SitemapProcessor: Total records rejected by filters: {}", filteredRecords);
       LOG.info("SitemapProcessor: Total sitemaps from host name: {}", fromHostname);
