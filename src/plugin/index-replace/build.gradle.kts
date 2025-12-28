@@ -15,5 +15,9 @@
  * limitations under the License.
  */
 
-// No additional dependencies
+dependencies {
+    // Test dependencies on other indexer plugins
+    testImplementation(project(":index-metadata"))
+    testImplementation(project(":index-basic"))
+}
 

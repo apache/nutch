@@ -21,6 +21,12 @@
 <configuration>
 
 <property>
+  <name>plugin.folders</name>
+  <value>build/plugins</value>
+  <description>Path to deployed plugins for unit testing.</description>
+</property>
+
+<property>
   <name>plugin.includes</name>
   <value>.*</value>
   <description>Enable all plugins during unit testing.</description>

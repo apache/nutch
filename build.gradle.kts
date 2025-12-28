@@ -80,6 +80,7 @@ val hadoopVersion = "3.4.2"
 val cxfVersion = "3.6.9"
 val jacksonVersion = "2.18.5"
 val junitVersion = "5.14.1"
+val junitPlatformVersion = "1.14.1"
 
 // =============================================================================
 // Use api() for dependencies that plugins need access to
@@ -176,7 +177,7 @@ dependencies {
     // Test dependencies
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("org.junit.platform:junit-platform-launcher:1.14.1")
+    testImplementation("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
     testImplementation("org.hamcrest:hamcrest:3.0")
     testImplementation("org.apache.cxf:cxf-rt-rs-client:$cxfVersion")
     testImplementation("org.eclipse.jetty:jetty-server:12.1.5") {
@@ -276,11 +277,14 @@ tasks.register<Jar>("job") {
 // Testing
 // =============================================================================
 tasks.test {
+    // Tests need plugins deployed first
+    dependsOn("deploy-plugins")
+    
     useJUnitPlatform()
     
     // Preserve test output directory structure
-    reports.html.outputLocation.set(file("build/test/reports"))
-    reports.junitXml.outputLocation.set(file("build/test"))
+    reports.html.outputLocation.set(file("build/test-reports"))
+    reports.junitXml.outputLocation.set(file("build/test-results"))
     
     jvmArgs("-Xmx1000m")
     
@@ -619,6 +623,20 @@ subprojects {
     dependencies {
         // All plugins depend on nutch core (api dependencies are inherited)
         "implementation"(rootProject)
+        
+        // Test dependencies - JUnit 5 and utilities
+        "testImplementation"("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+        "testImplementation"("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher:$junitPlatformVersion")
+        "testImplementation"("org.hamcrest:hamcrest:3.0")
+        
+        // Root project test utilities (AbstractHttpProtocolPluginTest, etc.)
+        "testImplementation"(rootProject.sourceSets.test.get().output)
+    }
+    
+    // Plugin test compilation depends on root test compilation
+    tasks.named("compileTestJava") {
+        dependsOn(rootProject.tasks.named("testClasses"))
     }
     
     tasks.withType<JavaCompile>().configureEach {

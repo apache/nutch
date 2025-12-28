@@ -52,6 +52,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 public class CrawlDBTestUtil {
 
@@ -449,11 +450,15 @@ public class CrawlDBTestUtil {
     listener.setPort(port);
     listener.setHost("127.0.0.1");
     webServer.addConnector(listener);
+    
+    ResourceHandler resourceHandler = new ResourceHandler();
+    resourceHandler.setBaseResource(ResourceFactory.root().newResource(java.nio.file.Path.of(staticContent)));
+    
     ContextHandler staticContext = new ContextHandler();
     staticContext.setContextPath("/");
-    staticContext.setResourceBase(staticContent);
-    staticContext.insertHandler(new ResourceHandler());
-    webServer.insertHandler(staticContext);
+    staticContext.setHandler(resourceHandler);
+    
+    webServer.setHandler(staticContext);
     return webServer;
   }
 }
