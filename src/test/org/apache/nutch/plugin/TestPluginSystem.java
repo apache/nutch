@@ -106,6 +106,11 @@ public class TestPluginSystem {
     config = new Configuration();
     config.addResource("nutch-default.xml");
     config.addResource("nutch-site.xml");
+    // Allow system property override for plugin.folders (useful for testing)
+    String pluginFolders = System.getProperty("plugin.folders");
+    if (pluginFolders != null) {
+      config.set("plugin.folders", pluginFolders);
+    }
     repo = PluginRepository.get(config);
     job = Job.getInstance(config);
     config = job.getConfiguration();

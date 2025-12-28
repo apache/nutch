@@ -374,6 +374,11 @@ public class CrawlDBTestUtil {
     Configuration conf = context.getConfiguration();
     conf.addResource("nutch-default.xml");
     conf.addResource("crawl-tests.xml");
+    // Allow system property override for plugin.folders (useful for testing)
+    String pluginFolders = System.getProperty("plugin.folders");
+    if (pluginFolders != null) {
+      conf.set("plugin.folders", pluginFolders);
+    }
     return (Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context) context;
   }
 

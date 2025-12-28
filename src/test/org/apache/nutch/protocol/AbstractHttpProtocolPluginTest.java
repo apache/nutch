@@ -104,6 +104,11 @@ public abstract class AbstractHttpProtocolPluginTest {
      */
     conf.addResource("nutch-site-test.xml");
     conf.setBoolean("store.http.headers", true);
+    // Allow system property override for plugin.folders (useful for testing)
+    String pluginFolders = System.getProperty("plugin.folders");
+    if (pluginFolders != null) {
+      conf.set("plugin.folders", pluginFolders);
+    }
 
     http = new ProtocolFactory(conf)
         .getProtocolById(getPluginClassName());
