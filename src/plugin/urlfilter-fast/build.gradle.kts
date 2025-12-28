@@ -15,5 +15,8 @@
  * limitations under the License.
  */
 
-// No additional dependencies
+dependencies {
+    implementation(project(":lib-regex-filter"))
+    testImplementation(project(":lib-regex-filter").dependencyProject.sourceSets.test.get().output)
+}
 

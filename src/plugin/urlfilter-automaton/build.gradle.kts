@@ -18,5 +18,6 @@
 dependencies {
     implementation(project(":lib-regex-filter"))
     implementation("dk.brics:automaton:1.12-4")
+    testImplementation(project(":lib-regex-filter").dependencyProject.sourceSets.test.get().output)
 }
 

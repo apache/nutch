@@ -701,8 +701,10 @@ subprojects {
     
     // Test configuration
     tasks.withType<Test>().configureEach {
-        // Plugin tests need plugins deployed first
+        // Plugin tests need plugins deployed first and should run after core tests
+        // This mimics Ant behavior where core tests ran before plugin tests
         dependsOn(rootProject.tasks.named("deploy-plugins"))
+        mustRunAfter(rootProject.tasks.named("test"))
         
         useJUnitPlatform()
         

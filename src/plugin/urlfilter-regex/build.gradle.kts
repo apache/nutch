@@ -21,5 +21,6 @@ plugins {
 
 dependencies {
     api(project(":lib-regex-filter"))
+    testImplementation(project(":lib-regex-filter").dependencyProject.sourceSets.test.get().output)
 }
 
