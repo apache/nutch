@@ -74,6 +74,47 @@ Common tasks:
 
 Distributions are created in the `dist/` directory.
 
+Upgrading Dependencies
+======================
+
+Plugin dependencies are managed in `gradle.properties` and plugin-specific `build.gradle.kts` files. When upgrading a dependency, you must also update the plugin's `plugin.xml` to list the resolved JAR files.
+
+### General Upgrade Process
+
+1. **Update the version** in `gradle.properties`:
+   ```properties
+   solrVersion=9.0.0
+   ```
+
+2. **Generate the library entries** for `plugin.xml`:
+   ```bash
+   ./gradlew :indexer-solr:print-plugin-libraries
+   ```
+
+3. **Update `plugin.xml`** — copy the output between the appropriate marker comments (e.g., `<!-- Solr dependencies -->` and `<!-- end of Solr dependencies -->`)
+
+4. **Build and test**:
+   ```bash
+   ./gradlew clean test :indexer-solr:test
+   ```
+
+### Checking for Dependency Conflicts
+
+After upgrading, check for version conflicts:
+
+```bash
+# Full dependency tree
+./gradlew dependencies
+
+# Check specific plugin
+./gradlew :indexer-solr:dependencies
+
+# Generate HTML report
+./gradlew report
+```
+
+Review `build/reports/project/dependencies/root.html` for a visual dependency tree.
+
 Contributing
 ============
 To contribute a patch, follow these instructions (note that installing

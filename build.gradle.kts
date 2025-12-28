@@ -1121,6 +1121,35 @@ subprojects {
             println("License report written to: ${reportFile.absolutePath}")
         }
     }
+    
+    // Print plugin libraries formatted for plugin.xml
+    tasks.register("print-plugin-libraries") {
+        description = "Print plugin dependencies formatted for plugin.xml"
+        group = "help"
+        dependsOn("deploy")
+        
+        doLast {
+            val pluginDir = rootProject.file("build/plugins/${project.name}")
+            val isLibraryPlugin = project.name.startsWith("lib-")
+            
+            println("\n<!-- Plugin library dependencies for ${project.name} -->")
+            pluginDir.listFiles()
+                ?.filter { it.extension == "jar" && it.name != "${project.name}.jar" }
+                ?.map { it.name }
+                ?.sorted()
+                ?.forEach { jarName ->
+                    if (isLibraryPlugin) {
+                        // Library plugins export all dependencies
+                        println("      <library name=\"$jarName\">")
+                        println("        <export name=\"*\"/>")
+                        println("      </library>")
+                    } else {
+                        println("      <library name=\"$jarName\"/>")
+                    }
+                }
+            println("<!-- End of plugin library dependencies -->")
+        }
+    }
 }
 
 // =============================================================================
@@ -1176,6 +1205,14 @@ tasks.register("nutch-tasks") {
         
         println("Run './gradlew <task>' to execute a task.")
         println("Run './gradlew help --task <task>' for detailed help on a task.")
+        println()
+        println("--- Plugin-Specific Tasks ---")
+        println("  Run these on individual plugins with './gradlew :<plugin>:<task>':")
+        println("  %-22s %s".format("print-plugin-libraries", "Print dependencies formatted for plugin.xml"))
+        println("  %-22s %s".format("dependencytree", "Show dependency tree for plugin"))
+        println("  %-22s %s".format("report-licenses", "Generate license report for plugin"))
+        println()
+        println("  Example: ./gradlew :indexer-solr:print-plugin-libraries")
     }
 }
 
