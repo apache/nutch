@@ -34,8 +34,10 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - name: Javadoc
-        run: ant clean javadoc -buildfile build.xml
+        run: ./gradlew clean javadoc
   rat:
     strategy:
       matrix:
@@ -49,8 +51,10 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - name: Run Apache Rat
-        run: ant clean run-rat -buildfile build.xml
+        run: ./gradlew clean run-rat
       - name: Cache unknown licenses
         run: echo "UNKNOWN_LICENSES=$(sed -n 18p /home/runner/work/nutch/nutch/build/apache-rat-report.txt)" >> $GITHUB_ENV
       - name: Versions
@@ -73,6 +77,8 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
         id: filter
         with:
@@ -84,21 +90,22 @@ jobs:
             plugins:
               - 'src/plugin/**'
             buildconf:
-              - 'build.xml'
-              - 'ivy/ivy.xml'
+              - 'build.gradle.kts'
+              - 'settings.gradle.kts'
+              - 'gradle.properties'
               - '.github/workflows/*'
       # run if the build configuration or both 'core' and 'plugins' files were changed
       - name: test all
         if: ${{ steps.filter.outputs.buildconf == 'true' || ( steps.filter.outputs.core  == 'true' && steps.filter.outputs.plugins  == 'true' ) }}
-        run: ant clean test -buildfile build.xml
+        run: ./gradlew clean test
       # run only if 'core' files were changed
       - name: test core
         if: ${{ steps.filter.outputs.core == 'true' && steps.filter.outputs.plugins == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-core -buildfile build.xml
+        run: ./gradlew clean test-core
       # run only if 'plugins' files were changed
       - name: test plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-plugins -buildfile build.xml
+        run: ./gradlew clean test-plugins
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         if: always()
