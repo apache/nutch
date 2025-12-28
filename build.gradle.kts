@@ -292,6 +292,8 @@ tasks.test {
     systemProperty("test.src.dir", "src/test")
     systemProperty("javax.xml.parsers.DocumentBuilderFactory", 
         "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+    // Set plugin.folders as system property with absolute path for reliable plugin discovery
+    systemProperty("plugin.folders", file("build/plugins").absolutePath)
 }
 
 // Copy test resources
@@ -713,6 +715,8 @@ subprojects {
         systemProperty("test.input", file("data").absolutePath)
         systemProperty("javax.xml.parsers.DocumentBuilderFactory",
             "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+        // Set plugin.folders as system property with absolute path for reliable plugin discovery
+        systemProperty("plugin.folders", rootProject.file("build/plugins").absolutePath)
     }
 }
 

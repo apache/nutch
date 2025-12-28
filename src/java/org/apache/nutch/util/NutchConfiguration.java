@@ -100,6 +100,11 @@ public class NutchConfiguration {
   private static Configuration addNutchResources(Configuration conf) {
     conf.addResource("nutch-default.xml");
     conf.addResource("nutch-site.xml");
+    // Allow system property override for plugin.folders (useful for testing)
+    String pluginFolders = System.getProperty("plugin.folders");
+    if (pluginFolders != null) {
+      conf.set("plugin.folders", pluginFolders);
+    }
     return conf;
   }
 }
