@@ -684,10 +684,17 @@ subprojects {
     
     // Test configuration
     tasks.withType<Test>().configureEach {
+        // Plugin tests need plugins deployed first
+        dependsOn(rootProject.tasks.named("deploy-plugins"))
+        
         useJUnitPlatform()
         
+        // Run tests from root project directory so build/plugins is found
+        workingDir = rootProject.projectDir
+        
         jvmArgs("-Xmx1000m")
-        systemProperty("test.data", rootProject.file("build/$subprojectName/test/data").absolutePath)
+        // Point test.data to sample directory (where test files like testIndexReplace.html reside)
+        systemProperty("test.data", file("sample").absolutePath)
         systemProperty("test.input", file("data").absolutePath)
         systemProperty("javax.xml.parsers.DocumentBuilderFactory",
             "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
