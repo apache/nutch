@@ -611,13 +611,28 @@ subprojects {
                 setSrcDirs(listOf("src/java"))
                 destinationDirectory.set(rootProject.file("build/$subprojectName/classes"))
             }
+            // Include src/java as resources to pick up properties files alongside classes
+            resources {
+                setSrcDirs(listOf("src/java"))
+            }
         }
         test {
             java {
                 setSrcDirs(listOf("src/test"))
                 destinationDirectory.set(rootProject.file("build/$subprojectName/test/classes"))
             }
+            // Add sample/ for config files and src/test for in-package test resources
+            resources {
+                setSrcDirs(listOf("sample", "src/test"))
+            }
+            // Output resources to same directory as classes for proper classpath resolution
+            output.resourcesDir = rootProject.file("build/$subprojectName/test/classes")
         }
+    }
+    
+    // Ensure main resource processing happens before compilation that uses those resources
+    tasks.named("compileJava") {
+        dependsOn(tasks.named("processResources"))
     }
     
     dependencies {
