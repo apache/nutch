@@ -363,6 +363,9 @@ val runtime by tasks.registering {
 tasks.javadoc {
     destinationDir = file("build/docs/api")
     
+    // Depend on plugin compilation to ensure their classpaths are resolved
+    dependsOn(subprojects.map { it.tasks.named("compileJava") })
+    
     options {
         this as StandardJavadocDocletOptions
         windowTitle = "$nutchName $nutchVersion API"
@@ -377,6 +380,11 @@ tasks.javadoc {
     source(fileTree("src/plugin") {
         include("*/src/java/**/*.java")
     })
+    
+    // Add plugin dependencies to classpath so javadoc can resolve all types
+    classpath = classpath.plus(files(subprojects.flatMap { 
+        it.configurations.getByName("compileClasspath").files 
+    }))
 }
 
 // =============================================================================
@@ -585,6 +593,11 @@ subprojects {
     java {
         sourceCompatibility = JavaVersion.toVersion(rootProject.findProperty("javaVersion") as String)
         targetCompatibility = JavaVersion.toVersion(rootProject.findProperty("javaVersion") as String)
+    }
+    
+    // Disable javadoc for subprojects - root project generates combined docs
+    tasks.withType<Javadoc> {
+        enabled = false
     }
     
     // Source sets for plugins
@@ -840,18 +853,16 @@ tasks.register<JavaExec>("run-rat") {
     
     args(
         "-d", "src",
-        "-e", "*.test",
-        "-e", "*.txt", 
-        "-e", "*.properties",
-        "-e", "langmappings.properties"
+        "-e", ".*\\.test",
+        "-e", ".*\\.txt", 
+        "-e", ".*\\.properties"
     )
     
-    // Output report to build directory
+    // Output report to build directory - must be set at execution time
     doFirst {
         file("build").mkdirs()
+        standardOutput = file("build/apache-rat-report.txt").outputStream()
     }
-    
-    standardOutput = file("build/apache-rat-report.txt").outputStream()
     
     doLast {
         println("Apache Rat report written to: build/apache-rat-report.txt")
