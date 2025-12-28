@@ -853,9 +853,19 @@ tasks.register<JavaExec>("run-rat") {
     
     args(
         "-d", "src",
+        // File extensions to exclude
         "-e", ".*\\.test",
         "-e", ".*\\.txt", 
-        "-e", ".*\\.properties"
+        "-e", ".*\\.properties",
+        "-e", ".*\\.log",
+        "-e", ".*\\.crc",
+        "-e", ".*\\.urls",
+        "-e", ".*\\.rules",
+        "-e", ".*\\.csv",
+        "-e", ".*\\.rtf",
+        // Specific files to exclude
+        "-e", "naivebayes-model",
+        "-e", "\\.donotdelete"
     )
     
     // Output report to build directory - must be set at execution time
