@@ -293,6 +293,10 @@ tasks.test {
     // Ensure consistent working directory
     workingDir = projectDir
     
+    // Mimic Ant test classpath: conf/ and src/test/ were directly on the classpath
+    // (not copied to build/resources/*). Add them at the front of the classpath.
+    classpath = files(file("conf"), file("src/test")) + classpath
+    
     // Preserve test output directory structure
     reports.html.outputLocation.set(file("build/test-reports"))
     reports.junitXml.outputLocation.set(file("build/test-results"))
@@ -310,24 +314,8 @@ tasks.test {
         "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
     systemProperty("plugin.folders", pluginFoldersPath)
     
-    // Show test output (including System.out.println from tests)
     testLogging {
-        showStandardStreams = true
         events("passed", "skipped", "failed")
-    }
-    
-    // Debug: Print plugin folder path during test execution
-    doFirst {
-        println("=== Nutch Test Configuration ===")
-        println("Test plugin.folders path: $pluginFoldersPath")
-        println("Plugin folder exists: ${file("build/plugins").exists()}")
-        println("Working directory: $workingDir")
-        // List deployed plugins
-        val pluginsDir = file("build/plugins")
-        if (pluginsDir.exists()) {
-            println("Deployed plugins: ${pluginsDir.listFiles()?.map { it.name }?.sorted()}")
-        }
-        println("================================")
     }
 }
 
