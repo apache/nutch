@@ -104,6 +104,9 @@ public class NutchConfiguration {
     String pluginFolders = System.getProperty("plugin.folders");
     if (pluginFolders != null) {
       conf.set("plugin.folders", pluginFolders);
+      System.out.println("[NutchConfiguration] Applied plugin.folders from system property: " + pluginFolders);
+    } else {
+      System.out.println("[NutchConfiguration] No plugin.folders system property found, using config value: " + conf.get("plugin.folders"));
     }
     return conf;
   }

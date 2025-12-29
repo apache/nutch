@@ -310,6 +310,12 @@ tasks.test {
         "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
     systemProperty("plugin.folders", pluginFoldersPath)
     
+    // Show test output (including System.out.println from tests)
+    testLogging {
+        showStandardStreams = true
+        events("passed", "skipped", "failed")
+    }
+    
     // Debug: Print plugin folder path during test execution
     doFirst {
         println("=== Nutch Test Configuration ===")
