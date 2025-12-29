@@ -297,14 +297,32 @@ tasks.test {
     reports.html.outputLocation.set(file("build/test-reports"))
     reports.junitXml.outputLocation.set(file("build/test-results"))
     
-    jvmArgs("-Xmx1000m")
+    // Set plugin.folders as system property with absolute path for reliable plugin discovery
+    val pluginFoldersPath = file("build/plugins").absolutePath
+    jvmArgs(
+        "-Xmx1000m",
+        "-Dplugin.folders=$pluginFoldersPath"
+    )
     
     systemProperty("test.build.data", file("build/test/data").absolutePath)
     systemProperty("test.src.dir", file("src/test").absolutePath)
     systemProperty("javax.xml.parsers.DocumentBuilderFactory", 
         "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
-    // Set plugin.folders as system property with absolute path for reliable plugin discovery
-    systemProperty("plugin.folders", file("build/plugins").absolutePath)
+    systemProperty("plugin.folders", pluginFoldersPath)
+    
+    // Debug: Print plugin folder path during test execution
+    doFirst {
+        println("=== Nutch Test Configuration ===")
+        println("Test plugin.folders path: $pluginFoldersPath")
+        println("Plugin folder exists: ${file("build/plugins").exists()}")
+        println("Working directory: $workingDir")
+        // List deployed plugins
+        val pluginsDir = file("build/plugins")
+        if (pluginsDir.exists()) {
+            println("Deployed plugins: ${pluginsDir.listFiles()?.map { it.name }?.sorted()}")
+        }
+        println("================================")
+    }
 }
 
 // Copy test resources
