@@ -54,7 +54,9 @@ sourceSets {
             destinationDirectory.set(file("build/test/classes"))
         }
         resources {
-            srcDirs("src/test", "src/testresources")
+            // Mimic Ant test classpath: conf/ was directly on the classpath
+            // Include conf/ in test resources so config files are found by plugins
+            srcDirs("conf", "src/test", "src/testresources")
         }
     }
 }
@@ -292,10 +294,6 @@ tasks.test {
     
     // Ensure consistent working directory
     workingDir = projectDir
-    
-    // Mimic Ant test classpath: conf/ and src/test/ were directly on the classpath
-    // (not copied to build/resources/*). Add them at the front of the classpath.
-    classpath = files(file("conf"), file("src/test")) + classpath
     
     // Preserve test output directory structure
     reports.html.outputLocation.set(file("build/test-reports"))
