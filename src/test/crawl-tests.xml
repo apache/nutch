@@ -21,12 +21,6 @@
 <configuration>
 
 <property>
-  <name>plugin.folders</name>
-  <value>build/plugins</value>
-  <description>Path to deployed plugins for unit testing.</description>
-</property>
-
-<property>
   <name>plugin.includes</name>
   <value>parse-tika|protocol-http|urlfilter-suffix|scoring-opic</value>
   <description>Enable required plugins.</description>
@@ -81,4 +75,3 @@
 </property>
 
 </configuration>
-

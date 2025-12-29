@@ -100,16 +100,11 @@ public class NutchConfiguration {
   private static Configuration addNutchResources(Configuration conf) {
     conf.addResource("nutch-default.xml");
     conf.addResource("nutch-site.xml");
-    // Debug: print plugin.folders before system property override
-    System.out.println("[NutchConfiguration] plugin.folders from XML: " + conf.get("plugin.folders"));
     // Allow system property override for plugin.folders (useful for testing)
     String pluginFolders = System.getProperty("plugin.folders");
-    System.out.println("[NutchConfiguration] plugin.folders system property: " + pluginFolders);
     if (pluginFolders != null) {
       conf.set("plugin.folders", pluginFolders);
     }
-    // Debug: print final plugin.folders value
-    System.out.println("[NutchConfiguration] Final plugin.folders value: " + conf.get("plugin.folders"));
     return conf;
   }
 }
