@@ -54,9 +54,7 @@ sourceSets {
             destinationDirectory.set(file("build/test/classes"))
         }
         resources {
-            // Mimic Ant test classpath: conf/ was directly on the classpath
-            // Include conf/ in test resources so config files are found by plugins
-            srcDirs("conf", "src/test", "src/testresources")
+            srcDirs("src/test", "src/testresources")
         }
     }
 }
@@ -295,6 +293,10 @@ tasks.test {
     // Ensure consistent working directory
     workingDir = projectDir
     
+    // Mimic Ant test classpath ordering: conf/ and src/test/ were early in the classpath
+    // This ensures config files are found by plugins loading resources via classloader.
+    classpath = files(file("conf"), file("src/test")) + classpath
+    
     // Preserve test output directory structure
     reports.html.outputLocation.set(file("build/test-reports"))
     reports.junitXml.outputLocation.set(file("build/test-results"))
@@ -314,6 +316,32 @@ tasks.test {
     
     testLogging {
         events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+    
+    // Debug: Print classpath info during test execution
+    doFirst {
+        println("=== Nutch Test Debug Info ===")
+        println("Project dir: $projectDir")
+        println("Working dir: $workingDir")
+        println("conf/ path: ${file("conf").absolutePath}")
+        println("conf/ exists: ${file("conf").exists()}")
+        println("plugin.folders: ${file("build/plugins").absolutePath}")
+        println("build/plugins exists: ${file("build/plugins").exists()}")
+        // Check if key files exist in conf/
+        val nutchDefault = file("conf/nutch-default.xml")
+        val adaptiveIntervals = file("conf/adaptive-host-specific-intervals.txt")
+        println("conf/nutch-default.xml exists: ${nutchDefault.exists()}")
+        println("conf/adaptive-host-specific-intervals.txt exists: ${adaptiveIntervals.exists()}")
+        // List plugin directories
+        val pluginsDir = file("build/plugins")
+        if (pluginsDir.exists()) {
+            val pluginDirs = pluginsDir.listFiles()?.filter { it.isDirectory }?.map { it.name }?.take(5)
+            println("build/plugins directories (first 5): $pluginDirs")
+        }
+        println("Classpath entries (first 10):")
+        classpath.files.take(10).forEach { println("  - $it") }
+        println("=============================")
     }
 }
 
