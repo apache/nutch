@@ -17,6 +17,104 @@ To get started using Nutch read Tutorial:
 
    https://cwiki.apache.org/confluence/display/NUTCH/NutchTutorial
 
+Building Nutch
+==============
+
+Nutch uses [Gradle](https://gradle.org/) for build and dependency management. The Gradle wrapper is included, so you don't need to install Gradle separately.
+
+### Prerequisites
+
+- Java 11 or higher
+
+### Available Tasks
+
+To see all Nutch-specific tasks organized by category:
+
+```bash
+./gradlew nutch-tasks
+```
+
+This displays tasks for building, testing, distribution, verification, reporting, publishing, IDE setup, and cleaning.
+
+To see all Gradle tasks (including standard Gradle tasks):
+
+```bash
+./gradlew tasks --all
+```
+
+To get detailed help on a specific task:
+
+```bash
+./gradlew help --task <taskName>
+```
+
+Common tasks:
+
+| Task | Description |
+|------|-------------|
+| `runtime` | Build runtime directories (default) |
+| `jar` | Build nutch.jar |
+| `job` | Build nutch.job (Hadoop fat JAR) |
+| `test` | Run core tests |
+| `test-plugins` | Run all plugin tests |
+| `javadoc` | Generate Javadoc |
+| `clean` | Clean all build artifacts |
+
+### Creating Distributions
+
+```bash
+# Source distribution
+./gradlew tar-src
+./gradlew zip-src
+
+# Binary distribution
+./gradlew tar-bin
+./gradlew zip-bin
+```
+
+Distributions are created in the `dist/` directory.
+
+Upgrading Dependencies
+======================
+
+Plugin dependencies are managed in `gradle.properties` and plugin-specific `build.gradle.kts` files. When upgrading a dependency, you must also update the plugin's `plugin.xml` to list the resolved JAR files.
+
+### General Upgrade Process
+
+1. **Update the version** in `gradle.properties`:
+   ```properties
+   solrVersion=9.0.0
+   ```
+
+2. **Generate the library entries** for `plugin.xml`:
+   ```bash
+   ./gradlew :indexer-solr:print-plugin-libraries
+   ```
+
+3. **Update `plugin.xml`** — copy the output between the appropriate marker comments (e.g., `<!-- Solr dependencies -->` and `<!-- end of Solr dependencies -->`)
+
+4. **Build and test**:
+   ```bash
+   ./gradlew clean test :indexer-solr:test
+   ```
+
+### Checking for Dependency Conflicts
+
+After upgrading, check for version conflicts:
+
+```bash
+# Full dependency tree
+./gradlew dependencies
+
+# Check specific plugin
+./gradlew :indexer-solr:dependencies
+
+# Generate HTML report
+./gradlew report
+```
+
+Review `build/reports/project/dependencies/root.html` for a visual dependency tree.
+
 Contributing
 ============
 To contribute a patch, follow these instructions (note that installing
@@ -43,54 +141,45 @@ IDE setup
 
 ### Eclipse
 
-Generate Eclipse project files
+Import Nutch as a Gradle project:
 
-```
-ant eclipse
-```
+1. Select **File > Import > Gradle > Existing Gradle Project**
+2. Select the nutch directory and click **Finish**
+3. Eclipse will automatically import all modules
 
-and follow the instructions in [Importing existing projects](https://help.eclipse.org/2019-06/topic/org.eclipse.platform.doc.user/tasks/tasks-importproject.htm).
+You must [configure the nutch-site.xml](https://cwiki.apache.org/confluence/display/NUTCH/RunNutchInEclipse) before running. Make sure you've added `http.agent.name` and `plugin.folders` properties. The `plugin.folders` normally points to `<project_root>/build/plugins`.
 
-You must [configure the nutch-site.xml](https://cwiki.apache.org/confluence/display/NUTCH/RunNutchInEclipse) before running. Make sure, you've added ```http.agent.name``` and ```plugin.folders``` properties. The plugin.folders normally points to ```<project_root>/build/plugins```.
+Now create a Java Application Configuration, choose `org.apache.nutch.crawl.Injector`, add two paths as arguments. First one is the crawldb directory, second one is the URL directory where the injector can read urls. Now run your configuration.
 
-Now create a Java Application Configuration, choose org.apache.nutch.crawl.Injector, add two paths as arguments. First one is the crawldb directory, second one is the URL directory where, the injector can read urls. Now run your configuration.
-
-If we still see the ```No plugins found on paths of property plugin.folders="plugins"```, update the plugin.folders in the nutch-default.xml, this is a quick fix, but should not be used.
+If you see `No plugins found on paths of property plugin.folders="plugins"`, update the `plugin.folders` configuration in nutch-default.xml.
 
 
-### Intellij IDEA
+### IntelliJ IDEA
 
-First install the [IvyIDEA Plugin](https://plugins.jetbrains.com/plugin/3612-ivyidea). then run ```ant eclipse```. This will create the necessary
-.classpath and .project files so that Intellij can import the project in the next step.
+Import Nutch as a Gradle project:
 
-In Intellij IDEA, select File > New > Project from Existing Sources. Select the nutch home directory and click "Open".
+1. Select **File > Open** and select the nutch directory
+2. IntelliJ will detect the Gradle build and import the project automatically
+3. Wait for the Gradle sync to complete
 
-On the "Import Project" screen select the "Import project from external model" radio button and select "Eclipse".
-Click "Create". On the next screen the "Eclipse projects directory" should be already set to the nutch folder.
-Leave the "Create module files near .classpath files" radio button selected.
-Click "Next" on the next screens. On the project SDK screen select Java 11 and click "Create".
+Alternatively, select **File > New > Project from Existing Sources**, select the nutch directory, and choose **Import project from external model > Gradle**.
+
 **N.B.** For anyone on a Mac with a homebrew-installed openjdk, you need to use the directory under _libexec_: `<openjdk11_directory>/libexec/openjdk.jdk/Contents/Home`.
 
-Once the project is imported, you will see a popup saying "Ant build scripts found", "Frameworks detected - IvyIDEA Framework detected". Click "Import".
-If you don't get the pop-up, I'd suggest going through the steps again as this happens from time to time. There is another
-Ant popup that asks you to configure the project. Do NOT click "Configure".
+To import the code-style, go to **IntelliJ IDEA > Preferences > Editor > Code Style > Java**.
 
-To import the code-style, Go to Intellij IDEA > Preferences > Editor > Code Style > Java.
+For the Scheme dropdown select "Project". Click the gear icon and select **Import Scheme > Eclipse XML file**.
 
-For the Scheme dropdown select "Project". Click the gear icon and select "Import Scheme" > "Eclipse XML file".
+Select the `eclipse-codeformat.xml` file and click "Open". On next screen check the "Current Scheme" checkbox and hit OK.
 
-Select the eclipse-format.xml file and click "Open". On next screen check the "Current Scheme" checkbox and hit OK.
+### Running in IntelliJ IDEA
 
-### Running in Intellij IDEA
-
-Running in Intellij
-
-- Open Run/Debug Configurations
+- Open **Run/Debug Configurations**
 - Select "+" to create a new configuration and select "Application"
-- For "Main Class" enter a class with a main function (e.g. org.apache.nutch.indexer.IndexingJob).
-- For "Program Arguments" add the arguments needed for the class. You can get these by running the crawl executable for your job. Use full-qualified paths. (e.g. /Users/kamil/workspace/external/nutch/crawl/crawldb /Users/kamil/workspace/external/nutch/crawl/segments/20221222160141 -deleteGone)
-- For "Working Directory" enter "/Users/kamil/workspace/external/nutch/runtime/local".
-- Select "Modify options" > "Modify Classpath" and add the config directory belonging to the "Working Directory" from the previous step (e.g. /Users/kamil/workspace/external/nutch/runtime/local/conf). This will allow the resource loader to load that configuration.
-- Select "Modify options" > "Add VM Options". Add the VM options needed. You can get these by running the crawl executable for your job (e.g. -Xmx4096m -Dhadoop.log.dir=/Users/kamil/workspace/external/nutch/runtime/local/logs -Dhadoop.log.file=hadoop.log -Dmapreduce.job.reduces=2 -Dmapreduce.reduce.speculative=false -Dmapreduce.map.speculative=false -Dmapreduce.map.output.compress=true)
+- For "Main Class" enter a class with a main function (e.g. `org.apache.nutch.indexer.IndexingJob`)
+- For "Program Arguments" add the arguments needed for the class. You can get these by running the crawl executable for your job. Use fully-qualified paths. (e.g. `/Users/user/nutch/crawl/crawldb /Users/user/nutch/crawl/segments/20221222160141 -deleteGone`)
+- For "Working Directory" enter your nutch `runtime/local` directory
+- Select **Modify options > Modify Classpath** and add the config directory belonging to the "Working Directory" from the previous step (e.g. `/Users/user/nutch/runtime/local/conf`). This will allow the resource loader to load that configuration.
+- Select **Modify options > Add VM Options**. Add the VM options needed. You can get these by running the crawl executable for your job (e.g. `-Xmx4096m -Dhadoop.log.dir=/Users/user/nutch/runtime/local/logs -Dhadoop.log.file=hadoop.log -Dmapreduce.job.reduces=2 -Dmapreduce.reduce.speculative=false -Dmapreduce.map.speculative=false -Dmapreduce.map.output.compress=true`)
 
-**Note**: You will need to manually trigger a build through ANT to get latest updated changes when running. This is because the ant build system is separate from the Intellij one.
+**Note**: IntelliJ automatically compiles code when you run. To ensure plugins are deployed, run `./gradlew deploy-plugins` before running Nutch commands that require plugins.

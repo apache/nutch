@@ -52,6 +52,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 public class CrawlDBTestUtil {
 
@@ -373,6 +374,11 @@ public class CrawlDBTestUtil {
     Configuration conf = context.getConfiguration();
     conf.addResource("nutch-default.xml");
     conf.addResource("crawl-tests.xml");
+    // Allow system property override for plugin.folders (useful for testing)
+    String pluginFolders = System.getProperty("plugin.folders");
+    if (pluginFolders != null) {
+      conf.set("plugin.folders", pluginFolders);
+    }
     return (Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context) context;
   }
 
@@ -449,11 +455,15 @@ public class CrawlDBTestUtil {
     listener.setPort(port);
     listener.setHost("127.0.0.1");
     webServer.addConnector(listener);
+    
+    ResourceHandler resourceHandler = new ResourceHandler();
+    resourceHandler.setBaseResource(ResourceFactory.root().newResource(java.nio.file.Path.of(staticContent)));
+    
     ContextHandler staticContext = new ContextHandler();
     staticContext.setContextPath("/");
-    staticContext.setResourceBase(staticContent);
-    staticContext.insertHandler(new ResourceHandler());
-    webServer.insertHandler(staticContext);
+    staticContext.setHandler(resourceHandler);
+    
+    webServer.setHandler(staticContext);
     return webServer;
   }
 }

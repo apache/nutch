@@ -17,7 +17,7 @@
 package org.apache.nutch.service;
 
 import java.lang.invoke.MethodHandles;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.jupiter.api.Test;
