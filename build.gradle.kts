@@ -305,8 +305,9 @@ tasks.test {
     // - test.build.classes (handled by Gradle)
     // - conf/ for nutch-default.xml and nutch-site.xml
     // - src/test/ for test resources like crawl-tests.xml
-    // - build/ (plugins.classpath.dir) so plugin.folders=plugins resolves to build/plugins/
-    classpath = files(file("conf"), file("src/test"), file("build")) + classpath
+    // - build/plugins parent (build/) so plugin.folders=plugins resolves via classpath
+    //   Use layout.buildDirectory to properly declare the dependency
+    classpath = files(file("conf"), file("src/test"), layout.buildDirectory) + classpath
     
     // Preserve test output directory structure
     reports.html.outputLocation.set(file("build/test-reports"))
