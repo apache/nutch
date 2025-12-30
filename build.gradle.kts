@@ -301,27 +301,27 @@ tasks.test {
     // Ensure consistent working directory
     workingDir = projectDir
     
-    // Mimic Ant test classpath ordering with src/test/ FIRST so test nutch-site.xml
-    // (which has plugin.folders=build/plugins) is found before the empty conf/nutch-site.xml.
-    // This ensures proper plugin discovery during tests.
-    classpath = files(file("src/test"), file("conf")) + classpath
+    // Mimic Ant test classpath ordering from build.xml:
+    // - test.build.classes (handled by Gradle)
+    // - conf/ for nutch-default.xml and nutch-site.xml
+    // - src/test/ for test resources like crawl-tests.xml
+    // - build/ (plugins.classpath.dir) so plugin.folders=plugins resolves to build/plugins/
+    classpath = files(file("conf"), file("src/test"), file("build")) + classpath
     
     // Preserve test output directory structure
     reports.html.outputLocation.set(file("build/test-reports"))
     reports.junitXml.outputLocation.set(file("build/test-results"))
     
-    // Set plugin.folders as system property with absolute path for reliable plugin discovery
-    val pluginFoldersPath = file("build/plugins").absolutePath
-    jvmArgs(
-        "-Xmx1000m",
-        "-Dplugin.folders=$pluginFoldersPath"
-    )
+    // JVM settings
+    jvmArgs("-Xmx1000m")
     
+    // Set system properties with absolute paths for reliable discovery in CI
+    val pluginFoldersPath = file("build/plugins").absolutePath
+    systemProperty("plugin.folders", pluginFoldersPath)
     systemProperty("test.build.data", file("build/test/data").absolutePath)
     systemProperty("test.src.dir", file("src/test").absolutePath)
     systemProperty("javax.xml.parsers.DocumentBuilderFactory", 
         "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
-    systemProperty("plugin.folders", pluginFoldersPath)
     
     testLogging {
         events("passed", "skipped", "failed")
