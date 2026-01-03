@@ -219,15 +219,15 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       // The custom intervals should respect the boundaries of the default values.
       if (m < defaultMin) {
         LOG.error(
-            "Min. interval out of bounds on line {} in the config. file: `{}`",
-            lineNo, line);
+            "Min. interval out of bounds ({}) on line {} in the config. file: `{}`",
+            defaultMin, lineNo, line);
         continue;
       }
 
       if (M > defaultMax) {
         LOG.error(
-            "Max. interval out of bounds on line {} in the config. file: `{}`",
-            lineNo, line);
+            "Max. interval out of bounds ({}) on line {} in the config. file: `{}`",
+            defaultMax, lineNo, line);
         continue;
       }
 
@@ -338,6 +338,10 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
         if (delta > interval)
           interval = delta;
         refTime = fetchTime - Math.round(delta * SYNC_DELTA_RATE * 1000);
+        // make sure we are not in the past
+        if (refTime < fetchTime) {
+          refTime = fetchTime;
+        }
       }
 
       // Ensure the interval does not fall outside of bounds
@@ -389,7 +393,8 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
           (p.getFetchInterval() / SECONDS_PER_DAY), miss);
       if (p.getFetchTime() <= curTime) {
         fetchCnt++;
-        fs.setFetchSchedule(new Text("http://www.example.com"), p, p
+        // why was "http://www.example.com" hard-coded here?
+        fs.setFetchSchedule(new Text(""), p, p
             .getFetchTime(), p.getModifiedTime(), curTime, lastModified,
             changed ? FetchSchedule.STATUS_MODIFIED
                 : FetchSchedule.STATUS_NOTMODIFIED);

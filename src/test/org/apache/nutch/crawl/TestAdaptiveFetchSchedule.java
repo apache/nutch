@@ -24,6 +24,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Properties;
 
 /**
  * Test cases for AdaptiveFetchSchedule.
@@ -36,6 +42,8 @@ public class TestAdaptiveFetchSchedule {
   private Configuration conf;
   private long curTime, lastModified;
   private int changed, interval, calculateInterval;
+  
+  private static final long ONE_DAY = 86400;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -116,6 +124,50 @@ public class TestAdaptiveFetchSchedule {
       assertThat(calculateInterval, is(getInterval));
     }
 
+  }
+  
+  /**
+   * Test https://issues.apache.org/jira/browse/NUTCH-1564
+   */
+  @Test
+  public void testSetFetchSchedule() {
+    conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl.AdaptiveFetchSchedule");
+    conf.set("db.fetch.schedule.adaptive.sync_delta", "true"); // default
+    conf.set("db.fetch.schedule.adaptive.sync_delta_rate", "0.3"); // default
+    conf.set("db.fetch.interval.default", String.valueOf(ONE_DAY * 2)); // 2 days
+    conf.set("db.fetch.schedule.adaptive.min_interval", String.valueOf(ONE_DAY)); // 1 day
+    conf.set("db.fetch.schedule.adaptive.max_interval", String.valueOf(ONE_DAY * 7)); // 7 days
+    conf.set("db.fetch.interval.max", String.valueOf(ONE_DAY * 7)); // 7 days
+
+    // ignore adaptive-host-specific-intervals.txt
+    Text url = new Text("http://www.example2.com");
+    
+    AdaptiveFetchSchedule fs = new AdaptiveFetchSchedule();
+    fs.setConf(conf);
+    
+    CrawlDatum datum = prepareCrawlDatum();
+    Date fetchTime = Date.from(Instant.now());
+    // previous fetch 3 days ago
+    Date previousFetchTime = Date.from(Instant.now().minus(Duration.ofDays(3)));
+    // last modified 1 month ago
+    Date modifiedTime = Date.from(Instant.now().minus(Duration.ofDays(30)));
+    datum.setStatus(CrawlDatum.STATUS_FETCH_SUCCESS);
+    datum.setRetriesSinceFetch(0);
+    datum.setModifiedTime(modifiedTime.getTime());
+    datum.setFetchTime(fetchTime.getTime());
+    
+    System.out.println("CrawlDatum fetchTime: " +  fetchTime + "; modifiedTime: " + modifiedTime);
+    
+    fs.setFetchSchedule(url, datum, previousFetchTime.getTime(), modifiedTime.getTime(), 
+        fetchTime.getTime(), modifiedTime.getTime(), CrawlDatum.STATUS_DB_NOTMODIFIED);
+    
+    Date nextFetchTime = new Date(datum.getFetchTime());
+    System.out.println("CrawlDatum next fetchTime: " + nextFetchTime);
+    
+    assertTrue(nextFetchTime.after(fetchTime));
+    // adapt milliseconds to seconds
+    assertTrue((nextFetchTime.getTime() - fetchTime.getTime()) / 1000 >= ONE_DAY);
+    assertTrue((nextFetchTime.getTime() - fetchTime.getTime()) / 1000 <= ONE_DAY * 7);
   }
 
 }
