@@ -42,8 +42,6 @@ public class TestAdaptiveFetchSchedule {
   private Configuration conf;
   private long curTime, lastModified;
   private int changed, interval, calculateInterval;
-  
-  private static final long ONE_DAY = 86400;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -130,14 +128,57 @@ public class TestAdaptiveFetchSchedule {
    * Test https://issues.apache.org/jira/browse/NUTCH-1564
    */
   @Test
-  public void testSetFetchSchedule() {
-    conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl.AdaptiveFetchSchedule");
-    conf.set("db.fetch.schedule.adaptive.sync_delta", "true"); // default
-    conf.set("db.fetch.schedule.adaptive.sync_delta_rate", "0.3"); // default
-    conf.set("db.fetch.interval.default", String.valueOf(ONE_DAY * 2)); // 2 days
-    conf.set("db.fetch.schedule.adaptive.min_interval", String.valueOf(ONE_DAY)); // 1 day
-    conf.set("db.fetch.schedule.adaptive.max_interval", String.valueOf(ONE_DAY * 7)); // 7 days
-    conf.set("db.fetch.interval.max", String.valueOf(ONE_DAY * 7)); // 7 days
+  public void testSetFetchSchedule1() {
+    // db.fetch.schedule.adaptive.sync_delta_rate = 0.3 (default)
+    // db.fetch.interval.default               = 172800 (2 days)
+    // db.fetch.schedule.adaptive.min_interval =  86400 (1 day)
+    // db.fetch.schedule.adaptive.max_interval = 604800 (7 days)
+    // db.fetch.interval.max                   = 604800 (7 days)
+    // 3-days cycle
+    // 30 days since last modified
+    doTestSetFetchSchedule(0.3, 2, 1, 7, 7, 3, 30);
+  }
+
+  @Test
+  public void testSetFetchSchedule2() {
+    // db.fetch.schedule.adaptive.sync_delta_rate = 0.3 (default)
+    // db.fetch.interval.default               = 86400 (1 day)
+    // db.fetch.schedule.adaptive.min_interval =  86400 (1 day)
+    // db.fetch.schedule.adaptive.max_interval = 172800 (2 days)
+    // db.fetch.interval.max                   = 604800 (7 days)
+    // 1-day cycle
+    // 10 days since last modified
+    doTestSetFetchSchedule(0.3, 1, 1, 2, 7, 1, 10);
+  }
+
+  @Test
+  public void testSetFetchSchedule3() {
+    // db.fetch.schedule.adaptive.sync_delta_rate = 0.3 (default)
+    // db.fetch.interval.default               = 172800 (2 days)
+    // db.fetch.schedule.adaptive.min_interval =  86400 (1 day)
+    // db.fetch.schedule.adaptive.max_interval = 864000 (10 days)
+    // db.fetch.interval.max                   = 864000 (10 days)
+    // 3-days cycle
+    // 180 days since last modified
+    doTestSetFetchSchedule(0.3, 2, 1, 10, 10, 3, 180);
+  }
+
+  private void doTestSetFetchSchedule(double deltaRate, int intervalDefaultDays, 
+      int minIntervalDays, int maxIntervalDays, int intervalMaxDays,
+      int previousFetchTimeDays, int modifiedTimeDays) {
+    // need to properly override defaults
+    Properties props = new Properties();
+    props.setProperty("db.fetch.schedule.class", "org.apache.nutch.crawl.AdaptiveFetchSchedule");
+    props.setProperty("db.fetch.schedule.adaptive.sync_delta", "true"); // default
+    props.setProperty("db.fetch.schedule.adaptive.sync_delta_rate", String.valueOf(deltaRate));
+    props.setProperty("db.fetch.interval.default", String.valueOf(FetchSchedule.SECONDS_PER_DAY * intervalDefaultDays));
+    props.setProperty("db.fetch.schedule.adaptive.min_interval", String.valueOf(FetchSchedule.SECONDS_PER_DAY * minIntervalDays));
+    props.setProperty("db.fetch.schedule.adaptive.max_interval", String.valueOf(FetchSchedule.SECONDS_PER_DAY * maxIntervalDays));
+    props.setProperty("db.fetch.interval.max", String.valueOf(FetchSchedule.SECONDS_PER_DAY * intervalMaxDays));
+    
+    conf = NutchConfiguration.create(true, props);
+    inc_rate = conf.getFloat("db.fetch.schedule.adaptive.inc_rate", 0.2f); // default
+    dec_rate = conf.getFloat("db.fetch.schedule.adaptive.dec_rate", 0.2f); // default
 
     // ignore adaptive-host-specific-intervals.txt
     Text url = new Text("http://www.example2.com");
@@ -147,14 +188,12 @@ public class TestAdaptiveFetchSchedule {
     
     CrawlDatum datum = prepareCrawlDatum();
     Date fetchTime = Date.from(Instant.now());
-    // previous fetch 3 days ago
-    Date previousFetchTime = Date.from(Instant.now().minus(Duration.ofDays(3)));
-    // last modified 1 month ago
-    Date modifiedTime = Date.from(Instant.now().minus(Duration.ofDays(30)));
+    Date previousFetchTime = Date.from(Instant.now().minus(Duration.ofDays(previousFetchTimeDays)));
+    Date modifiedTime = Date.from(Instant.now().minus(Duration.ofDays(modifiedTimeDays)));
     datum.setStatus(CrawlDatum.STATUS_FETCH_SUCCESS);
     datum.setRetriesSinceFetch(0);
     datum.setModifiedTime(modifiedTime.getTime());
-    datum.setFetchTime(fetchTime.getTime());
+    datum.setFetchTime(fetchTime.getTime()); 
     
     System.out.println("CrawlDatum fetchTime: " +  fetchTime + "; modifiedTime: " + modifiedTime);
     
@@ -166,8 +205,9 @@ public class TestAdaptiveFetchSchedule {
     
     assertTrue(nextFetchTime.after(fetchTime));
     // adapt milliseconds to seconds
-    assertTrue((nextFetchTime.getTime() - fetchTime.getTime()) / 1000 >= ONE_DAY);
-    assertTrue((nextFetchTime.getTime() - fetchTime.getTime()) / 1000 <= ONE_DAY * 7);
+    long fetchTimeDiff = (nextFetchTime.getTime() - fetchTime.getTime()) / 1000L ;
+    assertTrue(fetchTimeDiff >= FetchSchedule.SECONDS_PER_DAY * minIntervalDays);
+    assertTrue(fetchTimeDiff <= FetchSchedule.SECONDS_PER_DAY * maxIntervalDays);
   }
 
 }
