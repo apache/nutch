@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 
 /**
  * This class implements an adaptive re-fetch algorithm. This works as follows:
@@ -332,21 +333,29 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       case FetchSchedule.STATUS_UNKNOWN:
         break;
       }
-      if (SYNC_DELTA) {
-        // try to synchronize with the time of change
-        long delta = (fetchTime - modifiedTime) / 1000L;
-        if (delta > interval)
-          interval = delta;
-        refTime = fetchTime - Math.round(delta * SYNC_DELTA_RATE * 1000);
-        // make sure we are not in the past
-        if (refTime < fetchTime) {
-          refTime = fetchTime;
-        }
-      }
 
       // Ensure the interval does not fall outside of bounds
       float minInterval = (getCustomMinInterval(url) != null) ? getCustomMinInterval(url) : MIN_INTERVAL;
       float maxInterval = (getCustomMaxInterval(url) != null) ? getCustomMaxInterval(url) : MAX_INTERVAL;
+      
+      if (SYNC_DELTA) {
+        // try to synchronize with the time of change
+        long delta = (fetchTime - modifiedTime);
+        if (delta > (interval * 1000))
+          interval = delta / 1000L;
+        // offset: a fraction (sync_delta_rate) of the difference between the last modification time, and the last fetch time.
+        long offset = Math.round(delta * SYNC_DELTA_RATE);
+        long maxIntervalMillis = (long) maxInterval * 1000L;
+        LOG.trace("delta (days): " + Duration.ofMillis(delta).toDays() 
+            + "; offset (days): " + Duration.ofMillis(offset).toDays() 
+            + "; maxInterval (days): " + Duration.ofMillis(maxIntervalMillis).toDays());
+        // convert the offset to a ratio of max interval: avoid next fetchTime in the past, and mimic fetches within max interval
+        if (delta > 0 && offset > maxIntervalMillis) {
+          offset = offset / delta * maxIntervalMillis; // ex: 9/30*7 = 2.1
+        }
+        refTime = fetchTime - offset;
+      }
+
       if (interval < minInterval) {
         interval = minInterval;
       } else if (interval > maxInterval) {
