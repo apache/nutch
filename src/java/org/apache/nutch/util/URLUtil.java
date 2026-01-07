@@ -262,7 +262,7 @@ public class URLUtil {
 
     EffectiveTldFinder.EffectiveTLD suffix = EffectiveTldFinder.getEffectiveTLD(host, true);
     if (suffix != null) {
-      return suffix.getDomain();
+      return suffix.getSuffix();
     }
 
     return null;
