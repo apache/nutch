@@ -389,7 +389,7 @@ public class FetcherThread extends Thread {
               }
               continue;
             }
-            if (!rules.isAllowed(fit.u.toString())) {
+            if (!rules.isAllowed(fit.u)) {
               // unblock
               fetchQueues.finishFetchItem(fit, true);
               LOG.info("Denied by robots.txt: {}", fit.url);
