@@ -346,9 +346,10 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
         // offset: a fraction (sync_delta_rate) of the difference between the last modification time, and the last fetch time.
         long offset = Math.round(delta * SYNC_DELTA_RATE);
         long maxIntervalMillis = (long) maxInterval * 1000L;
-        LOG.trace("delta (days): " + Duration.ofMillis(delta).toDays() 
-            + "; offset (days): " + Duration.ofMillis(offset).toDays() 
-            + "; maxInterval (days): " + Duration.ofMillis(maxIntervalMillis).toDays());
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("delta (days): {}; offset (days): {}; maxInterval (days): {}", 
+              Duration.ofMillis(delta).toDays(), Duration.ofMillis(offset).toDays(), Duration.ofMillis(maxIntervalMillis).toDays());
+        }
         // convert the offset to a ratio of max interval: avoid next fetchTime in the past, and mimic fetches within max interval
         if (delta > 0 && offset > maxIntervalMillis) {
           offset = offset / delta * maxIntervalMillis; // ex: 9/30*7 = 2.1
@@ -402,8 +403,8 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
           (p.getFetchInterval() / SECONDS_PER_DAY), miss);
       if (p.getFetchTime() <= curTime) {
         fetchCnt++;
-        // why was "http://www.example.com" hard-coded here?
-        fs.setFetchSchedule(new Text(""), p, p
+        // Text (url) required by the API, but not relevant here.
+        fs.setFetchSchedule(new Text(), p, p
             .getFetchTime(), p.getModifiedTime(), curTime, lastModified,
             changed ? FetchSchedule.STATUS_MODIFIED
                 : FetchSchedule.STATUS_NOTMODIFIED);
