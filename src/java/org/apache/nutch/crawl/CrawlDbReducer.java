@@ -31,6 +31,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.PriorityQueue;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
@@ -49,6 +50,7 @@ public class CrawlDbReducer extends
   private boolean additionsAllowed;
   private int maxInterval;
   private FetchSchedule schedule;
+  private ErrorTracker errorTracker;
 
   @Override
   public void setup(Reducer<Text, CrawlDatum, Text, CrawlDatum>.Context context) {
@@ -60,6 +62,8 @@ public class CrawlDbReducer extends
     schedule = FetchScheduleFactory.getFetchSchedule(conf);
     int maxLinks = conf.getInt("db.update.max.inlinks", 10000);
     linked = new InlinkPriorityQueue(maxLinks);
+    // Initialize error tracker with cached counters
+    errorTracker = new ErrorTracker(NutchMetrics.GROUP_CRAWLDB, context);
   }
 
   @Override
@@ -162,6 +166,7 @@ public class CrawlDbReducer extends
           scfilters.orphanedScore(key, old);
         } catch (ScoringFilterException e) {
           LOG.warn("Couldn't update orphaned score, key={}: {}", key, e);
+          errorTracker.incrementCounters(e);
         }
         context.write(key, old);
         // Dynamic counter based on status name
@@ -208,6 +213,7 @@ public class CrawlDbReducer extends
         } catch (ScoringFilterException e) {
           LOG.warn("Cannot filter init score for url {}, using default: {}",
               key, e.getMessage());
+          errorTracker.incrementCounters(e);
           result.setScore(0.0f);
         }
       }
@@ -317,6 +323,7 @@ public class CrawlDbReducer extends
       scfilters.updateDbScore(key, oldSet ? old : null, result, linkList);
     } catch (Exception e) {
       LOG.warn("Couldn't update score, key={}: {}", key, e);
+      errorTracker.incrementCounters(e);
     }
     // remove generation time, if any
     result.getMetaData().remove(Nutch.WRITABLE_GENERATE_TIME_KEY);
