@@ -2217,11 +2217,20 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <property>
+  <name>scoring.adaptive.penalty.non_canonical</name>
+  <value>.07</value>
+  <description>
+    Penalize non-canonical pages, i.e., pages with a canonical link not equal to the URL.
+    The default is to delay the revisit up to 7 days (7 * scoring.adaptive.factor.fetchtime).
+  </description>
+</property>
+
+<property>
   <name>scoring.adaptive.mark.orphan.after</name>
    <value>518400</value>
    <description>
      Time span (in minutes) after which a page not seen anymore by inlink or
-     seed is marked as orpaned. Default = 518400 minutes = one year.
+     seed is marked as orphaned. Default = 518400 minutes = one year.
    </description>
 </property>
 
@@ -2230,7 +2239,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
    <value>172800</value>
    <description>
      Time span (in minutes) after which a gone page not seen anymore
-     by inlink or seed is marked as orpaned. Also duplicates and unfetched pages
+     by inlink or seed is marked as orphaned. Also duplicates and unfetched pages
      with a retry count >= 3 are considered as gone.
      Default = 172800 minutes = four month.
    </description>
@@ -2241,7 +2250,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
    <value>518400</value>
    <description>
      Time span (in minutes) after which a redirect not seen anymore by inlink
-     or seed is marked as orpaned. Default = 518400 minutes = one year.
+     or seed is marked as orphaned. Default = 518400 minutes = one year.
    </description>
 </property>
 
@@ -2250,7 +2259,7 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
    <value>518400</value>
    <description>
      Time span (in minutes) after which a still unfetched page not seen anymore
-     by inlink or seed is marked as orpaned. Default = 518400 minutes = one year.
+     by inlink or seed is marked as orphaned. Default = 518400 minutes = one year.
    </description>
 </property>
 
