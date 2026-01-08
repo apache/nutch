@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.fetcher.FetchItemQueues.QueuingStatus;
 import org.apache.nutch.fetcher.Fetcher.FetcherRun;
@@ -48,6 +49,12 @@ public class QueueFeeder extends Thread {
   private URLNormalizers urlNormalizers = null;
   private String urlNormalizerScope = URLNormalizers.SCOPE_DEFAULT;
 
+  // Cached counter references to avoid repeated lookups in hot paths
+  private Counter hitByTimeoutCounter;
+  private Counter hitByTimelimitCounter;
+  private Counter filteredCounter;
+  private Counter aboveExceptionThresholdCounter;
+
   public QueueFeeder(FetcherRun.Context context,
       FetchItemQueues queues, int size) {
     this.context = context;
@@ -62,6 +69,21 @@ public class QueueFeeder extends Thread {
     if (conf.getBoolean("fetcher.normalize.urls", false)) {
       urlNormalizers = new URLNormalizers(conf, urlNormalizerScope);
     }
+    initCounters();
+  }
+
+  /**
+   * Initialize cached counter references to avoid repeated lookups in hot paths.
+   */
+  private void initCounters() {
+    hitByTimeoutCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_HIT_BY_TIMEOUT_TOTAL);
+    hitByTimelimitCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_HIT_BY_TIMELIMIT_TOTAL);
+    filteredCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_FILTERED_TOTAL);
+    aboveExceptionThresholdCounter = context.getCounter(
+        NutchMetrics.GROUP_FETCHER, NutchMetrics.FETCHER_ABOVE_EXCEPTION_THRESHOLD_TOTAL);
   }
 
   /** Filter and normalize the url */
@@ -95,16 +117,14 @@ public class QueueFeeder extends Thread {
             LOG.info("QueueFeeder stopping, timeout reached.");
           }
           queuingStatus[qstatus]++;
-          context.getCounter(NutchMetrics.GROUP_FETCHER,
-              NutchMetrics.FETCHER_HIT_BY_TIMEOUT_TOTAL).increment(1);
+          hitByTimeoutCounter.increment(1);
         } else {
           int qstatus = QueuingStatus.HIT_BY_TIMELIMIT.ordinal();
           if (queuingStatus[qstatus] == 0) {
             LOG.info("QueueFeeder stopping, timelimit exceeded.");
           }
           queuingStatus[qstatus]++;
-          context.getCounter(NutchMetrics.GROUP_FETCHER,
-              NutchMetrics.FETCHER_HIT_BY_TIMELIMIT_TOTAL).increment(1);
+          hitByTimelimitCounter.increment(1);
         }
         try {
           hasMore = context.nextKeyValue();
@@ -136,8 +156,7 @@ public class QueueFeeder extends Thread {
               String u = filterNormalize(url.toString());
               if (u == null) {
                 // filtered or failed to normalize
-                context.getCounter(NutchMetrics.GROUP_FETCHER,
-                    NutchMetrics.FETCHER_FILTERED_TOTAL).increment(1);
+                filteredCounter.increment(1);
                 continue;
               }
               url = new Text(u);
@@ -154,8 +173,7 @@ public class QueueFeeder extends Thread {
             QueuingStatus status = queues.addFetchItem(url, datum);
             queuingStatus[status.ordinal()]++;
             if (status == QueuingStatus.ABOVE_EXCEPTION_THRESHOLD) {
-              context.getCounter(NutchMetrics.GROUP_FETCHER,
-                  NutchMetrics.FETCHER_ABOVE_EXCEPTION_THRESHOLD_TOTAL).increment(1);
+              aboveExceptionThresholdCounter.increment(1);
             }
             cnt++;
             feed--;

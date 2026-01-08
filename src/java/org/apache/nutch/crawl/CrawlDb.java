@@ -43,6 +43,7 @@ import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
@@ -145,7 +146,7 @@ public class CrawlDb extends NutchTool implements Tool {
 
     if (filter) {
       long urlsFiltered = job.getCounters()
-          .findCounter("CrawlDB filter", "URLs filtered").getValue();
+          .findCounter(NutchMetrics.GROUP_CRAWLDB_FILTER, NutchMetrics.CRAWLDB_URLS_FILTERED_TOTAL).getValue();
       LOG.info(
           "CrawlDb update: Total number of existing URLs in CrawlDb rejected by URL filters: {}",
           urlsFiltered);

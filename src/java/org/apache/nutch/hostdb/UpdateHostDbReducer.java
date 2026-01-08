@@ -31,6 +31,7 @@ import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.StringUtils;
 
@@ -72,6 +73,11 @@ public class UpdateHostDbReducer
   
   protected BlockingQueue<Runnable> queue = new SynchronousQueue<>();
   protected ThreadPoolExecutor executor = null;
+
+  // Cached counter references to avoid repeated lookups in hot paths
+  protected Counter urlLimitNotReachedCounter;
+  protected Counter totalHostsCounter;
+  protected Counter skippedNotEligibleCounter;
 
   /**
     * Configures the thread pool and prestarts all resolver threads.
@@ -146,6 +152,14 @@ public class UpdateHostDbReducer
       // Run all threads in the pool
       executor.prestartAllCoreThreads();
     }
+
+    // Initialize cached counter references
+    urlLimitNotReachedCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_URL_LIMIT_NOT_REACHED_TOTAL);
+    totalHostsCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_TOTAL_HOSTS_TOTAL);
+    skippedNotEligibleCounter = context.getCounter(
+        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_SKIPPED_NOT_ELIGIBLE_TOTAL);
   }
 
   /**
@@ -380,14 +394,12 @@ public class UpdateHostDbReducer
     // Impose limits on minimum number of URLs?
     if (urlLimit > -1l) {
       if (hostDatum.numRecords() < urlLimit) {
-        context.getCounter(NutchMetrics.GROUP_HOSTDB,
-            NutchMetrics.HOSTDB_URL_LIMIT_NOT_REACHED_TOTAL).increment(1);
+        urlLimitNotReachedCounter.increment(1);
         return;
       }
     }
     
-    context.getCounter(NutchMetrics.GROUP_HOSTDB,
-        NutchMetrics.HOSTDB_TOTAL_HOSTS_TOTAL).increment(1);
+    totalHostsCounter.increment(1);
 
     // See if this record is to be checked
     if (shouldCheck(hostDatum)) {
@@ -404,8 +416,7 @@ public class UpdateHostDbReducer
       // Do not progress, the datum will be written in the resolver thread
       return;
     } else if (checkAny) {
-      context.getCounter(NutchMetrics.GROUP_HOSTDB,
-          NutchMetrics.HOSTDB_SKIPPED_NOT_ELIGIBLE_TOTAL).increment(1);
+      skippedNotEligibleCounter.increment(1);
       LOG.debug("UpdateHostDb: {}: skipped_not_eligible", key);
     }
 

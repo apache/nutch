@@ -335,12 +335,10 @@ public class DeduplicationJob extends NutchTool implements Tool {
         fs.delete(tempDir, true);
         throw new RuntimeException(message);
       }
-      CounterGroup g = job.getCounters().getGroup("DeduplicationJobStatus");
-      if (g != null) {
-        Counter counter = g.findCounter("Documents marked as duplicate");
-        long dups = counter.getValue();
-        LOG.info("Deduplication: {} documents marked as duplicates", dups);
-      }
+      long dups = job.getCounters()
+          .findCounter(NutchMetrics.GROUP_DEDUP, NutchMetrics.DEDUP_DOCUMENTS_MARKED_DUPLICATE_TOTAL)
+          .getValue();
+      LOG.info("Deduplication: {} documents marked as duplicates", dups);
     } catch (IOException | InterruptedException | ClassNotFoundException e) {
       LOG.error("DeduplicationJob:", e);
       fs.delete(tempDir, true);
