@@ -34,10 +34,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Generator;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.AbstractScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
 
@@ -50,6 +53,8 @@ import org.apache.nutch.scoring.ScoringFilterException;
  * <li>the page score</li>
  * <li>the crawl status (fetched, not modified, redirect, gone)</li>
  * <li>the time elapsed since the scheduled fetch time</li>
+ * <li>whether or not a canonical link has been detected on the page and the
+ * link points to a different URL</li>
  * </ul>
  * </p>
  * 
@@ -66,15 +71,13 @@ import org.apache.nutch.scoring.ScoringFilterException;
  * 
  * <p>
  * The plugin is thought for large crawls where there are far more URLs than can
- * be fetched and taking a good sample is mandatory. Sampling is, of course,
- * usually based on the page score - relevant pages with a high score are
- * fetched with higher probability. However, a dynamic rotation of generated
+ * be fetched and selecting a representative sample is mandatory. Sampling is,
+ * of course, usually based on the page score - relevant pages with a high score
+ * are fetched with higher probability. However, a dynamic rotation of generated
  * items helps to avoid that the same page with a slightly higher score is
- * fetched again while others are still waiting to be queued. It also allows to
- * adjust the probabilities that gone or not modified pages are refetched.
+ * fetched again while others are still waiting to be queued. The plugin also
+ * allows to adjust when pages gone or not modified are revisited.
  * </p>
- * 
- * [TODO:experimental]
  * 
  * The plugin also includes heuristics to &quot;retire&quot; pages to status
  * db_orphan if they fail to fetch or are duplicates and are not seen in seeds
@@ -156,6 +159,20 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
    */
   public static final String ADAPTIVE_INJECTED_BOOST = "scoring.adaptive.boost.injected";
 
+  /**
+   * Penalty for pages with a canonical link different than the page URL.
+   * 
+   * Revisits are delayed by subtracting this penalty from the generator sort
+   * value.
+   * 
+   * Note: In order to avoid that pages without a canonical link are preferred,
+   * the penalty shouldn't be too high. The default is
+   * <code>7 * scoring.adaptive.factor.fetchtime</code>, that is a revisit can
+   * be delayed by up to 7 days, in comparison to a page where the canonical
+   * link equals the page URL, or a page without a canonical link.
+   */
+  public static final String ADAPTIVE_NON_CANONICAL_PENALTY = "scoring.adaptive.penalty.non_canonical";
+
   /*
    * Time span (in minutes) after which a page not seen anymore by inlink or
    * seed is marked as orphaned.
@@ -200,6 +217,8 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   public static final String SUCCESSFUL_FETCH_TIME = "_sft_";
   public static final Text WRITABLE_SUCCESSFUL_FETCH_TIME = new Text(SUCCESSFUL_FETCH_TIME);
 
+  private static final Writable EMPTY_VALUE = NullWritable.get();
+
   private Configuration conf;
 
   /**
@@ -215,6 +234,7 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
   private float adaptiveLastSeenTimeSort;
   private float adaptiveFetchRetryPenalty;
   private float adaptiveBoostInjected;
+  private float nonCanonicalPenalty;
 
   private Map<Byte, Float> statusSortMap = new TreeMap<Byte, Float>();
   private Map<String, Float> contentTypeSortMap = new HashMap<String, Float>();
@@ -279,6 +299,10 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
       // is marked as orphaned when it's last seen time is not given
       orphanTimeLastSeenDefault = nowMinutes;
     }
+
+    /* Penalize non-canonical pages: default is to delay revisits by 7 days */
+    nonCanonicalPenalty = conf.getFloat(ADAPTIVE_NON_CANONICAL_PENALTY,
+        7 * adaptiveFetchTimeSort);
   }
 
   private void readSortFile(Reader sortFileReader) throws IOException {
@@ -390,6 +414,10 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
         initSort -= adaptiveLastSeenTimeSort * daysSinceLastSeen;
       }
     }
+    if (pageIsNotCanonical(url, datum)) {
+      // penalize for not being the canonical page
+      initSort -= nonCanonicalPenalty;
+    }
     return initSort;
   }
 
@@ -459,6 +487,24 @@ public class AdaptiveScoringFilter extends AbstractScoringFilter {
         || status == CrawlDatum.STATUS_DB_REDIR_TEMP) {
       return true;
     }
+    return false;
+  }
+
+  private static boolean pageIsNotCanonical(Text url, CrawlDatum datum) {
+    if (datum.getStatus() != CrawlDatum.STATUS_DB_FETCHED) {
+      // If not successfully fetched, there's no canonical link
+      return false;
+    }
+    Writable canonicalUrl = datum.getMetaData().get(Nutch.CANONICAL_LINK_KEY);
+    if (canonicalUrl != null && !canonicalUrl.equals(EMPTY_VALUE)
+        && !url.equals(canonicalUrl)) {
+      /*
+       * If there is a canonical link and it's different from the URL, it's not
+       * the canonical page.
+       */
+      return true;
+    }
+    // Otherwise, it's the canonical page or no canonical link was detected.
     return false;
   }
 

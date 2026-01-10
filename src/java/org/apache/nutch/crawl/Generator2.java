@@ -838,7 +838,8 @@ public class Generator2 extends Configured implements Tool {
       // log metrics per host/domain
       LOG.info(
           "{} :: selected={}, selected_hosts={}, max_urls_overflow={}, max_hosts_overflow={}, max_urls_per_host_overflow={}",
-          key.getDomain(), hostOrDomainCount, hosts.size(), maxUrlsOverflow,
+          key.getDomain(), hostOrDomainCount,
+          (hosts == null ? 0 : hosts.size()), maxUrlsOverflow,
           maxHostsOverflowCount, maxUrlsPerHostOverflowCount);
     }
 

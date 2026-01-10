@@ -84,7 +84,7 @@ public class FetcherThread extends Thread {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private static Writable EMPTY_VALUE = NullWritable.get();
+  private static final Writable EMPTY_VALUE = NullWritable.get();
 
   private Configuration conf;
   private URLFilters urlFilters;

@@ -143,6 +143,7 @@
      <ant dir="protocol-http" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
      <ant dir="protocol-okhttp" target="test"/>
+     <ant dir="scoring-adaptive" target="test"/>
      <ant dir="scoring-orphan" target="test"/>
      <ant dir="scoring-metadata" target="test"/>
      <ant dir="subcollection" target="test"/>
@@ -229,6 +230,7 @@
     <ant dir="protocol-okhttp" target="clean"/>
 <!--<ant dir="protocol-selenium" target="clean" />-->
 <!--<ant dir="publish-rabbitmq" target="clean"/>-->
+    <ant dir="scoring-adaptive" target="clean"/>
     <ant dir="scoring-depth" target="clean"/>
     <ant dir="scoring-link" target="clean"/>
     <ant dir="scoring-opic" target="clean"/>
