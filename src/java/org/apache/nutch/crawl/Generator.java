@@ -67,6 +67,7 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.nutch.hostdb.HostDatum;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
@@ -191,6 +192,7 @@ public class Generator extends NutchTool implements Tool {
     private int intervalThreshold = -1;
     private byte restrictStatus = -1;
     private JexlScript expr = null;
+    private ErrorTracker errorTracker;
 
     @Override
     public void setup(
@@ -215,6 +217,8 @@ public class Generator extends NutchTool implements Tool {
         restrictStatus = CrawlDatum.getStatusByName(restrictStatusString);
       }
       expr = JexlUtil.parseExpression(conf.get(GENERATOR_EXPR, null));
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
     }
 
     @Override
@@ -231,8 +235,7 @@ public class Generator extends NutchTool implements Tool {
             return;
           }
         } catch (URLFilterException e) {
-          context.getCounter(NutchMetrics.GROUP_GENERATOR,
-              NutchMetrics.GENERATOR_URL_FILTER_EXCEPTION_TOTAL).increment(1);
+          errorTracker.incrementCounters(e);
           LOG.warn("Couldn't filter url: {} ({})", url, e.getMessage());
         }
       }
@@ -261,6 +264,7 @@ public class Generator extends NutchTool implements Tool {
       try {
         sort = scfilters.generatorSortValue(key, crawlDatum, sort);
       } catch (ScoringFilterException sfe) {
+        errorTracker.incrementCounters(sfe);
         LOG.warn("Couldn't filter generatorSortValue for {}: {}", key, sfe);
       }
 
@@ -326,6 +330,7 @@ public class Generator extends NutchTool implements Tool {
     private JexlScript maxCountExpr = null;
     private JexlScript fetchDelayExpr = null;
     private Map<String, HostDatum> hostDatumCache = new HashMap<>();
+    private ErrorTracker errorTracker;
     
     public void readHostDb() throws IOException {
       if (conf.get(GENERATOR_HOSTDB) == null) {
@@ -419,6 +424,8 @@ public class Generator extends NutchTool implements Tool {
         fetchDelayExpr = JexlUtil
             .parseExpression(conf.get(GENERATOR_FETCH_DELAY_EXPR, null));
       }
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
       
       readHostDb();
     }
@@ -516,8 +523,7 @@ public class Generator extends NutchTool implements Tool {
         } catch (MalformedURLException e) {
           LOG.warn("Malformed URL: '{}', skipping ({})", urlString,
               StringUtils.stringifyException(e));
-          context.getCounter(NutchMetrics.GROUP_GENERATOR,
-              NutchMetrics.GENERATOR_MALFORMED_URL_TOTAL).increment(1);
+          errorTracker.incrementCounters(e);
           continue;
         }
 
