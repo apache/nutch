@@ -163,9 +163,10 @@ jobs:
         run: |
           echo "Verifying Nutch can run on Java 11..."
           java -version
-          # Run a simple command to verify the JAR loads correctly
           cd runtime/local
-          bin/nutch 2>&1 | head -20 || true
+          # Actually load Java classes by running showproperties
+          # This invokes org.apache.nutch.tools.ShowProperties and verifies the JAR loads
+          bin/nutch showproperties | head -20
           echo "Java 11 runtime verification complete"
 
   # Tests run on JDK 17 (required by JUnit 6) with default javac.version=11
