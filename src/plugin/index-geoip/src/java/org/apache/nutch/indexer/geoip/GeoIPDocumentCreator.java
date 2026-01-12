@@ -229,7 +229,6 @@ public class GeoIPDocumentCreator {
    * @param doc NutchDocument to populate
    * @param reader instantiated DatabaseReader object
    * @return populated NutchDocument
-   * @throws UnknownHostException if IP address of host could not be determined
    * @throws IOException if an error occurs performing the Db lookup
    * @throws GeoIp2Exception generic GeoIp2 exception
    */
