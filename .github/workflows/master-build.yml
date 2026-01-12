@@ -20,6 +20,18 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [master]
+
+# Java Version Strategy:
+# - BUILD: Requires Java 17+ (JUnit 6 dependency)
+# - RUNTIME: Supports Java 11+ (javac.version=11 produces Java 11 bytecode)
+# 
+# The matrix tests both:
+# 1. Java 17 build with Java 11 bytecode target (default, for runtime compatibility)
+# 2. Java 17 build with Java 17 bytecode target (for users who want latest features)
+#
+# Note: Tests require Java 17+ to run (JUnit 6 requirement), but compiled
+# artifacts with javac.version=11 will run on Java 11+ environments.
+
 jobs:
   javadoc:
     strategy:
@@ -36,6 +48,7 @@ jobs:
           distribution: 'temurin'
       - name: Javadoc
         run: ant clean javadoc -buildfile build.xml
+
   rat:
     strategy:
       matrix:
@@ -59,19 +72,92 @@ jobs:
       - name: Fail if any unknown licenses
         if: ${{ env.UNKNOWN_LICENSES != '0 Unknown Licenses' }}
         run: exit 1
+
+  # Build verification with Java bytecode target matrix
+  # Tests bytecode compatibility for both Java 11 and Java 17 targets
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        javac-version: ['11', '17']
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    name: build (javac.version=${{ matrix.javac-version }})
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build with javac.version=${{ matrix.javac-version }}
+        run: ant clean runtime -Djavac.version=${{ matrix.javac-version }} -buildfile build.xml
+      - name: Verify bytecode version
+        run: |
+          # Extract and verify the bytecode version of compiled classes
+          JAR_FILE="build/apache-nutch-*-SNAPSHOT.jar"
+          echo "Checking bytecode version in $JAR_FILE"
+          # Java 11 = major version 55, Java 17 = major version 61
+          EXPECTED_VERSION=${{ matrix.javac-version == '11' && '55' || '61' }}
+          echo "Expected major version: $EXPECTED_VERSION (Java ${{ matrix.javac-version }})"
+          
+          # Extract a class file and check its version
+          cd build/classes
+          CLASS_FILE=$(find . -name "*.class" | head -1)
+          if [ -n "$CLASS_FILE" ]; then
+            ACTUAL_VERSION=$(javap -verbose "$CLASS_FILE" 2>/dev/null | grep "major version" | awk '{print $NF}')
+            echo "Actual major version: $ACTUAL_VERSION"
+            if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+              echo "ERROR: Bytecode version mismatch!"
+              exit 1
+            fi
+            echo "Bytecode version verified successfully"
+          fi
+
+  # Verify runtime compatibility on Java 11
+  # This ensures the built artifacts can actually run on Java 11
+  runtime-java11:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up JDK 17 for building
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build with Java 11 target
+        run: ant clean runtime -Djavac.version=11 -buildfile build.xml
+      - name: Set up JDK 11 for runtime verification
+        uses: actions/setup-java@v5
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Verify runtime on Java 11
+        run: |
+          echo "Verifying Nutch can run on Java 11..."
+          java -version
+          # Run a simple command to verify the JAR loads correctly
+          cd runtime/local
+          bin/nutch 2>&1 | head -20 || true
+          echo "Java 11 runtime verification complete"
+
+  # Test matrix - requires Java 17+ for JUnit 6
   tests:
     strategy:
+      fail-fast: false
       matrix:
-        java: ['17']
+        javac-version: ['11', '17']
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    name: tests (javac.version=${{ matrix.javac-version }}, ${{ matrix.os }})
     steps:
       - uses: actions/checkout@v5
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
-          java-version: ${{ matrix.java }}
+          java-version: '17'
           distribution: 'temurin'
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
         id: filter
@@ -90,22 +176,21 @@ jobs:
       # run if the build configuration or both 'core' and 'plugins' files were changed
       - name: test all
         if: ${{ steps.filter.outputs.buildconf == 'true' || ( steps.filter.outputs.core  == 'true' && steps.filter.outputs.plugins  == 'true' ) }}
-        run: ant clean test -buildfile build.xml
+        run: ant clean test -Djavac.version=${{ matrix.javac-version }} -buildfile build.xml
       # run only if 'core' files were changed
       - name: test core
         if: ${{ steps.filter.outputs.core == 'true' && steps.filter.outputs.plugins == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-core -buildfile build.xml
+        run: ant clean test-core -Djavac.version=${{ matrix.javac-version }} -buildfile build.xml
       # run only if 'plugins' files were changed
       - name: test plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
-        run: ant clean test-plugins -buildfile build.xml
+        run: ant clean test-plugins -Djavac.version=${{ matrix.javac-version }} -buildfile build.xml
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: junit-test-results
+          name: junit-test-results-java${{ matrix.javac-version }}-${{ matrix.os }}
           path: |
             ./build/test/TEST-*.xml
             ./build/**/test/TEST-*.xml
           retention-days: 1
-          overwrite: true

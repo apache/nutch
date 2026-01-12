@@ -24,22 +24,34 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - artifact: junit-test-results-java11-ubuntu-latest
+            check_name: JUnit Test Report (Java 11 target, Ubuntu)
+          - artifact: junit-test-results-java11-macos-latest
+            check_name: JUnit Test Report (Java 11 target, macOS)
+          - artifact: junit-test-results-java17-ubuntu-latest
+            check_name: JUnit Test Report (Java 17 target, Ubuntu)
+          - artifact: junit-test-results-java17-macos-latest
+            check_name: JUnit Test Report (Java 17 target, macOS)
     steps:
       - name: Download Test Report
+        id: download
         uses: dawidd6/action-download-artifact@v11
         with:
-          name: junit-test-results
+          name: ${{ matrix.artifact }}
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
+        continue-on-error: true
       - name: Publish Test Report
+        if: steps.download.outcome == 'success'
         uses: mikepenz/action-junit-report@v5
         with:
           report_paths: |-
             ./test/TEST-*.xml
             ./**/test/TEST-*.xml
-          check_name: |-
-            JUnit Test Report
-            JUnit Test Report Plugins
+          check_name: ${{ matrix.check_name }}
           commit: ${{ github.event.workflow_run.head_sha }}
           fail_on_failure: false
           fail_on_parse_error: false # temporary while debugging missing result for TestMimeUtil
