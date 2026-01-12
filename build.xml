@@ -50,9 +50,7 @@
 
   <property name="ant-eclipse.jar" value="${ivy.dir}/lib/ant-eclipse-1.0-jvm1.2.jar" />
 
-  <condition property="using.jdk.11">
-    <matches string="${java.version}" pattern="11.+" casesensitive="false" />
-  </condition>
+  <!-- JUnit 6 requires Java 17+ -->
 
   <!-- the normal classpath -->
   <path id="classpath">
@@ -201,7 +199,7 @@
           otherwise the Javascript search is broken,
           see https://bugs.openjdk.org/browse/JDK-8215291
       -->
-      <arg value="--no-module-directories" if:set="using.jdk.11"/>
+      <!-- no-module-directories flag not needed for Java 17+ -->
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
@@ -491,6 +489,7 @@
     <copy file="${test.src.dir}/crawl-tests.xml" todir="${test.build.classes}"/>
     <copy file="${test.src.dir}/domain-urlfilter.txt" todir="${test.build.classes}"/>
     <copy file="${test.src.dir}/filter-all.txt" todir="${test.build.classes}"/>
+    <copy file="${test.src.dir}/junit-platform.properties" todir="${test.build.classes}"/>
     <junitlauncher printSummary="true" haltOnFailure="true" failureProperty="tests.failed">
       <classpath refid="test.classpath"/>
       <testclasses outputDir="${test.build.dir}" unless="testcase">
@@ -501,6 +500,7 @@
           <sysproperty key="test.build.data" value="${test.build.data}"/>
           <sysproperty key="test.src.dir" value="${test.src.dir}"/>
           <sysproperty key="test.include.slow" value="${test.include.slow}"/>
+          <sysproperty key="junit.platform.execution.failfast.enabled" value="${test.failfast}"/>
           <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
         </fork>
         <fileset dir="${test.build.classes}">
@@ -516,6 +516,7 @@
           <sysproperty key="test.build.data" value="${test.build.data}"/>
           <sysproperty key="test.src.dir" value="${test.src.dir}"/>
           <sysproperty key="test.include.slow" value="${test.include.slow}"/>
+          <sysproperty key="junit.platform.execution.failfast.enabled" value="${test.failfast}"/>
           <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
         </fork>
         <fileset dir="${test.build.classes}">
@@ -653,7 +654,7 @@
           otherwise the Javascript search is broken,
           see https://bugs.openjdk.org/browse/JDK-8215291
       -->
-      <arg value="--no-module-directories" if:set="using.jdk.11"/>
+      <!-- no-module-directories flag not needed for Java 17+ -->
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
