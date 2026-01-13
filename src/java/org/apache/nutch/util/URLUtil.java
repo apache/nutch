@@ -17,11 +17,15 @@
 package org.apache.nutch.util;
 
 import java.net.IDN;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import org.apache.nutch.crawl.URLPartitioner;
 
 import crawlercommons.domains.EffectiveTldFinder;
 
@@ -486,6 +490,34 @@ public class URLUtil {
    */
   public static String getHost(URL url) {
     return url.getHost().toLowerCase(Locale.ROOT);
+  }
+
+  /**
+   * Returns the URL root (host, domain, or IP) based on the specified partition mode.
+   * This method centralizes the logic for extracting the appropriate URL component
+   * for partitioning purposes.
+   * 
+   * @param url
+   *          The URL to extract the root from.
+   * @param mode
+   *          The partition mode: {@link URLPartitioner#PARTITION_MODE_HOST},
+   *          {@link URLPartitioner#PARTITION_MODE_DOMAIN}, or
+   *          {@link URLPartitioner#PARTITION_MODE_IP}.
+   * @return The URL root based on the mode, or null if mode is unrecognized.
+   * @throws UnknownHostException
+   *           if mode is byIP and the host cannot be resolved.
+   */
+  public static String getUrlRootByMode(URL url, String mode)
+      throws UnknownHostException {
+    if (mode.equals(URLPartitioner.PARTITION_MODE_HOST)) {
+      return url.getHost();
+    } else if (mode.equals(URLPartitioner.PARTITION_MODE_DOMAIN)) {
+      return URLUtil.getDomainName(url);
+    } else if (mode.equals(URLPartitioner.PARTITION_MODE_IP)) {
+      InetAddress address = InetAddress.getByName(url.getHost());
+      return address.getHostAddress();
+    }
+    return null;
   }
 
   /**

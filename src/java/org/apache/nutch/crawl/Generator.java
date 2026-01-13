@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,6 +34,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.hadoop.conf.Configurable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
@@ -88,6 +91,44 @@ import org.apache.nutch.util.URLUtil;
  * selected for fetching. The URLs are partitioned by IP, domain or host within
  * a segment. We can choose separately how to count the URLs i.e. by domain or
  * host to limit the entries.
+ * 
+ * <h2>HostDb Integration (NUTCH-2455)</h2>
+ * <p>
+ * When configured with a HostDb (via {@code -hostdb} option or 
+ * {@code generate.hostdb} property), the Generator can apply per-host settings
+ * using JEXL expressions:
+ * </p>
+ * <ul>
+ *   <li>{@code generate.max.count.expr} - Expression to compute max URLs per host</li>
+ *   <li>{@code generate.fetch.delay.expr} - Expression to compute fetch delay per host</li>
+ * </ul>
+ * 
+ * <h3>Performance Characteristics</h3>
+ * <p>
+ * The HostDb integration uses secondary sorting via MapReduce to efficiently
+ * merge HostDb entries with CrawlDb entries. This approach has the following
+ * performance benefits compared to loading the entire HostDb into memory:
+ * </p>
+ * <ul>
+ *   <li><b>Memory efficiency:</b> HostDb entries are streamed through the reducer
+ *       rather than cached entirely in memory. Only per-host metadata is retained
+ *       during URL processing.</li>
+ *   <li><b>Scalability:</b> Can handle HostDb with millions of hosts without
+ *       running out of heap space in the reducer.</li>
+ *   <li><b>I/O efficiency:</b> Uses Hadoop's sorted merge join pattern, leveraging
+ *       disk-based sorting and sequential reads.</li>
+ * </ul>
+ * 
+ * <h3>Backward Compatibility</h3>
+ * <p>
+ * When {@code generate.hostdb} is not configured, the Generator operates without
+ * HostDb integration, using only the default {@code generate.max.count} setting.
+ * JEXL expressions ({@code generate.max.count.expr}, {@code generate.fetch.delay.expr})
+ * are only evaluated when a HostDb is provided.
+ * </p>
+ * 
+ * @see org.apache.nutch.hostdb.UpdateHostDb
+ * @see org.apache.nutch.hostdb.HostDatum
  **/
 public class Generator extends NutchTool implements Tool {
 
@@ -115,15 +156,21 @@ public class Generator extends NutchTool implements Tool {
   public static final String GENERATOR_MAX_COUNT_EXPR = "generate.max.count.expr";
   public static final String GENERATOR_FETCH_DELAY_EXPR = "generate.fetch.delay.expr";
 
+  /**
+   * Selector entry holds URL, CrawlDatum, segment number, and optionally HostDatum.
+   * Used to carry data through the MapReduce pipeline.
+   */
   public static class SelectorEntry implements Writable {
     public Text url;
     public CrawlDatum datum;
     public IntWritable segnum;
+    public HostDatum hostdatum;
 
     public SelectorEntry() {
       url = new Text();
       datum = new CrawlDatum();
       segnum = new IntWritable(0);
+      hostdatum = new HostDatum();
     }
 
     @Override
@@ -131,6 +178,7 @@ public class Generator extends NutchTool implements Tool {
       url.readFields(in);
       datum.readFields(in);
       segnum.readFields(in);
+      hostdatum.readFields(in);
     }
 
     @Override
@@ -138,6 +186,7 @@ public class Generator extends NutchTool implements Tool {
       url.write(out);
       datum.write(out);
       segnum.write(out);
+      hostdatum.write(out);
     }
 
     @Override
@@ -147,35 +196,215 @@ public class Generator extends NutchTool implements Tool {
     }
   }
 
-  /** Selects entries due for fetch. */
-  public static class Selector extends Partitioner<FloatWritable, Writable>
+  /**
+   * Composite key for secondary sorting. Contains score and hostname.
+   * Used to ensure HostDb entries arrive before CrawlDb entries in the reducer.
+   * 
+   * For HostDb entries: FloatTextPair(-Float.MAX_VALUE, hostname)
+   * For CrawlDb entries: FloatTextPair(score, "")
+   */
+  public static class FloatTextPair implements WritableComparable<FloatTextPair> {
+    public FloatWritable first;
+    public Text second;
+
+    public FloatTextPair() {
+      this.first = new FloatWritable();
+      this.second = new Text();
+    }
+
+    public FloatTextPair(FloatWritable first, Text second) {
+      this.first = first;
+      this.second = second;
+    }
+
+    public FloatTextPair(float first, String second) {
+      this.first = new FloatWritable(first);
+      this.second = new Text(second);
+    }
+
+    public FloatWritable getFirst() {
+      return first;
+    }
+
+    public void setFirst(FloatWritable first) {
+      this.first = first;
+    }
+
+    public Text getSecond() {
+      return second;
+    }
+
+    public void setSecond(Text second) {
+      this.second = second;
+    }
+
+    public void set(FloatWritable first, Text second) {
+      this.first = first;
+      this.second = second;
+    }
+
+    @Override
+    public int hashCode() {
+      return first.hashCode() * 163 + second.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof FloatTextPair) {
+        FloatTextPair tp = (FloatTextPair) obj;
+        return first.equals(tp.getFirst()) && second.equals(tp.getSecond());
+      }
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return first + "\t" + second;
+    }
+
+    @Override
+    public void readFields(DataInput in) throws IOException {
+      first.readFields(in);
+      second.readFields(in);
+    }
+
+    @Override
+    public void write(DataOutput out) throws IOException {
+      first.write(out);
+      second.write(out);
+    }
+
+    @Override
+    public int compareTo(FloatTextPair tp) {
+      int cmp = first.compareTo(tp.getFirst());
+      if (cmp != 0)
+        return cmp;
+      return second.compareTo(tp.getSecond());
+    }
+  }
+
+  /**
+   * Comparator that ensures HostDb entries (with hostname in second field)
+   * sort before CrawlDb entries (with empty second field) for the same host.
+   * This enables the secondary sorting pattern for NUTCH-2455.
+   */
+  public static class ScoreHostKeyComparator extends WritableComparator {
+    protected ScoreHostKeyComparator() {
+      super(FloatTextPair.class, true);
+    }
+
+    @Override
+    public int compare(WritableComparable w1, WritableComparable w2) {
+      FloatTextPair key1 = (FloatTextPair) w1;
+      FloatTextPair key2 = (FloatTextPair) w2;
+
+      boolean isKey1HostDatum = key1.second.getLength() > 0;
+      boolean isKey2HostDatum = key2.second.getLength() > 0;
+
+      if (isKey1HostDatum && isKey2HostDatum) {
+        // Both are HostDb entries, sort by hostname
+        return key1.second.compareTo(key2.second);
+      } else {
+        if (isKey1HostDatum == isKey2HostDatum) {
+          // Both are CrawlDb entries, sort by score descending
+          return -1 * key1.first.compareTo(key2.first);
+        } else if (isKey1HostDatum) {
+          // HostDb entries come before CrawlDb entries
+          return -1;
+        } else {
+          return 1;
+        }
+      }
+    }
+  }
+
+  /**
+   * Mapper that reads HostDb and emits entries for secondary sorting.
+   * Uses a very low score (-Float.MAX_VALUE) to ensure HostDb entries
+   * sort before CrawlDb entries.
+   */
+  public static class HostDbReaderMapper
+      extends Mapper<Text, HostDatum, FloatTextPair, SelectorEntry> {
+
+    @Override
+    public void map(Text hostname, HostDatum value, Context context)
+        throws IOException, InterruptedException {
+      SelectorEntry hostDataSelector = new SelectorEntry();
+      try {
+        hostDataSelector.hostdatum = (HostDatum) value.clone();
+      } catch (CloneNotSupportedException e) {
+        hostDataSelector.hostdatum = value;
+      }
+
+      // Use very low score and hostname to ensure HostDb entries
+      // sort before CrawlDb entries for the same host
+      context.write(new FloatTextPair(new FloatWritable(-Float.MAX_VALUE),
+          hostname), hostDataSelector);
+    }
+  }
+
+  /** Selects entries due for fetch. Partitions by host/domain/IP. */
+  public static class Selector extends Partitioner<FloatTextPair, Writable>
       implements Configurable {
 
     private final URLPartitioner partitioner = new URLPartitioner();
+    private Configuration conf;
+    private int seed;
+    private String mode = URLPartitioner.PARTITION_MODE_HOST;
 
-    /** Partition by host / domain or IP. */
+    /**
+     * Partition by host / domain or IP.
+     * For HostDb entries (key.second is non-empty), partition by the hostname.
+     * For CrawlDb entries (key.second is empty), use the URLPartitioner.
+     * 
+     * Note: When partition.url.mode is not "byHost", HostDb entries may not
+     * be correctly grouped with their corresponding CrawlDb entries. For best
+     * results, use "byHost" mode (the default) when using HostDb.
+     */
     @Override
-    public int getPartition(FloatWritable key, Writable value,
+    public int getPartition(FloatTextPair key, Writable value,
         int numReduceTasks) {
-      return partitioner.getPartition(((SelectorEntry) value).url, key,
-          numReduceTasks);
+      SelectorEntry entry = (SelectorEntry) value;
+      // For HostDb entries, use the hostname from the key
+      // For CrawlDb entries, use the URL from the entry
+      if (key.second.getLength() > 0) {
+        // HostDb entry - partition by hostname
+        // This works best with "byHost" mode; other modes may cause
+        // HostDb entries to not be grouped with their CrawlDb entries
+        int hashCode = key.second.toString().hashCode();
+        hashCode ^= seed;
+        return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
+      }
+      return partitioner.getPartition(entry.url, key.first, numReduceTasks);
     }
 
     @Override
     public Configuration getConf() {
-      return partitioner.getConf();
+      return conf;
     }
 
     @Override
     public void setConf(Configuration conf) {
+      this.conf = conf;
+      this.seed = conf.getInt("partition.url.seed", 0);
+      this.mode = conf.get(URLPartitioner.PARTITION_MODE_KEY, 
+          URLPartitioner.PARTITION_MODE_HOST);
       partitioner.setConf(conf);
+      
+      // Warn if mode is not byHost and hostdb is configured
+      String hostdb = conf.get(GENERATOR_HOSTDB);
+      if (hostdb != null && !mode.equals(URLPartitioner.PARTITION_MODE_HOST)) {
+        LOG.warn("HostDb is configured but partition.url.mode is '{}'. " +
+            "For correct HostDb integration, use 'byHost' mode (the default). " +
+            "Other modes may cause HostDb entries to not be grouped with their CrawlDb entries.",
+            mode);
+      }
     }
   }
 
   /** Select and invert subset due for fetch. */
-
   public static class SelectorMapper
-      extends Mapper<Text, CrawlDatum, FloatWritable, SelectorEntry> {
+      extends Mapper<Text, CrawlDatum, FloatTextPair, SelectorEntry> {
 
     private LongWritable genTime = new LongWritable(System.currentTimeMillis());
     private long curTime;
@@ -193,9 +422,7 @@ public class Generator extends NutchTool implements Tool {
     private JexlScript expr = null;
 
     @Override
-    public void setup(
-        Mapper<Text, CrawlDatum, FloatWritable, SelectorEntry>.Context context)
-        throws IOException {
+    public void setup(Context context) throws IOException {
       conf = context.getConfiguration();
       curTime = conf.getLong(GENERATOR_CUR_TIME, System.currentTimeMillis());
       filters = new URLFilters(conf);
@@ -295,21 +522,23 @@ public class Generator extends NutchTool implements Tool {
         return;
       }
 
-      // sort by decreasing score, using DecreasingFloatComparator
+      // sort by decreasing score, using ScoreHostKeyComparator
       sortValue.set(sort);
       // record generation time
       crawlDatum.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
       entry.datum = crawlDatum;
       entry.url = key;
-      context.write(sortValue, entry); // invert for sort by score
+
+      // CrawlDb entries have empty hostname (second field)
+      context.write(new FloatTextPair(sortValue, new Text()), entry);
     }
   }
 
   /** Collect until limit is reached. */
   public static class SelectorReducer extends
-      Reducer<FloatWritable, SelectorEntry, FloatWritable, SelectorEntry> {
+      Reducer<FloatTextPair, SelectorEntry, FloatWritable, SelectorEntry> {
 
-    private HashMap<String, int[]> hostCounts = new HashMap<>();
+    private HashMap<String, MutablePair<HostDatum, int[]>> hostDomainCounts = new HashMap<>();
     private long count;
     private int currentsegmentnum = 1;
     private MultipleOutputs<FloatWritable, SelectorEntry> mos;
@@ -322,35 +551,8 @@ public class Generator extends NutchTool implements Tool {
     private boolean byDomain = false;
     private URLNormalizers normalizers;
     private static boolean normalise;
-    private SequenceFile.Reader[] hostdbReaders = null;
     private JexlScript maxCountExpr = null;
     private JexlScript fetchDelayExpr = null;
-    private Map<String, HostDatum> hostDatumCache = new HashMap<>();
-    
-    public void readHostDb() throws IOException {
-      if (conf.get(GENERATOR_HOSTDB) == null) {
-        return;
-      }
-      
-      Path path = new Path(conf.get(GENERATOR_HOSTDB), "current");
-      hostdbReaders = SegmentReaderUtil.getReaders(path, conf);
-      
-      try {
-        Text key = new Text();
-        HostDatum value = new HostDatum();
-        for (int i = 0; i < hostdbReaders.length; i++) {
-          while (hostdbReaders[i].next(key, value)) {
-            hostDatumCache.put(key.toString(), (HostDatum)value.clone());
-          }
-        }
-      } catch (Exception e) {
-        throw new IOException(e);
-      }
-      
-      for (int i = 0; i < hostdbReaders.length; i++) {
-        hostdbReaders[i].close();
-      }
-    }
 
     private JexlContext createContext(HostDatum datum) {
       JexlContext context = new MapContext();
@@ -419,8 +621,6 @@ public class Generator extends NutchTool implements Tool {
         fetchDelayExpr = JexlUtil
             .parseExpression(conf.get(GENERATOR_FETCH_DELAY_EXPR, null));
       }
-      
-      readHostDb();
     }
 
     @Override
@@ -430,59 +630,106 @@ public class Generator extends NutchTool implements Tool {
     }
 
     @Override
-    public void reduce(FloatWritable key, Iterable<SelectorEntry> values,
+    public void reduce(FloatTextPair key, Iterable<SelectorEntry> values,
         Context context) throws IOException, InterruptedException {
 
-      String currentHostname = null;
-      HostDatum host = null;
       LongWritable variableFetchDelayWritable = null; // in millis
       Text variableFetchDelayKey = new Text("_variableFetchDelay_");
       // local variable maxCount may hold host-specific count set in HostDb
       int maxCount = this.maxCount;
+      int[] hostDomainCount = null;
+      HostDatum hostDatum = null;
+
       for (SelectorEntry entry : values) {
         Text url = entry.url;
         String urlString = url.toString();
         URL u = null;
+        String hostorDomainName = null;
 
-        String hostname = URLUtil.getHost(urlString);
-        if (hostname == null) {
-          currentHostname = hostname;
-          // malformed URLs are counted later on when extracting host or domain
-        } else if (!hostname.equals(currentHostname)) {
-          currentHostname = hostname;
-          host = hostDatumCache.get(hostname);
+        // Check if this is a HostDb entry (hostname in key.second)
+        if (key.second.getLength() > 0) {
+          // This is a HostDb entry - store it for later use
+          try {
+            hostDatum = (HostDatum) entry.hostdatum.clone();
+            hostDomainCounts.put(key.second.toString(),
+                new MutablePair<HostDatum, int[]>(hostDatum, new int[] { 1, 0 }));
+          } catch (Exception e) {
+            LOG.info("Exception while storing hostdb entry: {}", e.toString());
+          }
+          // Don't process HostDb entries as URLs
+          continue;
+        }
 
-          // Got it?
-          if (host != null) {
+        // Process normal CrawlDb entry
+        try {
+          u = new URL(urlString);
+
+          if (byDomain) {
+            hostorDomainName = URLUtil.getUrlRootByMode(u,
+                URLPartitioner.PARTITION_MODE_DOMAIN).toLowerCase();
+          } else {
+            hostorDomainName = URLUtil.getUrlRootByMode(u,
+                URLPartitioner.PARTITION_MODE_HOST).toLowerCase();
+          }
+
+          MutablePair<HostDatum, int[]> hostDomainCountPair = hostDomainCounts
+              .get(hostorDomainName);
+
+          if (hostDomainCountPair == null) {
+            hostDomainCount = new int[] { 1, 0 };
+            hostDomainCountPair = new MutablePair<HostDatum, int[]>(null,
+                hostDomainCount);
+            hostDomainCounts.put(hostorDomainName, hostDomainCountPair);
+          } else {
+            hostDomainCount = hostDomainCountPair.getRight();
+          }
+
+          // Check hostdb expressions only for host, ignore domains
+          if (!byDomain)
+            hostDatum = hostDomainCountPair.getLeft();
+
+          if (hostDatum != null) {
             if (maxCountExpr != null) {
               try {
-                long variableMaxCount = Math
-                    .round((double) maxCountExpr.execute(createContext(host)));
+                Object result = maxCountExpr.execute(createContext(hostDatum));
+                long variableMaxCount = ((Number) result).longValue();
                 LOG.debug("Generator: variable maxCount: {} for {}",
-                    variableMaxCount, hostname);
+                    variableMaxCount, hostorDomainName);
                 maxCount = (int) variableMaxCount;
               } catch (Exception e) {
                 LOG.error(
-                    "Unable to execute variable maxCount expression because: {}",
-                    e.getMessage(), e);
+                    "Unable to execute variable maxCount expression: {}",
+                    e.getMessage());
               }
             }
 
             if (fetchDelayExpr != null) {
               try {
-                long variableFetchDelay = Math.round(
-                    (double) fetchDelayExpr.execute(createContext(host)));
+                Object result = fetchDelayExpr.execute(createContext(hostDatum));
+                long variableFetchDelay = ((Number) result).longValue();
                 LOG.debug("Generator: variable fetchDelay: {} ms for {}",
-                    variableFetchDelay, hostname);
-                variableFetchDelayWritable = new LongWritable(
-                    variableFetchDelay);
+                    variableFetchDelay, hostorDomainName);
+                variableFetchDelayWritable = new LongWritable(variableFetchDelay);
               } catch (Exception e) {
                 LOG.error(
-                    "Unable to execute fetch delay expression because: {}",
-                    e.getMessage(), e);
+                    "Unable to execute fetch delay expression: {}",
+                    e.getMessage());
               }
             }
           }
+        } catch (UnknownHostException e) {
+          LOG.warn("Unknown host for URL: {}", urlString);
+          continue;
+        } catch (MalformedURLException e) {
+          LOG.warn("Malformed URL: '{}', skipping ({})", urlString,
+              StringUtils.stringifyException(e));
+          context.getCounter(NutchMetrics.GROUP_GENERATOR,
+              NutchMetrics.GENERATOR_MALFORMED_URL_TOTAL).increment(1);
+          continue;
+        }
+
+        if (maxCount == 0) {
+          continue;
         }
 
         // Got a non-zero variable fetch delay? Add it to the datum's metadata
@@ -500,18 +747,10 @@ public class Generator extends NutchTool implements Tool {
             break;
         }
 
-        String hostordomain = null;
-
         try {
           if (normalise && normalizers != null) {
             urlString = normalizers.normalize(urlString,
                 URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
-          }
-          u = new URL(urlString);
-          if (byDomain) {
-            hostordomain = URLUtil.getDomainName(u);
-          } else {
-            hostordomain = u.getHost();
           }
         } catch (MalformedURLException e) {
           LOG.warn("Malformed URL: '{}', skipping ({})", urlString,
@@ -521,39 +760,31 @@ public class Generator extends NutchTool implements Tool {
           continue;
         }
 
-        hostordomain = hostordomain.toLowerCase();
-
         // only filter if we are counting hosts or domains
         if (maxCount > 0) {
-          int[] hostCount = hostCounts.get(hostordomain);
-          if (hostCount == null) {
-            hostCount = new int[] { 1, 0 };
-            hostCounts.put(hostordomain, hostCount);
-          }
-
           // increment hostCount
-          hostCount[1]++;
+          hostDomainCount[1]++;
 
           // check if topN reached, select next segment if it is
-          while (segCounts[hostCount[0] - 1] >= limit
-              && hostCount[0] < maxNumSegments) {
-            hostCount[0]++;
-            hostCount[1] = 0;
+          while (segCounts[hostDomainCount[0] - 1] >= limit
+              && hostDomainCount[0] < maxNumSegments) {
+            hostDomainCount[0]++;
+            hostDomainCount[1] = 0;
           }
 
           // reached the limit of allowed URLs per host / domain
           // see if we can put it in the next segment?
-          if (hostCount[1] > maxCount) {
-            if (hostCount[0] < maxNumSegments) {
-              hostCount[0]++;
-              hostCount[1] = 1;
+          if (hostDomainCount[1] > maxCount) {
+            if (hostDomainCount[0] < maxNumSegments) {
+              hostDomainCount[0]++;
+              hostDomainCount[1] = 1;
             } else {
-              if (hostCount[1] == (maxCount+1)) {
+              if (hostDomainCount[1] == (maxCount + 1)) {
                 context.getCounter(NutchMetrics.GROUP_GENERATOR,
                     NutchMetrics.GENERATOR_HOSTS_AFFECTED_PER_HOST_OVERFLOW_TOTAL).increment(1);
                 LOG.info(
                     "Host or domain {} has more than {} URLs for all {} segments. Additional URLs won't be included in the fetchlist.",
-                    hostordomain, maxCount, maxNumSegments);
+                    hostorDomainName, maxCount, maxNumSegments);
               }
               // skip this entry
               context.getCounter(NutchMetrics.GROUP_GENERATOR,
@@ -561,15 +792,15 @@ public class Generator extends NutchTool implements Tool {
               continue;
             }
           }
-          entry.segnum = new IntWritable(hostCount[0]);
-          segCounts[hostCount[0] - 1]++;
+          entry.segnum = new IntWritable(hostDomainCount[0]);
+          segCounts[hostDomainCount[0] - 1]++;
         } else {
           entry.segnum = new IntWritable(currentsegmentnum);
           segCounts[currentsegmentnum - 1]++;
         }
 
         outputFile = generateFileName(entry);
-        mos.write("sequenceFiles", key, entry, outputFile);
+        mos.write("sequenceFiles", key.first, entry, outputFile);
 
         // Count is incremented only when we keep the URL
         // maxCount may cause us to skip it.
@@ -936,18 +1167,24 @@ public class Generator extends NutchTool implements Tool {
     }
     if (hostdb != null) {
       conf.set(GENERATOR_HOSTDB, hostdb);
+      // Use MultipleInputs to read from both HostDb and CrawlDb
+      MultipleInputs.addInputPath(job, new Path(hostdb, "current"),
+          SequenceFileInputFormat.class, HostDbReaderMapper.class);
     }
-    FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
-    job.setInputFormatClass(SequenceFileInputFormat.class);
+    // Add CrawlDb input
+    MultipleInputs.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME),
+        SequenceFileInputFormat.class, SelectorMapper.class);
 
     job.setJarByClass(Selector.class);
-    job.setMapperClass(SelectorMapper.class);
+    job.setMapOutputKeyClass(FloatTextPair.class);
+    job.setMapOutputValueClass(SelectorEntry.class);
     job.setPartitionerClass(Selector.class);
     job.setReducerClass(SelectorReducer.class);
+    // Use ScoreHostKeyComparator for secondary sorting
+    job.setSortComparatorClass(ScoreHostKeyComparator.class);
 
     FileOutputFormat.setOutputPath(job, tempDir);
     job.setOutputKeyClass(FloatWritable.class);
-    job.setSortComparatorClass(DecreasingFloatComparator.class);
     job.setOutputValueClass(SelectorEntry.class);
     MultipleOutputs.addNamedOutput(job, "sequenceFiles",
         SequenceFileOutputFormat.class, FloatWritable.class,
