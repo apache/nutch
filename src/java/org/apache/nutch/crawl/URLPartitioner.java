@@ -71,6 +71,33 @@ public class URLPartitioner extends Partitioner<Text, Writable> implements Confi
     return conf;
   }
 
+  /**
+   * Returns the normalized URL root (host, domain, or IP) for the given URL key.
+   * This is used for partitioning URLs by their root component.
+   * 
+   * @param key
+   *          The URL as a Text object.
+   * @return The normalized URL root based on the partition mode.
+   */
+  public String getNormalizedURLRoot(Text key) {
+    String urlString = key.toString();
+    URL url = null;
+    try {
+      urlString = normalizers.normalize(urlString, URLNormalizers.SCOPE_PARTITION);
+      url = new URL(urlString);
+    } catch (MalformedURLException e) {
+      LOG.warn("Malformed URL: '{}'", urlString);
+      return urlString;
+    }
+
+    try {
+      urlString = URLUtil.getUrlRootByMode(url, mode);
+    } catch (UnknownHostException e) {
+      LOG.info("Couldn't find IP for host: {}", url.getHost());
+    }
+    return urlString;
+  }
+
   /** Hash by host or domain name or IP address. */
   @Override
   public int getPartition(Text key, Writable value, int numReduceTasks) {
