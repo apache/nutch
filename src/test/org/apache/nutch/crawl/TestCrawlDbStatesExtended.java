@@ -29,7 +29,7 @@ import java.lang.invoke.MethodHandles;
 import static org.apache.nutch.crawl.CrawlDatum.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class TODOTestCrawlDbStates extends TestCrawlDbStates {
+public class TestCrawlDbStatesExtended extends TestCrawlDbStates {
 
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
