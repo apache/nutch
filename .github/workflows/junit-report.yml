@@ -31,48 +31,23 @@ jobs:
           name: junit-test-results-ubuntu-latest
           workflow: master-build.yml
           run_id: ${{ github.event.workflow_run.id }}
-          path: ./results-ubuntu
         continue-on-error: true
-      - name: Download Test Report (macOS)
-        uses: dawidd6/action-download-artifact@v11
-        with:
-          name: junit-test-results-macos-latest
-          workflow: master-build.yml
-          run_id: ${{ github.event.workflow_run.id }}
-          path: ./results-macos
-        continue-on-error: true
-      - name: Debug XML files
-        if: always()
-        run: |
-          echo "=== Listing downloaded artifacts ==="
-          find ./results-ubuntu ./results-macos -name "TEST-*.xml" 2>/dev/null | head -20 || echo "No files found"
-          echo ""
-          echo "=== TestCommonCrawlDataDumper.xml (macOS) ==="
-          cat ./results-macos/test/TEST-org.apache.nutch.tools.TestCommonCrawlDataDumper.xml 2>/dev/null || echo "File not found"
-          echo ""
-          echo "=== TestCommonCrawlDataDumper.xml (Ubuntu) ==="
-          cat ./results-ubuntu/test/TEST-org.apache.nutch.tools.TestCommonCrawlDataDumper.xml 2>/dev/null || echo "File not found"
-          echo ""
-          echo "=== TestPrefixStringMatcher.xml (Ubuntu) ==="
-          cat ./results-ubuntu/test/TEST-org.apache.nutch.util.TestPrefixStringMatcher.xml 2>/dev/null || echo "File not found"
-          echo ""
-          echo "=== TestPrefixStringMatcher.xml (macOS) ==="
-          cat ./results-macos/test/TEST-org.apache.nutch.util.TestPrefixStringMatcher.xml 2>/dev/null || echo "File not found"
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v5
         with:
           report_paths: |-
-            ./results-ubuntu/**/TEST-*.xml
-            ./results-macos/**/TEST-*.xml
+            ./test/TEST-*.xml
+            ./**/test/TEST-*.xml
           check_name: |-
             JUnit Test Report
             JUnit Test Report Plugins
           commit: ${{ github.event.workflow_run.head_sha }}
           fail_on_failure: false
-          fail_on_parse_error: false
+          fail_on_parse_error: true
           require_tests: true
           require_passed_tests: true
           include_passed: false
+          include_skipped: true
           check_annotations: true
           annotate_notice: true
           job_summary: true
