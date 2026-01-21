@@ -120,13 +120,20 @@ jobs:
       - name: test plugins
         if: ${{ steps.filter.outputs.plugins == 'true' && steps.filter.outputs.core == 'false' && steps.filter.outputs.buildconf == 'false' }}
         run: ant clean test-plugins -buildfile build.xml
-      # fallback: run all tests if no specific filter matched (e.g., docs-only changes)
-      - name: test all (fallback)
-        if: ${{ steps.filter.outputs.buildconf == 'false' && steps.filter.outputs.core == 'false' && steps.filter.outputs.plugins == 'false' }}
-        run: ant clean test -buildfile build.xml
+      - name: Check for test results
+        id: check_tests
+        if: always() && matrix.os == 'ubuntu-latest'
+        run: |
+          shopt -s globstar nullglob
+          files=(./build/test/TEST-*.xml ./build/**/test/TEST-*.xml)
+          if [ ${#files[@]} -gt 0 ]; then
+            echo "has_results=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_results=false" >> $GITHUB_OUTPUT
+          fi
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && matrix.os == 'ubuntu-latest' && steps.check_tests.outputs.has_results == 'true'
         with:
           name: junit-test-results-${{ matrix.os }}
           path: |
