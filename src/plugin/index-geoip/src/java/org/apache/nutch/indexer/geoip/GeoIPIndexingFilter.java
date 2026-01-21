@@ -60,6 +60,7 @@ import com.maxmind.geoip2.exception.GeoIp2Exception;
  *   <li><code>index.geoip.db.asn</code> - ASN database</li>
  *   <li><code>index.geoip.db.city</code> - City database</li>
  *   <li><code>index.geoip.db.connection</code> - Connection Type database</li>
+ *   <li><code>index.geoip.db.country</code> - Country database</li>
  *   <li><code>index.geoip.db.domain</code> - Domain database</li>
  *   <li><code>index.geoip.db.isp</code> - ISP database</li>
  * </ul>
@@ -81,6 +82,7 @@ public class GeoIPIndexingFilter implements IndexingFilter, Closeable {
     ASN("asn"),
     CITY("city"),
     CONNECTION("connection"),
+    COUNTRY("country"),
     DOMAIN("domain"),
     ISP("isp");
 
@@ -226,6 +228,8 @@ public class GeoIPIndexingFilter implements IndexingFilter, Closeable {
         return GeoIPDocumentCreator.createDocFromCityDb(serverIp, doc, reader);
       case CONNECTION:
         return GeoIPDocumentCreator.createDocFromConnectionDb(serverIp, doc, reader);
+      case COUNTRY:
+        return GeoIPDocumentCreator.createDocFromCountryDb(serverIp, doc, reader);
       case DOMAIN:
         return GeoIPDocumentCreator.createDocFromDomainDb(serverIp, doc, reader);
       case ISP:

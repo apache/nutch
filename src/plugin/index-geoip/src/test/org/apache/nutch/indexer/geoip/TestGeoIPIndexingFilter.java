@@ -18,6 +18,7 @@ package org.apache.nutch.indexer.geoip;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -26,6 +27,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.util.NutchConfiguration;
@@ -163,7 +165,7 @@ public class TestGeoIPIndexingFilter {
     assertNotNull(doc);
     assertEquals("Cable/DSL", doc.getFieldValue("connectionType"));
     assertNotNull(doc.getFieldValue("ip"));
-    assertNotNull(doc.getFieldValue("networkAddress"));
+    assertNotNull(doc.getFieldValue(GeoIPDocumentCreator.CONNECTION_NETWORK_ADDRESS));
   }
 
   /**
@@ -274,5 +276,155 @@ public class TestGeoIPIndexingFilter {
       e.printStackTrace();
       fail(e.getMessage());
     }
+  }
+
+  /**
+   * Test addIfNotDuplicate method adds value when field doesn't exist.
+   */
+  @Test
+  public void testAddIfNotDuplicateNewField() {
+    NutchDocument testDoc = new NutchDocument();
+    GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.1");
+    
+    assertNotNull(testDoc.getFieldValue("ip"));
+    assertEquals("192.168.1.1", testDoc.getFieldValue("ip"));
+    assertEquals(1, testDoc.getField("ip").getValues().size());
+  }
+
+  /**
+   * Test addIfNotDuplicate method doesn't add duplicate values.
+   */
+  @Test
+  public void testAddIfNotDuplicatePreventsDuplicates() {
+    NutchDocument testDoc = new NutchDocument();
+    
+    // Add the same IP three times (simulating multiple database lookups)
+    GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.1");
+    GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.1");
+    GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.1");
+    
+    // Should only have one value
+    NutchField field = testDoc.getField("ip");
+    assertNotNull(field);
+    assertEquals(1, field.getValues().size());
+    assertEquals("192.168.1.1", field.getValues().get(0));
+  }
+
+  /**
+   * Test addIfNotDuplicate method allows different values.
+   */
+  @Test
+  public void testAddIfNotDuplicateAllowsDifferentValues() {
+    NutchDocument testDoc = new NutchDocument();
+    
+    // Add different IPs (this shouldn't happen in practice but tests the logic)
+    GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.1");
+    GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", "192.168.1.2");
+    
+    // Should have two different values
+    NutchField field = testDoc.getField("ip");
+    assertNotNull(field);
+    assertEquals(2, field.getValues().size());
+    assertTrue(field.getValues().contains("192.168.1.1"));
+    assertTrue(field.getValues().contains("192.168.1.2"));
+  }
+
+  /**
+   * Test addIfNotDuplicate method handles null values gracefully.
+   */
+  @Test
+  public void testAddIfNotDuplicateNullValue() {
+    NutchDocument testDoc = new NutchDocument();
+    
+    // Adding null should not create a field
+    GeoIPDocumentCreator.addIfNotDuplicate(testDoc, "ip", null);
+    
+    assertNull(testDoc.getField("ip"));
+  }
+
+  /**
+   * Test that database-specific network address field names are used correctly.
+   * Connection Type database should use connectionNetworkAddress field.
+   */
+  @Test
+  public void testConnectionDatabaseSpecificNetworkAddressField() {
+    conf.set("index.geoip.db.connection", "GeoIP2-Connection-Type-Test.mmdb");
+    filter = new GeoIPIndexingFilter();
+    filter.setConf(conf);
+    parseImpl.getData().getContentMeta().add("_ip_", "1.0.0.1");
+    try {
+      filter.filter(doc, parseImpl, text, crawlDatum, inlinks);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+    assertNotNull(doc);
+    // Verify that database-specific network address field is used
+    assertNotNull(doc.getFieldValue(GeoIPDocumentCreator.CONNECTION_NETWORK_ADDRESS));
+    // Verify that the old generic field is NOT used
+    assertNull(doc.getField("networkAddress"));
+  }
+
+  /**
+   * Test that multiple databases use their own specific network address fields
+   * and that IP address is not duplicated.
+   */
+  @Test
+  public void testMultipleDatabasesUseSpecificNetworkAddressFields() {
+    // Configure both City and Connection Type databases
+    conf.set("index.geoip.db.city", "GeoIP2-City-Test.mmdb");
+    conf.set("index.geoip.db.connection", "GeoIP2-Connection-Type-Test.mmdb");
+    filter = new GeoIPIndexingFilter();
+    filter.setConf(conf);
+    
+    // Use IP 1.0.0.1 which exists in Connection Type test database
+    parseImpl.getData().getContentMeta().add("_ip_", "1.0.0.1");
+    try {
+      filter.filter(doc, parseImpl, text, crawlDatum, inlinks);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+    }
+    assertNotNull(doc);
+    
+    // Verify connection type data is present with specific network address field
+    assertEquals("Cable/DSL", doc.getFieldValue("connectionType"));
+    assertNotNull(doc.getFieldValue(GeoIPDocumentCreator.CONNECTION_NETWORK_ADDRESS));
+    
+    // Verify the generic networkAddress field is NOT used
+    assertNull(doc.getField("networkAddress"));
+    
+    // Verify IP field exists and has only one value (not duplicated)
+    NutchField ipField = doc.getField("ip");
+    assertNotNull(ipField);
+    assertEquals(1, ipField.getValues().size(), 
+        "IP field should have exactly one value, not duplicated across databases");
+  }
+
+  /**
+   * Test that Country database configuration property is correctly recognized.
+   * Note: This test verifies the configuration works. A full test would require
+   * a GeoIP2-Country-Test.mmdb file which is not currently available in the
+   * test resources. The City database can be used for country-level lookups
+   * in production as it contains the same country data.
+   */
+  @Test
+  public void testCountryDatabaseConfigProperty() {
+    // Verify the country property is recognized (won't load without actual file)
+    conf.set("index.geoip.db.country", "nonexistent-country-test.mmdb");
+    filter = new GeoIPIndexingFilter();
+    filter.setConf(conf);
+    // Configuration should be accepted without error (file missing is logged as warning)
+    assertEquals("nonexistent-country-test.mmdb", 
+        filter.getConf().get("index.geoip.db.country"));
+  }
+
+  /**
+   * Test Country database specific network address field constant is defined.
+   */
+  @Test
+  public void testCountryNetworkAddressFieldConstant() {
+    // Verify the COUNTRY_NETWORK_ADDRESS constant is properly defined
+    assertEquals("countryNetworkAddress", GeoIPDocumentCreator.COUNTRY_NETWORK_ADDRESS);
   }
 }

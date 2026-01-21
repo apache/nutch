@@ -22,6 +22,7 @@ import java.net.InetAddress;
 import java.util.Optional;
 
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ import com.maxmind.geoip2.model.AnonymousIpResponse;
 import com.maxmind.geoip2.model.AsnResponse;
 import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.model.ConnectionTypeResponse;
+import com.maxmind.geoip2.model.CountryResponse;
 import com.maxmind.geoip2.model.DomainResponse;
 import com.maxmind.geoip2.model.InsightsResponse;
 import com.maxmind.geoip2.model.IspResponse;
@@ -56,7 +58,14 @@ public class GeoIPDocumentCreator {
   private static final Logger LOG = LoggerFactory
       .getLogger(MethodHandles.lookup().lookupClass());
 
-  private static final String NETWORK_ADDRESS = "networkAddress";
+  // Database-specific network address field names
+  static final String ANONYMOUS_NETWORK_ADDRESS = "anonymousNetworkAddress";
+  static final String ASN_NETWORK_ADDRESS = "asnNetworkAddress";
+  static final String CITY_NETWORK_ADDRESS = "cityNetworkAddress";
+  static final String CONNECTION_NETWORK_ADDRESS = "connectionNetworkAddress";
+  static final String COUNTRY_NETWORK_ADDRESS = "countryNetworkAddress";
+  static final String DOMAIN_NETWORK_ADDRESS = "domainNetworkAddress";
+  static final String INSIGHTS_NETWORK_ADDRESS = "insightsNetworkAddress";
 
   private GeoIPDocumentCreator() {}
 
@@ -69,6 +78,23 @@ public class GeoIPDocumentCreator {
   private static void addIfNotNull(NutchDocument doc, String name,
       Object value) {
     if (value != null) {
+      doc.add(name, value);
+    }
+  }
+
+  /**
+   * Add field to document only if the field doesn't already contain this exact value.
+   * Use for fields like "ip" that should not have duplicate values.
+   * @param doc the {@link NutchDocument} to augment
+   * @param name the name of the target field
+   * @param value the value to associate with the target field
+   */
+  static void addIfNotDuplicate(NutchDocument doc, String name, Object value) {
+    if (value == null) {
+      return;
+    }
+    NutchField field = doc.getField(name);
+    if (field == null || !field.getValues().contains(value)) {
       doc.add(name, value);
     }
   }
@@ -88,8 +114,8 @@ public class GeoIPDocumentCreator {
     Optional<AnonymousIpResponse> opt = reader.tryAnonymousIp(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       AnonymousIpResponse response = opt.get();
-      addIfNotNull(doc, "ip", response.getIpAddress());
-      addIfNotNull(doc, NETWORK_ADDRESS, response.getNetwork().toString());
+      addIfNotDuplicate(doc, "ip", response.getIpAddress());
+      addIfNotNull(doc, ANONYMOUS_NETWORK_ADDRESS, response.getNetwork().toString());
       addIfNotNull(doc, "isAnonymous", response.isAnonymous());
       addIfNotNull(doc, "isAnonymousVpn", response.isAnonymousVpn());
       addIfNotNull(doc, "isHostingProxy", response.isHostingProvider());
@@ -117,8 +143,8 @@ public class GeoIPDocumentCreator {
     Optional<AsnResponse> opt = reader.tryAsn(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       AsnResponse response = opt.get();
-      addIfNotNull(doc, "ip", response.getIpAddress());
-      addIfNotNull(doc, NETWORK_ADDRESS, response.getNetwork().toString());
+      addIfNotDuplicate(doc, "ip", response.getIpAddress());
+      addIfNotNull(doc, ASN_NETWORK_ADDRESS, response.getNetwork().toString());
       addIfNotNull(doc, "autonomousSystemNumber", response.getAutonomousSystemNumber());
       addIfNotNull(doc, "autonomousSystemOrganization", response.getAutonomousSystemOrganization());
     } else {
@@ -139,17 +165,17 @@ public class GeoIPDocumentCreator {
    */
   public static NutchDocument createDocFromCityDb(String serverIp,
       NutchDocument doc, DatabaseReader reader) throws IOException, GeoIp2Exception {
-    addIfNotNull(doc, "ip", serverIp);
+    addIfNotDuplicate(doc, "ip", serverIp);
     Optional<CityResponse> opt = reader.tryCity(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
-      processDocument(doc, opt.get());
+      processCityDocument(doc, opt.get());
     } else {
       LOG.debug("'{}' IP address not found in City DB.", serverIp);
     }
     return doc;
   }
 
-  private static NutchDocument processDocument(NutchDocument doc, CityResponse response) {
+  private static NutchDocument processCityDocument(NutchDocument doc, CityResponse response) {
     City city = response.getCity();
     addIfNotNull(doc, "cityName", city.getName());
     addIfNotNull(doc, "cityConfidence", city.getConfidence());
@@ -205,7 +231,7 @@ public class GeoIPDocumentCreator {
     addIfNotNull(doc, "mobileCountryCode", traits.getMobileCountryCode());
     addIfNotNull(doc, "mobileNetworkCode", traits.getMobileNetworkCode());
     if (traits.getNetwork() != null) {
-      addIfNotNull(doc, NETWORK_ADDRESS, traits.getNetwork().toString());
+      addIfNotNull(doc, CITY_NETWORK_ADDRESS, traits.getNetwork().toString());
     }
     addIfNotNull(doc, "organization", traits.getOrganization());
     addIfNotNull(doc, "staticIpScore", traits.getStaticIpScore());
@@ -238,15 +264,66 @@ public class GeoIPDocumentCreator {
         .getByName(serverIp));
     if (opt.isPresent()) {
       ConnectionTypeResponse response = opt.get();
-      addIfNotNull(doc, "ip", response.getIpAddress());
+      addIfNotDuplicate(doc, "ip", response.getIpAddress());
       if (response.getConnectionType() != null) {
         addIfNotNull(doc, "connectionType", response.getConnectionType().toString());
       }
       if (response.getNetwork() != null) {
-        addIfNotNull(doc, NETWORK_ADDRESS, response.getNetwork().toString());
+        addIfNotNull(doc, CONNECTION_NETWORK_ADDRESS, response.getNetwork().toString());
       }
     } else {
       LOG.debug("'{}' IP address not found in Connection DB.", serverIp);
+    }
+    return doc;
+  }
+
+  /**
+   * Populate a {@link org.apache.nutch.indexer.NutchDocument} based on lookup
+   * of IP in Country database. This is a lighter-weight alternative to the City
+   * database when only country-level information is needed.
+   * @param serverIp the server IP address to lookup
+   * @param doc NutchDocument to populate
+   * @param reader instantiated DatabaseReader object
+   * @return populated NutchDocument
+   * @throws IOException if an error occurs performing the Db lookup
+   * @throws GeoIp2Exception generic GeoIp2 exception
+   */
+  public static NutchDocument createDocFromCountryDb(String serverIp,
+      NutchDocument doc, DatabaseReader reader) throws IOException, GeoIp2Exception {
+    Optional<CountryResponse> opt = reader.tryCountry(InetAddress.getByName(serverIp));
+    if (opt.isPresent()) {
+      CountryResponse response = opt.get();
+      addIfNotDuplicate(doc, "ip", serverIp);
+
+      Continent continent = response.getContinent();
+      addIfNotDuplicate(doc, "continentCode", continent.getCode());
+      addIfNotDuplicate(doc, "continentGeoNameId", continent.getGeoNameId());
+      addIfNotDuplicate(doc, "continentName", continent.getName());
+
+      Country country = response.getRegisteredCountry();
+      addIfNotDuplicate(doc, "countryIsoCode", country.getIsoCode());
+      addIfNotDuplicate(doc, "countryName", country.getName());
+      addIfNotDuplicate(doc, "countryConfidence", country.getConfidence());
+      addIfNotDuplicate(doc, "countryGeoNameId", country.getGeoNameId());
+      addIfNotDuplicate(doc, "countryInEuropeanUnion", country.isInEuropeanUnion());
+
+      RepresentedCountry rCountry = response.getRepresentedCountry();
+      addIfNotDuplicate(doc, "countryType", rCountry.getType());
+
+      Traits traits = response.getTraits();
+      if (traits.getNetwork() != null) {
+        addIfNotNull(doc, COUNTRY_NETWORK_ADDRESS, traits.getNetwork().toString());
+      }
+      addIfNotDuplicate(doc, "isAnonymous", traits.isAnonymous());
+      addIfNotDuplicate(doc, "isAnonymousVpn", traits.isAnonymousVpn());
+      addIfNotDuplicate(doc, "isAnycast", traits.isAnycast());
+      addIfNotDuplicate(doc, "isHostingProvider", traits.isHostingProvider());
+      addIfNotDuplicate(doc, "isLegitimateProxy", traits.isLegitimateProxy());
+      addIfNotDuplicate(doc, "isPublicProxy", traits.isPublicProxy());
+      addIfNotDuplicate(doc, "isResidentialProxy", traits.isResidentialProxy());
+      addIfNotDuplicate(doc, "isTorExitNode", traits.isTorExitNode());
+    } else {
+      LOG.debug("'{}' IP address not found in Country DB.", serverIp);
     }
     return doc;
   }
@@ -266,9 +343,9 @@ public class GeoIPDocumentCreator {
     Optional<DomainResponse> opt = reader.tryDomain(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       DomainResponse response = opt.get();
-      addIfNotNull(doc, "ip", response.getIpAddress());
+      addIfNotDuplicate(doc, "ip", response.getIpAddress());
       addIfNotNull(doc, "domain", response.getDomain());
-      addIfNotNull(doc, NETWORK_ADDRESS, response.getNetwork().toString());
+      addIfNotNull(doc, DOMAIN_NETWORK_ADDRESS, response.getNetwork().toString());
     } else {
       LOG.debug("'{}' IP address not found in Domain DB.", serverIp);
     }
@@ -287,7 +364,7 @@ public class GeoIPDocumentCreator {
    */
   public static NutchDocument createDocFromInsightsService(String serverIp,
       NutchDocument doc, WebServiceClient client) throws IOException, GeoIp2Exception {
-    addIfNotNull(doc, "ip", serverIp);
+    addIfNotDuplicate(doc, "ip", serverIp);
     return processInsightsDocument(doc, client.insights(InetAddress.getByName(serverIp)));
   }
 
@@ -347,7 +424,7 @@ public class GeoIPDocumentCreator {
     addIfNotNull(doc, "mobileCountryCode", traits.getMobileCountryCode());
     addIfNotNull(doc, "mobileNetworkCode", traits.getMobileNetworkCode());
     if (traits.getNetwork() != null) {
-      addIfNotNull(doc, NETWORK_ADDRESS, traits.getNetwork().toString());
+      addIfNotNull(doc, INSIGHTS_NETWORK_ADDRESS, traits.getNetwork().toString());
     }
     addIfNotNull(doc, "organization", traits.getOrganization());
     addIfNotNull(doc, "staticIpScore", traits.getStaticIpScore());
@@ -379,7 +456,7 @@ public class GeoIPDocumentCreator {
     Optional<IspResponse> opt = reader.tryIsp(InetAddress.getByName(serverIp));
     if (opt.isPresent()) {
       IspResponse response = opt.get();
-      addIfNotNull(doc, "ip", response.getIpAddress());
+      addIfNotDuplicate(doc, "ip", response.getIpAddress());
       addIfNotNull(doc, "autonSystemNum", response.getAutonomousSystemNumber());
       addIfNotNull(doc, "autonSystemOrg", response.getAutonomousSystemOrganization());
       addIfNotNull(doc, "isp", response.getIsp());

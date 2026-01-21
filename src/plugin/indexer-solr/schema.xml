@@ -355,7 +355,15 @@
     <!-- fields for index-geoip plugin -->
     <!-- Common fields -->
     <field name="ip" type="string" stored="true" indexed="true"/>
-    <field name="networkAddress" type="string" stored="true" indexed="true"/>
+    
+    <!-- Database-specific network address fields -->
+    <field name="anonymousNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="asnNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="cityNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="connectionNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="countryNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="domainNetworkAddress" type="string" stored="true" indexed="true"/>
+    <field name="insightsNetworkAddress" type="string" stored="true" indexed="true"/>
     
     <!-- City database fields -->
     <field name="cityName" type="string" stored="true" indexed="true"/>

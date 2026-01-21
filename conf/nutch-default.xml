@@ -2279,6 +2279,17 @@ CAUTION: Set the parser.timeout to -1 or a bigger value than 30, when using this
 </property>
 
 <property>
+  <name>index.geoip.db.country</name>
+  <value></value>
+  <description>
+  GeoIP2/GeoLite2 Country database file (MMDB format).
+  Provides country, continent, and represented country information.
+  This is a lighter-weight alternative to the City database when only
+  country-level information is needed.
+  </description>
+</property>
+
+<property>
   <name>index.geoip.db.domain</name>
   <value></value>
   <description>
