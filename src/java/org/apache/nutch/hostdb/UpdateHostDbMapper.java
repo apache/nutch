@@ -31,6 +31,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -63,8 +64,8 @@ public class UpdateHostDbMapper
   protected URLNormalizers normalizers = null;
 
   // Cached counter references to avoid repeated lookups in hot paths
-  protected Counter malformedUrlCounter;
   protected Counter filteredRecordsCounter;
+  protected ErrorTracker errorTracker;
 
   @Override
   public void setup(Mapper<Text, Writable, Text, NutchWritable>.Context context) {
@@ -79,10 +80,10 @@ public class UpdateHostDbMapper
       normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_DEFAULT);
 
     // Initialize cached counter references
-    malformedUrlCounter = context.getCounter(
-        NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_MALFORMED_URL_TOTAL);
     filteredRecordsCounter = context.getCounter(
         NutchMetrics.GROUP_HOSTDB, NutchMetrics.HOSTDB_FILTERED_RECORDS_TOTAL);
+    // Initialize error tracker with cached counters
+    errorTracker = new ErrorTracker(NutchMetrics.GROUP_HOSTDB, context);
   }
 
   /**
@@ -148,7 +149,7 @@ public class UpdateHostDbMapper
       try {
         url = new URL(keyStr);
       } catch (MalformedURLException e) {
-        malformedUrlCounter.increment(1);
+        errorTracker.incrementCounters(e);
         return;
       }
       String hostName = URLUtil.getHost(url);

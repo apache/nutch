@@ -58,6 +58,7 @@ import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.tools.WARCUtils;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
@@ -117,9 +118,8 @@ public class WARCExporter extends Configured implements Tool {
       private Counter missingContentCounter;
       private Counter missingMetadataCounter;
       private Counter omittedEmptyResponseCounter;
-      private Counter invalidUriCounter;
       private Counter recordsGeneratedCounter;
-      private Counter exceptionCounter;
+      private ErrorTracker errorTracker;
 
       @Override
       public void setup(Context context) {
@@ -130,12 +130,10 @@ public class WARCExporter extends Configured implements Tool {
             NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_MISSING_METADATA_TOTAL);
         omittedEmptyResponseCounter = context.getCounter(
             NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_OMITTED_EMPTY_RESPONSE_TOTAL);
-        invalidUriCounter = context.getCounter(
-            NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_INVALID_URI_TOTAL);
         recordsGeneratedCounter = context.getCounter(
             NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_RECORDS_GENERATED_TOTAL);
-        exceptionCounter = context.getCounter(
-            NutchMetrics.GROUP_WARC_EXPORTER, NutchMetrics.WARC_EXCEPTION_TOTAL);
+        // Initialize error tracker with cached counters
+        errorTracker = new ErrorTracker(NutchMetrics.GROUP_WARC_EXPORTER, context);
       }
 
       @Override
@@ -263,7 +261,7 @@ public class WARCExporter extends Configured implements Tool {
               .append(uri.toASCIIString()).append(CRLF);
         } catch (Exception e) {
           LOG.error("Invalid URI {} ", key);
-          invalidUriCounter.increment(1);
+          errorTracker.incrementCounters(e);
           return;
         }
 
@@ -300,7 +298,7 @@ public class WARCExporter extends Configured implements Tool {
           LOG.error(
               "Exception when generating WARC resource record for {} : {}", key,
               exception.getMessage());
-          exceptionCounter.increment(1);
+          errorTracker.incrementCounters(exception);
         }
 
         // Do we need to emit a metadata record too?
@@ -342,7 +340,7 @@ public class WARCExporter extends Configured implements Tool {
                 .append(uri.toASCIIString()).append(CRLF);
           } catch (Exception e) {
             LOG.error("Invalid URI {} ", key);
-            invalidUriCounter.increment(1);
+            errorTracker.incrementCounters(e);
             return;
           }
 
@@ -363,7 +361,7 @@ public class WARCExporter extends Configured implements Tool {
             LOG.error(
                 "Exception when generating WARC metadata record for {} : {}",
                 key, exception.getMessage(), exception);
-            exceptionCounter.increment(1);
+            errorTracker.incrementCounters(exception);
           }
         }
 
@@ -401,7 +399,7 @@ public class WARCExporter extends Configured implements Tool {
                 .append(uri.toASCIIString()).append(CRLF);
           } catch (Exception e) {
             LOG.error("Invalid URI {} ", key);
-            invalidUriCounter.increment(1);
+            errorTracker.incrementCounters(e);
             return;
           }
 
@@ -422,7 +420,7 @@ public class WARCExporter extends Configured implements Tool {
             LOG.error(
                 "Exception when generating WARC metadata record for {} : {}",
                 key, exception.getMessage(), exception);
-            exceptionCounter.increment(1);
+            errorTracker.incrementCounters(exception);
           }
         }
       }
