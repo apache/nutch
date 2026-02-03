@@ -22,14 +22,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.html.dom.HTMLDocumentImpl;
+
+import de.l3s.boilerpipe.BoilerpipeExtractor;
+import org.apache.tika.sax.boilerpipe.BoilerpipeContentHandler;
+
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.HtmlParseFilters;
@@ -45,7 +47,6 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
-import org.apache.tika.sax.boilerpipe.BoilerpipeContentHandler;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.CompositeParser;
 import org.apache.tika.parser.ParseContext;
@@ -77,9 +78,11 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   private HtmlMapper HTMLMapper;
   private boolean parseEmbedded = true;
   private boolean upperCaseElementNames = true;
+
+  // Boilerpipe configuration
   private boolean useBoilerpipe;
   private String boilerpipeExtractorName;
-  private Set<String> boilerpipeMimeTypes;
+  private String[] boilerpipeMimeTypes;
 
   @Override
   public ParseResult getParse(Content content) {
@@ -118,21 +121,10 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     byte[] raw = content.getContent();
     Metadata tikamd = new Metadata();
 
-    ContentHandler domHandler;
-
-    // Check whether to use Tika's BoilerplateContentHandler
-    if (useBoilerpipe && boilerpipeMimeTypes.contains(mimeType)) {
-      BoilerpipeContentHandler bpHandler = new BoilerpipeContentHandler(
-          (ContentHandler) new DOMBuilder(doc, root),
-          BoilerpipeExtractorRepository.getExtractor(boilerpipeExtractorName));
-      bpHandler.setIncludeMarkup(true);
-      domHandler = (ContentHandler) bpHandler;
-    } else {
-      DOMBuilder domBuilder = new DOMBuilder(doc, root);
-      domBuilder.setUpperCaseElementNames(upperCaseElementNames);
-      domBuilder.setDefaultNamespaceURI(XHTMLContentHandler.XHTML);
-      domHandler = (ContentHandler) domBuilder;
-    }
+    DOMBuilder domBuilder = new DOMBuilder(doc, root);
+    domBuilder.setUpperCaseElementNames(upperCaseElementNames);
+    domBuilder.setDefaultNamespaceURI(XHTMLContentHandler.XHTML);
+    ContentHandler domHandler = (ContentHandler) domBuilder;
 
     LinkContentHandler linkContentHandler = new LinkContentHandler();
 
@@ -141,15 +133,26 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       context.set(Parser.class, new AutoDetectParser(tikaConfig));
     }
 
-    TeeContentHandler teeContentHandler = new TeeContentHandler(domHandler,
-        linkContentHandler);
+    ContentHandler contentHandler;
+    // Check if boilerpipe should be used for this content
+    if (useBoilerpipe && boilerpipeExtractorName != null
+        && Arrays.asList(boilerpipeMimeTypes).contains(mimeType)) {
+      BoilerpipeExtractor extractor = BoilerpipeExtractorRepository
+          .getExtractor(boilerpipeExtractorName);
+      BoilerpipeContentHandler boilerpipeHandler = new BoilerpipeContentHandler(
+          domHandler, extractor);
+      contentHandler = new TeeContentHandler(boilerpipeHandler,
+          linkContentHandler);
+    } else {
+      contentHandler = new TeeContentHandler(domHandler, linkContentHandler);
+    }
 
     if (HTMLMapper != null)
       context.set(HtmlMapper.class, HTMLMapper);
     tikamd.set(Metadata.CONTENT_TYPE, mimeType);
     try {
-      parser.parse(new ByteArrayInputStream(raw),
-          (ContentHandler) teeContentHandler, tikamd, context);
+      parser.parse(new ByteArrayInputStream(raw), contentHandler, tikamd,
+          context);
     } catch (Exception e) {
       LOG.error("Error parsing {}", content.getUrl(), e);
       return new ParseStatus(ParseStatus.FAILED, e.getMessage())
@@ -317,13 +320,14 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
         Nutch.CACHING_FORBIDDEN_CONTENT);
     upperCaseElementNames = conf.getBoolean("tika.uppercase.element.names",
         true);
+    parseEmbedded = conf.getBoolean("tika.parse.embedded", true);
+
+    // Boilerpipe configuration
     useBoilerpipe = conf.get("tika.extractor", "none").equals("boilerpipe");
     boilerpipeExtractorName = conf.get("tika.extractor.boilerpipe.algorithm",
         "ArticleExtractor");
-    boilerpipeMimeTypes = new HashSet<>(Arrays
-        .asList(conf.getTrimmedStrings("tika.extractor.boilerpipe.mime.types",
-            "text/html", "application/xhtml+xml")));
-    parseEmbedded = conf.getBoolean("tika.parse.embedded", true);
+    boilerpipeMimeTypes = conf.getStrings("tika.extractor.boilerpipe.mime.types",
+        "text/html", "application/xhtml+xml");
   }
 
   @Override
