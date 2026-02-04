@@ -123,6 +123,8 @@ public class UrlSamplerHost extends Configured implements Tool {
   public static class SampleMapper
       extends Mapper<Text, Text, DomainScorePair, TextCountPair> {
 
+    private boolean hostStripWWW = false;
+
     private DomainScorePair outputKey = new DomainScorePair();
     private TextCountPair outputValue = new TextCountPair();
 
@@ -131,6 +133,10 @@ public class UrlSamplerHost extends Configured implements Tool {
      * 
      * But do not strip if the host name is &quote;www.tld&quote; (e.g.,
      * <code>www.com</code>).
+     * 
+     * Stripping is required for per-host limit configurations before 2026,
+     * based on Common Crawl web graphs where the leading <code>www.</code> was
+     * stripped.
      * 
      * @param host
      *          name
@@ -143,6 +149,12 @@ public class UrlSamplerHost extends Configured implements Tool {
         host = host.substring(4);
       }
       return host;
+    }
+
+    @Override
+    public void setup(Context context) {
+      Configuration conf = context.getConfiguration();
+      hostStripWWW = conf.getBoolean("urlsample.host.strip.www", false);
     }
 
     @Override
@@ -162,7 +174,10 @@ public class UrlSamplerHost extends Configured implements Tool {
       String host;
       try {
         URL u = new URL(url);
-        host = hostStripWWW(u.getHost());
+        host = u.getHost();
+        if (hostStripWWW) {
+          host = hostStripWWW(host);
+        }
       } catch (Exception e) {
         LOG.warn("Malformed URL: '{}', skipping ({})", url, e.getMessage());
         context.getCounter("UrlSampler", "MALFORMED_URL").increment(1);
@@ -352,6 +367,20 @@ public class UrlSamplerHost extends Configured implements Tool {
   public void usage() {
     System.err
       .println("Usage: UrlSamplerHost [-D...] <host_limits> <input_dir>... <output_dir>\n");
+    System.err.println(
+        "\nThe host_limits file defines the maximum number of URLs to sample per host.");
+    System.err.println("\nProperties:");
+    System.err.println(
+        "\t-Durlsample.host.strip.www=(true|false)\tstrip leading www. from host names");
+    System.err.println(
+        "\t\t\t(depending on whether the limits file uses stripped host names)");
+    System.err.println("Properties to configure defaults, if host is not in the limits file:");
+    System.err.println(
+        "\t-Durlsample.urls.per.host\tmax. number of URLs to sample per host");
+    System.err.println(
+        "\t\t\t-1 : sample randomly with low probability (default)");
+    System.err.println(
+        "\t-Durlsample.default.score\tdefault score for sampled URLs (default: 0.001)");
   }
 
   @Override
