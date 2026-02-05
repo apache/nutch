@@ -24,6 +24,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer.Context;
 import org.apache.hadoop.util.StringUtils;
 
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 
 import org.slf4j.Logger;
@@ -124,11 +125,24 @@ public class ResolverThread implements Runnable {
 
         // Dynamic counter based on failure count - can't cache
         context.getCounter(NutchMetrics.GROUP_HOSTDB, createFailureCounterLabel(datum)).increment(1);
+        // Common error counters for consistency
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.ERROR_TOTAL).increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.ERROR_NETWORK_TOTAL).increment(1);
       } catch (Exception ioe) {
         LOG.warn(StringUtils.stringifyException(ioe));
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            NutchMetrics.ERROR_TOTAL).increment(1);
+        context.getCounter(NutchMetrics.GROUP_HOSTDB,
+            ErrorTracker.getCounterName(ioe)).increment(1);
       }
     } catch (Exception e) {
       LOG.warn(StringUtils.stringifyException(e));
+      context.getCounter(NutchMetrics.GROUP_HOSTDB,
+          NutchMetrics.ERROR_TOTAL).increment(1);
+      context.getCounter(NutchMetrics.GROUP_HOSTDB,
+          ErrorTracker.getCounterName(e)).increment(1);
     }
 
     context.getCounter(NutchMetrics.GROUP_HOSTDB,
