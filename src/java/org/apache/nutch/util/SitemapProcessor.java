@@ -46,6 +46,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.hostdb.HostDatum;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -121,6 +122,7 @@ public class SitemapProcessor extends Configured implements Tool {
     private Counter fromHostnameCounter;
     private Counter filteredFromHostnameCounter;
     private Counter failedFetchesCounter;
+    private ErrorTracker errorTracker;
 
     @Override
     public void setup(Context context) {
@@ -159,6 +161,8 @@ public class SitemapProcessor extends Configured implements Tool {
           NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FILTERED_FROM_HOSTNAME_TOTAL);
       failedFetchesCounter = context.getCounter(
           NutchMetrics.GROUP_SITEMAP, NutchMetrics.SITEMAP_FAILED_FETCHES_TOTAL);
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_SITEMAP, context);
     }
 
     @Override
@@ -196,6 +200,7 @@ public class SitemapProcessor extends Configured implements Tool {
       } catch (Exception e) {
         LOG.warn("Exception for record {} : {}", key.toString(),
             StringUtils.stringifyException(e));
+        errorTracker.incrementCounters(e);
       }
     }
 
@@ -246,6 +251,7 @@ public class SitemapProcessor extends Configured implements Tool {
         }
       } catch (Exception e) {
         LOG.warn("Exception for record {} : {}", host, StringUtils.stringifyException(e));
+        errorTracker.incrementCounters(e);
       }
     }
 

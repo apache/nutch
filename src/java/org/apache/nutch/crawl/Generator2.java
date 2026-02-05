@@ -65,6 +65,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.util.hash.MurmurHash;
 import org.apache.nutch.crawl.Generator2.SelectorReducer.DomainLimits;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.metrics.ErrorTracker;
 import org.apache.nutch.metrics.NutchMetrics;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
@@ -336,6 +337,7 @@ public class Generator2 extends Configured implements Tool {
     private int intervalThreshold = -1;
     private String restrictStatus = null;
     private DomainScorePair outputKey = new DomainScorePair();
+    private ErrorTracker errorTracker;
 
     @Override
     public void setup(
@@ -363,6 +365,9 @@ public class Generator2 extends Configured implements Tool {
       if (GENERATOR_COUNT_VALUE_DOMAIN.equals(conf.get(GENERATOR_COUNT_MODE))) {
         byDomain = true;
       }
+
+      // Initialize error tracker with cached counters
+      errorTracker = new ErrorTracker(NutchMetrics.GROUP_GENERATOR, context);
     }
 
     /** Select & invert subset due for fetch. */
@@ -384,10 +389,7 @@ public class Generator2 extends Configured implements Tool {
           }
         } catch (URLFilterException e) {
           LOG.warn("Couldn't filter url {}: {}", key, e.getMessage());
-          context
-              .getCounter(NutchMetrics.GROUP_GENERATOR,
-                  NutchMetrics.GENERATOR_URL_FILTER_EXCEPTION_TOTAL)
-              .increment(1);
+          errorTracker.incrementCounters(e);
         }
       }
 
@@ -450,8 +452,7 @@ public class Generator2 extends Configured implements Tool {
       } catch (Exception e) {
         LOG.warn("Malformed URL: '{}', skipping ({})", urlString,
             e.getMessage());
-        context.getCounter(NutchMetrics.GROUP_GENERATOR,
-            NutchMetrics.GENERATOR_MALFORMED_URL_TOTAL).increment(1);
+        errorTracker.incrementCounters(e);
         return;
       }
 
